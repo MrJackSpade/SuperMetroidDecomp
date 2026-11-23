@@ -11,12 +11,12 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// A square shape is made of solid quarters, which Samus, her shots and enemies read through the square slopes; every
 /// other shape is a height profile they read column by column. Both kinds keep a height under each column.
 /// </remarks>
-public sealed class SlopeShape
+public sealed partial class SlopeShape
 {
     /// <summary>The pixel columns of a block, each with its own surface height.</summary>
     public const int Columns = 16;
 
-    /// <summary>The largest height a column holds: a surface below the block, twenty pixels down from its top.</summary>
+    /// <summary>The largest height a column holds: a surface below the block.</summary>
     public const int BelowBlockHeight = 20;
 
     /// <summary>The surface's height under each column.</summary>
@@ -30,7 +30,7 @@ public sealed class SlopeShape
     /// <param name="crawlerTangentShare">The share of a crawler's tangent speed that carries along the shape.</param>
     /// <exception cref="ArgumentException">The name is blank or the profile does not hold one height per column.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A height is out of its range.</exception>
-    internal SlopeShape([InstalledKey] string name, SlopeShapeKind kind, ImmutableArray<int> heights, SpeedShare groundedSpeedShare, SpeedShare crawlerTangentShare)
+    internal SlopeShape(string name, SlopeShapeKind kind, ImmutableArray<int> heights, SpeedShare groundedSpeedShare, SpeedShare crawlerTangentShare)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         if (heights.IsDefault || heights.Length != Columns)
@@ -55,6 +55,12 @@ public sealed class SlopeShape
     /// <summary>Whether the shape is made of solid quarters rather than read as a height profile.</summary>
     public bool IsSquare { get; }
 
+    /// <summary>
+    /// The quarters of a square shape that are solid before the block's mirroring, which Samus, her shots and enemies read
+    /// through the square slopes; none for a shape read as a height profile.
+    /// </summary>
+    public SquareSlopeShape? SquareQuarters { get; init; }
+
     /// <summary>The share of a grounded horizontal move that crosses the shape.</summary>
     public SpeedShare GroundedSpeedShare { get; }
 
@@ -62,10 +68,11 @@ public sealed class SlopeShape
     public SpeedShare CrawlerTangentShare { get; }
 
     /// <summary>
-    /// The surface's height under <paramref name="column"/>: the pixels from the block's top down to the surface, sixteen for
-    /// a column with no surface in the block and <see cref="BelowBlockHeight"/> for a surface below it.
+    /// The surface's height under <paramref name="column"/>: the pixels from the block's top down to the surface, the
+    /// block's full height for a column whose surface is the block's bottom edge and <see cref="BelowBlockHeight"/> for a
+    /// surface below it. Each is a distance every reader computes with, so no height stands for a missing surface (#2558).
     /// </summary>
-    /// <param name="column">The column, 0 through 15, already mirrored for the slope's facing.</param>
+    /// <param name="column">The column, below <see cref="Columns"/>, already mirrored for the slope's facing.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="column"/> is not a column of the block.</exception>
     public int HeightAt(int column) => heights[Ensure.BetweenInclusive(0, Columns - 1, column)];
 

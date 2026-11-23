@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>The credits roll's layout in pixels: each line's height, the space between the staff roles and the roll's length (#1467, #1601).</summary>
-public static class CreditsRollDefinitions
+public static partial class CreditsRollDefinitions
 {
     /// <summary>The height of a section heading's line, in pixels.</summary>
     public const int SmallLineHeight = 8;

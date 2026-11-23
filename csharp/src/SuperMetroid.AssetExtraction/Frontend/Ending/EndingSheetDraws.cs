@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// (#1513), and whether the shooting stars cross the scene. The sheet pictures exactly these poses, each once in its first
 /// colouring.
 /// </summary>
-internal sealed class EndingSheetDraws
+internal sealed partial class EndingSheetDraws
 {
     /// <summary>Each family's drawn poses, with their colourings in the order first drawn.</summary>
     private readonly Dictionary<CinematicSpriteFamily, Dictionary<CinematicSpritePose, List<EndingSpriteColouring>>> families = [];
@@ -60,11 +60,9 @@ internal sealed class EndingSheetDraws
     internal IReadOnlyList<KeyValuePair<EndingTypedText, List<EndingSpriteColouring>>> Texts =>
         [.. textOrder.Select(text => KeyValuePair.Create(text, texts[text]))];
 
-    /// <summary>Records <paramref name="pose"/> as drawn in <paramref name="colouring"/>; the blank pose draws nothing.</summary>
+    /// <summary>Records <paramref name="pose"/> as drawn in <paramref name="colouring"/>.</summary>
     internal void AddPose(CinematicSpriteFamily family, CinematicSpritePose pose, EndingSpriteColouring colouring)
     {
-        if (pose == CinematicSpritePose.Blank)
-            return;
         if (!families.TryGetValue(family, out Dictionary<CinematicSpritePose, List<EndingSpriteColouring>>? poses))
         {
             poses = [];

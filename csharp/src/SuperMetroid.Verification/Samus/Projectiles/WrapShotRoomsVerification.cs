@@ -9,7 +9,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
@@ -35,11 +34,11 @@ internal static class WrapShotRoomsVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(setup.Room);
             var level = runtime.Room.LoadedLevelData;
             bool left = setup.Room == RoomDefinitions.GreenBrinstarMainShaft;
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Position = samus.Position.WithWhole(new((ushort)setup.X, (ushort)setup.Y));
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
             samus.PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose;
@@ -52,12 +51,14 @@ internal static class WrapShotRoomsVerification
             for (int frame = 0; frame < 40; frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                runtime.BombProjectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(cameraX, cameraY), runtime.BombProjectiles, new SharedGameState(new SharedRandom()));
+                runtime.BombProjectiles.StepFrame(runtime.Room.LoadedScope.SamusTerrain, samus, input, input);
+                runtime.Projectiles.StepFrame(runtime.Room.LoadedScope.SamusTerrain, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(cameraX, cameraY), runtime.BombProjectiles, new SharedGameState(new SharedRandom()));
                 if (firstHit < 0 && runtime.RoomObjects.PopulationPlaces.Any(place => place.Block == level.BlockAt(setup.Target) && place.Behaviour is BlueDoorCapObject { Orientation: ColoredDoorOrientation.Right, Phase: BlueDoorCapPhase.Opening }))
                     firstHit = frame;
+                // The runtime's room-object sounds go on into its session's queues, which the update's mark reads (#2602).
+                runtime.RoomObjects.Sounds.Requests.BeginRecordedUpdate();
                 runtime.RoomObjects.Step(level);
-                openingSound |= runtime.RoomObjects.Sounds.SoundRequests.Any(request => request == new SoundRequest(RoomSound.DoorOpened, SoundRequestPriority.Normal));
+                openingSound |= runtime.RoomObjects.Sounds.Requests.SoundsQueued.Contains(RoomSound.DoorOpened);
                 if (firstClear < 0 && Enumerable.Range(0, 4).All(row => level.GetCollisionBlockByIndex(setup.Target + row * level.Size.X).CollisionType == RoomCollisionType.Air))
                     firstClear = frame;
             }

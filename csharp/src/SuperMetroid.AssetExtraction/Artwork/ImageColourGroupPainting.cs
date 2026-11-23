@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// How the import pipeline records the colour groups it composes a sheet with (#1464): the group each palette index was
 /// coloured from and the groups a frame's pixels use.
 /// </summary>
-internal static class ImageColourGroupPainting
+internal static partial class ImageColourGroupPainting
 {
     /// <summary>Every group, in the order the image keeps their colours.</summary>
     private static readonly ImmutableArray<ImageColourGroup> EveryGroup =
@@ -32,7 +32,7 @@ internal static class ImageColourGroupPainting
     extension(ImageColourGroups groups)
     {
         /// <summary>Whether the set holds <paramref name="group"/>.</summary>
-        internal bool Contains(ImageColourGroup group) => (groups.ManifestMembers & (1 << group.Number)) != 0;
+        internal bool Contains(ImageColourGroup group) => (groups.Members & (1 << group.Number)) != 0;
     }
 
     /// <summary>Building the set of groups a frame's pixels use.</summary>
@@ -40,19 +40,15 @@ internal static class ImageColourGroupPainting
     {
         /// <summary>No group.</summary>
         internal static ImageColourGroups None => default;
-
-        /// <summary>The set the manifest stores as <paramref name="members"/>.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The number names a group past the image's.</exception>
-        internal static ImageColourGroups FromManifest(int members) => new(members);
     }
 
     /// <summary>Adding groups to a set.</summary>
     extension(ImageColourGroups groups)
     {
         /// <summary>This set with <paramref name="group"/> added.</summary>
-        internal ImageColourGroups With(ImageColourGroup group) => new(groups.ManifestMembers | (1 << group.Number));
+        internal ImageColourGroups With(ImageColourGroup group) => new(groups.Members | (1 << group.Number));
 
         /// <summary>The groups either this set or <paramref name="other"/> holds.</summary>
-        internal ImageColourGroups Union(ImageColourGroups other) => new(groups.ManifestMembers | other.ManifestMembers);
+        internal ImageColourGroups Union(ImageColourGroups other) => new(groups.Members | other.Members);
     }
 }

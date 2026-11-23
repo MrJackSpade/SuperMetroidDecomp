@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Encounter">The encounter whose look it is.</param>
 /// <param name="Name">The look's name.</param>
-public readonly record struct EncounterLook(EncounterArtwork Encounter, [InstalledKey] string Name)
+public readonly partial record struct EncounterLook(EncounterArtwork Encounter, string Name)
 {
     /// <summary>The name of the look every encounter shows as its room loads.</summary>
     public const string LoadedName = "Loaded";
@@ -24,8 +24,7 @@ public readonly record struct EncounterLook(EncounterArtwork Encounter, [Install
     /// The name of the finished picture of <paramref name="frame"/> that shows each look of <paramref name="shown"/>, the
     /// looks of the encounters that change the frame, in their encounters' order: the frame's own name when none does.
     /// </summary>
-    [InstalledKey]
-    public static string PictureName([InstalledKey] string frame, IEnumerable<EncounterLook> shown)
+    public static string PictureName(string frame, IEnumerable<EncounterLook> shown)
     {
         ArgumentException.ThrowIfNullOrEmpty(frame);
         return frame + string.Concat(Ensure.NotNull(shown).Select(look => $"|{EncounterArtworkKeys.Installed.Of(look.Encounter)}={look.Name}"));

@@ -13,11 +13,15 @@ internal static class GrowingShutterSectionOriginsVerification
     internal static void VerifyGrowingShutterSectionOrigins()
     {
         var state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 0x0200, VerticalDirection.Up);
-        AssertEqual(0x0200 - 24, state.SectionOriginY(3), "the fourth section sits 24 pixels above the spawn row");
+        AssertEqual(0x0200 - 24, state.OriginY(FourthSection), "the fourth section sits 24 pixels above the spawn row");
         state = new GrowingShutterEnemyState(GrowingShutterAction.WaitForTimer, spawnY: 296, VerticalDirection.Down);
-        AssertEqual(296 + 24, state.SectionOriginY(3), "a downward shutter's fourth section sits 24 pixels below the spawn row");
+        AssertEqual(296 + 24, state.OriginY(FourthSection), "a downward shutter's fourth section sits 24 pixels below the spawn row");
         Console.WriteLine("Growing shutter section origins: a shutter stacks its sections from its spawn the way it grows.");
     }
+
+    /// <summary>The fourth section to grow, three after the first.</summary>
+    private static SuperMetroid.Core.ListStep<GrowingShutterSection> FourthSection =>
+        SuperMetroid.Core.ListStep<GrowingShutterSection>.At(GrowingShutterDefinitions.Sections, 3);
 
     /// <summary>Runs the focused growing shutter section-origin check.</summary>
     [VerificationCommand("--growing-shutter-section-origins")]

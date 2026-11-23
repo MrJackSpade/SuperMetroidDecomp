@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Crocomire's five native RGB5 transfer images, including boundary words.</summary>
-public static class CrocomireColorExtractor
+public static partial class CrocomireColorExtractor
 {
     /// <summary>Exports Crocomire's fight-body restoration, initial wall/projectile transfers, skeleton-arm palette, and wall-spike palette with their exact native extents.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$A4 color bands at $B89D, $B8BD, $B8DD, $B8FD, and $B91D respectively.</param>
@@ -43,16 +43,11 @@ public static class CrocomireColorExtractor
             for (int index = 0; index < count; index++)
             {
                 int address = source + index * sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Crocomire color ${address:X6} has an unrepresentable high bit.");
-                colors[index] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

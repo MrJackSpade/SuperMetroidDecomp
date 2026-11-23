@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// The cartridge's HUD tiles and layout that its HUD routines hold as immediates rather than tables (#1466): the stock
 /// values the import writes into the editable HUD document. The game reads only the decoded document.
 /// </summary>
-internal static class GameplayHudStockDefinitions
+internal static partial class GameplayHudStockDefinitions
 {
     /// <summary>Revision 2 of the editable HUD schema, including the separately supplied static top row and named dynamic visual owners.</summary>
     internal const int Version = 2;

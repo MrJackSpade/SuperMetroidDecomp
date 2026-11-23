@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
@@ -6,8 +5,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The installed enemy sheets, palettes, spritemaps and per-enemy artwork catalogs an enemy tile artwork catalog is built from (#633).</summary>
-[ArchitectureReview("context-bag", "A record of installed artwork catalogs; its members are data, not services.")]
-public sealed record EnemyTileArtworkParts
+public sealed partial record EnemyTileArtworkParts
 {
     /// <summary>Sheets.</summary>
     public required IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> Sheets { get; init; }
@@ -22,29 +20,29 @@ public sealed record EnemyTileArtworkParts
     internal IReadOnlyDictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> UnplacedPalettes { get; init; } = new Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet>();
 
     /// <summary>Spritemaps.</summary>
-    public EnemySpritemapCatalog? Spritemaps { get; init; } = null;
+    public required EnemySpritemapCatalog Spritemaps { get; init; }
 
     /// <summary>Extended frames.</summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames { get; init; } = null;
+    public required EnemyExtendedFrameCatalog ExtendedFrames { get; init; }
 
     /// <summary>Gunship liftoff.</summary>
-    public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; init; } = null;
+    public required GunshipLiftoffArtworkCatalog GunshipLiftoff { get; init; }
 
     /// <summary>Projectile spritemaps.</summary>
-    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; init; } = null;
+    public required EnemyProjectileSpritemapCatalog ProjectileSpritemaps { get; init; }
 
     /// <summary>Magdollite palette cycle.</summary>
-    public MagdollitePaletteCycle? MagdollitePaletteCycle { get; init; } = null;
+    public required MagdollitePaletteCycle MagdollitePaletteCycle { get; init; }
 
     /// <summary>Work robot palette cycle.</summary>
-    public WorkRobotPaletteCycle? WorkRobotPaletteCycle { get; init; } = null;
+    public required WorkRobotPaletteCycle WorkRobotPaletteCycle { get; init; }
 
     /// <summary>Chozo and tube colors.</summary>
-    public ChozoAndTubeColorCatalog? ChozoAndTubeColors { get; init; } = null;
+    public required ChozoAndTubeColorCatalog ChozoAndTubeColors { get; init; }
 
     /// <summary>Dachora colors.</summary>
-    public DachoraColorCatalog? DachoraColors { get; init; } = null;
+    public required DachoraColorCatalog DachoraColors { get; init; }
 
     /// <summary>Auxiliary colors.</summary>
-    public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; init; } = null;
+    public required EnemyAuxiliaryColorCatalog AuxiliaryColors { get; init; }
 }

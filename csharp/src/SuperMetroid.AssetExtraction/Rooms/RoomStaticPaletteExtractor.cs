@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -7,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Extracts exactly the base CGRAM colors consumed by room graphics loading.</summary>
-public static class RoomStaticPaletteExtractor
+public static partial class RoomStaticPaletteExtractor
 {
     /// <summary>Imports the first 128 base BG colors from each distinct room graphics-set palette source.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed native room palettes.</param>
@@ -19,7 +21,7 @@ public static class RoomStaticPaletteExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
-        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(bus);
         foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
             RoomPaletteSet set = tileset.Palette;
@@ -27,7 +29,7 @@ public static class RoomStaticPaletteExtractor
             string name = RoomStaticPaletteFormat.FileName(set);
             if (files.ContainsKey(name)) continue;
 
-            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address);
+            byte[] decompressed = RomDataReader.Decompress(bus, address);
             if (decompressed.Length < RoomStaticPaletteFormat.ByteCount)
                 throw new InvalidDataException(
                     $"Room palette {address} has only ${decompressed.Length:X} bytes.");
@@ -36,12 +38,7 @@ public static class RoomStaticPaletteExtractor
             {
                 int word = BinaryPrimitives.ReadUInt16LittleEndian(
                     decompressed.AsSpan(index * sizeof(ushort)));
-                colors[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             using var json = new MemoryStream();
             RoomStaticPaletteFile.Write(json, new RoomStaticPaletteDocument

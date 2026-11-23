@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.ExtendedCollisionReferenc
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
@@ -27,9 +28,8 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // The native side uses the independent test-side ROM walker, which reads the bound Crocomire's frame word in its
         // own bank (#2327); the installed side selects Crocomire's compiled physical data. Both read the one place.
-        RoomEnemyPlace place = compiled.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
-        place.Position = place.Position.WithWhole(new(0x1000, 0x1000));
+        // Crocomire answers for his own frames' hitboxes, as his room's population places him (#2554).
+        RoomEnemyPlace place = CrocomirePlacement.PlaceCrocomire(compiled, new(0x1000, 0x1000)).Body;
 
         var frames = CrocomireBodyVisualDefinitionsConstants.Frames;
         AssertEqual(50, frames.Count,
@@ -92,9 +92,10 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
 
         AssertEqual(13, seenLists.Count,
             "fifty Crocomire body frames refer to thirteen hitbox lists with hitboxes");
+        // A frame is always an installed enemy frame (#2554); one that is none of Crocomire's body frames fails loudly.
         AssertThrows<InvalidDataException>(
-            () => CrocomireBodyCollision.ComponentsAt(0x8000),
-            "unknown Crocomire body frame fails loudly");
+            () => CrocomireBodyCollision.ComponentsAt(EnemyFrameId.MotherBrainBrainHitArea),
+            "a frame that is no Crocomire body frame fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire body collision never reads ROM bytes");
         Console.WriteLine($"Crocomire body collision: {frames.Count} frames, " +

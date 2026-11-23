@@ -4,8 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Tourian room state, named for their rooms.</summary>
-[NumberedIdentities("Each numbered state is a state of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes them.")]
-public static class TourianRoomStateDefinitions
+public static partial class TourianRoomStateDefinitions
 {
 
     /// <summary>The Tourian First room's state.</summary>
@@ -105,7 +104,7 @@ public static class TourianRoomStateDefinitions
 
     /// <summary>The Mother Brain room's state once the area's boss, Mother Brain, is dead.</summary>
     public static RoomStateSettings MotherBrainWhenAreaBossDead { get; } =
-        new("MotherBrainWhenAreaBossDead", RoomLevelDefinitions.MotherBrain, RoomGraphicsSet.MotherBrain, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.MotherBrainWhenAreaBossDead, RoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MotherBrain, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MotherBrain, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoomDark, RoomSetupBehavior.None);
+        new("MotherBrainWhenAreaBossDead", RoomLevelDefinitions.MotherBrain, RoomGraphicsSet.MotherBrain, new RoomMusic(null, RoomMusicTrack.Plays(MusicTrack.Elevator)), SuperMetroid.Core.Fx.RoomFxDefinitions.MotherBrainWhenAreaBossDead, RoomEnemyPopulationDefinitions.MotherBrainWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MotherBrain, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MotherBrain, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoomDark, RoomSetupBehavior.None);
 
 
     /// <summary>The Tourian Eye Door room's state.</summary>
@@ -120,12 +119,12 @@ public static class TourianRoomStateDefinitions
 
     /// <summary>The Mother Brain Save room's state.</summary>
     public static RoomStateSettings MotherBrainSave { get; } =
-        new("MotherBrainSave", RoomLevelDefinitions.CrateriaSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Tourian, RoomMusicTrack.Plays(MusicTrack.Tourian)), SuperMetroid.Core.Fx.RoomFxDefinitions.MotherBrainSave, RoomEnemyPopulationDefinitions.MotherBrainSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MotherBrainSave, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MotherBrainSave, null, RoomSetupBehavior.None);
+        new("MotherBrainSave", RoomLevelDefinitions.SaveRoomDoorOnRight, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Tourian, RoomMusicTrack.Plays(MusicTrack.Tourian)), SuperMetroid.Core.Fx.RoomFxDefinitions.MotherBrainSave, RoomEnemyPopulationDefinitions.MotherBrainSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.MotherBrainSave, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.MotherBrainSave, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Tourian Escape 1 room's state.</summary>
     public static RoomStateSettings TourianEscape1 { get; } =
-        new("TourianEscape1", RoomLevelDefinitions.TourianEscape1, RoomGraphicsSet.Tourian, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Plays(MusicTrack.Escape)), SuperMetroid.Core.Fx.RoomFxDefinitions.TourianEscape1, RoomEnemyPopulationDefinitions.TourianEscape1, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.TourianEscape1, null, RoomMainBehavior.RandomExplosionEveryFourthUpdate, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.TourianEscape1, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoomLetterbox, RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking);
+        new("TourianEscape1", RoomLevelDefinitions.TourianEscape1, RoomGraphicsSet.Tourian, new RoomMusic(MusicDataSet.RidleyAndDraygonBattles, RoomMusicTrack.Plays(MusicTrack.Escape)), SuperMetroid.Core.Fx.RoomFxDefinitions.TourianEscape1, RoomEnemyPopulationDefinitions.TourianEscape1, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.TourianEscape1, null, RoomMainBehavior.RandomEscapeExplosions, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.TourianEscape1, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoomLetterbox, RoomSetupBehavior.SetZebesTimebombEventAndLightHorizontalShaking);
 
 
     /// <summary>The Tourian Escape 2 room's state.</summary>
@@ -135,7 +134,7 @@ public static class TourianRoomStateDefinitions
 
     /// <summary>The Tourian Escape 3 room's state.</summary>
     public static RoomStateSettings TourianEscape3 { get; } =
-        new("TourianEscape3", RoomLevelDefinitions.TourianEscape3, RoomGraphicsSet.Tourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.TourianEscape3, RoomEnemyPopulationDefinitions.TourianEscape3, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.TourianEscape3, null, RoomMainBehavior.RandomExplosionEveryFourthUpdate, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.TourianEscape3, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoom, RoomSetupBehavior.SetMediumHorizontalRoomShaking);
+        new("TourianEscape3", RoomLevelDefinitions.TourianEscape3, RoomGraphicsSet.Tourian, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.TourianEscape3, RoomEnemyPopulationDefinitions.TourianEscape3, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.TourianEscape3, null, RoomMainBehavior.RandomEscapeExplosions, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.TourianEscape3, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.TourianPipeRoom, RoomSetupBehavior.SetMediumHorizontalRoomShaking);
 
 
     /// <summary>The Tourian Escape 4 room's state.</summary>
@@ -145,5 +144,5 @@ public static class TourianRoomStateDefinitions
 
     /// <summary>The Upper Tourian Save room's state.</summary>
     public static RoomStateSettings UpperTourianSave { get; } =
-        new("UpperTourianSave", RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Tourian, RoomMusicTrack.Plays(MusicTrack.Tourian)), SuperMetroid.Core.Fx.RoomFxDefinitions.UpperTourianSave, RoomEnemyPopulationDefinitions.UpperTourianSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.UpperTourianSave, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.UpperTourianSave, null, RoomSetupBehavior.None);
+        new("UpperTourianSave", RoomLevelDefinitions.SaveRoomDoorOnLeft, RoomGraphicsSet.SaveStation, new RoomMusic(MusicDataSet.Tourian, RoomMusicTrack.Plays(MusicTrack.Tourian)), SuperMetroid.Core.Fx.RoomFxDefinitions.UpperTourianSave, RoomEnemyPopulationDefinitions.UpperTourianSave, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.UpperTourianSave, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.UpperTourianSave, null, RoomSetupBehavior.None);
 }

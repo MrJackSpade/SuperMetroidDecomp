@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -26,9 +25,9 @@ internal static class LookupCrocomireDrawsVerification
         {
             ushort pointer = (ushort)value;
             bool owned = Array.IndexOf(pointers, pointer) >= 0;
-            AssertEqual(owned, RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out RoomBlockShape? shape),
+            AssertEqual(owned, RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, NativeObjectDraws.At<CrocomireArenaMutation>(pointer), out RoomBlockShape? shape),
                 $"Crocomire shape ownership {value:X4}");
-            AssertEqual(owned, RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var dto),
+            AssertEqual(owned, RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaMutation>(pointer), out var dto),
                 $"Crocomire DTO ownership {value:X4}");
             if (!owned)
             {
@@ -37,15 +36,15 @@ internal static class LookupCrocomireDrawsVerification
             }
         }
         int cells = 0;
-        InstalledRoomObjectCrocomireVisuals pictures = InstalledRoomObjectCrocomireVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.Crocomire;
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
             AssertEqual(pointer, RoomObjectDrawAddressCodec.Of(exported[index].Draw), "Crocomire export order");
-            if (!RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out RoomBlockShape? described))
+            if (!RoomObjectDrawIdentity.TryShape(CrocomireArenaDraws.Family, NativeObjectDraws.At<CrocomireArenaMutation>(pointer), out RoomBlockShape? described))
                 throw new InvalidOperationException($"Crocomire frame {pointer:X4} has no shape.");
             RoomBlockShape shape = described;
-            RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaDraw>(pointer), out var dto);
+            RoomObjectCrocomireVisualFiles.TryGet(NativeObjectDraws.At<CrocomireArenaMutation>(pointer), out var dto);
             int cursor = pointer, run = 0, frameCells = 0;
             while (true)
             {

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>Transitions of <see cref="HudItem"/>.</summary>
-public static class HudItems
+public static partial class HudItems
 {
     /// <summary>The selection ring, in the order the select button steps through it; X-ray wraps back to the beam.</summary>
     internal static readonly HudItem[] SelectionRing =

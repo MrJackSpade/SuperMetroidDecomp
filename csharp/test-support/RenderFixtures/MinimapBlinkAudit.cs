@@ -26,16 +26,16 @@ internal static class MinimapBlinkAudit
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(room), new Position16<RoomPixels>(0, 0));
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(128);
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(128);
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeX(128);
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeY(128);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var images = new Dictionary<bool, string>();
         for (int tick = 0; tick < 40; tick++)
         {
             // Keep this a HUD fixture, not a boss fight or a moving map-cell test.
-            runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new(128, 128));
+            runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWhole(new(128, 128));
             runtime.StepFrame(0, new RuntimeFrameRequest { Owner = GameplayUpdateOwner.FadeIn });
             var pixels = render(runtime);
             string cell = string.Join(',', Enumerable.Range(0, 64).Select(i => pixels[(16 + i / 8) * 256 + 224 + i % 8].ToString()));

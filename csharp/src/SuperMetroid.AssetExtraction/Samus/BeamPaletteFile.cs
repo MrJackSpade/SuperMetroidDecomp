@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// has none. The palette load copies exactly sixteen colours from the selected pointer; out-of-range beam selections are
 /// physical pointer-table reads, not extra colour runs.
 /// </remarks>
-public static class BeamPaletteFile
+public static partial class BeamPaletteFile
 {
     /// <summary>Twelve legal beam-combination pointers precede the palette data: one palette per retail combination.</summary>
     public const int SelectionCount = 12;
@@ -26,14 +26,14 @@ public static class BeamPaletteFile
     /// <summary>Asset filename for the ordinary beam-combination RGB5 palettes.</summary>
     public const string FileName = "beam-palettes.json";
 
-    /// <summary>Returns the canonical JSON key for an ordinary beam combination using its uppercase two-digit hexadecimal selection index.</summary>
+    /// <summary>Returns the canonical JSON key for an ordinary beam combination: the combination's written-out installed key.</summary>
     /// <param name="selection">Retail beam combination; simultaneous Spazer/Plasma selections are outside this catalog.</param>
-    /// <returns>A key from <c>beam-00</c> through <c>beam-0B</c>.</returns>
+    /// <returns><c>beam-{key}</c>.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The selection is not a retail combination.</exception>
     public static string Key(SamusBeamCombination selection)
     {
         if (!selection.CanBeEquipped) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
-        return $"beam-{selection.TableIndex:X2}";
+        return $"beam-{SamusBeamCombinationKeys.Installed.Of(selection)}";
     }
 
     /// <summary>Strict camel-case JSON settings shared by beam palette loading and writing.</summary>
@@ -54,17 +54,17 @@ public static class BeamPaletteFile
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<BeamPaletteDocument>(Options)
+            document = parsed.RootElement.Deserialize<BeamPaletteDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.BeamPaletteDocument>(Options))
                 ?? throw new InvalidDataException("Beam palettes are null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid beam palette JSON.", error); }
         if (document.Version != Version || document.Palettes is null ||
             document.Palettes.Count != BeamTileAtlasDefinitions.SelectionCount)
             throw new InvalidDataException("Beam palettes require version 1 and all twelve selections.");
-        var compiled = new RgbColor[BeamTileAtlasDefinitions.SelectionCount][];
-        for (int selection = 0; selection < compiled.Length; selection++)
+        var compiled = new Dictionary<SamusBeamCombination, RgbColor[]>();
+        foreach (SamusBeamCombination selection in BeamTileAtlasDefinitions.Equippable)
         {
-            if (!document.Palettes.TryGetValue(BeamPaletteFile.Key(SamusBeamCombinationTableOrder.FromTableIndex(selection)), out var colors) ||
+            if (!document.Palettes.TryGetValue(BeamPaletteFile.Key(selection), out var colors) ||
                 colors is null || colors.Length != BeamPaletteDefinitions.ColorCount)
                 throw new InvalidDataException($"Missing or incomplete beam palette {selection}.");
             compiled[selection] = new RgbColor[colors.Length];
@@ -83,7 +83,7 @@ public static class BeamPaletteFile
     /// <param name="document">Document containing the supported version and all twelve sixteen-color RGB5 palettes.</param>
     /// <returns>JSON bytes suitable for the beam-palette asset file.</returns>
     public static byte[] Write(BeamPaletteDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.BeamPaletteDocument>(Options));
 
     /// <summary>Rejects repeated property names before JSON deserialization can overwrite a color selection.</summary>
     private static void RejectDuplicates(JsonElement value) =>

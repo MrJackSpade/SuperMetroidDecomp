@@ -188,7 +188,7 @@ internal static class CeresRidleyArenaBlocksVerification
 
     /// <summary>The retail cartridge.</summary>
     internal static IImportCartridgeSource Cartridge() =>
-        CartridgeImportSource.Require(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+        (CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
 
     /// <summary>
     /// The word BG1's and BG2's characters begin at in the arena, decoded from the setup's own instructions: it loads the two
@@ -222,7 +222,7 @@ internal static class CeresRidleyArenaBlocksVerification
         void Add(int word)
         {
             RoomBlockAppearance shown = RoomLevelWordCodec.DecodeAppearance((ushort)(level[word] | level[word + 1] << 8));
-            if (shown.ShowsBlock)
+            if (shown.Shows == RoomBlockShown.Block)
                 blocks.Add(shown.Block);
         }
         for (int word = foreground; word < foreground + foregroundBytes; word += sizeof(ushort))

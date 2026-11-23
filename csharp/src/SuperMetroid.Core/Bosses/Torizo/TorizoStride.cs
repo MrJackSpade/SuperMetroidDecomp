@@ -13,6 +13,6 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="Planting">The leg planting.</param>
 /// <param name="Planted">The leg planted.</param>
 /// <param name="Paces">How far forward the body moves after each pose.</param>
-internal sealed record TorizoStride(
+internal sealed partial record TorizoStride(
     HorizontalDirection Foot, EnemyFrameId Lifting, EnemyFrameId Swinging, EnemyFrameId Reaching, EnemyFrameId Planting, EnemyFrameId Planted,
     TorizoStridePaces Paces);

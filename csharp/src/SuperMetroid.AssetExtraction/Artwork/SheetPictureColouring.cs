@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -17,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// sheet must hold, and a picture moved to another sheet keeps every shade it could be drawn in.
 /// </para>
 /// </summary>
-internal sealed class SheetPictureColouring
+internal sealed partial class SheetPictureColouring
 {
     /// <summary>Colours in one colour group.</summary>
     private const int GroupColours = ImageColourGroup.Colours;
@@ -59,21 +58,19 @@ internal sealed class SheetPictureColouring
         for (int ink = 0; ink < colours.Length; ink++)
         {
             if (Covers(groups, ink))
-                colours[ink] = RgbColor.FromWord(document.Colours[ink]);
+                colours[ink] = document.Colours[ink];
         }
         var shades = new SortedDictionary<string, SheetPictureShade>(StringComparer.Ordinal);
         foreach ((string key, SpriteSheetShadeDocument shade) in document.Shades ?? [])
         {
-            if (shade.Inks.Length != shade.Colours.Length)
-                throw new InvalidDataException($"Shade {key} recolours {shade.Inks.Length} inks with {shade.Colours.Length} colours.");
             var shown = new SortedDictionary<int, RgbColor>();
-            for (int entry = 0; entry < shade.Inks.Length; entry++)
+            foreach (KeyValuePair<int, RgbColor> entry in shade.InkColours)
             {
-                int ink = shade.Inks[entry];
+                int ink = entry.Key;
                 if (ink is < 0 or >= ImageColourGroup.HalfColours)
                     throw new InvalidDataException($"Shade {key} recolours ink {ink}, past a sprite sheet's {ImageColourGroup.HalfColours}.");
                 if (Covers(groups, ink))
-                    shown.Add(ink, RgbColor.FromWord(shade.Colours[entry]));
+                    shown.Add(ink, entry.Value);
             }
             shades.Add(key, new SheetPictureShade(shade.ColourMath, shown));
         }
@@ -121,15 +118,14 @@ internal sealed class SheetPictureColouring
     }
 
     /// <summary>The 128 standard colours a sheet of this colouring installs, as packed colour words.</summary>
-    internal ushort[] ColourWords() => [.. colours.Select(colour => colour.ToWord())];
+    internal RgbColor[] Colours() => [.. colours];
 
     /// <summary>The shades a sheet of this colouring installs, by key, or none when it names no shade.</summary>
     internal Dictionary<string, SpriteSheetShadeDocument>? ShadeDocuments() =>
         shades.Count == 0 ? null
             : shades.ToDictionary(shade => shade.Key, shade => new SpriteSheetShadeDocument
             {
-                Inks = [.. shade.Value.Colours.Keys],
-                Colours = [.. shade.Value.Colours.Values.Select(colour => colour.ToWord())],
+                InkColours = new SortedDictionary<int, RgbColor>(shade.Value.Colours),
                 ColourMath = shade.Value.Blends,
             }, StringComparer.Ordinal);
 

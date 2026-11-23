@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// Each picture is installed as its two parts (#1634, <see cref="PictureParts"/>): what of it lies behind the actors passing
 /// in front of the room's back tiles and what lies in front of them.
 /// </summary>
-public sealed class WrittenPictureSheet
+public sealed partial class WrittenPictureSheet
 {
     /// <summary>The inputs each picture depends on, by the name its pictures begin with; empty for one that depends on none.</summary>
     internal readonly Dictionary<string, ImmutableArray<AppearanceInput>> inputs;
@@ -56,7 +56,7 @@ public sealed class WrittenPictureSheet
     /// <paramref name="appearance"/> reads, as its part behind and its part in front (#1634).
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet pictures nothing by that name, or nothing for those values.</exception>
-    public LayeredPicture Picture([InstalledKey] string picture, RoomAppearanceView appearance)
+    public LayeredPicture Picture(string picture, RoomAppearanceView appearance)
     {
         if (!inputs.TryGetValue(Ensure.NotNull(picture), out ImmutableArray<AppearanceInput> depends))
             throw new InvalidDataException($"{Name} pictures nothing named {picture}.");

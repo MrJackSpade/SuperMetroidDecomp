@@ -67,7 +67,7 @@ internal static class MapSpritesVerification
         }
         var vram = new SnesVram(); InstalledFixtures.ImportOf(original).Sprites.LoadArtworkTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(MenuVramLayout.MapSpriteByteAddress / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MenuVramLayout.MapSpriteByteAddress, MapSpriteFormat.ByteCount).SequenceEqual(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
+            RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
         Suite(nameof(VerifyRenderedSprites), () => VerifyRenderedSprites());
         Console.WriteLine("Map sprites: 26 native compositions, clipping/capacity/palette parity and guarded file-select/pause sprite pixels pass.");
 
@@ -78,9 +78,9 @@ internal static class MapSpritesVerification
             system.Progress.ExploreEveryCell();
             var marker = new FileSelectStationMarker(LoadStationDefinitions.WreckedShipSave,
                 original.Maps.SaveMarkers);
-            var room = new FileSelectRoomMapGraphics(system, AreaId.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
+            var room = new FileSelectRoomMapGraphics(system, ZebesArea.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
             var nativeRoom = new FileSelectRoomMapGraphics(system,
-                AreaId.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
+                ZebesArea.WreckedShip, screenContent: original, sheets: MenuSheetFixtures.For(original));
             // Each comparison draws only scenes whose descriptions differ (#1532).
             LayeredScene before = nativeRoom.ComposeScene(new(0, 0), marker);
             AssertTrue(ScenePixels.Same(before, room.ComposeScene(new(0, 0), marker)), "stock map sprite pixels match with source reads blocked");
@@ -101,13 +101,13 @@ internal static class MapSpritesVerification
     internal static void DrawImportedSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         int address, Position16<ScreenPixels> origin, ushort paletteBits,
         bool originIsOnScreen = true) => ImportedSpritemapOracle.DrawGeneric(
-            CartridgeImportSource.Require(bus), oam, address, origin,
+            bus, oam, address, origin,
             paletteBits, originIsOnScreen);
 
     /// <summary>Forbids runtime reads of installed map characters and every native map sprite pointer and body.</summary>
     private static MutableCartridgeReadGuard NewMapSpriteGuard(ISnesAddressSpace source)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(source);
+        IImportCartridgeSource cartridge = source;
         var forbidden = new HashSet<int>();
         Add(MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount);
         Add(MapSourceDefinitions.FileSelectMap.LabelSpritemaps, 2);

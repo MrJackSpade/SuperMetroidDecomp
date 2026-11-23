@@ -13,7 +13,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// and lava spray keep; this is the one place the packing, the timer's hidden range and the place numbers are known, for
 /// imports and checks of native state.
 /// </summary>
-[EncodingOwner("Samus atmospheric effect places")]
 internal static class SamusAtmosphericEffectWordCodec
 {
     /// <summary>How many places the cartridge keeps.</summary>

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// The order the pause sheet holds the pictures of each kind (#2567), written out so reordering a kind's members never
 /// reorders the installed sheet: the pictures and the names the game checks the sheet by both follow these lists.
 /// </summary>
-internal static class PauseSheetFrameOrder
+internal static partial class PauseSheetFrameOrder
 {
     /// <summary>Each equipment label's states: blank, enabled, disabled.</summary>
     internal static readonly IReadOnlyList<PauseEquipmentLabelState> LabelStates = Ensure.EveryMemberOnce<PauseEquipmentLabelState>(
@@ -20,13 +20,13 @@ internal static class PauseSheetFrameOrder
     ]);
 
     /// <summary>Samus's wireframes: the Power Suit's, with Hi-Jump, then the Varia Suit's, with Hi-Jump.</summary>
-    internal static readonly IReadOnlyList<PauseWireframeKind> Wireframes = Ensure.EveryMemberOnce<PauseWireframeKind>(
+    internal static readonly IReadOnlyList<PauseWireframe> Wireframes =
     [
-        PauseWireframeKind.PowerSuit,
-        PauseWireframeKind.PowerSuitHiJump,
-        PauseWireframeKind.VariaSuit,
-        PauseWireframeKind.VariaSuitHiJump,
-    ]);
+        new(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.RegularBoots),
+        new(PauseWireframeSuit.PowerSuit, PauseWireframeBoots.HiJumpBoots),
+        new(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.RegularBoots),
+        new(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.HiJumpBoots),
+    ];
 
     /// <summary>The reserve tanks' modes: none, auto, manual.</summary>
     internal static readonly IReadOnlyList<ReserveTankMode> ReserveModes = Ensure.EveryMemberOnce<ReserveTankMode>(

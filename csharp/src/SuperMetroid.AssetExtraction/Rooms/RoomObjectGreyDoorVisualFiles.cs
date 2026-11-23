@@ -5,10 +5,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the twenty grey-door and shared clear-cap frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectGreyDoorVisualFiles
+public static partial class RoomObjectGreyDoorVisualFiles
 {
     /// <summary>Family-relative JSON filename for twenty grey-door and shared clear-cap layouts.</summary>
-    public const string VisualFileName = "grey-doors.json";
+    internal const string VisualFileName = "grey-doors.json";
 
     /// <summary>The grey-door cap as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -24,7 +24,7 @@ public static class RoomObjectGreyDoorVisualFiles
     /// <summary>Loads the installed grey-door cap pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectGreyDoorVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates all twenty authored cap records for artwork import and export.</summary>
@@ -34,17 +34,21 @@ public static class RoomObjectGreyDoorVisualFiles
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the grey door cap draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a grey door cap draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a grey door cap draw.");
 
     /// <summary>Builds the draw list of a recognized grey or cleared cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame<GreyDoorCaps.Draw>(request, out GreyDoorCaps.Draw cap);
-        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
+        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.LineAxis, cap.Blocks)) : default;
         return found;
     }
 
@@ -60,10 +64,10 @@ public static class RoomObjectGreyDoorVisualFiles
     /// <summary>The four cleared openings, then each facing's grey cap closed and sliding aside.</summary>
     private static IEnumerable<RoomObjectDraw> Draws()
     {
-        for (int orientation = 0; orientation < 4; orientation++)
-            yield return GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(DoorCapOrientations.FromTableIndex(orientation)));
-        for (int orientation = 0; orientation < 4; orientation++)
+        foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
+            yield return GreyDoorCaps.Family.Of(GreyDoorCaps.Draw.ClearedOf(orientation));
+        foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
             foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                yield return GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(DoorCapOrientations.FromTableIndex(orientation), look));
+                yield return GreyDoorCaps.Family.Of(new GreyDoorCaps.Draw(orientation, look));
     }
 }

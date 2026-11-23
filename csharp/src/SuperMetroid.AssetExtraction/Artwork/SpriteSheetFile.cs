@@ -7,7 +7,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Reads an installed sprite sheet's frame manifest and cuts its frames from the sheet image (#1502, #1633, #1635).</summary>
-public static class SpriteSheetFile
+public static partial class SpriteSheetFile
 {
     /// <summary>
     /// The manifest schema revision this reader reads: 13 marks no pixel as lying in a front tile, a picture of a layer's
@@ -118,17 +118,11 @@ public static class SpriteSheetFile
     internal static SpriteSheet CutFrames(InstalledSheetDocument document, string name, SpriteImage image)
     {
         var frames = new Dictionary<string, SpriteSheetFrame>(StringComparer.Ordinal);
-        foreach ((string frameName, InstalledSheetFrameDocument? frame) in document.Frames ??
-            throw new InvalidDataException($"Sprite sheet {name} has no frame list."))
-        {
-            frames.Add(frameName, Cut(image, name, frameName, frame
-                ?? throw new InvalidDataException($"Sprite sheet {name} frame {frameName} is null.")));
-        }
+        foreach ((string frameName, InstalledSheetFrameDocument frame) in document.Frames)
+            frames.Add(frameName, Cut(image, name, frameName, frame));
         var blanks = new HashSet<string>(StringComparer.Ordinal);
-        foreach (string? blank in document.Blank ?? [])
+        foreach (string blank in document.Blank ?? [])
         {
-            if (blank is null)
-                throw new InvalidDataException($"Sprite sheet {name} names a null frame that shows nothing.");
             if (frames.ContainsKey(blank))
                 throw new InvalidDataException($"Sprite sheet {name} frame {blank} is pictured and shows nothing.");
             if (!blanks.Add(blank))

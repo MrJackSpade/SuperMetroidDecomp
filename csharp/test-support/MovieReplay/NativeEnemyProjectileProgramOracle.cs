@@ -41,7 +41,7 @@ internal static class NativeEnemyProjectileProgramOracle
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         NativeProgramEntry<TSegment>[] entries,
-        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        Func<TSegment, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>> segments,
         IReadOnlyDictionary<TSegment, Animation<TSegment>> startingAt,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
@@ -94,13 +94,13 @@ internal static class NativeEnemyProjectileProgramOracle
 
     /// <summary>
     /// Reads every typed segment's native bank-$86 list, comparing its beats with the segment's as
-    /// <see cref="CompareAll{TSegment, TFrame, TEvent}(IImportCartridgeSource, NativeProgramEntry{TSegment}[], AnimationSegments{TSegment, TFrame, TEvent}, IReadOnlyDictionary{TSegment, Animation{TSegment}}, Func{TFrame, ushort}, NativeEnemyProjectileCueRules{TEvent}, Func{TFrame, ushort?}?, IReadOnlySet{TSegment}?, IReadOnlyList{NativeCountedEntry{TSegment}}?, IReadOnlySet{TSegment}?)"/>
+    /// <see cref="CompareAll"/>
     /// does: each beat's native address, and each control instruction with its address and the beat it follows.
     /// </summary>
     internal static Dictionary<TSegment, NativeEnemyList<TSegment>> Lists<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         NativeProgramEntry<TSegment>[] entries,
-        AnimationSegments<TSegment, TFrame, TEvent> segments,
+        Func<TSegment, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>> segments,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
         Func<TFrame, ushort?>? reflectedPresentationKey = null)
@@ -165,7 +165,7 @@ internal static class NativeEnemyProjectileProgramOracle
         IImportCartridgeSource cartridge,
         IReadOnlyList<ushort> lists,
         IReadOnlyDictionary<TAnimation, ushort> entries,
-        AnimationSegments<TAnimation, TFrame, TEvent> steps,
+        Func<TAnimation, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>> steps,
         IReadOnlyDictionary<TAnimation, Animation<TAnimation>> animations,
         Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules,
@@ -211,7 +211,7 @@ internal static class NativeEnemyProjectileProgramOracle
         VerificationAssertions.AssertTrue(playedSegments.SetEquals(Enum.GetValues<TAnimation>()),
             $"every {family} segment is played by some animation; unplayed: {string.Join(", ", Enum.GetValues<TAnimation>().Except(playedSegments))}");
         VerificationAssertions.AssertTrue(!starts.Any(counted.Contains), $"no {family} starts in a counted list");
-        return Enum.GetValues<TAnimation>().Sum(segment => steps.Beats(segment).Count);
+        return Enum.GetValues<TAnimation>().Sum(segment => steps(segment).Count);
     }
 
     /// <summary>
@@ -223,7 +223,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// animation keyed by a segment must start at that <c>opening</c> segment; one started by its own name has none.
     /// </summary>
     private static void CompareAnimation<TAnimation, TFrame, TEvent>(
-        IImportCartridgeSource cartridge, HashSet<ushort> isList, ushort start, AnimationSegments<TAnimation, TFrame, TEvent> steps,
+        IImportCartridgeSource cartridge, HashSet<ushort> isList, ushort start, Func<TAnimation, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>> steps,
         string animation, TAnimation? opening, Animation<TAnimation> typed, Func<TFrame, ushort> presentationKey,
         NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey, HashSet<ushort> played, HashSet<ushort> counted,
         HashSet<ushort> pastLoopMarks)
@@ -232,7 +232,7 @@ internal static class NativeEnemyProjectileProgramOracle
         where TEvent : notnull
     {
         // The steps the animation plays, each phase's segment in turn, which the native runs are read against.
-        AnimationBeat<TFrame, TEvent>[] beats = [.. typed.Phases.SelectMany(phase => steps.Beats(phase.Segment))];
+        IAnimationBeat<TFrame, TEvent>[] beats = [.. typed.Phases.SelectMany(phase => steps(phase.Segment))];
         var phases = new List<AnimationPhase<TAnimation>>();
         var entered = new Dictionary<ushort, int> { [start] = 0 };
         // Where the play reached a beat a goto in its own list loops back to (#2166).
@@ -331,7 +331,7 @@ internal static class NativeEnemyProjectileProgramOracle
             AnimationPhase<TAnimation> phase = typed.Phases[index];
             string at = $"{animation} phase {index} ({phase.Segment})";
             VerificationAssertions.AssertEqual(0, phase.FirstBeat, $"{at} plays its segment from its first step");
-            VerificationAssertions.AssertEqual(steps.Beats(phase.Segment).Count, phase.BeatCount, $"{at} plays every step of its segment");
+            VerificationAssertions.AssertEqual(steps(phase.Segment).Count, phase.BeatCount, $"{at} plays every step of its segment");
             VerificationAssertions.AssertEqual(first, phases[index].FirstBeat, $"{at} plays the native run at its place");
             VerificationAssertions.AssertEqual(phases[index].BeatCount, phase.BeatCount, $"{at}'s run length");
             VerificationAssertions.AssertEqual(phases[index].Plays, phase.Plays, $"{at}'s plays");
@@ -343,14 +343,14 @@ internal static class NativeEnemyProjectileProgramOracle
 
     /// <summary>Reads one typed segment's native list, comparing its beats with the segment's.</summary>
     private static NativeEnemyList<TSegment> Read<TSegment, TFrame, TEvent>(
-        IImportCartridgeSource cartridge, NativeProgramEntry<TSegment>[] entries, AnimationSegments<TSegment, TFrame, TEvent> segments,
+        IImportCartridgeSource cartridge, NativeProgramEntry<TSegment>[] entries, Func<TSegment, IReadOnlyList<IAnimationBeat<TFrame, TEvent>>> segments,
         Func<TFrame, ushort> presentationKey, NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey,
         TSegment segment, ushort entry)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
-        IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats = segments.Beats(segment);
+        IReadOnlyList<IAnimationBeat<TFrame, TEvent>> beats = segments(segment);
         NativeProjectileList read = ReadList(cartridge, address => ProgramAt(entries, address) is not null, beats, 0, presentationKey, rules,
             reflectedPresentationKey, segment.ToString(), entry);
         VerificationAssertions.AssertEqual(beats.Count, read.BeatAddresses.Length, $"{segment}: its native list holds each of its beats");
@@ -368,7 +368,7 @@ internal static class NativeEnemyProjectileProgramOracle
     /// elsewhere, or at a loop mark, whose native conditional goto loops its run while its owner waits (#2411).
     /// </summary>
     private static NativeProjectileList ReadList<TFrame, TEvent>(
-        IImportCartridgeSource cartridge, Func<ushort, bool> isList, IReadOnlyList<AnimationBeat<TFrame, TEvent>> beats, int firstBeat,
+        IImportCartridgeSource cartridge, Func<ushort, bool> isList, IReadOnlyList<IAnimationBeat<TFrame, TEvent>> beats, int firstBeat,
         Func<TFrame, ushort> presentationKey, NativeEnemyProjectileCueRules<TEvent> rules, Func<TFrame, ushort?>? reflectedPresentationKey,
         string name, ushort entry)
         where TFrame : struct
@@ -378,7 +378,7 @@ internal static class NativeEnemyProjectileProgramOracle
         var controls = new List<NativeProjectileControl>();
         var continuedAt = new HashSet<ushort>();
         ushort cursor = entry;
-        AnimationBeat<TFrame, TEvent> Next(string what)
+        IAnimationBeat<TFrame, TEvent> Next(string what)
         {
             VerificationAssertions.AssertTrue(firstBeat + addresses.Count < beats.Count, $"{name} has a beat for native {what} at $86:{cursor:X4}");
             addresses.Add(cursor);
@@ -426,7 +426,16 @@ internal static class NativeEnemyProjectileProgramOracle
             }
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
-                var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(Next("frame"), $"{at}: frame");
+                IAnimationBeat<TFrame, TEvent> shownBeat = Next("frame");
+                if (shownBeat is AnimationHiddenBeat<TFrame, TEvent> hidden)
+                {
+                    // An operand that draws nothing hides the projectile: the typed play's hidden beat (#2558).
+                    VerificationAssertions.AssertEqual(word, hidden.Duration, $"{at}: hidden duration");
+                    VerificationAssertions.AssertEqual(HiddenOperandKey, rules.FrameOperand(unchecked((ushort)(cursor + 2))), $"{at}: a hidden beat reads an operand that draws nothing");
+                    cursor = unchecked((ushort)(cursor + 4));
+                    continue;
+                }
+                var frame = VerificationAssertions.AssertIs<AnimationBeat<TFrame, TEvent>.Frame>(shownBeat, $"{at}: frame");
                 VerificationAssertions.AssertEqual(word, frame.Duration, $"{at}: duration");
                 VerificationAssertions.AssertEqual(rules.FrameOperand(unchecked((ushort)(cursor + 2))), presentationKey(frame.Shown), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
@@ -530,7 +539,10 @@ internal static class NativeEnemyProjectileProgramOracle
     /// The event a typed beat raises where its native list holds a command: an event's, or a marker's (#2301, #2411), which
     /// raises its moment as an event does.
     /// </summary>
-    private static TEvent RaisedBy<TFrame, TEvent>(AnimationBeat<TFrame, TEvent> beat, string at)
+    /// <summary>The key the rules read for an operand that draws nothing, as a hidden slot reads (#2431, #2558).</summary>
+    private const ushort HiddenOperandKey = 0;
+
+    private static TEvent RaisedBy<TFrame, TEvent>(IAnimationBeat<TFrame, TEvent> beat, string at)
         where TFrame : struct
         where TEvent : notnull => beat switch
         {

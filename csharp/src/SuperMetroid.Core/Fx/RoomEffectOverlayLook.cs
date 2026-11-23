@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 /// once, as the room loads its effect, so the frame boundary latches the overlay's kind and blend with no choice left to
 /// make.
 /// </summary>
-public abstract record RoomEffectOverlayLook
+public abstract partial record RoomEffectOverlayLook
 {
     /// <summary>Keeps how the overlay blends; only the liquid and the atmosphere derive from this.</summary>
     /// <param name="blend">How the overlay blends with the room.</param>
@@ -18,10 +18,10 @@ public abstract record RoomEffectOverlayLook
     public RoomEffectBlend Blend { get; }
 
     /// <summary>A liquid blending as <paramref name="blend"/> describes.</summary>
-    public static RoomEffectOverlayLook Liquid(RoomEffectBlend blend) => new ShowsLiquid(blend);
+    private static ShowsLiquid Liquid(RoomEffectBlend blend) => new(blend);
 
     /// <summary>An atmosphere blending as <paramref name="blend"/> describes.</summary>
-    public static RoomEffectOverlayLook Atmosphere(RoomEffectBlend blend) => new ShowsAtmosphere(blend);
+    private static ShowsAtmosphere Atmosphere(RoomEffectBlend blend) => new(blend);
 
     /// <summary>
     /// What an effect of kind <paramref name="type"/> describing <paramref name="blend"/> shows on the overlay: its liquid
@@ -38,9 +38,9 @@ public abstract record RoomEffectOverlayLook
                 : throw new ArgumentException($"Room effect {type} shows nothing on the effect overlay but describes a blend.", nameof(blend));
         }
         // The import installs a blend for every effect that shows on the overlay; the room's load checks it once, here.
-        RoomEffectBlend described = blend
-            ?? throw new ArgumentException($"Room effect {type} shows on the effect overlay but describes no blend.", nameof(blend));
-        return RoomFxTypes.ShowsLiquid(type) ? Liquid(described) : Atmosphere(described);
+        if (blend is { } described)
+            return RoomFxTypes.ShowsLiquid(type) ? Liquid(described) : Atmosphere(described);
+        throw new ArgumentException($"Room effect {type} shows on the effect overlay but describes no blend.", nameof(blend));
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public abstract record RoomEffectOverlayLook
     internal abstract ShownRoomEffectOverlay Latch(RoomFxOverlayRenderSnapshot fx, WrittenPictureResolver pictures, RoomAppearanceView appearance);
 
     /// <summary>A liquid: lava's, acid's or water's surface strip and body, shown below its surface.</summary>
-    private sealed record ShowsLiquid : RoomEffectOverlayLook
+    private sealed partial record ShowsLiquid : RoomEffectOverlayLook
     {
         /// <summary>Keeps how it blends.</summary>
         /// <param name="blend">How it blends with the room.</param>
@@ -67,7 +67,7 @@ public abstract record RoomEffectOverlayLook
     }
 
     /// <summary>An atmosphere: the rain's, the fog's or the spores' repeating picture.</summary>
-    private sealed record ShowsAtmosphere : RoomEffectOverlayLook
+    private sealed partial record ShowsAtmosphere : RoomEffectOverlayLook
     {
         /// <summary>Keeps how it blends.</summary>
         /// <param name="blend">How it blends with the room.</param>

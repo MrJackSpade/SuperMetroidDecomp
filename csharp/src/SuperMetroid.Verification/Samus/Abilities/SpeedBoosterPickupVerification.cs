@@ -30,8 +30,7 @@ internal static class SpeedBoosterPickupVerification
         CollectibleFixture fixture = LoadCollectible(bus, RoomObjectNativeWords.Word(RoomObjectKind.ChozoSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
         fixture.RoomObjects.Step(fixture.Level);
         // The orb must be shot open before its item can be touched.
-        AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(fixture.Block),
-            "Speed Booster orb accepts a projectile");
+        fixture.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(fixture.Block);
         StepUntil(
             () => fixture.RoomObjects.CollectiblePhases[0] == CollectiblePhase.Visible,
             _ => fixture.RoomObjects.Step(fixture.Level),

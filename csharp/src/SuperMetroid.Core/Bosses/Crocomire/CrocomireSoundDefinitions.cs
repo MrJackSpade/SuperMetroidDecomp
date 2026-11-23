@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's enemy-library sound effects, queued at normal priority.</summary>
-internal static class CrocomireSoundDefinitions
+internal static partial class CrocomireSoundDefinitions
 {
     /// <summary>The sound queued as each fight projectile leaves the mouth.</summary>
     internal static readonly SoundEffectId ProjectileSpit = EnemySound.Rattle;
 
-    /// <summary>The acid burn, repeated every 32 frames while the body sinks.</summary>
+    /// <summary>The acid burn, repeated at <see cref="CrocomireBridgeCollapseDefinitions.AcidSoundInterval"/> while the body sinks.</summary>
     internal static readonly SoundEffectId AcidBurn = EnemySound.RisingSqueaks;
 
     /// <summary>The big explosion of the body and skeleton animations and the spike-wall pieces.</summary>
@@ -34,7 +34,7 @@ internal static class CrocomireSoundDefinitions
     internal static readonly SoundEffectId SkeletonCollapse = EnemySound.CrocomireSkeletonCollapse;
 
     /// <summary>The quake queued with each screen shake of a heavy step.</summary>
-    internal static readonly SoundEffectId ScreenShake = EnemySound.Quake;
+    internal static readonly SoundEffectId ScreenShake = EnemySound.BigExplosion;
 
     /// <summary>The melting cry, which starts the first melt dissolve.</summary>
     internal static readonly SoundEffectId FirstMeltDissolve = EnemySound.CrocomireMeltingCry;

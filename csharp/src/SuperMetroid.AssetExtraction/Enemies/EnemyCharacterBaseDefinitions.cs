@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// so the characters their pre-coloured sheets compose them at (#1392, #1513). The game never reads a character index:
 /// it draws each enemy from its own sheet, and the objects it spawns from its own spawned-object sheet.
 /// </summary>
-internal static class EnemyCharacterBaseDefinitions
+internal static partial class EnemyCharacterBaseDefinitions
 {
     /// <summary>
     /// The character index each enemy that fixes one draws from: Ceres's doors and steam draw from characters loaded with
@@ -24,7 +24,7 @@ internal static class EnemyCharacterBaseDefinitions
         [EnemyDefinitionId.CeresElevatorDoor] = 0,
         [EnemyDefinitionId.CeresElevatorRoomWall] = 0,
         [EnemyDefinitionId.CeresGetawayChamberWall] = 0,
-        [EnemyDefinitionId.CeresSteam] = 0,
+        [EnemyDefinitionId.SteamVent] = 0,
         [EnemyDefinitionId.Zebetite] = 128,
         [EnemyDefinitionId.RidleyBreakupPiece] = 0,
         [EnemyDefinitionId.MotherBrainBody] = 0,

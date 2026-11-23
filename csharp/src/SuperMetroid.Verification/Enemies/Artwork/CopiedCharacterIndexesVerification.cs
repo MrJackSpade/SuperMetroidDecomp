@@ -29,7 +29,7 @@ internal static class CopiedCharacterIndexesVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         int slots = 0;
         foreach (EnemyDefinitionId child in SuperMetroid.AssetExtraction.Enemies.EnemyCharacterBaseDefinitions.DrawsAtTilesOf.Keys)
         {
@@ -42,8 +42,8 @@ internal static class CopiedCharacterIndexesVerification
                 throw new InvalidOperationException($"No retail room state places {owner}.");
             runtime.LoadCartridgeRoomForDebug(room, state: state);
             // Some copy on their first main-AI frame, which runs before the room's enemies first draw.
-            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = default, TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus });
-            RoomEnemyPlace[] placed = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == child)];
+            runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = default, TimeIsFrozen = false, Samus = runtime.Player.Samus });
+            RoomEnemyPlace[] placed = [.. runtime.Enemies.Places.InUpdateOrder.Where(place => place.Occupant?.DefinitionId == child)];
             AssertTrue(placed.Length > 0, $"{room.Name} places {child}");
             foreach (RoomEnemyPlace place in placed)
             {

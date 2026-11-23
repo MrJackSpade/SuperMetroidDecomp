@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>The opening narration's alphabet.</summary>
-public static class IntroNarrationGlyphs
+public static partial class IntroNarrationGlyphs
 {
     /// <summary>Every character the narration supports.</summary>
     public const string Alphabet = " ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,'!";

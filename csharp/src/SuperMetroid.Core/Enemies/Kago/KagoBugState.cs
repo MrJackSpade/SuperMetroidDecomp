@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>What a Kago bug keeps while it hops about: the shell it came from and its two countdowns.</summary>
 /// <param name="source">The Kago shell that released the bug.</param>
-internal sealed class KagoBugState(RoomEnemyPlace source) : EnemyProjectileState
+internal sealed partial class KagoBugState(RoomEnemyPlace source) : EnemyProjectileState
 {
     /// <summary>The Kago shell that released the bug: the bug may be shot once it is far enough from it, and hops home to it.</summary>
     internal RoomEnemyPlace Source { get; } = source;

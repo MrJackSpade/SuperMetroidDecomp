@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// What the game's file and demo loads do to the explored maps it stores (<see cref="StoredExploredMaps{TArea}"/>,
 /// #1500): the areas, in the order their maps are stored, and which of them a loaded file, a new file and a demo set.
 /// </summary>
-internal static class StoredExploredMapLoads
+internal static partial class StoredExploredMapLoads
 {
     /// <summary>The stored maps as power-on leaves them: every area's map unexplored, kept in the areas' order.</summary>
     internal static StoredExploredMaps<AreaId> PowerOn() =>

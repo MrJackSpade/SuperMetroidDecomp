@@ -21,7 +21,6 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.TestSupport.VerificationOracles;
@@ -79,8 +78,8 @@ internal static void VerifyObjRendering()
 
     // The frontend capture converts the screen's OAM storage into the sprite draw it stands for;
     // the display renderer then shows that draw over the backdrop.
-    RgbaPixel[] backdrop = DisplayRendering.Render(FramePaint.FromNative(cgram.Colors, []).SpritesScene(DisplayBrightness.Full));
-    RgbaPixel[] pixels = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full));
+    RgbaPixel[] backdrop = DisplayRendering.Render(FramePaint.FromNative(cgram.Colors, []).SpritesScene(DisplayBrightness.Full.StepsAboveBlack));
+    RgbaPixel[] pixels = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full.StepsAboveBlack));
     AssertEqual(new RgbaPixel(255, 0, 0), pixels[20 * 256 + 10], "OBJ colored planar pixel");
     AssertEqual(backdrop[20 * 256 + 11], pixels[20 * 256 + 11], "OBJ color zero shows the backdrop");
 
@@ -94,7 +93,7 @@ internal static void VerifyObjRendering()
     oam.AddRawSmallSprite(position: new Position16<ScreenPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
     oam.AddRawSmallSprite(position: new Position16<ScreenPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
-    RgbaPixel[] overlap = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full));
+    RgbaPixel[] overlap = DisplayRendering.Render(FramePaintConstants.CaptureFrontend(vram, cgram, oam, objectSelection: 0).SpritesScene(DisplayBrightness.Full.StepsAboveBlack));
     AssertEqual(
         new RgbaPixel(255, 0, 0),
         overlap[20 * 256 + 10],
@@ -120,10 +119,9 @@ internal static void VerifyHudState()
     // The synthetic digit table uses conspicuous character names $100-$109.
     SeedBlankHudTemplateAndDigitTables(bus);
 
-    var hud = new HudState();
     SuperMetroid.AssetExtraction.Hud.GameplayHudArtwork hudArtwork = SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationFile.Read(
         new MemoryStream(SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(bus)));
-    hud.BindPresentation(hudArtwork.Presentation);
+    var hud = new HudState(hudArtwork.Presentation);
     hud.Initialize(HudSnapshot.NewGame);
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8c / 2], "HUD health tens digit from ROM table");
     AssertEqual(0x2d09, hud.TileWords(hudArtwork)[0x8e / 2], "HUD health ones digit from ROM table");
@@ -268,7 +266,7 @@ internal static void VerifyHudState()
 
 /// <summary>Reads the synthetic Crateria map tile before a fixture temporarily replaces it.</summary>
 static ushort ReadFixtureMapWord(TestAddressSpace bus, Position16<MapTiles> tile) =>
-    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+    SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus,
         0xb58000 + AreaMapPages.GetTilemapWordIndex(tile) * 2);
 
 /// <summary>Overwrites the synthetic Crateria bank-$B5 area-map tilemap word at <paramref name="tile"/>.</summary>
@@ -508,7 +506,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        new global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext(false, SamusMovementType.Standing, false, false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
     AssertEqual(108, camera.IdealPosition.X, "camera facing-right ideal X");
     AssertEqual(5, camera.Speed.X.UnsignedWholePixels, "camera X distance includes one pixel");
     AssertEqual(105, camera.PixelPosition.X, "camera X follows by calculated speed");
@@ -521,7 +519,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        new global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext(false, SamusMovementType.Standing, false, false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
     AssertEqual(1, camera.Speed.X.UnsignedWholePixels, "camera fixed X speed integer");
     AssertEqual(0xc000, camera.Speed.X.Fraction, "camera fixed X speed fraction");
     AssertEqual(101, camera.PixelPosition.X, "camera fixed X position integer");
@@ -550,7 +548,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        new global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext(false, SamusMovementType.Standing, false, false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
     AssertEqual(1, camera.Speed.X.UnsignedWholePixels, "stationary camera X speed still includes one");
     AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
@@ -560,7 +558,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
+        new global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext(false, SamusMovementType.Standing, false, false, CameraDistanceMode.NormalTracking), timeIsFrozen: false);
     AssertEqual(0, camera.PixelPosition.X, "$80:A528 adjacent-red horizontal rounding");
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
@@ -570,7 +568,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking),
+        new global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext(false, SamusMovementType.Standing, false, false, CameraDistanceMode.NormalTracking),
         timeIsFrozen: true);
     AssertEqual(0x0020, camera.PixelPosition.X, "$80:A528 time-frozen return");
 
@@ -784,14 +782,16 @@ internal static void VerifyRoomLevelData()
         RoomTerrainBlock.Of(2, BlockMirroring.None, RoomCollisionType.GrappleBlock),
         RoomTerrainBlock.Of(3, BlockMirroring.None, RoomCollisionType.BombableBlock),
     ];
-    RoomBlockBehavior[] behavior = [RoomBlockBehaviorCodec.Decode(0x00), RoomBlockBehaviorCodec.Decode(0x45), RoomBlockBehaviorCodec.Decode(0x80), RoomBlockBehaviorCodec.Decode(0x11), RoomBlockBehaviorCodec.Decode(0x22), RoomBlockBehaviorCodec.Decode(0x33)];
+    // Each block's behaviour names a reaction its kind's dispatcher has (#2554): the grapple block's a permanent anchor, the
+    // bombable block's a respawning 2x2 break.
+    RoomBlockBehavior[] behavior = [RoomBlockBehaviorCodec.Decode(0x00), RoomBlockBehaviorCodec.Decode(0x45), RoomBlockBehaviorCodec.Decode(0x80), RoomBlockBehaviorCodec.Decode(0x11), RoomBlockBehaviorCodec.Decode(0x02), RoomBlockBehaviorCodec.Decode(0x03)];
     RoomBlockAppearance[] background = [.. Enumerable.Range(0, width * height).Select(block => RoomBlockAppearance.Of(block))];
     var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, behavior, background), RoomLevelData.NothingBeyondGrid(), []);
 
     RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
     AssertEqual(Position16<RoomBlocks>.Of(1, 1), block.Position, "room collision block position");
     AssertEqual(foreground[4], block.Terrain, "room collision reads the block's terrain");
-    AssertEqual(RoomBlockBehaviorCodec.Decode(0x22), block.Behavior, "room collision reads the block's behaviour");
+    AssertEqual(RoomBlockBehaviorCodec.Decode(0x02), block.Behavior, "room collision reads the block's behaviour");
     AssertEqual(RoomCollisionType.GrappleBlock, block.CollisionType, "room collision kind");
     AssertEqual(2, block.VisualBlockIndex, "room collision block shown");
     AssertTrue(level.ForegroundPlane.Blocks.SequenceEqual(foreground.Select(terrain => terrain.Appearance).ToArray()),
@@ -1033,7 +1033,7 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(ScreenWindow.Closed, CaptureWindow().Window, "power-bomb spawn frame has no premature oval");
 
     explosion.StepFrame(explosionGlowColors);
-    AssertEqual(PowerBombExplosionPhase.Inactive, explosion.Blast.RenderedPhase,
+    AssertEqual(new PowerBombExplosionPhase.Inactive(), explosion.Blast.RenderedPhase,
         "first HDMA pass initializes the list without generating a window");
     // The first frame draws radius 4, then advances the live state to radius 52. The oval is that drawn radius wide
     // and three quarters of it tall (#1468): using the already-updated radius would be far wider.
@@ -1048,10 +1048,10 @@ internal static void VerifyPowerBombColorMathWindow()
     AssertEqual(new RgbColor(8, 16, 24), scaled.Colour, "the first flash adds the installed fixed colour");
 
     // The walked yellow ovals are centred on the blast, not on a screen midpoint.
-    while (explosion.Blast.Phase == PowerBombExplosionPhase.PreExplosionWhite)
+    while (explosion.Blast.Phase is PowerBombExplosionPhase.Running.PreExplosionWhite)
         explosion.StepFrame(explosionGlowColors);
     explosion.StepFrame(explosionGlowColors);
-    AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.Blast.RenderedPhase,
+    AssertEqual(new PowerBombExplosionPhase.Running.PreExplosionYellow(), explosion.Blast.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
     AssertEqual<int?>(SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions.YellowOvalRadii[0], explosion.Blast.RenderedOvalRadius,
         "first yellow frame selects the first yellow oval");
@@ -1084,7 +1084,7 @@ internal static void VerifyScrollingSkyState()
     var aboveRoom = new ScrollingSkyState(ScrollingSky.Land);
     aboveRoom.ProcessFrame(camera: new Position16<RoomPixels>(0, 0xfff0), timeIsFrozen: false);
     AssertEqual(-16, aboveRoom.CameraRow, "a camera sixteen rows above the room's top latches row -16");
-    AssertEqual(new LatchedScrollingSky(-16), LatchedScrollingSky.Capture(aboveRoom), "the accepted frame latches the signed row");
+    AssertEqual(new global::SuperMetroid.Core.Fx.LatchedScrollingSky(-16), LatchedScrollingSky.Capture(aboveRoom), "the accepted frame latches the signed row");
 
     // The land sky's five chunks repeat from its first: chunk five shows page zero.
     AssertEqual(0, ScrollingSkyChunks.PageOf(ScrollingSky.Land, 5), "land chunk five wraps to the first sky page");

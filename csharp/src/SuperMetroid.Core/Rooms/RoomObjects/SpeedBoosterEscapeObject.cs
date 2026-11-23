@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// update marks the escape outrun.
 /// </summary>
 /// <param name="owner">The room's escape owner, which reaches Samus, the lava, the earthquake and the events.</param>
-[RoomLifetime]
-internal sealed class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) : RoomObjectBehaviour
+internal sealed partial class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) : RoomObjectBehaviour
 {
     /// <summary>The room's escape owner.</summary>
     private readonly SpeedBoosterEscapeObjects _owner = Ensure.NotNull(owner);
@@ -24,35 +23,41 @@ internal sealed class SpeedBoosterEscapeObject(SpeedBoosterEscapeObjects owner) 
     /// <summary>Whether Samus has triggered every rise, which ends the escape.</summary>
     internal bool IsEscaped => RisesPassed == SpeedBoosterEscapeStageDefinitions.Stages.Length;
 
+    /// <summary>What <c>Update</c> does for each <see cref="SpeedBoosterEscapePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<SpeedBoosterEscapePhase, Action<RoomObjectPlace>> UpdateForSpeedBoosterEscapePhase => field ??= new(new Dictionary<SpeedBoosterEscapePhase, Action<RoomObjectPlace>>
+    {
+        [SpeedBoosterEscapePhase.Starting] = place => Phase = SpeedBoosterEscapePhase.WaitingForSpeedBooster,
+        [SpeedBoosterEscapePhase.WaitingForSpeedBooster] = place =>
+        {
+            if (_owner.TryStartLavaquake())
+                Phase = SpeedBoosterEscapePhase.WaitingForSamusLeft;
+            else
+                // A removed lavaquake leaves nothing at its place, as its setup's removal does.
+                place.Delete();
+        },
+        [SpeedBoosterEscapePhase.WaitingForSamusLeft] = place =>
+        {
+            if (_owner.TryStartLavaMoving())
+                Phase = SpeedBoosterEscapePhase.AdvancingLava;
+        },
+        [SpeedBoosterEscapePhase.AdvancingLava] = place =>
+        {
+            if (IsEscaped)
+            {
+                _owner.MarkEscaped();
+            }
+            else
+            {
+                if (_owner.TryRaiseLava(SpeedBoosterEscapeStageDefinitions.Stages[RisesPassed]))
+                    RisesPassed++;
+            }
+        },
+    });
+
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        switch (Phase)
-        {
-            case SpeedBoosterEscapePhase.Starting:
-                Phase = SpeedBoosterEscapePhase.WaitingForSpeedBooster;
-                return;
-            case SpeedBoosterEscapePhase.WaitingForSpeedBooster:
-                if (_owner.TryStartLavaquake())
-                    Phase = SpeedBoosterEscapePhase.WaitingForSamusLeft;
-                else
-                    // A removed lavaquake leaves nothing at its place, as its setup's removal does.
-                    place.Delete();
-                return;
-            case SpeedBoosterEscapePhase.WaitingForSamusLeft:
-                if (_owner.TryStartLavaMoving())
-                    Phase = SpeedBoosterEscapePhase.AdvancingLava;
-                return;
-            case SpeedBoosterEscapePhase.AdvancingLava when IsEscaped:
-                _owner.MarkEscaped();
-                return;
-            case SpeedBoosterEscapePhase.AdvancingLava:
-                if (_owner.TryRaiseLava(SpeedBoosterEscapeStageDefinitions.Stages[RisesPassed]))
-                    RisesPassed++;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterEscapePhase)} {Phase}.");
-        }
+        UpdateForSpeedBoosterEscapePhase[Phase](place);
     }
 }

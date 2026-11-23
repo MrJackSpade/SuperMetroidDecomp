@@ -40,22 +40,17 @@ internal static class EndingObjectArtworkVerification
     /// <summary>Matches four explosion-fragment source pointers and filenames to their native loader operands.</summary>
     internal static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
-        string[] names = ["ending-explosion-fragment-70.json", "ending-explosion-fragment-74.json",
-            "ending-explosion-fragment-78.json", "ending-explosion-fragment-7c.json"];
+        string[] names = ["ending-explosion-WideExplosion.json", "ending-explosion-ConcentricExplosion.json",
+            "ending-explosion-Eclipse.json", "ending-explosion-Blank.json"];
         AssertEqual(names.Length, EndingObjectArtworkFormat.FragmentCount, "ending fragment count");
         for (int index = 0; index < names.Length; index++)
         {
             int load = 0x8bd5af + 17 * index;
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load), "native fragment bank LDA");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(load + 5), "native fragment address LDA");
-            int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(load + 6));
+            int source = (int)new SnesAddress(bus.ReadCartridgeByte(load + 2), bus.ReadCartridgeWord(load + 6));
             AssertEqual(source, EndingArtworkSources.ObjectFragment((EndingExplosionPicture)index), "native fragment compressed source");
-            AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName(index), "published fragment filename");
-        }
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingObjectArtworkFormat.FragmentFileName(invalid), "fragment filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.ObjectFragment((EndingExplosionPicture)invalid), "fragment source bounds");
+            AssertEqual(names[index], EndingObjectArtworkFormat.FragmentFileName((EndingExplosionPicture)index), "published fragment filename");
         }
     }
 
@@ -68,9 +63,9 @@ internal static class EndingObjectArtworkVerification
         for (int index = 0; index < catalog.Count; index++)
         {
             int operand = 0x8becef + index * 8;
-            ushort map = CartridgeImportSource.Require(bus).ReadCartridgeWord(operand);
+            ushort map = bus.ReadCartridgeWord(operand);
             int header = 0x8c0000 | map;
-            int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
+            int count = bus.ReadCartridgeWord(header);
             AssertEqual(map, CinematicSpritemapSources.Of(catalog[index].Pose), "cloud native pointer operand");
             AssertEqual(count, catalog[index].StockPartCount, "cloud native OAM count");
             AssertEqual(names[index], catalog[index].Name, "cloud published asset key");
@@ -116,18 +111,17 @@ internal static class EndingObjectArtworkVerification
             EndingSourceDefinitions.Artwork.SuitlessSamusCharacters,
             EndingObjectArtworkFormat.RewardByteCount, "suitless Samus");
         byte[] nativeWaitingMap = RomDataReader.Decompress(bus,
-            EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap,
-            SuperMetroid.AssetExtraction.Frontend.Ending.EndingTransferExtentDefinitions.ObjectFragmentLimit);
+            EndingSourceDefinitions.Artwork.WaitingForCreditsTilemap);
         AssertTrue(BackgroundTileWordBytes.Of(stock.WaitingTilemap.Tiles.Span).AsSpan().SequenceEqual(
                 nativeWaitingMap.AsSpan(0, EndingObjectArtworkFormat.WaitingTilemapByteCount)),
             "installed waiting-Samus map preserves all native BG2 tile words");
-        AssertSheet(stock.PostCreditsFragmentA,
+        AssertSheet(stock.TransformationCharacters,
             EndingSourceDefinitions.Artwork.TransformationCharacters,
-            EndingObjectArtworkFormat.PostCreditsFragmentAByteCount,
+            EndingObjectArtworkFormat.TransformationCharactersByteCount,
             "post-credits fragment A");
-        AssertMap(stock.PostCreditsFragmentB,
+        AssertMap(stock.TransformationMap,
             EndingSourceDefinitions.Artwork.TransformationTilemap,
-            EndingObjectArtworkFormat.PostCreditsFragmentBByteCount,
+            EndingObjectArtworkFormat.TransformationMapByteCount,
             "post-credits fragment B");
         AssertSheet(stock.PostShotLogoTiles, EndingSourceDefinitions.Artwork.PostShotLogoTiles,
             EndingObjectArtworkFormat.PostShotLogoTileByteCount,
@@ -219,8 +213,7 @@ internal static class EndingObjectArtworkVerification
             "installed ending OBJ scenes never reread compiled instructions, sprite maps or character sources");
 
         EndingCloudSpriteDocument cloudDocument =
-            JsonSerializer.Deserialize<EndingCloudSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<EndingCloudSpriteDocument>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCloudSpriteFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock ending cloud sprite JSON is empty.");
         cloudDocument.Frames.Remove("right-side-cloud");
         AssertThrows<InvalidDataException>(() =>

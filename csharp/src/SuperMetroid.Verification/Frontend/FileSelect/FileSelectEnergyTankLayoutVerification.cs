@@ -23,14 +23,14 @@ internal static class FileSelectEnergyTankLayoutVerification
         for (int tanks = 0; tanks <= MostTanks; tanks++)
         {
             int maxHealth = tanks * 100 + 99;
-            var save = new ShownFileSelectSave(maxHealth, maxHealth, Hours: 1, Minutes: 2);
-            var page = new ShownFileSelectPage(FileSelectPage.MainWithData,
-                SaveSlots.All.ToImmutableDictionary(slot => slot, slot => slot == SaveSlot.A ? save : null), SaveSlot.A, SaveSlot.A);
+            var save = new global::SuperMetroid.Core.Frontend.FileSelect.ShownFileSelectSave(maxHealth, maxHealth, 1, 2);
+            var page = new ShownFileSelectPage(SelectedFileSelectPage.MainWithData,
+                SaveSlots.All.ToImmutableDictionary(slot => slot, slot => slot == SaveSlot.A ? save : null));
             Position16<PlanePixels>[] shown = [.. page.Pictures(presentation)
                 .Where(picture => picture.Frame == FileSelectParts.TankFrame(filled: true)
                     || picture.Frame == FileSelectParts.TankFrame(filled: false))
                 .Select(picture => picture.Origin)];
-            Position16<PlanePixels> energy = presentation.Slot(dataManagement: false, SaveSlot.A).EnergyAnchor;
+            Position16<PlanePixels> energy = presentation.Slot(FileSelectCursorPage.Main, SaveSlot.A).EnergyAnchor;
             Position16<PlanePixels>[] walked = WalkedTanks(energy, tanks);
             AssertEqual(walked.Length, shown.Length, $"{tanks} tanks shown");
             for (int tank = 0; tank < tanks; tank++)

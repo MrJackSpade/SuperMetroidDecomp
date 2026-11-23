@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// developer review and checks that look at the store and its references whole. A production load reads one family's
 /// manifests through its <see cref="SpriteSheetStore"/> instead.
 /// </summary>
-internal static class InstalledSheetManifests
+internal static partial class InstalledSheetManifests
 {
     /// <summary>The sheet families whose frames show the store's pictures, in the order the store writes them.</summary>
     internal static readonly ImmutableArray<string> Families =

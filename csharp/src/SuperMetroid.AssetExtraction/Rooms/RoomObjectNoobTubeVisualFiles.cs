@@ -4,10 +4,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Cartridge-checked, strictly visual-only installed n00b-tube artwork.</summary>
-public static class RoomObjectNoobTubeVisualFiles
+public static partial class RoomObjectNoobTubeVisualFiles
 {
     /// <summary>Editable n00b-tube visual JSON filename.</summary>
-    public const string VisualFileName = "noob-tube.json";
+    internal const string VisualFileName = "noob-tube.json";
 
     /// <summary>The n00b-tube as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -23,7 +23,7 @@ public static class RoomObjectNoobTubeVisualFiles
     /// <summary>Loads the installed n00b-tube pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectNoobTubeVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates the tube's five frames in their published order: the glass's three, then the opened rows, upper first.</summary>
@@ -35,6 +35,11 @@ public static class RoomObjectNoobTubeVisualFiles
         yield return NoobTubeDraw.UpperRowsOpen;
         yield return NoobTubeDraw.LowerRowsOpen;
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the glass tube draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a glass tube draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a glass tube draw.");
 
     /// <summary>
     /// The draw list of a tube draw (#1862): its block shape written as the glass's one block, or as its twelve-block rows
@@ -83,8 +88,7 @@ public static class RoomObjectNoobTubeVisualFiles
         {
             foreach (NoobTubeDraw frame in Draws())
             {
-                TryGet(NoobTubeObjectDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(NoobTubeObjectDraws.Family.Of(frame));
             }
         }
     }

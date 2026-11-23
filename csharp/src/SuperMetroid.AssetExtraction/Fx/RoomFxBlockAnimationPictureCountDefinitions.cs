@@ -4,10 +4,10 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// How many distinct pictures each simple room-FX loop's frames show, each held once in the installed atlas (#1527): the
+/// How many distinct pictures each simple room-FX loop's frames show, each held once in the import's atlas (#1527): the
 /// atlas's storage layout, which only the import needs to place and find a frame's characters.
 /// </summary>
-internal static class RoomFxBlockAnimationPictureCountDefinitions
+internal static partial class RoomFxBlockAnimationPictureCountDefinitions
 {
     /// <summary>
     /// The distinct pictures of each simple loop. A loop with fewer pictures than frames plays them forward and back:

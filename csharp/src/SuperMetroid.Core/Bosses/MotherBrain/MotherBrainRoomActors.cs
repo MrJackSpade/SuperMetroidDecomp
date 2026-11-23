@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="rinkas">The Rinkas.</param>
 /// <param name="pirates">The walking Pirates, whose laser Mother Brain shares.</param>
 /// <param name="ridleyProjectiles">Ridley's projectiles, whose afterburn Mother Brain's explosions reuse.</param>
-[RoomLifetime]
-internal sealed class MotherBrainRoomActors(
+internal sealed partial class MotherBrainRoomActors(
     BabyMetroidCutsceneBehavior babyMetroid,
     RinkaBehavior rinkas,
     WalkingSpacePirateBehavior pirates,
@@ -24,8 +23,8 @@ internal sealed class MotherBrainRoomActors(
     public void TerminateRinkas() => rinkas.RequestTermination();
 
     /// <inheritdoc/>
-    public EnemyProjectile? SpawnPirateLaser(RoomEnemyPlace source, Position16<RoomPixels> muzzle, HorizontalDirection direction) =>
-        // Mother Brain's head fires the fast laser.
+    public EnemyProjectile? SpawnPirateLaser(RoomEnemyOccupant source, Position16<RoomPixels> muzzle, HorizontalDirection direction) =>
+        // Mother Brain fires the fast laser.
         pirates.SpawnPirateMotherBrainLaser(source, muzzle, direction, PirateLaserSpeed.Fast);
 
     /// <inheritdoc/>

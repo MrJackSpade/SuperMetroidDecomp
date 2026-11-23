@@ -8,7 +8,7 @@ namespace SuperMetroid.Core;
 /// come from the sequence, never from the identities' values.
 /// </summary>
 /// <typeparam name="T">The identity.</typeparam>
-internal sealed class IdentitySequence<T>
+internal sealed partial class IdentitySequence<T>
     where T : struct, Enum
 {
     /// <summary>The identities in sequence order.</summary>

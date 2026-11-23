@@ -25,7 +25,7 @@ internal static class RidleyAnimationsVerification
     /// <summary>Every body, breakup and fireball program matches its native list, and the body's branches redirect natively.</summary>
     internal static void VerifyRidleyAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<RidleyBodySegment>().Length, BodyEntries.Length, "every typed Ridley body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((RidleyBodySegment)index, BodyEntries[index].Program, "the Ridley body programs are declared in authored order");
@@ -47,10 +47,9 @@ internal static class RidleyAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(definition, body.Definition);
-        RidleyEncounterState state = definition == EnemyDefinitionId.RidleyCeres ? new CeresRidleyState(Position16<RoomPixels>.Zero) : new NorfairRidleyState();
+        // Ridley is placed as his room's population places him; his body animates the encounter his setup begins.
+        RidleyEncounterState state = enemies.PlaceAs<RidleyEntity>(definition, EnemySpawnSettings.None, RoomEnemyFrameFixtures.StandaloneSamus()).Encounter;
         state.Flight.FacingDirection = facing;
-        body.HoldRidley(state);
         return new NewRidleyResult(enemies, state, body);
     }
 

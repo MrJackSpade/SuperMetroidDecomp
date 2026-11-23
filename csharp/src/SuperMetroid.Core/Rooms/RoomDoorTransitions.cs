@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>How a room's door transitions show it.</summary>
-public static class RoomDoorTransitions
+public static partial class RoomDoorTransitions
 {
     /// <summary>The door-transition style a room's definition names.</summary>
     extension(RoomDefinition room)

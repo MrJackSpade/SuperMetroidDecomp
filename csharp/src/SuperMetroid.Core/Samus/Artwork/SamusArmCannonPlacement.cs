@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// animation frames the pose shows, which are the frames the cover is drawn at, wherever the import's data holds one, each
 /// by its named frame of the pose's animation (#2048); an animation frame without one has no installed placement.
 /// </remarks>
-public sealed class SamusArmCannonPlacement
+public sealed partial class SamusArmCannonPlacement
 {
     /// <summary>The displacement of each animation frame with one, by animation frame.</summary>
     private readonly ImmutableDictionary<SamusAnimationFrame, Offset16<RoomPixels>> offsets;

@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Visual OAM compositions selected by the SR388 egg and confused-baby lists.</summary>
-internal static class IntroDiscoveryActorSpriteDefinitions
+internal static partial class IntroDiscoveryActorSpriteDefinitions
 {
     /// <summary>
     /// Sixteen egg states (intact, seven cracking stages, hatched, seven remnants) and three confused Baby states: every pose
@@ -14,23 +14,23 @@ internal static class IntroDiscoveryActorSpriteDefinitions
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
         new("egg-intact", CinematicSpritePose.EggIntact, 6),
-        new("egg-crack-1", CinematicSpritePose.EggRockingLeft, 9),
-        new("egg-crack-2", CinematicSpritePose.EggRockingRight, 9),
-        new("egg-crack-3", CinematicSpritePose.EggCrackingUpperLeft, 9),
-        new("egg-crack-4", CinematicSpritePose.EggCrackingTop, 9),
-        new("egg-crack-5", CinematicSpritePose.EggCrackingLeft, 9),
-        new("egg-crack-6", CinematicSpritePose.EggCrackingUpperRight, 9),
-        new("egg-crack-7", CinematicSpritePose.EggCrackingRight, 9),
+        new("egg-rocking-left", CinematicSpritePose.EggRockingLeft, 9),
+        new("egg-rocking-right", CinematicSpritePose.EggRockingRight, 9),
+        new("egg-cracking-upper-left", CinematicSpritePose.EggCrackingUpperLeft, 9),
+        new("egg-cracking-top", CinematicSpritePose.EggCrackingTop, 9),
+        new("egg-cracking-left", CinematicSpritePose.EggCrackingLeft, 9),
+        new("egg-cracking-upper-right", CinematicSpritePose.EggCrackingUpperRight, 9),
+        new("egg-cracking-right", CinematicSpritePose.EggCrackingRight, 9),
         new("egg-hatched", CinematicSpritePose.EggHatched, 9),
-        new("egg-remnant-1", CinematicSpritePose.EggRemnantDomeSagging, 3),
-        new("egg-remnant-2", CinematicSpritePose.EggRemnantDomeFalling, 3),
-        new("egg-remnant-3", CinematicSpritePose.EggRemnantDomeCrumbling, 3),
-        new("egg-remnant-4", CinematicSpritePose.EggRemnantRibsBared, 3),
-        new("egg-remnant-5", CinematicSpritePose.EggRemnantRibsShifting, 3),
-        new("egg-remnant-6", CinematicSpritePose.EggRemnantRibsSettling, 3),
-        new("egg-remnant-7", CinematicSpritePose.EggRemnantSettled, 3),
-        new("confused-baby-1", CinematicSpritePose.ConfusedBabyStretched, 1),
-        new("confused-baby-2", CinematicSpritePose.ConfusedBabyRound, 1),
-        new("confused-baby-3", CinematicSpritePose.ConfusedBabySquashed, 1),
+        new("egg-remnant-dome-sagging", CinematicSpritePose.EggRemnantDomeSagging, 3),
+        new("egg-remnant-dome-falling", CinematicSpritePose.EggRemnantDomeFalling, 3),
+        new("egg-remnant-dome-crumbling", CinematicSpritePose.EggRemnantDomeCrumbling, 3),
+        new("egg-remnant-ribs-bared", CinematicSpritePose.EggRemnantRibsBared, 3),
+        new("egg-remnant-ribs-shifting", CinematicSpritePose.EggRemnantRibsShifting, 3),
+        new("egg-remnant-ribs-settling", CinematicSpritePose.EggRemnantRibsSettling, 3),
+        new("egg-remnant-settled", CinematicSpritePose.EggRemnantSettled, 3),
+        new("confused-baby-stretched", CinematicSpritePose.ConfusedBabyStretched, 1),
+        new("confused-baby-round", CinematicSpritePose.ConfusedBabyRound, 1),
+        new("confused-baby-squashed", CinematicSpritePose.ConfusedBabySquashed, 1),
     ];
 }

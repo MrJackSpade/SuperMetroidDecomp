@@ -11,6 +11,9 @@ using SuperMetroid.DesktopVerification.Harness;
 using SuperMetroid.DesktopVerification.Replay;
 using SuperMetroid.DesktopVerification.Soak;
 using SuperMetroid.DesktopVerification.Startup;
+// #2602: the fixtures a check writes into a debugger state get the members the compiler writes for the game's types.
+[assembly: SuperMetroid.Core.StateGraphAssembly(PartialTypesOnly = true)]
+
 namespace SuperMetroid.DesktopVerification;
 using SuperMetroid.TestSupport.WindowsConsole.Verification;
 using SuperMetroid.TestSupport.WindowsConsole;
@@ -53,6 +56,8 @@ internal static class Program
     /// <summary>Starts hidden desktop fixture commands with dialog suppression and a guarded idle callback.</summary>
     private static void Run(string[] args)
     {
+        // The fixtures this assembly writes into debugger states are registered beside the game's types (#2602).
+        SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.AddAssembly(SuperMetroid.DesktopVerification.GeneratedStateGraph.RegisterDeclaredIn, SuperMetroid.DesktopVerification.GeneratedStateGraph.Register);
         NativeConsoleErrors.DisableDialogs();
         SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.DesktopVerification " + string.Join(' ', args));
         SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
@@ -88,7 +93,13 @@ internal static class Program
                 if (DesktopSmokeAuditCommands.TryRun(args)) return;
                 if (args is [DesktopMovieReplay.Flag, var movieName])
                 {
-                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(movieName));
+                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(movieName), null);
+                    return;
+                }
+                if (args is [DesktopMovieReplay.Flag, var timedMovie, DesktopMovieReplay.UntilFlag, var updates])
+                {
+                    await DesktopMovieReplay.Run(DesktopMovieReplay.Parse(timedMovie),
+                        int.Parse(updates, System.Globalization.CultureInfo.InvariantCulture));
                     return;
                 }
                 VerifyAudioQueueHealth();
@@ -132,7 +143,7 @@ internal static class Program
                         }
                     throw new ArgumentException($"Unknown desktop check '{checkName}'.");
                 }
-                throw new ArgumentException("Usage: DesktopVerification [--audio-queue | --check NAME | --desktop-movie glitch|13|100|drunk|lowc|ridley]");
+                throw new ArgumentException("Usage: DesktopVerification [--audio-queue | --check NAME | --desktop-movie glitch|13|100|lowc|ridley]");
             }
             catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }
             finally { context.ExitThread(); }

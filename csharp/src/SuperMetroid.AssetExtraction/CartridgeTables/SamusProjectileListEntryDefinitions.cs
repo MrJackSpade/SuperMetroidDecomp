@@ -4,8 +4,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where each Samus projectile program's list starts in bank $93 (#1301, #1411).</summary>
-[EncodingOwner("bank-$93 addresses of the Samus projectile program lists")]
-internal static class SamusProjectileListEntryDefinitions
+internal static partial class SamusProjectileListEntryDefinitions
 {
     /// <summary>The bank-$93 addresses of the instructions a list ends with: delete the projectile, and go to another list.</summary>
     internal static readonly IReadOnlySet<int> EndInstructions = new HashSet<int> { 0x822f, 0x8239 };

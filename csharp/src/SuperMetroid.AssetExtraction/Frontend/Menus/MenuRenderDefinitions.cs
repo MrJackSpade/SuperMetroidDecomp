@@ -3,8 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Menus;
 
 /// <summary>PPU register definitions shared by file-select and options composition.</summary>
-[EncodingOwner("object-selection register value of the menus")]
-internal static class MenuRenderDefinitions
+internal static partial class MenuRenderDefinitions
 {
     /// <summary>
     /// OBSEL ($2101) = $03: menu OBJ characters begin at VRAM word $6000;

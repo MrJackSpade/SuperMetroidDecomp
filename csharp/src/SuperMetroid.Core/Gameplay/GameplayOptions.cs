@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The in-game options a gameplay runtime reads: Moonwalk, Icon Cancel and the controller bindings, as the options
 /// menu and the loaded save set them.
 /// </summary>
-internal sealed class GameplayOptions
+internal sealed partial class GameplayOptions
 {
     /// <summary>
     /// The game's Moonwalk option, read when

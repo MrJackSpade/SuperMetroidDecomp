@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The installed key of each <see cref="SpecialBlockReaction"/> (#2520), written out so renaming a member never changes
 /// a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SpecialBlockReactionKeys
+internal static partial class SpecialBlockReactionKeys
 {
     /// <summary>Each SpecialBlockReaction member's installed key.</summary>
     internal static InstalledKeys<SpecialBlockReaction> Installed { get; } = new(new Dictionary<SpecialBlockReaction, string>

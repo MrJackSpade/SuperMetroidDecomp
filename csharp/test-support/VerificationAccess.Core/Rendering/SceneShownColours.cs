@@ -56,7 +56,7 @@ internal static class SceneShownColours
             shown[place] = [];
         foreach (ShownPictureKeys entry in ShownKeys(scene))
         {
-            RgbColor[] colours = entry.Shading.KeyColours(entry.Picture);
+            RgbColor[] colours = entry.Shading.KeyColours(entry.Picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
             ImmutableArray<ColourKey> keys = entry.Picture.ColourKeys;
             string? shading = null;
             foreach (int key in entry.Keys)
@@ -114,7 +114,8 @@ internal static class SceneShownColours
             for (int x = frame.Corner.X; x < frame.Corner.X + frame.Size.X; x++)
             {
                 if (pixels[y * width + x].A != 0)
-                    painted.Add(sheet.PlaceOf(sheet.KeyAt(y * width + x)) ?? throw new InvalidOperationException($"{sheet} holds no key for its own pixel."));
+                    painted.Add(sheet.TryGetPlace(sheet.KeyAt(y * width + x), out int place) ? place
+                        : throw new InvalidOperationException($"{sheet} holds no key for its own pixel."));
             }
         }
         return painted;

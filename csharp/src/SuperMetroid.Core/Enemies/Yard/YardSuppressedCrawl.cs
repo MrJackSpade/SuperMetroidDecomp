@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Enemies.Yard;
 /// </summary>
 /// <param name="WhenSurfaceEnds">The crawl along a wall it continues at when the surface it crawls along ends.</param>
 /// <param name="WhenSurfaceMet">The crawl along a wall it continues at when it meets a surface ahead.</param>
-internal readonly record struct YardSuppressedCrawl(YardSegment WhenSurfaceEnds, YardSegment WhenSurfaceMet);
+internal readonly partial record struct YardSuppressedCrawl(YardSegment WhenSurfaceEnds, YardSegment WhenSurfaceMet);

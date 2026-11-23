@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Progression;
 /// own identity, and the Zebetite count is a count (#1527). Lifetime: the
 /// session's <see cref="SharedGameState"/> owns the live progress; every save slot and save snapshot owns a detached copy.
 /// </summary>
-public sealed class PersistentProgress
+public sealed partial class PersistentProgress
 {
     /// <summary>The Zebetites barring the way to Mother Brain, destroyed one after another.</summary>
     public const int ZebetiteCount = 4;
@@ -60,22 +60,22 @@ public sealed class PersistentProgress
     public void ClearEvent(StoryEvent storyEvent) => Events.Remove(storyEvent);
 
     /// <summary>The bosses defeated in <paramref name="area"/>.</summary>
-    public DefeatedBosses BossesDefeatedIn(AreaId area) => _defeatedBosses[AreaIds.Require(area)];
+    public DefeatedBosses BossesDefeatedIn(AreaId area) => _defeatedBosses[area];
 
     /// <summary>Replaces the bosses defeated in <paramref name="area"/>.</summary>
-    public void SetDefeatedBosses(AreaId area, DefeatedBosses bosses) => _defeatedBosses[AreaIds.Require(area)] = bosses;
+    public void SetDefeatedBosses(AreaId area, DefeatedBosses bosses) => _defeatedBosses[area] = bosses;
 
     /// <summary>Whether <paramref name="area"/>'s map has been acquired.</summary>
-    public bool HasAreaMap(AreaId area) => _acquiredMaps[AreaIds.Require(area)];
+    public bool HasAreaMap(AreaId area) => _acquiredMaps[area];
 
     /// <summary>Records whether <paramref name="area"/>'s map has been acquired.</summary>
     /// <param name="area">The area.</param>
     /// <param name="acquired">Whether its map has been acquired.</param>
-    public void SetAreaMap(AreaId area, bool acquired) => _acquiredMaps[AreaIds.Require(area)] = acquired;
+    public void SetAreaMap(AreaId area, bool acquired) => _acquiredMaps[area] = acquired;
 
     /// <summary>Whether <paramref name="cell"/> of <paramref name="area"/>'s map has been explored.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the area map.</exception>
-    public bool IsExplored(AreaId area, Position16<MapTiles> cell) => _explored[AreaIds.Require(area)].Contains(cell);
+    public bool IsExplored(AreaId area, Position16<MapTiles> cell) => _explored[area].Contains(cell);
 
     /// <summary>Records whether <paramref name="cell"/> of <paramref name="area"/>'s map has been explored.</summary>
     /// <param name="area">The area.</param>
@@ -83,10 +83,10 @@ public sealed class PersistentProgress
     /// <param name="explored">Whether the cell has been explored.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="cell"/> is outside the area map.</exception>
     public void SetExplored(AreaId area, Position16<MapTiles> cell, bool explored) =>
-        _explored[AreaIds.Require(area)].Set(cell, explored);
+        _explored[area].Set(cell, explored);
 
     /// <summary>The explored cells of <paramref name="area"/>'s map, row by row from the top, each row from the left.</summary>
-    public IEnumerable<Position16<MapTiles>> ExploredCells(AreaId area) => _explored[AreaIds.Require(area)].Cells;
+    public IEnumerable<Position16<MapTiles>> ExploredCells(AreaId area) => _explored[area].Cells;
 
     /// <summary>
     /// Applies the Spacetime Beam's progression overwrite: every story event, boss, item, door, station and map it decides,

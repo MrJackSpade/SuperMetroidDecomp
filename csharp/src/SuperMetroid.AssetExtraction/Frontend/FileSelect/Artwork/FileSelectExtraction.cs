@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 /// </summary>
 /// <param name="Layout">UTF-8 JSON of the <see cref="FileSelectLayoutDocument"/>.</param>
 /// <param name="Artwork">UTF-8 JSON of the <see cref="FileSelectArtworkDocument"/>.</param>
-public sealed record FileSelectExtraction(byte[] Layout, byte[] Artwork);
+public sealed partial record FileSelectExtraction(byte[] Layout, byte[] Artwork);

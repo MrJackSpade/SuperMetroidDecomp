@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Escape.Artwork;
 
 /// <summary>The installed sheet of the Zebes escape typewriter's editable sprite characters and where its pages load.</summary>
-public static class EscapeTextSheetFormat
+public static partial class EscapeTextSheetFormat
 {
     /// <summary>2,304 contiguous bytes, ending after the half-size fifth source page.</summary>
     public const int ByteCount = 2304;

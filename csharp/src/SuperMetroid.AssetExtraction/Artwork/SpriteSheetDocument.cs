@@ -7,13 +7,13 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// the sheet image, origin, colour groups and depth, and the half of the colour table its palette indices name. The import
 /// installs it as an <see cref="InstalledSheetDocument"/> naming the image's own colours (#1544).
 /// </summary>
-public sealed record SpriteSheetDocument
+public sealed partial record SpriteSheetDocument
 {
     /// <summary>Which half of the colour table the sheet's palette indices and colours name.</summary>
     public required SpriteImageColours Palette { get; init; }
 
-    /// <summary>The colours of that half the sheet was coloured with, as packed colour words.</summary>
-    public required ushort[] Colours { get; init; }
+    /// <summary>The colours of that half the sheet was coloured with.</summary>
+    public required RgbColor[] Colours { get; init; }
 
     /// <summary>
     /// The palette index of the colour the sheet's scene shows where nothing is drawn, for a room tileset's block sheet;

@@ -33,7 +33,7 @@ internal static class SamusPaletteNative
         SamusFullBodyCycleFamily.ActiveShinespark => 0x9c20,
         SamusFullBodyCycleFamily.ScrewAttack => 0x9ca0,
         _ => throw new ArgumentOutOfRangeException(nameof(palette)),
-    } + SamusSuitListLayout.Place(palette.Suit) * SuitStride + palette.Shade * ShadeStride));
+    } + SamusSuitListLayoutConstants.Place(palette.Suit) * SuitStride + palette.Shade * ShadeStride));
 
     /// <summary>Whether a cycle palette is stored at bank-$9B <paramref name="address"/>.</summary>
     internal static bool IsCyclePalette(int address) => All.Any(palette => Address(palette) == address);
@@ -64,11 +64,11 @@ internal static class SamusPaletteNative
     }
 
     /// <summary>The native suit-table byte offset of <paramref name="suit"/>: two bytes per suit, in list order.</summary>
-    internal static ushort SuitTableByteOffset(SamusSuit suit) => checked((ushort)(SamusSuitListLayout.Place(suit) * sizeof(ushort)));
+    internal static ushort SuitTableByteOffset(SamusSuit suit) => checked((ushort)(SamusSuitListLayoutConstants.Place(suit) * sizeof(ushort)));
 
     /// <summary>The suit an even native suit-table byte offset selects.</summary>
     internal static SamusSuit SuitAtTableByteOffset(int byteOffset) => (byteOffset & 1) == 0
-        ? SamusSuitListLayout.AtPlace(byteOffset / sizeof(ushort))
+        ? SamusSuitListLayoutConstants.AtPlace(byteOffset / sizeof(ushort))
         : throw new ArgumentOutOfRangeException(nameof(byteOffset), byteOffset, "An odd suit-table offset selects no suit.");
 
     /// <summary>The bank-$9B address of a found cycle palette, or zero when none was found.</summary>
@@ -145,11 +145,9 @@ internal static class SamusPaletteNative
         /// <summary>The bank-$9B address of a family's shade for a suit.</summary>
         internal static ushort Pointer(SamusFullBodyCycleFamily family, int suit, int shade) =>
             (uint)suit < SamusFullBodyCycleColorFormat.SuitCount && (uint)shade < SamusFullBodyCycleColorFormat.ShadesPerSuit
-                ? Address(new(family, SamusSuitListLayout.AtPlace(suit), shade))
+                ? Address(new(family, SamusSuitListLayoutConstants.AtPlace(suit), shade))
                 : throw new ArgumentOutOfRangeException(nameof(suit), "Suit and shade must be catalogued.");
 
-        /// <summary>The artwork row of the cycle palette at bank-$9B <paramref name="pointer"/>.</summary>
-        internal static int PaletteIndex(ushort pointer) => SamusFullBodyCycleColorFormat.PaletteIndex(Palette(pointer));
     }
 
     /// <summary>The import pipeline's decoded cycle colors by bank-$9B palette address.</summary>

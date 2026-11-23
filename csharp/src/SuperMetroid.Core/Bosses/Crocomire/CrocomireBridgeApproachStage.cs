@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 /// <param name="CrumblingBlocks">The bridge blocks the stage starts crumbling, in order; none for a stage that only raises dust.</param>
 /// <param name="Dust">Where the stage's big dust cloud rises.</param>
-internal sealed record CrocomireBridgeApproachStage(IReadOnlyList<Position16<RoomBlocks>> CrumblingBlocks, Position16<RoomPixels> Dust);
+internal sealed partial record CrocomireBridgeApproachStage(IReadOnlyList<Position16<RoomBlocks>> CrumblingBlocks, Position16<RoomPixels> Dust);

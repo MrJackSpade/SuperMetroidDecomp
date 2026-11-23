@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each Draygon cannon draw (<see cref="DraygonCannonDraw"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class DraygonCannonDrawKeys
+internal static partial class DraygonCannonDrawKeys
 {
     /// <summary>Each DraygonCannonDraw member's installed key.</summary>
     internal static InstalledKeys<DraygonCannonDraw> Installed { get; } = new(new Dictionary<DraygonCannonDraw, string>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// activation distance and activated behaviour from its spawn settings where it uses them, and the straight legs they give
 /// it (<see cref="SbugLeg"/>) with them (#2450).
 /// </summary>
-public sealed class SbugEnemyState
+public sealed partial class SbugEnemyState
 {
     /// <summary>Creates the state of an Sbug starting in <paramref name="action"/>.</summary>
     internal SbugEnemyState(SbugAction action) => Action = action;
@@ -24,5 +24,5 @@ public sealed class SbugEnemyState
     /// The animation the enemy plays and where it stands in it (#1600): none before it selects its first direction, then
     /// the loop of the facing it last selected, which selecting that facing again leaves playing (#2145).
     /// </summary>
-    internal AnimationPlayback<SbugSegment> Playback { get; set; }
+    internal AnimationPlayback<CompassDirection> Playback { get; set; }
 }

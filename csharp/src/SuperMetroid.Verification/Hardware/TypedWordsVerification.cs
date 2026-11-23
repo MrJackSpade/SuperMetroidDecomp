@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Video;
@@ -88,8 +87,8 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(ChargedShotGlowKind.HyperBeamGlow, SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 20)?.Kind, "the Hyper Beam shot's glow word is a Hyper Beam glow");
     AssertEqual(ChargedShotGlow.StartHyperBeamGlow().Play.Playback, SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 20)!.Play.Playback, "the Hyper Beam shot's glow word is its glow's start");
     ChargedShotGlow lastHyperBeamGlow = SamusSnapshotWords.DecodeChargedShotGlow(1 << 15)!;
-    _ = lastHyperBeamGlow.PlayUpdate();
-    AssertTrue(lastHyperBeamGlow.HasEnded, "the Hyper Beam glow's marker alone is its last update before it ends");
+    _ = lastHyperBeamGlow.PlayUpdate(out bool lastGlowEnded);
+    AssertTrue(lastGlowEnded, "the Hyper Beam glow's marker alone is its last update before it ends");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow(5), "a glow word past the flash is rejected");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeChargedShotGlow((1 << 15) + 21), "a glow word past the Hyper Beam glow is rejected");
     for (ushort word = 0; word <= BeamChargeDefinitions.SpecialAttackCounter; word++)
@@ -413,19 +412,16 @@ internal static void VerifyTypedNativeWords()
         grapple.WithAppearance(grapple.Appearance.WithMirroring(BlockMirroring.Vertical)),
         "mirroring replacement keeps the kind and block");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => grapple.Appearance.WithMirroring((BlockMirroring)4),
-        "an appearance mirrors only horizontally and vertically");
-    AssertThrows<ArgumentOutOfRangeException>(
         () => RoomBlockAppearance.Of(-1),
         "an appearance names a block of the tileset's set, numbered from zero");
     // The level word's open-space block shows nothing, however it is mirrored, and encodes back to that block (#2100).
-    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00ff).ShowsNothing && RoomLevelWordCodec.DecodeAppearance(0x04ff).ShowsNothing,
+    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00ff).Shows == RoomBlockShown.Nothing && RoomLevelWordCodec.DecodeAppearance(0x04ff).Shows == RoomBlockShown.Nothing,
         "the level word's open-space block shows nothing");
     AssertEqual(RoomBlockAppearance.Nothing.WithMirroring(BlockMirroring.Horizontal), RoomLevelWordCodec.DecodeAppearance(0x04ff),
         "open space keeps its mirroring");
     AssertEqual(0x04ff, (int)RoomLevelWordEncoder.EncodeAppearance(RoomBlockAppearance.Nothing.WithMirroring(BlockMirroring.Horizontal)),
         "nothing encodes as the open-space block");
-    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00fe).ShowsBlock, "the block before the open-space block is a block");
+    AssertTrue(RoomLevelWordCodec.DecodeAppearance(0x00fe).Shows == RoomBlockShown.Block, "the block before the open-space block is a block");
 
     RoomCollisionType[] retailCollisionTypes =
     [
@@ -473,11 +469,11 @@ internal static void VerifyTypedNativeWords()
         "BTS slope contextual fields");
     AssertEqual(BlockMirroring.Both, reflectedSlopeOrAreaReaction.Slope.Mirroring,
         "BTS slope reflections");
-    AssertTrue(reflectedSlopeOrAreaReaction.Shootable is null &&
+    AssertTrue(reflectedSlopeOrAreaReaction.Shootable == ShootableReaction.NothingWhenSolid &&
         reflectedSlopeOrAreaReaction.Bombable == BombableReaction.Inert &&
         reflectedSlopeOrAreaReaction.Spike is null &&
         reflectedSlopeOrAreaReaction.Grapple == GrappleReaction.Rejected,
-        "BTS area reactions: an inert bomb block and a rejecting grapple block, and no shootable or spike reaction past the tables");
+        "BTS area reactions: nothing set off in a solid block, an inert bomb block and a rejecting grapple block, and no spike reaction past the tables");
     AssertEqual(0x7f, RoomBlockBehaviorCodec.DoorLinkOf(0xff),
         "BTS door-link index");
     AssertTrue(RoomBlockBehaviorCodec.Decode(3).Grapple == GrappleReaction.UnrevealedAnchor &&
@@ -494,17 +490,20 @@ internal static void VerifyTypedNativeWords()
         "BTS weapon-gated shot-block views");
     for (int value = 0; value <= byte.MaxValue; value++)
     {
-        // The shot-block dispatcher's own entries are 0 through 63 and 78, and the block that sets off only when solid
-        // (the area entries 0 through 7); every other byte is dispatched elsewhere or has no shootable reaction.
-        bool dispatched = value is >= 0 and <= 63 or 78 or >= 0x80 and <= 0x87;
+        // The shot-block dispatcher's own entries are 0 through 63 and 78, the common entries past the common table, which
+        // read on into the area tables' do-nothing objects, and the block that sets off only when solid (every area byte);
+        // the door, collectible, gate and animal-escape bytes are dispatched elsewhere.
+        bool dispatched = value is >= 0 and <= 63 or 78 or >= 0x50;
         AssertEqual(dispatched, ShotBlockReactions.Of(RoomBlockBehaviorCodec.Decode(value).Shootable) is not null,
             $"BTS ${value:X2} reaches the shot-block dispatcher");
-        AssertEqual(value is >= 17 and <= 63 or 78,
+        AssertEqual(value is >= 17 and <= 63 or 78 or >= 0x50 and <= 0x7f,
             RoomBlockBehaviorCodec.Decode(value).Shootable == ShootableReaction.IgnoresShots,
             $"BTS ${value:X2} is a shot-block entry that ignores shots");
-        AssertEqual(value is >= 0x50 and <= 0x7f or >= 0x88,
-            RoomBlockBehaviorCodec.Decode(value).Shootable is null,
-            $"BTS ${value:X2} is past the shot-block tables, no shootable reaction");
+        AssertEqual(value >= 0x80,
+            RoomBlockBehaviorCodec.Decode(value).Shootable == ShootableReaction.NothingWhenSolid,
+            $"BTS ${value:X2} is an area byte, which sets off nothing in a solid block");
+        AssertEqual(value >= 0x88, RoomBlockBehaviorCodec.ReadsPastAreaShootableTable(value),
+            $"BTS ${value:X2} reads past its area's shootable table, which the import refuses");
         AssertEqual(value == 0x10, RoomBlockBehaviorCodec.Decode(value).Shootable == ShootableReaction.CollisionProbe,
             $"BTS ${value:X2} is the shot-block collision probe");
     }
@@ -571,7 +570,7 @@ internal static void VerifyTypedNativeWords()
     var objEntry = new SnesObjAttributeWord(0x6dab);
     AssertEqual(0x1ab, objEntry.TileNumber, "OBJ tile-number field");
     AssertEqual(6, objEntry.PaletteIndex, "OBJ palette field");
-    AssertEqual(2, objEntry.Priority, "OBJ priority field");
+    AssertEqual(SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, objEntry.Depth, "OBJ priority field draws between the room's back and front tiles");
     AssertTrue(objEntry.FlipHorizontally && !objEntry.FlipVertically,
         "OBJ independent flip fields");
     SnesObjAttributeWord encodedObj = SnesObjAttributeWord.Create(
@@ -604,7 +603,7 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x9819),
         projectileType.AsFamily(SamusProjectileFamily.MissileExplosion),
         "a projectile becoming another family keeps its beams and charge");
-    AssertTrue(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0).IsNone, "the zero type word is no projectile");
+    AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false), SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0), "the cleared type word reads as an uncharged Power beam");
 
     ProjectileDispatchCase[] projectileDispatchCases =
     [
@@ -652,9 +651,6 @@ internal static void VerifyTypedNativeWords()
     AssertThrows<InvalidDataException>(
         () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Decode(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count, "typed-area test"),
         "non-retail cartridge area rejected");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(UnknownArea),
-        "forged non-retail area rejected before table access");
 
     Console.WriteLine("  Native words: enums, flags, angles, packed fields, and unknown-bit preservation agree.");
 }

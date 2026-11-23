@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <see cref="PhantoonEnemyState.Translucent"/> and <see cref="PhantoonEnemyState.BodyVisibilityRequest"/> and changes
 /// neither, nor any other gameplay state: no gameplay reads what it shows.
 /// </remarks>
-public sealed class PhantoonBodyVisibilityEffect
+public sealed partial class PhantoonBodyVisibilityEffect
 {
     /// <summary>Whether a <see cref="PhantoonBodyVisibilityRequest.HideForGood"/> body has ended the effect for good.</summary>
     private bool _ended;
     /// <summary>How his body shows as of the last update; not necessarily what the display shows.</summary>
-    public PhantoonBodyVisibility Visibility { get; private set; }
+    internal PhantoonBodyVisibility Visibility { get; set; }
     /// <summary>How his body shows as the last display latch captured it, unaffected by later updates until latched again.</summary>
     public PhantoonBodyVisibility DisplayedVisibility { get; private set; }
     /// <summary>His body's pixelation block size in screen pixels latched for display, before this frame's enemy AI changes it; one means none.</summary>

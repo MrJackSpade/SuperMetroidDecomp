@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -28,10 +29,10 @@ internal static class RedTowerHeroVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RedTower);
             var level = runtime.Room.LoadedLevelData;
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
             samus.Position = samus.Position.WithWhole(new(116, 587));
@@ -55,7 +56,7 @@ internal static class RedTowerHeroVerification
             for (int frame = 0; frame < 100; frame++)
             {
                 ControllerButton input = frame == 0
-                    ? ControllerButton.Up | runtime.Options.ControllerBindings.Shoot
+                    ? ControllerButton.Up | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]
                     : ControllerButton.Up;
                 if (followShot && frame > 0 && runtime.Projectiles.Shots[0].IsActive)
                     runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Shots[0].Position.Y.Whole - 160)));
@@ -65,7 +66,7 @@ internal static class RedTowerHeroVerification
                 {
                     AssertTrue(shot.IsActive, "Retail target probe launches its single shot");
                 }
-                if (shot.Type.Family == SamusProjectileFamily.BeamExplosion)
+                if (shot.RecordedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
                     AssertEqual(118, shot.Position.X.Whole, "Shot impacts the target column, not a distant enemy");

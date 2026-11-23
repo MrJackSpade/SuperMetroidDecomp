@@ -10,8 +10,38 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// by that column and row, a row past the room's marked as below the room; a setup changes its screens in the order
 /// listed.
 /// </summary>
-public static class DoorSetupDefinitions
+public static partial class DoorSetupDefinitions
 {
+    /// <summary>Opens screens (0, 6) and (0, 7), as more than one room's setup does.</summary>
+    private static readonly ScreenScrollChange[] OpensScreens0x6And0x7 =
+    [
+        new(new(0, 6), RoomScrollState.Open), new(new(0, 7), RoomScrollState.Open),
+    ];
+
+    /// <summary>Opens screen (1, 0) with the camera aligned to its top and closes screen (1, 1), as more than one room's setup does.</summary>
+    private static readonly ScreenScrollChange[] OpensScreen1x0TopAlignedClosesScreen1x1 =
+    [
+        new(new(1, 0), RoomScrollState.OpenAlignedToTop), new(new(1, 1), RoomScrollState.Closed),
+    ];
+
+    /// <summary>Closes screen (0, 0) and opens screen (0, 1) with the camera aligned to its top, as more than one room's setup does.</summary>
+    private static readonly ScreenScrollChange[] ClosesScreen0x0OpensScreen0x1TopAligned =
+    [
+        new(new(0, 0), RoomScrollState.Closed), new(new(0, 1), RoomScrollState.OpenAlignedToTop),
+    ];
+
+    /// <summary>Opens screen (0, 0) with the camera aligned to its top and closes screen (0, 1), as more than one room's setup does.</summary>
+    private static readonly ScreenScrollChange[] OpensScreen0x0TopAlignedClosesScreen0x1 =
+    [
+        new(new(0, 0), RoomScrollState.OpenAlignedToTop), new(new(0, 1), RoomScrollState.Closed),
+    ];
+
+    /// <summary>Opens screens (0, 0) and (0, 1), as more than one room's setup does.</summary>
+    private static readonly ScreenScrollChange[] OpensScreens0x0And0x1 =
+    [
+        new(new(0, 0), RoomScrollState.Open), new(new(0, 1), RoomScrollState.Open),
+    ];
+
     /// <summary>The door definition names no setup.</summary>
     public static DoorSetup None { get; } =
         new(nameof(None), []);
@@ -80,7 +110,7 @@ public static class DoorSetupDefinitions
 
     /// <summary>Entering the GreenBrinstarMainShaft room, opens screens (0, 6) and (0, 7).</summary>
     public static DoorSetup GreenBrinstarMainShaftOpensScreens0x6And0x7 { get; } =
-        new(nameof(GreenBrinstarMainShaftOpensScreens0x6And0x7), [new(new(0, 6), RoomScrollState.Open), new(new(0, 7), RoomScrollState.Open)]);
+        new(nameof(GreenBrinstarMainShaftOpensScreens0x6And0x7), OpensScreens0x6And0x7);
 
     /// <summary>
     /// Entering the EtecoonEnergyTank room, opens screens (0, 1) and (1, 1) with the camera aligned to the screen's top.
@@ -133,7 +163,7 @@ public static class DoorSetupDefinitions
 
     /// <summary>Entering the RedTower room, opens screens (0, 6) and (0, 7).</summary>
     public static DoorSetup RedTowerOpensScreens0x6And0x7 { get; } =
-        new(nameof(RedTowerOpensScreens0x6And0x7), [new(new(0, 6), RoomScrollState.Open), new(new(0, 7), RoomScrollState.Open)]);
+        new(nameof(RedTowerOpensScreens0x6And0x7), OpensScreens0x6And0x7);
 
     /// <summary>
     /// Entering the RedFish room, closes screen (2, 0); opens screen (1, 0) with the camera aligned to the screen's
@@ -147,14 +177,14 @@ public static class DoorSetupDefinitions
     /// screen's top.
     /// </summary>
     public static DoorSetup SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned { get; } =
-        new(nameof(SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned), [new(new(1, 0), RoomScrollState.OpenAlignedToTop), new(new(1, 1), RoomScrollState.Closed)]);
+        new(nameof(SporeSpawnSuperClosesScreen1x1OpensScreen1x0TopAligned), OpensScreen1x0TopAlignedClosesScreen1x1);
 
     /// <summary>
     /// Entering the EastTunnel room, closes screen (0, 0); opens screen (0, 1) with the camera aligned to the screen's
     /// top.
     /// </summary>
     public static DoorSetup EastTunnelClosesScreen0x0OpensScreen0x1TopAligned { get; } =
-        new(nameof(EastTunnelClosesScreen0x0OpensScreen0x1TopAligned), [new(new(0, 0), RoomScrollState.Closed), new(new(0, 1), RoomScrollState.OpenAlignedToTop)]);
+        new(nameof(EastTunnelClosesScreen0x0OpensScreen0x1TopAligned), ClosesScreen0x0OpensScreen0x1TopAligned);
 
     /// <summary>
     /// Entering the WarehouseKihunter room, opens screens (2, 0) and (3, 0) with the camera aligned to the screen's
@@ -213,7 +243,7 @@ public static class DoorSetupDefinitions
     /// top.
     /// </summary>
     public static DoorSetup BatCaveClosesScreen0x1OpensScreen0x0TopAligned { get; } =
-        new(nameof(BatCaveClosesScreen0x1OpensScreen0x0TopAligned), [new(new(0, 0), RoomScrollState.OpenAlignedToTop), new(new(0, 1), RoomScrollState.Closed)]);
+        new(nameof(BatCaveClosesScreen0x1OpensScreen0x0TopAligned), OpensScreen0x0TopAlignedClosesScreen0x1);
 
     /// <summary>Entering the IceBeamGate room, opens screen (3, 1).</summary>
     public static DoorSetup IceBeamGateOpensScreen3x1 { get; } =
@@ -221,7 +251,7 @@ public static class DoorSetupDefinitions
 
     /// <summary>Entering the HiJumpEnergyTank room, opens screens (0, 0) and (0, 1).</summary>
     public static DoorSetup HiJumpEnergyTankOpensScreens0x0And0x1 { get; } =
-        new(nameof(HiJumpEnergyTankOpensScreens0x0And0x1), [new(new(0, 0), RoomScrollState.Open), new(new(0, 1), RoomScrollState.Open)]);
+        new(nameof(HiJumpEnergyTankOpensScreens0x0And0x1), OpensScreens0x0And0x1);
 
     /// <summary>
     /// Entering the Volcano room, closes screen (2, 2); opens screens (0, 2) and (1, 2) with the camera aligned to the
@@ -253,14 +283,14 @@ public static class DoorSetupDefinitions
     /// screen's top.
     /// </summary>
     public static DoorSetup RedKihunterShaftClosesScreen0x1OpensScreen0x0TopAligned { get; } =
-        new(nameof(RedKihunterShaftClosesScreen0x1OpensScreen0x0TopAligned), [new(new(0, 0), RoomScrollState.OpenAlignedToTop), new(new(0, 1), RoomScrollState.Closed)]);
+        new(nameof(RedKihunterShaftClosesScreen0x1OpensScreen0x0TopAligned), OpensScreen0x0TopAlignedClosesScreen0x1);
 
     /// <summary>
     /// Entering the LowerNorfairFireflea room, closes screen (1, 1); opens screen (1, 0) with the camera aligned to the screen's
     /// top.
     /// </summary>
     public static DoorSetup LowerNorfairFirefleaClosesScreen1x1OpensScreen1x0TopAligned { get; } =
-        new(nameof(LowerNorfairFirefleaClosesScreen1x1OpensScreen1x0TopAligned), [new(new(1, 0), RoomScrollState.OpenAlignedToTop), new(new(1, 1), RoomScrollState.Closed)]);
+        new(nameof(LowerNorfairFirefleaClosesScreen1x1OpensScreen1x0TopAligned), OpensScreen1x0TopAlignedClosesScreen1x1);
 
     /// <summary>
     /// Entering the GoldenTorizo room, closes screens (1, 0), (0, 1) and (1, 1); opens screen (0, 0) with the camera
@@ -291,7 +321,7 @@ public static class DoorSetupDefinitions
     /// top.
     /// </summary>
     public static DoorSetup PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned { get; } =
-        new(nameof(PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned), [new(new(0, 0), RoomScrollState.OpenAlignedToTop), new(new(0, 1), RoomScrollState.Closed)]);
+        new(nameof(PurpleShaftClosesScreen0x1OpensScreen0x0TopAligned), OpensScreen0x0TopAlignedClosesScreen0x1);
 
     /// <summary>
     /// Entering the IceBeamGate room, opens screen (3, 3) with the camera aligned to the screen's top.
@@ -375,7 +405,7 @@ public static class DoorSetupDefinitions
     /// (0, 0) and (0, 1).
     /// </summary>
     public static DoorSetup OasisEndsElevatubeRideOpensScreens0x0And0x1 { get; } =
-        new(nameof(OasisEndsElevatubeRideOpensScreens0x0And0x1), [new(new(0, 0), RoomScrollState.Open), new(new(0, 1), RoomScrollState.Open)], DoorRoomEvent.EndsElevatubeRide);
+        new(nameof(OasisEndsElevatubeRideOpensScreens0x0And0x1), OpensScreens0x0And0x1, DoorRoomEvent.EndsElevatubeRide);
 
     /// <summary>
     /// Entering the HalfieClimb room, closes screen (0, 2); opens screen (1, 2) with the camera aligned to the screen's
@@ -389,7 +419,7 @@ public static class DoorSetupDefinitions
     /// top.
     /// </summary>
     public static DoorSetup CrabHoleClosesScreen0x0OpensScreen0x1TopAligned { get; } =
-        new(nameof(CrabHoleClosesScreen0x0OpensScreen0x1TopAligned), [new(new(0, 0), RoomScrollState.Closed), new(new(0, 1), RoomScrollState.OpenAlignedToTop)]);
+        new(nameof(CrabHoleClosesScreen0x0OpensScreen0x1TopAligned), ClosesScreen0x0OpensScreen0x1TopAligned);
 
     /// <summary>
     /// Entering the Caterpillar room, closes screen (0, 3); opens screen (1, 3) with the camera aligned to the screen's
@@ -430,11 +460,11 @@ public static class DoorSetupDefinitions
 
     /// <summary>Entering the ThePrecious room, opens screens (0, 0) and (0, 1).</summary>
     public static DoorSetup ThePreciousOpensScreens0x0And0x1 { get; } =
-        new(nameof(ThePreciousOpensScreens0x0And0x1), [new(new(0, 0), RoomScrollState.Open), new(new(0, 1), RoomScrollState.Open)]);
+        new(nameof(ThePreciousOpensScreens0x0And0x1), OpensScreens0x0And0x1);
 
     /// <summary>Entering the Statues room, opens screens (0, 0) and (0, 1).</summary>
     public static DoorSetup StatuesOpensScreens0x0And0x1 { get; } =
-        new(nameof(StatuesOpensScreens0x0And0x1), [new(new(0, 0), RoomScrollState.Open), new(new(0, 1), RoomScrollState.Open)]);
+        new(nameof(StatuesOpensScreens0x0And0x1), OpensScreens0x0And0x1);
 
     /// <summary>
     /// Entering the Climb room, closes screen (1, 8); opens screen (0, 8) with the camera aligned to the screen's top.
@@ -443,7 +473,7 @@ public static class DoorSetupDefinitions
         new(nameof(ClimbClosesScreen1x8OpensScreen0x8TopAligned), [new(new(0, 8), RoomScrollState.OpenAlignedToTop), new(new(1, 8), RoomScrollState.Closed)]);
 
     /// <summary>
-    /// Entering the CeresElevator room, shows the room as a turning floor, unrotated, about room point (128, 1008).
+    /// Entering the CeresElevator room, shows the room as a turning floor, unrotated, about the shaft's floor.
     /// </summary>
     public static DoorSetup CeresElevatorShowsTurningFloor { get; } =
         new(nameof(CeresElevatorShowsTurningFloor), [], DoorRoomEvent.ShowsTurningFloor);

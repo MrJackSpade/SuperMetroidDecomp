@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// A Norfair Pipe Bug's state, one Gamet of a five-bug formation (#1845): it waits in its pipe with the rest, rises past
 /// Samus, staggers to its place in the formation and departs toward Samus when its count reaches its role's target.
 /// </summary>
-public sealed class NorfairPipeBugState
+public sealed partial class NorfairPipeBugState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal NorfairPipeBugState(NorfairPipeBugAction action) => Action = action;
@@ -27,7 +27,7 @@ public sealed class NorfairPipeBugState
     /// and waited. It starts again only when the member departs, so a member reset off screen keeps its count into the
     /// next rise (#1846).
     /// </summary>
-    public UpdateCountdown Departure { get; private set; } = UpdateCountdown.Ended();
+    internal UpdateCountdown Departure { get; } = UpdateCountdown.Ended();
 
     /// <summary>Counts one formation update.</summary>
     internal void CountFormationTick() => Departure.Step();
@@ -49,11 +49,17 @@ public sealed class NorfairPipeBugState
     /// <exception cref="InvalidOperationException">The member's formation has not launched it.</exception>
     internal NorfairPipeBugRole Role
     {
-        get => field ?? throw new InvalidOperationException("A Norfair Pipe Bug's role is assigned when its formation launches it.");
+        get => assignedRole ?? throw new InvalidOperationException("A Norfair Pipe Bug's role is assigned when its formation launches it.");
         set
         {
-            field = Ensure.NotNull(value);
+            assignedRole = Ensure.NotNull(value);
             Departure.LastFor(value.StaggerTarget);
         }
     }
+
+    /// <summary>
+    /// The role its formation assigned it, or none before it launches it: what a debugger state captures of the member, which
+    /// a door's autosave takes while a follower still waits (#2649).
+    /// </summary>
+    private NorfairPipeBugRole? assignedRole;
 }

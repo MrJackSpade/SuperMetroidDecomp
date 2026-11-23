@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.World.RoomStates;
 /// Ridley's arena. The simulation composes these behaviours and never asks what they show; only the import relates each to
 /// the pictures it installs.
 /// </summary>
-internal static class RoomBehaviorPictureDefinitions
+internal static partial class RoomBehaviorPictureDefinitions
 {
     /// <summary>The sky each scrolling-sky main scrolls behind its room; every other main scrolls none.</summary>
     internal static IReadOnlyDictionary<RoomMainBehavior, ScrollingSky> MainSkies { get; } =
@@ -24,7 +24,7 @@ internal static class RoomBehaviorPictureDefinitions
     internal static IReadOnlyList<RoomMainBehavior> EscapeExplosionMains { get; } =
     [
         RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions, RoomMainBehavior.ShakeScreenWithRandomExplosions,
-        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal, RoomMainBehavior.RandomExplosionEveryFourthUpdate,
+        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal, RoomMainBehavior.RandomEscapeExplosions,
         RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal,
     ];
 

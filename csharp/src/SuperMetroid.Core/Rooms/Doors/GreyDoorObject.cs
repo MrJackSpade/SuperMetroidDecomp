@@ -14,8 +14,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// she has Bombs), then looks at its door again. The cap lives in its room's object places, with the lock its setup resolved
 /// for that room (#2486).
 /// </summary>
-[RoomLifetime]
-internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
+internal sealed partial class GreyDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A grey cap of <paramref name="variant"/>, locked by <paramref name="doorLock"/>, just placed in <paramref name="door"/>.</summary>
     internal GreyDoorObject(GreyDoorVariant variant, GreyDoorLock doorLock, PlacedDoor door)
@@ -40,13 +39,13 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
     internal GreyDoorLock Lock { get; }
 
     /// <summary>What the cap is doing.</summary>
-    internal GreyDoorPhase Phase { get; private set; } = GreyDoorPhase.Locked;
+    internal GreyDoorPhase Phase { get; set; } = GreyDoorPhase.Placed;
 
     /// <summary>
-    /// What the cap waits for on each update: nothing until its first look locks it (a locked cap waiting for nothing has
-    /// yet to take that look), and nothing once it opens.
+    /// What the cap waits for on each update: nothing until its first look locks it, and nothing once it opens. This is apart
+    /// from what the cap plays: a closing behind Samus keeps it.
     /// </summary>
-    internal GreyDoorWait Waits { get; private set; }
+    internal GreyDoorWait Waits { get; set; }
 
     /// <summary>
     /// The shot at the cap's block it has yet to take (#2484, #2562). A shot that arrives before the cap waits for anything waits for
@@ -79,68 +78,73 @@ internal sealed class GreyDoorObject : DoorCapObject, IShootableRoomObject
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>What <c>React</c> comes to for each <see cref="GreyDoorWait"/> member, each member's own arm.</summary>
+    private IdentityTable<GreyDoorWait, Func<RoomObjectPlace, RoomObjectStepContext, GreyDoorObjects, bool>> ReactForGreyDoorWait => field ??= new(new Dictionary<GreyDoorWait, Func<RoomObjectPlace, RoomObjectStepContext, GreyDoorObjects, bool>>
+    {
+        [GreyDoorWait.Nothing] = (place, context, doors) => false,
+        [GreyDoorWait.Condition] = (place, context, doors) =>
+        {
+            if (!Lock.IsUnlocked(context.Frame))
+            {
+                if (strike.Take() is not null)
+                    doors.QueueDudSound();
+                return false;
+            }
+            Lock.RecordUnlocked();
+            _ = strike.Take();
+            Waits = GreyDoorWait.Shot;
+            Phase = GreyDoorPhase.Flashing;
+            Play(GreyDoorDefinitions.Flash, place, context);
+            return true;
+        },
+        [GreyDoorWait.Shot] = (place, context, doors) =>
+        {
+            if (strike.Take() is null)
+                return false;
+            Open(place, context);
+            return true;
+        },
+    });
+
+    /// <summary>
+    /// What the cap's wait does this update: waiting on its condition, a shot before it holds only plays the dud sound and
+    /// once it holds the cap starts flashing; waiting on a shot, a shot opens it. Returns whether the wait acted.
+    /// </summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         GreyDoorObjects doors = context.RoomObjects.GreyDoors;
-        switch (Waits)
-        {
-            case GreyDoorWait.Nothing:
-                return false;
-            case GreyDoorWait.Condition:
-                if (!Lock.IsUnlocked(context.Frame))
-                {
-                    if (strike.Take() is not null)
-                        doors.QueueDudSound();
-                    return false;
-                }
-                Lock.RecordUnlocked();
-                _ = strike.Take();
-                Waits = GreyDoorWait.Shot;
-                Phase = GreyDoorPhase.Flashing;
-                Play(GreyDoorDefinitions.Flash, place, context);
-                return true;
-            case GreyDoorWait.Shot:
-                if (strike.Take() is null)
-                    return false;
-                Open(place, context);
-                return true;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GreyDoorWait)} {Waits}.");
-        }
+        return ReactForGreyDoorWait[Waits](place, context, doors);
     }
+
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="GreyDoorPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForGreyDoorPhase => field ??= new(new Dictionary<GreyDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [GreyDoorPhase.Placed] = (place, context) => Look(place, context),
+        [GreyDoorPhase.Closing] = (place, context) => Look(place, context),
+        [GreyDoorPhase.HeldOpen] = (place, context) =>
+        {
+            // Bomb Torizo's door stays open, its held-open segment over and over, until Samus has Bombs.
+            if (!context.Frame.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
+            {
+                Play(GreyDoorDefinitions.BombTorizoHeldOpen, place, context);
+                return;
+            }
+            Phase = GreyDoorPhase.Closing;
+            Play(GreyDoorDefinitions.BombTorizoClosing, place, context);
+        },
+        // Once it has looked, the cap rests on its closed image until its condition holds.
+        [GreyDoorPhase.Locked] = (place, context) => { },
+        [GreyDoorPhase.Flashing] = (place, context) =>
+        {
+            throw new InvalidOperationException("An unlocked grey cap flashes until a shot opens it; its flash never ends.");
+        },
+        [GreyDoorPhase.Opening] = (place, context) => context.RoomObjects.DeleteObject(place),
+    });
 
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case GreyDoorPhase.Closing:
-                Look(place, context);
-                return;
-            case GreyDoorPhase.HeldOpen:
-                // Bomb Torizo's door stays open, two updates at a time, until Samus has Bombs.
-                if (!context.Frame.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))
-                {
-                    Play(GreyDoorDefinitions.BombTorizoHeldOpen, place, context);
-                    return;
-                }
-                Phase = GreyDoorPhase.Closing;
-                Play(GreyDoorDefinitions.BombTorizoClosing, place, context);
-                return;
-            case GreyDoorPhase.Locked:
-                // Once it has looked, the cap rests on its closed image until its condition holds.
-                if (Waits == GreyDoorWait.Nothing)
-                    Look(place, context);
-                return;
-            case GreyDoorPhase.Flashing:
-                throw new InvalidOperationException("An unlocked grey cap flashes until a shot opens it; its flash never ends.");
-            case GreyDoorPhase.Opening:
-                context.RoomObjects.DeleteObject(place);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GreyDoorPhase)} {Phase}.");
-        }
+        SequenceEndedForGreyDoorPhase[Phase](place, context);
     }
 
     /// <summary>

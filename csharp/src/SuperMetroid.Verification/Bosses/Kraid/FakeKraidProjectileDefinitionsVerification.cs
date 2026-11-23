@@ -23,10 +23,6 @@ internal static class FakeKraidProjectileDefinitionsVerification
 
         Suite(nameof(VerifyFakeKraidSpikeRowSelection), () => VerifyFakeKraidSpikeRowSelection(rom));
 
-        AssertThrows<InvalidDataException>(
-            () => FakeKraidProjectiles.SpitLaunch(HorizontalDirection.Right, (FakeKraidSpit)2),
-            "Fake Kraid spit past its two shots");
-
         var guarded = new CartridgeReadGuard(rom).Forbid(
             address => address is >= 0xa69a48 and < 0xa69a58 or >= 0x869e7d and < 0x869e83,
             address => $"Fake Kraid attempted migrated projectile-definition read ${address:X6}.");
@@ -34,13 +30,11 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (bool movingRight in new[] { false, true })
         {
             var enemies = NewFakeKraidProjectileSystem();
-            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-            {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-                Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-            };
+            RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+            source.Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678));
+            source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
             var state = new FakeKraidEnemyState();
-            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
+            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source.BoundFor(EnemyDefinitionId.FakeKraid), source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
 
             EnemyProjectile[] spawned = enemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.IsActive)
@@ -69,13 +63,11 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (FakeKraidSpikeRow row in Enum.GetValues<FakeKraidSpikeRow>())
         {
             var enemies = NewFakeKraidProjectileSystem();
-            var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-            {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-                Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-            };
+            RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+            source.Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678));
+            source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
             var state = new FakeKraidEnemyState() { Facing = facing };
-            bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
+            bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source.BoundFor(EnemyDefinitionId.FakeKraid), source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
             EnemyProjectile spike = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.IsActive);

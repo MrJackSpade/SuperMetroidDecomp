@@ -9,16 +9,17 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// its resting and expressive cutscene loops. The baby squishes through horizontal, round and vertical poses;
 /// while it moves, the expressive loop also pulses its colours and cries.
 /// </summary>
-internal static class CeresBabyAnimations
+internal static partial class CeresBabyAnimations
 {
+    /// <summary>How many times the resting loop checks for motion and squishes before the expressive loop.</summary>
+    private const int IdleSquishPlays = 2;
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<P, F, CeresBabyCue> Segments { get; } = new(
         new Dictionary<P, AnimationBeat<F, CeresBabyCue>[]>
     {
         [P.IdleSquish] =
         [
-            Cue(new CeresBabyCue.ReactsToMotion()),
-            .. SquishCycle,
             Cue(new CeresBabyCue.ReactsToMotion()),
             .. SquishCycle,
         ],
@@ -39,16 +40,16 @@ internal static class CeresBabyAnimations
     /// The animation that starts at each segment: the resting loop runs on into the expressive loop, which goes back to the
     /// resting loop.
     /// </summary>
-    internal static IReadOnlyDictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
+    internal static Dictionary<P, Animation<P>> StartingAt { get; } = new Dictionary<P, Animation<P>>
     {
-        [P.IdleSquish] = Animation<P>.Looping([Segments.Whole(P.IdleSquish), Segments.Whole(P.ExpressiveLoop)]),
-        [P.ExpressiveLoop] = Animation<P>.Looping([Segments.Whole(P.ExpressiveLoop), Segments.Whole(P.IdleSquish)]),
+        [P.IdleSquish] = Animation<P>.Looping([Segments.Repeated(P.IdleSquish, IdleSquishPlays), Segments.Whole(P.ExpressiveLoop)]),
+        [P.ExpressiveLoop] = Animation<P>.Looping([Segments.Whole(P.ExpressiveLoop), Segments.Repeated(P.IdleSquish, IdleSquishPlays)]),
     };
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
 
-    /// <summary>The ten-update horizontal, round, vertical, round squish.</summary>
+    /// <summary>The horizontal, round, vertical, round squish, each pose held for its beat's duration.</summary>
     private static AnimationBeat<F, CeresBabyCue>[] SquishCycle =>
         [Show(F.Horizontal, 10), Show(F.Round, 10), Show(F.Vertical, 10), Show(F.Round, 10)];
 

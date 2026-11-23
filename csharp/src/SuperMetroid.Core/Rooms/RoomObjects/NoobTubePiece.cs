@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>One piece of the broken n00b tube: the crack, a glass shard or a released-air bubble, and how it starts.</summary>
-public sealed class NoobTubePiece
+public sealed partial class NoobTubePiece
 {
     /// <summary>Describes one piece of the tube's break.</summary>
     /// <param name="definition">Which kind of piece it is.</param>

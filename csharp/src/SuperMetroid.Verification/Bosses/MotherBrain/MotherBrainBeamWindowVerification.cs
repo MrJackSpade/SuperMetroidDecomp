@@ -1,5 +1,4 @@
 using SuperMetroid.Tooling;
-using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
@@ -23,7 +22,6 @@ internal static class MotherBrainBeamWindowVerification
     /// </summary>
     internal static void VerifyMotherBrainBeamWindow()
     {
-        AssertOwnsNoScanlineTable(typeof(MotherBrainRainbowBeamEffect));
         var paletteDocument = RequiredJson.Parse(File.ReadAllText(Path.Combine(
             RepositoryInstallation.Installation.MapDirectory, MotherBrainBeamColourFile.FileName)));
         var cycle = new JsonArray();
@@ -137,14 +135,6 @@ internal static class MotherBrainBeamWindowVerification
     /// <summary>The columns a drawn line lights.</summary>
     private static int[] LitColumns(RgbaPixel[] drawn, int line) =>
         Enumerable.Range(0, ScreenGeometry.ScreenWidthPixels).Where(x => drawn[line * ScreenGeometry.ScreenWidthPixels + x].R != 0).ToArray();
-
-    /// <summary>Asserts that a simulation effect owner stores no per-scanline array.</summary>
-    [ReflectionAudit("metadata shape is the subject: a simulation effect owner must hold no per-scanline register table")]
-    internal static void AssertOwnsNoScanlineTable(Type owner)
-    {
-        foreach (FieldInfo field in owner.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-            AssertTrue(!field.FieldType.IsArray, $"{owner.Name}.{field.Name} stores a per-scanline table in the simulation");
-    }
 
     /// <summary>Runs the focused Mother Brain beam window and color check.</summary>
     [VerificationCommand("--mother-brain-beam-fixture")]

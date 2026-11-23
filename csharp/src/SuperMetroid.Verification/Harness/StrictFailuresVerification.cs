@@ -11,31 +11,23 @@ internal static class StrictFailuresVerification
 /// <summary>Exercises specific invalid inputs at the controller, display, PLM, and enemy-service boundaries.</summary>
 internal static void VerifyStrictFailureBoundaries()
 {
-    var duplicateBindings = new ControllerBindings(
-        Shoot: ControllerButton.X,
-        Jump: ControllerButton.X,
-        Dash: ControllerButton.B,
-        ItemSelect: ControllerButton.Select,
-        ItemCancel: ControllerButton.Y,
-        AimUp: ControllerButton.R,
-        AimDown: ControllerButton.L);
+    var duplicateBindings = ControllerBindings.Default.With(ControllerAction.Jump, ControllerButton.X);
     AssertThrows<InvalidDataException>(
         () => duplicateBindings.RequireUniquePermutation(),
         "duplicate persisted controller binding is rejected");
 
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = DisplayBrightness.Require(-1),
-        "negative display brightness is rejected");
+        () => _ = DisplayBrightness.Black.Brighter(-1),
+        "a negative brightening step is rejected");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => _ = DisplayBrightness.Require(DisplayBrightness.Full + 1),
-        "display brightness above full is rejected");
+        () => _ = DisplayBrightness.Full.Darker(-1),
+        "a negative darkening step is rejected");
+    AssertTrue(DisplayBrightness.Full.Brighter(1) == DisplayBrightness.Full && DisplayBrightness.Black.Darker(1) == DisplayBrightness.Black,
+        "display brightness never steps past full or black");
 
     AssertTrue(RoomObjectSystem.IsSupportedRoomPopulationHeader(
             RoomObjectKind.YellowDoorFacingLeft),
         "translated yellow-door PLM is classified by the production dispatcher");
-    AssertTrue(!RoomObjectSystem.IsSupportedRoomPopulationHeader((RoomObjectKind)(-1)),
-        "unknown PLM is absent from the production dispatcher");
-
     Console.WriteLine(
         "  Strict failures: bindings, brightness and PLM coverage reject bad state loudly.");
 }

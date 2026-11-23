@@ -73,7 +73,7 @@ internal static class ProjectileCompositionsVerification
         if (!compositionOnly)
             VerifyIntroProjectileArtwork(drawnId);
 
-        void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
+        void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => InstalledProjectileSprites.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument>(options)))), "Malformed composition rejected");
         Reject(document with { Version = ProjectileSpriteDefinitions.Version + 1 });
         foreach (var badPart in new[] { original with { Palette = null }, original with { TileColumn = 16 }, original with { TileRow = 32 }, original with { OffsetX = 256 }, original with { OffsetY = -129 }, original with { Size = 32 } })
         {
@@ -98,7 +98,7 @@ internal static class ProjectileCompositionsVerification
         JsonSerializerOptions options)
     {
         AssertEqual(ProjectileSpriteDefinitions.All.Count, document.Frames.Count, "one installed composition per distinct composition");
-        AssertEqual(document.Frames.Count, document.Frames.Values.Select(parts => JsonSerializer.Serialize(parts, options)).Distinct().Count(),
+        AssertEqual(document.Frames.Count, document.Frames.Values.Select(parts => JsonSerializer.Serialize(parts, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.SpriteVisualPart[]>(options))).Distinct().Count(),
             "no two installed compositions hold the same parts");
         AssertEqual(ProjectileSpriteNative.Projectile(0xed9e), ProjectileSpriteNative.Projectile(0xedca),
             "charged Ice's two stored crosses are one composition");
@@ -130,13 +130,13 @@ internal static class ProjectileCompositionsVerification
         OamBuffer oam, ushort pointer, Position16<ScreenPixels> origin)
     {
         int record = 0x930000 | pointer;
-        ushort partCount = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(record);
+        ushort partCount = source.ReadCartridgeWordFixedBank(record);
         int partAddress = SnesAddressMath.AddWithinBank(record, 2);
         for (int part = 0; part < partCount; part++)
         {
-            oam.AddProjectileSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(partAddress)),
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(source.ReadCartridgeWordFixedBank(partAddress)),
                 source.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                new SnesObjAttributeWord(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
+                new SnesObjAttributeWord(source.ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3))),
                 origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
@@ -157,14 +157,22 @@ internal static class ProjectileCompositionsVerification
             SamusBeamCombination pictured = CombinationShowing(id) ?? throw new InvalidOperationException($"No beam combination's sheet holds composition ${id:X4}.");
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+            // Each place is taken first: the shot and the bomb hold what a check stages, never their places (#2560). A bomb
+            // place holds only a bomb or a Power Bomb (#2558), so the bomb is staged for those types alone.
+            SamusProjectileType projectileType = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type);
             var shot = shots.Shots[0];
-            shot.Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = id;
-            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); shot.PicturedBeams = pictured; shot.Position = shot.Position.WithWhole(new(coordinate, coordinate));
-            shot.Damage = 123; shot.Radius = shot.Radius.WithX(7).WithY(9);
+            shot.Occupy(projectileType, 123);
+            shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = id;
+            shot.HeldShot().PicturedBeams = pictured; shot.HeldShot().Position = shot.Position.WithWhole(new(coordinate, coordinate));
+            shot.HeldShot().Radius = shot.Radius.WithX(7).WithY(9);
             var bomb = bombs.Bombs[0];
-            bomb.Animation = ProjectileFixturePlaybacks.Active(); bomb.SpritemapPointer = id;
-            bomb.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type); bomb.PicturedBeams = pictured; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
-            bomb.Fuse = UpdateCountdown.For(1);
+            if (projectileType.Family is SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb)
+            {
+                bomb.OccupyAsPlaced(projectileType);
+                bomb.HeldBomb().Animation = ProjectileFixturePlaybacks.Active(); bomb.SpritemapPointer = id;
+                bomb.HeldBomb().PicturedBeams = pictured; bomb.HeldBomb().Position = bomb.Position.WithWhole(new(coordinate, coordinate));
+                bomb.HeldBomb().Fuse = UpdateCountdown.For(1);
+            }
             {
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
@@ -177,14 +185,14 @@ internal static class ProjectileCompositionsVerification
                 AssertTrue(native.FinalizeAsOam().ImageEquals(extracted.FinalizeAsOam()),
                     "Production projectile composition preserves admission and OAM");
                 AssertEqual(native.Draws.Length, extracted.Draws.Length, "Composition owner publishes the same draws");
-                AssertEqual(123, shot.Damage, "Composition does not mutate damage");
+                AssertEqual(123, shot.HeldShot().Damage, "Composition does not mutate damage");
                 AssertEqual((ushort)7, shot.Radius.X, "Composition does not mutate X radius");
                 AssertEqual((ushort)9, shot.Radius.Y, "Composition does not mutate Y radius");
                 comparisons++;
             }
             if (type == 0x300)
             {
-                bomb.Fuse = UpdateCountdown.For(0);
+                bomb.HeldBomb().Fuse = UpdateCountdown.For(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
                 bombs.Draw(hidden, Position16<RoomPixels>.Zero, artwork);
@@ -223,14 +231,14 @@ internal static class ProjectileCompositionsVerification
         MapPresentationInstalledRoomAssets roomAssets, InstalledScreenContent maps)
     {
         var random = new SharedRandom();
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Gameplay.GameplayAssists.None, InstalledFixtures.GameArtwork.Gameplay, random: random, audio: game.AudioForVerification);
         runtime.Artwork.ScreenContent = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.SpriteSheets = sheets;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         game.AdoptRuntime(runtime);
         game.BindArtwork(InstalledFixtures.GameArtwork with { SpriteSheets = sheets });
         string frame = ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite));
@@ -245,14 +253,14 @@ internal static class ProjectileCompositionsVerification
             if (family == 0x500)
             {
                 var slot = runtime.BombProjectiles.Bombs[0];
-                slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+                slot.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.HeldBomb().Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
+                slot.HeldBomb().Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             else
             {
                 var slot = runtime.Projectiles.Shots[0];
-                slot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); slot.Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
-                slot.Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
+                slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); slot.HeldShot().Animation = ProjectileFixturePlaybacks.Active(); slot.SpritemapPointer = sprite;
+                slot.HeldShot().Position = slot.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             }
             SpriteSheet power = sheets.Get(SpriteSheetId.ProjectilesPower);
             AssertEqual(power.Frame(frame), Shown(runtime, kind).Image, $"Family ${family:X} draws its composition's frame from the bound power-beam sheet");
@@ -266,7 +274,7 @@ internal static class ProjectileCompositionsVerification
         static SamusColouredDraw Shown(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, SpriteSourceKind kind)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, target.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             target.Sprites.FinalizeFrame();
             return target.Sprites.Draws.OfType<SamusColouredDraw>().Single(draw => draw.Source.Kind == kind);
         }

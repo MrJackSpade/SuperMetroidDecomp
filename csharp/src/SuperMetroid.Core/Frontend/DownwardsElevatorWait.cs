@@ -6,31 +6,33 @@ namespace SuperMetroid.Core.Frontend;
 /// The door transition's wait before destination loading: an ordinary door or an upward elevator goes straight on, and a
 /// downward elevator waits out a delay before destination loading resumes.
 /// </summary>
-internal sealed class DownwardsElevatorWait
+internal sealed partial class DownwardsElevatorWait
 {
     /// <summary>
     /// The delay loading stays paused for, over once its frames have passed: a delay of <c>n</c> pauses <c>n</c> frames and
-    /// resumes loading on the frame after them (#2488); none while loading is not paused.
+    /// resumes loading on the frame after them (#2488).
     /// </summary>
-    private UpdateCountdown? delay;
+    private UpdateCountdown delay = UpdateCountdown.Ended();
 
-    /// <summary>Whether room loading is paused for the downward elevator.</summary>
-    internal bool Waiting => delay is not null;
+    /// <summary>Whether room loading is paused for the downward elevator: from its delay's start until loading resumes.</summary>
+    internal bool Waiting { get; private set; }
 
     /// <summary>Starts the elevator's delay.</summary>
-    internal void Begin() => delay = UpdateCountdown.For(ElevatorDoorDefinitions.DownwardsElevatorDelayFrames);
+    internal void Begin()
+    {
+        delay = UpdateCountdown.For(ElevatorDoorDefinitions.DownwardsElevatorDelayFrames);
+        Waiting = true;
+    }
 
-    /// <summary>Counts one frame of the delay; returns whether loading resumes.</summary>
-    /// <exception cref="InvalidOperationException">Loading is not paused.</exception>
+    /// <summary>Counts one frame of the delay the door's wait began; returns whether loading resumes.</summary>
     internal bool CountFrame()
     {
-        UpdateCountdown paused = delay ?? throw new InvalidOperationException("The downward elevator's delay is counted while loading is not paused.");
-        if (paused.IsRunning)
+        if (delay.IsRunning)
         {
-            paused.Count();
+            delay.Count();
             return false;
         }
-        delay = null;
+        Waiting = false;
         return true;
     }
 }

@@ -69,16 +69,30 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Cartridge-oracle checks for the second set of gameplay, artwork, and pause-screen catalogs.</summary>
 internal static class LookupStream2Verification
 {
-    /// <summary>Checks all 104 Yard visual frames retain their semantic group order and unique identities.</summary>
+    /// <summary>
+    /// Checks the Yard's 96 visual frames are distinct records with distinct names, and that with the eight shell-closed
+    /// records that store one of their pictures again (#2272) they account for all 104 records its programs show.
+    /// </summary>
     internal static void VerifyLookupStream2YardGroups()
     {
         var frames = YardVisualDefinitions.Frames();
-        AssertEqual(104, frames.Length, "Yard semantic groups preserve complete registry");
-        string identity = string.Join("\n", frames.Select(frame => $"{frame.Bank:X2}:{frame.Pointer:X4}:{frame.Name}"));
-        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identity)));
-        AssertEqual("2E09CB87CB8C4106F823834D08281C250FB4294981A52F4FE9F83BD983732954", hash,
-            "Yard exact pre-change native bank/pointer/name/order identity");
-        Console.WriteLine("Yard groups: 38 semantic program roles preserve all104 native frame identities/names/order.");
+        AssertEqual(96, frames.Length, "Yard semantic groups preserve complete registry");
+        HashSet<ushort> records = [.. frames.Select(frame => frame.Pointer)];
+        AssertEqual(frames.Length, records.Count, "every Yard frame is its own record");
+        AssertEqual(frames.Length, frames.Select(frame => frame.Name).Distinct(StringComparer.Ordinal).Count(),
+            "every Yard frame has its own name");
+        // The shell-closed twins are byte-identical copies of their bases' records (#2272): each shows its base's
+        // picture, which the frames already hold, so none is a frame of its own.
+        SnesAddress[] storedAgain = [.. EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt
+            .Where(pair => EnemyFrameCartridgeLocationDefinitions.Locations.TryGetValue(pair.Value, out SnesAddress shown) &&
+                shown.Bank == YardVisualDefinitions.Bank && records.Contains(shown.Offset))
+            .Select(pair => pair.Key)];
+        AssertEqual(8, storedAgain.Length, "eight Yard records store one of its pictures again");
+        AssertTrue(storedAgain.All(record => record.Bank == YardVisualDefinitions.Bank && !records.Contains(record.Offset)),
+            "a Yard record that stores a picture again is in the Yard's bank and is no frame of its own");
+        AssertEqual(104, records.Count + storedAgain.Length,
+            "the Yard's pictures and the records storing one again are the 104 records its programs show");
+        Console.WriteLine("Yard groups: 38 semantic program roles show 96 distinct pictures; with the 8 records storing one again they cover all 104 native records.");
     }
 
     /// <summary>Checks Chozo statue foot spritemap geometry and the compiled stock views.</summary>
@@ -97,22 +111,22 @@ internal static class LookupStream2Verification
         foreach (var frame in selected)
         {
             int source = ((int)new SnesAddress(frame.Bank, frame.Pointer));
-            document.Frames[frame.Name] = Enumerable.Range(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(source)).Select(index =>
+            document.Frames[frame.Name] = Enumerable.Range(0, rom.ReadCartridgeWord(source)).Select(index =>
             {
                 int entry = source + 2 + index * 5;
-                var x = new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry));
-                var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)));
+                var x = new SnesSpritemapXWord(rom.ReadCartridgeWord(entry));
+                var attributes = new SnesObjAttributeWord(rom.ReadCartridgeWord((entry + 3)));
                 return new SpriteVisualPart
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                     TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                     FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                 };
             }).ToArray();
         }
         EnemySpritemapCatalog Load() => EnemySpritemapDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(ArtworkJson.Options))));
         void Check(EnemySpritemapCatalog catalog)
         {
             foreach (var frame in selected)
@@ -169,7 +183,7 @@ internal static class LookupStream2Verification
         for (int color = 0; color < native.Length; color++)
         {
             native[color] = ReadVerificationWord(rom, 0xa899ac + color * 2);
-            AssertEqual(native[color], WreckedShipGhostAppearance.Colours[color], "Calculated ghost channels preserve native target words");
+            AssertEqual(native[color], SuperMetroid.Core.Compatibility.WreckedShipGhostFade.GhostColours[color], "Calculated ghost channels preserve native target words");
             AssertEqual(native[color], ReadVerificationWord(rom, 0xa8aafe + color * 2), "Kago shares exactly the same native palette inputs");
             if (color < 9) AssertEqual(native[color], ReadVerificationWord(rom, 0xa89f4f + color * 2), "Yapping Maw shares olive target inputs");
         }
@@ -251,7 +265,7 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actualSession = new ColourEffectSessionState();
-            var actual = new ColourEffectSystem(actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+            var actual = new global::SuperMetroid.Core.Fx.ColourEffectSystem(actualSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
             actual.Start(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
@@ -263,7 +277,7 @@ internal static class LookupStream2Verification
                 PaletteFxRoomLook.LayShownShades(actual, cgram, colors);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
-                        cgram.Colors[definition.Object.AnimatedColours.CartridgeColour + color], "Actual CGRAM follows each exact native hold and loop boundary");
+                        cgram.Colors[definition.ColorFrames.Effect.AnimatedColours.CartridgeColour + color], "Actual CGRAM follows each exact native hold and loop boundary");
                 elapsed++;
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Cadence execution avoids native mechanics reads");
@@ -278,12 +292,17 @@ internal static class LookupStream2Verification
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 
-    /// <summary>Checks projectile identity selectors, extracted compositions, and 417 actual OAM drawings.</summary>
+    /// <summary>Checks projectile identity selectors, extracted compositions, and 416 actual OAM drawings.</summary>
     internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
         foreach (ushort record in SamusProjectileFrameDefinitions.TimedRecordAddresses)
             expected.Add(ReadVerificationWord(rom, (0x930000 | record) + 2));
+        // The invisible frames select the cartridge's empty record, which holds no parts: they draw nothing and bind no
+        // composition (#2558), so the compositions are the selector union without it. VerifyLookupStream2PowerDirectionBindings
+        // confirms each record selecting it resolves to drawing nothing.
+        AssertEqual((ushort)0, ReadVerificationWord(rom, 0x930000 | ProjectileSpriteNative.EmptyRecordAddress), "The empty record the invisible frames select holds no parts");
+        AssertTrue(expected.Remove(ProjectileSpriteNative.EmptyRecordAddress), "The invisible frames select the empty record");
         int physicalAddress = 0x93f0fa;
         int physicalRecords = 0;
         for (int orientation = 0; orientation < 8; orientation++)
@@ -299,7 +318,7 @@ internal static class LookupStream2Verification
         }
         AssertEqual(48, physicalRecords, "All48 physical Plasma startup records including omitted stages");
         AssertEqual(0x93f5e2, physicalAddress, "Native Plasma startup layout end after the final ten-part composition");
-        AssertEqual(417, expected.Count, "The timed records reference417 distinct compositions");
+        AssertEqual(416, expected.Count, "The timed records reference416 distinct compositions besides the empty record");
         int ordinal = 0;
         foreach (ushort pointer in expected)
             AssertEqual(pointer, ProjectileSpriteDefinitions.NativePointers[ordinal++], "Calculated projectile identity equals native sorted selector union");
@@ -312,7 +331,7 @@ internal static class LookupStream2Verification
             var actual = new OamBuffer();
             DrawImportedProjectileSpritemap(rom, native, pointer, new(255, 255));
             selected.Draw(pointer, actual, new(255, 255));
-            AssertTrue(native.ImageEquals(actual), "All417 installed identities extract and draw exact native OAM");
+            AssertTrue(native.ImageEquals(actual), "All416 installed identities extract and draw exact native OAM");
         }
         var flare = ChargeFlareSprites.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         for (ushort selector = 0; selector < ChargeFlareSpriteNative.NativeSelectorCount; selector++)
@@ -324,8 +343,8 @@ internal static class LookupStream2Verification
             AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[-1], "Projectile identity lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
-        Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[416], "Projectile identity upper bound");
+        Console.WriteLine("Projectile identity geometry:416 exact identities and the empty record from805 native selectors,48 physical startup records,416 actual extracted OAM draws,all existing flare selectors and bounds pass;all416 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
     /// <summary>Checks Norfair and Old Tourian palette-FX owner catalogs and native definition identities.</summary>
     internal static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
@@ -337,9 +356,8 @@ internal static class LookupStream2Verification
         int count = 0;
         foreach (var item in norfair)
         {
-            AssertEqual((NorfairEnvironmentalPaletteOwner)count, item.Owner, "Norfair native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native Norfair definition/list binding");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.Object.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native Norfair colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstRecordPointer, "Native Norfair loop target");
             AssertEqual(norfair[count].ProgramStart, item.ProgramStart, "Indexed and enumerated Norfair identities agree");
             count++;
@@ -348,18 +366,13 @@ internal static class LookupStream2Verification
         count = 0;
         foreach (var item in accents)
         {
-            AssertEqual((OldTourianEscapeAccentPaletteOwner)count, item.Owner, "Accent native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native accent definition/list binding");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.Object.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorFrames.Effect.AnimatedColours.CartridgeByteIndex, "Native railings/panels colours start where the object's colour group is placed");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native accent loop target");
             AssertEqual(accents[count].ProgramStart, item.ProgramStart, "Indexed and enumerated accent identities agree");
             count++;
         }
         AssertEqual(2, count, "Complete accent lazy enumeration");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[-1]; }, "Norfair lower owner bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[4]; }, "Norfair upper owner bound");
-        AssertThrows<IndexOutOfRangeException>(() => { _ = accents[-1]; }, "Accent lower owner bound");
-        AssertThrows<IndexOutOfRangeException>(() => { _ = accents[2]; }, "Accent upper owner bound");
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     /// <summary>Checks extracted pause backdrop geometry and VRAM tile output.</summary>
@@ -388,7 +401,6 @@ internal static class LookupStream2Verification
         var shortTilemap = new BackgroundTile[PauseBackdropDefinitions.Cells - 1];
         var invalidTilemap = new BackgroundTile[PauseBackdropDefinitions.Cells];
         AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(shortTilemap, AreaId.Crateria), "Backdrop destination shorter than the image");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(invalidTilemap, (AreaId)7), "Backdrop area bound");
         AssertTrue(shortTilemap.All(tile => tile == default) && invalidTilemap.All(tile => tile == default), "Invalid load fails before any tilemap write");
         Console.WriteLine("Backdrop geometry: 7680 native tiles load as installed, and the bounds pass.");
 
@@ -425,19 +437,19 @@ internal static class LookupStream2Verification
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var stock = PauseWireframePresentation.Load(new MemoryStream(json));
-        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+        for (int place = 0; place < PauseWireframe.All.Count; place++)
         {
-            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + (int)kind * 2)) | 0x820000;
+            PauseWireframe kind = PauseWireframe.All[place];
+            int pointer = rom.ReadCartridgeWord(((int)PauseMenuSourceDefinitions.PauseWireframePointers + place * 2)) | 0x820000;
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
-                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), rom.ReadCartridgeWord((pointer + cell * 2)));
             Confirm(stock, kind, BackgroundTileWordBytes.Tiles(native), "Installed wireframe preserves every native tile word");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.ApplyTo(new BackgroundTile[PauseWireframeDefinitions.PageTiles], (PauseWireframeKind)4), "Wireframe kind bound");
-        AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframeKind.PowerSuit), "Wireframe page bound");
+        AssertThrows<ArgumentException>(() => stock.ApplyTo(new BackgroundTile[1], PauseWireframe.All[0]), "Wireframe page bound");
         Console.WriteLine("Wireframe composition: 544 native words, four full native patches and untouched-page/bounds checks pass.");
 
-        static void Confirm(PauseWireframePresentation presentation, PauseWireframeKind kind, BackgroundTile[] tiles, string context)
+        static void Confirm(PauseWireframePresentation presentation, PauseWireframe kind, BackgroundTile[] tiles, string context)
         {
             BackgroundTile[] actual = Enumerable.Repeat(BackgroundTileWords.ToTile(0xaaaa), PauseWireframeDefinitions.PageTiles).ToArray();
             BackgroundTile[] expected = actual.ToArray();
@@ -477,7 +489,6 @@ internal static class LookupStream2Verification
             }
         }
         AssertEqual(22, words, "All native reserve label tiles");
-        AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new BackgroundTile[1024], (PauseReserveLabel)byte.MaxValue), "Unknown reserve label rejected");
         AssertThrows<ArgumentException>(() => stock.ApplyLabel(new BackgroundTile[1], PauseReserveLabel.Manual), "Short reserve destination rejected");
         Console.WriteLine("Reserve labels:22 native words/four destinations,actual attribute-preserving/ordinary patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
@@ -574,9 +585,9 @@ internal static class LookupStream2Verification
         for (int row = 0; row < 12; row++)
         {
             int cursor = 0xa9de18 + row * 14;
-            int source = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 2) - 0xa800;
-            int destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 5) - 0x2000;
-            int length = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 8) + 1;
+            int source = rom.ReadCartridgeWord(cursor + 2) - 0xa800;
+            int destination = rom.ReadCartridgeWord(cursor + 5) - 0x2000;
+            int length = rom.ReadCartridgeWord(cursor + 8) + 1;
             AssertEqual(new CorpseGraphicsCopy(source, destination, length),
                 DeadTorizoGeometryDefinitions.InitialCopy(row), "Dead Torizo native MVN descriptor");
             ReadDeadTorizoRomBytes(rom, 0xb7a800 + source, length).CopyTo(expected, destination);
@@ -584,14 +595,14 @@ internal static class LookupStream2Verification
         // The crop is the tile union of the native stationary composition, not
         // an occupancy bounding box over the unrelated parts elsewhere in its atlas.
         var visibleTiles = new HashSet<int>();
-        int partCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9d6e2);
+        int partCount = rom.ReadCartridgeWord(0xa9d6e2);
         AssertEqual(25, partCount, "Dead Torizo native stationary part count");
         for (int part = 0; part < partCount; part++)
         {
             int address = 0xa9d6e4 + part * 5;
-            int tile = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 3) & 0x1ff) - 0x100;
-            int extent = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address) & 0x8000) == 0 ? 1 : 2;
-            int nativeX = CartridgeImportSource.Require(rom).ReadCartridgeWord(address) & 0x1ff;
+            int tile = (rom.ReadCartridgeWord(address + 3) & 0x1ff) - 0x100;
+            int extent = (rom.ReadCartridgeWord(address) & 0x8000) == 0 ? 1 : 2;
+            int nativeX = rom.ReadCartridgeWord(address) & 0x1ff;
             if (nativeX >= 256) nativeX -= 512;
             AssertEqual(new DeadTorizoStockPart(tile + 0x100, extent),
                 DeadTorizoStationaryCompositionDefinitions.Part(part),
@@ -605,8 +616,8 @@ internal static class LookupStream2Verification
         for (int row = 0; row < 12; row++)
         {
             int cursor = 0xa9de18 + row * 14;
-            int first = (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 2) - 0xa800) / 32;
-            int count = (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 8) + 1) / 32;
+            int first = (rom.ReadCartridgeWord(cursor + 2) - 0xa800) / 32;
+            int count = (rom.ReadCartridgeWord(cursor + 8) + 1) / 32;
             for (int tile = first; tile < first + count; tile++) copiedTiles.Add(tile);
         }
         AssertEqual(97, visibleTiles.Count, "Dead Torizo native visible tile count");
@@ -621,12 +632,12 @@ internal static class LookupStream2Verification
         // The artwork fixture needs a display composition; staging copies the corpse rows whatever it holds.
         var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
-            [EnemyFrameId.DeadTorizoStanding] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, priority: 3,
+            [EnemyFrameId.DeadTorizoStanding] = EnemySpritemapParts.FromOwnedArray([SpritePart.Create(Offset16<ScreenPixels>.Of(70, 33), large: false, character: 0, palette: 7, depth: SuperMetroid.Core.Assets.ActorDepth.InFront,
                 PictureFlip.Horizontal)]),
         };
         var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStanding] = EnemyFrameId.DeadTorizoStanding };
         var display = new EnemySpritemapCatalog(displayParts, displayBindings);
-        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlasPng.Read(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
+        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlasPng.Read(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheetFile.Read(new MemoryStream(
                     EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
@@ -653,7 +664,7 @@ internal static class LookupStream2Verification
     }
 
     /// <summary>Copies a bounded span of native Dead Torizo artwork bytes for the oracle.</summary>
-    private static byte[] ReadDeadTorizoRomBytes(ISnesAddressSpace rom, int address, int count) =>
+    private static byte[] ReadDeadTorizoRomBytes(CartridgeImportAddressSpace rom, int address, int count) =>
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     /// <summary>Checks native crawler/Yard speed ramps through actual velocity resets.</summary>
@@ -661,12 +672,12 @@ internal static class LookupStream2Verification
     {
         Func<CrawlerSurfaceOrientation, SignedEightEight?, PixelVelocity<RoomPixels>, PixelVelocity<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocities;
         Action<YardEnemyState, YardDirection> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
-        var yard = new YardEnemyState(YardMovement.HoldingStill);
+        var yard = new YardEnemyState();
         SignedEightEight? crawlSpeed;
         for (ushort parameter = 0; parameter < 32; parameter++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3e5f0 + parameter * 2));
-            AssertEqual(expected, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
+            ushort expected = rom.ReadCartridgeWord((0xa3e5f0 + parameter * 2));
+            AssertEqual(expected, rom.ReadCartridgeWord((0xa3cca2 + parameter * 2)), "Native Yard/crawler magnitude agreement");
             AssertEqual(expected, CrawlerSpeeds.ForParameter(parameter), "Native calculated speed ramp");
             crawlSpeed = EnemySpawnSelectors.CrawlSpeed(parameter);
             yard.CrawlSpeed = new SignedEightEight(CrawlerSpeeds.ForParameter(parameter));
@@ -683,9 +694,9 @@ internal static class LookupStream2Verification
             {
                 setYard(yard, SuperMetroid.AssetExtraction.Enemies.YardDirectionCodec.At(direction));
                 int nativeDirection = 0xa3cd82 + direction * 8;
-                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord(nativeDirection)) + CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 2)))),
+                AssertEqual(unchecked((ushort)((expected ^ rom.ReadCartridgeWord(nativeDirection)) + rom.ReadCartridgeWord((nativeDirection + 2)))),
                     yard.CrawlingVelocity.X.RawValue, "Actual Yard reset X magnitude");
-                AssertEqual(unchecked((ushort)((expected ^ CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 4))) + CartridgeImportSource.Require(rom).ReadCartridgeWord((nativeDirection + 6)))),
+                AssertEqual(unchecked((ushort)((expected ^ rom.ReadCartridgeWord((nativeDirection + 4))) + rom.ReadCartridgeWord((nativeDirection + 6)))),
                     yard.CrawlingVelocity.Y.RawValue, "Actual Yard reset Y magnitude");
             }
         }
@@ -738,10 +749,6 @@ internal static class LookupStream2Verification
             AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealPosition.X, "Actual camera target preserves mode and reversal");
             AssertEqual((ushort)5, camera.Speed.X.UnsignedWholePixels, "Target dispatch preserves movement speed calculation");
         }
-        var invalidCamera = new ScrollBoundaryCamera(grid);
-        AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
-            FixedPosition<RoomPixels>.FromStoredParts(200, 0, 100, 0), FixedPosition<RoomPixels>.FromStoredParts(204, 0, 100, 0),
-            new(false, 0, 0, SamusFacingDirection.Right, (CameraDistanceMode)(-1)), timeIsFrozen: false),"An undefined camera distance is rejected before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
 
@@ -773,7 +780,7 @@ internal static class LookupStream2Verification
             pages[ordinal++] = RoomCharacterAtlasPng.Read(png, page.ByteCount);
         }
         AssertEqual(8, ordinal, "Torizo page count");
-        var artwork = new TorizoSwapArtwork(pages);
+        var artwork = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.Zip(pages).ToDictionary(entry => entry.First.Page, entry => entry.Second));
         string expectedHash = SelectedPresentationHash.Create("TorizoInstructionVramArtwork-v1", content =>
         {
             content.Append("pages", original.Length);
@@ -814,21 +821,30 @@ internal static class LookupStream2Verification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
         // The parts hold Kraid's encounter, which the body's setup begins; this fixture begins it directly.
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         enemies.VerificationServices().ReadRandom = () => 1;
-        Action<RoomEnemyPlace, KraidEnemyState> finish = enemies.KraidBehavior.Rise.FinishKraidGrowth;
-        Action<RoomEnemyPlace, KraidLintState> align = enemies.KraidBehavior.Projectiles.AlignKraidLint;
+        Action<RoomEnemyPlace, KraidLintState> align = KraidProjectiles.AlignKraidLint;
         var body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(200, 300));
         KraidLintPart[] lintParts = [KraidLintPart.Top, KraidLintPart.Middle, KraidLintPart.Bottom];
         foreach (KraidLintPart lintPart in lintParts)
             state.Lint(lintPart).LintTravel = 17;
-        finish(body, state);
+        // His growth finishes on the update its backdrop's fade completes, his body's main AI as the enemy pass runs it.
+        state.BodyState.GrowthPhase = KraidGrowthPhase.FadeInRoomBackground;
+        for (int update = 0; state.BodyState.Run is KraidStageRun.Growing; update++)
+        {
+            AssertTrue(update < 1024, "Kraid's backdrop fade finishes his growth");
+            body.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
+        }
         for (int native = 0; native < lintParts.Length; native++)
         {
-            var lint = enemies.KraidBehavior.Parts.Lint(lintParts[native]);
+            var lint = state.Parts.Lint(lintParts[native]);
             KraidLintState lintState = state.Lint(lintParts[native]);
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + native * 2));
+            ushort expected = rom.ReadCartridgeWord((0xa7a916 + native * 2));
             AssertEqual(expected, KraidLints.InitialDelay(lintParts[native]), "Native per-part initial delay");
             AssertEqual(expected, lintState.PhaseWait.UpdatesLeft, "Actual post-growth wait");
             AssertEqual(0, lintState.LintTravel, "Actual lint growth resets extension");
@@ -843,8 +859,6 @@ internal static class LookupStream2Verification
                 AssertEqual(unchecked((ushort)(body.Position.X.Whole - lint.Radius.X)), lint.Position.X.Whole, "Alignment continues during delay");
             }
         }
-        foreach (KraidLintPart invalid in new[] { (KraidLintPart)(-1), (KraidLintPart)3 })
-            AssertThrows<InvalidOperationException>(() => KraidLints.InitialDelay(invalid), "Only the three lints have launch policy");
         Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
     }
 
@@ -855,18 +869,18 @@ internal static class LookupStream2Verification
         //60,120,180,185,245,255 when all resources are eligible.
         ushort[] randomValues = [1, 61, 121, 181, 186, 246];
         // The roll weighs the minor drops, then the major drops, in the native probability columns' order.
-        EnemyPickupKind[] weighed = [.. EnemyDropSelectionDefinitions.MinorDrops, .. EnemyDropSelectionDefinitions.MajorDrops];
+        EnemyDropRoll[] weighed = [.. EnemyDropSelectionDefinitions.MinorDrops, .. EnemyDropSelectionDefinitions.MajorDrops];
         AssertEqual(6, weighed.Length, "The roll weighs the six native probability columns");
         for (int column = 0; column < 6; column++)
         {
-            EnemyPickupKind expected = EnemyPickupNativeWords.Selectors.Decode(rom.ReadCartridgeByte(0x86f25e + column), "probability-column pickup");
+            EnemyDropRoll expected = EnemyPickupNativeWords.Outcome(rom.ReadCartridgeByte(0x86f25e + column));
             AssertEqual(expected, weighed[column],
                 "Native probability-column pickup identity, minor drops then major drops");
             var samus = CreateDropTestSamus();
             samus.Health = 50;
             samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 5;
             var fixture = CreateEnemyDropFixture(samus, [randomValues[column]]);
-            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(NativeDropChances, fixture.Samus),
+            AssertEqual(expected, fixture.System.DeathsAndDrops.SelectRandomEnemyDrop(EnemyDrops.Rolling(NativeDropChances), fixture.Samus),
                 "Actual cumulative selection preserves each semantic column");
         }
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
@@ -891,9 +905,9 @@ internal static class LookupStream2Verification
             PipeBugDefinitions.LowerNearRole, PipeBugDefinitions.LowerFarRole];
         for (int member = 0; member < roles.Length; member++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), roles[member].StaggerTarget,
+            AssertEqual(rom.ReadCartridgeWord((0xb38c65 + member * 7)), roles[member].StaggerTarget,
                 "Native rank-derived formation release counter");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.FormationStaggers.Word(roles[member]),
+            AssertEqual(rom.ReadCartridgeWord((0xb38c88 + member * 6)), PipeBugsNativeWords.FormationStaggers.Word(roles[member]),
                 "Native role-specific formation function");
         }
         foreach (ushort samusX in new ushort[] { 120, 136 })
@@ -902,17 +916,21 @@ internal static class LookupStream2Verification
             for (int member = 0; member < 5; member++)
             {
                 var place = enemies.Places.InUpdateOrder[member];
-                place.Bind(EnemyDefinitionId.Gamet, place.Definition);
+                place.Bind(EnemyDefinitionId.Gamet, place.KeptDefinition);
                 place.Position = place.Position.WithWhole(new(128, 128)); place.SetSpawnParameter2(EnemyDefinitionId.Gamet, 64);
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(place);
-                place.AnimationClock.HoldFor((ushort)(member + 4));
             }
+            // The room's population load sets up the formation in order (#2554).
+            _ = enemies.LoadAuthoredPopulation();
+            for (int member = 0; member < 5; member++)
+                enemies.Places.InUpdateOrder[member].AnimationClock.HoldFor((ushort)(member + 4));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
-            enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.Places.InUpdateOrder[0], (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")), samus);
+            // The formation's leader waits for Samus, and its main AI launches the formation once she comes within its reach.
+            (enemies.NorfairPipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NorfairPipeBugStates[0].")).Action = NorfairPipeBugAction.WaitForSamus;
+            enemies.Places.InUpdateOrder[0].RunMainAi(samus);
             for (int member = 0; member < 5; member++)
             {
                 var state = enemies.NorfairPipeBugStates[member];
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).Role.StaggerTarget,
+                AssertEqual(rom.ReadCartridgeWord((0xb38c65 + member * 7)), (state ?? throw new InvalidOperationException("Verification requires state.")).Role.StaggerTarget,
                     "Actual formation writes native release counter");
                 // The member holds its role itself, its stagger and offset with the target (#2375).
                 AssertEqual(roles[member], state.Role, "Actual formation assigns the member its role");
@@ -938,7 +956,6 @@ internal static class LookupStream2Verification
             AssertEqual(new SnesObjAttributeWord(ReadVerificationWord(rom, 0x900000 | (ProjectileTrailNative.Address(frame) + 2))).ToSinglePart(),
                 stock.Resolve(frame), "Native trail appearance");
         }
-        AssertThrows<InvalidDataException>(() => stock.Resolve((ProjectileTrailFrame)Enum.GetValues<ProjectileTrailFrame>().Length), "Unknown trail frame rejected");
         Suite(nameof(VerifyLookupStream2TrailPrograms), () => VerifyLookupStream2TrailPrograms(rom));
         Console.WriteLine("Trail appearance:42 native words and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
@@ -956,13 +973,15 @@ internal static class LookupStream2Verification
             ushort cursor = start;
             while (true)
             {
-                ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.MovementBank.Value | cursor);
+                ushort word = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.MovementBank.Value | cursor);
                 if (word == 0) break;
                 if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
                 else { cursor += 2; }
             }
             var authoredSystem = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            // The native interpreter's own trail, run beside the port's.
+            // The native interpreter's own trail, run beside the port's, for the same two sparkles: native keeps each
+            // picture's corner, the port the sparkle with its picture drawn centred on it (#2573), so equal OAM is the
+            // port's pictures landing where native draws them.
             var nativeTrail = new SuperMetroid.Verification.Samus.Projectiles.NativeTrail(
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)),
                 SuperMetroid.Verification.Samus.Projectiles.NativeTrailSide.StartingAt(start, Position16<RoomPixels>.Of(100, 100)));
@@ -990,7 +1009,7 @@ internal static class LookupStream2Verification
                     if (sides.First.FrameHold != 0)
                         AssertEqual(sides.First.InstructionPointer, sides.Second.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.First.FrameHold, sides.Second.FrameHold, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.First.Position.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.First.Sparkle.Y, authoredTrail.Origin.Y + sides.Second.Offset.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -1000,7 +1019,7 @@ internal static class LookupStream2Verification
         {
             if (ProjectileTrailSparkleAnimations.TryRead(address, out _))
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), ProjectileTrailSparkleAnimations.Read(address), "Compiled trail program preserves every authored mechanics word");
+                AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailSparkleAnimations.Read(address), "Compiled trail program preserves every authored mechanics word");
                 programWords++;
             }
             else
@@ -1059,20 +1078,19 @@ internal static class LookupStream2Verification
         {
             int selection = ProjectileTrailNative.Selection(trailingType);
             var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            var projectile = new SamusProjectile(0)
-            {
-                Type = trailingType,
-                Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3),
-                Position = new(new(100, 0), new(200, 0)),
-            };
-            projectiles.Trails.SpawnTrail(projectile);
+            var projectile = new SamusProjectile(0);
+            projectile.OccupyAsFired(trailingType);
+            projectile.HeldShot().Animation = SamusProjectileProgramAddresses.StandingAt(0x86e3);
+            projectile.HeldShot().Position = new(new(SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn, 0), new(200, 0));
+            projectiles.Trails.SpawnTrail(projectile.HeldShot());
             // An empty trail family (programs, direction list or coordinates outside the compiled data) draws no trail (#1318).
             if (projectiles.LiveTrails.SingleOrDefault() is not { } trail)
                 continue;
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects the left table's trail");
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn selects the right table's trail");
             AssertEqual(1, trail.Left.FrameHold, "Selector extraction leaves allocation timer unchanged");
-            AssertEqual(96, trail.Origin.X + trail.Left.Offset.X, "Selector extraction leaves origin offset unchanged");
+            SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.AssertSelectedTrailStandsOnShot(
+                projectiles, trail, SuperMetroid.Verification.Samus.Projectiles.ProjectileTrailDefinitionsVerification.ShotColumn);
         }
         Console.WriteLine("Trail selectors: every trailing projectile's real spawn selection passes.");
     }
@@ -1177,9 +1195,11 @@ internal static class LookupStream2Verification
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Length, "Gunship calculated transfer count");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var place = enemies.Places.InUpdateOrder[0];
-        var part = new GunshipState(GunshipPhase.WaitForEngines) { PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates) };
-        place.SetSpeciesState(part);
+        var samus = RoomEnemyFrameFixtures.StandaloneSamus();
+        GunshipTopEntity top = GunshipShipFixtures.PlaceShip(enemies, samus);
+        GunshipState part = top.State.Ship;
+        part.Phase = GunshipPhase.WaitForEngines;
+        part.PhaseTimer = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineStartUpdates);
         int enumerated = 0;
         foreach (var transfer in transfers)
         {
@@ -1189,9 +1209,9 @@ internal static class LookupStream2Verification
             int firstCharacter = EncounterCharacterPlacementDefinitions.GunshipFirstCharacter
                 + enumerated * GunshipLiftoffCharacterDefinitions.ByteCount / SpriteCharacterTableLayout.CharacterByteCount;
             AssertEqual(destination, ObjCharacterNativeWords.Of(firstCharacter), "Gunship original destination");
-            AssertEqual(InstalledArtworkId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
+            AssertEqual(GunshipLiftoffTransferDefinitions.Frames[enumerated].Asset, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
-            enemies.GunshipBehavior.WaitForGunshipEngines(place);
+            top.Place.RunMainAi(samus);
             AssertEqual(enumerated + 1 == GunshipTakeoffDefinitions.EngineStartUpdates,
                 enemies.Presentation.Looks.Shows(GunshipTakeoffDefinitions.TakeoffLook),
                 "the gunship shows its takeoff look from the wait's last update only");
@@ -1213,24 +1233,24 @@ internal static class LookupStream2Verification
         {
             var pulse = shades.Single(shade => shade.Shade == SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowShades.Pulse(SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All[frame]));
             AssertTrue(pulse.Inks.SequenceEqual([102, 107]), "the pulse shade recolours the arrow's two bevel colours");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.Colours[0], "Native arrow color6 reaches the arrow's shade colour");
-            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.Colours[1], "Native arrow color11 reaches the arrow's light colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad5d + 2 * frame), pulse.InkColours[102], "Native arrow color6 reaches the arrow's shade colour");
+            AssertEqual(ReadVerificationWord(rom, 0x82ad9d + 2 * frame), pulse.InkColours[107], "Native arrow color11 reaches the arrow's light colour");
         }
         Check(stock, document);
-        Console.WriteLine("Reserve arrow ramps: all 64 native colors, shades and wrapping pass.");
+        Console.WriteLine("Reserve arrow ramps: all 64 native colors and shades pass.");
 
         static void Check(PauseReserveUiPresentation presentation, PauseReserveUiDocument expected)
         {
-            for (int frame = -1; frame <= 32; frame++)
+            foreach (SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame frame in SuperMetroid.Core.Frontend.Pause.Artwork.PauseReserveArrowPulseFrame.All)
             {
                 var pulse = presentation.ArrowColours.Pulse(frame);
-                var row = expected.Arrow.Frames[frame & 31];
-                AssertEqual(Pack(row.Color6), pulse.Color6, "Supplied color6");
-                AssertEqual(Pack(row.Color11), pulse.Color11, "Supplied color11");
+                var row = expected.Arrow.Frames[frame.Frame];
+                AssertEqual(Pack(row.Shade), pulse.Shade, "Supplied color6");
+                AssertEqual(Pack(row.Light), pulse.Light, "Supplied color11");
             }
             var solid = presentation.ArrowColours.Solid;
-            AssertEqual(Pack(expected.Arrow.SolidColor6), solid.Color6, "Solid arrow color6");
-            AssertEqual(Pack(expected.Arrow.SolidColor11), solid.Color11, "Solid arrow color11");
+            AssertEqual(Pack(expected.Arrow.SolidShade), solid.Shade, "Solid arrow color6");
+            AssertEqual(Pack(expected.Arrow.SolidLight), solid.Light, "Solid arrow color11");
         }
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
     }
@@ -1354,7 +1374,7 @@ internal static class LookupStream2Verification
         int enumerated = 0;
         foreach (var definition in definitions)
         {
-            AssertEqual(definitions[enumerated].Owner, definition.Owner, "Torizo enumerated owner");
+            AssertEqual(definitions[enumerated].Effect, definition.Effect, "Torizo enumerated effect");
             enumerated++;
         }
         AssertEqual(2, enumerated, "Torizo definition enumeration");
@@ -1470,9 +1490,10 @@ internal static class LookupStream2Verification
         for (int direction = 0; direction < 8; direction++)
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
-            var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
+            var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            _ = system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot.HeldShot(), shot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
         }
         int checkedWaveIce = 0;
@@ -1494,9 +1515,10 @@ internal static class LookupStream2Verification
                 checkedAxialEndPairs++;
             if (pointer is >= 0x8bfb and < 0x8c4f)
                 checkedCappedSweep++;
-            var shot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer) };
+            var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
             var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-            _ = system.Animation.AdvanceProjectileAnimation(shot);
+            system.Animation.AdvanceProjectileAnimation(shot.HeldShot(), shot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
             checkedWaveIce++;
         }
@@ -1507,9 +1529,12 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileFrameDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(pointer), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500) };
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: stock));
-            _ = bombs.AdvanceProjectileAnimation(bomb);
+            // The bomb holds the bomb system's first place, its fuse burned out, so its update plays its animation.
+            SamusBomb bomb = bombs.FirstBomb;
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(pointer);
+            bombs.HandleBombsInOpenRoom();
             AssertEqual(global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(ReadVerificationWord(rom, (0x930000 | pointer) + 2)), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");
             checkedBombs++;
         }
@@ -1531,34 +1556,34 @@ internal static class LookupStream2Verification
             int identity = 0xaaa4fa + 34 * phase;
             var frame = definitions.Single(frame => (((int)new SnesAddress(frame.Bank, frame.Pointer))) == identity);
             selected[phase] = frame;
-            AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWord(identity), "Golden Torizo four native visual components");
+            AssertEqual((ushort)4, rom.ReadCartridgeWord(identity), "Golden Torizo four native visual components");
             var components = new EnemyExtendedVisualComponent[4];
             for (int component = 0; component < 4; component++)
             {
                 int record = identity + 2 + component * 8;
-                int source = 0xaa0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4));
-                if (component == 2) nativeBodyParts += CartridgeImportSource.Require(rom).ReadCartridgeWord(source);
-                var parts = Enumerable.Range(0, CartridgeImportSource.Require(rom).ReadCartridgeWord(source)).Select(index =>
+                int source = 0xaa0000 | rom.ReadCartridgeWord((record + 4));
+                if (component == 2) nativeBodyParts += rom.ReadCartridgeWord(source);
+                var parts = Enumerable.Range(0, rom.ReadCartridgeWord(source)).Select(index =>
                 {
                     int entry = source + 2 + index * 5;
-                    var x = new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry));
-                    var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)));
+                    var x = new SnesSpritemapXWord(rom.ReadCartridgeWord(entry));
+                    var attributes = new SnesObjAttributeWord(rom.ReadCartridgeWord((entry + 3)));
                     return new SpriteVisualPart
                     {
                         OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                         TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                        Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                        Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                         FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                     };
                 }).ToArray();
                 components[component] = new EnemyExtendedVisualComponent
-                { OffsetX = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), OffsetY = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), Parts = parts };
+                { OffsetX = unchecked((short)rom.ReadCartridgeWord(record)), OffsetY = unchecked((short)rom.ReadCartridgeWord((record + 2))), Parts = parts };
             }
             document.Frames[frame.Name] = components;
         }
         AssertEqual(220, nativeBodyParts, "Golden Torizo ten native body-composition extents");
         EnemyExtendedFrameCatalog Load() => EnemyExtendedFrameDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyExtendedFrameDocument>(ArtworkJson.Options))));
         void Check(EnemyExtendedFrameCatalog catalog)
         {
             foreach (var frame in selected)

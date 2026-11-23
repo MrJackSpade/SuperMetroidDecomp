@@ -3,11 +3,11 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.World.Artwork;
 
 /// <summary>Versioned, semantic enemy frame names mapped to editable OAM parts.</summary>
-public sealed record EnemySpritemapDocument
+public sealed partial record EnemySpritemapDocument
 {
     /// <summary>Composition schema revision; loading requires <see cref="EnemySpritemapSchema.Revision"/>.</summary>
     public required int Version { get; init; }
-    /// <summary>Complete case-sensitive semantic frame keys for the selected schema, each mapped to an ordered non-null OAM-part array; parts describe visual offsets, size, tiles, palette, priority, and reflections rather than gameplay hitboxes.</summary>
+    /// <summary>Complete case-sensitive semantic frame keys for the selected schema, each mapped to an ordered non-null OAM-part array; parts describe visual offsets, size, tiles, palette, depth, and reflections rather than gameplay hitboxes.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }
     /// <summary>Visual-only native-frame-to-displayed-frame bindings; never AI timing.</summary>
     public Dictionary<string, string>? DisplayFrames { get; init; }

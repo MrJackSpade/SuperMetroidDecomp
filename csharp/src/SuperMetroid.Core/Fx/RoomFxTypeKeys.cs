@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx;
 /// The installed key of each <see cref="RoomFxType"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class RoomFxTypeKeys
+internal static partial class RoomFxTypeKeys
 {
     /// <summary>Each RoomFxType member's installed key.</summary>
     internal static InstalledKeys<RoomFxType> Installed { get; } = new(new Dictionary<RoomFxType, string>

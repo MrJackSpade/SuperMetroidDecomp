@@ -1,13 +1,12 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// A missile's flight (#1923): it ignites on its first update, then accelerates, leaves a trail every four updates and
+/// A missile's flight (#1923): it ignites on its first update, then accelerates, leaves a trail every <see cref="ProjectileTimingDefinitions.TrailInterval"/> and
 /// explodes at the first block its centre meets.
 /// </summary>
-internal sealed class MissileFlight : SamusShotBehavior
+internal sealed partial class MissileFlight : SamusStatefulShotBehavior<MissileShotState>
 {
     /// <inheritdoc/>
-    internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Motion.FlyMissile(update.Terrain.Level, update.Samus, update.Shot, update.Camera, update.SamusBombs,
-            update.Terrain.RoomObjects);
+    internal override void Run(SamusShotUpdate update, MissileShotState state) =>
+        update.Shots.Motion.FlyMissile(update.Terrain, update.Samus, update.Held, state, update.Camera, update.SamusBombs);
 }

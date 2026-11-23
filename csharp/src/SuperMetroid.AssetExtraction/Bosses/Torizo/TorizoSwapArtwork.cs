@@ -7,26 +7,26 @@ namespace SuperMetroid.AssetExtraction.Bosses.Torizo;
 /// Editable indexed characters for the native Torizo instruction uploads.
 /// Address and destination ownership remain in compiled control data.
 /// </summary>
-public sealed class TorizoSwapArtwork
+public sealed partial class TorizoSwapArtwork
 {
 
-    /// <summary>Validated selected character transfers in tile-sheet definition order.</summary>
-    internal readonly RoomCharacterAtlas[] pages;
+    /// <summary>Validated selected character transfers, by the tile page each holds.</summary>
+    internal readonly Dictionary<TorizoTilePage, RoomCharacterAtlas> pages;
 
     /// <summary>Copies and validates one installed character atlas for every required Torizo upload page.</summary>
-    internal TorizoSwapArtwork(RoomCharacterAtlas[] pages)
+    /// <exception cref="InvalidDataException">A page is missing, extra or of the wrong size.</exception>
+    internal TorizoSwapArtwork(IReadOnlyDictionary<TorizoTilePage, RoomCharacterAtlas> pages)
     {
         Ensure.NotNull(pages);
-        if (pages.Length != TorizoSwapArtworkDefinitions.All.Length)
+        if (pages.Count != TorizoSwapArtworkDefinitions.All.Length)
             throw new InvalidDataException("Torizo instruction artwork requires every tile page.");
-        for (int index = 0; index < pages.Length; index++)
+        this.pages = [];
+        foreach (TorizoTileSheet sheet in TorizoSwapArtworkDefinitions.All)
         {
-            if (pages[index] is null || pages[index].Characters.Length !=
-                TorizoSwapArtworkDefinitions.All[index].ByteCount)
-                throw new InvalidDataException(
-                    $"Torizo instruction tile page {index} has the wrong size.");
+            if (!pages.TryGetValue(sheet.Page, out RoomCharacterAtlas? atlas) || atlas.Characters.Length != sheet.ByteCount)
+                throw new InvalidDataException($"Torizo instruction tile page {sheet.Page} is missing or has the wrong size.");
+            this.pages.Add(sheet.Page, atlas);
         }
-        this.pages = [.. pages];
     }
 
     /// <summary>The <paramref name="byteCount"/> installed characters of <paramref name="page"/> from byte <paramref name="pageByte"/>.</summary>
@@ -35,13 +35,7 @@ public sealed class TorizoSwapArtwork
         Page(page).Characters.Slice(pageByte, byteCount);
 
     /// <summary>The installed atlas of <paramref name="page"/>, found by its tile sheet's identity.</summary>
-    private RoomCharacterAtlas Page(TorizoTilePage page)
-    {
-        for (int index = 0; index < pages.Length; index++)
-        {
-            if (TorizoSwapArtworkDefinitions.All[index].Page == page)
-                return pages[index];
-        }
-        throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined Torizo tile page.");
-    }
+    /// <exception cref="ArgumentOutOfRangeException">No such page is installed.</exception>
+    private RoomCharacterAtlas Page(TorizoTilePage page) =>
+        pages.TryGetValue(page, out RoomCharacterAtlas? atlas) ? atlas : throw new ArgumentOutOfRangeException(nameof(page), page, "Undefined Torizo tile page.");
 }

@@ -51,7 +51,7 @@ internal static class ManagedAudioVerification
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "initial source is positive");
         // SRCN is not a key-on operation. The existing interpolation window remains
         // audible until END/LOOP resolves the live directory entry (native dsp_decodeBrr).
-        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
+        dsp.WriteRegister(checked((byte)SnesDspRegisterLayout.OffsetOf(DspVoiceRegister.SourceNumber)), 1);
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "source write does not reset voice output");
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
@@ -71,7 +71,7 @@ internal static class ManagedAudioVerification
             new Dictionary<int, int> { [1] = 2 }));
         ConfigureAudibleVoiceZero(dsp);
         for (int tick = 0; tick < 32; tick++) dsp.Cycle();
-        dsp.WriteRegister((byte)DspVoiceRegister.SourceNumber, 1);
+        dsp.WriteRegister(checked((byte)SnesDspRegisterLayout.OffsetOf(DspVoiceRegister.SourceNumber)), 1);
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterLayout.Voice.SampleOutput)) > 0,
             "source change retains current interpolation window");
         for (int tick = 0; tick < 32; tick++) dsp.Cycle();

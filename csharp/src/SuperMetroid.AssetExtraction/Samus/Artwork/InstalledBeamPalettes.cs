@@ -5,38 +5,35 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 
 /// <summary>Immutable ordinary beam colors, as installed (#1596); selection and charge/Hyper animation remain engine-owned.</summary>
-public sealed class InstalledBeamPalettes
+public sealed partial class InstalledBeamPalettes
 {
-    /// <summary>The installed sixteen colours of every retail beam combination, by its table index.</summary>
-    private readonly RgbColor[][] palettes;
+    /// <summary>Each equippable combination's installed colours.</summary>
+    private readonly IReadOnlyDictionary<SamusBeamCombination, RgbColor[]> palettes;
 
-    /// <summary>Copies the installed colours of every retail beam combination.</summary>
-    /// <param name="palettes">Sixteen colours for each retail beam combination, by its table index.</param>
-    /// <exception cref="ArgumentException">A combination is missing or does not hold sixteen colours.</exception>
-    internal InstalledBeamPalettes(RgbColor[][] palettes)
+    /// <summary>Keeps each equippable combination's colours, as installed.</summary>
+    /// <exception cref="ArgumentException">A combination Samus can equip has no colours, or not sixteen.</exception>
+    internal InstalledBeamPalettes(IReadOnlyDictionary<SamusBeamCombination, RgbColor[]> palettes)
     {
         Ensure.NotNull(palettes);
-        if (palettes.Length != BeamTileAtlasDefinitions.SelectionCount || palettes.Any(colours => colours is null || colours.Length != BeamPaletteDefinitions.ColorCount))
+        if (palettes.Count != BeamTileAtlasDefinitions.Equippable.Count || BeamTileAtlasDefinitions.Equippable.Any(selection =>
+                !palettes.TryGetValue(selection, out RgbColor[]? colours) || colours is null || colours.Length != BeamPaletteDefinitions.ColorCount))
             throw new ArgumentException($"Beam palettes need {BeamPaletteDefinitions.ColorCount} colours for each of {BeamTileAtlasDefinitions.SelectionCount} combinations.", nameof(palettes));
-        this.palettes = [.. palettes.Select(colours => (RgbColor[])[.. colours])];
+        this.palettes = palettes.ToDictionary(entry => entry.Key, entry => (RgbColor[])[.. entry.Value]);
     }
 
-    /// <summary>
-    /// Colour <paramref name="color"/> of retail beam combination <paramref name="selection"/>, which the import also
-    /// pre-colours frozen enemies in (#1512).
-    /// </summary>
+    /// <summary>One colour of <paramref name="selection"/>'s palette.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination cannot be equipped, or the colour lies past the sixteen.</exception>
     public RgbColor ColourOf(SamusBeamCombination selection, int color)
     {
         if (!selection.CanBeEquipped) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
-        return palettes[selection.TableIndex][Ensure.BetweenInclusive(0, BeamPaletteDefinitions.ColorCount - 1, color)];
+        return Ensure.Listed(palettes, selection)[Ensure.BetweenInclusive(0, BeamPaletteDefinitions.ColorCount - 1, color)];
     }
 
-    /// <summary>The sixteen colours a retail beam combination's beams show (#1512); the import pre-colours Samus's sheets in them.</summary>
-    /// <param name="selection">A retail beam combination.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The combination is not a retail one.</exception>
+    /// <summary>All sixteen colours of <paramref name="selection"/>'s palette.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The combination cannot be equipped.</exception>
     public RgbColor[] Colours(SamusBeamCombination selection)
     {
         if (!selection.CanBeEquipped) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
-        return [.. palettes[selection.TableIndex]];
+        return [.. Ensure.Listed(palettes, selection)];
     }
 }

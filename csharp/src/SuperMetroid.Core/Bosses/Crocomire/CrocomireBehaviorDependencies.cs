@@ -7,9 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The collaborators a <see cref="CrocomireBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[ArchitectureReview("wide-dependencies", "The composition seam for Crocomire's five parts (combat, fight, bridge collapse, melting, skeleton), each built from a different subset of these collaborators; #2177 added the room's places, among which his parts find his body, and #2194 the room's boss encounters, to which his body attaches his.")]
-[RoomLifetime]
-internal sealed record CrocomireBehaviorDependencies
+internal sealed partial record CrocomireBehaviorDependencies
 {
 
     /// <summary>The room Crocomire fights in: its services, its random numbers and whether he is already defeated.</summary>
@@ -48,9 +46,12 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>The room's enemy places, among which his tongue finds his body.</summary>
     public required EnemyPlaces Places { get; init; }
 
+    /// <summary>Where his body offers his tongue, listed right after it, the creation that builds it joining his encounter (#2554).</summary>
+    public required EnemyPartOffers PartOffers { get; init; }
+
     /// <summary>His body's sprite layer and the acid smoke that rises from his room's acid surface, built with <see cref="Access"/>.</summary>
     public required CrocomireBodyLayer BodyLayer { get; init; }
 
-    /// <summary>The encounters of the room's bosses, which his room's shaking main and his melt's display read his from (#2194).</summary>
+    /// <summary>The encounters of the room's bosses, from which his room's shaking and his melt's display read his encounter (#2194).</summary>
     public required RoomBossEncounters Encounters { get; init; }
 }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>File identities and exact geometry of the installed Ceres approach artwork.</summary>
-public static class CeresFlightArtworkFileFormat
+public static partial class CeresFlightArtworkFileFormat
 {
     /// <summary>
     /// Required schema revision of the paired front/rear map document: 2 names its views' tiles for the camera's views

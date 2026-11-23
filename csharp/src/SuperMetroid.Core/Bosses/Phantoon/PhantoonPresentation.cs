@@ -4,8 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's fades, health colors, wave amplitude and animations, shared by every phase of the fight.</summary>
-[RoomLifetime]
-internal sealed class PhantoonPresentation
+internal sealed partial class PhantoonPresentation
 {
     /// <summary>The current enemy pass's clocks and flags.</summary>
     private readonly EnemyFrameContext _frameContext;
@@ -17,13 +16,13 @@ internal sealed class PhantoonPresentation
         _frameContext = frameContext;
     }
 
-    /// <summary>Fades his body toward the colours of his health band over <paramref name="steps"/> steps, one every second update.</summary>
+    /// <summary>Fades his body toward the colours of his health band over <paramref name="steps"/> steps, one at each place of the fade's cadence.</summary>
     internal void AdvancePhantoonFadeIn(
         RoomEnemyPlace body,
         PhantoonEnemyState state,
         int steps)
     {
-        if (!PhantoonCadenceDefinitions.FadeStepEverySecondUpdate.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
+        if (!PhantoonCadenceDefinitions.FadeStep.IsDue(_frameContext.FrameCounter) || state.BodyFade.IsFinished)
             return;
 
         // The fade's step is a typed fade toward his health band's colours (#1512, #2251).
@@ -33,17 +32,17 @@ internal sealed class PhantoonPresentation
             state.Colours.CompleteFade();
     }
 
-    /// <summary>Changes the background wave's amplitude toward its current phase target.</summary>
+    /// <summary>Changes his body's wave toward its current phase's target.</summary>
     internal static bool AdvancePhantoonWaveAmplitude(
         PhantoonWaveState wave,
-        SignedSixteenSixteen change,
-        SignedSixteenSixteen maximum)
+        UnsignedSixteenSixteen change,
+        UnsignedSixteenSixteen maximum)
     {
         if (wave.AmplitudeShrinking)
         {
-            if ((wave.Amplitude - change).IsNegative)
+            if (wave.Amplitude.IsSlowerThan(change))
             {
-                wave.Amplitude = SignedSixteenSixteen.Zero;
+                wave.Amplitude = UnsignedSixteenSixteen.Zero;
                 return true;
             }
             wave.Amplitude -= change;
@@ -51,7 +50,7 @@ internal sealed class PhantoonPresentation
         }
 
         wave.Amplitude += change;
-        if (!(wave.Amplitude - maximum).IsNegative)
+        if (!wave.Amplitude.IsSlowerThan(maximum))
             wave.Amplitude = maximum;
         return false;
     }

@@ -8,21 +8,30 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Resolves wireframe pointers at import, exposing only visual atlas cells to authors.</summary>
-public static class PauseWireframeExtractor
+public static partial class PauseWireframeExtractor
 {
     /// <summary>Resolves every native suit wireframe pointer and converts its tile words to bounded semantic atlas cells.</summary>
     /// <param name="bus">Supported-cartridge address space containing wireframe pointers and fixed-size tilemaps.</param>
     /// <returns>UTF-8 JSON bytes keyed by wireframe kind.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        var frames = new Dictionary<string, PauseBackdropCell[]>();
-        foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
+        static int TablePlace(PauseWireframe wireframe) => wireframe switch
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank((int)kind * 2));
+            { Suit: PauseWireframeSuit.PowerSuit, Boots: PauseWireframeBoots.RegularBoots } => 0,
+            { Suit: PauseWireframeSuit.PowerSuit, Boots: PauseWireframeBoots.HiJumpBoots } => 1,
+            { Suit: PauseWireframeSuit.VariaSuit, Boots: PauseWireframeBoots.RegularBoots } => 2,
+            { Suit: PauseWireframeSuit.VariaSuit, Boots: PauseWireframeBoots.HiJumpBoots } => 3,
+            _ => throw new ArgumentOutOfRangeException(nameof(wireframe), wireframe, "Undefined pause wireframe."),
+        };
+
+        var frames = new Dictionary<string, PauseBackdropCell[]>();
+        foreach (PauseWireframe kind in PauseWireframe.All)
+        {
+            int pointer = RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.PauseWireframePointers.AddWithinBank(TablePlace(kind) * 2));
             var cells = new PauseBackdropCell[PauseWireframeDefinitions.Cells];
             for (int index = 0; index < cells.Length; index++)
             {
-                var word = new MapTileWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), new SnesAddress(PauseMenuSourceDefinitions.PauseWireframeBank.Bank, (ushort)(pointer + index * 2))));
+                var word = new MapTileWord(RomDataReader.ReadWordFixedBank(bus, new SnesAddress(PauseMenuSourceDefinitions.PauseWireframeBank.Bank, (ushort)(pointer + index * 2))));
                 int character = word.CharacterIndex;
                 if (character >= PauseBackdropDefinitions.AtlasTileCount * 2)
                     throw new InvalidDataException($"Wireframe {kind} cell {index} references an unloaded character {character}.");
@@ -36,7 +45,7 @@ public static class PauseWireframeExtractor
                     FlipY = (word.Mirroring & PictureFlip.Vertical) != PictureFlip.None,
                 };
             }
-            frames.Add(PauseWireframeKindKeys.Installed.Of(kind), cells);
+            frames.Add(PauseWireframeKeys.Of(kind), cells);
         }
         using var output = new MemoryStream();
         PauseWireframePresentation.Write(output, new() { Version = PauseWireframeDefinitions.Version, Frames = frames });

@@ -11,16 +11,16 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted on every update of a dropped, kicked or shot Yard's flight whose vertical move meets nothing, after that
-/// move. Evidence: the airborne movement (<c>$A3:D1B3</c>) adds the eighth to the fraction word and the fraction's carry
-/// to the whole word (<c>$A3:D245</c>-<c>$A3:D255</c>), always stores the fraction and stores the whole word only when
-/// the sum less four is negative (<c>CMP #$0004</c>, <c>BPL</c> at <c>$A3:D258</c>). A dropped Yard falls from rest and
+/// move. Evidence: the airborne movement (<c>$A3:D1B3</c>) adds the eighth to the speed's fraction and the fraction's
+/// carry to its whole pixels (<c>$A3:D245</c>-<c>$A3:D255</c>), always keeps the new fraction and keeps the new whole
+/// pixels only when the sum less four pixels an update is negative (<c>$A3:D258</c>). A dropped Yard falls from rest
+/// and
 /// reaches three pixels an update after 24 updates, about 35 pixels of fall; a kick launches it at three to eight
 /// pixels an update upward, which a ceiling reverses; so retail falls reach the held whole pixels and the cycling
 /// fraction. The Yard fall acceleration check compares every whole word with each fraction on both sides of the carry,
 /// and every fraction with whole words either side of the cap, of no speed and at both ends, with that addition.
 /// </remarks>
-[CompatibilityService("a Yard in the air gains an eighth of a pixel an update of downward speed, but an addition that would reach four pixels or more down keeps the whole pixels it had while the fraction counts on, so its fall speed cycles below four pixels")]
-internal static class YardFallAcceleration
+internal static partial class YardFallAcceleration
 {
     /// <summary>The downward speed each update adds: an eighth of a pixel an update.</summary>
     private static readonly SignedSixteenSixteen Gravity = SignedSixteenSixteen.FromPixelFraction(1, 8);

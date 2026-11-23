@@ -8,17 +8,17 @@ namespace SuperMetroid.Core.Hud;
 /// The gameplay message box's definitions (#1416, #1466, #2542): where its window shows, its waits, the window's opening
 /// steps and display durations, what each message asks the player to confirm, and which button its item panels name.
 /// </summary>
-public static class GameplayMessageBoxDefinitions
+public static partial class GameplayMessageBoxDefinitions
 {
     /// <summary>Where the message box shows on the screen.</summary>
-    public static class Layout
+    public static partial class Layout
     {
         /// <summary>The screen line the message's picture is centred on, and around which the message window expands.</summary>
         public const int WindowCenterY = 124;
     }
 
     /// <summary>Authored waits, window-animation steps, and minimum display durations.</summary>
-    public static class Timing
+    public static partial class Timing
     {
         /// <summary>The wait the gunship's saving sound plays for.</summary>
         public const int GunshipSavingSoundFrames = 160;
@@ -27,84 +27,53 @@ public static class GameplayMessageBoxDefinitions
         /// <summary>Per-step change in message-window radius.</summary>
         public const int RadiusStepPixels = 2;
         /// <summary>Minimum updates an item-acquisition message remains displayed.</summary>
-        public const int ItemMinimumDisplayFrames = 360;
+        internal const int ItemMinimumDisplayFrames = 360;
         /// <summary>Minimum updates a station message remains displayed.</summary>
         public const int StationMinimumDisplayFrames = 10;
-
-        /// <summary>
-        /// The updates each message stays displayed at least once its window has opened, before it takes input (#2422): an
-        /// item's description holds for <see cref="ItemMinimumDisplayFrames"/>, the four completion notices for
-        /// <see cref="StationMinimumDisplayFrames"/>. The save confirmations take input as soon as their window opens and
-        /// are not listed.
-        /// </summary>
-        public static IReadOnlyDictionary<GameplayMessageId, int> MinimumDisplayFrames { get; } = new Dictionary<GameplayMessageId, int>
-        {
-            [GameplayMessageId.EnergyTank] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.MissileTank] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.SuperMissileTank] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.PowerBombTank] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.GrappleBeam] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.XrayScope] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.VariaSuit] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.SpringBall] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.MorphBall] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.ScrewAttack] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.HiJumpBoots] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.SpaceJump] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.SpeedBooster] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.ChargeBeam] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.IceBeam] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.WaveBeam] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.SpazerBeam] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.PlasmaBeam] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.Bombs] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.ReserveTank] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.GravitySuit] = ItemMinimumDisplayFrames,
-            [GameplayMessageId.MapDataAccessCompleted] = StationMinimumDisplayFrames,
-            [GameplayMessageId.EnergyRechargeCompleted] = StationMinimumDisplayFrames,
-            [GameplayMessageId.MissileRechargeCompleted] = StationMinimumDisplayFrames,
-            [GameplayMessageId.SaveCompleted] = StationMinimumDisplayFrames,
-        };
     }
 
     /// <summary>
-    /// What each message asks the player to confirm (#2542): the save station's question asks whether to save, the gunship's
-    /// asks the same and follows an accepted save with its own completion notice, and every other message asks nothing.
+    /// Each message's definition (#2422, #2542): the updates it stays displayed at least once its window has opened, before
+    /// it takes input, which the save confirmations do not wait; what it asks the player to confirm; and the binding its
+    /// panel names the button of.
     /// </summary>
-    public static IReadOnlyDictionary<GameplayMessageId, GameplayMessageConfirmation> Confirmations { get; } =
-        new Dictionary<GameplayMessageId, GameplayMessageConfirmation>
+    public static IdentityTable<GameplayMessageId, GameplayMessageDefinition> Messages { get; } =
+        new(new Dictionary<GameplayMessageId, GameplayMessageDefinition>
     {
-        [GameplayMessageId.EnergyTank] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.MissileTank] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.SuperMissileTank] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.PowerBombTank] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.GrappleBeam] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.XrayScope] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.VariaSuit] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.SpringBall] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.MorphBall] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.ScrewAttack] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.HiJumpBoots] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.SpaceJump] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.SpeedBooster] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.ChargeBeam] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.IceBeam] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.WaveBeam] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.SpazerBeam] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.PlasmaBeam] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.Bombs] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.MapDataAccessCompleted] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.EnergyRechargeCompleted] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.MissileRechargeCompleted] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.SaveConfirmation] = GameplayMessageConfirmation.Save,
-        [GameplayMessageId.SaveCompleted] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.ReserveTank] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.GravitySuit] = GameplayMessageConfirmation.None,
-        [GameplayMessageId.GunshipSaveConfirmation] = GameplayMessageConfirmation.SaveThenCompletionNotice,
-    };
+        [GameplayMessageId.EnergyTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.MissileTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Shoot),
+        [GameplayMessageId.SuperMissileTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Shoot),
+        [GameplayMessageId.PowerBombTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Shoot),
+        [GameplayMessageId.GrappleBeam] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Shoot),
+        [GameplayMessageId.XrayScope] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Run),
+        [GameplayMessageId.VariaSuit] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.SpringBall] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.MorphBall] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.ScrewAttack] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.HiJumpBoots] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.SpaceJump] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.SpeedBooster] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Run),
+        [GameplayMessageId.ChargeBeam] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.IceBeam] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.WaveBeam] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.SpazerBeam] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.PlasmaBeam] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.Bombs] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, GameplayMessagePanelButtonBinding.Shoot),
+        [GameplayMessageId.MapDataAccessCompleted] = new(Timing.StationMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.EnergyRechargeCompleted] = new(Timing.StationMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.MissileRechargeCompleted] = new(Timing.StationMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.SaveConfirmation] = new(null, GameplayMessageConfirmation.Save, null),
+        [GameplayMessageId.SaveCompleted] = new(Timing.StationMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.ReserveTank] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.GravitySuit] = new(Timing.ItemMinimumDisplayFrames, GameplayMessageConfirmation.None, null),
+        [GameplayMessageId.GunshipSaveConfirmation] = new(null, GameplayMessageConfirmation.SaveThenCompletionNotice, null),
+    });
+
+    /// <summary>The definition of <paramref name="messageId"/>.</summary>
+    public static GameplayMessageDefinition Message(GameplayMessageId messageId) => Messages[messageId];
 
     /// <summary>Which button an item panel names for its action.</summary>
-    public static class Buttons
+    public static partial class Buttons
     {
         /// <summary>The buttons a panel's glyph can show, in the order a binding is tested for them.</summary>
         public static ImmutableArray<ControllerButton> GlyphOrder { get; } =
@@ -117,41 +86,5 @@ public static class GameplayMessageBoxDefinitions
             ControllerButton.L,
             ControllerButton.R,
         ];
-
-        /// <summary>
-        /// The binding each message's panel names the button of: shoot or run for the large item panels that show one,
-        /// <see cref="GameplayMessagePanelButtonBinding.None"/> for every other message.
-        /// </summary>
-        public static IReadOnlyDictionary<GameplayMessageId, GameplayMessagePanelButtonBinding> PanelBindings { get; } =
-            new Dictionary<GameplayMessageId, GameplayMessagePanelButtonBinding>
-        {
-            [GameplayMessageId.MissileTank] = GameplayMessagePanelButtonBinding.Shoot,
-            [GameplayMessageId.SuperMissileTank] = GameplayMessagePanelButtonBinding.Shoot,
-            [GameplayMessageId.PowerBombTank] = GameplayMessagePanelButtonBinding.Shoot,
-            [GameplayMessageId.GrappleBeam] = GameplayMessagePanelButtonBinding.Shoot,
-            [GameplayMessageId.Bombs] = GameplayMessagePanelButtonBinding.Shoot,
-            [GameplayMessageId.XrayScope] = GameplayMessagePanelButtonBinding.Run,
-            [GameplayMessageId.SpeedBooster] = GameplayMessagePanelButtonBinding.Run,
-            [GameplayMessageId.EnergyTank] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.VariaSuit] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.SpringBall] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.MorphBall] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.ScrewAttack] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.HiJumpBoots] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.SpaceJump] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.ChargeBeam] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.IceBeam] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.WaveBeam] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.SpazerBeam] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.PlasmaBeam] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.MapDataAccessCompleted] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.EnergyRechargeCompleted] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.MissileRechargeCompleted] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.SaveConfirmation] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.SaveCompleted] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.ReserveTank] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.GravitySuit] = GameplayMessagePanelButtonBinding.None,
-            [GameplayMessageId.GunshipSaveConfirmation] = GameplayMessagePanelButtonBinding.None,
-        };
     }
 }

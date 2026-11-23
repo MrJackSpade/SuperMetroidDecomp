@@ -7,8 +7,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Routing, voice allocation and program addresses remain compiled engine definitions;
 /// authored instrument/note/envelope/timing operands are editable content.
 /// </summary>
-[EncodingOwner("sound driver sound-effect channel program bytecode")]
-internal static class SpcSoundEffectProgramCodec
+internal static partial class SpcSoundEffectProgramCodec
 {
     /// <summary>The opcode byte of each instruction; every other byte begins a note packet.</summary>
     private static readonly Dictionary<int, SpcSoundEffectOpcode> opcodes = new()
@@ -24,8 +23,14 @@ internal static class SpcSoundEffectProgramCodec
     };
 
     /// <summary>The opcode byte of <paramref name="instruction"/>.</summary>
-    private static int OpcodeByte(SpcSoundEffectOpcode instruction) =>
+    internal static int OpcodeByte(SpcSoundEffectOpcode instruction) =>
         opcodes.First(pair => pair.Value == instruction).Key;
+
+    /// <summary>Whether the sound stream's <paramref name="commandByte"/> is <paramref name="instruction"/>'s opcode (#2563).</summary>
+    /// <param name="commandByte">A byte read from a sound effect's stream where a command stands.</param>
+    /// <param name="instruction">The instruction asked about.</param>
+    internal static bool Is(int commandByte, SpcSoundEffectOpcode instruction) =>
+        opcodes.TryGetValue(commandByte, out SpcSoundEffectOpcode command) && command == instruction;
 
     /// <summary>Decodes uploaded SPC bytes into bounded instructions until End or RepeatForever.</summary>
     internal static AudioSoundProgramMetadata Decode(
@@ -105,7 +110,7 @@ internal static class SpcSoundEffectProgramCodec
             AudioSoundInstructionMetadata instruction = program.Instructions[index]
                 ?? throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' contains a null instruction at {index}.");
-            (int opcode, int argumentCount, bool terminal) = instruction.Operation switch
+            SoundEffectInstructionShape shape = instruction.Operation switch
             {
                 AudioSoundOperation.SetAdsr => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.SetAdsr), 4, false),
                 AudioSoundOperation.PitchSlideLegato => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.PitchSlideLegato), 2, false),
@@ -115,7 +120,7 @@ internal static class SpcSoundEffectProgramCodec
                 AudioSoundOperation.RepeatForever => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.RepeatForever), 0, true),
                 AudioSoundOperation.EndRepeat => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EndRepeat), 0, false),
                 AudioSoundOperation.EnableNoise => new SoundEffectOpcodeShape(OpcodeByte(SpcSoundEffectOpcode.EnableNoise), 0, false),
-                AudioSoundOperation.PlayNote => new SoundEffectOpcodeShape(0, 5, false),
+                AudioSoundOperation.PlayNote => new SoundEffectNoteShape(5),
                 _ => throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' uses unknown operation '{instruction.Operation}'."),
             };
@@ -124,6 +129,7 @@ internal static class SpcSoundEffectProgramCodec
                 throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' operation '{instruction.Operation}' has no argument list.");
             }
+            int argumentCount = shape.ArgumentCount;
             if (instruction.Arguments.Count != argumentCount)
             {
                 throw new InvalidDataException(
@@ -135,22 +141,24 @@ internal static class SpcSoundEffectProgramCodec
                 throw new InvalidDataException(
                     $"SPC sound program '{program.Id}' contains instructions after its terminal operation.");
             }
-            if (instruction.Operation == AudioSoundOperation.PlayNote)
+            switch (shape)
             {
-                if (opcodes.ContainsKey(instruction.Arguments[0]))
-                {
+                case SoundEffectOpcodeShape command:
+                    bytes.Add(unchecked((byte)command.Opcode));
+                    break;
+                case SoundEffectNoteShape when opcodes.ContainsKey(instruction.Arguments[0]):
                     throw new InvalidDataException(
                         $"SPC sound program '{program.Id}' playNote instrument ${instruction.Arguments[0]:X2} " +
                         "is reserved by the instruction language.");
-                }
-                bytes.Add(instruction.Arguments[0]);
+                case SoundEffectNoteShape:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined sound-effect instruction shape {shape}.");
             }
-            else
-                bytes.Add(unchecked((byte)opcode));
-            int firstArgument = instruction.Operation == AudioSoundOperation.PlayNote ? 1 : 0;
-            for (int argument = firstArgument; argument < instruction.Arguments.Count; argument++)
-                bytes.Add(instruction.Arguments[argument]);
-            terminated = terminal;
+            // A command's arguments follow its opcode; a note's first argument is its instrument.
+            foreach (byte argument in instruction.Arguments)
+                bytes.Add(argument);
+            terminated = shape.Terminal;
         }
         if (!terminated)
             throw new InvalidDataException($"SPC sound program '{program.Id}' has no terminal operation.");

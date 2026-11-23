@@ -176,16 +176,15 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // the menu's subsequent ENERGY + HH:MM path against one shared save store.
     saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with
     {
-        Health = 99,
-        MaxHealth = 99,
         GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 0, seconds: 0, minutes: 34, hours: 12),
         Progress = progress,
         Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
+        Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 99, MaxHealth = 99 },
     });
     SuperMetroidSaveSlot saved = saveRam.ReadSlot(SaveSlot.A)
         ?? throw new InvalidOperationException("Fresh Ceres SRAM slot failed its own checksums.");
-    AssertEqual(99, saved.Health, "Ceres checkpoint saved health");
-    AssertEqual(99, saved.MaxHealth, "Ceres checkpoint saved maximum health");
+    AssertEqual(99, saved.Inventory.Health, "Ceres checkpoint saved health");
+    AssertEqual(99, saved.Inventory.MaxHealth, "Ceres checkpoint saved maximum health");
     AssertTrue(ReferenceEquals(SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator, saved.Checkpoint), "Ceres checkpoint saved load station");
     AssertTrue(saved.Progression.UsedStations.Members.SequenceEqual([LoadStationDefinitions.Gunship]), "used Crateria save station");
     AssertTrue(saved.Progression.HasAreaMap(AreaId.Crateria), "Crateria map acquired");
@@ -214,19 +213,19 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     PulseFileSelect(copyMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Copy, copyMenu.SelectedItem, "file-select reaches DATA COPY");
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AdvanceFileSelectFade(copyMenu, FileSelectPhase.CopySelectSource);
+    AdvanceFileSelectFade(copyMenu, new FileSelectPhase.DataManagement.CopySelectSource());
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.CopySelectDestination, copyMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.CopySelectDestination(), copyMenu.Phase,
         "copy chooses nonempty source slot");
     PulseFileSelect(copyMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.CopyConfirm, copyMenu.Phase,
+    AssertEqual(true, copyMenu.Phase is FileSelectPhase.DataManagement.CopyConfirm,
         "copy chooses distinct destination slot");
     copyMenu.Step(0);
     AssertEqual(FileSelectSaveChange.Copied, copyMenu.Step(ControllerButton.A), "copy reports the update it changed the saves");
-    AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
+    AssertEqual(new FileSelectPhase.DataManagement.CopyCompleted(), copyMenu.Phase, "copy reaches completion screen");
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(SaveSlot.B)
         ?? throw new InvalidOperationException("File-select COPY did not create slot B.");
-    AssertEqual(saved.Health, copied.Health, "file-select COPY preserves health");
+    AssertEqual(saved.Inventory.Health, copied.Inventory.Health, "file-select COPY preserves health");
     AssertEqual(saved.GameTime, copied.GameTime, "file-select COPY preserves time");
 
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
@@ -238,26 +237,26 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         PulseFileSelect(clearMenu, ControllerButton.Down);
     AssertEqual(FileSelectItem.Clear, clearMenu.SelectedItem, "file-select reaches DATA CLEAR");
     PulseFileSelect(clearMenu, ControllerButton.A);
-    AdvanceFileSelectFade(clearMenu, FileSelectPhase.ClearSelectSlot);
+    AdvanceFileSelectFade(clearMenu, new FileSelectPhase.DataManagement.ClearSelectSlot());
     PulseFileSelect(clearMenu, ControllerButton.A);
-    AssertEqual(FileSelectPhase.ClearConfirm, clearMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.ClearConfirm(), clearMenu.Phase,
         "clear chooses first nonempty slot");
     clearMenu.Step(0);
     AssertEqual(FileSelectSaveChange.Cleared, clearMenu.Step(ControllerButton.A), "clear reports the update it cleared a save");
-    AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
+    AssertEqual(new FileSelectPhase.DataManagement.ClearCompleted(), clearMenu.Phase,
         "clear reaches DATA CLEARED screen");
     AssertTrue(saveRam.ReadSlot(SaveSlot.A) is null, "file-select CLEAR invalidates slot A checksums");
     AssertTrue(saveRam.ReadSlot(SaveSlot.B) is not null, "file-select CLEAR preserves other slots");
 
-    AdvanceFileSelectFade(savedMenu, FileSelectPhase.Main);
+    AdvanceFileSelectFade(savedMenu, new FileSelectPhase.Main());
     savedMenu.Step(ControllerButton.A);
     for (int guard = 0;
-         savedMenu.Phase != FileSelectPhase.FadeOutToOptions && guard < 80;
+         savedMenu.Phase is not FileSelectPhase.FadeOutToOptions && guard < 80;
          guard++)
     {
         savedMenu.Step(0);
     }
-    AssertEqual(FileSelectPhase.FadeOutToOptions, savedMenu.Phase,
+    AssertEqual(new FileSelectPhase.FadeOutToOptions(), savedMenu.Phase,
         "selected save completes helmet turn before load fade");
     FileSelectHelmetFrame selectedHelmetFrame = savedMenu.SelectedHelmetFrame;
     AssertEqual(FileSelectHelmetFrame.SparkleWide, selectedHelmetFrame,
@@ -283,9 +282,9 @@ static void AdvanceFileSelectToMain(FileSelectMenuState menu)
     // three's delay-one fade takes thirty dispatches (100% movie frames 399-437).
     for (int frame = 0; frame < 34; frame++)
         menu.Step(0);
-    AssertTrue(menu.Phase != FileSelectPhase.Main, "file-select fade is still running on its 34th update");
+    AssertTrue(menu.Phase is not FileSelectPhase.Main, "file-select fade is still running on its 34th update");
     menu.Step(0);
-    AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu on its 35th update");
+    AssertEqual(new FileSelectPhase.Main(), menu.Phase, "file-select fade reaches main menu on its 35th update");
 }
 
 /// <summary>Steps a data-management fade until the expected file-select phase becomes active.</summary>
@@ -319,27 +318,26 @@ internal static void VerifySavedGameLoadAppearance()
     var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     saveRam.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame with
     {
-        Health = 99,
-        MaxHealth = 99,
         Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
+        Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 99, MaxHealth = 99 },
     });
     SuperMetroidSaveSlot slot = saveRam.ReadSlot(SaveSlot.A)
         ?? throw new InvalidOperationException("Synthetic Crateria save did not validate.");
 
     var runtime = CreateRetailRuntimeFixture();
     runtime.HudSetup.InitializeHud(new HudSnapshot(
-        slot.Health,
-        slot.MaxHealth,
-        slot.Missiles,
-        slot.MaxMissiles,
-        slot.SuperMissiles,
-        slot.MaxSuperMissiles,
-        slot.PowerBombs,
-        slot.MaxPowerBombs,
-        slot.EquippedItems,
+        slot.Inventory.Health,
+        slot.Inventory.MaxHealth,
+        slot.Inventory.Missiles,
+        slot.Inventory.MaxMissiles,
+        slot.Inventory.SuperMissiles,
+        slot.Inventory.MaxSuperMissiles,
+        slot.Inventory.PowerBombs,
+        slot.Inventory.MaxPowerBombs,
+        slot.Inventory.EquippedItems,
         slot.HudItem,
-        slot.ReserveEnergy,
-        slot.ReserveMode));
+        slot.Inventory.ReserveEnergy,
+        slot.Inventory.ReserveMode));
     runtime.FrameBoundary.BeginAcceptedFrame(0);
     runtime.RoomLoader.InitializeSavedGame(slot);
 
@@ -354,7 +352,7 @@ internal static void VerifySavedGameLoadAppearance()
         .All(station => station.SaveStationLockedOut),
         "loading onto a save room sets the native room-entry lockout");
 
-    var appearanceHistory = runtime.Player.IntroducedSamus.PoseHistory;
+    var appearanceHistory = runtime.Player.Samus.PoseHistory;
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
     SamusMovementType appearanceMetadata = appearanceHistory.PreviousMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
@@ -365,8 +363,8 @@ internal static void VerifySavedGameLoadAppearance()
         "saved-game appearance remains active through frame 359");
     runtime.StepFrame(0);
     AssertEqual(appearanceMetadata, appearanceHistory.MovementBeforePrevious, "appearance completion shifts prior metadata");
-    AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(SamusPoseMetadata.ReadMovementType(runtime.Player.IntroducedSamus),
+    AssertEqual(runtime.Player.Samus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
+    AssertEqual(SamusPoseMetadata.ReadMovementType(runtime.Player.Samus),
         appearanceHistory.PreviousMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Player.Samus is { Control.InputLocked: false },
@@ -463,7 +461,7 @@ internal static void VerifyIntroCrossfade()
         "a scene cannot crossfade into itself");
 
     RgbColor Shown(IntroCrossfade shown) =>
-        new ColourLevel(shown.LevelOf(IntroCrossfadeScene.Flashback), IntroCrossfade.Levels).Apply(target);
+        new ColourLevel(new FadeLevel(shown.LevelOf(IntroCrossfadeScene.Flashback), IntroCrossfade.Levels)).Apply(target, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
 
     // A crossfade takes a step every fourth update, counted down to its last.
     static void StepOnce(IntroCrossfade running)
@@ -479,28 +477,28 @@ internal static void VerifyDemoInputObject()
     var demo = new DemoInputState();
     demo.Clear();
     demo.Enable();
-    demo.Load(DemoInputRecordingId.IntroMotherBrainFlashback);
+    int elapsed = 0, ends = 0;
+    // The flashback's signal runs its owner's end routine, which disables the object ($8739).
+    demo.Load(DemoSignallingRecordingId.IntroMotherBrainFlashback, () =>
+    {
+        ends++;
+        demo.Disable();
+    });
 
-    // The first six records at $91:8694. The two one-frame X edges are separated by held-X
-    // records; normal projectile cooldown/motion code, not this program, decides each shot.
-    int[] boundaries = [90, 1, 40, 1, 29, 70];
+    // The first seven records at $91:8694, the last two one run of nothing held played as one input (#2557). The two
+    // one-frame X edges are separated by held-X records; normal projectile cooldown/motion code, not this program, decides
+    // each shot.
+    int[] boundaries = [90, 1, 40, 1, 29, 90];
     GameplayAction[] held =
         [0, GameplayAction.Shoot, GameplayAction.Shoot, GameplayAction.Shoot,
             GameplayAction.Shoot, 0];
     GameplayAction[] newlyPressed =
         [0, GameplayAction.Shoot, 0, GameplayAction.Shoot, 0, 0];
-    int elapsed = 0, ends = 0;
-    void EndRoutine(DemoInputCue cue)
-    {
-        AssertEqual(DemoInputCue.EndIntroMotherBrainFlashback, cue, "flashback demo end routine");
-        ends++;
-        demo.Disable();
-    }
     for (int record = 0; record < boundaries.Length; record++)
     {
         for (int frame = 0; frame < boundaries[record]; frame++)
         {
-            demo.Step(EndRoutine);
+            demo.Step();
             AssertEqual(held[record], demo.Held, $"demo record {record} held frame {frame}");
             AssertEqual(newlyPressed[record], demo.NewlyPressed,
                 $"demo record {record} new frame {frame}");
@@ -508,7 +506,7 @@ internal static void VerifyDemoInputObject()
         }
     }
 
-    AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
+    AssertEqual(251, elapsed, "old Mother Brain demo-input duration");
     AssertEqual(DemoInputRomDataIntroMotherBrain.NextRecord, DemoInputNativeListAddresses.Address(demo.Position),
         "old Mother Brain next record pointer");
     // Loading a record and publishing its first visible frame happen in the same handler call, so each record holds
@@ -516,7 +514,7 @@ internal static void VerifyDemoInputObject()
 
     // $8739 disables the object and returns into the shared delete in the same handler call.
     for (int frame = 0; frame < 1024 && demo.IsActive; frame++)
-        demo.Step(EndRoutine);
+        demo.Step();
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");
@@ -528,7 +526,7 @@ internal static void VerifyDemoInputObject()
 
 /// <summary>Reads a fixture instruction from bank $91 through the cartridge import boundary.</summary>
 internal static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
-    CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
+    bus.ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
 /// <summary>Writes a little-endian fixture word at a mapped SNES ROM address.</summary>
 internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {

@@ -24,12 +24,12 @@ internal static class ShutterRidingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope, camera: new Position16<RoomPixels>(0x100, 0));
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             var platform = runtime.Enemies.Places.InUpdateOrder[slot];
             var state = runtime.Enemies.VerticalShutterStates[slot];
-            samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
             samus.Control.Unlock();
             samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -39,7 +39,7 @@ internal static class ShutterRidingVerification
             // A real Shoot edge plants the bomb. Its explosion activates the shutter
             // and launches Samus; no diagnostic phase write substitutes for that path.
             for (int frame = 0; frame < 220; frame++)
-                runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings.Shoot : 0);
+                runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot] : 0);
             AssertEqual(VerticalShutterAction.Still, (state ?? throw new InvalidOperationException("Verification requires state.")).Action,
                 "bomb-raised shutter remains at native permanent upper stop without a second hit");
             AssertEqual(state.UpperEndpointY, platform.Position.Y.Whole, "shutter reaches the authored upper Y");

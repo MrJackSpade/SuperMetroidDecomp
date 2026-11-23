@@ -19,15 +19,17 @@ internal static class MagdolliteLavaBehaviorVerification
     /// </summary>
     internal static void VerifyMagdolliteLavaBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, MagdolliteLavaNativeListAddresses.Extent, "Magdollite-lava");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 1;
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
         source.Position = source.Position.WithWhole(new(288, 128));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, HorizontalDirection.Left);
-        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source, HorizontalDirection.Right);
+        // The lava rises from the head, which its entry places with a head's settings.
+        source.BindPlaced(EnemyDefinitionId.Magdollite, new MagdolliteHeadSpawnSettings(SuperMetroid.Core.Spatial.SignedSixteenSixteen.Zero, Range: 0));
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source.HeldOccupant(), source, HorizontalDirection.Left);
+        enemies.MagdolliteBehavior.SpawnMagdolliteLava(source.HeldOccupant(), source, HorizontalDirection.Right);
         foreach ((ushort direction, MagdolliteLavaSegment program) in new VerifyMagdolliteLavaBehaviorCase[] { new VerifyMagdolliteLavaBehaviorCase(0, MagdolliteLavaSegment.Left), new VerifyMagdolliteLavaBehaviorCase(1, MagdolliteLavaSegment.Right) })
         {
             EnemyProjectile lava = Find(direction);
@@ -37,7 +39,7 @@ internal static class MagdolliteLavaBehaviorVerification
         }
 
         EnemyProjectile shot = Find(0);
-        shot.StartAnimation(new MagdolliteLavaAnimation(MagdolliteLavaSegment.Shot));
+        shot.StartAnimation(new MagdolliteLavaAnimation(enemies.MagdolliteBehavior.Lava, MagdolliteLavaSegment.Shot));
         (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot, MagdolliteLavaNativeListAddresses.Entry(MagdolliteLavaSegment.Shot), 4, "shot lava");
         AssertTrue(removed && updates == 1, "the shot program deletes the lava on its first pass");
         // $86:DFEA allocates its pickup at the shot lava's position.

@@ -11,8 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// update. Evidence: the HUD admission check, which compares every pose's answer with the original flags and code.
 /// </remarks>
 /// <typeparam name="TPose">A Samus pose.</typeparam>
-[CompatibilityService("posture-transition weapon admission for a pose outside its table reads the code stored around the table")]
-public sealed class PostureAdmissionBeyondTransitions<TPose>
+public sealed partial class PostureAdmissionBeyondTransitions<TPose>
     where TPose : notnull
 {
     /// <summary>Whether each pose outside the table admits weapons.</summary>

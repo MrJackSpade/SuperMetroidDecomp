@@ -1,18 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Where Kraid's growth restarts the head, chosen by what the head animation would run next when growth begins: a
-/// closed, opening or wider pose each resume the roar's closing part at the matching point; anything else resumes it
-/// at the wide-open hold's end with a long delay.
+/// Where Kraid's growth restarts the head: the part of the roar it resumes and the pose it enters there. A closed,
+/// opening or wider pose shown next resumes the roar's closing part at that pose; anything else resumes it at the
+/// wide-open hold's end with a long delay.
 /// </summary>
-internal enum KraidHeadGrowthResume
-{
-    /// <summary>The next step shows the closed mouth.</summary>
-    NextFrameClosed,
-    /// <summary>The next step shows the first opening stage.</summary>
-    NextFrameOpening,
-    /// <summary>The next step shows the wider opening stage.</summary>
-    NextFrameWider,
-    /// <summary>The next step is the open pose, a cry or an animation end.</summary>
-    NextStepOther,
-}
+/// <param name="Segment">The roar's part growth resumes.</param>
+/// <param name="Frame">The pose of that part the head enters.</param>
+internal readonly partial record struct KraidHeadGrowthResume(KraidHeadSegment Segment, KraidHeadFrame Frame);

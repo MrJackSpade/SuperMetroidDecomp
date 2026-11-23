@@ -11,6 +11,12 @@
          still composes the same native 256x224 frame and owns final scaling. -->
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!--
+      A published game is compiled ahead of time (#2619): without it the first use of each method compiles it as the game
+      runs, and creating the debugger state store alone, whose registry first runs every type's generated registration,
+      took 7.5 s at startup (0.4 s compiled ahead of time).
+    -->
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />

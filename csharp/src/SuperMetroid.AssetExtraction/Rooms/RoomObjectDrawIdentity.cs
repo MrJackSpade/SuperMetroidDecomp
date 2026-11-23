@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// the draw, and the import tells which family's frame a draw is when it lists, names and checks the frames. The game draws
 /// each frame through its own family and never asks.
 /// </summary>
-internal static class RoomObjectDrawIdentity
+internal static partial class RoomObjectDrawIdentity
 {
     /// <summary>Whether <paramref name="draw"/> is a frame of <typeparamref name="TFrame"/>, and that frame.</summary>
     internal static bool TryFrame<TFrame>(RoomObjectDraw draw, out TFrame frame) where TFrame : struct

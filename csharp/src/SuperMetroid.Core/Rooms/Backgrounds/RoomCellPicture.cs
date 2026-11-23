@@ -7,59 +7,54 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// What one cell of a room plane or of the X-ray reveal shows (#1764, #2100): a block of the room tileset's block set, the
 /// picture of a collectible that shows its own picture, by its kind and animation frame (#1538), or nothing. A
 /// collectible's picture is named by what it shows, not numbered past the tileset's blocks, and nothing is no block at
-/// all. The default shows the block set's first block.
+/// all. A cell carries only what it shows (#2558): no block number where no block shows, and the default shows nothing
+/// of the three.
 /// </summary>
-public readonly record struct RoomCellPicture
+public readonly partial record struct RoomCellPicture
 {
-    /// <summary>The block shown, by its number in the tileset's block set; zero where no block shows.</summary>
-    private readonly int block;
+    /// <summary>What the cell shows: a block, a collectible's picture or nothing.</summary>
+    private readonly Shown shown;
 
-    /// <summary>The collectible picture shown, or null where a block or nothing shows.</summary>
-    private readonly CollectiblePicture? collectible;
+    /// <summary>What a cell shows, each kind carrying only its own values.</summary>
+    private abstract partial record Shown;
 
-    /// <summary>Whether the cell shows nothing at all.</summary>
-    private readonly Blank blank;
+    /// <summary>A block of the room tileset's block set.</summary>
+    /// <param name="Block">The block's number in the tileset's block set.</param>
+    private sealed partial record ShownBlock(int Block) : Shown;
 
-    /// <summary>Whether a cell that shows no collectible's picture shows a block.</summary>
-    private enum Blank
-    {
-        /// <summary>A block or a collectible's picture shows.</summary>
-        No,
-        /// <summary>Nothing shows.</summary>
-        ShowsNothing,
-    }
+    /// <summary>A collectible's own picture.</summary>
+    /// <param name="Picture">The picture shown.</param>
+    private sealed partial record ShownCollectible(CollectiblePicture Picture) : Shown;
 
-    /// <summary>Keeps a block, a collectible picture or nothing, never more than one.</summary>
-    private RoomCellPicture(int block, CollectiblePicture? collectible, Blank blank)
-    {
-        this.block = block;
-        this.collectible = collectible;
-        this.blank = blank;
-    }
+    /// <summary>Nothing at all.</summary>
+    private sealed partial record ShownNothing : Shown;
+
+    /// <summary>Keeps what the cell shows.</summary>
+    private RoomCellPicture(Shown shown) => this.shown = shown;
 
     /// <summary>A cell that shows nothing.</summary>
-    public static RoomCellPicture Nothing { get; } = new(0, null, Blank.ShowsNothing);
+    public static RoomCellPicture Nothing { get; } = new(new ShownNothing());
 
     /// <summary>Whether the cell shows a collectible's picture rather than a block of the tileset.</summary>
-    public bool ShowsCollectible => collectible is not null;
+    public bool ShowsCollectible => shown is ShownCollectible;
 
     /// <summary>Whether the cell shows nothing.</summary>
-    public bool ShowsNothing => blank == Blank.ShowsNothing;
+    public bool ShowsNothing => shown is ShownNothing;
 
     /// <summary>The block shown, by its number in the room tileset's block set.</summary>
     /// <exception cref="InvalidOperationException">The cell shows a collectible's picture or nothing.</exception>
-    public int Block => collectible is null && !ShowsNothing ? block
+    public int Block => shown is ShownBlock block ? block.Block
         : throw new InvalidOperationException($"The cell shows {this}, not a block.");
 
     /// <summary>The collectible picture shown.</summary>
     /// <exception cref="InvalidOperationException">The cell shows a block of the tileset or nothing.</exception>
-    public CollectiblePicture Collectible => collectible
-        ?? throw new InvalidOperationException($"The cell shows {this}, not a collectible's picture.");
+    public CollectiblePicture Collectible => shown is ShownCollectible collectible ? collectible.Picture
+        : throw new InvalidOperationException($"The cell shows {this}, not a collectible's picture.");
 
     /// <summary>A cell showing block <paramref name="block"/> of the room tileset's block set.</summary>
     /// <param name="block">The block's number in the tileset's block set, zero or more; the tileset's sheet bounds it.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is negative.</exception>
-    public static RoomCellPicture OfBlock(int block) => new(Ensure.AtLeastZero(block), null, Blank.No);
+    public static RoomCellPicture OfBlock(int block) => new(new ShownBlock(Ensure.AtLeastZero(block)));
 
     /// <summary>A cell showing what <paramref name="appearance"/> shows: its block, or nothing.</summary>
     /// <exception cref="InvalidOperationException">
@@ -67,16 +62,26 @@ public readonly record struct RoomCellPicture
     /// own picture covers wherever it lies (#2354).
     /// </exception>
     public static RoomCellPicture Of(RoomBlockAppearance appearance) =>
-        appearance.ShowsNothing ? Nothing
-            : appearance.ShowsBlock ? OfBlock(appearance.Block)
-            : appearance.IsCollectiblePairBlock
-                ? throw new InvalidOperationException($"No room cell shows {appearance}: its collectible's own picture covers it.")
-            : throw new InvalidOperationException($"No room cell shows {appearance}: the room never shows terrain beyond its grid.");
+        appearance.Shows switch
+        {
+            RoomBlockShown.Nothing => Nothing,
+            RoomBlockShown.Block => OfBlock(appearance.Block),
+            RoomBlockShown.CollectiblePairBlock =>
+                throw new InvalidOperationException($"No room cell shows {appearance}: its collectible's own picture covers it."),
+            RoomBlockShown.BeyondRoom =>
+                throw new InvalidOperationException($"No room cell shows {appearance}: the room never shows terrain beyond its grid."),
+            _ => throw new InvalidOperationException($"Undefined shown kind {appearance.Shows}."),
+        };
 
     /// <summary>A cell showing the collectible picture <paramref name="picture"/>.</summary>
-    public static RoomCellPicture Of(CollectiblePicture picture) => new(0, picture, Blank.No);
+    public static RoomCellPicture Of(CollectiblePicture picture) => new(new ShownCollectible(picture));
 
     /// <summary>The block, the collectible picture or nothing shown, for diagnostics.</summary>
-    public override string ToString() =>
-        collectible is { } shown ? $"collectible {shown.Kind} {shown.Look}" : ShowsNothing ? "nothing" : $"block {block}";
+    public override string ToString() => shown switch
+    {
+        ShownCollectible collectible => $"collectible {collectible.Picture.Kind} {collectible.Picture.Look}",
+        ShownNothing => "nothing",
+        ShownBlock block => $"block {block.Block}",
+        _ => "no picture",
+    };
 }

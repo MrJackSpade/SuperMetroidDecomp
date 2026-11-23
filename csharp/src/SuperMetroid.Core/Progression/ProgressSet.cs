@@ -6,17 +6,17 @@ namespace SuperMetroid.Core.Progression;
 /// kind declares them and rejects anything that is not one of them.
 /// </summary>
 /// <typeparam name="T">The kind of progress.</typeparam>
-public sealed class ProgressSet<T>
+public sealed partial class ProgressSet<T>
     where T : notnull
 {
     /// <summary>
-    /// Every member of the kind, in its declared order. A member's place is found in this list itself, so the set holds
-    /// nothing derived from its members' hash codes, which a copy of the set made in another process could not use.
+    /// Every member of the kind, in its declared order. Members are found by equality in the lists themselves, so the set
+    /// holds nothing derived from its members' hash codes, which a copy of the set made in another process could not use.
     /// </summary>
     private readonly IReadOnlyList<T> _kind;
 
-    /// <summary>Whether each member, by its place, has happened.</summary>
-    private readonly bool[] _on;
+    /// <summary>The members that have happened, each once.</summary>
+    private readonly List<T> _happened = [];
 
     /// <summary>Creates the set of <paramref name="kind"/>'s members, none of which has happened.</summary>
     /// <param name="kind">Every member of the kind, in its declared order, each once.</param>
@@ -30,42 +30,45 @@ public sealed class ProgressSet<T>
             if (!members.Add(kind[place]))
                 throw new ArgumentException($"{kind[place]} is listed twice.", nameof(kind));
         }
-        _on = new bool[kind.Count];
     }
 
     /// <summary>Whether <paramref name="member"/> has happened.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="member"/> is not one of the kind.</exception>
-    public bool Contains(T member) => _on[Place(member)];
+    public bool Contains(T member) => _happened.Contains(Member(member));
 
     /// <summary>Records that <paramref name="member"/> has happened.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="member"/> is not one of the kind.</exception>
-    public void Add(T member) => _on[Place(member)] = true;
+    public void Add(T member)
+    {
+        if (!Contains(member))
+            _happened.Add(member);
+    }
 
     /// <summary>Records that <paramref name="member"/> has not happened.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="member"/> is not one of the kind.</exception>
-    public void Remove(T member) => _on[Place(member)] = false;
+    public void Remove(T member) => _happened.Remove(Member(member));
 
     /// <summary>Records whether <paramref name="member"/> has happened.</summary>
     /// <param name="member">The member.</param>
     /// <param name="happened">Whether it has happened afterwards.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="member"/> is not one of the kind.</exception>
-    public void Set(T member, bool happened) => _on[Place(member)] = happened;
+    public void Set(T member, bool happened)
+    {
+        if (happened)
+            Add(member);
+        else
+            Remove(member);
+    }
 
     /// <summary>Records that every member of the kind has happened.</summary>
-    public void AddAll() => Array.Fill(_on, true);
+    public void AddAll()
+    {
+        _happened.Clear();
+        _happened.AddRange(_kind);
+    }
 
     /// <summary>The members that have happened, in the kind's declared order.</summary>
-    public IEnumerable<T> Members
-    {
-        get
-        {
-            for (int place = 0; place < _on.Length; place++)
-            {
-                if (_on[place])
-                    yield return _kind[place];
-            }
-        }
-    }
+    public IEnumerable<T> Members => _kind.Where(_happened.Contains);
 
     /// <summary>Makes every member match <paramref name="source"/>.</summary>
     /// <exception cref="ArgumentException"><paramref name="source"/> is a set of a different kind.</exception>
@@ -73,7 +76,8 @@ public sealed class ProgressSet<T>
     {
         Ensure.NotNull(source);
         RequireSameKind(source);
-        source._on.CopyTo(_on, 0);
+        _happened.Clear();
+        _happened.AddRange(source._happened);
     }
 
     /// <summary>A detached copy of this set.</summary>
@@ -102,16 +106,9 @@ public sealed class ProgressSet<T>
             Set(member, overwrite.Set.Contains(member));
     }
 
-    /// <summary>The place of <paramref name="member"/>, rejecting anything that is not one of the kind.</summary>
-    private int Place(T member)
-    {
-        for (int place = 0; place < _kind.Count; place++)
-        {
-            if (EqualityComparer<T>.Default.Equals(_kind[place], member))
-                return place;
-        }
-        throw new ArgumentOutOfRangeException(nameof(member), member, $"{member} is not a {typeof(T).Name} of this set.");
-    }
+    /// <summary><paramref name="member"/>, rejecting anything that is not one of the kind.</summary>
+    private T Member(T member) =>
+        _kind.Contains(member) ? member : throw new ArgumentOutOfRangeException(nameof(member), member, $"{member} is not a {typeof(T).Name} of this set.");
 
     /// <summary>Whether <paramref name="other"/> lists the same members in the same order.</summary>
     private bool SameKind(ProgressSet<T> other) => ReferenceEquals(other._kind, _kind) || other._kind.SequenceEqual(_kind);

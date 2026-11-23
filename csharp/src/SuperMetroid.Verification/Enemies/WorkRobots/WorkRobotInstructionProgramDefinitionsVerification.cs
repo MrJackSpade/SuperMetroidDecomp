@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -25,9 +26,10 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyWorkRobotInstructionProgramDefinitions(CartridgeImportAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(out RoomEnemyPlace robot);
         RoomLevelData level = CreateWorkRobotInstructionRoom();
-        WorkRobotEnemyState state = enemies.WorkRobotStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WorkRobotStates[0].");
+        RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(level, out RoomEnemyPlace robot);
+        // The robot's setup builds the state its animation, which the check plays, runs on.
+        WorkRobotEnemyState state = robot.RequireSpeciesState<WorkRobotEnemyState>();
 
         // Every animation an owner starts; the recoils run on from the shots (#2166).
         foreach (WorkRobotSegment program in WorkRobotAnimations.StartingAt.Keys)
@@ -38,7 +40,8 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
                 robot.AnimationClock.StepOnNextUpdate();
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = WrappingCountdown.Start(ushort.MaxValue);
-                EnemyAnimationPlayer.AdvanceAnimation(robot, RoomEnemyFrameFixtures.StandaloneSamus(), level, new Position16<RoomPixels>(384, 192), 0);
+                enemies.WorkRobotBehavior.AdvanceWorkRobotTypedAnimation(robot, state, new EnemyAnimationCueContext
+                    { Samus = RoomEnemyFrameFixtures.StandaloneSamus(), Level = level, Camera = new Position16<RoomPixels>(384, 192), ControllerInput = GameplayAction.None });
             }
         }
 
@@ -46,21 +49,26 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         Console.WriteLine("Work Robot: all 24 typed programs run their walk, wall, ledge, recoil and footstep cues.");
     }
 
-    /// <summary>Installs a powered bank A8 robot with deterministic random input for list execution.</summary>
-    internal static RoomEnemySystem CreateWorkRobotInstructionSystem(
-        out RoomEnemyPlace robot)
+    /// <summary>
+    /// Installs a powered bank A8 robot in <paramref name="level"/> with deterministic random input for list execution, set up
+    /// as its room's population sets it up (#2554).
+    /// </summary>
+    private static RoomEnemySystem CreateWorkRobotInstructionSystem(RoomLevelData level, out RoomEnemyPlace robot)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().ReadRandom = () => 0;
         // The powered robot's definition has power once Phantoon is defeated.
         enemies.VerificationServices().IsAreaBossDefeated = () => true;
 
-        robot = enemies.Places.InUpdateOrder[0];
-        robot.Bind(EnemyDefinitionId.WorkRobot, robot.Definition);
-        robot.Bind(robot.DefinitionId, default(RoomEnemyDefinition));
+        RoomEnemyPlace placed = enemies.Places.InUpdateOrder[0];
+        placed.Bind(EnemyDefinitionId.WorkRobot, placed.KeptDefinition);
+        placed.Bind(placed.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        // The robot's entry carries the blank words its species reads.
+        placed.SetSpawnWords(EnemyDefinitionId.WorkRobot, words => words);
+        robot = enemies.LoadAuthoredPopulation(RoomEnemyFrameFixtures.StandaloneSamus(), level)[0];
         robot.Radius = new(8, 16);
-        var state = new WorkRobotEnemyState() { Playback = new(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation) };
-        robot.SetSpeciesState(state);
+        AssertEqual(new AnimationPlayback<WorkRobotSegment>(WorkRobotAnimations.StartingWith(WorkRobotSegment.StandingFacingLeft), AnimationPlace.StartOfAnimation),
+            robot.RequireSpeciesState<WorkRobotEnemyState>().Playback, "the set-up robot stands facing left");
         return enemies;
     }
 

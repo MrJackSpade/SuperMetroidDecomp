@@ -21,8 +21,6 @@ namespace SuperMetroid.Core.Rendering;
 /// columns or rows there.
 /// </param>
 /// <param name="ShownLayers">The room's layers and the actors the frame shows, on every line no band of the scene shows its own.</param>
-/// <param name="BackgroundPixelation">How the background is pixelated.</param>
-public readonly record struct GameplaySceneView(
+public readonly partial record struct GameplaySceneView(
     Offset16<RoomPixels> ForegroundScroll, Offset16<BackgroundPixels> BackgroundScroll,
-    ScreenLayers ShownLayers,
-    BackgroundPixelation BackgroundPixelation = default);
+    ScreenLayers ShownLayers);

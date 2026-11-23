@@ -10,8 +10,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's death: the sink below the floor, hiding his body and the background fade.</summary>
-[RoomLifetime]
-internal sealed class KraidDeath
+internal sealed partial class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -19,8 +18,6 @@ internal sealed class KraidDeath
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    private readonly KraidParts _parts;
     /// <summary>Applies Kraid's colours, background pictures, and sprite presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Applies contact damage, death state, and resulting drops.</summary>
@@ -41,7 +38,6 @@ internal sealed class KraidDeath
         _passEvents = dependencies.PassEvents;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
-        _parts = dependencies.Parts;
         _presentation = dependencies.Presentation;
         _deathsAndDrops = dependencies.DeathsAndDrops;
         _cameraDistance = dependencies.CameraDistance;
@@ -56,7 +52,7 @@ internal sealed class KraidDeath
     /// </summary>
     private static void HideKraidBody(KraidEnemyState state)
     {
-        state.BodyAppearance = KraidBodyAppearance.Hidden;
+        state.HideBody();
         state.ShowsBodyLayer = false;
     }
 
@@ -64,67 +60,81 @@ internal sealed class KraidDeath
     internal void RunKraidDeathPhase(
         RoomEnemyPlace body,
         KraidEnemyState state,
-        int cameraX,
+        KraidStageRun.Dying dying,
         SamusState samus)
     {
-        switch (state.BodyState.DeathPhase)
+        switch (dying.Phase)
         {
             case KraidDeathPhase.Initialize:
-                InitializeKraidDeath(state, samus);
+                InitializeKraidDeath(state, dying, samus);
                 return;
 
             case KraidDeathPhase.FadeOut:
-                _ = _head.AdvanceKraidHeadAnimation(state);
-                if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
+                _head.AdvanceKraidHeadAnimation(state, dying.Head);
+                if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropSettledColours.Black))
                 {
-                    state.BodyState.DeathPhase = KraidDeathPhase.ShowBody;
-                    state.ShowBody();
+                    dying.Phase = KraidDeathPhase.ShowBody;
+                    state.RedrawBodyForDeath();
                 }
                 return;
 
             case KraidDeathPhase.ShowBody:
-                _ = _head.AdvanceKraidHeadAnimation(state);
-                state.BodyState.DeathPhase = KraidDeathPhase.StartSinking;
-                state.ShowBody();
+                _head.AdvanceKraidHeadAnimation(state, dying.Head);
+                dying.Phase = KraidDeathPhase.StartSinking;
+                state.RedrawBodyForDeath();
                 return;
 
             case KraidDeathPhase.StartSinking:
-                _ = _head.AdvanceKraidHeadAnimation(state);
-                state.BodyState.DeathPhase = KraidDeathPhase.Sink;
+                _head.AdvanceKraidHeadAnimation(state, dying.Head);
+                dying.Phase = KraidDeathPhase.Sink;
                 state.SinkRumbleWait.LastFor(KraidArenaDefinitions.SinkFirstSoundUpdates);
                 body.Contact = body.Contact.With(EnemyContact.SolidToSamus);
-                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), KraidArenaDefinitions.SinkShakeUpdates);
+                _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), KraidArenaDefinitions.SinkShakeUpdates);
                 state.ArmState.StartAnimation(KraidPartSegment.ArmRisingOrSinking);
                 state.FootState.StartAnimation(KraidPartSegment.FootInitial);
                 state.FootState.Phase = KraidFootPhase.Resting;
                 return;
 
             case KraidDeathPhase.Sink:
-                RunKraidDeathSink(body, state, samus);
+                RunKraidDeathSink(body, state, dying, samus);
                 return;
 
-            case KraidDeathPhase.HideBody:
-                state.BodyState.DeathPhase = KraidDeathPhase.WaitBeforeFadeIn;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(KraidDeathPhase)} {dying.Phase}.");
+        }
+    }
+
+    /// <summary>Runs the current step of Kraid's sunk body: hiding it, the room's dark wait, its fade back in and the finish.</summary>
+    internal void RunKraidSunkPhase(
+        RoomEnemyPlace body,
+        KraidEnemyState state,
+        KraidStageRun.Sunk sunk,
+        int cameraX)
+    {
+        switch (sunk.Phase)
+        {
+            case KraidSunkPhase.HideBody:
+                sunk.Phase = KraidSunkPhase.WaitBeforeFadeIn;
                 state.BodyState.PhaseWait.LastFor(KraidArenaDefinitions.DeathDarkUpdates);
                 HideKraidBody(state);
                 return;
-            case KraidDeathPhase.WaitBeforeFadeIn:
+            case KraidSunkPhase.WaitBeforeFadeIn:
                 if (state.BodyState.PhaseWait.StepRunsOut())
-                    state.BodyState.DeathPhase = KraidDeathPhase.FadeInBackground;
+                    sunk.Phase = KraidSunkPhase.FadeInBackground;
                 return;
-            case KraidDeathPhase.FadeInBackground:
-                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToKraidColours))
+            case KraidSunkPhase.FadeInBackground:
+                if (!_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropSettledColours.KraidColours))
                     return;
                 _access.RequestKraidMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
                 _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
-                state.BodyState.DeathPhase = KraidDeathPhase.Finished;
+                sunk.Phase = KraidSunkPhase.Finished;
                 return;
-            case KraidDeathPhase.Finished:
+            case KraidSunkPhase.Finished:
                 if (HasCameraLeftRoomLeftEdge(cameraX))
                     KraidEncounterAccess.MarkKraidPartDead(body);
                 return;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(KraidDeathPhase)} {state.BodyState.DeathPhase}.");
+                throw new InvalidOperationException($"Undefined {nameof(KraidSunkPhase)} {sunk.Phase}.");
         }
     }
 
@@ -138,20 +148,19 @@ internal sealed class KraidDeath
     /// Starts the death animation and prepares its room mutation schedule. His health has run out, so the update's colour
     /// handling, which runs before it, has already cut his hurt flash short.
     /// </summary>
-    internal void InitializeKraidDeath(KraidEnemyState state, SamusState samus)
+    internal void InitializeKraidDeath(KraidEnemyState state, KraidStageRun.Dying dying, SamusState samus)
     {
         state.Colours.ShowDeathArm();
         state.ArmState.StartAnimation(KraidPartSegment.ArmDyingOrPreparingToLunge);
-        state.BodyState.DeathPhase = KraidDeathPhase.FadeOut;
-        state.StartHeadAnimation(KraidHeadSegment.Death);
+        dying.Phase = KraidDeathPhase.FadeOut;
+        dying.Head.Start(KraidHeadSegment.Death, state.HeadHold);
         // The death stops the fingernails coming back once killed, then kills the
-        // nails, then the three lints. The death runs without choosing an explosion, so each
-        // part leaves the first death explosion.
-        foreach (RoomEnemyPlace nail in _parts.Nails)
+        // nails, then the three lints, each in the small death explosion.
+        foreach (RoomEnemyPlace nail in state.Parts.Nails)
             nail.Presence = nail.Presence.Without(EnemyPresence.RespawnsIfKilled);
-        foreach (RoomEnemyPlace nail in _parts.Nails)
+        foreach (RoomEnemyOccupant nail in state.Parts.LatestNails)
             _deathsAndDrops.StartGenericEnemyDeath(nail, EnemyDeathExplosion.Small, samus);
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyOccupant lint in state.Parts.LatestLints)
             _deathsAndDrops.StartGenericEnemyDeath(lint, EnemyDeathExplosion.Small, samus);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
@@ -159,9 +168,9 @@ internal sealed class KraidDeath
     }
 
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
-    private void RunKraidDeathSink(RoomEnemyPlace body, KraidEnemyState state, SamusState samus)
+    private void RunKraidDeathSink(RoomEnemyPlace body, KraidEnemyState state, KraidStageRun.Dying dying, SamusState samus)
     {
-        _ = _head.AdvanceKraidHeadAnimation(state);
+        _head.AdvanceKraidHeadAnimation(state, dying.Head);
         if (state.SinkRumbleWait.StepRunsOut())
         {
             _access.RequestKraidSound(KraidSoundDefinitions.RockSpit);
@@ -173,20 +182,19 @@ internal sealed class KraidDeath
             return;
 
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        RoomEnemyPlace arm = _parts.Arm;
+        RoomEnemyPlace arm = state.Parts.Arm;
         arm.Contact = arm.Contact.With(EnemyContact.IgnoresSamus);
         arm.Presence = arm.Presence.With(EnemyPresence.Deleted);
         // The lints and the foot are deleted with the arm (#2298).
-        foreach (RoomEnemyPlace lint in _parts.Lints)
+        foreach (RoomEnemyPlace lint in state.Parts.Lints)
             KraidEncounterAccess.DeleteKraidPart(lint);
-        KraidEncounterAccess.DeleteKraidPart(_parts.Foot);
-        state.BodyState.DeathPhase = KraidDeathPhase.HideBody;
+        KraidEncounterAccess.DeleteKraidPart(state.Parts.Foot);
+        state.BodyState.Run = new KraidStageRun.Sunk(KraidSunkPhase.HideBody);
         // The death returns the camera to its normal tracking before the death drop.
         _cameraDistance.Request(CameraDistanceMode.NormalTracking);
 
-        // The death drops fill the same sixteen-projectile pool used by ordinary deaths. Each
-        // pickup gets a random position in Kraid's 256x64 floor strip and independently
-        // rolls Kraid's drop chances.
+        // The death drops share the room's enemy projectiles with other deaths. Each pickup gets a random position in
+        // Kraid's floor strip and independently rolls Kraid's drop chances.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.Kraid,
             count: KraidArenaDefinitions.DeathDropCount,

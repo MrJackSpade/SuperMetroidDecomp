@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.World;
 /// The room's layers and the actors gameplay shows (#1407): chosen on each update, shown from the accepted frame
 /// that latches them. An update without a frame boundary leaves the shown layers in place.
 /// </summary>
-internal sealed class GameplayScreenLayers
+internal sealed partial class GameplayScreenLayers
 {
     /// <summary>The layers an ordinary room shows: both backgrounds and the sprites.</summary>
     private const ScreenLayers OrdinaryLayers = ScreenLayers.Foreground | ScreenLayers.Background | ScreenLayers.BossBody | ScreenLayers.Sprites;
@@ -29,14 +29,14 @@ internal sealed class GameplayScreenLayers
 
     /// <summary>
     /// Chooses the layers before the projectiles move: a door transition's own layers, foreground and the sprites alone
-    /// while Mother Brain's death hides her body and the background behind it, and the waterfall rooms' layers when their effect's blend lays the
-    /// background behind the room (#1545).
+    /// while the room's boss body hides its own layer and the background behind it (#2571), and the waterfall rooms' layers
+    /// when their effect's blend lays the background behind the room (#1545).
     /// </summary>
     internal void Choose(RoomScope room)
     {
         Chosen = _room.DoorTransitionShownLayers ??
             (ScreenLayers.Foreground | ScreenLayers.Sprites |
-                (room.Enemies.DisplaySources.MotherBrain?.DeathHidesBodyLayer == true
+                (room.Enemies.DisplaySources.BossBody?.HidesBackgroundLayer == true
                     ? ScreenLayers.None
                     : ScreenLayers.Background | ScreenLayers.BossBody));
         if (_room.DoorTransitionShownLayers is null &&

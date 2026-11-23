@@ -4,5 +4,5 @@
 internal static class MapHighlightFrameConstants
 {
     /// <summary>The cycle's first frame, which every cycle holds.</summary>
-    public static MapHighlightFrame First { get; } = new(0);
+    public static MapHighlightFrame First { get; } = new global::SuperMetroid.Core.Frontend.Map.Artwork.MapHighlightFrame(0);
 }

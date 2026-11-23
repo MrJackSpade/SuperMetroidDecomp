@@ -22,8 +22,8 @@ internal static class MapScrollControlsVerification
         for (int index = 0; index < buttons.Length; index++)
         {
             int record = MapSourceDefinitions.FileSelectMap.ScrollArrows + index * 10;
-            buttons[index] = ControllerWordCodec.FromJoypadWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6), "native map scroll mask");
-            AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8), "compiled map direction order matches native records");
+            buttons[index] = ControllerWordCodec.FromJoypadWord(RomDataReader.ReadWordFixedBank(bus, record + 6), "native map scroll mask");
+            AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(bus, record + 8), "compiled map direction order matches native records");
             AssertEqual(buttons[index], MapScrollControls.Buttons[index], "compiled map controller mask matches native record");
         }
         var guard = NewMapScrollControlGuard(bus);
@@ -44,8 +44,8 @@ internal static class MapScrollControlsVerification
             {
                 ControllerButton input = tick < 267 ? held : ControllerButton.None;
                 AssertEqual(native.Step(input), compiled.Step(input), "compiled map scroll sound timing");
-                AssertEqual(new VerifyCompiledMapScrollControlsCase(native.Scroll, native.Direction),
-                    new VerifyCompiledMapScrollControlsCase(compiled.Scroll, compiled.Direction), "compiled map scroll trajectory and direction");
+                AssertEqual(new VerifyCompiledMapScrollControlsCase(native.Scroll, native.StepUnderWay?.Direction),
+                    new VerifyCompiledMapScrollControlsCase(compiled.Scroll, compiled.StepUnderWay?.Direction), "compiled map scroll trajectory and direction");
             }
         }
         foreach (ControllerButton input in Enum.GetValues<ControllerButton>())
@@ -53,7 +53,7 @@ internal static class MapScrollControlsVerification
             if (input == ControllerButton.None || buttons.Contains(input)) continue;
             var scroll = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
             AssertTrue(!scroll.Step(input), "unrelated controller button does not queue map sound");
-            AssertEqual(MapScrollDirection.None, scroll.Direction, "unrelated controller button cannot start map scrolling");
+            AssertEqual<MapScrollDirection?>(null, scroll.StepUnderWay?.Direction, "unrelated controller button cannot start map scrolling");
         }
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog));
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");

@@ -16,12 +16,24 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// drop, its open chest) is the segment its animation loops on, whose mark tells the owner to start the next animation
 /// once that change has come.
 /// </summary>
-internal static class TorizoAnimations
+internal static partial class TorizoAnimations
 {
     /// <summary>Every segment's steps.</summary>
     internal static AnimationSegments<TorizoBodySegment, EnemyFrameId, TorizoCue> Segments { get; } = new(
         new Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]>(
             [.. TorizoEncounterAnimations.Segments, .. TorizoFacedAnimations.Segments, .. GoldenTorizoAnimations.Segments]));
+
+    /// <summary>How many bursts of Chozo orbs Bomb Torizo spews in one spewing attack.</summary>
+    private const int BombSpewBursts = 3;
+
+    /// <summary>How many bursts of Chozo orbs Golden Torizo spews in one spewing attack.</summary>
+    private const int GoldenSpewBursts = 6;
+
+    /// <summary>How many more times a seated Torizo's eyes light up after its awakening's lead.</summary>
+    private const int EyesLightingAgainPlays = 2;
+
+    /// <summary>How many times a standing Torizo's colours fade before its fight starts.</summary>
+    private const int StandingColourFadePlays = 16;
 
     /// <summary>
     /// Each animation (#2235, #2411): the segments it plays whole, once or a number of times, and whether it then stops,
@@ -33,11 +45,11 @@ internal static class TorizoAnimations
         [A.BombTorizoFaceBlowingUp] = new([Segments.Whole(S.BombTorizoFaceBlowingUp)], AnimationEnd.Holds),
         [A.Dying] = new([Segments.Whole(S.Dying), Segments.Repeated(S.DyingExplosions, 8), Segments.Whole(S.DyingFadeToBlack), Segments.Repeated(S.DyingFlickering, 14), Segments.Whole(S.DyingFinish)], AnimationEnd.Stops),
         [A.BombTorizoDormant] = new([Segments.Whole(S.BombTorizoDormant)], AnimationEnd.Holds),
-        [A.BombTorizoAwakening] = Animation<S>.LeadingInto([Segments.Whole(S.BombTorizoAwakening), Segments.Repeated(S.SeatedEyesLightingAgain, 2), Segments.Whole(S.BombTorizoStandingUp), Segments.Repeated(S.StandingColourFade, 16), Segments.Whole(S.BombTorizoFightStart)], Walk(S.FacingLeftWalkingLeftLegMoving, S.FacingLeftWalkingRightLegMoving)),
+        [A.BombTorizoAwakening] = Awakening(S.BombTorizoAwakening, S.BombTorizoStandingUp, S.BombTorizoFightStart, Walk(S.FacingLeftWalkingLeftLegMoving, S.FacingLeftWalkingRightLegMoving)),
         [A.Stunned] = new([Segments.Whole(S.Stunned), Segments.Repeated(S.StunnedEyesLightingAgain, 2), Segments.Whole(S.StunnedRecovery)], AnimationEnd.Holds),
         [A.TurningLeft] = ThenWalking(S.Turning, S.FacingLeftWalkingRightLegMoving, S.FacingLeftWalkingLeftLegMoving),
-        [A.FacingLeftSpewingChozoOrbsRightFootForward] = Spew(S.FacingLeftSpewingChozoOrbsRightFootForward, S.BombChozoOrbBurst, 3, S.FacingLeftSpewingChozoOrbsRightFootForwardEnd),
-        [A.FacingLeftSpewingChozoOrbsLeftFootForward] = Spew(S.FacingLeftSpewingChozoOrbsLeftFootForward, S.BombChozoOrbBurst, 3, S.FacingLeftSpewingChozoOrbsLeftFootForwardEnd),
+        [A.FacingLeftSpewingChozoOrbsRightFootForward] = Spew(S.FacingLeftSpewingChozoOrbsRightFootForward, S.BombChozoOrbBurst, BombSpewBursts, S.FacingLeftSpewingChozoOrbsRightFootForwardEnd),
+        [A.FacingLeftSpewingChozoOrbsLeftFootForward] = Spew(S.FacingLeftSpewingChozoOrbsLeftFootForward, S.BombChozoOrbBurst, BombSpewBursts, S.FacingLeftSpewingChozoOrbsLeftFootForwardEnd),
         [A.FacingLeftSonicBoomsRightFootForward] = SonicBooms(S.FacingLeftSonicBoomsRightFootForwardThrowing, S.FacingLeftSonicBoomsRightFootForwardEnd),
         [A.FacingLeftSonicBoomsLeftFootForward] = SonicBooms(S.FacingLeftSonicBoomsLeftFootForwardThrowing, S.FacingLeftSonicBoomsLeftFootForwardEnd),
         [A.FacingLeftExplosiveSwipeRightFootForward] = new([Segments.Whole(S.FacingLeftExplosiveSwipeRightFootForward)], AnimationEnd.Holds),
@@ -55,8 +67,8 @@ internal static class TorizoAnimations
         [A.FacingLeftFacelessWalkingRightLegMoving] = Walking(S.FacingLeftFacelessWalkingRightLegMoving, S.FacingLeftFacelessWalkingLeftLegMoving),
         [A.FacingLeftFacelessWalkingLeftLegMoving] = Walking(S.FacingLeftFacelessWalkingLeftLegMoving, S.FacingLeftFacelessWalkingRightLegMoving),
         [A.TurningRight] = ThenWalking(S.Turning, S.FacingRightWalkingLeftLegMoving, S.FacingRightWalkingRightLegMoving),
-        [A.FacingRightSpewingChozoOrbsLeftFootForward] = Spew(S.FacingRightSpewingChozoOrbsLeftFootForward, S.BombChozoOrbBurst, 3, S.FacingRightSpewingChozoOrbsLeftFootForwardEnd),
-        [A.FacingRightSpewingChozoOrbsRightFootForward] = Spew(S.FacingRightSpewingChozoOrbsRightFootForward, S.BombChozoOrbBurst, 3, S.FacingRightSpewingChozoOrbsRightFootForwardEnd),
+        [A.FacingRightSpewingChozoOrbsLeftFootForward] = Spew(S.FacingRightSpewingChozoOrbsLeftFootForward, S.BombChozoOrbBurst, BombSpewBursts, S.FacingRightSpewingChozoOrbsLeftFootForwardEnd),
+        [A.FacingRightSpewingChozoOrbsRightFootForward] = Spew(S.FacingRightSpewingChozoOrbsRightFootForward, S.BombChozoOrbBurst, BombSpewBursts, S.FacingRightSpewingChozoOrbsRightFootForwardEnd),
         [A.FacingRightSonicBoomsLeftFootForward] = SonicBooms(S.FacingRightSonicBoomsLeftFootForwardThrowing, S.FacingRightSonicBoomsLeftFootForwardEnd),
         [A.FacingRightSonicBoomsRightFootForward] = SonicBooms(S.FacingRightSonicBoomsRightFootForwardThrowing, S.FacingRightSonicBoomsRightFootForwardEnd),
         [A.FacingRightExplosiveSwipeLeftFootForward] = new([Segments.Whole(S.FacingRightExplosiveSwipeLeftFootForward)], AnimationEnd.Holds),
@@ -75,13 +87,13 @@ internal static class TorizoAnimations
         [A.FacingRightFacelessWalkingRightLegMoving] = Walking(S.FacingRightFacelessWalkingRightLegMoving, S.FacingRightFacelessWalkingLeftLegMoving),
         [A.GoldenTorizoDormant] = new([Segments.Whole(S.GoldenTorizoDormant)], AnimationEnd.Holds),
         [A.GoldenTorizoAwakening] = Animation<S>.LeadingInto([Segments.Whole(S.GoldenTorizoAwakening)], [Segments.Whole(S.GoldenTorizoDropping)]),
-        [A.GoldenTorizoSettling] = Animation<S>.LeadingInto([Segments.Whole(S.GoldenTorizoSettling), Segments.Repeated(S.SeatedEyesLightingAgain, 2), Segments.Whole(S.GoldenTorizoStandingUp), Segments.Repeated(S.StandingColourFade, 16), Segments.Whole(S.GoldenTorizoFightStart)], Walk(S.GoldenWalkingLeftLeftLegMoving, S.GoldenWalkingLeftRightLegMoving)),
-        [A.GoldenFacingLeftSpewingChozoOrbsRightFootForward] = Spew(S.GoldenFacingLeftSpewingChozoOrbsRightFootForward, S.GoldenChozoOrbBurst, 6, S.GoldenFacingLeftSpewingChozoOrbsRightFootForwardEnd),
-        [A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward] = Spew(S.GoldenFacingLeftSpewingChozoOrbsLeftFootForward, S.GoldenChozoOrbBurst, 6, S.GoldenFacingLeftSpewingChozoOrbsLeftFootForwardEnd),
+        [A.GoldenTorizoSettling] = Awakening(S.GoldenTorizoSettling, S.GoldenTorizoStandingUp, S.GoldenTorizoFightStart, Walk(S.GoldenWalkingLeftLeftLegMoving, S.GoldenWalkingLeftRightLegMoving)),
+        [A.GoldenFacingLeftSpewingChozoOrbsRightFootForward] = Spew(S.GoldenFacingLeftSpewingChozoOrbsRightFootForward, S.GoldenChozoOrbBurst, GoldenSpewBursts, S.GoldenFacingLeftSpewingChozoOrbsRightFootForwardEnd),
+        [A.GoldenFacingLeftSpewingChozoOrbsLeftFootForward] = Spew(S.GoldenFacingLeftSpewingChozoOrbsLeftFootForward, S.GoldenChozoOrbBurst, GoldenSpewBursts, S.GoldenFacingLeftSpewingChozoOrbsLeftFootForwardEnd),
         [A.GoldenFacingLeftSonicBoomsRightFootForward] = SonicBooms(S.GoldenFacingLeftSonicBoomsRightFootForwardThrowing, S.GoldenFacingLeftSonicBoomsRightFootForwardEnd),
         [A.GoldenFacingLeftSonicBoomsLeftFootForward] = SonicBooms(S.GoldenFacingLeftSonicBoomsLeftFootForwardThrowing, S.GoldenFacingLeftSonicBoomsLeftFootForwardEnd),
-        [A.GoldenFacingRightSpewingChozoOrbsLeftFootForward] = Spew(S.GoldenFacingRightSpewingChozoOrbsLeftFootForward, S.GoldenChozoOrbBurst, 6, S.GoldenFacingRightSpewingChozoOrbsLeftFootForwardEnd),
-        [A.GoldenFacingRightSpewingChozoOrbsRightFootForward] = Spew(S.GoldenFacingRightSpewingChozoOrbsRightFootForward, S.GoldenChozoOrbBurst, 6, S.GoldenFacingRightSpewingChozoOrbsRightFootForwardEnd),
+        [A.GoldenFacingRightSpewingChozoOrbsLeftFootForward] = Spew(S.GoldenFacingRightSpewingChozoOrbsLeftFootForward, S.GoldenChozoOrbBurst, GoldenSpewBursts, S.GoldenFacingRightSpewingChozoOrbsLeftFootForwardEnd),
+        [A.GoldenFacingRightSpewingChozoOrbsRightFootForward] = Spew(S.GoldenFacingRightSpewingChozoOrbsRightFootForward, S.GoldenChozoOrbBurst, GoldenSpewBursts, S.GoldenFacingRightSpewingChozoOrbsRightFootForwardEnd),
         [A.GoldenFacingRightSonicBoomsLeftFootForward] = SonicBooms(S.GoldenFacingRightSonicBoomsLeftFootForwardThrowing, S.GoldenFacingRightSonicBoomsLeftFootForwardEnd),
         [A.GoldenFacingRightSonicBoomsRightFootForward] = SonicBooms(S.GoldenFacingRightSonicBoomsRightFootForwardThrowing, S.GoldenFacingRightSonicBoomsRightFootForwardEnd),
         [A.GoldenFacingLeftLandedBackwardOnLeftFoot] = ThenWalking(S.GoldenFacingLeftLandedBackwardOnLeftFoot, S.GoldenWalkingLeftRightLegMoving, S.GoldenWalkingLeftLeftLegMoving),
@@ -110,6 +122,14 @@ internal static class TorizoAnimations
         [A.GoldenWalkingLeftRightLegMoving] = Walking(S.GoldenWalkingLeftRightLegMoving, S.GoldenWalkingLeftLeftLegMoving),
         [A.GoldenWalkingRightLeftLegMoving] = Walking(S.GoldenWalkingRightLeftLegMoving, S.GoldenWalkingRightRightLegMoving),
     }.ToFrozenDictionary();
+
+    /// <summary>
+    /// A Torizo's awakening: its own <paramref name="lead"/>, its eyes lighting up again, its <paramref name="standUp"/>, its
+    /// colours fading, its <paramref name="fightStart"/>, then its <paramref name="walk"/> for good.
+    /// </summary>
+    private static Animation<S> Awakening(S lead, S standUp, S fightStart, IReadOnlyList<AnimationPhase<S>> walk) =>
+        Animation<S>.LeadingInto([Segments.Whole(lead), Segments.Repeated(S.SeatedEyesLightingAgain, EyesLightingAgainPlays), Segments.Whole(standUp),
+            Segments.Repeated(S.StandingColourFade, StandingColourFadePlays), Segments.Whole(fightStart)], walk);
 
     /// <summary>A walk's two steps, <paramref name="first"/> then <paramref name="second"/>, each played once.</summary>
     private static AnimationPhase<TorizoBodySegment>[] Walk(TorizoBodySegment first, TorizoBodySegment second) => [Segments.Whole(first), Segments.Whole(second)];

@@ -1,8 +1,8 @@
 namespace SuperMetroid.TestSupport.MovieReplay;
 
-/// <summary>Records a replayed movie's picture and sound; the session hands it every game it creates.</summary>
+/// <summary>Records a replayed movie's picture and sound; the session builds every game it creates with its audio.</summary>
 internal interface IMovieRecorder
 {
-    /// <summary>Starts recording <paramref name="game"/>, a new game or the one a console reset rebuilt.</summary>
-    void Attach(SuperMetroid.Core.Frontend.SuperMetroidGame game);
+    /// <summary>The clips a recorded game's audio mixes: a new game and the one a console reset rebuilt are built with them.</summary>
+    SuperMetroid.Core.Audio.ClipAudioLibrary Audio { get; }
 }

@@ -28,45 +28,58 @@ namespace SuperMetroid.Core.Compatibility;
 /// damage, without testing whether an enemy still occupies it; a deletion clears only the record's identity, while a
 /// kill clears the whole record, which a respawned enemy's setup writes again, and which the Shaktool chain writes to.
 /// </remarks>
-/// <typeparam name="TStates">The species states one enemy owns; a new set holds none.</typeparam>
-[CompatibilityService("an enemy removed from its place leaves its state there for its neighbours: as it left it after a deletion, cleared after a kill")]
-public sealed class RemovedEnemyLeftovers<TStates> where TStates : class, new()
+/// <typeparam name="TEnemy">The enemies a place holds.</typeparam>
+public sealed partial class RemovedEnemyLeftovers<TEnemy>
+    where TEnemy : class
 {
-    /// <summary>
-    /// The states the place's last removed enemy left: a deleted enemy's as it left them, the empty set a kill cleared
-    /// them to, or null while no enemy has left the place.
-    /// </summary>
-    private TStates? _left;
+    /// <summary>The enemy the place's last deletion left there as it left, or null when its last removal was a kill or none.</summary>
+    private TEnemy? _deleted;
 
-    /// <summary>Whether the place's last removal was a kill, so that <see cref="_left"/> is the record the kill cleared.</summary>
+    /// <summary>Whether the place's last removal was a kill, whose cleared record a neighbour may write to.</summary>
     private bool _leftByKill;
 
-    /// <summary>The place's enemy is deleted without being killed: its <paramref name="states"/> stay as it left them.</summary>
-    /// <param name="states">The deleted enemy's species states.</param>
-    internal void Deleted(TStates states)
+    /// <summary>The record the last kill cleared, made empty when a neighbour first reaches it; null until then.</summary>
+    private object? _clearedRecord;
+
+    /// <summary>The place's enemy is deleted without being killed: <paramref name="enemy"/> stays as it left.</summary>
+    /// <param name="enemy">The deleted enemy, with the state it holds.</param>
+    internal void Deleted(TEnemy enemy)
     {
-        _left = Ensure.NotNull(states);
+        _deleted = Ensure.NotNull(enemy);
         _leftByKill = false;
+        _clearedRecord = null;
     }
 
-    /// <summary>The place's enemy is killed: the kill clears what it leaves, to a set that holds no state.</summary>
+    /// <summary>The place's enemy is killed: the kill clears what it leaves, so neighbours find no enemy there.</summary>
     internal void Killed()
     {
-        _left = new TStates();
+        _deleted = null;
         _leftByKill = true;
+        _clearedRecord = null;
     }
 
     /// <summary>
-    /// The species states a neighbour finds in the place: <paramref name="occupant"/>'s while an enemy holds it, otherwise
-    /// what the last removed enemy left, which holds no state once a kill cleared it, or null while no enemy has left it.
+    /// The enemy a neighbour finds in the place: <paramref name="held"/> while an enemy holds it, otherwise the one the last
+    /// deletion left; null once a kill cleared the place or while no enemy has left it.
     /// </summary>
-    /// <param name="occupant">The states of the enemy holding the place, or null while it holds none.</param>
-    public TStates? Found(TStates? occupant) => occupant ?? _left;
+    /// <param name="held">The enemy holding the place, or null while it holds none.</param>
+    internal TEnemy? Found(TEnemy? held) => held ?? _deleted;
 
     /// <summary>
     /// The record a kill cleared, while no enemy holds the place and its last removal was a kill: a neighbour that writes to
-    /// the place writes there, and reads back what it wrote until an enemy is placed in the place again; otherwise null.
+    /// the place writes to this <typeparamref name="TRecord"/>, made empty when first reached, and reads back what it wrote
+    /// until an enemy is placed in the place again; otherwise null.
     /// </summary>
-    /// <param name="occupant">The states of the enemy holding the place, or null while it holds none.</param>
-    public TStates? ClearedByKill(TStates? occupant) => occupant is null && _leftByKill ? _left : null;
+    /// <param name="held">Whether an enemy holds the place.</param>
+    /// <typeparam name="TRecord">The record the neighbour reads and writes, empty as a kill leaves it.</typeparam>
+    internal TRecord? ClearedByKill<TRecord>(bool held) where TRecord : class, new()
+    {
+        if (held || !_leftByKill)
+            return null;
+        if (_clearedRecord is TRecord record)
+            return record;
+        var emptied = new TRecord();
+        _clearedRecord = emptied;
+        return emptied;
+    }
 }

@@ -5,11 +5,10 @@ namespace SuperMetroid.Core;
 /// than after a number of updates, whose cadence reads its age. Its owner counts it once on each of its updates; a wait
 /// with a length is an <see cref="UpdateCountdown"/> instead.
 /// </summary>
-public sealed class ElapsedUpdates
+public sealed partial class ElapsedUpdates
 {
     /// <summary>The updates counted since the count began.</summary>
-    [IntegerQuantity("updates counted since the count began")]
-    public int Age { get; private set; }
+    public int Age { get; internal set; }
 
     /// <summary>Counts one update.</summary>
     internal void Count() => Age++;

@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// The gameplay-HUD documents' file names and cell extents (#1502, #1638): the installed layout the game reads, and the artwork
 /// only the import reads, which is import data.
 /// </summary>
-public static class GameplayHudDocumentDefinitions
+public static partial class GameplayHudDocumentDefinitions
 {
     /// <summary>Installed JSON filename for the gameplay HUD's layout (<see cref="GameplayHudLayoutDocument"/>).</summary>
     public const string FileName = "gameplay-hud.json";

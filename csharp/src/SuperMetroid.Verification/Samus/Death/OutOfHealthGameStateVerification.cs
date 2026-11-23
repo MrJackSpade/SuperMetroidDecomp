@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend;
@@ -63,7 +64,7 @@ internal static class OutOfHealthGameStateVerification
             game.Step(0);
             AssertEqual(SuperMetroidGameState.Pause, game.GameState, "the pause's darkening and screens do not kill Samus out of health");
             AssertEqual(beforePause, runtime.GameTime.Reading, "the darkening's gameplay with Samus out of health counts no play time");
-            AssertTrue(++updates < 200, $"the pause reaches its menu; reached {game.Session.PauseStep}");
+            AssertTrue(++updates < 200, $"the pause reaches its menu; reached {game.Session.CurrentStep}");
         }
         // Start, held through the pause screen's repeat delay, unpauses.
         while (game.IsAt(PauseStep.Menu))
@@ -78,7 +79,7 @@ internal static class OutOfHealthGameStateVerification
                 $"the unpause and its brightening do not kill Samus out of health; ended in {game.GameState}");
             AssertEqual(0, samus.Health, "Samus stays out of health through the pause");
             AssertEqual(beforePause, runtime.GameTime.Reading, "the brightening's gameplay with Samus out of health counts no play time");
-            AssertTrue(++updates < 400, $"the unpause returns to main gameplay; reached {game.Session.PauseStep}");
+            AssertTrue(++updates < 400, $"the unpause returns to main gameplay; reached {game.Session.CurrentStep}");
         }
 
         game.Step(0);
@@ -111,19 +112,19 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, game.GameState, "the darkening's gameplay enters the AUTO reserves' refill");
         AssertTrue(runtime.Freeze.GameplayTimeFrozen, "the refill freezes gameplay");
         AssertTrue(!runtime.GameTime.Reading.Equals(beforeRefill), "the refill's update counts the play time");
-        int dimmed = game.Session.PauseBrightness;
-        AssertTrue(dimmed is > 0 and < DisplayBrightness.Full, $"the darkening's fade stopped part-way at {dimmed}");
+        int dimmed = game.Session.PauseBrightness.StepsAboveBlack;
+        AssertTrue(dimmed > 0 && dimmed < DisplayBrightness.StepsFromBlackToFull, $"the darkening's fade stopped part-way at {dimmed}");
 
         int updates = 0;
         while (game.GameState == SuperMetroidGameState.ReserveTankRefill)
         {
             game.Step(0);
-            AssertEqual(dimmed, game.Session.PauseBrightness, "the refill keeps the screen at the darkening's level");
+            AssertEqual(dimmed, game.Session.PauseBrightness.StepsAboveBlack, "the refill keeps the screen at the darkening's level");
             AssertTrue(++updates < 200, "the refill completes");
         }
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the completed refill returns to main gameplay");
         game.Step(0);
-        AssertEqual(dimmed, game.Session.PauseBrightness, "main gameplay after the refill keeps the darkened screen");
+        AssertEqual(dimmed, game.Session.PauseBrightness.StepsAboveBlack, "main gameplay after the refill keeps the darkened screen");
 
         Console.WriteLine("Out of health with AUTO reserves while the pause darkens: the refill begins, and the screen keeps the darkening's level.");
     }
@@ -237,7 +238,7 @@ internal static class OutOfHealthGameStateVerification
         AssertEqual(SuperMetroidGameState.CeresDeparture, game.GameState, "the Ceres elevator takes the update Samus runs out of health on, not her death");
         AssertEqual(beforeElevator, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
 
-        int holdUpdates = game.Session.ceresDeparture.Hold.UpdatesLeft;
+        int holdUpdates = game.Session.CeresDeparture.Hold.UpdatesLeft;
         for (int update = 0; update < holdUpdates + 2; update++)
         {
             game.Step(0);
@@ -257,15 +258,15 @@ internal static class OutOfHealthGameStateVerification
         // The camera shows the landed ship, whose pieces the enemies' update then runs.
         (SuperMetroidGame game, SuperMetroidRuntime runtime, SamusState samus) = MainGameplayAtTheLandingSite(new Position16<RoomPixels>(0x0400, 0x0400));
         RoomEnemyPlace top = runtime.Enemies.Places.InUpdateOrder.Single(place => place.SpeciesState<GunshipState>() is not null);
-        GunshipState.Of(top).Phase = GunshipPhase.AcceleratingLiftoff;
+        top.RequireSpeciesState<GunshipState>().Phase = GunshipPhase.AcceleratingLiftoff;
         // The ship carries Samus, the top hull above her: past the takeoff height, the update's ascent completes the takeoff.
         samus.Position = samus.Position.WithWholeY(GunshipTakeoffDefinitions.TakeoffCompleteY + GunshipMotionDefinitions.TopHullAboveSamus - 8);
         RunsOutOfHealthWithoutReserves(samus);
         GameClockReading beforeTakeoff = runtime.GameTime.Reading;
 
         game.Step(0);
-        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
-            $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of(top).Phase}");
+        AssertTrue(runtime.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)),
+            $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {top.RequireSpeciesState<GunshipState>().Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff takes the update Samus runs out of health on, not her death; ended in {game.GameState}");
         AssertEqual(beforeTakeoff, runtime.GameTime.Reading, "the out-of-health check returns before counting the play time");
 
@@ -338,13 +339,13 @@ internal static class OutOfHealthGameStateVerification
     /// </summary>
     internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) MainGameplaySparkingTowardADoor()
     {
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         SuperMetroidRuntime runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (RoomEnemyPlace enemy in runtime.Enemies.Places.InUpdateOrder)
@@ -360,16 +361,16 @@ internal static class OutOfHealthGameStateVerification
         }
         RoomLevelData level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts, doorBlocks: doorBlocks);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Health = 999;
         samus.ReserveEnergy = 0;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
         samus.Shinespark.BeginWindup(samus);
-        samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+        samus.Shinespark.BeginDirectionalLaunch(samus, SuperMetroid.Core.Samus.Abilities.ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
         samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(128, 128));
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
@@ -397,21 +398,21 @@ internal static class OutOfHealthGameStateVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.RecordBossesDefeated(AreaId.Ceres, DefeatedBosses.AreaBoss);
         DoorDefinition door = CeresDoorDefinitions.FallingTileToCeresElevator;
         runtime.LoadCartridgeRoomThroughDoorForVerification(door, door.DestinationScreen.ToRoomPixels());
         AssertTrue(runtime.Room.LoadedScope.CeresElevatorShaft is not null, "the elevator door's event starts the shaft's turn");
         // The shaft stays dormant until the elevator room's door is destroyed, while Samus lands on the elevator.
         runtime.EnemySession.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 96));
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         int landing = 0;
         do
@@ -434,16 +435,16 @@ internal static class OutOfHealthGameStateVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(128, 139));
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the fixture's update stays in main gameplay");
@@ -458,12 +459,12 @@ internal static class OutOfHealthGameStateVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, camera);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         return (game, runtime, samus);
     }

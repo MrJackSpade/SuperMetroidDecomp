@@ -26,8 +26,8 @@ internal static class CrocomireCutsceneVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Crocomire, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SpritemapPointer = 0xe6bc;
         object?[] arguments = [place, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>(8, 8), false, (ushort)0];
         AssertTrue(!ExtendedHitboxWalker.Find(arguments), "river corpse has native empty collision");
@@ -90,7 +90,7 @@ internal static class CrocomireCutsceneVerification
     }
 
     /// <summary>The Crocomire room's authored scroll storage, read from its retail $8F:A9D7 record.</summary>
-    private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
+    private static byte[] ReadNativeCrocomireRoomScrolls(CartridgeImportAddressSpace rom) =>
         Enumerable.Range(0, RoomScrollGrid.KeptCellCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
 
     /// <summary>Checks the bridge melt lock at X=1280 and the later skeleton-wall lock at X=512.</summary>
@@ -100,16 +100,14 @@ internal static class CrocomireCutsceneVerification
         byte[] storage = ReadNativeCrocomireRoomScrolls(rom);
         var scrolls = RoomScrollGrid.LoadNativeTable(storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
-        var body = enemies.Places.InUpdateOrder[0];
-        body.Position = body.Position.WithWhole(new(1480, 144));
-        var state = new CrocomireEnemyState(body);
-        body.SetSpeciesState(state);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
+        // Crocomire and his tongue as his room's population sets them up; his encounter is the one his setup built.
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(1480, 144));
+        RoomEnemyPlace body = state.Body;
         enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
         enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemyPlace, SamusState, Position16<RoomPixels>> run = (crocomire, samus, camera) =>
-            enemies.CrocomireBehavior.RunCrocomireMain(crocomire, samus, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePseudoScrew(), camera);
+            enemies.CrocomireBehavior.RunCrocomireMainAi(crocomire.HeldOccupant(), state, PlacedEnemyAccess.AiFrame(samus, camera: camera));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
         run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
@@ -149,7 +147,7 @@ internal static class CrocomireCutsceneVerification
         // whether that known difference can explain the reported wall overrun.
         foreach (CameraDistanceMode distance in new[] { CameraDistanceMode.NormalTracking, CameraDistanceMode.RightEdge })
         {
-            var context = new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: true, distance);
+            var context = new global::SuperMetroid.Core.Samus.Movement.HorizontalCameraContext(false, SamusMovementType.Standing, false, true, distance);
             camera.SetPosition(new Position16<RoomPixels>(544, 0));
             for (int frame = 0; frame < 16; frame++)
                 camera.TrackMovedSamusHorizontally(point, point, context, timeIsFrozen: false);
@@ -182,12 +180,12 @@ internal static class CrocomireCutsceneVerification
             RoomScrollGrid scrolls = RoomScrollGrid.LoadNativeTable(
                 Enumerable.Repeat(RoomScrollState.Open.ToStorageByte(), RoomScrollGrid.KeptCellCount).ToArray(),
                 RoomDefinitions.Crocomire.Size);
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: new BossSourceArtwork { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireColors = CrocomireColorFile.Read(new MemoryStream(CrocomireColorExtractor.Extract(rom))) });
             enemies.VerificationServices().SetRoomScrollState = scrolls.SetRoomScreen;
             enemies.VerificationServices().IsAreaMiniBossDefeated = () => defeated;
-            RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-            body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
-            enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
+            // His room's population sets up his body and his tongue, his setup writing the arena's scrolls.
+            _ = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Crocomire),
+                PopulationPlacementAccess.Entry(EnemyDefinitionId.CrocomireTongue));
             string room = defeated ? "a defeated room" : "a living fight";
             RoomScrollState[] kept = scrolls.KeptStates;
             for (int cell = 0; cell < kept.Length; cell++)

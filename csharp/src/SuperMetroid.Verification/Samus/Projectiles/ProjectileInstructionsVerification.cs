@@ -94,13 +94,13 @@ internal static class ProjectileInstructionsVerification
         var words = new HashSet<int>();
         foreach (ushort entry in entries)
         {
-            int a = 0x930000 | entry; ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a);
+            int a = 0x930000 | entry; ushort value = rom.ReadCartridgeWordFixedBank(a);
             words.Add(a);
             if (value == 0x8239) words.Add(a + 2);
             else if (value < 0x8000) words.Add(a + 6);
         }
         AssertEqual(1792, words.Count, "All authored duration/trail/control words inventoried");
-        var trailSlot = new SamusProjectile(0);
+        var trailSlot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         // A trail reads the frame of the record the shot last installed, the record just before the shot's next list
         // position; a shot whose list has installed none yet shows no frame, and leaves no trail (#1625). The frame is the
         // one the shot's animation shows, whatever updates it has left (#2458).
@@ -113,7 +113,7 @@ internal static class ProjectileInstructionsVerification
                 : SamusProjectileProgramsVerification.RecordAt(unchecked((ushort)(entry - SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
             foreach (int updates in new[] { 1, 2, ushort.MaxValue })
             {
-                trailSlot.Animation = expected is null
+                trailSlot.HeldShot().Animation = expected is null
                     ? SamusProjectileProgramAddresses.PlayerAt(entry, updates)
                     : SamusProjectileProgramAddresses.ShowingBeatBefore(playback, updates);
                 AssertEqual(expected, ProjectileTrails.GetTrailFrame(trailSlot), "Trail owner reads the last installed record's frame whatever updates it has left");
@@ -125,8 +125,13 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectile(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry), Damage = 30 };
-            var bomb = new SamusBomb(0) { Animation = SamusProjectileProgramAddresses.PlayerAt(entry), Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500), Damage = 30 };
+            var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+            slot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
+            // The bomb holds the bomb system's first place, its fuse burned out, so each update plays its animation.
+            bombs.Reset();
+            SamusBomb bomb = bombs.FirstBomb;
+            bomb.OccupyAsPlaced(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(0x0500));
+            bomb.HeldBomb().Animation = SamusProjectileProgramAddresses.PlayerAt(entry);
             // No bomb shows a still picture, which a shot holds (#2347): the bomb owner plays only the lists that hold none.
             bool bombPlays = !SamusProjectileProgramAddresses.HoldsStillPicture(bomb.Playback?.Animation
                 ?? throw new InvalidOperationException($"Projectile list position ${entry:X4} names no playback."));
@@ -141,22 +146,26 @@ internal static class ProjectileInstructionsVerification
                     while (true)
                     {
                         AssertTrue(++operations < 16, "Reference stream reaches a frame or delete");
-                        int a = 0x930000 | pointer; ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(a);
+                        int a = 0x930000 | pointer; ushort command = rom.ReadCartridgeWordFixedBank(a);
                         if (command == 0x822f) { deleted = true; break; }
-                        if (command == 0x8239) { pointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2)); continue; }
+                        if (command == 0x8239) { pointer = rom.ReadCartridgeWordFixedBank((a + 2)); continue; }
                         AssertTrue(command is > 0 and < 0x8000, "Reference timed record valid");
-                        timer = command; sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((a + 2))); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
+                        timer = command; sprite = global::SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.FirstStored(rom.ReadCartridgeWordFixedBank((a + 2))); x = rom.ReadCartridgeByte(a + 4); y = rom.ReadCartridgeByte(a + 5);
                         trail = pointer; pointer = unchecked((ushort)(pointer + 8)); break;
                     }
                 }
-                AssertEqual(deleted, system.Animation.AdvanceProjectileAnimation(slot), "Native delete/timed outcome");
+                system.Animation.AdvanceProjectileAnimation(slot.HeldShot(), slot.Animation ?? throw new InvalidOperationException("The shot plays no animation."));
+                AssertEqual(deleted, !slot.IsActive, "Native delete/timed outcome");
                 if (bombPlays)
-                    AssertEqual(deleted, bombs.AdvanceProjectileAnimation(bomb), "Bomb native delete/timed outcome");
+                {
+                    bombs.HandleBombsInOpenRoom();
+                    AssertEqual(deleted, !bomb.IsActive, "Bomb native delete/timed outcome");
+                }
                 frames++;
                 if (deleted)
                 {
-                    AssertEqual(0, slot.Damage, "Delete clears projectile occupancy");
-                    AssertTrue(!bombPlays || bomb.Type.IsNone, "Delete clears bomb occupancy");
+                    AssertTrue(!slot.IsOccupied, "Delete clears projectile occupancy");
+                    AssertTrue(!bombPlays || !bomb.IsOccupied, "Delete clears bomb occupancy");
                     break;
                 }
                 // A trail reads the frame the record just shown shows; a frame shown again stands at its first record (#2274).

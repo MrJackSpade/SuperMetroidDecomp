@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// his health band, his grab and carry of Samus, his pogo and his death. The combat values carry the meanings their
 /// consumers establish.
 /// </summary>
-public sealed class NorfairRidleyState : RidleyEncounterState
+public sealed partial class NorfairRidleyState : RidleyEncounterState
 {
     /// <summary>Begins Lower Norfair Ridley's encounter below his arena, facing right.</summary>
     internal NorfairRidleyState()
@@ -23,12 +23,8 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     /// <exception cref="InvalidOperationException">He has not lifted off.</exception>
     public NorfairRidleyPhase Phase
     {
-        get => LiftedOff ? field : throw NotLiftedOff();
-        internal set
-        {
-            field = value;
-            LiftOff();
-        }
+        get => FightPhase<NorfairRidleyPhase>();
+        internal set => SetFightPhase(value);
     }
 
     /// <summary>
@@ -36,14 +32,17 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     /// rests.
     /// </summary>
     /// <exception cref="InvalidOperationException">His roar's hold has not begun it.</exception>
-    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> ArenaReveal
-    {
-        get => field ?? throw new InvalidOperationException("Lower Norfair Ridley's arena reveal has not begun: his roar's hold begins it.");
-        private set;
-    }
+    internal AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue> ArenaReveal =>
+        arenaReveal ?? throw new InvalidOperationException("Lower Norfair Ridley's arena reveal has not begun: his roar's hold begins it.");
+
+    /// <summary>
+    /// His arena's reveal once his roar's hold has begun it, or none before: what a debugger state captures of him, which a
+    /// door's autosave takes as Samus enters before his roar (#2649).
+    /// </summary>
+    private AnimationPlayer<RidleyFadeSegment, RidleyFadeImage, NoAnimationCue>? arenaReveal;
 
     /// <summary>Begins his arena's reveal as his roar's hold starts: its first step shows on the hold's first update.</summary>
-    internal void BeginArenaReveal() => ArenaReveal = RidleyFadeAnimations.ArenaRevealing();
+    internal void BeginArenaReveal() => arenaReveal = RidleyFadeAnimations.ArenaRevealing();
 
     /// <summary>The countdown of the swoop phase he flies, apart from his phase timer: each stage of his swoop lasts its own updates.</summary>
     public BossCountdown SwoopPhaseTimer { get; } = new();
@@ -59,7 +58,7 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public BossCountdown? ReleaseIntangibility { get; internal set; }
     /// <summary>Gets the current movement target's whole-pixel room position.</summary>
     public Position16<RoomPixels> Target { get; internal set; }
-    /// <summary>Gets the pogo bounce counter, reset after its two-bounce threshold.</summary>
+    /// <summary>Gets the pogo bounce counter, reset once it reaches the bounces each fireballing takes.</summary>
     public int PogoBounceCount { get; internal set; }
     /// <summary>
     /// The side his pogo bounces toward (#2569): each launch takes its sideways speed toward it, and each bounce chooses
@@ -76,7 +75,7 @@ public sealed class NorfairRidleyState : RidleyEncounterState
     public RidleyHurtCarryLag HurtCarryLag { get; } = new();
     /// <summary>Gets the number of zero-health lunges completed before the authored death transition.</summary>
     public int ZeroHealthLungeCount { get; internal set; }
-    /// <summary>The wait before his death's next small explosion, one every five updates.</summary>
+    /// <summary>The wait before his death's next small explosion, at the death's explosion interval.</summary>
     public BossCountdown DeathExplosionTimer { get; } = new();
     /// <summary>
     /// Where his death's next small explosion bursts: each takes the next point of the scatter shared with the Baby

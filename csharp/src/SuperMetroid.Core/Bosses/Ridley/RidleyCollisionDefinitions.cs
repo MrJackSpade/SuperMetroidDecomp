@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's animations, and their seventeen distinct hitbox lists.
 /// Touch and shots meet these offsets and rectangles, whatever his installed pictures show.
 /// </summary>
-internal static class RidleyCollisionDefinitions
+internal static partial class RidleyCollisionDefinitions
 {
     /// <summary>The 32-pixel margin Ridley's interaction check adds on each axis before the camera-relative test.</summary>
     internal static readonly Offset16<RoomPixels> InteractionWindowMargin = new(32, 32);
@@ -86,40 +86,21 @@ internal static class RidleyCollisionDefinitions
     /// <summary>The left-facing head's origin; a right-facing frame negates X.</summary>
     internal static readonly Offset16<RoomPixels> LeftHeadOrigin = new(-3, -24);
 
-    /// <summary>The side-facing body frames that face right; their component origins mirror the left-facing ones.</summary>
-    internal static readonly IReadOnlySet<EnemyFrameId> RightFacing = new HashSet<EnemyFrameId>
+    /// <summary>
+    /// Each side-facing body frame's collision: the way it faces (a right-facing frame's component origins mirror the
+    /// left-facing ones), its legs and its head.
+    /// </summary>
+    internal static readonly IReadOnlyDictionary<EnemyFrameId, RidleySideBodyCollision> SideFacing = new Dictionary<EnemyFrameId, RidleySideBodyCollision>
     {
-        EnemyFrameId.RidleyBodyRight, EnemyFrameId.RidleyBodyRightMouthHalfOpen, EnemyFrameId.RidleyBodyRightMouthOpen,
-        EnemyFrameId.RidleyBodyRightLegsHalfExtended, EnemyFrameId.RidleyBodyRightLegsExtended,
-    };
-
-    /// <summary>Each side-facing body frame's leg rectangles.</summary>
-    internal static readonly Dictionary<EnemyFrameId, EnemyHitboxRectangle[]> Legs = new()
-    {
-        [EnemyFrameId.RidleyBodyLeft] = LeftLegsNotExtended,
-        [EnemyFrameId.RidleyBodyLeftMouthHalfOpen] = LeftLegsNotExtended,
-        [EnemyFrameId.RidleyBodyLeftMouthOpen] = LeftLegsNotExtended,
-        [EnemyFrameId.RidleyBodyLeftLegsHalfExtended] = LeftLegsHalfExtended,
-        [EnemyFrameId.RidleyBodyLeftLegsExtended] = LeftLegsExtended,
-        [EnemyFrameId.RidleyBodyRight] = RightLegsNotExtended,
-        [EnemyFrameId.RidleyBodyRightMouthHalfOpen] = RightLegsNotExtended,
-        [EnemyFrameId.RidleyBodyRightMouthOpen] = RightLegsNotExtended,
-        [EnemyFrameId.RidleyBodyRightLegsHalfExtended] = RightLegsHalfExtended,
-        [EnemyFrameId.RidleyBodyRightLegsExtended] = RightLegsExtended,
-    };
-
-    /// <summary>Each side-facing body frame's head rectangles.</summary>
-    internal static readonly Dictionary<EnemyFrameId, EnemyHitboxRectangle[]> Heads = new()
-    {
-        [EnemyFrameId.RidleyBodyLeft] = LeftHeadMouthClosed,
-        [EnemyFrameId.RidleyBodyLeftLegsHalfExtended] = LeftHeadMouthClosed,
-        [EnemyFrameId.RidleyBodyLeftLegsExtended] = LeftHeadMouthClosed,
-        [EnemyFrameId.RidleyBodyLeftMouthHalfOpen] = LeftHeadMouthHalfOpen,
-        [EnemyFrameId.RidleyBodyLeftMouthOpen] = LeftHeadMouthOpen,
-        [EnemyFrameId.RidleyBodyRight] = RightHeadMouthClosed,
-        [EnemyFrameId.RidleyBodyRightLegsHalfExtended] = RightHeadMouthClosed,
-        [EnemyFrameId.RidleyBodyRightLegsExtended] = RightHeadMouthClosed,
-        [EnemyFrameId.RidleyBodyRightMouthHalfOpen] = RightHeadMouthHalfOpen,
-        [EnemyFrameId.RidleyBodyRightMouthOpen] = RightHeadMouthOpen,
+        [EnemyFrameId.RidleyBodyLeft] = new(HorizontalDirection.Left, LeftLegsNotExtended, LeftHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyRight] = new(HorizontalDirection.Right, RightLegsNotExtended, RightHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyLeftMouthHalfOpen] = new(HorizontalDirection.Left, LeftLegsNotExtended, LeftHeadMouthHalfOpen),
+        [EnemyFrameId.RidleyBodyLeftMouthOpen] = new(HorizontalDirection.Left, LeftLegsNotExtended, LeftHeadMouthOpen),
+        [EnemyFrameId.RidleyBodyRightMouthHalfOpen] = new(HorizontalDirection.Right, RightLegsNotExtended, RightHeadMouthHalfOpen),
+        [EnemyFrameId.RidleyBodyRightMouthOpen] = new(HorizontalDirection.Right, RightLegsNotExtended, RightHeadMouthOpen),
+        [EnemyFrameId.RidleyBodyLeftLegsHalfExtended] = new(HorizontalDirection.Left, LeftLegsHalfExtended, LeftHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyLeftLegsExtended] = new(HorizontalDirection.Left, LeftLegsExtended, LeftHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyRightLegsHalfExtended] = new(HorizontalDirection.Right, RightLegsHalfExtended, RightHeadMouthClosed),
+        [EnemyFrameId.RidleyBodyRightLegsExtended] = new(HorizontalDirection.Right, RightLegsExtended, RightHeadMouthClosed),
     };
 }

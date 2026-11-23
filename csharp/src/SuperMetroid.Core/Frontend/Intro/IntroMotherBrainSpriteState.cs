@@ -8,12 +8,11 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// Visible animation core of the intro Mother Brain's cinematic sprite definition.
 /// </summary>
 /// <remarks>
-/// The actor starts at (56,111) in her own colouring,
-/// in front of the scene. Its animation cycles four authored frames at
-/// sixteen frames apiece. The actor also retains the hit counter, eight-frame colour
-/// flash, and the 128-frame exploding state and the room picture's shake.
+/// The actor starts at <see cref="IntroMotherBrainDefinitions.MotherBrainOrigin"/> in her own colouring,
+/// in front of the scene. Its animation cycles her authored frames. The actor also retains the hit counter,
+/// colour flash, and the exploding state and the room picture's shake.
 /// </remarks>
-internal sealed class IntroMotherBrainSpriteState
+internal sealed partial class IntroMotherBrainSpriteState
 {
     /// <summary>The cinematic actor running the Mother Brain's typed animation (#641).</summary>
     private readonly CinematicActor<IntroMotherBrainAnimation, CinematicSpritePose, IntroMotherBrainCue> actor =
@@ -27,7 +26,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// </summary>
     private UpdateCountdown exploding = UpdateCountdown.Ended();
     /// <summary>Missiles her hit test has consumed; the fourth starts the explosion.</summary>
-    private int hitCount;
+    internal int HitCount { get; private set; }
     /// <summary>Where she stands, from taking hits through her explosion and page two's crossfade to her deletion.</summary>
     private IntroMotherBrainPhase phase;
 
@@ -102,24 +101,24 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>
-    /// Eight-frame white/normal alternation of every colour Mother Brain draws in (#1512).
+    /// White/normal alternation of every colour Mother Brain draws in (#1512), each look for <see cref="IntroMotherBrainDefinitions.HurtFlashUpdates"/>.
     /// </summary>
     public void ApplyHurtFlash()
     {
         if (hurtFlash.IsOver)
             return;
 
-        FlashesWhite = !IntroCadenceDefinitions.MotherBrainHurtShowsOwnColours.IsSetIn(hurtFlash.UpdatesLeft);
+        FlashesWhite = !IntroCadenceDefinitions.MotherBrainHurtShowsOwnColours.IsInSecondHalfAt(hurtFlash.UpdatesLeft);
         hurtFlash.Count();
     }
 
     /// <summary>
-    /// Mother Brain's hit test: the highest missile left of X=84 is killed and counted as a hit.
-    /// The fourth hit starts her explosion, which tests no missiles, so from then on every missile passes through.
+    /// Mother Brain's hit test: the highest missile left of <see cref="IntroMotherBrainDefinitions.MissileImpactLine"/> is killed and counted as a hit.
+    /// Her last hit starts her explosion, which tests no missiles, so from then on every missile passes through.
     /// </summary>
     /// <param name="impacts">The flashback projectile system's enemy impacts, which kill the missile.</param>
     /// <param name="samusBombs">The flashback's bombs and power-bomb explosion, which the kill consults.</param>
-    /// <returns>Whether this hit was the fourth, which starts the explosion.</returns>
+    /// <returns>Whether this hit was her last, which starts the explosion.</returns>
     public bool TakeMissileHit(ProjectileEnemyImpacts impacts, SamusBombProjectileSystem samusBombs)
     {
         Ensure.NotNull(impacts);
@@ -129,11 +128,11 @@ internal sealed class IntroMotherBrainSpriteState
     }
 
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
-    public bool RecordMissileHit()
+    internal bool RecordMissileHit()
     {
         hurtFlash.Restart(IntroMotherBrainDefinitions.HurtFlashUpdates);
-        hitCount++;
-        if (hitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
+        HitCount++;
+        if (HitCount != IntroMotherBrainDefinitions.MissileHitsToExplode)
             return false;
 
         // The fourth hit clears the actor timer before selecting the exploding behaviour. The
@@ -143,28 +142,25 @@ internal sealed class IntroMotherBrainSpriteState
         return true;
     }
 
+    /// <summary>What <c>Step</c> does for each <see cref="IntroMotherBrainCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroMotherBrainCue, Action> StepForIntroMotherBrainCue => field ??= new(new Dictionary<IntroMotherBrainCue, Action>
+    {
+        [IntroMotherBrainCue.StartNextPage] = () => NextPageRequested = true,
+        [IntroMotherBrainCue.StartCrossFade] = () => phase = IntroMotherBrainPhase.CrossfadingToNextPage,
+    });
+
     /// <summary>Runs one cinematic sprite update for Mother Brain's definition.</summary>
     public void Step() => actor.Step(cue =>
     {
-        switch (cue)
-        {
-            case IntroMotherBrainCue.StartNextPage:
-                NextPageRequested = true;
-                return;
-            case IntroMotherBrainCue.StartCrossFade:
-                phase = IntroMotherBrainPhase.CrossfadingToNextPage;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroMotherBrainCue)} {cue}.");
-        }
+        StepForIntroMotherBrainCue[cue]();
     });
 
     /// <summary>Shakes the room picture: its scroll alternates between the flashback's scroll and four pixels further.</summary>
     private void ApplyScreenShake(int cinematicFrameCounter)
     {
-        // The shake adds four on even cinematic frames and subtracts four on odd ones, so the room's scroll alternates
-        // between twelve and the flashback's eight and never passes the room's top.
+        // The shake adds its pixels on even cinematic frames and subtracts them on odd ones, so the room's scroll alternates
+        // between the flashback's own and further down, and never passes the room's top.
         Background = Background.WithY(Background.Y + IntroMotherBrainDefinitions.RoomShakePixels.Toward(
-            IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsSetIn(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
+            IntroCadenceDefinitions.MotherBrainRoomShakesUp.IsInSecondHalfAt(cinematicFrameCounter) ? VerticalDirection.Up : VerticalDirection.Down));
     }
 }

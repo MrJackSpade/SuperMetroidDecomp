@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// brightens through each level and dims back through them again. A room starts it on its last step, so its first step shows
 /// once that step's updates have run.
 /// </summary>
-internal static class FaceBlockGlowAnimations
+internal static partial class FaceBlockGlowAnimations
 {
     /// <summary>Every run's beats.</summary>
     internal static AnimationSegments<FaceBlockGlowSegment, FaceBlockGlowLevel, NoAnimationCue> Segments { get; } = new(
@@ -33,7 +33,7 @@ internal static class FaceBlockGlowAnimations
 
     /// <summary>The levels the glow's steps show, in the order it shows them, from its first step.</summary>
     internal static IReadOnlyList<FaceBlockGlowLevel> Cycle { get; } =
-        [.. Segments.Beats(FaceBlockGlowSegment.Glowing).Select(beat => beat.ShownFrame ?? throw new InvalidOperationException("Every beat of the glow shows a level."))];
+        Segments.FramesShownBy(FaceBlockGlowSegment.Glowing);
 
     /// <summary>
     /// Each level the glow shows, once, in the order its cycle first shows them: the import installs one shade for each,

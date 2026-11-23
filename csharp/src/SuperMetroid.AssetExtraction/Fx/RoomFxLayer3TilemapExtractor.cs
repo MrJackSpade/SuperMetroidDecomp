@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Exports all six contiguous bank-$8A room-FX BG3 pages as named tile cells.</summary>
-public static class RoomFxLayer3TilemapExtractor
+public static partial class RoomFxLayer3TilemapExtractor
 {
     /// <summary>Builds the six named room-FX BG3 pages after checking their native tilemap-pointer identities.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the FX pointer table and bank-$8A tilemap sources.</param>
@@ -24,14 +24,14 @@ public static class RoomFxLayer3TilemapExtractor
         foreach (RoomFxType type in RoomFxLayer3TilemapFormat.Types)
         {
             int source = RoomFxLayer3TilemapSources.Page(type).Value;
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus,
                 RoomFxLayer3SourceDefinitions.Layer3TilemapPointers.AddWithinBank(RoomFxRecordWords.Types.Word(type)));
             if ((RoomFxBankSourceDefinitions.Tilemaps | pointer) != source)
                 throw new InvalidDataException(
                     $"Room-FX {type} tilemap pointer ${pointer:X4} does not select ${source:X6}.");
             byte[] native = type is RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water
                 ? RoomFxLiquidTilemapDefinitions.ComposePage(type)
-                : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source,
+                : RomDataReader.ReadFixedBank(bus, source,
                     RoomFxLayer3TilemapFormat.PageByteCount);
             var cells = new RoomBackgroundTilemapCell[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int index = 0; index < cells.Length; index++)
@@ -42,16 +42,7 @@ public static class RoomFxLayer3TilemapExtractor
                 if (type is RoomFxType.Rain or RoomFxType.Fog)
                     raw = (ushort)((raw & ~RoomFxAtmosphereTilemapDefinitions.CalculatedMask(type)) |
                         RoomFxAtmosphereTilemapDefinitions.CalculatedFields(type, index));
-                var word = new SnesBgTilemapWord(checked((ushort)raw));
-                cells[index] = new RoomBackgroundTilemapCell
-                {
-                    TileColumn = word.CharacterIndex % RoomBackgroundTilemapFormat.TileColumns,
-                    TileRow = word.CharacterIndex / RoomBackgroundTilemapFormat.TileColumns,
-                    Palette = word.PaletteIndex,
-                    Priority = word.HasPriority,
-                    FlipX = word.FlipHorizontally,
-                    FlipY = word.FlipVertically,
-                };
+                cells[index] = RoomBackgroundTilemapCell.Of(checked((ushort)raw));
             }
             pages.Add(RoomFxTypeKeys.Installed.Of(type), cells);
         }

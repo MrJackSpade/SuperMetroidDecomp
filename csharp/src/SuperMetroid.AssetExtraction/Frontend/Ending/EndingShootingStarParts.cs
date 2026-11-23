@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Assets;
@@ -5,7 +6,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The ending shooting star's single-character appearances, which its sheet frames picture (#1463).</summary>
-internal static class EndingShootingStarParts
+internal static partial class EndingShootingStarParts
 {
     /// <summary>
     /// $8B:E9A7 / Handle_ShootingStars.tilemapValues: the lead-in is the blank piece (character 0, palette 0), the specks and
@@ -13,11 +14,11 @@ internal static class EndingShootingStarParts
     /// </summary>
     internal static SpritePart Appearance(EndingShootingStarLook look) => look switch
     {
-        EndingShootingStarLook.LeadIn => SpritePart.Single(0, 0, 0),
-        EndingShootingStarLook.FaintSpeck => SpritePart.Single(CharacterSheetGrid.Cell(31, 0), 4, 0),
-        EndingShootingStarLook.BrightSpeck => SpritePart.Single(CharacterSheetGrid.Cell(31, 1), 4, 0),
-        EndingShootingStarLook.DimStar => SpritePart.Single(CharacterSheetGrid.Cell(31, 2), 4, 0),
-        EndingShootingStarLook.FullStar => SpritePart.Single(CharacterSheetGrid.Cell(31, 3), 4, 0),
+        EndingShootingStarLook.LeadIn => SpritePart.Single(0, 0, ActorDepth.BehindRoom),
+        EndingShootingStarLook.FaintSpeck => SpritePart.Single(CharacterSheetGrid.Cell(31, 0), 4, ActorDepth.BehindRoom),
+        EndingShootingStarLook.BrightSpeck => SpritePart.Single(CharacterSheetGrid.Cell(31, 1), 4, ActorDepth.BehindRoom),
+        EndingShootingStarLook.DimStar => SpritePart.Single(CharacterSheetGrid.Cell(31, 2), 4, ActorDepth.BehindRoom),
+        EndingShootingStarLook.FullStar => SpritePart.Single(CharacterSheetGrid.Cell(31, 3), 4, ActorDepth.BehindRoom),
         _ => throw new ArgumentOutOfRangeException(nameof(look)),
     };
 }

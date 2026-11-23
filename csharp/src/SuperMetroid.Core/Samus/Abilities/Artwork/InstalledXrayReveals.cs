@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
@@ -7,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 /// collision and behaviour lookup, copy dimensions, extension traversal and Brinstar-only condition are the game's own; there
 /// is no other copy of the blocks (#1596). An extension chain leaving the room shows no block of its own (#1792).
 /// </summary>
-public sealed class InstalledXrayReveals
+public sealed partial class InstalledXrayReveals
 {
     /// <summary>Installed reveal blocks keyed by collision kind and reaction.</summary>
     /// <remarks>
@@ -28,12 +29,12 @@ public sealed class InstalledXrayReveals
     {
         Ensure.NotNull(entries);
         Overlays = Ensure.NotNull(overlays);
-        foreach ((RoomCollisionType type, Enum? reaction, XrayRevealVisualBlocks visual) in entries)
+        foreach ((RoomCollisionType type, BlockReaction? reaction, XrayRevealVisualBlocks visual) in entries)
         {
-            if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape))
+            if (!IsReadingOf(type, reaction) || XrayReveals.Find(type, reaction) is not { } shape || !IsDrawable(shape, out XrayRevealCopyShape copy))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/reaction {reaction} has no drawable reveal rule.");
-            if (visual != XrayRevealVisualBlocks.ForShape(shape, visual.InReadingOrder))
+            if (visual != XrayRevealVisualBlocks.ForShape(copy, visual.InReadingOrder))
                 throw new InvalidDataException(
                     $"X-ray visual {type}/reaction {reaction} shows other blocks than its {shape} reveal copies.");
             ValidateBlocks(visual);
@@ -43,7 +44,16 @@ public sealed class InstalledXrayReveals
         }
 
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
-        foreach (Enum? reaction in BlockReactionFamilies.ReadingsOf(type))
+        {
+            IReadOnlyList<BlockReaction> readings = BlockReactionFamilies.ReadingsOf(type);
+            // A kind that reads no reaction has one rule of its own, under no reaction.
+            if (readings.Count == 0)
+                RequireCovered(type, null);
+            foreach (BlockReaction reaction in readings)
+                RequireCovered(type, reaction);
+        }
+
+        void RequireCovered(RoomCollisionType type, BlockReaction? reaction)
         {
             bool drawable = XrayReveals.Find(type, reaction) is { } shape &&
                 IsDrawable(shape);
@@ -65,29 +75,41 @@ public sealed class InstalledXrayReveals
     {
         if (XrayReveals.Find(type, behavior) is not { } shape) return null;
         if (!IsDrawable(shape)) return new XrayRevealDefinition(shape, null);
-        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks visual))
+        if (!blocks.TryGetValue(new XrayRevealVisualKey(type, behavior.ReactionUnder(type)), out XrayRevealVisualBlocks? visual))
             throw new InvalidDataException($"Missing X-ray visual {type}/behaviour {behavior}.");
         return new XrayRevealDefinition(shape, visual);
     }
 
     /// <summary>Whether <paramref name="reaction"/> is a reaction <paramref name="type"/> reads, or null for a kind that reads none.</summary>
-    private static bool IsReadingOf(RoomCollisionType type, Enum? reaction) => BlockReactionFamilies.ReadingsOf(type).Contains(reaction);
+    private static bool IsReadingOf(RoomCollisionType type, BlockReaction? reaction) => reaction is { } read
+        ? BlockReactionFamilies.ReadingsOf(type).Contains(read)
+        : BlockReactionFamilies.ReadingsOf(type).Count == 0;
 
     /// <summary>Rejects a negative reveal block, as an appearance of it would; the tileset's sheet bounds the rest (#2100).</summary>
     private static void ValidateBlocks(XrayRevealVisualBlocks visual)
     {
-        foreach (int block in visual.InReadingOrder)
-            _ = RoomBlockAppearance.Of(block);
+        foreach (Rooms.Backgrounds.RoomCellPicture block in visual.InReadingOrder)
+            _ = RoomBlockAppearance.Of(block.Block);
     }
 
     /// <summary>Whether this reveal shape carries authored visual blocks.</summary>
     /// <remarks>
     /// The game has seven reachable revealed-block shapes. Five copy one, Brinstar-only one, wide, tall and square
-    /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it is
-    /// one of those five copy shapes.
+    /// blocks; the other two traverse vertical and horizontal extensions instead. A shape is drawable exactly when it
+    /// copies blocks of its own (<see cref="XrayRevealShapeDefinitions"/>).
     /// </remarks>
-    public static bool IsDrawable(XrayRevealShape shape) => shape is
-        XrayRevealShape.CopyOne or XrayRevealShape.CopyWide or
-        XrayRevealShape.CopyTall or XrayRevealShape.CopySquare or
-        XrayRevealShape.CopyBrinstar;
+    private static bool IsDrawable(XrayRevealShape shape) => IsDrawable(shape, out _);
+
+    /// <summary>Whether this reveal shape carries authored visual blocks, and the copy shape it is: <paramref name="copy"/>.</summary>
+    public static bool IsDrawable(XrayRevealShape shape, out XrayRevealCopyShape copy) => CopyShapes.TryGetValue(shape, out copy);
+
+    /// <summary>The copy shape each of the five copying reveal shapes is; the two extension shapes are none.</summary>
+    private static FrozenDictionary<XrayRevealShape, XrayRevealCopyShape> CopyShapes => field ??= new Dictionary<XrayRevealShape, XrayRevealCopyShape>
+    {
+        [XrayRevealShape.CopyOne] = XrayRevealCopyShape.CopyOne,
+        [XrayRevealShape.CopyBrinstar] = XrayRevealCopyShape.CopyBrinstar,
+        [XrayRevealShape.CopyWide] = XrayRevealCopyShape.CopyWide,
+        [XrayRevealShape.CopyTall] = XrayRevealCopyShape.CopyTall,
+        [XrayRevealShape.CopySquare] = XrayRevealCopyShape.CopySquare,
+    }.ToFrozenDictionary();
 }

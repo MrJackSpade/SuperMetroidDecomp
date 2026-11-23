@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -20,12 +19,10 @@ internal static class ElevatorBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Elevator, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Elevator, words => words);
-        enemies.ElevatorBehavior.InitializeElevator(place, RoomEnemyFrameFixtures.StandaloneSamus());
-        AssertEqual(new AnimationPlayback<ElevatorSegment>(ElevatorAnimations.StartingWith(ElevatorSegment.Idle), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Playback,
-            "elevator initializer animation");
+        _ = enemies.LoadAuthoredPopulation();
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Segments, ElevatorSegment.Idle, ElevatorFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Segments, ElevatorSegment.Idle)),
@@ -40,14 +37,14 @@ internal static class ElevatorBehaviorVerification
     internal static void VerifyElevatorArrivalPlacement()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace elevator = enemies.Places.InUpdateOrder[3];
-        elevator.Bind(EnemyDefinitionId.Elevator, elevator.Definition);
+        RoomEnemyPlace elevator = enemies.Places.InUpdateOrder[0];
+        elevator.Bind(EnemyDefinitionId.Elevator, elevator.KeptDefinition);
         elevator.SetSpawnParameter1(EnemyDefinitionId.Elevator, 0);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
 
         enemies.ElevatorBehavior.PrepareElevatorArrival();
-        enemies.ElevatorBehavior.InitializeElevator(elevator, samus);
+        _ = enemies.LoadAuthoredPopulation(samus, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
         AssertTrue(ReferenceEquals(elevator, enemies.ElevatorBehavior.ArrivalElevator),
             "the arriving elevator is the placement the door loader waits for");
 

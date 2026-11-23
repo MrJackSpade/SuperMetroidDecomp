@@ -22,18 +22,18 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Verifies contact damage starts a single hurt flash and gasp without detaching Grapple or adding knockback.</summary>
     internal static void VerifyGrappleHurtFeedback()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
         var level = CreateRoom(new(32, 16), new RoomTerrainBlock[512], new RoomBlockBehavior[512]);
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = HudItem.Grapple;
@@ -45,16 +45,16 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual(0, samus.HurtFlash.Count, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.Places.InUpdateOrder[0];
-        target.Bind(EnemyDefinitionId.Ripper, target.Definition);
-        target.Bind(target.DefinitionId, RoomEnemyDefinitionLookup.Get(target.DefinitionId));
+        target.Bind(EnemyDefinitionId.Ripper, target.KeptDefinition);
+        target.Bind(target.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(target.HeldOccupant().DefinitionId));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.Frame = EnemyFrameId.RipperFlyingLeftEyeLit; // Contact admits only an enemy showing a frame.
-        var interactive = (List<RoomEnemyPlace>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
+        var interactive = (List<RoomEnemyOccupant>)runtime.Enemies.ProcessingWindow.InteractiveEnemies;
         interactive.Clear();
-        interactive.Add(target);
+        interactive.Add(target.HeldOccupant());
         int health = samus.Health;
-        AssertTrue(runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), GameplayAction.Shoot, runtime.Room.LoadedLevelData, target, Position16<RoomPixels>.Zero), "ordinary enemy contact hits hanging Samus");
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), GameplayAction.Shoot, runtime.Room.LoadedLevelData, target.HeldOccupant(), Position16<RoomPixels>.Zero);
         AssertEqual((ushort)(health - target.Definition.Damage), samus.Health, "native contact reduces health");
         target.Clear();
         runtime.StepFrame(ControllerButton.X);

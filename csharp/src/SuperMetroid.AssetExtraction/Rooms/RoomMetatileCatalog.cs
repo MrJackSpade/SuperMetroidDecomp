@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed room block compositions; no collision or block behaviour.</summary>
-public sealed class RoomMetatileCatalog
+public sealed partial class RoomMetatileCatalog
 {
     /// <summary>Copied lookup by block table; the RoomMetatileAtlas instances are shared and immutable.</summary>
     internal readonly Dictionary<RoomBlockSet, RoomMetatileAtlas> byRoomBlockSet;

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>The Ceres station's destruction and the approach to Zebes: their timing, motion, floor views and actor places.</summary>
-internal static class CeresDestructionSceneDefinitions
+internal static partial class CeresDestructionSceneDefinitions
 {
     /// <summary>Updates the scene waits before it sets up the station.</summary>
     internal const int InitialFrameWaits = 9;
@@ -25,15 +25,15 @@ internal static class CeresDestructionSceneDefinitions
     internal const ColourEffectId ZebesTextFadeOut = ColourEffectId.FadeOutPlanetZebesText;
 
     /// <summary>
-    /// The colour groups the turning floor shows the records of (#1733): the station's navigation lights over Ceres, and the
-    /// gunship engine's flicker on the approach to Zebes.
+    /// The colour effects whose current frame the turning floor shows (#1733): the station's navigation lights over
+    /// Ceres, and the gunship engine's flicker on the approach to Zebes.
     /// </summary>
     internal static IReadOnlyList<ColourEffectColours> FloorColours { get; } =
         [ColourEffectColours.CeresNavigationLightsBackground, ColourEffectColours.CutsceneGunshipEngine];
 
     /// <summary>
-    /// The colour group of each actor colouring a colour effect animates (#1733): an actor drawn in the colouring shows the
-    /// record the effect last showed over its drawn colours.
+    /// The colour effect each actor colouring animates (#1733): an actor drawn in the colouring shows the frame the
+    /// effect last showed over its drawn colours.
     /// </summary>
     internal static IReadOnlyDictionary<CeresSpriteColouring, ColourEffectColours> FadedColours { get; } =
         new Dictionary<CeresSpriteColouring, ColourEffectColours>
@@ -58,28 +58,28 @@ internal static class CeresDestructionSceneDefinitions
     internal const int DriftLoopWidth = 512;
 
     /// <summary>The tracks the scene plays.</summary>
-    internal static class Music
+    internal static partial class Music
     {
         /// <summary>The station's destruction track when Samus has escaped.</summary>
         internal const MusicTrack CeresTrack = MusicTrack.CeresExplosion;
         /// <summary>The station's destruction track when Samus is still aboard.</summary>
         internal const MusicTrack CeresWithSamusTrack = MusicTrack.CeresExplosionWithSamusAboard;
-        /// <summary>How long the destruction track waits on the music queue: fourteen passes.</summary>
+        /// <summary>How long the destruction track waits on the music queue, in passes.</summary>
         internal static MusicQueueDelay QueueDelay { get; } = new(14);
     }
 
     /// <summary>Authored holds, in updates.</summary>
-    internal static class Timing
+    internal static partial class Timing
     {
         /// <summary>Updates the completed Ceres explosion stays shown.</summary>
         internal const int ExplosionHoldFrames = 192;
         /// <summary>Updates the completed Zebes approach stays shown.</summary>
         internal const int ZebesHoldFrames = 64;
-        /// <summary>Updates each step of the cinematic's slow fades takes: one level every second update.</summary>
+        /// <summary>Updates each step of the cinematic's slow fades takes.</summary>
         internal const int FadeUpdatesPerStep = 2;
         /// <summary>
-        /// Updates the screen's first fade, from black, waits before each step, the first included: one, a level every
-        /// second update, as <see cref="FadeUpdatesPerStep"/> paces the later fades.
+        /// Updates the screen's first fade, from black, waits before each step, the first included, a level at each step, as
+        /// <see cref="FadeUpdatesPerStep"/> paces the later fades.
         /// </summary>
         internal const int FirstFadeWaitBeforeEachStep = 1;
     }
@@ -88,7 +88,7 @@ internal static class CeresDestructionSceneDefinitions
     /// The square blocks the Zebes reveal draws its planet picture in (#1774), in screen pixels, which also count the reveal
     /// down: each of its steps narrows them by one pixel.
     /// </summary>
-    internal static class RevealPixelation
+    internal static partial class RevealPixelation
     {
         /// <summary>The blocks the planet picture shows in as the reveal is set up.</summary>
         internal const int StartingBlockWidth = 9;
@@ -100,7 +100,7 @@ internal static class CeresDestructionSceneDefinitions
     }
 
     /// <summary>The floor's zoom thresholds and the scenes' velocities.</summary>
-    internal static class Motion
+    internal static partial class Motion
     {
         /// <summary>The zoom that ends the initial Ceres zoom: two and a half floor pixels per screen pixel.</summary>
         internal static FloorZoom CeresZoomLimit { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(5, 2);
@@ -126,14 +126,18 @@ internal static class CeresDestructionSceneDefinitions
         internal const int FlyAwayTurnSteps = -1;
         /// <summary>How far the floor turns each update as the gunship turns toward Zebes, in steps: one step clockwise.</summary>
         internal const int TowardZebesTurnSteps = -1;
-        /// <summary>One eighth of a pixel per update.</summary>
-        internal static SignedSixteenSixteen EighthPixel { get; } = SignedSixteenSixteen.FromPixelFraction(1, 8);
-        /// <summary>Minus one half pixel per update.</summary>
-        internal static SignedSixteenSixteen NegativeHalfPixel { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 2);
-        /// <summary>One sixteenth of a pixel per update.</summary>
-        internal static SignedSixteenSixteen SixteenthPixel { get; } = SignedSixteenSixteen.FromPixelFraction(1, 16);
-        /// <summary>Minus one quarter pixel per update.</summary>
-        internal static SignedSixteenSixteen NegativeQuarterPixel { get; } = SignedSixteenSixteen.FromPixelFraction(-1, 4);
+        /// <summary>How far the Ceres camera drifts each update (#2557): a quarter pixel left and a sixteenth of a pixel down.</summary>
+        internal static FixedVector<FloorPixels> CeresDrift { get; } =
+            new(SignedSixteenSixteen.FromPixelFraction(-1, 4), SignedSixteenSixteen.FromPixelFraction(1, 16));
+        /// <summary>
+        /// How far the floor scrolls each update as the gunship flies and turns toward Zebes (#2557): half a pixel left and an
+        /// eighth of a pixel down.
+        /// </summary>
+        internal static FixedVector<FloorPixels> ZebesApproachScroll { get; } =
+            new(SignedSixteenSixteen.FromPixelFraction(-1, 2), SignedSixteenSixteen.FromPixelFraction(1, 8));
+        /// <summary>How far the floor scrolls each update as the gunship closes in on Zebes (#2557): an eighth of a pixel right and down.</summary>
+        internal static FixedVector<FloorPixels> ZebesCloseInScroll { get; } =
+            new(SignedSixteenSixteen.FromPixelFraction(1, 8), SignedSixteenSixteen.FromPixelFraction(1, 8));
         /// <summary>The fleeing gunship's horizontal velocity: a quarter pixel rightward per update.</summary>
         internal static SignedSixteenSixteen GunshipXVelocity { get; } = SignedSixteenSixteen.FromPixelFraction(1, 4);
         /// <summary>The fleeing gunship's vertical velocity: one sixteenth of a pixel upward per update.</summary>
@@ -145,7 +149,7 @@ internal static class CeresDestructionSceneDefinitions
     }
 
     /// <summary>The floor's scroll over the station and on the approach to Zebes, and where the reveal's actors leave.</summary>
-    internal static class Places
+    internal static partial class Places
     {
         /// <summary>The floor's starting horizontal scroll over Ceres, in pixels.</summary>
         internal const int CeresInitialFloorScrollX = -44;

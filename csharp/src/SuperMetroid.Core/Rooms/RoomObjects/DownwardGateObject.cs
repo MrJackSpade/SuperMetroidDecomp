@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Animation;
-
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
@@ -10,20 +8,22 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (<see cref="DownwardGateImage.Starts"/>). A trigger a shot sets while the gate moves stays until the gate next rests.
 /// </summary>
 /// <param name="owner">The room's gates, which reach Samus and the gate projectiles.</param>
-[RoomLifetime]
-internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObject<DownwardGateSegment, DownwardGateImage, NoAnimationCue>(DownwardGateAnimations.Segments)
+internal sealed partial class DownwardGateObject(GateObjects owner) : SilentSequencedRoomObject<DownwardGateSegment, DownwardGateImage>(DownwardGateAnimations.Segments)
 {
     /// <summary>The room's gates.</summary>
     private readonly GateObjects _owner = Ensure.NotNull(owner);
 
-    /// <summary>Where the gate is in its course.</summary>
-    internal DownwardGatePhase Phase { get; private set; } = DownwardGatePhase.Starting;
+    /// <summary>
+    /// Where the gate is in its course; a gate that rests (<see cref="SequencedRoomObject{TSegment, TFrame, TEvent}.Resting"/>)
+    /// stands closed or open as the gate it last showed.
+    /// </summary>
+    internal DownwardGatePhase Phase { get; set; } = DownwardGatePhase.Starting;
 
     /// <summary>
     /// Whether an accepted shot on one of its triggers has set the gate off since it last rested. A shot can come at any
     /// point of the gate's course and is kept until the gate next rests, so it is a fact of its own beside the phase.
     /// </summary>
-    internal bool Triggered { get; private set; }
+    internal bool Triggered { get; set; }
 
     /// <summary>An accepted shot on one of the gate's triggers sets it off; further shots before it rests change nothing.</summary>
     internal void Trigger() => Triggered = true;
@@ -33,10 +33,9 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (Phase is DownwardGatePhase.RestingClosed or DownwardGatePhase.RestingOpen &&
-            (Triggered || (Phase == DownwardGatePhase.RestingClosed && _owner.IsSamusInsideDownwardGateColumn(place))))
+        if (Resting && (Triggered || (Phase == DownwardGatePhase.Closed && _owner.IsSamusInsideDownwardGateColumn(place))))
         {
-            bool open = Phase == DownwardGatePhase.RestingOpen;
+            bool open = Phase == DownwardGatePhase.Open;
             Phase = open ? DownwardGatePhase.Closing : DownwardGatePhase.Reopening;
             // The movement's first image shows as the sequence runs below, on this update.
             PlayFromNextUpdate(open ? DownwardGateAnimations.Closing : DownwardGateAnimations.Reopening);
@@ -45,61 +44,52 @@ internal sealed class DownwardGateObject(GateObjects owner) : SequencedRoomObjec
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// A movement shows the closed or open gate it ends at; the closed or open gate, once shown, clears the trigger and lets
+    /// the gate rest as it stands, waking from the next update on.
+    /// </remarks>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
+        if (Phase is DownwardGatePhase.Starting or DownwardGatePhase.Closing)
         {
-            case DownwardGatePhase.Starting:
-            case DownwardGatePhase.Closing:
-                Phase = DownwardGatePhase.ShowingClosed;
-                Play(DownwardGateAnimations.Closed, place, context);
-                return;
-            case DownwardGatePhase.Reopening:
-                Phase = DownwardGatePhase.ShowingOpen;
-                Play(DownwardGateAnimations.Open, place, context);
-                return;
-            case DownwardGatePhase.ShowingClosed:
-                RestIn(DownwardGatePhase.RestingClosed);
-                return;
-            case DownwardGatePhase.ShowingOpen:
-                RestIn(DownwardGatePhase.RestingOpen);
-                return;
-            case DownwardGatePhase.RestingClosed:
-            case DownwardGatePhase.RestingOpen:
-            default:
-                throw new InvalidOperationException($"The downward gate's sequence ended in {nameof(DownwardGatePhase)} {Phase}.");
+            Phase = DownwardGatePhase.Closed;
+            Play(DownwardGateAnimations.Closed, place, context);
+        }
+        else if (Phase == DownwardGatePhase.Reopening)
+        {
+            Phase = DownwardGatePhase.Open;
+            Play(DownwardGateAnimations.Open, place, context);
+        }
+        else
+        {
+            // The remaining members, DownwardGatePhase.Closed and DownwardGatePhase.Open: nothing follows, so the gate rests.
+            Triggered = false;
         }
     }
+
+    /// <summary>What <c>Show</c> does for each <see cref="DownwardGateMovement"/> member, each member's own arm.</summary>
+    private IdentityTable<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>> ShowForDownwardGateMovement => field ??= new(new Dictionary<DownwardGateMovement, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [DownwardGateMovement.None] = (place, context) =>
+        {
+        },
+        [DownwardGateMovement.Lowering] = (place, context) =>
+        {
+            _owner.SpawnMovingGateProjectile(place);
+            context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
+        },
+        [DownwardGateMovement.Rising] = (place, context) =>
+        {
+            _owner.WakeGateProjectile(place);
+            context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
+        },
+    });
 
     /// <summary>Starts the movement <paramref name="frame"/> names, then draws it.</summary>
     /// <exception cref="InvalidOperationException">The image names an undefined movement.</exception>
     private protected override void Show(DownwardGateImage frame, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (frame.Starts)
-        {
-            case DownwardGateMovement.None:
-                break;
-            case DownwardGateMovement.Lowering:
-                _owner.SpawnMovingGateProjectile(place);
-                context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
-                break;
-            case DownwardGateMovement.Rising:
-                _owner.WakeGateProjectile(place);
-                context.QueueSound(DownwardGateDefinitions.MovementSound, DownwardGateMovementDefinitions.MovementSoundPriority);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DownwardGateMovement)} {frame.Starts}.");
-        }
+        ShowForDownwardGateMovement[frame.Starts](place, context);
         context.Draw(place, frame.Draw);
-    }
-
-    /// <summary>
-    /// Clears the gate's trigger and lets it rest in <paramref name="phase"/> on the image it shows, waking from the
-    /// next update on.
-    /// </summary>
-    private void RestIn(DownwardGatePhase phase)
-    {
-        Triggered = false;
-        Phase = phase;
     }
 }

@@ -1,17 +1,18 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Serializes large audio manifests with exact byte lists and low-allocation music instruction records.</summary>
-internal static class AudioAssetJson
+internal static partial class AudioAssetJson
 {
     /// <summary>Camel-case manifest settings with converters that preserve the authored JSON structure.</summary>
     internal static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true,
-        Converters = { new ExactByteListConverter(), new MusicInstructionConverter() },
+        Converters = { new ExactByteListConverter(), new MusicInstructionConverter(), new MusicTrackJsonConverter() },
     };
 
     /// <summary>
@@ -22,7 +23,7 @@ internal static class AudioAssetJson
     /// written-out key codecs (#2548): an effect's key names an effect command, which its opcode must
     /// name too, and every other key names its kind.
     /// </summary>
-    private sealed class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
+    private sealed partial class MusicInstructionConverter : JsonConverter<AudioMusicInstructionMetadata>
     {
         /// <summary>Reads an authored instruction directly, retaining default and last-duplicate JSON behavior.</summary>
         /// <exception cref="JsonException">The operation names no command, or names an effect its opcode does not.</exception>
@@ -30,9 +31,12 @@ internal static class AudioAssetJson
         {
             if (reader.TokenType != JsonTokenType.StartObject)
                 throw new JsonException("Expected a music instruction object.");
-            MusicOperation? operation = null;
+            // Each member is read where its property stands, a null one rejected there; whether a member has been read is the
+            // reading's own state, checked once the object ends.
+            MusicOperation operation = default;
             int opcode = 0;
-            IReadOnlyList<byte>? timing = null, arguments = null;
+            IReadOnlyList<byte> timing = [], arguments = [];
+            bool hasOperation = false, hasTiming = false, hasArguments = false;
             var bytes = (JsonConverter<IReadOnlyList<byte>>)options.GetConverter(typeof(IReadOnlyList<byte>));
             while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
             {
@@ -41,7 +45,10 @@ internal static class AudioAssetJson
                 if (reader.ValueTextEquals("operation"u8))
                 {
                     reader.Read();
-                    operation = reader.TokenType == JsonTokenType.Null ? null : Operation(ref reader);
+                    operation = reader.TokenType == JsonTokenType.Null
+                        ? throw new JsonException("Music instruction requires an operation.")
+                        : Operation(ref reader);
+                    hasOperation = true;
                 }
                 else if (reader.ValueTextEquals("opcode"u8))
                 {
@@ -51,12 +58,14 @@ internal static class AudioAssetJson
                 else if (reader.ValueTextEquals("timing"u8))
                 {
                     reader.Read();
-                    timing = reader.TokenType == JsonTokenType.Null ? null : bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
+                    timing = Bytes(ref reader, bytes, options, "timing");
+                    hasTiming = true;
                 }
                 else if (reader.ValueTextEquals("arguments"u8))
                 {
                     reader.Read();
-                    arguments = reader.TokenType == JsonTokenType.Null ? null : bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options);
+                    arguments = Bytes(ref reader, bytes, options, "argument");
+                    hasArguments = true;
                 }
                 else
                 {
@@ -66,14 +75,26 @@ internal static class AudioAssetJson
             }
             if (reader.TokenType != JsonTokenType.EndObject)
                 throw new JsonException("Music instruction is not terminated.");
-            MusicOperation named = operation ?? throw new JsonException("Music instruction requires an operation.");
-            if (named.Effect is { } effect && !NamesEffect(opcode, effect))
+            if (!hasOperation)
+                throw new JsonException("Music instruction requires an operation.");
+            if (!hasTiming)
+                throw new JsonException("Music instruction requires its timing bytes.");
+            if (!hasArguments)
+                throw new JsonException("Music instruction requires its argument bytes.");
+            if (operation.Effect is { } effect && !NamesEffect(opcode, effect))
                 throw new JsonException($"Music instruction opcode ${opcode:X2} is no '{SpcMusicEffectKeys.Installed.Of(effect)}' command.");
-            return new AudioMusicInstructionMetadata(
-                named.Kind,
-                opcode,
-                timing ?? throw new JsonException("Music instruction requires its timing bytes."),
-                arguments ?? throw new JsonException("Music instruction requires its argument bytes."));
+            return new AudioMusicInstructionMetadata(operation.Kind, opcode, timing, arguments);
+        }
+
+        /// <summary>Reads an instruction's <paramref name="what"/> bytes, which a null does not give.</summary>
+        /// <exception cref="JsonException">The bytes are null.</exception>
+        private static IReadOnlyList<byte> Bytes(ref Utf8JsonReader reader, JsonConverter<IReadOnlyList<byte>> bytes,
+            JsonSerializerOptions options, string what)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+                throw new JsonException($"Music instruction requires its {what} bytes.");
+            return bytes.Read(ref reader, typeof(IReadOnlyList<byte>), options)
+                ?? throw new JsonException($"Music instruction's {what} bytes read as null.");
         }
 
         /// <summary>Whether <paramref name="opcode"/> is the opcode of <paramref name="effect"/>.</summary>
@@ -106,23 +127,23 @@ internal static class AudioAssetJson
                 : AudioMusicInstructionKindKeys.Installed.Of(value.Kind));
             writer.WriteNumber("opcode"u8, value.Opcode);
             writer.WritePropertyName("timing"u8);
-            JsonSerializer.Serialize(writer, value.Timing, options);
+            JsonSerializer.Serialize(writer, value.Timing, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.IReadOnlyList<byte>>(options));
             writer.WritePropertyName("arguments"u8);
-            JsonSerializer.Serialize(writer, value.Arguments, options);
+            JsonSerializer.Serialize(writer, value.Arguments, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.IReadOnlyList<byte>>(options));
             writer.WriteEndObject();
         }
 
         /// <summary>The command an operation's key names.</summary>
         /// <param name="Kind">What the command is.</param>
         /// <param name="Effect">The effect an effect command's key names; null for any other command.</param>
-        private readonly record struct MusicOperation(AudioMusicInstructionKind Kind, SpcMusicEffect? Effect);
+        private readonly partial record struct MusicOperation(AudioMusicInstructionKind Kind, SpcMusicEffect? Effect);
     }
 
     /// <summary>
     /// Reads every instruction's timing/argument bytes into one exact array instead of a
     /// growing list. Writes the same JSON number array the default collection writer emits.
     /// </summary>
-    private sealed class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
+    private sealed partial class ExactByteListConverter : JsonConverter<IReadOnlyList<byte>>
     {
         /// <summary>Reads a byte array with stack storage for short operands and a pooled buffer for larger ones.</summary>
         public override IReadOnlyList<byte> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

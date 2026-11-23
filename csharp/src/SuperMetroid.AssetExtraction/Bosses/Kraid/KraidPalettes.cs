@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
@@ -10,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Kraid;
 /// begin with the hurt flash. Where each palette sits in the original game is the import's knowledge
 /// (<c>AssetExtraction/Bosses/KraidPaletteSources</c>).
 /// </summary>
-public static class KraidPalettes
+public static partial class KraidPalettes
 {
     /// <summary>Nine sixteen-colour health bands, including the flash band.</summary>
     public const int HealthBandCount = 9;
@@ -21,28 +19,22 @@ public static class KraidPalettes
     /// <summary>The first of a band's colours that are Kraid's eyes, which glow after a hit (#1512).</summary>
     public const int FirstEyeColour = 1;
 
-    /// <summary>The hurt flash's band among a health sequence's nine: the first (#2297).</summary>
-    public const int HurtFlashBand = 0;
-
     /// <summary>
-    /// The shade each of a health sequence's nine bands is installed as, in the order the sequence holds them (#2297): the
-    /// hurt flash's, then each health band's, most hurt first.
+    /// Each of a health sequence's nine bands (#2297): the shade it is installed as, with the colour group of the sequence
+    /// that holds its colours, the hurt flash's first and then each health band's, most hurt first.
     /// </summary>
-    public static IReadOnlyList<PictureShade> HealthShades { get; } =
-        [KraidShades.HurtFlash, .. KraidHealthBandDefinitions.MostHurtFirst.Select(KraidShades.Health)];
-
-    /// <summary>Health band <paramref name="band"/>'s place among a health sequence's nine bands: after the hurt flash's, most hurt first.</summary>
-    /// <exception cref="ArgumentException">The band is not one of Kraid's.</exception>
-    public static int BandOf(KraidHealthBand band)
-    {
-        Ensure.NotNull(band);
-        for (int place = 0; place < KraidHealthBandDefinitions.MostHurtFirst.Count; place++)
-        {
-            if (ReferenceEquals(KraidHealthBandDefinitions.MostHurtFirst[place], band))
-                return HurtFlashBand + 1 + place;
-        }
-        throw new ArgumentException($"{band} is not one of Kraid's health bands.", nameof(band));
-    }
+    public static IReadOnlyList<KraidHealthSequenceBand> HealthSequence { get; } =
+    [
+        new(KraidShades.HurtFlash, 0),
+        new(KraidShades.Health(KraidHealthBandDefinitions.BelowQuarter), 1),
+        new(KraidShades.Health(KraidHealthBandDefinitions.BelowThreeEighths), 2),
+        new(KraidShades.Health(KraidHealthBandDefinitions.BelowHalf), 3),
+        new(KraidShades.Health(KraidHealthBandDefinitions.BelowFiveEighths), 4),
+        new(KraidShades.Health(KraidHealthBandDefinitions.BelowThreeQuarters), 5),
+        new(KraidShades.Health(KraidHealthBandDefinitions.BelowSevenEighths), 6),
+        new(KraidShades.Health(KraidHealthBandDefinitions.BelowWhole), 7),
+        new(KraidShades.Health(KraidHealthBandDefinitions.Unhurt), 8),
+    ];
 
     /// <summary>
     /// The colours of one named palette: a single band, or a flash-plus-eight-health sequence.

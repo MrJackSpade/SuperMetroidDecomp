@@ -18,8 +18,7 @@ internal static class BrrLoopExtractionVerification
         ram[0] = 0x17;
         Array.Fill(ram, (byte)0x77, 1, 8);
         AssertTrue(SpcAudioAssetExtractor.TryDecodeBrr(ram, written, 0, 0,
-            out short[] pcm, out int blocks, out int? loop), "filtered BRR loop extracts");
-        AssertEqual(1, blocks, "manifest counts original BRR blocks, not unfolded passes");
+            out short[] pcm, out int? loop), "filtered BRR loop extracts");
         AssertTrue(pcm.Length > 16 && loop is > 0, "filtered transient remains before recurring PCM loop");
         int previous = 0;
         for (int index = 0; index < 1024; index++)
@@ -33,18 +32,18 @@ internal static class BrrLoopExtractionVerification
 
         ram[0] = 0x13; // Filter zero ignores incoming history, so no transient extension.
         AssertTrue(SpcAudioAssetExtractor.TryDecodeBrr(ram, written, 0, 0,
-            out pcm, out _, out loop), "history-independent BRR loop extracts");
+            out pcm, out loop), "history-independent BRR loop extracts");
         AssertEqual(16, pcm.Length, "filter-zero loop does not need duplicate passes");
         AssertEqual(0, (loop ?? throw new InvalidOperationException("Verification requires loop.")), "filter-zero loop keeps original loop start");
 
         ram[0] = 0x11; // Non-looping end marker.
         AssertTrue(SpcAudioAssetExtractor.TryDecodeBrr(ram, written, 0, 0,
-            out pcm, out _, out loop), "one-shot BRR extracts");
+            out pcm, out loop), "one-shot BRR extracts");
         AssertEqual(16, pcm.Length, "one-shot length unchanged");
         AssertTrue(loop is null, "one-shot remains non-looping");
 
         ram[0] = 0x17;
         AssertTrue(!SpcAudioAssetExtractor.TryDecodeBrr(ram, written, 0, 1,
-            out _, out _, out _), "loop address must identify a decoded BRR block boundary");
+            out _, out _), "loop address must identify a decoded BRR block boundary");
     }
 }

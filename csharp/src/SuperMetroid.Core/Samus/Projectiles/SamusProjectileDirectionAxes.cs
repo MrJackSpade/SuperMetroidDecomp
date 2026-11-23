@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="Horizontal">The way the shot moves along X, or null when it moves straight up or down.</param>
 /// <param name="Vertical">The way the shot moves along Y, or null when it moves straight left or right.</param>
-internal sealed record SamusProjectileDirectionAxes(HorizontalDirection? Horizontal, VerticalDirection? Vertical)
+internal sealed partial record SamusProjectileDirectionAxes(HorizontalDirection? Horizontal, VerticalDirection? Vertical)
 {
     /// <summary>Whether the shot moves along X: every direction but straight up or down.</summary>
     internal bool MovesHorizontally => Horizontal is not null;

@@ -8,4 +8,10 @@ internal enum HostFramePacing
 
     /// <summary>Back to back: each tick runs frames for one timer interval and presents the last, as a verification replay runs.</summary>
     Unpaced,
+
+    /// <summary>
+    /// Back to back, each frame rendered and presented before the next runs (#2653): a measurement of every frame's update,
+    /// render and present, as fast as the device allows.
+    /// </summary>
+    EachFramePresented,
 }

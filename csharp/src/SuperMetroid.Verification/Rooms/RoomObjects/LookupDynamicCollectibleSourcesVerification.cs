@@ -12,10 +12,10 @@ internal static class LookupDynamicCollectibleSourcesVerification
     internal static void VerifyDynamicCollectibleSourcePointers(CartridgeImportAddressSpace rom)
     {
         var exported = DynamicCollectibleGraphicsConstants.All.ToArray();
-        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        for (int raw = 0; raw < Enum.GetValues<InWorldCollectibleKind>().Length; raw++)
         {
             var kind = (InWorldCollectibleKind)raw;
-            if (raw is < 4 or > 20)
+            if (raw < 4)
             {
                 AssertThrows<InvalidDataException>(() => RoomObjectDynamicCollectibleGraphicsDefinitions.GraphicsPointer(kind), "Dynamic source rejected byte kind");
                 continue;
@@ -36,17 +36,17 @@ internal static class LookupDynamicCollectibleSourcesVerification
     }
 
     /// <summary>Reads an artwork byte from the retail source solely for the dynamic graphics oracle.</summary>
-    private static byte DynamicCollectibleSourcePointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte DynamicCollectibleSourcePointersRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks ascending identities for kinds four through twenty and rejects all other byte values.</summary>
+    /// <summary>Checks ascending identities for kinds four through twenty and rejects the four tanks.</summary>
     internal static void VerifyDynamicCollectibleKindIdentity()
     {
         var exported = DynamicCollectibleGraphicsConstants.All.ToArray();
         AssertEqual(17, exported.Length, "Original dynamic kind count");
-        for (int raw = 0; raw <= byte.MaxValue; raw++)
+        for (int raw = 0; raw < Enum.GetValues<InWorldCollectibleKind>().Length; raw++)
         {
             var kind = (InWorldCollectibleKind)raw;
-            if (raw is < 4 or > 20)
+            if (raw < 4)
                 AssertThrows<InvalidDataException>(() => DynamicCollectibleGraphics.Get(kind), "Original graphics kind domain");
             else
             {

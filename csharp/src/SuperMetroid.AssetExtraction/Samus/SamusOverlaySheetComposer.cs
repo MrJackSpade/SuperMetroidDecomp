@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// direction and frame upload, coloured as Samus's body sheet is. The chest cover is composed into the forward-facing
 /// body's own frames (#1513).
 /// </summary>
-internal static class SamusOverlaySheetComposer
+internal static partial class SamusOverlaySheetComposer
 {
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
@@ -31,13 +31,12 @@ internal static class SamusOverlaySheetComposer
         foreach (SamusProjectileDirection direction in SamusProjectileDirectionCodec.InAimOrder)
         {
             // `$90:C7DF` uploads the frame's cover to the character the direction's attributes name.
-            int row = direction.ToAimIndex();
-            SpritePart appearance = cannon.CoverAppearance(row);
+            SpritePart appearance = cannon.CoverAppearance(direction);
             foreach (SamusArmCannonCoverFrame frame in SamusArmCannonCoverFrameCodec.InOpeningOrder)
             {
                 frames.Add(new(SamusOverlaySheetDefinitions.ArmCannonFrame(direction, frame),
                     SpritePartFrames.SmallObject(appearance, appearance.Character),
-                    cover.CoverTile(row, SamusArmCannonCoverFrameCodec.CartridgeFrame(frame))));
+                    cover.CoverTile(direction, frame)));
             }
         }
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);

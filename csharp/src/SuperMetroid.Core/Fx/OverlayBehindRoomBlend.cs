@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// A room effect's overlay lying behind the room (#1545, #2505), as the spores and the waterfalls do: it changes the
 /// layers it names where each is frontmost.
 /// </summary>
-public sealed record OverlayBehindRoomBlend : RoomEffectBlend
+public sealed partial record OverlayBehindRoomBlend : RoomEffectBlend
 {
     /// <summary>What the overlay, lying behind the room, changes where each is frontmost.</summary>
     public required BlendedLayers Blended { get; init; }

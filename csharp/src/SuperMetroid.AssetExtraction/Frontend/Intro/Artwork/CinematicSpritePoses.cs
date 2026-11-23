@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// family's compositions must hold, or the poses of the escaping animals' compiled pods. A sheet's frames are named from them without reading the compositions, which are import
 /// data whose parts are the original's packed sprite placements.
 /// </summary>
-internal static class CinematicSpritePoses
+internal static partial class CinematicSpritePoses
 {
     /// <summary>The poses <paramref name="family"/> composes, in definition order.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The family is undefined.</exception>

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Schema and stock text-region geometry for completion and save notices.</summary>
-public static class GameplayMessageNoticeDefinitions
+public static partial class GameplayMessageNoticeDefinitions
 {
     /// <summary>Supported revision of the editable station-completion and save-confirmation notice JSON schema.</summary>
     public const int Version = 2;
@@ -22,4 +22,20 @@ public static class GameplayMessageNoticeDefinitions
 
     /// <summary>The five supported notice identities in schema order: map download, energy recharge, missile recharge, station save confirmation, and gunship save confirmation; excludes pickup messages and the save-completed notice.</summary>
     public static ReadOnlySpan<GameplayMessageId> MessageIds => SupportedMessageIds;
+
+    /// <summary>The 32-cell content rows a station-completion notice spans, between its border rows.</summary>
+    private const int StationNoticeRows = 3;
+
+    /// <summary>The 32-cell content rows a save confirmation spans, between its border rows: its YES and NO rows among them.</summary>
+    private const int SaveConfirmationRows = 4;
+
+    /// <summary>The content rows each editable notice spans: three for a station-completion notice, four for a save confirmation.</summary>
+    internal static readonly IReadOnlyDictionary<GameplayMessageId, int> ContentRows = new Dictionary<GameplayMessageId, int>
+    {
+        [GameplayMessageId.MapDataAccessCompleted] = StationNoticeRows,
+        [GameplayMessageId.EnergyRechargeCompleted] = StationNoticeRows,
+        [GameplayMessageId.MissileRechargeCompleted] = StationNoticeRows,
+        [GameplayMessageId.SaveConfirmation] = SaveConfirmationRows,
+        [GameplayMessageId.GunshipSaveConfirmation] = SaveConfirmationRows,
+    };
 }

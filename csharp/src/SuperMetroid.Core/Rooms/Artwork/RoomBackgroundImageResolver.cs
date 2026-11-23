@@ -4,15 +4,15 @@ using SuperMetroid.Core.Rooms.Backgrounds;
 namespace SuperMetroid.Core.Rooms.Artwork;
 
 /// <summary>
-/// Resolves what a room's background image shows (#1392, #1466): the image, and for each 16x16 cell whose appearance
+/// Resolves what a room's background image shows (#1392, #1466): the image, and for each block-sized cell whose appearance
 /// inputs no longer all show the room's load, that cell's picture in the block sheet for their values now.
 /// </summary>
 /// <param name="image">The background's image.</param>
 /// <param name="sheet">The room tileset's block sheet, which holds the cells' pictures.</param>
-public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomBlockSheet sheet)
+public sealed partial class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomBlockSheet sheet)
 {
-    /// <summary>The value each input of each changing cell took when last resolved, by changing cell.</summary>
-    private readonly string[][] values = [.. image.Cells.Select(cell => new string[cell.Inputs.Length])];
+    /// <summary>Each changing cell with the value each of its inputs took when last resolved.</summary>
+    private readonly ChangingCell[] changing = [.. image.Cells.Select(cell => new ChangingCell(cell, new string[cell.Inputs.Length]))];
 
     /// <summary>The cell pictures last resolved, null where the image shows.</summary>
     private LayeredPicture?[] cells = new LayeredPicture?[image.CellCount];
@@ -30,10 +30,10 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
     public RoomBackgroundImagePlane Resolve(RoomAppearanceView appearance, RoomBackgroundImagePlacement placement)
     {
         LayeredPicture?[]? next = resolved ? null : new LayeredPicture?[Image.CellCount];
-        for (int index = 0; index < Image.Cells.Count; index++)
+        foreach (ChangingCell changingCell in changing)
         {
-            RoomBackgroundCell cell = Image.Cells[index];
-            string[] shown = values[index];
+            RoomBackgroundCell cell = changingCell.Cell;
+            string[] shown = changingCell.Values;
             bool changed = !resolved, rebound = false;
             for (int input = 0; input < cell.Inputs.Length; input++)
             {
@@ -52,4 +52,9 @@ public sealed class RoomBackgroundImageResolver(RoomBackgroundImage image, RoomB
             cells = next;
         return new RoomBackgroundImagePlane(Image, cells, placement);
     }
+
+    /// <summary>One changing cell of the image, with the value each of its inputs took when last resolved.</summary>
+    /// <param name="Cell">The changing cell.</param>
+    /// <param name="Values">The value each of its inputs took when last resolved, in the order of its inputs.</param>
+    private sealed partial record ChangingCell(RoomBackgroundCell Cell, string[] Values);
 }

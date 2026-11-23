@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// word and the palette bits are ORed in. Frames are shared per composition, tile base and palette, so a steady
 /// animation publishes the same frames.
 /// </summary>
-internal static class EnemySpriteFrames
+internal static partial class EnemySpriteFrames
 {
     /// <summary>Frames per composition owner, keyed by the composition's range, tile base and palette bits.</summary>
     private static readonly ConditionalWeakTable<object, ConcurrentDictionary<EnemySpriteFrameRange, SpriteFrame>> Frames = new();
@@ -51,8 +51,12 @@ internal static class EnemySpriteFrames
         {
             SpritemapPart part = SpritemapPart.From(parts[index]);
             SnesObjAttributeWord attributes = part.Attributes.AddPackedTileBase(checked((ushort)baseTileIndex)).Or(palette);
+            if (attributes.Depth != parts[index].Depth)
+                throw new InvalidDataException($"Enemy composition part {index} drawn from character {baseTileIndex} reads past the characters into its depth.");
             framed[index] = SpritePartFrames.Part((part with { Attributes = attributes }).ToPart(), firstCharacter: 0);
         }
-        return new SpriteFrame($"Enemy+{baseTileIndex:X3}/{paletteRow}", ImmutableCollectionsMarshal.AsImmutableArray(framed));
+        // The frame is shared by every sheet frame that shows this composition, each of which names it for what it shows; its
+        // own name only says what kind of frame it is (#2556).
+        return new SpriteFrame("Enemy spritemap", ImmutableCollectionsMarshal.AsImmutableArray(framed));
     }
 }

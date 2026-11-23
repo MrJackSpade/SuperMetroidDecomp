@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Grapple swing-frame document (#1502).</summary>
-public static class GrappleSwingFrameFile
+public static partial class GrappleSwingFrameFile
 {
     /// <summary>Supported revision of the displayed-frame JSON schema: one frame for each swing direction.</summary>
     public const int Version = 2;
@@ -29,10 +29,9 @@ public static class GrappleSwingFrameFile
         {
             using var parsed = JsonDocument.Parse(json);
             if (parsed.RootElement.ValueKind != JsonValueKind.Object) throw new InvalidDataException("Grapple swing frames require an object.");
-            var names = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var property in parsed.RootElement.EnumerateObject())
-                if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate Grapple swing-frame property.");
-            document = parsed.RootElement.Deserialize<GrappleSwingFrameDocument>(Options)
+            JsonAssetDocument.RejectDuplicateProperties(parsed.RootElement, StringComparer.Ordinal,
+                _ => new InvalidDataException("Duplicate Grapple swing-frame property."), DuplicatePropertyScope.OutsideArrays);
+            document = parsed.RootElement.Deserialize<GrappleSwingFrameDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameDocument>(Options))
                 ?? throw new InvalidDataException("Missing Grapple swing frames.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple swing-frame JSON.", error); }
@@ -49,5 +48,5 @@ public static class GrappleSwingFrameFile
     /// <param name="document">Document containing the supported version and a valid orientation-frame selection for every swing direction.</param>
     /// <returns>JSON bytes suitable for the swing-frame asset file.</returns>
     public static byte[] Write(GrappleSwingFrameDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameDocument>(Options));
 }

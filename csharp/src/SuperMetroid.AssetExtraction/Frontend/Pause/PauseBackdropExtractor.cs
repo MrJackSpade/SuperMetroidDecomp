@@ -9,24 +9,24 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Composes the native frame and area lettering once, at import, into editable tile grids.</summary>
-public static class PauseBackdropExtractor
+public static partial class PauseBackdropExtractor
 {
     /// <summary>Combines the native pause frame with each area label, converts every tile word to semantic atlas coordinates, and serializes the shared button strip.</summary>
     /// <param name="bus">Supported-cartridge address space containing the pause frame, area-label pointers, and button tilemap.</param>
     /// <returns>UTF-8 JSON bytes for all area backdrops and pause buttons.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] frame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseFrameTilemap, PauseBackdropDefinitions.ByteCount);
+        byte[] frame = RomDataReader.ReadFixedBank(bus, PauseMenuSourceDefinitions.PauseFrameTilemap, PauseBackdropDefinitions.ByteCount);
         var areas = new Dictionary<string, PauseBackdropCell[]>();
         foreach (AreaId area in AreaIds.All)
         {
             byte[] image = frame.ToArray();
-            int label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseAreaLabelPointers.AddWithinBank(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2));
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SnesAddress.InBank(PauseMenuSourceDefinitions.PauseAreaLabelBank.Bank, label), PauseBackdropDefinitions.LabelWords * 2)
+            int label = RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.PauseAreaLabelPointers.AddWithinBank(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2));
+            RomDataReader.ReadFixedBank(bus, SnesAddress.InBank(PauseMenuSourceDefinitions.PauseAreaLabelBank.Bank, label), PauseBackdropDefinitions.LabelWords * 2)
                 .CopyTo(image, PauseBackdropDefinitions.LabelCell * 2);
             areas.Add(AreaIdKeys.Installed.Of(area), Cells(image, AreaIdKeys.Installed.Of(area)));
         }
-        var buttons = Cells(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.PauseButtonTilemap,
+        var buttons = Cells(RomDataReader.ReadFixedBank(bus, PauseMenuSourceDefinitions.PauseButtonTilemap,
             PauseBackdropDefinitions.ButtonCells * 2), "Buttons");
         using var output = new MemoryStream();
         PauseBackdropPresentation.Write(output, new() { Version = PauseBackdropDefinitions.Version, Areas = areas, Buttons = buttons });

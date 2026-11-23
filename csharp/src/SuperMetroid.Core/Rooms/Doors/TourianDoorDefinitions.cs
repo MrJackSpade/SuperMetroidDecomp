@@ -1,13 +1,13 @@
-﻿namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>The Tourian rooms' doors, each named for the room it leads from and the room it leads to.</summary>
-public static class TourianDoorDefinitions
+public static partial class TourianDoorDefinitions
 {
     /// <summary>The door from the Tourian First room to the Metroids 1 room.</summary>
     public static DoorDefinition TourianFirstToMetroids1 { get; } = new("TourianFirstToMetroids1", RoomDefinitions.Metroids1, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 6), new(5, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Tourian First room to the Statues room.</summary>
-    public static DoorDefinition TourianFirstToStatues { get; } = new("TourianFirstToStatues", RoomDefinitions.Statues, new(DoorDirection.Up, DoorClosingBehavior.None), new(0, 0), new(0, 1), DoorSamusSpeed.None, DoorSetupDefinitions.StatuesOpensScreens0x0And0x1);
+    public static DoorDefinition TourianFirstToStatues { get; } = new("TourianFirstToStatues", RoomDefinitions.Statues, new(DoorDirection.Up, DoorClosingBehavior.None), null, new(0, 1), DoorSamusSpeed.None, DoorSetupDefinitions.StatuesOpensScreens0x0And0x1) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Tourian First room to the Upper Tourian Save room.</summary>
     public static DoorDefinition TourianFirstToUpperTourianSave { get; } = new("TourianFirstToUpperTourianSave", RoomDefinitions.UpperTourianSave, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -52,10 +52,10 @@ public static class TourianDoorDefinitions
     public static DoorDefinition BigBoyToDustTorizo { get; } = new("BigBoyToDustTorizo", RoomDefinitions.DustTorizo, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Big Boy room to the Seaweed room.</summary>
-    public static DoorDefinition BigBoyToSeaweed { get; } = new("BigBoyToSeaweed", RoomDefinitions.Seaweed, new(DoorDirection.Left, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition BigBoyToSeaweed { get; } = new("BigBoyToSeaweed", RoomDefinitions.Seaweed, new(DoorDirection.Left, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Seaweed room to the Big Boy room.</summary>
-    public static DoorDefinition SeaweedToBigBoy { get; } = new("SeaweedToBigBoy", RoomDefinitions.BigBoy, new(DoorDirection.Right, DoorClosingBehavior.None), new(0, 0), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
+    public static DoorDefinition SeaweedToBigBoy { get; } = new("SeaweedToBigBoy", RoomDefinitions.BigBoy, new(DoorDirection.Right, DoorClosingBehavior.None), null, new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Seaweed room to the Tourian Eye Door room.</summary>
     public static DoorDefinition SeaweedToTourianEyeDoor { get; } = new("SeaweedToTourianEyeDoor", RoomDefinitions.TourianEyeDoor, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 6), new(0, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
@@ -112,7 +112,7 @@ public static class TourianDoorDefinitions
     public static DoorDefinition TourianEscape4ToTourianEscape3 { get; } = new("TourianEscape4ToTourianEscape3", RoomDefinitions.TourianEscape3, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(94, 6), new(5, 0), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);
 
     /// <summary>The door from the Tourian Escape 4 room to the Climb room.</summary>
-    public static DoorDefinition TourianEscape4ToClimb { get; } = new("TourianEscape4ToClimb", RoomDefinitions.Climb, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 134), new(0, 8), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ClimbClosesScreen1x8OpensScreen0x8TopAligned);
+    public static DoorDefinition TourianEscape4ToClimb { get; } = new("TourianEscape4ToClimb", RoomDefinitions.Climb, new(DoorDirection.Right, DoorClosingBehavior.BlueDoorCloses), new(1, 134), new(0, 8), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.ClimbClosesScreen1x8OpensScreen0x8TopAligned) { ExchangesExploredMaps = true };
 
     /// <summary>The door from the Upper Tourian Save room to the Tourian First room.</summary>
     public static DoorDefinition UpperTourianSaveToTourianFirst { get; } = new("UpperTourianSaveToTourianFirst", RoomDefinitions.TourianFirst, new(DoorDirection.Left, DoorClosingBehavior.BlueDoorCloses), new(14, 54), new(0, 3), DoorSamusSpeed.AxisDefault, DoorSetupDefinitions.None);

@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// Both belong to the room: the door waits through a message box the same update opened, the pause's last darkening
 /// updates and the transition's own updates until the destination loads, and a room left behind takes both with it.
 /// </summary>
-[RoomLifetime]
-internal sealed class RoomDoorContacts
+internal sealed partial class RoomDoorContacts
 {
     /// <summary>
     /// Samus's stand at the elevator's door, which waits for the elevator. Every gameplay update runs the enemies before
@@ -27,20 +26,16 @@ internal sealed class RoomDoorContacts
     /// <param name="contact">The contact her collision made.</param>
     internal void Meet(DoorContact contact)
     {
-        switch (Ensure.NotNull(contact))
-        {
-            case DoorContact.EntersDoor entered:
-                EnteredDoor ??= entered.Door;
-                return;
-            case DoorContact.StandsAtElevator:
-                ElevatorStand.Stand();
-                return;
-            case DoorContact.BrushesElevator:
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(DoorContact)} {contact}.");
-        }
+        Ensure.NotNull(contact).React(MeetReactions, this);
     }
+
+    /// <summary>What <c>Meet</c> does on each <see cref="DoorContact"/>, built once (#2553).</summary>
+    private static DoorContactReactions<RoomDoorContacts> MeetReactions { get; } = new(
+        EntersDoor: static (entered, owner) => owner.EnteredDoor ??= entered.Door,
+        StandsAtElevator: static (_, owner) => owner.ElevatorStand.Stand(),
+        BrushesElevator: static (_, _) =>
+        {
+        });
 
     /// <summary>
     /// Forgets the entered door without going through it (#2534): the AUTO reserves' refill beginning later in the update
@@ -56,10 +51,10 @@ internal sealed class RoomDoorContacts
     /// <exception cref="InvalidOperationException">Samus entered no door, or another one, while the destination loaded.</exception>
     internal void GoThroughEnteredDoor(DoorDefinition door)
     {
-        DoorDefinition entered = EnteredDoor
-            ?? throw new InvalidOperationException("The entered door disappeared while its destination's assets were prepared.");
-        if (entered != door)
-            throw new InvalidOperationException($"The entered door changed from {door.Name} to {entered.Name} while its destination's assets were prepared.");
+        Ensure.NotNull(door);
+        if (EnteredDoor != door)
+            throw new InvalidOperationException(
+                $"The entered door changed from {door.Name} to {EnteredDoor?.Name ?? "none"} while its destination's assets were prepared.");
         EnteredDoor = null;
     }
 }

@@ -10,15 +10,14 @@ namespace SuperMetroid.Core.Assets;
 /// so the draw that chooses it draws nothing, and a picture the sheet neither installs nor names is missing
 /// (<see cref="SpriteSheet.HoldsPicture"/>, <see cref="SpriteSheet.Picture"/>).
 /// </summary>
-public static class PictureParts
+public static partial class PictureParts
 {
     /// <summary>The mark that ends the name of a picture's in-front part.</summary>
     private const string InFrontMark = "^front";
 
     /// <summary>The installed name of the in-front part of the picture named <paramref name="name"/>.</summary>
     /// <exception cref="ArgumentException">The name is empty.</exception>
-    [InstalledKey]
-    public static string InFront([InstalledKey] string name)
+    public static string InFront(string name)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         return name + InFrontMark;

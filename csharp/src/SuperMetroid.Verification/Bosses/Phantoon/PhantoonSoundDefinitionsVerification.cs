@@ -18,17 +18,15 @@ internal static class PhantoonSoundDefinitionsVerification
         AssertEqual(3, PhantoonSoundDefinitions.MaterializationSounds.Count, "Phantoon materialization cycle length");
         for (int index = 0; index < 3; index++)
         {
-            SoundEffectId expected = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2));
+            SoundEffectId expected = SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies,
+                rom.ReadCartridgeWord(sourceAddress + index * 2));
             AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSounds[index],
                 $"Phantoon materialization sound {index}");
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        var state = new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]);
-        enemies.BeginPhantoonAsSetUp(state);
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began.
+        PhantoonEnemyState state = enemies.PlacePhantoon();
         Action<PhantoonEnemyState, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
         AssertEqual(PhantoonSoundDefinitions.MaterializationSounds[0], state.NextMaterializationSound.Entry, "Phantoon's first materialization queues the cycle's first sound");

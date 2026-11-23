@@ -6,10 +6,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable bomb and contact-crumble restore visuals, and the editable identities that name them.</summary>
-public static class RoomObjectLinkedRestoreVisualFiles
+public static partial class RoomObjectLinkedRestoreVisualFiles
 {
     /// <summary>Family-relative JSON filename for the six bomb/contact-crumble horizontal, vertical, and square restoration layouts.</summary>
-    public const string VisualFileName = "linked-restores.json";
+    internal const string VisualFileName = "linked-restores.json";
 
     /// <summary>The arrangements of each kind's restorations in the order the import publishes them: side by side, stacked, square.</summary>
     private static readonly BlockArrangement[] ExportOrder = [BlockArrangement.Horizontal, BlockArrangement.Vertical, BlockArrangement.Square];
@@ -39,7 +39,7 @@ public static class RoomObjectLinkedRestoreVisualFiles
     /// <summary>Loads the installed linked restoration pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectLinkedRestoreVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The three bomb-block and three contact-crumble restoration layouts, bomb blocks first.</summary>

@@ -9,15 +9,15 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// its characters, coloured with its standard palette rows, at the place its <see cref="SpriteSheetLayout"/> gives it:
 /// one complete image per distinct frame, drawn as it is (#1513).
 /// </summary>
-internal static class SpriteSheetComposer
+internal static partial class SpriteSheetComposer
 {
     /// <summary>Composes a sheet's distinct frame images in order onto one sheet.</summary>
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
-    /// <param name="priority">The game's priority of parts that do not choose their own, from which each frame's depth is decided.</param>
-    internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, int priority) =>
-        Compose(new SpriteSheetLayout(sources, palette, priority));
+    /// <param name="depth">The depth of parts that do not choose their own, from which each frame's depth is decided.</param>
+    internal static ComposedSpriteSheet Compose(SpriteSheetSources sources, int palette, ActorDepth depth) =>
+        Compose(new SpriteSheetLayout(sources, palette, depth));
 
     /// <summary>Paints <paramref name="layout"/>'s distinct frame images onto one sheet.</summary>
     internal static ComposedSpriteSheet Compose(SpriteSheetLayout layout)
@@ -26,8 +26,8 @@ internal static class SpriteSheetComposer
         Extent16<ImagePixels> size = layout.Size;
         int area = size.X * size.Y;
         var pixels = new RgbaPixel[area];
-        var paletteIndices = new byte[area];
-        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, paletteIndices));
-        return new ComposedSpriteSheet(size, pixels, paletteIndices, manifest);
+        var inks = new ComposedInk[area];
+        SpriteSheetDocument manifest = layout.Paint(new SpriteSheetPlanes(size, pixels, inks));
+        return new ComposedSpriteSheet(size, pixels, inks, manifest);
     }
 }

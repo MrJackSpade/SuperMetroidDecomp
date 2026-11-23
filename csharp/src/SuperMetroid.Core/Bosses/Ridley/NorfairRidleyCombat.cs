@@ -12,8 +12,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Norfair Ridley's arrival and fight: hovering, swoops, the wall sweep, the pogo attack and grabbing Samus.</summary>
-[RoomLifetime]
-internal sealed class NorfairRidleyCombat
+internal sealed partial class NorfairRidleyCombat
 {
     /// <summary>Room services, level state, and RNG for the Norfair fight.</summary>
     private readonly EnemyRoomBinding _room;
@@ -47,16 +46,18 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Sets Lower Norfair Ridley up and begins his encounter, which his body holds from then on
-    /// (#2231). A defeated Ridley is deleted before any encounter, workspace or colour side effects, matching the
-    /// defeated-boss gate, and begins none; a live fight begins with Ridley below the visible arena.
+    /// (#2231). A defeated Ridley is deleted before his encounter or his colours begin, as every defeated boss is, and
+    /// begins none; a live fight begins with Ridley below the visible arena.
     /// </summary>
-    internal void InitializeNorfairRidley(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal NorfairRidleyState InitializeNorfairRidley(RoomEnemyPlace place)
     {
+        var ridley = new NorfairRidleyState { Motion = RidleyMotion.Running };
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaBoss))
         {
             place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
             place.Presence = place.Presence.With(EnemyPresence.Deleted | EnemyPresence.Hidden);
-            return;
+            return ridley;
         }
         place.CollidesByFrameHitboxes = true;
 
@@ -64,15 +65,16 @@ internal sealed class NorfairRidleyCombat
         place.Contact = place.Contact.With(EnemyContact.BlocksPlasmaBeam);
         place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
         place.Position = place.Position.WithWhole(NorfairRidleyArenaDefinitions.Spawn);
+        // Lower Norfair's Ridley stands behind Samus, unlike his species' definition (#2618).
+        place.Stacking = EnemyStacking.BehindSamus;
 
-        var ridley = new NorfairRidleyState { MovementAnimationEnabled = true };
-        place.SetSpeciesState(ridley);
         _ridleyEncounter.BeginLowerNorfair();
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
 
         // He arrives in his own colours, his body and tail hidden in black, and his arena hidden for its reveal.
         ridley.Colours.ShowNorfairArrival();
         _presentation.BossShadings.Show(BossShadingLayer.Ridley, ridley.Colours);
+        return ridley;
     }
 
     /// <summary>Lower Norfair Ridley's lift-off hands control to the fight: he flies into the arena.</summary>
@@ -81,7 +83,7 @@ internal sealed class NorfairRidleyCombat
 
     /// <summary>
     /// Plays one update of the arena reveal Ridley holds his roar through (#2409): a Norfair-only fade of
-    /// <see cref="NorfairRidleyRevealDefinitions.RevealStepCount"/> colour steps, one every third update. The update after
+    /// <see cref="NorfairRidleyRevealDefinitions.RevealStepCount"/> colour steps, each held <see cref="NorfairRidleyRevealDefinitions.RevealStepUpdates"/>. The update after
     /// the last step's raises the battle's liquid and ends the hold.
     /// </summary>
     /// <returns>Whether the reveal ended this update, so he takes off.</returns>
@@ -126,7 +128,7 @@ internal sealed class NorfairRidleyCombat
 
         state.Phase = NorfairRidleyPhase.SwoopAimDown;
         state.SwoopPhaseTimer.LastFor(NorfairRidleyMotionDefinitions.SwoopDiveUpdates);
-        state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+        state.Flight.SwoopHeading = RotationAngle.Zero;
     }
 
     /// <summary>Advances the swoop velocity arc and changes phase, for <paramref name="nextUpdates"/>, as its countdown runs out.</summary>
@@ -225,8 +227,8 @@ internal sealed class NorfairRidleyCombat
         if (!state.PhaseTimer.StepRunsOut())
             return;
 
-        state.Tail.Action = RidleyTailAction.PogoSetup;
-        _ridleyTail.TickRidleyPogoTail(place, state, samus);
+        state.Tail.Action = RidleyPogoTailAction.Setup;
+        _ridleyTail.TickRidleyPogoTail(place, state, samus, RidleyPogoTailAction.Setup);
         // The first bounce heads the way his settling left him moving, rightward when it left him still.
         state.PogoBounce = state.Flight.Velocity.X.IsNegative ? HorizontalDirection.Left : HorizontalDirection.Right;
         InitializeNorfairRidleyPogoVelocity(state);
@@ -252,7 +254,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // The fall is clamped to six pixels an update, so adding the acceleration stays far inside the speed's range.
+        // The fall is capped at the pogo's fastest fall.
         state.Flight.Velocity = state.Flight.Velocity.WithY(SignedEightEight.Min(state.Flight.Velocity.Y + state.PogoDownwardAcceleration, NorfairRidleyMotionDefinitions.PogoMaximumFallSpeed));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state.Tail, level))
@@ -260,7 +262,7 @@ internal sealed class NorfairRidleyCombat
 
         RidleyTailLink tip = state.Tail.Tip;
         _ridleyProjectiles.SpawnRidleyDust(tip.Position + NorfairRidleyArenaDefinitions.PogoDustBelowTip, DustExplosionAnimation.SmallDustCloud);
-        _audio.QueueEnemySound(EnemySound.Quake, priority: SoundRequestPriority.Normal);
+        _audio.QueueEnemySound(EnemySound.BigExplosion, priority: SoundRequestPriority.Normal);
         _earthquake.Start(NorfairRidleyArenaDefinitions.PogoBounceQuake, NorfairRidleyArenaDefinitions.PogoBounceQuakeUpdates);
         SetRidleyPogoHorizontalDirection(place, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
@@ -293,8 +295,7 @@ internal sealed class NorfairRidleyCombat
             return;
         }
 
-        // The rise starts at its launch speed and slows toward rest, so adding the acceleration never passes the speed's
-        // range.
+        // The rise slows toward rest and stops at its peak.
         SignedEightEight nextVertical = state.Flight.Velocity.Y + state.PogoUpwardAcceleration;
         if (!nextVertical.IsNegative)
         {

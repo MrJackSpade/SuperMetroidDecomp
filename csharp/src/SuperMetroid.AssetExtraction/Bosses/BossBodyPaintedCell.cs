@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="Row">The cell's row in the picture.</param>
 /// <param name="Tile">The tile written there.</param>
 /// <param name="Character">The bytes of the character the tile shows.</param>
-internal sealed record BossBodyPaintedCell(int Column, int Row, BackgroundTile Tile, ReadOnlyMemory<byte> Character);
+internal sealed partial record BossBodyPaintedCell(int Column, int Row, BackgroundTile Tile, ReadOnlyMemory<byte> Character);

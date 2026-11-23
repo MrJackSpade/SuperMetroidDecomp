@@ -22,7 +22,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Enemies.Projectiles;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.EyeDoor;
@@ -35,7 +34,6 @@ internal static class EnemyProjectileDefinitionsVerification
     internal static void VerifyEnemyProjectileDefinitions(CartridgeImportAddressSpace rom)
     {
         RoomEnemyProjectileKind[] kinds = Enum.GetValues<RoomEnemyProjectileKind>()
-            .Where(kind => kind != RoomEnemyProjectileKind.None)
             .Distinct()
             .ToArray();
         // #1269 added Mother Brain's small purple breath and the Climb's fake-wall explosion; #2024 removed the spike-clearing
@@ -44,34 +42,36 @@ internal static class EnemyProjectileDefinitionsVerification
         // particles, the Work Robot's four diagonal lasers and the two each of Kraid's rising rocks, Fake Kraid's spikes and
         // Ki-Hunter acid. #2378 did the same for Ridley's two afterburn centres, his left and right and his up and down
         // afterburns, the Torizo's two feet's landing dust and Ceres's light and dark falling tiles.
-        AssertEqual(100, kinds.Length, "compiled enemy-projectile definition count");
+        // No kind stands for an empty place (#2558) or the pre-Phantoon room's held place, which holds no projectile (#2556).
+        AssertEqual(99, kinds.Length, "compiled enemy-projectile definition count");
 
         HashSet<int> forbidden = VerifyEnemyProjectileDefinitionRecords(rom, kinds);
-        Dictionary<RoomEnemyProjectileKind, Enum?> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotion(rom, kind));
+        Dictionary<RoomEnemyProjectileKind, ushort[]> startingMotions = kinds.ToDictionary(kind => kind, kind => ProductionStartingMotions(rom, kind));
 
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
         // The Tourian statues' projectiles spawn only in their room (#2383, #2426), which the enemies are built for, so every
         // kind is initialized in it.
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: setupBus, services: new StandaloneRoomEnemyServices(() => 0),
-            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(setupBus.ReadEnemyPopulation(populationPointer), BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile projectile = FamilyProjectileStarts.AllocateAt(enemies, 17, kinds[0], SpriteGraphics.SharedStandard);
         Func<EnemyProjectile, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             EnemyProjectileEngine.ResolveEnemyProjectileSamusCollision;
 
         foreach (RoomEnemyProjectileKind kind in kinds)
         {
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
+            // Each kind spawns a fresh projectile into the place its previous one is deleted from, as production spawns one.
             projectile.Delete();
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
+            projectile = FamilyProjectileStarts.SpawnAt(enemies, 17, kind, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook));
             AssertEqual(kind, projectile.Kind, $"{kind} production kind");
-            AssertEqual(startingMotions[kind], projectile.Motion,
-                $"{kind} production pre-instruction");
-            // A kind whose spawner starts a typed initial program (#641, #1760) runs it in place of the definition's native list.
-            bool typedStart = FamilyProjectileStarts.StartingAnimation(kind) is not null;
-            AssertEqual(typedStart, projectile.Animation is not null, $"{kind} production typed start");
+            if (startingMotions[kind].Length == 0)
+                AssertTrue(projectile.HoldsStill, $"{kind} production pre-instruction holds still");
+            // Every record of the kind starts the motion the projectile moves by.
+            foreach (ushort startingMotion in startingMotions[kind])
+                AssertEqual(projectile.MotionOfWord(startingMotion), projectile.Motion, $"{kind} production pre-instruction");
             AssertEqual((ushort)1, projectile.FrameHold.RawValue,
                 $"{kind} production timer");
             AssertEqual((ushort)0x8000, projectile.SpritemapPointer,
@@ -132,20 +132,20 @@ internal static class EnemyProjectileDefinitionsVerification
                 AssertTrue(ReferenceEquals(initialProgram, projectile.Animation), $"{kind} production touch keeps its program");
             }
 
-            FamilyProjectileStarts.Initialize(enemies, projectile, kind, SpriteGraphics.SharedStandard);
+            projectile.Delete();
+            projectile = FamilyProjectileStarts.SpawnAt(enemies, 17, kind, SpriteGraphics.SharedStandard);
             projectile.Position = projectile.Position.WithWhole(new(0x0100, 0x0100));
             projectile.BlocksSamusProjectiles = true;
             projectile.CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             SamusProjectile shot = shots.Shots[0];
-            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false);
-            shot.Damage = 1;
-            shot.Direction = SamusProjectileDirection.Right;
-            shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
-            int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
+            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), 1);
+            shot.HeldShot().Direction = SamusProjectileDirection.Right;
+            shot.HeldShot().Position = shot.Position.WithWhole(new(0x0100, 0x0100));
+            enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
                 shots,
                 new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()));
-            AssertEqual(1, hits, $"{kind} production shot admitted");
+            AssertTrue(shot.IsSpent, $"{kind} production shot admitted: the Wave shot is spent");
             if (kind == RoomEnemyProjectileKind.DraygonGoop)
             {
                 AssertTrue(projectile.Animation is DraygonProjectileAnimation { PlayingSegment: DraygonProjectileSegment.GoopShot },
@@ -187,114 +187,13 @@ internal static class EnemyProjectileDefinitionsVerification
                 RoomEnemyProjectileKind.SporeSpawnSpawner)
             {
                 // Spore Spawn's projectiles are typed (#1288); VerifySporeSpawnAnimations matches them to the native lists.
-                SporeSpawnProjectileSegment expected = kind switch
-                {
-                    RoomEnemyProjectileKind.SporeSpawnStalk => SporeSpawnProjectileSegment.Stalk,
-                    RoomEnemyProjectileKind.SporeSpawnSpore => SporeSpawnProjectileSegment.SporeShot,
-                    RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
-                        RoomEnemyProjectileKind.YappingMawBody or
-                        RoomEnemyProjectileKind.SkreeMetareeParticle or
-                        RoomEnemyProjectileKind.CrocomireProjectile or
-                        RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
-                        RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
-                        RoomEnemyProjectileKind.KraidSpitRock or
-                        RoomEnemyProjectileKind.KraidCeilingRock or
-                        RoomEnemyProjectileKind.KraidRisingRock or
-                        RoomEnemyProjectileKind.PhantoonDestroyableFlame or
-                        RoomEnemyProjectileKind.PhantoonStartingFlame or
-                        RoomEnemyProjectileKind.DraygonGoop or
-                        RoomEnemyProjectileKind.DraygonWallTurret or
-                        RoomEnemyProjectileKind.MotherBrainRoomTurret or
-                        RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
-                        RoomEnemyProjectileKind.MotherBrainGlassShard or
-                        RoomEnemyProjectileKind.MotherBrainGlassSparkle or
-                        RoomEnemyProjectileKind.MotherBrainOnionRing or
-                        RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or
-                        RoomEnemyProjectileKind.MotherBrainBomb or
-                        RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
-                        RoomEnemyProjectileKind.MotherBrainHandBeamFired or
-                        RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
-                        RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
-                        RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall or
-                        RoomEnemyProjectileKind.MotherBrainDrool or
-                        RoomEnemyProjectileKind.MotherBrainDyingDrool or
-                        RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion or
-                        RoomEnemyProjectileKind.MotherBrainDeathExplosion or
-                        RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
-                        RoomEnemyProjectileKind.MotherBrainEscapeSubtitle or
-                        RoomEnemyProjectileKind.MotherBrainTopRightTube or
-                        RoomEnemyProjectileKind.MotherBrainTopLeftTube or
-                        RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
-                        RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube or
-                        RoomEnemyProjectileKind.RidleyFireball or
-                        RoomEnemyProjectileKind.RidleyAfterburnCenter or
-                        RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
-                        RoomEnemyProjectileKind.RidleyVerticalAfterburn or
-                        RoomEnemyProjectileKind.CeresFallingDebris or
-                        RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
-                        RoomEnemyProjectileKind.AlcoonFireball or
-                        RoomEnemyProjectileKind.PowampSpike or
-                        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or
-                        RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
-                        RoomEnemyProjectileKind.FallingSpark or
-                        RoomEnemyProjectileKind.NuclearWaffleBody or
-                        RoomEnemyProjectileKind.FakeKraidSpit or
-                        RoomEnemyProjectileKind.FakeKraidSpike or
-                        RoomEnemyProjectileKind.KiHunterAcidSpit or
-                        RoomEnemyProjectileKind.PirateMotherBrainLaser or
-                        RoomEnemyProjectileKind.PirateClaw or
-                        RoomEnemyProjectileKind.PolypRock or
-                        RoomEnemyProjectileKind.CacatacSpike or
-                        RoomEnemyProjectileKind.NamiheFireball or
-                        RoomEnemyProjectileKind.FuneFireball or
-                        RoomEnemyProjectileKind.LavaThrownByMagdollite or
-                        RoomEnemyProjectileKind.DragonFireball or
-                        RoomEnemyProjectileKind.EyeDoorProjectile or
-                        RoomEnemyProjectileKind.EyeDoorSweat or
-                        RoomEnemyProjectileKind.EyeDoorSmoke or
-                        RoomEnemyProjectileKind.DustOrExplosion or
-                        RoomEnemyProjectileKind.EnemyDeathPickup or
-                        RoomEnemyProjectileKind.EnemyDeathExplosion or
-                        RoomEnemyProjectileKind.KagoBug or
-                        RoomEnemyProjectileKind.BotwoonBody or
-                        RoomEnemyProjectileKind.BotwoonSpit or
-                        RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
-                        RoomEnemyProjectileKind.TorizoInitialDrool or
-                        RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or
-                        RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
-                        RoomEnemyProjectileKind.TorizoDeathExplosion or
-                        RoomEnemyProjectileKind.BombTorizoStatueBreaking or
-                        RoomEnemyProjectileKind.BombTorizoChozoOrb or
-                        RoomEnemyProjectileKind.BombTorizoSonicBoom or
-                        RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
-                        RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
-                        RoomEnemyProjectileKind.TorizoLandingDust or
-                        RoomEnemyProjectileKind.GoldenTorizoEgg or
-                        RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
-                        RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
-                        RoomEnemyProjectileKind.TourianStatueSplash or
-                        RoomEnemyProjectileKind.TourianStatueEyeGlow or
-                        RoomEnemyProjectileKind.TourianStatueParticle or
-                        RoomEnemyProjectileKind.TourianStatueTail or
-                        RoomEnemyProjectileKind.TourianStatueSoul or
-                        RoomEnemyProjectileKind.TourianStatueRidley or
-                        RoomEnemyProjectileKind.TourianStatuePhantoon or
-                        RoomEnemyProjectileKind.TourianStatueBaseDecoration or
-                        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
-                        RoomEnemyProjectileKind.TourianStatueDescentDust or
-                        RoomEnemyProjectileKind.SporeSpawnSpawner or
-                        RoomEnemyProjectileKind.SaveStationElectricity or
-                        RoomEnemyProjectileKind.DownwardGateMoving or
-                        RoomEnemyProjectileKind.DownwardGateClosed or
-                        RoomEnemyProjectileKind.NoobTubeCrack or
-                        RoomEnemyProjectileKind.NoobTubeShard or
-                        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => SporeSpawnProjectileSegment.SpawnerClosed,
-                    _ => SporeSpawnProjectileSegment.SpawnerClosed,
-                };
-                AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started
-                        && started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
-                    $"{kind} production shot starts the typed {expected} program");
+                bool startsTyped = kind == RoomEnemyProjectileKind.SporeSpawnSpore
+                    ? projectile.Animation is SporeSpawnSporeAnimation spore
+                        && spore.Playback == new AnimationPlayback<SporeSpawnSporeSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnSporeSegment.SporeShot), AnimationPlace.StartOfAnimation)
+                    : projectile.Animation is SporeSpawnCeilingAnimation ceiling
+                        && ceiling.Playback == new AnimationPlayback<SporeSpawnCeilingSegment>(SporeSpawnProjectileAnimations.StartingWith(
+                            kind == RoomEnemyProjectileKind.SporeSpawnStalk ? SporeSpawnCeilingSegment.Stalk : SporeSpawnCeilingSegment.SpawnerClosed), AnimationPlace.StartOfAnimation);
+                AssertTrue(startsTyped, $"{kind} production shot starts its typed program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
             else if (kind is RoomEnemyProjectileKind.BombTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoChozoOrb or RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile)
@@ -304,8 +203,6 @@ internal static class EnemyProjectileDefinitionsVerification
                 {
                     RoomEnemyProjectileKind.GoldenTorizoEgg => TorizoProjectileSegment.ChozoOrbWallImpact,
                     RoomEnemyProjectileKind.GoldenTorizoSuperMissile => TorizoProjectileSegment.SuperMissileImpact,
-                    RoomEnemyProjectileKind.None or
-                        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or
                         RoomEnemyProjectileKind.YappingMawBody or
                         RoomEnemyProjectileKind.SkreeMetareeParticle or
                         RoomEnemyProjectileKind.CrocomireProjectile or
@@ -406,7 +303,7 @@ internal static class EnemyProjectileDefinitionsVerification
                     _ => TorizoProjectileSegment.ChozoOrbShot,
                 };
                 AssertTrue(projectile.Animation is TorizoProjectileAnimation started
-                        && started.Playback == new AnimationPlayback<TorizoProjectileSegment>(TorizoProjectileAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation),
+                        && started.Playback == new AnimationPlayback<TorizoProjectileSegment>(TorizoProjectileAnimations.StartingAt[expected], AnimationPlace.StartOfAnimation),
                     $"{kind} production shot starts the typed {expected} program");
                 AssertTrue(projectile.Animation is not null, $"{kind} typed shot keeps no native list");
             }
@@ -453,10 +350,6 @@ internal static class EnemyProjectileDefinitionsVerification
             }
         }
 
-        AssertThrows<InvalidDataException>(
-            () => EnemyProjectileKinds.Get(RoomEnemyProjectileKind.None),
-            "inactive enemy-projectile identity has no definition");
-
         Console.WriteLine(
             $"Enemy projectile definitions: {kinds.Length:N0} complete seven-word records, " +
             "common initialization, Samus touch, and projectile-shot consumers pass with " +
@@ -464,21 +357,16 @@ internal static class EnemyProjectileDefinitionsVerification
     }
 
     /// <summary>
-    /// The motion a production spawn of <paramref name="kind"/> starts with (#1843): the one its native records'
-    /// pre-instruction stands for, which every record of a kind several identical records name agrees on (#2278), except
-    /// the Pirates' and Mother Brain's laser and a wall turret's shot, whose spawners hold them still past their record's
-    /// flight until their animations start it.
+    /// The pre-instruction routines a production spawn of <paramref name="kind"/> starts with (#1843): the ones its native records name,
+    /// whose motion every record of a kind several identical records name agrees on (#2278), each resolved through the
+    /// projectile's behaviour (#2571); none for the Pirates' and Mother Brain's laser and a wall turret's shot, whose
+    /// spawners hold them still past their record's flight until their animations start it.
     /// </summary>
-    private static Enum? ProductionStartingMotion(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind)
-    {
-        if (kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret)
-            return null;
-        Enum?[] motions = [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
-            .Select(word => EnemyProjectileMotionAccess.FromWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | word) + 2)))
-            .Distinct()];
-        AssertEqual(1, motions.Length, $"every {kind} record starts one motion");
-        return motions[0];
-    }
+    private static ushort[] ProductionStartingMotions(CartridgeImportAddressSpace rom, RoomEnemyProjectileKind kind) =>
+        kind is RoomEnemyProjectileKind.PirateMotherBrainLaser or RoomEnemyProjectileKind.DraygonWallTurret
+            ? []
+            : [.. EnemyProjectileNativeWords.Kinds.WordsByIdentity[kind]
+                .Select(word => rom.ReadCartridgeWord((0x860000 | word) + 2))];
 
     /// <summary>
     /// Checks every compiled enemy-projectile definition against its seven-word bank-$86 record
@@ -500,14 +388,14 @@ internal static class EnemyProjectileDefinitionsVerification
             EnemyProjectileDefinition definition = EnemyProjectileKinds.Get(kind);
             // The record's radius word holds X in its low byte and Y in its high byte; its property word holds the
             // contact damage in its low twelve bits and the four behaviour bits above them.
-            ushort radiusWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 6);
+            ushort radiusWord = rom.ReadCartridgeWord(address + 6);
             AssertEqual(new Extent16<RoomPixels>(LittleEndianBytes.LowByte(radiusWord), LittleEndianBytes.HighByte(radiusWord)),
                 definition.Radius, $"{kind} radius");
-            ushort propertyWord = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 8);
+            ushort propertyWord = rom.ReadCartridgeWord(address + 8);
             AssertEqual(propertyWord % 4096, definition.Damage, $"{kind} contact damage");
             AssertEqual(NativeProjectileProperties(propertyWord), definition.Properties, $"{kind} behaviour properties");
             AssertEqual(NativeProjectileDepth(propertyWord), definition.Depth, $"{kind} depth relative to Samus");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 10) != 0,
+            AssertEqual(rom.ReadCartridgeWord(address + 10) != 0,
                 definition.SamusTouch == EnemyProjectileSamusTouch.StartsTouchReaction,
                 $"{kind} touch reaction");
         }

@@ -35,7 +35,7 @@ internal static class GroundedSpreadTransitionVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         // A local flat clearing isolates the input/pose/charge path from slopes,
@@ -48,9 +48,9 @@ internal static class GroundedSpreadTransitionVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose);
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Position = samus.Position.WithWhole(new(512, 490));
@@ -60,13 +60,13 @@ internal static class GroundedSpreadTransitionVerification
         SamusPresentation.InitializeAnimation(samus);
         for (int frame = 0; frame < 120; frame++)
         {
-            ControllerButton input = runtime.Options.ControllerBindings.Shoot;
+            ControllerButton input = runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot];
             if (frame is >= 70 and < 110 and not 75) input |= ControllerButton.Down;
             if (frame == 100)
             {
-                if (scenario != 3) input |= runtime.Options.ControllerBindings.Jump;
+                if (scenario != 3) input |= runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Jump];
                 if (scenario == 1) input &= ~ControllerButton.Down;
-                if (scenario == 2) input &= ~runtime.Options.ControllerBindings.Shoot;
+                if (scenario == 2) input &= ~runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot];
             }
             runtime.StepFrame(input);
             if (trace is not null)

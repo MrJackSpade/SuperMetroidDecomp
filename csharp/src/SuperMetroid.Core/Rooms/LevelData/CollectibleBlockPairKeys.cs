@@ -4,14 +4,14 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The installed key of each <see cref="CollectibleBlockPairs.Pair"/> (#2520), written out so renaming a member never
 /// changes a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class CollectibleBlockPairKeys
+internal static partial class CollectibleBlockPairKeys
 {
     /// <summary>Each block pair's installed key.</summary>
     internal static InstalledKeys<CollectibleBlockPairs.Pair> Installed { get; } = new(new Dictionary<CollectibleBlockPairs.Pair, string>
     {
-        [CollectibleBlockPairs.Pair.First] = "First",
-        [CollectibleBlockPairs.Pair.Second] = "Second",
-        [CollectibleBlockPairs.Pair.Third] = "Third",
-        [CollectibleBlockPairs.Pair.Fourth] = "Fourth",
+        [CollectibleBlockPairs.Pair.Solid] = "Solid",
+        [CollectibleBlockPairs.Pair.FirstDoor] = "FirstDoor",
+        [CollectibleBlockPairs.Pair.SecondDoor] = "SecondDoor",
+        [CollectibleBlockPairs.Pair.ThirdDoor] = "ThirdDoor",
     });
 }

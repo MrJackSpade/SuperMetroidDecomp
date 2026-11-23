@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// compositions, whose parts are the original's packed sprite placements, are import data
 /// (<see cref="PauseSelectorFormat.ArtworkFileName"/>).
 /// </summary>
-public static class PauseSelectorLayoutFile
+public static partial class PauseSelectorLayoutFile
 {
     /// <summary>Supported layout revision.</summary>
     public const int Version = 1;
@@ -19,12 +19,11 @@ public static class PauseSelectorLayoutFile
     /// <exception cref="InvalidDataException">The artwork document does not decode.</exception>
     internal static byte[] Extract(byte[] artwork)
     {
-        PauseSelectorDocument document = JsonAssetDocument.Read<PauseSelectorDocument>(artwork, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause selector document is null.");
+        PauseSelectorDocument document = JsonAssetDocument.Read<PauseSelectorDocument>(artwork, ArtworkJson.Options);
         return JsonSerializer.SerializeToUtf8Bytes(new PauseSelectorLayoutDocument
         {
             Version = Version, InitialDurationTicks = document.InitialDurationTicks, Anchors = document.Anchors, Animation = document.Animation,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseSelectorLayoutDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates the installed layout: the anchors, frame sequences and timing the game binds.</summary>
@@ -32,8 +31,7 @@ public static class PauseSelectorLayoutFile
     public static PauseSelectorPresentation Read(Stream json)
     {
         PauseSelectorLayoutDocument document;
-        try { document = JsonAssetDocument.Read<PauseSelectorLayoutDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause selector layout is null."); }
+        try { document = JsonAssetDocument.Read<PauseSelectorLayoutDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause selector layout JSON.", error); }
         if (document.Version != Version)
             throw new InvalidDataException($"Pause selector layout requires version {Version}.");
@@ -49,9 +47,9 @@ public static class PauseSelectorLayoutFile
     internal static PauseSelectorPresentation Presentation(int initialDuration, Dictionary<string, Offset16<ScreenPixels>>? anchors,
         PauseSelectorPhase[]? animation, Func<string, bool> isFrame)
     {
-        if (initialDuration is < 1 or > PauseSelectorFormat.MaximumDuration || anchors is null || anchors.Count != PauseSelectorFormat.AnchorCount ||
-            animation is null || animation.Length is < 1 or > PauseSelectorFormat.MaximumPhases)
-            throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
+        if (initialDuration < 1 || anchors is null || anchors.Count != PauseSelectorFormat.AnchorCount ||
+            animation is null || animation.Length < 1)
+            throw new InvalidDataException("Pause selectors require a positive initial dwell, sixteen anchors and at least one phase.");
         var named = new Dictionary<string, Offset16<ScreenPixels>>(StringComparer.Ordinal);
         foreach (PauseEquipmentControl control in PauseEquipmentControls.All)
         {
@@ -60,24 +58,18 @@ public static class PauseSelectorLayoutFile
                 throw new InvalidDataException($"Pause selector {name} requires screen coordinates X=0..255/Y=0..223.");
             named.Add(name, point);
         }
-        var reserve = new string[animation.Length];
-        var beam = new string[animation.Length];
-        var equipment = new string[animation.Length];
-        var durations = new int[animation.Length];
+        var steps = new List<PauseSelectorPresentation.PauseSelectorStep>(animation.Length);
         for (int i = 0; i < animation.Length; i++)
         {
             var phase = animation[i];
-            if (phase is null || phase.DurationTicks is < 1 or > PauseSelectorFormat.MaximumDuration ||
+            if (phase is null || phase.DurationTicks < 1 ||
                 phase.Reserve is null || !isFrame(phase.Reserve) ||
                 phase.Beam is null || !isFrame(phase.Beam) ||
                 phase.Equipment is null || !isFrame(phase.Equipment))
                 throw new InvalidDataException($"Pause selector phase {i} has invalid timing or an unknown frame.");
-            reserve[i] = phase.Reserve;
-            beam[i] = phase.Beam;
-            equipment[i] = phase.Equipment;
-            durations[i] = phase.DurationTicks;
+            steps.Add(new(new PauseSelectorLook(phase.Reserve, phase.Beam, phase.Equipment), phase.DurationTicks));
         }
-        return new PauseSelectorPresentation(new PauseSelectorPresentation.PauseSelectorParts { Anchors = named, Reserve = reserve,
-            Beam = beam, Equipment = equipment, Durations = durations, InitialDuration = initialDuration });
+        return new PauseSelectorPresentation(new PauseSelectorPresentation.PauseSelectorParts { Anchors = named, Steps = steps,
+            InitialDuration = initialDuration });
     }
 }

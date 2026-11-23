@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Cosmetic world-map label anchors. Area availability and navigation are not content.</summary>
-public sealed class WorldMapLabelPositions
+public sealed partial class WorldMapLabelPositions
 {
     /// <summary>Drawing anchor for Crateria's world-map name.</summary>
     private readonly Offset16<ScreenPixels> crateria;
@@ -30,20 +30,20 @@ public sealed class WorldMapLabelPositions
         this.tourian = tourian;
     }
 
-    /// <summary>Selects the independently editable anchor belonging to a named Zebes area.</summary>
-    /// <remarks>The six area identities select layout roles,
-    /// not numerical samples. Preserve each imported/custom point without deriving it
-    /// from another area or storing a positional lookup. Only the six Zebes areas have labels.</remarks>
-    public Offset16<ScreenPixels> Get(AreaId area) => area switch
+    /// <summary>The installed place of a Zebes area's label.</summary>
+    /// <remarks>Each of the six Zebes areas' labels is drawn at its own installed place; only they have
+    /// labels.</remarks>
+    public Offset16<ScreenPixels> Get(ZebesArea area) => Labels[area];
+
+    /// <summary>Where each of the six Zebes areas' labels lies; Ceres has none.</summary>
+    private IdentityTable<ZebesArea, Offset16<ScreenPixels>> Labels => field ??= new(new Dictionary<ZebesArea, Offset16<ScreenPixels>>
     {
-        AreaId.Crateria => crateria,
-        AreaId.Brinstar => brinstar,
-        AreaId.Norfair => norfair,
-        AreaId.WreckedShip => wreckedShip,
-        AreaId.Maridia => maridia,
-        AreaId.Tourian => tourian,
-        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no world-map label."),
-        _ => throw new ArgumentOutOfRangeException(nameof(area), area, "Undefined area."),
-    };
+        [ZebesArea.Crateria] = crateria,
+        [ZebesArea.Brinstar] = brinstar,
+        [ZebesArea.Norfair] = norfair,
+        [ZebesArea.WreckedShip] = wreckedShip,
+        [ZebesArea.Maridia] = maridia,
+        [ZebesArea.Tourian] = tourian,
+    });
 
 }

@@ -1,3 +1,7 @@
+using System.Collections.Frozen;
+using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms.Artwork;
 using SuperMetroid.Core;
@@ -9,40 +13,37 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// extracted arm cannon whose tile selections name them (#1638). The overlay sheet is composed from them; the installation
 /// never holds them, and gameplay reads only the layout (<see cref="SamusArmCannonLayout"/>).
 /// </summary>
-public sealed class SamusArmCannonCoverCharacters
+public sealed partial class SamusArmCannonCoverCharacters
 {
-    /// <summary>The twelve nonclosed cover tiles' characters.</summary>
-    private readonly RoomCharacterAtlas tiles;
+    /// <summary>Each cover picture's character.</summary>
+    private readonly FrozenDictionary<SamusArmCannonCoverTile, ReadOnlyMemory<byte>> tiles;
 
-    /// <summary>Cover characters already built, by cover tile index.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<int, SpriteArtwork> coverCharacters = new();
+    /// <summary>Cover characters already built, by cover picture.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<CoverVariant, SpriteArtwork> coverCharacters = new();
+
+    /// <summary>A cover's characters, distinguished by the cover picture they show: its orientation and how far open it is.</summary>
+    /// <param name="Tile">The cover picture.</param>
+    private sealed partial record CoverVariant(SamusArmCannonCoverTile Tile) : SpriteArtworkVariant;
 
     /// <summary>Binds the cover characters <paramref name="tiles"/> to the extracted arm cannon <paramref name="cannon"/>.</summary>
     /// <exception cref="InvalidDataException">The characters are not the twelve cover tiles.</exception>
     public SamusArmCannonCoverCharacters(SamusArmCannonSourceArtwork cannon, RoomCharacterAtlas tiles)
     {
         Cannon = Ensure.NotNull(cannon);
-        this.tiles = Ensure.NotNull(tiles);
-        if (tiles.Characters.Length != SamusArmCannonArtworkFormat.CoverTileCount * SamusArmCannonArtworkFormat.CoverTileByteCount)
-            throw new InvalidDataException("Arm-cannon cover characters must be the twelve cover tiles.");
+        this.tiles = ArmCannonTileSources.SplitPage(Ensure.NotNull(tiles).Characters);
     }
 
     /// <summary>The extracted descriptors, appearances and tile selections the characters are bound to.</summary>
     public SamusArmCannonSourceArtwork Cannon { get; }
 
-    /// <summary>The characters of cover tile <paramref name="index"/>, 0 through 11.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The index names no cover tile.</exception>
-    public ReadOnlyMemory<byte> TileCharacters(int index) => (uint)index < SamusArmCannonArtworkFormat.CoverTileCount
-        ? tiles.Characters.Slice(index * SamusArmCannonArtworkFormat.CoverTileByteCount, SamusArmCannonArtworkFormat.CoverTileByteCount)
-        : throw new ArgumentOutOfRangeException(nameof(index));
+    /// <summary>The character of cover picture <paramref name="tile"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tile"/> is no cover picture.</exception>
+    internal ReadOnlyMemory<byte> TileCharacters(SamusArmCannonCoverTile tile) => tiles.TryGetValue(tile, out ReadOnlyMemory<byte> characters)
+        ? characters
+        : throw new ArgumentOutOfRangeException(nameof(tile), tile, "No cover picture is held for it.");
 
-    /// <summary>The cover character for native direction 0-9 and opening frame 1-3, as owned artwork.</summary>
-    /// <exception cref="InvalidDataException">The frame names no cover tile.</exception>
-    public SpriteArtwork CoverTile(int direction, int frame)
-    {
-        int index = Cannon.CoverTileIndex(direction, frame) ??
-            throw new InvalidDataException($"Arm-cannon direction {direction} frame {frame} names no installed cover tile.");
-        return coverCharacters.GetOrAdd(index, key => new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key),
-            TileCharacters(key).Span));
-    }
+    /// <summary>The cover character aim <paramref name="direction"/> shows at opening frame <paramref name="frame"/>, as owned artwork.</summary>
+    public SpriteArtwork CoverTile(SamusProjectileDirection direction, SamusArmCannonCoverFrame frame) =>
+        coverCharacters.GetOrAdd(new CoverVariant(Cannon.CoverTile(direction, frame)), key => new SpriteArtwork(
+            new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover, key), TileCharacters(key.Tile).Span));
 }

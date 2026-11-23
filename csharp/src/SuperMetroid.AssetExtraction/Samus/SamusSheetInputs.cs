@@ -25,7 +25,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="ArmCannonCover">The arm cannon's cover characters, bound to its installed placement.</param>
 /// <param name="ShadeSources">The colour tables her shades are pre-coloured from.</param>
 /// <param name="ShownFrames">The installed frames her body can show in each pose and the picture each draws, which decide the frames the body sheet pictures (#2048).</param>
-internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, SpriteArtwork StandardObjects,
+internal sealed partial record SamusSheetInputs(ImportProjectileArtwork Projectiles, SpriteArtwork StandardObjects,
     GameplayBasePalette Palettes, ImportIntroCinematicArtwork Intro, SamusBodyCharacterArtwork SamusBody,
     SamusDeathTileAtlas DeathTiles, SamusArmCannonCoverCharacters ArmCannonCover, SamusShadeSources ShadeSources,
     SuperMetroid.Core.Samus.Drawing.SamusShownFrames ShownFrames)
@@ -47,8 +47,7 @@ internal sealed record SamusSheetInputs(ImportProjectileArtwork Projectiles, Spr
         SamusMapColourTables tables = maps.SamusColours;
         var sources = new SamusShadeSources(
             palettes.Starting,
-            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Suit, SamusSheetInks.GroupColours)],
-            [.. intro.Palette.SpriteColours.AsSpan(SamusSheetInks.Beams, SamusSheetInks.GroupColours)],
+            [.. intro.Palette.SpriteColours],
             tables.Suits,
             tables.Charge,
             tables.HyperBeam,

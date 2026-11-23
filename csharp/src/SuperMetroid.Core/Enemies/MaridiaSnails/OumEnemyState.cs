@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The state of Oum.</summary>
-public sealed class OumEnemyState
+public sealed partial class OumEnemyState
 {
     /// <summary>Starts the snail in <paramref name="action"/>, its bounce in <paramref name="bouncePhase"/>.</summary>
     internal OumEnemyState(OumAction action, OumBouncePhase bouncePhase)
@@ -50,8 +50,8 @@ public sealed class OumEnemyState
     public OumAction Action { get; internal set; }
 
     /// <summary>
-    /// The bounce arc's place along the quadratic speed curve, stepped a mark and a half each update. Falling holds it at
-    /// mark 64; an impact takes 16 marks off and may leave it below the start, which ends the bounces, and rising holds
+    /// The bounce arc's place along the quadratic speed curve, stepped by <see cref="OumMotionDefinitions.BounceAcceleration"/> each update. Falling holds it at
+    /// <see cref="OumMotionDefinitions.FastestFallPlace"/>; an impact takes <see cref="OumMotionDefinitions.ImpactCurveLoss"/> off and may leave it below the start, which ends the bounces, and rising holds
     /// it at the start once it would go below.
     /// </summary>
     public QuadraticSpeedCurvePlace YSpeedCurvePlace { get; internal set; }

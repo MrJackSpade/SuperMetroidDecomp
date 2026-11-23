@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -13,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 /// copying native control tables; only the import reads them, to pre-colour her pictures. The beam backdrop's colours the
 /// game works with are installed by purpose (<see cref="MotherBrainBeamColourExtractor"/>).
 /// </summary>
-internal static class MotherBrainRainbowPaletteExtractor
+internal static partial class MotherBrainRainbowPaletteExtractor
 {
     /// <summary>Imports rainbow, drained, revival, fake-death and restoration colors
     /// into RGB5 sequences while checking native table terminators.</summary>
@@ -27,37 +29,38 @@ internal static class MotherBrainRainbowPaletteExtractor
             Rainbow = ReadTable(MotherBrainSourceDefinitions.Palettes.RainbowPointerTable,
                 MotherBrainRainbowColourFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainRainbowPaletteGeometry.ColorCount, false),
+                MotherBrainRainbowPaletteGeometry.ColorCount),
             ToGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.DrainedToGreyPointerTable,
                 MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.DrainedColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
             FromGrey = ReadTable(MotherBrainSourceDefinitions.Palettes.RevivalFromGreyPointerTable,
                 MotherBrainRainbowPaletteGeometry.GreyFrameCount,
                 MotherBrainRainbowPaletteGeometry.RevivalColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
             FakeDeathToGrey = ReadFakeDeathToGrey(),
             Normal = ReadFrame(MotherBrainSourceDefinitions.Palettes.NormalBrainColors,
                 MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainRainbowPaletteGeometry.ColorCount, false,
-                MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
+                MotherBrainRainbowPaletteGeometry.ColorCount,
+                legSource: MotherBrainSourceDefinitions.Palettes.NormalRearLegColors),
         });
         return json.ToArray();
 
         MotherBrainRainbowPaletteFrameDocument[] ReadTable(int table, int frames,
-            int bodyCount, int legCount, bool trailing)
+            int bodyCount, int legCount)
         {
             var values = new MotherBrainRainbowPaletteFrameDocument[frames];
             for (int frame = 0; frame < frames; frame++)
             {
                 int pointerAddress = table + frame * sizeof(ushort);
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
+                int pointer = bus.ReadCartridgeWord(pointerAddress);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain palette table ${table:X6} ends before frame {frame}.");
-                values[frame] = ReadFrame(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
-                    bodyCount, legCount, trailing);
+                int source = MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer;
+                // A table frame lays its back legs' colours right after its body's.
+                values[frame] = ReadFrame(source, bodyCount, legCount, legSource: source + bodyCount * sizeof(ushort));
             }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
+            if (bus.ReadCartridgeWord((table + frames * sizeof(ushort))) != 0)
                 throw new InvalidDataException($"Mother Brain palette table ${table:X6} lacks its native terminator.");
             return values;
         }
@@ -69,24 +72,23 @@ internal static class MotherBrainRainbowPaletteExtractor
             {
                 int address = MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                     frame * sizeof(ushort);
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+                int pointer = bus.ReadCartridgeWord(address);
                 if (pointer == 0)
                     throw new InvalidDataException($"Mother Brain fake-death fade ends before frame {frame}.");
                 frames[frame] = ReadColors(MotherBrainSourceDefinitions.Palettes.PaletteBank | pointer,
                     MotherBrainRainbowPaletteGeometry.FakeDeathColors);
             }
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWord((MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
+            if (bus.ReadCartridgeWord((MotherBrainSourceDefinitions.Palettes.FakeDeathToGreyPointerTable +
                 frames.Length * sizeof(ushort))) != 0)
                 throw new InvalidDataException("Mother Brain fake-death fade lacks its native terminator.");
             return frames;
         }
 
         MotherBrainRainbowPaletteFrameDocument ReadFrame(int source, int bodyCount,
-            int legCount, bool trailing, int? legSource = null) => new()
+            int legCount, int legSource) => new()
         {
             Body = ReadColors(source, bodyCount),
-            BackLegs = ReadColors(legSource ?? source + bodyCount * sizeof(ushort), legCount),
-            TrailingColor = trailing ? ReadColor(source + (bodyCount + legCount) * sizeof(ushort)) : null,
+            BackLegs = ReadColors(legSource, legCount),
         };
 
         PaletteRgb5[] ReadColors(int source, int count)
@@ -99,15 +101,10 @@ internal static class MotherBrainRainbowPaletteExtractor
 
         PaletteRgb5 ReadColor(int address)
         {
-            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+            int word = bus.ReadCartridgeWord(address);
             return ToColor(word);
         }
 
-        static PaletteRgb5 ToColor(int word) => new()
-        {
-            Red = word & 31,
-            Green = word >> 5 & 31,
-            Blue = word >> 10 & 31,
-        };
+        static PaletteRgb5 ToColor(int word) => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
     }
 }

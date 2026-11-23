@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// sky's pictures, and the game reads none of them, so the pages and their manifest go to the shared background component's
 /// import-data directory (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes.
 /// </summary>
-public static class RoomSkyTilemapArtworkFiles
+public static partial class RoomSkyTilemapArtworkFiles
 {
     /// <summary>
     /// Schema version recorded with the extracted sky-page manifest; 2 names each page by its place rather than its cartridge
@@ -35,7 +35,7 @@ public static class RoomSkyTilemapArtworkFiles
         for (int page = 0; page < RoomSkyTilemapFormat.PageCount; page++)
         {
             string name = RoomSkyTilemapFormat.FileName(page);
-            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] native = RomDataReader.ReadFixedBank(bus,
                 LibraryBackgroundOperands.SkyPageAddress(page), RoomSkyTilemapFormat.PageByteCount);
             byte[] json = RoomBackgroundTilemapExtractor.Encode(native);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
@@ -44,8 +44,7 @@ public static class RoomSkyTilemapArtworkFiles
         }
         using var manifest = new FileStream(Path.Combine(importData,
             RoomSkyTilemapFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new RoomSkyFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
+        JsonSerializer.Serialize(manifest, new RoomSkyFileManifest(FormatVersion, sourceCartridgeSha256, hashes), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomSkyTilemapArtworkFiles.RoomSkyFileManifest>(JsonOptions));
     }
 
     /// <summary>Checks the pages' provenance and seven-page manifest coverage, then compiles each page of the component's import data, without cartridge access.</summary>
@@ -98,6 +97,6 @@ public static class RoomSkyTilemapArtworkFiles
     };
 
     /// <summary>Source cartridge identity and hashes for all seven stock sky-page files.</summary>
-    private sealed record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record RoomSkyFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Sha256);
 }

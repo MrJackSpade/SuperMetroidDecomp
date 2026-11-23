@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>The shape of the Baby Metroid's installed colours: its innard pulse and its three complete target images.</summary>
-public static class BabyMetroidColorDefinitions
+public static partial class BabyMetroidColorDefinitions
 {
     /// <summary>The innard-pulse images, dimming and then retracing; the count does not encode the palette-update cadence or cry timing.</summary>
     public const int NormalFrameCount = 8;

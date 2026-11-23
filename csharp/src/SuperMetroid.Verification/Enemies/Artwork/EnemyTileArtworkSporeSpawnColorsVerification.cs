@@ -35,7 +35,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnSourceDefinitions.SporeColors, native.ResolveSpore,
             "spore initialization"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.HealthColors,
-            SporeSpawnColorFormat.HealthFrameCount, native.ResolveHealth, "health"));
+            SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count, (band, colour) => native.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[band], colour), "health"));
         Suite(nameof(VerifyFrames), () => VerifyFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
             SporeSpawnColorFormat.DeathSpriteFrameCount, native.ResolveDeathSprite,
             "death sprite"));
@@ -49,8 +49,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         string file = Path.Combine(stockDirectory, SporeSpawnColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         SporeSpawnColorDocument visual =
-            JsonSerializer.Deserialize<SporeSpawnColorDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<SporeSpawnColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.SporeSpawnColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Spore Spawn color JSON is null.");
         SporeSpawnColorCatalog colors = native;
 
@@ -62,12 +61,9 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
-        body.Position = body.Position.WithWhole(new(128, 624));
+        // His room's population load sets him up where his room places him.
+        RoomEnemyPlace body = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new(128, 624)))[0];
         body.Health = 960;
-        enemies.SporeSpawnBehavior.InitializeSporeSpawn(body);
         SporeSpawnEnemyState state = body.RequireSpeciesState<SporeSpawnEnemyState>();
         // His live colour handlers name shades of his sprites and room (#1512); the import pre-colours each from the
         // installed colours.
@@ -86,7 +82,10 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             SporeSpawnBehavior.ShowSporeSpawnHealthShade(body, state, band);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.Health(band)), body.Shading,
                 $"live Spore Spawn health band {band}");
-            AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(shown, colour), $"live Spore Spawn health band {band}");
+            // His stalk shows his body's colours (#2628).
+            AssertTrue(state.StalkLinks.Count > 0 && state.StalkLinks.All(link => link.Projectile.Graphics.Shading == body.Shading),
+                $"live Spore Spawn's stalk shows health band {band} with his body");
+            AssertShade(sprites, SporeSpawnShades.Health(band), colour => colors.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[shown], colour), $"live Spore Spawn health band {band}");
         }
 
         foreach (SporeSpawnDeathFadeStep step in SporeSpawnDeathFadeStep.All)
@@ -95,6 +94,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
             SporeSpawnBehavior.ShowSporeSpawnDeathShade(body, state, step);
             AssertEqual(PictureShading.Shaded(SporeSpawnShades.Spores).With(SporeSpawnShades.DeathSprite(step)), body.Shading,
                 $"live Spore Spawn death frame {frame}");
+            AssertTrue(state.StalkLinks.All(link => link.Projectile.Graphics.Shading == body.Shading),
+                $"live Spore Spawn's stalk shows death frame {frame} with his body");
             AssertShade(sprites, SporeSpawnShades.DeathSprite(step), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Sprite, frame, colour),
                 $"live Spore Spawn Sprite death frame {frame}");
             AssertShade(room, SporeSpawnShades.DeathLevel(step), colour => colors.ResolveDeath(SporeSpawnDeathPaletteLayer.Level, frame, colour),
@@ -105,7 +106,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "live Spore Spawn palette consumers avoid all migrated ROM colors");
 
-        visual.Health[0][5] = visual.Health[0][5] with { Green = 32 };
+        visual.Health.Values.First()[5] = visual.Health.Values.First()[5] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => SporeSpawnColorFile.Read(new MemoryStream(SporeSpawnColorFile.Write(visual), writable: false)),
             "reading Spore Spawn colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Spore Spawn colors: 432 native RGB5 words, initial/health/seven death frames, ROM guard and strict failures pass.");
@@ -113,7 +114,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         void VerifyFrame(int source, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < SporeSpawnColorFormat.ColorsPerFrame; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * SporeSpawnSourceDefinitions.ColorWordBytes), resolve(color),
                     $"installed {name} color {color} matches cartridge");
         }
@@ -130,7 +131,11 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
     private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)
     {
         SheetShade found = made.Single(candidate => candidate.Shade == shade);
-        for (int color = 0; color < found.Colours.Length; color++)
-            AssertEqual(expected(color), found.Colours[color], $"{label} colour {color}");
+        int colour = 0;
+        foreach (RgbColor shown in found.Colours)
+        {
+            AssertEqual(expected(colour), shown, $"{label} colour {colour}");
+            colour++;
+        }
     }
 }

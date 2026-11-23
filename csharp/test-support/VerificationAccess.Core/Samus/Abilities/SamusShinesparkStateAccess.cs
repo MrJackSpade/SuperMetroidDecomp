@@ -23,7 +23,7 @@ internal static class SamusShinesparkStateAccess
             SamusProjectileSystem projectiles, bool samusCannotDie = false)
         {
             Ensure.NotNull(samus);
-            ShinesparkMovementResult step = self.Step(terrain, samus, new ShinesparkFrame
+            ShinesparkMovementResult step = (self.Movement ?? throw new InvalidOperationException("The check steps a shinespark that holds no movement.")).Step(terrain, samus, new ShinesparkFrame
             {
                 FrameCounter = frameCounter,
                 SamusCannotDie = samusCannotDie,
@@ -49,8 +49,8 @@ internal static class SamusShinesparkStateAccess
             Ensure.NotNull(samus);
             foreach (SamusProjectile slot in self.Pool.InUpdateOrder)
             {
-                if (slot.Behavior == SamusShotBehaviors.ShinesparkEcho)
-                    self.Shinespark.StepShinesparkEcho(samus, slot, cameraPosition);
+                if (slot.KindStateOrNone() is ShinesparkEchoShotState echo)
+                    self.Shinespark.StepShinesparkEcho(samus, slot.HeldShot(), echo, cameraPosition);
             }
         }
     }

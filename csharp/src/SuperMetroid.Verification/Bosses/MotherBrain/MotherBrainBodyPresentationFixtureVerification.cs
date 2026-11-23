@@ -33,19 +33,21 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal MotherBrainPresentationFixture(ImportEnemyArtwork artwork)
         {
             Inner = new EnemyAnimationFixture(artwork);
-            EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
-            Body.Bind(bodyId, Body.Definition);
-            Body.Bind(Body.DefinitionId, RoomEnemyDefinitionLookup.Get(bodyId));
+            // Her body and brain as her room's population places them, her glass set up first; the encounter is the one her
+            // body's setup began, here in the form the Baby drains her in, her body shown as her phase-two transition shows it.
+            State = MotherBrainPlacement.PlaceMotherBrain(Inner.Enemies, Inner.Samus);
+            State.Form = MotherBrainForm.DrainedByBabyMetroid;
+            Body.Presence = Body.Presence.Without(EnemyPresence.Hidden);
             Body.Position = Body.Position.WithWhole(new(128, 128));
             // She draws under the retail graphics set her room loads, whose sheets hold her frames, at the tile base and
             // palette row it gives her (#1459).
-            SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, bodyId, Body);
-            State = new MotherBrainEnemyState(Body, Inner.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.DrainedByBabyMetroid };
-            Inner.Enemies.MotherBrainEncounter.BeginAsSetUp(State);
-            // Her phase-two transition attaches the body layer her body draws on (#1356, #1466), showing her blank. Her
-            // body draws from sheets composed from the fixture's own frames, as an installation of them would hold.
+            SpawnedObjectFixtures.LoadSetDrawing(Inner.Enemies, EnemyDefinitionId.MotherBrainBody, Body);
+            // Her phase-two transition reveals the body layer her setup attached, which her body draws on (#1356, #1466),
+            // showing her blank. Her body draws from sheets composed from the fixture's own frames, as an installation of
+            // them would hold.
             bodies = BossBodySheetFixtures.For(artwork.Bosses, BossBodyOwner.MotherBrain);
             Inner.Enemies.BossArtworkBinding.BodySheets = Sheets;
+            State.BodyParts.Reveal();
             ClearBg2();
             Inner.Enemies.Drawing.Enqueue(Body, reached: true);
             instructions = new Action<RoomEnemyPlace, SamusState, RoomLevelData, Position16<RoomPixels>, GameplayAction>(EnemyAnimationPlayer.AdvanceAnimation);
@@ -56,7 +58,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         {
             Body.SpritemapPointer = frame;
             Body.CollidesByFrameHitboxes = true;
-            SuperMetroid.Core.PrivateState.Set(Body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), fresh);
+            Body.AnimationClock.ShowsNewFrame = fresh;
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>
@@ -88,7 +90,10 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal OamBuffer Draw() => Inner.Draw();
         /// <summary>Runs the fixture's production enemy drawing path once, publishing into <paramref name="frame"/>.</summary>
         internal void DrawInto(SpriteFrameBuffer frame) => Inner.DrawInto(frame);
-        /// <summary>Attaches a fresh body showing nothing, as her phase-two transition reveals it, before checking fresh publication.</summary>
-        internal void ClearBg2() => Inner.Enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.MotherBrain));
+        /// <summary>
+        /// Clears the body her setup attached, which her phase-two transition reveals showing nothing, before checking fresh
+        /// publication.
+        /// </summary>
+        internal void ClearBg2() => State.BodyParts.Clear();
     }
 }

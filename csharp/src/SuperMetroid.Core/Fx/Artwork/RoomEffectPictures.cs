@@ -8,18 +8,15 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// the tileset runs that shows any (<see cref="RoomFxOverlayState.ShowsOnOverlay"/>): a liquid's surface strip and body under
 /// <see cref="SurfaceName"/> and <see cref="BodyName"/>, an atmosphere's picture under <see cref="AtmosphereName"/>.
 /// </summary>
-public static class RoomEffectPictures
+public static partial class RoomEffectPictures
 {
     /// <summary>The name, in a room's effect overlay picture sheet, of the surface strip of liquid effect <paramref name="type"/>.</summary>
-    [InstalledKey]
     public static string SurfaceName(RoomFxType type) => $"Fx{RoomFxTypeKeys.Installed.Of(type)}.Surface";
 
     /// <summary>The name, in a room's effect overlay picture sheet, of the body of liquid effect <paramref name="type"/>.</summary>
-    [InstalledKey]
     public static string BodyName(RoomFxType type) => $"Fx{RoomFxTypeKeys.Installed.Of(type)}.Body";
 
     /// <summary>The name, in a room's effect overlay picture sheet, of the picture of atmosphere effect <paramref name="type"/>.</summary>
-    [InstalledKey]
     public static string AtmosphereName(RoomFxType type) => $"Fx{RoomFxTypeKeys.Installed.Of(type)}";
 
     /// <summary>The names of the pictures effect <paramref name="type"/> shows: a liquid's strip and body, or an atmosphere's picture.</summary>

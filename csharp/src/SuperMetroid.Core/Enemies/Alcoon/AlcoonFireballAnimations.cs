@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// Alcoon's fireball animation (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class AlcoonFireballAnimations
+internal static partial class AlcoonFireballAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<AlcoonFireballSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<AlcoonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<AlcoonFireballSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.Spinning] =
         [
@@ -29,9 +29,6 @@ internal static class AlcoonFireballAnimations
         [P.Spinning] = Animation<AlcoonFireballSegment>.Looping([Segments.Whole(P.Spinning)]),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<AlcoonFireballSegment> StartingWith(AlcoonFireballSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

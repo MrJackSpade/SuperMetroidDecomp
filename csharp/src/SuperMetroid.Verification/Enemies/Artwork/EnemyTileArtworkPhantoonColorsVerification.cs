@@ -34,20 +34,19 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.FadeOutColors,
             PhantoonColorFormat.FadeOutCount, native.ResolveFadeOut, "fade-out"));
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonSourceDefinitions.PowerOnColors,
-            PhantoonSourceDefinitions.PowerOnColourCount, color => native.ResolvePowerOnAtNative(color), "power-on"));
+            SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount, color => native.ResolvePowerOnAtNative(color), "power-on"));
         for (int band = 0; band < PhantoonColorDefinitions.HealthBandCount; band++)
         for (int color = 0; color < PhantoonColorFormat.HealthBandColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     PhantoonSourceDefinitions.HealthBandColors +
                     (band * PhantoonColorFormat.HealthBandColorCount + color) *
                         sizeof(ushort)),
-                native.ResolveHealth(band, color),
+                native.ResolveHealthAtNative(band, color),
                 $"installed Phantoon health palette {band} color {color} preserves RGB5");
 
         string file = Path.Combine(stockDirectory, PhantoonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        PhantoonColorDocument visual = JsonSerializer.Deserialize<PhantoonColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        PhantoonColorDocument visual = JsonSerializer.Deserialize<PhantoonColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.PhantoonColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Phantoon color JSON is null.");
         PhantoonColorCatalog colors = native;
 
@@ -60,11 +59,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonColorFormat.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
-        RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
-        var state = new PhantoonEnemyState(body, eye, tentacles, enemies.Places.InUpdateOrder[3]);
-        enemies.BeginPhantoonAsSetUp(state);
+        // His room's population load sets his parts up, his body's setup beginning his encounter, in a room whose boss lives.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        RoomEnemyPlace body = enemies.LoadRoom(SuperMetroid.Core.World.RoomStates.RoomEnemyPopulationDefinitions.PhantoonDefault, RoomEnemyFrameFixtures.StandaloneSamus(),
+            RoomEnemyFrameFixtures.OpenRoom(new(64, 64)))[0];
+        PhantoonEnemyState state = body.EntityOf<PhantoonBodyEntity>().Encounter;
         // His live colour handlers name the shades of his body and room and the typed fades between them (#1512, #2251);
         // the import pre-colours each settled colouring from the installed colours, which this compares with the catalog.
         IReadOnlyList<SheetShade> bodyShades = PhantoonSheetShades.Body(stock.Bosses);
@@ -73,16 +72,16 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         for (int row = 0; row < PhantoonColorDefinitions.HealthBandCount; row++)
         {
             // The cartridge's band at health 312 times its row plus one is the row's band (#2259).
-            PhantoonHealthBand band = PhantoonHealthBandDefinitions.LowestFirst[row];
+            PhantoonHealthBand band = PhantoonHealthBandDefinitions.HighestFirst[^(row + 1)];
             body.Health = unchecked((ushort)(row * 312 + 1));
             PhantoonBehavior.ShowPhantoonHealthColours(state);
             AssertEqual(PictureShading.Shaded(PhantoonShades.Body(PhantoonBodyLook.Health(band))), Shown(state), $"Phantoon live health restore band {band}");
-            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(row, color),
+            AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.Health(band)), color => colors.ResolveHealth(band, color),
                 $"Phantoon health band {band}");
             state.BodyFade.Steps = 1;
             state.BodyFade.Resume();
             enemies.PhantoonBehavior.Presentation.AdvancePhantoonFadeIn(body, state, steps);
-            AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(band)), Body(PhantoonBodyLook.Health(band)), 1, steps)),
+            AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(band)), Body(PhantoonBodyLook.Health(band)), new FadeLevel(1, steps))),
                 Shown(state), $"Phantoon live materialization band {band}: a typed fade from its first moving step");
             AssertEqual(2, state.BodyFade.Steps, $"Phantoon fade-in band {band} takes one step");
         }
@@ -98,7 +97,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.BodyFade.Steps = steps + 1;
         state.BodyFade.Resume();
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), 1, 1)),
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), new FadeLevel(1, 1))),
             Shown(state), "Phantoon's fade-out restarted at its last step reaches its goal");
         AssertEqual(steps + 2, state.BodyFade.Steps, "Phantoon's fade-out takes its last step");
         enemies.PhantoonBehavior.Patterns.AdvancePhantoonFadeOut(state, steps);
@@ -110,23 +109,23 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         state.Colours.Show(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths));
         for (int step = 1; step <= 4; step++)
             state.Colours.Fade(PhantoonBodyLook.FadedOut, step, steps);
-        PictureShadeFade fromHealth = new(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), 4, steps);
+        PictureShadeFade fromHealth = new(Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), Body(PhantoonBodyLook.FadedOut), new FadeLevel(4, steps));
         AssertEqual(PictureShading.Standard.With(fromHealth), Shown(state), "Phantoon's fade has come four of its twelve steps from his health colours");
         state.Colours.Show(PhantoonBodyLook.White);
         state.Colours.Fade(PhantoonBodyLook.FadedOut, 5, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8)),
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), new FadeLevel(1, 8))),
             Shown(state), "Phantoon's fade restarts from the hurt flash's white over the eight steps it has left");
         AssertShade(bodyShades, PhantoonShades.Body(PhantoonBodyLook.White), _ => RgbColor.White, "Phantoon's white hurt flash");
-        PictureShadeFade toFadedOut = new(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), 1, 8);
+        PictureShadeFade toFadedOut = new(Body(PhantoonBodyLook.White), Body(PhantoonBodyLook.FadedOut), new FadeLevel(1, 8));
         state.Colours.Fade(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths), 6, steps);
-        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), 1, 7)),
+        AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard.With(toFadedOut), Body(PhantoonBodyLook.Health(PhantoonHealthBandDefinitions.BelowThreeEighths)), new FadeLevel(1, 7))),
             Shown(state), "a fade toward another goal starts from the running fade as it shows");
 
         // The Wrecked Ship's power coming on is its own typed fade with its own progress.
         state.ShipPowerOn.Steps = PhantoonColorDefinitions.PowerOnSteps + 1;
         AssertTrue(!PhantoonDeath.AdvanceWreckedShipPowerOn(state), "Phantoon ship power-on remains active on its last step");
         AssertEqual(PictureShading.Standard.With(new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(PhantoonShades.Powered),
-            PhantoonColorDefinitions.PowerOnSteps, PhantoonColorDefinitions.PowerOnSteps)), Shown(state, GameplayPictures.Room),
+            new FadeLevel(PhantoonColorDefinitions.PowerOnSteps, PhantoonColorDefinitions.PowerOnSteps))), Shown(state, GameplayPictures.Room),
             "the power's last step reaches the room's powered colours");
         AssertEqual(PhantoonColorDefinitions.PowerOnSteps + 2, state.ShipPowerOn.Steps, "Phantoon ship power-on takes its last step");
         AssertTrue(PhantoonDeath.AdvanceWreckedShipPowerOn(state), "the next step completes the power coming on");
@@ -134,15 +133,16 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             "the completed power shows the powered colours on the room's effects too");
         SheetShade powered = PhantoonSheetShades.PowerOn(stock.Bosses).Single();
         AssertEqual(PhantoonShades.Powered, powered.Shade, "the import pre-colours the room's powered colours");
-        for (int color = 0; color < PhantoonSourceDefinitions.PowerOnColourCount; color++)
+        for (int color = 0; color < SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork.PhantoonColorCatalogAccess.PowerOnNativeColourCount; color++)
             AssertEqual(colors.ResolvePowerOnAtNative(color),
-                powered.Colours[PhantoonColorDestinations.PowerOnDestination + color],
+                powered.InkColours[PhantoonColorDestinations.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
 
         AssertThrows<InvalidDataException>(
             () => PhantoonColorFile.Read(new MemoryStream("{\"version\":1,\"version\":1}"u8.ToArray(), writable: false)),
             "duplicate Phantoon color property fails loudly");
-        visual.HealthBands[2][1] = visual.HealthBands[2][1] with { Green = 32 };
+        string altered = PhantoonHealthBandDefinitions.HighestFirst[2].Key;
+        visual.HealthBands[altered][1] = visual.HealthBands[altered][1] with { Green = 32 };
         AssertThrows<InvalidDataException>(() => PhantoonColorFile.Read(new MemoryStream(PhantoonColorFile.Write(visual), writable: false)),
             "reading Phantoon colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Phantoon colors: 256 native RGB5 targets, all health bands and three live transitions, ROM guard, and strict document failures pass.");
@@ -150,7 +150,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Phantoon {name} color {color} preserves native RGB5");
         }
@@ -161,7 +161,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         var frame = new GameplayShadingBuilder();
         state.Colours.ShadeGameplay(frame);
         // The room picture whose backdrop the build reads is pre-coloured in the powered shade the power coming on names.
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)],
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)],
             new PictureColours
             {
                 Backdrop = ColourKeyConstants.Of(RgbColor.Black),
@@ -175,7 +175,11 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     private static void AssertShade(IReadOnlyList<SheetShade> made, PictureShade shade, Func<int, RgbColor> expected, string label)
     {
         SheetShade found = made.Single(candidate => candidate.Shade == shade);
-        for (int color = 0; color < found.Colours.Length; color++)
-            AssertEqual(expected(color), found.Colours[color], $"{label} colour {color}");
+        int colour = 0;
+        foreach (RgbColor shown in found.Colours)
+        {
+            AssertEqual(expected(colour), shown, $"{label} colour {colour}");
+            colour++;
+        }
     }
 }

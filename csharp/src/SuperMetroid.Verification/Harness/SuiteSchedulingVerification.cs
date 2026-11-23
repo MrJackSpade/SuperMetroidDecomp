@@ -161,7 +161,7 @@ internal static class SuiteSchedulingVerification
                 output.ToString(), error.ToString(), Process.GetCurrentProcess().PeakWorkingSet64);
             output.GetStringBuilder().Clear();
             error.GetStringBuilder().Clear();
-            protocol.WriteLine(JsonSerializer.Serialize(report));
+            protocol.WriteLine(JsonSerializer.Serialize(report, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.Verification.Harness.SuiteSchedulingVerification.SuiteReport>()));
             protocol.Flush();
         }
     }
@@ -180,7 +180,7 @@ internal static class SuiteSchedulingVerification
     /// <summary>Loads prior suite timing hints used only to order the worker queue.</summary>
     private static Dictionary<string, double> ReadSuiteDurations() =>
         File.Exists(SuiteDurationsPath)
-            ? JsonSerializer.Deserialize<Dictionary<string, double>>(File.ReadAllText(SuiteDurationsPath))
+            ? JsonSerializer.Deserialize<Dictionary<string, double>>(File.ReadAllText(SuiteDurationsPath), global::SuperMetroid.Verification.VerificationJson.Info<global::System.Collections.Generic.Dictionary<string, double>>())
                 ?? throw new InvalidDataException($"{SuiteDurationsPath} is empty.")
             : [];
 
@@ -188,9 +188,7 @@ internal static class SuiteSchedulingVerification
     private static void WriteSuiteDurations(string[] keys, double[] durations)
     {
         Directory.CreateDirectory((Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)).")));
-        File.WriteAllText(SuiteDurationsPath, JsonSerializer.Serialize(
-            keys.Zip(durations, KeyValuePair.Create).ToDictionary(),
-            IndentedJson));
+        File.WriteAllText(SuiteDurationsPath, JsonSerializer.Serialize(keys.Zip(durations, KeyValuePair.Create).ToDictionary(), global::SuperMetroid.Verification.VerificationJson.Info<global::System.Collections.Generic.Dictionary<string, double>>(IndentedJson)));
     }
 
     /// <summary>A <c>--suite-worker</c> child process of this verifier, driven over its standard streams.</summary>
@@ -228,7 +226,7 @@ internal static class SuiteSchedulingVerification
             };
             // Run through dotnet: pass the verifier assembly; through the apphost: the executable is the verifier.
             if (Path.GetFileNameWithoutExtension(host).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
-                start.ArgumentList.Add(typeof(Program).Assembly.Location);
+                start.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "SuperMetroid.Verification.dll"));
             start.ArgumentList.Add("--suite-worker");
             return new SuiteWorkerProcess(Process.Start(start)
                 ?? throw new InvalidOperationException($"Could not start verifier worker {host}."));
@@ -241,7 +239,7 @@ internal static class SuiteSchedulingVerification
             process.StandardInput.Flush();
             string? line = process.StandardOutput.ReadLine();
             if (line is null) return null;
-            SuiteReport report = JsonSerializer.Deserialize<SuiteReport>(line)
+            SuiteReport report = JsonSerializer.Deserialize<SuiteReport>(line, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.Verification.Harness.SuiteSchedulingVerification.SuiteReport>())
                 ?? throw new InvalidDataException($"Verifier worker sent an empty report for suite {index}.");
             if (report.Index != index)
                 throw new InvalidDataException($"Verifier worker answered suite {report.Index} when asked for suite {index}.");

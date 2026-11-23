@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -62,7 +63,7 @@ internal static class WaveCeilingStraddleVerification
         RoomObjectPlace[] active = [.. arenaObjects.Places.InUpdateOrder.Where(place => place.Active)];
         AssertEqual(1, active.Length, "the shot above the ceiling sets off one reaction in the room's right half");
         AssertEqual(reacted, active[0].Block, "the reaction spawns at the solid block the straddled read starts in");
-        AssertEqual(RoomCollisionType.SolidBlock, (active[0].Behaviour as BlockReactionObject)?.SavedTerrain?.Collision,
+        AssertEqual(RoomCollisionType.SolidBlock, (active[0].Behaviour as BlockReactionObject)?.SavedTerrain.Collision,
             "the respawning shot block restores the solid block's own collision kind, as its setup reads the block it spawned at");
         AssertTrue(arena.GetCollisionBlock(reacted).Terrain != solid, "the solid block is replaced while the shot block is broken");
         AssertEqual(tail, arena.GetCollisionBlock(new(100, 1)).Terrain, "the block after it is left as it was");
@@ -88,14 +89,12 @@ internal static class WaveCeilingStraddleVerification
         behaviors[index] = RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x1);
         RoomLevelData level = CreateRoom(new(RoomWidth, RoomHeight), terrain, behaviors);
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
-        var shot = new SamusProjectile(0)
-        {
-            Position = new(new((ushort)((column * 16) + ShotXRadius), 0), new(ShotY, 0)),
-            Radius = new(ShotXRadius, ShotYRadius),
-            Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)),
-            Type = SamusProjectileType.Beam(SamusBeamCombination.SpazerIceWave, charged: false),
-        };
-        ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects, straddled);
+        var shot = new SamusProjectile(0);
+        SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.SpazerIceWave, charged: false));
+        shot.HeldShot().Position = new(new((ushort)((column * 16) + ShotXRadius), 0), new(ShotY, 0));
+        shot.HeldShot().Radius = new(ShotXRadius, ShotYRadius);
+        shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
+        WaveShotTerrainMoves.MoveWaveShotHorizontally(new RoomTerrain(level, roomObjects), held, straddled);
         return new Scan(level, roomObjects);
     }
 

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// typed motions (#1843).
 /// </para>
 /// </summary>
-internal class EnemyProjectileBehavior
+internal partial class EnemyProjectileBehavior
 {
     /// <summary>
     /// The kinds that do nothing of their own (#1760): they never move themselves, their animations publish only shared
@@ -42,28 +42,43 @@ internal class EnemyProjectileBehavior
     /// A new animation a shot that destroys the projectile starts: the kind's own, or the shared delete animation every
     /// kind without a shot reaction of its own plays.
     /// </summary>
-    internal EnemyProjectileAnimation ShotAnimation() => _shot?.Invoke() ?? EnemyProjectileDeleteAnimation.Instance;
+    internal virtual EnemyProjectileAnimation ShotAnimation() => _shot?.Invoke() ?? EnemyProjectileDeleteAnimation.Instance;
 
     /// <summary>A new animation touching Samus starts, or null when the kind has none of its own.</summary>
-    internal EnemyProjectileAnimation? TouchAnimation() => _touch?.Invoke();
+    internal virtual EnemyProjectileAnimation? TouchAnimation() => _touch?.Invoke();
 
     /// <summary>
     /// The motion a projectile of <paramref name="kind"/> starts with when its spawner binds this behaviour to it (#1843),
     /// or null when it starts holding still. A kind of this class itself never moves itself.
     /// </summary>
     /// <param name="kind">What the freshly spawned projectile is.</param>
-    internal virtual Enum? InitialMotion(RoomEnemyProjectileKind kind) => null;
+    internal virtual EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind) => null;
 
     /// <summary>
-    /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843). A projectile that
-    /// holds still does not move itself: it holds still while its animation plays, or its owner positions it.
+    /// Whether the projectile's flicker hides it on this update (#1839, #2455), so it is not drawn: the n00b tube's crack
+    /// and shards flicker so. A kind of this class itself never flickers.
+    /// </summary>
+    /// <param name="projectile">A projectile this behaviour is bound to.</param>
+    internal virtual bool IsHidden(EnemyProjectile projectile) => false;
+
+    /// <summary>
+    /// The pictures the projectile shows on this update (#2639): its frame at its own place, or none while its flicker hides
+    /// it or it shows no frame.
+    /// </summary>
+    /// <param name="projectile">A projectile this behaviour is bound to.</param>
+    internal virtual IEnumerable<EnemyProjectileShownPicture> ShownPictures(EnemyProjectile projectile) =>
+        Ensure.NotNull(projectile).Frame is { } frame && !IsHidden(projectile)
+            ? [new EnemyProjectileShownPicture(projectile.Position.Whole, frame)]
+            : [];
+
+    /// <summary>Whether a projectile of the kind shows the glow its thrower shows, as Magdollite lava does.</summary>
+    internal virtual bool ShowsThrowersGlow => false;
+
+    /// <summary>
+    /// Moves the projectile one projectile pass by its motion, before its animation advances (#1843): the motion moves it
+    /// through the behaviour that owns it. A projectile that holds still does not move itself: it holds still while its
+    /// animation plays, or its owner positions it.
     /// </summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
-    /// <exception cref="InvalidOperationException">The projectile moves by a motion this behaviour does not own.</exception>
-    internal virtual void RunMotion(EnemyProjectileMotionContext context)
-    {
-        if (context.Projectile.Motion is { } motion)
-            throw new InvalidOperationException(
-                $"Enemy projectile {context.Projectile.Kind} in place {context.Projectile.Place} moves by {motion.GetType().Name}.{motion}, which its behaviour does not run.");
-    }
+    internal virtual void RunMotion(EnemyProjectileMotionContext context) => context.Projectile.Motion?.Move(context);
 }

@@ -55,7 +55,7 @@ internal static class NativeSnapshotMotherBrainImport
         if (MotherBrainNativeListAddresses.DecodeTubeCollapse(W(MotherBrainMemory.BrainSubFunction)) is { } collapse)
             state.TubeCollapse = collapse;
         state.TubeCollapseTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
-        PrivateState.Set(state.Bursts, nameof(MotherBrainBurstCycle.Place), CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
+        StepBurstsToRecordedPlace(state.Bursts, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunctionTimer)));
         state.FakeDeathExplosionTimer.SetCartridgeCount(CoordinateAxis.AsSigned(W(MotherBrainMemory.FakeDeathExplosionTimer)));
         // The recorded place is the position the last explosion took, counted in the order the game stepped back through
         // them; the positions are listed in the order they burst, so the next is the one after it there.
@@ -89,12 +89,7 @@ internal static class NativeSnapshotMotherBrainImport
         state.BodyPlayback = MotherBrainNativeListAddresses.InitialListWords.Contains(AnimationScript(state.Body))
             ? null
             : BodyPlaybackAt(state.Body);
-        Dictionary<MotherBrainTubePiece, NativeEnemyList<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
-        foreach (RoomEnemyPlace tube in runtime.Enemies.Places.InUpdateOrder.Where(place => place.DefinitionId == EnemyDefinitionId.MotherBrainTubes))
-        {
-            tube.RequireSpeciesState<MotherBrainFallingTubeState>().Playback = NativeEnemyAnimationOracle.PlaybackAt(
-                tubes, MotherBrainNativeListAddresses.TubeEntries, MotherBrainTubeAnimations.StartingAt, AnimationScript(tube));
-        }
+        // A falling tube keeps its state to itself (#2554): the family import refuses a snapshot taken while one falls.
         state.BrainShake.ShakeFor(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.NextRainbowImage = ListStep<MotherBrainRainbowImage>.At(MotherBrainRainbowImage.All,
@@ -135,7 +130,12 @@ internal static class NativeSnapshotMotherBrainImport
         state.AttackPhase = MotherBrainNativeWords.AttackPhases.Decode(W(MotherBrainMemory.AttackPhase), "Mother Brain attack phase");
         // The cooldown's word holds the updates it lasts.
         state.AttackCooldown.SetCartridgeCount(W(MotherBrainMemory.BodyAttackCooldown) - 1);
-        state.BombCounter = W(MotherBrainMemory.BombCounter);
+        // Her bomb count is the bombs counted at their spawn and not yet deleted (#2553); the import places none of her
+        // bombs, so it imports only a snapshot whose native count is zero, and refuses any other.
+        int nativeBombs = W(MotherBrainMemory.BombCounter);
+        if (nativeBombs != state.BombCounter)
+            throw new InvalidDataException(
+                $"The native snapshot counts {nativeBombs} live Mother Brain bombs, but the import places none of her bombs.");
         state.BodyTargetXPosition = W(MotherBrainMemory.BodyFunctionTimer);
         state.HandBeamPhase = MotherBrainNativeWords.HandBeamPhases.Decode(W(MotherBrainMemory.DeathBeamAttackPhase), "Mother Brain hand-beam phase");
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromStoredParts(
@@ -147,8 +147,8 @@ internal static class NativeSnapshotMotherBrainImport
         // The game reads only the low byte of each aim angle, the byte angle it stored.
         state.HandBeamNextAngle = new TrigonometryAngle(W(MotherBrainMemory.DeathBeamNext + 12) & byte.MaxValue);
         state.OnionRingsTargetAngle = new TrigonometryAngle(W(MotherBrainMemory.OnionRingsTargetAngle) & byte.MaxValue);
-        if (LateFightStages.Contains(state.Stage))
-            ImportNativeMotherBrainRainbowSequence(state, W);
+        if (state.RainbowBeamSequence is { } lateFight)
+            ImportNativeMotherBrainRainbowSequence(lateFight, W);
     }
 
     /// <summary>The fade her recorded phase runs, which the cartridge's fade count and phase timer describe; null in any other phase.</summary>
@@ -156,13 +156,13 @@ internal static class NativeSnapshotMotherBrainImport
     {
         if (state.Stage == MotherBrainBodyStage.FakeDeathAscent && state.AscentPhase == MotherBrainAscentPhase.TransitionFromGray)
             return state.FromFakeDeathGrey;
-        if (state.Stage == MotherBrainBodyStage.DrainedByBaby && state.DrainedPhase == MotherBrainDrainedPhase.TransitionToGrey)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.DrainedByBaby, DrainedPhase: MotherBrainDrainedPhase.TransitionToGrey } })
             return state.DrainedGreying;
-        if (state.Stage == MotherBrainBodyStage.Reviving && state.RevivalPhase == MotherBrainRevivalPhase.TransitionFromGrey)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Reviving, RevivalPhase: MotherBrainRevivalPhase.TransitionFromGrey } })
             return state.RevivalFromGrey;
-        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase == MotherBrainDeathPhase.FadeOutBody)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Dying, DeathPhase: MotherBrainDeathPhase.FadeOutBody } })
             return state.DeathBodyFade;
-        if (state.Stage == MotherBrainBodyStage.Dying && state.DeathPhase == MotherBrainDeathPhase.FadeToGrey)
+        if (state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Dying, DeathPhase: MotherBrainDeathPhase.FadeToGrey } })
             return state.CorpseGreying;
         return null;
     }
@@ -198,38 +198,77 @@ internal static class NativeSnapshotMotherBrainImport
 
     /// <summary>
     /// Imports the brain animation from the playback resting on the beat the recorded pointer stands at and the recorded
-    /// count of draws the frame there has shown (#2317): a frame shows on with the updates its count leaves it, the
-    /// playback past it; a held frame shows for good; a cue, which only a start leaves the pointer on, plays at the next
-    /// draw.
+    /// count of draws the frame there has shown (#2317), bringing her brain there as the game does: its animation started,
+    /// then played on draw by draw. A frame shows on with the updates its count leaves it, the playback past it; a held
+    /// frame shows for good; a cue, which only a start leaves the pointer on, plays at the next draw.
     /// </summary>
+    /// <exception cref="InvalidDataException">
+    /// The recorded brain list is unset, which only a brain her head's initialization has not started yet has, and the room
+    /// load initialized her head; or a recorded cue stands anywhere but at the start of its animation.
+    /// </exception>
     private static void ImportBrainAnimation(MotherBrainBrainAnimation brain, AnimationPlayback<MotherBrainHeadSegment>? resting, int drawsShown)
     {
         if (resting is not { } playback)
-        {
-            brain.Playback = null;
-            return;
-        }
+            throw new InvalidDataException("The recorded brain list is unset, as only a Mother Brain whose head has not been initialized has it; the room load initialized hers.");
         AnimationPhase<MotherBrainHeadSegment> phase = playback.Animation.Phases[playback.Place.Phase];
         switch (MotherBrainAnimations.HeadSegments.Beats(phase.Segment)[phase.FirstBeat + playback.Place.Beat])
         {
             case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame frame:
-                brain.Playback = playback with { Place = playback.Place with { Beat = playback.Place.Beat + 1 } };
-                brain.ShownFrame = frame.Shown;
+                PlayBrainTo(brain, playback.Animation, new AnimationPlace(playback.Place.Phase, playback.Place.Beat + 1).WithPlaysLeft(playback.Place.PlaysLeft));
                 // The frame moves on at the draw its count passes its list's duration: its updates less the draws shown.
                 brain.Clock.HoldFor(frame.Duration - drawsShown + 1);
                 return;
-            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame held:
-                brain.Playback = playback with { Place = AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount) };
-                brain.ShownFrame = held.Shown;
-                brain.Clock.ShowForGood();
+            case AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.HeldFrame:
+                PlayBrainTo(brain, playback.Animation, AnimationPlace.HoldingIn(playback.Place.Phase, phase.BeatCount));
                 return;
             default:
-                brain.Playback = playback;
-                brain.ShownFrame = null;
-                brain.Clock.StepOnNextUpdate();
+                // A start leaves the pointer on its opening cue, and shows the picture after that cue until the cue plays.
+                if (playback.Place is not { Phase: 0, Beat: 0 })
+                    throw new InvalidDataException($"The recorded brain list stands on a cue at {playback.Place}, which only the start of an animation leaves it on.");
+                brain.Start(playback.Animation);
                 return;
         }
     }
+
+    /// <summary>
+    /// Starts her brain on <paramref name="animation"/> as the game starts it and plays it on, draw by draw with each draw
+    /// moving it to its next picture, until it stands at <paramref name="target"/>, just past the picture it shows there. The
+    /// importer carries out none of the cues the brain passes on the way: they belong to the updates before the snapshot.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Playing the animation from its start never brings it to <paramref name="target"/>.</exception>
+    private static void PlayBrainTo(MotherBrainBrainAnimation brain, Animation<MotherBrainHeadSegment> animation, AnimationPlace target)
+    {
+        int steps = PicturesTo(animation, target);
+        brain.Start(animation);
+        int shownAtStart = MotherBrainBrainCadence.ShowsOpeningPictureAtStart(MotherBrainAnimations.HeadSegments.OpensWithFrame(animation)) ? 1 : 0;
+        for (int step = shownAtStart; step < steps; step++)
+        {
+            brain.Clock.StepOnNextUpdate();
+            _ = brain.AdvanceAtDraw(timeIsFrozen: false, IgnoredCue);
+        }
+    }
+
+    /// <summary>
+    /// How many pictures <paramref name="animation"/> shows from its start until it stands at <paramref name="target"/>,
+    /// played as the brain plays it with none of its cues carried out.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The animation comes back to a place it stood at, or holds, before it reaches <paramref name="target"/>.</exception>
+    private static int PicturesTo(Animation<MotherBrainHeadSegment> animation, AnimationPlace target)
+    {
+        var passed = new HashSet<AnimationPlace>();
+        AnimationPlace place = AnimationPlace.StartOfAnimation;
+        for (int pictures = 1; ; pictures++)
+        {
+            _ = MotherBrainAnimations.HeadSegments.PlayToNextFrame(ref animation, ref place, IgnoredCue);
+            if (place == target)
+                return pictures;
+            if (!passed.Add(place))
+                throw new InvalidDataException($"Mother Brain's brain animation {animation} never stands at {target} played from its start.");
+        }
+    }
+
+    /// <summary>The importer's reaction to a brain cue it plays past: none, the animation playing straight on.</summary>
+    private static AnimationContinuation<MotherBrainHeadSegment>? IgnoredCue(MotherBrainHeadCue cue) => null;
 
     /// <summary>
     /// The brain playback the recorded brain list pointer <paramref name="pointer"/> stands for. The native pointer rests
@@ -239,32 +278,22 @@ internal static class NativeSnapshotMotherBrainImport
     {
         AnimationPlayback<MotherBrainHeadSegment> playback = NativeEnemyAnimationOracle.PlaybackAt(head,
             MotherBrainNativeListAddresses.HeadEntries, MotherBrainAnimations.HeadStartingAt, pointer);
-        return playback.Place.Beat == AnimationPlace.NotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
+        return playback.Place.HasNotEntered ? playback with { Place = AnimationPlace.StartOf(playback.Place.Phase) } : playback;
     }
 
-    /// <summary>The stages the late fight's sequence runs, which a recorded body function in one of them resumes (#2208).</summary>
-    private static readonly HashSet<MotherBrainBodyStage> LateFightStages =
-    [
-        MotherBrainBodyStage.RainbowBeam,
-        MotherBrainBodyStage.FinishingSamusOff,
-        MotherBrainBodyStage.DrainedByBaby,
-        MotherBrainBodyStage.Reviving,
-        MotherBrainBodyStage.Phase3Fight,
-        MotherBrainBodyStage.Dying,
-    ];
-
     /// <summary>
-    /// Rebuilds the rainbow-beam sequence that runs phase two from the beam onward. It runs over the imported encounter,
-    /// whose phase, neck and flags were imported above (#2209), so only what the late fight alone keeps is imported here.
+    /// Rebuilds the rest of the rainbow-beam sequence that runs phase two from the beam onward, which the recorded body
+    /// phase began in its stage. It runs over the imported encounter, whose neck and flags were imported above (#2209), so
+    /// only what the late fight alone keeps is imported here.
     /// </summary>
-    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainEnemyState state, Func<int, ushort> W)
+    private static void ImportNativeMotherBrainRainbowSequence(MotherBrainRainbowBeamAttackSequence sequence, Func<int, ushort> W)
     {
-        MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
+        // The beam's width and its sound attempts are read only while its beam holds Samus, and the beam's start sets both
+        // (#2553); the import places no beam, so it refuses a snapshot taken while one holds her and imports neither.
+        if (sequence.RainbowAttack.BeamActive)
+            throw new InvalidDataException("The native snapshot holds Mother Brain's rainbow beam on Samus, which the import does not place.");
         // The cartridge keeps the brain's fall speed in the body's phase timer.
         sequence.State.BrainFallSpeed = new SignedEightEight(W(MotherBrainMemory.BodyFunctionTimer));
-        sequence.RainbowAttack.AngularWidth = RotationAngleConstants.FromRaw(W(MotherBrainMemory.RainbowBeamAngularWidth));
-        // The cartridge counts the attempts left less one, by sign: six at the start, minus one once they are spent.
-        sequence.RainbowAttack.SoundAttempts = UpdateCountdown.For(CoordinateAxis.AsSigned(W(MotherBrainMemory.RainbowBeamSoundQueueCount)) + 1);
         sequence.State.RainbowBeamSoundPlaying = W(MotherBrainMemory.RainbowBeamSoundPlaying) != 0;
         sequence.State.HealthColoursEnabled = W(MotherBrainMemory.HealthBasedPaletteHandling) != 0;
         sequence.State.Phase2CorpseState = DecodePhase2CorpseState(W(MotherBrainMemory.Phase2CorpseState));
@@ -272,8 +301,35 @@ internal static class NativeSnapshotMotherBrainImport
         // Once the sequence runs, the sub-function word holds the bursts' interval; their place was imported with the
         // encounter, whose cycle the sequence shares.
         // The cartridge's interval runs below zero on the update a burst is due: a count at zero or below is due next.
-        PrivateState.SetField(state.Bursts, "burstWait",
-            UpdateCountdown.For(Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1));
+        StartBurstInterval(sequence.Encounter.Bursts, Math.Max(0, CoordinateAxis.AsSigned(W(MotherBrainMemory.BrainSubFunction))) + 1);
+    }
+
+    /// <summary>
+    /// Brings the encounter's burst cycle, fresh from the room's load, to the place the snapshot records the last burst took
+    /// (#2553), as her ascent's dust bursts brought it there: each burst steps the cycle back one place from the last,
+    /// continuing from the list's last place once it passes the first, so a fresh cycle stands at the recorded place after
+    /// as many bursts as that place lies short of the list's length.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The recorded place lies outside her ascent's dust positions.</exception>
+    private static void StepBurstsToRecordedPlace(SuperMetroid.Core.Compatibility.MotherBrainBurstCycle bursts, int place)
+    {
+        IReadOnlyList<Position16<RoomPixels>> dust = MotherBrainAscentDustDefinitions.DustPositions;
+        if (place < 0 || place >= dust.Count)
+            throw new InvalidDataException($"The native snapshot's burst place {place} lies outside Mother Brain's {dust.Count} ascent dust positions.");
+        for (int burst = 0; burst < (dust.Count - place) % dust.Count; burst++)
+            _ = bursts.NextOf(dust);
+    }
+
+    /// <summary>
+    /// Brings the encounter's burst cycle, due at once as the room's load leaves it, to a wait of <paramref name="updates"/>
+    /// before its next burst (#2553), as a burst due now restarts the wait with its interval and the update it falls due on.
+    /// </summary>
+    private static void StartBurstInterval(SuperMetroid.Core.Compatibility.MotherBrainBurstCycle bursts, int updates)
+    {
+        if (updates == 1)
+            return;
+        if (!bursts.IntervalRunsOut(updates - 1))
+            throw new InvalidDataException("Mother Brain's burst cycle is not due at once as the room's load leaves it.");
     }
 
     /// <summary>The phases of her rise from which it has placed her body with her (#1949, #2031).</summary>
@@ -301,7 +357,8 @@ internal static class NativeSnapshotMotherBrainImport
     /// warning there, as the port's rise and escape start place it.
     /// </summary>
     internal static MotherBrainBodyPlacement BodyPlacementOf(MotherBrainEnemyState state) =>
-        state.Stage == MotherBrainBodyStage.Dying && EscapeWarningPhases.Contains(state.DeathPhase) ? MotherBrainBodyPlacement.AtRoomCorner
+        state.RainbowBeamSequence is { State: { Stage: MotherBrainLateFightStage.Dying, DeathPhase: var dying } } && EscapeWarningPhases.Contains(dying)
+            ? MotherBrainBodyPlacement.AtRoomCorner
         : state.Form >= MotherBrainForm.SecondPhase || (state.Form == MotherBrainForm.FakeDeath &&
             state.Stage == MotherBrainBodyStage.FakeDeathAscent && RisingWithBodyAreaPhases.Contains(state.AscentPhase))
             ? MotherBrainBodyPlacement.FollowsBody
@@ -358,8 +415,8 @@ internal static class NativeSnapshotMotherBrainImport
 
     /// <summary>
     /// The phase-two transition reveals her body and her room shows it from then on (#1356, #1466, #1515). A snapshot
-    /// taken after the transition never ran it in the port, so her body starts shown, showing the installed body frame
-    /// whose words the staged screen holds, or nothing.
+    /// taken after the transition never ran it in the port, so her own body, placed with her, starts shown, showing the
+    /// installed body frame whose words the staged screen holds, or nothing (#2632).
     /// </summary>
     /// <exception cref="InvalidDataException">The staged screen is not one installed body frame over her blank.</exception>
     private static void ImportMotherBrainBodyImage(SuperMetroidRuntime runtime, MotherBrainEnemyState state, Func<int, ushort> W)
@@ -372,18 +429,20 @@ internal static class NativeSnapshotMotherBrainImport
         var screen = new ushort[BossBodySourceDefinitions.ScreenRows * BossBodySourceDefinitions.LayerColumns];
         for (int word = 0; word < screen.Length; word++)
             screen[word] = W(EnemyBg2StagingWram + word * sizeof(ushort));
-        BossBodySheets sheets = runtime.BossArtwork.BodySheets;
         // The installation's frames, which the runtime's installed Mother Brain body sheet is composed from.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
-        BossBodySheet sheet = sheets.Of(BossBodyOwner.MotherBrain);
-        var image = new BossBodyParts(BossBodyOwner.MotherBrain);
+        BossBodySheet sheet = runtime.BossArtwork.Body(BossBodyOwner.MotherBrain);
+        // Her body is the encounter's own, which her setup attached placed with her (#2632): the import shows the staged frame
+        // on it and reveals it, as her phase-two transition does, so her later frames show on it where she stands.
+        BossBodyParts image = state.BodyParts;
+        image.Clear();
         BossBodyFrameSource? staged = BossBodySheetComposer.Frames(bosses, BossBodyOwner.MotherBrain).FirstOrDefault(frame =>
             frame.Cells.All(entry => entry.Key < screen.Length && screen[entry.Key] == entry.Value.PackedWord));
         if (staged is not null)
-            image.Show(state.Body.DefinitionId, sheet.Frame(staged.Name));
+            image.Show(state.Body.HeldOccupant().DefinitionId, sheet.Frame(staged.Name));
         if (!BossBodyWords.Of(image.Publish(), BossBodyOwner.MotherBrain, bosses).AsSpan(0, screen.Length).SequenceEqual(screen))
             throw new InvalidDataException("The snapshot's staged Mother Brain body is not one installed body frame over her blank.");
-        runtime.Enemies.Presentation.AttachBossBody(image);
+        image.Reveal();
     }
 
     /// <summary>The WRAM offset of the enemy BG2 staging image, <c>$7E:2000</c>.</summary>

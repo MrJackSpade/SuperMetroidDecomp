@@ -46,7 +46,6 @@ internal static class ReplayTraceCompactor
         [
             ReplayMovieFixture.Full100.MovieSha256,
             ReplayMovieFixture.LowPercent13.MovieSha256,
-            ReplayMovieFixture.Drunk.MovieSha256,
             ReplayMovieFixture.MotherBrainGlitch.MovieSha256,
             ReplayMovieFixture.Lowc.MovieSha256,
         ];
@@ -90,7 +89,7 @@ internal static class ReplayTraceCompactor
             ReplayTrace.HashFile(Path.Combine(destinationDirectory, ReplayTrace.CompactInitialFile)),
             ReplayTrace.HashFile(Path.Combine(destinationDirectory, ReplayTrace.CompactExpectedFile)));
         File.WriteAllText(Path.Combine(destinationDirectory, ReplayTrace.CompactManifestFile),
-            JsonSerializer.Serialize(manifest, ReplayTrace.ManifestJson) + "\n");
+            JsonSerializer.Serialize(manifest, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.TestSupport.MovieReplay.CompactReplayTraceManifest>(ReplayTrace.ManifestJson)) + "\n");
         VerifyRoundTrip(sourceDirectory, destinationDirectory, layout);
         return manifest;
     }

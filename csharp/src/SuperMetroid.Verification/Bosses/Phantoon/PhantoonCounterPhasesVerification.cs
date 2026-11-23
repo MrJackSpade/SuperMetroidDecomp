@@ -15,8 +15,8 @@ internal static class PhantoonCounterPhasesVerification
     {
         for (int count = 0; count <= ushort.MaxValue; count++)
         {
-            AssertSameAt((count & 1) == 0, !PhantoonCadenceDefinitions.OddRageWave.IsSetIn(count), "seven-flame rage wave", count);
-            AssertSameAt((count & 1) != 0, PhantoonCadenceDefinitions.DyingFadeIn.IsSetIn(count), "dying fade in", count);
+            AssertSameAt((count & 1) == 0, !PhantoonCadenceDefinitions.OddRageWave.IsInSecondHalfAt(count), "seven-flame rage wave", count);
+            AssertSameAt((count & 1) != 0, PhantoonCadenceDefinitions.DyingFadeIn.IsInSecondHalfAt(count), "dying fade in", count);
             // A random sample takes his figure eight's chances as the cartridge tested its lowest bit (#2470).
             AssertSameAt((count & 1) != 0, PhantoonRandomDefinitions.FigureEightRunsReversed.IsTakenBy(count), "reversed figure eight", count);
             AssertSameAt((count & 1) != 0, PhantoonRandomDefinitions.FigureEightStartsRight.IsTakenBy(count), "figure eight starting right", count);

@@ -18,4 +18,14 @@ internal static class UpdateCountdownAccess
     /// run past, is over.
     /// </summary>
     internal static UpdateCountdown Recorded(int count) => UpdateCountdown.For(Math.Max(0, count));
+
+    /// <summary>
+    /// Makes <paramref name="wait"/> the wait <paramref name="placed"/> is, of its length and with its updates left: a wait
+    /// its owner holds for good, which a check or an import places partway through.
+    /// </summary>
+    internal static void PlaceAt(this UpdateCountdown wait, UpdateCountdown placed)
+    {
+        wait.Length = placed.Length;
+        wait.UpdatesLeft = placed.UpdatesLeft;
+    }
 }

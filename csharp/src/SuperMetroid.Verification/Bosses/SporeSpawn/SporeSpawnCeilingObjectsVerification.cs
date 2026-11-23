@@ -5,7 +5,6 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinit
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.SporeSpawn;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -58,7 +57,7 @@ internal static class SporeSpawnCeilingObjectsVerification
         AssertEqual(4, draws.Length,
             "Spore Spawn ceiling has clear and three crumble appearances");
         ushort[] pointers = [0x9413,0x9423,0x9433,0x9443];
-        InstalledRoomObjectSporeSpawnCeilingVisuals pictures = InstalledRoomObjectSporeSpawnCeilingVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.SporeSpawnCeiling;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort pointer = (ushort)raw;
@@ -93,7 +92,7 @@ internal static class SporeSpawnCeilingObjectsVerification
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomObjectDrawLists.Run run = draw.Runs.Span[runIndex];
-                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                AssertRunHeader(rom.ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
                 foreach (RoomCollisionType cell in run.Collisions.Span)
@@ -112,7 +111,7 @@ internal static class SporeSpawnCeilingObjectsVerification
 
             void AssertDrawCollision(RoomCollisionType expected)
             {
-                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                     expected,
                     $"Spore Spawn draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} block +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
@@ -133,10 +132,9 @@ internal static class SporeSpawnCeilingObjectsVerification
             terrain[y * width + x] = RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.Air);
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.SporeSpawnCeiling.TrySpawn(level,
+        roomObjects.BossRoomMutations.SporeSpawnCeiling.Spawn(level,
                 clear ? SporeSpawnCeilingMutation.Clear :
-                    SporeSpawnCeilingMutation.Crumble),
-            $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
+                    SporeSpawnCeilingMutation.Crumble);
         var guarded = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
         int soundFrame = -1;

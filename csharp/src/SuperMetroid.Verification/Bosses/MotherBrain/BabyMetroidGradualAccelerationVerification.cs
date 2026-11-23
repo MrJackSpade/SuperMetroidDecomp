@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -23,10 +22,10 @@ internal static class BabyMetroidGradualAccelerationVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
 
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
@@ -34,7 +33,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         state.Action = BabyMetroidAction.RiseAfterFeeding;
         state.Velocity = default;
         babyMetroid.Position = babyMetroid.Position.WithWholeX(0x02d6).WithWholeY(0x009c).WithFractionY(0x6b00);
-        runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, runtime.Player.IntroducedSamus, new Position16<RoomPixels>(0x0200, 0x0000), runtime.BombProjectiles);
+        babyMetroid.RunMainAi(PlacedEnemyAccess.AiFrame(runtime.Player.Samus, new Position16<RoomPixels>(0x0200, 0x0000), runtime.BombProjectiles));
 
         AssertEqual((ushort)0xfff1, state.Velocity.Y.RawValue, "the reversal step borrows once, reaching Y velocity $FFF1");
         AssertEqual((ushort)0x009c, babyMetroid.Position.Y.Whole, "the rise stays within the same pixel");
@@ -53,11 +52,11 @@ internal static class BabyMetroidGradualAccelerationVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
-        var samus = runtime.Player.IntroducedSamus;
+            place.Holds(EnemyDefinitionId.BabyMetroid));
+        var samus = runtime.Player.Samus;
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
         foreach ((ushort ySpeed, ushort expectedX, ushort expectedSpeed) in new VerifyBabyMetroidDrainCarryCase[]
@@ -73,7 +72,7 @@ internal static class BabyMetroidGradualAccelerationVerification
             samus.Health = 500;
             samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(ySpeed));
-            runtime.Enemies.BabyMetroidBehavior.RunBabyMetroidMain(babyMetroid, samus, new Position16<RoomPixels>(0x0158, 0x0000), runtime.BombProjectiles);
+            babyMetroid.RunMainAi(PlacedEnemyAccess.AiFrame(samus, new Position16<RoomPixels>(0x0158, 0x0000), runtime.BombProjectiles));
             AssertEqual(expectedX, babyMetroid.Position.X.Whole, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");
             AssertEqual(expectedSpeed, samus.Kinematics.VerticalVelocity.Speed.Whole, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
         }
@@ -100,15 +99,14 @@ internal static class BabyMetroidGradualAccelerationVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BigBoy);
         RoomEnemyPlace babyMetroid = runtime.Enemies.Places.InUpdateOrder.First(place =>
-            place.DefinitionId == EnemyDefinitionId.BabyMetroid);
+            place.Holds(EnemyDefinitionId.BabyMetroid));
         BabyMetroidEnemyState state = babyMetroid.SpeciesState<BabyMetroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");
-        BabyMetroidBehavior behavior = runtime.Enemies.BabyMetroidBehavior;
-        var samus = runtime.Player.IntroducedSamus;
-        RoomEnemyPlace victim = behavior.RequireBabyMetroidVictim(babyMetroid);
+        var samus = runtime.Player.Samus;
+        RoomEnemyPlace victim = SuperMetroid.Core.Compatibility.BabyMetroidVictim.Of(runtime.Enemies.Places.InUpdateOrder, babyMetroid);
 
         // The departing flight goes to Samus's left, then her right (#2165); the other flights have no side.
         var flights = new (BabyMetroidAction Action, HorizontalDirection? Side, int TablePosition, Func<Position16<RoomPixels>> Target)[]
@@ -131,6 +129,7 @@ internal static class BabyMetroidGradualAccelerationVerification
         };
         // From the camera at 512 the Baby Metroid at 700 is on screen; from the room's corner it is off screen to the right.
         var cameras = new[] { new Position16<RoomPixels>(0x0200, 0x0000), new Position16<RoomPixels>(0x0000, 0x0000) };
+        // Samus stays 100 pixels from the Baby Metroid, beyond both locks' reach, so its horizontal lock never builds.
         int checks = 0;
         foreach (var flight in flights)
         foreach (PixelVelocity<RoomPixels> velocity in velocities)
@@ -142,7 +141,6 @@ internal static class BabyMetroidGradualAccelerationVerification
             state.Velocity = velocity;
             state.StateTimer.LastFor(101);
             state.SamusHeightHover = SuperMetroid.Core.Bosses.BossCountdown.Lasting(4);
-            PrivateState.Set(state.HorizontalLock, nameof(BabyMetroidHorizontalLock.Built), 0);
             babyMetroid.Position = babyMetroid.Position.WithWhole(new(700, 150));
             samus.Position = samus.Position.WithWhole(new(600, 180));
             Position16<RoomPixels> target = flight.Target();
@@ -152,7 +150,7 @@ internal static class BabyMetroidGradualAccelerationVerification
                 700, target.X, velocity.X, divisor, OriginalOffScreenReversalKick, () => offScreen);
             SignedEightEight expectedY = BabyMetroidGradualAcceleration.AccelerateVertically(150, target.Y, velocity.Y, divisor);
 
-            behavior.RunBabyMetroidMain(babyMetroid, samus, camera, runtime.BombProjectiles);
+            babyMetroid.RunMainAi(PlacedEnemyAccess.AiFrame(samus, camera, runtime.BombProjectiles));
 
             AssertEqual(expectedX, state.Velocity.X, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: X velocity");
             AssertEqual(expectedY, state.Velocity.Y, $"{flight.Action} {flight.Side} from {velocity} with the camera at {camera}: Y velocity");

@@ -9,9 +9,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The collaborators a <see cref="DraygonBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[ArchitectureReview("wide-dependencies", "The composition seam for Draygon's parts (body parts, turrets, intro, swoops, goop, grab, death, combat), each built from a different subset of these collaborators; #2177 added the room's places, among which his parts find his body.")]
-[RoomLifetime]
-internal sealed record DraygonBehaviorDependencies
+internal sealed partial record DraygonBehaviorDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required EnemyPassEvents PassEvents { get; init; }
@@ -51,4 +49,7 @@ internal sealed record DraygonBehaviorDependencies
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }
+
+    /// <summary>Where his body offers his eye, tail and arms the creation that builds each of them joining his encounter (#2554).</summary>
+    public required EnemyPartOffers PartOffers { get; init; }
 }

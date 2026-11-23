@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The state of one Spark.</summary>
-public sealed class SparkEnemyState
+public sealed partial class SparkEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>, playing <paramref name="playback"/>.</summary>
     internal SparkEnemyState(SparkAction action, AnimationPlayback<SparkSegment> playback)

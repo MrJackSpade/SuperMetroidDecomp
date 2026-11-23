@@ -2,10 +2,8 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
@@ -40,12 +38,12 @@ internal static class CinematicPresentationContractChecks
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteSheet timerSheet,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites, SuperMetroid.Core.Assets.SpriteSheet sheet,
                     SuperMetroid.Core.Assets.PictureShading titleShading) {
-                    gradient.Resolve(SuperMetroid.Core.Spatial.FloorZoom.FromFloorPixelsPerScreenPixel(ushort.MaxValue, 256));
+                    gradient.Resolve(TitleFloorZoom.Starting(SuperMetroid.Core.Spatial.FloorZoom.FromFloorPixelsPerScreenPixel(ushort.MaxValue, 256)));
                     TitleSpriteDrawing.DrawSprite(sheet, TitleSprite.SuperMetroidLogo, titleSprites, default, titleShading);
                     TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)(-1), titleSprites, default, titleShading);
                     TitleSpriteDrawing.DrawSprite(sheet, (TitleSprite)31, titleSprites, default, titleShading);
-                    eye.FrameTiles(IntroEyeTilemapFormat.FrameCount - 1);
-                    eye.FrameTiles(IntroEyeTilemapFormat.FrameCount);
+                    eye.FrameTiles(SuperMetroid.Core.Frontend.Intro.IntroEyeFrame.Deadpan);
+                    eye.FrameTiles((SuperMetroid.Core.Frontend.Intro.IntroEyeFrame)IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.CaretVisible, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
                     caret.Draw((SuperMetroid.Core.Frontend.Intro.CinematicSpritePose)999, oam, default, IntroShades.Drawn(IntroSpriteColouring.CrossFadeActors));
                     motherBrain.Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose.MotherBrainPulseLow, oam, default, IntroShades.Drawn(IntroSpriteColouring.MotherBrain));
@@ -64,7 +62,7 @@ internal static class CinematicPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("CinematicProviderFixture", sources,
-            platforms.Append(typeof(TitleSpriteDrawing).Assembly.Location).Append(typeof(IntroEyeTilemapPresentation).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

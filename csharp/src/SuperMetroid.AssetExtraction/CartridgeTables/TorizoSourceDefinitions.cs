@@ -7,8 +7,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Torizo character pages extraction reads (#1413): the import pipeline's private
 /// knowledge of the cartridge, decoded once into the installed Torizo tile sheets.
 /// </summary>
-[EncodingOwner("cartridge addresses of the Torizo character pages")]
-internal static class TorizoSourceDefinitions
+internal static partial class TorizoSourceDefinitions
 {
     /// <summary>$AA:B0A5, the shared Bomb/Golden Torizo death and recovery characters.</summary>
     private const int SharedDeath = 0xaab0a5;

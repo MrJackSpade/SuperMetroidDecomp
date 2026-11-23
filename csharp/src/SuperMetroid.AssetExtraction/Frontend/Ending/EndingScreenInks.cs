@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// background colours, then its sprite colours: the floors' inks, and the background pictures' inks below the sprite colours;
 /// a sprite colour less the background colours is the sprite sheets' ink for an own-palette part.
 /// </summary>
-internal static class EndingScreenInks
+internal static partial class EndingScreenInks
 {
     /// <summary>The colours of one colour group.</summary>
     internal const int GroupColours = 16;
@@ -60,8 +60,11 @@ internal static class EndingScreenInks
         [EndingFlash.LogoBackground] = Background(1),
     };
 
-    /// <summary>The logo crossfade's background colours, then its sprite colours.</summary>
-    internal static int[] LogoCrossfade { get; } = [.. Background(1), .. Sprite(7)];
+    /// <summary>The first of the logo crossfade's background inks, the background colour group it fades.</summary>
+    internal static int LogoCrossfadeBackground { get; } = Background(1)[0];
+
+    /// <summary>The first of the logo crossfade's sprite inks, the sprite colour group it fades.</summary>
+    internal static int LogoCrossfadeSprites { get; } = Sprite(7)[0];
 
     /// <summary>The sprite group each actor colouring draws in.</summary>
     private static readonly Dictionary<EndingSpriteColouring, int> Sets = new()

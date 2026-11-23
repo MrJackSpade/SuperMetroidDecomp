@@ -2,16 +2,14 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of Spore Spawn's four ceiling frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectSporeSpawnCeilingVisualFiles
+public static partial class RoomObjectSporeSpawnCeilingVisualFiles
 {
     /// <summary>Editable Spore Spawn ceiling visual JSON filename.</summary>
-    public const string VisualFileName = "spore-spawn-ceiling.json";
+    internal const string VisualFileName = "spore-spawn-ceiling.json";
 
     /// <summary>The ceiling's frames in the installed file's order (#2567): the clear, then the ceiling cracked, crumbling and crumbled.</summary>
     private static readonly IReadOnlyList<SporeSpawnCeilingDraw> FrameOrder = Ensure.EveryMemberOnce<SporeSpawnCeilingDraw>(
@@ -36,7 +34,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
     /// <summary>Loads the installed Spore Spawn ceiling pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectSporeSpawnCeilingVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The draw lists of the clear and crumble frames.</summary>
@@ -46,8 +44,7 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
         {
             foreach (SporeSpawnCeilingDraw frame in FrameOrder)
             {
-                TryGet(SporeSpawnCeilingDraws.Family.Of(frame), out var list);
-                yield return list;
+                yield return DrawListOf(SporeSpawnCeilingDraws.Family.Of(frame));
             }
         }
     }
@@ -58,6 +55,11 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
 
     /// <summary>Names the clear layout and the three successive crumble appearances for visual editing.</summary>
     internal static string VisualId(SporeSpawnCeilingDraw frame) => SporeSpawnCeilingDrawKeys.Installed.Of(frame);
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Spore Spawn ceiling draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Spore Spawn ceiling draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Spore Spawn ceiling draw.");
 
     /// <summary>
     /// The draw list of a clear or crumble frame as the cartridge writes it: the square's two rows, top row first, each
@@ -71,12 +73,9 @@ public static class RoomObjectSporeSpawnCeilingVisualFiles
             list = default;
             return false;
         }
-        RoomBlockShape shape = described;
-        int rows = 2;
         int rowWidth = 2;
-        list = RoomObjectDrawListExport.Runs(request, rows, _ => rowWidth,
-            (run, cell) => shape.CollisionAt(RoomObjectDrawListExport.Stacked(run) + new Offset16<RoomBlocks>(cell, 0)),
-            RoomObjectDrawListExport.Horizontal, RoomObjectDrawListExport.Stacked);
+        list = RoomObjectDrawListExport.Runs(request, described,
+            [RoomObjectShapeRun.Row(new(0, 0), rowWidth), RoomObjectShapeRun.Row(new(0, 1), rowWidth)]);
         return true;
     }
 }

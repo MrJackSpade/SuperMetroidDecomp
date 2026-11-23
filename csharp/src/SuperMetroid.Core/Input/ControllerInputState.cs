@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Input;
 /// actions (menus, the message box's save choice, the pause screen): the buttons held and newly pressed.
 /// Gameplay reads <see cref="GameplayActionInput"/> instead.
 /// </summary>
-public sealed class ControllerInputState
+public sealed partial class ControllerInputState
 {
     /// <summary>The buttons the previous latch held, against which the next latch finds the newly pressed ones.</summary>
     private ControllerButton _previous;
@@ -19,7 +19,7 @@ public sealed class ControllerInputState
     /// </summary>
     public ControllerButton NewlyPressed { get; private set; }
 
-    /// <summary>Latches one completed automatic controller sample.</summary>
+    /// <summary>Latches the buttons of one update.</summary>
     /// <remarks>Raw input is validated where it enters the game (recordings, replays, hosts), not here.</remarks>
     public void Latch(ControllerButton input)
     {

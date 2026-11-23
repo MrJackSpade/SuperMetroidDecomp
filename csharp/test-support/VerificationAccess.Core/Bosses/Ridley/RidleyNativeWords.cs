@@ -55,11 +55,11 @@ internal static class RidleyNativeWords
     {
         [RidleyTailAction.None] = 0,
         [RidleyTailAction.Neutral] = 1,
-        [RidleyTailAction.PogoSetup] = 2,
-        [RidleyTailAction.PointDown] = 3,
+        [RidleyPogoTailAction.Setup] = 2,
+        [RidleyPogoTailAction.PointingDown] = 3,
         [RidleyTailAction.Pogo] = 4,
-        [RidleyTailAction.StabSetup] = 5,
-        [RidleyTailAction.Stab] = 6,
+        [RidleyPogoTailAction.ReadyingStab] = 5,
+        [RidleyPogoTailAction.Stabbing] = 6,
     });
 
 
@@ -81,7 +81,7 @@ internal static class RidleyNativeWords
     /// <summary>
     /// The bank-$A6 routine word naming each <see cref="CeresRidleyPhase"/> (#2227). Once he has got away the cartridge
     /// stores the getaway's empty routine ($AA1B), then the self-destruct's ($C04E) and the alarm's ($AA50); the port's
-    /// escape keeps those as its own stages (#2228), so <see cref="CeresRidleyPhase.Escaped"/> names the first.
+    /// escape keeps those as its own stages (#2228), so <c>Escaped</c> names the first.
     /// </summary>
     internal static readonly NativeWordIdentities<CeresRidleyPhase> CeresPhases = new(new Dictionary<CeresRidleyPhase, ushort>
     {

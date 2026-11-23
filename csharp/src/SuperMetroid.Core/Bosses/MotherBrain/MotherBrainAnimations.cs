@@ -8,7 +8,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's typed body and brain animations (#641, #1600).</summary>
-internal static class MotherBrainAnimations
+internal static partial class MotherBrainAnimations
 {
     /// <summary>Every body segment.</summary>
     internal static AnimationSegments<B, EnemyFrameId, MotherBrainBodyCue> BodySegments { get; } = new(
@@ -93,11 +93,10 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// Each body animation, by the segment it starts at: every segment but the hand beam's charge and firing is played once,
-    /// then held. The red hand beam raises her arm, charges four times and fires; the arm drawn back shows twice running
-    /// before the beam fires: her body shows each new frame of its own on her body layer, so the second showing is a frame
-    /// of its own (#2318).
+    /// then held. The red hand beam raises her arm, charges (<see cref="HandBeamCharges"/>) and fires; the arm drawn
+    /// back shows twice running before the beam fires, each a frame of its own on her body (#2318).
     /// </summary>
-    internal static IReadOnlyDictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
+    internal static Dictionary<B, Animation<B>> BodyStartingAt { get; } = new Dictionary<B, Animation<B>>(
         Enum.GetValues<B>().Except([B.HandBeam, B.HandBeamCharge, B.HandBeamFire])
             .Select(segment => KeyValuePair.Create(segment, new Animation<B>([BodySegments.Whole(segment)], AnimationEnd.Holds))))
     {
@@ -203,9 +202,9 @@ internal static class MotherBrainAnimations
         BodyCue(new MotherBrainBodyCue.SetPose(pose));
 
     /// <summary>
-    /// Every brain segment, as its list shows it (#2318). Nothing waits on her brain showing a new frame, so a picture its
-    /// list shows twice running with nothing between is one frame of both: the Hyper Beam recoil opens her mouth as the
-    /// stretch does without drooling, so its wide and its widest mouth each show as one frame. Her still pictures hold.
+    /// Every brain segment, as it shows her brain (#2318). A picture shown twice in a row with nothing between is one
+    /// frame of both: the Hyper Beam recoil opens her mouth as the stretch does without drooling, so its wide and its
+    /// widest mouth each show as one frame. Her still pictures hold.
     /// </summary>
     internal static AnimationSegments<H, EnemyFrameId, MotherBrainHeadCue> HeadSegments { get; } = new(
         new Dictionary<H, AnimationBeat<EnemyFrameId, MotherBrainHeadCue>[]>
@@ -305,12 +304,12 @@ internal static class MotherBrainAnimations
 
     /// <summary>
     /// The brain animations, by the segment each starts at (#1948): each lists its own segments, played once in turn but
-    /// for the dying drool's four bursts and the onion rings each volley fires after its first (#2470), and the one it loops
+    /// for the dying drool's bursts and the onion rings each volley fires after its first (#2470), and the one it loops
     /// from, or rests on the still picture it ends at (#2353). Only
     /// the segments she starts an animation at, or a random hold or drool continues at, start one; the segments an
     /// animation only runs on into are listed in it and start none.
     /// </summary>
-    internal static IReadOnlyDictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
+    internal static Dictionary<H, Animation<H>> HeadStartingAt { get; } = new Dictionary<H, Animation<H>>
     {
         [H.StretchingPhase2] = Resting(H.StretchingPhase2, H.StretchingPhase2Held),
         [H.StretchingPhase3] = Resting(H.StretchingPhase3, H.StretchingPhase3Held),
@@ -345,7 +344,7 @@ internal static class MotherBrainAnimations
     /// <summary>How many times her dying head drools from its widest mouth in one burst.</summary>
     private const int DroolsPerBurst = 4;
 
-    /// <summary>Her dying head's burst of drool: the widest mouth and a drool, four times.</summary>
+    /// <summary>Her dying head's burst of drool: the widest mouth and a drool, <see cref="DroolsPerBurst"/> times over.</summary>
     private static AnimationPhase<H> DroolBursts => HeadSegments.Repeated(H.DyingDroolBurst, DroolsPerBurst);
 
     /// <summary>The onion rings each of her four-ring volleys fires.</summary>
@@ -483,7 +482,7 @@ internal static class MotherBrainAnimations
     /// <param name="Open">The open mouth.</param>
     /// <param name="Wide">The wide-open mouth.</param>
     /// <param name="Widest">The widest-open mouth.</param>
-    private sealed record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
+    private sealed partial record HeadMouth(M Closed, M Opening, M Open, M Wide, M Widest);
 
     /// <summary>The whole head of phase two.</summary>
     private static HeadMouth WholeHead => new(EnemyFrameId.MotherBrainHeadEyeShut, EnemyFrameId.MotherBrainHeadEyeOpen, EnemyFrameId.MotherBrainHeadEyeGlaring,

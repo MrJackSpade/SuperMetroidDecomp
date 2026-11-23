@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// page's corner, and no picture shows a part another part shows: the base leaves out every part that changes, and each
 /// part's picture covers its bounding rectangle with the template around the part itself.
 /// </summary>
-internal static class PauseEquipmentPictures
+internal static partial class PauseEquipmentPictures
 {
     /// <summary>The template without any label, the wireframe or the reserve display.</summary>
     internal const string BaseFrame = "Pause.Equipment.Base";
@@ -23,28 +23,22 @@ internal static class PauseEquipmentPictures
     internal const string ReserveTankFrame = "Pause.Equipment.Reserve.Tank";
 
     /// <summary>The frame name of the whole of <paramref name="label"/> in <paramref name="state"/> (#1515).</summary>
-    [InstalledKey]
     internal static string LabelFrame(PauseEquipmentLabelId label, PauseEquipmentLabelState state) =>
         $"Pause.Equipment.Label.{PauseEquipmentLabelIdKeys.Installed.Of(label)}.{PauseEquipmentLabelStateKeys.Installed.Of(state)}";
 
     /// <summary>The frame name of wireframe <paramref name="kind"/>.</summary>
-    [InstalledKey]
-    internal static string WireframeFrame(PauseWireframeKind kind) => $"Pause.Equipment.Wireframe.{PauseWireframeKindKeys.Installed.Of(kind)}";
+    internal static string WireframeFrame(PauseWireframe wireframe) => $"Pause.Equipment.Wireframe.{PauseWireframeKeys.Of(wireframe)}";
 
     /// <summary>The frame name of the MODE label as written for <paramref name="mode"/>.</summary>
-    [InstalledKey]
     internal static string ReserveModeFrame(ReserveTankMode mode) => $"Pause.Equipment.Reserve.Mode.{ReserveTankModeKeys.Installed.Of(mode)}";
 
     /// <summary>The frame name of decimal <paramref name="digit"/> in supply digit place <paramref name="place"/>, hundreds first.</summary>
-    [InstalledKey]
     internal static string ReserveDigitFrame(int place, int digit) => $"Pause.Equipment.Reserve.Digit{place}.{digit}";
 
     /// <summary>The frame name of the reserve arrow's pictures coloured <paramref name="arrow"/>.</summary>
-    [InstalledKey]
     internal static string ReserveArrowFrame(ShownReserveArrow arrow) => $"Pause.Equipment.Reserve.Arrow.{ShownReserveArrowKeys.Installed.Of(arrow)}";
 
     /// <summary>The pictures <paramref name="page"/> shows, each placed at the page's corner.</summary>
-    [InstalledKey]
     internal static IEnumerable<string> Frames(ShownEquipmentPage page)
     {
         Ensure.NotNull(page);

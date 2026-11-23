@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// A share of a move or a speed, from a 256th of it to the whole of it (#2356): how much of a grounded move crosses a
-/// slope, how much of a crawler's speed carries along one, or one substep's part of a grapple extension. The game's
-/// shares are whole 256ths, so a share is authored as a fraction whose denominator divides 256.
+/// A share of a move or a speed, from its finest share to the whole of it (#2356): how much of a grounded move crosses
+/// a slope, how much of a crawler's speed carries along one, or one substep's part of a grapple extension. A share is
+/// authored as a fraction of the whole.
 /// </summary>
-public readonly record struct SpeedShare
+public readonly partial record struct SpeedShare
 {
     /// <summary>The 256ths in the whole of a move or a speed.</summary>
     private const int WholeParts = 256;
@@ -31,6 +31,5 @@ public readonly record struct SpeedShare
     }
 
     /// <summary>The share in 256ths of the whole, 1 through 256.</summary>
-    [IntegerQuantity("a share of a move or a speed in 256ths of it")]
     public int TwoHundredFiftySixths { get; }
 }

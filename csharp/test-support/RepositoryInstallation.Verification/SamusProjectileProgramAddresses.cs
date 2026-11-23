@@ -12,7 +12,7 @@ internal static class SamusProjectileProgramAddresses
 {
     /// <summary>The layout, read once from the repository's cartridge.</summary>
     private static readonly Lazy<SamusProjectileListLayout> layout = new(() => SamusProjectileListEntries.Read(
-        CartridgeImportSource.Require(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
+        (CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))));
 
     /// <summary>The layout.</summary>
     internal static SamusProjectileListLayout Layout => layout.Value;
@@ -92,11 +92,11 @@ internal static class SamusProjectileProgramAddresses
         AnimationPlayback<SamusProjectileSegment> playback, int updates = 1)
     {
         AnimationPlace place = playback.Place;
-        if (place.Beat < 1)
+        if (place.HasNotEntered || place.IsHolding || place.Beat < 1)
             throw new ArgumentOutOfRangeException(nameof(playback), playback, "The playback has shown no beat.");
         var player = AnimationPlayer<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue>.Starting(
             SamusProjectileAnimations.Segments, playback.Animation);
-        player.ShowAt(playback.Animation, place with { Beat = place.Beat - 1 }, updates);
+        player.ShowAt(playback.Animation, new AnimationPlace(place.Phase, place.Beat - 1).WithPlaysLeft(place.PlaysLeft), updates);
         return player;
     }
 

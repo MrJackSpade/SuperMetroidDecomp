@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// event it starts. Every setup is one of <see cref="DoorSetupDefinitions"/>; a setup is what it does, so one names
 /// each change in each room, whichever door runs it.
 /// </summary>
-public sealed class DoorSetup
+public sealed partial class DoorSetup
 {
     /// <summary>Keeps a setup's name and its screen changes in order; it starts no room event.</summary>
     internal DoorSetup(string name, IReadOnlyList<ScreenScrollChange> screenChanges)
@@ -25,7 +25,7 @@ public sealed class DoorSetup
     }
 
     /// <summary>The setup's name: the room its doors lead into, then what it does there.</summary>
-    public string Name { get; }
+    internal string Name { get; }
 
     /// <summary>The screens the setup closes and opens, in the order it changes them.</summary>
     internal IReadOnlyList<ScreenScrollChange> ScreenChanges { get; }

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The Hyper Beam projectile's colour cycle, as installed (#1596): each of its ten frames' eight colours, which the
 /// handler copies into the beams' colours 1..8.
 /// </summary>
-public sealed class InstalledHyperBeamFxColors
+public sealed partial class InstalledHyperBeamFxColors
 {
     /// <summary>Each cycle frame's eight installed colours, in cycle order.</summary>
     private readonly ImmutableArray<ImmutableArray<RgbColor>> frames;

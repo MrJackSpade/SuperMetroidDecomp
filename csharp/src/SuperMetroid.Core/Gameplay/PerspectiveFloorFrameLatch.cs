@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The room's background plane shown in a band below the floor, as Ridley's getaway shows it (#1545), or null where the
 /// floor fills the gameplay view, as the elevator shaft's does.
 /// </param>
-public sealed record PerspectiveFloorFrameLatch(
+public sealed partial record PerspectiveFloorFrameLatch(
     ShownHud Hud,
     PicturedHud PicturedHud,
     GameplayRenderSnapshot Scrolls,

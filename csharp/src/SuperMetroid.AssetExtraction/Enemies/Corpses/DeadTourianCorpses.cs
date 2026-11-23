@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// and each variant has its own configuration and row upload list. The variant numbers are the import's knowledge; the
 /// game knows each corpse by how it lies, and variants that show the same picture are one corpse.
 /// </summary>
-internal static class DeadTourianCorpses
+internal static partial class DeadTourianCorpses
 {
     /// <summary>The corpse each of a species' variants lies as, by variant number.</summary>
     private static readonly Dictionary<DeadTourianCorpseSpecies, DeadTourianCorpseDefinition[]> CorpseByVariant = new()
@@ -21,28 +21,30 @@ internal static class DeadTourianCorpses
     /// <exception cref="ArgumentOutOfRangeException">The species is not a dead Tourian corpse.</exception>
     internal static int VariantCount(DeadTourianCorpseSpecies species) => Variants(species).Length;
 
-    /// <summary>The corpse variant <paramref name="variantIndex"/> of <paramref name="species"/> lies as: its pose and height.</summary>
+    /// <summary>Requires <paramref name="variantIndex"/> to be one of <paramref name="species"/>'s corpse variants.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
-    internal static DeadTourianCorpseDefinition For(DeadTourianCorpseSpecies species, int variantIndex)
+    private static void RequireVariant(DeadTourianCorpseSpecies species, int variantIndex)
     {
-        DeadTourianCorpseDefinition[] variants = Variants(species);
-        if ((uint)variantIndex >= variants.Length)
+        if ((uint)variantIndex >= Variants(species).Length)
             throw new ArgumentOutOfRangeException(nameof(variantIndex), variantIndex, null);
-        return variants[variantIndex];
     }
+
+    /// <summary>The row upload list each of a species' variants names, by variant number.</summary>
+    private static readonly Dictionary<DeadTourianCorpseSpecies, CorpseRowUploadList[]> ListByVariant = new()
+    {
+        [DeadTourianCorpseSpecies.Zoomer] = [CorpseRowUploadList.ZoomerOnItsBack, CorpseRowUploadList.ZoomerUpright, CorpseRowUploadList.SecondZoomerOnItsBack],
+        [DeadTourianCorpseSpecies.Ripper] = [CorpseRowUploadList.RipperLevel, CorpseRowUploadList.RipperTilted],
+        [DeadTourianCorpseSpecies.Skree] = [CorpseRowUploadList.Skree, CorpseRowUploadList.SecondSkree, CorpseRowUploadList.ThirdSkree],
+    };
 
     /// <summary>The cartridge row upload list corpse <paramref name="variantIndex"/> of <paramref name="species"/> names.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The species or its variant is not a dead Tourian corpse.</exception>
     internal static CorpseRowUploadList RowUploadList(DeadTourianCorpseSpecies species, int variantIndex)
     {
-        _ = For(species, variantIndex);
-        return new CorpseRowUploadList(species switch
-        {
-            DeadTourianCorpseSpecies.Zoomer => RottingCorpseSpecies.Zoomer,
-            DeadTourianCorpseSpecies.Ripper => RottingCorpseSpecies.Ripper,
-            DeadTourianCorpseSpecies.Skree => RottingCorpseSpecies.Skree,
-            _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
-        }, variantIndex);
+        RequireVariant(species, variantIndex);
+        return ListByVariant.TryGetValue(species, out CorpseRowUploadList[]? lists)
+            ? lists[variantIndex]
+            : throw new ArgumentOutOfRangeException(nameof(species), species, null);
     }
 
     /// <summary>The variants of <paramref name="species"/>.</summary>

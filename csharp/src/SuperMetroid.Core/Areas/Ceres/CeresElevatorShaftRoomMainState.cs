@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// main behaviour later sweeps the tilt clockwise and back. The turn it last reached is what the following room's main
 /// inherits: the pre-elevator hall reads it as its first wait for falling debris (<see cref="ShaftTurnSetsDebrisWait"/>).
 /// </remarks>
-[RoomLifetime]
-public sealed class CeresElevatorShaftRoomMainState
+public sealed partial class CeresElevatorShaftRoomMainState
 {
     /// <summary>The last tilt of the forward sweep, one step short of the full clockwise tilt; the turn reverses after it.</summary>
     private static readonly CeresShaftTilt LastForwardTilt = CeresShaftTilt.FullClockwise.OneStepAnticlockwise;
@@ -26,19 +25,19 @@ public sealed class CeresElevatorShaftRoomMainState
     /// The further updates the shaft holds its tilt, the update that turned it to the tilt being the first it holds it; the
     /// update after the hold is over turns it.
     /// </summary>
-    public UpdateCountdown Hold { get; } = UpdateCountdown.Lasting(CeresShaftRotationDefinitions.LevelHoldFrames);
+    internal UpdateCountdown Hold { get; } = UpdateCountdown.Lasting(CeresShaftRotationDefinitions.LevelHoldFrames);
 
     /// <summary>
     /// The tilt the shaft turns to next (#1895): from the full anticlockwise tilt through the full clockwise one. It selects
     /// how long the shaft holds the tilt.
     /// </summary>
-    public CeresShaftTilt Tilt { get; private set; }
+    internal CeresShaftTilt Tilt { get; set; }
 
     /// <summary>
     /// Which way the turn is sweeping: forward, clockwise, from the full anticlockwise tilt to one step short of the full
     /// clockwise one; backward from the full clockwise tilt to one step short of the full anticlockwise one.
     /// </summary>
-    public CeresShaftSweep Sweep { get; private set; }
+    internal CeresShaftSweep Sweep { get; set; }
 
     /// <summary>The hand-over the shaft leaves each turn step in for the following room's main.</summary>
     private readonly ShaftTurnSetsDebrisWait _handOver;
@@ -67,7 +66,6 @@ public sealed class CeresElevatorShaftRoomMainState
     /// departure starts. The update that takes her moves the game to the departure, so no later update allows it again.
     /// </param>
     /// <returns>The update's turn, and whether the elevator took Samus, which the gameplay update acts on (#2545).</returns>
-    [IndependentFlag("independent room facts read from the room's data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
         SamusState samus,
         bool elevatorDoorDestroyed,
@@ -79,7 +77,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // its escape status. In particular, the initial elevator descent stays level instead of prematurely consuming the
         // turn.
         if (!elevatorDoorDestroyed)
-            return new(Transform, TiltChanged: false, ElevatorTookSamus: false);
+            return new(Transform, TiltChanged: false, CeresShaftOutcome.Nothing);
 
         bool elevatorTookSamus = allowDeparture && IsInsideDepartureTrigger(samus);
         if (elevatorTookSamus)
@@ -88,18 +86,17 @@ public sealed class CeresElevatorShaftRoomMainState
             // animation, and locks out the player; the wait before Samus leaves Ceres is the game state's, which reads
             // the departure this requests.
             bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-            samus.Pose = facingLeft
+            samus.ChangePose(facingLeft
                 ? SamusPoseId.FacingLeftNormalPose
-                : SamusPoseId.FacingRightNormalPose;
+                : SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            SamusPresentation.InitializeAnimation(samus);
             samus.Control.LockOutPlayer();
         }
 
         if (Hold.IsRunning)
         {
             Hold.Count();
-            return new(Transform, TiltChanged: false, elevatorTookSamus);
+            return new(Transform, TiltChanged: false, elevatorTookSamus ? CeresShaftOutcome.ElevatorTookSamus : CeresShaftOutcome.Nothing);
         }
 
         // Both sweeps show the current tilt.
@@ -110,26 +107,24 @@ public sealed class CeresElevatorShaftRoomMainState
         // The forward sweep turns clockwise one step at a time; after its last tilt the turn reverses at the full
         // clockwise tilt. The backward sweep turns back until its last tilt hands over to the forward sweep at the full
         // anticlockwise tilt, which the backward sweep itself never shows.
-        switch (Sweep)
+        if (Sweep == CeresShaftSweep.Backward)
         {
-            case CeresShaftSweep.Backward:
-                if (Tilt == LastBackwardTilt)
-                    Sweep = CeresShaftSweep.Forward;
-                Tilt = Tilt.OneStepAnticlockwise;
-                break;
-            case CeresShaftSweep.Forward when Tilt == LastForwardTilt:
-                Sweep = CeresShaftSweep.Backward;
-                Tilt = CeresShaftTilt.FullClockwise;
-                break;
-            case CeresShaftSweep.Forward:
-                Tilt = Tilt.OneStepClockwise;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresShaftSweep)} {Sweep}.");
+            if (Tilt == LastBackwardTilt)
+                Sweep = CeresShaftSweep.Forward;
+            Tilt = Tilt.OneStepAnticlockwise;
+        }
+        else if (Tilt == LastForwardTilt)
+        {
+            Sweep = CeresShaftSweep.Backward;
+            Tilt = CeresShaftTilt.FullClockwise;
+        }
+        else
+        {
+            Tilt = Tilt.OneStepClockwise;
         }
         LeaveTurnStep();
 
-        return new(Transform, TiltChanged: true, elevatorTookSamus);
+        return new(Transform, TiltChanged: true, elevatorTookSamus ? CeresShaftOutcome.ElevatorTookSamus : CeresShaftOutcome.Nothing);
     }
 
     /// <summary>
@@ -148,8 +143,20 @@ public sealed class CeresElevatorShaftRoomMainState
     /// Leaves the shaft's turn for the following room's main: its tilt counted from the full anticlockwise tilt, and its
     /// sweep.
     /// </summary>
-    private void LeaveTurnStep() =>
-        _handOver.LeaveTurnStep(Tilt.StepsFromFullAnticlockwise, backward: Sweep == CeresShaftSweep.Backward);
+    private void LeaveTurnStep()
+    {
+        switch (Sweep)
+        {
+            case CeresShaftSweep.Forward:
+                _handOver.LeaveForwardTurnStep(Tilt.StepsFromFullAnticlockwise);
+                break;
+            case CeresShaftSweep.Backward:
+                _handOver.LeaveBackwardTurnStep(Tilt.StepsFromFullAnticlockwise);
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(CeresShaftSweep)} {Sweep}.");
+        }
+    }
 
     /// <summary>Starts the shaft level, as the elevator door's setup leaves it, about its fixed rotation center.</summary>
     private static TurningFloorTransform CreateInitialTransform() => TurningFloorTransform.Level(CeresShaftRotationDefinitions.RotationCenter);

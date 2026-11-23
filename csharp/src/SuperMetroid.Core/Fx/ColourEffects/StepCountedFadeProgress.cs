@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// beside a door's fade, completes sooner and shows its goal from that step, without the counter's values changing how
 /// far its colours have come.
 /// </summary>
-internal readonly record struct StepCountedFadeProgress
+internal readonly partial record struct StepCountedFadeProgress
 {
     /// <summary>Holds a fade that has moved <paramref name="moved"/> of its <paramref name="length"/> parts.</summary>
     private StepCountedFadeProgress(int moved, int length)
@@ -38,9 +38,9 @@ internal readonly record struct StepCountedFadeProgress
     internal StepCountedFadeProgress Then() => new(Math.Min(Moved + 1, Length), Length);
 
     /// <summary>
-    /// The part of this fade run since it had moved <paramref name="moved"/> parts: what it has moved of colours written
-    /// then, such as a Torizo's belly glow's next step, over the parts it had left. Colours written once the fade had come
-    /// the whole way show its goal.
+    /// The part of this fade a look shows when it started once the fade had moved <paramref name="moved"/> parts, such
+    /// as a Torizo's belly glow's next step: what the fade has moved since, over the parts it had left. A look started
+    /// once the fade had come the whole way shows its goal.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="moved"/> is not zero through the parts this fade has moved.</exception>
     internal StepCountedFadeProgress Since(int moved)

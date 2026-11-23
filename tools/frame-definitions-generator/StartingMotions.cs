@@ -10,9 +10,9 @@ namespace SuperMetroid.FrameDefinitionsGenerator;
 /// bound to in its kind's motion, which its base constructor call names either as a table naming every kind it serves
 /// (<c>startingMotions</c>), or as one motion for every kind it is bound to (<c>initial</c>), passed down through its own
 /// constructors' parameters from the construction that makes it. A table names its kinds outright; one motion reaches the
-/// kinds the spawners bind that construction's behaviour to, which their <c>Bind</c> calls name (through the spawn
-/// service handing <c>Bind</c> its own parameters). A kind several spawners bind to different behaviours starts with any
-/// of their motions.
+/// kinds the spawners bind that construction's behaviour to, which the projectile's construction names (through the spawn
+/// service handing the constructor its own parameters). A kind several spawners bind to different behaviours starts with
+/// any of their motions.
 /// </summary>
 internal sealed class StartingMotions
 {
@@ -37,7 +37,7 @@ internal sealed class StartingMotions
         // A behaviour whose constructors name a table names its kinds' motions outright, whoever constructs it.
         foreach (INamedTypeSymbol type in model.Types.Where(type => type.TypeKind == TypeKind.Class && MotionTypeOf(type) is not null))
         {
-            foreach (IMethodSymbol constructor in type.InstanceConstructors)
+            foreach (IMethodSymbol constructor in GameConstructors.Of(type))
             {
                 if (Resolve(constructor, _ => Argument.Unbound, depth: 0) is { Table: { } table })
                     AddTable(table);
@@ -50,14 +50,15 @@ internal sealed class StartingMotions
             {
                 semantic ??= model.ModelOf(tree);
                 if (semantic.GetSymbolInfo(creation).Symbol is not IMethodSymbol { MethodKind: MethodKind.Constructor } constructor
-                    || MotionTypeOf(constructor.ContainingType) is null)
+                    || MotionTypeOf(constructor.ContainingType) is null || GameConstructors.IsRestore(constructor))
                     continue;
                 SemanticModel bound = semantic;
                 _constructions.Add(creation, Resolve(constructor, parameter => Argument.Of(creation.ArgumentList, parameter, bound), depth: 0));
             }
         }
-        IMethodSymbol bind = model.EnemyProjectile.GetMembers("Bind").OfType<IMethodSymbol>().SingleOrDefault()
-            ?? throw new InvalidDataException($"{model.EnemyProjectile.Name} declares no one Bind method.");
+        // A projectile is bound to its kind and its behaviour as it is built (#2554): its one constructor takes both.
+        IMethodSymbol bind = GameConstructors.Of(model.EnemyProjectile).SingleOrDefault()
+            ?? throw new InvalidDataException($"{model.EnemyProjectile.Name} declares no one constructor binding its kind and behaviour.");
         IParameterSymbol kindParameter = bind.Parameters.Single(parameter => SymbolEqualityComparer.Default.Equals(parameter.Type, model.RoomEnemyProjectileKind));
         IParameterSymbol behaviourParameter = bind.Parameters.Single(parameter => model.IsProjectileBehaviour((INamedTypeSymbol)parameter.Type));
         ReadBindings(bind, kindParameter, behaviourParameter, new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default));
@@ -186,7 +187,7 @@ internal sealed class StartingMotions
         // No base call written: the base's constructor taking no arguments.
         INamedTypeSymbol baseType = constructor.ContainingType.BaseType
             ?? throw new InvalidDataException($"{constructor.ContainingType.ToDisplayString()} has no base type.");
-        IMethodSymbol[] parameterless = [.. baseType.InstanceConstructors.Where(candidate => candidate.Parameters.All(parameter => parameter.IsOptional))];
+        IMethodSymbol[] parameterless = [.. GameConstructors.Of(baseType).Where(candidate => candidate.Parameters.All(parameter => parameter.IsOptional))];
         return parameterless is [var implicitBase]
             ? (implicitBase, null, null)
             : throw new InvalidDataException($"{constructor.ToDisplayString()} calls none of {baseType.ToDisplayString()}'s constructors this generator can tell.");
@@ -321,10 +322,12 @@ internal sealed class StartingMotions
     /// The constructions <paramref name="expression"/>, a behaviour, can be: a construction itself; a field's, property's or
     /// local's initializer or assigned values (a cached property's <c>field ??= new ...</c> among them); every construction
     /// of the containing type for <c>this</c>; for a parameter, what each call passes; for a call of one of Core's own
-    /// methods, what that method returns.
+    /// methods, what that method returns, where a parameter it returns (<c>Ensure.NotNull(rocks)</c>'s value) is what that
+    /// call passes for it (<paramref name="returnedFrom"/>), not what every call of the method passes.
     /// </summary>
     /// <exception cref="InvalidDataException">The behaviour is none of these.</exception>
-    private IEnumerable<BaseObjectCreationExpressionSyntax> Constructions(ExpressionSyntax expression, SemanticModel semantic, HashSet<ISymbol> visiting)
+    private IEnumerable<BaseObjectCreationExpressionSyntax> Constructions(ExpressionSyntax expression, SemanticModel semantic, HashSet<ISymbol> visiting,
+        ReturningCall? returnedFrom = null)
     {
         foreach (ExpressionSyntax choice in CoreModel.Choices(expression))
         {
@@ -337,12 +340,13 @@ internal sealed class StartingMotions
                 case LiteralExpressionSyntax { RawKind: (int)SyntaxKind.NullLiteralExpression }:
                     continue;
                 case AssignmentExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceAssignmentExpression } cached:
-                    foreach (BaseObjectCreationExpressionSyntax creation in Constructions(cached.Right, semantic, visiting))
+                    foreach (BaseObjectCreationExpressionSyntax creation in Constructions(cached.Right, semantic, visiting, returnedFrom))
                         yield return creation;
                     continue;
                 // A behaviour handed in, or this one when none is (Spore Spawn's spores' own behaviour), is either.
                 case BinaryExpressionSyntax { RawKind: (int)SyntaxKind.CoalesceExpression } either:
-                    foreach (BaseObjectCreationExpressionSyntax creation in Constructions(either.Left, semantic, visiting).Concat(Constructions(either.Right, semantic, visiting)))
+                    foreach (BaseObjectCreationExpressionSyntax creation in Constructions(either.Left, semantic, visiting, returnedFrom)
+                        .Concat(Constructions(either.Right, semantic, visiting, returnedFrom)))
                         yield return creation;
                     continue;
                 case ThisExpressionSyntax:
@@ -355,6 +359,17 @@ internal sealed class StartingMotions
                     continue;
             }
             ISymbol? symbol = semantic.GetSymbolInfo(choice).Symbol;
+            // A parameter of the method this value is returned from is what the call returning it passes for it.
+            if (returnedFrom is not null && symbol is IParameterSymbol returnedParameter
+                && SymbolEqualityComparer.Default.Equals(returnedParameter.ContainingSymbol.OriginalDefinition, returnedFrom.Method.OriginalDefinition))
+            {
+                if (CallSite.ArgumentFor(returnedFrom.Arguments, returnedParameter.OriginalDefinition) is { } passed)
+                {
+                    foreach (BaseObjectCreationExpressionSyntax creation in Constructions(passed, returnedFrom.Semantic, visiting, returnedFrom.Outer))
+                        yield return creation;
+                }
+                continue;
+            }
             if (symbol is null || !visiting.Add(symbol.OriginalDefinition))
             {
                 if (symbol is null)
@@ -370,9 +385,13 @@ internal sealed class StartingMotions
                 IMethodSymbol called when choice is InvocationExpressionSyntax && _model.IsSource(called) => ReturnsOf(called),
                 _ => throw new InvalidDataException($"{_model.RelativePath(choice.SyntaxTree)}: this generator cannot tell which behaviour {choice} is."),
             };
+            // A value a called method returns is read with that call's arguments for the method's parameters.
+            ReturningCall? call = symbol is IMethodSymbol returning && choice is InvocationExpressionSyntax invocation
+                ? new ReturningCall(returning, invocation.ArgumentList, semantic, returnedFrom)
+                : null;
             foreach ((ExpressionSyntax value, SemanticModel valueSemantic) in values)
             {
-                foreach (BaseObjectCreationExpressionSyntax creation in Constructions(value, valueSemantic, visiting))
+                foreach (BaseObjectCreationExpressionSyntax creation in Constructions(value, valueSemantic, visiting, call))
                     yield return creation;
             }
         }
@@ -459,6 +478,12 @@ internal sealed class StartingMotions
     /// <summary>What a construction starts its kinds with.</summary>
     /// <param name="Table">The starting-motion table naming each kind's motion, when one does.</param>
     /// <param name="Initial">The one motion every kind starts with (empty when they start holding still), when one does.</param>
+    /// <summary>
+    /// The call a value being read is returned from: the called method, the arguments the call passes it, the call's model,
+    /// and the call the call itself is returned from, when it is.
+    /// </summary>
+    private sealed record ReturningCall(IMethodSymbol Method, ArgumentListSyntax Arguments, SemanticModel Semantic, ReturningCall? Outer);
+
     private readonly record struct Start(ExpressionSyntax? Table, IReadOnlySet<IFieldSymbol>? Initial)
     {
         /// <summary>A start a parameter no construction decides here hands down.</summary>

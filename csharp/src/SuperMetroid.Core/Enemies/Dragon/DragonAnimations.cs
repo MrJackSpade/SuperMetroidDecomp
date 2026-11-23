@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// Dragon's idle, wing and attack animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="DragonCue"/> naming what it does.
 /// </summary>
-internal static class DragonAnimations
+internal static partial class DragonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DragonSegment, EnemyFrameId, DragonCue> Segments { get; } = new(
@@ -48,15 +48,9 @@ internal static class DragonAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = new Dictionary<DragonSegment, Animation<DragonSegment>>
-    {
-        [P.IdleFacingLeft] = new([Segments.Whole(P.IdleFacingLeft)], AnimationEnd.Holds),
-        [P.WingsFacingLeft] = Animation<DragonSegment>.Looping([Segments.Whole(P.WingsFacingLeft)]),
-        [P.IdleFacingRight] = new([Segments.Whole(P.IdleFacingRight)], AnimationEnd.Holds),
-        [P.WingsFacingRight] = Animation<DragonSegment>.Looping([Segments.Whole(P.WingsFacingRight)]),
-        [P.AttackingFacingLeft] = new([Segments.Whole(P.AttackingFacingLeft)], AnimationEnd.Holds),
-        [P.AttackingFacingRight] = new([Segments.Whole(P.AttackingFacingRight)], AnimationEnd.Holds),
-    };
+    internal static Dictionary<DragonSegment, Animation<DragonSegment>> StartingAt { get; } = Segments.Starts(Segments.EachEnding(AnimationEnd.Holds,
+        P.IdleFacingLeft, P.IdleFacingRight, P.AttackingFacingLeft, P.AttackingFacingRight),
+        P.WingsFacingLeft, P.WingsFacingRight);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<DragonSegment> StartingWith(DragonSegment segment) => StartingAt[segment];

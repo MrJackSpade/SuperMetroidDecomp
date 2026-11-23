@@ -1,12 +1,11 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
 /// Spore Spawn's state beyond what every enemy has: his swing angle, stalk anchor and death velocity.
 /// </summary>
-public sealed class SporeSpawnEnemyState
+public sealed partial class SporeSpawnEnemyState
 {
     /// <summary>A new fight's state, which his initialization installs on his body (#2231).</summary>
     internal SporeSpawnEnemyState()
@@ -24,10 +23,10 @@ public sealed class SporeSpawnEnemyState
     /// His stalk's four links, from the one at the ceiling down toward his body (#1932): his last spawned link hangs at the
     /// ceiling. They live as long as he does; his death clears every other projectile.
     /// </summary>
-    internal IReadOnlyList<EnemyProjectile> StalkLinks { get; set; } = [];
+    internal IReadOnlyList<SporeSpawnStalkLink> StalkLinks { get; set; } = [];
     /// <summary>
-    /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
-    /// above it.
+    /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y above it by
+    /// <see cref="SporeSpawnArenaDefinitions.StalkAnchorAboveBody"/>.
     /// </summary>
     public Position16<RoomPixels> StalkAnchor { get; internal set; }
     /// <summary>
@@ -44,7 +43,7 @@ public sealed class SporeSpawnEnemyState
     internal SporeSpawnSwayRadius SwayRadius { get; set; }
     /// <summary>
     /// How far and which way his sway's phase turns each movement update: a step from his descent and his fight's start,
-    /// quickened to two low on health, and reversed by the first damaging hit of each opening.
+    /// quickened low on health (<see cref="SporeSpawnArenaDefinitions.FastSwayStep"/>), and reversed by the first damaging hit of each opening.
     /// </summary>
     internal TurnStep SwayStep { get; set; } = TurnStep.None;
     /// <summary>Whether the ceiling spore emitters are stopped: the animation sets it during protected phases and clears it, and death clears it.</summary>

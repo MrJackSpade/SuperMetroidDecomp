@@ -113,7 +113,7 @@ internal static class EnemyContentIdentityFixtureVerification
 
         /// <summary>Serializes fixture documents through the same camel-case JSON shape as installed artwork.</summary>
         public MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
+            global::SuperMetroid.Verification.VerificationJson.Info(document.GetType(), (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson))));
 
         /// <summary>Writes indexed tile pixels with an optional first-pixel edit or cosmetic palette change.</summary>
         private MemoryStream Png(string name, int bytes, int seed = 0)
@@ -199,7 +199,12 @@ internal static class EnemyContentIdentityFixtureVerification
             foreach (var field in fields)
             {
                 string name = typeof(T).Name + "." + field.Name;
-                document.Add(field.Name, field.Rows == 0 ? Colors(name, field.Colors) : ColorRows(name, field.Rows, field.Colors));
+                int colors = field.Colors;
+                document.Add(field.Name, field.Rows == 0 ? Colors(name, colors)
+                    : field.Keys is { } keys ? keys.Zip(ColorRows(name, field.Rows, colors)).ToDictionary(row => row.First, row => row.Second)
+                    : field.Members is { } members ? Enumerable.Range(0, field.Rows).Select(row =>
+                        members.ToDictionary(member => member, member => Colors(name + "-row-" + row + "-" + member, colors, row))).ToArray()
+                    : ColorRows(name, field.Rows, colors));
             }
             return load(Json(document));
         }
@@ -230,12 +235,12 @@ internal static class EnemyContentIdentityFixtureVerification
             });
             var heads = Ordered(new[]
             {
-                KeyValuePair.Create(0, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
+                KeyValuePair.Create(SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame.Closed, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
                     Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidWorkingMapDefinitions.HeadImageCells),
                 }))),
-                KeyValuePair.Create(1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
+                KeyValuePair.Create(SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame.Opening, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
                     Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidWorkingMapDefinitions.HeadImageCells),
@@ -255,10 +260,10 @@ internal static class EnemyContentIdentityFixtureVerification
             }));
             var special = new MotherBrainSpecialSpriteArtworkCatalog(Ordered(MotherBrainSpecialSpriteSheetDefinitions.All.Select(definition =>
                 KeyValuePair.Create(definition.Sheet, Characters(definition.FileName, definition.ByteCount)))));
-            var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.Select(definition =>
-                Characters(definition.FileName, definition.ByteCount)).ToArray());
-            var ceresTiles = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(definition =>
-                Characters(definition.FileName, definition.ByteCount)).ToArray());
+            var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All.ToDictionary(definition => definition.Page, definition =>
+                Characters(definition.FileName, definition.ByteCount)));
+            var ceresTiles = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.ToDictionary(definition => definition, definition =>
+                Characters(definition.FileName, definition.ByteCount)));
             var overlay = CeresEscapeOverlays.Load(Json(new CeresEscapeOverlayTilemapDocument
             {
                 Version = CeresWarningGlyphDefinitions.Version,
@@ -273,13 +278,13 @@ internal static class EnemyContentIdentityFixtureVerification
             }));
 
             return new ImportEnemyArtwork(
-                EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycleFormat.Version, MagdollitePaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", MagdolliteGlowAnimations.Cycle.Count, MagdollitePaletteCycle.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycleFormat.Version, WorkRobotPaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", WorkRobotGlowAnimations.Cycle.Count, WorkRobotPaletteDefinitions.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorFormat.Version, ChozoAndTubeColorFile.Read,
+                EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(GunshipLiftoffTransferDefinitions.Frames.Zip(gunship).ToDictionary(pair => pair.First.Asset, pair => pair.Second)), ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycleFormat.Version, MagdollitePaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", MagdolliteGlowAnimations.Cycle.Count, MagdollitePaletteCycle.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycleFormat.Version, WorkRobotPaletteCycleFile.Read, new EnemyContentIdentityFixtureField("frames", WorkRobotGlowAnimations.Cycle.Count, WorkRobotPaletteDefinitions.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorFormat.Version, ChozoAndTubeColorFile.Read,
                     new EnemyContentIdentityFixtureField("tubeCracks", 0, ChozoAndTubeColorDefinitions.ColorCount), new EnemyContentIdentityFixtureField("wreckedShip", 0, ChozoAndTubeColorDefinitions.ColorCount),
                     new EnemyContentIdentityFixtureField("lowerNorfair", 0, ChozoAndTubeColorDefinitions.ColorCount)), DachoraColors = ColorCatalog(DachoraColorFormat.Version, DachoraColorFile.Read, new EnemyContentIdentityFixtureField("normal", 0, DachoraColorFormat.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("speed", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorFormat.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("shine", DachoraColorDefinitions.AnimatedFrameCount, DachoraColorFormat.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
-                new BossSourceArtwork { CrocomireMelting = CrocomireMeltingArtwork.Load(Characters("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
-                    Characters("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidWorkingMapDefinitions.SourceTilemapBytes),
+                new BossSourceArtwork { CrocomireMelting = CrocomireMeltingArtwork.Load(Characters("melt-first", CrocomireMeltingArtworkFormat.FleshByteCount),
+                    Characters("melt-second", CrocomireMeltingArtworkFormat.BareSkullByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidWorkingMapDefinitions.SourceTilemapBytes),
                     Map("kraid-lower", KraidWorkingMapDefinitions.SourceTilemapBytes), heads,
                     Characters("kraid-background", KraidSourceDefinitions.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorFormat.Version, KraidColorFile.Read,
                     new EnemyContentIdentityFixtureField("roomBackdrop", 0, KraidPalettes.ColorCount(KraidPaletteSource.RoomBackdrop)),
@@ -292,10 +297,14 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("wallSpikes", 0, CrocomireColorDefinitions.WallSpikesCount)), DraygonColors = ColorCatalog(DraygonColorFormat.Version, DraygonColorFile.Read,
                     new EnemyContentIdentityFixtureField("intro", 0, DraygonColorDefinitions.IntroCount), new EnemyContentIdentityFixtureField("background", 0, DraygonColorDefinitions.BackgroundCount),
                     new EnemyContentIdentityFixtureField("sprite", 0, DraygonColorDefinitions.SpriteCount), new EnemyContentIdentityFixtureField("whiteFlash", 0, DraygonColorDefinitions.WhiteFlashCount),
-                    new EnemyContentIdentityFixtureField("healthBands", DraygonColorDefinitions.HealthBandCount, DraygonColorDefinitions.HealthBandColorCount)), PhantoonColors = ColorCatalog(PhantoonColorFormat.Version, PhantoonColorFile.Read,
-                    new EnemyContentIdentityFixtureField("healthBands", PhantoonColorDefinitions.HealthBandCount, PhantoonColorFormat.HealthBandColorCount),
-                    new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorFormat.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", 0, PhantoonSourceDefinitions.PowerOnColourCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorFormat.Version, SporeSpawnColorFile.Read,
-                    new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorFormat.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SporeSpawnColorFormat.HealthFrameCount, SporeSpawnColorFormat.ColorsPerFrame),
+                    new EnemyContentIdentityFixtureField("healthBands", SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count, DraygonColorDefinitions.HealthBandColorCount,
+                        [.. SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Select(band => band.Key)])), PhantoonColors = ColorCatalog(PhantoonColorFormat.Version, PhantoonColorFile.Read,
+                    new EnemyContentIdentityFixtureField("healthBands", PhantoonColorDefinitions.HealthBandCount, PhantoonColorFormat.HealthBandColorCount,
+                        [.. SuperMetroid.Core.Bosses.Phantoon.PhantoonHealthBandDefinitions.HighestFirst.Select(band => band.Key)]),
+                    new EnemyContentIdentityFixtureField("fadeOut", 0, PhantoonColorFormat.FadeOutCount), new EnemyContentIdentityFixtureField("powerOn", PhantoonColorFormat.PoweredPartKeys.Count, PhantoonColorFormat.PoweredPartColourCount,
+                        [.. PhantoonColorFormat.PoweredPartKeys.Values])), SporeSpawnColors = ColorCatalog(SporeSpawnColorFormat.Version, SporeSpawnColorFile.Read,
+                    new EnemyContentIdentityFixtureField("spores", 0, SporeSpawnColorFormat.ColorsPerFrame), new EnemyContentIdentityFixtureField("health", SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count, SporeSpawnColorFormat.ColorsPerFrame,
+                        [.. SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Select(band => band.Key)]),
                     new EnemyContentIdentityFixtureField("deathSprite", SporeSpawnColorFormat.DeathSpriteFrameCount, SporeSpawnColorFormat.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("deathLevel", SporeSpawnColorFormat.DeathSceneFrameCount, SporeSpawnColorFormat.ColorsPerFrame),
                     new EnemyContentIdentityFixtureField("deathBackground", SporeSpawnColorFormat.DeathSceneFrameCount, SporeSpawnColorFormat.ColorsPerFrame)), BabyMetroidColors = ColorCatalog(BabyMetroidColorFormat.Version, BabyMetroidColorFile.Read,
@@ -304,16 +313,18 @@ internal static class EnemyContentIdentityFixtureVerification
                     new EnemyContentIdentityFixtureField("deadSidehopper", 0, BabyMetroidColorDefinitions.TargetColorCount)), BabyMetroidCutsceneColors = ColorCatalog(BabyMetroidCutsceneColorFormat.Version, BabyMetroidCutsceneColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, BabyMetroidCutsceneColorFormat.InitialColorCount),
                     new EnemyContentIdentityFixtureField("fade", BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount)), BotwoonColors = ColorCatalog(BotwoonColorFormat.Version, BotwoonColorFile.Read,
-                    new EnemyContentIdentityFixtureField("health", BotwoonColorFormat.HealthBandCount, BotwoonColorFormat.ColorsPerPalette)), MotherBrainDeathColors = ColorCatalog(MotherBrainDeathColorFormat.Version, MotherBrainDeathColorFile.Read,
-                    new EnemyContentIdentityFixtureField("bodyFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount),
-                    new EnemyContentIdentityFixtureField("legFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount),
+                    new EnemyContentIdentityFixtureField("health", SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Count, BotwoonColorFormat.ColorsPerPalette,
+                        [.. SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown.Select(band => band.Key)])), MotherBrainDeathColors = ColorCatalog(MotherBrainDeathColorFormat.Version, MotherBrainDeathColorFile.Read,
+                    new EnemyContentIdentityFixtureField("bodyFade", MotherBrainDeathColorFile.BodyFadeFrameCount, MotherBrainDeathColorFormat.BodyColorCount,
+                        Members: ["body", "backLegs"]),
                     new EnemyContentIdentityFixtureField("corpseFade", MotherBrainDeathColorFile.CorpseFadeFrameCount, MotherBrainDeathColorFormat.CorpseColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorFile.Version, ZebetiteColorFile.Read, new EnemyContentIdentityFixtureField("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorFormat.Version, NorfairRidleyColorFile.Read,
                     new EnemyContentIdentityFixtureField("initial", 0, NorfairRidleyColorFormat.InitialColorCount),
                     new EnemyContentIdentityFixtureField("reveal", NorfairRidleyRevealDefinitions.RevealStepCount, NorfairRidleyColorFormat.RevealColorCount)), PhantoonBg2Frames = Shared("phantoon-bg2", () => PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames, PhantoonBg2FrameDefinitions.Version))), DraygonBg2Frames = Shared("draygon-bg2", () => DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version))), CrocomireBg2Frames = Shared("crocomire-bg2", () => CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version))), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
                     Bg2("mother-brain-body-bg2", MotherBrainBodyBg2FrameDefinitions.Frames, MotherBrainBodyBg2FrameDefinitions.Version)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(RoomCharacterAtlasPng.Read(Png("crocomire-skeleton", CrocomireSkeletonCharacterDefinitions.TotalByteCount), CrocomireSkeletonCharacterDefinitions.TotalByteCount)), TorizoSwaps = torizo },
                 new AreaSourceArtwork { CeresDoor = door, TourianStatueColors = ColorCatalog(TourianStatueColorFormat.Version, TourianStatueColorFile.Read,
                     new EnemyContentIdentityFixtureField("base", 0, TourianStatueColorFormat.BaseColorCount), new EnemyContentIdentityFixtureField("statue", 0, TourianStatueColorFormat.StatueColorCount),
-                    new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeGlowCount, TourianStatueColorDefinitions.EyeColorCount), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
+                    new EnemyContentIdentityFixtureField("eye", TourianStatueColorDefinitions.EyeGlows.Count, TourianStatueColorDefinitions.EyeColorCount,
+                        [.. SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions.TourianStatueEyeRowOrder.Select(statue => statue.ToString())]), new EnemyContentIdentityFixtureField("grey", 0, TourianStatueColorDefinitions.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
         }
 
         /// <summary>Changes the final Crocomire melt tile only for the selected map edit.</summary>
@@ -333,15 +344,23 @@ internal static class EnemyContentIdentityFixtureVerification
         }
 
         /// <summary>Builds two OAM parts while varying geometry, attributes, ordering, or count.</summary>
+        /// <summary>The parts of <see cref="Parts"/> as the projectile compositions name them, each character by its place (#2563).</summary>
+        private EnemyProjectilePartDocument[] ProjectileParts(string family, bool mutate) =>
+            [.. Parts(family, mutate).Select(part => new EnemyProjectilePartDocument
+            {
+                OffsetX = part.OffsetX, OffsetY = part.OffsetY, Character = part.TileRow * SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapCompiler.TileColumns + part.TileColumn,
+                Size = part.Size, Depth = part.Depth, Palette = part.Palette, FlipX = part.FlipX, FlipY = part.FlipY,
+            })];
+
         private SpriteVisualPart[] Parts(string family, bool mutate)
         {
             if (mutate)
-                foreach (string component in new[] { "x", "y", "size", "tile-column", "tile-row", "palette", "priority", "flip-x", "flip-y", "order", "count" })
+                foreach (string component in new[] { "x", "y", "size", "tile-column", "tile-row", "palette", "depth", "flip-x", "flip-y", "order", "count" })
                     Register(family + "-" + component);
             var first = new SpriteVisualPart
             {
                 OffsetX = 0, OffsetY = 0, Size = 8, TileColumn = 0, TileRow = 0,
-                Palette = 1, Priority = 1, FlipX = false, FlipY = false,
+                Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoomInFrontOfFloor, FlipX = false, FlipY = false,
             };
             var second = first with { OffsetX = 1, TileColumn = 1, Palette = 2 };
             string? change = mutate && edit?.StartsWith(family + "-", StringComparison.Ordinal) == true
@@ -351,7 +370,7 @@ internal static class EnemyContentIdentityFixtureVerification
                 "x" => second with { OffsetX = 2 }, "y" => second with { OffsetY = 1 },
                 "size" => second with { Size = 16 }, "tile-column" => second with { TileColumn = 2 },
                 "tile-row" => second with { TileRow = 1 }, "palette" => second with { Palette = 3 },
-                "priority" => second with { Priority = 2 }, "flip-x" => second with { FlipX = true },
+                "depth" => second with { Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts }, "flip-x" => second with { FlipX = true },
                 "flip-y" => second with { FlipY = true }, _ => second,
             };
             return change switch { "order" => [second, first], "count" => [first], _ => [first, second] };
@@ -416,9 +435,9 @@ internal static class EnemyContentIdentityFixtureVerification
             {
                 Version = EnemyProjectileSpritemapDocuments.Version,
                 Frames = Ordered(frames.Select((frame, index) =>
-                    KeyValuePair.Create(frame.Name, Parts("projectile", index == frames.Length - 1)))),
+                    KeyValuePair.Create(frame.Name, ProjectileParts("projectile", index == frames.Length - 1)))),
                 ProgramFrames = Ordered(programs.Select((frame, index) =>
-                    KeyValuePair.Create(frame.Name, Parts("projectile-program", index == programs.Length - 1)))),
+                    KeyValuePair.Create(frame.Name, ProjectileParts("projectile-program", index == programs.Length - 1)))),
             };
         }
         /// <summary>Compiles both projectile frame namespaces into one installed catalog.</summary>

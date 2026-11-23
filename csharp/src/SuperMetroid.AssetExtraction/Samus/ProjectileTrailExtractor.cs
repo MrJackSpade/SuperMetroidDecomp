@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts trail OBJ appearance without exposing native timing or movement commands.</summary>
-public static class ProjectileTrailExtractor
+public static partial class ProjectileTrailExtractor
 {
     /// <summary>Imports OBJ appearance words from the catalogued bank-$90 projectile-trail frame records.</summary>
     /// <param name="bus">Cartridge-import-capable address space supplying each native frame's visual operand.</param>
@@ -16,14 +16,18 @@ public static class ProjectileTrailExtractor
         var frames = new Dictionary<string, ProjectileTrailAppearance>();
         for (int index = 0; index < ProjectileTrailVisualDefinitions.RecordCount; index++)
         {
-            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.MovementBank.Value | (ProjectileTrailSources.Records[index].Key + 2)));
-            frames.Add(ProjectileTrailVisualDefinitions.RecordNames[index], new()
+            var appearance = new ProjectileTrailAppearance
             {
                 TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns,
                 TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
-                Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically,
-            });
+                Palette = a.PaletteIndex, Depth = a.Depth, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically,
+            };
+            // Every record of one frame shows that frame's one appearance (#2348), which the document holds once.
+            string name = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrameKeys.Installed.Of(ProjectileTrailSources.Records[index].Value);
+            if (!frames.TryAdd(name, appearance) && frames[name] != appearance)
+                throw new InvalidDataException($"The trail records of frame {name} show different appearances.");
         }
         return InstalledProjectileTrails.Write(new() { Version = ProjectileTrailVisualDefinitions.Version, Frames = frames });
     }

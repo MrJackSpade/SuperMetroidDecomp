@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The state of the Mama Turtle.</summary>
-public sealed class MamaTurtleEnemyState
+public sealed partial class MamaTurtleEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal MamaTurtleEnemyState(MamaTurtleAction action) => Action = action;
@@ -14,10 +14,10 @@ public sealed class MamaTurtleEnemyState
     public MamaTurtleAction Action { get; internal set; }
 
     /// <summary>
-    /// Mama's velocity, in pixels an update. Its horizontal part stays signed rather than a heading with a speed (#2473):
-    /// her hover's acceleration can point against it, so it slows through zero and turns her round, and a wall reverses it
-    /// by the game's partwise arithmetic (<see cref="MamaTurtleWallReversal"/>), which changes its size by a pixel an update.
-    /// Its sign is the way she moves, which her landing faces.
+    /// Mama's velocity, in pixels an update. Its horizontal part stays signed rather than a heading with a speed
+    /// (#2473): her hover's acceleration can point against it, so it slows through zero and turns her round, and a wall
+    /// reverses it and changes its size by a pixel an update (<see cref="MamaTurtleWallReversal"/>). Its sign is the
+    /// way she moves, which her landing faces.
     /// </summary>
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 

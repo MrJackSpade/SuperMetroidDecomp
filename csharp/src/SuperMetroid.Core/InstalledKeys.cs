@@ -9,7 +9,7 @@ namespace SuperMetroid.Core;
 /// disk (SME6460) and no document is read by a member's source name (SME6462).
 /// </summary>
 /// <typeparam name="TIdentity">The identity whose members are keyed.</typeparam>
-public sealed class InstalledKeys<TIdentity>
+public sealed partial class InstalledKeys<TIdentity>
     where TIdentity : struct, Enum
 {
     /// <summary>Each member's key.</summary>
@@ -29,8 +29,6 @@ public sealed class InstalledKeys<TIdentity>
             if (!keys.TryGetValue(identity, out string? key) || string.IsNullOrEmpty(key))
                 throw new ArgumentException($"The {typeof(TIdentity).Name} member {identity} has no installed key.", nameof(keys));
         }
-        if (keys.Keys.Any(identity => !Enum.IsDefined(identity)))
-            throw new ArgumentException($"An installed key names no {typeof(TIdentity).Name} member.", nameof(keys));
         this.keys = keys.ToFrozenDictionary();
         identities = keys.GroupBy(entry => entry.Value, StringComparer.Ordinal).ToFrozenDictionary(
             group => group.Key,
@@ -42,10 +40,8 @@ public sealed class InstalledKeys<TIdentity>
     /// <summary>Every member's key, by member: the table a family keyed member by member reads its names from.</summary>
     public IReadOnlyDictionary<TIdentity, string> ByIdentity => keys;
 
-    /// <summary>The installed key of <paramref name="identity"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The identity is no member of <typeparamref name="TIdentity"/>.</exception>
-    [InstalledKey]
-    public string Of(TIdentity identity) => Ensure.Listed(keys, identity);
+    /// <summary>The installed key of <paramref name="identity"/>, which the table built from every member holds.</summary>
+    public string Of(TIdentity identity) => keys[identity];
 
     /// <summary>Whether <paramref name="key"/> is the installed key of a member, and that member, read without allocating.</summary>
     public bool TryParse(ReadOnlySpan<char> key, out TIdentity identity) =>

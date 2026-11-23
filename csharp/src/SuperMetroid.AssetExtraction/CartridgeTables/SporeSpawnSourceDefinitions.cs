@@ -7,14 +7,17 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps Spore Spawn's colour images (#1413): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed Spore Spawn colour document.
 /// </summary>
-[EncodingOwner("cartridge addresses of Spore Spawn's colour tables")]
-internal static class SporeSpawnSourceDefinitions
+internal static partial class SporeSpawnSourceDefinitions
 {
     /// <summary>$A5:E359, the spore colour image the initializer copies to sprite palette seven.</summary>
     internal const int SporeColors = 0xa5e359;
 
     /// <summary>$A5:E379..$A5:E3F8, the four consecutive health-stage body images.</summary>
     internal const int HealthColors = 0xa5e379;
+
+    /// <summary>The health bands in the order <see cref="HealthColors"/> holds their images: highest first.</summary>
+    internal static IReadOnlyList<SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBand> HealthTableOrder =>
+        SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst;
 
     /// <summary>$A5:E3F9..$A5:E4F8, the eight consecutive death-sequence body images.</summary>
     internal const int DeathSpriteColors = 0xa5e3f9;

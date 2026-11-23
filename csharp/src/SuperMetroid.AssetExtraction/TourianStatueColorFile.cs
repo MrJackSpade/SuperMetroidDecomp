@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads and writes the installed Tourian statue colour document.</summary>
-public static class TourianStatueColorFile
+public static partial class TourianStatueColorFile
 {
     /// <summary>Writes camel-case resource JSON and rejects unknown members on load.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -24,23 +24,21 @@ public static class TourianStatueColorFile
     {
         TourianStatueColorDocument document;
         document = JsonAssetDocument.Read<TourianStatueColorDocument>(json, Options, "Tourian statue color");
-        if (document.Version != TourianStatueColorFormat.Version ||
-            document.Eye is null || document.Eye.Length != TourianStatueColorDefinitions.EyeGlowCount)
-            throw new InvalidDataException("Tourian statue colors require four eye rows at the supported version.");
-        var eye = new RgbColor[document.Eye.Length][];
-        for (int row = 0; row < eye.Length; row++)
-            eye[row] = Compile(document.Eye[row], TourianStatueColorDefinitions.EyeColorCount,
-                $"eye row {row}");
+        if (document.Version != TourianStatueColorFormat.Version)
+            throw new InvalidDataException("Tourian statue colors require the supported version.");
+        Dictionary<SuperMetroid.Core.Areas.Tourian.TourianStatue, RgbColor[]> eye = Rgb5Rows.CompileKeyed(document.Eye,
+            [.. TourianStatueColorDefinitions.EyeGlows.Keys], statue => statue.ToString(), TourianStatueColorDefinitions.EyeColorCount,
+            "Tourian statue eye glow");
         return new(
             new(Compile(document.Base, TourianStatueColorFormat.BaseColorCount, "base")),
             new(Compile(document.Statue, TourianStatueColorFormat.StatueColorCount, "statue")),
-            new(eye.SelectMany(glow => glow).ToArray()),
+            eye.ToDictionary(glow => glow.Key, glow => new TourianStatuePalettes.PaletteBand(glow.Value)),
             new(Compile(document.Grey, TourianStatueColorDefinitions.GreyColorCount, "grey")));
     }
 
     /// <summary>Serializes the editable colors as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(TourianStatueColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.TourianStatueColorDocument>(Options));
 
     /// <summary>Checks a band's required length and five-bit channels before converting to hardware color words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? colors, int count, string label)

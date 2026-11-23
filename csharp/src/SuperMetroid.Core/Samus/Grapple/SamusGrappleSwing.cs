@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Swinging from a grapple point: the pendulum's angle, rope length and gravity, Samus's position and launch, and swing collision.</summary>
-public static class SamusGrappleSwing
+public static partial class SamusGrappleSwing
 {
     /// <summary>Places Samus at the pendulum body position and updates rope art, flare, and slow-scroll state.</summary>
     internal static void PositionSamusFromPendulum(
@@ -17,9 +17,10 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // A fast swing makes the camera scroll slowly.
-        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed);
+        grapple.FollowSwing(grapple.AngularVelocity.Magnitude >= GrappleSlowScrollDefinitions.FastSwingAngularSpeed
+            ? GrappleCameraScroll.Slow : GrappleCameraScroll.Ordinary);
         // The swing places the rope by the same collision point the terrain probes use. Besides scaling the
-        // angle's signed sine and cosine, it applies the block-side 7/8 endpoint bias documented in
+        // angle's signed sine and cosine, it applies the block-side endpoint bias documented in
         // CalculateCollisionPoint; using one point prevents visible art from disagreeing
         // with the collision body by one pixel.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
@@ -36,7 +37,7 @@ public static class SamusGrappleSwing
         // move the collision body. Stock art still selects the same frame.
         var direction = GrappleSwingDirection.Nearest(grapple.MirroredAngle.ToTrigonometryAngle());
         GrappleSwingPicture picture = grapple.Artwork.GrappleSwingFrames.Resolve(direction);
-        var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.IsFacingLeft(samus.Pose));
+        var offset = GrappleBodyPlacements.Offset(direction, SamusPoseMetadata.ReadFacingDirection(samus.Pose));
 
         SamusPresentation.ShowGrappleSwingPicture(samus, picture);
         samus.Position = samus.Position.WithWhole(new(ropeStart.Pixel.X + offset.X, ropeStart.Pixel.Y + offset.Y));
@@ -53,8 +54,8 @@ public static class SamusGrappleSwing
 
         // Samus leaves at twice the swing's speed, each step of turn a pixel, along each axis's share of the rope's
         // direction: downward where the swing's turn and the side of its anchor's level she hangs on point the same way.
-        // The swing speed is at most four and a half steps and the component at most one, so each speed stays below 256
-        // pixels and never wraps. A release with no vertical speed still heads the way the two point: down unless exactly
+        // The swing speed and the component are both small, so each speed stays a few pixels an update. A release with no
+        // vertical speed still heads the way the two point: down unless exactly
         // one of them points back.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FromDisplacement(cosine.VelocityOf(releaseTurn),
             atRest: grapple.AngularVelocity.IsNegative == cosine.IsNegative ? VerticalDirection.Down : VerticalDirection.Up);
@@ -136,7 +137,7 @@ public static class SamusGrappleSwing
         if (grapple.RopeLengthDelta == 0)
             return;
 
-        // The rope-length adjustment does not jump directly by two pixels. It walks each intermediate length
+        // The rope-length adjustment does not jump directly by its step. It walks each intermediate length
         // and collision-tests Samus's leading edge, which prevents a fast rope adjustment
         // from tunnelling through a one-pixel boundary. Shortening probes her hand end; growing
         // probes her feet end, the two ends of the body line the swing sweeps.
@@ -261,9 +262,7 @@ public static class SamusGrappleSwing
         // The swing only admits this extra angular impulse while its terrain bounce lasts
         // (GrappleBeamDefinitions.Physics.CollisionBounceFrames). It is separate from ordinary Samus jump velocity and decays
         // inside the angular movement only after a successful angular movement pass.
-        // The kick reads Jump, not Dash. That test must agree with the release-window
-        // check, or tight anchors become inescapable using Jump even though the
-        // unrelated Dash accidentally supplies the kick.
+        // A fresh Jump during the bounce gives the kick, as it opens the release window.
         if (grapple.CollisionBounceTimer.IsRunning &&
             (newlyPressedInput & GameplayAction.Jump) != GameplayAction.None)
         {
@@ -282,8 +281,7 @@ public static class SamusGrappleSwing
         SamusGrappleState grapple)
     {
         // The angular movement first converts angular velocity into an angle delta, then walks from the
-        // current whole angle step to the target one step at a time. Fractional-only motion
-        // within the same step has no sweep, exactly as the target-step equality branch.
+        // current whole angle step to the target one step at a time; motion within one angle step sweeps nothing.
         // A submerged swing turns through only a share of its speed, rounded toward no turning.
         AngularSpeed combined = grapple.AngularVelocity + grapple.JumpImpulse;
         AngularSpeed turn = grapple.Submerged
@@ -298,12 +296,9 @@ public static class SamusGrappleSwing
         // A turning swing is never at rest here: a still one returned above.
         int stepDirection = Math.Sign(combined.FractionsOfStep);
 
-        // At the maximum velocity this loop executes at most five times. Keep an
-        // explicit one-turn guard anyway: it documents the cyclic angle domain and turns a
-        // future corrupt state into a diagnostic rather than an infinite loop.
-        for (int angleSteps = 0;
-             lastSafeStep != targetStep && angleSteps < RotationAngle.StepsPerTurn;
-             angleSteps++)
+        // The walk steps the way the swing turns toward its target, which the cyclic angle reaches within one turn; at the
+        // maximum velocity it takes at most five steps.
+        while (lastSafeStep != targetStep)
         {
             TrigonometryAngle candidateStep = lastSafeStep.TurnedBySteps(stepDirection);
             GrappleSwingCollisionResult collision = ProbeSwingingBody(
@@ -341,9 +336,6 @@ public static class SamusGrappleSwing
 
             lastSafeStep = candidateStep;
         }
-
-        if (lastSafeStep != targetStep)
-            throw new InvalidDataException("Grapple angle sweep exceeded one full revolution.");
 
         // No sampled angle collided, so preserve the full fine target, clear the special
         // angle rest, age the kick window, and damp the extra velocity. Every one of
@@ -423,6 +415,53 @@ public static class SamusGrappleSwing
     private static int BiasedWithinBlock(int anchor, UnitComponent ropeComponent) =>
         RoomGridConversions.BlockStart(anchor) + (ropeComponent.IsNegative ? GrappleBeamDefinitions.Swing.AnchorBiasTowardNegative : GrappleBeamDefinitions.Swing.AnchorBiasTowardPositive);
 
+    /// <summary>What <see cref="IsSwingCollision"/> comes to for each <see cref="RoomCollisionType"/> member, each member's own arm.</summary>
+    private static IdentityTable<RoomCollisionType, Func<SamusState, RoomCollisionBlock, bool>> IsSwingCollisionForRoomCollisionType => field ??= new(new Dictionary<RoomCollisionType, Func<SamusState, RoomCollisionBlock, bool>>
+    {
+        // The swing step intentionally treats shootable/bombable air as air;
+        // unlike a firing endpoint, body contact does not spawn their room objects.
+        [RoomCollisionType.Air] = static (samus, block) => false,
+        [RoomCollisionType.SpecialAir] = static (samus, block) => false,
+        [RoomCollisionType.ShootableAir] = static (samus, block) => false,
+        [RoomCollisionType.UnrevealedAir] = static (samus, block) => false,
+        [RoomCollisionType.BombableAir] = static (samus, block) => false,
+        [RoomCollisionType.SpikeAir] = static (samus, block) =>
+        {
+            // Spike air is harmless to the swing except damaging spike air, which queues
+            // its light damage. It never collides, but it still starts the common
+            // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
+            // SpikeHazardDefinitions.KnockbackFrames). The timer
+            // check must precede the behaviour lookup so a second radial probe in this
+            // same sweep cannot queue damage again.
+            ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
+            return false;
+        },
+        // Slopes are unconditional collision in this grapple-specific step.
+        [RoomCollisionType.Slope] = static (samus, block) => true,
+        [RoomCollisionType.SolidBlock] = static (samus, block) => true,
+        [RoomCollisionType.DoorBlock] = static (samus, block) => true,
+        [RoomCollisionType.SpecialBlock] = static (samus, block) => true,
+        [RoomCollisionType.ShootableBlock] = static (samus, block) => true,
+        [RoomCollisionType.GrappleBlock] = static (samus, block) => true,
+        [RoomCollisionType.BombableBlock] = static (samus, block) => true,
+        [RoomCollisionType.SpikeBlock] = static (samus, block) =>
+        {
+            // The solid spike reaction always reports collision. Before reporting it, it applies
+            // the heavy spike's damage or the light spike's; every other spike deals
+            // none.
+            ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
+            return true;
+        },
+        [RoomCollisionType.HorizontalExtension] = static (samus, block) => IsSwingCollisionForRoomCollisionTypeHorizontalExtension(samus, block),
+        [RoomCollisionType.VerticalExtension] = static (samus, block) => IsSwingCollisionForRoomCollisionTypeHorizontalExtension(samus, block),
+    });
+
+    /// <summary>What <see cref="IsSwingCollisionForRoomCollisionType"/> does for <see cref="RoomCollisionType.HorizontalExtension"/>, <see cref="RoomCollisionType.VerticalExtension"/>.</summary>
+    private static bool IsSwingCollisionForRoomCollisionTypeHorizontalExtension(SamusState samus, RoomCollisionBlock block)
+    {
+        throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
+    }
+
 /// <summary>Resolves grapple swing collision through block extensions, including damaging spike reactions.</summary>
     private static bool IsSwingCollision(
         RoomLevelData level,
@@ -438,58 +477,13 @@ public static class SamusGrappleSwing
         // edge-solid block (ContinuedBlocks); an extension that ends its chain behaves as air.
         if (level.GrappleBlockStoodFor(block) is not { } stoodFor)
             return false;
-        block = stoodFor;
-        switch (block.CollisionType)
-        {
-            // The swing step intentionally treats shootable/bombable air as air;
-            // unlike a firing endpoint, body contact does not spawn their room objects.
-            case RoomCollisionType.Air:
-            case RoomCollisionType.SpecialAir:
-            case RoomCollisionType.ShootableAir:
-            case RoomCollisionType.UnrevealedAir:
-            case RoomCollisionType.BombableAir:
-                return false;
-
-            case RoomCollisionType.SpikeAir:
-                // Spike air is harmless to the swing except damaging spike air, which queues
-                // 16 damage. It never collides, but it still starts the common
-                // spike invulnerability and knockback (SpikeHazardDefinitions.InvincibilityFrames,
-                // SpikeHazardDefinitions.KnockbackFrames). The timer
-                // check must precede the behaviour lookup so a second radial probe in this
-                // same six-point sweep cannot queue damage again.
-                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Plain);
-                return false;
-
-            // Slopes are unconditional collision in this grapple-specific step.
-            case RoomCollisionType.Slope:
-            case RoomCollisionType.SolidBlock:
-            case RoomCollisionType.DoorBlock:
-            case RoomCollisionType.SpecialBlock:
-            case RoomCollisionType.ShootableBlock:
-            case RoomCollisionType.GrappleBlock:
-            case RoomCollisionType.BombableBlock:
-                return true;
-
-            case RoomCollisionType.SpikeBlock:
-                // The solid spike reaction always reports collision. Before reporting it, it applies
-                // 60 damage for the heavy spike or 16 for the light spike; every other spike deals
-                // none.
-                ApplySwingSpikeDamage(samus, block.Behavior.Spike, block: SwingSpikeBlock.Solid);
-                return true;
-
-            case RoomCollisionType.HorizontalExtension:
-            case RoomCollisionType.VerticalExtension:
-                throw new InvalidOperationException($"Continuing block {block.Position} reached the grapple's swing in place of the block it stands for.");
-
-            default:
-                throw new InvalidDataException(
-                    $"Invalid grapple swing collision type {block.CollisionType}.");
-        }
+        block = stoodFor.Block;
+        return IsSwingCollisionForRoomCollisionType[block.CollisionType](samus, block);
     }
 
 /// <summary>Rechecks the stored endpoint through the firing step and retains the connection while the block there stops the beam.</summary>
     internal static bool IsStillConnectedToSupportedBlock(
-        SamusTerrain terrain,
+        RoomTerrain terrain,
         SamusState samus,
         SamusGrappleState grapple)
     {
@@ -497,10 +491,9 @@ public static class SamusGrappleSwing
         // only whether the block stops the beam. A persistent anchor, revealed or unrevealed by the X-ray scope, therefore stays connected; replacing
         // it with air disconnects. Room-object-producing dynamic blocks retain their explicit stop.
         GrappleBlockReaction reaction = SamusGrappleMovement.ReactAtEndpoint(
-            terrain.Level,
+            terrain,
             samus,
-            grapple.Anchor,
-            terrain.RoomObjects);
+            grapple.Anchor);
         return reaction.Collides();
     }
 
@@ -511,20 +504,16 @@ public static class SamusGrappleSwing
         SwingSpikeBlock block)
     {
         // Both steps return immediately while the invincibility timer is nonzero. This shared guard is observable
-        // because one sweep can sample the same damaging block up to six times, yet only its first sample may publish
+        // because one sweep can sample the same damaging block once for each of its points, yet only its first sample may publish
         // damage. Every reaction other than the damaging ones, and a spike with no reaction, deals none.
         if (!samus.InvincibilityTimer.IsZero)
             return;
 
         // The swing's own selection: the turret spike, which the ground collision treats as light, costs nothing here.
-        int damage = block == SwingSpikeBlock.Solid
-            ? reaction == SpikeReaction.HeavySpike ? SpikeHazardDefinitions.HeavySpikeDamage
-                : reaction == SpikeReaction.LightSpike ? SpikeHazardDefinitions.LightSpikeDamage
-                : 0
-            : reaction == SpikeReaction.DamagingSpikeAir
-                ? SpikeHazardDefinitions.LightSpikeDamage
-                : 0;
-        if (damage == 0)
+        IReadOnlyDictionary<SpikeReaction, int> damages = block == SwingSpikeBlock.Solid
+            ? SamusGrappleSpikeDefinitions.SolidBlockSwingDamage
+            : SamusGrappleSpikeDefinitions.PlainBlockSwingDamage;
+        if (reaction is not { } spike || !damages.TryGetValue(spike, out int damage))
             return;
 
         samus.PeriodicDamage.Accumulate(EnergyAmount.FromEnergy(damage));

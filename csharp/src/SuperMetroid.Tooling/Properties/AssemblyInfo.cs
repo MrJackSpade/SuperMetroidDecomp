@@ -6,3 +6,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.IntegrationVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.RenderVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DesktopVerification")]
+[assembly: InternalsVisibleTo("SuperMetroid.MovieVideo")]
+[assembly: SuperMetroid.Core.StateGraphAssembly(PartialTypesOnly = true)]

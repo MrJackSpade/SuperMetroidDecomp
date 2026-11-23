@@ -6,22 +6,21 @@ using System.Text.Json.Serialization;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Drawing;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Extracts Samus's split body DMA into indexed PNG atlases and selector JSON, which are the body component's import data
-/// (#1636, #1638), and installs what the game binds of the body: each pose's art origin and every body frame the body sheet
+/// Decodes Samus's split body tables once into named half pictures, each an indexed PNG, and the decoded body JSON, which
+/// are the body component's import data (#1636, #1638, #2556), and installs what the game binds of the body: each pose's art origin and every body frame the body sheet
 /// pictures, with where that frame places the body.
 /// </summary>
 /// <remarks>
-/// Each definition occupies sixteen 4-bpp tiles (64 by 16 pixels) in its set's PNG.
-/// Unused tiles are zero. Native transfer sizes and pose/frame choices live in the extracted JSON;
+/// Each half picture occupies sixteen 4-bpp tiles (64 by 16 pixels) in its own PNG.
+/// Unused tiles are zero. Transfer sizes and what each pose frame shows live in the decoded JSON;
 /// no game mechanics or animation delay bytes are represented here.
 /// </remarks>
-public static class SamusBodyArtworkFiles
+public static partial class SamusBodyArtworkFiles
 {
     /// <summary>
     /// Installed body JSON filename (#1638): each pose's art origin and every body frame the body sheet pictures, with where
@@ -29,10 +28,10 @@ public static class SamusBodyArtworkFiles
     /// </summary>
     public const string ManifestFileName = "samus-body.json";
     /// <summary>
-    /// Import-data JSON filename of the extracted body (#1638): split-DMA definitions, pose/frame selectors, spritemaps, whose
-    /// parts are packed sprite placements, body placements, and the body pages' provenance hashes.
+    /// Import-data JSON filename of the decoded body (#1638, #2556): what each pose frame shows, the half pictures' transfer
+    /// sizes, the compositions, whose parts are packed sprite placements, and the half pictures' provenance hashes.
     /// </summary>
-    public const string ArtworkFileName = "samus-body-artwork.json";
+    internal const string ArtworkFileName = "samus-body-artwork.json";
     /// <summary>
     /// Manifest revision containing source hashes, selectors, spritemaps stored as sprite parts, and body placements.
     /// Revision nine holds each pose's placement and its frames' own placements instead of the cartridge's offset tables
@@ -46,12 +45,14 @@ public static class SamusBodyArtworkFiles
     /// installs the body without the cartridge's digest and the arm cannon and death documents without manifests (#1693).
     /// Revision fifteen keys each pose's frames by their names in the pose's animation, the segment and the frame within it,
     /// and installs the frames each pose shows with the picture frame each draws (#2048). Revision sixteen names each
-    /// pose's art origin <c>artOrigin</c> (#2113).
+    /// pose's art origin <c>artOrigin</c> (#2113). Revision seventeen records a frame that names no lower half with no
+    /// lower group, as null (#2558). Revision eighteen stores the import data decoded: each pose frame's named
+    /// half pictures, placement and compositions, one image per half picture, and no cartridge table (#2556).
     /// </summary>
-    private const int FormatVersion = 16;
-    /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
+    private const int FormatVersion = 18;
+    /// <summary>Each half picture occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
-    /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
+    /// <summary>Two tile rows reserve sixteen graphics tiles for one half picture.</summary>
     private const int DefinitionHeight = 16;
 
     /// <summary>Serializes strict camel-case manifests and rejects unknown JSON members.</summary>
@@ -66,13 +67,14 @@ public static class SamusBodyArtworkFiles
     };
 
     /// <summary>
-    /// Writes Samus's upper/lower body PNG sets and visual selector JSON to the import data, together with linked
-    /// atmospheric, death, and arm-cannon artwork, and installs what the game binds of the body (#1638).
+    /// Decodes Samus's body tables once (#2556) and writes each half picture's PNG and the decoded body JSON to the import
+    /// data, together with linked atmospheric, death, and arm-cannon artwork, and installs what the game binds of the body
+    /// (#1638).
     /// </summary>
     /// <param name="bus">Non-null cartridge address space supplying native body DMA definitions, pose/frame tables, spritemaps, offsets, and linked artwork.</param>
-    /// <param name="directory">Stock output directory, created if needed; the installed body JSON is overwritten and the body pages and the extracted JSON go to its import-data directory (#1636, #1638), while linked extractors retain their own file-creation policies.</param>
+    /// <param name="directory">Stock output directory, created if needed; the installed body JSON is overwritten and the half pictures and the extracted JSON go to its import-data directory (#1636, #1638), while linked extractors retain their own file-creation policies.</param>
     /// <param name="sourceCartridgeSha256">Source cartridge SHA-256 recorded in body and linked manifests; installed loading requires the supported revision.</param>
-    /// <remarks>Each DMA definition uses a zero-padded 64x16 four-bit character slot. Gameplay and animation-delay bytes are not exported.</remarks>
+    /// <remarks>Each half picture uses a zero-padded 64x16 four-bit character slot. Gameplay and animation-delay bytes are not exported.</remarks>
     /// <exception cref="InvalidDataException">Native DMA bounds, sizes, spritemaps, or linked cartridge sources are invalid.</exception>
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
@@ -81,71 +83,46 @@ public static class SamusBodyArtworkFiles
         Directory.CreateDirectory(directory);
         string importData = SuperMetroid.AssetExtraction.Installation.ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
-        ushort[] topPointers = ReadPointers(bus,
-            SamusSourceDefinitions.TopDefinitionListPointers.Value,
-            SamusBodySources.TopSetCount);
-        ushort[] bottomPointers = ReadPointers(bus,
-            SamusSourceDefinitions.BottomDefinitionListPointers.Value,
-            SamusBodySources.BottomSetCount);
-        ushort[] posePointers = ReadPointers(bus,
-            SamusSourceDefinitions.AnimationDefinitionListPointers.Value,
-            SamusBodySources.PoseCount);
-        int[] topSetStarts = [.. topPointers.Select(pointer => BodyRecord(pointer))];
-        int[] bottomSetStarts = [.. bottomPointers.Select(pointer => BodyRecord(pointer))];
-        // The pose tables are read by the cartridge's pose numbers and installed by pose name (#1595).
-        Dictionary<SamusPoseId, int> poseFirstFrames = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose,
-            pose => BodyFrame(posePointers[SamusPoseNumbers.Number(pose)]));
-        int[] artOrigins = Enumerable.Range(0, SamusBodySources.PoseCount)
-            .Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
-                SamusSourceDefinitions.PoseDefinitions.Value +
-                pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4)))
-            .ToArray();
-        var frames = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        for (int index = 0; index < frames.Length; index++)
-        {
-            int address = SamusSourceDefinitions.BodyFrames.Value + index * 4;
-            frames[index] = new SamusBodyFrameSelection(bus.ReadCartridgeByte(address),
-                bus.ReadCartridgeByte(address + 1), bus.ReadCartridgeByte(address + 2), bus.ReadCartridgeByte(address + 3));
-        }
-
-        ushort[] allPointers = topPointers.Concat(bottomPointers).OrderBy(value => value).ToArray();
+        // The import decides once which frames her body can show and which body frames the sheet pictures, from the frames
+        // her animation shows as the game's layout of the programs reads them; the tables are decoded for those frames.
+        SamusShownFrames shown = new SamusShownFrameAnalysis(SamusAnimationLayout.Read(bus)).Installed();
+        SamusBodyDecoded decoded = SamusBodyTableDecoding.Decode(bus, shown, out IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> transfers);
         var hashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        DefinitionEntry[][] top = ExtractHalf(bus, importData, topPointers, allPointers, true, hashes);
-        DefinitionEntry[][] bottom = ExtractHalf(bus, importData, bottomPointers, allPointers, false, hashes);
-        Dictionary<SamusPoseId, int> spritemapTopBases = ByPose(ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapTopBases.Value, SamusBodySources.PoseCount));
-        Dictionary<SamusPoseId, int> spritemapBottomBases = ByPose(ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapBottomBases.Value, SamusBodySources.PoseCount));
-        ushort[] spritemapPointers = ReadPointers(bus,
-            SamusSourceDefinitions.SpritemapPointers.Value, SamusSpritemapSources.EntryCount);
-        // Compositions install in record order, so a composition's identity is its place among the referenced records.
-        ushort[] compositions = [.. spritemapPointers.Distinct().Where(pointer => pointer != 0).Order()];
-        SpriteVisualPart[][] spritemaps = [.. compositions.Select(pointer => ReadSpritemap(bus, pointer))];
-        int?[] spritemapEntries = [.. spritemapPointers.Select(pointer =>
-            pointer == 0 ? (int?)null : Array.BinarySearch(compositions, pointer))];
-        int[] landingOffsets = Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.LandingByteCount)
-            .Select(index => (int)bus.ReadCartridgeByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + index)).ToArray();
-        int[] postureOffsets = Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.PostureByteCount)
-            .Select(index => (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value + index))).ToArray();
-        int[] drainedOffsets = Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.DrainedByteCount)
-            .Select(index => (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.DrainedVerticalOffsets.Value + index))).ToArray();
-        // The placement tables are decoded here, once; the installation holds each pose's and frame's placement (#1517).
-        Dictionary<SamusPoseId, SamusBodyPosePlacement> placements =
-            SamusBodyPlacementDecoding.Decode(artOrigins, landingOffsets, postureOffsets, drainedOffsets);
+        var pictures = new Dictionary<string, PictureEntry>(StringComparer.Ordinal);
+        foreach ((SamusBodyPicture picture, SamusBodyTileTransfer transfer) in transfers)
+        {
+            byte[] planar = new byte[SamusBodyCharacterArtwork.BytesPerDefinitionSlot];
+            transfer.Planar.Span.CopyTo(planar);
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, TileWidth / 8, out Extent16<ImagePixels> size);
+            using var png = new MemoryStream();
+            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
+            string name = FileName(picture);
+            byte[] bytes = png.ToArray();
+            File.WriteAllBytes(Path.Combine(importData, name), bytes);
+            hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
+            pictures.Add(picture.Name, new PictureEntry(transfer.FirstSize, transfer.SecondSize));
+        }
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
-            topSetStarts, bottomSetStarts, poseFirstFrames, placements,
-            frames, top, bottom, spritemapTopBases, spritemapBottomBases,
-            spritemapEntries, spritemaps, hashes);
+            decoded.ArtOrigins.ToDictionary(),
+            decoded.Frames.ToDictionary(pose => pose.Key, pose =>
+            {
+                SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose.Key);
+                return pose.Value.ToDictionary(frame => animation.NameOf(SamusAnimationLayout.FrameAt(animation, frame.Key)),
+                    frame => new FrameEntry(frame.Value.OriginRise, frame.Value.Pictures.Top.Name, frame.Value.Pictures.Bottom?.Name,
+                        frame.Value.TopComposition?.Name, frame.Value.BottomComposition?.Name), StringComparer.Ordinal);
+            }),
+            pictures,
+            decoded.Compositions.ToDictionary(pair => pair.Key.Name, pair => pair.Value, StringComparer.Ordinal),
+            decoded.Explosion.ToDictionary(pair => pair.Key, pair => pair.Value?.Name, StringComparer.Ordinal),
+            decoded.Atmosphere.ToDictionary(pair => pair.Key, pair => pair.Value?.Name, StringComparer.Ordinal),
+            hashes);
         SamusAtmosphericArtworkFiles.Extract(bus, importData, sourceCartridgeSha256);
         SamusDeathPaletteArtworkFiles.Extract(bus, directory, importData);
         SamusDeathTileArtworkFiles.Extract(bus, importData);
         SamusArmCannonArtworkFiles.Extract(bus, importData);
         File.WriteAllBytes(Path.Combine(importData, ArtworkFileName),
-            JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
-        // The import decides once which frames her body can show and which body frames the sheet pictures, from the frames
-        // her animation shows as the game's layout of the programs reads them, and installs them with their placements: the
-        // game binds those and nothing else.
-        SamusShownFrames shown = new SamusShownFrameAnalysis(SamusAnimationLayout.Read(CartridgeImportSource.Require(bus))).Installed();
+            JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Manifest>(JsonOptions)));
+        // The installation holds the frames the body sheet pictures with their placements: the game binds those and nothing else.
         InstalledSamusBody installed = LoadForImport(directory, importData).InstalledBody(shown);
         SamusArmCannonArtworkFiles.Install(directory, installed.ArmCannon);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
@@ -157,7 +134,7 @@ public static class SamusBodyArtworkFiles
                         installed.FramesOf(pose).ToDictionary(pair => animation.NameOf(pair.Key), pair => pair.Value, StringComparer.Ordinal),
                         installed.ShownFrames.PictureFrames[pose].OrderBy(pair => pair.Key, animation.FrameOrder).ToDictionary(
                             pair => animation.NameOf(pair.Key), pair => animation.NameOf(pair.Value), StringComparer.Ordinal));
-                })), JsonOptions));
+                })), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.GameManifest>(JsonOptions)));
     }
 
     /// <summary>
@@ -196,14 +173,14 @@ public static class SamusBodyArtworkFiles
     }
 
     /// <summary>
-    /// Validates and compiles the Samus body as the import reads it (#1638): the extracted body JSON, atmosphere and arm cannon
-    /// from the import data <paramref name="importData"/>, and the installed death steps in <paramref name="directory"/>. No
-    /// character page is read (#1636).
+    /// Validates and compiles the Samus body as the import reads it (#1638, #2556): the decoded body JSON, atmosphere and
+    /// arm cannon from the import data <paramref name="importData"/>, and the installed death steps in
+    /// <paramref name="directory"/>. No half picture is read (#1636).
     /// </summary>
     /// <param name="directory">The component directory, holding the installed death documents and the arm cannon's manifest.</param>
-    /// <param name="importData">The component's import-data directory, holding the extracted body, atmosphere and arm cannon.</param>
+    /// <param name="importData">The component's import-data directory, holding the decoded body, atmosphere and arm cannon.</param>
     /// <exception cref="InvalidDataException">Metadata or linked artwork are invalid; diagnostics retain the offending filename.</exception>
-    public static SamusBodySources LoadForImport(string directory, string importData)
+    internal static SamusBodySources LoadForImport(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         SamusArtworkFile manifestFile = SamusArtworkFile.Read(Path.Combine(importData, ArtworkFileName));
@@ -216,14 +193,15 @@ public static class SamusBodyArtworkFiles
     }
 
     /// <summary>
-    /// Validates and compiles the Samus body as the import reads it and its characters, from which the body sheets are
-    /// composed: the extracted documents and the body pages in the import data <paramref name="importData"/> (#1636, #1638).
+    /// Validates and compiles the Samus body as the import reads it and its half pictures, from which the body sheets are
+    /// composed: the decoded documents and the half pictures' images in the import data <paramref name="importData"/>
+    /// (#1636, #1638, #2556).
     /// </summary>
     /// <param name="directory">The component directory, holding the installed death documents and the arm cannon's manifest.</param>
-    /// <param name="importData">The component's import-data directory, holding the extracted documents and the body pages.</param>
-    /// <returns>The split-DMA characters, bound to the body catalog.</returns>
-    /// <remarks>Transfer sizes and references are validated, and unused page-slot tiles must stay zero.</remarks>
-    /// <exception cref="InvalidDataException">Metadata, sizes, page padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
+    /// <param name="importData">The component's import-data directory, holding the decoded documents and the half pictures.</param>
+    /// <returns>The half pictures' characters, bound to the body catalog.</returns>
+    /// <remarks>Transfer sizes and references are validated, and unused slot tiles must stay zero.</remarks>
+    /// <exception cref="InvalidDataException">Metadata, sizes, slot padding, or linked artwork are invalid; diagnostics retain the offending filename.</exception>
     public static SamusBodyCharacterArtwork LoadCharacters(string directory, string importData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
@@ -232,188 +210,93 @@ public static class SamusBodyArtworkFiles
         return manifestFile.WithContext(() =>
         {
             ValidateManifest(manifest);
-            return SamusBodyCharacterArtwork.Create(Parts(directory, importData, manifest),
-                LoadHalf(importData, manifest, true), LoadHalf(importData, manifest, false));
+            return SamusBodyCharacterArtwork.Create(Parts(directory, importData, manifest), LoadPictures(importData, manifest));
         });
     }
 
-    /// <summary>Exports each upper or lower DMA set as a padded page into <paramref name="importData"/> and records its native source sizes.</summary>
-    private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string importData,
-        ushort[] pointers, ushort[] sortedPointers, bool upperHalf,
-        Dictionary<string, string> hashes)
-    {
-        var sets = new DefinitionEntry[pointers.Length][];
-        for (int set = 0; set < pointers.Length; set++)
-        {
-            int start = pointers[set];
-            int order = Array.IndexOf(sortedPointers, pointers[set]);
-            int end = order + 1 == sortedPointers.Length ? SamusSourceDefinitions.FirstBodyDefinition + SamusBodySources.RecordCount * SamusSourceDefinitions.BodyDefinitionBytes : sortedPointers[order + 1];
-            if (start < SnesBusLayout.RomWindowStart || end <= start || (end - start) % 7 != 0)
-                throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
-            int count = (end - start) / 7;
-            byte[] planar = new byte[count * SamusBodyCharacterArtwork.BytesPerDefinitionSlot];
-            sets[set] = new DefinitionEntry[count];
-            for (int position = 0; position < count; position++)
-            {
-                int definitionAddress = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, start + position * 7);
-                int sourceOffset = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress);
-                int sourceBank = bus.ReadCartridgeByte(definitionAddress + 2);
-                int firstSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 3));
-                int secondSize = CartridgeImportSource.Require(bus).ReadCartridgeWord((definitionAddress + 5));
-                int byteCount = firstSize + secondSize;
-                if (sourceOffset < SnesBusLayout.RomWindowStart || firstSize == 0 || byteCount >
-                    SamusBodyCharacterArtwork.BytesPerDefinitionSlot || byteCount % 32 != 0 ||
-                    sourceOffset + byteCount > CartridgeFormatDefinitions.BankByteCount)
-                    throw new InvalidDataException($"Invalid Samus body DMA at ${definitionAddress:X6}.");
-                int sourceAddress = ((int)SnesAddress.InBank(sourceBank, sourceOffset));
-                for (int i = 0; i < byteCount; i++)
-                    planar[position * SamusBodyCharacterArtwork.BytesPerDefinitionSlot + i] =
-                        bus.ReadCartridgeByte(sourceAddress + i);
-                sets[set][position] = new DefinitionEntry(firstSize, secondSize);
-            }
-            byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, TileWidth / 8,
-                out Extent16<ImagePixels> size);
-            using var png = new MemoryStream();
-            IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-            string name = FileName(upperHalf, set);
-            byte[] bytes = png.ToArray();
-            File.WriteAllBytes(Path.Combine(importData, name), bytes);
-            hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
-        }
-        return sets;
-    }
-
-    /// <summary>The body's tables with its spritemaps and all linked Samus document catalogs, as the import reads them.</summary>
+    /// <summary>The decoded body with its compositions and all linked Samus document catalogs, as the import reads them.</summary>
+    /// <exception cref="InvalidDataException">A frame name names no frame of its pose's animation, or two name one frame.</exception>
     private static SamusBodyArtworkParts Parts(string directory, string importData, Manifest manifest)
     {
-        var spritemaps = new SamusSpritemapSources(manifest.SpritemapTopBases,
-            manifest.SpritemapBottomBases,
-            [.. manifest.SpritemapEntries.Select(entry => entry is { } ordinal ? new SamusSpritemapId(ordinal) : (SamusSpritemapId?)null)],
-            [.. manifest.Spritemaps.Select(parts => new SamusSpritemapDefinition(
-                [.. parts.Select(part => part.ToSpritePart(SpriteArtwork.CharactersPerRow))]))]);
-        SamusAtmosphericSourceArtwork atmosphere = SamusAtmosphericArtworkFiles.Load(importData);
-        SuperMetroid.Core.Samus.Death.SamusDeathSteps deathSteps = SamusDeathPaletteArtworkFiles.LoadSteps(directory);
-        SamusArmCannonSourceArtwork armCannon = SamusArmCannonArtworkFiles.LoadForImport(importData);
-        return new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, Placements = manifest.Placements, Frames = manifest.Frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathSteps, ArmCannon = armCannon };
+        var frames = new Dictionary<SamusPoseId, IReadOnlyDictionary<int, SamusBodyDecodedFrame>>();
+        foreach ((SamusPoseId pose, Dictionary<string, FrameEntry> entries) in manifest.Poses)
+        {
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+            var decoded = new Dictionary<int, SamusBodyDecodedFrame>();
+            foreach ((string name, FrameEntry entry) in entries)
+            {
+                int frame = SamusAnimationLayout.Offset(animation, animation.FrameNamed(name));
+                SamusSpritemapId? top = Composition(entry.TopComposition), bottom = Composition(entry.BottomComposition);
+                if (!decoded.TryAdd(frame, new SamusBodyDecodedFrame(new SamusBodyFramePictures(new SamusBodyPicture(entry.Top),
+                        entry.Bottom is { } lower ? new SamusBodyPicture(lower) : null), entry.OriginRise, top, bottom)))
+                    throw new InvalidDataException($"Samus body frame {name} of {pose} names a frame another name names.");
+            }
+            frames.Add(pose, decoded);
+        }
+        var decodedBody = new SamusBodyDecoded(manifest.ArtOrigins, frames,
+            manifest.Compositions.ToDictionary(pair => new SamusSpritemapId(pair.Key), pair => pair.Value),
+            manifest.Explosion.ToDictionary(pair => pair.Key, pair => Composition(pair.Value), StringComparer.Ordinal),
+            manifest.Atmosphere.ToDictionary(pair => pair.Key, pair => Composition(pair.Value), StringComparer.Ordinal));
+        return decodedBody.Parts(SamusAtmosphericArtworkFiles.Load(importData), SamusDeathPaletteArtworkFiles.LoadSteps(directory),
+            SamusArmCannonArtworkFiles.LoadForImport(importData));
+
+        static SamusSpritemapId? Composition(string? name) => name is null ? null : new SamusSpritemapId(name);
     }
 
-    /// <summary>Re-encodes the page sets in <paramref name="importData"/> into native planar bytes and rejects painted padding tiles.</summary>
-    private static SamusBodyTileTransfer[][] LoadHalf(string importData, Manifest manifest, bool upperHalf)
+    /// <summary>Re-encodes each half picture's image in <paramref name="importData"/> into native planar bytes and rejects painted padding tiles.</summary>
+    private static Dictionary<SamusBodyPicture, SamusBodyTileTransfer> LoadPictures(string importData, Manifest manifest)
     {
-        DefinitionEntry[][] metadata = upperHalf ? manifest.Top : manifest.Bottom;
-        var result = new SamusBodyTileTransfer[metadata.Length][];
-        for (int set = 0; set < metadata.Length; set++)
+        var result = new Dictionary<SamusBodyPicture, SamusBodyTileTransfer>();
+        foreach ((string pictureName, PictureEntry entry) in manifest.Pictures)
         {
-            string name = FileName(upperHalf, set);
+            var picture = new SamusBodyPicture(pictureName);
+            string name = FileName(picture);
             if (!manifest.Hashes.ContainsKey(name))
                 throw new InvalidDataException($"Samus body manifest omits {name}.");
             // Sizes belong to JSON, not to the PNG codec. Reject them under the
             // manifest's context before reading any image that uses the sizes.
-            foreach (DefinitionEntry entry in metadata[set])
-                if (entry is null || entry.FirstSize == 0 ||
-                    entry.FirstSize + entry.SecondSize > SamusBodyCharacterArtwork.BytesPerDefinitionSlot ||
-                    (entry.FirstSize + entry.SecondSize) % 32 != 0)
-                    throw new InvalidDataException($"Samus body definition {name} has invalid sizes.");
+            if (entry is null || entry.FirstSize == 0 || entry.FirstSize + entry.SecondSize > SamusBodyCharacterArtwork.BytesPerDefinitionSlot ||
+                (entry.FirstSize + entry.SecondSize) % 32 != 0)
+                throw new InvalidDataException($"Samus body picture {name} has invalid sizes.");
             SamusArtworkFile selected = SamusArtworkFile.Read(Path.Combine(importData, name));
-            int height = checked(metadata[set].Length * DefinitionHeight);
-            result[set] = selected.Compile(stream => DecodeSet(stream));
-
-            SamusBodyTileTransfer[] DecodeSet(Stream stream)
+            result.Add(picture, selected.Compile(stream =>
             {
-                IndexedPngImage image = IndexedPng.Read(stream, new(TileWidth, checked((ushort)height)));
-                byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(TileWidth, checked((ushort)height)), 4);
-                var definitions = new SamusBodyTileTransfer[metadata[set].Length];
-                for (int position = 0; position < definitions.Length; position++)
-                {
-                    DefinitionEntry entry = metadata[set][position];
-                    int byteCount = entry.FirstSize + entry.SecondSize;
-                    ReadOnlySpan<byte> slot = planar.AsSpan(
-                        position * SamusBodyCharacterArtwork.BytesPerDefinitionSlot,
-                        SamusBodyCharacterArtwork.BytesPerDefinitionSlot);
-                    if (slot[byteCount..].IndexOfAnyExcept((byte)0) >= 0)
-                        throw new InvalidDataException($"Samus body PNG {name} paints unused tiles in definition {position}.");
-                    definitions[position] = new SamusBodyTileTransfer(
-                        checked((ushort)entry.FirstSize), checked((ushort)entry.SecondSize),
-                        slot[..byteCount].ToArray());
-                }
-                return definitions;
-            }
+                IndexedPngImage image = IndexedPng.Read(stream, new(TileWidth, DefinitionHeight));
+                byte[] planar = SnesPlanarTileEncoder.Encode(image.Pixels, new(TileWidth, DefinitionHeight), 4);
+                int byteCount = entry.FirstSize + entry.SecondSize;
+                if (planar.AsSpan(byteCount).IndexOfAnyExcept((byte)0) >= 0)
+                    throw new InvalidDataException($"Samus body PNG {name} paints unused tiles.");
+                return new SamusBodyTileTransfer(checked((ushort)entry.FirstSize), checked((ushort)entry.SecondSize), planar[..byteCount]);
+            }));
         }
         return result;
     }
 
-    /// <summary>Checks source revision, manifest version, required tables, and nonempty DMA sets.</summary>
+    /// <summary>Checks source revision, manifest version, required tables, and that every frame's names are pictures and compositions the document holds.</summary>
     private static void ValidateManifest(Manifest manifest)
     {
         if (manifest.Version != FormatVersion ||
-            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase) || manifest.TopSetStarts is null ||
-            manifest.BottomSetStarts is null || manifest.PoseFirstFrames is null ||
-            manifest.Placements is null ||
-            manifest.Frames is null || manifest.Top is null || manifest.Bottom is null ||
-            manifest.SpritemapTopBases is null || manifest.SpritemapBottomBases is null ||
-            manifest.SpritemapEntries is null || manifest.Spritemaps is null ||
-            manifest.Hashes is null || manifest.Top.Length != SamusBodySources.TopSetCount ||
-            manifest.Bottom.Length != SamusBodySources.BottomSetCount ||
-            !SamusPoseNumbers.CoversRecordedPoses(manifest.Placements) ||
-            !SamusPoseNumbers.CoversRecordedPoses(manifest.PoseFirstFrames) ||
-            !SamusPoseNumbers.CoversRecordedPoses(manifest.SpritemapTopBases) ||
-            !SamusPoseNumbers.CoversRecordedPoses(manifest.SpritemapBottomBases) ||
-            manifest.Placements.Values.Any(placement => placement is null) ||
-            manifest.Top.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
-            manifest.Bottom.Any(set => set is null || set.Length == 0 || set.Any(entry => entry is null)) ||
-            manifest.Spritemaps.Any(entry => entry is null || entry.Any(part => part is null)))
+            !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256, StringComparison.OrdinalIgnoreCase) ||
+            manifest.ArtOrigins is null || manifest.Poses is null || manifest.Pictures is null || manifest.Compositions is null ||
+            manifest.Explosion is null || manifest.Atmosphere is null || manifest.Hashes is null ||
+            !SamusPoseNumbers.CoversRecordedPoses(manifest.ArtOrigins) ||
+            !SamusPoseNumbers.CoversRecordedPoses(manifest.Poses) ||
+            manifest.Poses.Values.Any(pose => pose is null || pose.Values.Any(frame => frame is null ||
+                !manifest.Pictures.ContainsKey(frame.Top) || (frame.Bottom is { } bottom && !manifest.Pictures.ContainsKey(bottom)))) ||
+            manifest.Pictures.Keys.Any(name => Path.GetFileName(FileName(new SamusBodyPicture(name))) != FileName(new SamusBodyPicture(name))) ||
+            manifest.Compositions.Values.Any(entry => entry is null || entry.Any(part => part is null)))
             throw new InvalidDataException("Samus body manifest does not match this installation.");
     }
 
-    /// <summary>The entry of <paramref name="table"/>, laid out by the cartridge's pose numbers, for each pose with a record.</summary>
-    private static Dictionary<SamusPoseId, int> ByPose(ushort[] table) =>
-        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose => (int)table[SamusPoseNumbers.Number(pose)]);
-
-    /// <summary>Reads a contiguous little-endian pointer table from the cartridge.</summary>
-    private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
-        Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((start + i * 2))).ToArray();
-
-    /// <summary>The record of the body DMA definition at bank-$92 <paramref name="pointer"/>.</summary>
-    private static int BodyRecord(int pointer) =>
-        pointer >= SamusSourceDefinitions.FirstBodyDefinition && (pointer - SamusSourceDefinitions.FirstBodyDefinition) % SamusSourceDefinitions.BodyDefinitionBytes == 0
-            ? (pointer - SamusSourceDefinitions.FirstBodyDefinition) / SamusSourceDefinitions.BodyDefinitionBytes
-            : throw new InvalidDataException($"Samus body definition group ${pointer:X4} is not a record.");
-
-    /// <summary>The frame selector at bank-$92 <paramref name="pointer"/>.</summary>
-    private static int BodyFrame(int pointer) =>
-        pointer >= SamusSourceDefinitions.FirstBodyFrame && (pointer - SamusSourceDefinitions.FirstBodyFrame) % 4 == 0
-            ? (pointer - SamusSourceDefinitions.FirstBodyFrame) / 4
-            : throw new InvalidDataException($"Samus pose frame list ${pointer:X4} is not a frame selector.");
-
-    /// <summary>Imports a bounded bank-$92 Samus map, decoding its five-byte records into stored sprite parts.</summary>
-    private static SpriteVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int pointer)
-    {
-        int address = CartridgeBankWindow.At(SamusSourceDefinitions.AnimationBank, pointer);
-        int count = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-        if (pointer < SamusSourceDefinitions.FirstSpritemap || count > 128 || pointer + 2 + count * 5 > CartridgeFormatDefinitions.BankByteCount)
-            throw new InvalidDataException($"Invalid Samus spritemap at $92:{pointer:X4}.");
-        var parts = new SpriteVisualPart[count];
-        for (int i = 0; i < count; i++)
-        {
-            int part = address + 2 + i * 5;
-            var record = new SpritemapPart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(part)),
-                new SnesSpritemapYByte(bus.ReadCartridgeByte(part + 2)), CartridgeImportSource.Require(bus).ReadCartridgeWord(part + 3));
-            parts[i] = SpriteVisualPart.FromSpritePart(record.ToPart(), SpriteArtwork.CharactersPerRow);
-        }
-        return parts;
-    }
-
-    /// <summary>Names the upper or lower body page by native set index.</summary>
-    private static string FileName(bool upperHalf, int set) =>
-        $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";
+    /// <summary>Names the import-data image of <paramref name="picture"/> by the picture's name.</summary>
+    private static string FileName(SamusBodyPicture picture) => $"{picture.Name}.png";
 
     /// <summary>
     /// What the installed body JSON holds (#1638): each pose's art origin and the body frames the body sheet pictures.
     /// </summary>
     /// <param name="Version">The body JSON's revision.</param>
     /// <param name="Poses">Each pose with a record's art origin and pictured frames, keyed by the pose's name.</param>
-    internal sealed record GameManifest(int Version, Dictionary<SamusPoseId, PoseFrames> Poses);
+    internal sealed partial record GameManifest(int Version, Dictionary<SamusPoseId, PoseFrames> Poses);
 
     /// <summary>One pose's art origin, the body frames the body sheet pictures of it and the frames it shows.</summary>
     /// <param name="ArtOrigin">
@@ -427,23 +310,40 @@ public static class SamusBodyArtworkFiles
     /// <param name="Shows">
     /// Each animation frame the pose shows, by its name in the pose's animation, with the name of the picture frame it draws.
     /// </param>
-    internal sealed record PoseFrames(int ArtOrigin, Dictionary<string, int> Frames, Dictionary<string, string> Shows);
+    internal sealed partial record PoseFrames(int ArtOrigin, Dictionary<string, int> Frames, Dictionary<string, string> Shows);
 
     /// <summary>
-    /// The extracted body, import data (#1638): split-DMA identities, pose selectors, each pose's and frame's body placement,
-    /// spritemaps, and stock PNG hashes.
+    /// The decoded body, import data (#1638, #2556): each pose's art origin and what each of its picture frames shows, the
+    /// half pictures' transfer sizes, the compositions, and stock PNG hashes. No cartridge table survives into it.
     /// </summary>
-    internal sealed record Manifest(int Version, string SourceCartridgeSha256,
-        int[] TopSetStarts, int[] BottomSetStarts, Dictionary<SamusPoseId, int> PoseFirstFrames,
-        Dictionary<SamusPoseId, SamusBodyPosePlacement> Placements,
-        SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
-        DefinitionEntry[][] Bottom, Dictionary<SamusPoseId, int> SpritemapTopBases,
-        Dictionary<SamusPoseId, int> SpritemapBottomBases, int?[] SpritemapEntries,
-        SpriteVisualPart[][] Spritemaps,
+    /// <param name="Version">The document's revision.</param>
+    /// <param name="SourceCartridgeSha256">The cartridge the document was decoded from.</param>
+    /// <param name="ArtOrigins">Each pose with a record's art origin.</param>
+    /// <param name="Poses">Each pose with a record's decoded picture frames, by the frame's name in the pose's animation.</param>
+    /// <param name="Pictures">Each half picture's transfer sizes, by its name, which also names its image.</param>
+    /// <param name="Compositions">Each composition's sprite parts, frontmost first, by its name.</param>
+    /// <param name="Explosion">The composition each suit-explosion sheet frame shows, or none, by the sheet frame's name.</param>
+    /// <param name="Atmosphere">The composition each diving-splash and bubbles sheet frame shows, or none, by the sheet frame's name.</param>
+    /// <param name="Hashes">Each half picture image's SHA-256, by file name.</param>
+    internal sealed partial record Manifest(int Version, string SourceCartridgeSha256,
+        Dictionary<SamusPoseId, int> ArtOrigins,
+        Dictionary<SamusPoseId, Dictionary<string, FrameEntry>> Poses,
+        Dictionary<string, PictureEntry> Pictures,
+        Dictionary<string, SpriteVisualPiece[]> Compositions,
+        Dictionary<string, string?> Explosion,
+        Dictionary<string, string?> Atmosphere,
         Dictionary<string, string> Hashes);
 
-    /// <summary>Retains one native DMA source address and the two transfer lengths sharing its PNG slot.</summary>
-    internal sealed record DefinitionEntry(int FirstSize, int SecondSize)
+    /// <summary>What one decoded picture frame shows.</summary>
+    /// <param name="OriginRise">How many pixels above Samus's drawn point the frame places the body's origin, negative below it.</param>
+    /// <param name="Top">The name of the top half picture the frame selects.</param>
+    /// <param name="Bottom">The name of the bottom half picture the frame selects, or none.</param>
+    /// <param name="TopComposition">The name of the composition the top half shows, or none.</param>
+    /// <param name="BottomComposition">The name of the composition the bottom half shows, or none.</param>
+    internal sealed partial record FrameEntry(int OriginRise, string Top, string? Bottom, string? TopComposition, string? BottomComposition);
+
+    /// <summary>The two transfer lengths of one half picture, which share its image's slot.</summary>
+    internal sealed partial record PictureEntry(int FirstSize, int SecondSize)
     {
         /// <summary>The first transfer's byte count, 0 through 65535 (a DMA size).</summary>
         public int FirstSize { get; init; } = Ensure.BetweenInclusive(0, ushort.MaxValue, FirstSize);

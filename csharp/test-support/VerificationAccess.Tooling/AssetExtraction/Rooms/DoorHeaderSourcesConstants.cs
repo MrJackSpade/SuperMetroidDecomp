@@ -10,6 +10,7 @@ internal static class DoorHeaderSourcesConstants
     public static ushort PointerOf(DoorDefinition door)
     {
         Ensure.NotNull(door);
-        return DoorHeaderSourceDefinitions.ByPointer.Single(pair => pair.Value.Name == door.Name).Key;
+        // Two door blocks of the Fast Pillars Setup room lead through one door the cartridge stored twice; its first record serves.
+        return DoorHeaderSourceDefinitions.ByPointer.Where(pair => pair.Value.Name == door.Name).Min(pair => pair.Key);
     }
 }

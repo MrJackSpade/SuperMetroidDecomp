@@ -102,8 +102,7 @@ internal static class MapPresentationVerification
             Top = MapCellEdge.Wall, Bottom = MapCellEdge.Open, Left = MapCellEdge.Wall, Right = MapCellEdge.ElevatorShaft };
         var document = new MapPresentationDocument { Version = 2, Area = "Crateria",
             Cells = Enumerable.Repeat(cell, 64 * 32).ToArray() };
-        string Json(MapPresentationDocument value) => JsonSerializer.Serialize(value,
-            CamelCaseJson);
+        string Json(MapPresentationDocument value) => JsonSerializer.Serialize(value, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationDocument>(CamelCaseJson));
         AreaMapPresentationAsset Load(string text) => AreaMapPresentationFile.Read(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
 
@@ -173,7 +172,7 @@ internal static class MapPresentationVerification
 
 
         /// <summary>Installed elevator platform art used by the room PLM owner.</summary>
-        private readonly InstalledRoomObjectElevatorPlatformVisuals elevatorPlatform;
+        private readonly InstalledRoomObjectPictures elevatorPlatform;
 
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
         public ImportEnemyArtwork EnemyTiles { get; }
@@ -341,7 +340,6 @@ internal static class MapPresentationVerification
     }
 
     /// <summary>Checks that the stock map importer refuses to extract into a directory that already holds a stock catalog.</summary>
-    [PrivateInstallation("Runs MapPresentationExtractor into the copy's already-populated stock map directory to check that the importer refuses to overwrite existing stock files; reading the installed maps never runs the extractor.")]
     private static void VerifyStockMapImporterRefusesOverwrite(ISnesAddressSpace bus, string stock) =>
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
 
@@ -413,8 +411,7 @@ internal static class MapPresentationVerification
     {
         string source = Path.Combine(importColours, MotherBrainRainbowPaletteFile.FileName);
         MotherBrainRainbowPaletteDocument document =
-            JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(
-                File.ReadAllBytes(source), ArtworkJson.Options)
+            JsonSerializer.Deserialize<MotherBrainRainbowPaletteDocument>(File.ReadAllBytes(source), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted Mother Brain rainbow palette is null.");
         InstalledMotherBrainRainbowPalette rainbow = InstalledFixtures.ImportMaps.MotherBrainRainbowColours;
         Suite(nameof(VerifyMotherBrainFakeDeathPalette), () => VerifyMotherBrainFakeDeathPalette(bus, rainbow));
@@ -508,38 +505,31 @@ internal static class MapPresentationVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Rainbow = document.Rainbow.Take(9).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain rainbow loop");
-        AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
-            {
-                ToGrey = document.ToGrey.Select((item, index) => index == 0 ?
-                    item with { TrailingColor = null } : item).ToArray(),
-            }, ArtworkJson.Options))), "reject missing Mother Brain grey trailing color");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain rainbow loop");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Normal = document.Normal with { Body = document.Normal.Body.Take(14).ToArray() },
-            }, ArtworkJson.Options))), "reject truncated Mother Brain normal palette");
-        MotherBrainBeamColourDocument beam = JsonSerializer.Deserialize<MotherBrainBeamColourDocument>(
-                File.ReadAllBytes(Path.Combine(stock, MotherBrainBeamColourFile.FileName)), ArtworkJson.Options)
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain normal palette");
+        MotherBrainBeamColourDocument beam = JsonSerializer.Deserialize<MotherBrainBeamColourDocument>(File.ReadAllBytes(Path.Combine(stock, MotherBrainBeamColourFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Installed Mother Brain beam colours are null.");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Cycle = [] }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Cycle = [] }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject a Mother Brain beam without a cycle colour");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "blue" }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "blue" }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject a Mother Brain beam colour not written as #rrggbb");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "#010203" }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { First = "#010203" }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject a Mother Brain beam colour off the game's fade scale");
         AssertThrows<InvalidDataException>(() => MotherBrainBeamColourFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Version = MotherBrainBeamColourFile.Version + 1 }, ArtworkJson.Options))),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(beam with { Version = MotherBrainBeamColourFile.Version + 1 }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options)))),
             "reject another Mother Brain beam colour version");
         AssertThrows<InvalidDataException>(() => MotherBrainRainbowPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 FakeDeathToGrey = (document.FakeDeathToGrey ?? throw new InvalidOperationException("Verification requires document.FakeDeathToGrey.")).Take(7).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain fake-death grey fade");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain fake-death grey fade");
         Console.WriteLine("Mother Brain palette: 10 rainbow, 38 HDMA beam, 16 drain/revival and eight fake-death grey frames; native CGRAM parity, ROM-free fades and strict validation pass.");
     }
 
@@ -551,8 +541,7 @@ internal static class MapPresentationVerification
     {
         string source = Path.Combine(stock, MotherBrainHealthPaletteFile.FileName);
         MotherBrainHealthPaletteDocument document =
-            JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(
-                File.ReadAllBytes(source), ArtworkJson.Options)
+            JsonSerializer.Deserialize<MotherBrainHealthPaletteDocument>(File.ReadAllBytes(source), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted Mother Brain health palette is null.");
         MotherBrainHealthPalettePresentation extracted =
             MotherBrainHealthPaletteFile.Read(new MemoryStream(
@@ -579,18 +568,18 @@ internal static class MapPresentationVerification
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Version = MotherBrainHealthPaletteFile.Version + 1,
-            }, ArtworkJson.Options))), "reject unsupported Mother Brain palette version");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)))), "reject unsupported Mother Brain palette version");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                Body = document.Body.Take(3).ToArray(),
-            }, ArtworkJson.Options))), "reject incomplete Mother Brain damage states");
+                HealthBands = document.HealthBands.Take(3).ToDictionary(),
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)))), "reject incomplete Mother Brain damage states");
         AssertThrows<InvalidDataException>(() => MotherBrainHealthPaletteFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
-                BackLegs = document.BackLegs.Select((colors, index) => index == 0 ?
-                    colors.Take(14).ToArray() : colors).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain rear-leg palette");
+                HealthBands = document.HealthBands.Select((band, index) => index == 0 ?
+                    KeyValuePair.Create(band.Key, band.Value with { BackLegs = band.Value.BackLegs.Take(14).ToArray() }) : band).ToDictionary(),
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainHealthPaletteDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain rear-leg palette");
 
         Console.WriteLine("Mother Brain health palette: 8 threshold boundaries, ROM-free stock copies and schema checks pass.");
     }
@@ -598,9 +587,9 @@ internal static class MapPresentationVerification
     /// <summary>Checks that the year card's first letter is the first spritemap its native text list names.</summary>
     private static void VerifyTitleSpriteSources(ISnesAddressSpace bus)
     {
-        ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
-        AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus).Cards[new(TitleSequencePhase.YearText, 1)],
+        AssertEqual(yearPointer, SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus).Cards[new(TitleCard.Year, 1)],
             "the year's first letter is the year card's first listed spritemap");
     }
 
@@ -610,7 +599,7 @@ internal static class MapPresentationVerification
     /// </summary>
     private static void VerifyLiveMapCatalog(InstalledScreenContent original, MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = original,
@@ -625,15 +614,15 @@ internal static class MapPresentationVerification
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         var room = runtime.Room.LoadedRoom;
         // The minimap's centre shows the map cell of the room screen Samus stands in.
         Position16<MapTiles> samusCell = room.MapPosition + new Offset16<MapTiles>(
-            RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.X.Whole),
-            RoomGridConversions.PixelToScreen(runtime.Player.IntroducedSamus.Position.Y.Whole));
+            RoomGridConversions.PixelToScreen(runtime.Player.Samus.Position.X.Whole),
+            RoomGridConversions.PixelToScreen(runtime.Player.Samus.Position.Y.Whole));
         AssertTrue(runtime.Hud.Minimap?[SuperMetroid.Core.Hud.MinimapGrid.SamusCell] is SuperMetroid.Core.Hud.MinimapMapCell center &&
             center.Cell == original.Get(AreaId.Ceres).Cell(samusCell), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
-        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = runtime.Player.IntroducedSamus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
+        var pause = new SuperMetroid.Core.Frontend.Pause.PauseMenuState(new PauseMenuEntry { Audio = AudioQueues.Standalone(), Samus = runtime.Player.Samus, System = runtime.System, Area = room.Area, RoomMapPosition = room.MapPosition, ScreenContent = original, SpriteSheets = MenuSheetFixtures.For(original), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         Offset16<MapPixels> scroll = pause.MapScroll;
         pause.BindFixtureArtwork(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
@@ -649,12 +638,12 @@ internal static class MapPresentationVerification
         var system = new SharedGameState(new SharedRandom());
         system.Progress.ExploreEveryCell();
         var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
-            AreaId.Crateria, screenContent: original, sheets: MenuSheetFixtures.For(original));
-        var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, AreaId.Crateria,
+            ZebesArea.Crateria, screenContent: original, sheets: MenuSheetFixtures.For(original));
+        var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, ZebesArea.Crateria,
             screenContent: original, sheets: MenuSheetFixtures.For(original));
         AssertTrue(SuperMetroid.TestSupport.FrameRendering.ScenePixels.Same(stock.BackgroundsScene(new(0, 0)), installed.BackgroundsScene(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");
-        AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.AreaMap.Cells),
+        AssertTrue(AreaMapProjection.Project(original.Get(AreaId.Crateria), system).Cells.SequenceEqual(installed.ShownCells.Cells),
             "file-select shows the exact projected map cells");
         // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
         var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(installed);

@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Converts the title's complete cartridge CGRAM image to editable RGB5 JSON.</summary>
-internal static class TitlePaletteExtractor
+internal static partial class TitlePaletteExtractor
 {
     /// <summary>Exports the full title CGRAM image, both ambient palette-FX timelines, and copyright skip colors to the versioned presentation catalog.</summary>
     public static byte[] Extract(ISnesAddressSpace bus)
@@ -23,21 +23,11 @@ internal static class TitlePaletteExtractor
         {
             Version = TitlePaletteFormat.Version,
             Colors = colors,
-            BabyMetroidTubeLight = ExtractAmbient(
-                TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight),
-            FlickeringDisplays = ExtractAmbient(
-                TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays),
+            BabyMetroidTubeLight = PaletteFxColorExtraction.ReadFrames(bus, TitleScreenAmbientPaletteFxColorDefinitions.TubeLight.ColorFrames),
+            FlickeringDisplays = PaletteFxColorExtraction.ReadFrames(bus, TitleScreenAmbientPaletteFxColorDefinitions.Displays.ColorFrames),
             SkipCopyrightWhite = PaletteRgb5.From(TitleSkipCopyrightColours.White),
             SkipCopyrightTint = PaletteRgb5.From(TitleSkipCopyrightColours.Tint),
         });
         return json.ToArray();
-
-        PaletteRgb5[][] ExtractAmbient(TitleScreenAmbientPaletteFxProgramOwner owner)
-        {
-            TitleScreenAmbientPaletteFxColorDefinition definition =
-                TitleScreenAmbientPaletteOwners.All.Single(
-                    item => item.Owner == owner);
-            return PaletteFxColorExtraction.ReadFrames(bus, definition.ColorFrames);
-        }
     }
 }

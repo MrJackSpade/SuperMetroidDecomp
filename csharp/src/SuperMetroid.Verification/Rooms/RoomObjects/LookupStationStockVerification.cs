@@ -12,7 +12,7 @@ internal static class LookupStationStockVerification
 {
     /// <summary>Compares the twenty station frames' pictures with the cartridge, rejects other draws, then checks the import and its rejections (#1557).</summary>
     internal static void VerifyStationStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectStationVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x9f25,"map-dim"),new LookupEscapeGateStockFrame(0x9f6d,"energy-dim"),new LookupEscapeGateStockFrame(0x9f91,"missile-dim"),
             new LookupEscapeGateStockFrame(0x9f31,"map-lit"),new LookupEscapeGateStockFrame(0x9f79,"energy-lit"),new LookupEscapeGateStockFrame(0x9f9d,"missile-lit"),
@@ -20,7 +20,7 @@ internal static class LookupStationStockVerification
             new LookupEscapeGateStockFrame(0x9a3f,"save-idle"),new LookupEscapeGateStockFrame(0x9a9f,"save-lit"),new LookupEscapeGateStockFrame(0x9a6f,"save-dark"),
             new LookupEscapeGateStockFrame(0x9f49,"map-right-retracted"),new LookupEscapeGateStockFrame(0x9f55,"map-right-extended"),new LookupEscapeGateStockFrame(0x9f5b,"map-left-retracted"),new LookupEscapeGateStockFrame(0x9f67,"map-left-extended"),
             new LookupEscapeGateStockFrame(0x9fb5,"resource-right-retracted"),new LookupEscapeGateStockFrame(0x9fbb,"resource-right-extended"),new LookupEscapeGateStockFrame(0x9fc1,"resource-left-retracted"),new LookupEscapeGateStockFrame(0x9fc7,"resource-left-extended")];
-        foreach (InstalledRoomObjectStationVisuals pictures in new[] { InstalledRoomObjectStationVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.Station, installed })
         {
             AssertPicturedAsNative(rom, pictures.Images, RoomObjectStationVisualFiles.Family, frames, WrittenCells(RoomObjectStationVisualFiles.Family));
         }

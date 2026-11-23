@@ -3,11 +3,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// How far each of Crocomire's fight-body and melting frames shows his mouth open (#1747, #2176), which picks his Power Bomb
-/// reaction. The game read it from the parts of the frame's picture; editable sprite art cannot change it. The skeleton's
-/// frames show no mouth and are absent.
+/// How far each of Crocomire's fight-body and melting frames shows his mouth open (#1747, #2176): the opening picks his
+/// Power Bomb reaction. The skeleton's frames show no mouth and are absent.
 /// </summary>
-internal static class CrocomireMouthDefinitions
+internal static partial class CrocomireMouthDefinitions
 {
     /// <summary>How far each fight-body and melting frame shows the mouth open.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, CrocomireMouth> Mouths { get; } = new Dictionary<EnemyFrameId, CrocomireMouth>

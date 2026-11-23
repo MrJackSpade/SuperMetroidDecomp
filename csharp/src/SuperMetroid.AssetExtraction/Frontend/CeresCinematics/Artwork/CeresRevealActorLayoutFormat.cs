@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Installed-resource identity and schema revision for the Ceres-to-Zebes reveal's editable actor positions.</summary>
-public static class CeresRevealActorLayoutFormat
+public static partial class CeresRevealActorLayoutFormat
 {
     /// <summary>
     /// Supported schema revision, four, requiring one placement for each reveal role, the Japanese subtitle's among them,

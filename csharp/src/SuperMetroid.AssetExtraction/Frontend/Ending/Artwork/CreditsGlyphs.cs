@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// <summary>
 /// Encodes and decodes the credits' Font-3 glyphs (<see cref="CreditsPresentationDefinitions"/>) in their small and large styles.
 /// </summary>
-public static class CreditsGlyphs
+public static partial class CreditsGlyphs
 {
     /// <summary>The Font-3 tile of one supported credits glyph, in colour variant zero before the line's variant is applied.</summary>
     /// <param name="character">Space or uppercase A-Z; large text additionally accepts ampersand and period. No case conversion or punctuation substitution is performed.</param>

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// The Wrecked Ship Spark's flicker, active and emitter animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="SparkCue"/> naming what it does.
 /// </summary>
-internal static class SparkAnimations
+internal static partial class SparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SparkSegment, EnemyFrameId, SparkCue> Segments { get; } = new(
@@ -19,13 +19,13 @@ internal static class SparkAnimations
         [
             Cue(new(K.BecomeTangible)),
             Show(EnemyFrameId.SparkLargeCross, 1),
-            Show(EnemyFrameId.Empty, 2),
+            Show(EnemyFrameId.PointAtOrigin, 2),
             Show(EnemyFrameId.SparkLargeCross, 1),
-            Show(EnemyFrameId.Empty, 2),
+            Show(EnemyFrameId.PointAtOrigin, 2),
             Show(EnemyFrameId.SparkLargeSlant, 1),
-            Show(EnemyFrameId.Empty, 2),
+            Show(EnemyFrameId.PointAtOrigin, 2),
             Show(EnemyFrameId.SparkLargeSlant, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
             Show(EnemyFrameId.SparkLargeCrossScattering, 2),
             Show(EnemyFrameId.SparkLargeSlantScattering, 2),
         ],
@@ -41,9 +41,9 @@ internal static class SparkAnimations
             Show(EnemyFrameId.SparkLargeCross, 2),
             Show(EnemyFrameId.SparkLargeSlant, 2),
             Show(EnemyFrameId.SparkLargeCrossScattering, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
             Show(EnemyFrameId.SparkLargeCrossScattering, 1),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
             Cue(new(K.BecomeIntangible)),
         ],
         [P.Emitter] =
@@ -56,7 +56,7 @@ internal static class SparkAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SparkSegment, Animation<SparkSegment>> StartingAt { get; } = new Dictionary<SparkSegment, Animation<SparkSegment>>
+    internal static Dictionary<SparkSegment, Animation<SparkSegment>> StartingAt { get; } = new Dictionary<SparkSegment, Animation<SparkSegment>>
     {
         [P.FlickerOn] = Animation<SparkSegment>.LeadingInto([Segments.Whole(P.FlickerOn)], [Segments.Whole(P.Active)]),
         [P.Active] = Animation<SparkSegment>.Looping([Segments.Whole(P.Active)]),

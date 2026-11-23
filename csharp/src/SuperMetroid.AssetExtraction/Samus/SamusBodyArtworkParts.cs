@@ -3,31 +3,21 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Samus's body as the import reads it (#633, #1465): the cartridge's definition-group starts, per-pose frame lists and
-/// frame selections, from which the import resolves the half pictures each pose frame shows, with where each pose and frame
-/// places the body and the dependent artwork catalogs.
+/// Samus's body as the import reads it (#633, #1465, #2556): each pose's art origin and what each of its picture frames
+/// shows, decoded once from the cartridge's tables, with the compositions and the dependent artwork catalogs.
 /// </summary>
-public sealed record SamusBodyArtworkParts
+public sealed partial record SamusBodyArtworkParts
 {
-    /// <summary>Each upper-body definition group's first record.</summary>
-    public required int[] TopSetStarts { get; init; }
-
-    /// <summary>Each lower-body definition group's first record.</summary>
-    public required int[] BottomSetStarts { get; init; }
-
-    /// <summary>Each pose with a record's first four-byte frame selector, keyed by the pose.</summary>
-    public required IReadOnlyDictionary<SamusPoseId, int> PoseFirstFrames { get; init; }
+    /// <summary>Each pose with a record's art origin.</summary>
+    public required IReadOnlyDictionary<SamusPoseId, int> ArtOrigins { get; init; }
 
     /// <summary>
-    /// Where each pose with a record places the body (#1517): its art origin and, for a pose whose frames differ from it,
-    /// each animation frame's own placement.
+    /// Each pose with a record's decoded picture frames, by the frame's place in the game's layout of the pose's animation:
+    /// the half pictures each selects and where it places the body.
     /// </summary>
-    public required IReadOnlyDictionary<SamusPoseId, SamusBodyPosePlacement> Placements { get; init; }
+    public required IReadOnlyDictionary<SamusPoseId, IReadOnlyDictionary<int, SamusBodyDecodedFrame>> Frames { get; init; }
 
-    /// <summary>The contiguous native frame-selector interval.</summary>
-    public required SamusBodyFrameSelection[] Frames { get; init; }
-
-    /// <summary>The compositions each pose half shows at each animation frame, which the whole body pictures are composed from.</summary>
+    /// <summary>The compositions the pose halves, the explosion and the atmosphere show, which the sheets are composed from.</summary>
     public required SamusSpritemapSources Spritemaps { get; init; }
 
     /// <summary>The appearances of the atmospheric effects.</summary>

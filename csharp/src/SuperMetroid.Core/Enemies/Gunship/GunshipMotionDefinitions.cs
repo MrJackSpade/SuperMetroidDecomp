@@ -1,14 +1,15 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>Exact bounded motion policies for the Landing Site gunship.</summary>
-internal static class GunshipMotionDefinitions
+internal static partial class GunshipMotionDefinitions
 {
 
     /// <summary>
     /// How far each of the landing brakes' seventeen updates moves the ship and Samus, in order (<see cref="GunshipLandingBrake"/>):
     /// down a pixel for six updates, still for five, then up a pixel for six.
     /// </summary>
-    internal static readonly int[] LandingBrakeYDeltas = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1];
+    internal static readonly int[] LandingBrakeYDeltas = [.. Repeated(1, 6), .. Repeated(0, 5), .. Repeated(-1, 6)];
 
     /// <summary>
     /// The idle bob's four steps in order (<see cref="GunshipIdleBob"/>), each held for its updates: down a pixel, up, up, then
@@ -16,7 +17,7 @@ internal static class GunshipMotionDefinitions
     /// </summary>
     internal static readonly GunshipIdleBobDefinition[] IdleBobs = [new(16, 1), new(16, -1), new(16, -1), new(16, 1)];
 
-    /// <summary>Above this Y the descending ship moves 4.5 pixels an update; below it, 2.5.</summary>
+    /// <summary>Above this Y the descending ship moves at <see cref="FastDescentSpeed"/>; below it, at <see cref="SlowDescentSpeed"/>.</summary>
     internal const int SlowDescentY = 768;
 
     /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>: four and a half pixels an update.</summary>

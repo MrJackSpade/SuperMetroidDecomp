@@ -9,4 +9,4 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="Owner">The enemy whose own, fixed or spawned-object effects define the shades.</param>
 /// <param name="Shades">The shades, in laying order.</param>
-internal sealed record FrameColouring(EnemyDefinitionId Owner, PictureShade[] Shades);
+internal sealed partial record FrameColouring(EnemyDefinitionId Owner, PictureShade[] Shades);

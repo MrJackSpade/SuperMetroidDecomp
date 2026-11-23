@@ -5,18 +5,17 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>One of the six authored shell fragments spawned when the egg hatches.</summary>
-internal sealed class IntroEggParticle
+internal sealed partial class IntroEggParticle
 {
     /// <summary>The cinematic sprite showing the fragment: its position and animation.</summary>
-    internal readonly CinematicActor<IntroEggEffectAnimation, CinematicSpritePose, NoAnimationCue> sprite;
+    internal readonly CinematicActor<IntroEggShellFragment, CinematicSpritePose, NoAnimationCue> sprite;
 
     /// <summary>Which piece of the shell this is: it selects the fragment's animation and horizontal velocity, and never changes.</summary>
     private readonly IntroEggShellFragment fragment;
 
     /// <summary>
-    /// The fragment's fall, counted once each update it flies: its age is its step along the fall's gravity curve, then
-    /// past it (#1781). Every fragment reaches the floor within its curve or the installed steps past it, and a later step
-    /// throws.
+    /// The updates the piece has fallen (#1781): its age is its step along the fall's gravity curve, then past it.
+    /// Every piece reaches the floor within its curve or the installed steps past it.
     /// </summary>
     private readonly UpdateCountdown fall;
 
@@ -30,10 +29,35 @@ internal sealed class IntroEggParticle
     {
         this.fallPastCurve = Ensure.NotNull(fallPastCurve);
         fall = UpdateCountdown.Lasting(IntroEggMotionDefinitions.ShellFall.Updates + fallPastCurve.Updates);
-        CinematicActorDefinition<IntroEggEffectAnimation> definition = IntroEggParticleActors.Particle(fragment);
+        CinematicActorDefinition<IntroEggShellFragment> definition = IntroEggParticleActors.Particle(fragment);
         this.fragment = fragment;
         sprite = new(IntroEggMotion.FragmentInitialPosition(fragment), IntroShades.Drawn(IntroSpriteColouring.DiscoveryActors),
-            IntroEggEffectAnimations.Effects, definition.Animation);
+            IntroEggEffectAnimations.ShellPieces, definition.Animation);
+    }
+
+    /// <summary>
+    /// Confirms, once as the installed steps are accepted, that every shell fragment reaches the floor within its curve and
+    /// <paramref name="fallPastCurve"/>'s steps, flying each one as the cinematic does, so no fragment reads a step past them.
+    /// </summary>
+    /// <param name="fallPastCurve">The installed steps a fragment falls by past its gravity curve.</param>
+    /// <returns><paramref name="fallPastCurve"/>.</returns>
+    /// <exception cref="InvalidDataException">A fragment is still in the air after every step.</exception>
+    internal static ShellFragmentFallPastCurve ConfirmEveryFragmentLands(ShellFragmentFallPastCurve fallPastCurve)
+    {
+        Ensure.NotNull(fallPastCurve);
+        foreach (IntroEggShellFragment fragment in Enum.GetValues<IntroEggShellFragment>())
+        {
+            var particle = new IntroEggParticle(fragment, fallPastCurve);
+            for (int update = 0; update < IntroEggMotionDefinitions.ShellFall.Updates + fallPastCurve.Updates && particle.sprite.IsActive; update++)
+                particle.Step();
+            if (particle.sprite.IsActive)
+            {
+                throw new InvalidDataException(
+                    $"The {fragment} shell fragment is still in the air after the {fallPastCurve.Updates} installed steps past its gravity curve.");
+            }
+        }
+
+        return fallPastCurve;
     }
 
     /// <summary>Applies the fragment's velocity and gravity, redirecting to deletion once it reaches the floor.</summary>

@@ -4,13 +4,9 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's spit's typed animation (#2400): its glowing frames, cycled for as long as it flies.</summary>
-internal sealed class BotwoonSpitAnimation() : EnemyProjectileFrameAnimation<BotwoonSpitSegment, NoAnimationCue>(BotwoonAnimations.SpitFlight)
+internal sealed partial class BotwoonSpitAnimation() : EnemyProjectileSilentFrameAnimation<BotwoonSpitSegment>(BotwoonAnimations.SpitFlight.Phases[0].Segment, BotwoonAnimations.SpitFlight)
 {
     /// <inheritdoc/>
-    private protected override AnimationSegments<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
+    private protected override IUnpausedAnimationPlay<BotwoonSpitSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
         BotwoonAnimations.SpitSegments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<BotwoonSpitSegment, Animation<BotwoonSpitSegment>> StartingAt =>
-        BotwoonAnimations.SpitStartingAt;
 }

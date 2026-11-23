@@ -3,23 +3,10 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 /// <summary>
-/// Immutable control words for Maridia's sand and background-waterfall palette loops.
+/// The records of Maridia's sand-pit, sand-fall and background-waterfall effects and the colours each writes, for the
+/// import.
 /// </summary>
-/// <remarks>
-/// The sand-pit, sand-fall and background-waterfall definitions own 112 colour
-/// words. Those colors remain presentation data; this catalog owns only color-index
-/// setup, durations, waits, and loop control.
-/// Sand pits start at colour byte 72 and run four ten-frame records,
-/// then loop: a 40-frame loop.
-/// Sand falls start at colour byte 80 and run four ten-frame records,
-/// then loop: another 40-frame loop.
-/// Background waterfalls start at colour byte 104 and run eight two-frame records,
-/// then loop: a 16-frame loop.
-/// Each record ends in a wait; each goto targets its first record.
-/// The next index in each program reaches control, not presentation data.
-/// All 44 mechanics words match the original programs.
-/// </remarks>
-public static class MaridiaEnvironmentalPaletteFxColorDefinitions
+public static partial class MaridiaEnvironmentalPaletteFxColorDefinitions
 {
     /// <summary>Four-color sand rotation group.</summary>
     internal const int SandRotationColors = 4;
@@ -28,30 +15,13 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
     /// <summary>Eight-color waterfall rotation group.</summary>
     internal const int WaterfallRotationColors = 8;
 
-    /// <summary>The sand-pit, sand-fall, and waterfall programs in definition order, calculated without cached records.</summary>
-    public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } =
-    [
-        new()
-        {
-            Owner = MaridiaEnvironmentalPaletteOwner.SandPits,
-            FrameCount = SandRotationColors,
-            ColorsPerFrame = SandRotationColors * SandPitBandCount,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaSandPits, SandRotationColors * SandPitBandCount),
-        },
-        new()
-        {
-            Owner = MaridiaEnvironmentalPaletteOwner.SandFalls,
-            FrameCount = SandRotationColors,
-            ColorsPerFrame = SandRotationColors,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaSandFalls, SandRotationColors),
-        },
-        new()
-        {
-            Owner = MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls,
-            FrameCount = WaterfallRotationColors,
-            ColorsPerFrame = WaterfallRotationColors,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.MaridiaBackgroundWaterfalls, WaterfallRotationColors),
-        },
-    ];
+    /// <summary>The sand pits' two separately rotating bands.</summary>
+    internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaSandPits { get; } = new(ColourEffectId.MaridiaSandPits, SandRotationColors * SandPitBandCount);
+
+    /// <summary>The sand falls' rotation.</summary>
+    internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaSandFalls { get; } = new(ColourEffectId.MaridiaSandFalls, SandRotationColors);
+
+    /// <summary>The background waterfalls' rotation.</summary>
+    internal static MaridiaEnvironmentalPaletteFxColorDefinition MaridiaBackgroundWaterfalls { get; } = new(ColourEffectId.MaridiaBackgroundWaterfalls, WaterfallRotationColors);
 
 }

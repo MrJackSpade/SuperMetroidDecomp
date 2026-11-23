@@ -21,7 +21,15 @@ internal static class SpcSoundPoliciesVerification
         // 17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/sound library N.asm.
         byte Read(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         int Word(int address) => LittleEndianBytes.Word(Read(address), Read(address + 1));
-        Action<int, ManagedSpcSoundLibrary, int> applyPolicy = SpcSoundLibraries.ConfigureSoundLibrary;
+        Action<SuperMetroid.Core.Audio.SoundEffectLibrary, ManagedSpcSoundLibrary, string> applyPolicy = SpcSoundLibraries.ConfigureSoundLibrary;
+        SuperMetroid.Core.Audio.SoundEffectLibrary soundLibrary = SuperMetroid.AssetExtraction.Audio.SoundDriverLibraryPlaces.At(library);
+        byte NativeNumber(string key) => soundLibrary switch
+        {
+            SuperMetroid.Core.Audio.SoundEffectLibrary.Samus => SpcSoundPolicyCodecConstants.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library1Keys, key, soundLibrary)),
+            SuperMetroid.Core.Audio.SoundEffectLibrary.Enemies => SpcSoundPolicyCodecConstants.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library2Keys, key, soundLibrary)),
+            SuperMetroid.Core.Audio.SoundEffectLibrary.Room => SpcSoundPolicyCodecConstants.NativeNumber(SpcSoundPolicyCodec.Parse(SpcSoundPolicyCodec.Library3Keys, key, soundLibrary)),
+            _ => throw new InvalidOperationException($"Undefined sound library {soundLibrary}."),
+        };
         var checkedVoicePolicies = new HashSet<byte>();
         for (int command = 1; command <= count; command++)
         {
@@ -41,11 +49,13 @@ internal static class SpcSoundPoliciesVerification
                 0x2ae2 or 0x4e84 => 5,
                 _ => throw new InvalidOperationException($"Unexpected native policy handler {handler:X4}."),
             };
-            byte actualPolicy = SpcSoundEffectTables.Configuration(library, command);
-            AssertEqual(originalPolicy, actualPolicy, "original command policy identity");
+            string actualPolicy = SpcSoundEffectTables.PolicyKey(soundLibrary, command);
+            AssertEqual(originalPolicy, NativeNumber(actualPolicy), "original command policy identity");
             foreach (byte prior in new byte[] { 0, 0xa5 })
             {
-                byte expectedVoices = 0, expectedPriority = prior, expectedMode = prior;
+                SoundLibraryMode priorMode = prior == 0 ? SoundLibraryMode.Normal : SoundLibraryMode.LowHealth;
+                byte expectedVoices = 0, expectedPriority = prior;
+                SoundLibraryMode expectedMode = priorMode;
                 int pc = handler;
                 for (int write = 0; write < 3 && Read(pc) != 0x6f; write++, pc += 5)
                 {
@@ -55,37 +65,38 @@ internal static class SpcSoundPoliciesVerification
                     int destination = Word(pc + 3);
                     if (destination == voicesAddress) expectedVoices = value;
                     else if (destination == priorityAddress) expectedPriority = value;
-                    else if (library == 2 && destination == 0x04ba) expectedMode = value;
+                    else if (library == 2 && destination == 0x04ba)
+                        expectedMode = value switch
+                        {
+                            0 => SoundLibraryMode.Normal,
+                            SpcDriverDefinitions.SoundEffects.LowHealthMode => SoundLibraryMode.LowHealth,
+                            _ => throw new InvalidOperationException($"Unexpected native library-three mode {value:X2}."),
+                        };
                     else throw new InvalidOperationException($"Unexpected native policy write {destination:X4}.");
                 }
                 AssertEqual((byte)0x6f, Read(pc), "native policy ends after bounded writes");
-                var state = new ManagedSpcSoundLibrary { Priority = prior, Mode = prior };
-                applyPolicy(library, state, actualPolicy);
+                var state = new ManagedSpcSoundLibrary { Priority = prior, Mode = priorMode };
+                applyPolicy(soundLibrary, state, actualPolicy);
                 AssertEqual(expectedVoices, state.VoicesToSetup, "production policy voices");
                 AssertEqual(expectedPriority, state.Priority, "production policy priority and preservation");
                 AssertEqual(expectedMode, state.Mode, "production policy mode and preservation");
                 if (checkedVoicePolicies.Add(originalPolicy))
-                    AssertEqual(expectedVoices, SpcSoundEffectTables.GetVoiceCount(library, originalPolicy), "native policy channel-program count");
+                    AssertEqual(expectedVoices, SpcSoundEffectTables.VoiceCount(soundLibrary, actualPolicy), "native policy channel-program count");
             }
         }
         int nativePolicyCount = library == 1 ? 4 : 6;
         for (int policy = 0; policy < nativePolicyCount; policy++)
             AssertTrue(checkedVoicePolicies.Contains((byte)policy), "every native voice policy has an original-handler proof");
-        for (int invalid = nativePolicyCount; invalid <= byte.MaxValue; invalid++)
+        foreach (string invalid in new[] { "", "NoSuchPolicy" })
         {
-            AssertThrows<InvalidDataException>(() => SpcSoundEffectTables.GetVoiceCount(library, (byte)invalid), "unknown manifest policy byte");
-            var untouched = new ManagedSpcSoundLibrary { VoicesToSetup = 0xa5, Priority = 0x5a, Mode = 0x3c };
-            AssertThrows<InvalidDataException>(() => applyPolicy(library, untouched, (byte)invalid), "unknown runtime policy byte");
+            AssertThrows<InvalidDataException>(() => SpcSoundEffectTables.VoiceCount(soundLibrary, invalid), "unknown manifest policy key");
+            var untouched = new ManagedSpcSoundLibrary { VoicesToSetup = 0xa5, Priority = 0x5a, Mode = SoundLibraryMode.LowHealth };
+            AssertThrows<InvalidDataException>(() => applyPolicy(soundLibrary, untouched, invalid), "unknown runtime policy key");
             AssertEqual(0xa5, untouched.VoicesToSetup, "rejected policy preserves voices");
             AssertEqual(0x5a, untouched.Priority, "rejected policy preserves priority");
-            AssertEqual(0x3c, untouched.Mode, "rejected policy preserves mode");
+            AssertEqual(SoundLibraryMode.LowHealth, untouched.Mode, "rejected policy preserves mode");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.Configuration(library, invalid), "unsupported sound command");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.Configuration(invalid, 1), "unsupported library");
-            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.GetVoiceCount(invalid, 0), "unsupported voice-count library");
-        }
+            AssertThrows<ArgumentOutOfRangeException>(() => SpcSoundEffectTables.PolicyKey(soundLibrary, invalid), "unsupported sound command");
     }
 }

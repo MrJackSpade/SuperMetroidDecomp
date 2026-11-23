@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>A carrying Chozo statue's step: its velocity and where it holds Samus, from its pose and the way it faces.</summary>
-public static class ChozoCarry
+public static partial class ChozoCarry
 {
     /// <summary>The statue's velocity and Samus's place in its hand at <paramref name="step"/>.</summary>
     /// <remarks>
@@ -11,8 +11,7 @@ public static class ChozoCarry
     /// <exception cref="ArgumentOutOfRangeException">The step names an undefined facing or pose.</exception>
     public static ChozoCarryStepDefinition Read(ChozoCarryStep step)
     {
-        if (!ChozoCarryPoseDefinitions.Poses.TryGetValue(step.Pose, out ChozoCarryPoseDefinition pose))
-            throw new ArgumentOutOfRangeException(nameof(step), step, $"Undefined {nameof(ChozoCarryPose)}.");
+        ChozoCarryPoseDefinition pose = ChozoCarryPoseDefinitions.Poses[step.Pose];
         return new(pose.Speed.Toward(step.Facing),
             new(pose.Hold.X.Toward(step.Facing), pose.Hold.Y));
     }

@@ -1,10 +1,11 @@
+using static SuperMetroid.Core.DefinitionRun;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>
 /// The Ceres escape shaft's rotation: the point it turns about, how far each step tilts the shaft and how long the shaft
 /// holds it.
 /// </summary>
-public static class CeresShaftRotationDefinitions
+public static partial class CeresShaftRotationDefinitions
 {
     /// <summary>
     /// The room point the shaft's turning floor always rotates about, set both by the elevator door's setup, which shows
@@ -31,7 +32,7 @@ public static class CeresShaftRotationDefinitions
     /// </summary>
     public static IReadOnlyList<int> TiltHoldFrames { get; } =
     [
-        2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8,
+        .. Repeated(2, 5), .. Repeated(3, 4), .. Repeated(4, 4), .. Repeated(5, 3), 6, 6, 7, 7, 8, 8,
         9, 10, 11, 12, 13, 15, 17, 19, 21, 23, 25, 27, 61,
     ];
 }

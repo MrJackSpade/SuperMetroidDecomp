@@ -19,19 +19,22 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// with, the death step each explosion frame shows and the colour the room whitens to at each whiteout step, is installed
 /// by purpose in the death-step document, which the player edits in place.
 /// </summary>
-public static class SamusDeathPaletteArtworkFiles
+public static partial class SamusDeathPaletteArtworkFiles
 {
     /// <summary>Import-data JSON filename for suited/suitless death rows, whiteout shades, and explosion death steps.</summary>
-    public const string ArtworkFileName = "samus-death-palettes.json";
+    internal const string ArtworkFileName = "samus-death-palettes.json";
     /// <summary>Installed JSON filename for the explosion's death steps and the whiteout colours, named by purpose.</summary>
     public const string StepFileName = "samus-death-steps.json";
-    /// <summary>Schema revision of the import's death-palette document; 2 installs the death steps by purpose (#1637).</summary>
-    private const int FormatVersion = 2;
+    /// <summary>
+    /// Schema revision of the import's death-palette document; 2 installs the death steps by purpose (#1637), and 3 keys each
+    /// suit's colours by the suit and each explosion picture's death step by the picture (#2565).
+    /// </summary>
+    private const int FormatVersion = 3;
     /// <summary>
     /// Schema revision of the installed death-step document: 2 installs the death steps by purpose (#1637), and 3 writes each
     /// whiteout colour as <c>#rrggbb</c> (#2564).
     /// </summary>
-    private const int StepFormatVersion = 3;
+    private const int StepFormatVersion = 4;
     /// <summary>Strict camel-case JSON settings for the colour artwork and the death steps.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -39,6 +42,8 @@ public static class SamusDeathPaletteArtworkFiles
         PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         WriteIndented = true,
     };
 
@@ -61,39 +66,45 @@ public static class SamusDeathPaletteArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         Directory.CreateDirectory(directory);
         Directory.CreateDirectory(importData);
-        var suited = new ushort[InstalledSamusDeathPalettes.SuitCount][][];
-        for (int suit = 0; suit < suited.Length; suit++)
+        Dictionary<string, ushort[][]> suited = SamusSuitListLayout.BySuit(suit =>
         {
-            suited[suit] = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
-            for (int palette = 0; palette < suited[suit].Length; palette++)
+            var steps = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
+            for (int palette = 0; palette < steps.Length; palette++)
             {
-                int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
+                int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.SuitPointers.Value +
                     suit * SamusShadeDefinitions.Death.ExplosionShadeCount * sizeof(ushort) +
                     palette * sizeof(ushort)));
-                suited[suit][palette] = ReadPalette(bus, pointer);
+                steps[palette] = ReadPalette(bus, pointer);
             }
-        }
+            return steps;
+        });
         var suitless = new ushort[SamusShadeDefinitions.Death.ExplosionShadeCount][];
         for (int palette = 0; palette < suitless.Length; palette++)
         {
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
+            int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort)));
             suitless[palette] = ReadPalette(bus, pointer);
         }
         var whiteout = new ushort[SamusShadeDefinitions.Death.WhiteoutShadeCount];
         for (int shade = 0; shade < whiteout.Length; shade++)
-            whiteout[shade] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
-        var selectors = new ushort[SamusDeathSheetDefinitions.Explosion.Count];
-        for (int frame = 0; frame < selectors.Length; frame++)
-            selectors[frame] = bus.ReadCartridgeByte(
-                SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + frame * 2 + 1);
+            whiteout[shade] = bus.ReadCartridgeWord((SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort)));
+        // The cartridge's explosion records follow the explosion's pictures in the order its animation shows them.
+        var selectors = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (int record = 0; record < SamusDeathSheetDefinitions.Explosion.Count; record++)
+        {
+            SamusDeathExplosionFrame frame = SamusDeathSheetDefinitions.Explosion[record];
+            int selector = bus.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + record * 2 + 1);
+            string key = SamusDeathExplosionFrameKeys.Installed.Of(frame);
+            if (selectors.TryGetValue(key, out int known) && known != selector)
+                throw new InvalidDataException($"Samus's death explosion shows its {frame} picture in two death steps.");
+            selectors[key] = selector;
+        }
         var document = new ArtworkDocument(FormatVersion, suited, suitless, whiteout, selectors);
-        File.WriteAllBytes(Path.Combine(importData, ArtworkFileName), JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        File.WriteAllBytes(Path.Combine(importData, ArtworkFileName), JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusDeathPaletteArtworkFiles.ArtworkDocument>(JsonOptions)));
         // The game works with the death steps and the whiteout colours alone: they are installed by purpose.
         SamusDeathSteps steps = Build(document).Steps;
         File.WriteAllBytes(Path.Combine(directory, StepFileName), JsonSerializer.SerializeToUtf8Bytes(new StepDocument(StepFormatVersion,
-            [.. SamusDeathSheetDefinitions.Explosion.Select(frame => steps.ExplosionShade(frame).Step)],
-            [.. SamusWhiteoutShade.All.Select(shade => InstalledColourText.Format(steps.WhiteoutColour(shade)))]),
-            JsonOptions));
+            SamusDeathSheetDefinitions.Explosion.Distinct().ToDictionary(frame => SamusDeathExplosionFrameKeys.Installed.Of(frame), frame => steps.ExplosionShade(frame).Step, StringComparer.Ordinal),
+            [.. SamusWhiteoutShade.All.Select(shade => InstalledColourText.Format(steps.WhiteoutColour(shade)))]), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusDeathPaletteArtworkFiles.StepDocument>(JsonOptions)));
     }
 
     /// <summary>
@@ -128,12 +139,19 @@ public static class SamusDeathPaletteArtworkFiles
     {
         if (document.Version != FormatVersion || document.Suited is null ||
             document.Suitless is null || document.Whiteout is null ||
-            document.ExplosionPaletteIndices is null)
+            document.ExplosionSteps is null)
             throw new InvalidDataException("Samus death-palette artwork has an invalid structure.");
+        var explosion = new Dictionary<SamusDeathExplosionFrame, int>();
+        foreach ((string key, int step) in document.ExplosionSteps)
+        {
+            if (!SamusDeathExplosionFrameKeys.Installed.TryParse(key, out SamusDeathExplosionFrame frame) || !explosion.TryAdd(frame, step))
+                throw new InvalidDataException($"Samus death-palette artwork names explosion picture '{key}', which is no explosion picture or is named twice.");
+        }
         return new InstalledSamusDeathPalettes(
-            Array.ConvertAll(document.Suited, suit => Array.ConvertAll(
-                suit ?? throw new InvalidDataException("Samus death-palette artwork is missing a suit."), Colors)),
-            Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), document.ExplosionPaletteIndices);
+            SamusSuitListLayout.Order.ToDictionary(suit => suit, suit => Array.ConvertAll(
+                document.Suited.TryGetValue(SamusSuitKeys.Installed.Of(suit), out ushort[][]? steps)
+                    ? steps : throw new InvalidDataException($"Samus death-palette artwork is missing the {suit} suit."), Colors)),
+            Array.ConvertAll(document.Suitless, Colors), Colors(document.Whiteout), explosion);
     }
 
     /// <summary>Validates the death-step document and builds the steps the game reads.</summary>
@@ -141,14 +159,21 @@ public static class SamusDeathPaletteArtworkFiles
     {
         if (document.Version != StepFormatVersion || document.ExplosionSteps is null || document.Whiteout is null)
             throw new InvalidDataException("Samus death steps have an invalid structure.");
-        return new SamusDeathSteps([.. document.ExplosionSteps.Select(shade => new SamusDeathShade(shade))],
-            [.. document.Whiteout.Select((colour, step) => InstalledColourText.ParseOnFadeScale(colour, $"Samus death whiteout step {step}"))]);
+        if (document.Whiteout.Length != SamusWhiteoutShade.All.Count)
+            throw new InvalidDataException("Samus death steps hold one whiteout colour per whiteout step.");
+        var explosion = new Dictionary<SamusDeathExplosionFrame, SamusDeathShade>();
+        foreach ((string key, int step) in document.ExplosionSteps)
+        {
+            if (!SamusDeathExplosionFrameKeys.Installed.TryParse(key, out SamusDeathExplosionFrame frame) || !explosion.TryAdd(frame, new SamusDeathShade(step)))
+                throw new InvalidDataException($"Samus death steps name explosion frame '{key}', which is no explosion frame or is named twice.");
+        }
+        // The whiteout's colours are listed in the order of its steps.
+        return new SamusDeathSteps(explosion, SamusWhiteoutShade.All.ToDictionary(shade => shade,
+            shade => InstalledColourText.ParseOnFadeScale(document.Whiteout[shade.Step], $"Samus death whiteout step {shade.Step}")));
     }
 
     /// <summary>The artwork file stores the cartridge's colour words; each must be a fifteen-bit color.</summary>
-    private static RgbColor[] Colors(ushort[]? words) => words is null
-        ? throw new InvalidDataException("Samus death-palette artwork is missing a palette.")
-        : Array.ConvertAll(words, word =>
+    private static RgbColor[] Colors(ushort[] words) => Array.ConvertAll(words, word =>
         RgbColor.IsColorWord(word) ? RgbColor.FromWord(word)
             : throw new InvalidDataException($"Samus death-palette color ${word:X4} sets bit 15."));
 
@@ -157,17 +182,17 @@ public static class SamusDeathPaletteArtworkFiles
     {
         var colors = new ushort[InstalledSamusDeathPalettes.ColorCount];
         for (int color = 0; color < colors.Length; color++)
-            colors[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
+            colors[color] = bus.ReadCartridgeWord((SamusSourceDefinitions.PaletteBank.Value |
                 unchecked((ushort)(pointer + color * sizeof(ushort)))));
         return colors;
     }
 
     /// <summary>Complete suited, suitless, whiteout, and explosion death-step payload, which only the import reads.</summary>
-    private sealed record ArtworkDocument(int Version, ushort[][][] Suited,
-        ushort[][] Suitless, ushort[] Whiteout, ushort[] ExplosionPaletteIndices);
+    internal sealed partial record ArtworkDocument(int Version, Dictionary<string, ushort[][]> Suited,
+        ushort[][] Suitless, ushort[] Whiteout, Dictionary<string, int> ExplosionSteps);
     /// <summary>
     /// The installed death steps by purpose: the death step each explosion frame shows her suit and suitless body in, and the
     /// colour the room and every other sprite whiten to at each whiteout step, written as <c>#rrggbb</c> (#2564).
     /// </summary>
-    private sealed record StepDocument(int Version, int[] ExplosionSteps, string[] Whiteout);
+    internal sealed partial record StepDocument(int Version, Dictionary<string, int> ExplosionSteps, string[] Whiteout);
 }

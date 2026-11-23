@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <summary>A rectangle of an installed image a frame's picture fills (#1635): on a sheet, or in the picture store.</summary>
 /// <param name="Corner">The rectangle's top-left pixel.</param>
 /// <param name="Size">The rectangle's width and height.</param>
-internal readonly record struct FrameRectangle(Position16<ImagePixels> Corner, Extent16<ImagePixels> Size)
+internal readonly partial record struct FrameRectangle(Position16<ImagePixels> Corner, Extent16<ImagePixels> Size)
 {
     /// <summary>Whether the rectangle holds no pixel.</summary>
     internal bool IsEmpty => Size.X == 0 || Size.Y == 0;

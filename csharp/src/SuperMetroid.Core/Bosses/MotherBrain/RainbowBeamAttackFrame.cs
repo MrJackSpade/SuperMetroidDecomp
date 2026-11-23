@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -5,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// sequence, the Power Bomb, the escape's text and the room's earthquake. Every member is the update's own; none has a
 /// default.
 /// </summary>
-public sealed record RainbowBeamAttackFrame
+public sealed partial record RainbowBeamAttackFrame
 {
     /// <summary>The enemy frame counter's current count; its place in a short repeating cycle paces the beam's colour cadence.</summary>
     public required int EnemyFrameCounter { get; init; }
@@ -25,8 +26,8 @@ public sealed record RainbowBeamAttackFrame
     /// </summary>
     public required Func<int> NextRandomNumber { get; init; }
 
-    /// <summary>Whether the game shows the escape's alternate text, the time-bomb subtitle the Japanese text adds.</summary>
-    public required bool AlternateEscapeText { get; init; }
+    /// <summary>The game's text language, whose escape warning her death types (#2560).</summary>
+    public required TextLanguage Language { get; init; }
 
     /// <summary>Whether the escape's typewriter finished its text on this update.</summary>
     public required bool TypewriterFinished { get; init; }

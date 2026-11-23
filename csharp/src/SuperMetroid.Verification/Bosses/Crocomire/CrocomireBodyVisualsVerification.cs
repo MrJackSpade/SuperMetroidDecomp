@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.ExtendedBg2ReferenceVerif
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -35,7 +36,7 @@ internal static class CrocomireBodyVisualsVerification
         {
             AssertEqual(expected[index], CrocomireBodyVisualToolingDefinitions.FramePointer(index), "body native frame address order");
             AssertEqual(expected[index], CrocomireBodyVisualDefinitionsConstants.Frames[index], "body indexed sequence");
-            ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | expected[index]);
+            ushort count = rom.ReadCartridgeWordFixedBank(0xa40000 | expected[index]);
             AssertEqual((ushort)(index >= 42 ? 1 : index is < 12 or >= 18 and < 24 ? 6 : 7), count,
                 "native component count supporting each frame stride");
         }
@@ -97,10 +98,12 @@ internal static class CrocomireBodyVisualsVerification
                 $"Crocomire body OAM frame $A4:{pointer:X4} is installed");
             var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
             guardBlockFrame(CrocomireBodyVisualToolingDefinitions.Bank, pointer);
+            // His body shows his part's current frame on every update it is drawn (#2573), also one whose cue selected no
+            // new frame: a body that does not yet show the frame shows what the cartridge writes on the update that
+            // selects it, never the nothing the cartridge writes on a later one.
+            (OamBuffer nativeOam, byte[] nativeVram) = DrawNative(pointer);
             foreach (bool newFrame in new[] { false, true })
             {
-                (OamBuffer nativeOam, byte[] nativeVram) = DrawNative(pointer,
-                    newFrame);
                 (OamBuffer installedOam, byte[] installedVram) = Draw(stock, guard,
                     pointer, newFrame);
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&
@@ -117,13 +120,13 @@ internal static class CrocomireBodyVisualsVerification
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"Crocomire BG2 half $A4:{frame.Pointer:X4} is installed");
             var native = new List<CrocomireBodyVisualsNative>();
-            int componentCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | frame.Pointer));
+            int componentCount = rom.ReadCartridgeWordFixedBank((0xa40000 | frame.Pointer));
             for (int component = 0; component < componentCount; component++)
             {
                 int record = 0xa40000 | unchecked((ushort)(
                     frame.Pointer + 2 + component * 8));
-                ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((record + 4));
-                if (CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | stream)) != EnemyBg2FrameLayoutConstants.StreamMarker)
+                ushort stream = rom.ReadCartridgeWordFixedBank((record + 4));
+                if (rom.ReadCartridgeWordFixedBank((0xa40000 | stream)) != EnemyBg2FrameLayoutConstants.StreamMarker)
                     continue;
                 ushort cursor = unchecked((ushort)(stream + 2));
                 bool terminated = false;
@@ -131,17 +134,17 @@ internal static class CrocomireBodyVisualsVerification
                      command < EnemyBg2FrameLayout.MaximumCommandsPerStream;
                      command++)
                 {
-                    ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 | cursor));
+                    ushort destination = rom.ReadCartridgeWordFixedBank((0xa40000 | cursor));
                     if (destination == 0xffff)
                     {
                         terminated = true;
                         break;
                     }
-                    ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
+                    ushort count = rom.ReadCartridgeWordFixedBank((0xa40000 |
                         unchecked((ushort)(cursor + 2))));
                     var tiles = new ushort[count];
                     for (int tile = 0; tile < tiles.Length; tile++)
-                        tiles[tile] = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((0xa40000 |
+                        tiles[tile] = rom.ReadCartridgeWordFixedBank((0xa40000 |
                             unchecked((ushort)(cursor + 4 + tile * 2))));
                     native.Add(new CrocomireBodyVisualsNative(unchecked((ushort)((destination -
                         EnemyBg2FrameLayoutConstants.WorkingRamBase) >> 1)), tiles));
@@ -166,11 +169,12 @@ internal static class CrocomireBodyVisualsVerification
         Console.WriteLine(
             "  Crocomire body: 236 selectors, 50 mixed/pure OAM roots and 42 BG2 roots match native OAM and VRAM with visual ROM reads denied.");
 
-        // Build cartridge-based OAM and BG2 VRAM references for one selected body frame, at the indexes his room draws him at.
-        DrawNativeResult DrawNative(ushort pointer, bool newFrame) =>
+        // Build cartridge-based OAM and BG2 VRAM references for one selected body frame, at the indexes his room draws him
+        // at: the BG2 words are those the cartridge writes on the update that selects the frame.
+        DrawNativeResult DrawNative(ushort pointer) =>
             new DrawNativeResult(DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080),
                     NativeSpriteGraphicsWords.PaletteBits(indexesRow), checked((ushort)tileBase)),
-                ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
+                ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newInstructionFrame: true));
         // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
         static DrawNativeResult Draw(ImportEnemyArtwork art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
@@ -178,18 +182,17 @@ internal static class CrocomireBodyVisualsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(art.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: art.Bosses);
             var vram = new SnesVram();
             enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-            // His fight binds the installed body sheets and attaches the body his body frames show on.
-            BossBodyParts image = BossBodyCanvasFixtures.AttachBlank(enemies, InstalledFixtures.BossBodySheets, BossBodyOwner.Crocomire);
-            enemies.Drawing.Enqueue(enemies.Places.InUpdateOrder[0], reached: true);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Crocomire, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            // His room places him, his fight attaching the body his body frames show on, showing nothing (#2554).
+            CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(0x0080, 0x0080));
+            BossBodyParts image = state.BodyParts;
+            RoomEnemyPlace place = state.Body;
+            enemies.Drawing.Enqueue(place, reached: true);
             // He draws as his room draws him: at his tile base and in his palette there.
             enemies.DrawUnder(SpawnedObjectFixtures.SetDrawing(EnemyDefinitionId.Crocomire));
             place.Shading = PictureShading.Standard;
             place.CollidesByFrameHitboxes = true;
             if (newFrame)
-                SuperMetroid.Core.PrivateState.Set(place.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
+                place.AnimationClock.ShowsNewFrame = true;
             place.SpritemapPointer = pointer;
             place.Position = place.Position.WithWhole(new(0x0080, 0x0080));
             var oam = new OamBuffer();

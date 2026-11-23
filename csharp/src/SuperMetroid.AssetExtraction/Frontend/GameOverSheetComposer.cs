@@ -15,10 +15,10 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// in the palette its draw selects, coloured as the screen loads the menu palette with the Baby idle, and with a shade
 /// for each of the Baby's colourings (#1512).
 /// </summary>
-internal static class GameOverSheetComposer
+internal static partial class GameOverSheetComposer
 {
-    /// <summary>The Baby's frames in the sheet's order (#2567): closed, middle, open.</summary>
-    private static readonly IReadOnlyList<GameOverBabyFrame> BabyFrames = Ensure.EveryMemberOnce<GameOverBabyFrame>(
+    /// <summary>The Baby's frames in the sheet's and the document's order (#2567): closed, middle, open.</summary>
+    internal static readonly IReadOnlyList<GameOverBabyFrame> BabyFrames = Ensure.EveryMemberOnce<GameOverBabyFrame>(
     [
         GameOverBabyFrame.Closed,
         GameOverBabyFrame.Middle,
@@ -35,16 +35,16 @@ internal static class GameOverSheetComposer
     ]);
 
     /// <summary>The first sprite colour of a whole-screen colour image.</summary>
-    private const int SpriteColours = 128;
+    private const int SpriteColours = ImageColourGroup.HalfColours;
     /// <summary>The colours of one sprite colour group.</summary>
-    private const int GroupColours = 16;
+    private const int GroupColours = ImageColourGroup.Colours;
 
     /// <summary>What the game-over sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps)
     {
         Ensure.NotNull(maps);
         GameOverSourcePresentation gameOver = maps.GameOverSource;
-        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        SpriteArtwork page = maps.Sprites.Page;
         var frames = new List<SheetFrameSource>();
         foreach (GameOverBabyFrame frame in BabyFrames)
             frames.Add(Frame(GameOverPresentationNames.BabyFrameName(frame), gameOver.babySprites[frame], page, gameOver.BabyPaletteIndex));

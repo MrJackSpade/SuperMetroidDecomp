@@ -1,16 +1,17 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// The random choices of Mother Brain's fight, her ascent and the baby metroid's scenes: holds, dust, the hand beam's
 /// scatter, her attack choices and the chances her late phases take on the random sample (#1619).
 /// </summary>
-internal static class MotherBrainRandomDefinitions
+internal static partial class MotherBrainRandomDefinitions
 {
-    /// <summary>The roll most of her chances read: the sample's lowest 4096-value field, 0 through 4095.</summary>
-    private static readonly RandomSampleField RollOf4096 = new(0, 12);
+    /// <summary>The roll most of her chances read.</summary>
+    private static readonly RandomSampleField RollOf4096 = RandomSampleField.OneOf(4096);
 
-    /// <summary>The roll her posture and phase-three attack chances read: the sample's lowest 256-value field, 0 through 255.</summary>
-    private static readonly RandomSampleField RollOf256 = new(0, 8);
+    /// <summary>The roll her posture and phase-three attack chances read.</summary>
+    private static readonly RandomSampleField RollOf256 = RandomSampleField.OneOf(256);
 
     /// <summary>The baby metroid's ambient cry on its way to Samus: the top 96 of the 4096 rolls, 4000 and over, cry.</summary>
     internal static readonly RandomChance BabyMetroidCries = RandomChance.Highest(96, RollOf4096);
@@ -22,13 +23,13 @@ internal static class MotherBrainRandomDefinitions
     /// A dust cloud of Mother Brain's ascent being the short big cloud rather than the small one (#2470): an even choice of
     /// the random number, one in two.
     /// </summary>
-    internal static readonly RandomChance AscentDustIsBig = RandomChance.Highest(1, new RandomSampleField(8, 1));
+    internal static readonly RandomChance AscentDustIsBig = RandomChance.Highest(1, RandomSampleField.SecondOf(2));
 
     /// <summary>
     /// The phase-two neutral hold: the lowest fifteen of the sixteen values of the sample divided into sixteenths, every sample
     /// below 61440, hold the phase-two neutral pose again.
     /// </summary>
-    internal static readonly RandomChance NeutralPhase2Holds = RandomChance.Lowest(15, new RandomSampleField(12, 4));
+    internal static readonly RandomChance NeutralPhase2Holds = RandomChance.Lowest(15, RandomSampleField.RangePart(16));
 
     /// <summary>The phase-three neutral hold: the lowest 3776 of the 4096 rolls hold the neutral pose again.</summary>
     internal static readonly RandomChance NeutralPhase3Holds = RandomChance.Lowest(3776, RollOf4096);
@@ -69,19 +70,19 @@ internal static class MotherBrainRandomDefinitions
     internal static readonly RandomChance BabyVolleyFires = RandomChance.Highest(RandomSampleField.Whole.Outcomes / 2, RandomSampleField.Whole);
 
     /// <summary>A rotting corpse's dust offset, 0 through 31 pixels added to the brain's X less sixteen.</summary>
-    internal static readonly RandomSampleField CorpseDustOffset = new(0, 5);
+    internal static readonly RandomSampleField CorpseDustOffset = RandomSampleField.OneOf(32);
 
     /// <summary>
     /// Phase three's forward inch waiting longer, at her medium walk rather than her fast one (#2470): an even
     /// choice of the random number, one in two.
     /// </summary>
-    internal static readonly RandomChance ForwardInchWaitsLonger = RandomChance.Highest(1, new RandomSampleField(1, 1));
+    internal static readonly RandomChance ForwardInchWaitsLonger = RandomChance.Highest(1, MotherBrainRandomRolls.ForwardInchWait);
 
     /// <summary>A fired hand beam's scatter speed, 0 through 7 whole pixels.</summary>
-    internal static readonly RandomSampleField HandBeamScatterSpeed = new(8, 3);
+    internal static readonly RandomSampleField HandBeamScatterSpeed = RandomSampleField.SecondOf(8);
 
     /// <summary>The roll her second-phase attack choice reads: 0 through 255 from the sample.</summary>
-    internal static readonly RandomSampleField AttackRoll = new(0, 8);
+    internal static readonly RandomSampleField AttackRoll = RandomSampleField.OneOf(256);
 
     /// <summary>
     /// Her second-phase attack's pressing half: the top 128 of the 256 attack rolls give airborne Samus four onion rings at
@@ -113,58 +114,56 @@ internal static class MotherBrainRandomDefinitions
         new(64, MotherBrainSecondPhaseAttack.Bomb));
 
     /// <summary>
-    /// Her second phase's next move at 4500 health or more: the lowest 4096 of the 65536 samples, one in sixteen, try an
-    /// attack; the rest walk.
+    /// Her second phase's next move at full strength (<see cref="MotherBrainFightDefinitions.FullStrengthHealth"/> or more):
+    /// one in sixteen tries an attack; the rest walk.
     /// </summary>
     internal static readonly RandomChance AttacksAtFullStrength = RandomChance.Lowest(4096, RandomSampleField.Whole);
 
-    /// <summary>Her second phase's next move below 4500 health: the lowest 8192 of the 65536 samples, one in eight, walk.</summary>
+    /// <summary>Her second phase's next move below full strength: one in eight walks.</summary>
     internal static readonly RandomChance WalksWhenWounded = RandomChance.Lowest(8192, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her second phase's next move below 4500 health: the top 24576 of the 65536 samples, three in eight, try an attack;
-    /// the samples between walking and attacking fire the hand beam.
+    /// Her second phase's next move below full strength: three in eight try an attack; the rest that do not walk fire the
+    /// hand beam.
     /// </summary>
     internal static readonly RandomChance AttacksWhenWounded = RandomChance.Highest(24576, RandomSampleField.Whole);
 
-    /// <summary>Her bomb walk: the top 128 of the 65536 samples skip the walk back and go straight to the bomb.</summary>
+    /// <summary>Her bomb walk: one in 512 skips the walk back and goes straight to the bomb.</summary>
     internal static readonly RandomChance BombWalkStaysPut = RandomChance.Highest(128, RandomSampleField.Whole);
 
     /// <summary>
-    /// Her bomb walk's target: the lowest 24576 of the 65536 samples walk her back only to X 96; the rest of the samples that
-    /// walk take her back to X 64.
+    /// Her bomb walk's target: three in eight walk her back only to her short retreat; the rest that walk take her back
+    /// to her long retreat.
     /// </summary>
     internal static readonly RandomChance BombWalkShortRetreat = RandomChance.Lowest(24576, RandomSampleField.Whole);
 
     /// <summary>
-    /// The first-phase fake death's tube dust: the lowest 16384 of the 65536 samples, a quarter, show smoke; the rest a small
-    /// explosion.
+    /// The first-phase fake death's tube dust: one in four shows smoke; the rest a small explosion.
     /// </summary>
     internal static readonly RandomChance FakeDeathDustSmokes = RandomChance.Lowest(16384, RandomSampleField.Whole);
 
     /// <summary>
-    /// The escape door's dust after her death: the lowest 16384 of the 65536 samples, a quarter, show smoke; the rest a small
-    /// explosion.
+    /// The escape door's dust after her death: one in four shows smoke; the rest a small explosion.
     /// </summary>
     internal static readonly RandomChance EscapeDoorDustSmokes = RandomChance.Lowest(16384, RandomSampleField.Whole);
 
     /// <summary>
-    /// The animation a mixed death explosion plays (<see cref="MotherBrainDeathExplosionDefinitions.Animations"/>): every
+    /// The animation a mixed death explosion plays (<see cref="DustExplosionAnimation"/>): every
     /// sample below 16384, a quarter, the small explosion; every sample from 57344, an eighth, the big explosion; and
     /// every other the smoke.
     /// </summary>
-    internal static readonly WeightedRandomChoice<MotherBrainDeathExplosionAnimation> MixedDeathExplosionAnimation = new(
-        new RandomSampleField(13, 3),
-        new(2, MotherBrainDeathExplosionAnimation.SmallExplosion),
-        new(5, MotherBrainDeathExplosionAnimation.Smoke),
-        new(1, MotherBrainDeathExplosionAnimation.BigExplosion));
+    internal static readonly WeightedRandomChoice<DustExplosionAnimation> MixedDeathExplosionAnimation = new(
+        RandomSampleField.RangePart(8),
+        new(2, DustExplosionAnimation.SmallExplosion),
+        new(5, DustExplosionAnimation.Smoke),
+        new(1, DustExplosionAnimation.BigExplosion));
 
-    /// <summary>A fired hand beam's scatter turn, in 256ths of a turn: the sample's lowest 256-value field.</summary>
-    internal static readonly RandomSampleField HandBeamScatterTurn = new(0, 8);
+    /// <summary>A fired hand beam's scatter turn, in steps of the turn.</summary>
+    internal static readonly RandomSampleField HandBeamScatterTurn = RandomSampleField.OneOf(256);
 
     /// <summary>A turret's wait before it chooses another direction, raised to its minimum: 0 through 255 from the sample.</summary>
-    internal static readonly RandomSampleField TurretRotationWait = new(0, 8);
+    internal static readonly RandomSampleField TurretRotationWait = RandomSampleField.OneOf(256);
 
     /// <summary>A turret's pause between bullets, raised to its minimum: 0 through 255 from the sample.</summary>
-    internal static readonly RandomSampleField TurretFiringWait = new(0, 8);
+    internal static readonly RandomSampleField TurretFiringWait = RandomSampleField.OneOf(256);
 }

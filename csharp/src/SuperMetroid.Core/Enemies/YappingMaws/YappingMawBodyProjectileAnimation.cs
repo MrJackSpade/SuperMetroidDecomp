@@ -4,12 +4,16 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>Yapping Maw body link's typed animation.</summary>
-internal sealed class YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<YappingMawBodyProjectileSegment, EnemyProjectileCommonCue>(YappingMawBodyProjectileAnimations.StartingWith(segment))
+internal sealed partial class YappingMawBodyProjectileAnimation
+    : EnemyProjectileFrameAnimation<YappingMawBodyProjectileSegment, EnemyProjectileCommonCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;
+    /// <summary>Creates a <see cref="YappingMawBodyProjectileAnimation"/>.</summary>
+    /// <param name="segment">segment</param>
+    public YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment segment)
+        : base(segment, YappingMawBodyProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<YappingMawBodyProjectileSegment>())
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<YappingMawBodyProjectileSegment, Animation<YappingMawBodyProjectileSegment>> StartingAt => YappingMawBodyProjectileAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<YappingMawBodyProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => YappingMawBodyProjectileAnimations.Segments;
 }

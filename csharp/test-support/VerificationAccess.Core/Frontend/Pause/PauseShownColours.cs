@@ -88,9 +88,9 @@ internal static class PauseShownColours
         {
             PauseReserveArrowColours arrowColours = InstalledFixtures.ImportOf(maps).Pause.ReserveUi.ArrowColours;
             PictureShade shade = arrow.Shades.Single();
-            ReserveArrowColors shown = shade == PauseReserveArrowShades.Solid ? arrowColours.Solid : arrowColours.Pulse(shade.Step);
-            colours[ArrowShadeColour] = shown.Color6;
-            colours[ArrowLightColour] = shown.Color11;
+            ReserveArrowColors shown = shade == PauseReserveArrowShades.Solid ? arrowColours.Solid : arrowColours.Pulse(PauseReserveArrowPulseFrame.All[shade.Step]);
+            colours[ArrowShadeColour] = shown.Shade;
+            colours[ArrowLightColour] = shown.Light;
         }
         return colours;
     }

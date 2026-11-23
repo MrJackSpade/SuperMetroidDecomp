@@ -7,13 +7,12 @@ namespace SuperMetroid.Core.Enemies;
 /// <remarks>
 /// The speeds do not climb evenly (#2344): a few marks are slower than the mark before them.
 /// </remarks>
-public static class QuadraticSpeedCurveDefinitions
+public static partial class QuadraticSpeedCurveDefinitions
 {
     /// <summary>
     /// The speed at each mark along the curve, its start through its last mark, toward increasing coordinates, in pixels
     /// per frame to a fraction of a pixel.
     /// </summary>
-    [SuppressMessage("Design", "SME6447", Justification = "Each speed is the game's own amount of pixels, written exactly as a fraction of a pixel; only the size of the numerators makes this rule flag them.")]
     internal static readonly QuadraticCurveSpeed[] Speeds =
     [
         new(Zero), new(FromPixelFraction(265, 65536)), new(FromPixelFraction(795, 65536)), new(FromPixelFraction(795, 32768)), new(FromPixelFraction(1325, 32768)),

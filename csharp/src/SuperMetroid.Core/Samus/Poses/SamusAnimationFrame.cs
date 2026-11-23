@@ -12,4 +12,4 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// </remarks>
 /// <param name="Segment">The named segment.</param>
 /// <param name="Frame">The frame within the segment, from zero.</param>
-public readonly record struct SamusAnimationFrame(SamusAnimationSegmentName Segment, int Frame);
+public readonly partial record struct SamusAnimationFrame(SamusAnimationSegmentName Segment, int Frame);

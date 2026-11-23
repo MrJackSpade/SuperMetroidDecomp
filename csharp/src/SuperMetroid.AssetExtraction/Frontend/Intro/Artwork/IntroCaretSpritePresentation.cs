@@ -7,9 +7,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable visible OAM composition of the intro caret, independent of its blink script.</summary>
-public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroCaretSpritePresentation : ICinematicSpriteFrames
 {
-    /// <summary>Compiled visible composition keyed by its native bank-$8C frame pose.</summary>
+    /// <summary>Compiled visible composition keyed by the pose that shows it.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <inheritdoc/>
@@ -18,16 +18,13 @@ public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroCaretSpritePresentation), frames);
-
     /// <summary>Retains the validated visible-frame lookup.</summary>
     private IntroCaretSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Loads and validates the visible caret's OAM composition, rejecting duplicate properties, unsupported schemas, missing frame names, and invalid sprite parts.</summary>
     /// <param name="json">UTF-8 JSON stream containing the one-frame schema.</param>
-    /// <returns>The validated presentation installed under native visible-frame identity <c>$8C:8D68</c>.</returns>
+    /// <returns>The validated presentation, its composition keyed by <see cref="CinematicSpritePose.CaretVisible"/>.</returns>
     public static IntroCaretSpritePresentation Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -56,8 +53,7 @@ public sealed class IntroCaretSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroCaretSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroCaretSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

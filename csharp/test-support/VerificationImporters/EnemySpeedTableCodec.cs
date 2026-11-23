@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// first four and its negation in the last four. The linear table stores each speed whole word first, the quadratic
 /// table fraction word first. The game holds typed rows; this is the one place their layout is known, for checks.
 /// </summary>
-[EncodingOwner("cartridge enemy speed tables")]
 internal static class EnemySpeedTableCodec
 {
     /// <summary>The linear table in the enemy bank.</summary>

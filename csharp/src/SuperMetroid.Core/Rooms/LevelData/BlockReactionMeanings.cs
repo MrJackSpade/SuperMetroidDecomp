@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <typeparam name="TReaction">The kind's reaction.</typeparam>
 /// <typeparam name="TMeaning">What each reaction stands for.</typeparam>
-public sealed class BlockReactionMeanings<TReaction, TMeaning>
+public sealed partial class BlockReactionMeanings<TReaction, TMeaning>
     where TReaction : struct, Enum
     where TMeaning : struct
 {

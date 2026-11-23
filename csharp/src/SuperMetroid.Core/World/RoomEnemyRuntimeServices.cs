@@ -14,12 +14,11 @@ namespace SuperMetroid.Core.World;
 /// effects and the room's room-object population. Defeated bosses belong to the room's area; the scroll zones are those of
 /// the room the services are built for (#2486), and the control lock acts on the introduced Samus.
 /// </summary>
-[RoomLifetime]
-internal sealed class RoomEnemyRuntimeServices(
+internal sealed partial class RoomEnemyRuntimeServices(
     SharedGameState system,
     RoomScrollGrid scrolls,
     SamusFrameState player,
-    RoomObjectSystem roomObjects,
+    RoomObjectsReachedByEnemies roomObjects,
     GameplayDisplayState display,
     RoomAreaProgress progress) : IRoomEnemyServices,
     IEnemyRandomNumbers, IRoomScrollZoneAccess, ISamusControlLock,
@@ -45,6 +44,9 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Advances the shared system RNG once for an enemy request.</summary>
     public int Generate() => system.NextRandom();
 
+    /// <summary>Advances the shared system RNG once for an enemy draw whose value decides nothing.</summary>
+    public void Advance() => system.Random.Advance();
+
     /// <summary>Reads the current random number without drawing a new one.</summary>
     public int Read() => system.RandomNumber;
 
@@ -52,27 +54,27 @@ internal sealed class RoomEnemyRuntimeServices(
     public void Reseed(SpeciesRandomReseed reseed) => system.Random.Reseed(reseed);
 
     /// <inheritdoc/>
-    RoomScrollState IRoomScrollZoneAccess.Read(Position16<RoomScreens> screen) => scrolls.ReadScreen(screen);
-
-    /// <inheritdoc/>
     public void Write(Position16<RoomScreens> screen, RoomScrollState state) => scrolls.SetRoomScreen(screen, state);
 
     /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>
     public void EnableControls()
     {
-        player.IntroducedSamus.Control.Unlock();
+        player.Samus.Control.Unlock();
         player.GroundedSamusMovementEnabled = true;
     }
 
     /// <summary>Locks Samus stationary and closes the player's grounded-movement gate.</summary>
     public void DisableControls()
     {
-        player.IntroducedSamus.Control.LockStationary();
+        player.Samus.Control.LockStationary();
         player.GroundedSamusMovementEnabled = false;
     }
 
     /// <inheritdoc/>
     public void CountHeadShotOnGlass() => roomObjects.MotherBrainGlass.CountHeadShotOnGlass();
+
+    /// <inheritdoc/>
+    public void ConfirmGlassLoaded() => roomObjects.MotherBrainGlass.ConfirmGlassLoaded();
 
     /// <summary>Checks whether a requested Bomb Torizo hand room object remains active.</summary>
     public bool BombTorizoHandRemains => roomObjects.BombTorizoHand.HandRemains;

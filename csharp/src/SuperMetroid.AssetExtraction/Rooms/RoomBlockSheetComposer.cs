@@ -23,16 +23,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// background picture is installed as its two parts (#1634): the pixels of its back tiles under its own name and those of its
 /// front tiles under <see cref="PictureParts.InFront"/>'s, so the room's passes choose pictures rather than pixels.
 /// </summary>
-internal static class RoomBlockSheetComposer
+internal static partial class RoomBlockSheetComposer
 {
     /// <summary>Pictures across one row of a sheet.</summary>
     private const int SheetColumns = 32;
-
-    /// <summary>
-    /// The palette index of the colour a tileset's rooms show where nothing is drawn: the background half's first, which
-    /// the room's colour effects change as they change its tiles' colours (#1544).
-    /// </summary>
-    private const int RoomBackdropIndex = 0;
 
     /// <summary>Composes every tileset's sheet, picturing the blocks <paramref name="inventory"/> finds its rooms show and no other (#1636).</summary>
     internal static RoomSheetComposition Compose(RoomBlockSheetInputs inputs, RoomBlockInventory inventory)
@@ -126,10 +120,10 @@ internal static class RoomBlockSheetComposer
                 Corner = default,
                 Size = canvas.Size,
                 Origin = default,
-                ColourGroups = groups.ManifestMembers,
+                ColourGroups = groups,
             },
         };
-        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames), canvas.Size, cells);
+        return new ComposedRoomBackground(canvas.ToSplitRoomSheet(colours, frames, RoomTileCanvas.EveryFrame(frames)), canvas.Size, cells);
     }
 
     /// <summary>
@@ -241,36 +235,39 @@ internal static class RoomBlockSheetComposer
                 Corner = corner,
                 Size = new Extent16<ImagePixels>(RoomBlockSheet.BlockPixels, RoomBlockSheet.BlockPixels),
                 Origin = default,
-                ColourGroups = coloured.ManifestMembers,
+                ColourGroups = coloured,
             });
             index++;
         }
-        ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames);
+        ComposedSpriteSheet sheet = canvas.ToSplitRoomSheet(colours, frames, RoomTileCanvas.EveryFrame(frames));
         // The tileset's rooms show its first background colour where nothing is drawn (#1544).
-        return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = RoomBackdropIndex } },
+        return new ComposedBlocks(sheet with { Manifest = sheet.Manifest with { Backdrop = GameplayColourPositionDefinitions.RoomBackdrop } },
             new RoomBlockAppearances(inputsByBlock, shownBlocks), cells);
 
         // Adds a picture of block `block` for each assignment of values to the inputs `candidates` give the runs of characters
         // `runs` it reads, over what `over` shows where an input shows the load; returns those inputs. A block one of whose
         // runs shows nothing for an assignment is not pictured for it.
+        // A block's number is its place in the tileset's own authored block list, which every installed level document
+        // references the block by, as an animation frame's place in its own animation names the frame (owner ruling on
+        // #2556): the block's pictures are named by it.
         ImmutableArray<AppearanceInput> AddBlock(int block, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles,
             AppearanceOptions candidates, BgArtworkBindings over)
         {
             ImmutableArray<AppearanceInput> dependsOn = RoomAppearanceComposition.InputsOver(BgCharacterSet.Tiles, runs.Select(run => run.FirstCharacter), candidates);
-            foreach (string[] values in RoomAppearanceComposition.Assignments(dependsOn, candidates, withLoaded: true))
-                AddPicture(RoomBlockPictureNames.Of(block, dependsOn, values), runs, tiles, dependsOn, values, candidates, over);
+            foreach (AppearanceAssignment assignment in RoomAppearanceComposition.Assignments(dependsOn, candidates, withLoaded: true))
+                AddPicture(assignment.NameOfBlock(block), runs, tiles, assignment, candidates, over);
             return dependsOn;
         }
 
-        // Adds the picture `name` of a block's `tiles`, which read `runs`, while `blockInputs` take `values`, unless a run
-        // shows nothing then.
-        void AddPicture(string name, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles, ImmutableArray<AppearanceInput> blockInputs,
-            string[] values, AppearanceOptions candidates, BgArtworkBindings? over)
+        // Adds the picture `name` of a block's `tiles`, which read `runs`, while its inputs take the values of `assignment`,
+        // unless a run shows nothing then.
+        void AddPicture(string name, ImmutableArray<RoomBlockCharacterRun> runs, BackgroundTile[] tiles, AppearanceAssignment assignment,
+            AppearanceOptions candidates, BgArtworkBindings? over)
         {
             var shown = new BgArtworkShown[runs.Length];
             for (int run = 0; run < runs.Length; run++)
             {
-                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, runs[run].FirstCharacter, runs[run].CharacterCount), blockInputs, values,
+                if (!RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, runs[run].FirstCharacter, runs[run].CharacterCount), assignment,
                     candidates, over, out shown[run]))
                     return;
             }
@@ -282,16 +279,16 @@ internal static class RoomBlockSheetComposer
         // for it.
         void AddCell(BackgroundTile[] cellTiles, string subject, ImmutableArray<AppearanceInput> cellInputs)
         {
-            foreach (string[] values in RoomAppearanceComposition.Assignments(cellInputs, options, withLoaded: true))
+            foreach (AppearanceAssignment assignment in RoomAppearanceComposition.Assignments(cellInputs, options, withLoaded: true))
             {
-                if (values.All(value => value == RoomAppearanceValues.Loaded))
+                if (assignment.ShowsLoadThroughout)
                     continue;
                 var shown = new BgArtworkShown[RoomBackgroundImageGeometry.CellTiles];
                 bool pictured = true;
                 for (int tile = 0; tile < shown.Length && pictured; tile++)
-                    pictured = RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1), cellInputs, values, options, loaded, out shown[tile]);
+                    pictured = RoomAppearanceComposition.TryShowing(new CharacterSpan(BgCharacterSet.Tiles, cellTiles[tile].Tile, 1), assignment, options, loaded, out shown[tile]);
                 if (pictured)
-                    pictures.Add(AppearancePictureNames.Of(subject, cellInputs, values), new Picture([.. cellTiles], shown));
+                    pictures.Add(assignment.NameOf(subject), new Picture([.. cellTiles], shown));
             }
         }
     }
@@ -345,13 +342,13 @@ internal static class RoomBlockSheetComposer
     /// <summary>One block or cell to picture: its four tile words and what shows at each tile's character.</summary>
     /// <param name="Tiles">The tiles: top left, top right, bottom left, bottom right.</param>
     /// <param name="Shown">What shows at each tile's character.</param>
-    private sealed record Picture(BackgroundTile[] Tiles, BgArtworkShown[] Shown);
+    private sealed partial record Picture(BackgroundTile[] Tiles, BgArtworkShown[] Shown);
 
     /// <summary>One tileset's composed sheet, the inputs each block depends on, and each background's changing cells.</summary>
     /// <param name="Sheet">The sheet.</param>
     /// <param name="Appearances">The inputs each block depends on.</param>
     /// <param name="Cells">Each background's changing cells, by its installed name.</param>
-    private sealed record ComposedBlocks(ComposedSpriteSheet Sheet, RoomBlockAppearances Appearances, IReadOnlyDictionary<string, IReadOnlyList<RoomBackgroundCell>> Cells);
+    private sealed partial record ComposedBlocks(ComposedSpriteSheet Sheet, RoomBlockAppearances Appearances, IReadOnlyDictionary<string, IReadOnlyList<RoomBackgroundCell>> Cells);
 
     /// <summary>One tileset's composed pictures.</summary>
     /// <param name="Blocks">Its block sheet.</param>
@@ -362,7 +359,7 @@ internal static class RoomBlockSheetComposer
     /// <param name="Hud">Its pictures of the HUD.</param>
     /// <param name="MessageBox">Its message box sheet.</param>
     /// <param name="Floor">Its Ceres floor sheet, or null outside Ceres.</param>
-    private sealed record TilesetPictures(ComposedSpriteSheet Blocks, RoomBlockAppearances Appearances,
+    private sealed partial record TilesetPictures(ComposedSpriteSheet Blocks, RoomBlockAppearances Appearances,
         KeyValuePair<string, ComposedRoomBackground>[] Backgrounds, ComposedWrittenPictureSheet? Written, ComposedWrittenPictureSheet RoomEffects, ComposedSpriteSheet Hud,
         ComposedSpriteSheet MessageBox, ComposedSpriteSheet? Floor);
 }

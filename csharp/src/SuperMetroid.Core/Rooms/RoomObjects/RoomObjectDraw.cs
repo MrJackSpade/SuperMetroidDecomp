@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// through the family it belongs to. A family's visual catalog keys its installed pictures by the draw. Where the game
 /// stored each draw is known only to the import pipeline.
 /// </summary>
-internal abstract record RoomObjectDraw
+internal abstract partial record RoomObjectDraw
 {
     /// <summary>Draws the frame with its block origin at <paramref name="origin"/>, through the family it belongs to.</summary>
     /// <param name="level">The room's level data.</param>

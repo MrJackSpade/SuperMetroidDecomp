@@ -5,13 +5,13 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.World;
 
 /// <summary>What a placed room object's family setup reaches as the room's population places it (#2288).</summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed record RoomObjectSetupContext
+internal sealed partial record RoomObjectSetupContext
 {
     /// <summary>The room's level, progress and area.</summary>
     public required RoomObjectRoom Room { get; init; }
 
-    /// <summary>The area's boss flags, which the Bomb Torizo's hand reads without being able to set them.</summary>
+    /// <summary>The area's defeated bosses, which the Bomb Torizo's hand reads without being able to set
+    /// them.</summary>
     public required IDefeatedBossesReader Bosses { get; init; }
 
     /// <summary>The place the placement took, holding its block.</summary>
@@ -19,4 +19,10 @@ internal sealed record RoomObjectSetupContext
 
     /// <summary>The room's room-object families whose setups keep state of their own.</summary>
     public required RoomObjectPopulationLoaderDependencies Families { get; init; }
+
+    /// <summary>
+    /// The room's enemy projectiles' spawners of the projectiles room objects throw (#2514), which Mother Brain's glass and
+    /// the Bomb Torizo statue's hand take as they set up.
+    /// </summary>
+    public required RoomObjectThrownProjectileSpawners Thrown { get; init; }
 }

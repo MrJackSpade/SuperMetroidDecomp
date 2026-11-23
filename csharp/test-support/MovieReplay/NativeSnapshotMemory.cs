@@ -380,6 +380,8 @@ internal static class NativeSnapshotMemory
     public const int TidePhase = 0x1974;
     /// <summary>$1976: fx_base_y_subpos, fraction retained under the tide.</summary>
     public const int LiquidBaseFraction = 0x1976;
+    /// <summary>$1978: fx_base_y_pos, the liquid's base line before the tide.</summary>
+    public const int LiquidBase = 0x1978;
     /// <summary>$090F: layer-one X subposition used by horizontal scrolling.</summary>
     public const int CameraXFraction = 0x090f;
     /// <summary>$0913: layer-one Y subposition used by vertical scrolling.</summary>

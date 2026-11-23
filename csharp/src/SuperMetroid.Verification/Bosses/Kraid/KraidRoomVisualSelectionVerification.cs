@@ -19,7 +19,7 @@ internal static class KraidRoomVisualSelectionVerification
             new KraidRoomVisualSelectionDefinition(0x9391, "spike-background-left-column", 1), new KraidRoomVisualSelectionDefinition(0x9397, "spike-background-right-column", 1),
             new KraidRoomVisualSelectionDefinition(0x939d, "clear-ceiling", 15), new KraidRoomVisualSelectionDefinition(0x93bf, "clear-spikes", 22),
         ];
-        InstalledRoomObjectKraidVisuals stock = InstalledRoomObjectKraidVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.Kraid;
         foreach (var definition in definitions)
         {
             RoomObjectDraw draw = KraidRoomDrawsAt.Draw(definition.Pointer);

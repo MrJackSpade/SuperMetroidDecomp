@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>Enabled and disabled label regions for one special setting, recolored independently of the setting's mechanics.</summary>
-public sealed record GameOptionsToggleVisualDocument
+public sealed partial record GameOptionsToggleVisualDocument
 {
     /// <summary>Nonempty caller-owned array of row-major tile indexes 0-1023 for the enabled label; selected when the setting is enabled.</summary>
     public required int[] EnabledCells { get; init; }

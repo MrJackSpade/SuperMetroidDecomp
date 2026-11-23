@@ -6,4 +6,4 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Inks">The shades that recolour the sheet's inks.</param>
 /// <param name="Rows">The shades whose draws select another palette row.</param>
-internal sealed record SheetShadeSet(IReadOnlyList<SheetShade> Inks, IReadOnlyList<SheetRowShade> Rows);
+internal sealed partial record SheetShadeSet(IReadOnlyList<SheetShade> Inks, IReadOnlyList<SheetRowShade> Rows);

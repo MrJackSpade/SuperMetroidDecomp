@@ -4,13 +4,19 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// A look a Torizo's body animations give its artwork (#1406, #1538, #1761): each one changes a part of the Torizo, its
 /// eyes, its gut, its face or its chest, by a stage. A look shows over every look its Torizo showed before it, so a stage's
 /// name says what that stage changes, and the Torizo's frames show their finished pictures of the last look it named. Each
-/// look is one state the player sees (#1942): the stages copied in the same update as a later one are part of
-/// that later look. Both Torizos light their eyes alike as they wake; the gut and face are Bomb Torizo's, the awakening,
+/// look is one picture state the player sees (#1942). Both Torizos light their eyes alike as they wake; the gut and
+/// face are Bomb Torizo's, the awakening,
 /// chest and later glows Golden Torizo's. Its colouring is apart from its artwork's look: a <see cref="TorizoLook"/>. The
 /// values are arbitrary identities; each look's installed name is written out in <see cref="TorizoArtworkLooks"/> (#2409).
 /// </summary>
 internal enum TorizoArtworkLook
 {
+    /// <summary>
+    /// The Chozo hand holding the Bombs crumbling before Bomb Torizo wakes (#2623): its debris copied over the sprite
+    /// characters its statue's falling fragments are drawn from.
+    /// </summary>
+    ChozoCrumbled,
+
     /// <summary>The first stage of the eyes lighting up as the statue wakes: the eyes still dark.</summary>
     EyesDark,
 

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 /// <param name="roomObjectBlock">The gate's room block.</param>
 /// <param name="stage">The stage of its travel the gate starts at (#2284).</param>
-internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock, DownwardGateProjectileSegment stage) : EnemyProjectileState
+internal sealed partial class DownwardGateState(Position16<RoomBlocks> roomObjectBlock, DownwardGateProjectileSegment stage) : EnemyProjectileState
 {
     /// <summary>The gate's room block.</summary>
     internal Position16<RoomBlocks> RoomObjectBlock { get; } = roomObjectBlock;
@@ -23,5 +23,5 @@ internal sealed class DownwardGateState(Position16<RoomBlocks> roomObjectBlock, 
     /// The gate's travel to its next block, counted once for each whole pixel it moves (#2047): it reaches the next block,
     /// and starts the travel again, once it has moved a block's pixels (<see cref="RoomGridConversions.BlockPixels"/>).
     /// </summary>
-    internal UpdateCountdown BlockTravel { get; set; } = UpdateCountdown.Lasting(RoomGridConversions.BlockPixels);
+    internal UpdateCountdown BlockTravel { get; } = UpdateCountdown.Lasting(RoomGridConversions.BlockPixels);
 }

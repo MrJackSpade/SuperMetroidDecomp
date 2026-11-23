@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// unclamped, so a post may lie past the room's edge; the walk compares the Pirate with them as
 /// <see cref="DistanceAcrossRoomEdge.LiesBefore"/> compares columns.
 /// </summary>
-public sealed class WalkingSpacePirateEnemyState
+public sealed partial class WalkingSpacePirateEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal WalkingSpacePirateEnemyState(WalkingSpacePirateAction action) => Action = action;

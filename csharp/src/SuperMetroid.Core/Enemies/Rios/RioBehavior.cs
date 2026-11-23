@@ -5,14 +5,14 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class RioBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rio];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new RioEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new RioEntity(this, occupant, place, common));
 
     /// <summary>Supplies the shared enemy random number consumed on every Rio AI frame.</summary>
     private readonly EnemyRoomBinding _room;
@@ -31,14 +31,134 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Rio.</summary>
-    internal static void InitializeRio(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static RioEnemyState InitializeRio(RoomEnemyPlace place)
     {
         var state = new RioEnemyState(RioAction.WaitingForSamus);
-        place.SetSpeciesState(state);
 
         // The Rio rests in its idle animation until its first swoop starts another.
         state.Playback = EnemyAnimationPlayback.Start(place, RioAnimations.StartingWith(RioSegment.TuckedWingbeat));
+        return state;
     }
+
+    /// <summary>What <see cref="RunRioMain"/> does for each <see cref="RioAction"/> member, each member's own arm.</summary>
+    private IdentityTable<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>> RunRioMainForRioAction => field ??= new(new Dictionary<RioAction, Action<RoomEnemyPlace, RioEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>>>
+    {
+        [RioAction.WaitingForSamus] = (place, state, samus, level, camera) =>
+        {
+            if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.RioTriggerDistance)
+            {
+                return;
+            }
+
+            state.Velocity = new PixelVelocity<RoomPixels>(
+                RioLaunchDefinitions.RioXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
+                RioLaunchDefinitions.RioYVelocity);
+            StartRioAnimation(
+                place,
+                state,
+                RioSegment.SwoopOpening);
+            state.Action = RioAction.Diving;
+
+            // The cry plays only when the attack starts on screen:
+            // it is queued only for the visible attack start.
+            if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
+                _audio.QueueEnemySound(EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
+        },
+        [RioAction.WaitingForLandingAnimation] = (place, state, samus, level, camera) =>
+        {
+            if (!state.Finish.Take())
+                return;
+            state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, RioAnimations.PostSwoopHover);
+            state.Action = RioAction.WaitingForSamus;
+        },
+        [RioAction.Diving] = (place, state, samus, level, camera) =>
+        {
+            if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+                    level,
+                    place,
+                    state.Velocity.X.ToSixteenSixteenDelta()))
+            {
+                state.Velocity = state.Velocity.ReversedX();
+                ReverseRioVerticalVelocityAndBounce(state);
+                return;
+            }
+            if (_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.Velocity.Y.ToSixteenSixteenDelta()))
+            {
+                ReverseRioVerticalVelocityAndBounce(state);
+                return;
+            }
+
+            state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
+            if (state.Velocity.Y.IsNegative)
+            {
+                state.SavedHorizontalVelocity = state.Velocity.X;
+                state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
+                state.Action = RioAction.HoveringTowardSamus;
+            }
+            else if (state.Finish.Take())
+            {
+                StartRioAnimation(
+                    place,
+                    state,
+                    RioSegment.SwoopLoop);
+            }
+        },
+        [RioAction.BouncingBackToPerch] = (place, state, samus, level, camera) =>
+        {
+            if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+                    level,
+                    place,
+                    state.Velocity.X.ToSixteenSixteenDelta()))
+            {
+                state.Velocity = state.Velocity.ReversedX();
+            }
+            if (_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.Velocity.Y.ToSixteenSixteenDelta()))
+            {
+                StartRioAnimation(
+                    place,
+                    state,
+                    RioSegment.SwoopCooldown);
+                state.Action = RioAction.WaitingForLandingAnimation;
+            }
+            else
+            {
+                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
+            }
+        },
+        [RioAction.HoveringTowardSamus] = (place, state, samus, level, camera) =>
+        {
+            // Once Rio reaches Samus's height from above, it takes back its saved sideways dive speed and starts
+            // its climb back to its perch at its return speed.
+            if (place.Position.Y.Whole >= samus.Position.Y.Whole)
+            {
+                state.Velocity = new PixelVelocity<RoomPixels>(
+                    state.SavedHorizontalVelocity,
+                    RioLaunchDefinitions.ReturnYVelocity);
+                state.Action = RioAction.BouncingBackToPerch;
+                return;
+            }
+
+            TrigonometryAngle angle = EnemyMath.CalculateAimAngle(
+                new(samus.Position.X.Whole - place.Position.X.Whole, samus.Position.Y.Whole - place.Position.Y.Whole));
+            state.Velocity = state.Velocity.WithX(HoverVelocity(angle));
+            state.Velocity = state.Velocity.WithY(HoverVelocity(angle + TrigonometryAngle.QuarterTurn));
+            _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+                level,
+                place,
+                state.Velocity.X.ToSixteenSixteenDelta());
+            _terrain.MoveEnemyVertically(
+                level,
+                place,
+                state.Velocity.Y.ToSixteenSixteenDelta());
+        },
+    });
 
     /// <summary>Runs the Rio's main AI and its five actions.</summary>
     private void RunRioMain(
@@ -53,139 +173,19 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         // later random enemy in the room, so it is part of Rio's observable behavior.
         _room.Random.Generate();
 
-        switch (state.Action)
-        {
-            case RioAction.WaitingForSamus:
-                if (Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.RioTriggerDistance)
-                {
-                    return;
-                }
-
-                state.Velocity = new PixelVelocity<RoomPixels>(
-                    RioLaunchDefinitions.RioXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
-                    RioLaunchDefinitions.RioYVelocity);
-                StartRioAnimation(
-                    place,
-                    state,
-                    RioSegment.SwoopOpening);
-                state.Action = RioAction.Diving;
-
-                // The cry plays only when the attack starts on screen:
-                // it is queued only for the visible attack start.
-                if (EnemyProcessingWindow.IsWithinProcessingWindow(place, camera))
-                    _audio.QueueEnemySound(EnemySoundEffectDefinitions.RioDiveSound, priority: SoundRequestPriority.Normal);
-                return;
-
-            case RioAction.WaitingForLandingAnimation:
-                if (!state.Finish.Take())
-                    return;
-                state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, RioAnimations.PostSwoopHover);
-                state.Action = RioAction.WaitingForSamus;
-                return;
-
-            case RioAction.Diving:
-                if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                        level,
-                        place,
-                        state.Velocity.X.ToSixteenSixteenDelta()))
-                {
-                    state.Velocity = state.Velocity.ReversedX();
-                    ReverseRioVerticalVelocityAndBounce(state);
-                    return;
-                }
-                if (_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.Velocity.Y.ToSixteenSixteenDelta()))
-                {
-                    ReverseRioVerticalVelocityAndBounce(state);
-                    return;
-                }
-
-                state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
-                if (state.Velocity.Y.IsNegative)
-                {
-                    state.SavedHorizontalVelocity = state.Velocity.X;
-                    state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.Zero);
-                    state.Action = RioAction.HoveringTowardSamus;
-                }
-                else if (state.Finish.Take())
-                {
-                    StartRioAnimation(
-                        place,
-                        state,
-                        RioSegment.SwoopLoop);
-                }
-                return;
-
-            case RioAction.BouncingBackToPerch:
-                if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                        level,
-                        place,
-                        state.Velocity.X.ToSixteenSixteenDelta()))
-                {
-                    state.Velocity = state.Velocity.ReversedX();
-                }
-                if (_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.Velocity.Y.ToSixteenSixteenDelta()))
-                {
-                    StartRioAnimation(
-                        place,
-                        state,
-                        RioSegment.SwoopCooldown);
-                    state.Action = RioAction.WaitingForLandingAnimation;
-                }
-                else
-                {
-                    state.Velocity = state.Velocity.WithY(state.Velocity.Y - RioLaunchDefinitions.RioGravity);
-                }
-                return;
-
-            case RioAction.HoveringTowardSamus:
-                // Once Rio reaches Samus's height from above, it takes back its saved sideways dive speed and starts
-                // its climb back to its perch at a 256th of a pixel an update.
-                if (place.Position.Y.Whole >= samus.Position.Y.Whole)
-                {
-                    state.Velocity = new PixelVelocity<RoomPixels>(
-                        state.SavedHorizontalVelocity,
-                        RioLaunchDefinitions.ReturnYVelocity);
-                    state.Action = RioAction.BouncingBackToPerch;
-                    return;
-                }
-
-                TrigonometryAngle angle = EnemyMath.CalculateAimAngle(
-                    new(samus.Position.X.Whole - place.Position.X.Whole, samus.Position.Y.Whole - place.Position.Y.Whole));
-                state.Velocity = state.Velocity.WithX(HoverVelocity(angle));
-                state.Velocity = state.Velocity.WithY(HoverVelocity(angle + TrigonometryAngle.QuarterTurn));
-                _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
-                    level,
-                    place,
-                    state.Velocity.X.ToSixteenSixteenDelta());
-                _terrain.MoveEnemyVertically(
-                    level,
-                    place,
-                    state.Velocity.Y.ToSixteenSixteenDelta());
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Rio has no behaviour for action {state.Action}.");
-        }
+        RunRioMainForRioAction[state.Action](place, state, samus, level, camera);
     }
+
+    /// <summary>What <see cref="ApplyRioCue"/> does for each <see cref="RioCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<RioCueKind, Action<RioEnemyState>> ApplyRioCueForRioCueKind => field ??= new(new Dictionary<RioCueKind, Action<RioEnemyState>>
+    {
+        [RioCueKind.AnimationFinished] = static state => state.Finish.Raise(),
+    });
 
     /// <summary>Carries out one cue of the Rio's animations: telling main AI the animation has finished.</summary>
     private static void ApplyRioCue(RioEnemyState state, RioCue cue)
     {
-        switch (cue.Kind)
-        {
-            case RioCueKind.AnimationFinished:
-                state.Finish.Raise();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(RioCueKind)} {cue.Kind}.");
-        }
+        ApplyRioCueForRioCueKind[cue.Kind](state);
     }
 
     /// <summary>Starts an animation only when it differs from the one playing (#2145).</summary>
@@ -210,19 +210,19 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyMath.SineVelocity(angle, 1);
 
     /// <summary>Runs Rio's main AI.</summary>
-    internal void RunRioMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunRioMainAi(RoomEnemyPlace place, RioEnemyState rioEnemyState, IEnemyAiFrame frame)
     {
         RunRioMain(
             place,
-            place.RequireSpeciesState<RioEnemyState>(),
+            rioEnemyState,
             frame.Samus,
             frame.Level,
             frame.Camera);
     }
 
     /// <summary>Advances Rio's typed animation.</summary>
-    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, RioAnimations.Segments,
+    internal static void AdvanceRioTypedAnimation(RoomEnemyPlace place, RioEnemyState rioEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, rioEnemyState, RioAnimations.Segments,
             static (RioEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -9,9 +9,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="SoundsDisabled">Whether the door transition's switch disables new sounds.</param>
 /// <param name="AttractDemoPlaying">Whether an attract demo drives the game.</param>
 /// <param name="PowerBombExploding">Whether a power bomb's explosion, or Crystal Flash's, is under way.</param>
-[CompatibilityService("whether the game turns an admitted sound request away as it is made")]
-[IndependentFlag("the disable-sounds switch, an attract demo and an exploding power bomb are separate states the sound queues each test")]
-public readonly record struct SoundSuppression(bool SoundsDisabled, bool AttractDemoPlaying, bool PowerBombExploding)
+public readonly partial record struct SoundSuppression(bool SoundsDisabled, bool AttractDemoPlaying, bool PowerBombExploding)
 {
     /// <summary>Whether any of the tested states turns the request away.</summary>
     public bool TurnsSoundsAway => SoundsDisabled || AttractDemoPlaying || PowerBombExploding;

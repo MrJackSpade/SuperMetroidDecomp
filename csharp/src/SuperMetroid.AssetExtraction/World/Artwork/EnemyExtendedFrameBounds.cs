@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// What an extended enemy frame may hold (<see cref="EnemyExtendedFrameDefinitions"/>): the Phantoon and Draygon poses
 /// drawn only on BG2, and the component bound that Crocomire's fragmenting skeleton raises.
 /// </summary>
-internal static class EnemyExtendedFrameBounds
+internal static partial class EnemyExtendedFrameBounds
 {
     /// <summary>These frames contain BG2 streams only; stock legitimately has no OAM components.</summary>
     internal static bool IsBg2Only(EnemyFrameName frame) =>

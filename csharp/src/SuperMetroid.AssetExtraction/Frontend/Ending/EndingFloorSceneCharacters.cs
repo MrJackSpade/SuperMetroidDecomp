@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// the high-byte lane the ending floor sheets compose from. The discarded odd bytes of the native packed map source never
 /// reach visible VRAM because the subsequent high-byte-only transfer overwrites them.
 /// </summary>
-public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
+public sealed partial class EndingFloorSceneCharacters : EndingFloorSceneArtwork
 {
     /// <summary>Retains the validated low-byte map and high-byte character lanes for one scene.</summary>
     /// <param name="map">The row-ordered tile indices.</param>
@@ -43,16 +43,12 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
         return new EndingFloorSceneCharacters(map, characters);
     }
 
-    /// <summary>The characters <paramref name="scene"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The scene was not read from installed artwork.</exception>
-    public static EndingFloorSceneCharacters Of(EndingFloorSceneArtwork scene) => scene as EndingFloorSceneCharacters
-        ?? throw new InvalidDataException("The ending backdrop was not read from installed artwork.");
 
     /// <summary>Reads and validates a 128x64 map's ordered tile indices.</summary>
     /// <param name="mapJson">Version-1 JSON containing 8192 ordered tile indices in the range 0..255.</param>
     /// <exception cref="InvalidDataException">The map schema is invalid.</exception>
     internal static int[] ReadMapCells(Stream mapJson) =>
-        ReadMap(Ensure.NotNull(mapJson)).Tiles.Select(tile => Ensure.BetweenInclusive(0, byte.MaxValue, tile)).ToArray();
+        [.. ReadMap(Ensure.NotNull(mapJson)).Tiles];
 
     /// <summary>Serializes an ending backdrop map to the destination.</summary>
     /// <param name="json">Destination stream for the map JSON.</param>
@@ -61,8 +57,7 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
     public static void WriteMap(Stream json, EndingFloorMapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 
@@ -72,8 +67,7 @@ public sealed class EndingFloorSceneCharacters : EndingFloorSceneArtwork
         EndingFloorMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<EndingFloorMapDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ending Mode-7 map JSON is null.");
         }
         catch (JsonException error)

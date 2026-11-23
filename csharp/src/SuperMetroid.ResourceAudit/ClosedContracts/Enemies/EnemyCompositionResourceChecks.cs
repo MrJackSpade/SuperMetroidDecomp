@@ -12,8 +12,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 internal static class EnemyCompositionResourceChecks
 {
     /// <summary>Checks a compiled enemy family has every selected composition.</summary>
-    public static void Run(string family, byte bank, ReadOnlySpan<ushort> operands,
-        int familyFrameCount, int previousFrameCount, int? familyStart = null)
+    public static void Run(string family, byte bank, ReadOnlySpan<ushort> operands, int familyFrameCount)
     {
         // Construct only presentation data. The dependency is selected by the
         // compiled program, not by a room probe or an animation search.
@@ -24,12 +23,11 @@ internal static class EnemyCompositionResourceChecks
                 $"compiled {family} visual operand {operand:X4} must resolve");
             spritemaps.Add(pointer);
         }
-        RunSpritemaps(family, bank, spritemaps, familyFrameCount, previousFrameCount, familyStart);
+        RunSpritemaps(family, bank, spritemaps, familyFrameCount);
     }
 
     /// <summary>Checks the compositions a typed program shows (#641), as <see cref="Run"/> does for resolved operands.</summary>
-    public static void RunSpritemaps(string family, byte bank, IEnumerable<ushort> spritemaps,
-        int familyFrameCount, int previousFrameCount, int? familyStart = null)
+    public static void RunSpritemaps(string family, byte bank, IEnumerable<ushort> spritemaps, int familyFrameCount)
     {
         var pointers = new HashSet<ushort>();
         foreach (ushort pointer in spritemaps)
@@ -62,25 +60,22 @@ internal static class EnemyCompositionResourceChecks
         }
         Require(own.Count == familyFrameCount,
             "the selected frame set must match the documented native family");
-        int firstFamilyFrame = familyStart ?? previousFrameCount;
-        Require(expected.Skip(firstFamilyFrame).Take(familyFrameCount).All(frame =>
-            frame.Bank == bank && own.Contains(frame.Pointer)) &&
-            expected.Skip(firstFamilyFrame).Take(familyFrameCount).Select(frame => frame.Pointer).Distinct().Count() == own.Count,
-            "the family's schema append must contain exactly the identified missing identities");
+        // The document holds the family's frames by name (#2556): each of its own records is one frame of the document.
+        Require(expected.Where(frame => frame.Bank == bank && own.Contains(frame.Pointer)).Select(frame => frame.Pointer).Distinct().Count() == own.Count,
+            "the document must hold a frame for each of the family's own records");
         Console.WriteLine($"{family} resources: all {pointers.Count} compositions load, {own.Count} of them the family's own.");
     }
 
     /// <summary>Creates one distinguishable synthetic sprite part for a composition binding.</summary>
     private static SpriteVisualPart Part(int x) => new()
     {
-        OffsetX = x, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
+        OffsetX = x, OffsetY = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, Palette = 0,
         TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
     };
 
     /// <summary>Loads a constructed composition document.</summary>
     private static EnemySpritemapCatalog Load(EnemySpritemapDocument document) =>
-        EnemySpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
+        EnemySpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))));
 
     /// <summary>Reports a failed composition resource contract with its specific reason.</summary>
     private static void Require(bool condition, string message)

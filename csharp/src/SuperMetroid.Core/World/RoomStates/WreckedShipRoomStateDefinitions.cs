@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Wrecked Ship room state, named for their rooms.</summary>
-public static class WreckedShipRoomStateDefinitions
+public static partial class WreckedShipRoomStateDefinitions
 {
 
     /// <summary>The Bowling Alley room's default state.</summary>
@@ -99,12 +99,12 @@ public static class WreckedShipRoomStateDefinitions
 
     /// <summary>The Wrecked Ship Map room's default state.</summary>
     public static RoomStateSettings WreckedShipMapDefault { get; } =
-        new("WreckedShipMapDefault", RoomLevelDefinitions.GreenBrinstarMap, RoomGraphicsSet.WreckedShipMapPowerOff, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipMapDefault, RoomEnemyPopulationDefinitions.WreckedShipMapDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WreckedShipMapDefault, null, RoomSetupBehavior.None);
+        new("WreckedShipMapDefault", RoomLevelDefinitions.MapStationRoomDoorOnRight, RoomGraphicsSet.WreckedShipMapPowerOff, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipMapDefault, RoomEnemyPopulationDefinitions.WreckedShipMapDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WreckedShipMapDefault, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Wrecked Ship Map room's state once the area's boss is dead.</summary>
     public static RoomStateSettings WreckedShipMapWhenAreaBossDead { get; } =
-        new("WreckedShipMapWhenAreaBossDead", RoomLevelDefinitions.GreenBrinstarMap, RoomGraphicsSet.MapStatues, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipMapWhenAreaBossDead, RoomEnemyPopulationDefinitions.WreckedShipMapWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WreckedShipMapWhenAreaBossDead, null, RoomSetupBehavior.None);
+        new("WreckedShipMapWhenAreaBossDead", RoomLevelDefinitions.MapStationRoomDoorOnRight, RoomGraphicsSet.MapStatues, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipMapWhenAreaBossDead, RoomEnemyPopulationDefinitions.WreckedShipMapWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WreckedShipMapWhenAreaBossDead, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Phantoon room's default state.</summary>
@@ -159,10 +159,10 @@ public static class WreckedShipRoomStateDefinitions
 
     /// <summary>The Wrecked Ship Save room's default state.</summary>
     public static RoomStateSettings WreckedShipSaveDefault { get; } =
-        new("WreckedShipSaveDefault", RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.WreckedShipMapPowerOff, new RoomMusic(MusicDataSet.WreckedShip, RoomMusicTrack.Plays(MusicTrack.WreckedShipPoweredDown)), SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipUntinted, RoomEnemyPopulationDefinitions.WreckedShipSaveDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GravitySuitAndWreckedShipSavePoweredDown, null, RoomSetupBehavior.None);
+        new("WreckedShipSaveDefault", RoomLevelDefinitions.SaveRoomDoorOnLeft, RoomGraphicsSet.WreckedShipMapPowerOff, new RoomMusic(MusicDataSet.WreckedShip, RoomMusicTrack.Plays(MusicTrack.WreckedShipPoweredDown)), SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipUntinted, RoomEnemyPopulationDefinitions.WreckedShipSaveDefault, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.GravitySuitAndWreckedShipSavePoweredDown, null, RoomSetupBehavior.None);
 
 
     /// <summary>The Wrecked Ship Save room's state once the area's boss is dead.</summary>
     public static RoomStateSettings WreckedShipSaveWhenAreaBossDead { get; } =
-        new("WreckedShipSaveWhenAreaBossDead", RoomLevelDefinitions.WarehouseSave, RoomGraphicsSet.MapStatues, new RoomMusic(MusicDataSet.WreckedShip, RoomMusicTrack.Plays(MusicTrack.WreckedShipPoweredUp)), SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipGreenLights, RoomEnemyPopulationDefinitions.WreckedShipSaveWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WreckedShipSaveWhenAreaBossDead, null, RoomSetupBehavior.None);
+        new("WreckedShipSaveWhenAreaBossDead", RoomLevelDefinitions.SaveRoomDoorOnLeft, RoomGraphicsSet.MapStatues, new RoomMusic(MusicDataSet.WreckedShip, RoomMusicTrack.Plays(MusicTrack.WreckedShipPoweredUp)), SuperMetroid.Core.Fx.RoomFxDefinitions.WreckedShipGreenLights, RoomEnemyPopulationDefinitions.WreckedShipSaveWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.FollowsForeground, BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.WreckedShipSaveWhenAreaBossDead, null, RoomSetupBehavior.None);
 }

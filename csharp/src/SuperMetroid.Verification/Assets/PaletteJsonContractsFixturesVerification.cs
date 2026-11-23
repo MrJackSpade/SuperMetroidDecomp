@@ -9,6 +9,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -62,9 +63,9 @@ internal static class PaletteJsonContractsFixturesVerification
         { Version = IntroCinematicPaletteFile.Version, Colors = PaletteContractColors(SnesCgram.ColorCount) }),
             json => _ = IntroCinematicPaletteFile.Read(json));
         var tube = TitleScreenAmbientPaletteOwners.All.Single(
-            item => item.Owner == TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight);
+            item => item.Effect == ColourEffectId.TitleScreenBabyMetroidTubeLight);
         var displays = TitleScreenAmbientPaletteOwners.All.Single(
-            item => item.Owner == TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays);
+            item => item.Effect == ColourEffectId.TitleScreenFlickeringDisplays);
         yield return new("title", PaletteContractDocument(new TitlePaletteDocument
         {
             Version = TitlePaletteFormat.Version, Colors = PaletteContractColors(SnesCgram.ColorCount),
@@ -74,8 +75,12 @@ internal static class PaletteJsonContractsFixturesVerification
         }), json => _ = TitlePaletteFile.Read(json));
         yield return new("Mother Brain health", PaletteContractDocument(new MotherBrainHealthPaletteDocument
         { Version = MotherBrainHealthPaletteFile.Version,
-            Body = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteGeometry.ColorCount),
-            BackLegs = PaletteContractRows(MotherBrainHealthPaletteFormat.StateCount, MotherBrainRainbowPaletteGeometry.ColorCount) }),
+            HealthBands = SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHealthBandDefinitions.HighestFirst.Select((band, row) => KeyValuePair.Create(band.Key,
+                new MotherBrainBodyColoursDocument
+                {
+                    Body = PaletteContractColors(MotherBrainRainbowPaletteGeometry.ColorCount, row),
+                    BackLegs = PaletteContractColors(MotherBrainRainbowPaletteGeometry.ColorCount, row + 4),
+                })).ToDictionary() }),
             json => _ = MotherBrainHealthPaletteFile.Read(json));
         yield return new("Mother Brain room", PaletteContractDocument(new MotherBrainRoomColorDocument
         {
@@ -89,19 +94,19 @@ internal static class PaletteJsonContractsFixturesVerification
             RecoveryLights = PaletteContractRows(MotherBrainRoomColorDefinitions.RecoveryLightsFrames,
                 MotherBrainRoomColorGeometry.RecoveryLightsSliceColors * 2),
         }), json => _ = MotherBrainRoomColorFile.Read(json));
-        MotherBrainRainbowPaletteFrameDocument[] Frames(int count, int body, int legs, bool trailing) => Enumerable.Range(0, count)
+        MotherBrainRainbowPaletteFrameDocument[] Frames(int count, int body, int legs) => Enumerable.Range(0, count)
             .Select(frame => new MotherBrainRainbowPaletteFrameDocument { Body = PaletteContractColors(body, frame),
-                BackLegs = PaletteContractColors(legs, frame), TrailingColor = trailing ? PaletteContractColors(1, frame)[0] : null }).ToArray();
+                BackLegs = PaletteContractColors(legs, frame) }).ToArray();
         yield return new("Mother Brain rainbow", PaletteContractDocument(new MotherBrainRainbowPaletteDocument
         {
             Version = MotherBrainRainbowPaletteFile.Version,
             Rainbow = Frames(MotherBrainRainbowColourFormat.RainbowFrameCount, MotherBrainRainbowPaletteGeometry.ColorCount,
-                MotherBrainRainbowPaletteGeometry.ColorCount, false),
+                MotherBrainRainbowPaletteGeometry.ColorCount),
             ToGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.DrainedColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
             FromGrey = Frames(MotherBrainRainbowPaletteGeometry.GreyFrameCount, MotherBrainRainbowPaletteGeometry.RevivalColors,
-                MotherBrainRainbowPaletteGeometry.BackLegCount, true),
-            Normal = Frames(1, MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainRainbowPaletteGeometry.ColorCount, false)[0],
+                MotherBrainRainbowPaletteGeometry.BackLegCount),
+            Normal = Frames(1, MotherBrainRainbowPaletteGeometry.ColorCount, MotherBrainRainbowPaletteGeometry.ColorCount)[0],
             FakeDeathToGrey = PaletteContractRows(MotherBrainFakeDeathFadeDefinitions.FrameCount, MotherBrainRainbowPaletteGeometry.FakeDeathColors),
         }), json => _ = MotherBrainRainbowPaletteFile.Read(json));
 

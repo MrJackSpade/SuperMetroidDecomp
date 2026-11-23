@@ -6,8 +6,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the opening cinematic's artwork (#1416): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed opening documents.
 /// </summary>
-[EncodingOwner("cartridge addresses of the opening cinematic's artwork")]
-internal static class IntroCinematicSourceDefinitions
+internal static partial class IntroCinematicSourceDefinitions
 {
     /// <summary>Bank $8C, which holds the cinematic spritemaps their bank-relative pointers name.</summary>
     internal const byte SpritemapBank = 0x8c;

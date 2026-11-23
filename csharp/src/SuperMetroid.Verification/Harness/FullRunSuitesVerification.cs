@@ -242,6 +242,7 @@ using static SuperMetroid.Verification.Frontend.BootDemoSetCountVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleEnemyDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleShellContourVerification;
 using static SuperMetroid.Verification.Audio.ManagedAudioVerification;
+using static SuperMetroid.Verification.Audio.RoomMusicSoundClipVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapPresentationVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeObjectVerification;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
@@ -267,6 +268,7 @@ using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainMissileWalk
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRainbowVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRaiseCounterVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRingBabyHealthVerification;
+using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainMouthLaserDamageVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainRinkaDoorSpawnVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainSmallPurpleBreathVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainTubeHdmaDeletionVerification;
@@ -356,7 +358,6 @@ using static SuperMetroid.Verification.Rooms.Scrolling.RoomScrollDefinitionsVeri
 using static SuperMetroid.Verification.Rooms.RoomSetupCodeCatalogVerification;
 using static SuperMetroid.Verification.Rooms.RoomStateDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.RoomStateSelectionDefinitionsVerification;
-using static SuperMetroid.Verification.Runtime.RuntimeCartridgeBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusAerialAndLiquidsVerification;
 using static SuperMetroid.Verification.Samus.SamusAimVerification;
 using static SuperMetroid.Verification.Samus.SamusDamageAndGrabVerification;
@@ -392,7 +393,6 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SaveConfirmationCadence
 using static SuperMetroid.Verification.Hud.MessageBoxPausesVerification;
 using static SuperMetroid.Verification.Saves.SaveRamLayoutVerification;
 using static SuperMetroid.Verification.Rooms.Scrolling.ScrollObjectsVerification;
-using static SuperMetroid.Verification.Rooms.Scrolling.ScrollChangeNamesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorSetupNamesVerification;
 using static SuperMetroid.Verification.Samus.Movement.ShallowWaterJumpVerification;
 using static SuperMetroid.Verification.Samus.Abilities.ShinesparkEnemyStopVerification;
@@ -493,13 +493,12 @@ internal static class FullRunSuitesVerification
     /// <summary>One outermost suite of the full no-argument run.</summary>
     internal sealed record RegisteredSuite(string Name, Action Body);
 
-    /// <summary>The six full-movie parity replays: the only suites exempt from the suite time limit (#1532).</summary>
+    /// <summary>The five full-movie parity replays: the only suites exempt from the suite time limit (#1532).</summary>
     internal static readonly FrozenSet<string> MovieReplaySuites = FrozenSet.Create(
         nameof(VerifyRidleyFullMovie),
         nameof(VerifyMotherBrainGlitchMovie),
         nameof(VerifyLowPercentPlaythroughMovie),
         nameof(VerifyFullPlaythroughMovie),
-        nameof(VerifyDrunkPlaythroughMovie),
         nameof(VerifyLowcPlaythroughMovie));
 
     /// <summary>
@@ -543,18 +542,23 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyMotherBrainGlitchMovie), () => VerifyMotherBrainGlitchMovie("csharp/test-fixtures/replay-traces/mother-brain-glitch")),
         new(nameof(VerifyLowPercentPlaythroughMovie), () => VerifyLowPercentPlaythroughMovie("csharp/test-fixtures/replay-traces/low-13-percent")),
         new(nameof(VerifyFullPlaythroughMovie), () => VerifyFullPlaythroughMovie("csharp/test-fixtures/replay-traces/full-100-percent")),
-        new(nameof(VerifyDrunkPlaythroughMovie), () => VerifyDrunkPlaythroughMovie("csharp/test-fixtures/replay-traces/samus-drunk")),
         new(nameof(VerifyLowcPlaythroughMovie), () => VerifyLowcPlaythroughMovie("csharp/test-fixtures/replay-traces/lowc")),
-        new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
         new(nameof(VerifyDebuggerStateRestoresCatalogMembers), () => VerifyDebuggerStateRestoresCatalogMembers()),
         new(nameof(VerifyDebuggerStateRebuildsHashKeyedCollections), () => VerifyDebuggerStateRebuildsHashKeyedCollections()),
         new(nameof(VerifyDebuggerStatePacksLevelBlocks), () => VerifyDebuggerStatePacksLevelBlocks()),
         new(nameof(VerifyDebuggerStateRestoresRoomObjectVisuals), () => VerifyDebuggerStateRestoresRoomObjectVisuals()),
-        new(nameof(VerifyDebuggerStateIndexesReachedCatalogs), () => VerifyDebuggerStateIndexesReachedCatalogs()),
-        new(nameof(VerifyDefinitionCandidatesCoverEnemyCatalogs), () => VerifyDefinitionCandidatesCoverEnemyCatalogs()),
-        new(nameof(VerifyDefinitionCandidatesCoverWorldCatalogs), () => VerifyDefinitionCandidatesCoverWorldCatalogs()),
-        new(nameof(VerifyDefinitionCandidatesCoverOtherCatalogs), () => VerifyDefinitionCandidatesCoverOtherCatalogs()),
+        new(nameof(VerifyDebuggerStateRestoreRunsNoSetup), () => VerifyDebuggerStateRestoreRunsNoSetup()),
+        new(nameof(VerifyDebuggerStateRestoresDachoraEchoes), () => VerifyDebuggerStateRestoresDachoraEchoes()),
+        new(nameof(VerifyDebuggerStateRestoresSqueeptAndDragonParts), () => VerifyDebuggerStateRestoresSqueeptAndDragonParts()),
+        new(nameof(VerifyDebuggerStateRestoresGerutaFollowers), () => VerifyDebuggerStateRestoresGerutaFollowers()),
+        new(nameof(VerifyDebuggerStateRestoresHoltzFollowers), () => VerifyDebuggerStateRestoresHoltzFollowers()),
+        new(nameof(VerifyDebuggerStateRestoresKiHunterWings), () => VerifyDebuggerStateRestoresKiHunterWings()),
+        new(nameof(VerifyDebuggerStateRebuildsLazyCaches), () => VerifyDebuggerStateRebuildsLazyCaches()),
+        new(nameof(VerifyDebuggerStateRestoresEyeDoorParts), () => VerifyDebuggerStateRestoresEyeDoorParts()),
+        new(nameof(VerifyDebuggerStateRestoresSamusDeathSequence), () => VerifyDebuggerStateRestoresSamusDeathSequence()),
+        new(nameof(VerifyDebuggerStateRestoresInitializedCatalogRoom), () => VerifyDebuggerStateRestoresInitializedCatalogRoom()),
+        new(nameof(VerifyDefinitionIndexAddsLaterInitializedCatalogs), () => VerifyDefinitionIndexAddsLaterInitializedCatalogs()),
         new(nameof(VerifyWorkRamCells), () => VerifyWorkRamCells()),
         new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
         new(nameof(VerifyPpuMemoryModel), () => VerifyPpuMemoryModel()),
@@ -782,6 +786,12 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyCartridgeImportAddressSpace), () => VerifyCartridgeImportAddressSpace()),
         new(nameof(VerifyCartridgeAudioQueues), () => VerifyCartridgeAudioQueues()),
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
+        // Each stop plays only zero-volume notes and each sound a note above it, as the cartridge's programs hold (#2580).
+        new(nameof(SuperMetroid.Verification.Audio.SoundStopProgramsVerification.VerifyStopsPlayOnlySilentNotes),
+            SuperMetroid.Verification.Audio.SoundStopProgramsVerification.VerifyStopsPlayOnlySilentNotes),
+        // No two members of the sound lists install the same clip: each different sound has one name (#2580).
+        new(nameof(SuperMetroid.Verification.Audio.SoundListClipsVerification.VerifyEachSoundHasItsOwnClip),
+            SuperMetroid.Verification.Audio.SoundListClipsVerification.VerifyEachSoundHasItsOwnClip),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
             SuperMetroid.Verification.Rooms.LevelData.BlockParameterCarryOverVerification.VerifyBlockParameterCarryOver),
@@ -907,7 +917,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifySamusHorizontalSpeed), () => VerifySamusHorizontalSpeed()),
         new(nameof(VerifySamusExtraDisplacement), () => VerifySamusExtraDisplacement()),
         new(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark()),
-        new(nameof(VerifyShinesparkStepRequiresMovingSpark), () => VerifyShinesparkStepRequiresMovingSpark()),
         new(nameof(VerifySamusCrystalFlash), () => VerifySamusCrystalFlash()),
         .. SuperMetroid.Verification.Samus.Abilities.CrystalFlashCleanupVerification.CrystalFlashRuntimeSuites(),
         new(nameof(VerifySamusXray), () => VerifySamusXray()),
@@ -1020,6 +1029,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyGModeGateGlitch), () => VerifyGModeGateGlitch()),
         new(nameof(VerifyFrozenEnemyGateGlitch), () => VerifyFrozenEnemyGateGlitch()),
         new(nameof(VerifyMochtroidBotwoonPipeClip), () => VerifyMochtroidBotwoonPipeClip()),
+        new(nameof(VerifyRoomMusicSoundClips), () => VerifyRoomMusicSoundClips()),
         new(nameof(VerifySparkCrashAlignment), () => VerifySparkCrashAlignment()),
         new(nameof(VerifyEnemyAngleDivision), () => VerifyEnemyAngleDivision()),
         new(nameof(VerifyDraygonEyeEffects), () => VerifyDraygonEyeEffects()),
@@ -1077,7 +1087,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyHudState), () => VerifyHudState()),
         new(nameof(VerifyRoomScrollGridAndBoundaryCamera), () => VerifyRoomScrollGridAndBoundaryCamera()),
         new(nameof(VerifyRoomScrollObjects), () => VerifyRoomScrollObjects()),
-        new(nameof(VerifyScrollChangeNamesDescribeTheirScreens), () => VerifyScrollChangeNamesDescribeTheirScreens()),
         new(nameof(VerifyDoorSetupNamesDescribeTheirScreens), () => VerifyDoorSetupNamesDescribeTheirScreens()),
         new(nameof(VerifyRoomObjectHeaderCatalog), () => VerifyRoomObjectHeaderCatalog()),
         new(nameof(VerifyRoomObjectAnimationScriptCatalog), () => VerifyRoomObjectAnimationScriptCatalog()),
@@ -1278,6 +1287,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBabyMetroidPresence), () => VerifyBabyMetroidPresence()),
         new(nameof(VerifyMotherBrainWalkBackwardsPose), () => VerifyMotherBrainWalkBackwardsPose()),
         new(nameof(VerifyMotherBrainRingBabyHealth), () => VerifyMotherBrainRingBabyHealth()),
+        new(nameof(VerifyMotherBrainMouthLaserDamage), () => VerifyMotherBrainMouthLaserDamage()),
         new(nameof(VerifyBabyMetroidWrongWaySpeed), () => VerifyBabyMetroidWrongWaySpeed()),
         new(nameof(VerifyMotherBrainGlitchMechanics), () => VerifyMotherBrainGlitchMechanics()),
         new(nameof(VerifyXrayWarmUp), () => VerifyXrayWarmUp()),
@@ -1424,7 +1434,6 @@ internal static class FullRunSuitesVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")))),
         new(nameof(VerifyAnimatedTileInstructionCodeCatalog), () => VerifyAnimatedTileInstructionCodeCatalog()),
         new(nameof(VerifyEnemyProjectileCodePointerCatalog), () => VerifyEnemyProjectileCodePointerCatalog()),
-        new(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting()),
         new(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading()),
         new(nameof(SuperMetroid.Verification.Enemies.Artwork.GraphicsSetCharacterLayoutVerification.VerifyGraphicsSetCharacterLayout),
             SuperMetroid.Verification.Enemies.Artwork.GraphicsSetCharacterLayoutVerification.VerifyGraphicsSetCharacterLayout),

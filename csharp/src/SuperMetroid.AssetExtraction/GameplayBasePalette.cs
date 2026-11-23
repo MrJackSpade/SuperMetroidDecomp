@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction;
 /// restores. Only the import pipeline reads it, from its import data (#1637), to pre-colour the sheets that show these
 /// colours; the runtime never holds it (#1544) and the installation never holds it.
 /// </summary>
-public sealed class GameplayBasePalette
+public sealed partial class GameplayBasePalette
 {
     /// <summary>The sixteen common sprite colours.</summary>
     private readonly RgbColor[] commonSprites;

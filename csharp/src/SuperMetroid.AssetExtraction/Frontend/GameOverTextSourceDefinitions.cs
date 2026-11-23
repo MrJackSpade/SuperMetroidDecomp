@@ -4,8 +4,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>The bank-$81 pointer of each game-over text element's command stream.</summary>
-[EncodingOwner("bank-$81 addresses of the game-over text streams")]
-internal static class GameOverTextSourceDefinitions
+internal static partial class GameOverTextSourceDefinitions
 {
     /// <summary>Each element's stream, by element.</summary>
     internal static IReadOnlyDictionary<GameOverTextElement, ushort> Pointers { get; } = new Dictionary<GameOverTextElement, ushort>

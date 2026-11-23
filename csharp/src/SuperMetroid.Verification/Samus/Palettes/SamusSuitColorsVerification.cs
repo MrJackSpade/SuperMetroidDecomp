@@ -51,8 +51,6 @@ internal static class SamusSuitColorsVerification
                 AssertEqual(RgbColor.FromWordIgnoringTopBit(ReadVerificationWord(cartridge, source + 2 * color)), colors.Resolve(suit, color),
                     "Every native suit word is kept as installed");
         }
-        // A suit outside the three the cartridge shows is rejected, as the 0/2/4 table offsets were.
-        AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve((SamusSuit)Enum.GetValues<SamusSuit>().Length, 0), "Undefined suit");
         foreach (SamusSuit shownSuit in Enum.GetValues<SamusSuit>())
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colors.Resolve(shownSuit, invalid), "Normal color index bounds");
@@ -111,13 +109,11 @@ internal static class SamusSuitColorsVerification
         SamusSuit[] offsets = [SamusSuit.Power, SamusSuit.Varia, SamusSuit.Gravity];
         for (int suit = 0; suit < offsets.Length; suit++)
         for (int color = 0; color < SamusSuitColorFormat.ColorsPerSuit; color++)
-            AssertEqual(ReadNativeSuitColor(CartridgeImportSource.Require(bus), sourceAddresses[suit], color),
+            AssertEqual(ReadNativeSuitColor(bus, sourceAddresses[suit], color),
                 decoded.Resolve(offsets[suit], color),
                 $"extracted normal suit {suit} color {color} agrees with cartridge");
 
-        SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)),
-            ArtworkJson.Options)
+        SamusSuitColorDocument document = JsonSerializer.Deserialize<SamusSuitColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusSuitColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Samus suit palette JSON is null.");
         var guard = NewSuitColorReadGuard(bus);
         var samusColours = new SamusColours();
@@ -160,8 +156,7 @@ internal static class SamusSuitColorsVerification
             "hurt-flash recovery restores the installed Varia color");
 
         samus.EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.ScrewAttack);
-        AssertTrue(samus.HorizontalSpeed.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (0x1b) == 0, AnimationPastScrewAttackSpin = (0x1b) >= 27, AnimationBeforeWallJumpSpin = (0x1b) < 3, EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-            "Screw Attack recovery frame restores the normal suit");
+        samus.HorizontalSpeed.UpdateSpeedBoosterGlow(samusColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.ShowsNormalColours, EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Varia, 1),
             samusColours.ShownSuit(installedSources)[1],
             "Screw Attack recovery restores the installed Varia color");
@@ -171,7 +166,7 @@ internal static class SamusSuitColorsVerification
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Suits.Resolve(SamusSuit.Power, 1),
             runtime.Player.Colours.ShownSuit(installedSources)[1],
             "installed production Ceres entry uses the installed Power Suit color");
@@ -180,7 +175,7 @@ internal static class SamusSuitColorsVerification
 
         PaletteRgb5 originalColor = document.Varia[1];
         document.Varia[1] = originalColor with { Red = 32 };
-        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => SamusSuitColorFile.Read(
             new MemoryStream(malformed, writable: false)),
             "Samus suit colors reject out-of-range RGB5 channels");

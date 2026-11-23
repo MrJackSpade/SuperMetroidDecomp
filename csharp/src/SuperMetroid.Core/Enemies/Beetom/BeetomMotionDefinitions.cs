@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>How a Beetom idles, crawls, hops, lunges, drains Samus and is thrown off (#2149).</summary>
-internal static class BeetomMotionDefinitions
+internal static partial class BeetomMotionDefinitions
 {
-    /// <summary>The furthest place along the quadratic speed curve a falling or flung Beetom accelerates to: mark 64.</summary>
+    /// <summary>The furthest place along the quadratic speed curve a falling or flung Beetom accelerates to.</summary>
     internal static readonly QuadraticSpeedCurvePlace MaximumYSpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(64);
 
     /// <summary>How close Samus comes horizontally, in pixels and exclusive, before a deciding Beetom lunges at her.</summary>
@@ -12,11 +12,11 @@ internal static class BeetomMotionDefinitions
     /// <summary>How many changes of Samus's held buttons it takes to throw off a Beetom draining her.</summary>
     internal const int MashCount = 64;
 
-    /// <summary>How long a Beetom idles before it decides again, in updates: 33, the last the one its wait runs out on.</summary>
+    /// <summary>How long a Beetom idles before it decides again, in updates, the last the one its wait runs out on.</summary>
     internal const int IdleDuration = 33;
 
     /// <summary>
-    /// How long a Beetom crawls before it decides again, in updates: 65, the last the one its wait runs out on. Each crawl
+    /// How long a Beetom crawls before it decides again, in updates, the last the one its wait runs out on. Each crawl
     /// that runs its course sets the next crawl's length; a crawl that starts with its wait already run out decides again
     /// on its first update.
     /// </summary>
@@ -62,7 +62,7 @@ internal static class BeetomMotionDefinitions
     /// How far a thrown Beetom that meets a wall is moved back the other way, in pixels: twice the throw, so it lands the
     /// throw's distance on Samus's other side.
     /// </summary>
-    internal const int EscapeRebound = 32;
+    internal const int EscapeRebound = 2 * EscapeThrow;
 
     /// <summary>How fast a dropping Beetom falls: three pixels an update.</summary>
     internal static SignedSixteenSixteen DropSpeed { get; } = SignedSixteenSixteen.FromWholePixels(3);

@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
 /// The escaping Dachora's typed animations (#641, #1600). Each frame shows a <see cref="EnemyFrameId"/> and
-/// each cue is a <see cref="EscapeDachoraCue"/> with the values it acts on. Around the shaft it runs five laps
-/// left and five right, counting its laps; each lap's end is a cue its owner may take elsewhere (#2061, #2167).
+/// each cue is a <see cref="EscapeDachoraCue"/> with the values it acts on. Around the shaft it runs its laps
+/// left and then right (<see cref="LapsEachWay"/>), counting its laps; each lap's end is a cue its owner may take elsewhere (#2061, #2167).
 /// </summary>
-internal static class EscapeDachoraAnimations
+internal static partial class EscapeDachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EscapeDachoraSegment, EnemyFrameId, EscapeDachoraCue> Segments { get; } = new(
@@ -43,8 +43,8 @@ internal static class EscapeDachoraAnimations
         ],
         [P.RunningForEscapeAccelerating] =
         [
-            .. Stride(DachoraStride.Right, [90, 5, 5, 4, 4, 4], LapStepPixels),
-            .. Stride(DachoraStride.Right, [3, 3, 3, 2, 2, 2], LapStepPixels),
+            .. Stride(DachoraStride.Right, new DachoraStridePace(90, 5, 5, 4, 4, 4), LapStepPixels),
+            .. Stride(DachoraStride.Right, new DachoraStridePace(3, 3, 3, 2, 2, 2), LapStepPixels),
         ],
         [P.RunningForEscapeMaximumSpeed] = Stride(DachoraStride.Right, 1, LapStepPixels),
     });
@@ -55,11 +55,11 @@ internal static class EscapeDachoraAnimations
     /// <summary>How many laps the escaping Dachora runs each way before it turns around.</summary>
     private const int LapsEachWay = 5;
 
-    /// <summary>Five laps left then five right at low tide, each lap counted, over and over (#2061).</summary>
+    /// <summary>Its laps left then right at low tide, each lap counted, over and over (#2061).</summary>
     internal static Animation<P> RunningAroundLowTide { get; } =
         Animation<P>.Looping([Segments.Repeated(P.RunningAroundLowTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundLowTideRight, LapsEachWay)]);
 
-    /// <summary>Five quicker laps left then five right at high tide, each lap counted, over and over (#2061).</summary>
+    /// <summary>Its quicker laps left then right at high tide, each lap counted, over and over (#2061).</summary>
     internal static Animation<P> RunningAroundHighTide { get; } =
         Animation<P>.Looping([Segments.Repeated(P.RunningAroundHighTideLeft, LapsEachWay), Segments.Repeated(P.RunningAroundHighTideRight, LapsEachWay)]);
 
@@ -96,17 +96,21 @@ internal static class EscapeDachoraAnimations
     /// <paramref name="step"/> pixels.
     /// </summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, int updates, int step) =>
-        Stride(stride, [.. stride.Poses.Select(_ => updates)], step);
+        Stride(stride, new DachoraStridePace(updates, updates, updates, updates, updates, updates), step);
 
     /// <summary>
-    /// One <paramref name="stride"/> whose pace changes from pose to pose (#2477): each pose shown for its own count of
-    /// <paramref name="updates"/> and followed by a step of <paramref name="step"/> pixels.
+    /// One <paramref name="stride"/> whose pace changes from pose to pose (#2477): each pose shown for the updates
+    /// <paramref name="pace"/> gives it and followed by a step of <paramref name="step"/> pixels.
     /// </summary>
-    /// <exception cref="ArgumentException"><paramref name="updates"/> does not time every pose of the stride.</exception>
-    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, IReadOnlyList<int> updates, int step) =>
-        updates.Count == stride.Poses.Count
-            ? [.. stride.Poses.SelectMany((pose, index) => new[] { Show(pose, updates[index]), Cue(new EscapeDachoraCue.Move(Offset: step)) })]
-            : throw new ArgumentException($"A Dachora stride of {stride.Poses.Count} poses is timed by {updates.Count} counts.", nameof(updates));
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue>[] Stride(DachoraStride stride, DachoraStridePace pace, int step) =>
+    [
+        Show(stride.FarLegBack, pace.FarLegBack), Move(step), Show(stride.FarLegPassing, pace.FarLegPassing), Move(step),
+        Show(stride.FarLegReaching, pace.FarLegReaching), Move(step), Show(stride.NearLegBack, pace.NearLegBack), Move(step),
+        Show(stride.NearLegPassing, pace.NearLegPassing), Move(step), Show(stride.NearLegReaching, pace.NearLegReaching), Move(step),
+    ];
+
+    /// <summary>A step of <paramref name="step"/> pixels.</summary>
+    private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Move(int step) => Cue(new EscapeDachoraCue.Move(Offset: step));
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, EscapeDachoraCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, EscapeDachoraCue>.Frame(frame, duration);

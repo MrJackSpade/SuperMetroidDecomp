@@ -26,20 +26,19 @@ internal static class SaveStationSoundVerification
     internal static void VerifySaveStationSound()
     {
         var random = new SharedRandom();
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, 
-            SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), hostServices: global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(gameplayFrames: RetainedGameplayFrames.Instance), random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaSave);
         _ = runtime.Room.LevelData ?? throw new InvalidOperationException("The save room has no level data.");
         RoomObjectPlace station = runtime.Room.LoadedScope.RoomObjects.Places.InUpdateOrder.Single(place =>
             place.Active && place.Behaviour is SaveStationObject);
         int column = station.Block.X;
         int row = station.Block.Y;
-        SamusState samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        SamusState samus = runtime.Player.Samus;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new(

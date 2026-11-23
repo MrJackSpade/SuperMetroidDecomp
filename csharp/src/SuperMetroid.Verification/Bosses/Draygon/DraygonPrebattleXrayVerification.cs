@@ -43,22 +43,22 @@ internal static class DraygonPrebattleXrayVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         samus.Position = samus.Position.WithWhole(new(456, 459));
         samus.EquippedItems = SamusEquipmentFlags.XrayScope;
         samus.SelectedHudItem = HudItem.XRay;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0);
-        runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");
-        for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        for (int frame = 0; frame < 40; frame++) runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         var boss = runtime.Enemies.Draygon;
-        AssertEqual(DraygonPhase.IntroInitialDelay, (boss ?? throw new InvalidOperationException("Verification requires boss.")).Phase, "X-Ray preserves the pre-battle phase");
+        AssertEqual(DraygonPhaseSteps.IntroInitialDelay(), (boss ?? throw new InvalidOperationException("Verification requires boss.")).Step, "X-Ray preserves the pre-battle phase");
         var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var math = (GameplayBlendLayer)scene.Layers[0];
         var r = math.Gameplay.View;
@@ -83,7 +83,7 @@ internal static class DraygonPrebattleXrayVerification
         boss.IntroStage = UpdateCountdown.Ended();
         runtime.StepFrame(0); // Dance completion selects the first swoop.
         runtime.StepFrame(0); // Build the authored swoop path.
-        int descentFrames = (boss.SwoopPath ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
+        int descentFrames = ((boss.Step as DraygonSwoopStep)?.Path ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
         for (int frame = 0; frame < descentFrames + 2; frame++) runtime.StepFrame(0);
         var combat = runtime.PublishDisplayFrame().OrdinaryBaseScene;
         var ordinary = (GameplaySceneLayer)combat.Layers[0];
@@ -97,7 +97,7 @@ internal static class DraygonPrebattleXrayVerification
         // #1680, #2031: his body's pictures lie once in the room against his published placement, his parts' area's top-left
         // corner 62 left of and 64 above it, where the cartridge's layer put it; the screen shows them there against the room
         // pixel at its top-left corner, starting at the area's corner.
-        Position16<RoomPixels> placement = runtime.Display.LatchedOrdinaryRoom.Bosses.Placement ?? throw new InvalidOperationException("Draygon publishes his body placement.");
+        Position16<RoomPixels> placement = runtime.Display.LatchedOrdinaryRoom.Bosses?.Placement ?? throw new InvalidOperationException("Draygon publishes his body placement.");
         Offset16<ScreenPixels> corner = (placement + BossBodySourceDefinitions.AreaFromBoss[BossBodyOwner.Draygon]).RelativeToCamera(Position16<RoomPixels>.Wrapped(ordinary.View.ForegroundScroll.X, ordinary.View.ForegroundScroll.Y));
         Console.WriteLine($"Battle-start Draygon body: {shown.Length} visible pixels; body={boss.Body.Position.X.Whole}/{boss.Body.Position.Y.Whole}, " +
             $"its area's corner on screen {corner.X}/{corner.Y}.");

@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// Imports the game-over screen's presentation and verifies the compiled Baby animation
 /// dispatcher against the selected cartridge revision.
 /// </summary>
-public static class GameOverPresentationExtractor
+public static partial class GameOverPresentationExtractor
 {
     /// <summary>Imports game-over text, Baby and egg artwork, cursor frames, and Baby palettes after verifying the compiled native animation sequence.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying game-over text, spritemaps, palettes, and Baby instruction records.</param>
@@ -37,33 +37,13 @@ public static class GameOverPresentationExtractor
 
         var cells = new MapPresentationCell[tilemap.Length];
         for (int index = 0; index < tilemap.Length; index++)
-        {
-            var word = new SnesBgTilemapWord(tilemap[index]);
-            cells[index] = new()
-            {
-                TileColumn = word.CharacterIndex % MapTileAtlasFormat.TileColumns,
-                TileRow = word.CharacterIndex / MapTileAtlasFormat.TileColumns,
-                Palette = word.PaletteIndex,
-                Priority = word.HasPriority,
-                FlipX = word.FlipHorizontally,
-                FlipY = word.FlipVertically,
-            };
-        }
+            cells[index] = MapPresentationCell.Of(BackgroundTileWords.ToTile(tilemap[index]), MapTileAtlasFormat.TileColumns);
 
-        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal)
-        {
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Closed)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.NativeSpritemap(GameOverBabyFrame.Closed)),
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Middle)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.NativeSpritemap(GameOverBabyFrame.Middle)),
-            [GameOverPresentationNames.BabyFrameName(GameOverBabyFrame.Open)] =
-                MenuSpriteExtractor.Read(bus,
-                    GameOverBabyAnimationDefinitions.NativeSpritemap(GameOverBabyFrame.Open)),
-            [GameOverPresentationDefinitions.EggFrame] =
-                MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap),
-        };
+        var sprites = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
+        foreach (GameOverBabyFrame frame in GameOverSheetComposer.BabyFrames)
+            sprites.Add(GameOverPresentationNames.BabyFrameName(frame),
+                MenuSpriteExtractor.Read(bus, GameOverBabyAnimationDefinitions.Spritemaps.Word(frame)));
+        sprites.Add(GameOverPresentationDefinitions.EggFrame, MenuSpriteExtractor.Read(bus, GameOverSourceDefinitions.EggSpritemap));
         foreach (MenuMissileFrame frame in MenuMissileAnimationDefinitions.Roll)
         {
             sprites.Add(MenuMissileFrames.Name(frame),
@@ -74,7 +54,7 @@ public static class GameOverPresentationExtractor
         foreach (GameOverBabyColouring palette in Enum.GetValues<GameOverBabyColouring>())
         {
             var colors = new ushort[GameOverPresentationFormat.BabyPaletteColorCount];
-            int pointer = GameOverBabyAnimationDefinitions.NativePalettePointer(palette);
+            int pointer = GameOverBabyAnimationDefinitions.PalettePointers.Word(palette);
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = ReadBank82Word(unchecked((ushort)(pointer + color * 2)));
             palettes.Add(GameOverBabyPaletteNames.BabyPaletteName(palette), colors);
@@ -106,21 +86,16 @@ public static class GameOverPresentationExtractor
             int sourceAddress = GameOverSourceDefinitions.TextBank | GameOverTextSources.Pointer(stream.Element);
             while (true)
             {
-                int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
+                int word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
                 sourceAddress = GameOverSourceDefinitions.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
                 if (GameOverSourceDefinitions.TextControls.TryGetValue(word, out GameOverTextControl control))
                 {
-                    switch (control)
-                    {
-                        case GameOverTextControl.End:
-                            return;
-                        case GameOverTextControl.NextLine:
-                            initialColumn += GameOverSourceDefinitions.TextRowBytes;
-                            destinationByteOffset = initialColumn;
-                            continue;
-                        default:
-                            throw new InvalidOperationException($"Undefined {nameof(GameOverTextControl)} {control}.");
-                    }
+                    // The two controls end the text or start its next line.
+                    if (control == GameOverTextControl.End)
+                        return;
+                    initialColumn += GameOverSourceDefinitions.TextRowBytes;
+                    destinationByteOffset = initialColumn;
+                    continue;
                 }
 
                 int wordIndex = destinationByteOffset / sizeof(ushort);
@@ -133,7 +108,7 @@ public static class GameOverPresentationExtractor
         }
 
         ushort ReadBank82Word(int pointer) =>
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), GameOverSourceDefinitions.SpriteBank | pointer);
+            RomDataReader.ReadWordFixedBank(bus, GameOverSourceDefinitions.SpriteBank | pointer);
     }
 
     /// <summary>Compares each look of the Baby's animation, its duration, sprite and colours, its cries and its loop with the cartridge.</summary>
@@ -155,16 +130,16 @@ public static class GameOverPresentationExtractor
             if (beats[beat] is not AnimationBeat<GameOverBabyLook, GameOverBabySound>.Frame look)
                 throw new InvalidDataException($"Game-over Baby beat {beat} is a cry that follows no look.");
             int address = GameOverSourceDefinitions.SpriteBank | pointer;
-            int duration = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            int sprite = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2);
-            int palette = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 4);
+            int duration = RomDataReader.ReadWordFixedBank(bus, address);
+            int sprite = RomDataReader.ReadWordFixedBank(bus, address + 2);
+            int palette = RomDataReader.ReadWordFixedBank(bus, address + 4);
             if (duration != look.Duration ||
-                sprite != GameOverBabyAnimationDefinitions.NativeSpritemap(look.Shown.Frame) ||
-                palette != GameOverBabyAnimationDefinitions.NativePalettePointer(look.Shown.Colours))
+                sprite != GameOverBabyAnimationDefinitions.Spritemaps.Word(look.Shown.Frame) ||
+                palette != GameOverBabyAnimationDefinitions.PalettePointers.Word(look.Shown.Colours))
                 throw new InvalidDataException(
                     $"Game-over Baby look $82:{pointer:X4} does not match the cartridge.");
 
-            int nextWord = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 6);
+            int nextWord = RomDataReader.ReadWordFixedBank(bus, address + 6);
             pointer += FrameRecordBytes;
             if (beat + 1 == beats.Count)
             {
@@ -174,7 +149,7 @@ public static class GameOverPresentationExtractor
             }
             else if (beats[beat + 1] is AnimationBeat<GameOverBabyLook, GameOverBabySound>.Event cry)
             {
-                if (nextWord != GameOverBabyAnimationDefinitions.NativeSoundOpcode(cry.Raised))
+                if (nextWord != GameOverBabyAnimationDefinitions.CryCallbacks.Word(cry.Raised))
                     throw new InvalidDataException(
                         $"Game-over Baby cry at $82:{pointer:X4} does not match the cartridge.");
                 pointer += CryCallbackBytes;

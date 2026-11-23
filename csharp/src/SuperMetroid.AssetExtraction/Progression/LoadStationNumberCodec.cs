@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// names a save station's load station with. The import, the save-image codec and the legacy save upgrade number stations
 /// here; the game and its save name stations and never see the number.
 /// </summary>
-public static class LoadStationNumberCodec
+public static partial class LoadStationNumberCodec
 {
     /// <summary>Each load station's number in its area's station list.</summary>
     private static readonly Dictionary<LoadStation, int> Numbers = new()
@@ -69,5 +69,6 @@ public static class LoadStationNumberCodec
     /// <param name="source">What named the station, reported when it names none.</param>
     /// <exception cref="InvalidDataException"><paramref name="area"/>'s station list numbers no station <paramref name="number"/>.</exception>
     public static LoadStation Decode(AreaId area, int number, string source) =>
-        Find(area, number) ?? throw new InvalidDataException($"{source} names {area} load station {number}, which is no load station.");
+        LoadStationDefinitions.All.SingleOrDefault(station => station.Area == area && Numbers[station] == number)
+            ?? throw new InvalidDataException($"{source} names {area} load station {number}, which is no load station.");
 }

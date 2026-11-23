@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres.Artwork;
 
 /// <summary>The Ceres escape's two installed character pages, in the order its transfer lists show them.</summary>
-internal static class CeresEscapeTileArtworkDefinitions
+internal static partial class CeresEscapeTileArtworkDefinitions
 {
     /// <summary>The escape warning text's 72 characters: nine rows of eight.</summary>
     internal static readonly TileSheetDefinition WarningText =

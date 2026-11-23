@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// A set of attract demonstrations the title plays in order, one after another while no input cancels them; the set
 /// ends with its last demonstration.
 /// </summary>
-public sealed class AttractDemoSet
+public sealed partial class AttractDemoSet
 {
     /// <summary>Creates the set named <paramref name="name"/> playing <paramref name="scenes"/> in order.</summary>
     internal AttractDemoSet(string name, IReadOnlyList<AttractDemoScene> scenes)

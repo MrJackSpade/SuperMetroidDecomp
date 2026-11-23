@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>How Samus boards and leaves the landed gunship, and how it restores her while she is aboard (#2043).</summary>
-internal static class GunshipBoardingDefinitions
+internal static partial class GunshipBoardingDefinitions
 {
     /// <summary>How far either side of the ship's middle Samus stands, in pixels, to board it by pressing down.</summary>
     internal const int EntranceHalfWidth = 8;

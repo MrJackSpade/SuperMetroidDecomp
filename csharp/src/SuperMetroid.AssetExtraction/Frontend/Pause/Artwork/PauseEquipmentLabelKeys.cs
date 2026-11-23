@@ -8,17 +8,28 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// name, the Hyper label by <see cref="PauseEquipmentLabelArtworkDefinitions.HyperKey"/>, and each category's strip
 /// width. Only the import reads and writes the document.
 /// </summary>
-public static class PauseEquipmentLabelKeys
+public static partial class PauseEquipmentLabelKeys
 {
     /// <summary>The JSON key of a label: its selector control's anchor name, or <see cref="PauseEquipmentLabelArtworkDefinitions.HyperKey"/>.</summary>
-    public static string Name(PauseEquipmentLabelId label)
+    public static string Name(PauseEquipmentLabelId label) => KeysApartFromControls.TryGetValue(label, out string? key) ? key
+        : PauseEquipmentControls.Upgrades.Single(control => control.Label == label).Anchor;
+
+    /// <summary>The labels no selector control shows, by their JSON key: Hyper, which shows in the ordinary beam labels' place.</summary>
+    private static readonly Dictionary<PauseEquipmentLabelId, string> KeysApartFromControls = new Dictionary<PauseEquipmentLabelId, string>
     {
-        if (label == PauseEquipmentLabelId.Hyper) return PauseEquipmentLabelArtworkDefinitions.HyperKey;
-        return PauseEquipmentControls.Upgrades.Single(control => control.Label == label).Anchor;
-    }
+        [PauseEquipmentLabelId.Hyper] = PauseEquipmentLabelArtworkDefinitions.HyperKey,
+    };
+
+    /// <summary>The strip width <paramref name="width"/> names, in sixteen-bit tile words.</summary>
+    internal static int WordCount(PauseEquipmentLabelWidth width) => width switch
+    {
+        PauseEquipmentLabelWidth.Beam => PauseEquipmentLabelArtworkDefinitions.BeamWords,
+        PauseEquipmentLabelWidth.Equipment => PauseEquipmentLabelArtworkDefinitions.EquipmentWords,
+        _ => throw new ArgumentOutOfRangeException(nameof(width), width, "Undefined label width."),
+    };
 
     /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width is a separate contract.</summary>
-    /// <param name="category">Equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
+    /// <param name="category">Equipment category: <see cref="PauseEquipmentCategory.Beams"/> takes the beam width and every other category the equipment width.</param>
     /// <returns>Five for the beam category, otherwise nine.</returns>
     public static int WordCount(PauseEquipmentCategory category) => category == PauseEquipmentCategory.Beams
         ? PauseEquipmentLabelArtworkDefinitions.BeamWords : PauseEquipmentLabelArtworkDefinitions.EquipmentWords;

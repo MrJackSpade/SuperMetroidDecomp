@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's sound and music requests, each queued as Phantoon makes it, after the update's earlier requests.</summary>
-internal static class PhantoonAudioRequests
+internal static partial class PhantoonAudioRequests
 {
     /// <summary>Queues a step of the materialization cycle.</summary>
     internal static void RequestPhantoonMaterializationSound(this EnemyAudioQueue audio, SoundEffectId sound) =>

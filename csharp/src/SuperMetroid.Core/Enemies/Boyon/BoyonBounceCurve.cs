@@ -3,14 +3,14 @@ using static SuperMetroid.Core.Enemies.Boyon.BoyonSpeedDefinitions;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>A Boyon's bounce curve: the sample its multiplier scales at each place along the curve.</summary>
-public static class BoyonBounceCurve
+public static partial class BoyonBounceCurve
 {
     /// <summary>
     /// The sample at <paramref name="place"/>: its rising sample (<see cref="BoyonSpeedDefinitions.RisingSamples"/>), or
     /// the saturated sample past them.
     /// </summary>
     /// <param name="place">The place along the curve, never past the top.</param>
-    public static UnsignedSixteenSixteen Sample(BoyonCurvePlace place) => place.EntryFromTop < RisingSamples.Length
+    internal static UnsignedSixteenSixteen Sample(BoyonCurvePlace place) => place.EntryFromTop < RisingSamples.Length
         ? RisingSamples[place.EntryFromTop]
         : SaturatedSample;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using static SuperMetroid.Verification.Samus.Palettes.PowerBombGlowColorsVerification;
@@ -22,7 +23,7 @@ internal static class CeresExplosionVerification
             new MemoryStream(PowerBombGlowColorExtractor.Extract(bus)));
         var audio = AudioQueues.Standalone();
         var scene = new CeresDestructionCinematicState(audio, glowColors: stockColors, artwork: artwork.BoundCatalog,
-            spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, japaneseText: false);
+            spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, language: TextLanguage.English);
         var referenceGlowColors = stockColors;
         var reference = new SamusPowerBombExplosionState();
         var phases = new HashSet<PowerBombExplosionPhase>();
@@ -50,7 +51,7 @@ internal static class CeresExplosionVerification
             var glow = GameplayEffectCapture.CapturePowerBombGlow(
                 PowerBombRenderSnapshot.Capture(reference), new Position16<RoomPixels>(0, 0));
             var expected = glow is null || glow.Window == ScreenWindow.Closed ? glow
-                : glow with { Window = new ScreenWindow(glow.Window.Shapes) };
+                : new ColourAddWindowLayer(new ScreenWindow(glow.Window.Shapes), glow.Colour, glow.Steps);
             AssertEqual(expected is null, actual is null, "Ceres blast window lifetime");
             if (expected is not null && actual is not null)
             {
@@ -64,9 +65,9 @@ internal static class CeresExplosionVerification
         if (colors is not null)
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres explosion does not read native Power Bomb colors");
-        foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite,
-        PowerBombExplosionPhase.PreExplosionYellow, PowerBombExplosionPhase.ExplosionYellow,
-        PowerBombExplosionPhase.ExplosionWhite, PowerBombExplosionPhase.Afterglow })
+        foreach (var phase in new PowerBombExplosionPhase[] { new PowerBombExplosionPhase.Running.PreExplosionWhite(),
+        new PowerBombExplosionPhase.Running.PreExplosionYellow(), new PowerBombExplosionPhase.Running.ExplosionYellow(),
+        new PowerBombExplosionPhase.Running.ExplosionWhite(), new PowerBombExplosionPhase.Running.Afterglow() })
             AssertTrue(phases.Contains(phase), $"station blast includes {phase}");
         Console.WriteLine($"  Ceres explosion: {compared} frames match shared cartridge curves/colors, fixed screen origin, phase timing and cleanup.");
     }

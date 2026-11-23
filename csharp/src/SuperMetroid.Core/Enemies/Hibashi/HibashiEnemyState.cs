@@ -5,10 +5,20 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// The state of a Hibashi's visible flame, which holds the pillar's pictures and timing and moves and sizes the invisible
 /// collision part listed right after it (<see cref="HibashiCollisionPartState"/>).
 /// </summary>
-public sealed class HibashiEnemyState
+public sealed partial class HibashiEnemyState
 {
-    /// <summary>Starts the flame in <paramref name="action"/>.</summary>
-    internal HibashiEnemyState(HibashiAction action) => Action = action;
+    /// <summary>Starts the flame in <paramref name="action"/>, moving and sizing <paramref name="hitbox"/>.</summary>
+    internal HibashiEnemyState(HibashiAction action, RoomEnemyPlace hitbox)
+    {
+        Action = action;
+        Hitbox = Ensure.NotNull(hitbox);
+    }
+
+    /// <summary>
+    /// The place of the hitbox part the flame found as it was placed: every room that has the geyser lists one right after
+    /// it.
+    /// </summary>
+    internal RoomEnemyPlace Hitbox { get; }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<HibashiSegment> Playback { get; set; }

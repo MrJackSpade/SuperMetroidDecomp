@@ -9,4 +9,4 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="Frame">The pose and picture frame the picture is named by.</param>
 /// <param name="Composition">The halves and chest cover the picture is composed of.</param>
 /// <param name="Pictures">The half pictures the frame selects.</param>
-internal readonly record struct SamusShownBody(SamusBodyFrame Frame, SamusBodyComposition Composition, SamusBodyFramePictures Pictures);
+internal readonly partial record struct SamusShownBody(SamusBodyFrame Frame, SamusBodyComposition Composition, SamusBodyFramePictures Pictures);

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <param name="Pair">The block pair the collectible took.</param>
 /// <param name="Look">The look of the collectible's picture the block lies under.</param>
-public readonly record struct CollectiblePairBlock(CollectibleBlockPairs.Pair Pair, CollectibleLook Look)
+public readonly partial record struct CollectiblePairBlock(CollectibleBlockPairs.Pair Pair, CollectibleLook Look)
 {
     /// <summary>
     /// Every pair's blocks, pair by pair in the turn the room's collectibles take them in, each pair's looks in their
@@ -25,14 +25,10 @@ public readonly record struct CollectiblePairBlock(CollectibleBlockPairs.Pair Pa
     ];
 
     /// <summary>The block pair.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The pair is undefined.</exception>
-    public CollectibleBlockPairs.Pair Pair { get; } = Enum.IsDefined(Pair) ? Pair
-        : throw new ArgumentOutOfRangeException(nameof(Pair), Pair, "Undefined collectible block pair.");
+    public CollectibleBlockPairs.Pair Pair { get; } = Pair;
 
     /// <summary>The look.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The look is undefined.</exception>
-    public CollectibleLook Look { get; } = Enum.IsDefined(Look) ? Look
-        : throw new ArgumentOutOfRangeException(nameof(Look), Look, "Undefined collectible look.");
+    public CollectibleLook Look { get; } = Look;
 
     /// <summary>The block, for diagnostics.</summary>
     public override string ToString() => $"{Pair} collectible block pair's {Look} block";

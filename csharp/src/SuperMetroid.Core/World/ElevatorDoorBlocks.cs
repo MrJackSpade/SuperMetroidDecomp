@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.World;
 
 /// <summary>What the door blocks of an elevator's shaft do to the Samus it carries (#2545).</summary>
-internal static class ElevatorDoorBlocks
+internal static partial class ElevatorDoorBlocks
 {
     /// <summary>
     /// What the door blocks a front-facing Samus meets do to her while the elevator in <paramref name="status"/> carries

@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -23,6 +23,7 @@ using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Assets;
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
@@ -108,7 +109,7 @@ internal static class GenericSpriteArtworkVerification
 
         var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve),
             AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(body),
-            characterArtwork: introArtwork.BoundCatalog, japaneseText: false)
+            characterArtwork: introArtwork.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -118,7 +119,7 @@ internal static class GenericSpriteArtworkVerification
         intro.SetupFirstIllustratedPage();
         var caret = intro.CurrentNarration;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
-        PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageSprites().Draws);
+        PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.ComposeScene().SpriteDraws);
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
@@ -126,14 +127,19 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
-        intro.SetupMotherBrainFlashback();
-        var motherBrain = intro.CurrentFlashbackMotherBrain;
-        (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step();
-        actualParts = PlacedSpritePart.Of(intro.PrepareMotherBrainSprites().Draws);
-        var expectedFrame = new SpriteFrameBuffer();
-        expectedFrame.BeginFrame();
-        SamusState flashbackSamus = (intro.CurrentFlashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus."));
-        flashbackSamus.Presentation.Draw(flashbackSamus, expectedFrame, new(0, 0), 0);
+        // The intro runs to the flashback's setup, whose update steps Mother Brain's sprite once, as a sprite started and
+        // stepped once shows (#2554); the scene then draws Samus ahead of the cinematic actors.
+        var fightAudio = AudioQueues.Standalone();
+        IntroCinematicState fight = InstalledFixtures.CreateIntro(fightAudio, introArtwork, body);
+        _ = fight.StepToMotherBrainFlashback(fightAudio);
+        var motherBrain = new IntroMotherBrainSpriteState();
+        motherBrain.Step();
+        ImmutableArray<ImageSpriteDraw> fightDraws = fight.ComposeScene().SpriteDraws;
+        int firstActor = fightDraws.IndexOf(fightDraws.First(draw => draw.Source.Kind == SpriteSourceKind.FrontendScreen));
+        AssertTrue(firstActor > 0 && fightDraws.Take(firstActor).Any(draw => draw.Source.Kind == SpriteSourceKind.Samus) &&
+                fightDraws.Skip(firstActor).All(draw => draw.Source.Kind == SpriteSourceKind.FrontendScreen),
+            "the flashback draws Samus ahead of every cinematic actor");
+        actualParts = PlacedSpritePart.Of(fightDraws.Where(draw => draw.Shading.Shades.Contains(IntroMotherBrainSpriteState.Colouring)));
         var motherBrainOam = new OamBuffer();
         motherBrainOam.BeginFrame();
         DrawImportedSpritemap(reference, motherBrainOam,
@@ -141,12 +147,10 @@ internal static class GenericSpriteArtworkVerification
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
             SnesObjAttributeWord.Create(0, IntroDrawnShadeChecks.InstalledRow(IntroMotherBrainSpriteState.Colouring), 0).PaletteBits);
         motherBrainOam.FinalizeFrame();
-        expectedFrame.FinalizeFrame();
-        EqualParts([.. PlacedSpritePart.Of(expectedFrame.Draws), .. PlacedSpritePart.OfOamObjects(motherBrainOam, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects))],
-            actualParts, "Mother Brain owner preserves actor order and exact sprite parts");
+        EqualParts(PlacedSpritePart.OfOamObjects(motherBrainOam, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)),
+            actualParts, "Mother Brain's drawn sprite parts are the cartridge's");
 
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         explosions.Step(crossfadeFinishing: false);
         var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
         explosions.Draw(actual, CinematicSheetFixtures.Drawer(introArtwork.Sprites.MotherBrainExplosion));

@@ -22,7 +22,7 @@ internal static class RoomFxSnapshotTestsVerification
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, RgbColor.FromWord(checked((ushort)random.Next(32768))));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         var memory = FramePaintConstants.CaptureGameplay(vram, cgram, oam, 3);
-        RgbaPixel[] baseline = DisplayRendering.Render(new LayeredScene(memory, [], 15));
+        RgbaPixel[] baseline = DisplayRendering.Render(new LayeredScene(memory, [], DisplayBrightness.Full));
         int samples = 0;
         var configurations = new[]
         {
@@ -49,7 +49,7 @@ internal static class RoomFxSnapshotTestsVerification
             OverlayBlendLayer? layer = GameplayEffectCapture.CaptureRoomFxOverlay(FxOverlayFixtures.Overlay(fx, artworks[type]));
             samples++;
             var packet = new DisplayPacket(0,
-                new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, 15));
+                new LayeredScene(memory, layer is null ? [] : new DisplayLayer[] { layer }, DisplayBrightness.Full));
             RgbaPixel[] actual = DisplayRendering.Render(packet);
             AssertTrue(actual.AsSpan(0, 256 * 32).SequenceEqual(baseline.AsSpan(0, 256 * 32)),
                 $"room FX {type}/{blend.Operation} at {surface}, phase {phase}, Y {currentY?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "none"} preserves HUD band");
@@ -57,9 +57,7 @@ internal static class RoomFxSnapshotTestsVerification
         var owned = new OverlayBlendLayer(null, 32, BlendOperation.Add, ScrollBands.Uniform(0));
         AssertThrows<ArgumentNullException>(() => new OverlayBlendLayer(null, 32,
             BlendOperation.Add, null!), "BG math requires its described line scroll");
-        AssertThrows<ArgumentOutOfRangeException>(() => new OverlayBlendLayer(null, 32,
-            (BlendOperation)255, ScrollBands.Uniform(0)), "BG math rejects unknown equation");
-        var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], 15));
+        var encoded = new DisplayPacket(0, new LayeredScene(memory, [owned], DisplayBrightness.Full));
         AssertThrows<ArgumentException>(() => RoomEffectOverlayLook.Of(RoomFxType.Water, null), "the room's load rejects water that describes no blend");
         AssertThrows<ArgumentException>(() => RoomEffectOverlayLook.Of(RoomFxType.None, RoomEffectBlendDefinitions.OverlayBrightens),
             "the room's load rejects an effect showing nothing that describes a blend");

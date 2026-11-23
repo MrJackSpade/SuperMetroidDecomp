@@ -8,14 +8,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class KagoBehavior : IEnemySpecies, IEnemySpawnFactory<KagoSpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new KagoEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, KagoSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.PlacedOnly(new KagoEntity(this, occupant, place, common, settings));
 
     /// <summary>Provides the room's random number sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
@@ -23,40 +23,35 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Receives the short quake requested by each shell hit.</summary>
     private readonly RoomEarthquake _earthquake;
-    /// <summary>Creates the parent's drop requested by a shot Kago bug.</summary>
-    private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Tracks the Kago death request in the room's defeated-enemy count.</summary>
     private readonly EnemyRoomStatus _roomStatus;
-
-    /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
-    private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds shell AI and bug projectile behavior to the shared room systems that own their effects.</summary>
     internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus, EnemyAudioQueue audio)
     {
-        _audio = audio;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
-        _deathsAndDrops = deathsAndDrops;
         _roomStatus = roomStatus;
+        Bug = new BugBehavior(room, audio, deathsAndDrops);
     }
 
     /// <summary>Initializes the Kago.</summary>
-    internal static void InitializeKago(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static KagoEnemyState InitializeKago(RoomEnemyPlace place)
     {
         var state = new KagoEnemyState();
-        place.SetSpeciesState(state);
 
         // The setup makes Kago's shell animate; its placement says the rest.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
         state.Playback = EnemyAnimationPlayback.Start(place, KagoAnimations.StartingWith(KagoSegment.Slow));
+        return state;
     }
 
     /// <summary>
     /// Runs the Kago's own response to a shot, after the common enemy shot reaction has hurt it.
     /// </summary>
-    internal void ResolveKagoShotAfterCommon(RoomEnemyPlace place, KagoEnemyState state)
+    internal void ResolveKagoShotAfterCommon(RoomEnemyOccupant occupant, KagoSpawnSettings kagoSpawnSettings, RoomEnemyPlace place, KagoEnemyState state)
     {
         _earthquake.Start(KagoDefinitions.ShotQuake, KagoDefinitions.ShotQuakeDuration);
 
@@ -68,9 +63,9 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // The shell withstands as many shots as its placement names and dies of the next (#2340).
-        if (++state.HitsTaken > place.SpawnSettings<KagoSpawnSettings>().HitCount)
+        if (++state.HitsTaken > kagoSpawnSettings.HitCount)
         {
-            // The shot's damage may already have killed the 1600-health shell, which counts its death once.
+            // The shot's damage may already have killed the shell, which counts its death once.
             if (!place.Presence.HasAny(EnemyPresence.Deleted))
             {
                 place.Presence = place.Presence.With(EnemyPresence.Deleted);
@@ -81,17 +76,18 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // The lethal hit, the one past the shots its placement names, still spawns a bug, after Kago's death animation
         // starts. With no place left for the bug, none spawns, and the hit still counts, shakes the room and changes the
         // animation.
-        SpawnKagoBug(place);
+        SpawnKagoBug(occupant, place);
     }
 
     /// <summary>Runs a bomb's common damage on Kago before its quake, its hit count and its bug spawn.</summary>
-    internal EnemyBombReaction KagoBombReaction => field ??= new()
+    /// <param name="afterCommon">The Kago's own method running its shell response.</param>
+    internal static EnemyBombReaction KagoBombReaction(Action<EnemyBombHitContext> afterCommon) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = afterCommon,
     };
 
     /// <summary>A Kago bug (#1760).</summary>
-    internal EnemyProjectileBehavior Bug => field ??= new BugBehavior(_room, _audio, _deathsAndDrops);
+    internal BugBehavior Bug { get; }
 
     /// <summary>
     /// A Kago bug: it waits, jumps and falls, handles its animations' cues, and a shot bug runs its typed shot
@@ -100,57 +96,51 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <param name="room">The loaded room, whose random number a bug reads without advancing it.</param>
     /// <param name="audio">The enemy sound queue a waiting or airborne bug's sound joins.</param>
     /// <param name="deathsAndDrops">The drops a shot bug leaves.</param>
-    private sealed class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
-        : EnemyProjectileMotionBehavior<KagoBugMotion>(shot: () => new KagoBugProjectileAnimation(KagoBugProjectileSegment.Shot)), IEnemyProjectileCues<KagoBugProjectileCue>
+    internal sealed partial class BugBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyDeathsAndDrops deathsAndDrops)
+        : EnemyProjectileMotionBehavior<KagoBugMotion>, IEnemyProjectileCues<KagoBugProjectileCue>
     {
+        /// <summary>Each bug's Kago, its ground wait and its sound cadence, given as its Kago releases it.</summary>
+        internal EnemyProjectileStates<KagoBugState> Bugs { get; } = new();
+
         /// <inheritdoc/>
-        private protected override void Move(EnemyProjectileMotionContext context, KagoBugMotion motion)
+        internal override EnemyProjectileAnimation ShotAnimation() => new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Shot);
+
+        /// <summary>What <c>Move</c> does for each <see cref="KagoBugMotion"/> member, each member's own arm.</summary>
+        private IdentityTable<KagoBugMotion, Action<EnemyProjectileMotionContext>> MoveForKagoBugMotion => field ??= new(new Dictionary<KagoBugMotion, Action<EnemyProjectileMotionContext>>
         {
-            switch (motion)
-            {
-                case KagoBugMotion.Waiting:
-                    RunKagoBugIdle(context.Projectile);
-                    break;
-                case KagoBugMotion.Jumping:
-                    RunKagoBugJumping(context.Projectile, context.Level);
-                    break;
-                case KagoBugMotion.Falling:
-                    RunKagoBugFalling(context.Projectile, context.Level);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugMotion)} {motion}.");
-            }
+            [KagoBugMotion.Waiting] = context => RunKagoBugIdle(context.Projectile),
+            [KagoBugMotion.Jumping] = context => RunKagoBugJumping(context.Projectile, context.Level),
+            [KagoBugMotion.Falling] = context => RunKagoBugFalling(context.Projectile, context.Level),
+        });
+
+        /// <inheritdoc/>
+        internal override void Move(EnemyProjectileMotionContext context, KagoBugMotion motion)
+        {
+            MoveForKagoBugMotion[motion](context);
         }
 
         /// <inheritdoc/>
         public void RunCue(EnemyProjectileCueContext context, KagoBugProjectileCue cue) => ApplyKagoBugCue(context.Projectile, cue, context.Samus);
 
+        /// <summary>What <see cref="ApplyKagoBugCue"/> does for each <see cref="KagoBugProjectileCueKind"/> member, each member's own arm.</summary>
+        private IdentityTable<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>> ApplyKagoBugCueForKagoBugProjectileCueKind => field ??= new(new Dictionary<KagoBugProjectileCueKind, Action<EnemyProjectile, SamusState>>
+        {
+            [KagoBugProjectileCueKind.StartJump] = (projectile, samus) => StartKagoBugJump(projectile),
+            [KagoBugProjectileCueKind.StartIdle] = (projectile, samus) => StartKagoBugIdle(projectile),
+            [KagoBugProjectileCueKind.SpawnDrop] = (projectile, samus) => RequestKagoBugDrop(projectile, samus),
+            [KagoBugProjectileCueKind.Delete] = (projectile, samus) => projectile.Delete(),
+        });
+
         /// <summary>Carries out one cue of the bugs' animations.</summary>
         private void ApplyKagoBugCue(EnemyProjectile projectile, KagoBugProjectileCue cue, SamusState samus)
         {
-            switch (cue.Kind)
-            {
-                case KagoBugProjectileCueKind.StartJump:
-                    StartKagoBugJump(projectile);
-                    break;
-                case KagoBugProjectileCueKind.StartIdle:
-                    StartKagoBugIdle(projectile);
-                    break;
-                case KagoBugProjectileCueKind.SpawnDrop:
-                    RequestKagoBugDrop(projectile, samus);
-                    break;
-                case KagoBugProjectileCueKind.Delete:
-                    projectile.Delete();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(KagoBugProjectileCueKind)} {cue.Kind}.");
-            }
+            ApplyKagoBugCueForKagoBugProjectileCueKind[cue.Kind](projectile, samus);
         }
 
         /// <summary>Runs the shared enemy sound countdown every live bug state uses.</summary>
         private void StepKagoBugSound(EnemyProjectile projectile)
         {
-            KagoBugState bug = projectile.StateOf<KagoBugState>();
+            KagoBugState bug = Bugs.Of(projectile);
             if (bug.SoundDelay.StepEnds())
                 audio.QueueEnemySound(EnemySoundEffectDefinitions.KagoBugSoundEffect, priority: SoundRequestPriority.Normal);
         }
@@ -159,13 +149,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void RunKagoBugIdle(EnemyProjectile projectile)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
-            KagoBugState bug = projectile.StateOf<KagoBugState>();
+            KagoBugState bug = Bugs.Of(projectile);
             if (!bug.GroundWait.Count())
                 return;
 
-            projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.JumpStart));
+            projectile.StartAnimation(new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.JumpStart));
             projectile.HoldStill();
         }
 
@@ -173,34 +163,34 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void RunKagoBugJumping(EnemyProjectile projectile, RoomLevelData level)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
             {
                 // A wall ends the rising phase immediately in the game: both X velocity
                 // and the upward component are replaced before selecting the falling animation.
                 projectile.Velocity = new(SignedEightEight.Zero, KagoDefinitions.BugFallStartSpeed);
-                BeginKagoBugFall(projectile);
+                BeginKagoBugFall(this, projectile);
                 return;
             }
 
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
             {
                 projectile.Velocity = projectile.Velocity.WithY(KagoDefinitions.BugFallStartSpeed);
-                BeginKagoBugFall(projectile);
+                BeginKagoBugFall(this, projectile);
                 return;
             }
 
             projectile.Velocity = projectile.Velocity.WithY(projectile.Velocity.Y + KagoDefinitions.BugGravity);
             if (!projectile.Velocity.Y.IsNegative)
-                BeginKagoBugFall(projectile);
+                BeginKagoBugFall(this, projectile);
         }
 
         /// <summary>Runs the falling bug for one update.</summary>
         private void RunKagoBugFalling(EnemyProjectile projectile, RoomLevelData level)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
             // The bug takes one of these each update, the first that applies. A wall takes this update, zeros X,
             // and deliberately postpones both vertical motion and gravity until the next frame.
@@ -213,7 +203,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
             {
                 projectile.HoldStill();
-                projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Landed));
+                projectile.StartAnimation(new KagoBugProjectileAnimation(this, KagoBugProjectileSegment.Landed));
                 return;
             }
 
@@ -224,19 +214,19 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         private void StartKagoBugJump(EnemyProjectile projectile)
         {
             StepKagoBugSound(projectile);
-            EnableKagoBugShotCollisionWhenSeparated(projectile);
+            EnableKagoBugShotCollisionWhenSeparated(this, projectile);
 
             int random = room.Random.Read();
             int upwardPixels = KagoDefinitions.BaseJumpSpeedPixels +
                 KagoDefinitions.JumpHeightSteps.Of(random) * KagoDefinitions.JumpHeightStepPixels;
             projectile.Velocity = projectile.Velocity.WithY(-SignedEightEight.FromPixels(upwardPixels));
 
-            RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
+            RoomEnemyPlace source = Bugs.Of(projectile).Source;
             int sourceDelta = source.Position.X.Whole - projectile.Position.X.Whole;
             bool jumpLeft;
             if (Math.Abs(sourceDelta) >= KagoDefinitions.BugHomingDistance)
             {
-                // Outside the 48-pixel band the bug always jumps back toward its parent shell.
+                // Outside its homing band the bug always jumps back toward its parent shell.
                 jumpLeft = sourceDelta < 0;
             }
             else
@@ -247,14 +237,14 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             projectile.Velocity = projectile.Velocity.WithX(
                 KagoDefinitions.BugHorizontalSpeed.Toward(jumpLeft ? HorizontalDirection.Left : HorizontalDirection.Right));
-            projectile.StartMotion(KagoBugMotion.Jumping);
+            projectile.StartMotion(this, KagoBugMotion.Jumping);
         }
 
         /// <summary>Landed-animation cue: returns the bug to idle.</summary>
         private void StartKagoBugIdle(EnemyProjectile projectile)
         {
-            projectile.StateOf<KagoBugState>().GroundWait = UpdateCountdown.Lasting(KagoDefinitions.ShortestGroundWait + KagoDefinitions.LandedIdleFrames.Of(room.Random.Read()));
-            projectile.StartMotion(KagoBugMotion.Waiting);
+            Bugs.Of(projectile).GroundWait = UpdateCountdown.Lasting(KagoDefinitions.ShortestGroundWait + KagoDefinitions.LandedIdleFrames.Of(room.Random.Read()));
+            projectile.StartMotion(this, KagoBugMotion.Waiting);
         }
 
         /// <summary>Shot-animation cue: requests the bug's drop.</summary>
@@ -268,67 +258,62 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Kago's typed animation.</summary>
-    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal static void AdvanceKagoTypedAnimation(RoomEnemyPlace place, KagoEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        KagoEnemyState state = place.RequireSpeciesState<KagoEnemyState>();
         AnimationPlayback<KagoSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, KagoAnimations.Segments, ref playback,
-            static cue => throw new InvalidOperationException($"A cue-free Kago animation raised {cue}."));
+        EnemyAnimationPlayback.PlaySilently(place, KagoAnimations.Segments, ref playback);
         state.Playback = playback;
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot reaction has resolved damage.</summary>
-    internal EnemyShotReaction KagoShotReaction => field ??= new()
+    /// <param name="afterCommon">The Kago's own method running its shell response.</param>
+    internal static EnemyShotReaction KagoShotReaction(Action<EnemyShotHitContext> afterCommon) => new()
     {
-        AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+        AfterCommon = afterCommon,
     };
 
     /// <summary>Spawns and initializes a Kago bug; with no projectile place free, none spawns.</summary>
-    internal void SpawnKagoBug(RoomEnemyPlace source)
+    internal void SpawnKagoBug(RoomEnemyOccupant occupant, RoomEnemyPlace source)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.KagoBug, Bug, SpriteGraphics.SpawnedBy(occupant, source.Shading), new KagoBugProjectileAnimation(Bug, KagoBugProjectileSegment.Waiting));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.KagoBug,
-            Bug,
-            SpriteGraphics.SpawnedBy(source));
 
         projectile.Position = projectile.Position.WithWhole(source.Position.Whole);
 
         // Kago reads the current random number without drawing another. The new bug's fractions of a pixel, flags and
         // state start fresh; its speed is the hand-over its place gives (EnemyProjectileHandOver) until its jump sets it.
         int firstGroundWait = KagoDefinitions.ShortestGroundWait + KagoDefinitions.FirstIdleFrames.Of(ReadKagoRandomNumber());
-        projectile.State = new KagoBugState(source)
+        Bug.Bugs.Start(projectile, new KagoBugState(source)
         {
             GroundWait = UpdateCountdown.Lasting(firstGroundWait),
             SoundDelay = UpdateCountdown.Lasting(firstGroundWait + KagoDefinitions.FirstSoundPastFirstHop),
-        };
-        projectile.StartMotion(KagoBugMotion.Waiting);
-        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Waiting));
+        });
+        projectile.StartMotion(Bug, KagoBugMotion.Waiting);
     }
 
     /// <summary>
-    /// Lets Samus's shots hit the bug once it is at least 23 pixels from its source Kago. That
+    /// Lets Samus's shots hit the bug once it is at least <see cref="KagoDefinitions.BugBlocksShotsDistance"/> from its source Kago. That
     /// delay prevents the shot which opened the shell from immediately destroying the bug.
     /// </summary>
-    private static void EnableKagoBugShotCollisionWhenSeparated(EnemyProjectile projectile)
+    /// <param name="owner">The bug's behaviour, which keeps its source Kago.</param>
+    /// <param name="projectile">The bug.</param>
+    private static void EnableKagoBugShotCollisionWhenSeparated(BugBehavior owner, EnemyProjectile projectile)
     {
-        RoomEnemyPlace source = projectile.StateOf<KagoBugState>().Source;
+        RoomEnemyPlace source = owner.Bugs.Of(projectile).Source;
         int distance = Math.Abs(source.Position.X.Whole - projectile.Position.X.Whole);
         if (distance >= KagoDefinitions.BugBlocksShotsDistance)
             projectile.BlocksSamusProjectiles = true;
     }
 
     /// <summary>Switches an airborne bug to the falling animation when rising ends or a wall interrupts it.</summary>
-    private static void BeginKagoBugFall(EnemyProjectile projectile)
+    private static void BeginKagoBugFall(BugBehavior owner, EnemyProjectile projectile)
     {
-        projectile.StartMotion(KagoBugMotion.Falling);
-        projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileSegment.Falling));
+        projectile.StartMotion(owner, KagoBugMotion.Falling);
+        projectile.StartAnimation(new KagoBugProjectileAnimation(owner, KagoBugProjectileSegment.Falling));
     }
 
     /// <summary>Reads the room's current random number without drawing a new one, as the bugs read it.</summary>

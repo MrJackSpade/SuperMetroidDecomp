@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.World;
 
 /// <summary>The timing of a door's fades (#1405, #1512), as the next room's loading runs them.</summary>
-public static class DoorTransitionColourDefinitions
+public static partial class DoorTransitionColourDefinitions
 {
     /// <summary>
     /// The shared fade counter's last value at which a step of a door's fades moves the display: the step after it completes

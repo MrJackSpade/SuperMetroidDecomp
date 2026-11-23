@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.Core;
@@ -16,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// the sprite rows as that context leaves them: a room load and the combination's beam palette in gameplay, the intro's
 /// own palette in its flashbacks.
 /// </summary>
-internal static class ProjectileSheetComposer
+internal static partial class ProjectileSheetComposer
 {
     /// <summary>
     /// The combinations with a sheet: every one with beam artwork of its own. Spazer with Plasma, with or without Ice
@@ -31,6 +30,18 @@ internal static class ProjectileSheetComposer
         SamusBeamCombination.SpazerPlasmaWave, SamusBeamCombination.SpazerPlasmaIce,
     ];
 
+    /// <summary>
+    /// Each projectile sheet with the context it composes in: each combination's own gameplay sheet, and the intro's
+    /// flashbacks, which show the power beam.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<SpriteSheetId, ProjectileSheetContext> Contexts =
+        Combinations.Select(beams => (ProjectileSheetContext)new GameplaySheet(beams))
+            .Append(new IntroFlashbackSheet())
+            .ToDictionary(context => context.Sheet);
+
+    /// <summary>Every projectile sheet this composer builds.</summary>
+    internal static IEnumerable<SpriteSheetId> Sheets => Contexts.Keys;
+
     /// <summary>The trail poses a projectile sheet holds, in its order, each listed once (#2567).</summary>
     private static readonly IReadOnlyList<ProjectileTrailFrame> TrailFrames = Ensure.EveryMemberOnce(ProjectileSheetDefinitions.TrailFrames);
 
@@ -44,28 +55,28 @@ internal static class ProjectileSheetComposer
     /// shows draws nothing, so no sheet holds it, and a trail sparkle that has shown no pose draws nothing (#1625).
     /// </summary>
     internal static IEnumerable<string> Frames(SpriteSheetId sheet, InstalledProjectileFrameBindings bindings) =>
-        Compositions(Combination(sheet), bindings).Select(ProjectileSheetFrames.ProjectileFrame)
+        Compositions(Contexts[sheet].Beams, bindings).Select(ProjectileSheetFrames.ProjectileFrame)
             .Concat(FlareCompositions.Select(ProjectileSheetFrames.FlareFrame))
             .Concat(TrailFrames.Select(ProjectileSheetFrames.TrailFrame))
-            .Concat(HitBursts(sheet).Select(ProjectileSheetFrames.HitBurstFrame));
+            .Concat(HitBursts(Contexts[sheet]).Select(ProjectileSheetFrames.HitBurstFrame));
 
     /// <summary>
-    /// The compositions of the burst a hit shows at an enemy it hurts that <paramref name="sheet"/> holds (#1713): every one on
-    /// each gameplay sheet, as the burst draws from the sheet of the beams Samus has equipped, and none on the intro's, whose
-    /// flashbacks hurt no enemy.
+    /// The compositions of the burst a hit shows at an enemy it hurts that a sheet composed in <paramref name="context"/>
+    /// holds (#1713): every one where its shots hurt enemies, as the burst draws from the sheet of the beams Samus has
+    /// equipped, and none in the intro's flashbacks, which hurt no enemy.
     /// </summary>
-    private static IEnumerable<ProjectileSpriteId> HitBursts(SpriteSheetId sheet) =>
-        sheet == SpriteSheetId.IntroProjectiles ? [] : HitBurstSpriteDefinitions.All;
+    private static IEnumerable<ProjectileSpriteId> HitBursts(ProjectileSheetContext context) =>
+        context.HurtsEnemies ? HitBurstSpriteDefinitions.All : [];
 
     /// <summary>
     /// The compositions <paramref name="beams"/>'s projectiles show, in storage order: those of every record the
-    /// combination's programs reach, as <paramref name="bindings"/> bind them, the empty composition excepted.
+    /// combination's programs reach, as <paramref name="bindings"/> bind them; an unpictured record draws none.
     /// </summary>
     private static IEnumerable<ProjectileSpriteId> Compositions(SamusBeamCombination beams, InstalledProjectileFrameBindings bindings)
     {
         Ensure.NotNull(bindings);
-        HashSet<ProjectileSpriteId> shown = [.. EquippedBeamProjectilePrograms.Records(beams).Select(bindings.Resolve)];
-        return ProjectileSpriteDefinitions.All.Where(composition => !composition.DrawsNothing && shown.Contains(composition));
+        HashSet<ProjectileSpriteId> shown = [.. EquippedBeamProjectilePrograms.Records(beams).Select(bindings.Resolve).OfType<ProjectileSpriteId>()];
+        return ProjectileSpriteDefinitions.All.Where(shown.Contains);
     }
 
     /// <summary>What one projectile sheet composes: its named frames over the context's OBJ page, and the sprite rows' colours.</summary>
@@ -76,24 +87,10 @@ internal static class ProjectileSheetComposer
         Ensure.NotNull(inputs);
         ImportProjectileArtwork artwork = inputs.Projectiles;
         InstalledProjectilePresentation projectiles = artwork.Presentation;
-        RgbColor[] colours;
-        SpriteArtwork basePage;
-        SamusBeamCombination beams;
-        if (sheet == SpriteSheetId.IntroProjectiles)
-        {
-            ImportIntroCinematicArtwork intro = inputs.Intro;
-            basePage = IntroObjectPage.Of(intro);
-            beams = SamusBeamCombination.Power;
-            // The intro loads the beam palette, then its whole palette over it.
-            colours = [.. intro.Palette.SpriteColours];
-        }
-        else
-        {
-            basePage = inputs.StandardObjects;
-            beams = Combination(sheet);
-            colours = inputs.WithBeams(inputs.RoomLoadSpriteColours(), beams);
-        }
-        SpriteArtwork page = new ProjectileObjectPages(basePage, artwork.BeamTiles, artwork.TrailTiles).For(beams);
+        ProjectileSheetContext context = Contexts[sheet];
+        SamusBeamCombination beams = context.Beams;
+        RgbColor[] colours = context.Colours(inputs);
+        SpriteArtwork page = new ProjectileObjectPages(context.BasePage(inputs), artwork.BeamTiles, artwork.TrailTiles).For(beams);
 
         var frames = new List<SheetFrameSource>();
         var blank = new List<string>();
@@ -117,16 +114,57 @@ internal static class ProjectileSheetComposer
             frames.Add(new(ProjectileSheetFrames.TrailFrame(pose), SpritePartFrames.CentredSmallObject(artwork.Compositions.Trails.Resolve(pose), 0), page));
         // The burst is one of Samus's weapon effects: it is pictured over the combination's page in her beams' colours, and
         // shows her beams' current colouring through the sheet's shades as her other beam pictures do.
-        foreach (ProjectileSpriteId composition in HitBursts(sheet))
+        foreach (ProjectileSpriteId composition in HitBursts(context))
             frames.Add(new(ProjectileSheetFrames.HitBurstFrame(composition), artwork.Compositions.HitBursts.Frame(composition), page));
         return new SpriteSheetSources(frames, colours, ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades, Blank: blank);
     }
 
-    /// <summary>
-    /// The beam combination whose projectiles <paramref name="sheet"/> shows: the power beam for the intro's flashbacks,
-    /// otherwise the combination whose gameplay sheet it is.
-    /// </summary>
-    private static SamusBeamCombination Combination(SpriteSheetId sheet) => sheet == SpriteSheetId.IntroProjectiles
-        ? SamusBeamCombination.Power
-        : Combinations.Single(beams => ProjectileSheetFrames.For(beams) == sheet);
+    /// <summary>The context a projectile sheet composes in: the beams its projectiles show, its OBJ page and its colours.</summary>
+    /// <param name="Beams">The beam combination whose projectiles the sheet shows.</param>
+    private abstract partial record ProjectileSheetContext(SamusBeamCombination Beams)
+    {
+        /// <summary>The sheet composed in this context.</summary>
+        internal abstract SpriteSheetId Sheet { get; }
+
+        /// <summary>Whether the context's shots hurt enemies, so its sheet holds the burst a hit shows (#1713).</summary>
+        internal abstract bool HurtsEnemies { get; }
+
+        /// <summary>The OBJ page the context's beam characters are bound over.</summary>
+        internal abstract SpriteArtwork BasePage(SamusSheetInputs inputs);
+
+        /// <summary>The sprite rows' colours as the context leaves them.</summary>
+        internal abstract RgbColor[] Colours(SamusSheetInputs inputs);
+    }
+
+    /// <summary>A combination's gameplay sheet: the standard OBJ page, coloured by a room load and the combination's beam palette.</summary>
+    private sealed partial record GameplaySheet(SamusBeamCombination Beams) : ProjectileSheetContext(Beams)
+    {
+        /// <inheritdoc/>
+        internal override SpriteSheetId Sheet => ProjectileSheetFrames.For(Beams);
+
+        /// <inheritdoc/>
+        internal override bool HurtsEnemies => true;
+
+        /// <inheritdoc/>
+        internal override SpriteArtwork BasePage(SamusSheetInputs inputs) => inputs.StandardObjects;
+
+        /// <inheritdoc/>
+        internal override RgbColor[] Colours(SamusSheetInputs inputs) => inputs.WithBeams(inputs.RoomLoadSpriteColours(), Beams);
+    }
+
+    /// <summary>The intro's flashbacks: the power beam over the intro's OBJ page, in the intro's own palette.</summary>
+    private sealed partial record IntroFlashbackSheet() : ProjectileSheetContext(SamusBeamCombination.Power)
+    {
+        /// <inheritdoc/>
+        internal override SpriteSheetId Sheet => SpriteSheetId.IntroProjectiles;
+
+        /// <inheritdoc/>
+        internal override bool HurtsEnemies => false;
+
+        /// <inheritdoc/>
+        internal override SpriteArtwork BasePage(SamusSheetInputs inputs) => IntroObjectPage.Of(inputs.Intro);
+
+        /// <summary>The intro's colours: it loads the beam palette, then its whole palette over it.</summary>
+        internal override RgbColor[] Colours(SamusSheetInputs inputs) => [.. inputs.Intro.Palette.SpriteColours];
+    }
 }

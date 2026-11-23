@@ -29,7 +29,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon, camera: new Position16<RoomPixels>(256, 288));
         DraygonEnemyState draygon = (runtime.Enemies.Draygon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.Draygon."));
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
@@ -39,16 +39,16 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         draygon.IntroStage = UpdateCountdown.Ended();
         runtime.StepFrame(0);
         runtime.StepFrame(0);
-        int descentFrames = (draygon.SwoopPath ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
+        int descentFrames = ((draygon.Step as DraygonSwoopStep)?.Path ?? throw new InvalidOperationException("The first swoop plans its path.")).EntryCount;
         for (int frame = 0; frame < descentFrames + 2; frame++)
             runtime.StepFrame(0);
         draygon.Body.Health = 0;
 
         // A Screw Attack spin harms the enemy without hurting Samus, as the movie's spark does.
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.EquippedItems |= SamusEquipmentFlags.ScrewAttack;
-        samus.Pose = SamusPoseId.ScrewAttackRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.ScrewAttackRightPose);
         // EnemyMain reads the body attack the previous frame's spin movement set.
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.ScrewAttack;
         // Inside the upper body's touch boxes, in thin water with no floor below.
@@ -59,7 +59,7 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0x0100));
         runtime.StepFrame(0);
 
-        AssertEqual(DraygonPhase.Dying, draygon.Phase, "touching the dead Draygon runs its death reaction");
+        AssertEqual(DraygonPhaseSteps.Dying(), draygon.Step, "touching the dead Draygon runs its death reaction");
         AssertEqual(SamusPoseId.FallingRightPose, samus.Pose,
             "the released Samus walks off thin water and falls in the same frame");
         Console.WriteLine("  Released Samus falls: a mid-frame Draygon release still detects the missing floor.");

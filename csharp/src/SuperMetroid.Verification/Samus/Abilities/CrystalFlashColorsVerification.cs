@@ -30,7 +30,7 @@ internal static class CrystalFlashColorsVerification
             ushort pointer = ReadWord(rom, SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
                 frame * SamusShadeDefinitions.CrystalFlash.BodyRecordByteCount);
             for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                         SamusSourceDefinitions.PaletteBank.Value | (pointer + color * 2)),
                     native.ResolveBody(frame, color),
                     $"Crystal Flash body frame {frame}, color {color} matches cartridge");
@@ -40,15 +40,13 @@ internal static class CrystalFlashColorsVerification
             ushort pointer = ReadWord(rom, SamusSourceDefinitions.BubblePointers.Value +
                 frame * sizeof(ushort));
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                         SamusSourceDefinitions.PaletteBank.Value | (pointer + color * 2)),
                     native.ResolveBubble(frame, color),
                     $"Crystal Flash bubble frame {frame}, color {color} matches cartridge");
         }
 
-        CrystalFlashColorDocument document = JsonSerializer.Deserialize<CrystalFlashColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFile.FileName)),
-            ArtworkJson.Options)
+        CrystalFlashColorDocument document = JsonSerializer.Deserialize<CrystalFlashColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, CrystalFlashColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.CrystalFlashColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Crystal Flash color JSON is null.");
         SamusState samus = StartCrystalFlash();
 
@@ -79,27 +77,25 @@ internal static class CrystalFlashColorsVerification
         PaletteRgb5 previous = document.Body[0][1];
         document.Body[0][1] = previous with { Red = 32 };
         AssertThrows<InvalidDataException>(() => CrystalFlashColorFile.Read(
-            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-                document, ArtworkJson.Options), writable: false)),
+            new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.CrystalFlashColorDocument>(ArtworkJson.Options)), writable: false)),
             "Crystal Flash colors reject out-of-range RGB5 channels");
 
         Console.WriteLine("Crystal Flash colors: 136 stock words, 100 independent body/bubble calls reach CGRAM, ROM guard and strict values pass.");
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            RomDataReader.ReadWordFixedBank(bus, address);
 
         SamusState StartCrystalFlash()
         {
             var started = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 Health = 1,
                 MaxHealth = 99,
                 Missiles = 10,
                 SuperMissiles = 10,
                 PowerBombs = 10,
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(started);
             AssertTrue(started.CrystalFlash.TryBegin(started, SamusCrystalFlashState.RequiredInput), "start real Crystal Flash palette owner");
             return started;
@@ -114,7 +110,7 @@ internal static class CrystalFlashColorsVerification
         {
             int address = SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
                 frame * SamusShadeDefinitions.CrystalFlash.BodyRecordByteCount;
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
+            ushort pointer = RomDataReader.ReadWordFixedBank(source, address);
             forbidden.Add(address);
             forbidden.Add(address + 1);
             BlockColors(pointer, CrystalFlashColorFormat.BodyColorCount);
@@ -123,7 +119,7 @@ internal static class CrystalFlashColorsVerification
         {
             int address = SamusSourceDefinitions.BubblePointers.Value +
                 frame * sizeof(ushort);
-            ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
+            ushort pointer = RomDataReader.ReadWordFixedBank(source, address);
             forbidden.Add(address);
             forbidden.Add(address + 1);
             BlockColors(pointer, CrystalFlashColorFormat.BubbleColorCount);

@@ -43,19 +43,19 @@ internal static class YappingMawRetractionHoldVerification
             samus.Position = samus.Position.WithWhole(new(128 + 300, 128));
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
             AssertEqual(YappingMawAction.ExtendingOrRetracting, state.Action, $"{context}: setup begins the extension");
 
             state.Aim = aim;
-            state.Extension = new YappingMawCurl(SixteenSixteenWords.ToDisplacement(-retract - 1));
+            state.Extension = new global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl(SixteenSixteenWords.ToDisplacement(-retract - 1));
             state.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             state.CurlPhase = YappingMawCurlPhase.Retracting;
             state.HasGrabbedSamus = true;
             state.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);
             samus.Position = samus.Position.WithWhole(EarlierHold);
-            enemies.YappingMawBehavior.RunYappingMawMainAi(place, frame);
+            enemies.YappingMawBehavior.RunYappingMawMainAi(place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place, state, frame);
 
             AssertEqual(YappingMawAction.RetractedDelay, state.Action, $"{context}: the curl below nothing ends the retraction");
             AssertEqual(moved ? place.Position.Whole + state.HeldSamusOffset : EarlierHold, samus.Position.Whole,
@@ -69,13 +69,13 @@ internal static class YappingMawRetractionHoldVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.YappingMaw, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.YappingMaw, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.Position = place.Position.WithWhole(new(128, 128));
         place.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 301);
         place.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, reachParameter);
-        enemies.YappingMawBehavior.InitializeYappingMaw(place);
-        YappingMawEnemyState state = enemies.YappingMawStates[0] ?? throw new InvalidOperationException("Yapping Maw has no state.");
+        // The Maw's setup builds the state its main AI and animation run on.
+        YappingMawEnemyState state = enemies.YappingMawBehavior.InitializeYappingMaw(place.HeldOccupant(), place.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), place);
         return new NewInitializedYappingMawResult(enemies, place, state);
     }
 }

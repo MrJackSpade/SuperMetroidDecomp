@@ -33,7 +33,7 @@ internal static class ColorWindowSnapshotTestsVerification
         {
             var pickup = new SamusSuitPickupState();
             AssertTrue(GameplayEffectCapture.CaptureSuitPickup(pickup.Flash) is null, "inactive suit emits no operation");
-            var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose });
+            var samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose));
             pickup.Begin(samus, new(0, 0), kind);
             var phases = new HashSet<SamusSuitPickupStage>();
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
@@ -75,7 +75,7 @@ internal static class ColorWindowSnapshotTestsVerification
                 explosion.StepFrame(explosionGlowColors);
                 if (retained is not null) Compare(copy, retained);
             }
-            AssertTrue(!explosion.IsActive && phases.Contains(PowerBombExplosionPhase.Afterglow),
+            AssertTrue(!explosion.IsActive && phases.Contains(new PowerBombExplosionPhase.Running.Afterglow()),
                 "Power Bomb fixture reaches afterglow and completes");
         }
 
@@ -88,7 +88,7 @@ internal static class ColorWindowSnapshotTestsVerification
         AssertThrows<ArgumentException>(() => new WindowCone(Offset16<ScreenPixels>.Zero, TrigonometryAngle.Zero, TrigonometryAngle.HalfTurn),
             "a cone is narrower than half a turn");
         _ = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new ColourAddWindowLayer(owned, new RgbColor(206, 8, 255)) }, 15));
+            new DisplayLayer[] { new ColourAddWindowLayer(owned, new RgbColor(206, 8, 255)) }, DisplayBrightness.Full));
         Console.WriteLine($"  Color window snapshots: {samples} suit/Power Bomb retained windows and window ownership agree.");
 
         void Compare(ColourAddWindowLayer? captured, ColourAddWindowLayer layer)

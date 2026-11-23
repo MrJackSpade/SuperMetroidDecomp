@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// acceptance policies the game plays, which the game receives alone, beside the validated clip manifest they came from
 /// and the identity of the selected audio.
 /// </summary>
-public sealed class InstalledClipAudioLibrary
+public sealed partial class InstalledClipAudioLibrary
 {
     /// <summary>
     /// Creates a catalog over <paramref name="manifest"/>, whose clips <paramref name="source"/> supplies;
@@ -23,7 +23,7 @@ public sealed class InstalledClipAudioLibrary
     internal InstalledClipAudioLibrary(AudioClipManifest manifest, string contentIdentity, IAudioClipSource source)
     {
         Clips = new ClipAudioLibrary(Validated(manifest).InitialBeat, manifest.Music, [.. manifest.SoundEffects.Select(entry => entry.PlayedEntry())],
-            source);
+            [.. manifest.SoundEffects.SelectMany(entry => entry.PlayedSetEntries())], source);
         ArgumentException.ThrowIfNullOrWhiteSpace(contentIdentity);
         Manifest = manifest;
         ContentIdentity = contentIdentity;
@@ -59,20 +59,38 @@ public sealed class InstalledClipAudioLibrary
         }
         foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
         {
-            if (entry.Layers.Count == 0 && entry.ActiveFrames is null)
-                throw new InvalidDataException($"Never-ending {entry.Sound} has no layers.");
-            foreach (InstalledSoundEffectLayer layer in entry.Layers)
-            {
-                ValidateClip(layer.Clip);
-                if ((layer.LoopStart is null) != (entry.ActiveFrames is not null) ||
-                    layer.LoopStart is long loop && (loop < 0 || loop >= layer.Clip.Frames))
-                {
-                    throw new InvalidDataException(
-                        $"{entry.Sound} has inconsistent loop bounds.");
-                }
-            }
+            ValidateShape(entry.Sound, entry.Shape);
+            foreach (InstalledSoundEffectSetShape set in entry.ByDataSet)
+                ValidateShape(entry.Sound, set.Shape);
         }
         return manifest;
+    }
+
+    /// <summary>Checks one shape of <paramref name="sound"/>: its clips have frames and its loops lie within them.</summary>
+    private static void ValidateShape(SoundEffectId sound, InstalledSoundEffectShape shape)
+    {
+        {
+            switch (shape)
+            {
+                case InstalledOneShotSoundEffect { Clip: { } clip }:
+                    ValidateClip(clip);
+                    break;
+                case InstalledOneShotSoundEffect:
+                    break;
+                case InstalledLoopingSoundEffect { Layers.Count: 0 }:
+                    throw new InvalidDataException($"Never-ending {sound} has no layers.");
+                case InstalledLoopingSoundEffect looping:
+                    foreach (InstalledLoopingSoundEffectLayer layer in looping.Layers)
+                    {
+                        ValidateClip(layer.Clip);
+                        if (layer.LoopStart < 0 || layer.LoopStart >= layer.Clip.Frames)
+                            throw new InvalidDataException($"{sound} has inconsistent loop bounds.");
+                    }
+                    break;
+                default:
+                    throw new InvalidDataException($"{sound} has no shape.");
+            }
+        }
     }
 
     /// <summary>Checks a clip has frames.</summary>

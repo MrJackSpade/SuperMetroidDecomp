@@ -1,17 +1,17 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The counter phases that cycle the Ceres elevator room's glow and turning-floor platform (#1606).</summary>
-internal static class CeresDoorCadenceDefinitions
+internal static partial class CeresDoorCadenceDefinitions
 {
     /// <summary>
     /// The phase of the door's own update count that picks the turning floor's elevator platform picture: two pictures,
     /// each shown for two updates in turn.
     /// </summary>
-    internal static readonly UpdateCounterField PlatformPicture = new(1, 1);
+    internal static readonly UpdateCycle PlatformPicture = new(2, 2);
 
     /// <summary>
     /// The phase of the door's own update count that picks the elevator room's glow step: eight steps in turn, each held
-    /// as the field steps (<see cref="UpdateCounterField"/>).
+    /// as long as the one before.
     /// </summary>
-    internal static readonly UpdateCounterField GlowStep = new(3, 3);
+    internal static readonly UpdateCycle GlowStep = new(8, 8);
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's walks toward a target (#2471): the game has one forward walk and one backward walk, which her second
 /// phase's bomb and hand-beam retreats and every phase of her late fight ask for with their own target and speed.
 /// </summary>
-internal static class MotherBrainWalks
+internal static partial class MotherBrainWalks
 {
     /// <summary>
     /// Walks her body forwards toward <paramref name="targetX"/> at <paramref name="speed"/>. An overshoot of the target
@@ -51,7 +51,5 @@ internal static class MotherBrainWalks
     /// <summary>The animations <paramref name="speed"/> walks in.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="speed"/> is not a walking speed.</exception>
     private static MotherBrainWalkGait GaitOf(MotherBrainWalkSpeed speed) =>
-        MotherBrainWalkDefinitions.Gaits.TryGetValue(speed, out MotherBrainWalkGait gait)
-            ? gait
-            : throw new InvalidOperationException($"Undefined {nameof(MotherBrainWalkSpeed)} {speed}.");
+        MotherBrainWalkDefinitions.Gaits[speed];
 }

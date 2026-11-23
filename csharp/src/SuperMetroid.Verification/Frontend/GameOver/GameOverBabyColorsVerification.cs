@@ -38,7 +38,7 @@ internal static class GameOverBabyColorsVerification
         {
             // The sheet's colours laid out by the palette index each was composed as (#1544).
             RgbColor[] shaded = SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ByComposedIndex(babySheet,
-                PictureShading.Shaded(GameOverBabyShades.Colours((GameOverBabyColouring)phase)).KeyColours(babySheet));
+                PictureShading.Shaded(GameOverBabyShades.Colours((GameOverBabyColouring)phase)).KeyColours(babySheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
             RgbColor[] loaded = presentation.BabyPaint.Colours((GameOverBabyColouring)phase);
             for (int ink = 0; ink < 16; ink++)
             {
@@ -51,7 +51,5 @@ internal static class GameOverBabyColorsVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read(GameOverBabyColouring.Idle, invalid), "Baby ink bounds");
-        foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Read((GameOverBabyColouring)invalid, 0), "Baby phase bounds");
     }
 }

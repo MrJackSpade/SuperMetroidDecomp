@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>The state of the Polyp.</summary>
-public sealed class PolypEnemyState
+public sealed partial class PolypEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal PolypEnemyState(PolypAction action) => Action = action;

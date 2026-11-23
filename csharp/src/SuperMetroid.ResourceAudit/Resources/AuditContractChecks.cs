@@ -116,7 +116,7 @@ internal static class AuditContractChecks
             """;
         SyntaxTree tree = CSharpSyntaxTree.ParseText(text, path: "fixture.cs");
         var compilation = CSharpCompilation.Create("AuditFixture", [tree],
-            [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+            [MetadataReference.CreateFromFile(FixtureAssemblies.CoreLibrary)],
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         SemanticModel semantic = compilation.GetSemanticModel(tree);
         var exports = new ResourceIndex();
@@ -135,9 +135,9 @@ internal static class AuditContractChecks
         Require(fixedReport.MissingCount == 0 && fixedReport.UnresolvedCount == 2,
             "adding an export must not conceal unresolved consumers" + " (" + fixedReport.Describe() + ")");
         fixedReport.Sort();
-        string first = JsonSerializer.Serialize(fixedReport, AuditReport.JsonOptions);
+        string first = JsonSerializer.Serialize(fixedReport, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.ResourceAudit.Reports.AuditReport>(AuditReport.JsonOptions));
         fixedReport.Sort();
-        Require(first == JsonSerializer.Serialize(fixedReport, AuditReport.JsonOptions), "report ordering must be deterministic");
+        Require(first == JsonSerializer.Serialize(fixedReport, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.ResourceAudit.Reports.AuditReport>(AuditReport.JsonOptions)), "report ordering must be deterministic");
     }
 
     /// <summary>Separates direct projectile OAM resources from optional operand-bound frame resources.</summary>
@@ -257,8 +257,7 @@ internal static class AuditContractChecks
         try
         {
             _ = MotherBrainRoomColorFile.Read(new MemoryStream(
-                JsonSerializer.SerializeToUtf8Bytes(document with { Flash = document.Flash[..^1] },
-                    ArtworkJson.Options)));
+                JsonSerializer.SerializeToUtf8Bytes(document with { Flash = document.Flash[..^1] }, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options))));
         }
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "a missing installed flash row must fail at the production load boundary");

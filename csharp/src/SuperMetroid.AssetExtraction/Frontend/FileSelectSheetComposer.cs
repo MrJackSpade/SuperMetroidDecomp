@@ -16,10 +16,10 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// the menu object palette, and each file-copy arrow in its own palette, coloured as the screen loads the menu palette,
 /// with a shade for each step of the arrows' colour rotation (#1512).
 /// </summary>
-internal static class FileSelectSheetComposer
+internal static partial class FileSelectSheetComposer
 {
     /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
+    private const int SpriteColours = ImageColourGroup.HalfColours;
 
     /// <summary>What the file-select sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) =>
@@ -30,7 +30,7 @@ internal static class FileSelectSheetComposer
     {
         Ensure.NotNull(fileSelect);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        SpriteArtwork page = maps.Sprites.Page;
         FileSelectSourcePresentation source = fileSelect;
         int palette = source.ObjectPalette;
         var frames = new List<SheetFrameSource>();
@@ -53,8 +53,8 @@ internal static class FileSelectSheetComposer
         {
             string name = FileCopyArrowDefinitions.FrameName(shape);
             // The arrows' parts are placed with their own attribute words, palette and all.
-            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowPartDefinitions.Parts(shape)
-                .SelectToArray(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
+            frames.Add(new(name, new SpriteFrame(name, [.. FileCopyArrowPartDefinitions.Parts[shape]
+                .Select(part => SpritePartFrames.Part(part.Part, firstCharacter: 0))]), page));
         }
         RgbColor[] sprites = maps.Palettes.FileSelect[SpriteColours..].ToArray();
         return new SpriteSheetSources(frames, sprites, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection), PartsKeepOwnRows: true)
@@ -68,7 +68,7 @@ internal static class FileSelectSheetComposer
     /// <summary>The first colour of <see cref="CopyArrowGroup"/> the rotation moves; it moves the following ones with it.</summary>
     private const int CopyArrowFirstColour = 1;
     /// <summary>The colours of one sprite colour group.</summary>
-    private const int GroupColours = 16;
+    private const int GroupColours = ImageColourGroup.Colours;
 
     /// <summary>
     /// The copy arrows' rotation shades (#1512): after each step, every rotated colour shows the next one's colour and the

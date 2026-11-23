@@ -72,10 +72,10 @@ internal static class WrapShotsVerification
             for (int frame = 0; frame < 40; frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, input, input);
-                projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left != 0 ? 0 : 768), 0), shared, new SharedGameState(new SharedRandom()));
+                shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, input, input);
+                projectiles.StepFrame(new RoomTerrain(level, roomObjects), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new((ushort)(left != 0 ? 0 : 768), 0), shared, new SharedGameState(new SharedRandom()));
                 var shot = projectiles.Shots[0];
-                string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type},{shot.InstructionPointer:X4},";
+                string actual = $"{left},{beam},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.RecordedType},{shot.InstructionPointer:X4},";
                 for (int row = 0; row < 128; row++)
                 {
                     var block = level.GetCollisionBlock(new(checked((ushort)(left != 0 ? 63 : 0)), checked((ushort)row)));

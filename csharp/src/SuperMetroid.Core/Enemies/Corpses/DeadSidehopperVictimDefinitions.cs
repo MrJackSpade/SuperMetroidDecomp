@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>Where the Baby Metroid's living victim, the sidehopper it drains, stands and hops in its room.</summary>
-internal static class DeadSidehopperVictimDefinitions
+internal static partial class DeadSidehopperVictimDefinitions
 {
     /// <summary>The height of the floor the victim stands on and lands its scripted hops on.</summary>
     internal const int FloorY = 184;
@@ -24,7 +24,7 @@ internal static class DeadSidehopperVictimDefinitions
     /// <summary>The drained victim's half height once it lies as a corpse, in pixels.</summary>
     internal const int DrainedHalfHeight = 12;
 
-    /// <summary>How long the victim rests after landing a hop before its next, in updates: 65, the last the one it hops or drains on.</summary>
+    /// <summary>How long the victim rests after landing a hop before its next, in updates, the last the one it hops or drains on.</summary>
     internal const int PostLandingPause = 65;
 
     /// <summary>The updates each stage of the Baby Metroid's drain lasts on its victim.</summary>

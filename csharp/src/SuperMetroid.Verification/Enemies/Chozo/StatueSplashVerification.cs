@@ -25,9 +25,9 @@ internal static class StatueSplashVerification
         int splashes = 0;
         for (ushort random = 0; random < 64; random++)
         {
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random), statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(FixtureEnemyTileArtwork()), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => random), statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(room.State.EnemyPopulation, BgArtworkFixtures.For(new SnesVram()), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), RoomEnemyFrameFixtures.StandaloneSamus()));
-            foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Kind = 0;
+            foreach (var actor in enemies.Projectiles.EnemyProjectiles) actor.Delete();
             EnemySystemFixtures.UnlockEffects(enemies).SpawnTourianEyeGlow(SuperMetroid.Core.Areas.Tourian.TourianStatueNativeWords.Eye(0));
             var eye = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             EnemyProjectile? particle = null;
@@ -64,7 +64,7 @@ internal static class StatueSplashVerification
                     // Isolate the spawned actor after the real crossing so every
                     // emitted sprite can be compared against its native screen origin.
                     foreach (var other in enemies.Projectiles.EnemyProjectiles)
-                        if (other != splash) other.Kind = 0;
+                        if (other != splash) other.Delete();
                     int visibleFrames = 0;
                     ushort splashX = (ushort)SixteenSixteenWords.WholeOf(unchecked((uint)x));
                     for (int age = 0; age < 64 && splash.IsActive; age++)
@@ -96,7 +96,7 @@ internal static class StatueSplashVerification
 
     /// <summary>Reads one native launch-table word for the independent trajectory reference.</summary>
     private static ushort ReadNativeStatueParticleWord(ISnesAddressSpace bus, int index) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + index * 2);
+        RomDataReader.ReadWordFixedBank(bus, 0xa0b3c3 + index * 2);
 
     /// <summary>Runs the retail Tourian statue particle and splash check.</summary>
     [VerificationCommand("--statue-splash")]

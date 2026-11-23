@@ -38,8 +38,8 @@ internal static class ProjectileTrailCoordinatesVerification
     /// </summary>
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
-        Dictionary<ProjectileTrailPlacementList, ushort> starts = Enum.GetValues<ProjectileTrailPlacementList>().ToDictionary(
-            list => list, list => ProjectileTrailPlacementSources.Start(CartridgeImportSource.Require(bus), list).Offset);
+        Dictionary<ProjectileTrailPlacementList, ushort> starts = ProjectileTrailPlacementSources.OwnPlacementCounts.Keys.ToDictionary(
+            list => list, list => ProjectileTrailPlacementSources.Start(bus, list).Offset);
         ushort[] orderedStarts = [.. starts.Values.Distinct().Order()];
         foreach ((ProjectileTrailPlacementList list, int count) in ProjectileTrailPlacementSources.OwnPlacementCounts)
         {
@@ -54,8 +54,9 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach ((SamusProjectileFrameId frame, ProjectileTrailPlacement placement) in placements)
         foreach (int record in SamusProjectileProgramAddresses.RecordAddresses(frame))
         {
-            // Every record that shows a frame places its trail where the frame's placement does (#2274).
-            int trailWord = TrailWord(bus, record);
+            // Every record that shows a frame places its trail where the frame's placement does (#2274), the down-left
+            // Spazer-Wave stages where the same stage shot downward does (#2573).
+            int trailWord = PlacementTrailWord(bus, frame, record);
             AssertTrue(trailWord < ProjectileTrailPlacementSources.OwnPlacementCounts[list], $"{list} places {frame} at $93:{record:X4} from one of its own placements");
             AssertEqual(NativePlacement(bus, starts[list] + trailWord * RecordByteCount), placement, $"{list} places {frame} at $93:{record:X4} where the cartridge does");
             records++;
@@ -113,7 +114,7 @@ internal static class ProjectileTrailCoordinatesVerification
     private static void VerifyCoordinateSpawn(ISnesAddressSpace bus, Dictionary<ushort, ProjectileTrailPlacementList> lists)
     {
         var system = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
-        var spawn = new Action<SamusProjectile>(system.Trails.SpawnTrail);
+        var spawn = new Action<SamusProjectile>(projectile => system.Trails.SpawnTrail(projectile.HeldShot()));
         int cases = 0;
         // 36 is the Spazer combo's trail echo; no projectile is an echo of Spazer+Wave (37), which the typed identity cannot name.
         foreach (ushort type in new ushort[] { 1, 2, 6, 7, 10, 11, 17, 18, 22, 23, 26, 27, 36, 0x100, 0x200 })
@@ -123,17 +124,15 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach (ushort origin in new ushort[] { 0, ushort.MaxValue })
         {
             ushort offsets = DirectionList(bus, type, direction);
-            int trailWord = TrailWord(bus, record);
+            int trailWord = PlacementTrailWord(bus, frame, record);
             ushort y = unchecked((ushort)(offsets + trailWord * 4));
             system.Reset();
-            var shot = new SamusProjectile(0)
-            {
-                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type),
-                Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction),
-                Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
-                    SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount))),
-                Position = new(new(origin, 0), new(origin, 0)),
-            };
+            var shot = new SamusProjectile(0);
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            shot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.StandingAt(unchecked((ushort)(record +
+                    SuperMetroid.AssetExtraction.CartridgeTables.SamusProjectileListLayout.TimedRecordByteCount)));
+            shot.HeldShot().Position = new(new(origin, 0), new(origin, 0));
             if (SamusProjectilePlayback.BeatOf(shot.Playback ?? throw new InvalidOperationException($"The position after {frame} names no playback.")).Beat == 0)
             {
                 // The record ends its list, so the position after it is the next list's start: a trail spawned there has no
@@ -165,13 +164,14 @@ internal static class ProjectileTrailCoordinatesVerification
         foreach ((ushort type, int dataTable, int index) in ReflectableTrailTypes())
         for (ushort direction = 0; direction < 10; direction++)
         {
-            ushort data = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), dataTable + index * 2);
-            ushort listStart = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
+            ushort data = RomDataReader.ReadWordFixedBank(bus, dataTable + index * 2);
+            ushort listStart = RomDataReader.ReadWordFixedBank(bus, 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
             system.Reset();
-            var shot = new SamusProjectile(0)
-            {
-                Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction), Animation = SamusProjectileProgramAddresses.PlayerAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
-            };
+            var shot = new SamusProjectile(0);
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(type));
+            shot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+            shot.HeldShot().Animation = SamusProjectileProgramAddresses.PlayerAt(listStart);
+            shot.HeldShot().Position = new(new(0x0100, 0), new(0x0100, 0));
             spawn(shot);
             AssertEqual(0, system.LiveTrails.Count, $"reflected type ${type:X4} direction {direction} leaves no trail at its list's start");
             cases++;
@@ -185,21 +185,50 @@ internal static class ProjectileTrailCoordinatesVerification
     /// <summary>The bank-$9B list <paramref name="type"/>'s selector row and direction entry name.</summary>
     private static ushort DirectionList(ISnesAddressSpace bus, ushort type, ushort direction)
     {
-        ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SelectorTable(type) + (type & 15) * 2);
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
+        ushort directions = RomDataReader.ReadWordFixedBank(bus, SelectorTable(type) + (type & 15) * 2);
+        return RomDataReader.ReadWordFixedBank(bus, 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
     }
 
     /// <summary>
-    /// How far from the shot at <paramref name="origin"/> on each axis native draws a trail's four coordinates from the
-    /// record at bank-$9B offset <paramref name="y"/>: each native coordinate, the origin plus the operand less four
-    /// wrapped to sixteen bits, measured back from the origin the short way.
+    /// How far from the shot at <paramref name="origin"/> on each axis native places a trail's two sparkles from the record
+    /// at bank-$9B offset <paramref name="y"/>. Native keeps each sparkle's picture corner: the origin plus the operand less
+    /// four, wrapped to sixteen bits. The port keeps the sparkle itself, four further on, whose picture's own anchor draws it
+    /// from that corner (#2573); each is measured back from the origin the short way.
     /// </summary>
     private static ProjectileTrailCoordinatesExpected NativeSpawnOffsets(ISnesAddressSpace bus, ushort origin, ushort y)
     {
         byte Read(ushort operand, ushort index) => LittleEndianBytes.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
-        int Offset(byte operand) => unchecked((short)(unchecked((ushort)(origin + (sbyte)operand - 4)) - origin));
+        int Offset(byte operand) => unchecked((short)(unchecked((ushort)(origin + (sbyte)operand - SparklePictureHalf)) - origin)) + SparklePictureHalf;
         return new ProjectileTrailCoordinatesExpected(Offset(Read(0, unchecked((ushort)(y - 1)))), Offset(Read(0, y)), Offset(Read(1, y)), Offset(Read(2, y)));
     }
+
+    /// <summary>Half a sparkle's eight-pixel picture: how far up and left of its sparkle native draws the picture from.</summary>
+    private const int SparklePictureHalf = 4;
+
+    /// <summary>
+    /// The down-left Spazer-Wave frames that show a stage, each with the same stage's frame shot downward. Their own records
+    /// read their trail list one stage behind the picture, as the original's position-indexed table placed them; the port
+    /// gives each the placement of the stage it shows, as the other seven directions do (#2573).
+    /// </summary>
+    private static readonly FrozenDictionary<SamusProjectileFrameId, SamusProjectileFrameId> DownLeftStages =
+        new Dictionary<SamusProjectileFrameId, SamusProjectileFrameId>
+        {
+            [SamusProjectileFrameId.SpazerWaveDownLeftParting] = SamusProjectileFrameId.SpazerWaveDownParting,
+            [SamusProjectileFrameId.SpazerWaveDownLeftSpreading] = SamusProjectileFrameId.SpazerWaveDownSpreading,
+            [SamusProjectileFrameId.SpazerWaveDownLeftNearlySpread] = SamusProjectileFrameId.SpazerWaveDownNearlySpread,
+            [SamusProjectileFrameId.SpazerWaveDownLeftSpread] = SamusProjectileFrameId.SpazerWaveDownSpread,
+            [SamusProjectileFrameId.SpazerWaveDownLeftSpreadingWithoutDefaultTrail] = SamusProjectileFrameId.SpazerWaveDownSpreading,
+            [SamusProjectileFrameId.SpazerWaveDownLeftPartingWithoutDefaultTrail] = SamusProjectileFrameId.SpazerWaveDownPartingWithoutDefaultTrail,
+        }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The trail word whose placement a shot past <paramref name="record"/>, which shows <paramref name="frame"/>, takes: the
+    /// record's own, or for a down-left Spazer-Wave stage that of the same stage's downward record (<see cref="DownLeftStages"/>).
+    /// </summary>
+    private static int PlacementTrailWord(ISnesAddressSpace bus, SamusProjectileFrameId frame, int record) =>
+        TrailWord(bus, DownLeftStages.TryGetValue(frame, out SamusProjectileFrameId stage)
+            ? SamusProjectileProgramAddresses.RecordAddresses(stage)[0]
+            : record);
 
     /// <summary>
     /// Whether a trail draws from trail word <paramref name="trailWord"/> of the list at bank-$9B offset <paramref name="list"/>:
@@ -211,7 +240,7 @@ internal static class ProjectileTrailCoordinatesVerification
 
     /// <summary>The trail word of the timed record at bank-$93 <paramref name="record"/>: the placement it reads from its list.</summary>
     private static int TrailWord(ISnesAddressSpace bus, int record) => RomDataReader.ReadWordFixedBank(
-        CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(record + 6)));
+        bus, 0x930000 | unchecked((ushort)(record + 6)));
 
     /// <summary>
     /// Every frame a projectile of <paramref name="type"/> can show, whatever its direction: the frames of every animation of
@@ -235,7 +264,7 @@ internal static class ProjectileTrailCoordinatesVerification
         }
         else
         {
-            kinds.Add(SamusProjectileSelection.NonBeam(type.Family));
+            kinds.Add(SamusProjectileSelection.Missile(type.Family == SamusProjectileFamily.SuperMissile));
             if (type.Family == SamusProjectileFamily.SuperMissile)
                 kinds.Add(SamusProjectileKind.SuperMissileLink);
         }
@@ -260,11 +289,11 @@ internal static class ProjectileTrailCoordinatesVerification
 
     /// <summary>Reads a native trail table word for the cartridge-side oracle.</summary>
     private static ushort ReadRetailTrailWord(ISnesAddressSpace bus, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        RomDataReader.ReadWordFixedBank(bus, address);
 
     /// <summary>Reads a cartridge byte for a native bank-$9B trail operand.</summary>
     private static byte ReadRetailTrailOperandByte(ISnesAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeByte(address);
+        bus.ReadCartridgeByte(address);
 
     /// <summary>Reads a modeled peripheral response or rejects an unmodeled hardware operand.</summary>
     private static byte ReadNativeTrailOperandDeviceByte(ISnesAddressSpace bus, int address) =>

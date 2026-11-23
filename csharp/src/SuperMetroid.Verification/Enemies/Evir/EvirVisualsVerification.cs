@@ -49,8 +49,8 @@ internal static class EvirVisualsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(),
                 definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
-            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            PrepareEvirBodyLoop(place, loop);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[EvirInstructionProgramDefinitionsVerification.BodyPlace];
+            PrepareEvirBodyLoop(enemies, loop);
             Animation<EvirSegment> animation = EvirAnimations.StartingWith(loop);
             AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(EvirAnimations.Segments, animation, EvirFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(EvirAnimations.Segments, animation)),

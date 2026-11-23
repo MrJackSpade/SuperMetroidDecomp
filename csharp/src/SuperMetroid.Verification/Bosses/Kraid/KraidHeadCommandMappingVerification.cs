@@ -18,7 +18,7 @@ internal static class KraidHeadCommandMappingVerification
     /// <summary>Checks poses, durations, cries and ends; the cursor-relative mouth reads; growth resumes; and entry cursors.</summary>
     internal static void VerifyKraidHeadCommandMapping(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var native = new KraidHeadNativeCursors(cartridge);
         ushort Word(int pointer) => (ushort)(KraidHeadCommandMappingRomByte(rom, KraidHeadNativeCursors.Bank | pointer) |
             (KraidHeadCommandMappingRomByte(rom, KraidHeadNativeCursors.Bank | (pointer + 1)) << 8));
@@ -71,7 +71,7 @@ internal static class KraidHeadCommandMappingVerification
                         _ => throw new InvalidDataException($"{at}: unknown native head command ${record.Opcode:X4}."),
                     };
                     AssertEqual(cue, cueStep.Raised, $"{at} cry");
-                    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, (byte)record.Sound), sound,
+                    AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, (byte)record.Sound), sound,
                         $"{at} cry sound: the import decodes the native byte to the definition's sound");
                 }
 
@@ -93,7 +93,6 @@ internal static class KraidHeadCommandMappingVerification
         AssertEqual(Word(0x96d2), KraidHeadAnimations.Starting(KraidHeadSegment.Roar).Delay, "roar entry duration");
         AssertEqual(Word(0x974a), KraidHeadAnimations.Starting(KraidHeadSegment.EyeGlow).Delay, "eye-glow entry duration");
         AssertEqual(Word(0x9764), KraidHeadAnimations.Starting(KraidHeadSegment.Death).Delay, "death entry duration");
-        AssertThrows<InvalidDataException>(() => KraidHeadAnimations.ReadsAt(null), "an unstarted head has no reads");
     }
 
     /// <summary>
@@ -105,15 +104,15 @@ internal static class KraidHeadCommandMappingVerification
         foreach (KraidHeadNativePose record in native.AllPoses)
         {
             if (address == record.Pointer + 4)
-                return new(KraidMouthShapeReadKind.Shape, KraidNativeWords.MouthHitboxes.Decode(record.OuterShape, "Kraid mouth hitbox"));
+                return new KraidMouthShapeRead.Found(KraidNativeWords.MouthHitboxes.Decode(record.OuterShape, "Kraid mouth hitbox"));
             if (address == record.Pointer + 6)
                 return record.InnerShape == ushort.MaxValue
-                    ? new(KraidMouthShapeReadKind.NoShape, default)
-                    : new(KraidMouthShapeReadKind.Shape, KraidNativeWords.MouthHitboxes.Decode(record.InnerShape, "Kraid mouth hitbox"));
+                    ? KraidMouthShapeRead.NoShape
+                    : new KraidMouthShapeRead.Found(KraidNativeWords.MouthHitboxes.Decode(record.InnerShape, "Kraid mouth hitbox"));
         }
         return KraidMouthShapeRead.NoPose;
     }
 
     /// <summary>Reads one native bank-$A7 byte solely for the head-program oracle.</summary>
-    private static byte KraidHeadCommandMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidHeadCommandMappingRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

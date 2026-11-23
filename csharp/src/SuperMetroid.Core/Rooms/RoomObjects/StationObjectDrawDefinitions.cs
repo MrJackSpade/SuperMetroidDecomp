@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <summary>
 /// The block shape each of the twenty station draws draws (#1862). What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class StationObjectDrawDefinitions
+internal static partial class StationObjectDrawDefinitions
 {
     /// <summary>A map station's display: its block and the one left of it, both solid.</summary>
     private static readonly RoomBlockShape MapDisplay = new([new(new(0, 0), RoomCollisionType.SolidBlock), new(new(-1, 0), RoomCollisionType.SolidBlock)]);
@@ -13,27 +13,19 @@ internal static class StationObjectDrawDefinitions
     /// <summary>A refill or ammunition station's display: a solid block under a slope.</summary>
     private static readonly RoomBlockShape ResourceDisplay = new([new(new(0, 0), RoomCollisionType.SolidBlock), new(new(0, -1), RoomCollisionType.Slope)]);
 
-    /// <summary>The idle save pod: six rows two blocks wide up from its floor, the floor's left block its trigger, the shaft air and the cap solid.</summary>
-    private static readonly RoomBlockShape SavePodIdle = new(
-    [
-        new(new(0, 0), RoomCollisionType.SpecialBlock), new(new(1, 0), RoomCollisionType.SolidBlock),
-        new(new(0, -1), RoomCollisionType.Air), new(new(1, -1), RoomCollisionType.Air),
-        new(new(0, -2), RoomCollisionType.Air), new(new(1, -2), RoomCollisionType.Air),
-        new(new(0, -3), RoomCollisionType.Air), new(new(1, -3), RoomCollisionType.Air),
-        new(new(0, -4), RoomCollisionType.Air), new(new(1, -4), RoomCollisionType.Air),
-        new(new(0, -5), RoomCollisionType.SolidBlock), new(new(1, -5), RoomCollisionType.SolidBlock),
-    ]);
+    /// <summary>The save pod's shaft: two blocks wide and four tall above its floor, all air.</summary>
+    private static readonly RoomBlockShape SavePodShaft = RoomBlockShapes.Rectangle(new(0, -4), new(2, 4), RoomCollisionType.Air);
 
-    /// <summary>The active save pod: its floor and cap solid around the air shaft.</summary>
-    private static readonly RoomBlockShape SavePodActive = new(
-    [
-        new(new(0, 0), RoomCollisionType.SolidBlock), new(new(1, 0), RoomCollisionType.SolidBlock),
-        new(new(0, -1), RoomCollisionType.Air), new(new(1, -1), RoomCollisionType.Air),
-        new(new(0, -2), RoomCollisionType.Air), new(new(1, -2), RoomCollisionType.Air),
-        new(new(0, -3), RoomCollisionType.Air), new(new(1, -3), RoomCollisionType.Air),
-        new(new(0, -4), RoomCollisionType.Air), new(new(1, -4), RoomCollisionType.Air),
-        new(new(0, -5), RoomCollisionType.SolidBlock), new(new(1, -5), RoomCollisionType.SolidBlock),
-    ]);
+    /// <summary>The save pod's cap: the two solid blocks above its shaft.</summary>
+    private static readonly RoomBlockShape SavePodCap = RoomBlockShapes.Rectangle(new(0, -5), new(2, 1), RoomCollisionType.SolidBlock);
+
+    /// <summary>The idle save pod: its floor's left block its trigger and its right block solid, under the shaft and cap.</summary>
+    private static readonly RoomBlockShape SavePodIdle = RoomBlockShapes.Joined(
+        RoomBlockShapes.Line(Axis.Horizontal, [RoomCollisionType.SpecialBlock, RoomCollisionType.SolidBlock]), SavePodShaft, SavePodCap);
+
+    /// <summary>The active save pod: its floor solid, under the shaft and cap.</summary>
+    private static readonly RoomBlockShape SavePodActive = RoomBlockShapes.Joined(
+        RoomBlockShapes.Row(2, RoomCollisionType.SolidBlock), SavePodShaft, SavePodCap);
 
     /// <summary>A retracted map access arm on its station's right: its block and the one three left of it, both solid.</summary>
     private static readonly RoomBlockShape MapRightRetracted = new([new(new(0, 0), RoomCollisionType.SolidBlock), new(new(-3, 0), RoomCollisionType.SolidBlock)]);

@@ -4,12 +4,16 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>Falling spark's typed animation.</summary>
-internal sealed class FallingSparkAnimation(FallingSparkSegment segment)
-    : EnemyProjectileFrameAnimation<FallingSparkSegment, EnemyProjectileCommonCue>(FallingSparkAnimations.StartingWith(segment))
+internal sealed partial class FallingSparkAnimation
+    : EnemyProjectileFrameAnimation<FallingSparkSegment, EnemyProjectileCommonCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
+    /// <summary>Creates a <see cref="FallingSparkAnimation"/>.</summary>
+    /// <param name="segment">segment</param>
+    public FallingSparkAnimation(FallingSparkSegment segment)
+        : base(segment, FallingSparkAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<FallingSparkSegment>())
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FallingSparkSegment, Animation<FallingSparkSegment>> StartingAt => FallingSparkAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FallingSparkAnimations.Segments;
 }

@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// the acid surface Crocomire's smoke rises from.
 /// </summary>
 /// <param name="fxOverlay">The room's effect state, which lives as long as the room and its enemies.</param>
-[RoomLifetime]
-internal sealed class EnemyRoomFx(RoomFxOverlayState fxOverlay)
+internal sealed partial class EnemyRoomFx(RoomFxOverlayState fxOverlay)
 {
     /// <summary>The room's effect state.</summary>
     internal RoomFxOverlayState FxOverlay { get; } = Ensure.NotNull(fxOverlay);

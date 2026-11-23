@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="Height">How high the climb rises, none or more: 16 to 64 pixels for the climbs the game plans.</param>
 /// <param name="StepPerPass">How far along the curve each pass of the search steps.</param>
-internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height, QuadraticSpeedCurvePlace StepPerPass)
+internal readonly partial record struct QuadraticCurveClimb(SignedSixteenSixteen Height, QuadraticSpeedCurvePlace StepPerPass)
 {
     /// <summary>
     /// The most passes a search can make before its place leaves the curve: the finest step leaves it after this many.
@@ -17,9 +17,9 @@ internal readonly record struct QuadraticCurveClimb(SignedSixteenSixteen Height,
     /// <summary>
     /// The place the climb starts from: stepping from the curve's start <see cref="StepPerPass"/> a pass, the first place
     /// at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum to <see cref="Height"/>;
-    /// summing full speeds would change every climb. The height is reached within the curve's marks or never: past them
-    /// reading the speed rejects the climb before the place could grow further, and a climb that steps nowhere sums the
-    /// start's speed of zero only (#1627).
+    /// at which the coarse speeds (<see cref="QuadraticCurveSpeed"/>) of the places passed sum to <see cref="Height"/>.
+    /// The height is reached within the curve's marks or never: past them the climb is rejected, and a climb that steps
+    /// nowhere sums the start's speed of zero only (#1627).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The height is negative.</exception>
     /// <exception cref="InvalidDataException">The climb does not reach its height within the curve's marks.</exception>

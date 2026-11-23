@@ -10,12 +10,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// simulation, never when a frame is repainted. The beam chooses its colour during the update and the frame boundary
 /// latches it, so a colour reaches the screen one frame after it is chosen, while the cone is read as the frame ends (#2498).
 /// </summary>
-public sealed class MotherBrainRainbowBeamEffect
+public sealed partial class MotherBrainRainbowBeamEffect
 {
     /// <summary>Whether the last simulation update showed the beam; a hidden beam shows nothing.</summary>
     public bool Active => colours is not null;
     /// <summary>The colour the beam adds inside its cone; set when the beam appears and advanced only by later updates that show it.</summary>
-    public RgbColor Color { get; private set; }
+    internal RgbColor Color { get; set; }
     /// <summary>
     /// The beam's colour sequence playing (#2404), a colour each update the beam shows: its first colour, then its hue
     /// cycle, which starts over at its first colour past its last, so no colour repeats (#2251); null while the beam is
@@ -25,12 +25,12 @@ public sealed class MotherBrainRainbowBeamEffect
     /// <summary>The installed colours <see cref="colours"/> plays.</summary>
     private MotherBrainRainbowBeamColours? played;
     /// <summary>The cone the last update that showed the beam aimed; null until the beam first shows.</summary>
-    public MotherBrainRainbowBeamGeometry? Geometry { get; private set; }
+    internal MotherBrainRainbowBeamGeometry? Geometry { get; set; }
     /// <summary>
     /// The colour the screen shows the beam adding: <see cref="Color"/> as the last frame boundary latched it
     /// (<see cref="LatchDisplay"/>), which is the colour the beam starts with before any boundary.
     /// </summary>
-    public RgbColor DisplayedColor { get; private set; }
+    internal RgbColor DisplayedColor { get; set; }
     /// <summary>
     /// What the beam shows now: the cone it aimed in the colour the last frame boundary latched, or null while it is hidden;
     /// taking it never advances the beam.
@@ -44,7 +44,7 @@ public sealed class MotherBrainRainbowBeamEffect
     public void Hide() => colours = null;
 
     /// <summary>One update that shows the beam, after the head's position and beam aim have been resolved.</summary>
-    /// <param name="head">Head enemy's whole-pixel room position. The mouth lies fourteen pixels right of it and five below.</param>
+    /// <param name="head">Head enemy's whole-pixel room position. The mouth lies right of it and below.</param>
     /// <param name="angle">Beam center aim; only its whole angle units are used when computing the two wrapping edge angles.</param>
     /// <param name="angularWidth">Angular width; its whole steps are halved with integer truncation to obtain each edge's displacement in steps.</param>
     /// <param name="installed">The installed colours the beam plays, which the host binds (#2261).</param>
@@ -59,11 +59,13 @@ public sealed class MotherBrainRainbowBeamEffect
         else if (!ReferenceEquals(played, installed))
         {
             // Colours the host binds anew play on from where the sequence stands.
-            colours.Rebind(installed.BeamSegments, installed.BeamAnimation);
+            if (colours.Rebind(installed.BeamSegments, installed.BeamAnimation) is { } rebound)
+                Color = rebound;
         }
         played = installed;
-        colours.Step();
-        Color = colours.Showing;
+        // The colour shown stays until the sequence shows its next.
+        if (colours.StepToNewFrame() is { } next)
+            Color = next;
         // The cone's edges lie half its whole-step width either side of its direction.
         TrigonometryAngle halfWidth = angularWidth.WholeStep.DividedBy(2).ToTrigonometryAngle();
         Geometry = new(new(head.X + MotherBrainBeamDefinitions.MouthXOffset, head.Y + MotherBrainBeamDefinitions.MouthYOffset),

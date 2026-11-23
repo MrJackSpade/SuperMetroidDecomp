@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses;
 
 /// <summary>The health of the bosses Samus cannot wear down (#2171).</summary>
-internal static class BossHealthDefinitions
+internal static partial class BossHealthDefinitions
 {
     /// <summary>
     /// The full health Ceres Ridley is refilled to on every update of his main behaviour, so no hits wear him down, kept

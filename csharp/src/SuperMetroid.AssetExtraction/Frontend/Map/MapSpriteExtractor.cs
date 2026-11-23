@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports ordered map sprite artwork only, excluding all game collision and navigation data.</summary>
-public static class MapSpriteExtractor
+public static partial class MapSpriteExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -22,17 +22,16 @@ public static class MapSpriteExtractor
     /// <exception cref="InvalidDataException">The native world-title sprite binding is unexpected.</exception>
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
-        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.LabelSpritemaps) != MapSpriteOrdinals.Spritemaps.Word(MapSpriteId.WorldTitle))
+        if (RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.LabelSpritemaps) != MapSpriteOrdinals.Spritemaps.Word(MapSpriteId.WorldTitle))
             throw new InvalidDataException("Unexpected native world-title sprite binding.");
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in MapSpriteArtwork.FrameNames)
             frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, MapSpriteOrdinals.Spritemaps.Word(definition.Id)));
-        byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount),
+        byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Menu.ObjectCharacters, MapSpriteFormat.ByteCount),
             4, MapSpriteFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();
         IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new MapSpriteDocument { Version = MapSpriteFormat.Version, Frames = frames },
-            CamelCaseIndentedJson);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new MapSpriteDocument { Version = MapSpriteFormat.Version, Frames = frames }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(CamelCaseIndentedJson));
         byte[] pngBytes = png.ToArray();
         return new() { [MapSpriteFormat.JsonFile] = json, [MapSpriteFormat.PngFile] = pngBytes };
     }

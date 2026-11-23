@@ -7,7 +7,8 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="part">The part the particle plays in its attack.</param>
 /// <param name="turnPerUpdate">The particle's turn round Samus each update while it circles, its own way round.</param>
-internal sealed class SpazerParticleState(SpecialAttackParticle part, TrigonometryAngle turnPerUpdate)
+/// <param name="partner">The particle this one pairs with: a beam particle and the trailing particle that turn the same way.</param>
+internal sealed partial class SpazerParticleState(SpecialAttackParticle part, TrigonometryAngle turnPerUpdate, SamusProjectile partner)
     : OrbitingParticleState(part, TrigonometryAngle.Zero, BeamComboDefinitions.SpazerCirclingRadius, turnPerUpdate)
 {
     /// <summary>The particle's phase.</summary>
@@ -20,13 +21,9 @@ internal sealed class SpazerParticleState(SpecialAttackParticle part, Trigonomet
     internal bool LeavesTrails => Part.SpazerTrail || Phase == SpazerComboPhase.Falling;
 
     /// <summary>
-    /// The particle this one is paired with, set when the attack starts (#1683): a beam particle and the trailing particle
+    /// The particle this one is paired with from the attack's start (#1683, #2554): a beam particle and the trailing particle
     /// that turns the same way. A spent particle ends its partner's place with itself
     /// (<see cref="SamusShotPool.HolderOfPlaceOf"/>).
     /// </summary>
-    internal SamusProjectile Partner
-    {
-        get => field ?? throw new InvalidOperationException("The Spazer particle has not been paired yet.");
-        set => field = Ensure.NotNull(value);
-    }
+    internal SamusProjectile Partner { get; } = Ensure.NotNull(partner);
 }

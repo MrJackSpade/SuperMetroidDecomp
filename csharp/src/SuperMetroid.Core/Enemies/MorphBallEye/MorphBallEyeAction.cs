@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// </summary>
 public enum MorphBallEyeAction
 {
-    /// <summary>Waits until Samus is strictly within 128 room pixels on both axes before starting the opening animation.</summary>
+    /// <summary>Waits until Samus is strictly within its opening reach on both axes (<see cref="MorphBallEyeWatchDefinitions.OpeningReachX"/>) before starting the opening animation.</summary>
     WaitForSamus,
     /// <summary>Counts down its opening (<see cref="MorphBallEyeWatchDefinitions.TransitionDuration"/>), then requests the reveal beam and begins tracking Samus.</summary>
     Activating,
-    /// <summary>Aims toward Samus and selects angle-dependent eye artwork while within 176 horizontal and 128 vertical pixels, otherwise begins closing.</summary>
+    /// <summary>Aims toward Samus and selects angle-dependent eye artwork while she stays within its stay-open reach (<see cref="MorphBallEyeWatchDefinitions.StayOpenReachX"/>), otherwise begins closing.</summary>
     Active,
     /// <summary>Waits out its closing (<see cref="MorphBallEyeWatchDefinitions.TransitionDuration"/>), then resumes proximity waiting.</summary>
     Deactivating,

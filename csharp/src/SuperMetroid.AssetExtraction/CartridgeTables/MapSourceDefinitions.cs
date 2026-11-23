@@ -9,11 +9,10 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// the shared menu, map and HUD characters (#1416): the import pipeline's private knowledge of the cartridge, decoded
 /// once into the installed map presentation.
 /// </summary>
-[EncodingOwner("cartridge addresses of the pause and file-select map screens, sprites and characters")]
-internal static class MapSourceDefinitions
+internal static partial class MapSourceDefinitions
 {
     /// <summary>The shared menu screens' sources, installed by the menu tile loader at $81:8DDB.</summary>
-    internal static class Menu
+    internal static partial class Menu
     {
         /// <summary>$8E:DC00, the shared background page the menus copy; the saved-map views replace or do not draw it.</summary>
         internal const int Background = 0x8edc00;
@@ -44,7 +43,7 @@ internal static class MapSourceDefinitions
     }
 
     /// <summary>The world (area-select) and room-select map screens' sources.</summary>
-    internal static class FileSelectMap
+    internal static partial class FileSelectMap
     {
         /// <summary>$81:B71A, the world map's foreground page.</summary>
         internal const int AreaForeground = 0x81b71a;
@@ -102,7 +101,7 @@ internal static class MapSourceDefinitions
     }
 
     /// <summary>The seven area maps' tilemaps and map-station reveal planes.</summary>
-    internal static class AreaMaps
+    internal static partial class AreaMaps
     {
         /// <summary>$82:964A, kPauseMenuMapTilemaps: one long pointer per area to its packed tilemap.</summary>
         internal const int TilemapPointers = 0x82964a;
@@ -124,7 +123,7 @@ internal static class MapSourceDefinitions
     }
 
     /// <summary>The map landmarks' per-area coordinate lists, bank-$82 pointers indexed by area.</summary>
-    internal static class Landmarks
+    internal static partial class Landmarks
     {
         /// <summary>$82:C7CB, the boss coordinate lists.</summary>
         internal const int BossLists = 0x82c7cb;
@@ -154,7 +153,7 @@ internal static class MapSourceDefinitions
     }
 
     /// <summary>The map sprite and highlight animations' sources.</summary>
-    internal static class Animation
+    internal static partial class Animation
     {
         /// <summary>$82:C0E8, pointers to the sprite animations' three-byte records.</summary>
         internal const int SpritePrograms = 0x82c0e8;
@@ -173,7 +172,7 @@ internal static class MapSourceDefinitions
     }
 
     /// <summary>The map screens' static colours and characters.</summary>
-    internal static class Artwork
+    internal static partial class Artwork
     {
         /// <summary>$B6:F000, the pause screen's full base colour image.</summary>
         internal const int PauseColors = 0xb6f000;

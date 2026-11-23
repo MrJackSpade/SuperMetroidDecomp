@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
@@ -25,7 +24,7 @@ internal static class EnemyArtworkStaticContractChecks
                 void Inspect(EnemyTileSourceArtwork art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer,
                     VramRegion vram) {
                     art.PaletteOf(SuperMetroid.Core.Enemies.EnemyDefinitionId.{{first.DefinitionId}});
-                    art.PaletteOf(0);
+                    art.PaletteOf((SuperMetroid.Core.Enemies.EnemyDefinitionId)int.MaxValue);
                     art.PaletteOf(pointer);
                 }
             }
@@ -33,7 +32,7 @@ internal static class EnemyArtworkStaticContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyArtworkFixture", sources,
-            platforms.Append(typeof(EnemyFrameDisplays).Assembly.Location).Append(typeof(SuperMetroid.AssetExtraction.Enemies.EnemyTileSourceArtwork).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// updates count down (<see cref="MotherBrainShakeDefinitions.Offsets"/>).
 /// </summary>
 /// <param name="cadence">The shake's cadence: which of the four offsets each count of updates left shows.</param>
-internal sealed class MotherBrainShake(UpdateCounterField cadence)
+internal sealed partial class MotherBrainShake(UpdateCycle cadence)
 {
     /// <summary>The shake's updates, over once it has stopped.</summary>
     private readonly UpdateCountdown left = UpdateCountdown.Ended();
@@ -18,7 +18,14 @@ internal sealed class MotherBrainShake(UpdateCounterField cadence)
     internal bool IsShaking => left.IsRunning;
 
     /// <summary>The offset the shake shows with the updates it has left.</summary>
-    internal Offset16<RoomPixels> Offset => MotherBrainShakeDefinitions.Offsets[cadence.Of(UpdatesLeft)];
+    internal Offset16<RoomPixels> Offset => OffsetOn(cadence, UpdatesLeft);
+
+    /// <summary>
+    /// The offset a shake stepped by <paramref name="cadence"/> shows when its counter reads <paramref name="counter"/>
+    /// (#2556): the shakes that run on a frame counter rather than on updates left.
+    /// </summary>
+    internal static Offset16<RoomPixels> OffsetOn(UpdateCycle cadence, int counter) =>
+        MotherBrainShakeDefinitions.Offsets[cadence.StepAt(counter)];
 
     /// <summary>Starts the shake over with <paramref name="updates"/> updates left.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="updates"/> is below zero.</exception>

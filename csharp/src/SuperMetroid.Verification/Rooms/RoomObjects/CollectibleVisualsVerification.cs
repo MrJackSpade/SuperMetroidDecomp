@@ -26,7 +26,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDrawCollision), () => VerifyCollectibleDrawCollision(rom));
         Suite(nameof(VerifyCollectibleDrawVisuals), () => VerifyCollectibleDrawVisuals(rom));
         Suite(nameof(VerifyCollectibleDrawIdentity), () => VerifyCollectibleDrawIdentity(rom));
-        InstalledRoomObjectCollectibleVisuals stock = InstalledRoomObjectCollectibleVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.Collectible;
 
         Suite(nameof(VerifyCollectibleOrbSelector), () => VerifyCollectibleOrbSelector(rom));
         Suite(nameof(VerifyCollectibleRevealSelector), () => VerifyCollectibleRevealSelector(rom));
@@ -34,7 +34,7 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
         CollectibleVisualsRenderResult Render(
-            InstalledRoomObjectCollectibleVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
@@ -84,9 +84,8 @@ internal static class CollectibleVisualsVerification
             CollectibleFixture fixture = LoadCollectible(bus, header, 0, false);
             RoomObjectFixtures.VisualsOf(fixture.RoomObjects).Rebind(RoomObjectFixtures.Installed with { RoomObjectCollectibleVisuals = stock });
             if (header == shotBlockHeader)
-                AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(
-                        fixture.Block),
-                    "shot-block collectible accepts its native trigger");
+                fixture.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(
+                        fixture.Block);
             fixture.RoomObjects.Step(fixture.Level);
             AssertEqual(1, fixture.RoomObjects.CollectibleObjects.Collectibles.Count,
                 $"collectible presentation ${header:X4} survives ROM-free drawing");
@@ -118,7 +117,7 @@ internal static class CollectibleVisualsVerification
 
     /// <summary>Reads one collectible draw word from bank 84 for the native comparison.</summary>
     internal static ushort ReadCollectibleDrawWord(ISnesAddressSpace bus,
-        ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
+        ushort pointer) => bus.ReadCartridgeWordFixedBank(0x840000 | pointer);
 
     /// <summary>Runs collectible visual and pickup isolation checks.</summary>
     [VerificationCommand("--collectible-visuals")]

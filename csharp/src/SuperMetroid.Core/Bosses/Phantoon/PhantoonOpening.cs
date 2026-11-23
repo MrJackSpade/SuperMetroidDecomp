@@ -5,8 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's entrance: the starting flames and its wavy fade-in.</summary>
-[RoomLifetime]
-internal sealed class PhantoonOpening
+internal sealed partial class PhantoonOpening
 {
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -36,7 +35,7 @@ internal sealed class PhantoonOpening
         if (!state.PhaseWait.StepRunsOut())
             return;
 
-        _ = SpawnPhantoonStartingFlame(state, state.StartingFlames.NextFlame.Entry);
+        SpawnPhantoonStartingFlame(state, state.StartingFlames.NextFlame.Entry);
         _audio.QueueEnemySound(PhantoonSoundDefinitions.StartingFlame, PhantoonSoundDefinitions.StartingFlamePriority);
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlameIntervalUpdates);
         if (state.StartingFlames.NextFlame.Following is { } next)
@@ -58,7 +57,7 @@ internal sealed class PhantoonOpening
         if (!state.PhaseWait.StepRunsOut())
             return;
         state.PhaseWait.LastFor(PhantoonArenaDefinitions.StartingFlamesOrbitUpdates);
-        state.StartingFlames.Orbiting = true;
+        // The intro flames orbit while he waits for them to disappear (#2560).
         state.Phase = PhantoonPhase.WaitForStartingFlamesToDisappear;
     }
 
@@ -69,7 +68,6 @@ internal sealed class PhantoonOpening
         if (!state.PhaseWait.StepRunsOut())
             return;
 
-        state.StartingFlames.Orbiting = false;
         state.Translucent = true;
         state.Phase = PhantoonPhase.WavyFadeIn;
         state.BodyVisibilityRequest = PhantoonBodyVisibilityRequest.Show;
@@ -103,28 +101,21 @@ internal sealed class PhantoonOpening
             state.Wave.AmplitudeShrinking = true;
     }
 
-    /// <summary>Allocates one intro flame at its place on the circle round the body.</summary>
+    /// <summary>Allocates one intro flame at its place on the circle round the body; with no free place, none appears.</summary>
     /// <param name="phantoon">The encounter, whose body the flame circles.</param>
     /// <param name="start">The flame's starting angle round the body.</param>
-    internal bool SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
+    internal void SpawnPhantoonStartingFlame(PhantoonEnemyState phantoon, TrigonometryAngle start)
     {
         RoomEnemyPlace body = phantoon.Body;
-        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? flame = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.PhantoonStartingFlame, _combat.StartingFlame, SpriteGraphics.SpawnedBy(phantoon.BodyOccupant, body.Shading), new PhantoonFlameAnimation(_combat.StartingFlame, PhantoonFlameSegment.StartingFlame));
         if (flame is null)
-            return false;
+            return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            flame,
-            RoomEnemyProjectileKind.PhantoonStartingFlame,
-            _combat.StartingFlame,
-            SpriteGraphics.SpawnedBy(body));
-        flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameSegment.StartingFlame));
         flame.Position = flame.Position.WithoutFractions();
         flame.Velocity = PixelVelocity<RoomPixels>.Zero;
         var orbit = new PhantoonOrbitingFlameState(phantoon, start);
-        flame.State = orbit;
+        _combat.StartingFlame.Orbits.Start(flame, orbit);
         PhantoonCombat.PositionPhantoonFlameAroundBody(flame, body, orbit.Angle, radius: PhantoonFlameMotionDefinitions.IntroCircleRadius);
-        flame.StartMotion(PhantoonFlameMotion.IntroWaiting);
-        return true;
+        flame.StartMotion(_combat.StartingFlame.IntroWaiting);
     }
 }

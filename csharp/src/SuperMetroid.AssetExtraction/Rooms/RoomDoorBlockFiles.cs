@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// position lies past its room's list leads nowhere and is not named, as no door of the room is at that position; Samus
 /// meeting one fails loudly (<see cref="RoomLevelData.DoorExitAt"/>).
 /// </remarks>
-internal static class RoomDoorBlockFiles
+internal static partial class RoomDoorBlockFiles
 {
     /// <summary>The document's file name in the room-level family's directory.</summary>
     internal const string FileName = "room-door-blocks.json";
@@ -39,6 +39,8 @@ internal static class RoomDoorBlockFiles
         PropertyNameCaseInsensitive = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
         RespectRequiredConstructorParameters = true,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
         WriteIndented = true,
     };
 
@@ -69,7 +71,7 @@ internal static class RoomDoorBlockFiles
             rooms.Add(room.Key.Name, levels);
         }
         using var output = new FileStream(Path.Combine(directory, FileName), FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(output, new RoomDoorBlocksDocument(FormatVersion, rooms), JsonOptions);
+        JsonSerializer.Serialize(output, new RoomDoorBlocksDocument(FormatVersion, rooms), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomDoorBlockFiles.RoomDoorBlocksDocument>(JsonOptions));
     }
 
     /// <summary>The blocks leading through each exit of <paramref name="room"/> in one of its levels, by the exit's name.</summary>
@@ -119,7 +121,7 @@ internal static class RoomDoorBlockFiles
 
         var doorBlocks = new Dictionary<RoomLevelUse, IReadOnlyList<RoomDoorBlock>>();
         foreach ((string roomName, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>> levels) in
-                 document.Rooms ?? throw new InvalidDataException($"Room door blocks {path} name no rooms."))
+                 document.Rooms)
         {
             RoomDefinition room = roomsByName.TryGetValue(roomName, out RoomDefinition? named)
                 ? named
@@ -130,7 +132,7 @@ internal static class RoomDoorBlockFiles
                 var blocks = new List<RoomDoorBlock>();
                 foreach ((string exitName, DoorBlockDocument[] positions) in exits)
                 {
-                    DoorBlockExit exit = exitsByName.TryGetValue(exitName, out DoorBlockExit found)
+                    DoorBlockExit exit = exitsByName.TryGetValue(exitName, out DoorBlockExit? found)
                         ? found
                         : throw new InvalidDataException($"Room door blocks {path} name unknown door '{exitName}' in {roomName}.");
                     blocks.AddRange(positions.Select(position => new RoomDoorBlock(position.Block(path), exit)));
@@ -144,15 +146,14 @@ internal static class RoomDoorBlockFiles
     }
 
     /// <summary>The name the document gives an exit: its door's, or the elevator ride's.</summary>
-    private static string NameOf(DoorBlockExit exit) => exit.Door?.Name ?? ElevatorRideName;
+    private static string NameOf(DoorBlockExit exit) => exit is DoorBlockExit.ThroughDoor { Door: var door } ? door.Name : ElevatorRideName;
 
     /// <summary>Each retail room's door blocks in each level its states use, by the room's, the level's and each exit's name.</summary>
-    private sealed record RoomDoorBlocksDocument(int Version,
-        SortedDictionary<string, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>>? Rooms);
+    internal sealed partial record RoomDoorBlocksDocument(int Version,
+        SortedDictionary<string, SortedDictionary<string, SortedDictionary<string, DoorBlockDocument[]>>> Rooms);
 
     /// <summary>A door block: its column and row in its level's grid.</summary>
-    [SpatialComponents("External format: the room door-blocks JSON stores each door block as its x/y block in the level's grid.")]
-    private sealed record DoorBlockDocument(int X, int Y)
+    internal sealed partial record DoorBlockDocument(int X, int Y)
     {
         /// <summary>The block, which must be a 16-bit column and row.</summary>
         /// <exception cref="InvalidDataException">The column or row is negative or past 16 bits.</exception>

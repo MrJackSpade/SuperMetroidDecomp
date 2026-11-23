@@ -21,12 +21,11 @@ internal static class NorfairLavaJumperBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
-        parent.Bind(parent.DefinitionId, default(RoomEnemyDefinition));
-        parent.Position = parent.Position.WithWhole(new(256, 480));
-        SqueeptBehavior.InitializeSqueept(parent);
+        // The room's population load sets up the jumper and then its follower (#2554).
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader), new(256, 480)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Follower)));
+        RoomEnemyPlace parent = places[0];
         SqueeptState parentState = enemies.SqueeptStates[0]
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[0].");
         AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Hidden), AnimationPlace.StartOfAnimation), parentState.Playback,
@@ -49,21 +48,16 @@ internal static class NorfairLavaJumperBehaviorVerification
             EnemyInstructionRunner.ShownFrames(parent, holds.Sum() + 2), "lava-jumper jump animation");
         AssertEqual(SqueeptAction.Flipped, parentState.Action, "jump animation finishes the flip");
 
-        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, 32768);
-        follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
-        follower.Bind(follower.DefinitionId, default(RoomEnemyDefinition));
-        enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower);
-        NorfairLavaJumperFollowerState followerState = enemies.NorfairLavaJumperFollowerStates[1]
-            ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumperFollowerStates[1].");
-        AssertEqual(new AnimationPlayback<NorfairLavaJumperSegment>(NorfairLavaJumperAnimations.StartingWith(NorfairLavaJumperSegment.Follower), AnimationPlace.StartOfAnimation), followerState.Playback,
-            "real follower initializer starts the follower loop");
+        RoomEnemyPlace follower = places[1];
+        // The follower's setup builds the state its animation, which the check plays, runs on.
+        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>().State, parent);
         follower.AnimationClock.StepOnNextUpdate();
         // The flare and the flickers after it are one cycle (#2337), which starts over at the flare.
         ushort[] cycle = NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperSegment.Follower, NorfairLavaJumperSegment.FollowerFlickering).ToArray();
         ushort[] expected = [.. cycle, cycle[0]];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, expected.Select(_ => 1)),
-            EnemyInstructionRunner.ShownFrames(follower, expected.Length), "follower loop runs once and starts over");
+            EnemyInstructionRunner.ShownFrames(follower, expected.Length, () => SqueeptBehavior.AdvanceNorfairLavaJumperFollowerTypedAnimation(follower, followerState)),
+            "real follower initializer starts the follower loop, which runs once and starts over");
         Console.WriteLine("  Norfair lava jumper behavior: hidden, jump with its finishing cue, and the follower loop run as the cartridge does.");
     }
 

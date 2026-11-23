@@ -109,18 +109,17 @@ internal static class TitleGradientVerification
             TitleFloorTileDefinitions.BabyCharacterByteCount, presentation.BabyCharacters,
             "title Baby characters");
 
-        TitleFloorMapDocument spriteDocument = JsonSerializer.Deserialize<TitleFloorMapDocument>(
-            files[TitleGraphicsFormat.FloorMapFile], ArtworkJson.Options)
+        TitleFloorMapDocument spriteDocument = JsonSerializer.Deserialize<TitleFloorMapDocument>(files[TitleGraphicsFormat.FloorMapFile], global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleFloorMapDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted title map document is null.");
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, spriteDocument.Sprites.Length,
             "title extraction covers all cartridge-selected OBJ frames");
-        ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        ushort yearPointer = RomDataReader.ReadWordFixedBank(bus,
             TitleSourceDefinitions.TextLists[TitleSequencePhase.YearText] + 6);
         AssertEqual(TitleGraphicsFormat.Typings.Count, spriteDocument.Cards.Length,
             "title extraction covers every card typing step");
         SuperMetroid.AssetExtraction.Frontend.Title.TitleSpritemaps spritemaps =
             SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
-        AssertEqual(yearPointer, spritemaps.Cards[new(TitleSequencePhase.YearText, 1)], "the year's first letter is the year card's first listed spritemap");
+        AssertEqual(yearPointer, spritemaps.Cards[new(TitleCard.Year, 1)], "the year's first letter is the year card's first listed spritemap");
         // Independent native OBJ records are the cartridge reference for each extracted composition's draw.
         // Both draws show the title cards' text colours: the native records take their sprite set as palette bits.
         ushort textPaletteBits = SnesObjAttributeWord.Create(0, SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleSheetInks.SpriteSet(TitleSpriteColouring.Text), 0).PaletteBits;
@@ -160,10 +159,10 @@ internal static class TitleGradientVerification
             Array.Sort(records, StringComparer.Ordinal);
             return records;
         }
-        TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleSequencePhase.YearText, 1));
+        TitleCardFrame year = spriteDocument.Cards.Single(frame => frame.Typed == new TitleCardTyping(TitleCard.Year, 1));
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { TileRow = TitleGraphicsFormat.ObjectTileRows };
-        byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);
+        byte[] malformedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleFloorMapDocument>(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => TitleGraphicsCharacters.Read(
             new MemoryStream(files[TitleGraphicsFormat.FloorTilesFile]),
             new MemoryStream(malformedMap),
@@ -187,7 +186,7 @@ internal static class TitleGradientVerification
 
         void AssertSource(int address, int count, ReadOnlySpan<byte> actual, string description)
         {
-            byte[] source = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), address);
+            byte[] source = RomDataReader.Decompress(bus, address);
             if (!source.AsSpan(0, count).SequenceEqual(actual))
                 throw new InvalidDataException($"Extracted {description} differ from cartridge data.");
         }
@@ -251,7 +250,7 @@ internal static class TitleGradientVerification
                         definition.FramePointer(frame) + sizeof(ushort) +
                         color * sizeof(ushort)));
                     ushort expected = RomDataReader.ReadWordFixedBank(
-                        CartridgeImportSource.Require(bus),
+                        bus,
                         RoomFxBankSourceDefinitions.PaletteFx | pointer);
                     if (!presentation.TryReadColor(pointer, out RgbColor actual) ||
                         actual.ToWord() != expected)
@@ -268,9 +267,9 @@ internal static class TitleGradientVerification
 
         var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var nativeSession = new ColourEffectSessionState();
-        var native = new ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var native = new global::SuperMetroid.Core.Fx.ColourEffectSystem(nativeSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var installedSession = new ColourEffectSessionState();
-        var installed = new ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var installed = new global::SuperMetroid.Core.Fx.ColourEffectSystem(installedSession, SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteOwners.All)
         {
@@ -301,11 +300,9 @@ internal static class TitleGradientVerification
     /// <summary>Mutates title-palette JSON to check version, shape, color bounds, and native-address rejection.</summary>
     private static void VerifyTitlePaletteValidation(byte[] extracted)
     {
-        TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
-            extracted,
-            ArtworkJson.Options)
+        TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(extracted, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted title palette document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteDocument>(ArtworkJson.Options));
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => TitlePaletteFile.Read(new MemoryStream(Json(), writable: false)),
             description);
@@ -373,10 +370,10 @@ internal static class TitleGradientVerification
         TitleGradientPresentation installed = InstalledFixtures.Maps.TitleGradient;
         for (ushort zoom = 0; zoom <= FloorZoom.OwnSize.TwoHundredFiftySixths; zoom++)
         {
-            ScreenGradient decoded = TitleGradientDecoder.Decode(CartridgeImportSource.Require(bus), zoom);
-            if (!presentation.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
+            ScreenGradient decoded = TitleGradientDecoder.Decode(bus, zoom);
+            if (!presentation.Resolve(TitleFloorZoom.Starting(FloorZoomConstants.FromTwoHundredFiftySixths(zoom))).Equals(decoded))
                 throw new InvalidDataException($"Extracted title gradient differs at zoom ${zoom:X2}.");
-            if (!installed.Resolve(FloorZoomConstants.FromTwoHundredFiftySixths(zoom)).Equals(decoded))
+            if (!installed.Resolve(TitleFloorZoom.Starting(FloorZoomConstants.FromTwoHundredFiftySixths(zoom))).Equals(decoded))
                 throw new InvalidDataException($"Installed title gradient differs at zoom ${zoom:X2}.");
         }
         Suite(nameof(VerifyTitleGradientValidation), () => VerifyTitleGradientValidation(extracted));
@@ -394,7 +391,7 @@ internal static class TitleGradientVerification
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
         CaptureInstalledTitleGradientResult capture = CaptureInstalledTitleGradient(presentation, palette.Backdrop, graphics);
-        if (!capture.Gradient.Equals(presentation.Resolve(capture.Zoom)) ||
+        if (!capture.Gradient.Equals(presentation.Resolve(TitleFloorZoom.Starting(capture.Zoom))) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
@@ -441,11 +438,9 @@ internal static class TitleGradientVerification
     /// <summary>Mutates extracted gradient JSON to check schema, stop structure, blend fields, and native-address rejection.</summary>
     private static void VerifyTitleGradientValidation(byte[] extracted)
     {
-        TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
-            extracted,
-            ArtworkJson.Options)
+        TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(extracted, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleGradientDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted title gradient document is null.");
-        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] Json() => JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleGradientDocument>(ArtworkJson.Options));
         void Reject(string description) => AssertThrows<InvalidDataException>(
             () => TitleGradientFile.Read(new MemoryStream(Json(), writable: false)),
             description);
@@ -528,7 +523,8 @@ internal static class TitleGradientVerification
             title.Step(0);
             FloorScene snapshot = title.ComposeScene();
             if (snapshot.Gradient is { } shown)
-                return new CaptureInstalledTitleGradientResult(shown.Gradient, title.FloorZoom, snapshot);
+                return new CaptureInstalledTitleGradientResult(shown.Gradient,
+                    title.FloorZoom ?? throw new InvalidDataException("The title's gradient frame shows its floor."), snapshot);
         }
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }

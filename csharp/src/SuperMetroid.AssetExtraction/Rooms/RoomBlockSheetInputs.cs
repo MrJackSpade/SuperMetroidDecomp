@@ -25,7 +25,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The artwork uploaded over the OBJ character table, which the Ceres Ridley arena's backgrounds show, and the gameplay base
 /// palettes, whose sprite rows every room load restores.
 /// </param>
-internal sealed record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
+internal sealed partial record RoomBlockSheetInputs(RoomCharacterAtlases Characters, RoomMetatileCatalog Metatiles,
     RoomStaticPalettes Palettes, RoomFxBlockAnimationAtlas AnimatedTiles,
     BossSourceArtwork Bosses, HudTileAtlas Hud, RoomBackgroundTilemaps BackgroundTilemaps, RoomSkyTilemaps Skies,
     EscapeTypewriterPresentation EscapeTypewriter, ImportAreaMapPresentation Maps, EnemySheetInputs Objects)

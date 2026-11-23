@@ -5,10 +5,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the fourteen downward-gate column and trigger frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectDownwardGateVisualFiles
+public static partial class RoomObjectDownwardGateVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for six downward-gate column frames and eight left/right trigger layouts.</summary>
-    public const string VisualFileName = "downward-gates.json";
+    internal const string VisualFileName = "downward-gates.json";
 
     /// <summary>The gate's frames in the installed file's order (#2567): the column open, lowering and closed, then the four colours' left and right triggers.</summary>
     private static readonly IReadOnlyList<DownwardGateDraw> FrameOrder = Ensure.EveryMemberOnce<DownwardGateDraw>(
@@ -43,7 +43,7 @@ public static class RoomObjectDownwardGateVisualFiles
     /// <summary>Loads the installed downward-gate pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectDownwardGateVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates the column open, lowering and closed, followed by four left/right trigger color pairs.</summary>
@@ -52,6 +52,11 @@ public static class RoomObjectDownwardGateVisualFiles
         foreach (DownwardGateDraw gate in FrameOrder)
             yield return DownwardGateObjectDraws.Family.Of(gate);
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the downward gate draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a downward gate draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a downward gate draw.");
 
     /// <summary>Builds the draw list of a recognized column or trigger draw from its geometry.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
@@ -104,8 +109,7 @@ public static class RoomObjectDownwardGateVisualFiles
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }

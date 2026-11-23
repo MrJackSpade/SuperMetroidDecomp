@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -12,7 +13,7 @@ using SuperMetroid.Verification.Harness;
 internal static class SlopeLandingPoseProbeVerification
 {
     /// <summary>
-    /// #1275 "Samus drunk", updates 44757-44759 in Ceres room $DFD7: Samus falls at X $69 onto
+    /// #1275, updates 44757-44759 in Ceres room $DFD7: Samus falls at X $69 onto
     /// a stair of horizontally flipped slopes. The fall is clipped one pixel onto slope $54,
     /// but the landing pose's two extra radius pixels then meet slope $55 below, and
     /// <c>$91:FF49</c> re-probes the remaining zero distance. <c>$94:96E3</c> still scans that
@@ -34,21 +35,19 @@ internal static class SlopeLandingPoseProbeVerification
 
         SamusState Falling(ushort y, ushort ySubposition)
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) }.InPose(SamusPoseId.NeutralJumpRightPose);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ySubposition);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             return samus;
         }
 
         SamusState clipped = Falling(0x16d, 0x2fff);
-        AssertTrue(!SamusPoseTransitions.TryApplyAerialLanding(clipped, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            "a zero-distance changed-pose probe still meets slope $54 and rejects the landing");
+        SamusPoseTransitions.ApplyAerialLandingInRoom(clipped, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(clipped), new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), wasSpinning: false, controllerInput: 0, frameCounter: 0);
         AssertEqual(SamusPoseId.NeutralJumpRightPose, clipped.Pose, "the falling pose is retained");
         AssertEqual((ushort)0x16d, clipped.Position.Y.Whole, "the rejected landing leaves Y unchanged");
 
         SamusState deeper = Falling(0x16e, 0xb7ff);
-        AssertTrue(SamusPoseTransitions.TryApplyAerialLanding(deeper, level, wasSpinning: false, controllerInput: 0, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled),
-            "one pixel deeper the landing fits");
+        SamusPoseTransitions.ApplyAerialLandingInRoom(deeper, (SuperMetroid.Core.Samus.Poses.SamusPoseAim.ISteady)SamusPoseMetadata.ReadAim(deeper), new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), wasSpinning: false, controllerInput: 0, frameCounter: 0);
         AssertEqual(SamusPoseId.NormalLandingRightPose, deeper.Pose, "native update 44759 lands");
         AssertEqual((ushort)0x16d, deeper.Position.Y.Whole, "the landing moves Samus up clear of slope $55");
         Console.WriteLine("Slope landing: a zero-distance pose-change probe rejects the landing on the clipped frame; the next frame lands.");

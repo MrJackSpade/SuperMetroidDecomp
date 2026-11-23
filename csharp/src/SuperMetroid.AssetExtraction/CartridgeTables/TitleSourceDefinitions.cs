@@ -8,8 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the title sequence's artwork and card lists (#1416): the import pipeline's private knowledge
 /// of the cartridge, decoded once into the installed title documents.
 /// </summary>
-[EncodingOwner("cartridge addresses of the title sequence's artwork and card lists")]
-internal static class TitleSourceDefinitions
+internal static partial class TitleSourceDefinitions
 {
     /// <summary>$8C:E1E9, Palettes_TitleScreen: the title's full 256-colour palette.</summary>
     internal const int Palette = 0x8ce1e9;

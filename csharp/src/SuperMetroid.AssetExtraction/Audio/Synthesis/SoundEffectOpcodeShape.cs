@@ -1,7 +1,8 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
-/// <summary>A sound-effect opcode, its argument count and whether it ends the program.</summary>
+/// <summary>A sound-effect command: its opcode byte, then its arguments.</summary>
 /// <param name="Opcode">The opcode.</param>
 /// <param name="ArgumentCount">The argument count.</param>
-/// <param name="Terminal">The terminal.</param>
-internal readonly record struct SoundEffectOpcodeShape(int Opcode, int ArgumentCount, bool Terminal);
+/// <param name="Terminal">Whether the command ends the program.</param>
+internal sealed partial record SoundEffectOpcodeShape(int Opcode, int ArgumentCount, bool Terminal)
+    : SoundEffectInstructionShape(ArgumentCount, Terminal);

@@ -4,7 +4,6 @@ using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>VRAM address arithmetic (#223): 15-bit word addresses over 64 KiB of byte storage.</summary>
-[EncodingOwner("video memory word addressing")]
 public static class SnesVramAddressing
 {
 

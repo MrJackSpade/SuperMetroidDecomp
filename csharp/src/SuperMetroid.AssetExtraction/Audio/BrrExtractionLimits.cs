@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>Resource limits for building a finite PCM representation of a BRR loop.</summary>
-internal static class BrrExtractionLimits
+internal static partial class BrrExtractionLimits
 {
     /// <summary>
     /// Maximum decoded PCM frames while searching for a repeated decoder-history state.

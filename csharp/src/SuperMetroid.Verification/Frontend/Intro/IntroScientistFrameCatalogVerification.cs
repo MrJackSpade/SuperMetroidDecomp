@@ -14,8 +14,8 @@ internal static class IntroScientistFrameCatalogVerification
     /// </summary>
     internal static void VerifyIntroScientistFrameCatalog(ISnesAddressSpace rom)
     {
-        string[] names = ["delivered-baby-1", "delivered-baby-2", "delivered-baby-3",
-            "examined-baby-1", "examined-baby-2", "examined-baby-3"];
+        string[] names = ["delivered-baby-pulse-low", "delivered-baby-pulse-middle", "delivered-baby-pulse-high",
+            "examined-baby-wide", "examined-baby-narrowing", "examined-baby-narrow"];
         var frames = IntroScientistSpriteDefinitions.Frames;
         AssertEqual(names.Length, frames.Count, "scientist catalog contains six source records");
         int pointer = 0x8cf3;

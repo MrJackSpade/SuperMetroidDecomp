@@ -8,5 +8,5 @@ internal static class SamusVerticalVelocityConstants
     /// gives it.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is undefined.</exception>
-    public static SamusVerticalVelocity Of(UnsignedSixteenSixteen speed, SamusVerticalDirection direction) => new(speed, direction);
+    public static SamusVerticalVelocity Of(UnsignedSixteenSixteen speed, SamusVerticalDirection direction) => new global::SuperMetroid.Core.Samus.Movement.SamusVerticalVelocity(speed, direction);
 }

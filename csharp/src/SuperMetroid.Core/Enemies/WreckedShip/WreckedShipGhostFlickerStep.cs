@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WreckedShip;
 /// long it lasts before the next starts, what starting it does to the ghost's visibility, and the step after it (#2512).
 /// The flicker ends when the last step does.
 /// </summary>
-public sealed class WreckedShipGhostFlickerStep
+public sealed partial class WreckedShipGhostFlickerStep
 {
     /// <summary>The step of <paramref name="timing"/>, followed by <paramref name="next"/>.</summary>
     private WreckedShipGhostFlickerStep(WreckedShipGhostFlickerTiming timing, WreckedShipGhostFlickerStep? next)
@@ -34,9 +34,11 @@ public sealed class WreckedShipGhostFlickerStep
     /// <exception cref="InvalidDataException">The flicker has no step.</exception>
     private static WreckedShipGhostFlickerStep Schedule(IReadOnlyList<WreckedShipGhostFlickerTiming> timings)
     {
-        WreckedShipGhostFlickerStep? next = null;
-        for (int step = timings.Count - 1; step >= 0; step--)
-            next = new(timings[step], next);
-        return next ?? throw new InvalidDataException("The ghost's flicker has no step.");
+        if (timings.Count == 0)
+            throw new InvalidDataException("The ghost's flicker has no step.");
+        var first = new WreckedShipGhostFlickerStep(timings[^1], null);
+        for (int step = timings.Count - 2; step >= 0; step--)
+            first = new(timings[step], first);
+        return first;
     }
 }

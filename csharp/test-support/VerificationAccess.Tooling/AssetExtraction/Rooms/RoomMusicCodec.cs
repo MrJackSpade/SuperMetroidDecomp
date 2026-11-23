@@ -36,7 +36,7 @@ internal static class RoomMusicCodec
             0 => RoomMusicTrack.Inherited,
             SilencedTrack => RoomMusicTrack.Silenced,
             // A room that keeps the loaded set and asks for its first own song plays the loaded set's area theme (#1748).
-            MusicTrackNumbers.AreaThemeTrack when dataSet is null => RoomMusicTrack.PlaysAreaTheme,
+            var theme when theme == MusicTrackNumbers.AreaThemeTrack && dataSet is null => RoomMusicTrack.PlaysAreaTheme,
             < SilencedTrack => RoomMusicTrack.Plays(MusicTrackNumbers.Decode(dataSet, track)),
             _ => throw new InvalidDataException(
                 $"Room music track ${track:X2} is not one the retail room states hold; only $00 through $80 are."),

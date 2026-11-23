@@ -58,7 +58,6 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.DrainedCrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x00ca, 0x00c0)),
         // These are the private-ROM runner's post-rainbow values. The Baby must add one
         // point on each `$CA7A` call and stop exactly at 899 rather than using a host fill.
@@ -66,7 +65,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         MaxHealth = 899,
         ReserveEnergy = 7,
         MaxReserveEnergy = 99,
-    };
+    }.InPose(SamusPoseId.DrainedCrouchingLeftPose);
     // The real route reached `$E9` through controller zero, which had already loaded the
     // pose radius. Controller one/four intentionally do not refresh it, so initialize that
     // pre-existing WRAM state once rather than widening touch collision in production code.
@@ -76,8 +75,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     motherBrain.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0040, 0x0064));
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
-    var baby = motherBrain.Baby;
-    MotherBrainLateFightFixtures.Arrive(baby, FixedPosition<RoomPixels>.Zero);
+    var baby = MotherBrainLateFightFixtures.Arrive(motherBrain, FixedPosition<RoomPixels>.Zero);
 
     AssertEqual(false, baby.HurtFlashShown, "Baby cutscene shows its own palette, not the hit flash");
     // The Baby keeps no graphics: its sheet pictures its frames where its tile rows are transferred, and its parts carry
@@ -97,13 +95,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // approximate four-second host delay.
     for (int call = 1; call <= 248; call++)
         baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-    AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
+    AssertEqual(new BabyMetroidCutscenePhase.Flying.DashOntoScreen(), baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.PhaseTimer.CartridgeCount, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
     baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
-    AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
+    AssertEqual(new BabyMetroidCutscenePhase.Flying.CurveTowardMotherBrainHead(), baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(SuperMetroid.Core.Spatial.RotationAngleConstants.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
     AssertEqual(SignedEightEight.FromPixels(10), baby.Speed, "Baby first curve speed");
@@ -119,20 +117,20 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     bool sawMotherBrainInterrupt = false;
     bool sawLatchSound = false;
     int calls = 249;
-    while (baby.Phase != BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse &&
+    while (baby.Phase is not BabyMetroidCutscenePhase.Flying.WaitForMotherBrainToTurnToCorpse &&
            calls < 700)
     {
         SamusPoseId samusPoseBeforeStep = samus.Pose;
         latch = baby.Step(samus, HeadOf(motherBrain), Position16<RoomPixels>.Zero, enemyFrameCounter: 0, randomNumber: 0);
         calls++;
 
-        sawMotherBrainInterrupt |= (motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.TakenAback);
+        sawMotherBrainInterrupt |= (motherBrain.State.Stage == MotherBrainLateFightStage.DrainedByBaby && motherBrain.State.DrainedPhase == MotherBrainDrainedPhase.TakenAback);
         sawLatchSound |= latch.LatchSoundQueued;
         startedAnimation = latch.StartedAnimation ?? startedAnimation;
 
         if (calls == 259)
         {
-            AssertEqual(BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace, baby.Phase,
+            AssertEqual(new BabyMetroidCutscenePhase.Flying.GetRightUpInMotherBrainsFace(), baby.Phase,
                 "Baby curve timer expires on call 259");
             AssertEqual(ExpectedBabyPoint(0x00da, 0x0c00, 0x0086, 0x7a00),
                 BabyPoint(),
@@ -140,7 +138,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         }
         else if (calls == 269)
         {
-            AssertEqual(BabyMetroidCutscenePhase.LatchOntoMotherBrain, baby.Phase,
+            AssertEqual(new BabyMetroidCutscenePhase.Flying.LatchOntoMotherBrain(), baby.Phase,
                 "Baby face timer expires on call 269");
             AssertTrue(samusPoseBeforeStep != samus.Pose,
                 "Baby face completion calls drained controller one");
@@ -155,7 +153,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // GradduallyAccelerateTowardsPoint ($A9:F46B) runs as its ADC/SBC carry chain (#1269);
     // the earlier signed-integer approximation reached the pin three calls later.
     AssertEqual(422, calls, "Baby entrance reaches exact head pin on call 422");
-    AssertEqual(BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse, baby.Phase,
+    AssertEqual(new BabyMetroidCutscenePhase.Flying.WaitForMotherBrainToTurnToCorpse(), baby.Phase,
         "Baby enters corpse-state wait after pin");
 
     AssertTrue(sawMotherBrainInterrupt, "Baby overwrites Mother Brain final-beam function");
@@ -166,13 +164,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Baby pin changes whole coordinates but retains native subpositions");
     AssertEqual<MotherBrainBodySegment?>(MotherBrainBodySegment.WalkBackwardReallyFast, motherBrain.Encounter.BodyPlayback?.PlayingSegment,
         "Baby stumble uses animation-delay index two");
-    AssertEqual(MotherBrainDrainedPhase.TakenAback, motherBrain.Encounter.DrainedPhase,
+    AssertEqual(MotherBrainDrainedPhase.TakenAback, motherBrain.State.DrainedPhase,
         "Baby installs Mother Brain $BE38 for the following actor turn");
 
     MotherBrainRainbowBeamAttackStepResult takenAback = motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
     AssertTrue(takenAback.Starts(MotherBrainStepEffect.RainbowColours), "the taken-aback setup falls through into regain balance, which runs her rainbow colours");
     AssertEqual(MotherBrainDrainedPhase.RegainBalance,
-        motherBrain.Encounter.DrainedPhase,
+        motherBrain.State.DrainedPhase,
         "Mother Brain taken-aback setup falls through into regain balance");
     AssertEqual(0x002f, motherBrain.Encounter.PhaseTimer.CartridgeCount,
         "Mother Brain first regain call decrements $30 to $2F");
@@ -185,13 +183,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Mother Brain taken-aback neck delta");
 
     int regainCalls = 1;
-    while ((motherBrain.Encounter.Stage == MotherBrainBodyStage.DrainedByBaby && motherBrain.Encounter.DrainedPhase == MotherBrainDrainedPhase.RegainBalance))
+    while ((motherBrain.State.Stage == MotherBrainLateFightStage.DrainedByBaby && motherBrain.State.DrainedPhase == MotherBrainDrainedPhase.RegainBalance))
     {
         motherBrain.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         regainCalls++;
     }
     AssertEqual(49, regainCalls, "Mother Brain regain balance includes setup fallthrough call");
-    AssertEqual(MotherBrainDrainedPhase.FiringRainbowBeam, motherBrain.Encounter.DrainedPhase,
+    AssertEqual(MotherBrainDrainedPhase.FiringRainbowBeam, motherBrain.State.DrainedPhase,
         "Mother Brain advances to painful firing function");
     AssertEqual(MotherBrainNeckMovement.BobDown, motherBrain.Encounter.LowerNeckMovement,
         "Mother Brain drained firing lower neck index");

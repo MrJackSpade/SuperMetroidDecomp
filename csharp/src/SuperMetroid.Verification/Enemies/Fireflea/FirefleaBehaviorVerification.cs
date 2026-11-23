@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Fireflea;
@@ -17,13 +16,12 @@ internal static class FirefleaBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Fireflea, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
         place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
-        FirefleaBehavior.InitializeFireflea(place);
-        AssertEqual(new AnimationPlayback<FirefleaSegment>(FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), AnimationPlace.StartOfAnimation), (enemies.Places.InUpdateOrder[0].EntityState<FirefleaEntity, FirefleaEnemyState>() ?? throw new InvalidOperationException("The Fireflea has no state.")).Playback,
-            "Fireflea initializer animation");
+        // The Fireflea is set up as the population load sets it up.
+        _ = enemies.LoadAuthoredPopulation();
         place.AnimationClock.StepOnNextUpdate();
         AssertEqual(EnemyInstructionRunner.ExpectedAnimationLoop(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat), FirefleaFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.AnimationLoopUpdates(FirefleaAnimations.Segments, FirefleaAnimations.StartingWith(FirefleaSegment.BrightestWingbeat))),
@@ -39,25 +37,26 @@ internal static class FirefleaBehaviorVerification
     /// </summary>
     internal static void VerifyFirefleaVerticalExtents()
     {
-        var frame = new ClockedEnemyAiFrame(
+        _ = new ClockedEnemyAiFrame(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
         foreach ((ushort y, VerticalDirection expectedDirection) in new VerifyFirefleaVerticalExtentsCase[] { new(100, VerticalDirection.Up), new(91, VerticalDirection.Down), new(108, VerticalDirection.Down) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Fireflea, place.Definition);
+            place.Bind(EnemyDefinitionId.Fireflea, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Fireflea, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.Fireflea, 0);
             place.Position = place.Position.WithWhole(new(128, 100));
-            FirefleaBehavior.InitializeFireflea(place);
-            BobbingFirefleaState state = place.RequireSpeciesState<FirefleaEnemyState>().Flight as BobbingFirefleaState
+            // The Fireflea's setup builds the state its main AI moves.
+            FirefleaEnemyState fireflea = FirefleaBehavior.InitializeFireflea(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place);
+            BobbingFirefleaState state = fireflea.Flight as BobbingFirefleaState
                 ?? throw new InvalidOperationException("Verification requires a bobbing Fireflea.");
             AssertEqual(92, state.MinimumY, "the upper extent is the spawn Y minus the radius");
             AssertEqual(108, state.MaximumY, "the lower extent is the spawn Y plus the radius");
             place.Position = place.Position.WithWholeY(y);
 
-            FirefleaBehavior.RunFirefleaMainAi(place, frame);
+            FirefleaBehavior.RunFirefleaMainAi(place.HeldOccupant().SpawnSettings<FirefleaSpawnSettings>(), place, fireflea);
 
             AssertEqual(expectedDirection, state.Direction, $"Fireflea at Y {y} keeps or reverses its way");
         }

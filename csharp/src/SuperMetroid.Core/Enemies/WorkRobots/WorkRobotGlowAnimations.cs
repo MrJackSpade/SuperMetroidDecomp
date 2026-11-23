@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// while the glow runs. The way back passes the places between the ends again (#2393). A powered robot's setup starts the
 /// glow on its last step for one update, so its first step shows on the next.
 /// </summary>
-internal static class WorkRobotGlowAnimations
+internal static partial class WorkRobotGlowAnimations
 {
     /// <summary>Every run's beats.</summary>
     internal static AnimationSegments<WorkRobotGlowSegment, WorkRobotGlowPlace, NoAnimationCue> Segments { get; } = new(
@@ -30,7 +30,7 @@ internal static class WorkRobotGlowAnimations
 
     /// <summary>The places the glow's steps show, in the order it shows them, from its first step.</summary>
     internal static IReadOnlyList<WorkRobotGlowPlace> Cycle { get; } =
-        [.. Segments.Beats(WorkRobotGlowSegment.Glowing).Select(beat => beat.ShownFrame ?? throw new InvalidOperationException("Every beat of the glow shows a place."))];
+        Segments.FramesShownBy(WorkRobotGlowSegment.Glowing);
 
     /// <summary>
     /// Each place the glow shows, once, in the order its cycle first shows them (#2393): the import installs one shade for

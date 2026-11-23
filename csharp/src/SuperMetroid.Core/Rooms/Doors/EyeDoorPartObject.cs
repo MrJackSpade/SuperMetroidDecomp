@@ -1,11 +1,10 @@
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>
 /// An eye door's body or bottom (#1554). On its first update the part looks
-/// at its door: one opened for good leaves the room. Otherwise it looks for Samus every eight updates, standing still
+/// at its door: one opened for good leaves the room. Otherwise it looks for Samus each time its still image ends, standing still
 /// (<see cref="EyeDoorSequenceDefinitions.Still"/>); once she is near (<see cref="EyeDoorSequenceDefinitions.PulseReach"/>)
 /// it waits for its door to open and pulses while she stays near. Once it waits, the update its door has been opened for
 /// good it leaves the room, before its images count down. The body (<see cref="EyeDoorBodyObject"/>) stands in the door
@@ -13,8 +12,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (<see cref="EyeDoorBottomObject"/>) stands in no door (#2493). A part only draws its poses: its animations raise
 /// nothing (#2481).
 /// </summary>
-internal abstract class EyeDoorPartObject
-    : SequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose, NoAnimationCue>
+internal abstract partial class EyeDoorPartObject
+    : SilentSequencedRoomObject<EyeDoorPartSegment, EyeDoorPartPose>
 {
     /// <summary>A part of <paramref name="part"/>'s kind and facing, just placed in <paramref name="door"/>.</summary>
     /// <param name="part">Which part this is, the body's middle or its bottom, and the way its door faces.</param>
@@ -36,13 +35,13 @@ internal abstract class EyeDoorPartObject
     internal PlacedDoor Door { get; }
 
     /// <summary>What the part is doing (#2482).</summary>
-    internal EyeDoorPartPhase Phase { get; private set; } = EyeDoorPartPhase.Placed;
+    internal EyeDoorPartPhase Phase { get; set; } = EyeDoorPartPhase.Placed;
 
     /// <summary>
     /// Whether the part waits for its door to be opened for good, which makes it leave the room. The wait starts the first
     /// time Samus comes near and stays when she leaves, so it is a fact of its own beside what the part shows.
     /// </summary>
-    internal bool WaitsForOpenedDoor { get; private set; }
+    internal bool WaitsForOpenedDoor { get; set; }
 
     /// <summary>Leaves the room on the part's next update, as the body closing behind Samus does.</summary>
     private protected void LeaveOnNextUpdate()
@@ -59,7 +58,7 @@ internal abstract class EyeDoorPartObject
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>The part leaves once its door has been opened for good; returns whether it left.</summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!WaitsForOpenedDoor || !context.RoomObjects.DoorObjects.IsDoorOpened(Door))
@@ -73,32 +72,37 @@ internal abstract class EyeDoorPartObject
     private protected override void Show(EyeDoorPartPose frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, EyeDoorDraws.Of(Part, frame));
 
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorPartPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorPartPhase => field ??= new(new Dictionary<EyeDoorPartPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [EyeDoorPartPhase.ClosingBehindSamus] = (place, context) => context.RoomObjects.DeleteObject(place),
+        [EyeDoorPartPhase.Placed] = (place, context) =>
+        {
+            if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
+            {
+                context.RoomObjects.DeleteObject(place);
+                return;
+            }
+            Look(place, context);
+        },
+        [EyeDoorPartPhase.Pulsing] = (place, context) =>
+        {
+            if (IsSamusNear(place, context))
+            {
+                Play(EyeDoorSequenceDefinitions.Pulse[Orientation], place, context);
+            }
+            else
+            {
+                Look(place, context);
+            }
+        },
+        [EyeDoorPartPhase.Still] = (place, context) => Look(place, context),
+    });
+
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case EyeDoorPartPhase.ClosingBehindSamus:
-                context.RoomObjects.DeleteObject(place);
-                return;
-            case EyeDoorPartPhase.Placed:
-                if (context.RoomObjects.DoorObjects.IsDoorOpened(Door))
-                {
-                    context.RoomObjects.DeleteObject(place);
-                    return;
-                }
-                Look(place, context);
-                return;
-            case EyeDoorPartPhase.Pulsing when IsSamusNear(place, context):
-                Play(EyeDoorSequenceDefinitions.Pulse[Orientation], place, context);
-                return;
-            case EyeDoorPartPhase.Pulsing:
-            case EyeDoorPartPhase.Still:
-                Look(place, context);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorPartPhase)} {Phase}.");
-        }
+        SequenceEndedForEyeDoorPartPhase[Phase](place, context);
     }
 
     /// <summary>

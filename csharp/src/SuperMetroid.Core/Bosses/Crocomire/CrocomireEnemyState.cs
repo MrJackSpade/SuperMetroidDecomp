@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// the pause's wait, the rumble its first step and the skeleton its speed. Only a hop's sink carries on from the stage before
 /// it, continuing the rise's speed and acceleration. A rise starts from no acceleration (#1476).
 /// </remarks>
-public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => Body.Position.Whole;
@@ -19,7 +19,25 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
 
     /// <summary>Creates the state for Crocomire's body place.</summary>
-    internal CrocomireEnemyState(RoomEnemyPlace body) => Body = body;
+    /// <param name="bodyOccupant">The enemy holding his body's place.</param>
+    /// <param name="body">His body's place.</param>
+    /// <param name="tongue">The place of Crocomire's tongue, which his body offered its creation as he was placed (#2554).</param>
+    internal CrocomireEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body, RoomEnemyPlace tongue)
+    {
+        BodyOccupant = bodyOccupant;
+        Body = body;
+        Tongue = Ensure.NotNull(tongue);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Crocomire);
+    }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
+
+    /// <summary>The enemy holding his body's place, whose sheet the objects he spawns draw from (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>Crocomire's body's and sprites' colours (#1512).</summary>
     internal CrocomireColours Colours { get; } = new();
@@ -53,25 +71,12 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     internal AnimationPlayback<CrocomireTongueSegment> TonguePlayback { get; set; } =
         new(CrocomireAnimations.TongueStartingWith(CrocomireTongueSegment.Fight), AnimationPlace.StartOfAnimation);
 
-    /// <summary>The enemy that joined as his tongue, or none before the tongue set up.</summary>
-    private RoomEnemyPlace? _tongue;
-
     /// <summary>
-    /// Crocomire's tongue (#2400), which joins the encounter as it sets up, right after his body, in a living room and a
-    /// defeated one alike; bridge collapse rests and hides it, while later melting phases reuse its actor.
+    /// The place of Crocomire's tongue (#2400), which his room lists right after his body, found as his body is placed; the
+    /// tongue joins the encounter there as it sets up, in a living room and a defeated one alike. Bridge collapse rests
+    /// and hides it, while later melting phases reuse its actor.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The tongue has not set up.</exception>
-    public RoomEnemyPlace Tongue => _tongue ?? throw new InvalidOperationException("Crocomire's tongue is reached before it set up.");
-
-    /// <summary>Joins <paramref name="tongue"/> as his tongue, as it sets up.</summary>
-    /// <exception cref="InvalidDataException">Another enemy already set up as his tongue.</exception>
-    internal void JoinTongue(RoomEnemyPlace tongue)
-    {
-        Ensure.NotNull(tongue);
-        if (_tongue is { } joined && !ReferenceEquals(joined, tongue))
-            throw new InvalidDataException($"Crocomire's tongue set up as enemy {tongue.Ordinal}, but enemy {joined.Ordinal} already is.");
-        _tongue = tongue;
-    }
+    public RoomEnemyPlace Tongue { get; }
 
     /// <summary>
     /// Where he stands in his course (<see cref="CrocomireDeathStageDefinitions.Stages"/>, #2540): the fight, from his setup
@@ -79,10 +84,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     /// </summary>
     internal ListStep<CrocomireDeathStage> DeathStage { get; set; } = ListStep<CrocomireDeathStage>.FirstOf(CrocomireDeathStageDefinitions.Stages);
 
-    /// <summary>Hands his death over to the stage after the one he is at.</summary>
-    /// <exception cref="InvalidOperationException">He is at his inert corpse, which hands over to no stage.</exception>
-    internal void AdvanceDeathStage() =>
-        DeathStage = DeathStage.Following ?? throw new InvalidOperationException($"Crocomire's death stage {DeathStage} hands over to no other stage.");
+    /// <summary>Hands his death over to the stage after the one he is at; his course rests at his inert corpse.</summary>
+    internal void AdvanceDeathStage() => DeathStage = DeathStage.FollowingToRest;
 
     /// <summary>His course stands at his inert corpse from now on, as an already-defeated room's setup leaves him.</summary>
     internal void RestAsCorpse() =>
@@ -98,9 +101,8 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
     public CrocomirePhase Phase { get; internal set; } = CrocomirePhase.Dormant;
 
     /// <summary>
-    /// During combat: queued backward steps. Producers store an authored count of at most three or add at most three per
-    /// mouth hit while stepping back consumes them, so the count stays a few steps from none and never nears a wrap
-    /// (#1940).
+    /// During combat: his queued backward steps (#1940). A setup queues an authored count, each mouth hit adds to it
+    /// and stepping back consumes it.
     /// </summary>
     public int StepCounter
     {
@@ -118,13 +120,9 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
 
     /// <summary>
     /// While the hidden wall rumbles: the oscillation under way in <see cref="CrocomireRumbleDefinitions.Oscillations"/>,
-    /// up to their count once the last has finished.
+    /// or none once the last has finished.
     /// </summary>
-    public int RumbleOscillation
-    {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, CrocomireRumbleDefinitions.Oscillations.Length, value);
-    }
+    internal ListStep<CrocomireRumbleOscillation>? RumbleOscillation { get; set; }
 
     /// <summary>Whether the rumbling wall is heading for its oscillation's extreme rather than back to its return offset.</summary>
     public bool RumbleTowardExtreme { get; internal set; }
@@ -140,7 +138,7 @@ public sealed class CrocomireEnemyState : SuperMetroid.Core.Enemies.BossBodies.I
 
     /// <summary>
     /// While the body sinks or rises: the vertical speed per frame, down while sinking and up while rising. The sink clamps
-    /// its whole part at three pixels and the rise stops it at zero, so it stays below four pixels per frame.
+    /// its whole part at <see cref="CrocomireBridgeCollapseDefinitions.MaximumSinkSpeed"/> and the rise stops it at zero.
     /// </summary>
     public SignedEightEight VerticalSpeed { get; internal set; }
 

@@ -16,10 +16,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// they match; the sound acceptance clock check compares every library's reply on every update with a recording of the
 /// emulated sound program's, and the SMV replays trace each handler's state beside its queue.
 /// </remarks>
-[CompatibilityService("the request each sound library reports back as acknowledged")]
-public readonly struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<SoundAcknowledgements<TLibrary, TSound>>
+public readonly partial struct SoundAcknowledgements<TLibrary, TSound> : IEquatable<SoundAcknowledgements<TLibrary, TSound>>
     where TLibrary : struct, Enum
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
     /// <summary>Each listed library's acknowledgement.</summary>
     private readonly SoundAcceptanceClock<TLibrary, TSound>.ByLibrary<SoundAcknowledgement<TSound>> byLibrary;

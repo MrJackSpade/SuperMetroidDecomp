@@ -1,5 +1,5 @@
 <Project>
-  <!-- Movie replay parts only the main verifier uses: the video recorder and the native list readers its checks step. -->
+  <!-- Movie replay parts only the main verifier uses: the native list readers its checks step. -->
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)MovieReplay.Verification/**/*.cs" LinkBase="TestSupport/MovieReplay.Verification" />
   </ItemGroup>

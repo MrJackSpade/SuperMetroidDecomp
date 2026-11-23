@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// (<see cref="ReleasedEchoStartsAtReplacedShot"/>), and only the first echo's height carries into the next crash's orbit
 /// (<see cref="CrashOrbitTravelCarryover"/>).
 /// </remarks>
-internal sealed class ShinesparkEchoProjectile
+internal sealed partial class ShinesparkEchoProjectile
 {
     /// <summary>Animation owner that clears an echo's shot when the echo leaves the screen.</summary>
     private readonly ProjectileAnimation _animation;
@@ -46,37 +46,41 @@ internal sealed class ShinesparkEchoProjectile
 
         bool firstDeparts = shots < SamusProjectileSystem.PlaceCount - 1;
         if (firstDeparts)
-            first.Depart(Launch(SamusShotPool.FirstEchoPlace, angles.First, picturedBeams), crashPosition);
-        second.Depart(Launch(SamusShotPool.SecondEchoPlace, angles.Second, picturedBeams), crashPosition);
+            Launch(first, ShinesparkCrashEchoPlaces.First(SamusProjectileSystem.PlaceCount), angles.First, picturedBeams, crashPosition);
+        Launch(second, ShinesparkCrashEchoPlaces.Second(SamusProjectileSystem.PlaceCount), angles.Second, picturedBeams, crashPosition);
         return firstDeparts;
     }
 
     /// <summary>
-    /// Creates a departing echo's shot at radius zero in <paramref name="place"/>, replacing whatever shot holds it, and
-    /// counts it.
+    /// Creates a departing echo's shot at radius zero in <paramref name="place"/>, replacing whatever shot holds it, counts
+    /// it, and departs <paramref name="released"/> on it from <paramref name="crashPosition"/>.
     /// </summary>
-    private SamusProjectile Launch(int place, RotationAngle angle, SamusBeamCombination picturedBeams)
+    private void Launch(ShinesparkCrashEcho released, int place, RotationAngle angle, SamusBeamCombination picturedBeams,
+        Position16<RoomPixels> crashPosition)
     {
         _pool.ShotCount.CountShot();
         SamusProjectile replaced = _pool.Shots[place];
         Position16<RoomPixels> start = ReleasedEchoStartsAtReplacedShot.Start(
             replaced.IsOccupied ? replaced.Position.Whole : null);
-        SamusProjectile echo = _pool.Occupy(place);
-        echo.Position = echo.Position.WithWhole(start);
-        echo.Type = SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho);
-        echo.PicturedBeams = picturedBeams;
-        BeamCombos.InitializeComboShot(echo, BeamComboShotKind.Echo);
-        echo.Install(SamusShotBehaviors.ShinesparkEcho, new ShinesparkEchoShotState(angle.ToTrigonometryAngle()));
-        return echo;
+        var shotKind = new BeamComboShotKind.EchoShot(SamusBeamEcho.ShinesparkEcho);
+        SamusProjectileOccupant held = BeamCombos.OccupyComboShot(_pool, place, SamusProjectileType.EchoOf(SamusBeamEcho.ShinesparkEcho), shotKind);
+        SamusProjectile echo = held.Projectile;
+        held.Position = echo.Position.WithWhole(start);
+        held.PicturedBeams = picturedBeams;
+        BeamCombos.StartComboShot(held, shotKind);
+        var flight = new ShinesparkEchoShotState(angle.ToTrigonometryAngle(), released);
+        held.Install(SamusShotBehaviors.ShinesparkEcho, flight);
+        Ensure.NotNull(released).Depart(echo, flight, crashPosition);
     }
 
-    /// <summary>Runs one update of the echo <paramref name="shot"/> carries, clearing the shot once the echo leaves the screen.</summary>
+    /// <summary>
+    /// Runs one update of the echo <paramref name="shot"/> carries in its <paramref name="flight"/>, clearing the shot once
+    /// the echo leaves the screen; the echo's flight runs it (<see cref="ShinesparkEchoFlight"/>).
+    /// </summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectile shot, Position16<RoomPixels> camera)
+        SamusProjectileOccupant shot, ShinesparkEchoShotState flight, Position16<RoomPixels> camera)
     {
-        if (shot.Behavior is not ShinesparkEchoFlight)
-            throw new InvalidOperationException("Departing echo no longer owns this shot.");
-        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot))
-            _animation.ClearProjectile(shot);
+        if (!samus.Shinespark.StepReleasedEcho(samus, camera, shot, flight))
+            _animation.ClearProjectile(shot.Projectile);
     }
 }

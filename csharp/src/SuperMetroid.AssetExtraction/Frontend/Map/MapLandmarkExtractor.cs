@@ -8,7 +8,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports only landmark positions; validates mixed-record identities against compiled definitions.</summary>
-public static class MapLandmarkExtractor
+public static partial class MapLandmarkExtractor
 {
     /// <summary>Exports named boss, elevator-destination-label, and Crateria gunship drawing positions from native area-map records.</summary>
     /// <param name="bus">Import-capable cartridge source for bank-$82 boss/elevator lists and the Crateria save-point position list.</param>
@@ -33,16 +33,16 @@ public static class MapLandmarkExtractor
                 int x = Read(boss + slot * 4);
                 if (x == MapSourceDefinitions.Landmarks.UnusedBossSlot)
                     continue;
-                if (shown >= markers.Length || markers[shown].Boss != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
+                if (shown >= markers.Length || AreaBossDefinitions.Bosses[markers[shown].Boss].RecordedAs != MapSourceDefinitions.Landmarks.BossSlotFlags[slot])
                     throw new InvalidDataException($"{area}'s boss slot {slot} differs from the named boss markers.");
                 points.Add(markers[shown].Id, Position16<MapPixels>.Of(x, Read(boss + slot * 4 + 2)));
                 shown++;
             }
             if (shown != markers.Length)
                 throw new InvalidDataException($"Missing map boss {markers[shown].Id}.");
-            if (area == AreaId.Ceres) continue;
+            if (!AreaIds.IsZebes(area, out ZebesArea zebes)) continue;
             int elevator = Pointer(SnesAddress.FromBusAddress(MapSourceDefinitions.Landmarks.ElevatorLists), area);
-            var elevators = MapLandmarks.Elevators(area);
+            var elevators = MapLandmarks.Elevators(zebes);
             // The cartridge lists each area's labels in the named labels' drawing order.
             for (int i = 0; i < elevators.Length; i++)
             {
@@ -60,7 +60,7 @@ public static class MapLandmarkExtractor
         MapLandmarkFile.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });
         return stream.ToArray();
 
-        ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table.AddWithinBank(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2));
-        ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | pointer);
+        ushort Pointer(SnesAddress table, AreaId area) => RomDataReader.ReadWordFixedBank(bus, table.AddWithinBank(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2));
+        ushort Read(int pointer) => RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.Menu.ObjectBank | pointer);
     }
 }

@@ -8,10 +8,9 @@ namespace SuperMetroid.Core.Escape;
 /// </summary>
 /// <param name="Corner">The pixel of the layer, from its top-left, the glyph's top-left corner shows at (#1406, #1514, #1601).</param>
 /// <param name="Picture">The name of the glyph's picture, as <see cref="PictureOf"/> spells it.</param>
-public readonly record struct EscapeTypewriterGlyph(Position16<PlanePixels> Corner, string Picture)
+public readonly partial record struct EscapeTypewriterGlyph(Position16<PlanePixels> Corner, string Picture)
 {
     /// <summary>The name of the picture of <paramref name="character"/> as <paramref name="message"/>'s typewriter types it.</summary>
-    [InstalledKey]
     public static string PictureOf(EscapeTypewriterMessageId message, char character) =>
         $"{EscapeTypewriterMessageIdKeys.Installed.Of(message)}Typed.{character}";
 

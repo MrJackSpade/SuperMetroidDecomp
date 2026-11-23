@@ -5,14 +5,21 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// <summary>Verification access to <see cref="TitleSequenceState"/> members production does not use.</summary>
 internal static class TitleSequenceStateAccess
 {
+    /// <summary>The finest fraction of a floor pixel a zoom counts in: two hundred and fifty-sixths.</summary>
+    private const int ZoomDenominator = 256;
+
     /// <summary>Reads title display and demo-timer state for focused frontend verification.</summary>
     extension(TitleSequenceState self)
     {
-        /// <summary>Current screen brightness level; zero is black and fifteen is full.</summary>
-        internal byte Brightness => (byte)self.Brightness;
 
-        /// <summary>The floor's current zoom, exposed for title regression checks.</summary>
-        internal FloorZoom FloorZoom => self.Zoom;
+        /// <summary>
+        /// The zoom of the floor the title shows, read from the scale of the floor in the scene it composes, or null while it
+        /// shows no floor. Composing builds only the shown sprites, so it leaves the title's run as it was.
+        /// </summary>
+        internal FloorZoom? FloorZoom => self.ComposeScene().Floor is { } floor
+            ? Spatial.FloorZoom.FromFloorPixelsPerScreenPixel(
+                checked((int)Math.Round(floor.View.Scale * ZoomDenominator)), ZoomDenominator)
+            : null;
 
         /// <summary>
         /// NTSC demo countdown. Retail initializes this to $0384 (900 frames); PAL uses $02D0
@@ -26,18 +33,18 @@ internal static class TitleSequenceStateAccess
         /// </summary>
         internal void ShowComposition(TitleSprite? sprite, TitleCardTyping? card, Offset16<ScreenPixels> origin, TitleSpriteColouring colouring)
         {
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveSprite), sprite);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveCard), card);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveOrigin), origin);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveColouring), colouring);
+            self.ActiveSprite = sprite;
+            self.ActiveCard = card;
+            self.ActiveOrigin = origin;
+            self.ActiveColouring = colouring;
         }
 
         /// <summary>Puts the title at its title screen with no composition or card shown, for a check of the copyright that screen draws.</summary>
         internal void ShowTitleScreenOnly()
         {
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveSprite), null);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.ActiveCard), null);
-            PrivateFrontendState.Set(self, nameof(TitleSequenceState.Phase), TitleSequencePhase.TitleScreen);
+            self.ActiveSprite = null;
+            self.ActiveCard = null;
+            self.Phase = TitleSequencePhase.TitleScreen;
         }
     }
 }

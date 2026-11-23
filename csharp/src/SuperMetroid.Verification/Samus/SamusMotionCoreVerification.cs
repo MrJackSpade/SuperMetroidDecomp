@@ -169,21 +169,20 @@ internal static void VerifySamusHorizontalSpeed()
     // those immutable definitions from SamusRunningCadenceDefinitions.
     var dashAnimation = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MovingRightNormalPose,
         // She runs in a room, whose footsteps her stride's foot contacts raise: a dry one, the Landing Site without its rain.
-        Ground = SamusGround.Of(RoomDefinitions.LandingSite),
-    };
+        Ground = RoomDefinitions.LandingSite.Ground,
+    }.InPose(SamusPoseId.MovingRightNormalPose);
     SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: GameplayAction.Dash,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
+        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Ground = dashAnimation.Ground, Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
     AssertEqual(1, dashAnimation.AnimationNumber, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
+        SamusPresentation.Animate(dashAnimation, new SamusAnimationStep { Ground = dashAnimation.Ground, Random = new SharedRandom(), ControllerInput = GameplayAction.Dash });
     AssertEqual(0, dashAnimation.AnimationNumber, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 
@@ -267,18 +266,15 @@ internal static void VerifySamusHorizontalSpeed()
         bus, SamusPaletteNative.NormalSuitPalettePointer(0), 0x0321);
 
     var boostColours = new SamusColours();
-    AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-        "stage-four palette timer one copies immediately");
+    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x1234, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "first Speed Booster palette comes from bank $9B");
     AssertEqual(1, booster.CycleShadeStep, "Speed Booster palette advances to its second step");
     AssertEqual(4, booster.CycleShadeTimer, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
-        AssertTrue(!booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-            "Speed Booster palette waits during positive timer");
+        booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     }
-    AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-        "fourth Speed Booster palette tick copies next frame");
+    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x4567, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "second Speed Booster palette pointer");
 
     // `$91:D9B2-$D9D8` performs its bottom-boundary liquid gate before either the Screw
@@ -292,10 +288,8 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedBoostColours = new SamusColours();
     // A sentinel shade shows whether the handler changed the suit's (#1512).
     submergedBoostColours.ShowSuit(SamusShades.ChargedShotGlow);
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false }),
-        "submerged Power Suit suppresses active Speed Booster palette copy");
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false }),
-        "submerged Varia Suit suppresses active Speed Booster palette copy");
+    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
+    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(SamusShades.ChargedShotGlow, submergedBoostColours.Suit,
         "submerged Speed Booster leaves live Samus palette untouched");
     // A glow not yet started holds one update: its next boosted update moves it on (#2447).
@@ -303,8 +297,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Speed Booster freezes common palette timer");
     AssertEqual(0, submergedBoost.CycleShadeStep,
         "submerged Speed Booster freezes palette-list offset");
-    AssertTrue(submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false }),
-        "submerged Gravity Suit bypasses Speed Booster palette suppression");
+    submergedBoost.UpdateSpeedBoosterGlow(submergedBoostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(0x6a5a, submergedBoostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "submerged Gravity Suit Speed Booster palette remains ROM-authored");
 
@@ -316,21 +309,18 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedScrew = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
     var submergedScrewColours = new SamusColours();
     submergedScrewColours.ShowSuit(SamusShades.ChargedShotGlow);
-    AssertTrue(!submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (26) == 0, AnimationPastScrewAttackSpin = (26) >= 27, AnimationBeforeWallJumpSpin = (26) < 3, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false }),
-        "submerged Power Suit suppresses active Screw Attack palette copy");
+    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = SamusEquipmentFlags.ScrewAttack, BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(SamusShades.ChargedShotGlow, submergedScrewColours.Suit,
         "submerged Screw Attack retains the current suit colors");
     AssertEqual(0, submergedScrew.CycleShadeStep,
         "submerged Screw Attack freezes palette-list offset");
-    AssertTrue(submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (26) == 0, AnimationPastScrewAttackSpin = (26) >= 27, AnimationBeforeWallJumpSpin = (26) < 3, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false }),
-        "submerged Gravity Suit bypasses Screw Attack palette suppression");
+    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(0x5b4b, submergedScrewColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "submerged Gravity Screw palette remains ROM-authored");
 
     SyntheticSamusCartridge.WriteSamusPaletteColors(
         bus, SamusPaletteNative.NormalSuitPalettePointer(4), 0x3a2a);
-    AssertTrue(submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (27) == 0, AnimationPastScrewAttackSpin = (27) >= 27, AnimationBeforeWallJumpSpin = (27) < 3, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false }),
-        "Gravity Screw frame 27 restores normal suit colors underwater");
+    submergedScrew.UpdateSpeedBoosterGlow(submergedScrewColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.ShowsNormalColours, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack), BottomBoundarySubmerged = true, SuppressActiveSpeedBoosterGlow = false });
     AssertEqual(0x3a2a, submergedScrewColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0],
         "late Gravity Screw uses the fixture's normal suit palette");
     // `$90:EEE7` samples post-movement positions only on game-time multiples of four and
@@ -341,33 +331,35 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(SpeedEchoPhase.CapturingSecond, booster.SpeedEchoPhase, "speed echo advances to the second echo");
     AssertTrue(booster.CaptureSpeedEchoPosition(8, new(105, 82)), "speed echo captures the second echo");
     AssertEqual(SpeedEchoPhase.CapturingFirst, booster.SpeedEchoPhase, "speed echo alternation wraps after the second echo");
-    AssertEqual(101, booster.FirstSpeedEchoPosition!.Value.X, "first speed echo X snapshot");
-    AssertEqual(105, booster.SecondSpeedEchoPosition!.Value.X, "second speed echo X snapshot");
+    AssertEqual(101, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.X, "first speed echo X snapshot");
+    AssertEqual(105, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(booster.SuitShade.IsDue,
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "right-facing cancellation enters high-bit echo departure");
-    AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
+    AssertEqual(8, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed,
         "right-facing first departure speed is positive eight");
-    AssertEqual(8, booster.SecondSpeedEchoHorizontalSpeed,
+    AssertEqual(8, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].DepartureSpeed,
         "right-facing second departure speed is positive eight");
 
     // `$90:87D3-$90:884B` advances the second echo, then the first echo as an actual draw side effect.
     // Both stored bodies trail a rightward-running Samus, so +8 approaches X=120 while Y
     // independently approaches 90 by two. Crossing clears an echo before it can emit OAM.
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90));
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is not null,
         "right departure the second echo remains before crossing");
-    AssertEqual(113, booster.SecondSpeedEchoPosition!.Value.X,
+    AssertEqual(113, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.X,
         "right departure the second echo advances positive eight");
-    AssertEqual(84, booster.SecondSpeedEchoPosition!.Value.Y,
+    AssertEqual(84, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.Y,
         "right departure the second echo approaches Samus Y by two");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is not null,
         "right departure the first echo remains before crossing");
-    AssertEqual(109, booster.FirstSpeedEchoPosition!.Value.X,
+    AssertEqual(109, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.X,
         "right departure the first echo advances positive eight");
-    AssertEqual(83, booster.FirstSpeedEchoPosition!.Value.Y,
+    AssertEqual(83, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.Y,
         "right departure the first echo approaches Samus Y by two");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
@@ -376,18 +368,21 @@ internal static void VerifySamusHorizontalSpeed()
     // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
     // must preserve an already-running departure even if the new pose faces the other way.
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(8, booster.FirstSpeedEchoHorizontalSpeed,
+    AssertEqual(8, booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed,
         "repeated cancellation cannot reverse an active departure");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(120, 90));
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is null,
         "right departure the second echo clears on crossing");
-    AssertTrue(booster.SecondSpeedEchoPosition is null,
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is null,
         "crossed the second echo holds no echo");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is not null,
         "right departure the first echo remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.Departing, booster.SpeedEchoPhase,
         "one surviving departure keeps high-bit index");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90)),
+    booster.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(120, 90));
+    AssertTrue(booster.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is null,
         "right departure the first echo eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.CapturingFirst, booster.SpeedEchoPhase,
@@ -399,30 +394,33 @@ internal static void VerifySamusHorizontalSpeed()
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(0, new(150, 90)), "left departure captures its first echo");
     AssertTrue(leftDeparture.CaptureSpeedEchoPosition(4, new(154, 94)), "left departure captures its second echo");
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(-8, leftDeparture.FirstSpeedEchoHorizontalSpeed,
+    AssertEqual(-8, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed,
         "left-facing first departure speed is negative eight");
-    AssertEqual(-8, leftDeparture.SecondSpeedEchoHorizontalSpeed,
+    AssertEqual(-8, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].DepartureSpeed,
         "left-facing second departure speed is negative eight");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100));
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is not null,
         "left departure the second echo remains before crossing");
-    AssertEqual(146, leftDeparture.SecondSpeedEchoPosition!.Value.X,
+    AssertEqual(146, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.X,
         "left departure the second echo advances negative eight");
-    AssertEqual(96, leftDeparture.SecondSpeedEchoPosition!.Value.Y,
+    AssertEqual(96, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position!.Value.Y,
         "left departure the second echo approaches Samus Y by two");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100));
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is not null,
         "left departure the first echo remains before crossing");
-    AssertEqual(142, leftDeparture.FirstSpeedEchoPosition!.Value.X,
+    AssertEqual(142, leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position!.Value.X,
         "left departure the first echo advances negative eight");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.Second, new(140, 100));
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position is null,
         "left departure the second echo clears after passing Samus");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100)),
+    leftDeparture.AdvanceDepartingSpeedEcho(SpeedEcho.First, new(140, 100));
+    AssertTrue(leftDeparture.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position is null,
         "left departure the first echo clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
     AssertEqual(SpeedEchoPhase.CapturingFirst, leftDeparture.SpeedEchoPhase,
         "left departure clears shared index after both slots cross");
 
-    AssertTrue(booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-        "cancel copies normal suit palette through runtime seam");
+    booster.UpdateSpeedBoosterGlow(boostColours, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Standing, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = SamusEquipmentFlags.SpeedBooster, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
     AssertEqual(0x0321, boostColours.ShownSuit((InstalledFixtures.SamusShadeSources with { Suits = SuitColors(), FullBodyCycles = CycleColors() }))[0], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.SuitShade.IsDue, "normal-suit palette request is one-shot");
 
@@ -487,17 +485,16 @@ internal static void VerifySamusExtraDisplacement()
 
     var standing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     standing.Kinematics.Radius = new(5, 21);
     standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStanding(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         standing,
         frameCounter: 0,
-        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        controllerInput: 0);
     AssertEqual(0x00018000, positive.Horizontal.AcceptedDisplacement.RawValue,
         "standing external +X bypasses zero base speed");
     AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement.RawValue,
@@ -509,35 +506,33 @@ internal static void VerifySamusExtraDisplacement()
 
     var negative = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     negative.Kinematics.Radius = new(5, 21);
     negative.Kinematics.ExtraDisplacement = negative.Kinematics.ExtraDisplacement.WithWholeY(-2).WithFractionY(0x8000);
     GroundedMovementResult upward = SamusGroundedMovement.StepStanding(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         negative,
         frameCounter: 1,
-        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        controllerInput: 0);
     AssertEqual(unchecked((int)0xfffe8000), upward.Vertical.AcceptedDisplacement.RawValue,
         "negative no-speed external Y has no downward bias");
 
     var transition = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.NeutralJumpTransitionRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.NeutralJumpTransitionRightPose);
     transition.Kinematics.Radius = new(5, 19);
     transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromStoredParts(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
     FixedCoordinate transitionXBefore = transition.Kinematics.Position.X;
     FixedCoordinate transitionYBefore = transition.Kinematics.Position.Y;
-    SamusAerialMovement.StepNormalJump(
+    SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         transition,
         GameplayAction.Jump,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        frameCounter: 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(unchecked((int)0xffff8000)), transition.Kinematics.Position.X - transitionXBefore,
         "jump transition applies signed external X with zero base speed");
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00014000), transition.Kinematics.Position.Y - transitionYBefore,
@@ -545,19 +540,18 @@ internal static void VerifySamusExtraDisplacement()
 
     var rising = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.NeutralJumpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-    };
+    }.InPose(SamusPoseId.NeutralJumpRightPose);
     rising.Kinematics.Radius = new(5, 19);
     rising.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(1, 0), SamusVerticalDirection.Up);
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     FixedCoordinate risingYBefore = rising.Kinematics.Position.Y;
-    SamusAerialMovement.StepNormalJump(
+    SamusAerialMovement.StepNormalJump(SuperMetroid.Core.Samus.Movement.SamusMovement.NormalJumping, 
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled),
         rising,
         GameplayAction.Jump,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        frameCounter: 0);
     AssertEqual(SixteenSixteenWords.ToDisplacement(0x00008000), rising.Kinematics.Position.Y - risingYBefore,
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.VerticalVelocity.Direction,
@@ -565,20 +559,14 @@ internal static void VerifySamusExtraDisplacement()
 
     var bouncingBall = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallFallingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
-        MorphBallBounceState = SamusBallBounceState.FirstRebound,
-        KnockbackDirection = SamusKnockbackDirection.None,
-    };
+        MorphBallBounceState = SamusBallBounce.MorphBallFirst,
+        Knockback = SamusKnockback.None,
+    }.InPose(SamusPoseId.MorphBallFallingRightPose);
     bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(3, 0x4000), SamusVerticalDirection.Up);
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
-    MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
-
-        level,
-        bouncingBall,
-        controllerInput: 0,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+    MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(SamusMovementFixtures.FallingBallOf(bouncingBall), new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), bouncingBall, controllerInput: 0, frameCounter: 0);
     AssertEqual(unchecked((int)0xffff8000), displacedBounce.Vertical.AcceptedDisplacement.RawValue,
         "external Y replaces an active Morph Ball rebound rather than joining gravity");
     AssertEqual(0, bouncingBall.Kinematics.VerticalVelocity.Speed.Whole,

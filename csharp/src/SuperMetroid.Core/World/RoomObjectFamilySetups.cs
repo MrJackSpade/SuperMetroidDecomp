@@ -10,8 +10,9 @@ namespace SuperMetroid.Core.World;
 /// placement's own setup names its family and hands it what its placement decoded (#2481), the door, item or station it
 /// places among it.
 /// </summary>
-/// <param name="context">The room, the place the placement took, the area's boss flags and the families that keep state.</param>
-internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : IRoomObjectFamilySetups
+/// <param name="context">The room, the place the placement took, the area's defeated bosses and the families that keep
+/// state.</param>
+internal sealed partial class RoomObjectFamilySetups(RoomObjectSetupContext context) : IRoomObjectFamilySetups
 {
     /// <inheritdoc/>
     public void SetUpColoredDoor(ColoredDoorVariant door, DoorLock lockedBy) =>
@@ -57,10 +58,10 @@ internal sealed class RoomObjectFamilySetups(RoomObjectSetupContext context) : I
     public void SetUpElevatorPlatform() => StationObjects.SetupElevatorPlatform(context.Room.Level, context.Place);
 
     /// <inheritdoc/>
-    public void SetUpMotherBrainGlass() => context.Families.MotherBrainGlass.SetupMotherBrainGlass(context.Room.Level, context.Place);
+    public void SetUpMotherBrainGlass() => context.Families.MotherBrainGlass.SetupMotherBrainGlass(context.Room.Level, context.Place, context.Thrown.GlassShards);
 
     /// <inheritdoc/>
-    public void SetUpBombTorizoHand() => context.Families.BombTorizoHand.SetupBombTorizoHand(context.Place, context.Bosses);
+    public void SetUpBombTorizoHand() => context.Families.BombTorizoHand.SetupBombTorizoHand(context.Place, context.Bosses, context.Thrown.StatueFragments);
 
     /// <inheritdoc/>
     public void SetUpMetroidRoomClearance(WatchedMetroidRoom watches) => TourianObjects.SetupMetroidsCleared(context.Place, watches);

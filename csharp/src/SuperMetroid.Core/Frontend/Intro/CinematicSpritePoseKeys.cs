@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The installed key of each <see cref="CinematicSpritePose"/> (#2520), written out so renaming a member never changes
 /// a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class CinematicSpritePoseKeys
+internal static partial class CinematicSpritePoseKeys
 {
     /// <summary>Each CinematicSpritePose member's installed key.</summary>
     internal static InstalledKeys<CinematicSpritePose> Installed { get; } = new(new Dictionary<CinematicSpritePose, string>
@@ -35,7 +35,6 @@ internal static class CinematicSpritePoseKeys
         [CinematicSpritePose.ExaminedBabyNarrowing] = "ExaminedBabyNarrowing",
         [CinematicSpritePose.ExaminedBabyNarrow] = "ExaminedBabyNarrow",
         [CinematicSpritePose.CaretVisible] = "CaretVisible",
-        [CinematicSpritePose.Blank] = "Blank",
         [CinematicSpritePose.NextPageArrowBright] = "NextPageArrowBright",
         [CinematicSpritePose.NextPageArrowFading] = "NextPageArrowFading",
         [CinematicSpritePose.NextPageArrowFaint] = "NextPageArrowFaint",
@@ -45,8 +44,8 @@ internal static class CinematicSpritePoseKeys
         [CinematicSpritePose.StationUnderAttackLargeAsteroid] = "StationUnderAttackLargeAsteroid",
         [CinematicSpritePose.StationUnderAttack] = "StationUnderAttack",
         [CinematicSpritePose.SmallAsteroid] = "SmallAsteroid",
-        [CinematicSpritePose.VortexFirst] = "VortexFirst",
-        [CinematicSpritePose.VortexSecond] = "VortexSecond",
+        [CinematicSpritePose.VortexBrightSparks] = "VortexBrightSparks",
+        [CinematicSpritePose.VortexFaintSparks] = "VortexFaintSparks",
         [CinematicSpritePose.PlanetZebes] = "PlanetZebes",
         [CinematicSpritePose.PlanetZebesTitle] = "PlanetZebesTitle",
         [CinematicSpritePose.ZebesJapaneseTitle] = "ZebesJapaneseTitle",

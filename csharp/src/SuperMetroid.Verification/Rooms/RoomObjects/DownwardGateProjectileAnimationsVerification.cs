@@ -9,7 +9,7 @@ internal static class DownwardGateProjectileAnimationsVerification
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyDownwardGateProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = Family.CompareAll(CartridgeImportSource.Require(rom));
+        int beats = Family.CompareAll(rom);
         Console.WriteLine($"  downward gate animations: {Entries.Length} segments ({beats} beats) match bank $86.");
     }
 }

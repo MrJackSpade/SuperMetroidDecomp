@@ -14,8 +14,8 @@ internal static class SamusIndexedSpeedsVerification
         SamusHorizontalSpeeds Read(int a)
         {
             UnsignedSixteenSixteen Pair(int offset) => new(
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset),
-                CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset + 2));
+                rom.ReadCartridgeWord(a + offset),
+                rom.ReadCartridgeWord(a + offset + 2));
             return new(Pair(0), Pair(4), Pair(8));
         }
         var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());

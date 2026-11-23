@@ -1,4 +1,4 @@
-using SuperMetroid.Core;
+﻿using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -22,15 +22,14 @@ internal static class DownwardGateProjectileBehaviorVerification
     /// </summary>
     internal static void VerifyDownwardGateProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, DownwardGateProjectileNativeListAddresses.Extent, "downward gate");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        EnemyProjectile gate = enemies.Projectiles.ProjectileInPlace(0);
-        FamilyProjectileStarts.Initialize(enemies, gate, RoomEnemyProjectileKind.DownwardGateMoving,
+        EnemyProjectile gate = FamilyProjectileStarts.Spawn(enemies, RoomEnemyProjectileKind.DownwardGateMoving,
             SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard);
         AssertTrue(gate.Animation is DownwardGateProjectileAnimation { PlayingSegment: DownwardGateProjectileSegment.Moving }, "the moving gate starts its program");
         // The gate's spawn gives it its state; this fixture initializes the projectile directly, so it gives it here.
-        gate.State = new DownwardGateState(Position16<RoomBlocks>.Zero, DownwardGateProjectileAnimations.SlidingDownStage);
+        enemies.DownwardGateBehavior.Gate.Gates.Start(gate, new DownwardGateState(Position16<RoomBlocks>.Zero, DownwardGateProjectileAnimations.SlidingDownStage));
 
         DownwardGateProjectileSegment current = DownwardGateProjectileSegment.Moving;
         int resumes = 0;
@@ -43,18 +42,20 @@ internal static class DownwardGateProjectileBehaviorVerification
             current = gate.Animation is DownwardGateProjectileAnimation playing
                 ? playing.PlayingSegment
                 : throw new InvalidOperationException("The gate lost its animation.");
-            DownwardGateProjectileSegment stage = gate.StateOf<DownwardGateState>().Stage;
-            gate.StateOf<DownwardGateState>().BlockTravel = UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1);
+            DownwardGateProjectileSegment stage = enemies.DownwardGateBehavior.Gate.Gates.Of(gate).Stage;
+            enemies.DownwardGateBehavior.Gate.Gates.Of(gate).BlockTravel.PlaceAt(UpdateCountdownAccess.AtAge(RoomGridConversions.BlockPixels, RoomGridConversions.BlockPixels - 1));
             gate.Velocity = gate.Velocity.WithY(new SignedEightEight(256));
-            DownwardGateBehavior.RunDownwardGateProjectileMovement(gate);
+            DownwardGateBehavior.RunDownwardGateProjectileMovement(enemies.DownwardGateBehavior.Gate, gate);
             DownwardGateProjectileSegment resumed = DownwardGateProjectileAnimations.NextStage[stage];
-            AssertEqual(resumed, gate.StateOf<DownwardGateState>().Stage, $"a block's travel takes {current} on to the stage it names next");
+            AssertEqual(resumed, enemies.DownwardGateBehavior.Gate.Gates.Of(gate).Stage, $"a block's travel takes {current} on to the stage it names next");
             AssertTrue(gate.Animation is DownwardGateProjectileAnimation next && next.PlayingSegment == resumed, $"a block's travel takes {current} on to {resumed}");
             AssertEqual((ushort)1, gate.FrameHold.RawValue, $"{resumed} wakes on the same pass");
             current = resumed;
             resumes++;
         }
-        AssertEqual(DownwardGateProjectileAnimations.NextStage.Count, resumes, "the gate passes every stage of its travel once before it deletes itself");
+        // The vanishing stage goes on to no other (it stays vanishing), so the travel passes every other stage once.
+        AssertEqual(DownwardGateProjectileAnimations.NextStage.Count(step => step.Key != step.Value), resumes,
+            "the gate passes every stage of its travel once before it deletes itself");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production reads none of the gate's native list bytes");
         Console.WriteLine($"  Downward gate behavior: {resumes} resumed sleeps carry the moving and closed programs to deletion as the native list does.");
     }

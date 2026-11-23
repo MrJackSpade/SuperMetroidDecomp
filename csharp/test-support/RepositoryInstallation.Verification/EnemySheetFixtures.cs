@@ -32,8 +32,8 @@ internal static class EnemySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(set);
         EnemySheetSource source = EnemySheetComposer.Sources(Inputs, set).Enemies.Single(sheet => sheet.Enemy == enemy);
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
-        return SpriteSheetFileConstants.Load(sheet.Manifest, $"{enemy}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices).Image;
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
+        return SpriteSheetFileConstants.Load(sheet.Manifest, $"{enemy}-{set.Name}", sheet.Size, sheet.Pixels, sheet.Inks).Image;
     }
 
     /// <summary>
@@ -45,8 +45,8 @@ internal static class EnemySheetFixtures
     {
         ArgumentNullException.ThrowIfNull(set);
         SpawnedObjectSheetSource source = EnemySheetComposer.Sources(Inputs, set).Spawned.Single(sheet => sheet.Plan.Owner == owner);
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
-        return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
+        return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.Inks);
     }
 
     /// <summary>
@@ -58,8 +58,8 @@ internal static class EnemySheetFixtures
         ArgumentNullException.ThrowIfNull(set);
         foreach (SpawnedObjectSheetSource source in EnemySheetComposer.Sources(Inputs, set).Spawned)
         {
-            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
-            yield return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{source.Plan.Owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
+            yield return SpriteSheetFileConstants.Load(sheet.Manifest, $"Spawned-{source.Plan.Owner}-{set.Name}", sheet.Size, sheet.Pixels, sheet.Inks);
         }
     }
 
@@ -83,16 +83,33 @@ internal static class EnemySheetFixtures
     /// <paramref name="shown"/> (#1538): the room load's characters with every look of each up to the one shown copied in
     /// order, from the installation's artwork, which a frame's picture of those looks paints like.
     /// </summary>
-    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown) =>
-        Characters(set).Page(shown);
+    /// <remarks>
+    /// The room load's characters are those the import pictures a frame reading the whole table in, drawn in no look of its
+    /// own (<see cref="SetCharacters.Pictures"/>); each shown look's copies are the import's own for its encounter
+    /// (<see cref="EncounterLookUploads.Steps"/>).
+    /// </remarks>
+    /// <exception cref="InvalidDataException">A look is of an encounter the set's members do not play.</exception>
+    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, IReadOnlyList<EncounterLook> shown)
+    {
+        ArgumentNullException.ThrowIfNull(shown);
+        FramePictures loaded = Characters(set).Pictures("whole table", WholeTable, FrameDrawings.None);
+        byte[] page = loaded.Sources.Single().Characters.Characters[..SpriteCharacterTableLayout.TableByteCount].ToArray();
+        IReadOnlyList<ComposedEncounter> played = EncounterLookUploads.Of(
+            RoomEnemyGraphicsSetLists.MembersOf(set, FixtureGraphicsSetMembers.CatalogueFor(set)));
+        foreach (EncounterLook look in shown)
+        {
+            ComposedEncounter[] showing = [.. played.Where(candidate => EncounterLookUploads.ShownAs(candidate) == look.Encounter)];
+            ComposedEncounter encounter = showing.Length != 0 ? showing[0]
+                : throw new InvalidDataException($"The set's members play no encounter that shows {look}.");
+            foreach (EncounterArtworkUpload upload in EncounterLookUploads.Steps(encounter, inputs.Value).CopiesThrough(ComposedLook.Of(encounter, look)))
+                upload.ApplyTo(page);
+        }
+        return ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), page);
+    }
 
-    /// <summary>
-    /// The OBJ characters graphics set <paramref name="set"/> leaves once <paramref name="encounter"/> shows its look at
-    /// <paramref name="look"/> (#1538), whose looks gameplay may never show: the room load's characters with every look up
-    /// to it copied in order, which a frame drawn in that look paints like.
-    /// </summary>
-    internal static SpriteArtwork LivePage(RoomEnemyGraphicsSetDefinition set, ComposedEncounter encounter, int look) =>
-        Characters(set).Page(encounter, look);
+    /// <summary>A frame reading every character of the OBJ character table: eight 64-pixel squares, two across each quarter.</summary>
+    private static readonly SpriteFrame WholeTable = new("whole table", [.. new[] { 0, 8, 128, 136, 256, 264, 384, 392 }.Select(character =>
+        new SpriteFramePart(new(0, 0), new(64, 64), character, PictureFlip.None, Palette: null, Depth: null))]);
 
     /// <summary>The characters the import composes graphics set <paramref name="set"/>'s pictures from, composed once.</summary>
     private static SetCharacters Characters(RoomEnemyGraphicsSetDefinition set)
@@ -101,7 +118,7 @@ internal static class EnemySheetFixtures
         lock (characters)
         {
             if (!characters.TryGetValue(set, out SetCharacters? composedCharacters))
-                characters.Add(set, composedCharacters = EnemySheetComposer.Load(
+                characters.Add(set, composedCharacters = EnemySheetComposer.LoadedGraphicsSet.Of(
                     inputs.Value with { SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }, set).Characters);
             return composedCharacters;
         }
@@ -191,7 +208,8 @@ internal static class EnemySheetFixtures
         private PopulationArtwork Compose(RoomEnemyGraphicsSetDefinition set)
         {
             // A fixture's own set is coloured in the rows its records name, which the fixture recorded.
-            GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(inputs with { SetPaletteRows = FixtureGraphicsSetRows.CatalogueFor(set), SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }, set);
+            GraphicsSetSheetSources setSources = EnemySheetComposer.Sources(
+                inputs with { SetMembers = FixtureGraphicsSetMembers.CatalogueFor(set) }, set);
             // A name of its own keeps its frames apart from the installed sheets' in the frame-source registry.
             string owner = $"fixture-{RuntimeHelpers.GetHashCode(inputs.Enemies):X8}-{set.Name}-{RuntimeHelpers.GetHashCode(set):X8}";
             var enemies = new Dictionary<EnemyDefinitionId, EnemyArtworkVariant<SpriteSheet>>();
@@ -222,9 +240,9 @@ internal static class EnemySheetFixtures
         /// <summary>Composes, loads and registers one sheet under <paramref name="name"/>.</summary>
         private static SpriteSheet Load(SpriteSheetSources sources, string name)
         {
-            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
             SpriteSheet loaded = SpriteSheetFileConstants.Load(sheet.Manifest, name, sheet.Size,
-                sheet.Pixels, sheet.PaletteIndices);
+                sheet.Pixels, sheet.Inks);
             SheetFrameSources.Register(loaded, sources);
             return loaded;
         }

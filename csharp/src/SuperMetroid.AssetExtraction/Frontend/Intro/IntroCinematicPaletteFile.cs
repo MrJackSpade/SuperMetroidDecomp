@@ -3,12 +3,13 @@ using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.AssetExtraction.Video;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Reads and writes the installed opening palette document.</summary>
-public static class IntroCinematicPaletteFile
+public static partial class IntroCinematicPaletteFile
 {
     /// <summary>Supported revision of the complete 256-color RGB5 opening-palette schema.</summary>
     public const int Version = 1;
@@ -32,10 +33,10 @@ public static class IntroCinematicPaletteFile
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
-            if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
-                (uint)color.Blue > 31)
+            if (color is null || (uint)color.Red > FadeLevelColour.FullLevel || (uint)color.Green > FadeLevelColour.FullLevel ||
+                (uint)color.Blue > FadeLevelColour.FullLevel)
                 throw new InvalidDataException(
-                    $"Opening palette color {index} requires red, green and blue in 0..31.");
+                    $"Opening palette color {index} requires red, green and blue in 0..{FadeLevelColour.FullLevel}.");
             image[index] = color.ToRgbColor();
         }
         return new IntroCinematicPalette(image);
@@ -47,8 +48,7 @@ public static class IntroCinematicPaletteFile
     public static void Write(Stream json, IntroCinematicPaletteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

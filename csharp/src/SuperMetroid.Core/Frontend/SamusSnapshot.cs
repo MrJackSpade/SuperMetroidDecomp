@@ -8,7 +8,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>What Samus, the player's controller and the escape countdown are doing at one moment.</summary>
-public sealed class SamusSnapshot
+public sealed partial class SamusSnapshot
 {
     /// <summary>Samus's pose.</summary>
     public required SamusPoseId Pose { get; init; }
@@ -18,9 +18,6 @@ public sealed class SamusSnapshot
 
     /// <summary>Frames left before the animation's next step.</summary>
     public required int AnimationFramesRemaining { get; init; }
-
-    /// <summary>The pose whose animation is playing, or null when no animation has started.</summary>
-    public required SamusPoseId? AnimatedPose { get; init; }
 
     /// <summary>Samus's position in the room, in whole pixels.</summary>
     public required Position16<RoomPixels> Position { get; init; }

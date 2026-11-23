@@ -43,7 +43,7 @@ internal static class SpeedBoosterWordRangeVerification
         var advancing = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus()) { HasRunningMomentum = true, SpeedBoostCounter = new SamusSpeedBoostCounter(1, 1) };
         AssertTrue(advancing.TryAdvanceSpeedBoosterAnimationStage(new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusMovementType.Running, GameplayAction.Dash,
             extraAnimationDelay: 0, out _, requestEchoSound: NoEcho), "cadence one expires and advances the stage");
-        AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.CountdownAfterAdvance(SamusRunningCadence.BoostStage2)), advancing.SpeedBoostCounter,
+        AssertEqual(new SamusSpeedBoostCounter(2, SamusRunningCadences.StageCadence(2).CountdownAfterAdvance), advancing.SpeedBoostCounter,
             "stage two with its reloaded cadence");
 
         var range = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
@@ -62,10 +62,10 @@ internal static class SpeedBoosterWordRangeVerification
         };
         AssertTrue(!boosted.SpeedEchoesDeparting, "a Samus who has not boosted is not departing");
         AssertTrue(boosted.CaptureSpeedEchoPosition(0, new(40, 50)), "a full boost captures on a fourth frame");
-        AssertEqual(new Position16<RoomPixels>(40, 50), boosted.FirstSpeedEchoPosition, "the first capture fills the first slot");
+        AssertEqual(new Position16<RoomPixels>(40, 50), boosted.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].Position, "the first capture fills the first slot");
         AssertEqual(SpeedEchoPhase.CapturingSecond, boosted.SpeedEchoPhase, "the first capture moves the cursor to the second slot");
         AssertTrue(boosted.CaptureSpeedEchoPosition(4, new(44, 50)), "the next fourth frame captures again");
-        AssertEqual(new Position16<RoomPixels>(44, 50), boosted.SecondSpeedEchoPosition, "the second capture fills the second slot");
+        AssertEqual(new Position16<RoomPixels>(44, 50), boosted.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].Position, "the second capture fills the second slot");
         AssertEqual(SpeedEchoPhase.CapturingFirst, boosted.SpeedEchoPhase, "stepping past the second slot returns the cursor to the first");
 
         // Cancellation publishes the departure index, which stops capture.

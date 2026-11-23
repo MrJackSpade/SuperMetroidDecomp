@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Saves;
 /// renaming a member never changes a save or stops one loading.
 /// </summary>
 /// <typeparam name="TIdentity">The identity the converter reads and writes.</typeparam>
-internal class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity>
+internal partial class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity>
     where TIdentity : struct, Enum
 {
     /// <summary>Each member's name in a save.</summary>
@@ -33,7 +33,6 @@ internal class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity>
 
     /// <inheritdoc />
     /// <exception cref="JsonException">The value is not a string naming the identity.</exception>
-    [SuppressMessage("Design", "SME6426", Justification = "System.Text.Json's JsonConverter contract fixes the signature; a converter of one identity needs neither the type it converts nor the options.")]
     public override TIdentity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
         reader.TokenType == JsonTokenType.String
             ? Named(reader.GetString() ?? throw new JsonException($"A save's {typeof(TIdentity).Name} has no name."))
@@ -45,17 +44,17 @@ internal class SaveKeyJsonConverter<TIdentity> : JsonConverter<TIdentity>
 
     /// <summary>The save's name of <paramref name="value"/>.</summary>
     /// <exception cref="JsonException">The value is no member of the identity.</exception>
-    private protected virtual string NameOf(TIdentity value) => MemberName(value) ??
-        throw new JsonException($"{value} is no {typeof(TIdentity).Name} a save can name.");
+    private protected virtual string NameOf(TIdentity value) => names.TryGetValue(value, out string? name) ? name
+        : throw new JsonException($"{value} is no {typeof(TIdentity).Name} a save can name.");
 
     /// <summary>The value the save's <paramref name="text"/> names.</summary>
     /// <exception cref="JsonException">The text names no member.</exception>
-    private protected virtual TIdentity Named(string text) => Member(text) ??
-        throw new JsonException($"'{text}' names no {typeof(TIdentity).Name}.");
+    private protected virtual TIdentity Named(string text) => TryMember(text, out TIdentity identity) ? identity
+        : throw new JsonException($"'{text}' names no {typeof(TIdentity).Name}.");
 
     /// <summary>The save's name of a member, or null for a value that is no member.</summary>
     private protected string? MemberName(TIdentity value) => names.TryGetValue(value, out string? name) ? name : null;
 
-    /// <summary>The member a save's name names, its case ignored, or null when it names none.</summary>
-    private protected TIdentity? Member(string text) => identities.TryGetValue(text, out TIdentity identity) ? identity : null;
+    /// <summary>Whether a save's name names a member, its case ignored, and the <paramref name="identity"/> it names.</summary>
+    private protected bool TryMember(string text, out TIdentity identity) => identities.TryGetValue(text, out identity);
 }

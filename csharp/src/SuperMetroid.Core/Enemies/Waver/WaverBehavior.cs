@@ -1,18 +1,18 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>The Waver species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class WaverBehavior : IEnemySpecies, IEnemySpawnFactory<WaverSpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Waver];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new WaverEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, WaverSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new WaverEntity(this, occupant, place, common, settings));
 
     /// <summary>Room collision service used to reflect horizontal motion and the sine wave on impact.</summary>
     private readonly EnemyTerrain _terrain;
@@ -23,39 +23,37 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
+    /// <summary>What <see cref="ApplyWaverCue"/> does for each <see cref="WaverCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<WaverCueKind, Action<WaverEnemyState>> ApplyWaverCueForWaverCueKind => field ??= new(new Dictionary<WaverCueKind, Action<WaverEnemyState>>
+    {
+        // The four-frame spin hands its completion back to main AI rather than going on to the steady animation itself
+        // (#2450): the cue moves the Waver into its finished spin, which main AI consumes.
+        [WaverCueKind.FinishSpin] = static state => state.Action = WaverAction.SpinFinished,
+    });
+
     /// <summary>Carries out Waver's one animation cue.</summary>
     private static void ApplyWaverCue(WaverEnemyState state, WaverCue cue)
     {
-        switch (cue.Kind)
-        {
-            case WaverCueKind.FinishSpin:
-                // The four-frame spin hands its completion back to main AI rather than
-                // going on to the steady animation itself (#2450).
-                if (state.Action != WaverAction.Spinning)
-                    throw new InvalidOperationException($"A Waver's spin finished while it was {state.Action}.");
-                state.Action = WaverAction.SpinFinished;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(WaverCueKind)} {cue.Kind}.");
-        }
+        ApplyWaverCueForWaverCueKind[cue.Kind](state);
     }
 
     /// <summary>Initializes the Waver.</summary>
-    internal static void InitializeWaver(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static WaverEnemyState InitializeWaver(WaverSpawnSettings waverSpawnSettings, RoomEnemyPlace place)
     {
-        HorizontalDirection facing = place.SpawnSettings<WaverSpawnSettings>().Facing;
+        HorizontalDirection facing = waverSpawnSettings.Facing;
         var state = new WaverEnemyState
         {
             Facing = facing,
             Angle = RotationAngle.Zero,
             Action = WaverAction.Gliding,
         };
-        place.SetSpeciesState(state);
 
-        // The setup first shows the left steady animation and then asks for the spawn's facing. Only right-facing
-        // spawns therefore change it; left-facing spawns ask for the one playing and keep it.
+        // A Waver starts with the left steady animation; a right-facing Waver then turns it to face right, while a
+        // left-facing one keeps the animation already playing and its clock.
         state.Playback = new(WaverAnimations.StartingWith(WaverSegment.SteadyFacingLeft), AnimationPlace.StartOfAnimation);
         SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
+        return state;
     }
 
     /// <summary>Runs the Waver's main AI.</summary>
@@ -72,7 +70,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 place,
                 horizontalDisplacement))
         {
-            // A wall turns Waver around, reversing its speed exactly, fraction included (±1.5 pixels a frame), and ends any spin.
+            // A wall turns Waver around, reversing its speed exactly, fraction included, and ends any spin.
             state.Facing = state.Facing == HorizontalDirection.Left ? HorizontalDirection.Right : HorizontalDirection.Left;
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
         }
@@ -93,12 +91,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Once per half-wave, the phase reaches the spin's place within its half-turn. Waver temporarily swaps to
         // the four-frame spin without changing its facing.
-        if (state.Angle.ToTrigonometryAngle().StepsIntoHalfTurn == WaverMotionDefinitions.SpinStepsIntoHalfTurn)
+        if (state.Angle.ToTrigonometryAngle().IntoHalfTurn == WaverMotionDefinitions.SpinPlaceInHalfTurn)
         {
             SetWaverAnimation(place, state, WaverAnimationChoices.Spinning(state.Facing));
         }
 
-        // The spin animation finishes after 32 animation frames. Main AI owns
+        // The spin animation finishes after its own frames. Main AI owns
         // the return to steady art, matching the cue/AI seam rather than timing it here.
         if (spinFinished)
             SetWaverAnimation(place, state, WaverAnimationChoices.Steady(state.Facing));
@@ -115,14 +113,14 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Waver's main AI.</summary>
-    internal void RunWaverMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunWaverMainAi(RoomEnemyPlace place, WaverEnemyState waverEnemyState, IEnemyAiFrame frame)
     {
-        RunWaverMain(place, place.RequireSpeciesState<WaverEnemyState>(), frame.Level);
+        RunWaverMain(place, waverEnemyState, frame.Level);
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, WaverAnimations.Segments,
+    internal static void AdvanceWaverTypedAnimation(RoomEnemyPlace place, WaverEnemyState waverEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, waverEnemyState, WaverAnimations.Segments,
             static (WaverEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

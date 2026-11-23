@@ -97,7 +97,7 @@ internal static class DoorAlignmentVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(sourceRoom);
 
         RoomLevelData level = runtime.Room.LoadedLevelData;
@@ -121,7 +121,7 @@ internal static class DoorAlignmentVerification
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x8000);
@@ -143,11 +143,11 @@ internal static class DoorAlignmentVerification
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
             DoorTransitionPhase phaseBeforeStep = transition.Phase;
-            if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
+            if (transition.Phase is DoorTransitionPhase.Running.AlignSourceCamera)
                 alignmentCalls++;
             transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-            if (phaseBeforeStep == DoorTransitionPhase.DrawFirstDestinationFrame &&
-                transition.Phase == DoorTransitionPhase.FadeInDestinationRoom)
+            if (phaseBeforeStep is DoorTransitionPhase.Running.DrawFirstDestinationFrame &&
+                transition.Phase is DoorTransitionPhase.Running.FadeInDestinationRoom)
             {
                 observedDestinationBuild = true;
                 AssertEqual(GameplayActions.HorizontalDirections, runtime.PlayerActions.Current,

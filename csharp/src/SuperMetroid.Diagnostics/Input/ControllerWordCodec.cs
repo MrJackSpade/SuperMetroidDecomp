@@ -8,7 +8,6 @@ namespace SuperMetroid.Diagnostics.Input;
 /// movie replays and native traces store (#1524). It is a host concern: the game consumes typed buttons, and each button's
 /// joypad bit is named once here, in both directions.
 /// </summary>
-[EncodingOwner("SNES joypad word")]
 public static class ControllerWordCodec
 {
     /// <summary>Every button a standard controller supplies, each converted through <see cref="JoypadBit"/>.</summary>

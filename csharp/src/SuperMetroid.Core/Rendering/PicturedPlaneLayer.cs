@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Plane">The plane's pictures.</param>
 /// <param name="Scroll">The plane pixel shown at the screen's top-left corner: screen pixel (x, y) shows plane pixel (x + X, y + Y).</param>
-public sealed record PicturedPlaneLayer(PicturedPlane Plane, Offset16<PlanePixels> Scroll) : DisplayLayer
+public sealed partial record PicturedPlaneLayer(PicturedPlane Plane, Offset16<PlanePixels> Scroll) : DisplayLayer
 {
     /// <summary>The plane's pictures.</summary>
     public PicturedPlane Plane
@@ -24,7 +24,7 @@ public sealed record PicturedPlaneLayer(PicturedPlane Plane, Offset16<PlanePixel
 
     /// <summary>
     /// How the plane is pixelated (#1774): each square block of the screen shows the plane as its top-left pixel shows it,
-    /// a clear pixel there leaving the whole block showing what lies behind. The default leaves the plane unpixelated.
+    /// a clear pixel there leaving the whole block showing what lies behind. Unless set, the plane is unpixelated.
     /// </summary>
-    public BackgroundPixelation Pixelation { get; init; }
+    public BackgroundPixelation Pixelation { get; init; } = BackgroundPixelation.Unpixelated;
 }

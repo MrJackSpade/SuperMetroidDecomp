@@ -120,7 +120,9 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 21)),
         Radius = new(5, 5),
     };
-    BlockMoveResult slopeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, slopeBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+    // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+    SamusState probeSamus = InstalledFixtures.CreateSamus();
+    BlockMoveResult slopeMove = SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), slopeBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
     AssertEqual(0x0000c000, slopeMove.AcceptedDisplacement.RawValue, "horizontal scan applies BTS $12 multiplier");
     AssertEqual(24, slopeBody.Position.X.Whole, "subpixel slope move preserves whole X");
     AssertEqual(0xc000, slopeBody.Position.X.Fraction, "subpixel slope move updates X fraction");
@@ -134,7 +136,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 19)),
         Radius = new(5, 5),
     };
-    BlockMoveResult groundProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, groundedBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
+    BlockMoveResult groundProbe = SamusBlockCollision.MoveVertical(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), groundedBody, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true });
     AssertTrue(groundProbe.Collided, "vertical non-square grounding probe collides");
     AssertEqual(0, groundProbe.AcceptedDisplacement.RawValue, "vertical non-square grounding probe clips to zero");
     AssertEqual(19, groundedBody.Position.Y.Whole, "grounding collision preserves resting center Y");
@@ -148,7 +150,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
         Radius = new(5, 5),
     };
-    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, wallBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult wallMove = SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), wallBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(wallMove.Collided, "horizontal type-8 solid collision flag");
     AssertEqual(0x00010000, wallMove.AcceptedDisplacement.RawValue, "horizontal type-8 solid clipped amount");
     AssertEqual(27, wallBody.Position.X.Whole, "horizontal type-8 solid whole X");
@@ -161,7 +163,7 @@ internal static void VerifySamusBlockCollision()
         Position = new(new(56, 0), new(19, 0x4000)),
         Radius = new(5, 5),
     };
-    BlockMoveResult airMove = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, airBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(0, 32768), ScanLeftToRight = false });
+    BlockMoveResult airMove = SamusBlockCollision.MoveVertical(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), airBody, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(0, 32768), ScanLeftToRight = false });
     AssertTrue(!airMove.Collided, "vertical type-0 air has no collision");
     AssertEqual(19, airBody.Position.Y.Whole, "vertical air fractional move whole Y");
     AssertEqual(0xc000, airBody.Position.Y.Fraction, "vertical air fractional move subposition");
@@ -182,7 +184,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
         Radius = new(5, 5),
     };
-    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = squareLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, squareWallBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult squareWall = SamusBlockCollision.MoveHorizontal(new RoomTerrain(squareLevel, SamusRoomObjectFixtures.WithQuicksand()), squareWallBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(squareWall.Collided, "horizontal fully-solid square slope collision");
     AssertEqual(0x00010000, squareWall.AcceptedDisplacement.RawValue, "horizontal square-slope 8-pixel clipping");
     AssertEqual(0xffff, squareWallBody.Position.X.Fraction, "horizontal square slope writes right-wall fraction");
@@ -192,7 +194,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(16, 26)),
         Radius = new(5, 5),
     };
-    BlockMoveResult squareFloor = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = squareLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, squareFloorBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult squareFloor = SamusBlockCollision.MoveVertical(new RoomTerrain(squareLevel, SamusRoomObjectFixtures.WithQuicksand()), squareFloorBody, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(squareFloor.Collided, "vertical fully-solid square slope collision");
     AssertEqual(0x00010000, squareFloor.AcceptedDisplacement.RawValue, "vertical square-slope 8-pixel clipping");
     AssertTrue(squareFloorBody.PositionAdjustedBySlope, "downward square slope sets adjusted flag");
@@ -216,7 +218,7 @@ internal static void VerifySamusBlockCollision()
         Radius = new(5, 5),
     };
     ISamusRoomObjects doorRoomObjects = SamusRoomObjectFixtures.WithQuicksand();
-    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = doorLevel, RoomObjects = doorRoomObjects }, doorBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult normalDoorMove = SamusBlockCollision.MoveHorizontal(new RoomTerrain(doorLevel, doorRoomObjects), doorBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(!normalDoorMove.Collided, "normal type-$9 door returns carry clear");
     AssertEqual(0x00020000, normalDoorMove.AcceptedDisplacement.RawValue,
         "normal type-$9 door accepts full horizontal displacement");
@@ -227,14 +229,14 @@ internal static void VerifySamusBlockCollision()
     AssertEqual(RoomDefinitions.ForgottenHighwayElbow, enteredDoor.DestinationRoom,
         "normal type-$9 door preserves destination room header");
     doorRoomObjects.DoorContacts.GoThroughEnteredDoor(enteredDoor);
-    AssertTrue(doorRoomObjects.DoorContacts.EnteredDoor is null,
+    AssertEqual<DoorDefinition?>(null, doorRoomObjects.DoorContacts.EnteredDoor,
         "a door gone through does not leak into later movement");
 
     RoomLevelData elevatorDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(doorForeground, doorBehavior, new RoomBlockAppearance[doorForeground.Length]), RoomLevelData.NothingBeyondGrid(),
         [new RoomDoorBlock(new(2, 1), DoorDefinitions.Resolve(doorListPointer, 2))]);
     doorBody.Position = doorBody.Position.WithWholeX(26).WithFractionX(0);
     ISamusRoomObjects elevatorDoorRoomObjects = SamusRoomObjectFixtures.WithQuicksand();
-    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = elevatorDoorLevel, RoomObjects = elevatorDoorRoomObjects }, doorBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult elevatorDoorMove = SamusBlockCollision.MoveHorizontal(new RoomTerrain(elevatorDoorLevel, elevatorDoorRoomObjects), doorBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(elevatorDoorMove.Collided, "elevator ride remains solid");
     AssertEqual(0x00010000, elevatorDoorMove.AcceptedDisplacement.RawValue,
         "elevator ride uses ordinary solid clipping");
@@ -249,7 +251,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(58, 24)),
         Radius = new(5, 5),
     };
-    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, rightEdgeBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+    BlockMoveResult rightEdgeMove = SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), rightEdgeBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
     AssertTrue(rightEdgeMove.Collided, "prefilled right room edge is solid");
     AssertEqual(0x00010000, rightEdgeMove.AcceptedDisplacement.RawValue,
         "prefilled right room edge clips at logical boundary");
@@ -261,7 +263,7 @@ internal static void VerifySamusBlockCollision()
         Position = FixedPosition<RoomPixels>.FromWhole(new(56, 58)),
         Radius = new(5, 5),
     };
-    BlockMoveResult bottomEdgeMove = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, bottomEdgeBody, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult bottomEdgeMove = SamusBlockCollision.MoveVertical(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), bottomEdgeBody, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(bottomEdgeMove.Collided, "prefilled bottom room edge is solid");
     AssertEqual(0x00010000, bottomEdgeMove.AcceptedDisplacement.RawValue,
         "prefilled bottom room edge clips at logical boundary");
@@ -303,7 +305,9 @@ internal static void VerifySamusBlockCollision()
             Position = FixedPosition<RoomPixels>.FromWhole(new(26, 24)),
             Radius = new(5, 5),
         };
-        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = dispatcherLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, dispatcherBody, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
+        // Samus meets the blocks in a room with its room objects, whose block reactions a special block asks whether her
+        // boost breaks it (#2554).
+        BlockMoveResult dispatcherMove = SamusBlockCollision.MoveHorizontal(new RoomTerrain(dispatcherLevel, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.Unbound()), dispatcherBody, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), AlignToSlopeAfterMovement = false });
 
         AssertEqual(expectedCollision, dispatcherMove.Collided,
             $"body dispatcher {collisionKind} collision topology");
@@ -331,9 +335,8 @@ internal static void VerifySamusBlockCollision()
         RoomLevelData spikeLevel = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 26)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         spikeSamus.Kinematics.Radius = new(5, 5);
         SamusTerrainHazardCollision.PrepareFrame(
             spikeLevel,
@@ -341,7 +344,7 @@ internal static void VerifySamusBlockCollision()
             AreaId.Norfair,
             areaBossDefeated: false);
 
-        BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = spikeLevel, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+        BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(new RoomTerrain(spikeLevel, SamusRoomObjectFixtures.WithQuicksand()), spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
         AssertTrue(spikeFloor.Collided,
             $"spike-block BTS ${spikeBehavior:X2} retains solid collision");
         AssertEqual(expectedDamage, spikeSamus.PeriodicDamage.Pending.Whole,
@@ -371,16 +374,15 @@ internal static void VerifySamusBlockCollision()
         RoomLevelData wreckedShipSpikes = CreateRoom(new(width, height), spikeWords, spikeBehaviors);
         var spikeSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 26)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         spikeSamus.Kinematics.Radius = new(5, 5);
         SamusTerrainHazardCollision.PrepareFrame(
             wreckedShipSpikes,
             spikeSamus,
             AreaId.WreckedShip,
             bossDefeated);
-        _ = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = wreckedShipSpikes, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+        _ = SamusBlockCollision.MoveVertical(new RoomTerrain(wreckedShipSpikes, SamusRoomObjectFixtures.WithQuicksand()), spikeSamus.Kinematics, spikeSamus, spikeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
         AssertEqual(expectedDamage, spikeSamus.PeriodicDamage.Pending.Whole,
             $"Wrecked Ship BTS-zero spike boss gate {bossDefeated}");
     }
@@ -399,9 +401,8 @@ internal static void VerifySamusBlockCollision()
             spikeAirBehaviors);
         var spikeAirSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         spikeAirSamus.Kinematics.Radius = spikeAirSamus.Kinematics.Radius.WithY(17);
         SamusTerrainHazardCollision.PrepareFrame(
             spikeAirLevel,
@@ -426,9 +427,8 @@ internal static void VerifySamusBlockCollision()
         contactSafeBehaviors);
     var contactSafeSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     contactSafeSamus.Kinematics.Radius = contactSafeSamus.Kinematics.Radius.WithY(5);
     contactSafeSamus.HorizontalSpeed.BodyAttack = SamusBodyAttack.SpeedBooster;
     SamusTerrainHazardCollision.PrepareFrame(
@@ -459,14 +459,14 @@ internal static void VerifySamusGroundedMovement()
         [Air, Air, Slope, Slope, Air, Air],
         [NoBehavior, NoBehavior, Shape12, Shape12, NoBehavior, NoBehavior]);
 
-    var running = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
+    var running = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MovingRightNormalPose);
     running.Kinematics.Position = running.Kinematics.Position.WithWhole(new(24, 19));
     running.Kinematics.Radius = new(5, 5);
     GroundedMovementResult first = SamusGroundedMovement.StepRunning(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         running,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
 
     AssertEqual(0x0000, running.HorizontalSpeed.BaseSpeed.Whole, "running first acceleration whole speed");
     AssertEqual(0x3000, running.HorizontalSpeed.BaseSpeed.Fraction, "running first acceleration fractional speed");
@@ -479,9 +479,9 @@ internal static void VerifySamusGroundedMovement()
     // produces the same single-surface result in this deliberately symmetric fixture.
     GroundedMovementResult second = SamusGroundedMovement.StepRunning(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         running,
-        frameCounter: 1, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 1, controllerInput: GameplayAction.None);
     AssertEqual(0x6000, running.HorizontalSpeed.BaseSpeed.Fraction, "running second acceleration accumulates");
     AssertEqual(0x00004800, second.Horizontal.AcceptedDisplacement.RawValue, "second running slope multiplier");
     AssertEqual(0x6c00, running.Kinematics.Position.X.Fraction, "second running displacement accumulates");
@@ -493,9 +493,9 @@ internal static void VerifySamusGroundedMovement()
     running.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     GroundedMovementResult decelerated = SamusGroundedMovement.StepRunning(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         running,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Whole, "running deceleration underflow clears whole speed");
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Fraction, "running deceleration underflow clears fraction");
     AssertEqual(SamusAccelerationMode.Accelerating, running.HorizontalSpeed.AccelerationMode, "running deceleration underflow restores acceleration mode");
@@ -503,16 +503,16 @@ internal static void VerifySamusGroundedMovement()
 
     // Standing executes its zero-base MoveX/grounding calls before clearing momentum. Base
     // speed itself is not included in Move_NoBaseSpeed_X, so the body remains on the same X.
-    var standing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose };
+    var standing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose);
     standing.Kinematics.Position = standing.Kinematics.Position.WithWhole(new(24, 19));
     standing.Kinematics.Radius = new(5, 5);
     standing.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0xc000);
     GroundedMovementResult idle = SamusGroundedMovement.StepStanding(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         standing,
         frameCounter: 0,
-        controllerInput: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        controllerInput: 0);
     AssertEqual(0, idle.Horizontal.AcceptedDisplacement.RawValue, "standing no-base horizontal amount");
     AssertTrue(idle.Vertical.Collided, "standing one-pixel grounding probe collides");
     AssertEqual(0, standing.HorizontalSpeed.BaseSpeed.Whole, "standing clears base speed whole");
@@ -521,20 +521,19 @@ internal static void VerifySamusGroundedMovement()
     // The front-view branch returns before every ordinary standing movement call. Seed
     // deliberately stale motion/collision values to prove the sole native write is the
     // vertical-result clear and that no host convenience cleanup leaked into this path.
-    var forward = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
+    var forward = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.ForwardFacingPowerSuitPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-        SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling,
-    };
+        SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling
+        }.InPose(SamusPoseId.ForwardFacingPowerSuitPose));
     forward.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x3456);
     forward.HorizontalSpeed.ExtraRunSpeed = forward.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    BlockMoveResult? stationaryForward = SamusGroundedMovement.StepFacingForward(
+    SamusGroundedMovement.StepFacingForward(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         forward,
-        frameCounter: 0, elevatorIsMoving: false, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
-    AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
+        frameCounter: 0, elevatorIsMoving: false, doorBlocks: DoorBlockMeeting.Contacts);
+    // Zero elevator status skips the vertical scan: Samus stays where she stood.
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual(0x1234, forward.Position.X.Whole, "forward movement does not scan or move X");
     AssertEqual(0x5678, forward.Position.Y.Whole, "stationary forward movement does not move Y");
@@ -559,20 +558,14 @@ internal static void VerifySamusGroundedMovement()
             Solid: true),
     ];
     forward.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
-    BlockMoveResult? elevatorMove = SamusGroundedMovement.StepFacingForward(
+    SamusGroundedMovement.StepFacingForward(
 
-        elevatorLevel,
+        new RoomTerrain(elevatorLevel, SamusRoomObjectFixtures.WithQuicksand()),
         forward,
         frameCounter: 1,
-        elevatorIsMoving: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand(), doorBlocks: DoorBlockMeeting.Contacts);
-    AssertTrue(elevatorMove is { Collided: false }, "elevator block scan accepts clear air");
-    BlockMoveResult acceptedElevatorMove = elevatorMove ?? throw new InvalidOperationException(
-        "A nonzero elevator status must execute the one-pixel vertical scan.");
-    AssertTrue(acceptedElevatorMove.EnemyCollision is null,
-        "elevator `$94:9763` path skips a colliding solid enemy");
-    AssertEqual(0x00010000, acceptedElevatorMove.AcceptedDisplacement.RawValue,
-        "elevator requests exact one-pixel downward displacement");
-    AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel");
+        elevatorIsMoving: true, doorBlocks: DoorBlockMeeting.Contacts);
+    // The elevator's `$94:9763` scan skips the solid enemy one pixel below and accepts the whole one-pixel move.
+    AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel past the solid enemy");
     AssertEqual(0x5678, forward.Kinematics.Position.Y.Fraction,
         "whole-pixel elevator motion preserves Y fraction");
     AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult,
@@ -613,14 +606,14 @@ internal static void VerifySamusGroundedReversal()
         foreground[width + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
     RoomLevelData level = CreateRoom(new(width, 3), foreground, new RoomBlockBehavior[foreground.Length]);
 
-    var movingLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingLeftNormalPose };
+    var movingLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MovingLeftNormalPose);
     movingLeft.Kinematics.Position = movingLeft.Kinematics.Position.WithWhole(new(64, 11));
     movingLeft.Kinematics.Radius = new(5, 5);
     GroundedMovementResult leftFrame = SamusGroundedMovement.StepRunning(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         movingLeft,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(-0x00003000, leftFrame.Horizontal.AcceptedDisplacement.RawValue, "running-left signed displacement");
     AssertEqual(63, movingLeft.Position.X.Whole, "running-left borrows into whole X");
     AssertEqual(0xd000, movingLeft.Kinematics.Position.X.Fraction, "running-left fractional X");
@@ -630,29 +623,29 @@ internal static void VerifySamusGroundedReversal()
     // leaves it installed after the body has already become `$09/$0A`, the visible pose's
     // literal direction is inverted for that frame. Start above the deceleration quantum so
     // `$90:9B0A` does not clear the mode before the direction selector observes it.
-    var reversedRunningRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
+    var reversedRunningRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MovingRightNormalPose);
     reversedRunningRight.Kinematics.Position = reversedRunningRight.Kinematics.Position.WithWhole(new(64, 11));
     reversedRunningRight.Kinematics.Radius = new(5, 5);
     reversedRunningRight.HorizontalSpeed.BaseSpeed = reversedRunningRight.HorizontalSpeed.BaseSpeed.WithWhole(1);
     reversedRunningRight.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult reversedRightFrame = SamusGroundedMovement.StepRunning(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         reversedRunningRight,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(-0x00008000, reversedRightFrame.Horizontal.AcceptedDisplacement.RawValue,
         "mode-one running-right carries leftward momentum");
 
-    var reversedRunningLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingLeftNormalPose };
+    var reversedRunningLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MovingLeftNormalPose);
     reversedRunningLeft.Kinematics.Position = reversedRunningLeft.Kinematics.Position.WithWhole(new(64, 11));
     reversedRunningLeft.Kinematics.Radius = new(5, 5);
     reversedRunningLeft.HorizontalSpeed.BaseSpeed = reversedRunningLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
     reversedRunningLeft.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult reversedLeftFrame = SamusGroundedMovement.StepRunning(
 
-        level,
+        new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
         reversedRunningLeft,
-        frameCounter: 0, controllerInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0, controllerInput: GameplayAction.None);
     AssertEqual(0x00008000, reversedLeftFrame.Horizontal.AcceptedDisplacement.RawValue,
         "mode-one running-left carries rightward momentum");
 
@@ -663,45 +656,33 @@ internal static void VerifySamusGroundedReversal()
 
     // Pose $25 is already facing left ($04), but mode one makes $90:8EA9 choose the
     // opposite/right helper while its $0E speed record decelerates old momentum.
-    var turnTowardLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.TurningRightToLeftPose };
+    var turnTowardLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.TurningRightToLeftPose);
     turnTowardLeft.Kinematics.Position = turnTowardLeft.Kinematics.Position.WithWhole(new(64, 11));
     turnTowardLeft.Kinematics.Radius = new(5, 5);
     turnTowardLeft.HorizontalSpeed.BaseSpeed = turnTowardLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
     turnTowardLeft.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-    GroundedMovementResult carriedRight = SamusGroundedMovement.StepTurningOnGround(
-
-        level,
-        turnTowardLeft,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+    GroundedMovementResult carriedRight = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(turnTowardLeft), new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), turnTowardLeft, frameCounter: 0);
     AssertEqual(0x8000, turnTowardLeft.HorizontalSpeed.BaseSpeed.Fraction, "left-turn native deceleration amount");
     AssertEqual(0x00008000, carriedRight.Horizontal.AcceptedDisplacement.RawValue, "left-turn carries rightward momentum");
 
     // Pose $26 is the mirror: it displays a right-facing turn but carries old momentum to
     // the left. This is not a host sign choice; it is the other branch of $90:8EA9.
-    var turnTowardRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.TurningLeftToRightPose };
+    var turnTowardRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.TurningLeftToRightPose);
     turnTowardRight.Kinematics.Position = turnTowardRight.Kinematics.Position.WithWhole(new(64, 11));
     turnTowardRight.Kinematics.Radius = new(5, 5);
     turnTowardRight.HorizontalSpeed.BaseSpeed = turnTowardRight.HorizontalSpeed.BaseSpeed.WithWhole(1);
     turnTowardRight.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-    GroundedMovementResult carriedLeft = SamusGroundedMovement.StepTurningOnGround(
-
-        level,
-        turnTowardRight,
-        frameCounter: 1, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+    GroundedMovementResult carriedLeft = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(turnTowardRight), new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), turnTowardRight, frameCounter: 1);
     AssertEqual(-0x00008000, carriedLeft.Horizontal.AcceptedDisplacement.RawValue, "right-turn carries leftward momentum");
 
     // Underflow clears speed and mode inside $90:9A7E before direction dispatch. The last
     // turn frame consequently requests exactly zero rather than crossing into new motion.
-    var exhaustedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.TurningRightToLeftPose };
+    var exhaustedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.TurningRightToLeftPose);
     exhaustedTurn.Kinematics.Position = exhaustedTurn.Kinematics.Position.WithWhole(new(64, 11));
     exhaustedTurn.Kinematics.Radius = new(5, 5);
     exhaustedTurn.HorizontalSpeed.BaseSpeed = exhaustedTurn.HorizontalSpeed.BaseSpeed.WithFraction(0x2000);
     exhaustedTurn.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
-    GroundedMovementResult stopped = SamusGroundedMovement.StepTurningOnGround(
-
-        level,
-        exhaustedTurn,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+    GroundedMovementResult stopped = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(exhaustedTurn), new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), exhaustedTurn, frameCounter: 0);
     AssertEqual(0, exhaustedTurn.HorizontalSpeed.BaseSpeed.Fraction, "turn underflow clears speed");
     AssertEqual(SamusAccelerationMode.Accelerating, exhaustedTurn.HorizontalSpeed.AccelerationMode, "turn underflow clears mode one");
     AssertEqual(0, stopped.Horizontal.AcceptedDisplacement.RawValue, "turn underflow does not reverse early");
@@ -725,7 +706,7 @@ internal static void VerifySamusGroundedReversal()
     // direction selected by their own transition tables. Cover both targets and both suit
     // variants; this prevents a future shortcut from silently assigning front-view Samus
     // an invented left or right facing.
-    var forwardToLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.ForwardFacingPowerSuitPose };
+    var forwardToLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.ForwardFacingPowerSuitPose);
     forwardToLeft.HorizontalSpeed.BaseSpeed = forwardToLeft.HorizontalSpeed.BaseSpeed.WithFraction(0x8000);
     forwardToLeft.HorizontalSpeed.ExtraRunSpeed = forwardToLeft.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
     SamusGroundedPoseTransitions.ApplyGroundedTurn(forwardToLeft, SamusPoseId.TurningRightToLeftPose);
@@ -736,14 +717,14 @@ internal static void VerifySamusGroundedReversal()
     AssertEqual(SamusAccelerationMode.Turning, forwardToLeft.HorizontalSpeed.AccelerationMode,
         "forward left turn selects mode one");
 
-    var forwardToRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.ForwardFacingSuitedPose };
+    var forwardToRight = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.ForwardFacingSuitedPose);
     SamusGroundedPoseTransitions.ApplyGroundedTurn(forwardToRight, SamusPoseId.TurningLeftToRightPose);
     AssertEqual(SamusPoseId.TurningLeftToRightPose, forwardToRight.Pose,
         "suited forward view retains generic right-turn target");
     AssertEqual(SamusAccelerationMode.Turning, forwardToRight.HorizontalSpeed.AccelerationMode,
         "forward right turn selects mode one");
 
-    var animatedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
+    var animatedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MovingRightNormalPose);
     animatedTurn.HorizontalSpeed.BaseSpeed = animatedTurn.HorizontalSpeed.BaseSpeed.WithFraction(0x8000);
     animatedTurn.HorizontalSpeed.ExtraRunSpeed = animatedTurn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
     SamusGroundedPoseTransitions.ApplyGroundedTurn(animatedTurn, SamusPoseId.TurningRightToLeftPose);
@@ -755,14 +736,14 @@ internal static void VerifySamusGroundedReversal()
     // Three two-tick art frames lead to byte index three, command $F8. Its operand $02 is
     // pending until the transition seam; applying it initializes pose $02 frame zero.
     for (int tick = 0; tick < 6; tick++)
-        SamusPresentation.Animate(animatedTurn, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(animatedTurn, new SamusAnimationStep { Ground = animatedTurn.Ground, Random = new SharedRandom() });
     AssertEqual(SamusPoseId.FacingLeftNormalPose, (animatedTurn.CuePose.Named ?? throw new InvalidOperationException("Verification requires animatedTurn.CuePose.Named.")), "turn $F8 publishes left-standing pose");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(animatedTurn), "turn animation transition applies");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.Pose, "turn animation ends facing left");
     AssertEqual(0, animatedTurn.AnimationNumber, "turn completion resets animation frame");
     AssertEqual(10, animatedTurn.AnimationFrameTimer.RawValue, "left-standing delay initializes from ROM stream");
 
-    SamusGroundedPoseTransitions.ApplyStandingToRunning(animatedTurn);
+    SamusGroundedPoseTransitions.StartRunning(animatedTurn, SamusPoseId.MovingLeftNormalPose);
     AssertEqual(SamusPoseId.MovingLeftNormalPose, animatedTurn.Pose, "held left starts ordinary left run");
     SamusGroundedPoseTransitions.ApplyRunningToStanding(animatedTurn);
     AssertEqual(SamusPoseId.FacingLeftNormalPose, animatedTurn.Pose, "left run no-button fallback stands left");
@@ -843,7 +824,7 @@ internal static void VerifySamusGroundedReversal()
         WritePoseAnimationDelays(bus, testCase.SelectedTurn, turnStreamAddress,
             [0x02, 0x02, 0x02, 0xf8, SamusPoseNumbers.Number(testCase.Destination)]);
 
-        var aimedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = testCase.SourcePose };
+        var aimedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(testCase.SourcePose);
         aimedTurn.Kinematics.Position = aimedTurn.Kinematics.Position.WithWhole(new(64, 27));
         aimedTurn.Kinematics.Radius = new(5, 21);
 
@@ -858,11 +839,7 @@ internal static void VerifySamusGroundedReversal()
         AssertEqual(0, aimedTurn.HorizontalSpeed.ExtraRunSpeed.Fraction, $"aimed turn consumes extra fraction case {caseIndex}");
         AssertEqual(SamusAccelerationMode.Turning, aimedTurn.HorizontalSpeed.AccelerationMode, $"aimed turn mode one case {caseIndex}");
 
-        GroundedMovementResult carriedMomentum = SamusGroundedMovement.StepTurningOnGround(
-
-            aimedLevel,
-            aimedTurn,
-            frameCounter: (ushort)caseIndex, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        GroundedMovementResult carriedMomentum = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(aimedTurn), new RoomTerrain(aimedLevel, SamusRoomObjectFixtures.WithQuicksand()), aimedTurn, frameCounter: (ushort)caseIndex);
         bool beganFacingRight = (caseIndex & 1) == 0;
         AssertTrue(
             beganFacingRight
@@ -871,7 +848,7 @@ internal static void VerifySamusGroundedReversal()
             $"aimed turn preserves old momentum direction case {caseIndex}");
 
         for (int tick = 0; tick < 6; tick++)
-            SamusPresentation.Animate(aimedTurn, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(aimedTurn, new SamusAnimationStep { Ground = aimedTurn.Ground, Random = new SharedRandom() });
         AssertEqual(testCase.Destination, (aimedTurn.CuePose.Named ?? throw new InvalidOperationException("Verification requires aimedTurn.CuePose.Named.")), $"aimed turn publishes destination case {caseIndex}");
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(aimedTurn), $"aimed turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, aimedTurn.Pose, $"aimed turn destination case {caseIndex}");
@@ -942,7 +919,7 @@ internal static void VerifySamusGroundedReversal()
         WritePoseAnimationDelays(bus, testCase.SelectedTurn, turnStreamAddress,
             [0x02, 0x02, 0x02, 0xf8, SamusPoseNumbers.Number(testCase.Destination)]);
 
-        var crouchedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = testCase.SourcePose };
+        var crouchedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(testCase.SourcePose);
         crouchedTurn.Kinematics.Position = crouchedTurn.Kinematics.Position.WithWhole(new(64, 32));
         crouchedTurn.Kinematics.Radius = new(5, 16);
         crouchedTurn.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0xd000);
@@ -952,11 +929,7 @@ internal static void VerifySamusGroundedReversal()
         AssertEqual(16, crouchedTurn.Kinematics.Radius.Y, $"crouched turn radius case {caseIndex}");
         AssertEqual(SamusAccelerationMode.Turning, crouchedTurn.HorizontalSpeed.AccelerationMode, $"crouched turn mode one case {caseIndex}");
 
-        GroundedMovementResult crouchedMomentum = SamusGroundedMovement.StepTurningOnGround(
-
-            aimedLevel,
-            crouchedTurn,
-            frameCounter: (ushort)caseIndex, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        GroundedMovementResult crouchedMomentum = SamusGroundedMovement.StepTurningOnGround(SamusMovementFixtures.GroundTurnOf(crouchedTurn), new RoomTerrain(aimedLevel, SamusRoomObjectFixtures.WithQuicksand()), crouchedTurn, frameCounter: (ushort)caseIndex);
         bool beganFacingRight = (caseIndex & 1) == 0;
         AssertTrue(
             beganFacingRight
@@ -970,22 +943,22 @@ internal static void VerifySamusGroundedReversal()
             // The same `$97-$A3` pose is allowed to enter `$90:A790`'s simple aerial arm
             // when an actor or external displacement has made Y direction nonzero. This was
             // formerly an explicit open-dispatch crash despite requiring no new pose data.
-            var airborneCrouchedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = testCase.SelectedTurn };
+            var airborneCrouchedTurn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(testCase.SelectedTurn);
             airborneCrouchedTurn.Kinematics.Position = airborneCrouchedTurn.Kinematics.Position.WithWhole(new(64, 32));
             airborneCrouchedTurn.Kinematics.Radius = new(5, 16);
             airborneCrouchedTurn.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(airborneCrouchedTurn.Kinematics.VerticalVelocity.Speed.WithWhole(1), SamusVerticalDirection.Up);
             FixedCoordinate airborneYBefore = airborneCrouchedTurn.Kinematics.Position.Y;
-            SamusAerialMovement.StepTurningInAir(
+            SamusAerialMovement.StepTurningInAir(SuperMetroid.Core.Samus.Movement.SamusMovement.TurningRisingOrAimedCrouched, 
 
-                aimedLevel,
+                new RoomTerrain(aimedLevel, SamusRoomObjectFixtures.WithQuicksand()),
                 airborneCrouchedTurn,
-                frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+                frameCounter: 0);
             AssertTrue(airborneCrouchedTurn.Kinematics.Position.Y != airborneYBefore,
                 "airborne crouched type-$17 turn executes simple Y movement");
         }
 
         for (int tick = 0; tick < 6; tick++)
-            SamusPresentation.Animate(crouchedTurn, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(crouchedTurn, new SamusAnimationStep { Ground = crouchedTurn.Ground, Random = new SharedRandom() });
         AssertEqual(testCase.Destination, (crouchedTurn.CuePose.Named ?? throw new InvalidOperationException("Verification requires crouchedTurn.CuePose.Named.")), $"crouched turn publishes destination case {caseIndex}");
         AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(crouchedTurn), $"crouched turn transition applies case {caseIndex}");
         AssertEqual(testCase.Destination, crouchedTurn.Pose, $"crouched turn destination case {caseIndex}");
@@ -1048,7 +1021,7 @@ internal static void VerifySamusMoonwalking()
     // complete here; merely initializing it proves the candidate was not retained.
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.TurningRightToLeftPose), [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.TurningRightToLeftPose, 0xc100, [0x02, 0x02, 0x02, 0xf8, 0x02]);
-    var disabled = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose };
+    var disabled = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose);
     disabled.HorizontalSpeed.BaseSpeed = disabled.HorizontalSpeed.BaseSpeed.WithFraction(0x4000);
     disabled.HorizontalSpeed.ExtraRunSpeed = disabled.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x2000);
     SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(disabled, SamusPoseId.MoonwalkFacingRightPose, moonwalkEnabled: false);
@@ -1077,7 +1050,7 @@ internal static void VerifySamusMoonwalking()
     {
         WritePoseDefinition(bus, SamusPoseNumbers.Number(landingPose),
             [0x08, 0x00, 0x01, 0x02, 0x00, 0x00, 0x15, 0x00]);
-        var landingMoonwalk = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = landingPose };
+        var landingMoonwalk = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(landingPose);
         SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(landingMoonwalk, 
             SamusPoseId.MoonwalkFacingRightPose,
             moonwalkEnabled: false);
@@ -1100,12 +1073,12 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MoonwalkAimUpRightPose or
                 SamusPoseId.MoonwalkAimDownLeftPose or
                 SamusPoseId.MoonwalkAimDownRightPose or
-                SamusPoseId.MoonwalkTurnJumpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose or
                 SamusPoseId.ShinesparkWindupRightPose or
                 SamusPoseId.ShinesparkWindupLeftPose or
                 SamusPoseId.ShinesparkHorizontalRightPose or
@@ -1318,7 +1291,7 @@ internal static void VerifySamusMoonwalking()
     {
         WritePoseDefinition(bus, SamusPoseNumbers.Number(landingPose),
             [0x04, 0x00, 0x02, 0x07, 0x00, 0x00, 0x15, 0x00]);
-        var landingMoonwalk = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = landingPose };
+        var landingMoonwalk = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(landingPose);
         SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(landingMoonwalk, 
             SamusPoseId.MoonwalkFacingLeftPose,
             moonwalkEnabled: false);
@@ -1341,12 +1314,12 @@ internal static void VerifySamusMoonwalking()
                 SamusPoseId.MoonwalkAimUpRightPose or
                 SamusPoseId.MoonwalkAimDownLeftPose or
                 SamusPoseId.MoonwalkAimDownRightPose or
-                SamusPoseId.MoonwalkTurnJumpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimUpRightPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownLeftPose or
-                SamusPoseId.MoonwalkTurnJumpAimDownRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose or
+                SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose or
                 SamusPoseId.ShinesparkWindupRightPose or
                 SamusPoseId.ShinesparkWindupLeftPose or
                 SamusPoseId.ShinesparkHorizontalRightPose or
@@ -1551,9 +1524,9 @@ internal static void VerifySamusMoonwalking()
     // the disabled-option substitution above, must not hand over a shot.
     AssertEqual<SamusTransitionShot?>(null, disabled.TransitionShot.Handed,
         "ordinary standing turn does not publish moonwalk shot bridge");
-    var moonwalkBridge = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
+    var moonwalkBridge = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MoonwalkFacingRightPose);
     SamusGroundedPoseTransitions.ApplyGroundedTurn(moonwalkBridge, SamusPoseId.TurningRightToLeftPose);
-    AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right), moonwalkBridge.TransitionShot.Handed,
+    AssertEqual<SamusTransitionShot?>(new global::SuperMetroid.Core.Samus.SamusTransitionShot(Core.Samus.Projectiles.SamusProjectileDirection.Right), moonwalkBridge.TransitionShot.Handed,
         "moonwalk turn hands over the source shot direction");
     SamusAerialPoseTransitions.DropTransitionShot(moonwalkBridge);
     AssertEqual<SamusTransitionShot?>(null, moonwalkBridge.TransitionShot.Handed,
@@ -1562,7 +1535,7 @@ internal static void VerifySamusMoonwalking()
     // Enabled entry must preserve every exact candidate, not merely the unaimed pair.
     foreach ((SamusPoseId target, _, SamusPoseId fallback, _) in stable)
     {
-        var candidate = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = fallback };
+        var candidate = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(fallback);
         WritePoseAnimationDelays(bus, target, (ushort)(0xc200 + SamusPoseNumbers.Number(target)), [2]);
         SamusGroundedPoseTransitions.ApplyMoonwalkPoseChange(candidate, target, moonwalkEnabled: true);
         AssertEqual(target, candidate.Pose, $"enabled Moonwalk retains candidate ${SamusPoseNumbers.Number(target):X2}");
@@ -1582,10 +1555,10 @@ internal static void VerifySamusMoonwalking()
     RoomLevelData floor = CreateRoom(new(width, 3), foreground, new RoomBlockBehavior[foreground.Length]);
     foreach ((SamusPoseId pose, _, _, int direction) in stable)
     {
-        var walker = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)) };
+        var walker = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)) }.InPose(pose);
         walker.Kinematics.Radius = new(5, 5);
-        GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(
-floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
+new RoomTerrain(floor, SamusRoomObjectFixtures.WithQuicksand()), walker, frameCounter: 0);
         AssertEqual(direction * 0x8000, movement.Horizontal.AcceptedDisplacement.RawValue,
             $"moonwalk ${(int)SamusPoseNumbers.Number(pose):X2} uses literal reversed direction");
         AssertTrue(movement.Vertical.Collided, $"moonwalk ${(int)SamusPoseNumbers.Number(pose):X2} probes floor");
@@ -1596,32 +1569,30 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     // pair is cleared at `$90:9808` before displacement is assembled.
     var momentumMoonwalk = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MoonwalkFacingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)),
-    };
+    }.InPose(SamusPoseId.MoonwalkFacingLeftPose);
     momentumMoonwalk.Kinematics.Radius = new(5, 5);
     momentumMoonwalk.HorizontalSpeed.HasRunningMomentum = true;
     momentumMoonwalk.HorizontalSpeed.ExtraRunSpeed = momentumMoonwalk.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    GroundedMovementResult momentumMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(
+    GroundedMovementResult momentumMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
 
-        floor,
+        new RoomTerrain(floor, SamusRoomObjectFixtures.WithQuicksand()),
         momentumMoonwalk,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0);
     AssertEqual(0x00018000, momentumMoonwalkFrame.Horizontal.AcceptedDisplacement.RawValue,
         "moonwalk preserves owned extra run speed");
 
     var unownedMoonwalk = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MoonwalkFacingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 11)),
-    };
+    }.InPose(SamusPoseId.MoonwalkFacingLeftPose);
     unownedMoonwalk.Kinematics.Radius = new(5, 5);
     unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed = unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    GroundedMovementResult unownedMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(
+    GroundedMovementResult unownedMoonwalkFrame = SamusGroundedMovement.StepMoonwalking(SuperMetroid.Core.Samus.Movement.SamusMovement.Moonwalking, 
 
-        floor,
+        new RoomTerrain(floor, SamusRoomObjectFixtures.WithQuicksand()),
         unownedMoonwalk,
-        frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        frameCounter: 0);
     AssertEqual(0x00008000, unownedMoonwalkFrame.Horizontal.AcceptedDisplacement.RawValue,
         "moonwalk clears unowned extra run speed");
     AssertEqual(0, unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed.Whole,
@@ -1631,12 +1602,12 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     // two-tick frames followed by `$F8,$1A/$19`, exactly `$91:B45B-$B478` for NTSC.
     SamusTerrainMovementTurn[] turns =
     [
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkTurnJumpRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.MoonwalkTurnJumpAimUpLeftPose, [0x04, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkTurnJumpAimUpRightPose, [0x08, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownRightPose, SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, [0x04, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
-        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkTurnJumpAimDownRightPose, [0x08, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingRightPose, SamusPoseId.MoonwalkTurnToSpinJumpLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkFacingLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose, [0x04, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimUpLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose, [0x08, 0x0e, 0xff, 0xfa, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownRightPose, SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose, [0x04, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpLeftPose),
+        new SamusTerrainMovementTurn(SamusPoseId.MoonwalkAimDownLeftPose, SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose, [0x08, 0x0e, 0xff, 0xfc, 0x08, 0x00, 0x15, 0x00], SamusPoseId.SpinJumpRightPose),
     ];
     foreach ((_, SamusPoseId target, byte[] definition, SamusPoseId spinTarget) in turns)
     {
@@ -1650,17 +1621,17 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.SpinJumpLeftPose), [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpRightPose, 0xc400, [2]);
     WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpLeftPose, 0xc401, [2]);
-    SeedMoonwalkTurnJumpDryVerticalRows(bus);
+    SeedMoonwalkTurnToSpinJumpDryVerticalRows(bus);
 
     foreach ((SamusPoseId source, SamusPoseId target, _, _) in turns)
     {
-        var turn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)) };
+        var turn = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)) }.InPose(source);
         SamusPoseMetadata.RefreshCollisionRadii(turn);
         turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
         turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x4000);
         SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection? sourceMuzzleDirection = SamusPoseMetadata.ReadAimDirection(turn);
-        SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(turn, target);
-        AssertEqual<SamusTransitionShot?>(new SamusTransitionShot(sourceMuzzleDirection
+        SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(turn);
+        AssertEqual<SamusTransitionShot?>(new global::SuperMetroid.Core.Samus.SamusTransitionShot(sourceMuzzleDirection
                 ?? throw new InvalidOperationException($"Moonwalk pose {source} names no aim.")),
             turn.TransitionShot.Handed, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${SamusPoseNumbers.Number(source):X2} selects exact turn ${SamusPoseNumbers.Number(target):X2}");
@@ -1672,10 +1643,10 @@ floor, walker, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksa
 
     // Exercise the terminal command on one mirrored route. Six decrements consume three
     // two-tick art frames; applying `$F8,$1A` then creates the real 4.E000 upward launch.
-    var animated = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MoonwalkFacingRightPose };
-    SamusGroundedPoseTransitions.ApplyMoonwalkTurnJump(animated, SamusPoseId.MoonwalkTurnJumpLeftPose);
+    var animated = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MoonwalkFacingRightPose);
+    SamusGroundedPoseTransitions.ApplyMoonwalkTurnToSpinJump(animated);
     for (int tick = 0; tick < 6; tick++)
-        SamusPresentation.Animate(animated, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(animated, new SamusAnimationStep { Ground = animated.Ground, Random = new SharedRandom() });
     AssertEqual(SamusPoseId.SpinJumpLeftPose, (animated.CuePose.Named ?? throw new InvalidOperationException("Verification requires animated.CuePose.Named.")),
         "moonwalk turn publishes literal spin-left operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(animated),
@@ -1760,9 +1731,10 @@ internal static void VerifySamusRanIntoWall()
         SamusPoseId sourcePose = nativePosesByShotDirection[direction];
         AssertEqual(new SamusPoseAim.Aiming(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction)), SamusPoseMetadata.ReadAim(sourcePose),
             $"ran-into-wall fixture pose ${(int)SamusPoseNumbers.Number(sourcePose):X2} aim");
+        // The wall stop the run selects is the one its aim names.
         AssertEqual(
             selectedByShotDirection[direction],
-            SamusGroundedPoseTransitions.SelectRanIntoWallPose(sourcePose),
+            SamusGroundedPoseTransitions.SelectRanIntoWallPose((SamusPoseAim.Aiming)SamusPoseMetadata.ReadAim(sourcePose)),
             $"ran-into-wall shot selector {direction}");
     }
     WritePoseDefinitionByte(bus, SamusPoseNumbers.Number(SamusPoseId.MovingRightNormalPose), 3, 2);
@@ -1776,18 +1748,15 @@ internal static void VerifySamusRanIntoWall()
     // A clear prospective run really moves one pixel; it is not merely a collision query.
     var armPump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     armPump.Kinematics.Radius = new(5, 5);
     SamusPoseId? clearResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(armPump, 
 
-        openFloor,
+        new RoomTerrain(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
         SamusPoseId.MovingRightNormalPose,
-        currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? clearProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: false);
     AssertTrue(clearResult is null, "clear arm-pump probe keeps prospective run");
-    AssertTrue(clearProbe is { Collided: false }, "clear arm-pump probe reports no wall");
     AssertEqual(81, armPump.Position.X.Whole, "clear arm-pump probe retains one-pixel move");
 
     // Put a two-block-high wall immediately at X=96. Center 91/radius five has a current
@@ -1798,19 +1767,16 @@ internal static void VerifySamusRanIntoWall()
     RoomLevelData blockedFloor = CreateRoom(new(width, 4), blockedForeground, new RoomBlockBehavior[blockedForeground.Length]);
     var blocked = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(91, 27)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     blocked.Kinematics.Radius = new(5, 5);
     SamusPoseId? blockedResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(blocked, 
 
-        blockedFloor,
+        new RoomTerrain(blockedFloor, SamusRoomObjectFixtures.WithQuicksand()),
         SamusPoseId.MovingRightNormalPose,
-        currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? blockedProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: false);
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, blockedResult,
         "blocked prospective run selects $89");
-    AssertTrue(blockedProbe is { Collided: true }, "blocked arm-pump probe reports wall");
     AssertEqual(91, blocked.Position.X.Whole, "blocked arm-pump probe retains last-safe X");
 
     // $91:EB05-$EB3C probes solid enemies one pixel ahead before the block move. An enemy
@@ -1818,9 +1784,8 @@ internal static void VerifySamusRanIntoWall()
     // (retail 100% movie: running left into the gunship).
     var enemyAhead = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     enemyAhead.Kinematics.Radius = new(5, 5);
     enemyAhead.Kinematics.InteractiveEnemies =
     [
@@ -1829,39 +1794,35 @@ internal static void VerifySamusRanIntoWall()
     ];
     SamusPoseId? enemyResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(enemyAhead, 
 
-        openFloor,
+        new RoomTerrain(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
         SamusPoseId.MovingRightNormalPose,
-        currentXSpeedKilledByBlock: false,
-        out BlockMoveResult? enemyProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: false);
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, enemyResult,
         "solid enemy ahead selects $89");
-    AssertTrue(enemyProbe is null, "solid enemy ahead skips the one-pixel block move");
     AssertEqual(80, enemyAhead.Position.X.Whole, "solid enemy ahead leaves Samus in place");
 
     // A killed type-one move uses the CURRENT shot direction and performs no second probe.
-    var killed = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MovingRightNormalPose };
+    var killed = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MovingRightNormalPose);
     SamusPoseId? killedResult = SamusGroundedPoseTransitions.CheckProspectiveRunningPoseForWall(killed, 
 
-        openFloor,
+        new RoomTerrain(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
         prospectivePose: null,
-        currentXSpeedKilledByBlock: true,
-        out BlockMoveResult? killedProbe, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        currentXSpeedKilledByBlock: true);
     AssertEqual<SamusPoseId?>(SamusPoseId.RanIntoWallRightPose, killedResult,
         "killed running speed selects current wall pose");
-    AssertTrue(killedProbe is null, "killed running speed skips one-pixel probe");
 
     // Every type-$15 pose executes no-base X, the shared grounding probe, and then clears
     // all five horizontal momentum words unconditionally.
     foreach ((SamusPoseId pose, _) in wallPoses)
     {
-        var stopped = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)) };
+        var stopped = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)) }.InPose(pose);
         stopped.Kinematics.Radius = new(5, 5);
         stopped.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x4000);
         GroundedMovementResult movement = SamusGroundedMovement.StepRanIntoWall(
 
-            openFloor,
+            new RoomTerrain(openFloor, SamusRoomObjectFixtures.WithQuicksand()),
             stopped,
-            frameCounter: 0, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+            frameCounter: 0);
         AssertTrue(movement.Vertical.Collided, $"wall pose ${(int)SamusPoseNumbers.Number(pose):X2} remains grounded");
         AssertEqual(0u, stopped.HorizontalSpeed.BaseSpeed.RawValue,
             $"wall pose ${(int)SamusPoseNumbers.Number(pose):X2} clears base speed");
@@ -1907,7 +1868,7 @@ static void SeedCrouchedAimTurnSpeedRecord(TestAddressSpace bus)
 }
 
 /// <summary>Seeds the dry-air normal-jump launch and gravity words read after a Moonwalk turn-jump's `$F8`.</summary>
-static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
+static void SeedMoonwalkTurnToSpinJumpDryVerticalRows(TestAddressSpace bus)
 {
     WriteTestWord(bus, 0x909eb9, 0x0004);
     WriteTestWord(bus, 0x909ebf, 0xe000);

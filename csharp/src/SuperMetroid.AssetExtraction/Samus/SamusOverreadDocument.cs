@@ -25,22 +25,28 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// For every named place of Samus's animations, the frame it lands on in every animation other than the place's own, by
 /// place name, then by animation name (#2048).
 /// </param>
+/// <param name="AnimationDelaysRead">
+/// For every animation, by its name, the ticks the frame timer starts from on each frame a pose start or a cue can move the
+/// animation to that holds no delay of its own, by the frame's name in the animation: the byte the game reads there as
+/// the delay (#2553).
+/// </param>
 /// <param name="SpaceTimeOverwrites">
-/// What SpaceTime's palette copy overwrites in progression, by program name, then by step position, then by slot
-/// ordinal; null where the copy stops before progression.
+/// What SpaceTime's palette copy overwrites in progression, by program name, then by step position, then by the shot
+/// place's name (<see cref="SamusOverreadFormat.ShotPlaceName"/>); null where the copy stops before progression.
 /// </param>
 /// <param name="ChainsawFuseLandings">Where the Chainsaw fuse moves each animation position, by program name, then by step position.</param>
 /// <param name="PostureAdmissions">Whether the posture-transition admission admits weapons, by the name of each pose outside its table.</param>
 /// <param name="UnauthoredBeamLaunchSpeeds">The speeds each Spazer and Plasma beam combination launches at, by combination name.</param>
 /// <param name="UnauthoredBeamCooldowns">The cooldowns each Spazer and Plasma beam combination waits, by combination name.</param>
 /// <param name="DrainedCrashDepartures">The angles a Shinespark crash finishing in each drained pose releases its echoes at, by pose name.</param>
-internal sealed record SamusOverreadDocument(
+internal sealed partial record SamusOverreadDocument(
     int Version,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.CueValueStep>> AnimationCueValueSteps,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> AnimationFramesAfterCues,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.ReadPast>> AnimationReadsPast,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> AnimationPlaceLandings,
-    IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>> AnimationDelaysRead,
+    IReadOnlyDictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites,
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Cursor>> ChainsawFuseLandings,
     IReadOnlyDictionary<string, bool> PostureAdmissions,
     IReadOnlyDictionary<string, SamusOverreadDocument.LaunchSpeeds> UnauthoredBeamLaunchSpeeds,
@@ -54,7 +60,7 @@ internal sealed record SamusOverreadDocument(
     /// For each frame of the later animation the cue read there names, by that frame's name, the name of the frame of the
     /// animation read past that the cue moves it to; empty when the step read names no frame.
     /// </param>
-    internal sealed record ReadPast([InstalledKey] string Animation, [InstalledKey] string Frame, IReadOnlyDictionary<string, string> Moves);
+    internal sealed partial record ReadPast(string Animation, string Frame, IReadOnlyDictionary<string, string> Moves);
 
     /// <summary>The step the animation reads at a cue value's place: what the game does on reaching that frame (#1535).</summary>
     /// <param name="Kind">What the step does.</param>
@@ -70,8 +76,8 @@ internal sealed record SamusOverreadDocument(
     /// grounded and equipped airborne poses; a vertical-speed transition's grounded and airborne poses; null for any other
     /// kind.
     /// </param>
-    internal sealed record CueValueStep([InstalledKey] string Kind, int? Ticks, [InstalledKey] IReadOnlyList<string>? Frames,
-        [InstalledKey] IReadOnlyList<string>? Items, [InstalledKey] IReadOnlyList<string>? Poses);
+    internal sealed partial record CueValueStep(string Kind, int? Ticks, IReadOnlyList<string>? Frames,
+        IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
 
     /// <summary>What the step at a cue value's place does, as the game does on reading that value as a step.</summary>
     internal enum CueValueStepKind
@@ -125,7 +131,7 @@ internal sealed record SamusOverreadDocument(
     /// <param name="UsedStations">The used save stations and elevators, by name, the copy decides.</param>
     /// <param name="AreaMaps">Whether the copy leaves each area's map acquired, by area name.</param>
     /// <param name="SavedStartupRoute">The name of the saved startup route the copy leaves, or null when it stops before it.</param>
-    internal sealed record Overwrite(
+    internal readonly partial record struct Overwrite(
         DecidedMembers Events,
         int? ZebetitesDestroyed,
         IReadOnlyDictionary<string, IReadOnlyList<string>> AreaBosses,
@@ -133,31 +139,31 @@ internal sealed record SamusOverreadDocument(
         DecidedMembers OpenedDoors,
         DecidedMembers UsedStations,
         IReadOnlyDictionary<string, bool> AreaMaps,
-        [InstalledKey] string? SavedStartupRoute);
+        string? SavedStartupRoute);
 
     /// <summary>What an overwrite decides for one kind of progress: the members whose state it decides, and those it leaves on.</summary>
     /// <param name="Decided">The names of the members whose state the overwrite decides; every other member keeps its state.</param>
     /// <param name="Set">The names of the decided members the overwrite leaves on; the other decided members it turns off.</param>
-    internal sealed record DecidedMembers([InstalledKey] IReadOnlyList<string> Decided, [InstalledKey] IReadOnlyList<string> Set);
+    internal sealed partial record DecidedMembers(IReadOnlyList<string> Decided, IReadOnlyList<string> Set);
 
     /// <summary>An animation position: an animation and its step.</summary>
     /// <param name="Animation">The animation's name.</param>
     /// <param name="Position">The step's position in the animation.</param>
-    internal sealed record Cursor([InstalledKey] string Animation, int Position);
+    internal sealed partial record Cursor(string Animation, int Position);
 
     /// <summary>The speeds a beam launches at, each in pixels per update with its fraction of a pixel kept exactly.</summary>
     /// <param name="Cardinal">The horizontal and vertical speed.</param>
     /// <param name="Diagonal">The diagonal speed.</param>
-    internal sealed record LaunchSpeeds(decimal Cardinal, decimal Diagonal);
+    internal sealed partial record LaunchSpeeds(decimal Cardinal, decimal Diagonal);
 
     /// <summary>The cooldowns a beam's shots wait, each 0 through 255 updates.</summary>
     /// <param name="Uncharged">After an uncharged shot fired with Charge equipped or on a fresh press.</param>
     /// <param name="Charged">After a charged shot.</param>
     /// <param name="HeldFire">After an uncharged shot repeated by holding the button.</param>
-    internal sealed record Cooldowns(int Uncharged, int Charged, int HeldFire);
+    internal sealed partial record Cooldowns(int Uncharged, int Charged, int HeldFire);
 
     /// <summary>The two angles a crash's echoes leave at, each 0 through 255 steps of the 256-step turn.</summary>
     /// <param name="First">The first echo's angle.</param>
     /// <param name="Second">The second echo's angle.</param>
-    internal sealed record CrashDepartures(int First, int Second);
+    internal sealed partial record CrashDepartures(int First, int Second);
 }

@@ -4,8 +4,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
-/// <summary>One installed title OBJ composition; all parts inherit the active title palette.</summary>
-public sealed record TitleSpriteFrame
+/// <summary>One title composition of the import's title artwork; all parts inherit the active title palette.</summary>
+public sealed partial record TitleSpriteFrame
 {
     /// <summary>Gets the title composition this frame draws, stored in the document by its name.</summary>
     [JsonConverter(typeof(TitleSpriteJsonConverter))]

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 /// compositions, page layout and colourings belong to the import pipeline that reads the installed presentation
 /// (#1463). Menu control, answer semantics, music and the Baby sequence are the game's own.
 /// </summary>
-public sealed class GameOverPresentation
+public sealed partial class GameOverPresentation
 {
     /// <summary>Retains the screen anchors and cursor duration; the page's composition is the import's, which pictures the page (#1467).</summary>
     /// <param name="placements">The validated anchors and cursor duration.</param>
@@ -34,7 +34,7 @@ public sealed class GameOverPresentation
     public int CursorFrameDuration { get; }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor, shown in its colours <paramref name="colours"/>.</summary>
-    /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
+    /// <param name="screenSprites">The screen's sprites for the current frame.</param>
     /// <param name="sheet">The installed game-over sheet.</param>
     /// <param name="frame">Closed, middle, or open Baby frame selected by the Baby's animation sequence.</param>
     /// <param name="colours">Idle or one of the three crying colourings selected by the Baby sequence (#1512).</param>
@@ -44,14 +44,14 @@ public sealed class GameOverPresentation
             shading: PictureShading.Shaded(GameOverBabyShades.Colours(colours)));
 
     /// <summary>Appends the egg composition at the shared Baby anchor in the installed egg colouring.</summary>
-    /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
+    /// <param name="screenSprites">The screen's sprites for the current frame.</param>
     /// <param name="sheet">The installed game-over sheet.</param>
     public void DrawEgg(ScreenSprites screenSprites, SpriteSheet sheet) =>
         Ensure.NotNull(screenSprites).AddImage(Ensure.NotNull(sheet).Frame(GameOverPresentationDefinitions.EggFrame), BabyAnchor,
             shading: PictureShading.Standard);
 
     /// <summary>Appends one missile-cursor frame at the installed Yes or No answer position.</summary>
-    /// <param name="screenSprites">The screen's sprite entries for the current frame.</param>
+    /// <param name="screenSprites">The screen's sprites for the current frame.</param>
     /// <param name="frame">The missile's picture.</param>
     /// <param name="answer">The answer the missile points at.</param>
     /// <exception cref="ArgumentOutOfRangeException">The frame is not one of the missile's pictures, or the answer is undefined.</exception>

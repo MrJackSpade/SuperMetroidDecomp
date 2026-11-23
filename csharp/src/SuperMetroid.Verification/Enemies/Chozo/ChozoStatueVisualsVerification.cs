@@ -10,7 +10,6 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
 /// <summary>Checks extracted Chozo statue draw data and compiled PLM execution with the installed art.</summary>
@@ -29,7 +28,7 @@ internal static class ChozoStatueVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectChozoStatueVisualFilesConstants.ValidateStock(
                 installation.RoomObjectChozoStatueVisualDirectory);
-            InstalledRoomObjectChozoStatueVisuals installed = installation.LoadRoomObjectChozoStatueVisuals();
+            InstalledRoomObjectPictures installed = installation.LoadRoomObjectChozoStatueVisuals();
             VerifyChozoStatueStockMapping(rom, installed);
 
             // Run both real Chozo PLM instruction lists. The bus refuses reads of compiled draw bytes, so the
@@ -44,9 +43,8 @@ internal static class ChozoStatueVisualsVerification
             {
                 var level = CreateEmptyRoom(new(width, 16));
                 var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectChozoStatueVisuals = installed });
-                AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
-                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), header)),
-                    $"Chozo actor {header} spawns in a bounded test room");
+                roomObjects.ChozoStatue.SpawnChozoStatueObject(level,
+                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), header));
                 roomObjects.Step(level);
                 int origin = 4 * width + 3;
                 AssertEqual(physical,
@@ -58,9 +56,8 @@ internal static class ChozoStatueVisualsVerification
 
             var crumbleLevel = CreateEmptyRoom(new(width, 16));
             var crumbleObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(crumbleObjects.ChozoStatue.TrySpawnChozoStatueObject(crumbleLevel,
-                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.PlugCrumbleUnderFootstep)),
-                "Chozo crumble plug spawns in a bounded test room");
+            crumbleObjects.ChozoStatue.SpawnChozoStatueObject(crumbleLevel,
+                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.PlugCrumbleUnderFootstep));
             var seenCrumbleBlocks = new HashSet<RoomTerrainBlock>();
             for (int frame = 0; frame < 15; frame++)
             {
@@ -78,9 +75,9 @@ internal static class ChozoStatueVisualsVerification
 
             var wreckedHandLevel = CreateEmptyRoom(new(width, 16));
             var wreckedHandObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(wreckedHandObjects.ChozoStatue.TrySpawnChozoStatueObject(wreckedHandLevel,
-                new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.WreckedShipHand)),
-                "Wrecked Ship hand spawns");
+            wreckedHandObjects.ChozoStatue.SpawnChozoStatueHand(wreckedHandLevel,
+                new RoomObjectSpawnRequest<ChozoStatueHandObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueHandObject.WreckedShip),
+                ChozoStatueHandFixtures.Placed(ChozoStatueSite.WreckedShip));
             wreckedHandObjects.Step(wreckedHandLevel);
             AssertTrue(wreckedHandObjects.PopulationPlaces.Count == 0,
                 "Wrecked Ship hand executes the shared compiled delete list");

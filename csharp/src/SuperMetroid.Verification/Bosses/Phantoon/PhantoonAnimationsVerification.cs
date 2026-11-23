@@ -32,15 +32,8 @@ internal static class PhantoonAnimationsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        RoomEnemyPlace eye = enemies.Places.InUpdateOrder[1];
-        RoomEnemyPlace tentacles = enemies.Places.InUpdateOrder[2];
-        RoomEnemyPlace mouth = enemies.Places.InUpdateOrder[3];
-        body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
-        eye.Bind(EnemyDefinitionId.PhantoonEye, eye.Definition);
-        tentacles.Bind(EnemyDefinitionId.PhantoonTentacles, tentacles.Definition);
-        mouth.Bind(EnemyDefinitionId.PhantoonMouth, mouth.Definition);
-        enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, eye, tentacles, mouth));
+        // His four parts as his room's population sets them up, the encounter his body's setup began.
+        _ = enemies.PlacePhantoon();
         return enemies;
     }
 
@@ -61,7 +54,7 @@ internal static class PhantoonAnimationsVerification
     /// </summary>
     internal static void VerifyPhantoonPartAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertTrue(PartEntriesAscend, "native Phantoon part entries ascend");
 
         int stepCount = NativeEnemyAnimationOracle.CompareAll(cartridge, PartBankNumber, PartEntries, PhantoonAnimations.Segments,
@@ -87,12 +80,15 @@ internal static class PhantoonAnimationsVerification
         PhantoonPartFramesConstants.Spritemap(RoomEnemyPlaceFrameAccess.FrameAt(PartBankNumber, word)
             ?? throw new InvalidDataException($"Phantoon's part lists show no frame at ${PartBankNumber:X2}:{word:X4}."));
 
-    /// <summary>Runs one part update, optionally expiring the current frame first.</summary>
-    private static void Pass(RoomEnemyPlace part, bool forceExpiry = false)
+    /// <summary>
+    /// Runs one part update as the shared enemy animation runs a Phantoon part's, over the part the check's encounter
+    /// holds, optionally expiring the current frame first.
+    /// </summary>
+    private static void Pass(RoomEnemySystem enemies, RoomEnemyPlace part, bool forceExpiry = false)
     {
         if (forceExpiry)
             part.AnimationClock.StepOnNextUpdate();
-        EnemyAnimationPlayer.AdvanceAnimation(part, samus: RoomEnemyFrameFixtures.StandaloneSamus(), level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+        enemies.PhantoonBehavior.AdvancePhantoonPartAnimation(part.RequireSpeciesState<PhantoonPart>());
     }
 
     /// <summary>
@@ -108,13 +104,15 @@ internal static class PhantoonAnimationsVerification
         eye.AnimationClock.StepOnNextUpdate();
         for (int frame = 0; frame < 3; frame++)
         {
-            Pass(eye, forceExpiry: true);
+            Pass(enemies, eye, forceExpiry: true);
             AssertEqual(PhantoonPartFramesConstants.Spritemap(OpeningEyeFrames[frame]), eye.SpritemapPointer, $"opening eye frame {frame}");
         }
         AssertTrue(enemies.Audio.LatestSound is null, "the materialization sound waits for the last frame to expire");
-        Pass(eye, forceExpiry: true);
-        AssertTrue(enemies.Audio.LatestSound.HasValue, "the opened eye queues its materialization sound");
-        AssertEqual(PhantoonPartSegment.EyeHitboxBody, PartProgram(enemies, state.Body), "the opened eye installs the eye-only body hitbox");
+        Pass(enemies, eye, forceExpiry: true);
+        AssertTrue(enemies.Audio.LatestSound is not null, "the opened eye queues its materialization sound");
+        AssertEqual(PhantoonPartSegment.Body, PartProgram(enemies, state.Body), "the opened eye restarts the body's picture");
+        state.BodyPictureShown();
+        AssertEqual(PhantoonBodyHitArea.EyeOnly, state.BodyHitArea, "the opened eye installs the eye-only body hitbox as his body's picture shows");
         AssertEqual(PhantoonPartSegment.EyeOpen, PartProgram(enemies, eye), "the list's sleep keeps the eye on its opened program");
         AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonEyeballCentered), eye.SpritemapPointer, "the opened eye keeps its last frame");
         AssertEqual(1, eye.AnimationClock.Hold, "the callback's one-update timer survives the sleep");
@@ -131,10 +129,10 @@ internal static class PhantoonAnimationsVerification
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemyPlace mouth = state.Mouth;
         mouth.RequireSpeciesState<PhantoonPart>().Playback = PhantoonPart.Starting(PhantoonPartSegment.MouthSpawnFlame);
-        Pass(mouth, forceExpiry: true);
-        Pass(mouth, forceExpiry: true);
+        Pass(enemies, mouth, forceExpiry: true);
+        Pass(enemies, mouth, forceExpiry: true);
         AssertEqual(0, ActiveFlames(enemies), "the mouth opens before it spawns");
-        Pass(mouth, forceExpiry: true);
+        Pass(enemies, mouth, forceExpiry: true);
         AssertEqual(1, ActiveFlames(enemies), "the mouth spawns one casual flame");
         AssertEqual(PhantoonPartSegment.MouthInitial, PartProgram(enemies, mouth), "the mouth runs on into its initial program");
         AssertEqual(PhantoonPartFramesConstants.Spritemap(EnemyFrameId.PhantoonMouthOpen), mouth.SpritemapPointer, "the mouth shows its closed frame at once");
@@ -150,7 +148,7 @@ internal static class PhantoonAnimationsVerification
     /// </summary>
     internal static void VerifyPhantoonFlameAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         VerifyFlameProducers();
         // A resting flame and a rain impact run on into the dying flame's poses (#2166), and their plays match its native
         // list; the shot flame's animation dies, drops and deletes from its own (#2405).
@@ -158,12 +156,12 @@ internal static class PhantoonAnimationsVerification
         {
             RoomEnemySystem enemies = NewFlameSystem();
             EnemyProjectile flame = SpawnDestroyable(enemies, SpawnRageFlame, "rage");
-            flame.StartAnimation(new PhantoonFlameAnimation(program));
+            flame.StartAnimation(new PhantoonFlameAnimation(enemies.PhantoonBehavior.Combat.DestroyableFlame, program));
             var native = new NativeEnemyProjectileListReader(entry, flame.FrameHold.RawValue);
             int drops = 0;
             for (int update = 0; update < 64 && !native.Deleted; update++)
             {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(flame, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(flame, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                 native.Step(cartridge);
                 drops += native.Callbacks.Count;
                 string at = $"Phantoon flame {program} update {update}";
@@ -172,7 +170,7 @@ internal static class PhantoonAnimationsVerification
                     break;
                 SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, flame, at);
                 // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2249).
-                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
+                AssertEqual(EnemyProjectileProgramFrameOperands.ShownAt(native.Operand, flame.Graphics.Owner), flame.Frame, $"{at}: frame");
                 if (NativeEnemyAnimationOracle.NativePlaysLeft(AssertIs<PhantoonFlameAnimation>(flame.Animation, $"{at}: flame animation").Playback) is { } playsLeft)
                     AssertEqual<int>(native.Counter, playsLeft, $"{at}: plays left");
             }
@@ -197,27 +195,28 @@ internal static class PhantoonAnimationsVerification
     }
 
     /// <summary>Spawns one destroyable flame through the real producer.</summary>
-    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Func<PhantoonPatterns, PhantoonEnemyState, bool> spawn, string producer)
+    private static EnemyProjectile SpawnDestroyable(RoomEnemySystem enemies, Action<PhantoonPatterns, PhantoonEnemyState> spawn, string producer)
     {
-        AssertTrue(spawn(enemies.PhantoonBehavior.Patterns, RequireState(enemies)), $"the real {producer} producer allocates a flame");
-        return enemies.Projectiles.EnemyProjectiles.Single(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame);
+        spawn(enemies.PhantoonBehavior.Patterns, RequireState(enemies));
+        return enemies.Projectiles.EnemyProjectiles.SingleOrDefault(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.PhantoonDestroyableFlame)
+            ?? throw new InvalidOperationException($"The real {producer} producer allocates no flame.");
     }
 
     /// <summary>The starting, casual and rage producers start the programs their native initializers install.</summary>
     private static void VerifyFlameProducers()
     {
         RoomEnemySystem starting = NewFlameSystem();
-        AssertTrue(starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(RequireState(starting), PhantoonFlameSpawns.StartingFlameStarts[0]), "the real starting producer allocates a flame");
+        starting.PhantoonBehavior.Opening.SpawnPhantoonStartingFlame(RequireState(starting), PhantoonFlameSpawns.StartingFlameStarts[0]);
         AssertStarted(starting.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PhantoonStartingFlame),
             PhantoonFlameSegment.StartingFlame, "starting flame");
         RoomEnemySystem casual = NewFlameSystem();
-        AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body), "casual"), PhantoonFlameSegment.CasualFallingKindling, "casual flame");
+        AssertStarted(SpawnDestroyable(casual, (patterns, phantoon) => patterns.SpawnPhantoonCasualFlame(phantoon.Body.HeldOccupant(), phantoon.Body), "casual"), PhantoonFlameSegment.CasualFallingKindling, "casual flame");
         RoomEnemySystem rage = NewFlameSystem();
         AssertStarted(SpawnDestroyable(rage, SpawnRageFlame, "rage"), PhantoonFlameSegment.Burning, "rage flame");
     }
 
     /// <summary>Spawns the last flame of an even rage wave, the one the cartridge's first rage parameter starts.</summary>
-    private static bool SpawnRageFlame(PhantoonPatterns patterns, PhantoonEnemyState phantoon) =>
+    private static void SpawnRageFlame(PhantoonPatterns patterns, PhantoonEnemyState phantoon) =>
         patterns.SpawnPhantoonRageFlame(phantoon, PhantoonFlameSpawns.EvenRageWave[^1]);
 
     /// <summary>Requires <paramref name="flame"/> to run <paramref name="program"/> from its start.</summary>
@@ -227,30 +226,27 @@ internal static class PhantoonAnimationsVerification
             $"the {label} starts the {program} program");
 
     /// <summary>
-    /// The pre-Phantoon room's held place shows the blank frame and frees itself on the update $86:A3AA deletes its
-    /// projectile (#2561): the hold is counted by its projectile updates, each running the place's behaviour and then its
-    /// animation as the projectile pass does.
+    /// The pre-Phantoon room's held place stays taken until the update $86:A3AA deletes the cartridge's blank projectile
+    /// (#2561, #2556): no projectile stands in it, and the projectile pass counts its hold at its turn.
     /// </summary>
     private static void VerifyPrePhantoonRoomAnimation(IImportCartridgeSource cartridge)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile();
-        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace);
-        AssertTrue(projectile.Animation is PrePhantoonRoomAnimation, "the room setup starts the typed room animation");
+        int places = SuperMetroid.Core.Compatibility.EnemyProjectilePlaces.Capacity;
+        enemies.PrePhantoonRoomBehavior.HoldPrePhantoonRoomProjectilePlace();
+        AssertEqual(places - 1, enemies.Projectiles.FreePlaceCount, "the room setup holds one place");
+        AssertTrue(!enemies.Projectiles.EnemyProjectiles.Any(), "no projectile stands in the held place");
         // A spawned projectile reads its list's first instruction, the blank frame, on its first update.
         const ushort SpawnedListUpdatesToFirstInstruction = 1;
         var native = new NativeEnemyProjectileListReader(PrePhantoonRoomEntry, SpawnedListUpdatesToFirstInstruction);
+        RoomLevelData level = RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]);
         for (int update = 0; update < 40 && !native.Deleted; update++)
         {
-            enemies.PrePhantoonRoomBehavior.HoldingProjectile.RunMotion(new EnemyProjectileMotionContext(projectile,
-                RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]), RoomEnemyFrameFixtures.StandaloneSamus(),
-                Position16<RoomPixels>.Zero, ShortCounter: 0, FrameCounter: 0, InstalledFixtures.CreateBombSystem()));
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.RunPass(level, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero,
+                SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, InstalledFixtures.CreateBombSystem(), frameCounter: 0);
             native.Step(cartridge);
-            AssertEqual(!native.Deleted, projectile.IsActive, $"pre-Phantoon room update {update}: deletion");
-            if (native.Deleted)
-                break;
-            AssertTrue(projectile.Frame == EnemyProjectileFrameId.Blank, $"pre-Phantoon room update {update}: the blank frame, no program frame");
+            AssertEqual(native.Deleted ? places : places - 1, enemies.Projectiles.FreePlaceCount,
+                $"pre-Phantoon room update {update}: the place is held until the cartridge's projectile deletes itself");
         }
         AssertTrue(native.Deleted, "the pre-Phantoon room projectile deletes itself");
     }

@@ -53,7 +53,7 @@ internal static class AudioClipExportVerification
             AudioClipExporter.Export(
                 catalog,
                 scratch.FullName,
-                music ? [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack)] : [],
+                music ? [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, MusicDataSet.GreenBrinstar, GreenBrinstarPhaseExactTrack)] : [],
                 music ? [] : [.. effects.Select(effect => new AudioClipExporter.SoundEffectKey(effect.Library, SoundEffectCommands.Command(effect)))]);
             InstalledClipAudioLibrary clips = InstalledAudioClips.Load(scratch.FullName);
             if (independentMusic is not null)
@@ -124,7 +124,7 @@ internal static class AudioClipExportVerification
     private static void VerifySoundEffect(InstalledClipAudioLibrary clips, SoundEffectId effect)
     {
         InstalledSoundEffectClip entry = clips.Manifest.SoundEffects.Single(candidate => candidate.Sound == effect);
-        AssertEqual(effect == RoomSound.SpeedBooster, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
+        AssertEqual(effect == RoomSound.SpeedBooster, entry.Shape is InstalledLoopingSoundEffect, $"{effect} never ends exactly when it repeats forever");
     }
 
     /// <summary>An escaping clip path and a wrong manifest format version are each rejected.</summary>
@@ -138,11 +138,10 @@ internal static class AudioClipExportVerification
         {
             Music = [clips.Manifest.Music[0] with { Clip = first with { Path = "../escaped.wav" } }],
         };
-        File.WriteAllText(manifestPath, JsonSerializer.Serialize(escaping, InstalledAudioClips.ManifestOptions));
+        File.WriteAllText(manifestPath, JsonSerializer.Serialize(escaping, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(InstalledAudioClips.ManifestOptions)));
         AssertThrows<InvalidDataException>(() => InstalledAudioClips.Load(directory), "a clip path outside the audio root is rejected");
 
-        File.WriteAllText(manifestPath, JsonSerializer.Serialize(
-            clips.Manifest with { FormatVersion = AudioClipManifest.CurrentFormatVersion + 1 }, InstalledAudioClips.ManifestOptions));
+        File.WriteAllText(manifestPath, JsonSerializer.Serialize(clips.Manifest with { FormatVersion = AudioClipManifest.CurrentFormatVersion + 1 }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(InstalledAudioClips.ManifestOptions)));
         AssertThrows<InvalidDataException>(() => InstalledAudioClips.Load(directory), "another manifest format is rejected");
         File.WriteAllText(manifestPath, manifestText);
     }
@@ -172,7 +171,7 @@ internal static class AudioClipExportVerification
         int kept = 0;
         IReadOnlyList<AudioRequest>[] script =
         [
-            [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(context)],
+            [new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(context)],
             [request],
         ];
         for (int index = 0; kept < pcm.Length; index++)
@@ -231,7 +230,11 @@ internal static class AudioClipExportVerification
     {
         using JsonDocument manifest = JsonDocument.Parse(File.ReadAllBytes(manifestPath));
         string[] indexFields = ["formatVersion", "sampleRate", "initialBeat", "music", "soundEffects"];
-        string[] effectFields = ["sound", "policy", "activeFrames", "layers"];
+        // A sound effect stores its shape as one closed choice (#2560): a one-shot with its active frames and clip, or a
+        // loop with its layers.
+        string[] effectFields = ["sound", "policy", "shape"];
+        string[] oneShotFields = ["shape", "activeFrames", "clip"];
+        string[] loopingFields = ["shape", "layers"];
         // A layer no longer records the voices it was rendered from: only layer replacement read them (#1533). Nor does it
         // record its note starts, which only the clip-set switch's re-key read (#2057).
         string[] layerFields = ["clip", "loopStart"];
@@ -242,12 +245,29 @@ internal static class AudioClipExportVerification
         {
             AssertTrue(effect.EnumerateObject().Select(field => field.Name).SequenceEqual(effectFields),
                 "a stored sound effect holds exactly its schema fields");
-            foreach (JsonElement layer in effect.GetProperty("layers").EnumerateArray())
+            JsonElement shape = effect.GetProperty("shape");
+            switch (shape.GetProperty("shape").GetString())
             {
-                AssertTrue(layer.EnumerateObject().Select(field => field.Name).SequenceEqual(layerFields),
-                    "a stored sound-effect layer holds exactly its schema fields");
-                AssertTrue(layer.GetProperty("clip").EnumerateObject().Select(field => field.Name).SequenceEqual(clipFields),
-                    "a stored clip holds exactly its path and length");
+                case "oneShot":
+                    AssertTrue(shape.EnumerateObject().Select(field => field.Name).SequenceEqual(oneShotFields),
+                        "a stored one-shot holds exactly its schema fields");
+                    if (shape.GetProperty("clip").ValueKind != JsonValueKind.Null)
+                        AssertTrue(shape.GetProperty("clip").EnumerateObject().Select(field => field.Name).SequenceEqual(clipFields),
+                            "a stored clip holds exactly its path and length");
+                    break;
+                case "looping":
+                    AssertTrue(shape.EnumerateObject().Select(field => field.Name).SequenceEqual(loopingFields),
+                        "a stored loop holds exactly its schema fields");
+                    foreach (JsonElement layer in shape.GetProperty("layers").EnumerateArray())
+                    {
+                        AssertTrue(layer.EnumerateObject().Select(field => field.Name).SequenceEqual(layerFields),
+                            "a stored sound-effect layer holds exactly its schema fields");
+                        AssertTrue(layer.GetProperty("clip").EnumerateObject().Select(field => field.Name).SequenceEqual(clipFields),
+                            "a stored clip holds exactly its path and length");
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException($"A stored sound effect has the unknown shape {shape}.");
             }
         }
         AssertTrue(manifest.RootElement.GetProperty("soundEffects").EnumerateArray()

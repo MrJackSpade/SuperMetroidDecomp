@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -59,14 +58,13 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Bind(testCase.IsKamer
                 ? EnemyDefinitionId.SuspensorPlatform
-                : EnemyDefinitionId.Tripper, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+                : EnemyDefinitionId.Tripper, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter2(EnemyDefinitionId.Tripper, 0x0101);
-            place.SetSpawnSettings(place.SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
+            place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>() with { Movement = testCase.Direction });
             place.Position = place.Position.WithWholeY(0x0100);
-            PlatformsBehavior.InitializePlatform(place);
-
-            PlatformEnemyState state = (enemies.PlatformStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PlatformStates[0]."));
+            // The platform's setup builds the state its installers and its animation, which the check plays, run on.
+            PlatformEnemyState state = PlatformsBehavior.InitializePlatform(place.HeldOccupant().SpawnSettings<PlatformSpawnSettings>(), place, place.HeldOccupant().DefinitionId);
             PlatformSegment expectedInitial = testCase.IsKamer
                 ? testCase.Direction == HorizontalDirection.Left
                     ? PlatformSegment.SuspensorPlatformHeadingLeft
@@ -87,10 +85,10 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             state.XMovement = testCase.Direction == HorizontalDirection.Left
                 ? HorizontalDirection.Right
                 : HorizontalDirection.Left;
-            ExecutePlatformProgram(place, callCount: 1);
+            ExecutePlatformProgram(place, state, callCount: 1);
             AssertEqual(testCase.Direction, state.XMovement, $"platform program {testCase.Program} publishes direction");
             AnimationPlayback<PlatformSegment>? firstPose = state.Playback;
-            ExecutePlatformProgram(place, callCount: 4);
+            ExecutePlatformProgram(place, state, callCount: 4);
             AssertEqual(firstPose, state.Playback, $"platform program {testCase.Program} loops through four poses");
         }
 
@@ -103,15 +101,13 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Forces the selected platform's instruction timer across several interpreter calls.</summary>
-    private static void ExecutePlatformProgram(RoomEnemyPlace place,
+    private static void ExecutePlatformProgram(RoomEnemyPlace place, PlatformEnemyState state,
         int callCount)
     {
-        object?[] arguments =
-            [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
         for (int call = 0; call < callCount; call++)
         {
             place.AnimationClock.StepOnNextUpdate();
-            EnemyInstructionRunner.Process(arguments);
+            PlatformsBehavior.AdvancePlatformsTypedAnimation(place, state);
         }
     }
 
@@ -127,14 +123,14 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         ushort[] threeEntryTripper = [0x9f29, 0x9f3a, 0x9f5c, 0x9f6d, 0x9fa5, 0x9fe2];
         ushort[] fourEntryTripper = [0x9f8f, 0x9fb6, 0x9fcc, 0x9ff3];
         foreach (ushort pointer in lights)
-            AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "platform light native two-entry map");
+            AssertEqual((ushort)2, rom.ReadCartridgeWordFixedBank(0xa30000 | pointer), "platform light native two-entry map");
         AssertTrue(lights.Select(pointer => SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(0xa3, pointer))
                 .SequenceEqual(kamerLights.Select(pointer => SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling.TryFrameAt(0xa2, pointer))),
             "the suspensor platform's light records show the Kamer's light frames");
         foreach (ushort pointer in threeEntryTripper)
-            AssertEqual((ushort)3, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native three-entry map");
+            AssertEqual((ushort)3, rom.ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native three-entry map");
         foreach (ushort pointer in fourEntryTripper)
-            AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native four-entry map");
+            AssertEqual((ushort)4, rom.ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native four-entry map");
         AssertTrue(PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformSegment>()).ToHashSet()
                 .SetEquals(lights.Concat(threeEntryTripper).Concat(fourEntryTripper)),
             "platform programs show exactly the fourteen animated pictures");
@@ -169,9 +165,9 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     /// </summary>
     private static int RecordAfter(CartridgeImportAddressSpace rom, ushort pointer)
     {
-        int next = pointer + 2 + 5 * CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer);
+        int next = pointer + 2 + 5 * rom.ReadCartridgeWordFixedBank(0xa30000 | pointer);
         while (SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLocationDefinitions.AlsoStoredAt.ContainsKey(new(0xa3, (ushort)next)))
-            next += 2 + 5 * CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | next);
+            next += 2 + 5 * rom.ReadCartridgeWordFixedBank(0xa30000 | next);
         return next;
     }
 
@@ -181,8 +177,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
         // LDY immediate operands in the two native initializers.
         foreach (bool isKamer in new[] { false, true })
         {
-            ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9caa : (ushort)0x9cbe));
-            ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
+            ushort left = rom.ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9caa : (ushort)0x9cbe));
+            ushort right = rom.ReadCartridgeWordFixedBank(0xa30000 | (isKamer ? (ushort)0x9cb6 : (ushort)0x9cca));
             foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
                 AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == HorizontalDirection.Left ? left : right),
                     PlatformAnimationChoices.SelectAnimation(isKamer ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper, PlatformVerticalArt.Still, direction),
@@ -203,8 +199,8 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             ushort rightOperand = moving
                 ? (isKamer ? (ushort)0x9e71 : (ushort)0x9e68)
                 : (isKamer ? (ushort)0x9eab : (ushort)0x9ea2);
-            ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | leftOperand);
-            ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
+            ushort left = rom.ReadCartridgeWordFixedBank(0xa30000 | leftOperand);
+            ushort right = rom.ReadCartridgeWordFixedBank(0xa30000 | rightOperand);
             foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
                 AssertEqual(NativeEnemyAnimationOracle.SegmentOf(PlatformNativeListAddresses.Entries, direction == HorizontalDirection.Left ? left : right),
                     PlatformAnimationChoices.SelectAnimation(isKamer ? PlatformKind.SuspensorPlatform : PlatformKind.Tripper, moving ? PlatformVerticalArt.Moving : PlatformVerticalArt.Still, direction),
@@ -215,16 +211,16 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     private static void VerifyTripperFrozenFrameSelection(CartridgeImportAddressSpace rom)
     {
         // Immediate operands of the native zero/nonzero branches, not an inferred pointer table.
-        ushort left = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | 0x9f23);
-        ushort right = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | 0x9f1b);
+        ushort left = rom.ReadCartridgeWordFixedBank(0xa30000 | 0x9f23);
+        ushort right = rom.ReadCartridgeWordFixedBank(0xa30000 | 0x9f1b);
         AssertEqual(left, TripperKamerVisualDefinitions.FrozenMovingLeft, "native frozen-left sprite identity");
         AssertEqual(right, TripperKamerVisualDefinitions.FrozenMovingRight, "native frozen-right sprite identity");
         foreach (HorizontalDirection direction in Enum.GetValues<HorizontalDirection>())
             AssertEqual(direction == HorizontalDirection.Left ? left : right,
                 TripperKamerVisualDefinitionsConstants.FrozenFrame(direction),
                 $"Tripper frozen selection faces {direction}");
-        AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
-        AssertEqual((ushort)2, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | right), "Tripper frozen-right two-piece map");
+        AssertEqual((ushort)2, rom.ReadCartridgeWordFixedBank(0xa30000 | left), "Tripper frozen-left two-piece map");
+        AssertEqual((ushort)2, rom.ReadCartridgeWordFixedBank(0xa30000 | right), "Tripper frozen-right two-piece map");
     }
     /// <summary>One expected platform program for a species, motion state, and horizontal direction.</summary>
     internal readonly record struct PlatformProgramCase(

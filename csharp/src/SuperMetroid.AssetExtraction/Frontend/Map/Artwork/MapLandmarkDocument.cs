@@ -3,10 +3,10 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>Editable JSON schema for boss, elevator-label, and gunship drawing anchors; identities, slot order, progression visibility, and destination rules remain application-owned.</summary>
-public sealed record MapLandmarkDocument
+public sealed partial record MapLandmarkDocument
 {
     /// <summary>Schema revision, which must equal <see cref="MapLandmarkFormat.Version"/>.</summary>
     public required int Version { get; init; }
-    /// <summary>One non-null pixel anchor for every identity from <see cref="MapLandmarkFile.Ids"/>, keyed with exact casing; coordinates lie on the area-map canvas before scroll subtraction, with X=0..511 and Y=0..255.</summary>
+    /// <summary>One non-null pixel anchor for every identity from <c>Ids</c>, keyed with exact casing; coordinates lie on the area-map canvas before scroll subtraction, with X=0..511 and Y=0..255.</summary>
     public required Dictionary<string, Position16<MapPixels>> Markers { get; init; }
 }

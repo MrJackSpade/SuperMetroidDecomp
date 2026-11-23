@@ -17,20 +17,24 @@ internal static class RipperVariantOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.JetRipper, place.Definition);
+        place.Bind(EnemyDefinitionId.JetRipper, place.KeptDefinition);
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.JetRipper, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.JetRipper, 0);
-        RipperBehavior.InitializeJetRipper(place);
+        // It flies inside the room, clear of its edges.
+        place.Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200));
+        // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
+        _ = enemies.LoadAuthoredPopulation();
         RipperEnemyState state = place.SpeciesState<RipperEnemyState>()
             ?? throw new InvalidOperationException("The Ripper II has no state.");
 
         SignedSixteenSixteen positive = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen negative = -positive;
-        AssertEqual(positive, place.SpawnSettings<RipperSpawnSettings>().Speed, "the selected speed");
-        SignedSixteenSixteen speed = place.SpawnSettings<RipperSpawnSettings>().Speed;
+        AssertEqual(positive, place.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed, "the selected speed");
+        SignedSixteenSixteen speed = place.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed;
         AssertEqual(negative, RipperBehavior.FlyingVelocity(speed, state.Heading), "the negative half is loaded");
-        RipperBehavior.ReverseRipperVariant(place);
+        // A wall the Ripper II flies into turns it round.
+        place.RunMainAi(PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus(), level: PlacedEnemyAccess.SolidRoom(new(64, 64))));
         AssertEqual(positive, RipperBehavior.FlyingVelocity(speed, state.Heading), "a reversal loads the positive half");
         Console.WriteLine("Ripper variant owned state: the record's velocity halves and the reversal match.");
     }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Supported JSON version and fixed head-frame dimensions matching the $0160-word native copy at $A7:AF3D.</summary>
-public static class KraidHeadTilemapFormat
+public static partial class KraidHeadTilemapFormat
 {
     /// <summary>Supported Kraid head tilemap schema revision one.</summary>
     public const int Version = 1;
@@ -15,16 +15,17 @@ public static class KraidHeadTilemapFormat
     internal static IReadOnlyList<KraidHeadFrame> HeadsByMouthStage { get; } =
         [KraidHeadFrame.Closed, KraidHeadFrame.Opening, KraidHeadFrame.Wider, KraidHeadFrame.Open];
 
-    /// <summary>
-    /// The number the import's head file and manifest entry name <paramref name="head"/> by (#2464): its place in
-    /// <see cref="HeadsByMouthStage"/>, the cartridge's order, from zero for the closed mouth.
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="head"/> is no head pose the import extracts.</exception>
-    internal static int ImportKey(KraidHeadFrame head)
+    /// <summary>The written-out key the import's head file and manifest entry name each head pose by (#2464, #2556).</summary>
+    private static readonly Dictionary<KraidHeadFrame, string> ImportKeys = new()
     {
-        for (int key = 0; key < HeadsByMouthStage.Count; key++)
-            if (HeadsByMouthStage[key] == head)
-                return key;
-        throw new ArgumentOutOfRangeException(nameof(head), head, "Kraid's head has no such pose.");
-    }
+        [KraidHeadFrame.Closed] = "closed",
+        [KraidHeadFrame.Opening] = "opening",
+        [KraidHeadFrame.Wider] = "wider",
+        [KraidHeadFrame.Open] = "open",
+    };
+
+    /// <summary>The key the import's head file and manifest entry name <paramref name="head"/> by.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="head"/> is no head pose the import extracts.</exception>
+    internal static string ImportKey(KraidHeadFrame head) =>
+        ImportKeys.TryGetValue(head, out string? key) ? key : throw new ArgumentOutOfRangeException(nameof(head), head, "Kraid's head has no such pose.");
 }

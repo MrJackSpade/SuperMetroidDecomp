@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// the installed views, one cell per byte, are the flight's front and rear gunship views, the station scene's two views,
 /// then the blank view that clears the scene; each is copied over the start of a floor filled with the blank tile.
 /// </summary>
-internal static class CeresFloorShotDefinitions
+internal static partial class CeresFloorShotDefinitions
 {
     /// <summary>The floor tile every cell outside a loaded view shows.</summary>
     internal const int BlankTile = 140;

@@ -8,7 +8,6 @@ namespace SuperMetroid.Diagnostics.Recording;
 /// counted from zero in its two-bit field (<see cref="ControllerInputRecordingFormat.MapRevealMask"/>). The game holds
 /// only <see cref="MapRevealMode"/>, whose values are arbitrary.
 /// </summary>
-[EncodingOwner("controller recording map-reveal numbers")]
 public static class MapRevealRecordingNumbering
 {
     /// <summary>The map-reveal assist a recorded number keeps; any other number is corrupt.</summary>

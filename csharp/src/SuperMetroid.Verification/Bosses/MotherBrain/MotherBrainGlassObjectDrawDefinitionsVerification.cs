@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupGlassLayoutsVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.LookupMotherBrainGlassStockVerification;
@@ -74,7 +75,7 @@ internal static class MotherBrainGlassObjectDrawDefinitionsVerification
         var level = CreateEmptyRoom(new(width, height));
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Tourian), RoomObjectPopulationImporter.Read(guarded, 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
-        AssertTrue(roomObjects.MotherBrainGlassWasLoaded,
+        AssertTrue(roomObjects.LiveMotherBrainGlass is not null,
             $"glass header retains its PLM owner for draw ${RoomObjectDrawAddressCodec.Of(selected.Draw):X4}");
         roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<MotherBrainGlassDraw>(RoomObjectDrawAddressCodec.Of(selected.Draw)));
 

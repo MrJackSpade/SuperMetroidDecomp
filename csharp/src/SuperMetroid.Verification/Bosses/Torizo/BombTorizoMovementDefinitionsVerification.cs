@@ -31,7 +31,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         foreach (Offset16<RoomPixels> displacement in displacements)
         foreach (bool sitDown in new[] { false, true })
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+            var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
@@ -41,19 +41,15 @@ internal static class BombTorizoMovementDefinitionsVerification
             AssertEqual(unchecked((ushort)(500 + sign * displacement.Y)), place.Position.Y.Whole, $"Torizo posture Y {displacement} sit {sitDown}");
         }
 
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new RoomTerrainBlock[4096], new RoomBlockBehavior[4096], new RoomBlockAppearance[4096]), RoomLevelData.NothingBeyondGrid(), []);
         int[] velocities = [.. cues.OfType<TorizoCue.Walk>().Where(cue => cue.Walker != TorizoWalkerDefinitions.GoldenTorizo).Select(cue => cue.Velocity).Distinct()];
         AssertTrue(velocities.Length > 1, "Bomb Torizo's animations carry walking velocities");
         foreach (int velocity in velocities)
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-            {
-                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
-                Radius = new(8, 8),
-            };
-            var state = new TorizoEnemyState(TorizoVariant.Bomb);
-            place.SetSpeciesState(state);
+            // Each walk is a Bomb Torizo his room's population sets up, standing in the open room's middle.
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            RoomEnemyPlace place = enemies.PlaceTorizo(0, new(512, 512));
+            TorizoEnemyState state = place.EntityOf<TorizoEntity>().State;
             var next = enemies.TorizoBehavior.Choices.ProcessTorizoWalkStep(place, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), level,
                 TorizoWalkerDefinitions.BombTorizo, velocity);
             AssertEqual(velocity, state.Velocity.X.InTwoHundredFiftySixthsOfPixel, $"Bomb Torizo walk consumer velocity {velocity}");

@@ -30,16 +30,15 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // Keep the oracle independent of the installed catalog and runtime callback.
         var native = new ushort[16];
         for (int color = 0; color < native.Length; color++)
-            native[color] = CartridgeImportSource.Require(bus).ReadCartridgeWord(0xb28727 + color * 2);
+            native[color] = bus.ReadCartridgeWord(0xb28727 + color * 2);
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
         const ushort nativeX = 0x0102;
         (RoomEnemyPlace stockPlace, AnimationPlayback<NinjaSpacePirateSegment> stockProgram) = Initialize(stock);
         SpriteSheetShadeDocument stockShade = GoldWallShade(stock);
-        AssertTrue(stockShade.Inks.Length > 0, "The ninja's sheet installs its gold wall shade over the inks it paints");
-        for (int index = 0; index < stockShade.Inks.Length; index++)
-            AssertEqual(native[stockShade.Inks[index] % native.Length], stockShade.Colours[index],
-                $"Installed ninja gold wall shade ink {stockShade.Inks[index]} shows the gold Pirate's native colour");
+        AssertTrue(stockShade.InkColours.Count > 0, "The ninja's sheet installs its gold wall shade over the inks it paints");
+        foreach ((int ink, SuperMetroid.Core.Assets.RgbColor colour) in stockShade.InkColours)
+            AssertEqual(native[ink % native.Length], colour, $"Installed ninja gold wall shade ink {ink} shows the gold Pirate's native colour");
         AssertEqual(nativeX, stockPlace.Position.X.Whole,
             "Installing ninja palette does not change initial post placement");
         // Facing left, the ninja starts at the native initial list $B2:F2DA.
@@ -55,7 +54,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
                 RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId is { } member && IsNinja(member)));
             EnemySheetSource source = EnemySheetComposer.Sources(inputs, set).Enemies.First(sheet => IsNinja(sheet.Enemy));
-            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, 0);
+            ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(source.Sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
             return (sheet.Manifest.Shades ?? throw new InvalidOperationException("The ninja's sheet installs its shades."))
                 [NinjaSpacePirateShades.GoldWall.Key];
         }
@@ -68,13 +67,13 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.PirateSilverNinja, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.PirateSilverNinja, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place);
-            return new InitializeResult(place, (enemies.NinjaSpacePirateStates[0]
-                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback);
+            // The Pirate's setup builds the state its animation runs on.
+            return new InitializeResult(place,
+                NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant().SpawnSettings<NinjaSpacePirateSpawnSettings>(), place).Playback);
         }
     }
 }

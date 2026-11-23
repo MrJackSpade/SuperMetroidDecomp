@@ -1,9 +1,7 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.Core.Samus.Colours;
@@ -17,9 +15,9 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// game's suit colouring does. Runtime satisfies that contract by allowing the drained or rainbow
 /// colouring to return before this step. All remaining special colourings run earlier and
 /// this step therefore has final priority over charge, Speed Booster, shinespark,
-/// Crystal Flash, and X-ray colors during its first six updates.
+/// Crystal Flash, and X-ray colors during its coloured updates (<see cref="SamusHurtFlashDefinitions.ColouredUpdates"/>).
 /// </remarks>
-public static class SamusHurtFlash
+public static partial class SamusHurtFlash
 {
     /// <summary>
     /// Advances one hurt-flash update, optionally showing the flash's or the restored suit's shade as the suit's colours
@@ -36,19 +34,18 @@ public static class SamusHurtFlash
         Ensure.NotNull(colours);
         Ensure.NotNull(samus);
 
-        int counterBefore = samus.HurtFlash.Count;
-        if (counterBefore == 0)
+        if (samus.HurtFlash.IsIdle)
         {
             return;
         }
+        int counterBefore = samus.HurtFlash.Count;
 
 // The hurt flash plays the impact sound on its impact update. Cinematics and the
         // Mother-Brain drained knockback are the two exceptions; the latter is
         // identified by the same explicit phase/pose pair that replaces its movement.
         if (counterBefore == SamusHurtFlashDefinitions.ImpactSoundUpdate &&
             samus.Presentation.Mode != SamusPresentationMode.Cinematic &&
-            !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
-              samus.Pose == SamusPoseId.KnockbackLeftPose))
+            !samus.Drained.HoldsRainbowBeamKnockback(samus.Pose))
         {
             samus.AudioRequests.QueueSound(SamusSound.SamusDamaged, priority: SoundRequestPriority.Normal);
         }
@@ -57,7 +54,7 @@ public static class SamusHurtFlash
         // restores the intro shade or the equipped suit. Later updates leave the colours as they are.
         if (counterBefore <= SamusHurtFlashDefinitions.ColouredUpdates)
         {
-            if (SamusCadenceDefinitions.HurtColoursShown.IsSetIn(counterBefore))
+            if (SamusCadenceDefinitions.HurtColoursShown.IsInSecondHalfAt(counterBefore))
             {
                 colours.ShowSuit(SamusShades.Hurt(SamusHurtColorVariant.Hurt));
             }
@@ -71,8 +68,8 @@ public static class SamusHurtFlash
             }
         }
 
-        // The count advances before either comparison reads it. It starts at one or eight and clears at
-        // sixty, so it never leaves 0 through 60.
+        // The count advances before either comparison reads it. It starts low and clears at its end, so it
+        // never leaves the flash's range.
         int counterAfter = samus.HurtFlash.Advance();
 
         if (counterAfter == SamusHurtFlashDefinitions.SoundRecoveryCount)
@@ -106,7 +103,7 @@ public static class SamusHurtFlash
     }
 
     /// <summary>
-    /// At hurt counter forty, restores the movement sound selected by Samus's current
+    /// At the hurt counter's sound recovery (<see cref="SamusHurtFlashDefinitions.SoundRecoveryCount"/>), restores the movement sound selected by Samus's current
     /// spin or active grapple state; a charged flare instead defers beam audio.
     /// </summary>
     private static void RecoverInterruptedSound(
@@ -130,16 +127,9 @@ public static class SamusHurtFlash
             return;
         }
 
-        // The grapple-phase comparison accepts firing, swinging, locked,
-        // wall-grab, and wall-grab-release phases. Cancel and all later teardown/drop
-        // phases intentionally leave grapple audio silent.
-        bool grappleSoundActive = samus.Grapple.Phase is
-            GrapplePhase.Firing or
-            GrapplePhase.ConnectedSwinging or
-            GrapplePhase.ConnectedLocked or
-            GrapplePhase.WallGrab or
-            GrapplePhase.WallGrabRelease;
-        if (grappleSoundActive)
+        // The grapple keeps its sound while it fires, swings, holds locked, grabs a wall and lets go of one; it is
+        // silent once it is cancelled and through everything after.
+        if (samus.Grapple.Phase.PlaysGrappleSound)
             samus.AudioRequests.QueueSound(SamusSound.Grappling, priority: SoundRequestPriority.High);
     }
 

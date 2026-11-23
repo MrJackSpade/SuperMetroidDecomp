@@ -98,8 +98,7 @@ internal static class PauseMenuVerification
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var presentation = CreateConstructedPausePresentation(bus);
         // The HUD gameplay latched, which pause keeps resident (#1466).
-        var gameplayHud = new HudState();
-        gameplayHud.BindPresentation(presentation.Game.GameplayHud);
+        var gameplayHud = new HudState(presentation.Game.GameplayHud);
         gameplayHud.Initialize(HudSnapshot.NewGame);
         ShownHud retainedHud = gameplayHud.Shown();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
@@ -142,7 +141,7 @@ internal static class PauseMenuVerification
             "pause map shows through the frame's opening one row above the opening's page cells");
         // The display packet shows the marker's first pulse frame where Samus's map cell lies on the scrolled map.
         SpriteSheetFrame markerFrame = MenuSheetFixtures.For(presentation).Get(SpriteSheetId.MapSprites)
-            .Frame(SuperMetroid.Core.Frontend.Map.MapSpriteNames.Name(SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorSmall));
+            .Frame(SuperMetroid.Core.Frontend.Map.MapSpriteDefinitions.Names[SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorSmall]);
         AssertEqual(new Offset16<ScreenPixels>(116, 64),
             ShownSpriteDraws(pause).Single(draw => ReferenceEquals(draw.Image, markerFrame)).Origin, "pause map marker shows its initial frame at its origin");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
@@ -158,7 +157,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Right);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.MorphBall, pause.SelectedControl, "pause Right selects the first collected suit and miscellaneous control, Morph Ball");
         pause.Render();
-        AssertEqual(new Offset16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites)).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0x90, 0x70), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the suits category's selector frame at the Morph Ball's origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(presentation.Game, 805) & 0x1c00,
@@ -182,7 +181,7 @@ internal static class PauseMenuVerification
         pause.Step(0, ControllerButton.Down);
         AssertEqual<PauseEquipmentControl>(PauseEquipmentControls.Bombs, pause.SelectedControl, "pause Down selects collected Bombs");
         pause.Render();
-        AssertEqual(new Offset16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites)).Origin,
+        AssertEqual(new Offset16<ScreenPixels>(0xa0, 0x80), ShownEquipmentSelector(pause, MenuSheetFixtures.For(presentation).Get(SpriteSheetId.PauseSprites), presentation.Game.PauseSelectors).Origin,
             "pause shows the equipment selector at the Bombs' origin");
         pause.Step(0, ControllerButton.A);
         AssertTrue(!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs),
@@ -287,14 +286,13 @@ internal static class PauseMenuVerification
         [.. pause.ComposeScene().Layers.ToArray().OfType<SpritesLayer>().Single().Draws.Cast<ImageSpriteDraw>()];
 
     /// <summary>
-    /// The one draw of the display packet showing the suits and boots categories' selector frame for the selector's
-    /// current phase, which a beam or reserve selector does not show.
+    /// The one draw of the display packet showing a suits and boots categories' selector frame, one of the frames the
+    /// selector's looks show for those columns, which a beam or reserve selector does not show.
     /// </summary>
-    private static ImageSpriteDraw ShownEquipmentSelector(PauseMenuState pause, SpriteSheet pauseSheet)
+    private static ImageSpriteDraw ShownEquipmentSelector(PauseMenuState pause, SpriteSheet pauseSheet, PauseSelectorPresentation selectors)
     {
-        SpriteSheetFrame frame = pauseSheet.Frame(PauseSelectorAnchors.SheetFrameName(
-            pause.ItemSelectorAnimationState.Look.Equipment));
-        return ShownSpriteDraws(pause).Single(draw => ReferenceEquals(draw.Image, frame));
+        SpriteSheetFrame[] frames = [.. selectors.Looks.Select(look => pauseSheet.Frame(PauseSelectorAnchors.SheetFrameName(look.Equipment)))];
+        return ShownSpriteDraws(pause).Single(draw => frames.Any(frame => ReferenceEquals(draw.Image, frame)));
     }
 
     /// <summary>Seeds a three-byte SNES pointer in the constructed pause-menu cartridge fixture.</summary>

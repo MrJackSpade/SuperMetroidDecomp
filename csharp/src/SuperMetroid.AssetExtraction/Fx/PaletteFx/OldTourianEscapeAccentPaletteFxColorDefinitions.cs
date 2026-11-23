@@ -2,32 +2,16 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics for the old-Tourian railing and panel flash loops.</summary>
-/// <remarks>
-/// The two definitions use identical fifteen-record timing.
-/// Their 90 BGR555 words remain live presentation data; this catalog owns palette
-/// placement, timing, waits, and loop control.
-/// </remarks>
-public static class OldTourianEscapeAccentPaletteFxColorDefinitions
+/// <summary>The records of the old-Tourian railings' and panels' flashes and the colours each writes, for the import.</summary>
+public static partial class OldTourianEscapeAccentPaletteFxColorDefinitions
 {
 
     /// <summary>Each record writes three live BGR555 colors.</summary>
-    public const int ColorsPerFrame = 3;
+    internal const int ColorsPerFrame = 3;
 
-    /// <summary>The orange-railing and yellow-panel programs in definition order, the railings and panels flashing on separate but rhythm-matched lists.</summary>
-    public static IReadOnlyList<OldTourianEscapeAccentPaletteFxColorDefinition> All { get; } =
-    [
-        new()
-        {
-            Owner = OldTourianEscapeAccentPaletteOwner.OrangeRailings,
-            Object = ColourEffectId.OldTourianBackgroundRailingsFlashYellow,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.OldTourianBackgroundRailingsFlashYellow, ColorsPerFrame),
-        },
-        new()
-        {
-            Owner = OldTourianEscapeAccentPaletteOwner.YellowPanels,
-            Object = ColourEffectId.OldTourianBackgroundPanelsFlashYellow,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.OldTourianBackgroundPanelsFlashYellow, ColorsPerFrame),
-        },
-    ];
+    /// <summary>The orange railings' flash.</summary>
+    internal static OldTourianEscapeAccentPaletteFxColorDefinition OldTourianBackgroundRailingsFlashYellow { get; } = new(ColourEffectId.OldTourianBackgroundRailingsFlashYellow, ColorsPerFrame);
+
+    /// <summary>The yellow panels' flash.</summary>
+    internal static OldTourianEscapeAccentPaletteFxColorDefinition OldTourianBackgroundPanelsFlashYellow { get; } = new(ColourEffectId.OldTourianBackgroundPanelsFlashYellow, ColorsPerFrame);
 }

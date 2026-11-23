@@ -4,8 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>Block reactions spawned by Samus and her weapons: grapple, bomb, crumble, Speed Booster, shot and bombed special blocks.</summary>
-[RoomLifetime]
-internal sealed class BlockReactionObjects
+internal sealed partial class BlockReactionObjects
 {
     /// <summary>Frees the animals a shot block holds in when a shot that breaks it hits.</summary>
     private readonly ICrittersEscapeReaction _escapeAnimals;
@@ -35,8 +34,8 @@ internal sealed class BlockReactionObjects
         RoomBlockBehavior behavior)
     {
         Ensure.NotNull(level);
-        bool respawning = behavior.Grapple == GrappleReaction.RespawningBreakableAnchor;
-        if (!respawning && behavior.Grapple != GrappleReaction.PermanentBreakableAnchor)
+        if (behavior.Grapple is not { } grapple ||
+            !GrappleReactionDefinitions.BreakableAnchorsGrowBack.TryGetValue(grapple, out bool respawning))
             throw new ArgumentOutOfRangeException(nameof(behavior), "The behaviour is not a breakable grapple block.");
 
         // The spawn takes the first free place in update order. Matching it matters if multiple room objects mutate the
@@ -58,18 +57,17 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Starts a timed collision bomb block and substitutes its parent appearance before the first room-object pass.</summary>
-    public bool TrySpawnCollisionBombBlock(
+    /// <param name="level">The room's level data.</param>
+    /// <param name="position">The bomb block Samus's contact breaks.</param>
+    /// <param name="change">The collision bomb block its break sets off (<see cref="BlockReactionChanges.TryCollisionBomb"/>).</param>
+    /// <returns>Whether the reaction took a place; a full room loses it.</returns>
+    internal bool TrySpawnCollisionBombBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior)
+        BlockReactionChange change)
     {
         Ensure.NotNull(level);
-        if (!BombableReactions.IsBreak(behavior.Bombable))
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(behavior),
-                "Collision bomb-block behaviour must be one of the eight bomb-block breaks.");
-        }
+        Ensure.NotNull(change);
 
         // The reaction takes the first free place in update order, as every room object spawned in play does, and a full
         // room loses the spawn. One movement can set off several neighbouring blocks, each timed on its own.
@@ -79,11 +77,10 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
 
-        // This is not the block's earlier appearance. The setup deliberately replaces the block and its mirroring with the
-        // bomb-block parent; multi-block restorations then add extension blocks around this parent.
+        // This is not the block's earlier appearance: the setup shows the bomb-block parent in place of the block and
+        // its mirroring, and multi-block restorations then add extension blocks around this parent.
         RoomBlockAppearance parent = _drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent);
-        place.Become(new BlockReactionObject(BlockReactionChanges.CollisionBomb(behavior.Bombable),
-            new RoomTerrainBlock(parent, block.CollisionType)));
+        place.Become(new BlockReactionObject(change, new RoomTerrainBlock(parent, block.CollisionType)));
         level.SetTerrain(position, new RoomTerrainBlock(parent, RoomCollisionType.Air));
         return true;
     }
@@ -94,7 +91,7 @@ internal sealed class BlockReactionObjects
     /// </summary>
     /// <remarks>
     /// Only downward collision activates it: the setup keeps the block's collision kind and mirroring with the crumble
-    /// parent's block as the restore block, makes the live block solid, and delays the change for four room-object
+    /// parent's block as the restore block, makes the live block solid, and delays the change for its delay's room-object
     /// passes. Crumble blocks that grow back reverse their animation and restore the parent; the others end on air. The
     /// collision check returns solid for the triggering frame on its own, whether or not the crumble took a place.
     /// </remarks>
@@ -127,8 +124,8 @@ internal sealed class BlockReactionObjects
     /// The setup accepts boost-counter stage four and all six directional shinespark poses. On acceptance it preserves
     /// the collision kind in the eventual restore block, substitutes the Speed Booster parent's block, and makes the
     /// live block air before the
-    /// room objects' step draws the first crumble frame. Rejected contact deletes the temporary
-    /// place synchronously and the block stays solid to the bomb.
+    /// room objects' step draws the first crumble frame. Rejected contact takes no place and leaves the block solid to
+    /// the bomb.
     /// </remarks>
     /// <returns>True when contact passes: accepted setup, or an exhausted room-object pool.</returns>
     public bool TrySpawnSamusSpeedBoosterBlock(
@@ -146,16 +143,13 @@ internal sealed class BlockReactionObjects
 
         // A Speed Booster block lets Samus through unless its reaction refuses her. When every place is held no reaction
         // takes a place, so nothing can refuse her: she passes and the block stays as it is, unbroken.
-        if (_places.IsFull)
-            return true;
-
         bool activeSpeedBooster = samus.IsActivelySpeedBoosting;
         bool activeShinespark = samus.IsShinesparking;
         if (!activeSpeedBooster && !activeShinespark)
-            return false;
+            return _places.IsFull;
 
         if (_places.Spawn() is not { } place)
-            return false;
+            return true;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
@@ -168,22 +162,26 @@ internal sealed class BlockReactionObjects
     }
 
     /// <summary>Selects the normal-bomb or Power Bomb reactions; only the latter plays its block's sound.</summary>
-    public bool TrySpawnBombReactionBlock(
+    /// <param name="level">The bombed block's room.</param>
+    /// <param name="position">The bombed block.</param>
+    /// <param name="bombable">The reaction the bombed block carries: a break or the empty reaction.</param>
+    /// <param name="projectileType">The bomb or Power Bomb that set the reaction off.</param>
+    public void SpawnBombReactionBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
+        BombableReaction bombable,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (behavior.Bombable is not ({ } bombable and not BombableReaction.Inert))
+        if (bombable == BombableReaction.Inert)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(behavior),
+                nameof(bombable),
                 "Bomb-reaction behaviour must be one of the bomb-block breaks or the empty reaction.");
         }
 
-        SamusProjectileFamily projectileFamily = projectileType.Family;
-        if (projectileFamily is not (SamusProjectileFamily.Bomb or SamusProjectileFamily.PowerBomb))
+        if (!WeaponBlockReactionDefinitions.BombedBlockBreaks.TryGetValue(projectileType.Family,
+                out IReadOnlyDictionary<BombableReaction, BlockReactionChange>? breaks))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(projectileType),
@@ -193,7 +191,7 @@ internal sealed class BlockReactionObjects
         // The spawn takes the first free place in update order. Importantly, a full room never calls setup and
         // therefore must not change the live terrain.
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
@@ -201,55 +199,106 @@ internal sealed class BlockReactionObjects
         if (bombable == BombableReaction.Nothing)
         {
             // The empty reaction's setup does nothing, and it leaves on its first update.
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
-            return true;
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
+            return;
         }
 
         // The setup discards the earlier appearance rather than preserving the visible block. Dimension-specific final
         // draws reconstruct linked extension blocks; a 1x1 block respawns with this exact restore block.
         RoomTerrainBlock restore = block.Terrain.WithAppearance(_drawing.SetupBlock(RoomObjectSetupBlock.BombBlockParent));
         // Only normal bombs skip the reaction sound: a normal bomb sets off the block's break directly.
-        place.Become(new BlockReactionObject(projectileFamily == SamusProjectileFamily.Bomb
-            ? BlockReactionChanges.BombBreak(bombable)
-            : BlockReactionChanges.ReactionBomb(bombable), restore));
+        place.Become(new BlockReactionObject(Ensure.Listed(breaks, bombable), restore));
 
         level.SetTerrain(position, restore.Deactivated());
+    }
+
+    /// <summary>What <see cref="TrySpawnProjectileShotBlock"/> comes to for each <see cref="ShotBlockReaction"/> member, each member's own arm.</summary>
+    private IdentityTable<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, ShootableReaction, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>> TrySpawnProjectileShotBlockForShotBlockReaction => field ??= new(new Dictionary<ShotBlockReaction, Func<RoomLevelData, Position16<RoomBlocks>, ShootableReaction, ShotBlockReaction, SamusProjectileFamily, RoomObjectPlace, RoomCollisionBlock, bool>>
+    {
+        [ShotBlockReaction.CollisionProbe] = (level, position, shootable, reaction, projectileFamily, place, block) =>
+        {
+            // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
+            // object has taken a place. This object does not change terrain and leaves on its first update.
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
+            return true;
+        },
+        [ShotBlockReaction.RespawningBreak] = (level, position, shootable, reaction, projectileFamily, place, block) =>
+        {
+            // The setup keeps the collision kind with the shot-block parent's appearance for the
+            // restoration, and deactivates the live block immediately.
+            RestoreAsParent(level, place, block, RoomObjectSetupBlock.ShotBlockParent,
+                BlockReactionChanges.RespawningShot(shootable));
+            return true;
+        },
+        [ShotBlockReaction.PermanentBreak] = (level, position, shootable, reaction, projectileFamily, place, block) =>
+        {
+            // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses
+            // its shootable collision before the first animated breaking frame runs later in this pass, keeping
+            // what it shows until then (#2502).
+            place.Become(new LastingBlockReactionObject(BlockReactionChanges.PermanentShot(shootable)));
+            level.SetCollision(position, block.Terrain.Deactivated().Collision);
+            return true;
+        },
+        [ShotBlockReaction.RespawningPowerBombBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnWeaponShotBlock(level, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.PermanentPowerBombBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnWeaponShotBlock(level, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.RespawningSuperMissileBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnWeaponShotBlock(level, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.PermanentSuperMissileBreak] = (level, position, shootable, reaction, projectileFamily, place, block) => TrySpawnWeaponShotBlock(level, reaction, projectileFamily, place, block),
+        [ShotBlockReaction.Nothing] = (level, position, shootable, reaction, projectileFamily, place, block) =>
+        {
+            // The empty reactions leave the block alone, and the object still holds a place until its first update.
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
+            return true;
+        },
+    });
+
+    /// <summary>
+    /// What <see cref="TrySpawnProjectileShotBlockForShotBlockReaction"/> does for a block only one weapon breaks: the
+    /// Power Bomb and Super Missile blocks, respawning or permanent.
+    /// </summary>
+    private bool TrySpawnWeaponShotBlock(RoomLevelData level, ShotBlockReaction reaction, SamusProjectileFamily projectileFamily,
+        RoomObjectPlace place, RoomCollisionBlock block)
+    {
+        WeaponShotBlock yielding = Ensure.Listed(WeaponBlockReactionDefinitions.WeaponShotBlocks, reaction);
+        if (Ensure.Listed(yielding.Weapons, projectileFamily) == ShotBlockWeaponEffect.ShowsReveal)
+        {
+            // A normal bomb does not break this block. The setup redirects to the block's one-frame visible
+            // reveal, deliberately leaving the live block and its collision untouched.
+            place.Become(new LastingBlockReactionObject(yielding.Reveal));
+            return true;
+        }
+
+        // The block's own weapon keeps the collision kind with the block's parent appearance, deactivates the live
+        // block, and runs the block's change: a respawning block the ordinary breakup, a permanent one its
+        // shorter counterpart.
+        RestoreAsParent(level, place, block, yielding.Parent, yielding.Break);
         return true;
     }
 
-    /// <summary>Selects a shot-block room object by behaviour, weapon family, and air-versus-solid collision semantics.</summary>
+    /// <summary>
+    /// Sets off the room object of a shot block the shot-block response handles, by its reaction, the strike's weapon and
+    /// whether the struck block is solid: a reaction that sets off only in a shootable block passes shootable air by.
+    /// </summary>
     public bool TrySpawnProjectileShotBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
-        SamusProjectileType projectileType,
+        ShotBlock shot,
+        BlockStrike strike,
         bool solidBlock)
     {
         Ensure.NotNull(level);
-        if (behavior == EscapeAnimalWallDefinitions.ReactionBehavior)
-            return _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, projectileType);
-        if (ShotBlockReactions.Of(behavior.Shootable) is not { } reaction)
-        {
-            throw new UnsupportedShotBlockReactionException(
-                nameof(behavior),
-                $"Shootable behaviour {behavior} has no reaction, or requires a specialized reaction outside the breakable/nothing room-object response.");
-        }
+        ShotBlockReaction reaction = Ensure.NotNull(shot).Response;
 
         // A reaction that sets its object off only in a shootable block leaves shootable air before spawning; its
-        // solid-block sibling places the object that does nothing. A reaction that sets its object off only in solid
-        // blocks spawns nothing outside one.
-        if (behavior.Shootable is { } shootable && shootable.SetsOffOnlyInSolidBlocks && !solidBlock)
+        // solid-block sibling places the object that does nothing.
+        if (shot.Reaction.SetsOffOnlyInSolidBlocks && !solidBlock)
             return false;
 
-        SamusProjectileFamily projectileFamily = projectileType.Family;
+        SamusProjectileFamily projectileFamily = strike.Family;
 
-        // A Power Bomb or Super Missile block breaks only for its own weapon or a bomb; any other shot leaves the block as it
-        // is and takes no place.
-        if (reaction is ShotBlockReaction.RespawningPowerBombBreak or ShotBlockReaction.PermanentPowerBombBreak &&
-            projectileFamily is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
-            return false;
-        if (reaction is ShotBlockReaction.RespawningSuperMissileBreak or ShotBlockReaction.PermanentSuperMissileBreak &&
-            projectileFamily is not (SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Bomb))
+        // A Power Bomb or Super Missile block breaks only for the weapons it yields to: its own weapon or a bomb; any other
+        // shot leaves the block as it is and takes no place.
+        if (WeaponBlockReactionDefinitions.WeaponShotBlocks.TryGetValue(reaction, out WeaponShotBlock? weaponBlock) &&
+            !weaponBlock.Weapons.ContainsKey(projectileFamily))
             return false;
 
         // The spawn takes the first free place in update order and changes nothing when the room is full. The projectile still receives the
@@ -260,103 +309,41 @@ internal sealed class BlockReactionObjects
         RoomCollisionBlock block = level.GetCollisionBlock(position);
         place.Block = position;
 
-        switch (reaction)
-        {
-            case ShotBlockReaction.CollisionProbe:
-                // Setting it up ends the shot's span of blocks, which a shot's collision does only once the room
-                // object has taken a place. This object does not change terrain and leaves on its first update.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
-                return true;
-
-            case ShotBlockReaction.RespawningBreak:
-                // The setup keeps the collision kind with the shot-block parent's appearance for the 384-frame
-                // restoration, and deactivates the live block immediately.
-                RestoreAsParent(level, place, block, RoomObjectSetupBlock.ShotBlockParent,
-                    BlockReactionChanges.RespawningShot(behavior.Shootable));
-                return true;
-
-            case ShotBlockReaction.PermanentBreak:
-                // The deactivating setup keeps no restore block: these breaks are permanent. The current block loses its
-                // shootable collision before the first animated breaking frame runs later in this pass, keeping what it
-                // shows until then, as the setup rewrites only the block's type (#2502).
-                place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(behavior.Shootable)));
-                level.SetCollision(position, block.Terrain.Deactivated().Collision);
-                return true;
-
-            case ShotBlockReaction.RespawningPowerBombBreak:
-            case ShotBlockReaction.PermanentPowerBombBreak:
-                if (projectileFamily == SamusProjectileFamily.Bomb)
-                {
-                    // A normal bomb does not break this block. The setup redirects to the one-frame visible power-bomb
-                    // reveal without touching collision.
-                    place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
-                    return true;
-                }
-
-                // A power bomb keeps the collision kind with the power-bomb parent's appearance, deactivates the live
-                // block, and runs its definition's change. The respawning block uses the ordinary four-frame breakup; the
-                // permanent one its shorter 3/2/1-frame counterpart.
-                RestoreAsParent(level, place, block, RoomObjectSetupBlock.PowerBombBlockParent,
-                    reaction == ShotBlockReaction.RespawningPowerBombBreak
-                        ? BlockReactionChangeDefinitions.RespawningPowerBombBlock
-                        : BlockReactionChangeDefinitions.PermanentPowerBombBlock);
-                return true;
-
-            case ShotBlockReaction.RespawningSuperMissileBreak:
-            case ShotBlockReaction.PermanentSuperMissileBreak:
-                if (projectileFamily == SamusProjectileFamily.Bomb)
-                {
-                    // Ordinary bombs get the analogous one-frame Super Missile reveal. It deliberately leaves the live
-                    // block untouched.
-                    place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
-                    return true;
-                }
-
-                // Super Missiles keep the collision kind with the Super Missile parent's appearance; one definition owns the
-                // respawning change and the other the permanent one.
-                RestoreAsParent(level, place, block, RoomObjectSetupBlock.SuperMissileBlockParent,
-                    reaction == ShotBlockReaction.RespawningSuperMissileBreak
-                        ? BlockReactionChangeDefinitions.RespawningSuperMissileBlock
-                        : BlockReactionChangeDefinitions.PermanentSuperMissileBlock);
-                return true;
-
-            case ShotBlockReaction.Nothing:
-                // The empty reactions leave the block alone, and the object still holds a place until its first update.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
-                return true;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ShotBlockReaction)} {reaction}.");
-        }
+        return TrySpawnProjectileShotBlockForShotBlockReaction[reaction](level, position, shot.Reaction, reaction, projectileFamily, place, block);
     }
 
+    /// <summary>Frees the animals the escape wall at <paramref name="position"/> holds in, when the strike breaks it.</summary>
+    public bool TrySpawnAnimalEscape(RoomLevelData level, Position16<RoomBlocks> position, BlockStrike strike) =>
+        _escapeAnimals.TrySpawnCrittersEscapeReaction(level, position, strike);
+
     /// <summary>Spawns the room object of a special block a normal bomb hits, by the block's reaction.</summary>
-    public bool TrySpawnBombedSpecialBlock(
+    /// <param name="level">The bombed block's room.</param>
+    /// <param name="position">The bombed block.</param>
+    /// <param name="special">The reaction the bombed special block carries.</param>
+    /// <param name="projectileType">The bomb or Power Bomb that hit it.</param>
+    public void SpawnBombedSpecialBlock(
         RoomLevelData level,
         Position16<RoomBlocks> position,
-        RoomBlockBehavior behavior,
+        SpecialBlockReaction special,
         SamusProjectileType projectileType)
     {
         Ensure.NotNull(level);
-        if (projectileType.Family == SamusProjectileFamily.PowerBomb)
-            return false;
-        if (projectileType.Family != SamusProjectileFamily.Bomb)
+        if (!WeaponBlockReactionDefinitions.SetsOffSpecialBlocks.TryGetValue(projectileType.Family, out bool setsOff))
         {
             throw new ArgumentOutOfRangeException(
                 nameof(projectileType),
                 "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
         }
+        if (!setsOff)
+            return;
 
-        if (behavior.Special is null)
-            throw new ArgumentOutOfRangeException(nameof(behavior), "The special block's behaviour has no special-block reaction.");
-        BlockReactionChange change = BombSpecialBlockReactions.ChangeFor(behavior.Special);
+        LastingBlockReactionChange change = BombSpecialBlockReactions.ChangeFor(special);
 
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = position;
-        place.Become(new BlockReactionObject(change));
-        return true;
+        place.Become(new LastingBlockReactionObject(change));
     }
 
     /// <summary>
@@ -364,10 +351,10 @@ internal sealed class BlockReactionObjects
     /// any other image, or the block's saved terrain restored as it grows back, closes it again.
     /// </summary>
     /// <param name="block">The reaction's block.</param>
-    /// <param name="draw">The image's draw; null when the image restored the block's saved terrain.</param>
-    internal void RecordImageShown(Position16<RoomBlocks> block, RoomObjectDraw? draw)
+    /// <param name="image">The image shown: a draw, or the block's saved terrain restored.</param>
+    internal void RecordImageShown(Position16<RoomBlocks> block, BlockReactionImage image)
     {
-        if (draw is RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame.BreaksOpen: true })
+        if (image is BlockReactionImage.Drawn { Draw: RoomObjectFrameDraw<ShotBlockObjectDraws.BreakupDraw> { Frame.BreaksOpen: true } })
             _brokenOpenBlocks.Add(block);
         else
             _brokenOpenBlocks.Remove(block);

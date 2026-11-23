@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// object; the room steps and draws the live ones in the order they spawned, and forgets each once it ends. There is no
 /// limit on how many are live at once.
 /// </summary>
-[RoomLifetime]
-internal sealed class RoomEffectActors
+internal sealed partial class RoomEffectActors
 {
     /// <summary>Publishes the objects from the room's enemy artwork.</summary>
     private readonly EnemyPresentation _presentation;
@@ -25,7 +24,7 @@ internal sealed class RoomEffectActors
     private readonly List<RoomEffectActor> _objects = [];
 
     /// <summary>The place each object in <see cref="_objects"/> took, for those that took one.</summary>
-    private readonly Dictionary<RoomEffectActor, int> _takenPlaces = [];
+    private readonly Dictionary<RoomEffectActor, EffectActorPlaces.TakenPlace> _takenPlaces = [];
 
     /// <summary>Told of each object the draw reaches, which a Puyo's later ceiling strike reads.</summary>
     private readonly PuyoCeilingTurnFromLastDraw _puyoCeilingTurn;
@@ -53,7 +52,7 @@ internal sealed class RoomEffectActors
     {
         ForgetEnded();
         var spawned = new RoomEffectActor(kind, position, graphics);
-        if (_places.Take() is int place)
+        if (_places.Take() is { } place)
             _takenPlaces.Add(spawned, place);
         _objects.Add(spawned);
         return spawned;
@@ -61,15 +60,15 @@ internal sealed class RoomEffectActors
 
     /// <summary>The place <paramref name="spawned"/> took when it spawned, or null when every place was taken.</summary>
     /// <param name="spawned">The object most recently spawned.</param>
-    internal int? PlaceOf(RoomEffectActor spawned) =>
-        _takenPlaces.TryGetValue(Ensure.NotNull(spawned), out int place) ? place : null;
+    internal EffectActorPlaces.TakenPlace? PlaceOf(RoomEffectActor spawned) =>
+        _takenPlaces.GetValueOrDefault(Ensure.NotNull(spawned));
 
     /// <summary>Forgets every object that has ended, freeing the places they took.</summary>
     private void ForgetEnded()
     {
         foreach (RoomEffectActor ended in _objects)
         {
-            if (ended.IsActive || !_takenPlaces.Remove(ended, out int place))
+            if (ended.IsActive || !_takenPlaces.Remove(ended, out EffectActorPlaces.TakenPlace? place))
                 continue;
             _places.Free(place);
         }
@@ -110,18 +109,26 @@ internal sealed class RoomEffectActors
                 CameraPastRoomEdge.FromCamera(spawned.Position.Whole.X, camera.X),
                 CameraPastRoomEdge.FromCamera(spawned.Position.Whole.Y, camera.Y));
 
-            // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817).
+            // A hit burst shows Samus's burst sprites, every other object a frame of its enemy sheet (#1817); an object whose
+            // animation has shown no frame yet shows neither.
             if (spawned.Frame.HitBurst is { } burst)
-            {
                 hitBursts.Draw(sprites, burst, screen);
-                continue;
+            // A translucent object shows its last picture at half strength on every update, through the empty frames its
+            // animation flickers between (#2642).
+            else if (spawned.IsTranslucent)
+            {
+                if (spawned.LastPictured is { } pictured)
+                {
+                    _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
+                        EnemySheetDefinitions.EffectActorFrameName(pictured), screen, spawned.Graphics, translucent: true);
+                }
             }
-            EnemyFrameId shown = spawned.Frame.RequireEnemyFrame();
             // The empty frame, between a Metroid's crackles and its shell's flashes, draws nothing.
-            if (CommonEnemyEmptyFrames.DrawsNothing(shown))
-                continue;
-            _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
-                EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
+            else if (spawned.Frame.EnemyFrame is { } shown && !CommonEnemyEmptyFrames.DrawsNothing(shown))
+            {
+                _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
+                    EnemySheetDefinitions.EffectActorFrameName(shown), screen, spawned.Graphics);
+            }
         }
     }
 }

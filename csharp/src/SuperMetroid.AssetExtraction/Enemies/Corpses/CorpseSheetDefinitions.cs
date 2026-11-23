@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 
 /// <summary>Where the rotting corpses' row uploads land in the sprite characters (#1406, #1539).</summary>
-internal static class CorpseSheetDefinitions
+internal static partial class CorpseSheetDefinitions
 {
     /// <summary>
     /// The destination word the OBJ character table begins at in the corpses' row upload descriptors, whose rows land in

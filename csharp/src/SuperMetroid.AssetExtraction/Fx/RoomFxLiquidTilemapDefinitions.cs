@@ -6,21 +6,21 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>Calculated stock liquid BG3 layouts at $8A:8000,8840,9080.</summary>
-public static class RoomFxLiquidTilemapDefinitions
+public static partial class RoomFxLiquidTilemapDefinitions
 {
     /// <summary>
-    /// Returns cell0..1055 of a 32x33 lava, acid or water page. Lava's first row
+    /// Returns the cell at <paramref name="index"/> of a 32x33 lava, acid or water page. Lava's first row
     /// repeats three surface characters; its remaining rows are solid body tiles.
     /// Acid adds a blank row above that surface. Water adds the same blank row,
     /// four surface rows repeated across four columns, then a repeating 4x4 body.
     /// Palette/priority select the native liquid layer; all flip bits are clear.
     /// </summary>
-    public static SnesBgTilemapWord Cell(RoomFxType type, int index)
+    internal static SnesBgTilemapWord Cell(RoomFxType type, int index)
     {
         ValidateType(type);
         if ((uint)index >= RoomFxLayer3TilemapFormat.CellsPerPage)
             throw new ArgumentOutOfRangeException(nameof(index));
-        int row = index / 32, column = index % 32;
+        int row = index / RoomFxLayer3TilemapFormat.WidthInTiles, column = index % RoomFxLayer3TilemapFormat.WidthInTiles;
         bool blank = type != RoomFxType.Lava && row == 0;
         int character;
         if (blank) character = 78;

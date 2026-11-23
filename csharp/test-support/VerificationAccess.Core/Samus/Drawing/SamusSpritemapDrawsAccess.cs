@@ -24,21 +24,20 @@ internal readonly record struct SamusSpritemapArtwork(
 internal static class SamusSpritemapDrawsAccess
 {
     /// <summary>
-    /// Ports <c>AddSamusSpritemapToOAM</c> at <c>$81:89AE</c> as one whole-frame draw: the spritemap selected by a
-    /// word index into the bank-$92 pointer table at <c>$92:808D</c>, at a screen origin, with the parts' authored
-    /// palettes and priorities.
+    /// Ports <c>AddSamusSpritemapToOAM</c> at <c>$81:89AE</c> as one whole-frame draw: a decoded composition, at a screen
+    /// origin, with the parts' authored palettes and priorities.
     /// </summary>
-    /// <param name="spritemapIndex">Index into the installed Samus spritemap table.</param>
+    /// <param name="frame">The decoded composition, or none for one that draws nothing.</param>
     /// <param name="origin">Screen-space origin produced by bank $90.</param>
     /// <param name="artwork">The spritemaps and the characters their parts name.</param>
     /// <param name="source">The Samus element the draw shows.</param>
     internal static OamBuffer SamusSpritemapOam(
-        int spritemapIndex,
+        SpriteFrame? frame,
         Position16<ScreenPixels> origin,
         SamusSpritemapArtwork artwork,
         SpriteSource source)
     {
-        if (artwork.Spritemaps.TryGetFrame(spritemapIndex, out SpriteFrame? frame))
+        if (frame is not null)
         {
             // A spritemap that names a character beyond its own sheet reads the rest of the OBJ table there.
             SpriteArtwork characters = frame.LastCharacter < artwork.Characters.CharacterCount
@@ -46,9 +45,9 @@ internal static class SamusSpritemapDrawsAccess
             return SpriteFrameBufferAccess.Assemble([new CharacterSpriteDraw(source, frame, characters, origin, PictureFlip.None, 0, 0)],
                 parkUnused: false);
         }
-        // A zero entry in the installed pointer table dereferences $92:0000, direct-page scratch. Its parts would need
-        // direct-page emulation the port does not model, so a zero entry is exempt and draws nothing (owner decision
-        // on #1318).
+        // A zero entry in the cartridge's pointer table dereferences $92:0000, direct-page scratch. Its parts would need
+        // direct-page emulation the port does not model, so the import decodes no composition and it draws nothing (owner
+        // decision on #1318).
         return SpriteFrameBufferAccess.Assemble([], parkUnused: false);
     }
 }

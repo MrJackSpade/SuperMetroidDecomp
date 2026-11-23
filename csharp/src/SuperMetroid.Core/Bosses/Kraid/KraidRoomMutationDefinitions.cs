@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The terrain change of each of Kraid's room mutations.</summary>
-internal static class KraidRoomMutationDefinitions
+internal static partial class KraidRoomMutationDefinitions
 {
     /// <summary>Updates each crumble image, background or spike image shows.</summary>
     internal const int CrumbleFrameDuration = 3;
@@ -35,10 +35,9 @@ internal static class KraidRoomMutationDefinitions
 
     /// <summary>
     /// The change each mutation makes: a ceiling block crumbles into its background; a platform variant only sets its
-    /// block to its background; the clears draw once; the spike crumble crumbles eleven pairs of columns left to right.
+    /// block to its background; the clears draw once; the spike crumble crumbles its pairs of columns (<see cref="SpikePassCount"/>) left to right.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<KraidRoomMutation, TerrainChange> Changes =
-        new Dictionary<KraidRoomMutation, TerrainChange>
+    internal static readonly IdentityTable<KraidRoomMutation, TerrainChange> Changes = new(new Dictionary<KraidRoomMutation, TerrainChange>
         {
             [KraidRoomMutation.CrumbleCeilingAtLeftEdge] = new(1, CrumbleInto(KraidRoomDraw.CeilingBackgroundLeftEdge, Offset16<RoomBlocks>.Zero)),
             [KraidRoomMutation.CrumblePlatformInOddColumn] = new(1, [Shown(KraidRoomDraw.CeilingBackgroundOddColumn)]),
@@ -53,5 +52,5 @@ internal static class KraidRoomMutationDefinitions
                 .. CrumbleInto(KraidRoomDraw.SpikeBackgroundRightColumn, NextColumn),
                 .. Enumerable.Repeat(LaterSpikePass, SpikePassCount - 1).SelectMany(pass => pass),
             ]),
-        };
+        });
 }

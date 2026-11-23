@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// in exactly one place.
 /// </summary>
 /// <typeparam name="TSpace">The coordinate space the displacement is measured in.</typeparam>
-[SpatialComponents("Spatial value type: owns its X and Y axes, each a whole pixel and its fraction.")]
-public readonly record struct FixedVector<TSpace>(SignedSixteenSixteen X, SignedSixteenSixteen Y)
+public readonly partial record struct FixedVector<TSpace>(SignedSixteenSixteen X, SignedSixteenSixteen Y)
     where TSpace : ISpatialSpace
 {
     /// <summary>No displacement.</summary>

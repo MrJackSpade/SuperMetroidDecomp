@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley's death breakup: the order its parts spawn in, the tail pose of each tail fragment and the position and pose
 /// of each body fragment.
 /// </summary>
-internal static class RidleyBreakup
+internal static partial class RidleyBreakup
 {
-    /// <summary>Spawns every part in the breakup's allocation order.</summary>
+    /// <summary>Spawns every part in the order the breakup spawns them.</summary>
     internal static void SpawnInBreakupOrder(Action<RidleyExplosionPart> spawn)
     {
         Ensure.NotNull(spawn);

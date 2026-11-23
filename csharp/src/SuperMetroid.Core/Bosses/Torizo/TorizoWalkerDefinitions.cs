@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// How each Torizo walks in each of its states (#2335, #2472): the turn about a wall or its wait behind Samus starts, and
 /// that wait's length.
 /// </summary>
-internal static class TorizoWalkerDefinitions
+internal static partial class TorizoWalkerDefinitions
 {
     /// <summary>Bomb Torizo with its face: it turns about, and it waits long before it turns toward Samus.</summary>
     internal static TorizoWalker BombTorizo { get; } =

@@ -3,13 +3,10 @@ using static SuperMetroid.Core.Rooms.RoomObjects.RoomObjectBombedRevealDrawDefin
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The bombed reveals: their family, each one block colliding as its definition says (#1862, #2034).</summary>
-internal static class BombedRevealObjectDraws
+internal static partial class BombedRevealObjectDraws
 {
     /// <summary>The three reveals, pictured by the installed reveals and walls.</summary>
     internal static RoomObjectDrawFamily<RoomObjectBombedRevealDraw> Family { get; } =
-        RoomObjectDrawFamily<RoomObjectBombedRevealDraw>.Pictured<InstalledRoomObjectRevealAndWallVisuals>("reveal and wall",
-            frame => RoomBlockShapes.Block(Collisions.TryGetValue(frame, out var collision)
-                ? collision
-                : throw new InvalidOperationException($"Undefined bombed-reveal draw {frame}.")),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<RoomObjectBombedRevealDraw>("reveal and wall",
+            frame => RoomBlockShapes.Block(Collisions[frame]));
 }

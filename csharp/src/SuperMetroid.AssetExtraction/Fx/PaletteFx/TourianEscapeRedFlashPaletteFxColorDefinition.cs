@@ -2,27 +2,21 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete early Tourian escape red-flash control program.</summary>
-public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
+/// <summary>One early Tourian escape red flash's records and the colours each writes.</summary>
+public sealed partial class TourianEscapeRedFlashPaletteFxColorDefinition
 {
-    /// <summary>Only the catalog creates definitions.</summary>
-    internal TourianEscapeRedFlashPaletteFxColorDefinition()
+    /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
+    /// <param name="effect">The colour effect whose records the program holds.</param>
+    /// <param name="colorsPerFrame">The colours each record writes.</param>
+    internal TourianEscapeRedFlashPaletteFxColorDefinition(ColourEffectId effect, int colorsPerFrame)
     {
+        Effect = effect;
+        ColorFrames = PaletteFxColorFrames.Of(effect, colorsPerFrame);
     }
 
-    /// <summary>The mutually exclusive escape-palette owner.</summary>
-    public required TourianEscapeRedFlashPaletteOwner Owner { get; init; }
-
-    /// <summary>The palette-FX object that installs this program.</summary>
-    public required ColourEffectId Object { get; init; }
-
-
-    /// <summary>The uniform display duration for every record.</summary>
-    public required int Duration { get; init; }
-
-    /// <summary>The number of live BGR555 colors in every record.</summary>
-    public required int ColorsPerFrame { get; init; }
+    /// <summary>The colour effect whose records the program holds, which identifies the definition.</summary>
+    public ColourEffectId Effect { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public required PaletteFxColorFrames ColorFrames { get; init; }
+    public PaletteFxColorFrames ColorFrames { get; }
 }

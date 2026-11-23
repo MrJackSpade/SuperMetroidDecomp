@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// The pause screen's reserve-tank strip: how many places it draws a tank at, the pictures its tanks show with the name
 /// each is installed under, and the partial tank each fill step shows.
 /// </summary>
-public static class PauseReserveTankDefinitions
+public static partial class PauseReserveTankDefinitions
 {
     /// <summary>Six origins, including the trailing cap position.</summary>
     public const int AnchorCount = 6;
@@ -24,6 +24,9 @@ public static class PauseReserveTankDefinitions
         new("Fill6", PauseReserveTankVisual.Fill6),
         new("Fill7", PauseReserveTankVisual.Fill7),
     ];
+
+    /// <summary>Each reserve visual's installed frame name, one for every visual.</summary>
+    internal static InstalledKeys<PauseReserveTankVisual> InstalledNames { get; } = new(Frames.ToDictionary(frame => frame.Id, frame => frame.Name));
 
     /// <summary>The partial-tank picture identity for each fill-step count, empty (zero steps) through seven steps.</summary>
     internal static readonly PauseReserveTankVisual[] FillLevels =

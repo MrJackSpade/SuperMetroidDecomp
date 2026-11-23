@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Abilities.PowerBombExplosionDefinitions;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The afterglow steps of a Crystal Flash's explosion.</summary>
-public static class PowerBombExplosionAfterglow
+public static partial class PowerBombExplosionAfterglow
 {
     /// <summary>
     /// The updates Crystal Flash's afterglow fades for before the blast ends, one fade step on each:

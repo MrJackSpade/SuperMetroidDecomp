@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// choices read its named fields and the named chances they take, so the sample answers those questions by name; the range 0..65535 is the generator's own and is load-bearing, because each test reads a different
 /// part of the same number.
 /// </summary>
-public readonly record struct MotherBrainRandomSample
+public readonly partial record struct MotherBrainRandomSample
 {
     /// <summary>The number of distinct values the generator produces.</summary>
     private const int ValueCount = 65536;

@@ -10,11 +10,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// feeding on it, so nothing has fed on it.
 /// </summary>
 /// <param name="enemies">The room's enemies, in placement order.</param>
-[RoomLifetime]
-internal sealed class BabyMetroidFeeding(EnemyPlaces enemies) : IBabyMetroidFeeding
+internal sealed partial class BabyMetroidFeeding(EnemyPlaces enemies) : IBabyMetroidFeeding
 {
     /// <inheritdoc/>
     public bool HasAlreadyFedOn(RoomEnemyPlace victim) =>
-        BabyMetroidVictim.FeederOf(enemies.InUpdateOrder, Ensure.NotNull(victim).Ordinal)?.SpeciesState<BabyMetroidEnemyState>()
-            is { Action: BabyMetroidAction.Dormant };
+        BabyMetroidVictim.FeederOf(enemies.InUpdateOrder, victim)?.Entity
+            is BabyMetroidEntity { State.Action: BabyMetroidAction.Dormant };
 }

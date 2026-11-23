@@ -61,7 +61,7 @@ internal static class TitleSequenceRomDataVerification
             maximumFrames: 2_500,
             "complete natural title sequence");
         AssertSequenceEqual(naturalOrder, observed, "natural title phase order");
-        AssertEqual(FloorZoom.OwnSize, state.FloorZoom,
+        AssertEqual((FloorZoom?)FloorZoom.OwnSize, state.FloorZoom,
             "natural title reaches the floor's own size");
         AssertEqual(TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,
             state.TitleScreenFramesRemaining,
@@ -95,7 +95,7 @@ internal static class TitleSequenceRomDataVerification
             "title skip fade route");
         AssertTrue(skipPhases.Contains(TitleSequencePhase.TitleScreenFadeIn),
             "title skip rebuilds objects before fading back in");
-        AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full, skipped.Brightness,
+        AssertEqual(SuperMetroid.Core.Rendering.DisplayBrightness.Full.StepsAboveBlack, skipped.Brightness.StepsAboveBlack,
             "title skip returns at full brightness");
         for (int idle = 1; idle < TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames; idle++)
             skipped.Step(0);
@@ -176,7 +176,7 @@ internal static class TitleSequenceRomDataVerification
         // Timing/selector identities are typed now. Keep synthetic blank
         // artwork, but provide the complete selector inventory to the extractor.
         int pointer = TitleSourceDefinitions.TextLists[definition.Phase];
-        foreach (TitleCardOracle.NativeEntry step in TitleCardOracle.Entries(definition.Phase))
+        foreach (TitleCardOracle.NativeEntry step in TitleCardOracle.Entries(definition.Card.Card))
         {
             if (step.Cue is { } command)
             {

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// order, each loop's frames, its distinct pictures and their sizes, and the byte lengths of the treadmill frames and the
 /// Tourian statue strip. The game plays one loop at a time and draws the installed pictures.
 /// </summary>
-public static class RoomFxBlockAnimationLoops
+public static partial class RoomFxBlockAnimationLoops
 {
     /// <summary>The bytes of characters every Wrecked Ship treadmill frame shows: two characters.</summary>
     public const int TreadmillFrameByteCount = 32;
@@ -22,29 +22,14 @@ public static class RoomFxBlockAnimationLoops
         ? animation
         : throw new InvalidOperationException($"{animation} has no block animation loop.");
 
-    /// <summary>Enumerates the seven loops whose every picture the atlas holds as its own, in atlas order.</summary>
-    public static IEnumerable<BlockAnimation> All
-    {
-        get
-        {
-            yield return Require(BlockAnimation.HorizontalSpikes);
-            yield return Require(BlockAnimation.MaridiaSandCeiling);
-            yield return Require(BlockAnimation.MaridiaSandFalling);
-            yield return Require(BlockAnimation.Lava);
-            yield return Require(BlockAnimation.Acid);
-            yield return Require(BlockAnimation.Rain);
-            yield return Require(BlockAnimation.Spores);
-        }
-    }
-
-    /// <summary>One loop's frames and the distinct pictures they show, as the installed atlas stores them (#1527).</summary>
+    /// <summary>One loop's frames and the distinct pictures they show, as the import's atlas stores them (#1527).</summary>
     extension(BlockAnimation loop)
     {
         /// <summary>The frames the loop shows, in order, each with the passes it is shown for (<see cref="BlockAnimationLoops.Frames"/>).</summary>
         /// <exception cref="InvalidOperationException">The animation has no loop.</exception>
         internal IReadOnlyList<TimedArtworkFrame> Frames => BlockAnimationLoops.Frames(loop);
 
-        /// <summary>The distinct pictures the object's frames show, each held once in the installed atlas.</summary>
+        /// <summary>The distinct pictures the object's frames show, each held once in the import's atlas.</summary>
         /// <exception cref="InvalidDataException">
         /// The object has no pictures in the atlas, or its picture count is not between one and its frame count.
         /// </exception>

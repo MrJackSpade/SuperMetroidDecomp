@@ -4,47 +4,66 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's arm (#2146): its swipe, its push of Samus, and its own shot reaction.</summary>
 /// <param name="species">The Kraid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the arm occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidArmEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : KraidLimbEntity(species, place, common, species.Parts.ArmReference), IEnemyPrivateShotReaction
+/// <param name="encounter">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class KraidArmEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+    KraidEnemyState encounter)
+    : KraidLimbEntity(species, occupant, place, common, encounter), IEnemyPrivateShotReaction
 {
-    /// <inheritdoc/>
-    protected override void SetUp() => Species.Limbs.InitializeKraidArm(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Kraid species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the arm occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
+    /// <returns>The enemy, set up.</returns>
+    internal static KraidArmEntity SetUp(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        KraidEnemyState encounter) =>
+        new(species, occupant, place, common, species.Limbs.InitializeKraidArm(place, encounter));
 
     /// <summary>The arm's own part of the encounter.</summary>
-    protected override KraidAnimatedPartState Part => Encounter.ArmState;
+    internal override KraidAnimatedPartState Part => Encounter.ArmState;
 
     /// <summary>The arm's hitboxes, which its frame's components hold.</summary>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        KraidCombat.FindKraidArmHitboxReaction(Place, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        KraidCombat.FindKraidArmHitboxReaction(Place, probe);
 
     /// <summary>The arm's shot reaction.</summary>
     protected override EnemyShotReaction LimbShotReaction => Species.Combat.ArmShotReaction;
 
-    /// <summary>The arm's bomb reaction.</summary>
-    protected override void ReactToLimbBomb(EnemyBombContext context) => Species.Combat.ReactToArmBomb(context);
+    /// <summary>
+    /// Runs the arm's own reaction to every bomb that overlaps it, before the ignoring check: a bomb its hitboxes select
+    /// (#2301).
+    /// </summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context)
+    {
+        Species.Combat.ReactToArmBomb(context);
+        return true;
+    }
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
-
-    /// <summary>The arm's touch reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesTouch => KraidReactions.ArmTouch;
+    public override void RunMainAi(IEnemyAiFrame frame) => KraidLimbs.RunKraidArmMain(Place, Encounter, frame.Camera.Y);
 
     /// <summary>Whether the arm's push, where its definition leaves Samus's touch to it, or a shared touch applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
+    public override bool ReactsToTouch => Occupant.Definition.Touch == KraidReactions.ArmTouch || base.ReactsToTouch;
 
     /// <summary>Runs the arm's push where its definition leaves Samus's touch to it, or the shared touch.</summary>
     /// <param name="context">The touch.</param>
     public override void ReactToTouch(EnemyTouchContext context)
     {
-        if (LeavesTouchToSpecies)
+        if (Occupant.Definition.Touch == KraidReactions.ArmTouch)
             Species.Combat.ReactToArmTouch(context, Encounter);
         else
             base.ReactToTouch(context);
     }
 
     /// <summary>The arm's shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species definition or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == KraidReactions.ArmShot;
+    /// <param name="reaction">The reaction the species definition or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == KraidReactions.ArmShot;
 }

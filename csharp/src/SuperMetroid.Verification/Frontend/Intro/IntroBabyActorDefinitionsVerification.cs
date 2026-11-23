@@ -31,7 +31,7 @@ internal static class IntroBabyActorDefinitionsVerification
         cartridgeInput.Load(DemoInputListWords.IntroBabyDiscoveryObject, initializationParameter: 0);
         for (int frame = 0; frame < 128; frame++)
         {
-            compiledInput.Step(cue => throw new InvalidOperationException($"SR388 running-left loop called {cue}."));
+            compiledInput.Step();
             cartridgeInput.Step((_, _) => { }, NativeDemoInputReference.NoRoutines);
             AssertEqual(cartridgeInput.Snapshot(), NativeDemoInputReference.Of(compiledInput, DemoInputNativeListAddresses.PhaseAddress(IntroBabyDiscoveryDemoPhase.RunningLeft)),
                 $"SR388 initial demo loop object at frame {frame}");
@@ -50,19 +50,19 @@ internal static class IntroBabyActorDefinitionsVerification
             int definitionAddress = IntroBabyActorDefinitions.NativeBank | actors[index].DefinitionPointer;
             ushort[] routines = [CinematicActorNativeMotions.MetroidEgg[MetroidEggBehavior.WaitsForSamus], CinematicActorNativeMotions.DeliveredBaby, CinematicActorNativeMotions.ExaminedBaby,
                 CinematicActorNativeMotions.ConfusedBaby[ConfusedBabyMotion.WaitingForHatch]];
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 2)), routines[index],
+            AssertEqual(retail.ReadCartridgeWord((definitionAddress + 2)), routines[index],
                 $"intro baby actor {index} routine: the behaviour the actor starts with");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+            AssertEqual(retail.ReadCartridgeWord((definitionAddress + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"intro baby actor {index} instruction list");
 
             // The definition's initialization callback supplies the compiled placement.
             int initializer = IntroBabyActorDefinitions.NativeBank |
-                CartridgeImportSource.Require(retail).ReadCartridgeWord(definitionAddress);
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 1)), actual.Position.X,
+                retail.ReadCartridgeWord(definitionAddress);
+            AssertEqual(retail.ReadCartridgeWord((initializer + 1)), actual.Position.X,
                 $"intro baby actor {index} initializer X immediate");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 7)), actual.Position.Y,
+            AssertEqual(retail.ReadCartridgeWord((initializer + 7)), actual.Position.Y,
                 $"intro baby actor {index} initializer Y immediate");
-            PaletteRowWords.AssertSelectsOnlyPaletteRow(CartridgeImportSource.Require(retail).ReadCartridgeWord((initializer + 13)), IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(actual.Colouring)),
+            PaletteRowWords.AssertSelectsOnlyPaletteRow(retail.ReadCartridgeWord((initializer + 13)), IntroDrawnShadeChecks.InstalledRow(IntroShades.Drawn(actual.Colouring)),
                 $"intro baby actor {index} initializer palette immediate");
         }
 
@@ -76,8 +76,12 @@ internal static class IntroBabyActorDefinitionsVerification
         var reference = new IntroBabyDiscoveryState(new SharedRandom(), 
             existingSamus: (new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())),
             shellFallPastCurve: InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve, audio: AudioQueues.Standalone());
+        // The scene's room is the plain terrain of the discovery room's authored collision, at its size.
+        var discoveryRoom = new SuperMetroid.Core.Samus.Movement.PlainTerrain(
+            new Extent16<RoomBlocks>(IntroBabyDiscoveryCollisionDefinitions.Columns, IntroBabyDiscoveryCollisionDefinitions.RoomRows),
+            IntroBabyDiscoveryCollision.CreateCollision());
         for (int block = 0; block < nativeCollision.Length; block++)
-            AssertEqual(nativeCollision[block], discovery.Level.GetCollisionBlockByIndex(block).Terrain.Collision,
+            AssertEqual(nativeCollision[block], discoveryRoom.Level.GetCollisionBlockByIndex(block).Terrain.Collision,
                 $"SR388 discovery physical block {block} matches the decoded original");
         discovery.Samus.Position = discovery.Samus.Position.WithWholeX(0x00a8);
         reference.Samus.Position = reference.Samus.Position.WithWholeX(0x00a8);
@@ -136,8 +140,8 @@ internal static class IntroBabyActorDefinitionsVerification
         for (ushort frame = 0; frame < 1024 &&
             (!delivery.NextPageRequested || !examination.NextPageRequested); frame++)
         {
-            delivery.Step(IntoLaboratory(frame));
-            examination.Step(IntoLaboratory(frame));
+            delivery.Step(IntoLaboratory(frame + 1));
+            examination.Step(IntoLaboratory(frame + 1));
         }
         AssertTrue(delivery.NextPageRequested,
             "delivered-baby production actor reaches page-four instruction");
@@ -154,15 +158,15 @@ internal static class IntroBabyActorDefinitionsVerification
             "  Intro baby actors: definition, 138 discovery, 142 scientist and 768 collision bytes match; full guarded scenes pass.");
     }
 
-    /// <summary>The crossfade into the laboratory with <paramref name="updatesLeft"/> updates left, as a scene's update sees it (#1980).</summary>
+    /// <summary>The crossfade into the laboratory with <paramref name="updatesLeft"/> updates left after this one, as a scene's update sees it (#1980).</summary>
     private static IntroCrossfadeTick IntoLaboratory(int updatesLeft) =>
         new(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory, updatesLeft);
 
     /// <summary>The crossfade back out of the laboratory on the update it finishes (#1980).</summary>
-    private static IntroCrossfadeTick OutOfLaboratoryFinishing => new(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration, 0);
+    private static IntroCrossfadeTick OutOfLaboratoryFinishing => new(IntroCrossfadeScene.Laboratory, IntroCrossfadeScene.Narration, 1);
 
     /// <summary>Reads a single retail byte only for the comparison oracle, outside the guarded production playback.</summary>
-    private static byte IntroBabyActorDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte IntroBabyActorDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Rejects production rereads of compiled Baby actor, instruction, demo-input and discovery-collision regions.</summary>
     private static CartridgeReadGuard NewIntroBabyActorDefinitionGuard(ISnesAddressSpace source) =>

@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.FrameRendering;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks X-Ray activation, beam display, release, and excluded-room input routes.</summary>
 internal static class XrayInputVerification
@@ -30,11 +31,11 @@ internal static class XrayInputVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // The platform's lowest position is a Morph-only tunnel. Standing there
@@ -46,12 +47,12 @@ internal static class XrayInputVerification
         runtime.StepFrame(0);
         runtime.StepFrame(ControllerButton.Select);
         AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
-        runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         AssertTrue(samus.Xray.IsActive, "held Run activates selected X-ray without diagnostic activation");
         AssertTrue(runtime.Freeze.TimeIsFrozen, "X-ray activation freezes gameplay");
         for (int frame = 0; frame < 90; frame++)
         {
-            runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+            runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             if (frame < 8)
             {
                 var startup = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
@@ -61,7 +62,7 @@ internal static class XrayInputVerification
                 {
                     AssertTrue(((GameplayBlendLayer)startup.Layers[0]).Window.IsClosed,
                         "setup keeps the beam closed while copying tilemaps");
-                    AssertEqual(frame == 7 ? XrayWindowRenderDefinitions.ActiveBackdrop : RgbColor.Black, startup.Paint.Backdrop,
+                    AssertEqual(frame == 7 ? XrayWindowRenderDefinitions.ActiveBackdrop : RgbColor.Black, startup.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance),
                         "only setup stage eight installs the X-ray backdrop");
                 }
             }
@@ -71,7 +72,7 @@ internal static class XrayInputVerification
         var horizontalPixels = DisplayRendering.Render(horizontal);
         var probe = runtime.Room.LoadedLevelData.GetObjectCollisionBlockByIndex(7 * runtime.Room.LoadedLevelData.Size.X + 12);
         InstalledXrayReveals installedReveals = runtime.Xray.XrayRevealVisuals;
-        AssertEqual(255, (installedReveals.Apply(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires an X-ray reveal for the probed air block.")).Blocks?.TopLeft,
+        AssertEqual(SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(255), (installedReveals.Apply(probe.CollisionType, probe.Behavior) ?? throw new InvalidOperationException("Verification requires an X-ray reveal for the probed air block.")).Blocks?.TopLeft,
             "the installed air reveal replaces decorative wall art with the blank metatile");
         var ordinaryPixels = DisplayRendering.Render(runtime.PublishDisplayFrame().OrdinaryBaseScene);
         int revealedAirPixel = 120 * 256 + 200;
@@ -83,18 +84,15 @@ internal static class XrayInputVerification
 
         }
         for (int frame = 0; frame < 240; frame++)
-            runtime.StepFrame((runtime.Options.ControllerBindings.Dash | (frame < 80 ? ControllerButton.Up : ControllerButton.Down)));
+            runtime.StepFrame((runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash] | (frame < 80 ? ControllerButton.Up : ControllerButton.Down)));
         var captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var reveal = captured.LayersOf<GameplayBlendLayer>().Single();
         AssertTrue(!reveal.Window.IsClosed, "full X-ray publishes a nonempty visible window");
         var pixels = DisplayRendering.Render(captured);
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
-        AssertEqual(BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop, reveal.Blend.Blended,
-            "a reveal room blends both backgrounds, the actors and the backdrop outside the cone");
-        AssertEqual(BlendOperation.Add, reveal.Blend.Operation, "a reveal room's blend adds");
-        AssertEqual(reveal.OverlayBehind is not null, reveal.Blend.Halved,
-            "a reveal room halves toward its liquid lying behind, and adds the X-ray's colour whole where none lies behind");
-        AssertEqual(XrayWindowRenderDefinitions.ActiveBackdrop, captured.Paint.Backdrop, "setup backdrop reaches the packet");
+        AssertTrue(reveal.Blend is XrayDimmingBlend { Mode.WashesGrey: true, Mode.KeepsBackgrounds: false, Mode.KeepsDarkness: false, RoomDarkens: false },
+            "a reveal room washes both backgrounds, the actors and the backdrop grey outside the cone, brightening");
+        AssertEqual(XrayWindowRenderDefinitions.ActiveBackdrop, captured.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), "setup backdrop reaches the packet");
         // The background shows the reveal over the room's own blocks (#1403, #1431, #1514).
         XrayRevealPlane shownReveal = reveal.Gameplay.Rooms.Background is SuperMetroid.Core.Gameplay.XrayRevealBackground { Reveal: var revealed } ? revealed
             : throw new InvalidOperationException("The captured X-ray frame shows no reveal.");
@@ -115,14 +113,14 @@ internal static class XrayInputVerification
             AssertTrue(closing.Layers[0] is GameplayBlendLayer, "the beam's closing retains X-ray layer ownership");
             AssertTrue(((GameplayBlendLayer)closing.Layers[0]).Window.IsClosed,
                 "the beam's window stays closed until the beam's last step");
-            AssertEqual(RgbColor.Black, closing.Paint.Backdrop, "the closing resets the backdrop before unfreezing");
+            AssertEqual(RgbColor.Black, closing.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), "the closing resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "the beam's last step releases gameplay time");
         var finishFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(finishFrame.Layers[0] is GameplayBlendLayer,
             "the beam's last step still publishes X-ray blending before the next HDMA pass resets configuration");
-        AssertEqual(0, ((GameplayBlendLayer)finishFrame.Layers[0]).Blend.Colour.FadeLevels.Red,
+        AssertEqual(0, ((XrayDimmingBlend)((GameplayBlendLayer)finishFrame.Layers[0]).Blend).Tint.FadeLevels.Red,
             "the beam's last step clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");
@@ -136,21 +134,21 @@ internal static class XrayInputVerification
         {
             runtime.LoadCartridgeRoomForDebug(excludedRoom);
             samus.Control.Unlock();
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
             // This fixture checks display selection only; X-ray freezes the seeded
             // position so it need not drive an unrelated room's entrance sequence.
             AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "excluded-room capture fixture activates");
-            for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+            for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             var baseFrame = runtime.PublishDisplayFrame().OrdinaryBaseScene;
             var excludedFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             var excluded = (GameplayBlendLayer)excludedFrame.Layers[0];
             AssertTrue(!excluded.RevealBlocks, "native excluded room never substitutes the reveal map");
             var baseRooms = ((GameplaySceneLayer)baseFrame.Layers[0]).Rooms;
             AssertTrue(excluded.Gameplay.Rooms.Background == baseRooms.Background, "excluded room retains the room's own BG2");
-            AssertTrue((excluded.Blend.Blended & BlendedLayers.Actors) == 0, "an excluded room's blend leaves Samus color unchanged");
+            AssertTrue(excluded.Blend is XrayDimmingBlend { Mode.KeepsBackgrounds: true }, "an excluded room keeps its backgrounds and Samus's colours");
             AssertEqual(excludedRoom != RoomDefinitions.GlassTunnel,
                 excluded.Gameplay.View.ShownLayers.HasFlag(ScreenLayers.Background), "CEFB alone removes BG2");
             for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);

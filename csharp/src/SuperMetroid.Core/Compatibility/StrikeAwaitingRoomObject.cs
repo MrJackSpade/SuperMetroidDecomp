@@ -20,8 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </remarks>
 /// <typeparam name="THit">What a strike tells the object: the family of the projectile that struck it.</typeparam>
-[CompatibilityService("a resident room object answers a shot on its block at its own update, the last strike waiting until it takes it")]
-public sealed class StrikeAwaitingRoomObject<THit>
+public sealed partial class StrikeAwaitingRoomObject<THit>
     where THit : struct
 {
     /// <summary>The strike the object has still to take, or null for none.</summary>

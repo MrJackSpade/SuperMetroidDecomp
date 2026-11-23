@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's third phase: recovering, setting up and fighting Samus after the baby cutscene.</summary>
-internal sealed class MotherBrainThirdPhaseFight
+internal sealed partial class MotherBrainThirdPhaseFight
 {
     /// <summary>The late fight's own state, with the walking and standing every late-fight phase shares.</summary>
     private readonly MotherBrainLateFightState _state;
@@ -20,8 +20,8 @@ internal sealed class MotherBrainThirdPhaseFight
 
     /// <summary>
     /// Mother Brain's phase-three walking.
-    /// This is deliberately separate from the visible body animation: the walking
-    /// decides what Mother Brain wants to do only while the animation-owned pose is standing.
+    /// Apart from the visible body animation, the walking decides what Mother Brain wants to do only while her animated
+    /// pose is standing.
     /// </summary>
     public MotherBrainPhase3WalkingPhase Phase3WalkingPhase { get; private set; } =
         MotherBrainPhase3WalkingPhase.Inactive;
@@ -30,8 +30,8 @@ internal sealed class MotherBrainThirdPhaseFight
     private readonly MotherBrainWalkCounter _walk;
 
     /// <summary>
-    /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles subtract
-    /// 256; Hyper Beam subtracts 266; the walking adds 32 on each update she spends standing.
+    /// Mother Brain's walk credit as the sequence uses it. Ordinary projectiles and the Hyper Beam each
+    /// subtract their cost, and the walking adds credit on each update she spends standing (<see cref="MotherBrainWalkCredit"/>).
     /// </summary>
     public MotherBrainWalkCredit Phase3WalkCounter
     {
@@ -43,7 +43,7 @@ internal sealed class MotherBrainThirdPhaseFight
     public int Phase3TargetXPosition { get; private set; }
 
     /// <summary>Mother Brain's phase-three neck movement.</summary>
-    public MotherBrainPhase3NeckPhase Phase3NeckPhase { get; internal set; } =
+    internal MotherBrainPhase3NeckPhase Phase3NeckPhase { get; set; } =
         MotherBrainPhase3NeckPhase.Inactive;
 
     /// <summary>The wait of her neck's recoil from a Hyper Beam hit (#2469), which its recoil phase runs out.</summary>
@@ -53,10 +53,10 @@ internal sealed class MotherBrainThirdPhaseFight
     public BossCountdown RecoilRecoveryWait { get; } = new();
 
     /// <summary>
-    /// Whether phase-three attacks are suspended. Hyper Beam recoil sets it
-    /// and the recoil timer clears it before the recovery pose begins.
+    /// Whether phase-three attacks are suspended: while her neck recoils from the Hyper Beam, as its phase records
+    /// (#2560), until the recoil timer ends it before the recovery pose begins.
     /// </summary>
-    public bool Phase3DisableAttacks { get; private set; }
+    public bool Phase3DisableAttacks => Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil;
 
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
     private void StepPhase3Walk(MotherBrainRandomSample randomNumberSeed)
@@ -66,19 +66,22 @@ internal sealed class MotherBrainThirdPhaseFight
         if (Encounter.Pose != MotherBrainBodyPose.Standing)
             return;
 
-        switch (Phase3WalkingPhase)
+        // Each case ends the update or goes on into the case it has just entered (#2553).
+        while (true)
         {
-            case MotherBrainPhase3WalkingPhase.Inactive:
+            if (Phase3WalkingPhase == MotherBrainPhase3WalkingPhase.Inactive)
+            {
                 return;
-
-            case MotherBrainPhase3WalkingPhase.TryToInchForward:
+            }
+            else if (Phase3WalkingPhase == MotherBrainPhase3WalkingPhase.TryToInchForward)
+            {
                 if (Phase3WalkCounter.IsEmpty)
                 {
-                    // With no credit left she retreats: she picks a point fourteen pixels left and starts retreating
+                    // With no credit left she retreats: she picks a point her retreat's distance left and starts retreating
                     // quickly in this same update.
                     Phase3TargetXPosition = _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels;
                     Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatQuickly;
-                    goto case MotherBrainPhase3WalkingPhase.RetreatQuickly;
+                    continue;
                 }
 
                 // Past the count's top the credit starts again from zero, and spends more updates below a whole
@@ -103,8 +106,9 @@ internal sealed class MotherBrainThirdPhaseFight
 
                 _state.RequestWalkForward(Phase3TargetXPosition, forwardSpeed);
                 return;
-
-            case MotherBrainPhase3WalkingPhase.RetreatQuickly:
+            }
+            else if (Phase3WalkingPhase == MotherBrainPhase3WalkingPhase.RetreatQuickly)
+            {
                 if (!_state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.ReallyFast))
                     return;
 
@@ -113,18 +117,17 @@ internal sealed class MotherBrainThirdPhaseFight
                 Phase3TargetXPosition = _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels;
                 Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.RetreatSlowly;
                 return;
-
-            case MotherBrainPhase3WalkingPhase.RetreatSlowly:
+            }
+            else
+            {
+                // The remaining member, MotherBrainPhase3WalkingPhase.RetreatSlowly.
                 if (!_state.RequestWalkBackward(Phase3TargetXPosition, MotherBrainWalkSpeed.Fast))
                     return;
 
-                // She goes back to inching forward with a credit of 64 toward a point one pixel ahead.
+                // She goes back to inching forward with her after-retreat credit toward a point one pixel ahead.
                 SetPhase3WalkingToTryToInchForward(MotherBrainLateFightDefinitions.Phase3AfterRetreatCredit);
                 return;
-
-            default:
-                throw new InvalidOperationException(
-                    $"Unsupported phase-three walking phase {Phase3WalkingPhase}.");
+            }
         }
     }
 
@@ -139,20 +142,24 @@ internal sealed class MotherBrainThirdPhaseFight
     /// <summary>Advances normal neck motion and the timed recovery after regular or hyper-beam recoil.</summary>
     private void StepPhase3Neck()
     {
-        switch (Phase3NeckPhase)
+        // Each case ends the update or goes on into the case it has just entered (#2553).
+        while (true)
         {
-            case MotherBrainPhase3NeckPhase.Inactive:
+            if (Phase3NeckPhase == MotherBrainPhase3NeckPhase.Inactive)
+            {
                 return;
-
-            case MotherBrainPhase3NeckPhase.Normal:
+            }
+            else if (Phase3NeckPhase == MotherBrainPhase3NeckPhase.Normal)
+            {
                 // The neck goes back to its ordinary bob.
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.BobDown;
                 Encounter.UpperNeckMovement = MotherBrainNeckMovement.BobUp;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Inactive;
                 return;
-
-            case MotherBrainPhase3NeckPhase.StartRecoilRecovery:
+            }
+            else if (Phase3NeckPhase == MotherBrainPhase3NeckPhase.StartRecoilRecovery)
+            {
                 Encounter.NeckMovementEnabled = true;
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Fast;
                 Encounter.LowerNeckMovement = MotherBrainNeckMovement.Lower;
@@ -161,9 +168,10 @@ internal sealed class MotherBrainThirdPhaseFight
                 RecoilRecoveryWait.LastFor(MotherBrainLateFightDefinitions.RecoilRecoveryUpdates);
 
                 // The recovery's first update is this same update.
-                goto case MotherBrainPhase3NeckPhase.RecoilRecovery;
-
-            case MotherBrainPhase3NeckPhase.RecoilRecovery:
+                continue;
+            }
+            else if (Phase3NeckPhase == MotherBrainPhase3NeckPhase.RecoilRecovery)
+            {
                 if (RecoilRecoveryWait.StepKeepsRunning())
                     return;
 
@@ -171,10 +179,10 @@ internal sealed class MotherBrainThirdPhaseFight
                 _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
                 return;
-
-            case MotherBrainPhase3NeckPhase.StartHyperBeamRecoil:
+            }
+            else if (Phase3NeckPhase == MotherBrainPhase3NeckPhase.StartHyperBeamRecoil)
+            {
                 Encounter.NeckMovementEnabled = true;
-                Phase3DisableAttacks = true;
                 _state.SetHeadAnimation(MotherBrainHeadSegment.HyperBeamRecoil);
                 Encounter.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.HyperBeamRecoil;
@@ -184,20 +192,18 @@ internal sealed class MotherBrainThirdPhaseFight
                 HyperBeamRecoilWait.LastFor(MotherBrainLateFightDefinitions.HyperBeamRecoilUpdates);
 
                 // The recoil's first update is this same update.
-                goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
-
-            case MotherBrainPhase3NeckPhase.HyperBeamRecoil:
+                continue;
+            }
+            else
+            {
+                // The remaining member, MotherBrainPhase3NeckPhase.HyperBeamRecoil.
                 if (HyperBeamRecoilWait.StepKeepsRunning())
                     return;
 
                 Encounter.NeckTurnPerUpdate = MotherBrainNeckTurnDefinitions.Bobbing;
-                Phase3DisableAttacks = false;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.StartRecoilRecovery;
                 return;
-
-            default:
-                throw new InvalidOperationException(
-                    $"Unsupported phase-three neck phase {Phase3NeckPhase}.");
+            }
         }
     }
 
@@ -207,10 +213,10 @@ internal sealed class MotherBrainThirdPhaseFight
     /// </summary>
     internal bool RecoverAndBackAway()
     {
-        // The recovery changes her form before the wait to fight, and she walks back fourteen pixels quickly; at
+        // The recovery changes her form before the wait to fight, and she walks back her retreat's distance quickly; at
         // the arena's left limit she stays where she is.
         Encounter.Form = MotherBrainForm.ThirdPhase;
-        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
+        _state.Phase3FightPhase = MotherBrainPhase3FightPhase.RecoverSetupForFighting;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.RecoverSetupUpdates);
         _state.RequestWalkBackward(
             _state.BodyPosition.X - MotherBrainLateFightDefinitions.Phase3RetreatPixels,
@@ -227,7 +233,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // The wait to fight starts on the update after the one-update recovery.
         if (Encounter.PhaseTimer.StepRunsOut())
         {
-            Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
+            _state.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
             Phase3NeckPhase = MotherBrainPhase3NeckPhase.Normal;
             Phase3WalkingPhase = MotherBrainPhase3WalkingPhase.TryToInchForward;
 
@@ -247,7 +253,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // nothing of the fight runs in between.
         if (Encounter.Head.Health == 0)
         {
-            Encounter.DeathPhase = MotherBrainDeathPhase.MoveToBackOfRoom;
+            _state.DeathPhase = MotherBrainDeathPhase.MoveToBackOfRoom;
             return false;
         }
 
@@ -269,7 +275,7 @@ internal sealed class MotherBrainThirdPhaseFight
             _state.SetHeadAnimation(MotherBrainHeadSegment.AttackingSamusFourOnionRingsPhase3);
         }
 
-        Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;
+        _state.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingAttackCooldown;
         Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.Phase3AttackCooldownUpdates);
         return false;
     }
@@ -282,7 +288,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // The attack's cooldown ends on its last update and the fight resumes on the next, so the neck and the walking
         // pause for every update of the cooldown.
         if (Encounter.PhaseTimer.StepRunsOut())
-            Encounter.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
+            _state.Phase3FightPhase = MotherBrainPhase3FightPhase.FightingMain;
         return false;
     }
 
@@ -290,12 +296,12 @@ internal sealed class MotherBrainThirdPhaseFight
     /// Runs the body's current <see cref="MotherBrainPhase3FightPhase"/> phase. True when it moves to the next body phase and the game runs on
     /// into it in the same update.
     /// </summary>
-    internal bool Run(RainbowBeamAttackFrame frame) => Encounter.Phase3FightPhase switch
+    internal bool Run(RainbowBeamAttackFrame frame) => _state.Phase3FightPhase switch
     {
         MotherBrainPhase3FightPhase.RecoverMakeSomeDistance => RecoverAndBackAway(),
         MotherBrainPhase3FightPhase.RecoverSetupForFighting => WaitToFight(),
         MotherBrainPhase3FightPhase.FightingMain => Fight(frame),
         MotherBrainPhase3FightPhase.FightingAttackCooldown => CoolDownFromAttack(),
-        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainPhase3FightPhase)} {Encounter.Phase3FightPhase}."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainPhase3FightPhase)} {_state.Phase3FightPhase}."),
     };
 }

@@ -6,8 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>Shaktool's room controller: its spawn and the room's scroll setup.</summary>
-[RoomLifetime]
-internal sealed class ShaktoolObjects
+internal sealed partial class ShaktoolObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
@@ -27,17 +26,15 @@ internal sealed class ShaktoolObjects
     /// Spawns the Shaktool room's controller and runs its scroll setup: the room's first screen open with the camera
     /// aligned to its top, and every other screen closed.
     /// </summary>
-    /// <returns>False when the room is full; the scrolls are then left untouched (<see cref="Compatibility.RoomObjectPlaces"/>).</returns>
-    public bool TrySpawnShaktoolRoomController(RoomScrollGrid scrolls)
+    public void SpawnShaktoolRoomController(RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
         if (_places.Spawn() is not { } place)
-            return false;
+            return;
 
         place.Block = Position16<RoomBlocks>.Zero;
         place.Become(new ShaktoolRoomControllerObject(_samus, _events));
         foreach (Position16<RoomScreens> screen in scrolls.Screens)
             scrolls.SetRoomScreen(screen, screen == Position16<RoomScreens>.Zero ? RoomScrollState.OpenAlignedToTop : RoomScrollState.Closed);
-        return true;
     }
 }

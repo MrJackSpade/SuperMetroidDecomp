@@ -9,7 +9,7 @@ internal static class NorfairEnvironmentalPaletteFxColorDefinitionAccess
     extension(NorfairEnvironmentalPaletteFxColorDefinition self)
     {
         /// <summary>Bytes of the heat-phase publication before each record's timer word; zero outside the heat program.</summary>
-        public int HeatPublicationByteCount => self.PublishesHeatPhase ? 3 : 0;
+        public int HeatPublicationByteCount => self.Effect == ColourEffectId.NorfairForegroundAndHeatPhase ? 3 : 0;
         /// <summary>Bytes from one record's first command through its wait command.</summary>
         public int FrameByteCount => 16 + self.HeatPublicationByteCount;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>

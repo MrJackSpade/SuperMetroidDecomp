@@ -35,7 +35,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
         // Dying while spin jumping ends the spin's sound as the death begins.
         SamusState spinning = SamusAt(SamusPoseId.SpinJumpRightPose, requests);
         spinning.DeathSequence.Begin(spinning, cameraPosition: new(0, 0));
-        AssertTurnedAway(audio, requests, SamusSound.SpinJumpEnd, "the death's spin-end sound");
+        AssertTurnedAway(audio, requests, SamusSoundStop.SpinJump, "the death's spin-end sound");
 
         // The X-ray's setup queues its start; releasing Run after the warm-up and the widening tears it down, queueing its end.
         SamusState scoping = SamusAt(SamusPoseId.FacingRightNormalPose, requests);
@@ -49,7 +49,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
         for (int update = 0; update < 4; update++)
             scoping.Xray.StepBeam(scoping, 0);
         AssertTrue(!scoping.Xray.IsActive, "releasing Run tears the X-ray down");
-        AssertTurnedAway(audio, requests, SamusSound.XrayEnd, "the X-ray's end");
+        AssertTurnedAway(audio, requests, SamusSoundStop.Xray, "the X-ray's end");
 
         // Crystal Flash's raise ends with its essential-priority silence of the room library.
         const GameplayAction chord = GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot;
@@ -59,9 +59,9 @@ internal static class SoundQueuePowerBombAdmissionVerification
         flashing.Missiles = flashing.SuperMissiles = flashing.PowerBombs = 10;
         AssertTrue(flashing.CrystalFlash.TryBegin(flashing, chord), "Crystal Flash is accepted");
         for (int frame = 0; frame < 10; frame++)
-            flashing.CrystalFlash.Step(flashing, (ushort)frame);
-        AssertEqual(CrystalFlashPhase.DrainingAmmo, flashing.CrystalFlash.Phase, "Crystal Flash's raise completes");
-        AssertTurnedAway(audio, requests, RoomSound.Silence, "Crystal Flash's silence");
+            flashing.CrystalFlash.Step(flashing, (CrystalFlashPhase.Moving)flashing.CrystalFlash.Phase, (ushort)frame);
+        AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), flashing.CrystalFlash.Phase, "Crystal Flash's raise completes");
+        AssertTurnedAway(audio, requests, RoomSoundStop.Any, "Crystal Flash's silence");
 
         // The health warning starts below 31 energy and stops at 31 or more; its latch changes either way.
         var warning = new SamusHealthWarningState();
@@ -71,7 +71,7 @@ internal static class SoundQueuePowerBombAdmissionVerification
 
         // An ordinary producer's sound is turned away the same way.
         SamusState landing = SamusAt(SamusPoseId.FacingRightNormalPose, requests);
-        landing.Ground = SamusGround.Of(RoomDefinitions.LandingSite);
+        landing.Ground = RoomDefinitions.LandingSite.Ground;
         landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(landing,
             SamusMovementType.Standing, SamusPoseId.FacingRightNormalPose, new UnsignedSixteenSixteen(5, 0));
         AssertTurnedAway(audio, requests, RoomSound.HardLanding, "a landing's sound");
@@ -95,9 +95,8 @@ internal static class SoundQueuePowerBombAdmissionVerification
         var samus = new SamusState(requests, InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0120, 0x0080)),
-        };
+        }.InPose(pose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         return samus;

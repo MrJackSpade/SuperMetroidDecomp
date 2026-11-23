@@ -19,19 +19,20 @@ internal static class SkulteraOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Skultera, place.Definition);
+        place.Bind(EnemyDefinitionId.Skultera, place.KeptDefinition);
         const int speedRecord = 3;
         place.SetSpawnParameter1(EnemyDefinitionId.Skultera, speedRecord);
         place.SetSpawnParameter2(EnemyDefinitionId.Skultera, LittleEndianBytes.Word(20, 10));
-        SkulteraBehavior.InitializeSkultera(place);
-        SkulteraEnemyState state = enemies.SkulteraStates[0]
-            ?? throw new InvalidOperationException("The initialized Skultera has no state.");
+        // The enemy is set up as its room's population sets it up: its species builds its entity, whose setup builds its state.
+        _ = enemies.LoadAuthoredPopulation();
+        SkulteraEnemyState state = SkulteraBehavior.InitializeSkultera(place.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>());
 
         SignedSixteenSixteen right = EnemyLinearSpeedTable.Speed(speedRecord);
         SignedSixteenSixteen left = -right;
-        AssertEqual(right, SkulteraBehavior.SwimVelocity(place, HorizontalDirection.Right), "rightward speed");
-        AssertEqual(left, SkulteraBehavior.SwimVelocity(place, HorizontalDirection.Left), "leftward speed");
-        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
+        // The Skultera swims its spawn speed, which parameter one selects, toward the way it heads.
+        SkulteraSpawnSettings settings = place.HeldOccupant().SpawnSettings<SkulteraSpawnSettings>();
+        AssertEqual(right, settings.Speed.Toward(HorizontalDirection.Right), "rightward speed");
+        AssertEqual(left, settings.Speed.Toward(HorizontalDirection.Left), "leftward speed");
         AssertEqual(new VerifySkulteraOwnedStateCase(20, 10), new VerifySkulteraOwnedStateCase(settings.Radius, settings.AngleStep.ToTrigonometryAngle().RawValue), "radius and angle step come from parameter two");
 
         // The wave steps forward while the Skultera swims the way it started and backward once a turn has brought it

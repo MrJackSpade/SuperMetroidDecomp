@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
@@ -27,7 +28,7 @@ internal static class MotherBrainBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room loads Mother Brain.");
@@ -35,12 +36,12 @@ internal static class MotherBrainBodyPublicationVerification
 
         // Phase one: the body is only staged; the room's pipe background shows.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Body: null, Placement: null, Hidden: false },
+        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is null,
             "phase one publishes no body over the pipe background");
 
         // Phase two: the transition reveals her body as it stands (#1515); her posture scroll places it.
         ushort[] staged = Words(runtime.Enemies.Presentation.RequireBossBody().Publish());
-        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
         // Her body is placed at her once her rise places it (#1949, #2031), each frame lying where the import placed it
         // against her.
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(65, 280));
@@ -48,11 +49,11 @@ internal static class MotherBrainBodyPublicationVerification
         var bodyPlacement = new Position16<RoomPixels>(65, 280);
         AssertEqual<Position16<RoomPixels>?>(bodyPlacement, state.BodyPlacedAt, "her body is placed at her");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        BossBodyLayer image = runtime.Display.LatchedOrdinaryRoom.Bosses.Body
+        BossBodyLayer image = runtime.Display.LatchedOrdinaryRoom.Bosses?.Body
             ?? throw new InvalidOperationException("The phase-two transition publishes her body image.");
         AssertTrue(Words(image).SequenceEqual(staged), "phase two publishes her body as it stood");
         // Her posture places her body in the room, and the frame publishes it there (#1617, #1802).
-        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Hidden: false } shownBody && shownBody.Placement == bodyPlacement,
+        AssertTrue(!runtime.Display.LatchedOrdinaryRoom.BossBodyHidden && runtime.Display.LatchedOrdinaryRoom.Bosses is { } shownBody && shownBody.Placement == bodyPlacement,
             "phase two publishes her body where she places it");
         AssertEqual(roomScroll, runtime.BackgroundScroll.BackgroundScroll, "Mother Brain leaves the room's BG2 scroll alone");
         var drawn = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
@@ -66,7 +67,7 @@ internal static class MotherBrainBodyPublicationVerification
         // Death: the flicker hides her body.
         state.DeathHidesBodyLayer = true;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertTrue(runtime.Display.LatchedOrdinaryRoom.Bosses is { Hidden: true } hiddenBody && hiddenBody.Placement == bodyPlacement,
+        AssertTrue(runtime.Display.LatchedOrdinaryRoom.BossBodyHidden && runtime.Display.LatchedOrdinaryRoom.Bosses is { } hiddenBody && hiddenBody.Placement == bodyPlacement,
             "the death flicker publishes her body hidden");
         var hidden = (GameplaySceneLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
         AssertTrue(!hidden.View.ShownLayers.HasFlag(ScreenLayers.BossBody), "a hidden body leaves her body's layer off the screen");

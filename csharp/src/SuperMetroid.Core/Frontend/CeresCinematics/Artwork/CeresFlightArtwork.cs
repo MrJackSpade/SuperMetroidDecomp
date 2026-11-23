@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// parts and colours they are composed from are the import pipeline's, which also names the content's identity (#1463,
 /// #1467). Flight motion, artwork load order and the SPACE COLONY letter script are the game's own.
 /// </summary>
-public sealed class CeresFlightArtwork
+public sealed partial class CeresFlightArtwork
 {
     /// <summary>Retains the selected backdrop and actor resources.</summary>
     /// <param name="backdrop">The colour the Ceres scenes show behind every layer once they load the flight's colours.</param>

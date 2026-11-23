@@ -22,19 +22,19 @@ internal static class CrocomireLastShotGradientVerification
     /// </summary>
     internal static void VerifyCrocomireLastShotGradient(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         CrocomireLastShotGradient installed = InstalledFixtures.BossAndIntroOverreads.CrocomireLastShotGradient;
         for (int shotsSpat = 0; shotsSpat < CrocomireProjectileDefinitions.VolleyShotCount; shotsSpat++)
         {
             int parameter = (shotsSpat + 1) * 2;
             int expected = unchecked((short)cartridge.ReadCartridgeWord(VolleyGradients + (parameter >> 1) * 2));
-            AssertEqual(expected, CrocomireVolley.GradientOf(shotsSpat, installed), $"Crocomire volley gradient after {shotsSpat} shots (spawn parameter {parameter})");
+            AssertTrue(CrocomireVolley.TryNextGradient(shotsSpat, installed, out int gradient), $"Crocomire's volley has a shot after {shotsSpat}");
+            AssertEqual(expected, gradient, $"Crocomire volley gradient after {shotsSpat} shots (spawn parameter {parameter})");
         }
-        AssertEqual(installed.Gradient, CrocomireVolley.GradientOf(CrocomireProjectileDefinitions.VolleyShotCount - 1, installed),
-            "the volley's last shot is fired along the installed gradient");
-        AssertThrows<InvalidDataException>(() => CrocomireVolley.GradientOf(CrocomireProjectileDefinitions.VolleyShotCount, installed),
-            "a shot past the volley is rejected");
-        AssertThrows<InvalidDataException>(() => CrocomireVolley.GradientOf(-1, installed), "the volley has no shot before its first");
+        AssertTrue(CrocomireVolley.TryNextGradient(CrocomireProjectileDefinitions.VolleyShotCount - 1, installed, out int lastGradient) &&
+            lastGradient == installed.Gradient, "the volley's last shot is fired along the installed gradient");
+        AssertTrue(!CrocomireVolley.TryNextGradient(CrocomireProjectileDefinitions.VolleyShotCount, installed, out _),
+            "the volley ends after its last shot");
         Console.WriteLine("Crocomire last shot gradient: every shot's gradient matches the cartridge.");
     }
 

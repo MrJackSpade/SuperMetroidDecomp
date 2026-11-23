@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// The Beetom's crawl, hop and drain animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="BeetomCue"/> naming what it does.
 /// </summary>
-internal static class BeetomAnimations
+internal static partial class BeetomAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<BeetomSegment, EnemyFrameId, BeetomCue> Segments { get; } = new(
@@ -88,7 +88,7 @@ internal static class BeetomAnimations
     /// screen, its own entry cue, and then strides for good; a hop ends on its tucked legs, held (#2432); a drain shows its
     /// green gem once and then pulses red for good.
     /// </summary>
-    internal static IReadOnlyDictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
+    internal static Dictionary<BeetomSegment, Animation<BeetomSegment>> StartingAt { get; } = new Dictionary<BeetomSegment, Animation<BeetomSegment>>
     {
         [P.CrawlingLeft] = Animation<BeetomSegment>.LeadingInto([Segments.Whole(P.CrawlingLeft)], [Segments.Whole(P.CrawlingLeftStride)]),
         [P.HopLeft] = new([Segments.Whole(P.HopLeft)], AnimationEnd.Holds),

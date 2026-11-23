@@ -17,13 +17,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>$80:A641</c>, <c>$80:A6BB</c>, <c>$80:A893</c>, <c>$80:A936</c>, which clear the fraction when the camera is held
 /// at its ideal position); the station and room loads (<c>$80:C470</c>, <c>$80:C479</c>) write only the whole camera
 /// position; and the reset vector (<c>$80:841C</c>) is the only routine that clears that memory, so every later game
-/// starts with the fractions the one before left. The Samus drunk movie's game-over reload confirms it (#1275), and the
+/// starts with the fractions the one before left. A recorded game-over reload confirms it (#1275), and the
 /// Ceres save startup check reloads a game over with the dead game's fractions.
 /// </remarks>
-[CompatibilityService("a game, demo or continued game starts its first room's camera from the fractions of a pixel the previous one's camera left, which decide on which update the camera following Samus reaches each next whole pixel")]
-public sealed class CameraFractionsKeptAcrossGames
+public sealed partial class CameraFractionsKeptAcrossGames
 {
-    /// <summary>The kept fractions, on a position of zero whole pixels; none until a game leaves its camera's.</summary>
+    /// <summary>The kept fractions, on a position of zero whole pixels; zero until a game leaves its camera's.</summary>
     public FixedPosition<RoomPixels> Fractions { get; private set; }
 
     /// <summary>Keeps the fractions of a released game's camera; its whole pixels are not kept.</summary>

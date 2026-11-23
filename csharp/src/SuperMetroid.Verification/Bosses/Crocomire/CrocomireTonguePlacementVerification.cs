@@ -23,23 +23,15 @@ internal static class CrocomireTonguePlacementVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.Crocomire));
-        body.Position = body.Position.WithWhole(new(576, 144));
-        body.Radius = new(body.Definition.Radius.X, body.Definition.Radius.Y);
-        var state = new CrocomireEnemyState(body)
-        {
-            Phase = CrocomirePhase.SteppingForward,
-            BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(
-                CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.StepForward), AnimationPlace.StartOfAnimation),
-        };
-        body.SetSpeciesState(state);
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(576, 144));
+        RoomEnemyPlace body = state.Body;
+        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
+        // He steps forward, as his fight's approach has him do.
+        state.Phase = CrocomirePhase.SteppingForward;
+        state.BodyPlayback = new AnimationPlayback<CrocomireBodySegment>(
+            CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.StepForward), AnimationPlace.StartOfAnimation);
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
-        RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
-        tongue.Bind(EnemyDefinitionId.CrocomireTongue, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.CrocomireTongue));
-        tongue.SetSpeciesState(new CrocomireTongueState(state) { BodyXOffset = CrocomireFightDefinitions.TongueBodyXOffset });
-        state.JoinTongue(tongue);
         body.AnimationClock.StepOnNextUpdate();
 
         var tongueOffset = new Offset16<RoomPixels>(CrocomireFightDefinitions.TongueBodyXOffset, 0);

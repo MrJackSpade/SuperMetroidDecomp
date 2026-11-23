@@ -75,5 +75,5 @@ internal static class GrappleCompiledMathVerification
     }
 
     /// <summary>Reads original signed trigonometry samples only for the independent oracle.</summary>
-    private static byte CompiledGrappleMathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CompiledGrappleMathRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

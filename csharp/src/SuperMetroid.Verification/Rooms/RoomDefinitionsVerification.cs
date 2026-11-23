@@ -49,7 +49,7 @@ internal static class RoomDefinitionsVerification
             if (expected)
             {
                 AssertEqual(pointer, RoomDefinitions.Get(pointer).Pointer, "Header preserves selected identity");
-                AssertEqual(pointer, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Pointer,
+                AssertEqual(pointer, SelectedRoom.ForProgress(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Pointer,
                     "Production header construction preserves identity without a cartridge capability");
             }
             else
@@ -70,9 +70,9 @@ internal static class RoomDefinitionsVerification
     /// <summary>Checks room height in screen units against header byte five.</summary>
     private static void VerifyRoomDefinitionHeightInScreens(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 5, header => header.Size.Y);
     /// <summary>Checks the upward scroller setting at header byte six.</summary>
-    private static void VerifyRoomDefinitionFallingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.FallingCameraOffset);
+    private static void VerifyRoomDefinitionFallingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 6, header => header.CameraLead.FallingOffset);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
-    private static void VerifyRoomDefinitionRisingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.RisingCameraOffset);
+    private static void VerifyRoomDefinitionRisingCameraOffset(CartridgeImportAddressSpace rom, ushort[] rooms) => VerifyRoomDefinitionField(rom, rooms, 7, header => header.CameraLead.RisingOffset);
     /// <summary>
     /// Checks the isolated door transition against bit zero of header byte eight, whatever the byte's other bits hold:
     /// rooms that set only other bits (the common-element tile reloads) keep the ordinary transition.
@@ -107,7 +107,7 @@ internal static class RoomDefinitionsVerification
             AssertEqual(expected, field(RoomDefinitions.Get(pointer)), $"Room {pointer:X4} native field {offset}");
             AssertEqual(expected, field(enumerated[index]), $"Room {pointer:X4} enumerated field {offset}");
             if (offset == 1)
-                AssertEqual(expected, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Area), "Production area view");
+                AssertEqual(expected, SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(SelectedRoom.ForProgress(RoomDefinitions.Get(pointer), RoomStateSelectionContexts.NoProgress).Area), "Production area view");
         }
     }
 

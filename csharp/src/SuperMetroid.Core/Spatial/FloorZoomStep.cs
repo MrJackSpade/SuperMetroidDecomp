@@ -4,14 +4,13 @@ namespace SuperMetroid.Core.Spatial;
 /// How far one step moves a scene's turning-floor zoom (<see cref="FloorZoom"/>): a whole number of 256ths of a floor pixel
 /// per screen pixel, at least one. The scenes widen or narrow their zoom by a fixed step each update they zoom.
 /// </summary>
-public readonly record struct FloorZoomStep
+public readonly partial record struct FloorZoomStep
 {
     /// <summary>A step of <paramref name="twoHundredFiftySixths"/> 256ths of a floor pixel per screen pixel, at least one.</summary>
     internal FloorZoomStep(int twoHundredFiftySixths) =>
         TwoHundredFiftySixths = Ensure.BetweenInclusive(1, int.MaxValue, twoHundredFiftySixths);
 
     /// <summary>The step in 256ths of a floor pixel per screen pixel, at least one.</summary>
-    [IntegerQuantity("turning-floor zoom step in 256ths of a floor pixel per screen pixel")]
     public int TwoHundredFiftySixths { get; }
 
     /// <summary>
@@ -21,6 +20,9 @@ public readonly record struct FloorZoomStep
     /// <exception cref="ArgumentOutOfRangeException">The step is not more than none, or the denominator is no power of two from 1 through 256.</exception>
     public static FloorZoomStep FromFloorPixelsPerScreenPixel(int numerator, int denominator) =>
         new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, TwoHundredFiftySixthsPerFloorPixel));
+
+    /// <summary>The finest step a zoom takes, its smallest change of floor pixels per screen pixel: the title's final zoom grows by it.</summary>
+    public static FloorZoomStep Finest { get; } = new(1);
 
     /// <summary>The 256ths one floor pixel per screen pixel counts.</summary>
     private const int TwoHundredFiftySixthsPerFloorPixel = 256;

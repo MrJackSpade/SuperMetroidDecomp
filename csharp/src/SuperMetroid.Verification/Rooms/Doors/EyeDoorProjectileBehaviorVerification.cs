@@ -21,7 +21,7 @@ internal static class EyeDoorProjectileBehaviorVerification
     /// </summary>
     internal static void VerifyEyeDoorProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorProjectileNativeListAddresses.Extent, "eye-door shot");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         // The eye's attack spawns the shot with the door its typed state keeps; the aim cue reads that state.
@@ -37,7 +37,7 @@ internal static class EyeDoorProjectileBehaviorVerification
         AssertTrue(!deleted, "the flight loops");
         AssertTrue(shot.Velocity.X.RawValue != 0 || shot.Velocity.Y.RawValue != 0, "the aim cue launches the shot toward Samus");
 
-        shot.StartAnimation(new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Impact));
+        shot.StartAnimation(new EyeDoorProjectileAnimation(enemies.EyeDoorBehavior.Shot, EyeDoorProjectileSegment.Impact));
         (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot,
             EyeDoorProjectileNativeListAddresses.Entry(EyeDoorProjectileSegment.Impact), 30, "eye-door impact");
         AssertTrue(deleted, "the impact deletes the shot");

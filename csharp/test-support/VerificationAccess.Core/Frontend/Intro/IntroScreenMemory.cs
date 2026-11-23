@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal static class IntroScreenMemory
 {
     /// <summary>The character image of <paramref name="artwork"/> and <paramref name="installedFont"/>, as `$8B:A469-$A529` upload them.</summary>
-    [WholeImageFixture("the intro's character image")]
     internal static byte[] Characters(ImportIntroCinematicArtwork artwork, IntroFontCharacters installedFont, bool japaneseGlyphsBlanked)
     {
         ImportIntroCinematicArtwork sources = artwork;
@@ -47,7 +46,6 @@ internal static class IntroScreenMemory
     /// (#1616) and the installation's opening font, which the intro's installed narration pictures are composed from (#1583),
     /// with its portrait and narration tilemaps over them.
     /// </summary>
-    [WholeImageFixture("the intro's memory image")]
     internal static byte[] Compose(IntroCinematicState intro)
     {
         ImportIntroCinematicArtwork artwork = (intro.CharacterArtwork ?? throw new InvalidOperationException(
@@ -76,7 +74,7 @@ internal static class IntroScreenMemory
             tiles[index] = IntroNarrationTilemapConstants.Margin;
             tiles[index + IntroNarrationTilemapConstants.JapaneseBlankBottomDelta] = IntroNarrationTilemapConstants.Margin;
         }
-        artwork.FinalLine.Tiles.Span[..IntroArtworkExtentDefinitions.FinalLineWordCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
+        artwork.FinalLine.Tiles.Span[..SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapFormat.CellCount].CopyTo(tiles.AsSpan(IntroNarrationTilemapConstants.FinalLineFirstCell));
         tiles[IntroNarrationTilemapConstants.FinalBlankLeftIndex] = IntroNarrationTilemapConstants.FinalBlank;
         tiles[IntroNarrationTilemapConstants.FinalBlankRightIndex] = IntroNarrationTilemapConstants.FinalBlank;
         for (int row = IntroNarrationText.FirstTextRow; row < IntroNarrationText.FirstTextRow + IntroNarrationText.TextRows; row++)
@@ -101,17 +99,16 @@ internal static class IntroScreenMemory
         BackgroundTile[] portrait = sources.PortraitTilemap.Span[..IntroCinematicDefinitionsArtworkConstants.SamusHeadTilemapCells].ToArray();
         if (eye is not { } frame)
             return portrait;
-        ReadOnlySpan<BackgroundTile> rectangle = sources.EyeFrames.FrameTiles((int)frame);
+        ReadOnlySpan<BackgroundTile> rectangle = sources.EyeFrames.FrameTiles(frame);
         var corner = new Position16<CharacterCells>(IntroEyeAnimationDefinitions.PortraitEyeCorner.X / CharacterCellConversions.CellPixels,
             IntroEyeAnimationDefinitions.PortraitEyeCorner.Y / CharacterCellConversions.CellPixels);
-        Extent16<CharacterCells> size = IntroArtworkExtentDefinitions.EyeFrameSize;
+        Extent16<CharacterCells> size = new(SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEyeTilemapFormat.Columns, SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEyeTilemapFormat.Rows);
         for (int cell = 0; cell < rectangle.Length; cell++)
             portrait[(corner.Y + cell / size.X) * IntroArtworkExtentDefinitions.PlaneCells + corner.X + cell % size.X] = rectangle[cell];
         return portrait;
     }
 
     /// <summary>The memory image of <paramref name="characters"/> with <paramref name="portrait"/> and <paramref name="narration"/> over them.</summary>
-    [WholeImageFixture("the intro's memory image")]
     internal static byte[] Compose(ReadOnlySpan<byte> characters, BackgroundTile[] portrait, BackgroundTile[] narration)
     {
         var vram = new SnesVram();

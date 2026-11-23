@@ -11,8 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <summary>
 /// Converts the retail credits row program into bounded, editable UTF-8 content.
 /// </summary>
-[EncodingOwner("cartridge credits instruction words")]
-public static class CreditsPresentationExtractor
+public static partial class CreditsPresentationExtractor
 {
     /// <summary>The bank-$8B instruction word naming each credits row command.</summary>
     private static readonly Dictionary<int, CreditsInstruction> instructions = new()
@@ -58,7 +57,7 @@ public static class CreditsPresentationExtractor
     internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] source = RomDataReader.Decompress(CartridgeImportSource.Require(bus), EndingSourceDefinitions.Credits.Tilemap);
+        byte[] source = RomDataReader.Decompress(bus, EndingSourceDefinitions.Credits.Tilemap);
         if (source.Length < EndingSourceDefinitions.Credits.TilemapBytes)
         {
             throw new InvalidDataException(
@@ -204,7 +203,7 @@ public static class CreditsPresentationExtractor
     /// <summary>Reads one instruction word from the credits program's native bank.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
         RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
+            bus,
             SnesAddress.InBank(EndingSourceDefinitions.Credits.InstructionBank, pointer));
 
     /// <summary>Advances a bank-local credits instruction pointer with native 16-bit wrapping.</summary>

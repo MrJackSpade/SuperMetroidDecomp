@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Enemies;
 /// an impact, even a shot an earlier collision this update spent, as the game's reaction does. The shot stage must run
 /// before <see cref="Samus.Projectiles.ProjectileEnemyImpacts.TryStartEnemyImpact"/>, which would turn it into an impact.
 /// </summary>
-internal static class ProjectilePassThrough
+internal static partial class ProjectilePassThrough
 {
     /// <summary>
-    /// Has the projectile fly on (<see cref="Samus.Projectiles.SamusProjectile.FlyOn"/>) after the super-missile quake.
+    /// Has the projectile fly on (<see cref="Samus.Projectiles.SamusProjectileOccupant.FlyOn"/>) after the super-missile quake.
     /// </summary>
     internal static readonly EnemyShotStage Shot = (in EnemyShotContext c) =>
     {
-        c.Projectile.FlyOn();
+        c.Shot.FlyOn();
         return true;
     };
 
-    /// <summary>Has the bomb fly on (<see cref="Samus.Projectiles.SamusBomb.FlyOn"/>) past the enemy its collision met.</summary>
+    /// <summary>Has the bomb fly on (<see cref="Samus.Projectiles.SamusBombOccupant.FlyOn"/>) past the enemy its collision met.</summary>
     internal static readonly Action<EnemyBombContext> Bomb =
-        c => c.Bomb.FlyOn();
+        c => c.PlacedBomb.FlyOn();
 }

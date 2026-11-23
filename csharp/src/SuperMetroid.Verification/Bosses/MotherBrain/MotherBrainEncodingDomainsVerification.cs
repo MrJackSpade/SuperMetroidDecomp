@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -85,24 +87,24 @@ internal static class MotherBrainEncodingDomainsVerification
             MotherBrainWalkCredit credit = MotherBrainWalkCreditConstants.FromNativeWord(checked((ushort)start));
 
             MotherBrainShotReactionResult hyper = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.ThirdPhase, MotherBrainProjectileType.Beam, credit);
+                MotherBrainForm.ThirdPhase, SamusProjectileFamily.Beam, credit);
             int hyperRemainder = ((start - MotherBrainWalkCredit.HyperBeamShotCost) % WordRange + WordRange) % WordRange;
             bool overdrawn = hyperRemainder >= SignedWordLimit;
             AssertEqual(overdrawn ? 0 : hyperRemainder, hyper.WalkCredit.Credit, $"final-phase beam from credit {start}");
             AssertEqual(overdrawn, hyper.HyperBeamRecoil, $"final-phase beam from credit {start} recoils only on overdraw");
 
             MotherBrainShotReactionResult beam = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.SecondPhase, MotherBrainProjectileType.Beam, credit);
+                MotherBrainForm.SecondPhase, SamusProjectileFamily.Beam, credit);
             AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), beam.WalkCredit.Credit,
                 $"second-phase beam from credit {start}");
             AssertEqual(false, beam.HyperBeamRecoil, $"second-phase beam from credit {start} never recoils");
 
             MotherBrainShotReactionResult missile = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.ThirdPhase, MotherBrainProjectileType.Missile, credit);
+                MotherBrainForm.ThirdPhase, SamusProjectileFamily.Missile, credit);
             AssertEqual(MotherBrainWalkCredit.Empty, missile.WalkCredit, $"missile from credit {start} empties the credit");
 
             MotherBrainShotReactionResult powerBomb = MotherBrainShotReaction.Resolve(
-                MotherBrainForm.SecondPhase, MotherBrainProjectileType.PowerBomb, credit);
+                MotherBrainForm.SecondPhase, SamusProjectileFamily.PowerBomb, credit);
             AssertEqual(NativeSignedSpend(start, MotherBrainWalkCredit.StepCredit), powerBomb.WalkCredit.Credit,
                 $"power bomb from credit {start} takes the wrapped reaction-zero branch");
         }
@@ -214,11 +216,11 @@ internal static class MotherBrainEncodingDomainsVerification
     private static void VerifySnapshotPlacesBodyArea()
     {
         static MotherBrainEnemyState At(MotherBrainForm form) => new(
-            new SuperMetroid.Core.Enemies.RoomEnemyPlace(0, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
-                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()),
-            new SuperMetroid.Core.Enemies.RoomEnemyPlace(1, SuperMetroid.Core.Enemies.EnemyPlaceFixtures.Registry,
-                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.EnemyOccupantStates>()),
-            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = form };
+            SuperMetroid.Core.Enemies.RoomEnemyPlaceOccupantAccess.BoundFor(new SuperMetroid.Core.Enemies.RoomEnemyPlace(0,
+                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.IEnemyEntity>()), SuperMetroid.Core.Enemies.EnemyDefinitionId.MotherBrainBody),
+            new SuperMetroid.Core.Enemies.RoomEnemyPlace(1,
+                new SuperMetroid.Core.Compatibility.RemovedEnemyLeftovers<SuperMetroid.Core.Enemies.IEnemyEntity>()),
+            new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { Form = form };
         MotherBrainEnemyState glass = At(MotherBrainForm.Glass);
         glass.AscentPhase = MotherBrainAscentPhase.ContinuePausing;
         AssertEqual(MotherBrainBodyPlacement.Unplaced, NativeSnapshotMotherBrainImport.BodyPlacementOf(glass),
@@ -232,15 +234,15 @@ internal static class MotherBrainEncodingDomainsVerification
         AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(rising),
             "her rise places her body's area with her");
         MotherBrainEnemyState phaseTwo = At(MotherBrainForm.SecondPhase);
-        phaseTwo.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
+        phaseTwo.BeginLateFight().State.RainbowPhase = MotherBrainRainbowPhase.ExtendNeck;
         AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(phaseTwo),
             "a mid-phase-two snapshot places her body's area with her");
         MotherBrainEnemyState escaping = At(MotherBrainForm.ThirdPhase);
-        escaping.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        escaping.BeginLateFight().State.DeathPhase = MotherBrainDeathPhase.StartEscape;
         AssertEqual(MotherBrainBodyPlacement.FollowsBody, NativeSnapshotMotherBrainImport.BodyPlacementOf(escaping),
             "her body's area stays with her until her escape's start shows the warning");
         MotherBrainEnemyState typing = At(MotherBrainForm.ThirdPhase);
-        typing.DeathPhase = MotherBrainDeathPhase.TypeOutZebesEscapeText;
+        typing.BeginLateFight().State.DeathPhase = MotherBrainDeathPhase.TypeOutZebesEscapeText;
         AssertEqual(MotherBrainBodyPlacement.AtRoomCorner, NativeSnapshotMotherBrainImport.BodyPlacementOf(typing),
             "the escape warning's typing lies at the room's corner");
     }

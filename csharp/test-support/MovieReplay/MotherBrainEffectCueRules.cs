@@ -17,7 +17,7 @@ internal static class MotherBrainEffectCueRules
         [NativeEnemyProjectileInstruction.FrameBehaviorInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.Signal>(2, (operands, cue, at) =>
         {
             VerificationAssertions.AssertEqual(MotherBrainEffectCueKind.ReleaseDrool, cue.Kind, $"{at}: cue");
-            VerificationAssertions.AssertEqual<Enum?>(MotherBrainProjectileMotion.DroolFalling, EnemyProjectileMotionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+            VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor(LittleEndianBytes.Word(operands[0], operands[1]), MotherBrainProjectileMotion.DroolFalling), $"{at}: pre-instruction");
         }),
         [NativeEnemyProjectileInstruction.XYRadiusInY] = NativeCueCommand<MotherBrainEffectCue>.Of<MotherBrainEffectCue.SetRadius>(2, (operands, cue, at) =>
             VerificationAssertions.AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii")),

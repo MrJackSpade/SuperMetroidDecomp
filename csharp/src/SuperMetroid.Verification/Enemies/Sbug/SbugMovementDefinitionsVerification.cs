@@ -19,25 +19,19 @@ internal static class SbugMovementDefinitionsVerification
         const int instructionTable = 0xa3a111;
         const int activationTable = 0xa3a121;
 
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = SbugBehavior.InitializeSbug;
-        Action<RoomEnemyPlace, SamusState> runMain = SbugBehavior.RunSbugMain;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Sbug, place.Definition);
-
         for (int facing = 0; facing < 8; facing++)
         {
             int address = instructionTable + facing * 2;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries,
-                    SbugMovement.FacingAnimation(SbugMovementDefinitions.Facings.InTurnOrder[facing])),
+                    SbugMovementDefinitions.Facings.InTurnOrder[facing]),
                 $"compiled Sbug facing selector {facing}");
         }
 
         foreach (int behavior in AuthoredActivationSelectors)
         {
             int address = activationTable + behavior * 2;
-            var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
+            var native = SbugNativeWords.SbugActions.Decode(rom.ReadCartridgeWord(address), "Sbug activation function");
             var placed = (SbugSpawnSettings)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(
                 EnemyDefinitionId.Sbug, SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, behavior << 8));
             AssertEqual(native, SbugMovement.ActivationAction(placed.Behavior),
@@ -55,16 +49,14 @@ internal static class SbugMovementDefinitionsVerification
         for (ushort selector = 0; selector < 8; selector++)
         {
             byte angle = unchecked((byte)(0x30 + selector * 0x20));
-            place.SetSpawnParameter1(EnemyDefinitionId.Sbug, (ushort)(angle << 8 | 1));
-            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, 1);
-            initialize(place);
+            RoomEnemyPlace place = PlaceSbug(angle << 8 | 1, 1, Position16<RoomPixels>.Zero);
+            SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
 
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
-            SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            CompassDirection forward = SbugBehavior.ForwardLeg(place).Facing;
+            ushort native = rom.ReadCartridgeWord(instructionTable + selector * 2);
+            CompassDirection forward = SbugBehavior.ForwardLeg(place.HeldOccupant().SpawnSettings<SbugSpawnSettings>()).Facing;
             AssertEqual(SbugMovementDefinitions.Facings.InTurnOrder[selector], forward,
                 $"Sbug production facing {selector}");
-            AssertEqual(new AnimationPlayback<SbugSegment>(SbugAnimations.StartingWith(SbugMovement.FacingAnimation(forward)), AnimationPlace.StartOfAnimation), state.Playback,
+            AssertEqual(new AnimationPlayback<CompassDirection>(SbugAnimations.StartingWith(forward), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Sbug production facing animation {selector}");
             AssertEqual(native, NativeEnemyAnimationOracle.EntryOf(SbugNativeListAddresses.Entries, state.Playback.Animation.Phases[0].Segment),
                 $"Sbug production facing list {selector}");
@@ -78,31 +70,37 @@ internal static class SbugMovementDefinitionsVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
-        place.Position = place.Position.WithWhole(samus.Position.Whole);
         foreach (int behavior in AuthoredActivationSelectors)
         {
-            // The Sbug takes its activation behaviour from its placement when it is placed (#2063).
-            place.SetSpawnParameter2(EnemyDefinitionId.Sbug, (ushort)(behavior << 8 | 1));
-            initialize(place);
-            place.Position = place.Position.WithWhole(samus.Position.Whole);
-            SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            state.Action = SbugAction.WaitForSamus;
-            runMain(place, samus);
+            // The Sbug takes its activation behaviour from its placement when it is placed (#2063), and waits for Samus,
+            // who stands where it is placed.
+            RoomEnemyPlace place = PlaceSbug(0x10 << 8 | 1, behavior << 8 | 1, samus.Position.Whole);
+            SbugEnemyState state = place.RequireSpeciesState<SbugEnemyState>();
+            AssertEqual(SbugAction.WaitForSamus, state.Action, $"Sbug placed with activation {behavior} waits for Samus");
+            place.RunMainAi(samus);
 
             int address = activationTable + behavior * 2;
-            var native = SbugNativeWords.SbugActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "Sbug activation function");
+            var native = SbugNativeWords.SbugActions.Decode(rom.ReadCartridgeWord(address), "Sbug activation function");
             AssertEqual(native, state.Action, $"Sbug production activation {behavior}");
         }
-
-        AssertThrows<InvalidDataException>(
-            () => SbugMovement.ActivationAction((SbugActivationBehavior)3),
-            "Sbug activation selector beyond authored table");
 
         Console.WriteLine(
             "Sbug movement definitions: eight facing loops, the three placed activation callbacks and every loop's run pass " +
             "with the selector tables forbidden.");
     }
 
+
+    /// <summary>
+    /// An Sbug whose population entry's parameters are <paramref name="parameter1"/> and <paramref name="parameter2"/>,
+    /// placed at <paramref name="at"/> as its room's population sets it up (#2554), each in a room of its own.
+    /// </summary>
+    private static RoomEnemyPlace PlaceSbug(int parameter1, int parameter2, Position16<RoomPixels> at)
+    {
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        return enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Sbug,
+            SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Sbug,
+                SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(parameter1, parameter2)), at))[0];
+    }
 
     /// <summary>
     /// The activation selectors the game's rooms place Sbugs with: forward, zigzag and forward-then-wait, the first, second

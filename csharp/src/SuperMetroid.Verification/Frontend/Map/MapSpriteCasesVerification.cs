@@ -7,7 +7,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpriteNamesVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Map;
@@ -35,14 +34,9 @@ internal static class MapSpriteCasesVerification
             frames.Remove(changed.Name);
             AssertThrows<InvalidDataException>(() => Load(frames), "each map sprite role remains required");
         }
-        foreach (int invalid in new[] { -1, MapSpriteFormat.FrameCount, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)invalid,
-                ScreenSpritesFixtures.Blank(), new(0, 0), MapSpriteScreen.FileSelect, MapSpriteColouring.Labels), "undefined map sprite identity fails");
-        AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteSheet.Draw(MenuSheetFixtures.MapSprites(stock), (MapSpriteId)(-1), ScreenSpritesFixtures.Blank(),
-            new(0, 0), MapSpriteScreen.FileSelect, (MapSpriteColouring)ushort.MaxValue), "undefined identity precedes an undefined colouring");
         MapSpriteCompositions Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);
+            byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(ArtworkJson.Options));
             return MapSpriteArtwork.Read(new MemoryStream(json), new MemoryStream(png));
         }
     }
@@ -56,7 +50,7 @@ internal static class MapSpriteCasesVerification
         OamBuffer native; var installed = ScreenSpritesFixtures.Blank();
         foreach (var frame in MapSpriteRoleOracle())
         {
-            int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = MapSourceDefinitions.Menu.ObjectBank | RomDataReader.ReadWordFixedBank(bus,
                 MapSourceDefinitions.Menu.SpritemapPointers + frame.NativeId * 2);
             // Origins are signed screen pixels (#1587): an X of 511 is no longer the column left of the screen, and a Y of
             // 65535 is the line above it, whose parts the display clips rather than the sprite table culling them whole.

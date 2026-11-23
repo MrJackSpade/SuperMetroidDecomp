@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 using SuperMetroid.Verification.Harness;
@@ -14,13 +13,13 @@ internal static class CrocomireSeparateValuesVerification
     /// </summary>
     internal static void VerifyCrocomireSeparateValues()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        var state = new CrocomireEnemyState(body);
-        body.SetSpeciesState(state);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // Crocomire as his room's population sets him up; his encounter is the one his setup built.
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(576, 144));
 
         state.StepCounter = 5;
-        AssertEqual(0, state.RumbleOscillation, "the queued steps leave the rumble oscillation alone");
+        AssertEqual(null, state.RumbleOscillation, "the queued steps leave the rumble oscillation alone");
         Console.WriteLine("Crocomire separate values: the steps and rumble step are held apart.");
     }
 

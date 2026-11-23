@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Samus's Power Bomb explosion: the one-at-a-time Power Bomb lock, the room point the blast is centred on, and the blast's
 /// timeline (<see cref="Blast"/>), with the oval of added colour each frame shows (<see cref="ShownOval"/>).
 /// </summary>
-public sealed class SamusPowerBombExplosionState
+public sealed partial class SamusPowerBombExplosionState
 {
     /// <summary>The blast's stages, radii and glow (#2000).</summary>
     public PowerBombBlastTimeline Blast { get; } = new();
@@ -20,7 +20,12 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public PowerBombBlastOval ShownOval => PowerBombBlastOval.Of(Position, Blast.ShownRadius, Blast.GlowColor);
 
-    /// <summary>True from placement until cleanup releases the one-at-a-time Power Bomb lock.</summary>
+    /// <summary>
+    /// True from placement until cleanup releases the one-at-a-time Power Bomb lock. The lock is no stage of the blast
+    /// (#2560): a placed Power Bomb holds it before any blast runs, Crystal Flash's blast runs without it, and cleanup
+    /// releases it after the blast has ended, so whether another Power Bomb may be placed and whether a blast runs are two
+    /// facts the game keeps apart.
+    /// </summary>
     public bool IsArmed { get; private set; }
 
     /// <summary>
@@ -62,7 +67,13 @@ public sealed class SamusPowerBombExplosionState
     /// Runs one update of the explosion's active stage step.
     /// </summary>
     /// <returns>True only on the frame that cleanup completes.</returns>
-    public bool StepFrame(InstalledPowerBombGlowColors colors) => Blast.StepFrame(colors);
+    public bool StepFrame(InstalledPowerBombGlowColors colors)
+    {
+        // Only the afterglow's end stops a running blast, so a blast that ran before the step and not after it cleaned up.
+        bool wasRunning = Blast.IsRunning;
+        Blast.StepFrame(colors);
+        return wasRunning && !Blast.IsRunning;
+    }
 
     /// <summary>
     /// Releases the armed flag after cleanup when Crystal Flash did not take ownership.

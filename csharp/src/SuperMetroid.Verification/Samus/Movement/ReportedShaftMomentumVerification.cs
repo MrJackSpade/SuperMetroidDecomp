@@ -18,9 +18,8 @@ internal static class ReportedShaftMomentumVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32], new RoomBlockAppearance[32 * 32]), RoomLevelData.NothingBeyondGrid(), []);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.SpinJumpLeftPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
+        }.InPose(SamusPoseId.SpinJumpLeftPose);
         samus.Kinematics.Radius = new(5, 12);
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(samus.Kinematics.VerticalVelocity.Speed.WithWhole(2), SamusVerticalDirection.Down);
         samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(1, 0x6000);
@@ -30,7 +29,7 @@ internal static class ReportedShaftMomentumVerification
             // Whole and fractional X as one 16.16 position, so the accepted displacement
             // is the exact difference across the movement step.
             int xBefore = SixteenSixteenConstants2.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
-            SamusAerialMovement.StepSpinJump(level, samus, 0, frame, controllerNewInput: GameplayAction.None, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusAerialMovement.StepSpinJump(SuperMetroid.Core.Samus.Movement.SamusMovement.SpinJumping, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, frame, controllerNewInput: GameplayAction.None);
             int xAfter = SixteenSixteenConstants2.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             AssertEqual(-0x00016000, xAfter - xBefore,
                 $"recorded neutral spin carry at frame {frame} matches cartridge carry-set branch");

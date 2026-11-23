@@ -9,17 +9,15 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// which the import composes once in the cinematic's colours. The cinematic places the pictures its scene state shows
 /// on a plane the size of the cinematic's pictures.
 /// </summary>
-public static class IntroScenePictures
+public static partial class IntroScenePictures
 {
     /// <summary>The name of the portrait's picture.</summary>
     public const string Portrait = "portrait";
 
     /// <summary>The name of scene page <paramref name="page"/>'s picture.</summary>
-    [InstalledKey]
     internal static string Page(IntroScenePage page) => $"page-{IntroScenePageKeys.Installed.Of(page)}";
 
     /// <summary>The name of eye frame <paramref name="frame"/>'s picture.</summary>
-    [InstalledKey]
     internal static string Eye(IntroEyeFrame frame) => $"eye-{IntroEyeFrameKeys.Installed.Of(frame)}";
 
     /// <summary>The plane showing scene page <paramref name="page"/> in <paramref name="shading"/> (#1512).</summary>

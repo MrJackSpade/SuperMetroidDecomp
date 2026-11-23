@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>Where one save slot's field is shown: each anchor is the page pixel a picture's origin lands on.</summary>
-public sealed record FileSelectSlotFieldDocument
+public sealed partial record FileSelectSlotFieldDocument
 {
     /// <summary>Where the ENERGY label is shown; the slot's energy tanks are shown from it.</summary>
     public required Position16<PlanePixels> EnergyAnchor { get; init; }

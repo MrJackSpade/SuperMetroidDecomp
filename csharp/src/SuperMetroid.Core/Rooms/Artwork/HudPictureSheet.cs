@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// shades the HUD shows there, a door's fades and the room effects' colour blends. The HUD draws from this sheet alone;
 /// the room effect's pictures are a sheet of their own.
 /// </summary>
-public sealed class HudPictureSheet
+public sealed partial class HudPictureSheet
 {
     /// <summary>Keeps <paramref name="tileset"/>'s pictures of the HUD.</summary>
     /// <param name="tileset">The tileset whose rooms show the HUD in these colours.</param>

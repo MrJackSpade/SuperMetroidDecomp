@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 /// Where file select places its slot fields and actors and how long its looping actors hold each frame: the part of the
 /// installed file-select presentation the game reads (#1502).
 /// </summary>
-internal sealed record FileSelectPlacements
+internal sealed partial record FileSelectPlacements
 {
     /// <summary>Each save slot's field layout on the main file-select page.</summary>
     public required IReadOnlyDictionary<SaveSlot, FileSelectSlotFieldDocument> MainSlots { get; init; }

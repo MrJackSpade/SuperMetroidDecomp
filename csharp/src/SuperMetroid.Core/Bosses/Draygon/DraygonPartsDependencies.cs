@@ -7,8 +7,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The collaborators a <see cref="DraygonParts"/> is constructed with, built by the Draygon behavior that owns it.</summary>
-[RoomLifetime]
-internal sealed record DraygonPartsDependencies
+internal sealed partial record DraygonPartsDependencies
 {
     /// <summary>Accesses the active room, enemy places, and shared random numbers.</summary>
     public required EnemyRoomBinding Room { get; init; }

@@ -7,8 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Where on the cartridge each explicit room scroll layout is stored (#2356): extraction's private knowledge, from which it
 /// decodes once what each layout's load writes past the room's screens (<see cref="RoomScrollOverreadFiles"/>).
 /// </summary>
-[EncodingOwner("cartridge places of the explicit room scroll tables")]
-internal static class RoomScrollTableSourceDefinitions
+internal static partial class RoomScrollTableSourceDefinitions
 {
     /// <summary>Each explicit scroll layout's table, in bank <c>$8F</c>, in the catalog's authored order.</summary>
     internal static IReadOnlyDictionary<RoomScrollDefinition, int> Tables { get; } = new Dictionary<RoomScrollDefinition, int>

@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the Polyp and the Beetom each store their seed into the random value, and the SMV replays compare the random value on
 /// every update.
 /// </remarks>
-[CompatibilityService("a species' placement overwrites the shared random numbers with its own seed, which every later random consumer draws on from")]
-public sealed class SpeciesRandomReseed
+public sealed partial class SpeciesRandomReseed
 {
     /// <summary>Holds a reseed to <paramref name="seed"/>.</summary>
     private SpeciesRandomReseed(int seed) => Seed = new SharedRandomState(seed);

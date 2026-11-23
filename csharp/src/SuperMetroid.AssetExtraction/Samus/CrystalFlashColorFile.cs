@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Crystal Flash colour document.</summary>
-public static class CrystalFlashColorFile
+public static partial class CrystalFlashColorFile
 {
     /// <summary>Supported JSON schema revision one, checked before palette compilation.</summary>
     public const int Version = 1;
@@ -37,7 +37,7 @@ public static class CrystalFlashColorFile
     /// <param name="document">Body and bubble RGB5 frame arrays with the supported schema version.</param>
     /// <returns>JSON bytes ready to store as the catalog resource.</returns>
     public static byte[] Write(CrystalFlashColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.CrystalFlashColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates an authored palette grid's dimensions and RGB5 channels before packing its colors.</summary>
     private static RgbColor[][] Compile(PaletteRgb5[][]? source, int frameCount,

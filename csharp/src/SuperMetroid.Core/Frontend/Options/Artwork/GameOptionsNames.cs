@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
@@ -6,15 +7,21 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 /// Names the options document's pictures, headings, controller labels and toggles
 /// (<see cref="GameOptionsPresentationDefinitions"/>).
 /// </summary>
-public static class GameOptionsNames
+public static partial class GameOptionsNames
 {
     /// <summary>The name the pictures of options page <paramref name="page"/> are filed under.</summary>
     public static string PageName(GameOptionsScreen page) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.PageNames, page);
+        Ensure.NotNull(page).Language is { } language
+            ? $"{GameOptionsPresentationDefinitions.PageNames[page.Page]}.{LanguageName(language)}"
+            : GameOptionsPresentationDefinitions.PageNames[page.Page];
+
+    /// <summary>The name <paramref name="language"/>'s pictures are filed under (#2560).</summary>
+    private static string LanguageName(TextLanguage language) =>
+        GameOptionsPresentationDefinitions.LanguageNames[language];
 
     /// <summary>The JSON name of a menu layout's heading sprite.</summary>
     internal static string HeadingSpriteName(GameOptionsPage page) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.HeadingSpriteNames, page);
+        GameOptionsPresentationDefinitions.HeadingSpriteNames[page];
 
 
     /// <summary>The JSON name of an assignable button's glyph.</summary>
@@ -23,7 +30,7 @@ public static class GameOptionsNames
 
     /// <summary>The JSON name of a special setting's visual.</summary>
     public static string ToggleName(GameOptionsToggle toggle) =>
-        Ensure.Listed(GameOptionsPresentationDefinitions.ToggleNames, toggle);
+        GameOptionsPresentationDefinitions.ToggleNames[toggle];
 
 
     /// <summary>The menus' picture of the options screen's backdrop page (#1467).</summary>
@@ -36,11 +43,11 @@ public static class GameOptionsNames
     /// The menus' picture of the primary page's English and Japanese labels with the Japanese one or the English one
     /// highlighted, which the import composes whole (#1467, #1780).
     /// </summary>
-    public static string LanguageFrame(bool japanese) => $"Options.Language.{(japanese ? "Japanese" : "English")}";
+    public static string LanguageFrame(TextLanguage language) => $"Options.Language.{LanguageName(language)}";
 
     /// <summary>The menus' picture of controller action <paramref name="action"/>'s label naming <paramref name="button"/> (#1467, #1985).</summary>
     public static string ControllerLabelFrame(ControllerAction action, ControllerButton button) =>
-        $"Options.Controller.{Ensure.Listed(GameOptionsPresentationDefinitions.ControllerActionNames, action)}.{ControllerLabelName(button)}";
+        $"Options.Controller.{GameOptionsPresentationDefinitions.ControllerActionNames[action]}.{ControllerLabelName(button)}";
 
     /// <summary>
     /// The menus' picture of <paramref name="toggle"/>'s two choices on <paramref name="page"/>, the enabled one or the

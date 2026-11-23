@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
@@ -47,7 +48,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// cartridge's enemy headers (#1693). The game reads only the documents it binds, the frames' displays and Kraid's eye
 /// colours (<see cref="Load"/>), which are installed, and the player edits them in place.
 /// </summary>
-public static class EnemyTileArtworkFiles
+public static partial class EnemyTileArtworkFiles
 {
     /// <summary>Serializer settings shared by the stock enemy-art manifest and its supplemental JSON resources.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
@@ -96,22 +97,22 @@ public static class EnemyTileArtworkFiles
         ValidateDefinitionIds(headers);
         byte[] firstMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingIllustration.Flesh,
-            CrocomireMeltingArtworkFormat.FirstByteCount);
+            CrocomireMeltingArtworkFormat.FleshByteCount);
         byte[] secondMelt = ExtractCrocomireMelt(bus,
             CrocomireMeltingIllustration.BareSkull,
-            CrocomireMeltingArtworkFormat.SecondByteCount);
+            CrocomireMeltingArtworkFormat.BareSkullByteCount);
         byte[] firstMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.Flesh));
         byte[] secondMeltTilemap = ExtractCrocomireMeltTilemap(bus,
             CrocomireMeltingSources.Tilemap(CrocomireMeltingIllustration.BareSkull));
-        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FirstFileName), firstMelt);
-        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.SecondFileName), secondMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.FleshFileName), firstMelt);
+        File.WriteAllBytes(Path.Combine(importData, CrocomireMeltingArtworkFormat.BareSkullFileName), secondMelt);
         // The melt layouts, like Kraid's, only compose the boss body sheets, whose pictures the installation holds (#1638).
         File.WriteAllBytes(Path.Combine(importData,
-            CrocomireMeltingArtworkFormat.FirstTilemapFileName), firstMeltTilemap);
+            CrocomireMeltingArtworkFormat.FleshTilemapFileName), firstMeltTilemap);
         File.WriteAllBytes(Path.Combine(importData,
-            CrocomireMeltingArtworkFormat.SecondTilemapFileName), secondMeltTilemap);
-        byte[] skeletonPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            CrocomireMeltingArtworkFormat.BareSkullTilemapFileName), secondMeltTilemap);
+        byte[] skeletonPlanar = RomDataReader.ReadFixedBank(bus,
             CrocomireSourceDefinitions.SkeletonChunk(0),
             CrocomireSkeletonCharacterDefinitions.TotalByteCount);
         byte[] skeletonPixels = SnesGraphics.DecodePlanarTiles(skeletonPlanar, 4,
@@ -147,10 +148,9 @@ public static class EnemyTileArtworkFiles
                 Convert.ToHexString(SHA256.HashData(png)));
         }
         var ceresEscapeTileHashes = new Dictionary<string, string>(StringComparer.Ordinal);
-        for (int pageIndex = 0; pageIndex < CeresEscapeTileArtworkDefinitions.All.Length; pageIndex++)
+        foreach (TileSheetDefinition page in CeresEscapeTileArtworkDefinitions.All)
         {
-            TileSheetDefinition page = CeresEscapeTileArtworkDefinitions.All[pageIndex];
-            byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePages[pageIndex],
+            byte[] png = IndexedTilePageExtractor.Extract(bus, (int)EscapeSourceDefinitions.CeresEscapePageSources[page],
                 page.ByteCount, $"Ceres escape page {page.FileName}");
             File.WriteAllBytes(Path.Combine(importData, page.FileName), png);
             ceresEscapeTileHashes.Add(page.FileName,
@@ -192,7 +192,7 @@ public static class EnemyTileArtworkFiles
         // This bank-$B7 range is not in any ordinary enemy definition's VRAM set.
         // Preserve the complete tile-aligned source around the right-hand corpse
         // frame so edits can feed the native row-by-row WRAM decay processor.
-        byte[] corpsePlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] corpsePlanar = RomDataReader.ReadFixedBank(bus,
             MotherBrainSourceDefinitions.Corpse.Characters,
             MotherBrainCorpseSheet.ByteCount);
         byte[] corpsePixels = SnesGraphics.DecodePlanarTiles(corpsePlanar, 4,
@@ -205,7 +205,7 @@ public static class EnemyTileArtworkFiles
             corpsePng);
         // The following bank-$B7 pages are a different visual owner: the escape
         // typewriter characters. Keep their file separate from corpse decay.
-        byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] escapeTextPlanar = RomDataReader.ReadFixedBank(bus,
             EscapeSourceDefinitions.TextCharacters,
             EscapeTextSheetFormat.ByteCount);
         byte[] escapeTextPixels = SnesGraphics.DecodePlanarTiles(escapeTextPlanar, 4,
@@ -232,10 +232,10 @@ public static class EnemyTileArtworkFiles
             upperKraid);
         File.WriteAllBytes(Path.Combine(importData, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
-        var kraidHeadHashes = new Dictionary<int, string>();
+        var kraidHeadHashes = new Dictionary<string, string>();
         foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
         {
-            byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] native = RomDataReader.ReadFixedBank(bus,
                 KraidSourceDefinitions.CodeBank | KraidHeadArtworkDefinitions.Address(head),
                 KraidWorkingMapDefinitions.HeadImageCells * sizeof(ushort));
             byte[] json = KraidHeadTilemapFiles.Encode(native);
@@ -349,7 +349,7 @@ public static class EnemyTileArtworkFiles
             Convert.ToHexString(SHA256.HashData(auxiliaryColors)));
         // The manifest names every sheet by its enemy's or artwork's key and pins the import data's hashes: only the import reads it (#1693, #2548).
         File.WriteAllBytes(Path.Combine(importData, EnemyTileArtworkFormat.ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+            JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.EnemyTileManifest>(JsonOptions)));
     }
 
     /// <summary>
@@ -431,7 +431,7 @@ public static class EnemyTileArtworkFiles
     {
         int byteCount = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileSetAt(bus, headerWord).ByteCount;
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(byteCount);
-        byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] planar = RomDataReader.ReadFixedBank(bus,
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.TileDataSourceAt(bus, headerWord), byteCount);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, columns,
@@ -441,7 +441,7 @@ public static class EnemyTileArtworkFiles
         byte[] encoded = png.ToArray();
 
         File.WriteAllBytes(Path.Combine(importData, FileName(stem)), encoded);
-        byte[] nativeColors = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeColors = RomDataReader.ReadFixedBank(bus,
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.PaletteAddressAt(bus, headerWord),
             EnemyPaletteSheetFile.ColorCount * sizeof(ushort));
         var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
@@ -450,12 +450,7 @@ public static class EnemyTileArtworkFiles
             int word = BinaryPrimitives.ReadUInt16LittleEndian(nativeColors.AsSpan(color * 2));
             if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException($"Enemy ${headerWord:X4} palette has an unrepresentable high bit.");
-            colors[color] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         byte[] paletteJson = EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument
         {
@@ -491,7 +486,7 @@ public static class EnemyTileArtworkFiles
     }
 
     /// <summary>Assembles one Crocomire melt image as the cartridge does, as indexed PNG.</summary>
-    private static byte[] ExtractCrocomireMelt(ISnesAddressSpace bus,
+    private static byte[] ExtractCrocomireMelt(IImportCartridgeSource bus,
         CrocomireMeltingIllustration illustration, int encodedByteCount)
     {
         var planar = new byte[encodedByteCount];
@@ -518,7 +513,7 @@ public static class EnemyTileArtworkFiles
     /// <summary>Decompresses a native Kraid background tilemap and writes its editable document form.</summary>
     private static byte[] ExtractKraidTilemap(ISnesAddressSpace bus, int sourceAddress)
     {
-        byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress,
+        byte[] native = RomDataReader.Decompress(bus, sourceAddress,
             KraidWorkingMapDefinitions.SourceTilemapBytes);
         return RoomBackgroundTilemapExtractor.Encode(native);
     }
@@ -526,7 +521,7 @@ public static class EnemyTileArtworkFiles
     /// <summary>Exports Kraid's room background character data to PNG.</summary>
     private static byte[] ExtractKraidRoomBackground(ISnesAddressSpace bus)
     {
-        byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] planar = RomDataReader.ReadFixedBank(bus,
             KraidSourceDefinitions.RoomBackgroundTiles,
             KraidSourceDefinitions.RoomBackgroundTileBytes);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
@@ -542,7 +537,7 @@ public static class EnemyTileArtworkFiles
     private static byte[] ExtractMotherBrainSpecialSpritePng(ISnesAddressSpace bus,
         MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] native = RomDataReader.ReadFixedBank(bus,
             MotherBrainSourceDefinitions.SpecialSprites.Sources[sheet.Sheet], sheet.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
@@ -575,7 +570,7 @@ public static class EnemyTileArtworkFiles
         KraidPaletteSource source)
     {
         int count = KraidPalettes.ColorCount(source);
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] native = RomDataReader.ReadFixedBank(bus,
             KraidPaletteSources.SourceAddress(source), count * sizeof(ushort));
         var colors = new PaletteRgb5[count];
         for (int index = 0; index < count; index++)
@@ -584,12 +579,7 @@ public static class EnemyTileArtworkFiles
             if (!ColourWordCodec.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Kraid {source} color {index} has an unrepresentable high bit.");
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return colors;
     }
@@ -603,7 +593,7 @@ public static class EnemyTileArtworkFiles
         for (int index = 0; index < cells.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            var word = new SnesBgTilemapWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
+            var word = new SnesBgTilemapWord(bus.ReadCartridgeWord(address));
             cells[index] = new CrocomireMeltingTilemapCell
             {
                 TileIndex = word.CharacterIndex,
@@ -614,7 +604,7 @@ public static class EnemyTileArtworkFiles
             };
         }
         int terminator = sourceAddress + cells.Length * 2;
-        if (CartridgeImportSource.Require(bus).ReadCartridgeWord(terminator) != CartridgeFormatDefinitions.ListTerminator)
+        if (bus.ReadCartridgeWord(terminator) != CartridgeFormatDefinitions.ListTerminator)
             throw new InvalidDataException(
                 $"Crocomire melt tilemap ${sourceAddress:X6} lacks its native terminator.");
         using var json = new MemoryStream();
@@ -629,7 +619,7 @@ public static class EnemyTileArtworkFiles
     }
 
     /// <summary>Records cartridge provenance and hashes for every stock enemy-art resource in the installation.</summary>
-    internal sealed record EnemyTileManifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record EnemyTileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, EnemyTileFileEntry> Entries,
         Dictionary<string, EnemyTileFileEntry> UnplacedEntries,
         string CrocomireFirstSha256, string CrocomireSecondSha256,
@@ -649,7 +639,7 @@ public static class EnemyTileArtworkFiles
         string MotherBrainEscapeTextSha256,
         Dictionary<string, string> MotherBrainSpecialSpritesSha256,
         string KraidUpperSha256, string KraidLowerSha256,
-        Dictionary<int, string> KraidHeadsSha256,
+        Dictionary<string, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,
         string KraidColorsSha256,
         string KraidEyeColoursSha256,
@@ -674,5 +664,5 @@ public static class EnemyTileArtworkFiles
         string AuxiliaryColorsSha256);
 
     /// <summary>Pairs an enemy sheet's native transfer size with its indexed PNG and palette digests.</summary>
-    internal sealed record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
+    internal sealed partial record EnemyTileFileEntry(int NativeByteCount, string Sha256, string PaletteSha256);
 }

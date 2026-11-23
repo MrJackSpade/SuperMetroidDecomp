@@ -14,11 +14,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>VerifyComboRingCollapsesOntoSamus</c>) grows an on-screen Plasma ring past 255 through the production update and
 /// finds it orbiting at the radius past the span.
 /// </remarks>
-[CompatibilityService("a combo ring grown past 255 pixels collapses onto Samus and grows outward again")]
-public static class ComboRingCollapse
+public static partial class ComboRingCollapse
 {
     /// <summary>The radii a combo ring tells apart: one grown past the largest continues from zero.</summary>
-    public const int RadiusSpan = 256;
+    internal const int RadiusSpan = 256;
 
     /// <summary>The largest radius a combo ring holds, in pixels.</summary>
     public const int LargestRadius = RadiusSpan - 1;

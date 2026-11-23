@@ -16,7 +16,7 @@ internal static class LookupBlueDoorStockVerification
     /// its rejections.
     /// </summary>
     internal static void VerifyBlueDoorStockMapping(CartridgeImportAddressSpace rom,
-        InstalledRoomObjectBlueDoorVisuals installed)
+        InstalledRoomObjectPictures installed)
     {
         LookupEscapeGateStockFrame[] frames = [
             new LookupEscapeGateStockFrame(0xa9b3,"left-closed"),new LookupEscapeGateStockFrame(0xa9bf,"left-ajar"),new LookupEscapeGateStockFrame(0xa9cb,"left-half-open"),new LookupEscapeGateStockFrame(0xa9d7,"left-nearly-open"),
@@ -24,15 +24,16 @@ internal static class LookupBlueDoorStockVerification
             new LookupEscapeGateStockFrame(0xaa2b,"up-closed"),new LookupEscapeGateStockFrame(0xaa37,"up-ajar"),new LookupEscapeGateStockFrame(0xaa43,"up-half-open"),new LookupEscapeGateStockFrame(0xaa4f,"up-nearly-open"),
             new LookupEscapeGateStockFrame(0xaa67,"down-closed"),new LookupEscapeGateStockFrame(0xaa73,"down-ajar"),new LookupEscapeGateStockFrame(0xaa7f,"down-half-open"),new LookupEscapeGateStockFrame(0xaa8b,"down-nearly-open")];
         ushort[] aliases = [0xa9a7,0xa9e3,0xaa1f,0xaa5b];
-        foreach (InstalledRoomObjectBlueDoorVisuals pictures in new[] { InstalledRoomObjectBlueDoorVisuals.Stock(), installed })
+        foreach (InstalledRoomObjectPictures pictures in new[] { RoomObjectPicturesStock.BlueDoor, installed })
         {
-            AssertPicturedAsNative(rom, pictures.Images, RoomObjectBlueDoorVisualFiles.Family, frames, 64);
+            AssertEqual(frames.Length + aliases.Length, pictures.Images.All.Count, "Blue door pictures every frame and every closed cap drawn solid");
+            AssertPicturedAsNative(rom, FamilyFrames(pictures.Images, RoomObjectBlueDoorVisualFiles.Family), RoomObjectBlueDoorVisualFiles.Family, frames, 64);
             foreach (ushort alias in aliases)
                 AssertAliasPicturedAsNative(rom, pictures.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(alias)), alias, "Blue physical alias original stock visuals");
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (frames.All(frame => frame.Pointer != raw) && !aliases.Contains((ushort)raw))
                 AssertThrows<InvalidDataException>(() => installed.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>((ushort)raw)), "Blue door unknown stock pointer");
-        AssertImportAndRejections(rom, installed.Images, RoomObjectBlueDoorVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectBlueDoorVisualDirectory);
+        AssertImportAndRejections(rom, FamilyFrames(installed.Images, RoomObjectBlueDoorVisualFiles.Family), RoomObjectBlueDoorVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectBlueDoorVisualDirectory);
     }
 }

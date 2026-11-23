@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Fx;
 /// frames on (#2544), and the animation it plays on the shared animation player (#2488). Its definitions are <see cref="ColourEffectAnimations"/>; the
 /// <see cref="ColourEffectSystem"/> that started it gives it its turn.
 /// </summary>
-internal sealed class RoomColourEffect
+internal sealed partial class RoomColourEffect
 {
     /// <summary>
     /// Starts <paramref name="effect"/> playing the animation of <paramref name="framesOf"/> in that effect's frames, due on
@@ -29,7 +29,7 @@ internal sealed class RoomColourEffect
         Target = target;
         FramesOf = framesOf;
         play = AnimationPlayer<ColourEffectSegment, int, ColourEffectCue>.Starting(
-            ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Animation);
+            ColourEffectAnimations.Segments, ColourEffectAnimations.Definition(framesOf).Frames.Played);
     }
 
     /// <summary>The effect's animation as it plays: due on its first turn, and on each turn its shown frame's updates run out.</summary>
@@ -42,7 +42,7 @@ internal sealed class RoomColourEffect
     /// The effect whose frames the effect shows (#2366): its own, or, for Samus's heat shimmer, the pulse of the suit she
     /// wears, which it plays.
     /// </summary>
-    internal ColourEffectId FramesOf { get; private set; }
+    internal ColourEffectId FramesOf { get; set; }
 
     /// <summary>
     /// What the effect shows its frames on (#2544): the room's pictures, Samus's suit, the escape's shutters, the enemy whose
@@ -55,7 +55,7 @@ internal sealed class RoomColourEffect
     internal ColourEffectColours Colours { get; }
 
     /// <summary>The condition the effect's definition names: <see cref="ColourEffectCondition.WatchesNothing"/> for an effect that watches nothing.</summary>
-    internal ColourEffectCondition Condition { get; }
+    private ColourEffectCondition Condition { get; }
 
     /// <summary>
     /// The condition the effect checks at the start of its turn: its condition from the update after it shows its first
@@ -74,19 +74,29 @@ internal sealed class RoomColourEffect
     /// The frame the effect shows now (#1597, #1598): the last its animation reached, held for that frame's duration and
     /// until its next one; none before its first.
     /// </summary>
-    internal ColourEffectFrame? Frame { get; private set; }
+    internal ColourEffectFrame? Frame { get; set; }
 
-    /// <summary>Whether the effect has ended; its system drops it from the turns at the end of the update.</summary>
-    internal bool Ended { get; private set; }
+    /// <summary>Where the effect stands (#2560): running, ended, or settled on its final frame.</summary>
+    private RoomColourEffectProgress progress;
+
+    /// <summary>Whether the effect has ended, settled or not; its system drops it from the turns at the end of the update.</summary>
+    internal bool Ended => progress is not RoomColourEffectProgress.Running;
 
     /// <summary>
     /// Whether the effect ended by playing its animation to the end (#1597): it has settled on its final frame, which it
     /// keeps showing as the look its animation finishes on. An effect its condition ends has not settled and shows nothing.
     /// </summary>
-    internal bool Settled { get; private set; }
+    internal bool Settled => progress is RoomColourEffectProgress.Settled;
 
-    /// <summary>Ends the effect: it takes no further part in this update or any later one, and shows nothing.</summary>
-    internal void End() => Ended = true;
+    /// <summary>
+    /// Ends the effect: it takes no further part in this update or any later one, and shows nothing; an effect that has
+    /// settled stays settled.
+    /// </summary>
+    internal void End()
+    {
+        if (progress is RoomColourEffectProgress.Running)
+            progress = RoomColourEffectProgress.Ended;
+    }
 
     /// <summary>
     /// Restarts the effect showing the frames of <paramref name="framesOf"/>, playing its animation from
@@ -95,12 +105,16 @@ internal sealed class RoomColourEffect
     internal void Restart(ColourEffectId framesOf, AnimationPlace place)
     {
         FramesOf = framesOf;
-        play.StartAt(ColourEffectAnimations.Definition(framesOf).Animation, place);
+        play.StartAt(ColourEffectAnimations.Definition(framesOf).Frames.Played, place);
     }
 
-    /// <summary>Restarts the effect at the start of its cycle, the phase its animation loops from, due on this turn.</summary>
-    /// <exception cref="InvalidOperationException">The effect's animation does not loop.</exception>
-    internal void RestartCycle() => play.StartAt(Animation, AnimationPlace.Before(Animation.CyclePhase));
+    /// <summary>
+    /// Restarts the effect's animation from its first phase, due on this turn: the landing site's lightning starts its calm
+    /// over (<see cref="ColourEffectCondition.RestartsWhileSamusIsHigh"/>). The game's restart sends the lightning back to
+    /// the calm its cycle loops to, with one update left on it, so the calm shows anew on the update the restart runs; the
+    /// lightning's cycle has no lead-in, so the calm is its first phase.
+    /// </summary>
+    internal void Restart() => play.StartAt(Animation, AnimationPlace.Before(0));
 
     /// <summary>
     /// Takes the effect's turn: counts one update off its shown frame and, once it is due, plays on to its next frame, which
@@ -108,7 +122,6 @@ internal sealed class RoomColourEffect
     /// <paramref name="carryOut"/>.
     /// </summary>
     /// <returns>The frame the turn shows anew, of the effect that shows it, or null while a frame holds or once the effect ended.</returns>
-    /// <exception cref="InvalidOperationException">The animation comes to rest without ending, which no colour effect's does.</exception>
     internal ColourEffectFrame? TakeTurn(Action<ColourEffectCue> carryOut)
     {
         Ensure.NotNull(carryOut);
@@ -117,13 +130,9 @@ internal sealed class RoomColourEffect
             Frame = new ColourEffectFrame(FramesOf, shown);
             return Frame;
         }
+        // An animation that comes to rest without ending shows nothing new: its frame stays.
         if (play.HasStopped)
-        {
-            End();
-            Settled = true;
-        }
-        else if (play.IsResting)
-            throw new InvalidOperationException($"Colour effect {Effect}'s animation came to rest without ending.");
+            progress = RoomColourEffectProgress.Settled;
         return null;
     }
 }

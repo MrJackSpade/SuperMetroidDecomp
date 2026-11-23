@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -23,7 +24,7 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         [0, 1];
 
     /// <summary>The compiled scroll change the fixture's triggers apply: it opens screen (1, 0) aligned to its top.</summary>
-    private const RoomScrollChange TriggerChange = RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned;
+    private const RoomScrollChange TriggerChange = RoomScrollChange.BrinstarReserveTank;
 
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
     internal static void VerifyObjectPopulationInputBoundary()
@@ -33,9 +34,9 @@ internal static class RoomObjectPopulationInputBoundaryVerification
             new(3, 3), scrollChange: TriggerChange);
         var extension = RoomObjectPlacementAccess.Placed(RoomObjectKind.RightwardsScrollExtension,
             new(4, 3));
-        var second = trigger with { Block = new(5, trigger.Block.Y) };
+        var second = ((trigger with {  }) with { Block = new(5, trigger.Block.Y) });
         RoomObjectPlacement[] records = [trigger, extension, second];
-        var population = new RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
+        var population = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{0xfffa:X4}", records);
         records[0] = second;
         AssertEqual(3, population.Placements.Span[0].Block.X,
             "decoded population owns its record ordering independently of caller mutation");
@@ -50,15 +51,15 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         AssertEqual((int)RoomCollisionType.HorizontalExtension, (int)level.GetCollisionBlock(new(4, 3)).CollisionType,
             "typed extension setup publishes its native collision type");
         var scrolls = RoomScrollGrid.CreateImplicit(RoomScrollGrid.PowerOnCells(), new Extent16<RoomScreens>(2, 2), RoomScrollState.Closed);
-        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(3, 3)), "typed trigger wakes at its placement");
+        roomObjects.Scrolls.NotifyScrollTouch(new(3, 3));
         roomObjects.Step(level, scrolls);
         foreach (ScreenScrollChange write in RoomObjectScrollChangeDefinitions.Changes[TriggerChange])
             AssertEqual(write.State, scrolls.ReadScreen(write.Screen), "the compiled scroll change mutates the intended live scroll cell");
-        AssertTrue(!roomObjects.ScrollObjectTriggered(roomObjects.Scrolls.TriggerBlocks[0]), "the trigger returns to sleep after its last write");
+        AssertTrue(!roomObjects.ScrollObjectTriggered(new(3, 3)), "the trigger returns to sleep after its last write");
 
         // A population holds any number of placements, in order (#1627); the room's places bound how many objects it holds.
-        RoomObjectPlacement[] many = [.. Enumerable.Range(0, 300).Select(index => second with { Block = new(checked((ushort)(index % 8)), checked((ushort)(index / 8))) })];
-        var large = new RoomObjectPopulation($"$8F:{0x9000:X4}", many);
+        RoomObjectPlacement[] many = [.. Enumerable.Range(0, 300).Select(index => ((second with {  }) with { Block = new(checked((ushort)(index % 8)), checked((ushort)(index / 8))) }))];
+        var large = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{0x9000:X4}", many);
         AssertEqual(300, large.Placements.Length, "a population keeps more than 255 placements");
         AssertTrue(large.Placements.ToArray().Select(placement => placement.Block).SequenceEqual(many.Select(placement => placement.Block)),
             "a large population keeps its placements in authored order");
@@ -66,9 +67,9 @@ internal static class RoomObjectPopulationInputBoundaryVerification
         int count = 0;
         foreach (ushort pointer in RoomObjectPopulationDefinitions.Pointers)
             count += RoomObjectPopulationDefinitions.Get(pointer).Placements.Length;
-        AssertEqual(RoomObjectPopulationDefinitions.RetailRecordCount, count,
-            "every compiled population converts to the typed contract before gameplay");
-        Console.WriteLine("PLM input boundary: 283 compiled populations/941 records, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
+        AssertEqual(RoomObjectPopulationDefinitions.RetailRecordCount - RoomObjectPopulationDefinitions.OmittedOrphanScrollExtensionCount, count,
+            "every compiled population converts to the typed contract before gameplay, less the stray extension that reaches nothing");
+        Console.WriteLine("PLM input boundary: 283 compiled populations/940 records, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
     }
 
     /// <summary>Runs the focused compiled-population conversion and scroll execution check.</summary>

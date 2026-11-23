@@ -99,7 +99,7 @@ def run():
         pass
     else:
         raise AssertionError("Prelude-held input that hides a first new press was accepted")
-    # Power-on boot clear (the #1275 "Samus drunk" movie, SMV frames 168-272): the last
+    # Power-on boot clear (#1275, SMV frames 168-272): the last
     # logo NMI reads A+X, CommonBootSection clears bank $7E, the first dispatch runs on an
     # empty latch, and the next read reports the still-held X as a new press.
     collect = converter["collect_input_updates"]
@@ -118,7 +118,7 @@ def run():
         assert reads == 2 and first["inputRecord"] == 0 and second["inputRecord"] == 1
         assert (first["input"], first["pressed"]) == (0, 0), "boot-cleared dispatch did not consume an empty latch"
         assert (second["input"], second["pressed"]) == (0x40, 0x40), "post-boot press edge was not taken from zero"
-    # Quitting from game over (the drunk movie's SMV frames 87442-87464): the menu's
+    # Quitting from game over (#1275, SMV frames 87442-87464): the menu's
     # dispatch jumps into the boot without an NMI wait, so the post-boot dispatch runs
     # under the same read. It becomes its own update with no checkpoint of its own.
     quit_events = [event(0, 1, 0x809459, 0, 0), event(1, 1, 0x809496, 0x8280, 0x8280),

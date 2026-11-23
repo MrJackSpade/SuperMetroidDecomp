@@ -13,7 +13,7 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-# Commits the asynchronous cleanup pushes, whose subject starts with "Cleanup:" (tools/cleanup/README.md).
+# Commits the asynchronous cleanup pushed while it existed, whose subject starts with "Cleanup:".
 # 'skip': never announced; next passes over them. 'post': announced like any other commit, as a short "Cleanup" note.
 $CleanupCommits = 'skip'
 

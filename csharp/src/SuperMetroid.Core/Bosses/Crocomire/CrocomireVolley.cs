@@ -1,23 +1,30 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>How Crocomire's mouth volley aims each shot.</summary>
-public static class CrocomireVolley
+public static partial class CrocomireVolley
 {
     /// <summary>
-    /// The gradient the volley's shot fired after <paramref name="shotsSpat"/> earlier ones is fired along: the authored
-    /// gradient at its place in <see cref="CrocomireProjectileDefinitions.AuthoredGradients"/>, or, for the last shot,
-    /// <paramref name="last"/>'s.
+    /// The gradient the volley's shot fired after <paramref name="shotsSpat"/> earlier ones is fired along, while the volley
+    /// has shots left: the authored gradient at its place in <see cref="CrocomireProjectileDefinitions.AuthoredGradients"/>,
+    /// or, for the last shot, <paramref name="last"/>'s; once every shot is spat, none.
     /// </summary>
-    /// <param name="shotsSpat">The shots the volley has spat before this one, 0 through one less than <see cref="CrocomireProjectileDefinitions.VolleyShotCount"/>.</param>
+    /// <param name="shotsSpat">The shots the volley has spat, counted up from none as each is fired.</param>
     /// <param name="last">The installed gradient the volley's last shot is fired along.</param>
-    /// <exception cref="InvalidDataException">The volley has no such shot.</exception>
-    public static int GradientOf(int shotsSpat, CrocomireLastShotGradient last)
+    /// <param name="gradient">The next shot's gradient, when the volley has one left.</param>
+    /// <returns>Whether the volley has a shot left.</returns>
+    public static bool TryNextGradient(int shotsSpat, CrocomireLastShotGradient last, out int gradient)
     {
-        if (shotsSpat is < 0 or >= CrocomireProjectileDefinitions.VolleyShotCount)
-            throw new InvalidDataException(
-                $"Crocomire's volley has no shot after {shotsSpat}; it spits {CrocomireProjectileDefinitions.VolleyShotCount}.");
-        return shotsSpat < CrocomireProjectileDefinitions.AuthoredGradients.Length
-            ? CrocomireProjectileDefinitions.AuthoredGradients[shotsSpat]
-            : Ensure.NotNull(last).Gradient;
+        if (shotsSpat < CrocomireProjectileDefinitions.AuthoredGradients.Length)
+        {
+            gradient = CrocomireProjectileDefinitions.AuthoredGradients[shotsSpat];
+            return true;
+        }
+        if (shotsSpat == CrocomireProjectileDefinitions.AuthoredGradients.Length)
+        {
+            gradient = Ensure.NotNull(last).Gradient;
+            return true;
+        }
+        gradient = 0;
+        return false;
     }
 }

@@ -17,8 +17,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// preserve the game's behavior; editable text and fonts come from installed assets. Each named phase is one stage of
 /// the ending, and the scene passes from one to the next on the update the game does.
 /// </remarks>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
+internal sealed partial class EndingCreditsState : IFrontendScreen, IEndingActorScene
 {
     /// <inheritdoc/>
     void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork)
@@ -42,22 +41,25 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// The ending's updates so far, counted at the end of each. Only its parity and quarter phase are read: the turning
     /// floor's every-other-update turn and the planet's every-fourth-update turn.
     /// </summary>
-    private int cinematicFrame;
-
-    /// <summary>Current cinematic phase, including terminal display states; only the ending's own updates change it (#2541).</summary>
-    public EndingCreditsPhase Phase { get; private set; }
+    internal int CinematicFrame { get; private set; }
 
     /// <summary>
-    /// What the ending shows with its phase, which owns that scene's own actors (#2541): the cast, the staff credits, the
-    /// reward's reveal, gesture, jump, shot and white flash, or the final logo. The ending changes it only with its phase.
+    /// Current cinematic phase, including terminal display states: the scene's showing (#2553); only the ending's own updates
+    /// change it (#2541).
     /// </summary>
-    internal EndingScene Scene { get; private set; } = new EndingCastScene();
+    public EndingCreditsPhase Phase => Scene.Phase;
+
+    /// <summary>
+    /// What the ending shows, with the phase it runs, which owns that scene's own actors (#2541, #2560): the cast, the staff
+    /// credits, the reward's reveal, gesture, jump, shot and white flash, or the final logo.
+    /// </summary>
+    internal EndingScene Scene { get; set; } = new EndingCastScene(EndingCreditsPhase.SetupEscapeFromZebes);
 
     /// <summary>
     /// The wait of the phase running now (#2541), begun as the phase is entered: the setup's waits, the explosion's hold and
     /// whiteout, and the post-credits scenes' holds, the waiting backdrop's age read from it.
     /// </summary>
-    internal UpdateCountdown PhaseHold { get; private set; } = UpdateCountdown.Lasting(EndingSequenceDefinitions.SetupFrameWaits);
+    internal UpdateCountdown PhaseHold { get; set; } = UpdateCountdown.Lasting(EndingSequenceDefinitions.SetupFrameWaits);
 
     /// <summary>The turning floor's zoom, which the escape's clouds read.</summary>
     public FloorZoom FloorZoom => Stage.Floor.Zoom;
@@ -99,8 +101,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         Flyaway = new EndingFlyaway(setup.CrittersEscaped, screen, Stage);
         Explosion = new EndingZebesExplosion(screen, sprites, Stage);
         EscapeScenes = new EndingEscapeScenes(audio, setup.GameTimeHours, setup.GameTimeMinutes, screen, sprites, Stage, InstalledArtwork);
-        CreditsRoll = new EndingCreditsRoll(setup.Inventory, setup.JapaneseText, screen, sprites, Stage, InstalledArtwork);
-        Phase = EndingCreditsPhase.SetupEscapeFromZebes;
+        CreditsRoll = new EndingCreditsRoll(setup.Inventory, setup.Language, screen, sprites, Stage, InstalledArtwork);
     }
     /// <summary>
     /// True while the ending's setup waits out frames of the display: the next update finishes that wait instead of
@@ -109,328 +110,368 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     internal bool IsWaitingOutDisplayFrame =>
         Phase == EndingCreditsPhase.SetupEscapeFromZebes && PhaseHold.Age > 0;
 
-    /// <summary>Enters <paramref name="phase"/>, which shows the scene already showing.</summary>
-    private void Enter(EndingCreditsPhase phase) => Phase = phase;
+    /// <summary>Enters the cast's <paramref name="phase"/>, which shows the cast in that phase.</summary>
+    private void Enter(EndingCastPhase phase) => Show(new EndingCastScene(phase));
 
-    /// <summary>Enters <paramref name="phase"/>, which waits <paramref name="holdUpdates"/> updates, from the next update on.</summary>
-    private void Enter(EndingCreditsPhase phase, int holdUpdates)
+    /// <summary>Enters the cast's <paramref name="phase"/>, which shows the cast in that phase and waits <paramref name="holdUpdates"/> updates.</summary>
+    private void Enter(EndingCastPhase phase, int holdUpdates) => Show(new EndingCastScene(phase), holdUpdates);
+
+    /// <summary>Shows <paramref name="scene"/>, which runs its own phase.</summary>
+    private void Show(EndingScene scene) => Scene = Ensure.NotNull(scene);
+
+    /// <summary>Shows <paramref name="scene"/>, which runs its own phase, waiting <paramref name="holdUpdates"/> updates.</summary>
+    private void Show(EndingScene scene, int holdUpdates)
     {
         PhaseHold = UpdateCountdown.Lasting(holdUpdates);
-        Phase = phase;
-    }
-
-    /// <summary>Enters <paramref name="phase"/>, which shows <paramref name="scene"/>.</summary>
-    private void Show(EndingCreditsPhase phase, EndingScene scene)
-    {
-        Scene = Ensure.NotNull(scene);
-        Phase = phase;
-    }
-
-    /// <summary>Enters <paramref name="phase"/>, which shows <paramref name="scene"/> and waits <paramref name="holdUpdates"/> updates.</summary>
-    private void Show(EndingCreditsPhase phase, EndingScene scene, int holdUpdates)
-    {
-        PhaseHold = UpdateCountdown.Lasting(holdUpdates);
-        Show(phase, scene);
+        Show(scene);
     }
 
     /// <summary>Runs one update of the ending and credits.</summary>
-    /// <exception cref="InvalidOperationException">The phase is not one the scene showing runs.</exception>
     public void Step()
     {
-        switch (Scene)
-        {
-            case EndingCastScene:
-                // Each setup wait ends the update inside the setup phase, before the phase's own work; the update after the
-                // last wait runs the scene setup.
-                if (!StepCast())
-                    return;
-                break;
-            case EndingCreditsRollScene { Scroll: var scroll }:
-                StepCredits(scroll);
-                break;
-            case EndingRewardRevealScene reveal:
-                StepRewardReveal(reveal);
-                break;
-            case EndingRewardGestureScene { Gesture: var gesture }:
-                RequirePhase(EndingCreditsPhase.PostCreditsGesture);
-                if (gesture.Step())
-                    Show(EndingCreditsPhase.PostCreditsJump, new EndingRewardJumpScene(new EndingRewardJump(Stage.EndingReward)));
-                break;
-            case EndingRewardJumpScene { Jump: var jump }:
-                RequirePhase(EndingCreditsPhase.PostCreditsJump);
-                if (jump.Step())
-                {
-                    Show(EndingCreditsPhase.PostCreditsShot, new EndingPostShotScene(jump, new EndingPostShot()));
-                    audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundPriority);
-                }
-                break;
-            case EndingPostShotScene { Jump: var jump, Shot: var shot }:
-                RequirePhase(EndingCreditsPhase.PostCreditsShot);
-                // The cinematic phase runs before actors; colour fades and queued
-                // picture replacements therefore precede the next sprite cue.
-                shot.Step(screen);
-                jump.Step();
-                if (shot.ReadyForWhiteFlash)
-                    Show(EndingCreditsPhase.PostCreditsWhiteFlash, new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
-                        EndingPostShotDefinitions.FadeSteps);
-                break;
-            case EndingWhiteFlashScene { Jump: var jump, Flash: var flash }:
-                RequirePhase(EndingCreditsPhase.PostCreditsWhiteFlash);
-                flash.Fade();
-                jump.Step();
-                if (PhaseHold.Count())
-                    Show(EndingCreditsPhase.PostCreditsLogo, new EndingLogoScene(CreditsRoll.FinishPostCreditsWhiteFlash()));
-                break;
-            case EndingLogoScene logo:
-                StepLogo(logo);
-                break;
-            case EndingTypingScene typing:
-                StepTyping(typing);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined ending scene {Scene.GetType().Name}.");
-        }
+        if (!Scene.Step(this))
+            return;
 
         // The cinematic runs its colour effects after actors; the ending's colours show the frame each shows (#1512, #1597).
         // The screen binds no audio requests, so an effect that made a sound would fail loudly (#2057).
         Stage.ColourEffects.StepScreen();
-        // The ending follows cinematic actors even while a text-only screen hides sprites.
-        // The credits' end enables the already-started colour effects when the credits finish.
+        // The shooting stars fly on every post-credits update, after the colour effects.
         if (EndingCreditsPhaseGroups.PostCredits.Contains(Phase))
             CreditsRoll.ShootingStars.Step();
-        cinematicFrame++;
+        CinematicFrame++;
     }
 
-    /// <summary>Fails unless the ending runs <paramref name="phase"/>, a phase of the scene showing.</summary>
-    /// <exception cref="InvalidOperationException">The ending runs another phase.</exception>
-    private void RequirePhase(EndingCreditsPhase phase)
+    /// <summary>Runs one update of the reward's gesture, which hands over to its jump as the gesture ends.</summary>
+    internal void StepGesture(EndingRewardGestureScene scene)
     {
-        if (Phase != phase)
-            throw new InvalidOperationException($"The {Scene.GetType().Name} runs no {Phase} phase.");
+        if (scene.Gesture.Step())
+            Show(new EndingRewardJumpScene(new EndingRewardJump(Stage.EndingReward)));
     }
 
-    /// <summary>
-    /// Runs one update of a phase that shows the ending's cast: the escape, the explosion, the planet escape, the fade to
-    /// the credits and the post-credits waits before the reward.
-    /// </summary>
-    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
-    /// <exception cref="InvalidOperationException">The phase is not one the cast shows.</exception>
-    private bool StepCast()
+    /// <summary>Runs one update of the reward's jump, which hands over to its shot, with the shot's sound, as Samus lands.</summary>
+    internal void StepJump(EndingRewardJumpScene scene)
     {
-        switch (Phase)
+        EndingRewardJump jump = scene.Jump;
+        if (jump.Step())
         {
-            case EndingCreditsPhase.SetupEscapeFromZebes:
-                if (!PhaseHold.IsOver)
-                {
-                    PhaseHold.Count();
-                    return false;
-                }
-                EscapeScenes.SetupSideCloudEscape();
-                Enter(EndingCreditsPhase.WaitForEscapeMusic);
-                break;
+            Show(new EndingPostShotScene(jump, new EndingPostShot()));
+            audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.ShotSoundPriority);
+        }
+    }
 
-            case EndingCreditsPhase.WaitForEscapeMusic:
-                if (!audio.HasQueuedMusic)
-                {
-                    Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Lava);
-                    Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Crust);
-                    Stage.Fade.Show(0);
-                    Stage.StartFastFade();
-                    Enter(EndingCreditsPhase.FadeInSideCloudEscape);
-                }
-                break;
+    /// <summary>Runs one update of the reward's shot over the landed Samus, which hands over to the white flash.</summary>
+    internal void StepPostShot(EndingPostShotScene scene)
+    {
+        EndingRewardJump jump = scene.Jump;
+        EndingPostShot shot = scene.Shot;
+        // The cinematic phase runs before actors; colour fades and queued
+        // picture replacements therefore precede the next sprite cue. The shot's scene is replaced as it hands over, so
+        // nothing steps the shot after its handoff.
+        bool readyForWhiteFlash = shot.Step(screen);
+        jump.Step();
+        if (readyForWhiteFlash)
+            Show(new EndingWhiteFlashScene(jump, CreditsRoll.BeginPostCreditsWhiteFlash()),
+                EndingPostShotDefinitions.FadeSteps);
+    }
 
-            case EndingCreditsPhase.FadeInSideCloudEscape:
-                StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
-                StepActors();
-                if (Stage.Fade.Brighten())
-                    Enter(EndingCreditsPhase.SideCloudEscape);
-                break;
+    /// <summary>Runs one update of the white flash over the landed Samus, which hands over to the final logo as its hold ends.</summary>
+    internal void StepWhiteFlash(EndingWhiteFlashScene scene)
+    {
+        scene.Flash.Fade();
+        scene.Jump.Step();
+        if (PhaseHold.Count())
+            Show(new EndingLogoScene(CreditsRoll.FinishPostCreditsWhiteFlash()));
+    }
 
-            case EndingCreditsPhase.SideCloudEscape:
-                StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
-                StepActors();
-                if (Stage.Floor.Zoom >= EndingMotionDefinitions.EscapeEndZoom)
-                {
-                    Stage.StartFastFade();
-                    Enter(EndingCreditsPhase.FadeOutSideCloudEscape);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.SetupEscapeFromZebes"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastSetupEscapeFromZebes()
+    {
+        if (!PhaseHold.IsOver)
+        {
+            PhaseHold.Count();
+            return false;
+        }
+        EscapeScenes.SetupSideCloudEscape();
+        Enter(EndingCreditsPhase.WaitForEscapeMusic);
+        return true;
+    }
 
-            case EndingCreditsPhase.FadeOutSideCloudEscape:
-                StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
-                StepActors();
-                if (Stage.Fade.Darken())
-                {
-                    EscapeScenes.SetupTopAndBottomCloudEscape();
-                    Enter(EndingCreditsPhase.FadeInTopAndBottomCloudEscape);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.WaitForEscapeMusic"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastWaitForEscapeMusic()
+    {
+        if (!audio.HasQueuedMusic)
+        {
+            Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Lava);
+            Stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Crust);
+            Stage.Fade.Show(DisplayBrightness.Black);
+            Stage.StartFastFade();
+            Enter(EndingCreditsPhase.FadeInSideCloudEscape);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.FadeInTopAndBottomCloudEscape:
-                StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
-                StepActors();
-                if (Stage.Fade.Brighten())
-                    Enter(EndingCreditsPhase.TopAndBottomCloudEscape);
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.FadeInSideCloudEscape"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastFadeInSideCloudEscape()
+    {
+        StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
+        StepActors();
+        if (Stage.Fade.Brighten())
+            Enter(EndingCreditsPhase.SideCloudEscape);
+        return true;
+    }
 
-            case EndingCreditsPhase.TopAndBottomCloudEscape:
-                StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
-                StepActors();
-                if (Stage.Floor.Zoom >= EndingMotionDefinitions.EscapeEndZoom)
-                {
-                    Stage.StartFastFade();
-                    Enter(EndingCreditsPhase.FadeOutTopAndBottomCloudEscape);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.SideCloudEscape"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastSideCloudEscape()
+    {
+        StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
+        StepActors();
+        if (Stage.Floor.Zoom >= EndingMotionDefinitions.EscapeEndZoom)
+        {
+            Stage.StartFastFade();
+            Enter(EndingCreditsPhase.FadeOutSideCloudEscape);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.FadeOutTopAndBottomCloudEscape:
-                StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
-                StepActors();
-                if (Stage.Fade.Darken())
-                {
-                    Explosion.SetupZebesExplosion();
-                    Enter(EndingCreditsPhase.FadeInZebesExplosion);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.FadeOutSideCloudEscape"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastFadeOutSideCloudEscape()
+    {
+        StepAtmosphericTransform(EndingMotionDefinitions.SideCloudEscapeZoomStep);
+        StepActors();
+        if (Stage.Fade.Darken())
+        {
+            EscapeScenes.SetupTopAndBottomCloudEscape();
+            Enter(EndingCreditsPhase.FadeInTopAndBottomCloudEscape);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.FadeInZebesExplosion:
-                StepExplosionCrossfade();
-                StepActors();
-                if (Stage.Fade.Brighten())
-                    Enter(EndingCreditsPhase.ZebesExplosionCrossfade);
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.FadeInTopAndBottomCloudEscape"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastFadeInTopAndBottomCloudEscape()
+    {
+        StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
+        StepActors();
+        if (Stage.Fade.Brighten())
+            Enter(EndingCreditsPhase.TopAndBottomCloudEscape);
+        return true;
+    }
 
-            case EndingCreditsPhase.ZebesExplosionCrossfade:
-                StepExplosionCrossfade();
-                StepActors();
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.TopAndBottomCloudEscape"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastTopAndBottomCloudEscape()
+    {
+        StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
+        StepActors();
+        if (Stage.Floor.Zoom >= EndingMotionDefinitions.EscapeEndZoom)
+        {
+            Stage.StartFastFade();
+            Enter(EndingCreditsPhase.FadeOutTopAndBottomCloudEscape);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.ZebesExplosionHold:
-                StepActors();
-                if (PhaseHold.Count())
-                    Enter(EndingCreditsPhase.ZebesExplosionAnimation);
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.FadeOutTopAndBottomCloudEscape"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastFadeOutTopAndBottomCloudEscape()
+    {
+        StepAtmosphericTransform(EndingMotionDefinitions.TopAndBottomCloudEscapeZoomStep);
+        StepActors();
+        if (Stage.Fade.Darken())
+        {
+            Explosion.SetupZebesExplosion();
+            Enter(EndingCreditsPhase.FadeInZebesExplosion);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.ZebesExplosionAnimation:
-                // The explosion actor's animation runs the finale: its ending cue whitens the screen and starts the wait
-                // for the planet escape's music (EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames).
-                StepActors();
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.FadeInZebesExplosion"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastFadeInZebesExplosion()
+    {
+        StepExplosionCrossfade();
+        StepActors();
+        if (Stage.Fade.Brighten())
+            Enter(EndingCreditsPhase.ZebesExplosionCrossfade);
+        return true;
+    }
 
-            case EndingCreditsPhase.WaitForPlanetEscapeMusic:
-                StepActors();
-                if (PhaseHold.Count())
-                {
-                    audio.QueueMusic(MusicRequest.Stop);
-                    audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Credits));
-                    audio.ScheduleMusic(
-                        MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.CreditsSong),
-                        EndingSequenceDefinitions.Music.CreditsSongDelay);
-                    Enter(EndingCreditsPhase.WaitForPlanetEscapeMusicQueue);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.ZebesExplosionCrossfade"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastZebesExplosionCrossfade()
+    {
+        StepExplosionCrossfade();
+        StepActors();
+        return true;
+    }
 
-            case EndingCreditsPhase.WaitForPlanetEscapeMusicQueue:
-                StepActors();
-                if (!audio.HasQueuedMusic)
-                {
-                    Flyaway.SetupPlanetEscape();
-                    Enter(EndingCreditsPhase.PlanetEscapeFast);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.ZebesExplosionHold"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastZebesExplosionHold()
+    {
+        StepActors();
+        if (PhaseHold.Count())
+            Enter(EndingCreditsPhase.ZebesExplosionAnimation);
+        return true;
+    }
 
-            case EndingCreditsPhase.PlanetEscapeFast:
-                StepActors();
-                if (Flyaway.StepPlanetEscapeFast())
-                    Enter(EndingCreditsPhase.PlanetEscapeSlow);
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.ZebesExplosionAnimation"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastZebesExplosionAnimation()
+    {
+        // The explosion actor's animation runs the finale: its ending cue whitens the screen and starts the wait
+        // for the planet escape's music (EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames).
+        StepActors();
+        return true;
+    }
 
-            case EndingCreditsPhase.PlanetEscapeSlow:
-                StepActors();
-                if (Flyaway.StepPlanetEscapeSlow())
-                {
-                    Enter(EndingCreditsPhase.PlanetEscapeAccelerating);
-                    Flyaway.ReleaseEscapedAnimals(this);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.WaitForPlanetEscapeMusic"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastWaitForPlanetEscapeMusic()
+    {
+        StepActors();
+        if (PhaseHold.Count())
+        {
+            audio.QueueMusic(MusicRequest.Stop);
+            audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Credits));
+            audio.ScheduleMusic(
+                MusicRequest.SelectTrack(EndingSequenceDefinitions.Music.CreditsSong),
+                EndingSequenceDefinitions.Music.CreditsSongDelay);
+            Enter(EndingCreditsPhase.WaitForPlanetEscapeMusicQueue);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.PlanetEscapeAccelerating:
-                StepActors();
-                if (Flyaway.StepPlanetEscapeAccelerating(cinematicFrame))
-                    Enter(EndingCreditsPhase.OperationSuccessfulText);
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.WaitForPlanetEscapeMusicQueue"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastWaitForPlanetEscapeMusicQueue()
+    {
+        StepActors();
+        if (!audio.HasQueuedMusic)
+        {
+            Flyaway.SetupPlanetEscape();
+            Enter(EndingCreditsPhase.PlanetEscapeFast);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.OperationSuccessfulText:
-                StepActors();
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PlanetEscapeFast"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPlanetEscapeFast()
+    {
+        StepActors();
+        if (Flyaway.StepPlanetEscapeFast())
+            Enter(EndingCreditsPhase.PlanetEscapeSlow);
+        return true;
+    }
 
-            case EndingCreditsPhase.FadeOutToCredits:
-                StepActors();
-                if (Stage.Fade.Darken())
-                    Show(EndingCreditsPhase.Credits, new EndingCreditsRollScene(CreditsRoll.SetupCredits()));
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PlanetEscapeSlow"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPlanetEscapeSlow()
+    {
+        StepActors();
+        if (Flyaway.StepPlanetEscapeSlow())
+        {
+            Enter(EndingCreditsPhase.PlanetEscapeAccelerating);
+            Flyaway.ReleaseEscapedAnimals(this);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.PostCreditsBlank:
-                if (PhaseHold.Count())
-                {
-                    Stage.StartPostCreditsFade();
-                    Enter(EndingCreditsPhase.PostCreditsFadeIn);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PlanetEscapeAccelerating"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPlanetEscapeAccelerating()
+    {
+        StepActors();
+        if (Flyaway.StepPlanetEscapeAccelerating(CinematicFrame))
+            Enter(EndingCreditsPhase.OperationSuccessfulText);
+        return true;
+    }
 
-            case EndingCreditsPhase.PostCreditsFadeIn:
-                if (Stage.Fade.Brighten())
-                {
-                    CreditsRoll.FadeWaitingBackdrop(0);
-                    Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.OperationSuccessfulText"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastOperationSuccessfulText()
+    {
+        StepActors();
+        return true;
+    }
 
-            case EndingCreditsPhase.PostCreditsShootingStars:
-                bool faded = PhaseHold.Count();
-                CreditsRoll.FadeWaitingBackdrop(PhaseHold.Age);
-                if (faded)
-                {
-                    // The colour fade finishes, then the waiting phase holds the
-                    // backdrop for three seconds before displaying the producer panel.
-                    Enter(EndingCreditsPhase.PostCreditsWaitingBackdrop, EndingSequenceDefinitions.Timing.WaitingBackdropFrames);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.FadeOutToCredits"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastFadeOutToCredits()
+    {
+        StepActors();
+        if (Stage.Fade.Darken())
+            Show(new EndingCreditsRollScene(CreditsRoll.SetupCredits()));
+        return true;
+    }
 
-            case EndingCreditsPhase.PostCreditsWaitingBackdrop:
-                if (PhaseHold.Count())
-                {
-                    // The backdrop wait's end shows the complete result panel before its hold.
-                    InstalledArtwork.PostCreditsText.ShowResultPanel();
-                    Enter(EndingCreditsPhase.PostCreditsWaitingSamus, EndingSequenceDefinitions.Timing.ResultPanelHoldFrames);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PostCreditsBlank"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPostCreditsBlank()
+    {
+        if (PhaseHold.Count())
+        {
+            Stage.StartPostCreditsFade();
+            Enter(EndingCreditsPhase.PostCreditsFadeIn);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.PostCreditsWaitingSamus:
-                if (PhaseHold.Count())
-                {
-                    EscapeScenes.SpawnEndingRewardActors();
-                    Show(EndingCreditsPhase.PostCreditsReward, new EndingRewardRevealScene(CreditsRoll.StartRewardFade()),
-                        EndingSequenceDefinitions.Timing.RewardRevealHalfFrames);
-                }
-                break;
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PostCreditsFadeIn"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPostCreditsFadeIn()
+    {
+        if (Stage.Fade.Brighten())
+        {
+            CreditsRoll.FadeWaitingBackdrop(0);
+            Enter(EndingCreditsPhase.PostCreditsShootingStars, EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
+        }
+        return true;
+    }
 
-            case EndingCreditsPhase.Credits:
-            case EndingCreditsPhase.PostCreditsReward:
-            case EndingCreditsPhase.PostCreditsCopyright:
-            case EndingCreditsPhase.PostCreditsGesture:
-            case EndingCreditsPhase.PostCreditsJump:
-            case EndingCreditsPhase.PostCreditsShot:
-            case EndingCreditsPhase.PostCreditsWhiteFlash:
-            case EndingCreditsPhase.PostCreditsLogo:
-            case EndingCreditsPhase.ItemPercentage:
-            case EndingCreditsPhase.ItemPercentageScrollDown:
-            case EndingCreditsPhase.SeeYouNextMission:
-                throw new InvalidOperationException($"The ending's cast runs no {Phase} phase, whose scene has actors of its own.");
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PostCreditsShootingStars"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPostCreditsShootingStars()
+    {
+        bool faded = PhaseHold.Count();
+        CreditsRoll.FadeWaitingBackdrop(PhaseHold.Age);
+        if (faded)
+        {
+            // The colour fade finishes, then the waiting phase holds the
+            // backdrop for its wait before displaying the producer panel.
+            Enter(EndingCreditsPhase.PostCreditsWaitingBackdrop, EndingSequenceDefinitions.Timing.WaitingBackdropFrames);
+        }
+        return true;
+    }
 
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Phase}.");
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PostCreditsWaitingBackdrop"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPostCreditsWaitingBackdrop()
+    {
+        if (PhaseHold.Count())
+        {
+            // The backdrop wait's end shows the complete result panel before its hold.
+            InstalledArtwork.PostCreditsText.ShowNextPanel();
+            Enter(EndingCreditsPhase.PostCreditsWaitingSamus, EndingSequenceDefinitions.Timing.ResultPanelHoldFrames);
+        }
+        return true;
+    }
+
+    /// <summary>Runs one update of the cast's <see cref="EndingCreditsPhase.PostCreditsWaitingSamus"/> phase.</summary>
+    /// <returns>Whether the update goes on past the phase to the ending's colour effects and stars: false for a setup wait.</returns>
+    internal bool CastPostCreditsWaitingSamus()
+    {
+        if (PhaseHold.Count())
+        {
+            EscapeScenes.SpawnEndingRewardActors();
+            Show(new EndingRewardRevealScene(CreditsRoll.StartRewardFade()),
+                EndingSequenceDefinitions.Timing.RewardRevealHalfFrames);
         }
         return true;
     }
@@ -450,75 +491,73 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// <summary>Runs the cast's actors in running order, their cues answered by <see cref="HandleSceneCue"/>.</summary>
     private void StepActors() => EscapeScenes.StepSprites(this, HandleSceneCue);
 
+    /// <summary>What <see cref="HandleSceneCue"/> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingSceneCue, Action<EndingSprite, EndingSceneCue>> HandleSceneCueForEndingSceneCue => field ??= new(new Dictionary<EndingSceneCue, Action<EndingSprite, EndingSceneCue>>
+    {
+        [EndingSceneCue.EndZebesExplosion] = (actor, cue) =>
+        {
+            // The scene hides the sprite layer without deleting the actors: the stars must still
+            // advance and become visible again when the flyaway starts.
+            Stage.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
+            Enter(EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames);
+        },
+        [EndingSceneCue.TransitionToCredits] = (actor, cue) =>
+        {
+            Stage.StartFastFade();
+            Enter(EndingCreditsPhase.FadeOutToCredits);
+        },
+        [EndingSceneCue.WaitForFlyaway] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.FadeExplosionColours] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnExplosionSilhouette] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.StartZebesExplosion] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.ExplosionFinale] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnCompletedText] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnClearTime] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnHoursTens] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnHoursUnits] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnColon] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnMinutesTens] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+        [EndingSceneCue.SpawnMinutesUnits] = (actor, cue) => EscapeScenes.HandleSpriteCue(actor, cue),
+    });
+
     /// <summary>
     /// Answers a cast actor's cue: the explosion's end and the completion text's end change the ending's phase, and
     /// every other cue goes to the escape scenes.
     /// </summary>
     private void HandleSceneCue(EndingSprite actor, EndingSceneCue cue)
     {
-        switch (cue)
-        {
-            case EndingSceneCue.EndZebesExplosion:
-                // The scene hides the sprite layer without deleting the actors: the stars must still
-                // advance and become visible again when the flyaway starts.
-                Stage.Colours.Flash(EndingFlash.ExplosionWhiteout, RgbColor.White);
-                Enter(EndingCreditsPhase.WaitForPlanetEscapeMusic, EndingSequenceDefinitions.Timing.PlanetEscapeMusicWaitFrames);
-                return;
-
-            case EndingSceneCue.TransitionToCredits:
-                Stage.StartFastFade();
-                Enter(EndingCreditsPhase.FadeOutToCredits);
-                return;
-
-            case EndingSceneCue.WaitForFlyaway:
-            case EndingSceneCue.FadeExplosionColours:
-            case EndingSceneCue.SpawnExplosionSilhouette:
-            case EndingSceneCue.StartZebesExplosion:
-            case EndingSceneCue.ExplosionFinale:
-            case EndingSceneCue.SpawnCompletedText:
-            case EndingSceneCue.SpawnClearTime:
-            case EndingSceneCue.SpawnHoursTens:
-            case EndingSceneCue.SpawnHoursUnits:
-            case EndingSceneCue.SpawnColon:
-            case EndingSceneCue.SpawnMinutesTens:
-            case EndingSceneCue.SpawnMinutesUnits:
-                EscapeScenes.HandleSpriteCue(actor, cue);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
-        }
+        HandleSceneCueForEndingSceneCue[cue](actor, cue);
     }
 
     /// <summary>One update of the staff credits, whose end blanks the screen for the post-credits scenes' first hold.</summary>
-    private void StepCredits(CreditsScroll scroll)
+    internal void StepCredits(CreditsScroll scroll)
     {
-        RequirePhase(EndingCreditsPhase.Credits);
         scroll.Step();
         if (!scroll.Finished)
             return;
         CreditsRoll.SetupPostCreditsBlank();
-        Show(EndingCreditsPhase.PostCreditsBlank, new EndingCastScene(), EndingSequenceDefinitions.Timing.PostCreditsBlankFrames);
+        Enter(EndingCreditsPhase.PostCreditsBlank, EndingSequenceDefinitions.Timing.PostCreditsBlankFrames);
     }
 
     /// <summary>
     /// One update of the reward's reveal: its two halves fade the reward's colours in, the copyright's hold between them
     /// showing the copyright alone, and the second half's end starts the reward's gesture.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The phase is not one the reveal runs.</exception>
-    private void StepRewardReveal(EndingRewardRevealScene reveal)
+    internal void StepRewardReveal(EndingRewardRevealScene reveal)
     {
-        if (Phase == EndingCreditsPhase.PostCreditsCopyright)
+        if (reveal.CopyrightHolds)
         {
             // The sprites keep animating while only the copyright panel shows; hiding the actors must not reset their
             // animations or their reveal colour state.
             StepActors();
             if (PhaseHold.Count())
-                Enter(EndingCreditsPhase.PostCreditsReward, EndingSequenceDefinitions.Timing.RewardRevealHalfFrames);
+            {
+                reveal.ResumeReveal();
+                PhaseHold = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.RewardRevealHalfFrames);
+            }
             return;
         }
-        RequirePhase(EndingCreditsPhase.PostCreditsReward);
-        // Both 64-update halves advance their shared colour fade on their fourth update and every fourth update after.
+        // Both halves advance their shared colour fade on the last update of each of its steps.
         CreditsRoll.StepRewardFade(reveal.Fade);
         StepActors();
         if (!PhaseHold.Count())
@@ -527,56 +566,52 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
         {
             // The copyright panel replaces the producer panel. The text alone is shown until the copyright's hold ends.
             CreditsRoll.ShowRewardCopyright();
-            Enter(EndingCreditsPhase.PostCreditsCopyright, EndingSequenceDefinitions.Timing.CopyrightHoldFrames);
+            reveal.HoldCopyright();
+            PhaseHold = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.CopyrightHoldFrames);
             return;
         }
         // The reward step replaces the idle actors with the gesture animations.
         // The backgrounds are hidden during this sprite-only animation.
         sprites.Clear();
-        Show(EndingCreditsPhase.PostCreditsGesture, new EndingRewardGestureScene(new EndingRewardGesture(Stage.EndingReward)));
+        Show(new EndingRewardGestureScene(new EndingRewardGesture(Stage.EndingReward)));
     }
 
     /// <summary>
-    /// One update of the final logo: its cues until it completes, which starts the item percentage, and the item
-    /// percentage's move down, whose end starts the final message.
+    /// One update of the final logo: its cues until it completes, which starts the item percentage. The logo's scene is
+    /// replaced as it completes, so nothing steps the completed logo.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The phase is not one the logo runs.</exception>
-    private void StepLogo(EndingLogoScene scene)
+    internal void StepLogo(EndingLogoScene scene)
     {
-        if (Phase == EndingCreditsPhase.ItemPercentageScrollDown)
-        {
-            // The item-percentage scroll moves the shown text down two pixels an update, eighty in all, before the final
-            // message starts above it.
-            InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerUpdate;
-            if (PhaseHold.Count())
-                Show(EndingCreditsPhase.SeeYouNextMission, new EndingTypingScene(scene.Logo, CreditsRoll.StartFinalMessage()));
-            return;
-        }
-        RequirePhase(EndingCreditsPhase.PostCreditsLogo);
-        scene.Logo.Step(Stage.Colours);
-        if (scene.Logo.Completed)
-            Show(EndingCreditsPhase.ItemPercentage, new EndingTypingScene(scene.Logo, CreditsRoll.StartItemPercentage()));
+        if (scene.Logo.Step(Stage.Colours))
+            Show(new EndingTypingScene(CreditsRoll.StartItemPercentage()));
+    }
+
+    /// <summary>One update of the item percentage's move down, whose end starts the final message.</summary>
+    internal void StepItemPercentageDrop()
+    {
+        // The item-percentage scroll moves the shown text down by its drop each update before the final message starts
+        // above it.
+        InstalledArtwork.PostCreditsText.Drop += EndingSequenceDefinitions.Timing.TextDropPixelsPerUpdate;
+        if (PhaseHold.Count())
+            Show(new EndingTypingScene(CreditsRoll.StartFinalMessage()));
     }
 
     /// <summary>
     /// One update of a post-credits text typing beneath the logo: the item percentage until it asks for its move down, then
     /// the final message, which the ending stays on.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The phase is not one a typed text runs.</exception>
-    private void StepTyping(EndingTypingScene scene)
+    internal void StepTyping(EndingTypingScene scene)
     {
-        if (Phase == EndingCreditsPhase.SeeYouNextMission)
+        if (!scene.Typing.TypesItemPercentage)
         {
             // The ending stays on this final screen: nothing leaves it until the player resets the game.
             StepActors();
             scene.Typing.Step();
             return;
         }
-        RequirePhase(EndingCreditsPhase.ItemPercentage);
         scene.Typing.Step();
-        if (scene.Typing.TypesItemPercentage && scene.Typing.Completed)
-            Show(EndingCreditsPhase.ItemPercentageScrollDown, new EndingLogoScene(scene.Logo),
-                EndingSequenceDefinitions.Timing.ItemPercentageDropUpdates);
+        if (scene.Typing.Completed)
+            Show(new EndingItemPercentageDropScene(), EndingSequenceDefinitions.Timing.ItemPercentageDropUpdates);
     }
 
     /// <summary>
@@ -585,7 +620,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     private void StepAtmosphericTransform(FloorZoomStep zoomStep)
     {
         // The floor turns during both fades as well as the fully visible interval.
-        if (EndingCadenceDefinitions.AtmosphereFloorTurnEverySecondUpdate.IsDue(cinematicFrame))
+        if (EndingCadenceDefinitions.AtmosphereFloorTurn.IsDue(CinematicFrame))
             Stage.Floor.Turn(EndingMotionDefinitions.AtmosphereTurnSteps);
         Stage.Floor.Widen(zoomStep);
     }
@@ -609,8 +644,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// </summary>
     internal AffineFloor? Floor()
     {
-        EndingFloorShot shot = EndingScreenFloor.ShotOf(Phase);
-        return shot == EndingFloorShot.None ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot)
+        return Phase is not IEndingFloorPhase { FloorShot: var shot } ? null : EndingScreenFloor.Of(InstalledArtwork.Sheets, shot)
             .Shaded(screen.Colours.SceneryShading(EndingFloorDefinitions.Scenery[shot]));
     }
 
@@ -640,8 +674,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
 
     /// <summary>
     /// A one-screen plane showing the whole-screen picture <paramref name="picture"/>, which is <paramref name="scenery"/>, in
-    /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole, never gated by whether
-    /// whether its picture has loaded (#1515).
+    /// its own of the ending's colours (#1467, #1512, #1544): the phase that shows it shows it whole (#1515).
     /// </summary>
     internal PicturedPlane ScreenPicture(SpriteSheetId sheet, string picture, EndingScenery scenery) =>
         new([new PlacedPlanePicture(Picture(sheet, picture), Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(scenery))]);
@@ -651,7 +684,7 @@ internal sealed class EndingCreditsState : IFrontendScreen, IEndingActorScene
     /// the import pictures it as the screen shows it (#1626).
     /// </summary>
     private PicturedPlane ExplosionPlane(EndingExplosionPicture picture) =>
-        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(picture)),
+        new([new PlacedPlanePicture(Picture(SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(picture)),
             Offset16<PlanePixels>.Zero, screen.Colours.SceneryShading(EndingScenery.ExplosionPictures))]);
 
     /// <summary>

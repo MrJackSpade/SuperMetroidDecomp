@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// headers have been parsed. Keeping that traversal here prevents every cinematic, room, and
 /// menu loader from inventing a compressed byte count beside the real ROM address.
 /// </remarks>
-public static class RomDataReader
+public static partial class RomDataReader
 {
     /// <summary>
     /// Copies a fixed-length cartridge range without crossing into the bank's mutable
@@ -132,8 +132,9 @@ public static class RomDataReader
             int first = Next();
             if (first == SmCompressionCodes.Terminator)
                 return SmCompression.Decompress(stored.AsSpan(0, length), maximumOutputBytes);
-            int? second = SmCompressionCodes.IsLongHeader(first) ? Next() : null;
-            SmCompressionHeader header = SmCompressionHeader.Decode(first, second);
+            SmCompressionHeader header = SmCompressionCodes.IsLongHeader(first)
+                ? SmCompressionHeader.DecodeLong(first, Next())
+                : SmCompressionHeader.Decode(first);
             for (int operand = 0; operand < header.PayloadByteCount; operand++)
                 Next();
         }

@@ -13,15 +13,14 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// opened for good, stops the shots and opens the cap, which then leaves the room. A cap closing behind Samus plays the
 /// shared closing, then looks at its door again.
 /// </summary>
-internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
+internal sealed partial class ColoredDoorObject : DoorCapObject, IShootableRoomObject
 {
     /// <summary>A cap of <paramref name="variant"/>'s colour and facing, just placed in <paramref name="door"/>.</summary>
     internal ColoredDoorObject(ColoredDoorVariant variant, PlacedDoor door)
         : base(variant.Orientation, ColoredDoorDefinitions.Colors[variant.Color].Paint)
     {
-        Color = variant.Color;
         Door = Ensure.NotNull(door);
-        _rules = ColoredDoorDefinitions.Colors[variant.Color];
+        Rules = ColoredDoorDefinitions.Colors[variant.Color];
         _sequences = ColoredDoorDefinitions.Sequences[variant];
     }
 
@@ -32,26 +31,25 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     public override bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         Door.IsOpenedForGood(openedForGood);
 
-    /// <summary>The cap's colour, which selects the projectile that opens it.</summary>
-    internal ColoredDoorColor Color { get; }
 
     /// <summary>What the cap is doing.</summary>
-    internal ColoredDoorPhase Phase { get; private set; } = ColoredDoorPhase.Waiting;
+    internal ColoredDoorPhase Phase { get; set; } = ColoredDoorPhase.Placed;
 
     /// <summary>
     /// The hits counted toward the colour's count. It only counts up, by one a hit or straight to the count on a Super
     /// Missile, and the cap opens once it reaches the count.
     /// </summary>
-    internal int HitCounter { get; private set; }
+    internal int HitCounter { get; set; }
 
     /// <summary>
-    /// Whether a shot at the cap's block reaches it: from its first look until the hit that opens it, so a waiting cap that
-    /// takes no shots has yet to take that look.
+    /// Whether a shot at the cap's block reaches it: from its first look until the hit that opens it. This is what the cap
+    /// waits for, apart from what it plays: a closing behind Samus keeps it, so a cap that has looked still takes shots while
+    /// it closes, and one just placed takes none.
     /// </summary>
-    internal bool TakesShots { get; private set; }
+    internal bool TakesShots { get; set; }
 
     /// <summary>The colour's rules: the shots it counts and the hits it takes.</summary>
-    private readonly ColoredDoorColorDefinition _rules;
+    internal ColoredDoorColorDefinition Rules { get; }
 
     /// <summary>The colour and facing's sequences.</summary>
     private readonly ColoredDoorSequences _sequences;
@@ -85,7 +83,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     {
         if (!TakesShots || _strike.Take() is not { Family: var family })
             return false;
-        if (!_rules.Counts(family))
+        if (!Rules.Counts(family))
         {
             context.RoomObjects.DoorObjects.QueueDudSound();
             return false;
@@ -94,29 +92,25 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
         return true;
     }
 
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="ColoredDoorPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForColoredDoorPhase => field ??= new(new Dictionary<ColoredDoorPhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [ColoredDoorPhase.Placed] = (place, context) => Look(place, context),
+        [ColoredDoorPhase.Closing] = (place, context) => Look(place, context),
+        // Once it has looked, the cap rests on its closed image until a hit wakes it.
+        [ColoredDoorPhase.Waiting] = (place, context) => { },
+        [ColoredDoorPhase.Flashing] = (place, context) =>
+        {
+            // The cap rests on its closed image again until the next hit wakes it.
+            Phase = ColoredDoorPhase.Waiting;
+        },
+        [ColoredDoorPhase.Opening] = (place, context) => context.RoomObjects.DeleteObject(place),
+    });
+
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case ColoredDoorPhase.Closing:
-                Look(place, context);
-                return;
-            case ColoredDoorPhase.Waiting:
-                // Once it has looked, the cap rests on its closed image until a hit wakes it.
-                if (!TakesShots)
-                    Look(place, context);
-                return;
-            case ColoredDoorPhase.Flashing:
-                // The cap rests on its closed image again until the next hit wakes it.
-                Phase = ColoredDoorPhase.Waiting;
-                return;
-            case ColoredDoorPhase.Opening:
-                context.RoomObjects.DeleteObject(place);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ColoredDoorPhase)} {Phase}.");
-        }
+        SequenceEndedForColoredDoorPhase[Phase](place, context);
     }
 
     /// <summary>
@@ -141,7 +135,7 @@ internal sealed class ColoredDoorObject : DoorCapObject, IShootableRoomObject
     /// </summary>
     private void CountHit(RoomObjectPlace place, RoomObjectStepContext context, bool opensAtOnce)
     {
-        int threshold = _rules.HitsToOpen;
+        int threshold = Rules.HitsToOpen;
         HitCounter = opensAtOnce ? threshold : HitCounter + 1;
         if (HitCounter < threshold)
         {

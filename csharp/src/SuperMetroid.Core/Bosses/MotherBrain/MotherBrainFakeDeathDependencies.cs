@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -6,8 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The collaborators a <see cref="MotherBrainFakeDeath"/> is constructed with, built once by its owner.</summary>
-[RoomLifetime]
-internal sealed record MotherBrainFakeDeathDependencies
+internal sealed partial record MotherBrainFakeDeathDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required EnemyPassEvents PassEvents { get; init; }
@@ -33,4 +32,7 @@ internal sealed record MotherBrainFakeDeathDependencies
 
     /// <summary>Mother Brain's projectiles, whose ceiling tubes the collapse drops.</summary>
     public required MotherBrainProjectiles ProjectileAttacks { get; init; }
+
+    /// <summary>Builds the falling tubes, which join the encounter whose fake death drops them (#2218, #2554).</summary>
+    public required IEnemyJoiningFactory<MotherBrainEnemyState, MotherBrainTubeSpawnSettings> Tubes { get; init; }
 }

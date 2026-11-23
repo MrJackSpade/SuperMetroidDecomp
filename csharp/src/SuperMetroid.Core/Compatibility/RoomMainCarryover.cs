@@ -18,9 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// timer (<c>$8F:E525</c>) starts from the shaft's turn index (<c>$89:AD41</c>), the escape rooms' diagonal quake timer
 /// is the same word, and the elevatube's door behaviours (<c>$8F:E26C/$E291</c>) leave its fraction as they find it.
 /// </remarks>
-[CompatibilityService("the room mains share one working value no room load clears, so each main that does not set it up reads, in its own terms, what the previous room's main left")]
-[EncodingOwner("room main working value carried between rooms")]
-public sealed class RoomMainCarryover
+public sealed partial class RoomMainCarryover
 {
     /// <summary>The value the last main left, 0 through 65535.</summary>
     public int Value { get; private set; }

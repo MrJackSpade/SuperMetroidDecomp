@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 
 /// <summary>Editable visual rows; the reveal's cadence and zero terminator stay in code.</summary>
-public static class NorfairRidleyColorFormat
+public static partial class NorfairRidleyColorFormat
 {
     /// <summary>Asset filename used to install Lower Norfair Ridley's editable initial and arena-reveal colors.</summary>
     public const string FileName = "norfair-ridley-colors.json";

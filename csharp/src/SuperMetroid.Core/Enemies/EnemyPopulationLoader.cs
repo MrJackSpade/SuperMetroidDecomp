@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Room enemy population loading: the population and kill quota, and resolution of enemy definitions and
 /// populations from the room state.
 /// </summary>
-internal sealed class EnemyPopulationLoader
+internal sealed partial class EnemyPopulationLoader
 {
     /// <summary>Supplies the selected enemy artwork and guards room-bound operations.</summary>
     private readonly EnemyRoomBinding _room;
@@ -27,7 +27,7 @@ internal sealed class EnemyPopulationLoader
     }
     /// <summary>
     /// The kills that clear the room for its grey doors and clearance watches: the room population's own quota
-    /// (<see cref="RoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
+    /// (<see cref="PlacedRoomEnemyPopulationDefinition.DeathQuota"/>) when the room places enemies; a room that places none
     /// keeps the quota of the last room that did.
     /// </summary>
     public int DeathQuota
@@ -36,8 +36,12 @@ internal sealed class EnemyPopulationLoader
         private set => _room.Session.DeathQuota = value;
     }
 
-    /// <summary>Initializes each population place, runs its AI, and publishes count and kill quota for nonempty populations.</summary>
+    /// <summary>
+    /// Binds each population entry to its species, which checks its settings once (#2554), initializes its place, runs its
+    /// AI, and publishes count and kill quota for nonempty populations.
+    /// </summary>
     internal void LoadPopulation(
+        EnemySpeciesRegistry species,
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyPopulationDefinition populationDefinition,
         EnemyPopulationSurroundings surroundings)
@@ -54,26 +58,27 @@ internal sealed class EnemyPopulationLoader
             }
 
             RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(enemy);
+            PopulationEnemySpawn spawn = species.Bind(population);
             RoomEnemyPlace place = _places.InUpdateOrder[ordinal];
-            _lifecycle.InitializePlaceFromDefinition(place, population, definition);
+            RoomEnemyOccupant occupant = _lifecycle.InitializePlaceFromDefinition(place, spawn, definition);
             if (definition.Boss is { } boss)
                 _roomStatus.Boss = boss;
-            _lifecycle.SetUpEnemy(place, surroundings);
+            _lifecycle.SetUpEnemy(occupant, spawn, surroundings);
 
             // Loading replaces whatever frame the initialization AI showed: an animated enemy shows the empty frame until
             // its first animation tick replaces it, and one that collides by its frames' hitboxes collides at the point
             // at its origin meanwhile. An enemy without an animation shows no frame.
             place.Frame = place.Processing.HasAny(EnemyProcessing.Animates)
-                ? EnemyFrameId.Empty
+                ? EnemyFrameId.PointAtOrigin
                 : null;
 
         }
 
-        // An empty population leaves the enemy count at zero and keeps the previous room's
-        // death quota. A nonempty one publishes both after every initialization has run.
-        if (placements.IsEmpty)
+        // An empty population has no quota: it leaves the enemy count at zero and keeps the previous room's
+        // death quota. One that places enemies publishes both after every initialization has run.
+        if (populationDefinition is not PlacedRoomEnemyPopulationDefinition placed)
             return;
-        DeathQuota = populationDefinition.DeathQuota;
+        DeathQuota = placed.DeathQuota;
         _places.EnemyCount = placements.Length;
     }
 }

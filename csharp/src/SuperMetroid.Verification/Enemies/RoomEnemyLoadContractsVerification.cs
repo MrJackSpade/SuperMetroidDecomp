@@ -15,20 +15,14 @@ internal static class RoomEnemyLoadContractsVerification
     /// </summary>
     internal static void VerifyRoomEnemyLoadContracts()
     {
-        AssertTrue(typeof(IRoomEnemyPopulationSource).IsAssignableFrom(typeof(IRoomEnemyLoad)) &&
-            typeof(IRoomEnemyActorContext).IsAssignableFrom(typeof(IRoomEnemyLoad)),
-            "the load contract includes the population source and actor context its child loaders read");
-        AssertTrue(typeof(IChozoStatueRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)) &&
-            typeof(IMotherBrainRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)),
-            "room services include every child service contract");
-
-        static string[] Members(Type contract) => contract.GetProperties()
-            .Concat(contract.GetInterfaces().SelectMany(parent => parent.GetProperties()))
-            .Select(property => property.Name).Order(StringComparer.Ordinal).ToArray();
-        AssertTrue(Members(typeof(IChozoStatueRoomServices)).SequenceEqual(["RoomScroll", "SamusControls"]),
-            "the Chozo statue contract exposes only Samus's control lock and the scroll zones");
-        AssertTrue(Members(typeof(IMotherBrainRoomServices)).SequenceEqual(["MotherBrain", "RoomScroll"]),
-            "the Mother Brain contract exposes only its room effects and the scroll zones");
+        // The contracts' unions are the compiler's: the load is its population source and actor context, and the room
+        // services are every child service contract.
+        Func<IRoomEnemyLoad, IRoomEnemyPopulationSource> population = static load => load;
+        Func<IRoomEnemyLoad, IRoomEnemyActorContext> actors = static load => load;
+        Func<IRoomEnemyServices, IChozoStatueRoomServices> statue = static room => room;
+        Func<IRoomEnemyServices, IMotherBrainRoomServices> motherBrain = static room => room;
+        // Each conversion compiles only while the contract includes its child's; nothing runs them.
+        _ = new Delegate[] { population, actors, statue, motherBrain };
 
         var services = new StandaloneRoomEnemyServices(() => 0x1234);
         AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");

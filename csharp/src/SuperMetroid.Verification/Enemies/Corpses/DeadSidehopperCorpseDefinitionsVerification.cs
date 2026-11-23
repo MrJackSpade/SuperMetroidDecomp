@@ -1,6 +1,7 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Enemies.Corpses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -46,7 +47,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
     {
         CorpseRottingConfiguration configuration = CorpseRottingConfigurationCodec.Decode(rom, configurationPointer);
         string context = $"dead sidehopper configuration $A9:{configurationPointer:X4}";
-        AssertEqual<CorpseRowUploadList?>(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, graphicsVariant / 2), configuration.UploadList,
+        AssertEqual<CorpseRowUploadList?>(graphicsVariant == 0 ? CorpseRowUploadList.SidehopperBabyMetroidVictim : CorpseRowUploadList.SidehopperAlreadyDead, configuration.UploadList,
             $"{context} names the row upload list the extraction finds the corpse's characters by");
         AssertEqual(DeadSidehopperCorpseDefinitions.RowCount, configuration.RowCount, $"{context} corpse height");
     }
@@ -60,12 +61,9 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperAction startingAction)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        Action<RoomEnemyPlace> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.CorpseSidehopper, place.Definition);
-        place.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, parameter1);
-
-        initialize(place);
+        // The corpse its population entry's first parameter lays out, set up as its room's population sets it up (#2554).
+        _ = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.CorpseSidehopper,
+            EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.CorpseSidehopper, PopulationWords.Parameters(parameter1, 0))));
 
         DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
         AssertEqual<DeadSidehopperAction?>(startingAction, state.Action,

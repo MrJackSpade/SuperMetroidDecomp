@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// How Ceres Ridley flies (#2171, #2232): his lift-off, how hard each of his flights seeks its target, how long each
 /// attack lasts and how fast his swoop and retreat carry him.
 /// </summary>
-internal static class CeresRidleyFlightDefinitions
+internal static partial class CeresRidleyFlightDefinitions
 {
     /// <summary>The least vertical speed Ridley keeps, either way, while he moves into his fireball position: half a pixel an update.</summary>
     internal static readonly SignedEightEight FireballMoveMinimumSpeed = SignedEightEight.FromPixelFraction(1, 2);
@@ -54,7 +54,7 @@ internal static class CeresRidleyFlightDefinitions
     /// <summary>The updates of his swoop's last, faster climb.</summary>
     internal const int SwoopFinalClimbUpdates = 2;
 
-    /// <summary>The speed every stage of his swoop moves toward: three pixels an update.</summary>
+    /// <summary>The speed every stage of his swoop moves toward.</summary>
     internal static readonly SignedEightEight SwoopSpeed = SignedEightEight.FromPixels(3);
 
     /// <summary>How his swoop's first dive turns him each update: an eighth of a step clockwise.</summary>
@@ -63,22 +63,22 @@ internal static class CeresRidleyFlightDefinitions
     /// <summary>Where his swoop's first dive aims: four steps short of straight down.</summary>
     internal static readonly RotationAngle SwoopDiveAim = RotationAngle.Zero - RotationAngle.FromSteps(4);
 
-    /// <summary>How his swoop's sweep turns him each update: two steps clockwise.</summary>
+    /// <summary>How his swoop's sweep turns him each update, clockwise.</summary>
     internal static readonly TurnStep SwoopSweepTurn = new(RotationAngle.FromSteps(2), RotationDirection.Clockwise);
 
     /// <summary>Where his swoop's sweep aims: left, a three-quarter turn.</summary>
     internal static readonly RotationAngle SwoopSweepAim = RotationAngle.ThreeQuarterTurn;
 
-    /// <summary>How his swoop's climb turns him each update: two steps clockwise.</summary>
+    /// <summary>How his swoop's climb turns him each update, clockwise.</summary>
     internal static readonly TurnStep SwoopClimbTurn = new(RotationAngle.FromSteps(2), RotationDirection.Clockwise);
 
-    /// <summary>How his swoop's last, faster climb turns him each update: three steps clockwise.</summary>
+    /// <summary>How his swoop's last, faster climb turns him each update, clockwise.</summary>
     internal static readonly TurnStep SwoopFinalClimbTurn = new(RotationAngle.FromSteps(3), RotationDirection.Clockwise);
 
     /// <summary>The updates he waits after the Baby falls; on the last he flies to retrieve it.</summary>
     internal const int BabyRetrievalDelayUpdates = 22;
 
-    /// <summary>The upward speed his real retreat starts at as he catches the Baby: two pixels an update.</summary>
+    /// <summary>The upward speed his real retreat starts at as he catches the Baby.</summary>
     internal static readonly SignedEightEight RetreatStartSpeed = SignedEightEight.FromPixels(-2);
 
     /// <summary>The updates he waits once he is above the chamber; on the last the getaway begins.</summary>

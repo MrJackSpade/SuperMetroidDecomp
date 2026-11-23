@@ -23,7 +23,7 @@ internal static class TorizoDeathDropsVerification
     /// <summary>Decodes the drop table Bomb Torizo's header names and compares it with the death drops' chances.</summary>
     internal static void VerifyTorizoDeathDropChances(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         // The header's drop-chance word lies 58 bytes in.
         int header = RoomEnemyRomLayout.DefinitionBank | EnemyDefinitionIds.HeaderPointer(EnemyDefinitionId.BombTorizo);
         AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord(header + 58)),

@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.World;
 /// The escape rooms' mains' shared work (#2287): their explosions and the diagonal turns of their shaking. Each room's
 /// setup starts its own quake (<see cref="RoomStates.RoomSetupBehavior"/>).
 /// </summary>
-internal sealed class EscapeRoomEffects
+internal sealed partial class EscapeRoomEffects
 {
     /// <summary>Suppresses explosion generation while gameplay time is frozen.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Paces the explosions on the escape's two- or four-update cadence.</summary>
+    /// <summary>Paces the explosions on the escape's outdoor or indoor cadence.</summary>
     private readonly FrameClock _clock;
     /// <summary>Supplies the game's random sequence and Zebes timebomb event.</summary>
     private readonly SharedGameState _system;

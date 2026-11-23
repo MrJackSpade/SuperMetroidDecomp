@@ -15,5 +15,5 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="GameOver">The game-over page's tiles, compositions, palette selectors and anchors.</param>
 /// <param name="GameOptions">The options screen's pages, labels, compositions and anchors.</param>
 /// <param name="EndingText">The ending text's panels, subtitle and labels.</param>
-internal sealed record ImportMenuDocuments(PauseSelectorSourcePresentation PauseSelectors, PauseReserveTankSourcePresentation PauseReserveTanks,
+internal sealed partial record ImportMenuDocuments(PauseSelectorSourcePresentation PauseSelectors, PauseReserveTankSourcePresentation PauseReserveTanks,
     GameOverSourcePresentation GameOver, GameOptionsSourcePresentation GameOptions, EndingTextPresentation EndingText);

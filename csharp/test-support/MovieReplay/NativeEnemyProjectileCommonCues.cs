@@ -17,8 +17,8 @@ internal static class NativeEnemyProjectileCommonCues
         {
             // The scatter's operands pack each axis's range mask in the low byte and its center in the high byte; each
             // range field reads exactly the mask's bits.
-            VerificationAssertions.AssertEqual<int>(operands[0], (cue.Spread.XRange.Outcomes - 1) << cue.Spread.XRange.Shift, $"{at}: scatter X range");
-            VerificationAssertions.AssertEqual<int>(operands[2], (cue.Spread.YRange.Outcomes - 1) << cue.Spread.YRange.Shift, $"{at}: scatter Y range");
+            VerificationAssertions.AssertEqual<int>(operands[0], cue.Spread.Span.X - 1, $"{at}: scatter X range");
+            VerificationAssertions.AssertEqual<int>(operands[2], cue.Spread.Span.Y - 1, $"{at}: scatter Y range");
             VerificationAssertions.AssertEqual(new Extent16<RoomPixels>(operands[1], operands[3]), cue.Spread.Center, $"{at}: scatter center");
         }),
         [(ushort)NativeEnemyProjectileInstruction.TourianStatueResetDustPosition] = NativeCueCommand<EnemyProjectileCommonCue>.Exactly(new EnemyProjectileCommonCue.Signal(EnemyProjectileCommonCueKind.ReturnToOrigin)),

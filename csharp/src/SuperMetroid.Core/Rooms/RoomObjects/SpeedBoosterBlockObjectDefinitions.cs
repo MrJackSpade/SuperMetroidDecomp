@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The five Speed Booster collision blocks and their authored crumble (#1554). A block plays its break sound and
 /// crumbles through four images; a respawning block stays gone, grows back through them and restores its saved block.
 /// </summary>
-internal static class SpeedBoosterBlockObjectDefinitions
+internal static partial class SpeedBoosterBlockObjectDefinitions
 {
     /// <summary>The break sound.</summary>
     internal static readonly SoundEffectId BreakSoundId = EnemySound.ContactBlockBreak;
@@ -26,52 +26,37 @@ internal static class SpeedBoosterBlockObjectDefinitions
     /// <summary>How long each image shows as a respawning block grows back.</summary>
     internal const int RegrowDuration = 4;
 
-    /// <summary>A slow block crumbling and growing back.</summary>
-    internal static BlockReactionChange SlowRespawningCrumble { get; } = new(1,
+    /// <summary>A block's crumble, the break's sound with its rock: its rock, pieces and dust, each for <paramref name="duration"/>.</summary>
+    private static BlockReactionFrame[] Crumbling(int duration) =>
     [
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Rock), SlowCrumbleDuration, BreakSoundId) { SoundPriority = BreakSoundPriority },
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Pieces), SlowCrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Dust), SlowCrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), GoneDuration),
+        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Rock), duration, BreakSoundId) { SoundPriority = BreakSoundPriority },
+        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Pieces), duration),
+        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Dust), duration),
+    ];
+
+    /// <summary>A respawning block growing back: its dust, pieces and rock, each for <see cref="RegrowDuration"/>, then the block restored.</summary>
+    private static BlockReactionFrame[] Regrowth =>
+    [
         new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Dust), RegrowDuration),
         new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Pieces), RegrowDuration),
         new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Rock), RegrowDuration),
         BlockReactionFrame.RestoredBlock,
-    ]);
+    ];
+
+    /// <summary>A slow block crumbling and growing back.</summary>
+    internal static BlockReactionChange SlowRespawningCrumble { get; } = new(1, [.. Crumbling(SlowCrumbleDuration), new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), GoneDuration), .. Regrowth]);
 
     /// <summary>A block crumbling and growing back.</summary>
-    internal static BlockReactionChange RespawningCrumble { get; } = new(1,
-    [
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Rock), CrumbleDuration, BreakSoundId) { SoundPriority = BreakSoundPriority },
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Pieces), CrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Dust), CrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), GoneDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Dust), RegrowDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Pieces), RegrowDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Rock), RegrowDuration),
-        BlockReactionFrame.RestoredBlock,
-    ]);
+    internal static BlockReactionChange RespawningCrumble { get; } = new(1, [.. Crumbling(CrumbleDuration), new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), GoneDuration), .. Regrowth]);
 
     /// <summary>A slow block crumbling for good.</summary>
-    internal static BlockReactionChange SlowPermanentCrumble { get; } = new(1,
-    [
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Rock), SlowCrumbleDuration, BreakSoundId) { SoundPriority = BreakSoundPriority },
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Pieces), SlowCrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Dust), SlowCrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), 1),
-    ]);
+    internal static BlockReactionChange SlowPermanentCrumble { get; } = new(1, [.. Crumbling(SlowCrumbleDuration), new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), 1)]);
 
     /// <summary>A block crumbling for good.</summary>
-    internal static BlockReactionChange PermanentCrumble { get; } = new(1,
-    [
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Rock), CrumbleDuration, BreakSoundId) { SoundPriority = BreakSoundPriority },
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Pieces), CrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Dust), CrumbleDuration),
-        new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), 1),
-    ]);
+    internal static BlockReactionChange PermanentCrumble { get; } = new(1, [.. Crumbling(CrumbleDuration), new(SpeedBoosterBlockObjectDraws.Crumble(BlockBreakupStage.Gone), 1)]);
 
     /// <summary>A bombed Speed Booster block's reveal: its block image for one update.</summary>
-    internal static BlockReactionChange BombReveal { get; } = new(1,
+    internal static LastingBlockReactionChange BombReveal { get; } = new(1,
     [
         new(SpeedBoosterBlockObjectDrawDefinitions.BombRevealDraw, 1),
     ]);

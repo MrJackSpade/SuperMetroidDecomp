@@ -10,9 +10,7 @@ internal enum DoorCapSegment
     Closed,
 
     /// <summary>
-    /// The yellow downward cap's closed image for three updates as it starts to wait: the game draws it for two updates
-    /// and then again for one, the second draw writing the same picture to the same blocks, which nothing else writes in
-    /// between, so it is one picture of both lengths (#2480).
+    /// The yellow downward cap's closed image for three updates as it starts to wait (#2480).
     /// </summary>
     YellowDownClosed,
 

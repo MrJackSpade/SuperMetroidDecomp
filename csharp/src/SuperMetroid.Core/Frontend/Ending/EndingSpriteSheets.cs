@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// explosion's actors, the result text and the animals' pod, the post-credits Samus each reward dresses with the shooting
 /// stars, and the falling Samus with the logo. Each actor's frames lie on its own sheet, whatever scene shows it.
 /// </summary>
-internal static class EndingSpriteSheets
+internal static partial class EndingSpriteSheets
 {
     /// <summary>The sheet of the escape's clouds.</summary>
     internal const SpriteSheetId Clouds = SpriteSheetId.EndingCloudSprites;
@@ -20,27 +20,36 @@ internal static class EndingSpriteSheets
     internal const SpriteSheetId FallingSamusAndLogo = SpriteSheetId.EndingShootingSprites;
 
     /// <summary>The sheet of the post-credits Samus an ending of <paramref name="reward"/> shows, until she falls, and of the shooting stars.</summary>
-    internal static SpriteSheetId Reward(EndingReward reward) => reward == EndingReward.Suitless
-        ? SpriteSheetId.EndingSuitlessRewardSprites : SpriteSheetId.EndingSuitedRewardSprites;
+    internal static SpriteSheetId Reward(EndingReward reward) => EndingRewardDefinitions.Rewards[reward].Sheet;
 
     /// <summary>
     /// The sheet the frames of <paramref name="family"/> lie on in an ending of <paramref name="reward"/>; the reward's
     /// falling Samus draws from <see cref="FallingSamusAndLogo"/> instead.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="family"/> is not an ending family.</exception>
-    internal static SpriteSheetId Of(CinematicSpriteFamily family, EndingReward reward) => family switch
+    internal static SpriteSheetId Of(EndingSpriteFamily family, EndingReward reward) => FamilySheets[family](reward);
+
+    /// <summary>The sheet of each ending family in an ending of each reward: only the reward's own depends on the reward.</summary>
+    private static IdentityTable<EndingSpriteFamily, Func<EndingReward, SpriteSheetId>> FamilySheets => field ??= new(new Dictionary<EndingSpriteFamily, Func<EndingReward, SpriteSheetId>>
     {
-        CinematicSpriteFamily.EndingCloud => Clouds,
-        CinematicSpriteFamily.EndingExplosion or CinematicSpriteFamily.EndingCompletionText
-            or CinematicSpriteFamily.EndingAnimalEscape => Explosion,
-        CinematicSpriteFamily.EndingReward => Reward(reward),
-        CinematicSpriteFamily.EndingLogo => FallingSamusAndLogo,
-        CinematicSpriteFamily.IntroDiscoveryActor or CinematicSpriteFamily.IntroEggEffect or CinematicSpriteFamily.IntroRinka
-            or CinematicSpriteFamily.IntroScientist or CinematicSpriteFamily.IntroMotherBrain
-            or CinematicSpriteFamily.IntroMotherBrainExplosion or CinematicSpriteFamily.IntroCaret
-            or CinematicSpriteFamily.IntroNextPageArrow or CinematicSpriteFamily.CeresFlight
-            or CinematicSpriteFamily.CeresDestruction =>
-            throw new ArgumentOutOfRangeException(nameof(family), family, "Not an ending sprite family."),
-        _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined sprite family."),
-    };
+        [EndingSpriteFamily.EndingCloud] = static _ => Clouds,
+        [EndingSpriteFamily.EndingExplosion] = static _ => Explosion,
+        [EndingSpriteFamily.EndingCompletionText] = static _ => Explosion,
+        [EndingSpriteFamily.EndingReward] = Reward,
+        [EndingSpriteFamily.EndingAnimalEscape] = static _ => Explosion,
+        [EndingSpriteFamily.EndingLogo] = static _ => FallingSamusAndLogo,
+    });
+
+    /// <summary>The cinematic sprite family <paramref name="family"/> is, whose installed pictures it draws.</summary>
+    internal static CinematicSpriteFamily Cinematic(EndingSpriteFamily family) => CinematicFamilies[family];
+
+    /// <summary>The cinematic sprite family each ending family is.</summary>
+    private static IdentityTable<EndingSpriteFamily, CinematicSpriteFamily> CinematicFamilies => field ??= new(new Dictionary<EndingSpriteFamily, CinematicSpriteFamily>
+    {
+        [EndingSpriteFamily.EndingCloud] = CinematicSpriteFamily.EndingCloud,
+        [EndingSpriteFamily.EndingExplosion] = CinematicSpriteFamily.EndingExplosion,
+        [EndingSpriteFamily.EndingCompletionText] = CinematicSpriteFamily.EndingCompletionText,
+        [EndingSpriteFamily.EndingReward] = CinematicSpriteFamily.EndingReward,
+        [EndingSpriteFamily.EndingAnimalEscape] = CinematicSpriteFamily.EndingAnimalEscape,
+        [EndingSpriteFamily.EndingLogo] = CinematicSpriteFamily.EndingLogo,
+    });
 }

@@ -32,7 +32,6 @@ internal static class GameInstallationAudioAccess
     }
 
     /// <summary>Extracts the audio's import data from the cartridge copy at <paramref name="romPath"/> into a new scratch directory.</summary>
-    [PrivateInstallation("The audio catalog the clips are rendered from is import data no installation holds (#1693): checks of the catalog and the synthesizer read this cartridge-derived extraction, made once per process.")]
     private static string ExtractAudio(string romPath)
     {
         var scratch = new TestScratchDirectory("audio-import");

@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// </summary>
 /// <param name="Screen">The screen's column and row in the room.</param>
 /// <param name="State">The scroll state the screen takes.</param>
-public readonly record struct ScreenScrollChange(Position16<RoomScreens> Screen, RoomScrollState State);
+public readonly partial record struct ScreenScrollChange(Position16<RoomScreens> Screen, RoomScrollState State);

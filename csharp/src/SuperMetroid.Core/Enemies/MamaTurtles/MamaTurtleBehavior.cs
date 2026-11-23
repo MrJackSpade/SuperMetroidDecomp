@@ -9,23 +9,42 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The mama turtle species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
-
-    /// <summary>The mama turtle, or one of her babies (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no mama turtle definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>
+    /// The mama turtle, who offers the four babies her room lists right after her the creation that builds each of them
+    /// in her family (#2146, #2554); a baby no mama offered is rejected where it is bound.
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.MamaTurtle)
-            return new MamaTurtleEntity(this, place, common);
-        if (definition == EnemyDefinitionId.BabyTurtle)
-            return new BabyTurtleEntity(this, place, common);
-        throw new InvalidOperationException($"The mama turtle species creates no {place.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.MamaTurtle], CreateMama);
+        registrar.Joins([EnemyDefinitionId.BabyTurtle]);
     }
+
+    /// <summary>The mama turtle, who offers the babies listed after her the creation that builds each of them in her family.</summary>
+    private EnemyOccupant CreateMama(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        var mama = new MamaTurtleEntity(this, occupant, place, common);
+        var family = new MamaTurtleFamily(place, mama.State,
+            _places.Members(place, MamaTurtlePartListingDefinitions.Listing, EnemyDefinitionId.MamaTurtle, EnemyDefinitionId.BabyTurtle));
+        _partOffers.Offer<BabyTurtleSpawnSettings>(EnemyDefinitionId.BabyTurtle, new FamilyJoining(this, family).CreateBaby);
+        return EnemyOccupant.Running(mama);
+    }
+
+    /// <summary>The creation a mama offers the babies her room lists right after her (#2554): each baby in her family.</summary>
+    /// <param name="species">The Mama Turtle species owner.</param>
+    /// <param name="family">The mama's family, which a baby joins.</param>
+    private sealed partial class FamilyJoining(MamaTurtleBehavior species, MamaTurtleFamily family)
+    {
+        /// <summary>A baby, in the mama's family.</summary>
+        internal EnemyOccupant CreateBaby(RoomEnemyOccupant occupant, BabyTurtleSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            EnemyOccupant.Running(new BabyTurtleEntity(species, occupant, place, common, settings, family));
+    }
+
+    /// <summary>Where a mama offers the babies listed after her the creation that builds each of them in her family.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
     private readonly EnemyTerrain _terrain;
@@ -33,10 +52,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly RoomEarthquake _earthquake;
     /// <summary>The room's enemy places, where Mama finds her four babies when she is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The four babies each Mama found when she was placed, which her room lists right after her.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace[]> _babiesOfMama = new();
-    /// <summary>Each baby's Mama, linked when she found it as she was placed (#1816).</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _mamaOfBaby = new();
     /// <summary>Applies touch damage for Mama's expanded body or exposed shell.</summary>
     private readonly EnemyCollision _collision;
 
@@ -44,8 +59,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Connects Mama Turtle and her babies to room terrain, collision, places, and earthquake output.</summary>
-    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio)
+    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemyPlaces places, EnemyCollision collision, EnemyAudioQueue audio,
+        EnemyPartOffers partOffers)
     {
+        _partOffers = partOffers;
         _audio = audio;
         _terrain = terrain;
         _earthquake = earthquake;
@@ -54,164 +71,159 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Carries out one cue of the Mama Turtle's animations; rising to hover continues at its spin.</summary>
-    private MamaTurtleSegment? ApplyMamaTurtleCue(RoomEnemyPlace place, MamaTurtleCue cue)
-    {
-        switch (cue)
-        {
-            case MamaTurtleCue.RiseToHover rise:
-                StartMamaTurtleRisingToHover(place.RequireSpeciesState<MamaTurtleEnemyState>(), direction: rise.Direction);
+    private MamaTurtleSegment? ApplyMamaTurtleCue(MamaTurtleEnemyState mamaTurtleEnemyState, MamaTurtleCue cue) =>
+        cue.Match(ApplyMamaTurtleCueCases, new ApplyMamaTurtleCueContext(mamaTurtleEnemyState, this));
+
+    /// <summary>What <see cref="ApplyMamaTurtleCue"/> does on each <see cref="MamaTurtleCue"/>, built once (#2553).</summary>
+    private static MamaTurtleCueCases<ApplyMamaTurtleCueContext, MamaTurtleSegment?> ApplyMamaTurtleCueCases { get; } = new(
+            RiseToHover: static (rise, context) =>
+            {
+                StartMamaTurtleRisingToHover(context.State, direction: rise.Direction);
                 return MamaTurtleSegment.Spinning;
-            case MamaTurtleCue.Signal { Kind: MamaTurtleCueKind.EnterShell }:
-                StartMamaTurtleEnteringShell(place.RequireSpeciesState<MamaTurtleEnemyState>());
+            },
+            Signal: static (signal, context) =>
+            {
+                context.Owner.MamaTurtleSignals[signal.Kind](context.State);
                 return null;
-            case MamaTurtleCue.Signal { Kind: MamaTurtleCueKind.PlaySpinningSound }:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(MamaTurtleCue)} {cue}.");
-        }
-    }
+            });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The Mama's state the cases read.</param>
+    /// <param name="Owner">The <see cref="MamaTurtleBehavior"/> reacting.</param>
+    private readonly partial record struct ApplyMamaTurtleCueContext(MamaTurtleEnemyState State, MamaTurtleBehavior Owner);
+
+    /// <summary>What each of the Mama Turtle's signals does; each runs on.</summary>
+    private IdentityTable<MamaTurtleCueKind, Action<MamaTurtleEnemyState>> MamaTurtleSignals => field ??= new(new Dictionary<MamaTurtleCueKind, Action<MamaTurtleEnemyState>>
+    {
+        [MamaTurtleCueKind.EnterShell] = StartMamaTurtleEnteringShell,
+        [MamaTurtleCueKind.PlaySpinningSound] = _ => _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal),
+    });
 
     /// <summary>
     /// Carries out one cue of a baby turtle's animations. The crawl loop, leaving the shell while ridden and the end of
     /// leaving it continue at the animation their cues return; every other cue runs on.
     /// </summary>
-    private BabyTurtleSegment? ApplyBabyTurtleCue(RoomEnemyPlace place, BabyTurtleCue cue, SamusState samus, RoomLevelData level)
-    {
-        switch (cue.Kind)
+    private BabyTurtleSegment? ApplyBabyTurtleCue(RoomEnemyPlace place, BabyTurtleEnemyState babyTurtleEnemyState, BabyTurtleCue cue, SamusState samus, RoomLevelData level) =>
+        BabyTurtleCues[cue.Kind](place, babyTurtleEnemyState, samus, level);
+
+    /// <summary>What each of a baby turtle's cues does, and the animation it continues at, or null to run on.</summary>
+    private IdentityTable<BabyTurtleCueKind, Func<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData, BabyTurtleSegment?>> BabyTurtleCues => field ??=
+        new(new Dictionary<BabyTurtleCueKind, Func<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData, BabyTurtleSegment?>>
         {
-            case BabyTurtleCueKind.Crawl:
-                ProcessBabyTurtleCrawlAnimation(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus, level);
+            [BabyTurtleCueKind.Crawl] = (place, state, samus, level) =>
+            {
+                ProcessBabyTurtleCrawlAnimation(place, state, samus, level);
                 return null;
-            case BabyTurtleCueKind.LoopOrTurnAround:
-                return SelectBabyTurtleCrawlLoop(place, place.RequireSpeciesState<BabyTurtleEnemyState>());
-            case BabyTurtleCueKind.LeaveShell:
-                return SelectBabyTurtleLeaveShell(place, samus);
-            case BabyTurtleCueKind.LeftShell:
-                return FinishBabyTurtleLeavingShell(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), samus);
-            case BabyTurtleCueKind.SetSpinningStoppable:
-                place.RequireSpeciesState<BabyTurtleEnemyState>().Action = BabyTurtleAction.SpinningStoppable;
+            },
+            [BabyTurtleCueKind.LoopOrTurnAround] = (place, state, _, _) => SelectBabyTurtleCrawlLoop(place, state),
+            [BabyTurtleCueKind.LeaveShell] = (place, _, samus, _) => SelectBabyTurtleLeaveShell(place, samus),
+            [BabyTurtleCueKind.LeftShell] = (place, state, samus, _) => FinishBabyTurtleLeavingShell(place, state, samus),
+            [BabyTurtleCueKind.SetSpinningStoppable] = (_, state, _, _) =>
+            {
+                state.Action = BabyTurtleAction.SpinningStoppable;
                 return null;
-            case BabyTurtleCueKind.PlaySpinningSound:
+            },
+            [BabyTurtleCueKind.PlaySpinningSound] = (_, _, _, _) =>
+            {
                 _audio.QueueEnemySound(EnemySoundEffectDefinitions.MamaTurtleSpinSound, priority: SoundRequestPriority.Normal);
                 return null;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(BabyTurtleCueKind)} {cue.Kind}.");
-        }
-    }
+            },
+        });
 
-    /// <summary>Initializes the Mama Turtle and links her to the four babies her room lists right after her.</summary>
-    internal void InitializeMamaTurtle(RoomEnemyPlace place)
+    /// <summary>Initializes the Mama Turtle, resting in her shell.</summary>
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static MamaTurtleEnemyState InitializeMamaTurtle(RoomEnemyPlace place)
     {
-        RoomEnemyPlace[] babies = _places.ListedRunAfter(place, MamaTurtleMotionDefinitions.BabyCount);
-        _babiesOfMama.Place(place, babies);
-        foreach (RoomEnemyPlace baby in babies)
-            _mamaOfBaby.Place(baby, place);
-
         var state = new MamaTurtleEnemyState(MamaTurtleAction.Placed);
-        place.SetSpeciesState(state);
 
         // Mama animates: leaving the shell needs her animation to run.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.Restart();
         place.Radius = place.Radius.WithY(0);
         state.Playback = new(MamaTurtleAnimations.StartingWith(MamaTurtleSegment.Asleep), AnimationPlace.StartOfAnimation);
+        return state;
     }
 
     /// <summary>
-    /// Initializes the Baby Turtle, one of the four its Mama found when she was placed; the last of them completes the
-    /// family, which is checked once then.
+    /// Initializes the Baby Turtle, one of the four of <paramref name="family"/>, whose Mama found them when she was placed;
+    /// the last of them completes the family, which is checked once then.
     /// </summary>
-    internal void InitializeBabyTurtle(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static BabyTurtleEnemyState InitializeBabyTurtle(BabyTurtleSpawnSettings babyTurtleSpawnSettings, RoomEnemyPlace place,
+        MamaTurtleFamily family)
     {
-        var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus)
+        var state = new BabyTurtleEnemyState(BabyTurtleAction.CrawlingNotCarryingSamus, family)
         {
             SpawnTopCenter = new Position16<RoomPixels>(place.Position.X.Whole, place.Position.Y.Whole - place.Radius.Y),
-            Heading = place.SpawnSettings<BabyTurtleSpawnSettings>().Heading,
+            Heading = babyTurtleSpawnSettings.Heading,
             HorizontalSpeed = MamaTurtleMotionDefinitions.BabyCrawlSpeed,
         };
-        place.SetSpeciesState(state);
 
         state.Playback = EnemyAnimationPlayback.Start(place, BabyTurtleAnimations.StartingWith(BabyCrawl(state.Heading)));
-        CheckMamaTurtleFamilyCompletedBy(place);
+        CheckMamaTurtleFamilyCompletedBy(place, family);
+        return state;
     }
 
     /// <summary>
-    /// Checks, as <paramref name="baby"/> is placed, that a Mama found it when she was placed and, when it is the last of
-    /// her four babies, that all four are baby turtles. A killed baby's place, empty until it respawns, stays hers.
+    /// Checks, as <paramref name="baby"/> is placed in <paramref name="family"/>, when it is the last of her four babies,
+    /// that all four are baby turtles. A killed baby's place, empty until it respawns, stays hers.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No Mama Turtle placed before it found <paramref name="baby"/>.</exception>
     /// <exception cref="InvalidDataException">The four places listed after the Mama do not all hold baby turtles.</exception>
-    private void CheckMamaTurtleFamilyCompletedBy(RoomEnemyPlace baby)
+    private static void CheckMamaTurtleFamilyCompletedBy(RoomEnemyPlace baby, MamaTurtleFamily family)
     {
-        RoomEnemyPlace mama = MamaOf(baby);
-        RoomEnemyPlace[] babies = _babiesOfMama.Of(mama);
+        RoomEnemyPlace mama = family.Mama;
+        IReadOnlyList<RoomEnemyPlace> babies = family.Babies;
         if (babies[^1] != baby)
             return;
         foreach (RoomEnemyPlace child in babies)
         {
-            if (child.Entity is not BabyTurtleEntity && child.DefinitionId != EnemyDefinitionId.None)
+            // The baby being set up is a baby turtle, whose place holds its entity once it is built.
+            if (child != baby && child.Entity is not BabyTurtleEntity && child.Occupant is { } found)
             {
                 throw new InvalidDataException(
                     $"Mama Turtle place {mama.Ordinal} expected Baby Turtle in following " +
-                    $"place {child.Ordinal}, found {child.DefinitionId}.");
+                    $"place {child.Ordinal}, found {found.DefinitionId}.");
             }
         }
     }
 
+    /// <summary>What <see cref="RunMamaTurtleMain"/> does for each <see cref="MamaTurtleAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MamaTurtleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MamaTurtleEnemyState, SamusState, PseudoScrewCharge, RoomLevelData, int>> RunMamaTurtleMainForMamaTurtleAction => field ??= new(new Dictionary<MamaTurtleAction, Action<RoomEnemyOccupant, RoomEnemyPlace, MamaTurtleEnemyState, SamusState, PseudoScrewCharge, RoomLevelData, int>>
+    {
+        [MamaTurtleAction.Placed] = (_, place, state, samus, pseudoScrew, level, frameCycle) => state.Action = MamaTurtleAction.Asleep,
+        [MamaTurtleAction.PlacedAndWoken] = (_, place, state, samus, pseudoScrew, level, frameCycle) => state.Action = MamaTurtleAction.Woken,
+        [MamaTurtleAction.Idle] = (_, place, state, samus, pseudoScrew, level, frameCycle) => { },
+        [MamaTurtleAction.Asleep] = (_, place, state, samus, pseudoScrew, level, frameCycle) => RunMamaTurtleAsleep(place, samus),
+        [MamaTurtleAction.Woken] = (_, place, state, samus, pseudoScrew, level, frameCycle) =>
+        {
+            state.Action = MamaTurtleAction.LeavingShell;
+            place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
+        },
+        [MamaTurtleAction.LeavingShell] = (turtle, place, state, samus, pseudoScrew, level, frameCycle) =>
+        {
+            RunMamaTurtleLeavingShell(
+                turtle, state, samus, pseudoScrew, level, frameCycle);
+        },
+        [MamaTurtleAction.EnteringShell] = (_, place, state, samus, pseudoScrew, level, frameCycle) => RunMamaTurtleEnteringShell(place, state, samus),
+        [MamaTurtleAction.RisingToHover] = (turtle, place, state, samus, pseudoScrew, level, frameCycle) => RunMamaTurtleRisingToHover(turtle, state, samus, pseudoScrew, level),
+        [MamaTurtleAction.Hovering] = (turtle, place, state, samus, pseudoScrew, level, frameCycle) => RunMamaTurtleHovering(turtle, state, samus, pseudoScrew, level),
+        [MamaTurtleAction.RisingToPeak] = (turtle, place, state, samus, pseudoScrew, level, frameCycle) => RunMamaTurtleRisingToPeak(turtle, state, samus, pseudoScrew),
+        [MamaTurtleAction.HoveringAtPeak] = (turtle, place, state, samus, pseudoScrew, level, frameCycle) => RunMamaTurtleHoveringAtPeak(turtle, state, samus, pseudoScrew),
+        [MamaTurtleAction.Falling] = (turtle, place, state, samus, pseudoScrew, level, frameCycle) => RunMamaTurtleFalling(turtle, state, samus, pseudoScrew, level),
+    });
+
     /// <summary>Runs the Mama Turtle's main behaviour and its actions.</summary>
     private void RunMamaTurtleMain(
-        RoomEnemyPlace place,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level,
         int frameCycle)
     {
-        switch (state.Action)
-        {
-            case MamaTurtleAction.Placed:
-                state.Action = MamaTurtleAction.Asleep;
-                return;
-            case MamaTurtleAction.PlacedAndWoken:
-                state.Action = MamaTurtleAction.Woken;
-                return;
-            case MamaTurtleAction.Idle:
-                return;
-            case MamaTurtleAction.Asleep:
-                RunMamaTurtleAsleep(place, samus);
-                return;
-            case MamaTurtleAction.Woken:
-                state.Action = MamaTurtleAction.LeavingShell;
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                return;
-            case MamaTurtleAction.LeavingShell:
-                RunMamaTurtleLeavingShell(
-                    place, state, samus, pseudoScrew, level, frameCycle);
-                return;
-            case MamaTurtleAction.EnteringShell:
-                RunMamaTurtleEnteringShell(place, state, samus);
-                return;
-            case MamaTurtleAction.RisingToHover:
-                RunMamaTurtleRisingToHover(place, state, samus, pseudoScrew, level);
-                return;
-            case MamaTurtleAction.Hovering:
-                RunMamaTurtleHovering(place, state, samus, pseudoScrew, level);
-                return;
-            case MamaTurtleAction.RisingToPeak:
-                RunMamaTurtleRisingToPeak(place, state, samus, pseudoScrew);
-                return;
-            case MamaTurtleAction.HoveringAtPeak:
-                RunMamaTurtleHoveringAtPeak(place, state, samus, pseudoScrew);
-                return;
-            case MamaTurtleAction.Falling:
-                RunMamaTurtleFalling(place, state, samus, pseudoScrew, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mama Turtle has no behaviour for action {state.Action}.");
-        }
+        RoomEnemyPlace place = turtle.Place;
+        RunMamaTurtleMainForMamaTurtleAction[state.Action](turtle, place, state, samus, pseudoScrew, level, frameCycle);
     }
 
     /// <summary>Runs the dormant shell's height and carry step.</summary>
@@ -220,14 +232,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         mama.Radius = mama.Radius.WithY(0);
-        int signedDifference = mama.Position.X.Whole - samus.Position.X.Whole;
-        int distance = Math.Abs(signedDifference);
-        if (distance >= MamaTurtleShellContourDefinitions.HalfWidth)
-            return;
-
         // The shell's contour on Samus's left differs from its contour on her right; the asymmetry is visible
         // around the dormant shell's lip.
-        int contourOffset = MamaTurtleShell.GetOffset(signedDifference);
+        if (!MamaTurtleShell.TryGetSurface(mama.Position.X.Whole - samus.Position.X.Whole, out int contourOffset))
+            return;
+
         mama.Radius = mama.Radius.WithY(-contourOffset);
         mama.Contact = mama.Contact.With(EnemyContact.SolidToSamus);
 
@@ -244,15 +253,16 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the deliberately jittery shell-opening step.</summary>
     private void RunMamaTurtleLeavingShell(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level,
         int frameCycle)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
-        if (!MamaTurtleCadenceDefinitions.LeavingShellStepEverySecondUpdate.IsDue(frameCycle))
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
+        if (!MamaTurtleCadenceDefinitions.LeavingShellStep.IsDue(frameCycle))
             return;
 
         if (EnemyCollision.IsSamusStandingOn(mama, samus))
@@ -293,15 +303,16 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MamaTurtleAction.Idle;
     }
 
-    /// <summary>Runs the 16-frame upward transition.</summary>
+    /// <summary>Runs the upward transition (<see cref="MamaTurtleMotionDefinitions.RiseToHoverDuration"/>).</summary>
     private void RunMamaTurtleRisingToHover(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (_terrain.MoveEnemyVertically(level, mama, SignedSixteenSixteen.FromWholePixels(-MamaTurtleMotionDefinitions.RiseToHoverSpeed)))
             return;
 
@@ -313,7 +324,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.ActionTimer.StepEnds())
             return;
 
-        // She hovers off from rest toward Samus's side, speeding up a sixteenth of a pixel each update.
+        // She hovers off from rest toward Samus's side, speeding up by her hover acceleration each update.
         state.XAcceleration = MamaTurtleMotionDefinitions.HoverAcceleration.Toward(
             mama.Position.X.Whole < samus.Position.X.Whole ? HorizontalDirection.Right : HorizontalDirection.Left);
         state.Velocity = state.Velocity.WithX(SignedSixteenSixteen.Zero);
@@ -322,13 +333,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the accelerating horizontal hover, which a wall reverses with a quake and a sound.</summary>
     private void RunMamaTurtleHovering(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, mama, state.Velocity.X))
         {
             ReverseMamaTurtleAtWall(state);
@@ -387,14 +399,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.XAcceleration = MamaTurtleWallReversal.ReversedAcceleration(state.XAcceleration, velocity);
     }
 
-    /// <summary>Runs the rider-powered seven-pixel ascent.</summary>
+    /// <summary>Runs the rider-powered ascent (<see cref="MamaTurtleMotionDefinitions.RiddenAscentSpeed"/>).</summary>
     private void RunMamaTurtleRisingToPeak(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (mama.Position.Y.Whole < MamaTurtleMotionDefinitions.RiddenAscentPeak)
         {
             state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.PeakPause);
@@ -416,30 +429,32 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the peak pause (<see cref="MamaTurtleMotionDefinitions.PeakPause"/>).</summary>
     private void RunMamaTurtleHoveringAtPeak(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        _ = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
         if (state.ActionTimer.StepEnds())
             state.Action = MamaTurtleAction.Falling;
     }
 
     /// <summary>Runs gravity, collision, and landing-animation selection.</summary>
     private void RunMamaTurtleFalling(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew,
         RoomLevelData level)
     {
-        ResolveMamaTurtleExpandedContact(mama, samus, pseudoScrew);
+        RoomEnemyPlace mama = turtle.Place;
+        ResolveMamaTurtleExpandedContact(turtle, samus, pseudoScrew);
 
         // The cap compares Mama's own fall speed.
         if (state.Velocity.Y < MamaTurtleMotionDefinitions.FastestFall)
         {
-            // The one-eighth-pixel fraction step carries into the whole pixels.
+            // The fall acceleration's fraction step carries into the whole pixels.
             state.Velocity = state.Velocity.WithY(
                 state.Velocity.Y + MamaTurtleMotionDefinitions.FallAcceleration);
         }
@@ -458,6 +473,75 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = MamaTurtleAction.Idle;
     }
 
+    /// <summary>What <see cref="RunBabyTurtleMain"/> does for each <see cref="BabyTurtleAction"/> member, each member's own arm.</summary>
+    private IdentityTable<BabyTurtleAction, Action<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData>> RunBabyTurtleMainForBabyTurtleAction => field ??= new(new Dictionary<BabyTurtleAction, Action<RoomEnemyPlace, BabyTurtleEnemyState, SamusState, RoomLevelData>>
+    {
+        [BabyTurtleAction.CrawlingNotCarryingSamus] = (baby, state, samus, level) =>
+        {
+            if (EnemyCollision.IsSamusStandingOn(baby, samus))
+            {
+                state.Action = BabyTurtleAction.HidingCarryingSamus;
+                state.NotCarryingSamusReactionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyRiderLeftDelay);
+                StartTurtleAnimation(
+                    baby,
+                    state,
+                    state.Heading == HorizontalDirection.Left
+                        ? BabyTurtleSegment.HidingLeft
+                        : BabyTurtleSegment.HidingRight);
+            }
+        },
+        [BabyTurtleAction.HidingCarryingSamus] = (baby, state, samus, level) =>
+        {
+            if (EnemyCollision.IsSamusStandingOn(baby, samus))
+            {
+                state.NotCarryingSamusReactionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyRiderLeftDelay);
+                return;
+            }
+            if (state.NotCarryingSamusReactionTimer.StepEnds())
+            {
+                state.Action = BabyTurtleAction.HidingNotCarryingSamus;
+                state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyHideDuration);
+            }
+        },
+        [BabyTurtleAction.HidingNotCarryingSamus] = (baby, state, samus, level) =>
+        {
+            if (EnemyCollision.IsSamusStandingOn(baby, samus))
+            {
+                state.Action = BabyTurtleAction.SpinningUnstoppable;
+                StartTurtleAnimation(
+                    baby,
+                    state,
+                    BabyTurtleSegment.Spinning);
+                // The baby spins off the way Samus faces (#2338).
+                state.Heading = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right ? HorizontalDirection.Right : HorizontalDirection.Left;
+                state.HorizontalSpeed = MamaTurtleMotionDefinitions.BabySpinVelocity.X;
+                state.SpinFallSpeed = MamaTurtleMotionDefinitions.BabySpinVelocity.Y;
+                return;
+            }
+            if (state.ActionTimer.StepEnds())
+            {
+                StartBabyTurtleCrawlingAnimation(baby, state);
+                state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
+            }
+        },
+        [BabyTurtleAction.SpinningUnstoppable] = (baby, state, samus, level) => MoveSpinningBabyTurtle(baby, state, level),
+        [BabyTurtleAction.SpinningStoppable] = (baby, state, samus, level) =>
+        {
+            if (EnemyCollision.IsSamusStandingOn(baby, samus))
+            {
+                StartBabyTurtleCrawlingAnimation(baby, state);
+                state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
+                return;
+            }
+            MoveSpinningBabyTurtle(baby, state, level);
+        },
+        [BabyTurtleAction.CrawlingCarryingSamus] = (baby, state, samus, level) =>
+        {
+            if (!EnemyCollision.IsSamusStandingOn(baby, samus))
+                state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
+        },
+    });
+
     /// <summary>Runs the Baby Turtle's main behaviour and its six live actions.</summary>
     private void RunBabyTurtleMain(
         RoomEnemyPlace baby,
@@ -465,79 +549,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case BabyTurtleAction.CrawlingNotCarryingSamus:
-                if (EnemyCollision.IsSamusStandingOn(baby, samus))
-                {
-                    state.Action = BabyTurtleAction.HidingCarryingSamus;
-                    state.NotCarryingSamusReactionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyRiderLeftDelay);
-                    StartTurtleAnimation(
-                        baby,
-                        state,
-                        state.Heading == HorizontalDirection.Left
-                            ? BabyTurtleSegment.HidingLeft
-                            : BabyTurtleSegment.HidingRight);
-                }
-                return;
-
-            case BabyTurtleAction.HidingCarryingSamus:
-                if (EnemyCollision.IsSamusStandingOn(baby, samus))
-                {
-                    state.NotCarryingSamusReactionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyRiderLeftDelay);
-                    return;
-                }
-                if (state.NotCarryingSamusReactionTimer.StepEnds())
-                {
-                    state.Action = BabyTurtleAction.HidingNotCarryingSamus;
-                    state.ActionTimer = UpdateCountdown.For(MamaTurtleMotionDefinitions.BabyHideDuration);
-                }
-                return;
-
-            case BabyTurtleAction.HidingNotCarryingSamus:
-                if (EnemyCollision.IsSamusStandingOn(baby, samus))
-                {
-                    state.Action = BabyTurtleAction.SpinningUnstoppable;
-                    StartTurtleAnimation(
-                        baby,
-                        state,
-                        BabyTurtleSegment.Spinning);
-                    // The baby spins off the way Samus faces (#2338).
-                    state.Heading = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right ? HorizontalDirection.Right : HorizontalDirection.Left;
-                    state.HorizontalSpeed = MamaTurtleMotionDefinitions.BabySpinVelocity.X;
-                    state.SpinFallSpeed = MamaTurtleMotionDefinitions.BabySpinVelocity.Y;
-                    return;
-                }
-                if (state.ActionTimer.StepEnds())
-                {
-                    StartBabyTurtleCrawlingAnimation(baby, state);
-                    state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
-                }
-                return;
-
-            case BabyTurtleAction.SpinningUnstoppable:
-                MoveSpinningBabyTurtle(baby, state, level);
-                return;
-
-            case BabyTurtleAction.SpinningStoppable:
-                if (EnemyCollision.IsSamusStandingOn(baby, samus))
-                {
-                    StartBabyTurtleCrawlingAnimation(baby, state);
-                    state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
-                    return;
-                }
-                MoveSpinningBabyTurtle(baby, state, level);
-                return;
-
-            case BabyTurtleAction.CrawlingCarryingSamus:
-                if (!EnemyCollision.IsSamusStandingOn(baby, samus))
-                    state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Baby Turtle has no behaviour for action {state.Action}.");
-        }
+        RunBabyTurtleMainForBabyTurtleAction[state.Action](baby, state, samus, level);
     }
 
     /// <summary>Moves a spinning child against terrain, reversing its X velocity on wall collision.</summary>
@@ -573,16 +585,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
 
-        RoomEnemyPlace parentPlace = MamaOf(baby);
-        MamaTurtleEnemyState parent = parentPlace.RequireSpeciesState<MamaTurtleEnemyState>();
+        RoomEnemyPlace parentPlace = state.Family.Mama;
+        MamaTurtleEnemyState parent = state.Family.State;
         if (!parent.LiesInShell)
             return;
 
-        int signedDifference = parentPlace.Position.X.Whole - baby.Position.X.Whole;
-        int distance = Math.Abs(signedDifference);
-        int contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
-            ? MamaTurtleMotionDefinitions.BabySinkClearOfShell
-            : MamaTurtleShell.GetOffset(signedDifference);
+        int contourOffset = MamaTurtleShell.TryGetSurface(parentPlace.Position.X.Whole - baby.Position.X.Whole, out int surface)
+            ? surface
+            : MamaTurtleMotionDefinitions.BabySinkClearOfShell;
         _terrain.MoveEnemyVertically(level, baby, SignedSixteenSixteen.FromWholePixels(contourOffset));
 
         if (carryingSamus)
@@ -591,7 +601,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Animation cue: turn around at 48 pixels from spawn.</summary>
+    /// <summary>Animation cue: turn around at the baby's travel distance from spawn.</summary>
     private static BabyTurtleSegment SelectBabyTurtleCrawlLoop(
         RoomEnemyPlace baby,
         BabyTurtleEnemyState state)
@@ -642,14 +652,15 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs Mama's custom ordinary-touch reaction.</summary>
     private void ResolveMamaTurtleTouch(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         MamaTurtleEnemyState state,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace mama = turtle.Place;
         if (mama.Contact.HasAny(EnemyContact.SolidToSamus))
             return;
-        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(turtle, samus, pseudoScrew);
         state.Action = MamaTurtleAction.Falling;
         state.Velocity = state.Velocity.WithY(state.Velocity.Y.WithWholePixelsOf(MamaTurtleMotionDefinitions.KnockedDownFallSpeed));
     }
@@ -675,37 +686,22 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = BabyTurtleAction.CrawlingNotCarryingSamus;
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SignedSixteenSixteen.FromWholePixels(state.Velocity.X));
-        WakeMamaTurtle(baby);
-    }
-
-    /// <summary>Finishes the Baby Turtle's reaction to a shot on <paramref name="baby"/>: its mother wakes.</summary>
-    private void ResolveBabyTurtleShotAfterCommon(RoomEnemyPlace baby) =>
-        WakeMamaTurtle(baby);
-
-    /// <summary>Wakes <paramref name="baby"/>'s Mama after a baby touch or shot reaction.</summary>
-    private void WakeMamaTurtle(RoomEnemyPlace baby)
-    {
-        MamaStateOf(baby).Wake();
+        state.Family.State.Wake();
     }
 
     /// <summary>Runs Mama's expanded private damage box: Samus, while not invincible, touching it is hurt as by any enemy.</summary>
     private void ResolveMamaTurtleExpandedContact(
-        RoomEnemyPlace mama,
+        RoomEnemyOccupant turtle,
         SamusState samus,
         PseudoScrewCharge pseudoScrew)
     {
+        RoomEnemyPlace mama = turtle.Place;
         if (!MamaTurtleDamageBox.Touches(mama, samus) || !samus.InvincibilityTimer.IsZero)
             return;
 
-        _collision.ResolveOrdinaryTouch(mama, samus, pseudoScrew);
+        _collision.ResolveOrdinaryTouch(turtle, samus, pseudoScrew);
     }
 
-    /// <summary>The state of <paramref name="baby"/>'s Mama, who found it when she was placed.</summary>
-    private MamaTurtleEnemyState MamaStateOf(RoomEnemyPlace baby) => MamaOf(baby).RequireSpeciesState<MamaTurtleEnemyState>();
-
-    /// <summary>The place of <paramref name="baby"/>'s Mama, who linked it when she was placed.</summary>
-    /// <exception cref="InvalidOperationException">No Mama Turtle found <paramref name="baby"/> as she was placed.</exception>
-    private RoomEnemyPlace MamaOf(RoomEnemyPlace baby) => _mamaOfBaby.Of(baby);
 
     /// <summary>Starts the crawl animation of the way the child heads.</summary>
     private static void StartBabyTurtleCrawlingAnimation(
@@ -717,32 +713,34 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static BabyTurtleSegment BabyCrawl(HorizontalDirection heading) =>
         heading == HorizontalDirection.Left ? BabyTurtleSegment.CrawlingLeft : BabyTurtleSegment.CrawlingRight;
 
-    /// <summary>Starts a Mama Turtle animation with its frame timer set to one.</summary>
+    /// <summary>Starts a Mama Turtle animation, which shows its first frame on the next update.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, MamaTurtleEnemyState state, MamaTurtleSegment segment)
     {
         state.Playback = new(MamaTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Starts a baby turtle animation with its frame timer set to one.</summary>
+    /// <summary>Starts a baby turtle animation, which shows its first frame on the next update.</summary>
     private static void StartTurtleAnimation(RoomEnemyPlace place, BabyTurtleEnemyState state, BabyTurtleSegment segment)
     {
         state.Playback = new(BabyTurtleAnimations.StartingWith(segment), AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
     }
 
-    /// <summary>Runs the baby wake reaction after common bomb damage.</summary>
-    internal EnemyBombReaction BabyTurtleBombReaction => field ??= new()
+    /// <summary>Wakes the Mama of <paramref name="baby"/> after common bomb damage.</summary>
+    /// <param name="baby">The enemy the reaction is built for, whose own methods it names.</param>
+    internal static EnemyBombReaction BabyTurtleBombReaction(BabyTurtleEntity baby) => new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = Ensure.NotNull(baby).WakeMama,
     };
 
     /// <summary>Runs MamaTurtle's main AI.</summary>
-    internal void RunMamaTurtleMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunMamaTurtleMainAi(RoomEnemyOccupant turtle, MamaTurtleEnemyState mamaTurtleEnemyState, IEnemyAiFrame frame)
     {
+        _ = turtle.Place;
         RunMamaTurtleMain(
-            place,
-            place.RequireSpeciesState<MamaTurtleEnemyState>(),
+            turtle,
+            mamaTurtleEnemyState,
             frame.Samus,
             frame.PseudoScrew,
             frame.Level,
@@ -750,50 +748,49 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs BabyTurtle's main AI.</summary>
-    internal void RunBabyTurtleMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunBabyTurtleMainAi(RoomEnemyPlace place, BabyTurtleEnemyState babyTurtleEnemyState, IEnemyAiFrame frame)
     {
-        RunBabyTurtleMain(place, place.RequireSpeciesState<BabyTurtleEnemyState>(), frame.Samus, frame.Level);
+        RunBabyTurtleMain(place, babyTurtleEnemyState, frame.Samus, frame.Level);
     }
 
     /// <summary>Advances MamaTurtle's typed animation.</summary>
-    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _)
+    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemyPlace place, MamaTurtleEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        MamaTurtleEnemyState state = place.RequireSpeciesState<MamaTurtleEnemyState>();
         AnimationPlayback<MamaTurtleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, MamaTurtleAnimations.Segments, ref playback,
-            cue => ApplyMamaTurtleCue(place, cue) is { } target
+            cue => ApplyMamaTurtleCue(state, cue) is { } target
                 ? new AnimationContinuation<MamaTurtleSegment>(MamaTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
     /// <summary>Advances BabyTurtle's typed animation.</summary>
-    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext context)
+    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemyPlace place, BabyTurtleEnemyState state, EnemyAnimationCueContext context)
     {
         if (!place.AnimationClock.Expire())
             return;
-        BabyTurtleEnemyState state = place.RequireSpeciesState<BabyTurtleEnemyState>();
         AnimationPlayback<BabyTurtleSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, BabyTurtleAnimations.Segments, ref playback,
-            cue => ApplyBabyTurtleCue(place, cue, context.Samus, context.Level) is { } target
+            cue => ApplyBabyTurtleCue(place, state, cue, context.Samus, context.Level) is { } target
                 ? new AnimationContinuation<BabyTurtleSegment>(BabyTurtleAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         state.Playback = playback;
     }
 
-    /// <summary>Runs the baby wake reaction after common projectile damage.</summary>
-    internal EnemyShotReaction BabyTurtleShotReaction => field ??= new()
+    /// <summary>Wakes the Mama of <paramref name="baby"/> after common projectile damage.</summary>
+    /// <param name="baby">The enemy the reaction is built for, whose own methods it names.</param>
+    internal static EnemyShotReaction BabyTurtleShotReaction(BabyTurtleEntity baby) => new()
     {
-        AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy),
+        AfterCommon = Ensure.NotNull(baby).WakeMama,
     };
 
     /// <summary>Routes Mama contact to shell and fall handling.</summary>
-    internal void ReactToMamaTurtleTouch(EnemyTouchContext context) =>
-        ResolveMamaTurtleTouch(context.Place, context.Place.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus, context.PseudoScrew);
+    internal void ReactToMamaTurtleTouch(EnemyTouchContext context, MamaTurtleEnemyState mamaTurtleEnemyState) =>
+        ResolveMamaTurtleTouch(context.Occupant, mamaTurtleEnemyState, context.Samus, context.PseudoScrew);
 
     /// <summary>Routes baby contact to separation and wake behavior.</summary>
-    internal void ReactToBabyTurtleTouch(EnemyTouchContext context) =>
-        ResolveBabyTurtleTouch(context.Place, context.Place.RequireSpeciesState<BabyTurtleEnemyState>(), context.Samus, context.Level);
+    internal void ReactToBabyTurtleTouch(EnemyTouchContext context, BabyTurtleEnemyState babyTurtleEnemyState) =>
+        ResolveBabyTurtleTouch(context.Place, babyTurtleEnemyState, context.Samus, context.Level);
 }

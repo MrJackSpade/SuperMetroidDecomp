@@ -6,8 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The collaborators a <see cref="KraidDeath"/> is constructed with, built once by its owner.</summary>
-[RoomLifetime]
-internal sealed record KraidDeathDependencies
+internal sealed partial record KraidDeathDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     public required EnemyPassEvents PassEvents { get; init; }
@@ -18,8 +17,6 @@ internal sealed record KraidDeathDependencies
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
     public required RoomEarthquake Earthquake { get; init; }
 
-    /// <summary>Kraid's eight parts in his room, in the order they run.</summary>
-    public required KraidParts Parts { get; init; }
 
     /// <summary>Applies Kraid's colours, background pictures, and sprite presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }

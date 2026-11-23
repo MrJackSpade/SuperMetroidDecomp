@@ -2,17 +2,16 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.World.RoomStates;
 
-/// <summary>Application-owned ordered enemy placements selected by all room states, grouped by the area of the rooms that load them.</summary>
+/// <summary>Each room state's ordered enemy placements, grouped by the area of the rooms that load them.</summary>
 /// <remarks>
-/// The 301 populations and their 1,658 placements are the ones the 322 room states select. Placement order governs
-/// linked place allocation; each list states the kills that clear its room as its death quota. This is gameplay data,
-/// not an editable visual asset.
+/// The populations and their placements are the ones the room
+/// states select. Placement order decides which place each linked enemy takes; each list states the kills that clear
+/// its room as its death quota when it places enemies; an empty list has none.
 /// </remarks>
-[NumberedIdentities("Each numbered member is the enemy population of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); nothing indexes the populations by number.")]
-public static class RoomEnemyPopulationDefinitions
+public static partial class RoomEnemyPopulationDefinitions
 {
-    /// <summary>The rooms' enemy populations in their authored list order, checked complete before gameplay can use them.</summary>
-    internal static readonly RoomEnemyPopulationDefinition[] Definitions = RoomEnemyPopulations.Complete(
+    /// <summary>The rooms' enemy populations in their authored list order.</summary>
+    internal static readonly RoomEnemyPopulationDefinition[] Definitions =
     [
         ..CrateriaRoomEnemyPopulationDefinitions.Lists,
         ..BrinstarRoomEnemyPopulationDefinitions.Lists,
@@ -21,15 +20,10 @@ public static class RoomEnemyPopulationDefinitions
         ..MaridiaRoomEnemyPopulationDefinitions.Lists,
         ..TourianRoomEnemyPopulationDefinitions.Lists,
         ..CeresRoomEnemyPopulationDefinitions.Lists,
-    ], ListCount, PlacementCount);
+    ];
 
-    /// <summary>Number of distinct populations the room states select, empty ones included.</summary>
-    public const int ListCount = 301;
-    /// <summary>Total placements across the distinct populations, a population that several room states select counted once.</summary>
-    public const int PlacementCount = 1658;
-
-    /// <summary>The enemy population shared by the Draygon room and the Mother Brain room once each area's boss is dead.</summary>
-    public static RoomEnemyPopulationDefinition DraygonOrMotherBrainWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead;
+    /// <summary>The enemy population of the Draygon room once Maridia's boss is dead: none.</summary>
+    public static RoomEnemyPopulationDefinition DraygonWhenAreaBossDead => MaridiaRoomEnemyPopulationDefinitions.DraygonWhenAreaBossDead;
     /// <summary>The enemy population of the East Ocean room.</summary>
     public static RoomEnemyPopulationDefinition EastOcean => CrateriaRoomEnemyPopulationDefinitions.EastOcean;
     /// <summary>The enemy population of the Crateria Power Bombs room.</summary>
@@ -600,6 +594,8 @@ public static class RoomEnemyPopulationDefinitions
     public static RoomEnemyPopulationDefinition Seaweed => TourianRoomEnemyPopulationDefinitions.Seaweed;
     /// <summary>The enemy population of the Tourian Recharge room.</summary>
     public static RoomEnemyPopulationDefinition TourianRecharge => TourianRoomEnemyPopulationDefinitions.TourianRecharge;
+    /// <summary>The enemy population of the Mother Brain room once Tourian's boss is dead: none.</summary>
+    public static RoomEnemyPopulationDefinition MotherBrainWhenAreaBossDead => TourianRoomEnemyPopulationDefinitions.MotherBrainWhenAreaBossDead;
     /// <summary>The enemy population of the Upper Tourian Save room.</summary>
     public static RoomEnemyPopulationDefinition UpperTourianSave => TourianRoomEnemyPopulationDefinitions.UpperTourianSave;
     /// <summary>The enemy population of the Metroids 3 room in its default state.</summary>

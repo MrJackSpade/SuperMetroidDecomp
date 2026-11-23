@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// import data the installation never holds (#1693), which the import pre-colours the map sprite sheet's highlight shades
 /// from; the installed cycle holds each frame's hold alone (<see cref="MapHighlightTimingFile"/>).
 /// </summary>
-public static class MapPaletteCycleFile
+public static partial class MapPaletteCycleFile
 {
     /// <summary>JSON filename, in the component's import data, of each highlight frame's hold and highlight colour.</summary>
     public const string FileName = "map-highlight-colours.json";
@@ -17,7 +17,7 @@ public static class MapPaletteCycleFile
     /// <summary>Required cycle-document schema revision: 2 states each frame's look as its highlight colour, not a palette row (#1637).</summary>
     public const int Version = 2;
 
-    /// <summary>Maximum selected frame count, 255, preserving the animation owner's byte-sized frame cursor.</summary>
+    /// <summary>The most frames the cartridge decoder reads before the stream must end, 255: the cartridge's terminator search limit.</summary>
     public const int MaximumFrames = 255;
 
     /// <summary>Maximum authored frame hold, 254 ticks; zero is invalid and a duration of 255 marks stream termination rather than a hold.</summary>
@@ -57,7 +57,7 @@ public static class MapPaletteCycleFile
     /// <param name="document">Ordered selected frames satisfying <see cref="Read"/>'s version, duration, count, and highlight colour requirements.</param>
     public static void Write(Stream json, MapPaletteCycleDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPaletteCycleDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// </summary>
 /// <param name="Kind">The collectible kind, one that shows its own picture.</param>
 /// <param name="Look">Which of its two alternating looks the picture shows.</param>
-public readonly record struct CollectiblePicture(InWorldCollectibleKind Kind, CollectibleLook Look)
+public readonly partial record struct CollectiblePicture(InWorldCollectibleKind Kind, CollectibleLook Look)
 {
     /// <summary>The collectible kinds in the order their own pictures are listed (#2567).</summary>
     private static readonly IReadOnlyList<InWorldCollectibleKind> KindOrder = Ensure.EveryMemberOnce<InWorldCollectibleKind>(
@@ -50,7 +50,5 @@ public readonly record struct CollectiblePicture(InWorldCollectibleKind Kind, Co
         : throw new ArgumentOutOfRangeException(nameof(Kind), Kind, "The collectible's picture is a block the room loads, not its own.");
 
     /// <summary>The look.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The look is undefined.</exception>
-    public CollectibleLook Look { get; } = Enum.IsDefined(Look) ? Look
-        : throw new ArgumentOutOfRangeException(nameof(Look), Look, "Undefined collectible look.");
+    public CollectibleLook Look { get; } = Look;
 }

@@ -10,6 +10,7 @@ internal static class RoomFxSourcesConstants
     public static ushort PointerOf(RoomFxSelection fx)
     {
         Ensure.NotNull(fx);
-        return RoomFxSourceDefinitions.ByPointer.Single(pair => Object.ReferenceEquals(pair.Value, fx)).Key;
+        // The cartridge stores the quicksand shafts' one selection twice; its first header serves.
+        return RoomFxSourceDefinitions.ByPointer.Where(pair => Object.ReferenceEquals(pair.Value, fx)).Min(pair => pair.Key);
     }
 }

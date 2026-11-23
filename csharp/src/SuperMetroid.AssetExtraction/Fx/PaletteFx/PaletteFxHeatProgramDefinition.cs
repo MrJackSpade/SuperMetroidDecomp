@@ -2,9 +2,9 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One suit-specific Samus-in-heat palette control program.</summary>
-/// <remarks>Each program shows sixteen fifteen-color phases, one record each. Independently reviewed for #1165.</remarks>
-public sealed class PaletteFxHeatProgramDefinition
+/// <summary>One suit's heat-pulse records and the colours each writes.</summary>
+/// <remarks>Each suit shows one record for each heat shimmer phase.</remarks>
+public sealed partial class PaletteFxHeatProgramDefinition
 {
     /// <summary>Only the catalog creates definitions.</summary>
     internal PaletteFxHeatProgramDefinition()

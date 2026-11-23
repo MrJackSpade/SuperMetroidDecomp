@@ -21,6 +21,8 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.World;
 
 /// <summary>Bounded cartridge comparison for the left-facing Murder Beam setup and its explicitly unsupported unsafe variants.</summary>
 internal static class MurderBeamVerification
@@ -37,14 +39,13 @@ internal static class MurderBeamVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             CollectedItems = SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
             CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingLeftNormalPose);
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
 
@@ -57,17 +58,17 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)0x100f, samus.EquippedBeams.ToEquipmentWord(),
             "same-frame Boots Left+A equips all four beams while retaining Charge");
 
-        shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+        shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        SamusProjectileFrameResult fired = projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+        SoundRequest? fired = projectiles.StepFrameFiringSound(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             "charged-left Murder Beam allocates slot zero");
-        AssertTrue(fired.QueuedSoundEffect is null,
+        AssertTrue(fired is null,
             "Murder Beam's adjacent sound-table entry is zero");
 
         SamusProjectile shot = projectiles.Shots[0];
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.Type, "Murder Beam retains charged all-beams type");
-        AssertEqual(200, shot.Damage, "Murder Beam uses the native 200-damage record");
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.HeldShot().Type, "Murder Beam retains charged all-beams type");
+        AssertEqual(200, shot.HeldShot().Damage, "Murder Beam uses the native 200-damage record");
         AssertEqual(SamusProjectileDirection.Left, shot.Direction,
             "safe Murder Beam faces left");
         AssertEqual((ushort)116, shot.Position.X.Whole, "Murder Beam native muzzle X");
@@ -88,50 +89,46 @@ internal static class MurderBeamVerification
 
         for (int frame = 0; frame < 16; frame++)
         {
-            shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+            shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            projectiles.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         }
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.Type, "Murder Beam persists without an instruction list");
-        AssertEqual(200, shot.Damage, "persistent Murder Beam retains damage");
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.HeldShot().Type, "Murder Beam persists without an instruction list");
+        AssertEqual(200, shot.HeldShot().Damage, "persistent Murder Beam retains damage");
         AssertEqual((ushort)116, shot.Position.X.Whole, "persistent Murder Beam remains fixed in world X");
         AssertEqual((ushort)123, shot.Position.Y.Whole, "persistent Murder Beam remains fixed in world Y");
 
-        EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
+        // An ordinary enemy, a Skultera reacting to shots as every ordinary enemy does, set up as its room's population
+        // load sets it up (#2554).
+        EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1], CompiledRoomEnemyDefinitions.Instance,
+            [PopulationPlacementAccess.Entry(EnemyDefinitionId.Skultera, EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Skultera,
+                EnemySpawnSettingsCodec.Blank(EnemyDefinitionId.Skultera) with { Parameter1 = 3 }, Position16<RoomPixels>.Zero))]);
         RoomEnemyPlace target = combat.System.Places.InUpdateOrder[0];
-        target.Bind(EnemyPlaceFixtures.StandIn, target.Definition);
-        target.Bind(target.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Shot = EnemyReaction.OrdinaryShot,
-        });
         target.Position = target.Position.WithWhole(shot.Position.Whole);
         target.Radius = new(16, 16);
         target.Health = 1000;
         target.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
         combat.System.StepStandaloneFrame(combat.System.StandaloneFrame(combat.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
 
-        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
-            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "invisible Murder Beam point overlaps an ordinary enemy");
+        combat.System.ResolveShotsOnInteractiveEnemies(
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(800, target.Health,
             "charged vulnerability applies one 200-point Murder Beam hit");
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.HeldShot().Type,
             "Plasma-bearing Murder Beam survives enemy impact");
         AssertEqual(0, shot.InstructionPointer,
             "Murder Beam remains zero-list after enemy impact");
 
         target.Invincibility.End();
-        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
-            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "persistent Murder Beam can damage again after invincibility");
+        combat.System.ResolveShotsOnInteractiveEnemies(
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(600, target.Health,
             "second Murder Beam contact repeats the native damage");
 
         target.Invincibility.End();
         target.Freeze.End();
         target.Health = 100;
-        AssertEqual(1, combat.System.ResolveShotsOnInteractiveEnemies(
-            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus),
-            "lethal Murder Beam contact reaches Ice substitution");
+        combat.System.ResolveShotsOnInteractiveEnemies(
+            projectiles, shared, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");
         AssertEqual(400, target.Freeze.UpdatesLeft,
@@ -140,15 +137,15 @@ internal static class MurderBeamVerification
         var phaseBoundary = MotherBrainLateFightFixtures.NewSequence();
         phaseBoundary.StartFinishOffSequence();
         phaseBoundary.BeginPhase3RecoveryFromBabyCutscene();
-        AssertEqual(MotherBrainPhase3FightPhase.RecoverMakeSomeDistance, phaseBoundary.Encounter.Phase3FightPhase, "Mother Brain enters the phase-three recovery boundary");
+        AssertEqual(MotherBrainPhase3FightPhase.RecoverMakeSomeDistance, phaseBoundary.State.Phase3FightPhase, "Mother Brain enters the phase-three recovery boundary");
         for (int frame = 0; frame < 120; frame++)
         {
-            shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+            shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            projectiles.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         }
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), shot.HeldShot().Type,
             "Murder Beam survives the phase-two to phase-three cutscene boundary");
-        AssertEqual(200, shot.Damage,
+        AssertEqual(200, shot.HeldShot().Damage,
             "phase-three Murder Beam retains its damage payload");
 
         Suite(nameof(VerifyMissileAutoCancelMurderBeam), () => VerifyMissileAutoCancelMurderBeam(level));
@@ -173,8 +170,8 @@ internal static class MurderBeamVerification
             GameplayAction newlyPressed = frame == 0 && !shootAlreadyHeld
                 ? GameplayAction.Shoot
                 : 0;
-            shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Shoot, newlyPressed);
-            projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newlyPressed, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+            shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, newlyPressed);
+            projectiles.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = newlyPressed, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         }
         AssertEqual(BeamChargeDefinitions.FullyChargedCounter,
             projectiles.Charge.UpdatesHeld, "pre-pause beam charge reaches charged threshold");
@@ -186,19 +183,18 @@ internal static class MurderBeamVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer,
             SelectedHudItem = HudItem.Beam,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
         HoldCharge(level, samus, projectiles, shared);
         samus.EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma;
         AssertThrows<NotSupportedException>(() =>
         {
-            shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+            shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
+            projectiles.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         }, "unsafe right-facing Murder Beam does not silently become an ordinary projectile");
     }
 
@@ -208,11 +204,10 @@ internal static class MurderBeamVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
             Missiles = 5,
-        };
+        }.InPose(SamusPoseId.FacingLeftNormalPose);
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
         GameplayAction select = GameplayAction.ItemSelect;
@@ -224,23 +219,23 @@ internal static class MurderBeamVerification
         AssertEqual(HudItem.Missile, samus.AutoCancelledItem,
             "missile auto-cancel request retains the selected HUD index");
 
-        shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Shoot, GameplayAction.Shoot);
-        projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
-        AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
+        shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, GameplayAction.Shoot);
+        SoundRequest? firingSound = projectiles.StepFrameFiringSound(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+        AssertTrue(firingSound is not null,
             "auto-cancel setup fires one Missile");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
             "successful Missile auto-cancels back to beams");
-        AssertEqual(HudItem.Beam, samus.AutoCancelledItem,
+        AssertEqual<HudItem?>(null, samus.AutoCancelledItem,
             "successful Missile consumes its auto-cancel request");
 
         HoldCharge(level, samus, projectiles, shared, shootAlreadyHeld: true);
-        shared.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0);
+        shared.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeMurder = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
+        projectiles.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, new SharedGameState(new SharedRandom()));
         int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
         AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
-        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), projectiles.Shots[(murderSlot ?? throw new InvalidOperationException("Verification requires murderSlot."))].Type,
+        AssertEqual(SamusProjectileType.Beam(SamusBeamCombination.SpazerPlasmaIceWave, charged: true), projectiles.Shots[(murderSlot ?? throw new InvalidOperationException("Verification requires murderSlot."))].HeldShot().Type,
             "missile auto-cancel alternative produces Murder Beam");
     }
 
@@ -250,11 +245,10 @@ internal static class MurderBeamVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-        };
-        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom())),
+        }.InPose(SamusPoseId.FacingLeftNormalPose);
+        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom())),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 

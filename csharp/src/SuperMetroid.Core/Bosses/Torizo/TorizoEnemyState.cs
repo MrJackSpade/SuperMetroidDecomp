@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <summary>
 /// Torizo's state beyond what every enemy has. The Torizo's entity owns it as its species state (#2030).
 /// </summary>
-public sealed class TorizoEnemyState
+public sealed partial class TorizoEnemyState
 {
     /// <summary>Creates the state of a Torizo of <paramref name="variant"/>, Bomb or Golden Torizo.</summary>
     internal TorizoEnemyState(TorizoVariant variant)
@@ -27,7 +27,7 @@ public sealed class TorizoEnemyState
     internal bool Stunned { get; set; }
 
     /// <summary>Whether Bomb Torizo's face is blown up; its faceless animations walk on from here, and its death sets it.</summary>
-    internal bool FaceBlownUp { get; set; }
+    internal bool FaceBlownUp => Breakage == TorizoBreakage.GutAndFaceBlownUp;
 
     /// <summary>
     /// How the Torizo walks as it now is (#2472): its own walk with its face, and Bomb Torizo's faceless walk once its face
@@ -36,7 +36,10 @@ public sealed class TorizoEnemyState
     internal TorizoWalker Walker => FaceBlownUp ? TorizoWalkerDefinitions.FacelessBombTorizo : Variant.Walker;
 
     /// <summary>Whether Bomb Torizo's gut is blown up, which its first low-health interruption sets, and its death too.</summary>
-    internal bool GutBlownUp { get; set; }
+    internal bool GutBlownUp => Breakage != TorizoBreakage.Intact;
+
+    /// <summary>How far Bomb Torizo's body has broken (#2560): intact, his gut blown up, then his face too.</summary>
+    internal TorizoBreakage Breakage { get; set; }
     /// <summary>Which Torizo this is, Bomb or Golden Torizo, whose values its fight reads (#1931, #2410); fixed at initialization.</summary>
     internal TorizoVariant Variant { get; }
 
@@ -75,10 +78,9 @@ public sealed class TorizoEnemyState
     public bool AnimationLocked { get; internal set; }
 
     /// <summary>
-    /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump decision fires once it reaches
-    /// <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that decision follows every one of its
-    /// stepping cues; Bomb Torizo never reads it. No fight steps a Torizo anywhere near the end of its range (#1945), so it
-    /// counts on.
+    /// Stepping cues counted since a decision last reset it. Golden Torizo's repeated-jump decision fires once it
+    /// reaches <see cref="TorizoDecisionDefinitions.RepeatedJumpSteps"/> and resets it, and that decision follows every
+    /// one of its stepping cues; Bomb Torizo never reads it (#1945).
     /// </summary>
     public int DecisionCounter { get; internal set; }
 
@@ -88,10 +90,14 @@ public sealed class TorizoEnemyState
     /// </summary>
     internal List<EnemyProjectile> LaidEggs { get; } = [];
 
-    /// <summary>Whether any egg Golden Torizo laid remains; the eggs that have gone are forgotten.</summary>
+    /// <summary>
+    /// Whether any egg Golden Torizo laid remains, each egg answering by its own life: it remains while it holds its place,
+    /// and an egg that has gone is forgotten. The laying keeps each laid egg's place, so a place another egg has since taken
+    /// still counts while that egg holds it (#2332); every such egg is one Golden Torizo laid, which answers for itself here.
+    /// </summary>
     internal bool EggsRemain()
     {
-        LaidEggs.RemoveAll(egg => egg.Kind != RoomEnemyProjectileKind.GoldenTorizoEgg);
+        LaidEggs.RemoveAll(egg => !egg.IsActive);
         return LaidEggs.Count > 0;
     }
 
@@ -101,8 +107,8 @@ public sealed class TorizoEnemyState
     /// <summary>
     /// Consecutive frames Samus has space-jumped, 0 through 65535 (<see cref="WrappingCounter"/>). Past
     /// <see cref="TorizoDecisionDefinitions.SpaceJumpLeapFrames"/> it lets Golden Torizo's forward leap fire without its
-    /// input and random gates. The wrap is gameplay (#1945): after 65536 consecutive space-jumping frames the count starts
-    /// again from zero, and the leap waits for its gates again for the next 361 frames.
+    /// input and random gates. The wrap is gameplay (#1945): once the count passes its largest it starts again from zero,
+    /// and the leap waits for its gates again until the count passes the leap's frames once more.
     /// </summary>
     public int SamusSpaceJumpFrames { get; internal set; }
 
@@ -125,7 +131,7 @@ public sealed class TorizoEnemyState
     /// <summary>
     /// Whether the Torizo falls at <see cref="TorizoMotionDefinitions.RestingFallSpeed"/>, as its setup, a landing and a
     /// walk off a ledge leave it, its vertical speed unchanged since (#1945): a Torizo that meets the ground falling so
-    /// lands without a quake. Only that fall moves at that speed exactly: gravity and the leaps add five thirty-seconds of a pixel an update
+    /// lands without a quake. Only that fall moves at that speed exactly: gravity and the leaps add their gravity each update
     /// to a rest or to a leap's rise, neither of which comes back to it.
     /// </summary>
     internal bool FallsAtRestingSpeed { get; private set; }
@@ -139,8 +145,8 @@ public sealed class TorizoEnemyState
     /// <summary>The main phase the Torizo runs each frame; it starts settling under gravity as it wakes.</summary>
     public TorizoPhase Phase { get; internal set; } = TorizoPhase.Falling;
 
-    /// <summary>How the body moves itself each update while it fights, or null while it holds still (#1931).</summary>
-    internal TorizoBodyMotion? Motion { get; set; }
+    /// <summary>How the body moves itself each update while it fights (#1931).</summary>
+    internal TorizoBodyMotion Motion { get; set; }
 
     /// <summary>Whether the Torizo has started dying: lethal damage starts its death once, and it stays dying while it lasts.</summary>
     public bool DeathStarted { get; internal set; }

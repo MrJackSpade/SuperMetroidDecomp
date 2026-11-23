@@ -16,26 +16,29 @@ internal static class ChootOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Choot, place.Definition);
+        place.Bind(EnemyDefinitionId.Choot, place.KeptDefinition);
         place.Position = place.Position.WithWhole(new(0x0100, 0x0200));
         place.SetSpawnParameter1(EnemyDefinitionId.Choot, 2);
-        ChootBehavior.InitializeChoot(place);
-        ChootEnemyState state = enemies.ChootStates[0]
-            ?? throw new InvalidOperationException("The initialized Choot has no state.");
+        ChootEnemyState state = ChootBehavior.InitializeChoot(place.HeldOccupant().SpawnSettings<ChootSpawnSettings>(), place);
 
         int initial = state.InitialYSpeedCurvePlace.WholeMarks;
         AssertTrue(initial > 0 && initial % 2 == 0, "the ascent starts at a positive even record index");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(initial), state.YSpeedCurvePlace, "the ascent starts at the calculated index");
+        // The jump runs as the Choot's main AI runs it once the jump has started.
+        ChootSpawnSettings settings = place.HeldOccupant().SpawnSettings<ChootSpawnSettings>();
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
+        state.Action = ChootAction.Jumping;
         int jumpingUpdates = 0;
         while (state.Action != ChootAction.Falling)
         {
-            ChootBehavior.RunChootJump(place, state);
+            ChootBehavior.RunChootMainAi(settings, place, state, frame);
             jumpingUpdates++;
             AssertTrue(jumpingUpdates <= initial, "the jump reaches its apex");
         }
         AssertEqual(initial / 2 + 1, jumpingUpdates, "the apex is the update that takes the index below zero");
         AssertEqual(QuadraticSpeedCurvePlace.FromMarks(-2), state.YSpeedCurvePlace, "the index stays below zero through the fall");
-        AssertEqual(0, state.FallingLoop.Age, "the fall starts at its first frame");
+        AssertEqual(ChootFallLoopAccess.OffsetAt(place.HeldOccupant().SpawnSettings<ChootSpawnSettings>().FallingPath, 0),
+            ChootFallLoopAccess.NextOffsetOf(state.FallingLoop), "the fall starts at its path's first update");
         Console.WriteLine("Choot owned state: the apex underflow matches.");
     }
 

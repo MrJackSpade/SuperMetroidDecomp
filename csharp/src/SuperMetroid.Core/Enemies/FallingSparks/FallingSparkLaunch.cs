@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// What a falling spark's random launch choice chooses (#2510): one of the authored drifts, or the roll past them, whose
 /// drift <see cref="FallingSparkUnauthoredLaunch"/> supplies (<see cref="FallingSparkLaunchDefinitions.Launch"/>).
 /// </summary>
-internal abstract record FallingSparkLaunch
+internal abstract partial record FallingSparkLaunch
 {
     /// <summary>Only the launches below exist.</summary>
     private FallingSparkLaunch()
@@ -20,14 +20,14 @@ internal abstract record FallingSparkLaunch
 
     /// <summary>An authored launch, drifting by <paramref name="Drift"/>.</summary>
     /// <param name="Drift">The signed sideways drift per update.</param>
-    internal sealed record Authored(SignedSixteenSixteen Drift) : FallingSparkLaunch
+    internal sealed partial record Authored(SignedSixteenSixteen Drift) : FallingSparkLaunch
     {
         /// <inheritdoc/>
         internal override SignedSixteenSixteen DriftWith(Func<FallingSparkUnauthoredLaunch> unauthoredLaunch) => Drift;
     }
 
     /// <summary>The roll past the seven authored launches, drifting fast leftward by <see cref="FallingSparkUnauthoredLaunch"/>'s drift.</summary>
-    internal sealed record PastAuthored : FallingSparkLaunch
+    internal sealed partial record PastAuthored : FallingSparkLaunch
     {
         /// <summary>The one roll past the authored launches.</summary>
         internal static PastAuthored Instance { get; } = new();

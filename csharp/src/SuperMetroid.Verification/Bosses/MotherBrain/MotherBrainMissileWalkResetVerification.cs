@@ -23,7 +23,7 @@ internal static class MotherBrainMissileWalkResetVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
@@ -37,10 +37,10 @@ internal static class MotherBrainMissileWalkResetVerification
         head.Health = 0x8bd8;
 
         var shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile); shot.Damage = 100; shot.Direction = SamusProjectileDirection.UpLeft;
-        shot.Position = shot.Position.WithWhole(head.Position.Whole);
-        shot.Radius = new(8, 8);
-        runtime.Enemies.MotherBrainBehavior.Combat.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), 100); shot.HeldShot().Direction = SamusProjectileDirection.UpLeft;
+        shot.HeldShot().Position = shot.Position.WithWhole(head.Position.Whole);
+        shot.HeldShot().Radius = new(8, 8);
+        runtime.Enemies.MotherBrainBehavior.Combat.ResolveMotherBrainLaterFormHeadShot(state, head.HeldOccupant(), shot.HeldShot(), runtime.Projectiles, SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
         AssertEqual(MotherBrainWalkCredit.Empty, sequence.ThirdPhaseFight.Phase3WalkCounter, "a missile empties the sequence-owned walk credit");
         AssertEqual(MotherBrainWalkCredit.Empty, state.WalkCounter, "the encounter projection publishes the reset");
         AssertEqual(0x8bd8 - 100, head.Health, "the missile then takes common normal-shot damage (#2255)");
@@ -56,7 +56,7 @@ internal static class MotherBrainMissileWalkResetVerification
     internal static void VerifyMotherBrainWalkCreditShared()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
+        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.MotherBrainBody), enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
         MotherBrainRainbowBeamAttackSequence sequence = state.BeginLateFight();
         AssertEqual(MotherBrainWalkCredit.Of(0x0180), sequence.ThirdPhaseFight.Phase3WalkCounter, "an attached sequence reads the encounter's credit");
         state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);

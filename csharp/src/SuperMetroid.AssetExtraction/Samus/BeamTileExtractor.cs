@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts native beam sheets per legal selection; shared stock sheets may be edited independently.</summary>
-public static class BeamTileExtractor
+public static partial class BeamTileExtractor
 {
     /// <summary>Decodes each legal native beam tile sheet to indexed PNG.</summary>
     /// <param name="bus">Supported-cartridge address space containing the beam tile pointer table and four-bit planar graphics.</param>
@@ -15,11 +15,10 @@ public static class BeamTileExtractor
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         var files = new Dictionary<string, byte[]>();
-        for (int index = 0; index < BeamTileAtlasDefinitions.ArtworkCount; index++)
+        foreach (SamusBeamCombination selection in BeamTileAtlasDefinitions.Pictured)
         {
-            SamusBeamCombination selection = BeamTileAtlasDefinitions.SelectionAt(index);
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.TilePointers.Value + selection.TableIndex * 2);
-            byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.TilePointers.Value + selection.TableIndex * 2);
+            byte[] planar = RomDataReader.ReadFixedBank(bus,
                 SamusSourceDefinitions.CharacterDataBank.Value | pointer, BeamTileAtlasDefinitions.ByteCount);
             byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4,
                 BeamTileAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);

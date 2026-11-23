@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <param name="Group">The composition's family.</param>
 /// <param name="Pose">What the composition shows within its family: the direction it points or travels, and the stage of
 /// its animation it shows.</param>
-public readonly record struct ProjectileSpriteId(ProjectileSpriteGroup Group, [InstalledKey] string Pose)
+public readonly partial record struct ProjectileSpriteId(ProjectileSpriteGroup Group, string Pose)
 {
     /// <summary>What the composition shows within its family.</summary>
     public string Pose { get; } = string.IsNullOrEmpty(Pose)
@@ -15,9 +15,5 @@ public readonly record struct ProjectileSpriteId(ProjectileSpriteGroup Group, [I
         : Pose;
 
     /// <summary>The composition's name in installed composition and binding files, such as <c>"Power.UpRight"</c>.</summary>
-    [InstalledKey]
     public string Name => $"{ProjectileSpriteGroupKeys.Installed.Of(Group)}.{Pose}";
-
-    /// <summary>Whether this is the empty composition an invisible projectile shows, which draws nothing (#1513).</summary>
-    public bool DrawsNothing => Group == ProjectileSpriteGroup.Nothing;
 }

@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// inventory is the import's private knowledge, read once from the installed stock the sheets compose from: nothing installs
 /// it and nothing at run time recomputes it; a room that shows a block its sheet does not picture fails there, naming it.
 /// </summary>
-internal sealed class RoomBlockInventory
+internal sealed partial class RoomBlockInventory
 {
     /// <summary>The blocks each inventoried tileset's rooms can show, ascending.</summary>
     private readonly Dictionary<TilesetDefinition, SortedSet<int>> shown;
@@ -90,8 +90,8 @@ internal sealed class RoomBlockInventory
     {
         ILookup<RoomDefinition, DoorDefinition> entrances = RoomDoorListDefinitions.ByRoom.Values
             .SelectMany(list => list)
-            .Select(entry => entry.Door)
-            .OfType<DoorDefinition>()
+            .OfType<DoorBlockExit.ThroughDoor>()
+            .Select(exit => exit.Door)
             .ToLookup(door => door.DestinationRoom);
         var straddledShots = new Dictionary<InstalledRoomLevel, IReadOnlySet<RoomTerrainReaction>>();
         foreach (RoomDefinition room in RetailRooms.All)

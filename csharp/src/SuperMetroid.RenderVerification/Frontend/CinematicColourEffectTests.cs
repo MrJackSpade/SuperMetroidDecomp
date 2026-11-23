@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -49,7 +50,7 @@ internal static class CinematicColourEffectTests
     private static int Flight(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var audio = AudioQueues.Standalone();
-        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, japaneseText: false);
+        var flight = new IntroCeresFlightState(audio, InstalledFixtures.IntroArtwork.BoundCatalog.CeresFlight, sheets: InstalledFixtures.SpriteSheets, language: TextLanguage.English);
         PictureShade station = CeresShades.Drawn(CeresSpriteColouring.Station);
         int? start = null;
         int checks = 0, showing = 0;
@@ -133,7 +134,8 @@ internal static class CinematicColourEffectTests
         IntroCinematicState intro = RenderRetailFixture.CreateIntro(audio);
         int? start = null;
         int checks = 0;
-        for (int update = 0; intro.CurrentFlashbackMotherBrain?.NextPageRequested != true; update++)
+        // The fight runs until Mother Brain's page two starts its crossfade out of the flashback (#2554).
+        for (int update = 0; start is null || intro.Phase == IntroCinematicPhase.MotherBrainFlashback; update++)
         {
             if (update >= 20_000)
                 throw new InvalidOperationException("The intro did not reach page two.");

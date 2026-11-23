@@ -1,15 +1,14 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 8.8 fixed-point velocity: eight whole bits and eight fraction bits, kept exactly.</summary>
-[EncodingOwner("signed 8.8 fixed-point number")]
-public readonly record struct SignedEightEight : IComparable<SignedEightEight>, System.Numerics.IUnaryNegationOperators<SignedEightEight, SignedEightEight>
+public readonly partial record struct SignedEightEight : IComparable<SignedEightEight>, System.Numerics.IUnaryNegationOperators<SignedEightEight, SignedEightEight>
 {
     /// <summary>The value whose sixteen-bit two's-complement form is <paramref name="rawValue"/>, 0 through 65535.</summary>
     /// <param name="rawValue">The unchanged two's-complement form, eight whole and eight fractional bits.</param>
     public SignedEightEight(int rawValue) => RawValue = checked((ushort)rawValue);
 
     /// <summary>The unchanged two's-complement form, eight whole and eight fractional bits.</summary>
-    public ushort RawValue { get; init; }
+    internal ushort RawValue { get; init; }
 
     /// <summary>No velocity at all.</summary>
     public static SignedEightEight Zero => default;
@@ -59,7 +58,6 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>, 
     public static SignedEightEight FromPixels(int pixels) => FromParts(pixels, 0);
 
     /// <summary>The speed in 256ths of a pixel an update, negative toward decreasing coordinates.</summary>
-    [IntegerQuantity("signed speed in 256ths of a pixel an update")]
     public int InTwoHundredFiftySixthsOfPixel => unchecked((short)RawValue);
 
     /// <summary>
@@ -77,36 +75,30 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>, 
     /// The whole part's eight bits read as an unsigned count of pixels, 0 through 255, as behaviours that take only the
     /// velocity's whole part do: a negative velocity's whole part reads 256 larger.
     /// </summary>
-    [IntegerQuantity("whole-pixel byte of an 8.8 velocity")]
     public int UnsignedWholePixels => RawValue >> 8;
 
     /// <summary>
     /// The speed in 256ths of a pixel an update read without its sign, 0 through 65535, as a multiply that takes the whole
     /// value as an unsigned magnitude does: a negative velocity reads 65536 larger.
     /// </summary>
-    [IntegerQuantity("unsigned reading of an 8.8 speed in 256ths of a pixel an update")]
     public int UnsignedTwoHundredFiftySixthsOfPixel => RawValue;
 
     /// <summary>The fraction's eight bits, 0 through 255 256ths of a pixel.</summary>
-    [IntegerQuantity("fraction byte of an 8.8 velocity")]
     public int FractionSubpixels => RawValue & byte.MaxValue;
 
     /// <summary>Whether the velocity points toward decreasing coordinates, leftward or upward.</summary>
     public bool IsNegative => InTwoHundredFiftySixthsOfPixel < 0;
 
     /// <summary>The velocity's whole pixels, its fraction dropped toward negative infinity.</summary>
-    [IntegerQuantity("whole-pixel part of a signed 8.8 velocity")]
     public int WholePixels => InTwoHundredFiftySixthsOfPixel >> 8;
 
     /// <summary>
     /// The velocity's speed, whichever way it points, counted in its finest steps, a 256th of a pixel an update each
     /// (#2555): the count a Torizo's ground probe reads as whole pixels.
     /// </summary>
-    [IntegerQuantity("finest steps of a signed 8.8 speed's magnitude")]
     public int MagnitudeInFinestSteps => Math.Abs(InTwoHundredFiftySixthsOfPixel);
 
     /// <summary>The whole pixels of the velocity's speed, whichever way it points: its magnitude, the fraction dropped.</summary>
-    [IntegerQuantity("whole-pixel part of a signed 8.8 speed")]
     public int MagnitudeWholePixels => Math.Abs(InTwoHundredFiftySixthsOfPixel) >> 8;
 
     /// <summary>
@@ -187,7 +179,6 @@ public readonly record struct SignedEightEight : IComparable<SignedEightEight>, 
     /// The velocity's whole quarter pixels an update, rounded toward decreasing coordinates, as the game reads a speed's
     /// quarter pixels from its 8.8 value.
     /// </summary>
-    [IntegerQuantity("whole quarter pixels of a signed 8.8 speed")]
     public int WholeQuarterPixels => InTwoHundredFiftySixthsOfPixel >> 6;
 
     /// <summary>

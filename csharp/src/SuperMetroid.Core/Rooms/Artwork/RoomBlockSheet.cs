@@ -10,10 +10,10 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// colours and named by <see cref="RoomBlockPictureNames"/>; with the inputs each of its blocks depends on, which choose
 /// among them. A room that shows a block the sheet has no picture of fails, naming the sheet and the block.
 /// </summary>
-public sealed class RoomBlockSheet
+public sealed partial class RoomBlockSheet
 {
     /// <summary>Pixels along each side of a block picture.</summary>
-    public const int BlockPixels = 16;
+    public const int BlockPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>Checks the sheet names the backdrop its tileset's rooms show (#1544).</summary>
     /// <exception cref="InvalidDataException">The sheet names no backdrop colour.</exception>
@@ -21,11 +21,15 @@ public sealed class RoomBlockSheet
     {
         Ensure.NotNull(sheet);
         Inputs = Ensure.NotNull(inputs);
-        if (sheet.Image.Backdrop is null)
+        if (!sheet.Image.TryGetBackdrop(out ColourKey backdrop))
             throw new InvalidDataException($"Room block sheet {sheet.Image.Name} names no backdrop colour for its rooms.");
         Tileset = tileset;
         Sheet = sheet;
+        Backdrop = backdrop;
     }
+
+    /// <summary>The colour the tileset's rooms show where nothing is drawn, as the key their shades recolour it by (#1544).</summary>
+    public ColourKey Backdrop { get; }
 
     /// <summary>The tileset whose blocks the sheet pictures.</summary>
     public TilesetDefinition Tileset { get; }
@@ -37,7 +41,6 @@ public sealed class RoomBlockSheet
     public RoomBlockAppearances Inputs { get; }
 
     /// <summary>The installed name of tileset <paramref name="tileset"/>'s block sheet.</summary>
-    [InstalledKey]
     public static string NameOf(TilesetDefinition tileset) => RoomGraphicsSetKeys.Installed.Of(tileset.GraphicsSet);
 
     /// <summary>
@@ -45,7 +48,7 @@ public sealed class RoomBlockSheet
     /// tiles and its part drawn in front of them (#1634); either part, or both, may show nothing.
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet holds no such picture, or a part is not one block.</exception>
-    public LayeredPicture Picture([InstalledKey] string name)
+    public LayeredPicture Picture(string name)
     {
         LayeredPicture picture = Sheet.Picture(name);
         foreach (SpriteSheetFrame part in picture.Parts)

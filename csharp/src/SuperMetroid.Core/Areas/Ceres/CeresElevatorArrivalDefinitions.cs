@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// landing recess: where they start, how long the pad waits and where Samus lands. Their pictures are
 /// <see cref="CeresElevatorArrivalPictures"/>.
 /// </summary>
-internal static class CeresElevatorArrivalDefinitions
+internal static partial class CeresElevatorArrivalDefinitions
 {
     /// <summary>
     /// The graphics both arrival actors start with: the shared sheet, as their setup clears them, with the

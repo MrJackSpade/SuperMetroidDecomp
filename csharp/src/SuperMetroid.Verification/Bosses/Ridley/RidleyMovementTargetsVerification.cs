@@ -28,7 +28,7 @@ internal static class RidleyMovementTargetsVerification
             var native = new ushort[count];
             for (int i = 0; i < native.Length; i++)
             {
-                native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + i * 2);
+                native[i] = rom.ReadCartridgeWord(address + i * 2);
                 AssertEqual(native[i], compiled(i), "Native Ridley target/divisor record");
             }
             return native;
@@ -122,7 +122,7 @@ internal static class RidleyMovementTargetsVerification
         var idlePowerBomb = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandalonePowerBombExplosion();
         Action<RoomEnemyPlace, NorfairRidleyState, SamusState> approach = (ridley, ridleyState, target) =>
             NorfairRidleyCombat.TickNorfairRidleyGrabApproach(ridley, ridleyState, target, idlePowerBomb);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) }.InPose(SamusPoseId.FacingRightNormalPose);
         for (int health = 0; health <= ushort.MaxValue; health++)
         {
             state.HealthBand = bands[health % 4];

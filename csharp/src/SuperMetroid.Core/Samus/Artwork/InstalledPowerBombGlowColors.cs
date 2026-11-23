@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// radius step of each sequence. The import resolves every entry; the explosion selects one by its radius and fades
 /// it in its own state.
 /// </summary>
-public sealed class InstalledPowerBombGlowColors
+public sealed partial class InstalledPowerBombGlowColors
 {
     /// <summary>The pre-explosion flash's colours, indexed by its radius step.</summary>
     private readonly RgbColor[] preExplosion;
@@ -32,12 +32,7 @@ public sealed class InstalledPowerBombGlowColors
     /// <exception cref="ArgumentOutOfRangeException">The sequence is undefined or the step is outside it.</exception>
     public RgbColor Resolve(PowerBombGlowSequence sequence, int index)
     {
-        RgbColor[] colors = sequence switch
-        {
-            PowerBombGlowSequence.PreExplosion => preExplosion,
-            PowerBombGlowSequence.Explosion => explosion,
-            _ => throw new ArgumentOutOfRangeException(nameof(sequence)),
-        };
+        RgbColor[] colors = sequence == PowerBombGlowSequence.PreExplosion ? preExplosion : explosion;
         if (index < 0 || index >= colors.Length)
             throw new ArgumentOutOfRangeException(nameof(index));
         return colors[index];

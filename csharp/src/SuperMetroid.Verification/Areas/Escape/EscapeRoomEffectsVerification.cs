@@ -36,10 +36,10 @@ internal static class EscapeRoomEffectsVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(room));
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         int explosionFrames = 0;
         bool visibleExplosion = false, visibleShake = false;
         var offsets = new HashSet<OctantVector>();
@@ -62,7 +62,7 @@ internal static class EscapeRoomEffectsVerification
                 foreach (var sprite in runtime.Enemies.RoomEffectActors.Where(s => s.IsActive))
                 {
                     int x = sprite.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X, y = sprite.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y;
-                    if (Math.Abs(sprite.Position.X.Whole - runtime.Player.IntroducedSamus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Player.IntroducedSamus.Position.Y.Whole) < 40) continue;
+                    if (Math.Abs(sprite.Position.X.Whole - runtime.Player.Samus.Position.X.Whole) < 40 && Math.Abs(sprite.Position.Y.Whole - runtime.Player.Samus.Position.Y.Whole) < 40) continue;
                     int changed = 0;
                     for (int py = Math.Max(32, y - 8); py < Math.Min(224, y + 8); py++)
                         for (int px = Math.Max(0, x - 8); px < Math.Min(256, x + 8); px++)
@@ -88,19 +88,19 @@ internal static class EscapeRoomEffectsVerification
             var level = runtime.Room.LoadedLevelData;
             var origin = new Position16<RoomBlocks>(15, 10);
             AssertEqual(0x4f, RoomBlockBehaviorCodec.Encode(level.GetCollisionBlock(new(15, 10)).Behavior), "retail room loader installs rescue wall");
-            runtime.RoomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false), true);
+            runtime.RoomObjects.TrySpawnProjectileShotBlock(level, origin, 0x4f, BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)), true);
             for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
             AssertTrue(runtime.System.HasEvent(StoryEvent.CrittersEscaped), "live rescue room publishes escaped event");
             var door = runtime.RoomObjects.GreyDoorSnapshots.Single();
             AssertEqual(SuperMetroid.Core.Rooms.Doors.GreyDoorPhase.Flashing, door.Phase, "rescue unlocks exit door");
-            runtime.RoomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(door.Block, SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
+            runtime.RoomObjects.ProjectileTriggers.NotifyResidentProjectileHit(door.Block, BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)));
             for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
             AssertEqual(0, runtime.RoomObjects.GreyDoorSnapshots.Count, "exit door finishes opening");
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
             samus.Kinematics.Radius = new(5, 16);
             for (int frame = 0; frame < 32 && runtime.EnteredDoor is null; frame++)
-                SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SixteenSixteenWords.ToDisplacement(-(1 << 16)) });
+                SamusBlockCollision.MoveHorizontal(runtime.Room.LoadedScope.SamusTerrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SixteenSixteenWords.ToDisplacement(-(1 << 16)) });
             AssertTrue(runtime.EnteredDoor is not null, "Samus can cross opened rescue exit and trigger room transition");
             AssertEqual(184, runtime.RoomFxOverlay.NamedTargetSurface, "rescue liquid target matches retail FX header");
         }

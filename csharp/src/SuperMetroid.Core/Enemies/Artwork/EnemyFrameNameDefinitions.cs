@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// The name each installed enemy frame has in the installed artwork documents (#1402), which also gives its installed
 /// sheet key (<see cref="EnemyFrameSheetKeys"/>).
 /// </summary>
-[ArchitectureReview("large", "Data only: every installed enemy frame's install key, one entry per frame, kept apart from the identities so renaming a frame never changes an installed key; the sheet-key map reads it whole, and splitting it by family would only scatter one table.")]
-internal static class EnemyFrameNameDefinitions
+internal static partial class EnemyFrameNameDefinitions
 {
     /// <summary>Each installed frame's document name.</summary>
     internal static FrozenDictionary<EnemyFrameId, string> Names { get; } = new Dictionary<EnemyFrameId, string>
@@ -1652,9 +1651,7 @@ internal static class EnemyFrameNameDefinitions
         [EnemyFrameId.MotherBrainBodyArmDrawnBack] = "mother_brain_body_arm_drawn_back",
         [EnemyFrameId.MotherBrainBodyArmFlungOut] = "mother_brain_body_arm_flung_out",
         [EnemyFrameId.MotherBrainBodyArmReturning] = "mother_brain_body_arm_returning",
-        [EnemyFrameId.PhantoonInvulnerableBody] = "phantoon_invulnerable_body",
-        [EnemyFrameId.PhantoonFullHitboxBody] = "phantoon_full_hitbox_body",
-        [EnemyFrameId.PhantoonEyeHitboxBody] = "phantoon_eye_hitbox_body",
+        [EnemyFrameId.PhantoonBody] = "phantoon_body",
         [EnemyFrameId.PhantoonEyeClosed] = "phantoon_eye_closed",
         [EnemyFrameId.PhantoonEyeHalfOpen] = "phantoon_eye_half_open",
         [EnemyFrameId.PhantoonEyeballCentered] = "phantoon_eyeball_centered",

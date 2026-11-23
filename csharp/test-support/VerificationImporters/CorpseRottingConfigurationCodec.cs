@@ -10,7 +10,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// rotting-heap bytes the cartridge places the corpse's rot schedule in, which only the check that no two coexisting
 /// corpses share heap bytes reads.
 /// </summary>
-[EncodingOwner("corpse rotting configuration record")]
 internal static class CorpseRottingConfigurationCodec
 {
     /// <summary>The bank the records and the row layout tables they name lie in.</summary>
@@ -34,7 +33,7 @@ internal static class CorpseRottingConfigurationCodec
     /// <summary>Decodes the configuration record at bank-$A9 <paramref name="recordAddress"/>.</summary>
     internal static CorpseRottingConfiguration Decode(ISnesAddressSpace rom, ushort recordAddress)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int Word(int index) => cartridge.ReadCartridgeWord(CorpseBank | (recordAddress + index * 2));
         int uploadList = Word(UploadListWord);
         int rowCount = Word(RowCountWord);

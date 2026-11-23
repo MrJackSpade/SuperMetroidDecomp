@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="First">The first ink of the run.</param>
 /// <param name="End">The ink after the last of the run.</param>
-internal readonly record struct InkRange(int First, int End)
+internal readonly partial record struct InkRange(int First, int End)
 {
     /// <summary>The run of <paramref name="count"/> inks from <paramref name="first"/>.</summary>
     internal static InkRange Run(int first, int count) => new(first, first + count);

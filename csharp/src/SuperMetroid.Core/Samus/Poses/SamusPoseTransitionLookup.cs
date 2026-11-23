@@ -1,9 +1,45 @@
+using System.Collections.Concurrent;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
-/// Full control-flow result from the input-transition lookup, including its otherwise invisible
-/// branch into pose-definition fallback.
+/// What the input-transition lookup decides: a new pose, the pose's no-input fallback, or keeping the pose.
 /// </summary>
-public readonly record struct SamusPoseTransitionLookup(
-    SamusPoseTransition? Transition,
-    bool UsesPoseDefinitionFallback);
+public abstract partial record SamusPoseTransitionLookup
+{
+    /// <summary>Only the three outcomes derive from it (#2560).</summary>
+    private SamusPoseTransitionLookup()
+    {
+    }
+
+    /// <summary>No transition: the pose is kept, and its definition's fallback is not consulted.</summary>
+    public static SamusPoseTransitionLookup KeepsPose { get; } = new Keeping();
+
+    /// <summary>No transition: the pose's definition decides, through its no-input fallback.</summary>
+    public static SamusPoseTransitionLookup PoseDefinitionFallback { get; } = new FallingBack();
+
+    /// <summary>The transition the lookup chose, or null when it chose none.</summary>
+    public SamusPoseTransition? Transition => this is Chosen chosen ? chosen.Next : null;
+
+    /// <summary>Whether the lookup leaves the choice to the pose definition's fallback.</summary>
+    public bool UsesPoseDefinitionFallback => this is FallingBack;
+
+    /// <summary>
+    /// The lookup choosing <paramref name="next"/>: one lookup for each transition, made the first time a lookup chooses it,
+    /// so the per-update pose lookup allocates nothing once each transition it reaches has been made.
+    /// </summary>
+    internal static SamusPoseTransitionLookup Choosing(SamusPoseTransition next) => ChosenTransitions.GetOrAdd(next, static made => new Chosen(made));
+
+    /// <summary>The lookup made for each transition a lookup has chosen.</summary>
+    private static readonly ConcurrentDictionary<SamusPoseTransition, SamusPoseTransitionLookup> ChosenTransitions = new();
+
+    /// <summary>A transition to a new pose.</summary>
+    /// <param name="Next">The transition chosen.</param>
+    public sealed partial record Chosen(SamusPoseTransition Next) : SamusPoseTransitionLookup;
+
+    /// <summary>The pose is kept.</summary>
+    private sealed partial record Keeping : SamusPoseTransitionLookup;
+
+    /// <summary>The pose definition's fallback decides.</summary>
+    private sealed partial record FallingBack : SamusPoseTransitionLookup;
+}

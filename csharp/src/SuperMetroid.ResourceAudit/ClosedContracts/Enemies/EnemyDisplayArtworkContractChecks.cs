@@ -22,10 +22,9 @@ internal static class EnemyDisplayArtworkContractChecks
         var simpleBindings = simpleFrames.Keys.ToDictionary(name => name, name => name);
         var simpleDocument = new EnemySpritemapDocument {
             Version = EnemySpritemapSchema.Revision, Frames = simpleFrames, DisplayFrames = simpleBindings };
-        Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+        Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<T>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
         EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
-        EnemyFrameName simpleId = EnemySpritemapDefinitions.Frames[0];
+        EnemyFrameName simpleId = EnemySpritemapDefinitions.Frames.First();
         Require(simple.TryGetDisplay(simpleId.Frame, out var parts) && parts.IsEmpty,
             "installed simple binding resolves authored parts");
         simpleBindings[simpleId.Name] = "unowned-target";
@@ -42,7 +41,7 @@ internal static class EnemyDisplayArtworkContractChecks
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameDocuments.Load(Json(extendedDocument));
         EnemyFrameName extendedId = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameBounds.IsBg2Only(frame));
         Require(extended.TryGetDisplay(extendedId.Frame, out var components) && components.Length == 1 &&
-            extended.TryGetDisplay(EnemyFrameId.Empty, out components) && components.IsEmpty,
+            extended.TryGetDisplay(EnemyFrameId.PointAtOrigin, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");
         extendedBindings[extendedId.Name] = "unowned-target";
         Reject(() => EnemyExtendedFrameDocuments.Load(Json(extendedDocument)), "unowned extended display target");
@@ -62,19 +61,19 @@ internal static class EnemyDisplayArtworkContractChecks
             class EnemyDisplayConsumer {
                 void Inspect(EnemySpritemapCatalog simple, EnemyFrameDisplays extended, EnemyFrameId frame) {
                     simple.TryGetDisplay(EnemyFrameId.{{simple.Frame}}, out _);
-                    simple.TryGetDisplay(EnemyFrameId.Empty, out _);
+                    simple.TryGetDisplay(EnemyFrameId.PointAtOrigin, out _);
                     simple.TryGetDisplay(frame, out _);
                     extended.TryGetDisplay(EnemyFrameId.{{extended.Frame}}, out _);
                     extended.TryGetDisplay(EnemyFrameId.{{simple.Frame}}, out _);
                     extended.TryGetDisplay(frame, out _);
-                    extended.TryGetDisplay(EnemyFrameId.Empty, out _);
+                    extended.TryGetDisplay(EnemyFrameId.PointAtOrigin, out _);
                 }
             }
             """, path: "fixture-enemy-display-consumer.cs");
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyDisplayFixture", sources,
-            platforms.Append(typeof(EnemySpritemapCatalog).Assembly.Location).Append(typeof(EnemyFrameId).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.AssetExtraction).Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

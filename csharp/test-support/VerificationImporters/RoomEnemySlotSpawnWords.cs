@@ -23,16 +23,35 @@ internal static class RoomEnemySlotSpawnWords
     /// </summary>
     internal static void SetSpawnWords(this RoomEnemyPlace place, EnemyDefinitionId species, Func<PopulationWords, PopulationWords> change)
     {
-        RoomEnemyPlacement current = place.Spawn.Population;
         PopulationWords blank = EnemySpawnSettingsCodec.Blank(species);
-        Type kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, current.Position).GetType());
-        PopulationWords words = !current.Equals(default(RoomEnemyPlacement)) && KindOf(current.SpawnSettings.GetType()) == kind
+        if (place.History is not PopulatedEnemyPlace populated)
+        {
+            place.PopulateFor(species, EnemySpawnSettingsCodec.Decode(species, change(blank), Position16<RoomPixels>.Zero));
+            return;
+        }
+        RoomEnemyPlacement current = populated.Occupancy.LastSpawn;
+        Position16<RoomPixels> position = RoomEnemyPopulationRecordCodec.PositionWordsOf(current.Placing);
+        string kind = KindOf(EnemySpawnSettingsCodec.Decode(species, blank, position));
+        PopulationWords words = KindOf(current.SpawnSettings) == kind
             ? EnemySpawnSettingsCodec.Encode(species, current.SpawnSettings)
             : blank;
-        place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words), current.Position));
+        place.SetSpawnSettings(EnemySpawnSettingsCodec.Decode(species, change(words), position));
     }
 
-    /// <summary>The kind of settings <paramref name="settings"/> is: its own type, or the settings its species' parts share.</summary>
-    private static Type KindOf(Type settings) =>
-        settings.BaseType is { } shared && shared != typeof(EnemySpawnSettings) && shared.IsAbstract ? shared : settings;
+    /// <summary>
+    /// The kind of settings <paramref name="settings"/> is: the settings its species' parts share, where the parts' settings
+    /// derive from shared settings, or its own type.
+    /// </summary>
+    private static string KindOf(EnemySpawnSettings settings) => settings switch
+    {
+        SuperMetroid.Core.Bosses.MotherBrain.RinkaSpawnSettings => nameof(SuperMetroid.Core.Bosses.MotherBrain.RinkaSpawnSettings),
+        SuperMetroid.Core.Enemies.Crawlers.CrawlerStartSettings => nameof(SuperMetroid.Core.Enemies.Crawlers.CrawlerStartSettings),
+        SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheSpawnSettings => nameof(SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheSpawnSettings),
+        SuperMetroid.Core.Enemies.Hibashi.HibashiSpawnSettings => nameof(SuperMetroid.Core.Enemies.Hibashi.HibashiSpawnSettings),
+        SuperMetroid.Core.Enemies.Magdollite.MagdolliteSpawnSettings => nameof(SuperMetroid.Core.Enemies.Magdollite.MagdolliteSpawnSettings),
+        SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeSpawnSettings => nameof(SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeSpawnSettings),
+        SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugSpawnSettings => nameof(SuperMetroid.Core.Enemies.PipeBugs.NorfairPipeBugSpawnSettings),
+        SuperMetroid.Core.Enemies.Powamp.PowampSpawnSettings => nameof(SuperMetroid.Core.Enemies.Powamp.PowampSpawnSettings),
+        _ => Ensure.NotNull(settings.GetType().FullName),
+    };
 }

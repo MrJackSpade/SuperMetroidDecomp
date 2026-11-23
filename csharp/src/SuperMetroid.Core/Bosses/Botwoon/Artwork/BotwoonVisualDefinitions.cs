@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 /// <see cref="BotwoonHeadFrame"/> values; only this catalog knows the frames that draw them. His body segments' and
 /// spit's beats name their installed projectile frames themselves (<see cref="BotwoonAnimations.ProjectileFrames"/>).
 /// </summary>
-internal static class BotwoonVisualDefinitions
+internal static partial class BotwoonVisualDefinitions
 {
     /// <summary>
     /// The installed frame each head pose shows: his closed mouth, then his open mouth, facing each way in turn; the hidden
@@ -15,7 +15,7 @@ internal static class BotwoonVisualDefinitions
     /// </summary>
     internal static EnemyFrameTable<BotwoonHeadFrame> HeadFrames { get; } = new()
     {
-        { BotwoonHeadFrame.Hidden, EnemyFrameId.Empty },
+        { BotwoonHeadFrame.Hidden, EnemyFrameId.PointAtOrigin },
         { BotwoonHeadFrame.Closed(CompassDirection.UpLeft), EnemyFrameId.BotwoonHeadClosedUpLeft },
         { BotwoonHeadFrame.Closed(CompassDirection.Left), EnemyFrameId.BotwoonHeadClosedLeft },
         { BotwoonHeadFrame.Closed(CompassDirection.DownLeft), EnemyFrameId.BotwoonHeadClosedDownLeft },

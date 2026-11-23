@@ -11,8 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// original descent hands the vertical mover the speed's whole byte as the step's whole pixels and the speed's fraction
 /// byte as the low byte of the step's fraction, leaving the fraction's upper byte clear.
 /// </remarks>
-[CompatibilityService("a Ninja Space Pirate's divekick falls each update by its speed's whole pixels and its speed's 256ths counted as 65536ths of a pixel")]
-public static class NinjaPirateDiveFallStep
+public static partial class NinjaPirateDiveFallStep
 {
     /// <summary>The fall of one descending update at <paramref name="speed"/>.</summary>
     public static SignedSixteenSixteen Of(SignedEightEight speed) =>

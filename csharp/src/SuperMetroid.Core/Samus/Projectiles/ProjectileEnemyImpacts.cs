@@ -1,17 +1,17 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Projectile hits on enemies: the collision prelude, reflection, the intro Mother Brain missile, and the start of the impact explosion.</summary>
-[RoomLifetime]
-internal sealed class ProjectileEnemyImpacts
+/// <summary>Projectile hits on enemies: marking a shot's hit, reflection, the intro Mother Brain missile, and the start
+/// of the impact explosion.</summary>
+internal sealed partial class ProjectileEnemyImpacts
 {
     /// <summary>Owns projectile clearing when reflection retires a Super Missile link.</summary>
     private readonly ProjectileAnimation _animation;
     /// <summary>Receives the Super Missile enemy-hit quake request.</summary>
     private readonly ProjectileEarthquakes _earthquakes;
-    /// <summary>Projectile records whose direction, damage, and animation change on enemy contact.</summary>
+    /// <summary>The shots in the pool, whose direction, damage, and animation change on enemy contact.</summary>
     private readonly SamusShotPool _pool;
     /// <summary>Converts missile hits to the same impact state as terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
@@ -33,13 +33,13 @@ internal sealed class ProjectileEnemyImpacts
     /// enemy reaction which returns without entering ordinary impact conversion. This is
     /// shared by extended hitboxes and radius-based custom reactions such as shutters.
     /// </summary>
-    public void TouchEnemyWithoutImpact(SamusProjectile projectile, bool markCollisionState)
+    public void TouchEnemyWithoutImpact(SamusProjectileOccupant held, bool markCollisionState)
     {
-        SamusProjectile shot = Ensure.NotNull(projectile);
-        if (!shot.HasEnemyCollisionPayload)
+        _ = Ensure.NotNull(held).Projectile;
+        if (!held.HasEnemyCollisionPayload)
             return;
 
-        if (shot.Type.Family == SamusProjectileFamily.SuperMissile)
+        if (held.Type.Family == SamusProjectileFamily.SuperMissile)
         {
             // The collisions start the enemy-hit quake before running the enemy's
             // shot reaction. This remains observable even when gold Ninja armor ignores a
@@ -48,78 +48,69 @@ internal sealed class ProjectileEnemyImpacts
         }
 
         if (markCollisionState)
-            shot.Spend();
+            held.Spend();
     }
 
     /// <summary>
-    /// Reflects the projectile after an enemy reaction has replaced
-    /// the projectile direction. Reflection preserves the projectile family/type and world
-    /// position, but reconstructs its damage, direction-specific animation, radii,
-    /// and the family's behaviour exactly as the game does.
+    /// Reflects the projectile after an enemy reaction has replaced the projectile direction. Reflection keeps the
+    /// projectile family, type and world position, and sets up its damage, direction-specific animation, radii and the
+    /// family's behaviour afresh.
     /// </summary>
-    public void ReflectFromEnemy(SamusState samus, SamusProjectile projectile)
+    public void ReflectFromEnemy(SamusState samus, SamusProjectileOccupant held, ReflectableShotFamily family)
     {
         Ensure.NotNull(samus);
-        SamusProjectile shot = Ensure.NotNull(projectile);
-        if (!shot.HasEnemyCollisionPayload)
+        SamusProjectile shot = Ensure.NotNull(held).Projectile;
+        if (!held.HasEnemyCollisionPayload)
             return;
 
-        SamusProjectileFamily family = shot.Type.Family;
-        if (family == SamusProjectileFamily.SuperMissile)
+        if (family == ReflectableShotFamily.SuperMissile)
         {
             // Reflection deletes the projectile in the place the Super Missile names as its link
             // (UnlinkedSuperMissileLink) before repurposing the owner; it does not broadly delete
             // unrelated Super Missiles.
-            if (shot.KindStateAs<SuperMissileShotState>().LinkPlace is { } linkPlace && linkPlace != shot.Place &&
+            if (held.KindState?.NamedLinkPlace is { } linkPlace && linkPlace != shot.Place &&
                 _pool.Shots[linkPlace].IsActive)
                 _animation.ClearProjectile(_pool.Shots[linkPlace]);
         }
 
-        if (family == SamusProjectileFamily.Beam)
+        if (family == ReflectableShotFamily.Beam)
         {
             // Beam reflection alone reinitializes velocity immediately. Missile families
             // retain their old velocity until they re-ignite on their next update, at
             // which point the new direction takes effect.
-            BeamFiring.InitializePowerBeamVelocity(samus.ProjectileInheritance, shot, _unauthoredFiring);
+            BeamFiring.InitializePowerBeamVelocity(samus.ProjectileInheritance, held, _unauthoredFiring);
         }
 
         SamusProjectileKind kind;
         SamusProjectileSegment? segment;
-        if (family == SamusProjectileFamily.Beam)
+        if (family == ReflectableShotFamily.Beam)
         {
-            kind = SamusProjectileSelection.BeamShot(shot.Type.BeamCombination, shot.Type.IsChargedBeam);
-            segment = SamusProjectileSelection.BeamShotAnimation(shot.Type.BeamCombination, shot.Type.IsChargedBeam, shot.Direction);
-        }
-        else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
-        {
-            kind = SamusProjectileSelection.NonBeam(family);
-            segment = SamusProjectileKinds.Animation(kind, shot.Direction);
+            kind = SamusProjectileSelection.BeamShot(held.Type.BeamCombination, held.Type.IsChargedBeam);
+            segment = SamusProjectileSelection.BeamShotAnimation(held.Type.BeamCombination, held.Type.IsChargedBeam, shot.Direction);
         }
         else
         {
-            // The reflection producer only selects beams and the two missile
-            // families. Reaching this method with a bomb/explosion payload is corrupt
-            // scheduler state rather than an unimplemented reflection behavior.
-            throw new InvalidDataException(
-                $"Projectile family {family} is not reflectable.");
+            // The reflection carries a beam or one of the two missile families, so a bomb or explosion never reaches it.
+            kind = SamusProjectileSelection.Missile(family == ReflectableShotFamily.SuperMissile);
+            segment = SamusProjectileKinds.Animation(kind, shot.Direction);
         }
 
-        shot.Damage = SamusProjectileDamage.Read(kind);
-        shot.Animation = SamusProjectilePlayback.Start(segment);
-        shot.Radius = SamusProjectilePlayback.InitialRadius(segment);
+        held.Damage = SamusProjectileDamage.Read(kind);
+        held.Animation = SamusProjectilePlayback.Start(segment);
+        held.Radius = SamusProjectilePlayback.InitialRadius(segment);
 
-        if (family == SamusProjectileFamily.Missile)
-            shot.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));
-        else if (family == SamusProjectileFamily.SuperMissile)
+        if (family == ReflectableShotFamily.Missile)
+            held.Install(SamusShotBehaviors.Missile, new MissileShotState(new SamusMissileIgnition.PendingAfterReflection()));
+        else if (family == ReflectableShotFamily.SuperMissile)
         {
-            shot.Install(SamusShotBehaviors.SuperMissile,
+            held.Install(SamusShotBehaviors.SuperMissile,
                 new SuperMissileShotState(new SamusMissileIgnition.PendingAfterReflection(), linkPlace: null));
         }
         else
         {
-            shot.Install(!shot.Type.BeamCombination.HasWave
+            held.Install(!held.Type.BeamCombination.HasWave
                 ? SamusShotBehaviors.Beam
-                : SamusShotBehaviors.WaveBeamFourUpdateTrail, kindState: null);
+                : SamusShotBehaviors.WaveBeamTrail);
         }
     }
 
@@ -138,7 +129,7 @@ internal sealed class ProjectileEnemyImpacts
 
         foreach (SamusProjectile shot in _pool.InUpdateOrder)
         {
-            if (!shot.Type.IsFamily(SamusProjectileFamily.Missile))
+            if (shot.Occupant is not { } held || !held.Type.IsFamily(SamusProjectileFamily.Missile))
                 continue;
 
             // The missile flies left from Samus toward the brain and is killed on crossing the line, so its position never
@@ -146,11 +137,43 @@ internal sealed class ProjectileEnemyImpacts
             if (shot.Position.X.Whole >= impactLine)
                 return false;
 
-            _terrainCollision.KillMissile(shot, samusBombs);
+            _terrainCollision.KillMissile(held, samusBombs);
             return true;
         }
 
         return false;
+    }
+
+    /// <summary>What <see cref="TryStartEnemyImpact"/> comes to for each <see cref="SamusProjectileFamily"/> member, each member's own arm.</summary>
+    private IdentityTable<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectileOccupant, bool>> TryStartEnemyImpactForSamusProjectileFamily => field ??= new(new Dictionary<SamusProjectileFamily, Func<SamusBombProjectileSystem, bool, SamusProjectileOccupant, bool>>
+    {
+        [SamusProjectileFamily.Beam] = (samusBombs, blocksPlasmaBeam, held) =>
+        {
+            // Enemy collision marks the shot as having hit only when the
+            // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
+            // beams, not just special beam-combo particles, retain their lifecycle.
+            if (!blocksPlasmaBeam &&
+                held.Type.BeamCombination.HasPlasma)
+                return true;
+            // Enemy collision only marks the shot; enemy hits never reach the projectile kill's sound.
+            ProjectileTerrainCollision.KillBeam(held);
+            return true;
+        },
+        [SamusProjectileFamily.Missile] = (samusBombs, _, held) => KillMissileOnEnemy(samusBombs, held),
+        [SamusProjectileFamily.SuperMissile] = (samusBombs, _, held) => KillMissileOnEnemy(samusBombs, held),
+        // Existing explosion, bomb, and unknown family shots cannot repeatedly
+        // increment an enemy hit counter merely because their art still overlaps.
+        [SamusProjectileFamily.PowerBomb] = static (_, _, _) => false,
+        [SamusProjectileFamily.Bomb] = static (_, _, _) => false,
+        [SamusProjectileFamily.BeamExplosion] = static (_, _, _) => false,
+        [SamusProjectileFamily.MissileExplosion] = static (_, _, _) => false,
+    });
+
+    /// <summary>What <see cref="TryStartEnemyImpactForSamusProjectileFamily"/> does for <see cref="SamusProjectileFamily.Missile"/>, <see cref="SamusProjectileFamily.SuperMissile"/>.</summary>
+    private bool KillMissileOnEnemy(SamusBombProjectileSystem samusBombs, SamusProjectileOccupant held)
+    {
+        _terrainCollision.KillMissile(held, samusBombs);
+        return true;
     }
 
     /// <summary>
@@ -160,53 +183,28 @@ internal sealed class ProjectileEnemyImpacts
     /// </summary>
     public bool TryStartEnemyImpact(
         SamusBombProjectileSystem samusBombs,
-        SamusProjectile projectile,
+        SamusProjectileOccupant held,
         bool blocksPlasmaBeam = false)
     {
         Ensure.NotNull(samusBombs);
-        SamusProjectile shot = Ensure.NotNull(projectile);
-        if (!shot.HasEnemyCollisionPayload)
+        SamusProjectile shot = Ensure.NotNull(held).Projectile;
+        if (!held.HasEnemyCollisionPayload)
             return false;
 
-        if (shot.Behavior is SpecialAttackParticleBehavior)
+        if (held.KindState is { DeletesItselfAfterEnemyHit: true })
         {
             // Enemy collision only marks the direction. These particles own
             // hit deletion (and Spazer's paired deletion) in their next update;
             // replacing that response with a beam explosion loses their family lifecycle.
             // Plasma normally pierces, unless the target explicitly stops Plasma beams.
-            TouchEnemyWithoutImpact(shot,
-                blocksPlasmaBeam || !shot.Type.BeamCombination.HasPlasma);
+            TouchEnemyWithoutImpact(held,
+                blocksPlasmaBeam || !held.Type.BeamCombination.HasPlasma);
             return true;
         }
 
         if (shot.IsSpent)
             return false;
 
-        switch (shot.Type.Family)
-        {
-            case SamusProjectileFamily.Beam:
-                // Enemy collision marks the shot as having hit only when the
-                // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
-                // beams, not just special beam-combo particles, retain their lifecycle.
-                if (!blocksPlasmaBeam &&
-                    shot.Type.BeamCombination.HasPlasma)
-                    return true;
-                // Enemy collision only marks the shot; enemy hits never reach the projectile kill's sound.
-                ProjectileTerrainCollision.KillBeam(shot);
-                return true;
-            case SamusProjectileFamily.Missile:
-            case SamusProjectileFamily.SuperMissile:
-                _terrainCollision.KillMissile(shot, samusBombs);
-                return true;
-            case SamusProjectileFamily.PowerBomb:
-            case SamusProjectileFamily.Bomb:
-            case SamusProjectileFamily.BeamExplosion:
-            case SamusProjectileFamily.MissileExplosion:
-                // Existing explosion, bomb, and unknown family shots cannot repeatedly
-                // increment an enemy hit counter merely because their art still overlaps.
-                return false;
-            default:
-                throw new InvalidOperationException($"Undefined SamusProjectileFamily {shot.Type.Family}.");
-        }
+        return TryStartEnemyImpactForSamusProjectileFamily[held.Type.Family](samusBombs, blocksPlasmaBeam, held);
     }
 }

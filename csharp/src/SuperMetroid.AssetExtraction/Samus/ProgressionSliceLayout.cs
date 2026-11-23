@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// copy addresses progression by these offsets (#1318, #1330); extraction decodes the copy into each table's replaced
 /// entries (#1474).
 /// </summary>
-internal static class ProgressionSliceLayout
+internal static partial class ProgressionSliceLayout
 {
     /// <summary>Offset of the event bitset, the slice's first byte.</summary>
     internal const int EventsOffset = 0;

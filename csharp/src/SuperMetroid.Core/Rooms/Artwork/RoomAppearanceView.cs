@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// <param name="Room">What gameplay showed over the room's load.</param>
 /// <param name="Frames">The frame each of the room's animations shows.</param>
 /// <param name="Encounters">The looks the room's encounters show (#1538).</param>
-public readonly record struct RoomAppearanceView(RoomAppearance Room, ArtworkFrameSelections Frames, IEncounterLookView Encounters)
+public readonly partial record struct RoomAppearanceView(RoomAppearance Room, ArtworkFrameSelections Frames, IEncounterLookView Encounters)
 {
     /// <summary>The value <paramref name="input"/> takes now, as a picture's name spells it.</summary>
     public string ValueOf(AppearanceInput input) => Ensure.NotNull(input).ValueIn(this);

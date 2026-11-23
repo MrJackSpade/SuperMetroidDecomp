@@ -4,10 +4,9 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Quicksand reaction room objects, each taking one of the room's room-object places.</summary>
-[RoomLifetime]
-internal sealed class QuicksandObjects
+internal sealed partial class QuicksandObjects
 {
-    /// <summary>The room's forty room-object places; a full room keeps a quicksand reaction from spawning.</summary>
+    /// <summary>The room's room-object places; a full room keeps a quicksand reaction from spawning.</summary>
     private readonly RoomObjectPlaceList _places;
 
     /// <summary>Binds quicksand reactions to the room's room-object places.</summary>
@@ -26,11 +25,11 @@ internal sealed class QuicksandObjects
     /// are therefore observable gameplay state even though they never draw.
     /// </remarks>
     /// <param name="block">The sand block Samus is inside.</param>
-    /// <param name="reaction">One of the four inside sand reactions.</param>
+    /// <param name="reaction">One of the inside sand reactions.</param>
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirInsideReaction reaction) =>
-        QuicksandDefinitions.ObjectPlacingInsideReactions.Contains(reaction)
+        Ensure.NotNull(reaction).PlacesSandReaction
             ? TrySpawn(block)
             : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four inside sand reactions place a sand reaction.");
 
@@ -39,11 +38,11 @@ internal sealed class QuicksandObjects
     /// <see cref="TrySpawnQuicksandReaction(Position16{RoomBlocks}, SpecialAirInsideReaction)"/> does for an inside reaction.
     /// </summary>
     /// <param name="block">The sand block Samus's movement reached.</param>
-    /// <param name="reaction">One of the four collision sand reactions.</param>
+    /// <param name="reaction">One of the collision sand reactions.</param>
     /// <returns>False only when the room-object pool is full.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is not a sand reaction.</exception>
     public bool TrySpawnQuicksandReaction(Position16<RoomBlocks> block, SpecialAirCollisionReaction reaction) =>
-        QuicksandDefinitions.ObjectPlacingCollisionReactions.Contains(reaction)
+        Ensure.NotNull(reaction).PlacesSandReaction
             ? TrySpawn(block)
             : throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Only the four collision sand reactions place a sand reaction.");
 

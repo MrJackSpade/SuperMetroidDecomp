@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>The phase Kraid's body runs while he grows into his second phase (<see cref="KraidBodyStage.Growing"/>).</summary>
+/// <summary>The phase Kraid's body runs while he grows into his second phase (<see cref="KraidStageRun.Growing"/>).</summary>
 public enum KraidGrowthPhase
 {
     /// <summary>Releases the room camera restrictions for the enlarged second phase.</summary>

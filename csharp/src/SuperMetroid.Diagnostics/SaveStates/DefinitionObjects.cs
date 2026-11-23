@@ -1,69 +1,81 @@
-using SuperMetroid.Core;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+using SuperMetroid.Core;
 
 namespace SuperMetroid.Diagnostics.SaveStates;
 
 /// <summary>
 /// The objects the game's static members hold, and every object reachable from them, each addressed by its path from the
-/// member it was first reached from (#1623): the catalogs' identities (item locations, doors, load stations, rooms, room
-/// states, X-ray overlays), their behaviour objects and their definition data. A captured state names such an object by
-/// its path instead of holding a copy, and a restore resolves the path to the object this build's member holds, so a
-/// restored state holds the catalog's own members and every comparison and lookup against a catalog finds them. This is
-/// the one place a debugger state keeps a catalog identity; identity types need no value equality of their own.
+/// member it was first reached from (#1623): the catalogs' identities, their behaviour objects and their definition data.
+/// A captured state names such an object by its path instead of holding a copy, and a restore resolves the path to the
+/// object this build's member holds, so a restored state holds the catalog's own members.
 /// </summary>
 /// <remarks>
-/// A root is a static read-only field, an auto-property's included, of a type the game's assembly declares, named by its
-/// declaring type and field; compiler-generated types are skipped, since their names are not stable between builds. Each
-/// declaring type is a <see cref="DefinitionCatalog"/>, indexed only when a capture or restore first needs it (#1716): a
-/// capture asks only the catalogs whose declarations can hold an object of the type it meets
-/// (<see cref="DefinitionExposure"/>), and a restore only the catalog its path names, so neither runs the initializer of a
-/// catalog the state never reaches. An object's path is its shortest from a root, the earliest root in name order among
-/// the shortest: the path one breadth-first walk over every root in name order gives it, since every catalog holding the
-/// object is asked and each catalog's roots are consecutive in that order.
+/// A root is a static read-only member of a type the game's assembly declares, holding an object other than a string,
+/// which the compiler registers (#2602). Each declaring type is a <see cref="DefinitionCatalog"/>. One index holds the
+/// objects of every catalog whose type initializer has run (<see cref="StateGraphCatalogInitializations"/>, #2619): an
+/// object a catalog's members hold exists only once its initializer has run, so a catalog not yet initialized holds nothing
+/// a game can reach. A lookup first indexes the catalogs initialized since the last one (<see cref="IndexInitialized"/>),
+/// so the index never runs a catalog's initializer and walks each catalog once; initializing and walking every catalog
+/// where a capture first needed them stalled the session for seconds. A catalog's registration is found through its type
+/// when it is first indexed. A restore indexes the catalog its path names, initializing it. An object keeps the path it was
+/// first indexed under, its shortest from the roots indexed with it.
 /// </remarks>
-internal sealed class DefinitionObjects
+/// <param name="types">The registry holding the catalogs.</param>
+internal sealed class DefinitionObjects(StateGraphTypes types)
 {
     /// <summary>The process's index, which every capture and restore consults unless handed another.</summary>
-    internal static DefinitionObjects Process { get; } = new();
+    internal static DefinitionObjects Process => process.Value;
 
-    /// <summary>Guards the catalogs' indexes, whose path and resolution caches every capture and restore share.</summary>
+    private static readonly Lazy<DefinitionObjects> process = new(static () => new DefinitionObjects(StateGraphTypes.Shared));
+
+    /// <summary>Guards the index, whose paths and resolutions every capture and restore share.</summary>
     internal readonly Lock gate = new();
 
+    /// <summary>The indexed catalogs' objects; none until a lookup first indexes the initialized catalogs.</summary>
+    private BoundObjectGraph? index;
+
+    /// <summary>The catalogs indexed so far.</summary>
+    private readonly HashSet<DefinitionCatalog> indexed = [];
+
+    /// <summary>How many of the initialized catalogs (<see cref="StateGraphCatalogInitializations.Initialized"/>) were indexed.</summary>
+    private int initializedIndexed;
+
+    /// <summary>Each registered catalog by its declaring type.</summary>
+    private readonly Dictionary<Type, DefinitionCatalog> byType = [];
+
+    /// <summary>Each registered catalog by the prefix its roots' names begin with.</summary>
+    private readonly Dictionary<string, DefinitionCatalog> byPrefix = new(StringComparer.Ordinal);
+
+    /// <summary>How many of the registry's catalogs are in <see cref="byType"/> and <see cref="byPrefix"/>.</summary>
+    private int catalogsKnown;
+
     /// <summary>
-    /// The catalogs that may hold an object of <paramref name="type"/> where a game can reach it, in their prefixes'
-    /// ordinal order, found from their declarations without indexing any (<see cref="DefinitionExposure"/>).
+    /// Indexes the catalogs initialized since the last lookup, as every lookup first does; a store calls it as the session
+    /// loads, so its first capture walks only the catalogs initialized since.
     /// </summary>
-    internal IReadOnlyList<DefinitionCatalog> Candidates(Type type)
+    internal void IndexInitialized()
     {
-        Ensure.NotNull(type);
         lock (gate)
-            return Declared.Exposure.Candidates(type);
+            _ = Current();
     }
 
     /// <summary>
-    /// Whether <paramref name="value"/> is held by a static member, and its path when it is: asked of each catalog that
-    /// may hold an object of its type, which indexes that catalog if no capture or restore has yet.
+    /// Whether <paramref name="value"/> is held by a static member, and its path when it is, after indexing the catalogs
+    /// initialized since the last lookup. A bare <see cref="object"/> holds nothing a state could name it by, only its
+    /// identity as a lock, so it is never named: a state holds it as a new object.
     /// </summary>
     internal bool TryGetPath(object value, [NotNullWhen(true)] out string? path)
     {
         Ensure.NotNull(value);
         lock (gate)
         {
-            path = null;
-            int shortest = int.MaxValue;
-            foreach (DefinitionCatalog catalog in Candidates(value.GetType()))
+            BoundObjectGraph current = Current();
+            if (value.GetType() == typeof(object))
             {
-                if (!catalog.Graph.TryGetPath(value, out string? found, out int depth) || depth >= shortest)
-                    continue;
-                path = found;
-                shortest = depth;
-                // A root is the shortest path there is, and a later catalog's roots come later in name order.
-                if (depth == 0)
-                    break;
+                path = null;
+                return false;
             }
-            return path is not null;
+            return current.TryGetPath(value, out path);
         }
     }
 
@@ -75,46 +87,83 @@ internal sealed class DefinitionObjects
         lock (gate)
         {
             int separator = path.IndexOf(DefinitionCatalog.MemberSeparator, StringComparison.Ordinal);
-            if (separator < 0 || !Declared.ByPrefix.TryGetValue(path[..(separator + DefinitionCatalog.MemberSeparator.Length)], out DefinitionCatalog? catalog))
+            if (separator < 0 || CatalogNamed(path[..(separator + DefinitionCatalog.MemberSeparator.Length)]) is not { } catalog)
                 throw new InvalidDataException($"Debugger state names definition '{path}', which no type of this build declares as a static member.");
-            return catalog.Graph.Resolve(path);
+            BoundObjectGraph current = Current();
+            Index(current, catalog);
+            return current.Resolve(path);
         }
     }
 
-    /// <summary>The catalogs and what each may hold; callers hold the lock.</summary>
-    internal Declarations Declared => field ??= Declare();
+    /// <summary>Every catalog of the game's static members, in their prefixes' ordinal order, registering every type first.</summary>
+    internal IReadOnlyList<DefinitionCatalog> AllCatalogs()
+    {
+        lock (gate)
+        {
+            types.RegisterEverything();
+            Learn();
+            return [.. byPrefix.OrderBy(entry => entry.Key, StringComparer.Ordinal).Select(entry => entry.Value)];
+        }
+    }
+
+    /// <summary>The index holding every initialized catalog's objects; callers hold the lock.</summary>
+    private BoundObjectGraph Current()
+    {
+        BoundObjectGraph current = index ??= new BoundObjectGraph(types, []);
+        IReadOnlyList<Type> initialized = StateGraphCatalogInitializations.Initialized;
+        for (; initializedIndexed < initialized.Count; initializedIndexed++)
+        {
+            // A type marked here that this registry does not hold as a catalog holds nothing a state of it names.
+            if (CatalogOf(initialized[initializedIndexed]) is { } catalog)
+                Index(current, catalog);
+        }
+        return current;
+    }
+
+    /// <summary>Indexes <paramref name="catalog"/>'s objects unless they were; callers hold the lock.</summary>
+    private void Index(BoundObjectGraph current, DefinitionCatalog catalog)
+    {
+        if (indexed.Add(catalog))
+            current.Add(catalog.Roots());
+    }
+
+    /// <summary>The catalog <paramref name="type"/> declares, registering its declarations first; callers hold the lock.</summary>
+    private DefinitionCatalog? CatalogOf(Type type)
+    {
+        if (byType.TryGetValue(type, out DefinitionCatalog? catalog))
+            return catalog;
+        types.RegisterDeclaring(type);
+        Learn();
+        return byType.GetValueOrDefault(type);
+    }
 
     /// <summary>
-    /// Every type of the game's assembly with static read-only fields holding a reference, each as a catalog of those
-    /// fields, and what each may hold. Nothing is read from a field, so no initializer runs.
+    /// The catalog whose roots' names begin with <paramref name="prefix"/>, registering the types its name names, then every
+    /// type, until it is found; callers hold the lock.
     /// </summary>
-    [ReflectionAudit("debugger states name the objects the game's static members hold by the member that holds them")]
-    private static Declarations Declare()
+    private DefinitionCatalog? CatalogNamed(string prefix)
     {
-        Assembly game = typeof(Ensure).Assembly;
-        Type[] types = game.GetTypes();
-        var catalogs = new List<DefinitionCatalog>();
-        foreach (Type type in types)
-        {
-            if (type.ContainsGenericParameters || type.IsDefined(typeof(CompilerGeneratedAttribute), inherit: false) ||
-                type.FullName is not { } typeName || typeName.Contains('<', StringComparison.Ordinal))
-                continue;
-            FieldInfo[] members = [.. type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-                .Where(field => field.IsInitOnly && !field.FieldType.IsPointer && !field.FieldType.IsByRef &&
-                    !field.FieldType.IsValueType && field.FieldType != typeof(string))
-                .OrderBy(field => field.Name, StringComparer.Ordinal)];
-            if (members.Length != 0)
-                catalogs.Add(new DefinitionCatalog(type, members));
-        }
-        catalogs.Sort((left, right) => string.CompareOrdinal(left.Prefix, right.Prefix));
-        return new Declarations(catalogs, catalogs.ToDictionary(catalog => catalog.Prefix, StringComparer.Ordinal),
-            new DefinitionExposure(game, types, catalogs));
+        if (byPrefix.TryGetValue(prefix, out DefinitionCatalog? catalog))
+            return catalog;
+        types.RegisterNamed(prefix[..^DefinitionCatalog.MemberSeparator.Length]);
+        Learn();
+        if (byPrefix.TryGetValue(prefix, out catalog))
+            return catalog;
+        types.RegisterEverything();
+        Learn();
+        return byPrefix.GetValueOrDefault(prefix);
     }
 
-    /// <summary>The catalogs of the game's static members and what each may hold.</summary>
-    /// <param name="Catalogs">Every catalog, in its prefix's ordinal order.</param>
-    /// <param name="ByPrefix">Each catalog by the prefix its roots' names begin with.</param>
-    /// <param name="Exposure">Which catalogs may hold an object of each type.</param>
-    internal sealed record Declarations(IReadOnlyList<DefinitionCatalog> Catalogs, IReadOnlyDictionary<string, DefinitionCatalog> ByPrefix,
-        DefinitionExposure Exposure);
+    /// <summary>Takes in the catalogs registered since the last time; callers hold the lock.</summary>
+    private void Learn()
+    {
+        IReadOnlyList<(Type Catalog, StateGraphName Type, IReadOnlyList<StateGraphCatalogMember> Members)> registered = types.CatalogsRegistered();
+        for (; catalogsKnown < registered.Count; catalogsKnown++)
+        {
+            (Type declaring, StateGraphName name, IReadOnlyList<StateGraphCatalogMember> members) = registered[catalogsKnown];
+            var catalog = new DefinitionCatalog(declaring, types.Format(name), members);
+            byType.Add(declaring, catalog);
+            byPrefix.Add(catalog.Prefix, catalog);
+        }
+    }
 }

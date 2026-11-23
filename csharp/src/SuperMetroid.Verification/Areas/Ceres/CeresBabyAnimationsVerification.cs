@@ -18,7 +18,7 @@ internal static class CeresBabyAnimationsVerification
     /// <summary>Both segments match their native lists, and both animations the lists' control flow.</summary>
     internal static void VerifyCeresBabyAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<CeresBabySegment>().Length, Entries.Length, "every Ceres Baby segment has a native entry");
         Dictionary<CeresBabySegment, NativeEnemyList<CeresBabySegment>> lists =
             Entries.ToDictionary(item => item.Program, item => Read(cartridge, item.Program, item.Entry));
@@ -41,6 +41,19 @@ internal static class CeresBabyAnimationsVerification
             {
                 controls.Add(new(NativeEnemyControlKind.RunOnIntoNext, beat, Entries.Single(item => item.Entry == cursor).Program, null, cursor));
                 break;
+            }
+            if (beat == beats.Count && beat > 0)
+            {
+                // A list that writes its whole run out again straight after itself plays the segment once more (#2557), as
+                // the resting squish's does: the words from here repeat the run's word for word.
+                int run = unchecked((ushort)(cursor - entry));
+                if (Enumerable.Range(0, run / 2).All(offset => cartridge.ReadCartridgeWord((Bank << 16) | unchecked((ushort)(cursor + 2 * offset)))
+                        == cartridge.ReadCartridgeWord((Bank << 16) | unchecked((ushort)(entry + 2 * offset)))))
+                {
+                    controls.Add(new(NativeEnemyControlKind.WrittenOutRepeat, beat, null, null, cursor));
+                    cursor = unchecked((ushort)(cursor + run));
+                    continue;
+                }
             }
             int address = (Bank << 16) | cursor;
             ushort word = cartridge.ReadCartridgeWord(address);

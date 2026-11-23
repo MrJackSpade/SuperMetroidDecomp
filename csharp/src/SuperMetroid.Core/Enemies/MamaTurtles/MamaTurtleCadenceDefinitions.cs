@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The updates on which the Mama Turtle climbs out of her shell (#1606), and the way each step jitters (#1619).</summary>
-internal static class MamaTurtleCadenceDefinitions
+internal static partial class MamaTurtleCadenceDefinitions
 {
     /// <summary>
     /// Whether a Mama Turtle's step out of her shell at room height <paramref name="height"/> sidesteps left (#1619,
@@ -10,8 +10,8 @@ internal static class MamaTurtleCadenceDefinitions
     internal static bool LeavingShellSidestepsLeftAt(int height) => int.IsOddInteger(height);
 
     /// <summary>
-    /// The updates on which a Mama Turtle leaving her shell steps up and sideways: every second update of the frame
-    /// counter, on its even updates.
+    /// The updates on which a Mama Turtle leaving her shell steps up and sideways, counted on the frame counter at the
+    /// period's even place.
     /// </summary>
-    internal static readonly UpdateCadence LeavingShellStepEverySecondUpdate = new(2, 0);
+    internal static readonly UpdateCadence LeavingShellStep = new(2, 0);
 }

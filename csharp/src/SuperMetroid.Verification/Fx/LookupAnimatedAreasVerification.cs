@@ -3,7 +3,6 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Verification.Harness;
-using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
 
 namespace SuperMetroid.Verification.Fx;
 
@@ -50,11 +49,11 @@ internal static class LookupAnimatedAreasVerification
                         () => AreaBlockAnimationDefinitions.NativeObjectPointer(area, bit), "Native selection rejects");
                     AssertEqual(area >= 8 ? "nativeAreaIndex" : "bit", failure.ParamName, "Native area-first validation");
                 }
-                if (area >= 7 || bit >= 8)
+                if (area < SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Count && bit >= 8)
                 {
                     var failure = AssertThrows<ArgumentOutOfRangeException>(
-                        () => AreaBlockAnimations.Read(RetailArea(area), bit), "Retail selection rejects");
-                    AssertEqual(bit >= 8 ? "bit" : "area", failure.ParamName, "Retail bit-first validation");
+                        () => AreaBlockAnimations.Read(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), bit), "Retail selection rejects");
+                    AssertEqual("bit", failure.ParamName, "Retail bit validation");
                 }
             }
         });

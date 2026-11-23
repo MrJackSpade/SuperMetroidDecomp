@@ -6,9 +6,9 @@ using static SuperMetroid.Verification.Harness.GraphDigestVerification;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.TestSupport.FrameRendering;
 
 namespace SuperMetroid.Verification.Runtime.Attract;
@@ -68,6 +68,9 @@ internal static class AttractCaptureTestsVerification
         /// <summary>Whether the demo's final image has been held.</summary>
         private bool sawHold;
 
+        /// <summary>The updates the legacy game's final-image hold has counted since it began; none while no image holds.</summary>
+        private int heldUpdates;
+
         /// <summary>Whether the case has returned to the title.</summary>
         private bool returned;
 
@@ -87,7 +90,8 @@ internal static class AttractCaptureTestsVerification
         internal bool Finished => returned || tick >= TickLimit;
 
         /// <summary>Whether the next frame is the one the cancelled case presses Start on.</summary>
-        internal bool AtCancelFrame => legacy.AttractDemoHoldFramesRemaining == CancelHoldFrame;
+        internal bool AtCancelFrame =>
+            legacy.IsAt(AttractDemoStep.Holding) && AttractDemoDefinitions.FinalImageHoldFrames - heldUpdates == CancelHoldFrame;
 
         /// <summary>
         /// A case continuing from this one's next frame: both games restored from exact debugger round trips, and what this
@@ -98,6 +102,7 @@ internal static class AttractCaptureTestsVerification
             var branch = new AttractRun(RoundTrip(legacy), RoundTrip(captured));
             branch.states = [.. states];
             branch.sawHold = sawHold;
+            branch.heldUpdates = heldUpdates;
             branch.returned = returned;
             branch.bounded = bounded;
             branch.held = held;
@@ -112,13 +117,15 @@ internal static class AttractCaptureTestsVerification
             {
                 foreach (var game in new[] { legacy, captured })
                 {
-                    PrivateState.Set(game.Session.Demo, nameof(AttractDemoSchedule.Playback), UpdateCountdown.Lasting(16));
-                    PrivateState.Set(game.Session.Demo, nameof(AttractDemoSchedule.ScenesBegun), game.Session.Demo.Set.Scenes.Count);
+                    game.Session.Enter(new AttractDemoGameSequence.Starting(game.Session, duration: 16));
+                    game.Session.Demo.ScenesBegun = game.Session.Demo.Set.Scenes.Count;
                 }
                 bounded = true;
             }
             ControllerButton input = cancel && AtCancelFrame ? ControllerButton.Start : 0;
+            bool wasHolding = legacy.IsAt(AttractDemoStep.Holding);
             FrontendFrame expected = legacy.Step(input);
+            heldUpdates = !legacy.IsAt(AttractDemoStep.Holding) ? 0 : wasHolding ? heldUpdates + 1 : 0;
             CapturedFrontendFrame actual = captured.StepCaptured(input);
             if (legacy.GameState == SuperMetroidGameState.AttractDemo)
                 states.Add(legacy.Session.AttractDemoStep);
@@ -131,7 +138,7 @@ internal static class AttractCaptureTestsVerification
                     $"demo frame {tick} pixel parity");
                 Samples++;
             }
-            if (legacy.AttractDemoHoldFramesRemaining > 0 && legacy.IsAt(AttractDemoStep.Playing))
+            if (legacy.IsAt(AttractDemoStep.Holding))
             {
                 sawHold = true;
                 held ??= legacy.GetRetainedDisplay();

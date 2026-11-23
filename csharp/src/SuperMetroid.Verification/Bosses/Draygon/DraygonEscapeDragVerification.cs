@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -21,13 +22,13 @@ internal static class DraygonEscapeDragVerification
         samus.DraygonGrabbed.Begin(samus, draygonFacing: HorizontalDirection.Left);
         samus.DraygonGrabbed.Release(samus);
 
-        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = DraygonPhase.CarrySamus };
+        var state = new DraygonEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.DraygonBody), enemies.Places.InUpdateOrder[1], enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Step = DraygonPhaseSteps.CarrySamus() };
         state.Body.Position = state.Body.Position.WithWhole(new(0x013b, 0x0176));
         enemies.DraygonBehavior.Grab.MoveSamusWithDraygon(state, samus);
 
         AssertEqual((ushort)(0x013b - 8), samus.Position.X.Whole, "the escaped Samus is placed eight pixels left of Draygon");
         AssertEqual((ushort)(0x0176 + 0x28), samus.Position.Y.Whole, "the escaped Samus is placed 40 pixels below Draygon");
-        AssertEqual(DraygonPhase.FlyStraightUp, state.Phase, "Draygon then sees the escape and flies up");
+        AssertEqual(DraygonPhaseSteps.FlyStraightUp(), state.Step, "Draygon then sees the escape and flies up");
         AssertEqual(SamusDraygonHoldPhase.Inactive, samus.DraygonGrabbed.Phase, "the placement reported the escape, which Draygon has seen");
         Console.WriteLine("  Draygon escape drag: the first carry call after an escape still places Samus.");
     }

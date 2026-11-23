@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// <param name="titles">The one-row titles, or null when none are installed.</param>
 /// <param name="panels">The large item panels, or null when none are installed.</param>
 /// <param name="notices">The station and save notices, or null when none are installed.</param>
-public sealed class GameplayMessageArtwork(
+public sealed partial class GameplayMessageArtwork(
     GameplayMessageTitlePresentation? titles,
     GameplayMessagePanelPresentation? panels = null,
     GameplayMessageNoticePresentation? notices = null)
@@ -73,7 +73,7 @@ public sealed class GameplayMessageArtwork(
         {
             BackgroundTile[] notice = noticeArtwork.Build(message);
             if (shown.Choice is { } choice)
-                noticeArtwork.ApplySelection(message, notice, yesSelected: choice == SaveChoice.Yes);
+                noticeArtwork.ApplySelection(message, notice, choice);
             return notice;
         }
         if (Panels is { } panelArtwork && panelArtwork.Contains(message))
@@ -100,7 +100,7 @@ public sealed class GameplayMessageArtwork(
     {
         foreach (GameplayMessageId message in OrdinaryMessages)
         {
-            if (GameplayMessageButtons.PanelBinding(message) != GameplayMessagePanelButtonBinding.None)
+            if (GameplayMessageButtons.PanelBinding(message) is not null)
             {
                 foreach (ControllerButton button in GameplayMessageBoxDefinitions.Buttons.GlyphOrder)
                     yield return new ShownMessage(message, button, null);

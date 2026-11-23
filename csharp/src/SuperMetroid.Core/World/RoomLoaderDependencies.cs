@@ -13,10 +13,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[ArchitectureReview("wide-dependencies", "The room composer: a room load builds every room-lifetime owner (level, " +
-    "camera, FX, colour effects, backgrounds, projectiles, room objects, enemies, Tourian statues) over the session owners each one " +
-    "outlives, as the room load initializes them in one pass; each member is one of those session owners.")]
-internal sealed record RoomLoaderDependencies
+internal sealed partial record RoomLoaderDependencies
 {
     /// <summary>The installed artwork the entered room draws and colours from.</summary>
     public required RuntimeArtwork Artwork { get; init; }
@@ -54,7 +51,7 @@ internal sealed record RoomLoaderDependencies
     /// <summary>The game's frame counters, which time enemies, animations and blinking.</summary>
     public required FrameClock Clock { get; init; }
 
-    /// <summary>How the door transition's scroll counts frames on the short frame counter.</summary>
+    /// <summary>How the door transition's scroll counts the enemies' short update count.</summary>
     public required DoorTransitionFrameCounting DoorFrameCounting { get; init; }
 
     /// <summary>The in-game options, which loading a saved game restores.</summary>
@@ -103,4 +100,7 @@ internal sealed record RoomLoaderDependencies
 
     /// <summary>The runtime's camera measure a kicked Yard flies off with, handed to every room's enemies.</summary>
     public required YardKickTrackingDistance YardKickDistance { get; init; }
+
+    /// <summary>Initialises each new Samus the loader sets up.</summary>
+    public required SamusInitialization SamusInitialization { get; init; }
 }

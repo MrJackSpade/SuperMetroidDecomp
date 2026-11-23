@@ -20,8 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the speed divisor by one, to at most five ($86:8D99); the bomb spread ($90:D849) sets the bomb counter to 5.
 /// </para>
 /// </remarks>
-[CompatibilityService("X-ray refuses to start on any update Samus's cooldown stands at seven with five bombs counted and her speed halved, the values the Baby Metroid's drain holds her at")]
-public static class XrayRefusedAsDrained
+public static partial class XrayRefusedAsDrained
 {
     /// <summary>The projectile cooldown, in updates, at which X-ray refuses.</summary>
     private const int DrainedCooldownUpdates = 7;

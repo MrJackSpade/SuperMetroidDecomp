@@ -21,7 +21,7 @@ internal static class ProjectileFileContractsVerification
         Ensure.NotNull(installed);
         // The beam pages are import data no installation holds (#1636): the cartridge-derived extraction's are assembled.
         string directory = CartridgeImportContent.ImportData(GameInstallationLayout.ProjectileDirectoryName);
-        var expectedBeams = BeamTileCatalog.Load(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt)
+        var expectedBeams = BeamTileCatalog.Load(BeamTileAtlasDefinitions.Pictured
             .ToDictionary(BeamTileAtlasDefinitions.FileName, index => File.ReadAllBytes(
                 Path.Combine(directory, BeamTileAtlasDefinitions.FileName(index)))));
         var compiledBeams = InstalledFixtures.ImportProjectiles.BeamTiles;
@@ -32,19 +32,19 @@ internal static class ProjectileFileContractsVerification
         AssertTrue(ReferenceEquals(compiledBeams.Palettes, InstalledFixtures.ImportProjectiles.BeamPalettes),
             "the beam catalog and the import's read share the beam colours read from the import data");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
-            AssertTrue(compiledBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span.SequenceEqual(
-                expectedBeams.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombinationTableOrder.FromTableIndex(selection))).Span),
+            AssertTrue(compiledBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection)).Span.SequenceEqual(
+                expectedBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection)).Span),
                 "file-context beam assembly retains every transfer byte and selection");
-        var sheets = Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount).Select(BeamTileAtlasDefinitions.SelectionAt).Select(index =>
+        Dictionary<SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas> sheets = BeamTileAtlasDefinitions.Pictured.ToDictionary(index => index, index =>
         {
             using var png = File.OpenRead(Path.Combine(directory, BeamTileAtlasDefinitions.FileName(index)));
             return BeamTileAtlas.Load(png, index);
-        }).ToArray();
+        });
         var ownedBeams = BeamTileCatalog.FromAtlases(sheets, (compiledBeams.Palettes ?? throw new InvalidOperationException("Verification requires compiledBeams.Palettes.")), (compiledBeams.HyperBeamFxColors ?? throw new InvalidOperationException("Verification requires compiledBeams.HyperBeamFxColors.")));
-        sheets[0] = sheets[1];
-        AssertTrue(ownedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span.SequenceEqual(
-            expectedBeams.Resolve(BeamTileCatalog.AssetFor(0)).Span), "beam assembler owns the input array");
-        AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases([], compiledBeams.Palettes,
+        sheets[SuperMetroid.Core.Progression.SamusBeamCombination.Power] = sheets[SuperMetroid.Core.Progression.SamusBeamCombination.Wave];
+        AssertTrue(ownedBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(0)).Span.SequenceEqual(
+            expectedBeams.Resolve(SamusBeamCombinationTableOrderConstants.FromTableIndex(0)).Span), "beam assembler owns the input array");
+        AssertThrows<ArgumentException>(() => BeamTileCatalog.FromAtlases(new Dictionary<SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas>(), compiledBeams.Palettes,
             compiledBeams.HyperBeamFxColors), "beam assembler rejects an incomplete selection set");
         Console.WriteLine("PASS projectile file contracts: the extracted beam pages assemble into the loaded beam catalog.");
     }

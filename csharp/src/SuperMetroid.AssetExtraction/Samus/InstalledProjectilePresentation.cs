@@ -13,5 +13,5 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// <param name="FlarePlacement">Charge-flare placement.</param>
 /// <param name="Grapple">The grapple's flare placement and swing frames.</param>
 /// <param name="FrameBindings">Timed projectile frame sprite choices.</param>
-public sealed record InstalledProjectilePresentation(string ContentSha256,
-    ChargeFlarePlacements FlarePlacement, InstalledGrapplePresentation Grapple, InstalledProjectileFrameBindings FrameBindings);
+public sealed partial record InstalledProjectilePresentation(string ContentSha256,
+    BeamFlarePlacements FlarePlacement, InstalledGrapplePresentation Grapple, InstalledProjectileFrameBindings FrameBindings);

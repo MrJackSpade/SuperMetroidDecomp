@@ -2,15 +2,19 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
 using K = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileCueKind;
 using P = SuperMetroid.Core.Areas.Tourian.TourianStatueProjectileSegment;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian statue projectile animations (#641).</summary>
-internal static class TourianStatueProjectileAnimations
+internal static partial class TourianStatueProjectileAnimations
 {
+    /// <summary>How many particles an eye glow releases as it ends, one spawn cue each.</summary>
+    private const int ParticlesReleased = 4;
+
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
-        new Dictionary<TourianStatueProjectileSegment, AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
+    internal static HidingUnpausedAnimationSegments<TourianStatueProjectileSegment, EnemyProjectileFrameId, TourianStatueProjectileCue> Segments { get; } = new(
+        new Dictionary<TourianStatueProjectileSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>[]>
     {
         [P.Splash] =
         [
@@ -31,13 +35,10 @@ internal static class TourianStatueProjectileAnimations
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowSparkleSmall, 6),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowStreakSmall, 6),
             Show(EnemyProjectileFrameId.TourianStatueEyeGlowDot, 5),
-            Show(EnemyProjectileFrameId.Blank, 48),
+            Hide(48),
             Cue(new TourianStatueProjectileCue.Signal(K.PlayReleaseSound)),
             Cue(new TourianStatueProjectileCue.Signal(K.Earthquake)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
-            Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)),
+            .. Repeated(Cue(new TourianStatueProjectileCue.Signal(K.SpawnParticle)), ParticlesReleased),
             Cue(new TourianStatueProjectileCue.Signal(K.Delete)),
         ],
         [P.Particle] =
@@ -97,15 +98,16 @@ internal static class TourianStatueProjectileAnimations
         [P.Phantoon] = new([Segments.Whole(P.Phantoon)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<TourianStatueProjectileSegment> StartingWith(TourianStatueProjectileSegment segment) => StartingAt[segment];
-
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationHiddenBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hide(int duration) =>
+        new AnimationHiddenBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>(duration);
 
     /// <summary>Shows <paramref name="frame"/> for good (#2068): a statue and the base's decoration rest on their picture.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.HeldFrame(frame);
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Unpaused Hold(EnemyProjectileFrameId frame) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.HeldFrame(frame);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue> Cue(TourianStatueProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Unpaused Cue(TourianStatueProjectileCue cue) => new AnimationBeat<EnemyProjectileFrameId, TourianStatueProjectileCue>.Event(cue);
 }

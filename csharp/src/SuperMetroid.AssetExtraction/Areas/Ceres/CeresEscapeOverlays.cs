@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Editable tiles for Ceres's three fixed warning overlays: the title and the Japanese subtitle's two lines.</summary>
-public sealed class CeresEscapeOverlays
+public sealed partial class CeresEscapeOverlays
 {
 
     /// <summary>Every page's installed tiles in tilemap order, keyed by the page's installed name.</summary>
@@ -30,7 +30,7 @@ public sealed class CeresEscapeOverlays
     internal static byte[] Write(CeresEscapeOverlayTilemapDocument document)
     {
         _ = Compile(document);
-        return JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        return JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresEscapeOverlayTilemapDocument>(Options));
     }
 
     /// <summary>Provides a page's tiles only when <paramref name="page"/> is one of the three overlays.</summary>

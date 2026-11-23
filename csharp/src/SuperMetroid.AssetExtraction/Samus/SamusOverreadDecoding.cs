@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// original game does, over the cartridge, for every game situation that can reach it, and keeps only the result, keyed
 /// by that situation.
 /// </summary>
-internal static class SamusOverreadDecoding
+internal static partial class SamusOverreadDecoding
 {
     /// <summary>
     /// The drained poses a Shinespark crash can finish in: Mother Brain's drain replaces the crash pose with a drained
@@ -36,6 +36,7 @@ internal static class SamusOverreadDecoding
             animations.FramesAfterCues(),
             animations.ReadsPast(),
             animations.PlaceLandings(),
+            animations.DelaysRead(cartridge),
             SpaceTimeOverwrites(cartridge, lists),
             ChainsawFuseLandings(lists),
             PostureAdmissions(cartridge),
@@ -49,19 +50,20 @@ internal static class SamusOverreadDecoding
     /// What SpaceTime's palette copy overwrites in progression for every animation position a SpaceTime shot can hold and
     /// every shot slot.
     /// </summary>
-    private static Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites(
+    private static Dictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>> SpaceTimeOverwrites(
         IImportCartridgeSource cartridge, SamusProjectileListLayout lists)
     {
-        var result = new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>>();
+        var result = new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>>();
         foreach (SamusProjectileSegment program in SpaceTimeShotPrograms())
         {
-            var positions = new Dictionary<string, IReadOnlyList<SamusOverreadDocument.Overwrite?>>();
+            var positions = new Dictionary<string, IReadOnlyDictionary<string, SamusOverreadDocument.Overwrite?>>();
             // Every place of the segment: before each beat, and at its end.
             for (int position = 0; position <= SamusProjectileAnimations.Segments.Beats(program).Count; position++)
             {
                 int place = lists.Position(new SamusProjectileSegmentBeat(program, position));
                 positions.Add(position.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                    [.. Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(slot => SpaceTimeOverwrite(cartridge, place, slot))]);
+                    Enumerable.Range(0, SamusProjectileSystem.PlaceCount).ToDictionary(SamusOverreadFormat.ShotPlaceName,
+                        slot => SpaceTimeOverwrite(cartridge, place, slot), StringComparer.Ordinal));
             }
             result.Add(SamusProjectileSegmentKeys.Installed.Of(program), positions);
         }
@@ -134,23 +136,22 @@ internal static class SamusOverreadDecoding
     /// <exception cref="InvalidDataException">The copied bytes are not a prefix of the slice, or split the loading state.</exception>
     private static SamusOverreadDocument.Overwrite? ProgressionOverwrite(byte?[] slice)
     {
+        // The copy writes the slice from its start: its copied prefix is every byte before the first it left alone.
         int copied = 0;
         while (copied < slice.Length && slice[copied] is not null)
             copied++;
+        byte[] prefix = [.. slice.Take(copied).OfType<byte>()];
         if (slice.Skip(copied).Any(value => value is not null))
             throw new InvalidDataException("SpaceTime's copy reaches progression other than from its start.");
         if (copied == 0)
             return null;
-        byte[] Leading(int start, int end) =>
-            [.. slice[start..Math.Clamp(copied, start, end)].Select(value => value ?? throw new InvalidDataException("A copied progression byte is missing."))];
+        byte[] Leading(int start, int end) => prefix[start..Math.Clamp(copied, start, end)];
         int? loadingState = null;
         if (copied > ProgressionSliceLayout.LoadingGameStateOffset)
         {
             if (copied < ProgressionSliceLayout.ByteCount)
                 throw new InvalidDataException("SpaceTime's copy replaces only half the saved loading state.");
-            loadingState = BinaryPrimitives.ReadUInt16LittleEndian(
-                (byte[])[.. slice[ProgressionSliceLayout.LoadingGameStateOffset..].Select(value =>
-                    value ?? throw new InvalidDataException("A copied loading-state byte is missing."))]);
+            loadingState = BinaryPrimitives.ReadUInt16LittleEndian(prefix.AsSpan(ProgressionSliceLayout.LoadingGameStateOffset));
         }
         BitTablePrefix events = ProgressionTableCodec.PrefixOverwrite(Leading(ProgressionSliceLayout.EventsOffset, ProgressionSliceLayout.BossBitsOffset));
         return new SamusOverreadDocument.Overwrite(
@@ -178,7 +179,6 @@ internal static class SamusOverreadDecoding
         new([.. kind.Where(decided.Decided.Contains).Select(name)], [.. kind.Where(decided.Set.Contains).Select(name)]);
 
     /// <summary>The names of the boss flags <paramref name="bosses"/> holds.</summary>
-    [InstalledKey]
     private static IEnumerable<string> BossFlagNames(DefeatedBosses bosses) =>
         DefeatedBossesKeys.ListedOrder.Where(flag => bosses.HasFlag(flag))
             .Select(DefeatedBossesKeys.Installed.Of);

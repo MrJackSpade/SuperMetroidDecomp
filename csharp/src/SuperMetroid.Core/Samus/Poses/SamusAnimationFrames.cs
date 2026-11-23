@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// Samus's animation is on with one of these as the game compares them, whatever animation she animates by
 /// (<see cref="SamusState.AnimationHasReached"/>, <see cref="SamusState.AnimationIsOn"/>).
 /// </summary>
-internal static class SamusAnimationFrames
+internal static partial class SamusAnimationFrames
 {
     /// <summary>The neutral jump's rising frame, which the animation keeps alive while she still rises.</summary>
     internal static SamusAnimationPlace NeutralJumpRise { get; } = SamusAnimationDelayDefinitions.NeutralJumpAndWindupAnimation.Place(SamusAnimationPlaceName.NeutralJumpRise, Main, 1);

@@ -25,17 +25,12 @@ internal static class WorkRobotBombRejectionVerification
         foreach ((EnemyDefinitionId robot, bool powered) in new[] { (EnemyDefinitionId.WorkRobot, true), (EnemyDefinitionId.UnpoweredWorkRobot, false) })
         {
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[powered ? 0 : 1];
-            place.Bind(robot, place.Definition);
-            var bomb = new SamusBomb(0)
-            {
-                Type = SamusProjectileType.Of(SamusProjectileFamily.Bomb),
-                Position = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole),
-            };
-            var context = new EnemyBombContext(place, bomb, ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
-                SelectedShot: null, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0))
-            {
-                StruckOccupant = place.OccupantStates,
-            };
+            place.Bind(robot, place.KeptDefinition);
+            var bomb = new SamusBomb(0);
+            bomb.OccupyAsPlaced(SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+            bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(place.Position.Whole);
+            var context = new EnemyBombContext(place.HeldOccupant(), bomb.HeldBomb(), ordinaryProjectiles, RoomEnemyFrameFixtures.StandaloneSamus(),
+                SelectedShot: SuperMetroid.Core.Enemies.WorkRobots.WorkRobotReactions.Shot, UsesFrameHitboxes: false, new Position16<RoomPixels>(0, 0));
             EnemyBombReaction reaction = (place.Entity as IEnemyBombReaction)?.CommonBombDamageReaction(context)
                 ?? throw new InvalidOperationException($"{robot} has no bomb reaction of its own.");
             AssertTrue(reaction.Rejects is null || !reaction.Rejects(context), $"{robot}'s own bomb reaction takes the bomb");

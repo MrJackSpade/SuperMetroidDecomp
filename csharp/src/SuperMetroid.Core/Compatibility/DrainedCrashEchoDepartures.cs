@@ -15,8 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TPose">A Samus pose.</typeparam>
 /// <typeparam name="TAngles">The two angles a crash's echoes leave at.</typeparam>
-[CompatibilityService("a Shinespark crash finishing in a drained pose sends its echoes out at angles read past the crash's departure table")]
-public sealed class DrainedCrashEchoDepartures<TPose, TAngles>
+public sealed partial class DrainedCrashEchoDepartures<TPose, TAngles>
     where TPose : notnull
     where TAngles : struct
 {

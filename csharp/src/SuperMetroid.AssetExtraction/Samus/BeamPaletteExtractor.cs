@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts ordinary beam color selections from the supported cartridge, not charge animation rules.</summary>
-public static class BeamPaletteExtractor
+public static partial class BeamPaletteExtractor
 {
     /// <summary>Follows each legal native beam-selection palette pointer and serializes its complete RGB5 color row without charge-animation rules.</summary>
     /// <param name="bus">Supported-cartridge address space containing the beam palette pointer table and color words.</param>
@@ -17,14 +17,13 @@ public static class BeamPaletteExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         var palettes = new Dictionary<string, PaletteRgb5[]>();
-        for (int index = 0; index < BeamTileAtlasDefinitions.SelectionCount; index++)
+        foreach (SamusBeamCombination selection in BeamTileAtlasDefinitions.Equippable)
         {
-            SamusBeamCombination selection = SamusBeamCombinationTableOrder.FromTableIndex(index);
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.PalettePointers.Value + selection.TableIndex * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(bus, SamusSourceDefinitions.PalettePointers.Value + selection.TableIndex * 2);
             var colors = new PaletteRgb5[BeamPaletteDefinitions.ColorCount];
             for (int i = 0; i < colors.Length; i++)
             {
-                colors[i] = PaletteRgb5.From(RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                colors[i] = PaletteRgb5.From(RgbColor.FromWord(RomDataReader.ReadWordFixedBank(bus,
                     SamusSourceDefinitions.MovementBank.Value | (pointer + i * 2))));
             }
             palettes.Add(BeamPaletteFile.Key(selection), colors);

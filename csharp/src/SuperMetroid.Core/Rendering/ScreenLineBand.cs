@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 /// A band of whole screen lines the full width of the screen (#1468), from <see cref="FirstLine"/> up to
 /// <see cref="EndLine"/>; a band whose ends meet shows nothing.
 /// </summary>
-public readonly record struct ScreenLineBand
+public readonly partial record struct ScreenLineBand
 {
     /// <summary>The first line of the band.</summary>
     public int FirstLine { get; }

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>The installed RGB5 animation frames of the auxiliary enemy palettes, kept as installed, independent of enemy mechanics.</summary>
-public sealed class EnemyAuxiliaryColorCatalog
+public sealed partial class EnemyAuxiliaryColorCatalog
 {
     /// <summary>
     /// Each family's installed colour frames: the mirrored eight-frame face-block glow sequence, the Sidehopper drain

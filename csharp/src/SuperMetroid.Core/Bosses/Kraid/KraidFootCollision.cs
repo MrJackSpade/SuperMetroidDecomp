@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The collision of Kraid's feet: the components of the pose shown, moved with its placement (#2210).</summary>
-internal static class KraidFootCollision
+internal static partial class KraidFootCollision
 {
     /// <summary>The two collision components of Kraid-foot pose <paramref name="pose"/>, when it shows a foot picture.</summary>
     internal static bool TryGetComponents(KraidPartPose? pose, out ImmutableArray<KraidCollisionComponent> components)

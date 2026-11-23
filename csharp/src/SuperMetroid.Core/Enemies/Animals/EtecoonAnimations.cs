@@ -8,8 +8,26 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The Etecoon's look, run, wall-jump, hop and flex animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class EtecoonAnimations
+internal static partial class EtecoonAnimations
 {
+    /// <summary>
+    /// A hop's arm poses in the order it shows them, facing as its poses do: <paramref name="raising"/>, <paramref name="up"/>,
+    /// <paramref name="flung"/>, then back through <paramref name="up"/> and <paramref name="raising"/>.
+    /// </summary>
+    private static EnemyFrameId[] HopArms(EnemyFrameId raising, EnemyFrameId up, EnemyFrameId flung) => [raising, up, flung, up, raising];
+
+    /// <summary>A hop's arm poses, <paramref name="raising"/>, <paramref name="up"/> and <paramref name="flung"/>, each shown for its own pace: the fling quickest.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Hop(EnemyFrameId raising, EnemyFrameId up, EnemyFrameId flung) =>
+        [Show(raising, 12), Show(up, 12), Show(flung, 6), Show(up, 12), Show(raising, 12)];
+
+    /// <summary>A hop's arm poses facing right, which the flex also plays at its own pace.</summary>
+    private static readonly EnemyFrameId[] HopArmsFacingRight =
+        HopArms(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, EnemyFrameId.EtecoonHopArmsUpFacingRight, EnemyFrameId.EtecoonHopArmsFlungFacingRight);
+
+    /// <summary>A jump's spin over a facing's four quarter turns, <paramref name="turned0"/> to <paramref name="turned270"/>, three updates each.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Spin(EnemyFrameId turned0, EnemyFrameId turned90, EnemyFrameId turned180, EnemyFrameId turned270) =>
+        [.. ((EnemyFrameId[])[turned0, turned90, turned180, turned270]).Select(pose => Show(pose, 3))];
+
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EtecoonSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
         new Dictionary<EtecoonSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
@@ -27,22 +45,11 @@ internal static class EtecoonAnimations
         [
             Show(EnemyFrameId.EtecoonLeapingLeft, 8),
         ],
-        [P.JumpingLeft] =
-        [
-            Show(EnemyFrameId.EtecoonSpinningLeftTurned0, 3),
-            Show(EnemyFrameId.EtecoonSpinningLeftTurned90, 3),
-            Show(EnemyFrameId.EtecoonSpinningLeftTurned180, 3),
-            Show(EnemyFrameId.EtecoonSpinningLeftTurned270, 3),
-        ],
+        [P.JumpingLeft] = Spin(EnemyFrameId.EtecoonSpinningLeftTurned0, EnemyFrameId.EtecoonSpinningLeftTurned90,
+            EnemyFrameId.EtecoonSpinningLeftTurned180, EnemyFrameId.EtecoonSpinningLeftTurned270),
         [P.HoppingFacingLeft] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingLeft)],
-        [P.ContinueHoppingFacingLeft] =
-        [
-            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, 12),
-            Show(EnemyFrameId.EtecoonHopArmsUpFacingLeft, 12),
-            Show(EnemyFrameId.EtecoonHopArmsFlungFacingLeft, 6),
-            Show(EnemyFrameId.EtecoonHopArmsUpFacingLeft, 12),
-            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, 12),
-        ],
+        [P.ContinueHoppingFacingLeft] = Hop(EnemyFrameId.EtecoonHopArmsRaisingFacingLeft, EnemyFrameId.EtecoonHopArmsUpFacingLeft,
+            EnemyFrameId.EtecoonHopArmsFlungFacingLeft),
         [P.WallJumpLeftEligible] = [Hold(EnemyFrameId.EtecoonClingingFacingLeft)],
         [P.LookLeftAtSamusAndRunRight] =
         [
@@ -57,39 +64,23 @@ internal static class EtecoonAnimations
         [
             Show(EnemyFrameId.EtecoonLeapingRight, 8),
         ],
-        [P.JumpingRight] =
-        [
-            Show(EnemyFrameId.EtecoonSpinningRightTurned0, 3),
-            Show(EnemyFrameId.EtecoonSpinningRightTurned90, 3),
-            Show(EnemyFrameId.EtecoonSpinningRightTurned180, 3),
-            Show(EnemyFrameId.EtecoonSpinningRightTurned270, 3),
-        ],
+        [P.JumpingRight] = Spin(EnemyFrameId.EtecoonSpinningRightTurned0, EnemyFrameId.EtecoonSpinningRightTurned90,
+            EnemyFrameId.EtecoonSpinningRightTurned180, EnemyFrameId.EtecoonSpinningRightTurned270),
         [P.HoppingFacingRight] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingRight)],
-        [P.ContinueHoppingFacingRight] =
-        [
-            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 12),
-            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 12),
-            Show(EnemyFrameId.EtecoonHopArmsFlungFacingRight, 6),
-            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 12),
-            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 12),
-        ],
+        [P.ContinueHoppingFacingRight] = Hop(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, EnemyFrameId.EtecoonHopArmsUpFacingRight,
+            EnemyFrameId.EtecoonHopArmsFlungFacingRight),
         [P.WallJumpRightEligible] = [Hold(EnemyFrameId.EtecoonClingingFacingRight)],
         [P.StartingCrouch] = [Hold(EnemyFrameId.EtecoonHopCrouchFacingRight)],
-        [P.Flexing] =
-        [
-            Show(EnemyFrameId.EtecoonHopCrouchFacingRight, 8),
-            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 8),
-            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 8),
-            Show(EnemyFrameId.EtecoonHopArmsFlungFacingRight, 8),
-            Show(EnemyFrameId.EtecoonHopArmsUpFacingRight, 8),
-            Show(EnemyFrameId.EtecoonHopArmsRaisingFacingRight, 8),
-        ],
+        [P.Flexing] = [.. ((EnemyFrameId[])[EnemyFrameId.EtecoonHopCrouchFacingRight, .. HopArmsFacingRight]).Select(pose => Show(pose, FlexPoseUpdates))],
         [P.FlexEnd] =
         [
             Show(EnemyFrameId.EtecoonFacingViewer, 32),
             Show(EnemyFrameId.EtecoonLookingLeft, 32),
         ],
     });
+
+    /// <summary>How long each pose of a woken Etecoon's flex shows.</summary>
+    private const int FlexPoseUpdates = 8;
 
     /// <summary>How many times a woken Etecoon's flex plays its six hop poses.</summary>
     private const int FlexRuns = 4;
@@ -98,7 +89,7 @@ internal static class EtecoonAnimations
     /// The animation that starts at each segment an owner can start or restart at (#2275): a crouch, a cling and the
     /// placed Etecoon's crouch are still pictures, and a wall jump either way leaps and then spins for good.
     /// </summary>
-    internal static IReadOnlyDictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
+    internal static Dictionary<EtecoonSegment, Animation<EtecoonSegment>> StartingAt { get; } = new Dictionary<EtecoonSegment, Animation<EtecoonSegment>>
     {
         [P.LookRightAtSamusAndRunLeft] = new([Segments.Whole(P.LookRightAtSamusAndRunLeft)], AnimationEnd.Holds),
         [P.BeginRunningLeft] = Animation<EtecoonSegment>.LeadingInto([Segments.Whole(P.BeginRunningLeft)], [Segments.Whole(P.RunningLeft)]),
@@ -118,7 +109,7 @@ internal static class EtecoonAnimations
         [P.StartingCrouch] = new([Segments.Whole(P.StartingCrouch)], AnimationEnd.Holds),
     };
 
-    /// <summary>The flex its wake starts (#2061): four plays of its six hop poses, then its two closing poses, held.</summary>
+    /// <summary>The flex its wake starts (#2061): its hop poses played over (<see cref="FlexRuns"/>), then its closing poses, held.</summary>
     internal static Animation<EtecoonSegment> Flexing { get; } = new([Segments.Repeated(P.Flexing, FlexRuns), Segments.Whole(P.FlexEnd)], AnimationEnd.Holds);
 
     /// <summary>

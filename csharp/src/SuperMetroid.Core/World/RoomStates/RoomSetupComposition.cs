@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// What a room's setup reaches as it composes its own parts into the room being loaded (#2485): once the room's effect is
 /// loaded and before the room composes its main.
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed record RoomSetupComposition
+internal sealed partial record RoomSetupComposition
 {
     /// <summary>The room being loaded, which the setup composes its parts into.</summary>
     public required RoomScopeConstruction Scope { get; init; }
@@ -21,5 +20,8 @@ internal sealed record RoomSetupComposition
     public required RoomFxOverlayState FxOverlay { get; init; }
 
     /// <summary>Whether the room's load shows its first view at once, rather than scrolling it in through a door.</summary>
-    public required bool DisplaysInitialViewport { get; init; }
+    public bool DisplaysInitialViewport => ViewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport;
+
+    /// <summary>How the room's load shows its viewport (#2560).</summary>
+    public required RoomViewportLoadMode ViewportLoadMode { get; init; }
 }

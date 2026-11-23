@@ -46,8 +46,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             CrocomireColorDefinitions.WallSpikesCount, native.ResolveWallSpikes, "wall spikes"));
 
         CrocomireColorCatalog colors = native;
-        CrocomireColorDocument visual = JsonSerializer.Deserialize<CrocomireColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, CrocomireColorFormat.FileName)), CaseInsensitiveJson) ??
+        CrocomireColorDocument visual = JsonSerializer.Deserialize<CrocomireColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, CrocomireColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.CrocomireColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Crocomire color JSON is null.");
 
         // Execute the real boss initializer and hurt-flash hook with palette ROM reads
@@ -59,13 +58,9 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                     CrocomireColorDefinitions.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
-        Type type = typeof(RoomEnemySystem);
-        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
-        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
-        enemies.CrocomireBehavior.Fight.InitializeCrocomire(body);
-        CrocomireEnemyState state = body.RequireSpeciesState<CrocomireEnemyState>();
+        // His room's population load sets him up, his encounter built by his body's setup.
+        CrocomireEnemyState state = SuperMetroid.Verification.Bosses.Crocomire.CrocomirePlacement.PlaceCrocomire(enemies, new(0, 0));
+        RoomEnemyPlace body = state.Body;
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(new AnimationPlayback<CrocomireBodySegment>(CrocomireBodyAnimations.StartingWith(CrocomireBodyAnimation.IdleSway), AnimationPlace.StartOfAnimation),
@@ -76,7 +71,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertBand(BossSheetShades.SpawnedObjects(bosses, EnemyDefinitionId.Crocomire), CrocomireShades.Wall, 16, colors.ResolveInitialWall, "initial wall");
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtFlash(body, state);
         AssertTrue(state.Colours.ShowsFightBody && !state.Colours.HurtFlash, "a hurt update shows the restored fight body");
-        IReadOnlyList<SheetShade> bodyShades = BossSheetShades.Body(BossBodyOwner.Crocomire, bosses, [], []);
+        IReadOnlyList<SheetShade> bodyShades = BossSheetShades.Body(BossBodyOwner.Crocomire, bosses, [], SuperMetroid.AssetExtraction.Artwork.SpriteImageColours.Background, []);
         AssertBand(bodyShades, CrocomireShades.FightBody, CrocomireColorDefinitions.FightBodyCount, colors.ResolveFightBody, "restored fight-body");
         body.HurtFlash.Restart(1);
         enemies.FrameContext.SeedEnemyPassCount(2);
@@ -86,6 +81,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertEqual(CrocomireDeathStages.Only<CrocomireDeathStage.Fighting>(), state.DeathStage,
             "white hurt flash leaves fight phase unchanged");
         state.DeathStageWait.LastFor(1);
+        // His death shows the wall spikes' colours before the skeleton's reveal adds the arm's (#2560).
+        state.Colours.ShowWallSpikes();
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonRevealAndWallBreak(state);
         AssertTrue(state.Colours.ShowsSkeletonArm, "the wall break shows the skeleton arm's colours");
         AssertBand(BossSheetShades.OwnRow(bosses, EnemyDefinitionId.Crocomire, 0), CrocomireShades.SkeletonArm,
@@ -101,7 +98,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Crocomire {name} color {color} preserves native RGB5");
         }
@@ -110,7 +107,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         {
             SheetShade found = made.Single(candidate => candidate.Shade == shade);
             for (int color = 0; color < count; color++)
-                AssertEqual(resolve(color), found.Colours[color],
+                AssertEqual(resolve(color), found.Colours.ElementAt(color),
                     $"installed Crocomire {name} color {color}");
         }
     }

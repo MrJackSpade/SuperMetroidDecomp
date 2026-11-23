@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The escaping Etecoons' typed animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="EscapeEtecoonCue"/> with the values it acts on.
 /// </summary>
-internal static class EscapeEtecoonAnimations
+internal static partial class EscapeEtecoonAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EscapeEtecoonSegment, EnemyFrameId, EscapeEtecoonCue> Segments { get; } = new(
@@ -34,8 +34,7 @@ internal static class EscapeEtecoonAnimations
         [P.RunningForEscapeStride] = Stride(EtecoonStride.Right, 3),
         [P.Stationary] =
         [
-            Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
-            Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8),
+            .. LookingRightThenTurningLeft,
             Show(EnemyFrameId.EscapeEtecoonLookingLeft, 64),
             Show(EnemyFrameId.EscapeEtecoonTurningRight, 8),
         ],
@@ -44,12 +43,15 @@ internal static class EscapeEtecoonAnimations
             Cue(new EscapeEtecoonCue.Signal(K.ExpressesGratitude)),
         ],
         [P.ThankingSteps] = SteppingStride(EtecoonStride.Left, 8, -ThankingStepPixels),
-        [P.ThankingLook] =
-        [
-            Show(EnemyFrameId.EscapeEtecoonLookingRight, 64),
-            Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8),
-        ],
+        [P.ThankingLook] = LookingRightThenTurningLeft,
     });
+
+    /// <summary>
+    /// An Etecoon looking right and then turning left, which a stationary Etecoon's look opens with and a thanking one
+    /// plays alone.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, EscapeEtecoonCue>[] LookingRightThenTurningLeft =>
+        [Show(EnemyFrameId.EscapeEtecoonLookingRight, 64), Show(EnemyFrameId.EscapeEtecoonTurningLeft, 8)];
 
     /// <summary>How many times a thanking Etecoon takes its four steps to the left.</summary>
     private const int ThankingStepRuns = 8;
@@ -59,10 +61,10 @@ internal static class EscapeEtecoonAnimations
 
     /// <summary>
     /// The animation that starts at each segment an owner can start or restart at (#2275): a low-tide or escape run raises
-    /// its own entry cue and then strides for good; a thanking Etecoon thanks Samus, steps left eight times, looks, and runs
+    /// its own entry cue and then strides for good; a thanking Etecoon thanks Samus, steps left (<see cref="ThankingStepRuns"/>), looks, and runs
     /// for the escape.
     /// </summary>
-    internal static IReadOnlyDictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
+    internal static Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>> StartingAt { get; } = new Dictionary<EscapeEtecoonSegment, Animation<EscapeEtecoonSegment>>
     {
         [P.RunningLeftLowTide] = Animation<EscapeEtecoonSegment>.LeadingInto([Segments.Whole(P.RunningLeftLowTide)], [Segments.Whole(P.RunningLeftLowTideStride)]),
         [P.RunningLeftHighTide] = Animation<EscapeEtecoonSegment>.Looping([Segments.Whole(P.RunningLeftHighTide)]),

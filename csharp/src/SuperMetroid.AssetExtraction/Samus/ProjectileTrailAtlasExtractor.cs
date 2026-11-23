@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts only trail-owned tiles, omitting the intervening missile/explosion graphics.</summary>
-public static class ProjectileTrailAtlasExtractor
+public static partial class ProjectileTrailAtlasExtractor
 {
     /// <summary>Imports eight ice/wave trail characters followed by four missile-family characters, excluding the unrelated native tile gap.</summary>
     /// <param name="bus">Cartridge-import-capable address space supplying the two four-bit planar trail-character spans.</param>
@@ -14,8 +14,8 @@ public static class ProjectileTrailAtlasExtractor
     /// <remarks>No filesystem output is written.</remarks>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] first = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.ProjectileTrailIceWaveTiles.Value, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
-        byte[] second = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), SamusSourceDefinitions.ProjectileTrailMissileTiles.Value, ProjectileTrailAtlasDefinitions.MissileByteCount);
+        byte[] first = RomDataReader.ReadFixedBank(bus, SamusSourceDefinitions.ProjectileTrailIceWaveTiles.Value, ProjectileTrailAtlasDefinitions.IceWaveByteCount);
+        byte[] second = RomDataReader.ReadFixedBank(bus, SamusSourceDefinitions.ProjectileTrailMissileTiles.Value, ProjectileTrailAtlasDefinitions.MissileByteCount);
         byte[] planar = first.Concat(second).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, ProjectileTrailAtlasDefinitions.Width / 8, out Extent16<ImagePixels> size);
         using var png = new MemoryStream();

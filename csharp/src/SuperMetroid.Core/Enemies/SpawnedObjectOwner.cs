@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// which holds that enemy's objects in its colours; or the sheet of the shards and sparkles Mother Brain's tank glass
 /// throws. The import composes each sheet; where its pictures come from is the import's knowledge alone.
 /// </summary>
-public readonly record struct SpawnedObjectOwner
+public readonly partial record struct SpawnedObjectOwner
 {
     /// <summary>Which kind of sheet an owner names.</summary>
     private enum SheetKind

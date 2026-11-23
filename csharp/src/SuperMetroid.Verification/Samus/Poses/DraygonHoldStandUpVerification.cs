@@ -32,12 +32,12 @@ internal static class DraygonHoldStandUpVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         // No enemy's solid body takes part in the stand-up's collision.
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder)
             enemy.Clear();
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         int ballRadius = SamusPoseMetadata.ReadPoseYRadius(SamusPoseId.DraygonHeldBallLeftPose);
         int standUpRadius = SamusPoseMetadata.ReadPoseYRadius(SamusPoseId.DraygonHeldStandingUpLeftPose);
@@ -73,7 +73,7 @@ internal static class DraygonHoldStandUpVerification
                 }
             }
 
-            samus.Pose = SamusPoseId.DraygonHeldBallLeftPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.DraygonHeldBallLeftPose);
             samus.Position = samus.Position.WithWhole(new(Column * RoomGridConversions.BlockPixels, (ushort)centreY));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
@@ -86,7 +86,7 @@ internal static class DraygonHoldStandUpVerification
         {
             AssertEqual(SamusPoseId.DraygonHeldStandingUpLeftPose, samus.Pose, $"{where}, Up stands the Draygon-held ball up");
             AssertEqual(expectedCentreY, samus.Position.Y.Whole, $"{where}, the stand-up's collision places her");
-            AssertEqual(SamusPoseId.DraygonHeldStandingUpLeftPose, samus.AnimatedPose, $"{where}, the stand-up's animation runs");
+            AssertEqual(SamusPoseId.DraygonHeldStandingUpLeftPose, samus.Pose, $"{where}, the stand-up's animation runs");
             AssertEqual(SamusAnimationDelayDefinitions.DraygonHeldStandingUpLeftAnimation.Start, samus.AnimationFrame,
                 $"{where}, the stand-up's animation starts on its first frame");
             if (samus.AnimationStep is not SamusAnimationDelay firstDelay)

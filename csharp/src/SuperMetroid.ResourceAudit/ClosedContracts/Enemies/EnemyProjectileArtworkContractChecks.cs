@@ -9,7 +9,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -19,21 +18,19 @@ internal static class EnemyProjectileArtworkContractChecks
     /// <summary>Checks complete authored frame admission and static provider coverage without projectile simulation.</summary>
     internal static void Run()
     {
-        var direct = EnemyProjectileSpritemapDefinitions.DocumentFrameNames.ToDictionary(name => name, _ => Array.Empty<SpriteVisualPart>());
-        var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
+        var direct = EnemyProjectileSpritemapDefinitions.DocumentFrameNames.ToDictionary(name => name, _ => Array.Empty<EnemyProjectilePartDocument>());
+        var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(frame => frame.Name, _ => Array.Empty<EnemyProjectilePartDocument>());
         var document = new EnemyProjectileSpritemapDocument {
             Version = EnemyProjectileSpritemapDocuments.Version, Frames = direct, ProgramFrames = programs };
         EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument value) =>
-            EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
+            EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(value, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))));
         EnemyProjectileSpritemapCatalog catalog = Load(document);
         EnemyProjectileFrameId directId = EnemyProjectileFrames.Identity(EnemyProjectileSpritemapDefinitions.FrameNames[0]);
         EnemyProjectilePresentationFrameDefinition program = EnemyProjectilePresentationFrameSets.All[0];
-        Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.Frame).IsEmpty &&
-            catalog.Get(EnemyProjectileFrameId.Blank).IsEmpty, "complete authored empty compositions and native blank");
+        Require(catalog.Get(directId).IsEmpty && catalog.GetProgramFrame(program.Frame).IsEmpty, "complete authored empty compositions");
         string directName = EnemyProjectileSpritemapDefinitions.FrameNames[0];
         var camelCase = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-        JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, camelCase));
+        JsonNode withNullFrame = RequiredJson.Parse(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(camelCase)));
         withNullFrame.Required("frames")[directName] = null;
         Reject(() => EnemyProjectileSpritemapDocuments.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(withNullFrame.ToJsonString()))),
             "null direct composition");
@@ -58,7 +55,6 @@ internal static class EnemyProjectileArtworkContractChecks
             class ProjectileArtworkConsumer {
                 void Inspect(EnemyProjectileSpritemapCatalog art, EnemyProjectileFrameId frame, EnemyProjectileFrameId program) {
                     art.Get(EnemyProjectileFrameId.{{directId}});
-                    art.Get(EnemyProjectileFrameId.Blank);
                     art.Get((EnemyProjectileFrameId)int.MaxValue);
                     art.Get(frame);
                     art.GetProgramFrame(EnemyProjectileFrameId.{{programId}});
@@ -70,8 +66,8 @@ internal static class EnemyProjectileArtworkContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("EnemyProjectileArtworkFixture", sources,
-            platforms.Append(typeof(EnemyProjectileSpritemapCatalog).Assembly.Location)
-                .Append(typeof(EnemyProjectileFrameId).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.AssetExtraction)
+                .Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -85,9 +81,10 @@ internal static class EnemyProjectileArtworkContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.MissingCount == 5 && before.UnresolvedCount == 2 && before.Consumers.Count == 7, "original absent adapter boundaries" + " (" + before.Describe() + ")");
-        Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 5 && after.Consumers.Count == 7,
-            "valid direct/program IDs and blank qualify; unknown IDs stay findings" + " (" + after.Describe() + ")");
+        // Six calls: a valid, an unknown and an unresolved direct and program-frame ID each (#2558: no blank frame stands for none).
+        Require(before.MissingCount == 4 && before.UnresolvedCount == 2 && before.Consumers.Count == 6, "original absent adapter boundaries" + " (" + before.Describe() + ")");
+        Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 4 && after.Consumers.Count == 6,
+            "valid direct/program IDs qualify; unknown IDs stay findings" + " (" + after.Describe() + ")");
         SyntaxTree external = CSharpSyntaxTree.ParseText("""
             namespace SuperMetroid.AssetExtraction.Enemies;
             class ExternalProjectileDefinitions {
@@ -95,7 +92,7 @@ internal static class EnemyProjectileArtworkContractChecks
             }
             """, path: "fixture-external-projectile-array.cs");
         AuditReport revoked = Inspect(Compile(trees.Append(external)), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 7, "external mutable frame-array reference revokes completeness" + " (" + revoked.Describe() + ")");
+        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 6, "external mutable frame-array reference revokes completeness" + " (" + revoked.Describe() + ")");
     }
 
     /// <summary>Requires malformed or incomplete projectile documents to fail during load.</summary>

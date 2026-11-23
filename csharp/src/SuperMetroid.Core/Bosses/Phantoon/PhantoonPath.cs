@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's figure-eight path, one authored unit step at a time.</summary>
-public static class PhantoonPath
+public static partial class PhantoonPath
 {
     /// <summary>The path's places in order, each the signed unit step he takes from it to the next place.</summary>
-    public static IReadOnlyList<Offset16<RoomPixels>> Places { get; } = [.. PhantoonPathDefinitions.Directions.Select(StepOf)];
+    internal static IReadOnlyList<Offset16<RoomPixels>> Places { get; } = [.. PhantoonPathDefinitions.Directions.Select(StepOf)];
 
     /// <summary>The place <paramref name="place"/> of his path, counting from its start.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The path has no such place.</exception>

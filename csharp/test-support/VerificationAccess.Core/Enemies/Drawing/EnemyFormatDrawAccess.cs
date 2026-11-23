@@ -121,8 +121,8 @@ internal static class EnemyFormatDrawAccess
         /// </summary>
         internal void DrawAsOam(OamBuffer oam, Position16<RoomPixels> camera, SuperMetroid.Core.Samus.SamusState? samus = null)
         {
-            drawing.Advance(camera);
-            oam.AppendDrawn(frame => drawing.Draw(frame, camera, samus ?? RoomEnemyFrameFixtures.StandaloneSamus()));
+            IReadOnlyList<EnemyDrawList.PreparedEnemyDraw> prepared = drawing.Advance(camera);
+            oam.AppendDrawn(frame => drawing.Draw(prepared, frame, camera, samus ?? RoomEnemyFrameFixtures.StandaloneSamus()));
         }
     }
 
@@ -159,6 +159,6 @@ internal static class EnemyFormatDrawAccess
         /// <paramref name="oam"/>.
         /// </summary>
         internal void DrawAsOam(OamBuffer oam, EnemyPresentation presentation, Position16<RoomPixels> camera) =>
-            oam.AppendDrawn(frame => arrival.Draw(frame, presentation, camera));
+            oam.AppendDrawn(frame => ((IActorInFrontOfSamus)arrival).DrawInFrontOfSamus(frame, presentation, camera));
     }
 }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// The Samus, equipment and mini-boss conditions the colour effects watch each update (#633, #1554); a Torizo's belly glow
 /// watches its own Torizo instead (#1700).
 /// </summary>
-public sealed record ColourEffectInputs
+public sealed partial record ColourEffectInputs
 {
     /// <summary>
     /// Samus's whole-pixel room height this update, which the lightning compares with
@@ -28,8 +28,8 @@ public sealed record ColourEffectInputs
     public required IRoomSamusAccess Samus { get; init; }
 
     /// <summary>
-    /// The long frame counter this update (<see cref="FrameClock.Counter"/>), 0 through one short of
-    /// <see cref="FrameClock.CounterPeriod"/>: the heat shimmer plays its damage sound on every eighth update of it. Values
+    /// The game's update count this update (<see cref="FrameClock.Counter"/>), 0 through one short of
+    /// <see cref="FrameClock.CounterPeriod"/>: the heat shimmer plays its damage sound at its cadence's place in it. Values
     /// the counter never holds are rejected (#1627).
     /// </summary>
     public int FrameCounter { get; init => field = Ensure.BetweenInclusive(0, FrameClock.CounterPeriod - 1, value); }

@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Conversions from room pixels to the viewport the camera selects.</summary>
-[EncodingOwner("screen and sprite coordinates")]
-public static class ScreenConversions
+public static partial class ScreenConversions
 {
     /// <summary>
     /// The screen-relative position of <paramref name="room"/> when the camera's top-left corner is

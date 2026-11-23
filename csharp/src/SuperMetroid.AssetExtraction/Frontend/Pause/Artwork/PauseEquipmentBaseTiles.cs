@@ -6,14 +6,14 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Which cells of the equipment screen's base page (<see cref="PauseEquipmentBaseDefinitions"/>) the live labels, reserves
 /// and wireframe own; the page's pictures are installed whole (#1615).
 /// </summary>
-public static class PauseEquipmentBaseTiles
+public static partial class PauseEquipmentBaseTiles
 {
     /// <summary>
-    /// $82:C06C-$C087 destinations: beams occupy rows16-20, suits/misc rows9-10
-    /// and13-16, boots rows19-21. All own nine cells on the cartridge's page, where a nine-cell write dispatched from
+    /// $82:C06C-$C087 destinations: beams occupy rows 16 to 20, suits and miscellaneous items rows 9 and 10
+    /// and 13 to 16, boots rows 19 to 21. All own nine cells on the cartridge's page, where a nine-cell write dispatched from
     /// the suit or boot column reaches along a beam row; the game shows each label's picture whole (#1515).
     /// </summary>
-    public static bool IsEquipmentLabelCell(int cell)
+    internal static bool IsEquipmentLabelCell(int cell)
     {
         if ((uint)cell >= Cells) return false;
         int row = cell / Columns;
@@ -23,7 +23,7 @@ public static class PauseEquipmentBaseTiles
             (row is 9 or 10 or >= 13 and <= 16 or >= 19 and <= 21);
     }
 
-    /// <summary>$82:C068/$C06A reserve labels occupy seven columns on rows10/11; supply digits use their own anchor.</summary>
+    /// <summary>$82:C068/$C06A reserve labels occupy seven columns on rows 10 and 11; supply digits use their own anchor.</summary>
     private static bool IsReserveCell(int cell)
     {
         if ((uint)(cell - PauseReserveUiDefinitions.DigitCell) < PauseReserveUiDefinitions.SupplyDigitPlaces)
@@ -34,7 +34,7 @@ public static class PauseEquipmentBaseTiles
     /// <summary>Returns whether runtime inventory, reserve, or wireframe state owns a tilemap cell.</summary>
     /// <param name="cell">Zero-based cell index in the 32-by-32 equipment tilemap.</param>
     /// <returns><see langword="true"/> when the static base must leave the cell for live menu composition.</returns>
-    public static bool IsLiveOwnedCell(int cell)
+    internal static bool IsLiveOwnedCell(int cell)
     {
         if (IsEquipmentLabelCell(cell)) return true;
         if (IsReserveCell(cell)) return true;

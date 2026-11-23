@@ -6,8 +6,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's entrance: the opening delay and its dance.</summary>
-[RoomLifetime]
-internal sealed class DraygonIntro
+internal sealed partial class DraygonIntro
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
     private readonly RoomEffectActors _effectActors;
@@ -32,22 +31,21 @@ internal sealed class DraygonIntro
         {
             if (state.IntroStage.IsUncounted)
             {
-                // Each Evir the dance spawns carries its own start delay, by the order it spawned in; the dance moves
-                // exactly these.
-                for (int dancer = 0; dancer < DraygonIntroDanceDefinitions.EvirCount; dancer++)
+                // Each Evir the dance spawns carries its own start delay; the dance moves exactly these.
+                foreach (int startDelay in DraygonIntroDanceDefinitions.DancerStartDelays)
                 {
                     RoomEffectActor sprite = _effectActors.SpawnRoomEffectActor(
                         DraygonArenaDefinitions.IntroEvirEntry,
                         RoomEffectActorKind.EvirFacingLeft,
                         SpriteGraphics.SharedIn(DraygonColours.Evirs));
-                    state.IntroDancers.Add(new DraygonIntroDancer(sprite, DraygonIntroDance.StartDelay(dancer)));
+                    state.IntroDancers.Add(new DraygonIntroDancer(sprite, startDelay));
                 }
             }
             state.IntroStage.Count();
             return;
         }
 
-        state.Phase = DraygonPhase.IntroDance;
+        state.Step = DraygonPhaseSteps.IntroDance();
         state.IntroStage = UpdateCountdown.Lasting(DraygonIntroDanceDefinitions.DurationFrames);
         state.LeftSideReset = state.Body.Position.Whole;
         // The left-side place is where the room places Draygon, left of and above the arena, so the right-side place
@@ -57,7 +55,7 @@ internal sealed class DraygonIntro
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
     }
 
-    /// <summary>Runs the 1,232-frame Evir dance.</summary>
+    /// <summary>Runs the Evir dance (<see cref="DraygonIntroDanceDefinitions.DurationFrames"/>).</summary>
     internal void RunDraygonIntroDance(
         DraygonEnemyState state,
         SamusState samus,
@@ -66,7 +64,7 @@ internal sealed class DraygonIntro
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (state.IntroStage.IsOver)
         {
-            state.Phase = DraygonPhase.SwoopSetup;
+            state.Step = DraygonPhaseSteps.RightSwoopSetup();
             state.PassDirection = HorizontalDirection.Right;
             return;
         }
@@ -74,20 +72,10 @@ internal sealed class DraygonIntro
         // The dance moves the Evirs it spawned, in the order they spawned, each once it has waited out its start delay.
         foreach (DraygonIntroDancer dancer in state.IntroDancers)
         {
-            RoomEffectActor sprite = dancer.Sprite;
-            int step = state.IntroStage.Age - dancer.StartDelay;
-            if (step < 0 || !sprite.IsActive)
+            if (state.IntroStage.Age < dancer.StartDelay || !dancer.Sprite.IsActive)
                 continue;
 
-            DraygonIntroMovement movement = DraygonIntroDance.Movement(step);
-
-            if (movement.DeletesSprite)
-            {
-                sprite.End();
-                continue;
-            }
-
-            sprite.Position += movement.Delta;
+            dancer.Step();
         }
 
         state.IntroStage.Count();

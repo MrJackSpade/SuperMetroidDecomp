@@ -33,7 +33,7 @@ internal static class LookupDownwardGateDrawsVerification
             "yellow-left-trigger","yellow-right-trigger"];
         var exported = RoomObjectDownwardGateVisualFiles.All.ToArray();
         AssertEqual(14, exported.Length, "Gate draw export count");
-        InstalledRoomObjectDownwardGateVisuals? pictures = field == 2 ? InstalledRoomObjectDownwardGateVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.DownwardGate : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -68,7 +68,7 @@ internal static class LookupDownwardGateDrawsVerification
                 int length = count & 0x7fff;
                 if (field == 0)
                 {
-                    AssertEqual((count & 0x8000) != 0, shape.Column, "Gate column draws down its column");
+                    AssertEqual((count & 0x8000) != 0, shape.Part == DownwardGatePart.Column, "Gate column draws down its column");
                     AssertRunHeader(count, dto.Runs.Span[run], "Gate DTO count/direction");
                     AssertRunHeader(count, exported[index].Runs.Span[run], "Gate export count/direction");
                     AssertEqual(length, dto.Runs.Span[run].Count, "Gate DTO width");
@@ -123,5 +123,5 @@ internal static class LookupDownwardGateDrawsVerification
     }
 
     /// <summary>Reads a native draw-list byte for the retail ROM comparison only.</summary>
-    private static byte DownwardGateDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte DownwardGateDrawFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

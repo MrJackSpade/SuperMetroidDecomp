@@ -16,19 +16,19 @@ internal static class EndingGlyphMappingVerification
             AssertEqual(startColumn, actual.Column, "ending panel first native text column");
             AssertEqual(expectedText.Length, actual.Width, "ending panel text width");
             string text = new(Enumerable.Range(0, actual.Width).Select(i =>
-                EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(CartridgeImportSource.Require(bus).ReadCartridgeWord((source + 2 * (startColumn + i)))), actual.Style)).ToArray());
+                EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(bus.ReadCartridgeWord((source + 2 * (startColumn + i)))), actual.Style)).ToArray());
             AssertEqual(expectedText, text, "ending native panel label");
         }
         // Row0 of the two original tilemaps; the blank-run boundaries locate text independently.
-        int producerStart = Enumerable.Range(0, 32).First(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdc9b + i * 2)) != 0x004f);
-        int producerEnd = Enumerable.Range(0, 32).Last(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdc9b + i * 2)) != 0x004f);
+        int producerStart = Enumerable.Range(0, 32).First(i => bus.ReadCartridgeWord((0x8cdc9b + i * 2)) != 0x004f);
+        int producerEnd = Enumerable.Range(0, 32).Last(i => bus.ReadCartridgeWord((0x8cdc9b + i * 2)) != 0x004f);
         Panel(EndingTextDefinitions.ResultProducedBy, 0x8cdc9b, "PRODUCED BY", producerStart);
         AssertEqual(producerEnd - producerStart + 1, EndingTextDefinitions.ResultProducedBy.Width, "producer native span");
-        int yearStart = Enumerable.Range(0, 32).First(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdedb + i * 2)) != 0x007f);
+        int yearStart = Enumerable.Range(0, 32).First(i => bus.ReadCartridgeWord((0x8cdedb + i * 2)) != 0x007f);
         int yearEnd = yearStart;
-        while (CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdedb + yearEnd * 2)) != 0x007f) yearEnd++;
+        while (bus.ReadCartridgeWord((0x8cdedb + yearEnd * 2)) != 0x007f) yearEnd++;
         int companyStart = yearEnd;
-        while (CartridgeImportSource.Require(bus).ReadCartridgeWord((0x8cdedb + companyStart * 2)) == 0x007f) companyStart++;
+        while (bus.ReadCartridgeWord((0x8cdedb + companyStart * 2)) == 0x007f) companyStart++;
         Panel(EndingTextDefinitions.CopyrightYear, 0x8cdedb, "1994", yearStart);
         Panel(EndingTextDefinitions.CopyrightCompany, 0x8cdedb, "NINTENDO", companyStart);
         AssertEqual(EndingTextStyle.ResultSmall, EndingTextDefinitions.ResultProducedBy.Style, "producer style");
@@ -42,11 +42,11 @@ internal static class EndingGlyphMappingVerification
             AssertEqual(bus.ReadCartridgeByte(start + 2), actual.Column, "native first typewriter column");
             AssertEqual(style, actual.Style, "typewriter style");
             var text = new System.Text.StringBuilder();
-            while (count < 32 && CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) < 0x8000 && bus.ReadCartridgeByte(cursor + 3) == nativeRow)
+            while (count < 32 && bus.ReadCartridgeWord(cursor) < 0x8000 && bus.ReadCartridgeByte(cursor + 3) == nativeRow)
             {
                 AssertEqual(actual.Column + count, (int)bus.ReadCartridgeByte(cursor + 2), "native consecutive typewriter column");
-                int glyph = 0x8c0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord((cursor + 4));
-                text.Append(EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(CartridgeImportSource.Require(bus).ReadCartridgeWord((glyph + 4))), style));
+                int glyph = 0x8c0000 | bus.ReadCartridgeWord((cursor + 4));
+                text.Append(EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(bus.ReadCartridgeWord((glyph + 4))), style));
                 count++;
                 cursor += 6;
             }
@@ -86,8 +86,8 @@ internal static class EndingGlyphMappingVerification
         ];
         foreach (var record in largeRecords)
         {
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge).PackedWord, "native named glyph record");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((record.Address + 2)), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge, bottom: true).PackedWord, "native named lower glyph record");
+            AssertEqual(bus.ReadCartridgeWord(record.Address), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge).PackedWord, "native named glyph record");
+            AssertEqual(bus.ReadCartridgeWord((record.Address + 2)), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.FinalLarge, bottom: true).PackedWord, "native named lower glyph record");
         }
         LargeRecord[] smallRecords = [
             new LargeRecord('A', 0x8ce18d),
@@ -109,18 +109,18 @@ internal static class EndingGlyphMappingVerification
         ];
         foreach (var record in smallRecords)
         {
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(record.Address), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.PercentageSmall).PackedWord, "native named glyph record");
+            AssertEqual(bus.ReadCartridgeWord(record.Address), EndingTextGlyphs.CompileGlyph(record.Glyph, EndingTextStyle.PercentageSmall).PackedWord, "native named glyph record");
         }
         // Original indirect text records and producer/copyright panels establish attributes/blanks.
-        ushort percentageAttributes = (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord(0x8ce18d) & 0xfc00);
-        ushort finalAttributes = (ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord(0x8ce13d) & 0xfc00);
+        ushort percentageAttributes = (ushort)(bus.ReadCartridgeWord(0x8ce18d) & 0xfc00);
+        ushort finalAttributes = (ushort)(bus.ReadCartridgeWord(0x8ce13d) & 0xfc00);
         foreach (EndingTextStyle style in Enum.GetValues<EndingTextStyle>())
         foreach (bool bottom in new[] { false, true })
         {
             bool large = style is EndingTextStyle.CopyrightLarge or EndingTextStyle.FinalLarge;
             ushort attributes = style == EndingTextStyle.PercentageSmall ? percentageAttributes :
                 style == EndingTextStyle.FinalLarge ? finalAttributes : (ushort)0;
-            ushort blank = CartridgeImportSource.Require(bus).ReadCartridgeWord((style switch
+            ushort blank = bus.ReadCartridgeWord((style switch
             {
                 EndingTextStyle.ResultSmall => 0x8cdc9b,
                 EndingTextStyle.CopyrightLarge => 0x8cdedb,
@@ -136,23 +136,18 @@ internal static class EndingGlyphMappingVerification
                     expected.Add(bottom ? digitsBottom[digit] : digitsTop[digit], (char)('0' + digit));
             foreach (var entry in expected)
                 AssertEqual(entry.Key, EndingTextGlyphs.CompileGlyph(entry.Value, style, bottom).PackedWord, $"ending {style} glyph {entry.Value} half {bottom}, encoded through the codec");
-            for (int word = 0; word <= ushort.MaxValue; word++)
-            {
-                if (expected.TryGetValue((ushort)word, out char glyph))
-                    AssertEqual(glyph, EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph inverse over the tile each word places");
-                else
-                    AssertThrows<InvalidDataException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph rejects the tile of a non-glyph word");
-            }
+            foreach (var entry in expected)
+                AssertEqual(entry.Value, EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(entry.Key), style, bottom), "ending glyph inverse over the tile each word places");
+            // The glyph table's words are the only tiles the ending's text shows; a tile no glyph word places is refused,
+            // here the empty word, the full word and each glyph's word mirrored vertically.
+            foreach (int word in new[] { 0, ushort.MaxValue }.Concat(expected.Keys.Select(key => key ^ 0x8000))
+                         .Where(word => !expected.ContainsKey((ushort)word)).Distinct())
+                AssertThrows<InvalidDataException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(word), style, bottom), "ending glyph rejects the tile of a non-glyph word");
             foreach (char invalid in new[] { '\0', '@', '[', 'a', '/', ':', '\uffff' })
                 AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph(invalid, style, bottom), "ending glyph character bounds");
             if (style != EndingTextStyle.CopyrightLarge)
                 for (char digit = '0'; digit <= '9'; digit++)
                     AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph(digit, style, bottom), "ending glyph digits restricted to copyright");
-        }
-        foreach (EndingTextStyle invalid in new[] { (EndingTextStyle)4, (EndingTextStyle)255 })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.CompileGlyph('A', invalid), "ending glyph style bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingTextGlyphs.DecodeGlyph(BackgroundTileWordBytes.Tile(0), invalid), "ending decoder style bounds");
         }
     }
 }

@@ -2,36 +2,13 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>Immutable mechanics for the first two Tourian escape palette loops.</summary>
-/// <remarks>
-/// The shutter and background programs contain fourteen uniform records apiece. Their
-/// 140 BGR555 words remain live presentation data; this catalog owns palette placement,
-/// record timing, waits, and loop control.
-/// </remarks>
-public static class TourianEscapeRedFlashPaletteFxColorDefinitions
+/// <summary>The records of the Tourian escape's shutter and background red flashes and the colours each writes, for the import.</summary>
+public static partial class TourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
-    /// <summary>Shutter and background loops with distinct colour starts, frame durations, and color extents.</summary>
-    private static readonly TourianEscapeRedFlashPaletteFxColorDefinition[] Definitions =
-    [
-        new()
-        {
-            Owner = TourianEscapeRedFlashPaletteOwner.Shutter,
-            Object = ColourEffectId.TourianShutterRedFlashing,
-            Duration = 2,
-            ColorsPerFrame = 6,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianShutterRedFlashing, 6),
-        },
-        new()
-        {
-            Owner = TourianEscapeRedFlashPaletteOwner.Background,
-            Object = ColourEffectId.TourianBackgroundRedFlashing,
-            Duration = 4,
-            ColorsPerFrame = 4,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TourianBackgroundRedFlashing, 4),
-        },
-    ];
+    /// <summary>The shutters' red flashing.</summary>
+    internal static TourianEscapeRedFlashPaletteFxColorDefinition TourianShutterRedFlashing { get; } = new(ColourEffectId.TourianShutterRedFlashing, 6);
 
-    /// <summary>The shutter and background red-flash programs in definition order.</summary>
-    public static IReadOnlyList<TourianEscapeRedFlashPaletteFxColorDefinition> All { get; } = Array.AsReadOnly(Definitions);
+    /// <summary>The background's red flashing.</summary>
+    internal static TourianEscapeRedFlashPaletteFxColorDefinition TourianBackgroundRedFlashing { get; } = new(ColourEffectId.TourianBackgroundRedFlashing, 4);
 }

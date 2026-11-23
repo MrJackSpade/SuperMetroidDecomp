@@ -1,15 +1,16 @@
 using System.Collections.Immutable;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Escape;
 
 /// <summary>The escape timer's countdown cadence (#2135): the centiseconds each update of its repeating period removes.</summary>
-internal static class EscapeTimerCadenceDefinitions
+internal static partial class EscapeTimerCadenceDefinitions
 {
     /// <summary>
     /// The frame counter's place in the countdown's period, which picks the centiseconds the update removes (#1619): the
-    /// counter's place in each run of 128 updates, so the cadence repeats every 128 updates.
+    /// counter's place in each of its periods, so the cadence repeats with the period.
     /// </summary>
-    internal static readonly UpdateCounterField PeriodPlace = new(0, 7);
+    internal static readonly UpdateCycle PeriodPlace = new(128, 1);
 
     /// <summary>Decimal timer time unit: one second contains 100 centiseconds.</summary>
     internal const int CentisecondsPerSecond = 100;
@@ -20,13 +21,13 @@ internal static class EscapeTimerCadenceDefinitions
     /// </summary>
     internal static readonly ImmutableArray<int> CentisecondsRemoved =
     [
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
         1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
         1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
         1, 2, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
-        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
+        1, 2, 2, 1, 2, 2, 1, 2, 2, 1, .. Repeated(2, 3), 1, 2, 2,
     ];
 }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>The low-energy check and its persistent critical-energy latch.</summary>
-public sealed class SamusHealthWarningState
+public sealed partial class SamusHealthWarningState
 {
     /// <summary>The request priority of the warning's start and stop sounds.</summary>
     private static readonly SoundRequestPriority WarningSoundPriority = SoundRequestPriority.Normal;
@@ -12,14 +12,14 @@ public sealed class SamusHealthWarningState
     private static readonly SoundEffectId Start = RoomSound.LowHealthBeep;
 
     /// <summary>The room-library sound that stops the critical-energy warning.</summary>
-    private static readonly SoundEffectId Stop = RoomSound.Silence;
+    private static readonly SoundEffectId Stop = RoomSoundStop.Any;
 
     /// <summary>The latch, not confirmation that the warning sound actually started.</summary>
-    public bool IsActive { get; private set; }
+    internal bool IsActive { get; set; }
 
     /// <summary>
-    /// Executes one admitted check. Samus's update decides when it runs and in what order;
-    /// frozen gameplay alone is not a reason to omit the automatic-reserve external call.
+    /// Executes one admitted check: starts or stops the warning sound when Samus's energy crosses the healthy threshold.
+    /// Samus's update decides when it runs and in what order.
     /// </summary>
     internal void Update(int health, GameplaySoundRequests audio)
     {

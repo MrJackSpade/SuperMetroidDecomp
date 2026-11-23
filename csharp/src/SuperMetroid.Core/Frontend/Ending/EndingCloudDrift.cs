@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// An escape cloud's drift (#2489): the cloud waits until the turning floor's zoom releases it, then from its next update
 /// on drifts by a fixed step every update without testing the zoom again.
 /// </summary>
-internal sealed class EndingCloudDrift : EndingActorMotion
+internal sealed partial class EndingCloudDrift : EndingActorMotion
 {
     /// <summary>How far the cloud drifts each update once released.</summary>
     private readonly Offset16<ScreenPixels> step;
@@ -15,7 +15,7 @@ internal sealed class EndingCloudDrift : EndingActorMotion
     private readonly Func<FloorZoom, bool> releases;
 
     /// <summary>Whether the floor's zoom has released the cloud.</summary>
-    internal bool Drifting { get; private set; }
+    internal bool Drifting { get; set; }
 
     /// <summary>Creates a waiting cloud that drifts by <paramref name="step"/> once <paramref name="releases"/> says the zoom has released it.</summary>
     private EndingCloudDrift(Offset16<ScreenPixels> step, Func<FloorZoom, bool> releases)
@@ -30,7 +30,13 @@ internal sealed class EndingCloudDrift : EndingActorMotion
     /// </summary>
     internal static EndingCloudDrift SideCloud(HorizontalDirection drift) => new(
         drift == HorizontalDirection.Left ? EndingMotionDefinitions.RightSideCloudDrift : EndingMotionDefinitions.LeftSideCloudDrift,
-        zoom => zoom >= EndingMotionDefinitions.CloudMotionStartZoom);
+        ReleasesSideCloud);
+
+    /// <summary>Whether the zoom has released a side-cloud escape cloud: it reaches <see cref="EndingMotionDefinitions.CloudMotionStartZoom"/>.</summary>
+    private static bool ReleasesSideCloud(FloorZoom zoom) => zoom >= EndingMotionDefinitions.CloudMotionStartZoom;
+
+    /// <summary>Whether the zoom releases a top-and-bottom-cloud escape cloud: it is below <see cref="EndingMotionDefinitions.TopAndBottomCloudZoomLimit"/>.</summary>
+    private static bool ReleasesTopOrBottomCloud(FloorZoom zoom) => zoom < EndingMotionDefinitions.TopAndBottomCloudZoomLimit;
 
     /// <summary>
     /// A top-and-bottom-cloud escape cloud, released while the zoom is below
@@ -39,7 +45,7 @@ internal sealed class EndingCloudDrift : EndingActorMotion
     /// </summary>
     internal static EndingCloudDrift TopOrBottomCloud(VerticalDirection drift) => new(
         new Offset16<ScreenPixels>(0, 1.Toward(drift)),
-        zoom => zoom < EndingMotionDefinitions.TopAndBottomCloudZoomLimit);
+        ReleasesTopOrBottomCloud);
 
     /// <summary>Releases the waiting cloud when the zoom allows, its drift beginning next update, or drifts a released one.</summary>
     internal override void Step(ICinematicActor<EndingSceneCue> actor, IEndingActorScene scene)

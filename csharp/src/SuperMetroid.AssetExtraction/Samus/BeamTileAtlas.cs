@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One immutable eight-tile beam sheet, its pixels as installed (#1596).</summary>
-public sealed class BeamTileAtlas
+public sealed partial class BeamTileAtlas
 {
     /// <summary>The sheet's installed four-bit pen indices, row-major across its eight characters.</summary>
     private readonly byte[] pixels;
@@ -24,10 +24,10 @@ public sealed class BeamTileAtlas
     /// <exception cref="InvalidDataException">The PNG format, dimensions, or palette indices cannot represent the required four-bit beam characters.</exception>
     public static BeamTileAtlas Load(Stream png, SamusBeamCombination selection)
     {
-        _ = BeamTileAtlasDefinitions.ArtworkOrdinal(selection);
+        BeamTileAtlasDefinitions.RequireArtwork(selection);
         var image = IndexedPng.Read(png, new(BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height));
         // Retain the original encoder's exact four-bit input validation at import.
-        _ = SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4);
+        SnesPlanarTileEncoder.RequireEncodable(image.Pixels, image.Size, 4);
         return new([.. image.Pixels]);
     }
 }

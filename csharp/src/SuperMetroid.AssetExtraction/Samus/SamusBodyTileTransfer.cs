@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>One native seven-byte transfer compiled from palette-indexed PNG tiles, held as installed.</summary>
-public sealed class SamusBodyTileTransfer
+public sealed partial class SamusBodyTileTransfer
 {
     /// <summary>The installed planar character bytes of both transfers.</summary>
     private readonly byte[] planar;

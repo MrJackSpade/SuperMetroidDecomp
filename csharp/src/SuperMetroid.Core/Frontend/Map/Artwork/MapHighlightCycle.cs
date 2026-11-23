@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 /// The map highlight cycle's timing (#1512): the frames it shows in turn and how long each holds. The colours of each
 /// frame are a shade the import pre-colours the map sprite sheet in (<see cref="MapSpriteShades.Highlight"/>).
 /// </summary>
-public sealed class MapHighlightCycle
+public sealed partial class MapHighlightCycle
 {
     /// <summary>The hold of each frame, in order, in map colour animation updates.</summary>
     private readonly ImmutableArray<int> durations;

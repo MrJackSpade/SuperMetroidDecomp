@@ -22,13 +22,13 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
         CartridgeImportAddressSpace rom)
     {
         IReadOnlyList<AnimationBeat<PictureShade, NoAnimationCue>> pulse =
-            SamusGlowAnimationDefinitions.Segments.Beats(SamusGlowSegment.CrystalFlashBody);
+            SamusGlowAnimationDefinitions.Segments.Beats(SamusGlowSegment.Of(SamusGlow.CrystalFlashBody));
         AssertEqual(CrystalFlashPaletteTimingDefinitionsConstants.RecordCount, pulse.Count, "the body pulse has one shade per native record");
         for (int record = 0; record < CrystalFlashPaletteTimingDefinitionsConstants.RecordCount; record++)
         {
             int address = CrystalFlashPaletteTimingDefinitionsConstants.NativeFirstTimerAddress +
                 record * CrystalFlashPaletteTimingDefinitionsConstants.RecordByteCount;
-            ushort nativeDuration = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort nativeDuration = rom.ReadCartridgeWord(address);
             var beat = (AnimationBeat<PictureShade, NoAnimationCue>.Frame)pulse[record];
             AssertEqual(nativeDuration, beat.Duration, $"Crystal Flash body-palette duration {record}");
             AssertEqual(SamusShades.CrystalFlashBody[record], beat.Shown, $"Crystal Flash body pulse shade {record}");
@@ -36,14 +36,13 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Health = 1,
             MaxHealth = 99,
             Missiles = 10,
             SuperMissiles = 10,
             PowerBombs = 10,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         AssertTrue(
             samus.CrystalFlash.TryBegin(samus, SamusCrystalFlashState.RequiredInput),
@@ -60,7 +59,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
 
             AssertEqual(shadeUpdates - call % shadeUpdates, samus.CrystalFlash.BodyPulse.UpdatesLeft,
                 $"production Crystal Flash body timer call {call}");
-            AssertEqual(SamusShades.CrystalFlashBody[call / shadeUpdates], samus.CrystalFlash.BodyPulse.Showing,
+            AssertEqual(SamusShades.CrystalFlashBody[call / shadeUpdates], samus.CrystalFlash.BodyPulse.Shown,
                 $"production Crystal Flash body shade call {call}");
         }
 

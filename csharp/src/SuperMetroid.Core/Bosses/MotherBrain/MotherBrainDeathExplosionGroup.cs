@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Second">The second position.</param>
 /// <param name="Third">The third position.</param>
 /// <param name="Fourth">The fourth position.</param>
-internal sealed record MotherBrainDeathExplosionGroup(
+internal sealed partial record MotherBrainDeathExplosionGroup(
     Offset16<RoomPixels> First,
     Offset16<RoomPixels> Second,
     Offset16<RoomPixels> Third,

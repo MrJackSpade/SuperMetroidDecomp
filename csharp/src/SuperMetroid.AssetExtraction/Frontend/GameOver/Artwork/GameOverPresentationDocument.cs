@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>Authored game-over JSON: the layout the game binds and the actor compositions the game-over sheet is composed from (#1463).</summary>
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries; the stream loader parses its own independent document.</remarks>
-public sealed record GameOverPresentationDocument : GameOverLayoutDocument
+public sealed partial record GameOverPresentationDocument : GameOverLayoutDocument
 {
     /// <summary>1024 row-major cells composing the complete 32-by-32 game-over page, which the import pictures (#1467).</summary>
     [JsonPropertyOrder(2)]

@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -9,7 +8,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.Kraid;
-using SuperMetroid.Verification.Enemies;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 
@@ -107,7 +106,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             state.WalkTurnWait.LastFor(0x0100);
             state.SpitWait.LastFor(0x0100);
 
-            RunFrames(enemies, place, samus, level, 60);
+            RunFrames(enemies, place, state, samus, level, 60);
 
             AssertEqual(0x00ff, state.WalkTurnWait.UpdatesLeft,
                 $"Fake Kraid {program} executes its walk callback");
@@ -127,7 +126,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             state.WalkTurnWait.LastFor(0x0100);
             state.SpitWait.LastFor(0x0100);
 
-            RunFrames(enemies, place, samus, level, 60);
+            RunFrames(enemies, place, state, samus, level, 60);
 
             // The instruction runner moves no projectile, so every spit the program spawned is still in the pool.
             AssertEqual(2, enemies.Projectiles.EnemyProjectiles.Count(projectile =>
@@ -154,7 +153,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             state.SpitWait.LastFor(UnexpiredSpitDecisions);
             ushort startX = place.Position.X.Whole;
 
-            RunFrames(enemies, place, samus, level, 60);
+            RunFrames(enemies, place, state, samus, level, 60);
 
             AssertEqual(walking == HorizontalDirection.Right ? HorizontalDirection.Left : HorizontalDirection.Right, state.Walking,
                 $"Fake Kraid {program} turns round on its walk's last step");
@@ -172,11 +171,9 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().ReadRandom = () => 0;
-            Action<RoomEnemyPlace, SamusState> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
-
             place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.FakeKraid, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.FakeKraid, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             place.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.FakeKraid).Radius;
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
@@ -184,27 +181,27 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, place.Position.Y.Whole)),
             };
-            initialize(place, samus);
-            state = (enemies.FakeKraidStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FakeKraidStates[0]."));
+            // Fake Kraid's setup builds the state his animation, which the check plays, runs on.
+            state = enemies.FakeKraidBehavior.InitializeFakeKraid(place, samus);
             return enemies;
         }
 
         static void RunFrames(
             RoomEnemySystem enemies,
             RoomEnemyPlace place,
+            FakeKraidEnemyState state,
             SamusState samus,
             RoomLevelData level,
             int frames)
         {
-            object?[] arguments =
-                [place, samus, level, Position16<RoomPixels>.Zero, default(GameplayAction)];
+            var context = new EnemyAnimationCueContext { Samus = samus, Level = level, Camera = Position16<RoomPixels>.Zero, ControllerInput = default };
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(arguments);
+                enemies.FakeKraidBehavior.AdvanceFakeKraidTypedAnimation(place.HeldOccupant(), place, state, context);
         }
     }
 
     /// <summary>Reads native bank-$A6 bytes only for the independent instruction comparison.</summary>
-    private static byte FakeKraidInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FakeKraidInstructionProgramDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the Fake Kraid instruction check against the local retail cartridge.</summary>
     [VerificationCommand("--fake-kraid-instruction-mechanics")]

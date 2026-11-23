@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Map;
 
-/// <summary>The pause and file-select maps' scroll step: one eight-pixel map cell per eight-update step.</summary>
-public static class MapScrollDefinitions
+/// <summary>The pause and file-select maps' scroll step: one map cell per step.</summary>
+public static partial class MapScrollDefinitions
 {
     /// <summary>The update of a scroll step on which the map moves its one cell.</summary>
     public const int PulseTick = 4;

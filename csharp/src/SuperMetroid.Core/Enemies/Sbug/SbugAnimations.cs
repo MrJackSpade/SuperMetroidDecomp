@@ -1,4 +1,4 @@
-using P = SuperMetroid.Core.Enemies.Sbug.SbugSegment;
+using P = SuperMetroid.Core.Spatial.CompassDirection;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -8,85 +8,35 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// Sbug's eight directional animation loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class SbugAnimations
+internal static partial class SbugAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<SbugSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<SbugSegment, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
+    internal static AnimationSegments<CompassDirection, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<CompassDirection, AnimationBeat<EnemyFrameId, NoAnimationCue>[]>
     {
-        [P.Right] =
-        [
-            Show(EnemyFrameId.SbugFacingRightWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingRightWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingRightWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingRightWingsDown, 5),
-        ],
-        [P.UpRight] =
-        [
-            Show(EnemyFrameId.SbugFacingUpRightWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingUpRightWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingUpRightWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingUpRightWingsDown, 5),
-        ],
-        [P.Up] =
-        [
-            Show(EnemyFrameId.SbugFacingUpWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingUpWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingUpWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingUpWingsDown, 5),
-        ],
-        [P.UpLeft] =
-        [
-            Show(EnemyFrameId.SbugFacingUpLeftWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingUpLeftWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingUpLeftWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingUpLeftWingsDown, 5),
-        ],
-        [P.Left] =
-        [
-            Show(EnemyFrameId.SbugFacingLeftWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingLeftWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingLeftWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingLeftWingsDown, 5),
-        ],
-        [P.DownLeft] =
-        [
-            Show(EnemyFrameId.SbugFacingDownLeftWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingDownLeftWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingDownLeftWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingDownLeftWingsDown, 5),
-        ],
-        [P.Down] =
-        [
-            Show(EnemyFrameId.SbugFacingDownWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingDownWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingDownWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingDownWingsDown, 5),
-        ],
-        [P.DownRight] =
-        [
-            Show(EnemyFrameId.SbugFacingDownRightWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingDownRightWingsLevel, 5),
-            Show(EnemyFrameId.SbugFacingDownRightWingsUp, 5),
-            Show(EnemyFrameId.SbugFacingDownRightWingsDown, 5),
-        ],
+        [P.Right] = WingBeat(EnemyFrameId.SbugFacingRightWingsUp, EnemyFrameId.SbugFacingRightWingsLevel, EnemyFrameId.SbugFacingRightWingsDown),
+        [P.UpRight] = WingBeat(EnemyFrameId.SbugFacingUpRightWingsUp, EnemyFrameId.SbugFacingUpRightWingsLevel, EnemyFrameId.SbugFacingUpRightWingsDown),
+        [P.Up] = WingBeat(EnemyFrameId.SbugFacingUpWingsUp, EnemyFrameId.SbugFacingUpWingsLevel, EnemyFrameId.SbugFacingUpWingsDown),
+        [P.UpLeft] = WingBeat(EnemyFrameId.SbugFacingUpLeftWingsUp, EnemyFrameId.SbugFacingUpLeftWingsLevel, EnemyFrameId.SbugFacingUpLeftWingsDown),
+        [P.Left] = WingBeat(EnemyFrameId.SbugFacingLeftWingsUp, EnemyFrameId.SbugFacingLeftWingsLevel, EnemyFrameId.SbugFacingLeftWingsDown),
+        [P.DownLeft] = WingBeat(EnemyFrameId.SbugFacingDownLeftWingsUp, EnemyFrameId.SbugFacingDownLeftWingsLevel, EnemyFrameId.SbugFacingDownLeftWingsDown),
+        [P.Down] = WingBeat(EnemyFrameId.SbugFacingDownWingsUp, EnemyFrameId.SbugFacingDownWingsLevel, EnemyFrameId.SbugFacingDownWingsDown),
+        [P.DownRight] = WingBeat(EnemyFrameId.SbugFacingDownRightWingsUp, EnemyFrameId.SbugFacingDownRightWingsLevel, EnemyFrameId.SbugFacingDownRightWingsDown),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SbugSegment, Animation<SbugSegment>> StartingAt { get; } = new Dictionary<SbugSegment, Animation<SbugSegment>>
-    {
-        [P.Right] = Animation<SbugSegment>.Looping([Segments.Whole(P.Right)]),
-        [P.UpRight] = Animation<SbugSegment>.Looping([Segments.Whole(P.UpRight)]),
-        [P.Up] = Animation<SbugSegment>.Looping([Segments.Whole(P.Up)]),
-        [P.UpLeft] = Animation<SbugSegment>.Looping([Segments.Whole(P.UpLeft)]),
-        [P.Left] = Animation<SbugSegment>.Looping([Segments.Whole(P.Left)]),
-        [P.DownLeft] = Animation<SbugSegment>.Looping([Segments.Whole(P.DownLeft)]),
-        [P.Down] = Animation<SbugSegment>.Looping([Segments.Whole(P.Down)]),
-        [P.DownRight] = Animation<SbugSegment>.Looping([Segments.Whole(P.DownRight)]),
-    };
+    internal static Dictionary<CompassDirection, Animation<CompassDirection>> StartingAt { get; } = Segments.EachLooping(
+        P.Right, P.UpRight, P.Up, P.UpLeft, P.Left, P.DownLeft, P.Down, P.DownRight);
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<SbugSegment> StartingWith(SbugSegment segment) => StartingAt[segment];
+    /// <summary>
+    /// One wing beat over a facing's poses, five updates each: <paramref name="wingsUp"/>, <paramref name="wingsLevel"/>,
+    /// up again and <paramref name="wingsDown"/>.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] WingBeat(EnemyFrameId wingsUp, EnemyFrameId wingsLevel, EnemyFrameId wingsDown) =>
+        [Show(wingsUp, 5), Show(wingsLevel, 5), Show(wingsUp, 5), Show(wingsDown, 5)];
+
+    /// <summary>The animation that starts at <paramref name="segment"/>, the loop of the facing it names.</summary>
+    internal static Animation<CompassDirection> StartingWith(CompassDirection segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Show(EnemyFrameId frame, int duration) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.Frame(frame, duration);

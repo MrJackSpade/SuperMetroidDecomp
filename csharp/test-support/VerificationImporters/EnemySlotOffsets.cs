@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// holds all ones. Core addresses enemies by slot object or ordinal; this type is the one place that knows the offset,
 /// for the checks and native-snapshot imports that compare with native memory.
 /// </summary>
-[EncodingOwner("enemy slot byte offsets")]
 internal static class EnemySlotOffsets
 {
     /// <summary>The bytes each enemy record takes in the cartridge's work memory.</summary>

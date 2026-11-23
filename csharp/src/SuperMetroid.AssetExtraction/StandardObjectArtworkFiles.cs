@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 /// before it publishes. The component installs nothing (#1693): the format and the cartridge the page was extracted from
 /// are the installation receipt's, so no manifest records them.
 /// </summary>
-public static class StandardObjectArtworkFiles
+public static partial class StandardObjectArtworkFiles
 {
 
     /// <summary>Writes the selected $2E00-byte standard OBJ span as an indexed page into the component's import data.</summary>
@@ -27,7 +27,7 @@ public static class StandardObjectArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string importData = ImportDataDirectory.Of(directory);
         Directory.CreateDirectory(importData);
-        byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), StandardObjectArtworkSourceDefinitions.Sheet,
+        byte[] native = RomDataReader.ReadFixedBank(bus, StandardObjectArtworkSourceDefinitions.Sheet,
             StandardObjectArtworkFormat.ByteCount);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(native, 4,
             RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);

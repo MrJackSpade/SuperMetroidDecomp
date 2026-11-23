@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's getaway: its zoom and drift curves, how it turns the floor and when it shoves Samus (#2247).</summary>
-public static class CeresRidleyGetawayDefinitions
+public static partial class CeresRidleyGetawayDefinitions
 {
-    /// <summary>The floor's zoom as the getaway sets it up, before its first update: eight floor pixels per screen pixel.</summary>
+    /// <summary>The floor's zoom as the getaway sets it up, before its first update.</summary>
     internal static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(8);
 
     /// <summary>The floor's scroll as the getaway sets it up, before its first update.</summary>
@@ -31,8 +31,8 @@ public static class CeresRidleyGetawayDefinitions
     private static FloorZoomStep FastNarrowing { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 8);
 
     /// <summary>
-    /// The getaway's zoom, 112 updates: it holds eight floor pixels per screen pixel, then narrows slowly, then fast, with
-    /// two held updates between its fast ramps, to a last slow ramp that ends held at an eighth of a floor pixel.
+    /// The getaway's zoom over its whole length: it holds its starting zoom, then narrows slowly, then fast, with a short
+    /// hold between its fast ramps, to a last slow ramp that ends held at its narrowest.
     /// </summary>
     internal static IReadOnlyList<CeresRidleyGetawayZoomStretch> ZoomCurve { get; } =
     [
@@ -48,9 +48,8 @@ public static class CeresRidleyGetawayDefinitions
     ];
 
     /// <summary>
-    /// The getaway's drift, 112 updates: its vertical drift eases from six pixels an update to none over its first 80
-    /// updates, then reverses and grows ever faster, while its horizontal drift holds at a pixel an update, then reverses
-    /// and grows with it.
+    /// The getaway's drift over its whole length: its vertical drift eases to none over its first stretch, then reverses
+    /// and grows ever faster, while its horizontal drift holds, then reverses and grows with it.
     /// </summary>
     internal static IReadOnlyList<CeresRidleyGetawayDriftStretch> DriftCurve { get; } =
     [

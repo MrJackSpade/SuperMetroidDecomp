@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Fixed generation and respawn definitions for Tourian's Zebetites.</summary>
-internal static class ZebetiteDefinitions
+internal static partial class ZebetiteDefinitions
 {
     /// <summary>
     /// The four barrier generations, indexed by how many Zebetites have been destroyed (#2012): large barriers and split
@@ -26,18 +24,4 @@ internal static class ZebetiteDefinitions
     /// <summary>The sound a Zebetite makes when a shot hits it.</summary>
     internal static readonly SoundEffectId ShotSound = RoomSound.MissileDoorHit;
 
-    /// <summary>The primary half's placement.</summary>
-    internal static readonly RoomEnemyPlacement PrimarySpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Primary));
-
-    /// <summary>The linked half's placement.</summary>
-    internal static readonly RoomEnemyPlacement LinkedSpawn =
-        new(EnemyDefinitionId.Zebetite, new(0, 0), EnemyContact.None, EnemyProcessing.Animates, EnemyPresence.None, CollidesByFrameHitboxes: false, new ZebetiteSpawnSettings(ZebetiteHalf.Linked));
-
-    /// <summary>The placement each half spawns from.</summary>
-    internal static readonly Dictionary<ZebetiteHalf, RoomEnemyPlacement> SpawnPopulations = new()
-    {
-        [ZebetiteHalf.Primary] = PrimarySpawn,
-        [ZebetiteHalf.Linked] = LinkedSpawn,
-    };
 }

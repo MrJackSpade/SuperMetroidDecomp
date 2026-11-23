@@ -17,19 +17,13 @@ public sealed class LatestRenderFrameMailbox
     /// <summary>Serializes ownership transfer and generation changes without holding the lock during rendering.</summary>
     internal readonly Lock sync = new();
     /// <summary>At most one unpublished immutable visual packet; a newer publish replaces it.</summary>
-    internal RenderFrame? Pending { get; private set; }
+    internal RenderFrame? Pending { get; set; }
     /// <summary>Current simulation load/reset identity accepted for publication.</summary>
-    internal long Generation { get; private set; }
+    internal long Generation { get; set; }
     /// <summary>Highest published sequence, retained across generations to reject rewinds.</summary>
     private long lastSequence;
-    /// <summary>Total valid publications observed by this mailbox.</summary>
-    internal long Published { get; private set; }
-    /// <summary>Total packets claimed by a consumer.</summary>
-    internal long Taken { get; private set; }
     /// <summary>Packets superseded by a newer publication before consumption.</summary>
-    internal long Replaced { get; private set; }
-    /// <summary>Pending packets discarded on a load/reset generation change.</summary>
-    internal long Invalidated { get; private set; }
+    internal long Replaced { get; set; }
 
     /// <summary>Creates an empty visual mailbox for one positive simulation load/reset generation.</summary>
     /// <param name="initialGeneration">Positive generation identity required on the first published packet.</param>
@@ -56,7 +50,6 @@ public sealed class LatestRenderFrameMailbox
             if (Pending is not null) Replaced++;
             Pending = frame;
             lastSequence = frame.Identity.Sequence;
-            Published++;
         }
     }
 
@@ -67,7 +60,6 @@ public sealed class LatestRenderFrameMailbox
         {
             RenderFrame? frame = Pending;
             Pending = null;
-            if (frame is not null) Taken++;
             return frame;
         }
     }
@@ -82,7 +74,6 @@ public sealed class LatestRenderFrameMailbox
         lock (sync)
         {
             ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(nextGeneration, Generation);
-            if (Pending is not null) Invalidated++;
             Pending = null;
             Generation = nextGeneration;
         }

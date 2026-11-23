@@ -14,8 +14,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// This is the data-only portion of a room load. It deliberately runs no room-specific setup; that behaviour belongs to
 /// each room's own code.
 /// </remarks>
-[RoomLifetime]
-public sealed class LoadedRoomAssets
+public sealed partial class LoadedRoomAssets
 {
     /// <summary>Retains the selected definition, the room's grid, scroll grid, and installed graphics.</summary>
     private LoadedRoomAssets(
@@ -98,7 +97,7 @@ public sealed class LoadedRoomAssets
         RoomBlockBehavior[] behaviors = [.. level.Behaviors.Select(behavior => behavior.In(room.Area))];
         return new RoomLevelData(level.Size,
             new RoomLevelPlanes(level.Foreground.AsSpan(), behaviors, level.Background.AsSpan()),
-            new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.Following, level.BeyondCount,
+            new TerrainBeyondRoom<RoomTerrainBlock, RoomBlockBehavior>(level.PastGrid.Blocks, level.PastGrid.SpaceBlocks,
                 RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None),
             doorBlocks, visualLayout);
     }

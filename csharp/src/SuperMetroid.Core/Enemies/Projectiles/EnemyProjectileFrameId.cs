@@ -3,13 +3,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <summary>
 /// The frames an enemy projectile shows: the compositions its segments select, then every installed animation frame. Each
 /// is named for what its picture shows: its owner, then the shape, turn, size or placement that tells it from the owner's
-/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. One picture is
-/// one frame however many records store it. Its values are arbitrary and its installed name is its name in snake case.
+/// other pictures, which its summary spells out; no animation that shows it and no place in one names it. One picture
+/// is one frame. Its values are arbitrary and its installed name is its name in snake case.
 /// </summary>
 public enum EnemyProjectileFrameId
 {
-    /// <summary>The empty projectile frame, which draws nothing and is on no sheet: every beat that shows no picture (#2431).</summary>
-    Blank,
     /// <summary>The Skree debris, one composed picture.</summary>
     SkreeDebris,
     /// <summary>The Metaree debris, one composed picture.</summary>
@@ -324,11 +322,6 @@ public enum EnemyProjectileFrameId
     TorizoExplosionFlareRing,
     /// <summary>A Torizo's explosion: a fading ring of light.</summary>
     TorizoExplosionFlareRingFading,
-    /// <summary>
-    /// A Torizo's death explosion: a small spark, the picture of TorizoExplosionSpark drawn over the room's front tiles, as
-    /// the rest of the death explosion is.
-    /// </summary>
-    TorizoDeathExplosionSpark,
     /// <summary>A Torizo's explosion: a small fireball.</summary>
     TorizoExplosionFireballSmall,
     /// <summary>A Torizo's explosion: a large fireball.</summary>
@@ -1437,22 +1430,11 @@ public enum EnemyProjectileFrameId
     DownwardGateThreeBlocksTall,
     /// <summary>A downward gate: four blocks tall.</summary>
     DownwardGateFourBlocksTall,
-    /// <summary>A save station's electricity beginning its sweep down the station: its zigzag band's picture placed 32 pixels above its place.</summary>
-    SaveStationElectricitySweepBeginning,
-    /// <summary>A save station's electricity descending on its sweep: its zigzag band's picture placed 24 pixels above its place.</summary>
-    SaveStationElectricitySweepDescending,
-    /// <summary>A save station's electricity lowering on its sweep: its zigzag band's picture placed 16 pixels above its place.</summary>
-    SaveStationElectricitySweepLowering,
-    /// <summary>A save station's electricity nearing halfway down its sweep: its zigzag band's picture placed 8 pixels above its place.</summary>
-    SaveStationElectricitySweepNearingHalfway,
-    /// <summary>A save station's electricity passing halfway down its sweep: its zigzag band's picture level with its place.</summary>
-    SaveStationElectricitySweepPassingHalfway,
-    /// <summary>A save station's electricity past halfway down its sweep: its zigzag band's picture placed 8 pixels below its place.</summary>
-    SaveStationElectricitySweepPastHalfway,
-    /// <summary>A save station's electricity nearing the end of its sweep: its zigzag band's picture placed 16 pixels below its place.</summary>
-    SaveStationElectricitySweepNearingEnd,
-    /// <summary>A save station's electricity at the end of its sweep: its zigzag band's picture placed 24 pixels below its place.</summary>
-    SaveStationElectricitySweepEnding,
+    /// <summary>
+    /// A save station's electricity: its zigzag band, level with its place; its sweep down the station places the band above
+    /// and below (#2557).
+    /// </summary>
+    SaveStationElectricityBand,
     /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 0 degrees round their cycle.</summary>
     BotwoonBodyUpLeftRipple0,
     /// <summary>A Botwoon body segment: facing up and left, its stripes rippled 90 degrees round their cycle.</summary>

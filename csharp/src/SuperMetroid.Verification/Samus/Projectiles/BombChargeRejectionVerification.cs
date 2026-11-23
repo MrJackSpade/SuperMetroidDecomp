@@ -26,24 +26,23 @@ internal static class BombChargeRejectionVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | (bombsEquipped ? SamusEquipmentFlags.Bombs : 0)),
                 SelectedHudItem = powerBombSelected ? HudItem.PowerBomb : HudItem.Beam,
                 PowerBombs = 2,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
-            }.WithBeamChargeCount(charge);
+            }.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(charge);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             var bombs = CreateBombFixture();
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to
             // releasing a spread. Equipment guards that skip that helper preserve charge.
-            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, (GameplayAction.Shoot | GameplayAction.Down), freshShoot ? GameplayAction.Shoot : 0);
+            bool chargeConsumed = bombs.StepFrameConsumingCharge(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, (GameplayAction.Shoot | GameplayAction.Down), freshShoot ? GameplayAction.Shoot : 0);
             bool helperRuns = powerBombSelected || bombsEquipped && charge < 60;
             bool cancelled = helperRuns && !freshShoot && charge != 0;
             string context = $"charge={charge}, Bombs={bombsEquipped}, PB={powerBombSelected}, edge={freshShoot}";
             AssertEqual(cancelled, chargeConsumed, $"native bomb rejection charge bridge: {context}");
             var cancellations = bombs.AudioRequests.SoundRequests.Where(sound => sound ==
-                new SoundRequest(SamusSound.Silence, SoundRequestPriority.High)).ToArray();
+                new SoundRequest(SamusSoundStop.Any, SoundRequestPriority.High)).ToArray();
             AssertEqual(cancelled ? 1 : 0, cancellations.Length, $"single native charge cancellation sound: {context}");
             AssertEqual(helperRuns && freshShoot ? 1 : 0, bombs.BombCounter,
                 $"rejection must not allocate a projectile: {context}");
@@ -58,16 +57,16 @@ internal static class BombChargeRejectionVerification
         foreach (ushort charge in new ushort[] { 0, 1, 59, 60 })
         foreach (ushort selection in new ushort[] { 0, 3 })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphBallGroundRightPose,
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { 
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selection), PowerBombs = 2,
-                Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) }.WithBeamChargeCount(charge);
+                Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) }.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(charge);
             var bombs = CreateBombFixture();
-            bool chargeConsumed = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Down, 0);
+            bool chargeConsumed = bombs.StepFrameConsumingCharge(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";
             AssertEqual(charge != 0, chargeConsumed, $"outer native cancellation command: {context}");
             AssertEqual(charge != 0 ? 1 : 0, bombs.AudioRequests.SoundRequests.Count(sound => sound ==
-                new SoundRequest(SamusSound.Silence, SoundRequestPriority.High)), $"charge cancellation sound: {context}");
+                new SoundRequest(SamusSoundStop.Any, SoundRequestPriority.High)), $"charge cancellation sound: {context}");
             AssertEqual(0, bombs.BombCounter, $"release never places a bomb: {context}");
             AssertEqual(2, samus.PowerBombs, $"release never spends ammunition: {context}");
         }

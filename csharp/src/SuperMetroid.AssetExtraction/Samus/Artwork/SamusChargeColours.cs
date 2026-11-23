@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Samus.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus.Artwork;
@@ -11,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// step, and the Hyper-shot glow's cycle. The import pipeline decodes them from the installed document; charge admission,
 /// step advancement and the glow's timer are Samus's.
 /// </summary>
-public sealed class SamusChargeColours
+public sealed partial class SamusChargeColours
 {
     /// <summary>Each charge palette's suit colours.</summary>
     private readonly Dictionary<SamusChargeShade, ImmutableArray<RgbColor>> palettes;
@@ -48,14 +47,9 @@ public sealed class SamusChargeColours
         return colours[color];
     }
 
-    /// <summary>One colour of Samus's suit in Hyper-shot playback frame <paramref name="frame"/>.</summary>
-    /// <param name="frame">The playback frame, which walks the full-body Hyper Beam cycle in reverse.</param>
+    /// <summary>One colour of Samus's suit at step <paramref name="step"/> of the Hyper-shot glow's cycle.</summary>
+    /// <param name="step">The step of the full-body Hyper Beam cycle the glow shows.</param>
     /// <param name="color">The colour within Samus's suit.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The frame or colour is outside the cycle.</exception>
-    public RgbColor ResolveHyper(int frame, int color)
-    {
-        int frames = SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount;
-        if ((uint)frame >= (uint)frames) throw new ArgumentOutOfRangeException(nameof(frame));
-        return hyperShot.Resolve(frames - 1 - frame, color);
-    }
+    /// <exception cref="ArgumentOutOfRangeException">The step or colour is outside the cycle.</exception>
+    internal RgbColor ResolveHyperStep(int step, int color) => hyperShot.Resolve(step, color);
 }

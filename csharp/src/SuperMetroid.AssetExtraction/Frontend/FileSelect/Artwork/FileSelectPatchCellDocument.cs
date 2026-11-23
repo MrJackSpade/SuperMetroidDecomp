@@ -5,8 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 
 /// <summary>One authored glyph or artwork cell in a sparse file-select tilemap patch.</summary>
-[SpatialComponents("External format: file-select-artwork.json stores each patch cell offset as flat x/y fields.")]
-public sealed record FileSelectPatchCellDocument
+public sealed partial record FileSelectPatchCellDocument
 {
     /// <summary>The authored tile offset from the patch's placement anchor.</summary>
     [System.Text.Json.Serialization.JsonIgnore]

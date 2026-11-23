@@ -1,10 +1,7 @@
-using SuperMetroid.Core.Spatial;
-using SuperMetroid.AssetExtraction.Artwork;
-
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>The extents of the installed opening artwork the import composes the opening's pictures from.</summary>
-internal static class IntroArtworkExtentDefinitions
+internal static partial class IntroArtworkExtentDefinitions
 {
     /// <summary>The scenes' 1024 four-bit background characters, in bytes.</summary>
     internal const int BackgroundCharacterBytes = 1024 * 32;
@@ -23,10 +20,4 @@ internal static class IntroArtworkExtentDefinitions
 
     /// <summary>Where the Japanese blank glyph starts in the font: its 41st character, in bytes.</summary>
     internal const int JapaneseBlankSourceOffset = 41 * 16;
-
-    /// <summary>Cells copied for the final text line.</summary>
-    internal const int FinalLineWordCount = 128;
-
-    /// <summary>Portrait-eye rectangle size in tiles: three columns by two rows.</summary>
-    internal static Extent16<CharacterCells> EyeFrameSize => new(3, 2);
 }

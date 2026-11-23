@@ -8,5 +8,5 @@ namespace SuperMetroid.Core.Progression;
 /// <typeparam name="T">The kind of progress.</typeparam>
 /// <param name="Decided">The members whose state the overwrite decides.</param>
 /// <param name="Set">The decided members the overwrite leaves happened.</param>
-public sealed record DecidedFlags<T>(IReadOnlySet<T> Decided, IReadOnlySet<T> Set)
+public sealed partial record DecidedFlags<T>(IReadOnlySet<T> Decided, IReadOnlySet<T> Set)
     where T : notnull;

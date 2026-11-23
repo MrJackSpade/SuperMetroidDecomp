@@ -1,6 +1,7 @@
 using System.Globalization;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
 
@@ -8,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// How an installed document writes a colour (#1633, #2564): <c>#rrggbb</c>, each channel two lowercase hexadecimal digits
 /// of its eight-bit value, as an editor shows it.
 /// </summary>
-public static class InstalledColourText
+public static partial class InstalledColourText
 {
     /// <summary>The characters of one written colour: the mark and two digits per channel.</summary>
     private const int Length = 7;

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// which the set's sheets are coloured in. Each member's sixteen colours are loaded into the row its record names, record
 /// after record, so a later record loading a row overwrites an earlier one, as on the cartridge.
 /// </summary>
-internal sealed class LoadedSetColours
+internal sealed partial class LoadedSetColours
 {
     /// <summary>The colours in one sprite palette row.</summary>
     internal const int RowColours = 16;
@@ -29,21 +29,22 @@ internal sealed class LoadedSetColours
     internal RgbColor[] SpriteColours { get; }
 
     /// <summary>The colours set <paramref name="set"/>'s load leaves, from the installed palettes in <paramref name="inputs"/>.</summary>
-    /// <exception cref="InvalidDataException">The set's rows are not catalogued for each of its records, or a member has no palette.</exception>
+    /// <exception cref="InvalidDataException">A member has no palette.</exception>
     internal static LoadedSetColours Of(EnemySheetInputs inputs, RoomEnemyGraphicsSetMembers set)
     {
         Ensure.NotNull(inputs);
         Ensure.NotNull(set);
-        var rows = new GraphicsSetRows(set, inputs.SetPaletteRows);
         RgbColor[] colours = RoomLoadPalettes.SpriteColours(inputs.Palettes);
-        ReadOnlySpan<RoomEnemyGraphicsSetMember> records = set.Records.Span;
-        for (int record = 0; record < records.Length; record++)
-            records[record].PaletteIn(inputs.Enemies).Colours.CopyTo(colours.AsSpan(rows.RecordRow(record) * RowColours, RowColours));
-        return new LoadedSetColours(colours, rows);
+        foreach (RoomEnemyGraphicsSetMember record in set.Records.Span)
+            record.PaletteIn(inputs.Enemies).Colours.CopyTo(colours.AsSpan(record.PaletteRow * RowColours, RowColours));
+        return new LoadedSetColours(colours, new GraphicsSetRows(set));
     }
 
     /// <summary>The row <paramref name="enemy"/> draws in under the set (<see cref="GraphicsSetRows.RowOf"/>).</summary>
     internal int RowOf(EnemyDefinitionId enemy) => rows.RowOf(enemy);
+
+    /// <summary>Whether the set loads <paramref name="enemy"/> (<see cref="GraphicsSetRows.Loads"/>).</summary>
+    internal bool Loads(EnemyDefinitionId enemy) => rows.Loads(enemy);
 
     /// <summary>The set's colours with row <paramref name="row"/> holding <paramref name="replaced"/> from its colour <paramref name="first"/> on.</summary>
     internal RgbColor[] With(int row, int first, ReadOnlySpan<RgbColor> replaced)

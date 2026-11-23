@@ -1,4 +1,4 @@
-using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -33,7 +33,7 @@ internal static class QuicksandVerification
             body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
             samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(4, 0xffff);
             samus.HorizontalSpeed.HasRunningMomentum = true;
-            SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+            SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), samus, roomHasPower: true);
             AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraDisplacement.Y.RawValue, "quicksand per-direction/suit displacement");
             AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
@@ -41,12 +41,12 @@ internal static class QuicksandVerification
             AssertEqual(0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
-            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, body, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true });
+            var move = SamusBlockCollision.MoveVertical(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), body, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromParts(2, 32768), ScanLeftToRight = true });
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement.RawValue, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.Position = body.Position.WithWholeY(24);
             // #2389: the changed pose's own probe, the path production takes for pose clearance.
-            var poseProbe = SamusBlockCollision.ProbeChangedPoseVertical(level, body, samus, samus.Pose, SignedSixteenSixteen.FromParts(2, 32768), scanLeftToRight: true, SamusRoomObjectFixtures.WithQuicksand());
+            var poseProbe = SamusBlockCollision.ProbeChangedPoseVertical(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), body, samus, samus.Pose, SignedSixteenSixteen.FromParts(2, 32768), scanLeftToRight: true);
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
         }
         for (int kind = 0; kind < 3; kind++)
@@ -57,10 +57,10 @@ internal static class QuicksandVerification
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(samus.Kinematics.VerticalVelocity.Speed.WithWhole(4));
             samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
             var sand = Room((byte)(0x83 + kind));
-            SamusInsideBlockReactions.PrepareFrame(sand, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+            SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(sand, SamusRoomObjectFixtures.WithQuicksand()), samus, roomHasPower: true);
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
-            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+            SamusBlockCollision.MoveHorizontal(new RoomTerrain(sand, SamusRoomObjectFixtures.WithQuicksand()), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.VerticalVelocity.Speed.Whole, "submerging horizontal collision speed side effect");
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)0x1c00, samus.Kinematics.YAcceleration.Fraction, "submerging horizontal collision gravity side effect");
         }
@@ -97,7 +97,7 @@ internal static class QuicksandVerification
             body.Radius = body.Radius.WithY(8);
             body.VerticalVelocity = SamusVerticalVelocityConstants.Of(body.VerticalVelocity.Speed.WithWhole(5), direction);
             SamusInsideBlockReactions.PrepareFrame(
-                level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+                new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), samus, roomHasPower: true);
             QuicksandSurfacePhysics physics =
                 QuicksandReactions.SurfacePhysics(suit != 0);
             AssertEqual(
@@ -126,16 +126,13 @@ internal static class QuicksandVerification
             };
             SignedSixteenSixteen displacement = SignedSixteenSixteen.FromParts(2, 32768);
             SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
-                new(body, body.CollisionBodyAttack(null)),
-                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80 + index)),
+                new(body, SamusBodyAttack.None),
+                new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
+                QuicksandContact(0x80 + index),
                 axis: Axis.Vertical,
-                ref displacement,
-                out bool surfaceContact);
-            AssertEqual(SpecialAirCollisionOutcome.PassesThrough, outcome,
-                $"production quicksand collision row {index} remains non-solid");
-            AssertEqual(index < 3, surfaceContact,
-                $"production quicksand collision row {index} surface contact");
+                ref displacement);
+            AssertEqual(index < 3 ? SpecialAirCollisionOutcome.LandsOnSurface : SpecialAirCollisionOutcome.PassesThrough, outcome,
+                $"production quicksand collision row {index} remains non-solid, landing on the surface of rows 0-2");
             AssertEqual(index == 3 ? (ushort)0 : (ushort)4, body.VerticalVelocity.Speed.Whole,
                 $"production quicksand collision row {index} speed side effect");
             AssertEqual(index == 3 ? (ushort)0 : (ushort)0x1c00,
@@ -165,9 +162,9 @@ internal static class QuicksandVerification
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
         ushort[] headers = [0xb713, 0xb71f, 0xb723, 0xb727, 0xb72b, 0xb737, 0xb73b, 0xb73f];
         var sand = new List<(ushort Header, ushort Setup)>();
-        foreach (SpecialAirInsideReaction reaction in QuicksandDefinitions.ObjectPlacingInsideReactions)
+        foreach (SpecialAirInsideReaction reaction in SpecialAirReactionNativeWords.InsideHeaders.Keys.Where(QuicksandReactions.PlacesObject))
             sand.Add((SpecialAirReactionNativeWords.InsideHeaders[reaction], SpecialAirReactionNativeWords.InsideSetups[reaction]));
-        foreach (SpecialAirCollisionReaction reaction in QuicksandDefinitions.ObjectPlacingCollisionReactions)
+        foreach (SpecialAirCollisionReaction reaction in SpecialAirReactionNativeWords.CollisionHeaders.Keys.Where(QuicksandReactions.PlacesObject))
             sand.Add((SpecialAirReactionNativeWords.CollisionHeaders[reaction], SpecialAirReactionNativeWords.CollisionSetups[reaction]));
         AssertTrue(sand.Select(entry => entry.Header).Order().SequenceEqual(headers), "the eight sand reactions are the cartridge's sand headers");
         foreach ((ushort header, ushort setup) in sand)
@@ -176,7 +173,7 @@ internal static class QuicksandVerification
             if (instruction)
             {
                 // The reaction's native list plays as its typed change does (#1554): it ends on its first update.
-                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
+                NativeTerrainChanges.Compare(rom, TerrainChange.MadeAtSpawn, native, NativeTerrainChanges.NoSteps,
                     $"quicksand header {(int)header:X4}", out bool began);
                 AssertTrue(!began, $"quicksand header {(int)header:X4} opens nothing");
             }
@@ -225,7 +222,7 @@ internal static class QuicksandVerification
         // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
         SignedSixteenSixteen justAbove = limit + SignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
         body.VerticalVelocity = body.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(justAbove.UnsignedWholePixels, justAbove.Fraction));
-        SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()), samus, roomHasPower: true);
         AssertEqual(justAbove, SignedSixteenSixteen.FromParts(unchecked((short)body.VerticalVelocity.Speed.Whole), body.VerticalVelocity.Speed.Fraction),
             "quicksand upward cap ignores the speed's lowest fraction byte");
     }
@@ -250,14 +247,13 @@ internal static class QuicksandVerification
                 VerticalVelocity = SamusVerticalVelocityConstants.Of(UnsignedSixteenSixteen.Zero, SamusVerticalDirection.None),
             };
             SignedSixteenSixteen displacement = SixteenSixteenWords.ToDisplacement(probe);
-            SamusInsideBlockReactions.ReactCollision(
-                new(body, body.CollisionBodyAttack(null)),
-                new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.WithQuicksand() },
-                new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80)),
+            SpecialAirCollisionOutcome outcome = SamusInsideBlockReactions.ReactCollision(
+                new(body, SamusBodyAttack.None),
+                new RoomTerrain(level, SamusRoomObjectFixtures.WithQuicksand()),
+                QuicksandContact(0x80),
                 axis: Axis.Vertical,
-                ref displacement,
-                out bool surfaceContact);
-            AssertEqual(true, surfaceContact, $"stationary probe {probe:X8} touches the surface");
+                ref displacement);
+            AssertEqual(SpecialAirCollisionOutcome.LandsOnSurface, outcome, $"stationary probe {probe:X8} touches the surface");
             AssertEqual(expected, displacement.RawValue, $"stationary probe {probe:X8} is limited in 256ths, keeping its finest byte");
         }
     }
@@ -288,14 +284,13 @@ internal static class QuicksandVerification
     /// no area reaction (the no-op), and every later area reaction is no special-air reaction at all and is rejected.
     /// </summary>
     private static void VerifySpecialAirField<TReaction>(CartridgeImportAddressSpace rom,
-        Func<SpecialAirReaction?, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
+        Func<SpecialAirReaction, TReaction> resolve, IReadOnlyDictionary<TReaction, ushort> headers,
         IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing, int nativePointers, bool setup)
-        where TReaction : struct, Enum
+        where TReaction : notnull
     {
-        for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
+        for (int rawArea = 0; rawArea < AreaNumberCodec.Count; rawArea++)
         {
-            if (RetailArea(rawArea) is var area && area == UnknownArea)
-                continue;
+            AreaId area = AreaNumberCodec.At(rawArea);
             for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
             {
                 SpecialAirReaction? reaction = RoomBlockBehaviorCodec.Decode(area, value).SpecialAir;
@@ -303,18 +298,25 @@ internal static class QuicksandVerification
                     $"special-air BTS ${value:X2} has a reaction exactly within the tables");
                 if ((value & 0x80) == 0)
                 {
-                    AssertEqual(nothing, resolve(reaction), $"special-air common BTS ${value:X2} gives area {rawArea} no area reaction");
+                    AssertEqual(nothing, reaction is { } common ? resolve(common) : nothing, $"special-air common BTS ${value:X2} gives area {rawArea} no area reaction");
                     continue;
                 }
+                // A BTS past the area tables reads no reaction at all (asserted above).
                 if ((value & 0x7f) >= 16)
-                {
-                    AssertThrows<ArgumentOutOfRangeException>(() => resolve(reaction),
-                        $"special-air BTS ${value:X2} past the area tables is rejected");
                     continue;
-                }
-                VerifySpecialAirEntry(rom, resolve(reaction), headers, setups, nothing, nativePointers, setup, rawArea, value & 0x7f);
+                VerifySpecialAirEntry(rom, resolve(reaction ?? throw new InvalidDataException($"special-air BTS ${value:X2} reads no reaction")),
+                    headers, setups, nothing, nativePointers, setup, rawArea, value & 0x7f);
             }
         }
+    }
+
+    /// <summary>Samus's contact with a Maridia special-air block of <paramref name="behavior"/>, with the reaction it carries.</summary>
+    private static SpecialAirContact QuicksandContact(int behavior)
+    {
+        RoomBlockBehavior decoded = RoomBlockBehaviorCodec.Decode(AreaId.Maridia, behavior);
+        return new SpecialAirContact(
+            new RoomCollisionBlock(Position16<RoomBlocks>.Zero, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SpecialAir), decoded),
+            decoded.SpecialAir ?? throw new InvalidDataException($"Maridia special-air behaviour {behavior:X2} carries no reaction."));
     }
 
     /// <summary>The bank-$84 setup of Crateria's ice-floor inside header, which changes nothing while Samus is inside it.</summary>
@@ -324,7 +326,7 @@ internal static class QuicksandVerification
     private static void VerifySpecialAirEntry<TReaction>(CartridgeImportAddressSpace rom, TReaction actual,
         IReadOnlyDictionary<TReaction, ushort> headers, IReadOnlyDictionary<TReaction, ushort> setups, TReaction nothing,
         int nativePointers, bool setup, int rawArea, int index)
-        where TReaction : struct, Enum
+        where TReaction : notnull
     {        // Follow the original area pointer and header, independently of the production cases.
         ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
         ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));

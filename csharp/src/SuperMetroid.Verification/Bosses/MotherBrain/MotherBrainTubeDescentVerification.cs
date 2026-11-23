@@ -12,19 +12,17 @@ internal static class MotherBrainTubeDescentVerification
     internal static int VerifyMotherBrainTubeDescent()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        enemies.MotherBrainEncounter.BeginAsSetUp(state, state.Head);
-        var tube = enemies.Places.InUpdateOrder[2];
-        tube.SetSpawnSettings(new MotherBrainTubeSpawnSettings(MotherBrainTubePiece.Main));
+        // Mother Brain's glass, body and brain as her room sets them up; her fake death spawns the main tube, which
+        // joins the encounter that spawned it and sets up its fall (#2218).
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainFallingTube(state, MotherBrainTubePiece.Main);
+        RoomEnemyPlace tube = enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.MotherBrainTubes));
+        MotherBrainTubesEntity tubeEntity = tube.EntityOf<MotherBrainTubesEntity>();
         tube.Position = tube.Position.WithWhole(new(128, 128));
         state.Head.Position = state.Head.Position.WithWholeY(72);
-        tube.Bind(EnemyDefinitionId.MotherBrainTubes, tube.Definition);
-        // The tube holds the encounter that spawned it, as its spawn gives it (#2218).
-        tube.SetSpeciesState(state);
-        MotherBrainFakeDeath.InitializeMotherBrainFallingTube(tube);
         // The descent is traced from the update the main tube starts to fall: its wait runs out on its first update.
-        tube.RequireSpeciesState<MotherBrainFallingTubeState>().FallDelay.LastFor(1);
-        Action<RoomEnemyPlace> step = enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain;
+        tubeEntity.Tube.FallDelay.LastFor(1);
+        Action<RoomEnemyPlace> step = place => enemies.MotherBrainBehavior.FakeDeath.RunMotherBrainFallingTubeMain(place, tubeEntity.Encounter, tubeEntity.Tube);
         uint expectedPosition = SixteenSixteenWords.FromWhole(tube.Position.Y.Whole);
         int speed = 0, movingFramesBeforeHide = 0, hiddenFramesBeforeLanding = 0;
         ushort previousHeadY = state.Head.Position.Y.Whole;
@@ -62,9 +60,10 @@ internal static class MotherBrainTubeDescentVerification
             AssertEqual(MotherBrainAscentPhase.DrawMural, state.AscentPhase, $"the mural is still drawing at update {update}");
             enemies.MotherBrainBehavior.FakeDeath.DrawNextMuralRows(state);
         }
-        AssertTrue(enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().SequenceEqual(Enumerable.Range(0, 12).Select(row =>
-                new MotherBrainMuralRowReveal(new MotherBrainMuralRow(row)))),
-            "the mural's twelve rows are revealed in order");
+        // The rows show in the order their blocks lie in, the second assertion below.
+        AssertEqual(string.Join(",", Enumerable.Repeat(nameof(MotherBrainMuralRowReveal), 12)),
+            string.Join(",", enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request => request.GetType().Name)),
+            "the mural's twelve rows are revealed");
         AssertTrue(enemies.LastEnemyFrame.All<MotherBrainRoomChangeRequest>().Select(request => request.Block).SequenceEqual(Enumerable.Range(0, 12).Select(row =>
                 new Position16<RoomBlocks>(2, 2 + row))),
             "each of the mural's rows is revealed a block below the last, from block row two of column two");

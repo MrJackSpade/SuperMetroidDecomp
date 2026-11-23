@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Where Botwoon's wall object is spawned, and the terrain change of each wall mutation.</summary>
-internal static class BotwoonWallMutationDefinitions
+internal static partial class BotwoonWallMutationDefinitions
 {
     /// <summary>The room block both wall mutations are spawned at: the wall's top block.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(15, 4);
@@ -52,6 +52,6 @@ internal static class BotwoonWallMutationDefinitions
         .. Enumerable.Repeat(NextRow, CrumbleRows - 1).SelectMany(CrumbleRow),
     ]);
 
-    /// <summary>The clear of an already-defeated room: the nine cleared wall blocks, drawn on the next update.</summary>
+    /// <summary>The clear of an already-defeated room: the cleared wall blocks, drawn on the next update.</summary>
     internal static TerrainChange Clear { get; } = TerrainChange.DrawnOnce(BotwoonWallObjectDrawDefinitions.Clear);
 }

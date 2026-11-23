@@ -48,7 +48,7 @@ public sealed record SuperMetroidGameOptions
     public bool UnlockTourian { get; init; }
 
     /// <summary>Resets bosses and persistent enemy encounters outside Tourian (<see cref="TesterAssistDefinitions.EncounterReset"/>) when loading a regular save.</summary>
-    public bool ResetBossesOnLoad { get; init; }
+    public bool ResetBossesOnLoad { internal get; init; }
 
     /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
     public bool PreventEscapeTimeout { get; init; }

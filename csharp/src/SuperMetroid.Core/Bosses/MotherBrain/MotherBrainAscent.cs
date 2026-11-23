@@ -6,8 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain rising into her second form: its graphics, brain setup, the rise and the menacing head shake.</summary>
-[RoomLifetime]
-internal sealed class MotherBrainAscent
+internal sealed partial class MotherBrainAscent
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -35,15 +34,14 @@ internal sealed class MotherBrainAscent
     }
 
     /// <summary>Reveals her body and requests her first artwork.</summary>
-    internal void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
+    internal static void SetupMotherBrainPhaseTwoGraphics(MotherBrainEnemyState state)
     {
-        // The ascent installs the attack and back-leg colours, all but the backdrop colour,
-        // which belongs to the room and must remain untouched.
+        // Her phase-two colours show; the room's backdrop stays the room's.
         state.Colours.ShowPhaseTwo();
         state.AscentPhase = MotherBrainAscentPhase.SetupPhase2Brain;
         // The transition reveals her body, its frame as her body last showed it, replacing the room's pipe background
         // before the articulated body becomes visible (#1356, #1466, #1515).
-        _presentation.RequireBossBody().Reveal();
+        state.BodyParts.Reveal();
     }
 
     /// <summary>Attaches the phase-two head and prepares its first animation and position.</summary>
@@ -61,7 +59,7 @@ internal sealed class MotherBrainAscent
         state.AscentPhase = MotherBrainAscentPhase.PauseForSuspense;
         state.PhaseTimer.LastFor(MotherBrainWaitDefinitions.SuspenseUpdates);
 
-        // The setup falls directly into the suspense wait, whose first update is this same update.
+        // The suspense wait's first update is the setup's own.
         PauseBeforeMotherBrainRises(state);
     }
 
@@ -142,9 +140,9 @@ internal sealed class MotherBrainAscent
     /// <summary>Moves the body upward through the authored rise while updating its head attachment.</summary>
     internal void RaiseMotherBrain(MotherBrainEnemyState state)
     {
-        // The rise gates on the frame counter, not the separate 256-step frame counter; the
-        // two advance together but are not aligned, so their places in the cadence differ.
-        if (!MotherBrainCadenceDefinitions.AscentStepEveryFourthUpdate.IsDue(_frameContext.FrameCounter))
+        // The rise follows the game's update count, not the enemies' update count; the two advance together from
+        // different starts, so their places in the cadence differ.
+        if (!MotherBrainCadenceDefinitions.AscentStep.IsDue(_frameContext.FrameCounter))
             return;
 
         SpawnMotherBrainAscentDust(state);

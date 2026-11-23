@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// draws that show nothing (#1513). The import pipeline decides a frame shows nothing when its composition inks no pixel,
 /// so the sheet holds no picture for it and the draw that chooses it draws nothing.
 /// </summary>
-public sealed class SpriteSheet
+public sealed partial class SpriteSheet
 {
     /// <summary>The frames by name.</summary>
     internal readonly Dictionary<string, SpriteSheetFrame> frames;
@@ -29,7 +29,7 @@ public sealed class SpriteSheet
 
     /// <summary>The frame named <paramref name="name"/>.</summary>
     /// <exception cref="InvalidDataException">The sheet has no such frame.</exception>
-    public SpriteSheetFrame Frame([InstalledKey] string name) =>
+    public SpriteSheetFrame Frame(string name) =>
         frames.TryGetValue(name, out SpriteSheetFrame? frame) ? frame : throw new InvalidDataException($"Sprite sheet {Image.Name} has no frame {name}.");
 
     /// <summary>
@@ -37,7 +37,7 @@ public sealed class SpriteSheet
     /// installed it without a picture, so the draw that chooses it draws nothing.
     /// </summary>
     /// <exception cref="InvalidDataException">The sheet neither pictures the frame nor holds it as one that shows nothing.</exception>
-    public bool ShowsNothing([InstalledKey] string name)
+    public bool ShowsNothing(string name)
     {
         if (blanks.Contains(name))
             return true;
@@ -51,7 +51,7 @@ public sealed class SpriteSheet
     /// (<see cref="PictureParts"/>), or names it as a picture that shows nothing.
     /// </summary>
     /// <exception cref="ArgumentException">The name is empty.</exception>
-    public bool HoldsPicture([InstalledKey] string name)
+    public bool HoldsPicture(string name)
     {
         string inFront = PictureParts.InFront(name);
         return frames.ContainsKey(name) || frames.ContainsKey(inFront) || blanks.Contains(name);
@@ -66,7 +66,7 @@ public sealed class SpriteSheet
     /// The sheet installs no part of such a picture and does not name it as one that shows nothing, or names it as showing
     /// nothing yet installs its in-front part.
     /// </exception>
-    public LayeredPicture Picture([InstalledKey] string name)
+    public LayeredPicture Picture(string name)
     {
         string inFront = PictureParts.InFront(name);
         SpriteSheetFrame? behind = frames.GetValueOrDefault(name);

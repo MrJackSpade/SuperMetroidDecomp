@@ -16,10 +16,9 @@ internal static class WaverOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Waver, place.Definition);
+        place.Bind(EnemyDefinitionId.Waver, place.KeptDefinition);
         place.SetSpawnParameter1(EnemyDefinitionId.Waver, 1);
-        WaverBehavior.InitializeWaver(place);
-        WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("The initialized Waver has no state.");
+        WaverEnemyState state = WaverBehavior.InitializeWaver(place.HeldOccupant().SpawnSettings<WaverSpawnSettings>(), place);
         AssertEqual(SignedSixteenSixteen.FromParts(1, 0x8000), state.XVelocity, "a right-facing Waver moves one and a half pixels per update");
         AssertEqual(HorizontalDirection.Right, state.Facing, "parameter one's low bit faces right");
 

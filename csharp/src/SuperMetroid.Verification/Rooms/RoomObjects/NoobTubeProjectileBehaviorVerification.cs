@@ -42,7 +42,7 @@ internal static class NoobTubeProjectileBehaviorVerification
     /// </summary>
     internal static void VerifyNoobTubeProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var spriteArtwork = InstalledFixtures.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
@@ -89,9 +89,10 @@ internal static class NoobTubeProjectileBehaviorVerification
             edgeSystem.StepEnemyProjectiles(tunnel, standingSamus, frameCounterByte: step & byte.MaxValue);
             if (!edgeShard.IsActive)
                 break;
-            int column = edgeShard.StateOf<NoobTubeDebrisState>().X.Whole;
+            int column = edgeShard.NoobTubeDebris.X.Whole;
             passedLeftEdge |= column > CoordinateAxis.LastNonNegative;
-            if (edgeShard.Animation is not NoobTubeProjectileAnimation { ShowsMirroredFrame: true })
+            if (edgeShard.Animation is not NoobTubeProjectileAnimation shardAnimation ||
+                !shardAnimation.ShowsMirroredFrame)
                 continue;
             AssertEqual(unchecked((ushort)(NoobTubeDebrisDefinitions.ShardMirrorSpan - column)), edgeShard.Position.X.Whole,
                 $"step {step}: the shard's mirror image lies across the tube from its column {column}");
@@ -137,7 +138,7 @@ internal static class NoobTubeProjectileBehaviorVerification
 
         EnemyProjectile Spawn(RoomEnemySystem system, RoomEnemyProjectileKind kind, NoobTubePiece piece, Position16<RoomBlocks>? block = null)
         {
-            system.NoobTubeBehavior.SpawnNoobTubeProjectile(
+            system.RoomObjectSpawns.SpawnNoobTubeProjectile(
                 new NoobTubeProjectileRequest(piece, RoomObjectBlock: block ?? new(10, 2)));
             return system.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == kind);
         }
@@ -147,14 +148,14 @@ internal static class NoobTubeProjectileBehaviorVerification
             for (int tick = 1; tick <= maximumTicks; tick++)
             {
                 projectile.FrameHold = WrappingCountdown.Start(1);
-                Process(system, projectile, unchecked((byte)tick));
+                Process(system, projectile, new SuperMetroid.Core.Compatibility.ShortFrameCount(unchecked((byte)tick)));
                 if (!projectile.IsActive)
                     return tick;
             }
             throw new InvalidOperationException($"N00b-tube projectile {projectile.Kind} exceeded {maximumTicks} forced ticks.");
         }
 
-        void Process(RoomEnemySystem system, EnemyProjectile projectile, int shortCounter)
+        void Process(RoomEnemySystem system, EnemyProjectile projectile, SuperMetroid.Core.Compatibility.ShortFrameCount shortCounter)
         {
             system.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter);
             if (!projectile.IsActive)
@@ -171,16 +172,25 @@ internal static class NoobTubeProjectileBehaviorVerification
                 if (command == NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + (oddFrame ? 2 : 4)));
-                    ushort column = projectile.StateOf<NoobTubeDebrisState>().X.Whole;
+                    ushort column = projectile.NoobTubeDebris.X.Whole;
                     AssertEqual(oddFrame ? column : unchecked((ushort)(256 - column)), projectile.Position.X.Whole,
                         $"reflected flicker at $86:{entry:X4} column");
+                    // The shard is drawn whole on every update (#2639): itself at its column and its mirror image.
+                    EnemyProjectileShownPicture[] shown = [.. projectile.Behavior.ShownPictures(projectile)];
+                    AssertEqual(2, shown.Length, $"reflected flicker at $86:{entry:X4} draws the shard and its mirror image");
+                    AssertEqual(column, shown[0].At.X, $"reflected flicker at $86:{entry:X4} draws the shard at its column");
+                    AssertEqual(unchecked((ushort)(256 - column)), unchecked((ushort)shown[1].At.X),
+                        $"reflected flicker at $86:{entry:X4} draws its mirror image across the tube");
                 }
                 else if (command == NativeEnemyProjectileInstruction.NoobTubeShardFlicker)
                 {
                     expectedOperand = unchecked((ushort)(entry + 2));
-                    AssertEqual(projectile.StateOf<NoobTubeDebrisState>().X.Whole, projectile.Position.X.Whole,
+                    AssertEqual(projectile.NoobTubeDebris.X.Whole, projectile.Position.X.Whole,
                         $"hiding flicker at $86:{entry:X4} column");
-                    AssertEqual(!oddFrame, projectile.StateOf<NoobTubeDebrisState>().IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
+                    AssertEqual(!oddFrame, projectile.NoobTubeDebris.IsHidden, $"hiding flicker at $86:{entry:X4} hides the shard on even frames");
+                    // The shard is drawn on every update all the same (#2639).
+                    AssertEqual(1, projectile.Behavior.ShownPictures(projectile).Count(),
+                        $"hiding flicker at $86:{entry:X4} draws the shard on every update");
                 }
             }
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands, expectedOperand);

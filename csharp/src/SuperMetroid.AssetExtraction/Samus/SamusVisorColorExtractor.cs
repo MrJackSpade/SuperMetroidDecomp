@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -7,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports authored visor RGB5 colors without exposing their phase selectors.</summary>
-public static class SamusVisorColorExtractor
+public static partial class SamusVisorColorExtractor
 {
     /// <summary>Exports the six consecutive authored visor colors at $9B:A3C0 used by normal-room animation and X-ray Scope presentation.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the twelve-byte visor color band.</param>
@@ -18,24 +20,20 @@ public static class SamusVisorColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] source = RomDataReader.ReadFixedBank(bus,
             SamusSourceDefinitions.VisorColors.Value,
             SamusVisorColorFormat.ColorCount * sizeof(ushort));
         var colors = new PaletteRgb5[SamusVisorColorFormat.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             int word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = (word >> 5) & 31,
-                Blue = (word >> 10) & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return SamusVisorColorFile.Write(new SamusVisorColorDocument
         {
             Version = SamusVisorColorFile.Version,
-            Colors = colors,
+            Widening = colors[..(colors.Length / 2)],
+            Cycle = colors[(colors.Length / 2)..],
         });
     }
 }

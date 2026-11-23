@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Enemies;
-using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -16,9 +15,9 @@ internal static class WorkRobotResourceChecks
         // Production catalogs, but constructed art: no cartridge, enemy AI, room,
         // frame clock or player input is needed to expose a missing installed binding.
         var frames = EnemyProjectileSpritemapDefinitions.DocumentFrameNames.ToDictionary(
-            name => name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
+            name => name, _ => Array.Empty<EnemyProjectilePartDocument>(), StringComparer.Ordinal);
         var programs = EnemyProjectilePresentationFrameSets.All.ToDictionary(
-            frame => frame.Name, _ => Array.Empty<SpriteVisualPart>(), StringComparer.Ordinal);
+            frame => frame.Name, _ => Array.Empty<EnemyProjectilePartDocument>(), StringComparer.Ordinal);
         EnemyProjectileFrameId[] lasers = [.. WorkRobotLaserAnimations.Segments.Frames];
         for (int index = 0; index < lasers.Length; index++)
         {
@@ -27,10 +26,10 @@ internal static class WorkRobotResourceChecks
                 $"Work Robot laser frame {laser} must be included in the installed program-frame set");
             string name = EnemyProjectilePresentationFrameSets.All.ToArray()
                 .Single(frame => frame.Frame == laser).Name;
-            programs[name] = [new SpriteVisualPart
+            programs[name] = [new EnemyProjectilePartDocument
             {
-                OffsetX = index, OffsetY = 0, Size = 8, Priority = 2, Palette = 0,
-                TileColumn = 0, TileRow = 0, FlipX = false, FlipY = false,
+                OffsetX = index, OffsetY = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, Palette = 0,
+                Character = 0, FlipX = false, FlipY = false,
             }];
         }
         var document = new EnemyProjectileSpritemapDocument
@@ -51,8 +50,7 @@ internal static class WorkRobotResourceChecks
 
     /// <summary>Loads a constructed projectile artwork document.</summary>
     private static EnemyProjectileSpritemapCatalog Load(EnemyProjectileSpritemapDocument document) =>
-        EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })));
+        EnemyProjectileSpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.ResourceAudit.ResourceAuditJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapDocument>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }))));
 
     /// <summary>Reports a failed resource contract with context for the audit command.</summary>
     private static void Require(bool condition, string message)

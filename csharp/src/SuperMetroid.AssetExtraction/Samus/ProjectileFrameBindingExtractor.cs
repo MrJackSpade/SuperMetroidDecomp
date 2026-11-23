@@ -6,7 +6,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports visual spritemap operands from all authored timed projectile records.</summary>
-public static class ProjectileFrameBindingExtractor
+public static partial class ProjectileFrameBindingExtractor
 {
     /// <summary>Imports the spritemap selection for every compiled timed Samus-projectile record in bank $93.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the timed records' spritemap operands.</param>
@@ -19,12 +19,19 @@ public static class ProjectileFrameBindingExtractor
         Ensure.NotNull(bus);
         Dictionary<SamusProjectileFrameId, ProjectileSpriteId> recordSprites = ProjectileSpriteLocations.RecordSprites(bus);
         var frames = new Dictionary<string, string>();
+        var unpictured = new List<string>();
         foreach (SamusProjectileFrameId record in SamusProjectileFrameOrder.Frames)
-            frames.Add(ProjectileFrameBindingFormat.FrameName(record), recordSprites[record].Name);
+        {
+            if (recordSprites.TryGetValue(record, out ProjectileSpriteId sprite))
+                frames.Add(ProjectileFrameBindingFormat.FrameName(record), sprite.Name);
+            else
+                unpictured.Add(ProjectileFrameBindingFormat.FrameName(record));
+        }
         return ProjectileFrameBindingFile.Write(new ProjectileFrameBindingDocument
         {
             Version = ProjectileFrameBindingFormat.Version,
             Frames = frames,
+            Unpictured = unpictured,
         });
     }
 }

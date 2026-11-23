@@ -24,16 +24,8 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// character transfers leave for that shot, pictured under the palette of the screen that shows it; the screens select
 /// the pictures by scene state.
 /// </summary>
-internal static class FrontendFloorSheetComposer
+internal static partial class FrontendFloorSheetComposer
 {
-    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467).</summary>
-    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } =
-    [
-        SpriteSheetId.TitleFloor, SpriteSheetId.CeresFloor, SpriteSheetId.EndingSideCloudEscapeFloor,
-        SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, SpriteSheetId.EndingPlanetExplosionFloor, SpriteSheetId.EndingFlyawayFloor,
-        SpriteSheetId.EndingRewardIconFloor,
-    ];
-
     /// <summary>
     /// Composes floor sheet <paramref name="sheet"/> from the stock artwork <paramref name="sources"/> read, shown whole where
     /// its scene repeats the floor beyond its edges (<see cref="RepeatingFloors"/>, #1646).
@@ -47,21 +39,27 @@ internal static class FrontendFloorSheetComposer
             : throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The sheet holds no frontend floor.");
     }
 
+    /// <summary>The frontend floor sheets in installation order, each with how it composes from the stock artwork.</summary>
+    private static readonly FrontendFloor[] Floors =
+    [
+        new(SpriteSheetId.TitleFloor, sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette)),
+        new(SpriteSheetId.CeresFloor, sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx)),
+        new(SpriteSheetId.EndingSideCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.SideCloudEscape, EndingPaletteId.Escape), sources,
+            EndingFloorShot.SideCloudEscape)),
+        new(SpriteSheetId.EndingTopAndBottomCloudEscapeFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.TopAndBottomCloudEscape, EndingPaletteId.Escape), sources,
+            EndingFloorShot.TopAndBottomCloudEscape)),
+        new(SpriteSheetId.EndingPlanetExplosionFloor, sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
+            EndingFloorShot.PlanetExplosion)),
+        new(SpriteSheetId.EndingFlyawayFloor, sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway)),
+        new(SpriteSheetId.EndingRewardIconFloor, sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources, EndingFloorShot.RewardIcon)),
+    ];
+
+    /// <summary>The installed sheets of frontend turning floors' pictures (#1392, #1467), in installation order.</summary>
+    internal static IReadOnlyList<SpriteSheetId> Sheets { get; } = [.. Floors.Select(floor => floor.Sheet)];
+
     /// <summary>How each frontend floor sheet composes from the stock artwork.</summary>
     private static readonly FrozenDictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>> Composers =
-        new Dictionary<SpriteSheetId, Func<ScreenTileSources, ComposedSpriteSheet>>
-        {
-            [SpriteSheetId.TitleFloor] = sources => Title(sources.Maps.TitleGraphics, sources.Maps.TitlePalette),
-            [SpriteSheetId.CeresFloor] = sources => Ceres(sources.Intro, sources.Maps.RoomPaletteFx),
-            [SpriteSheetId.EndingSideCloudEscapeFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.SideCloudEscape, EndingPaletteId.Escape), sources,
-                EndingFloorShot.SideCloudEscape),
-            [SpriteSheetId.EndingTopAndBottomCloudEscapeFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.TopAndBottomCloudEscape, EndingPaletteId.Escape), sources,
-                EndingFloorShot.TopAndBottomCloudEscape),
-            [SpriteSheetId.EndingPlanetExplosionFloor] = sources => EndingShaded(EndingScene(sources, EndingFloorSceneId.PlanetExplosion, EndingPaletteId.Explosion), sources,
-                EndingFloorShot.PlanetExplosion),
-            [SpriteSheetId.EndingFlyawayFloor] = sources => EndingShaded(Flyaway(sources.Intro.FlightCharacters, sources.EndingPalettes), sources, EndingFloorShot.Flyaway),
-            [SpriteSheetId.EndingRewardIconFloor] = sources => EndingShaded(RewardIcon(sources.EndingMode7, sources.EndingPalettes), sources, EndingFloorShot.RewardIcon),
-        }.ToFrozenDictionary();
+        Floors.ToFrozenDictionary(floor => floor.Sheet, floor => floor.Compose);
 
     /// <summary>
     /// The title's floor (#1538): the whole floor without the Baby Metroid, the title's map over the start of a floor whose
@@ -120,19 +118,17 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">No cell of the map shows the Baby's tiles.</exception>
     private static BabyCellRectangle BabyCells(byte[] map)
     {
-        int left = FloorSheetComposer.Side, top = FloorSheetComposer.Side, right = -1, bottom = -1;
-        for (int cell = 0; cell < map.Length; cell++)
-        {
-            if (map[cell] is < TitleFloorTileDefinitions.BabyFirstTile or >= TitleFloorTileDefinitions.BabyFirstTile + TitleFloorTileDefinitions.BabyTileCount)
-                continue;
-            int column = cell % FloorSheetComposer.Side, row = cell / FloorSheetComposer.Side;
-            left = Math.Min(left, column);
-            top = Math.Min(top, row);
-            right = Math.Max(right, column);
-            bottom = Math.Max(bottom, row);
-        }
-        return right >= 0 ? new BabyCellRectangle(left, top, right - left + 1, bottom - top + 1)
-            : throw new InvalidDataException("The title floor's map shows no cell of the Baby Metroid.");
+        // The cells are visited row by row, so the bounds' top is the first cell's row and each cell's row the lowest yet.
+        int[] cells = [.. Enumerable.Range(0, map.Length).Where(cell => map[cell] is >= TitleFloorTileDefinitions.BabyFirstTile
+            and < TitleFloorTileDefinitions.BabyFirstTile + TitleFloorTileDefinitions.BabyTileCount)];
+        if (cells.Length == 0)
+            throw new InvalidDataException("The title floor's map shows no cell of the Baby Metroid.");
+        ImageContentBox bounds = ImageContentBox.OfRow(RunOf(cells[0]), cells[0] / FloorSheetComposer.Side);
+        foreach (int cell in cells.Skip(1))
+            bounds = bounds.Including(RunOf(cell), cell / FloorSheetComposer.Side);
+        return new BabyCellRectangle(bounds.Left, bounds.Top, bounds.Right - bounds.Left + 1, bounds.Bottom - bounds.Top + 1);
+
+        static ImageRowRun RunOf(int cell) => new(cell % FloorSheetComposer.Side, cell % FloorSheetComposer.Side);
     }
 
     /// <summary>The cells of the title floor's map the Baby Metroid lies in.</summary>
@@ -140,7 +136,7 @@ internal static class FrontendFloorSheetComposer
     /// <param name="Top">The topmost cell's row.</param>
     /// <param name="Columns">The rectangle's width in cells.</param>
     /// <param name="Rows">The rectangle's height in cells.</param>
-    private readonly record struct BabyCellRectangle(int Left, int Top, int Columns, int Rows);
+    private readonly partial record struct BabyCellRectangle(int Left, int Top, int Columns, int Rows);
 
     /// <summary>
     /// The Ceres cinematics' floor in each shot, under the flight's palette: each shot's views over the start of a floor of
@@ -250,7 +246,7 @@ internal static class FrontendFloorSheetComposer
         map.CopyTo(cells);
         map.CopyTo(cells.AsSpan(EndingFloorArtworkFormat.MapByteCount));
         return FloorSheetComposer.Compose(
-            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, EndingFloorSceneCharacters.Of(sources.EndingMode7[scene]).Characters.Span)],
+            [FloorSheetComposer.Whole(EndingFloorDefinitions.FrameName, cells, sources.EndingMode7[scene].Characters.Span)],
             ScreenPaletteColours.EndingColours(sources.EndingPalettes, palette));
     }
 
@@ -279,7 +275,7 @@ internal static class FrontendFloorSheetComposer
     /// <exception cref="InvalidDataException">The icon's artwork is shorter than its chunks load.</exception>
     private static ComposedSpriteSheet RewardIcon(EndingFloorCharacters mode7, EndingPaletteSet palettes)
     {
-        ReadOnlySpan<byte> words = EndingRewardIconCharacters.Of(mode7.RewardIcon).Bytes.Span;
+        ReadOnlySpan<byte> words = mode7.RewardIcon.Bytes.Span;
         ReadOnlySpan<byte> map = mode7.RewardIcon.Map.Span;
         if (map.Length < FloorSheetComposer.CellCount || words.Length < FloorSheetComposer.TileSetBytes * sizeof(ushort))
             throw new InvalidDataException("The reward icon's artwork is shorter than its chunks load.");

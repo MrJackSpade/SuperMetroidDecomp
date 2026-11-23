@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>When a Yard hides, when its turns come back after a slope, and how slowly it must fall to land (#2076).</summary>
-internal static class YardMotionDefinitions
+internal static partial class YardMotionDefinitions
 {
     /// <summary>How far above Samus, in pixels, a Yard still hides from her gaze; one any higher keeps crawling.</summary>
     internal const int HidingReachAbove = 96;

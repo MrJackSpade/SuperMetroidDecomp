@@ -38,22 +38,14 @@ internal static class BlueBrinstarFaceBlockHorizontalDistanceVerification
     private static (bool Woke, bool FacesRight) Wakes(int blockX, int samusX)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
-        place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
-        place.Position = place.Position.WithWhole(new(blockX, RowY));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
-        BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
-            ?? throw new InvalidOperationException("The face block has no state.");
+        RoomEnemyPlace place = BlueBrinstarFaceBlockPlacing.Place(enemies, new(blockX, RowY));
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, RowY)),
         };
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
-        return (state.Activated, place.SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right);
+        bool woke = BlueBrinstarFaceBlockPlacing.RunMainAiWakes(place, samus);
+        return (woke, place.HeldOccupant().SpawnSettings<FaceBlockSpawnSettings>().Facing == HorizontalDirection.Right);
     }
 
     /// <summary>Runs the face-block horizontal distance check through its dedicated command-line switch.</summary>

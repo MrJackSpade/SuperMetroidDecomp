@@ -2,25 +2,21 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete exploding-Zebes layer-fade control program.</summary>
-public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
+/// <summary>One exploding-Zebes layer fade's records and the colours each writes.</summary>
+public sealed partial class ZebesExplosionLayerFadePaletteFxColorDefinition
 {
-    /// <summary>Only the catalog creates definitions.</summary>
-    internal ZebesExplosionLayerFadePaletteFxColorDefinition()
+    /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
+    /// <param name="effect">The colour effect whose records the program holds.</param>
+    /// <param name="colorsPerFrame">The colours each record writes.</param>
+    internal ZebesExplosionLayerFadePaletteFxColorDefinition(ColourEffectId effect, int colorsPerFrame)
     {
+        Effect = effect;
+        ColorFrames = PaletteFxColorFrames.Of(effect, colorsPerFrame);
     }
 
-    /// <summary>The mutually exclusive faded layer.</summary>
-    public required ZebesExplosionLayerFadePaletteFxProgramOwner Owner { get; init; }
-
-    /// <summary>The palette-FX object that installs this program.</summary>
-    /// <remarks>One object fades the crust and the other the grey clouds.</remarks>
-    public required ColourEffectId Object { get; init; }
-
-
-    /// <summary>The authored duration of each timed record.</summary>
-    public required int FrameDuration { get; init; }
+    /// <summary>The colour effect whose records the program holds, which identifies the definition.</summary>
+    public ColourEffectId Effect { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public required PaletteFxColorFrames ColorFrames { get; init; }
+    public PaletteFxColorFrames ColorFrames { get; }
 }

@@ -48,9 +48,8 @@ internal static class RoomFxPaletteBlendsVerification
             IReadOnlyList<RgbColor> compiled = catalog.Inks(id);
             // The layer-3 pictures' shade of the blend holds its three colours over the blend inks (#1512).
             SheetShade shade = BlendShade(catalog, id);
-            AssertEqual(RoomFxNativeSources.PaletteBlendDestinationIndex, shade.Inks[0], $"room-FX blend {id} shades the blend inks");
-            for (int index = 0; index < compiled.Count; index++)
-                AssertEqual(compiled[index], shade.Colours[index], $"room-FX blend {id} shade colour {index}");
+            AssertEqual(RoomFxNativeSources.PaletteBlendDestinationIndex, shade.Inks.First(), $"room-FX blend {id} shades the blend inks");
+            AssertTrue(compiled.SequenceEqual(shade.Colours), $"room-FX blend {id} shade colours");
 
             (RoomFxOverlayState state, CartridgeReadGuard bus) = ConstructBlendLoad(id);
             AssertEqual<RoomEffectTint?>(id, state.Tint, $"room-FX blend {id} load names its blend");
@@ -82,9 +81,7 @@ internal static class RoomFxPaletteBlendsVerification
     /// </summary>
     private static void VerifyCeresHazeTint()
     {
-        SceneColourDocument stock = JsonSerializer.Deserialize<SceneColourDocument>(
-            File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.MapDirectory, SceneColourFiles.FileName)),
-            ArtworkJson.Options)
+        SceneColourDocument stock = JsonSerializer.Deserialize<SceneColourDocument>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation.MapDirectory, SceneColourFiles.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.SceneColourDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Installed scene colour document is null.");
         AssertEqual(InstalledColourText.Format(SceneColourFiles.StockCeresHazeBlue), stock.CeresHazeWhileRidleyLives,
             "the import records the stock Ceres blue tint");
@@ -98,20 +95,16 @@ internal static class RoomFxPaletteBlendsVerification
             "stock Ceres blue haze retains its native scanline-eight fixed color");
         AssertEqual(new RgbaPixel(66, 0, 0, 255), HazeLine(GameplayEffectCapture.CaptureCeresHaze(installedTints, CeresHazeTint.AfterRidleyDies, new CeresHazeStrength(CeresHazeRenderDefinitions.MaximumComponent))),
             "stock Ceres escape haze retains the matching red fixed color");
-        AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-            stock with { CeresHazeWhileRidleyLives = "#00ff0" }, ArtworkJson.Options),
+        AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(stock with { CeresHazeWhileRidleyLives = "#00ff0" }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.SceneColourDocument>(ArtworkJson.Options)),
             writable: false)), "reading a Ceres tint not written as #rrggbb fails loudly");
-        AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(
-            stock with { CeresHazeWhileRidleyLives = "#000043" }, ArtworkJson.Options),
+        AssertThrows<InvalidDataException>(() => SceneColourFiles.Read(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(stock with { CeresHazeWhileRidleyLives = "#000043" }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.SceneColourDocument>(ArtworkJson.Options)),
             writable: false)), "reading a Ceres tint off the game's fade scale fails loudly");
     }
 
     /// <summary>Checks that the room-FX blend codec rejects out-of-range colours.</summary>
     internal static void VerifyRoomFxPaletteBlendsRejectMalformedDocuments(string stock)
     {
-        RoomFxPaletteBlendDocument document = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(
-            File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)),
-            ArtworkJson.Options)
+        RoomFxPaletteBlendDocument document = JsonSerializer.Deserialize<RoomFxPaletteBlendDocument>(File.ReadAllBytes(Path.Combine(stock, RoomFxPaletteBlendDefinitions.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock room-FX blend document is null.");
         string key = RoomFxPaletteBlendDocumentRules.Key(RoomEffectTint.Lava);
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendFile.Read(new MemoryStream(RoomFxPaletteBlendFile.Write(document with

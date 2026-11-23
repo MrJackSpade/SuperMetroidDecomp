@@ -6,16 +6,16 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// transitions recorded (#1473). These are transition samples, not per-frame samples: every committed transition shifts
 /// them, including one that selects the previous pose again.
 /// </summary>
-public sealed class SamusPoseHistoryState
+public sealed partial class SamusPoseHistoryState
 {
     /// <summary>The pose the latest committed transition published.</summary>
     public SamusPoseId PreviousPose { get; private set; }
 
     /// <summary>The movement type the latest committed transition recorded.</summary>
-    public SamusMovementType PreviousMovement { get; private set; }
+    internal SamusMovementType PreviousMovement { get; set; }
 
     /// <summary>The movement type the committed transition before the latest one recorded.</summary>
-    public SamusMovementType MovementBeforePrevious { get; private set; }
+    internal SamusMovementType MovementBeforePrevious { get; set; }
 
     /// <summary>
     /// Whether the wall-jump probe may run: only when the older committed transition recorded spin jumping or wall

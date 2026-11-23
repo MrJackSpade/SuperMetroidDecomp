@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Gameplay;
@@ -14,8 +13,7 @@ namespace SuperMetroid.Core.World;
 /// the room's objects and before its enemies, and Samus, whom the elevatube's setups place and release. It presents them to
 /// the door's room event as <see cref="IDoorEventRoom"/>.
 /// </summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal sealed class DoorSetupRoom : IDoorEventRoom
+internal sealed partial class DoorSetupRoom : IDoorEventRoom
 {
     /// <summary>The destination's level, which the setup's room objects edit.</summary>
     internal required RoomLevelData Level { get; init; }
@@ -42,12 +40,22 @@ internal sealed class DoorSetupRoom : IDoorEventRoom
     internal required SharedGameState System { get; init; }
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The room's main composed no elevatube ride.</exception>
+    /// <remarks>
+    /// The ride is the elevatube room's main's, which the room's definition step composed before the door's setup runs. The
+    /// tube's entry doors lead only into the elevatube's room, which the load checks here as the door's setup runs.
+    /// </remarks>
+    /// <exception cref="InvalidDataException">The door leads into a room whose main is no elevatube.</exception>
     public void StartElevatubeRide(ElevatubeEntry entry)
     {
-        MaridiaElevatubeRoomMainState ride = Scope.MaridiaElevatube ?? throw new InvalidDataException(
-            $"A door's setup starts the elevatube ride {entry} in room {Scope.Room.Definition.Name}, whose main composes no elevatube.");
-        ride.StartRide(entry, Samus);
+        switch (Scope.Main)
+        {
+            case MaridiaElevatubeMain tube:
+                tube.StartRide(entry, Samus);
+                return;
+            default:
+                throw new InvalidDataException(
+                    $"An elevatube entry door leads into {Scope.Room.Definition.Name}, whose main is no elevatube.");
+        }
     }
 
     /// <inheritdoc/>

@@ -4,12 +4,11 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The turrets' placement, rotation and bullet-physics definitions.</summary>
-internal static class MotherBrainTurretDefinitions
+internal static partial class MotherBrainTurretDefinitions
 {
     /// <summary>
-    /// Graphics installed by both projectile setups: the shared sheet in the Rinkas' colours, the standard colours
-    /// of the sheet the import composes under Mother Brain's room's set, which loads them beside her (#1464, #1512). The
-    /// turrets and their bullets exist only in the first phase, before the second phase's attack colours load.
+    /// The pictures both turrets and their bullets show: the shared sheet in the standard colours (#1464, #1512). The
+    /// turrets and their bullets exist only in the first phase.
     /// </summary>
     internal static SpriteGraphics Graphics { get; } = SpriteGraphics.SharedIn(PictureShading.Standard);
 
@@ -71,7 +70,7 @@ internal static class MotherBrainTurretDefinitions
     /// straight shot moves at <see cref="StraightBulletSpeed"/> along its axis and a diagonal one at
     /// <see cref="DiagonalBulletSpeed"/> along each.
     /// </summary>
-    internal static readonly Dictionary<MotherBrainTurretDirection, MotherBrainTurretDirectionDefinition> Launches = new()
+    internal static readonly IdentityTable<MotherBrainTurretDirection, MotherBrainTurretDirectionDefinition> Launches = new(new Dictionary<MotherBrainTurretDirection, MotherBrainTurretDirectionDefinition>
     {
         [MotherBrainTurretDirection.Left] = new(new(-17, -9), new(-StraightBulletSpeed, SignedEightEight.Zero)),
         [MotherBrainTurretDirection.DownLeft] = new(new(-12, 3), new(-DiagonalBulletSpeed, DiagonalBulletSpeed)),
@@ -81,5 +80,5 @@ internal static class MotherBrainTurretDefinitions
         [MotherBrainTurretDirection.UpRight] = new(new(12, -19), new(DiagonalBulletSpeed, -DiagonalBulletSpeed)),
         [MotherBrainTurretDirection.Up] = new(new(0, -21), new(SignedEightEight.Zero, -StraightBulletSpeed)),
         [MotherBrainTurretDirection.UpLeft] = new(new(-12, -19), new(-DiagonalBulletSpeed, -DiagonalBulletSpeed)),
-    };
+    });
 }

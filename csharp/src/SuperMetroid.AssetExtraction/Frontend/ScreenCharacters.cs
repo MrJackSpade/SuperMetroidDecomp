@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// placed at consecutive tile numbers, a later run showing over an earlier one. A tile number no run places shows nothing,
 /// as on the screen it was cut from.
 /// </summary>
-internal sealed class ScreenCharacters
+internal sealed partial class ScreenCharacters
 {
     /// <summary>Each placed run, earliest first.</summary>
     private readonly List<ScreenCharacterRun> runs = [];

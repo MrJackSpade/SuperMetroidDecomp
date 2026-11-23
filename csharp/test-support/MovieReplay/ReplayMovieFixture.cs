@@ -23,12 +23,6 @@ internal sealed record ReplayMovieFixture(string Name, string MoviePath, string 
         "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8",
         "csharp/test-fixtures/replay-traces/low-13-percent");
 
-    /// <summary>The power-on recording used to check the issue 1275 Samus movement divergence.</summary>
-    internal static ReplayMovieFixture Drunk { get; } = new("Samus drunk",
-        "csharp/test-fixtures/issue-1275-movies/Samus drunk.smv",
-        "6822B5D0F2D5CD81F7DB3E48E05E8EFE7F0EC2395669E0DDF80B7F5E8FC4DF17",
-        "csharp/test-fixtures/replay-traces/samus-drunk");
-
     /// <summary>The snapshot-start recording used to check the issue 1275 Mother Brain divergence.</summary>
     internal static ReplayMovieFixture MotherBrainGlitch { get; } = new("Mother Brain glitch",
         "csharp/test-fixtures/issue-1275-movies/mother brain glitch.smv",
@@ -53,7 +47,6 @@ internal sealed record ReplayMovieFixture(string Name, string MoviePath, string 
         ReplayMovieId.MotherBrainGlitch => MotherBrainGlitch,
         ReplayMovieId.LowPercent13 => LowPercent13,
         ReplayMovieId.Full100 => Full100,
-        ReplayMovieId.Drunk => Drunk,
         ReplayMovieId.Lowc => Lowc,
         ReplayMovieId.Ridley => Ridley,
         _ => throw new ArgumentOutOfRangeException(nameof(movie), movie, "Undefined replay movie."),

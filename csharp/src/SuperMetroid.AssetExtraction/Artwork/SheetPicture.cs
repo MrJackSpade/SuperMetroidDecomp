@@ -11,20 +11,17 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// groups and depth its frame document names, so it can be laid on another sheet and drawn as it was. What it shows in each
 /// shade is its sheet's colouring over <see cref="Rows"/>, which it does not hold.
 /// </summary>
-internal sealed class SheetPicture
+internal sealed partial class SheetPicture
 {
-    /// <summary>Colours in one colour group.</summary>
-    private const int GroupColours = ImageColourGroup.Colours;
-
     /// <summary>Each pixel's colour, row by row from the top of the rectangle.</summary>
     private readonly RgbaPixel[] pixels;
 
-    /// <summary>Each pixel's colour group's place times sixteen plus its colour, zero where transparent.</summary>
-    private readonly byte[] inks;
+    /// <summary>Each pixel's ink, the colour group and colour it was painted in; <see cref="ComposedInk.None"/> where transparent.</summary>
+    private readonly ComposedInk[] inks;
 
     /// <summary>Keeps a picture's planes and frame document fields.</summary>
     private SheetPicture(Extent16<ImagePixels> size, Offset16<ImagePixels> origin, ImageColourGroups colourGroups, ActorDepth? depth,
-        RgbaPixel[] pixels, byte[] inks)
+        RgbaPixel[] pixels, ComposedInk[] inks)
     {
         Size = size;
         Origin = origin;
@@ -33,10 +30,10 @@ internal sealed class SheetPicture
         this.pixels = pixels;
         this.inks = inks;
         ImageColourGroups rows = colourGroups;
-        foreach (int ink in inks)
+        foreach (ComposedInk ink in inks)
         {
-            if (ink != 0)
-                rows = rows.With(ImageColourGroup.Numbered(ink / GroupColours));
+            if (ink != ComposedInk.None)
+                rows = rows.With(ImageColourGroup.Numbered(ink.Group));
         }
         Rows = rows;
         Pixels = PixelsOf();
@@ -76,14 +73,14 @@ internal sealed class SheetPicture
             throw new InvalidDataException($"A {size.X}x{size.Y} frame at ({frame.Corner.X}, {frame.Corner.Y}) leaves its {planes.Size.X}x{planes.Size.Y} sheet.");
         int area = size.X * size.Y;
         var pixels = new RgbaPixel[area];
-        var inks = new byte[area];
+        var inks = new ComposedInk[area];
         for (int row = 0; row < size.Y; row++)
         {
             int from = (frame.Corner.Y + row) * planes.Size.X + frame.Corner.X;
             planes.Pixels.Slice(from, size.X).CopyTo(pixels.AsSpan(row * size.X, size.X));
-            planes.PaletteIndices.Slice(from, size.X).CopyTo(inks.AsSpan(row * size.X, size.X));
+            planes.Inks.Slice(from, size.X).CopyTo(inks.AsSpan(row * size.X, size.X));
         }
-        return new SheetPicture(size, frame.Origin, ImageColourGroups.FromManifest(frame.ColourGroups), frame.Depth, pixels, inks);
+        return new SheetPicture(size, frame.Origin, frame.ColourGroups, frame.Depth, pixels, inks);
     }
 
     /// <summary>Copies the picture onto <paramref name="planes"/> with its rectangle's top-left pixel at <paramref name="corner"/>.</summary>
@@ -93,7 +90,7 @@ internal sealed class SheetPicture
         {
             int to = (corner.Y + row) * planes.Size.X + corner.X;
             pixels.AsSpan(row * Size.X, Size.X).CopyTo(planes.Pixels.Slice(to, Size.X));
-            inks.AsSpan(row * Size.X, Size.X).CopyTo(planes.PaletteIndices.Slice(to, Size.X));
+            inks.AsSpan(row * Size.X, Size.X).CopyTo(planes.Inks.Slice(to, Size.X));
         }
     }
 
@@ -103,7 +100,7 @@ internal sealed class SheetPicture
         Corner = corner,
         Size = Size,
         Origin = Origin,
-        ColourGroups = ColourGroups.ManifestMembers,
+        ColourGroups = ColourGroups,
         Depth = Depth,
     };
 
@@ -133,7 +130,7 @@ internal sealed class SheetPicture
                 writer.Write(colour.G);
                 writer.Write(colour.B);
                 writer.Write(colour.A);
-                int ink = inks[pixel];
+                int ink = inks[pixel].PlaceIn(SpriteImageColours.Sprite);
                 ComposedPixelKind kind = InstalledSheetConversion.KindOf(SpriteImageColours.Sprite, ink);
                 if (kind == ComposedPixelKind.Transparent)
                 {
@@ -162,7 +159,11 @@ internal sealed class SheetPicture
             writer.Write(Size.X);
             writer.Write(Size.Y);
             writer.Write(System.Runtime.InteropServices.MemoryMarshal.AsBytes(pixels.AsSpan()));
-            writer.Write(inks);
+            foreach (ComposedInk ink in inks)
+            {
+                writer.Write(ink.Group);
+                writer.Write(ink.Colour);
+            }
         }
         return Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, checked((int)stream.Length))));
     }

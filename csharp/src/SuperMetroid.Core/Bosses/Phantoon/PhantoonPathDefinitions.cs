@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Exact discrete Phantoon figure-eight movement, not a sampled analytic curve.</summary>
-public static class PhantoonPathDefinitions
+public static partial class PhantoonPathDefinitions
 {
-    /// <summary>The path's 534 signed X/Y unit steps.</summary>
+    /// <summary>The number of the path's signed X/Y unit steps.</summary>
     public const int Length = 534;
 
     /// <summary>The path's last place, where a figure-eight run backwards from its start begins (#1940).</summary>

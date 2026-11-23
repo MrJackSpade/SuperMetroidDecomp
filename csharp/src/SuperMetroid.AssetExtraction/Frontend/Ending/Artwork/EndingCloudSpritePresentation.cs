@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the six atmospheric ending clouds.</summary>
-public sealed class EndingCloudSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingCloudSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled cloud compositions keyed by the poses that show them.</summary>
     internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -54,8 +54,7 @@ public sealed class EndingCloudSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, EndingCloudSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCloudSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Zebes exploding in the ending: its setup and the colour crossfade into it.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingZebesExplosion
+internal sealed partial class EndingZebesExplosion
 {
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
@@ -32,13 +32,13 @@ internal sealed class EndingZebesExplosion
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         _stage.SpawnSprite(EndingActorDefinitions.ExplosionStars, EndingSpriteRole.ExplosionStars);
         _stage.Floor.SetUp(Offset16<FloorPixels>.Zero, EndingMotionDefinitions.EscapeInitialZoom, RotationAngle.Zero);
-        _stage.Fade.Show(0);
+        _stage.Fade.Show(DisplayBrightness.Black);
         _stage.StartFastFade();
         BeginExplosionCrossfade();
     }
 
     /// <summary>
-    /// The explosion's colour crossfade (#2488): a step every second update from its second, its last ending the crossfade.
+    /// The explosion's colour crossfade (#2488): a step at the end of each run of <see cref="EndingCadenceDefinitions.ExplosionCrossfadeUpdatesPerStep"/>, its last ending the crossfade.
     /// The explosion's setup shows its start; only the explosion's crossfading phases take its steps.
     /// </summary>
     private readonly PacedFadeSteps crossfade = new(EndingExplosionFadeDefinitions.Steps,
@@ -56,13 +56,13 @@ internal sealed class EndingZebesExplosion
     }
 
     /// <summary>
-    /// Crossfades the explosion's colours on alternating updates while zooming the floor out.
+    /// Crossfades the explosion's colours at the crossfade's pace while zooming the floor out.
     /// </summary>
     /// <returns>Whether the crossfade has taken its last step, which ends it.</returns>
     internal bool StepExplosionCrossfade()
     {
         _stage.Floor.Widen(EndingExplosionFadeDefinitions.ZoomStep);
-        if (crossfade.Advance())
+        if (crossfade.AdvanceTakingStep())
         {
             screen.Colours.Fade(EndingFade.ExplosionBackground, crossfade.Left);
             screen.Colours.Fade(EndingFade.ExplosionLava, crossfade.Taken);

@@ -23,13 +23,13 @@ internal static class DemoInputProgramsVerification
     /// <summary>Every object and program matches bank $91.</summary>
     internal static void VerifyDemoInputPrograms(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(DemoInputListWords.ListBank | address);
 
-        AssertEqual(Enum.GetValues<DemoInputRecordingId>().Length, DemoInputNativeListAddresses.Entries.Length, "every demo recording has a native entry");
+        AssertEqual(Enum.GetValues<DemoInputRecordingId>().Length + Enum.GetValues<DemoSignallingRecordingId>().Length, DemoInputNativeListAddresses.Entries.Length, "every demo recording has a native entry");
         AssertEqual((ushort)DemoInputInstruction.Delete, Word(DemoInputNativeListAddresses.TitleLeavingDeleteList),
             "the title demonstrations' leave list is the delete alone, which DemoInputState.End stands for");
-        foreach ((ushort header, ushort frameBehavior, DemoInputRecordingId program) in DemoInputNativeListAddresses.Objects)
+        foreach ((ushort header, ushort frameBehavior, DemoRecording program) in DemoInputNativeListAddresses.Objects)
         {
             AssertEqual(DemoInputRomData.Routines.NoOp, Word(header), $"demo object $91:{header:X4} initializer");
             AssertEqual(Word(header + 2), frameBehavior, $"demo object $91:{header:X4} pre-instruction is the owner's first watch");
@@ -37,10 +37,12 @@ internal static class DemoInputProgramsVerification
         }
 
         int records = 0;
-        foreach ((DemoInputRecordingId id, ushort entry) in DemoInputNativeListAddresses.Entries)
+        foreach (DemoInputNativeListAddressesEntry listed in DemoInputNativeListAddresses.Entries)
         {
-            DemoRecording recording = DemoInputRecordings.Of(id);
-            DemoInputNativeLoopEntry? loop = DemoInputNativeListAddresses.LoopEntries.Where(candidate => candidate.Recording == id)
+            string id = listed.Name;
+            ushort entry = listed.Entry;
+            DemoRecording recording = listed.Program;
+            DemoInputNativeLoopEntry? loop = DemoInputNativeListAddresses.LoopEntries.Where(candidate => ReferenceEquals(candidate.Recording, recording))
                 .Cast<DemoInputNativeLoopEntry?>().SingleOrDefault();
             ushort cursor = entry;
             int index = 0;
@@ -49,25 +51,38 @@ internal static class DemoInputProgramsVerification
                 string at = $"demo {id} input {index} at $91:{cursor:X4}";
                 if (loop is { } authored && cursor == authored.Entry)
                     AssertEqual(authored.FirstRecord, index, $"{at}: the recording runs on into its loop's list at the loop's first input");
-                AssertEqual(cursor, DemoInputNativeListAddresses.Address(new DemoPlaybackPosition(id, index)), $"{at}: native address");
+                AssertEqual(cursor, DemoInputNativeListAddresses.Address(listed.Start with { NextInput = index }), $"{at}: native address");
                 ushort word = Word(cursor);
                 if (word < DemoInputListWords.RoutineWord)
                 {
                     AssertTrue(index < recording.Inputs.Count, $"{at}: the recording holds this input");
                     DemoInput input = recording.Inputs[index];
-                    AssertEqual(word, input.Duration, $"{at}: duration");
-                    AssertEqual(Word(cursor + 2), GameplayActionWordCodec.ToJoypadWord(input.Held), $"{at}: held");
-                    AssertEqual(Word(cursor + 4), GameplayActionWordCodec.ToJoypadWord(input.NewlyPressed), $"{at}: newly pressed");
-                    cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
+                    ushort held = Word(cursor + 2), newlyPressed = Word(cursor + 4);
+                    AssertEqual(held, GameplayActionWordCodec.ToJoypadWord(input.Held), $"{at}: held");
+                    AssertEqual(newlyPressed, GameplayActionWordCodec.ToJoypadWord(input.NewlyPressed), $"{at}: newly pressed");
+                    // A run of identical consecutive records in the list is the one typed input (#2557): its duration is
+                    // theirs together, and the record map counts them.
+                    int duration = 0, run = 0;
+                    do
+                    {
+                        duration += Word(cursor);
+                        cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
+                        run++;
+                    }
+                    while (!(loop is { } runOn && cursor == runOn.Entry) && Word(cursor) < DemoInputListWords.RoutineWord
+                        && Word(cursor + 2) == held && Word(cursor + 4) == newlyPressed);
+                    AssertEqual(duration, input.Duration, $"{at}: duration");
+                    AssertEqual(run, DemoInputNativeListAddresses.RecordsOf(recording, index), $"{at}: the native records the input stands for");
                     index++;
-                    records++;
+                    records += run;
                     continue;
                 }
                 AssertEqual(recording.Inputs.Count, index, $"{at}: the recording's inputs end where its list's do");
                 if (Routines.TryGetValue(word, out DemoInputCue cue))
                 {
                     AssertEqual((ushort)DemoInputInstruction.Delete, Word(cursor + 2), $"{at}: the routine is followed by the delete");
-                    AssertEqual(DemoRecordingEnd.SignalsThenStops(cue), recording.End, $"{at}: the recording signals, then ends");
+                    AssertEqual<DemoInputCue?>(cue, listed.Signal, $"{at}: the recording signals the routine's cue");
+                    AssertEqual(DemoRecordingEnd.Stops, recording.End, $"{at}: the recording ends after its signal");
                     break;
                 }
                 switch ((DemoInputInstruction)word)
@@ -77,10 +92,12 @@ internal static class DemoInputProgramsVerification
                         int loopsFrom = target == entry ? 0
                             : loop is { } own && target == own.Entry ? own.FirstRecord
                             : throw new InvalidDataException($"{at}: goto ${target:X4} leaves the recording.");
-                        AssertEqual(DemoRecordingEnd.LoopsFrom(loopsFrom), recording.End, $"{at}: the recording loops");
+                        AssertEqual(recording.Inputs.Count - 1, loopsFrom, $"{at}: the recording loops its last input");
+                        AssertEqual(DemoRecordingEnd.HoldsLastInput, recording.End, $"{at}: the recording holds its last input");
                         break;
                     case DemoInputInstruction.Delete:
                         AssertEqual(DemoRecordingEnd.Stops, recording.End, $"{at}: the recording ends");
+                        AssertEqual<DemoInputCue?>(null, listed.Signal, $"{at}: the recording ends without a signal");
                         break;
                     case DemoInputInstruction.SetFrameBehavior:
                     case DemoInputInstruction.ClearFrameBehavior:
@@ -92,6 +109,8 @@ internal static class DemoInputProgramsVerification
                 break;
             }
         }
+        AssertTrue(DemoInputNativeListAddresses.Runs.All(run => run.Input < run.Recording.Inputs.Count),
+            "every authored run names an input of its recording");
         // Every native duration matched above is at least one, so the playback's plain countdown reaches zero on every input;
         // a recording refuses an input that would last no update (#2138).
         AssertThrows<ArgumentException>(() => new DemoRecording([new DemoInput(GameplayAction.None, GameplayAction.None, 0)], DemoRecordingEnd.Stops),

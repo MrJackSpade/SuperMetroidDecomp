@@ -1,9 +1,9 @@
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>
-/// What the Spacetime Beam's runaway colour copy does to saved progress (#1318, #1330, #1474, #1475): which story events, the
-/// Zebetite count (#1527), which area bosses, item locations, doors, used stations and acquired area maps it turns on or off, and the loading
-/// state it leaves the game to resume in. What the copy stops before reaching it leaves undecided
+/// What the Spacetime Beam does to saved progress (#1318, #1330, #1474, #1475): which story events, the Zebetite count
+/// (#1527), which area bosses, item locations, doors, used stations and acquired area maps it turns on or off, and the
+/// loading state it leaves the game to resume in. What it stops before reaching it leaves undecided
 /// (<see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/> says how far it reaches).
 /// </summary>
 /// <remarks>
@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Progression;
 /// <param name="UsedStations">The used save stations and elevators the copy decides.</param>
 /// <param name="AreaMaps">Each area whose map the copy leaves acquired (true) or not (false).</param>
 /// <param name="SavedStartupRoute">The saved startup route replacing the session's, or null when the copy stops before it.</param>
-public sealed record ProgressionOverwrite(
+public sealed partial record ProgressionOverwrite(
     DecidedFlags<StoryEvent> Events,
     int? ZebetitesDestroyed,
     IReadOnlyDictionary<AreaId, DefeatedBosses> AreaBosses,

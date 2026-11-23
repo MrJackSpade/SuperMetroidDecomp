@@ -11,4 +11,4 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Blending">Whether each pixel blends with what lies behind it when drawn as a sprite, in reading order, for a
 /// sheet with a picture that blends in some pixels and not others; null where every picture blends wholly or not at all
 /// (<see cref="SpriteSheetFrame.Blends"/>).</param>
-public sealed record SpriteImagePixels(RgbaPixel[] Pixels, int[]? RecolourRegions, bool[]? Blending);
+public sealed partial record SpriteImagePixels(RgbaPixel[] Pixels, int[]? RecolourRegions, bool[]? Blending);

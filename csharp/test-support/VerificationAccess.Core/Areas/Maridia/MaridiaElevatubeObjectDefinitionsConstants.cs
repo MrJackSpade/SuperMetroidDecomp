@@ -9,8 +9,8 @@ internal static class MaridiaElevatubeObjectDefinitionsConstants
 {
     /// <summary><c>$84:B8F0</c>: sixteen-frame delay and one-block draw.</summary>
     internal const ushort AnimationScript = RoomObjectAnimationScriptsConstants.MaridiaElevatube;
-    /// <summary><c>$84:B8F6</c>: library-two elevatube sound operand.</summary>
-    internal static readonly SoundEffectId SoundId = EnemySound.Elevatube;
+    /// <summary><c>$84:B8F6</c>: library-two elevatube stop operand.</summary>
+    internal static readonly SoundEffectId SoundId = EnemySoundStop.Elevatube;
     /// <summary>Supplies the delay, draw pointer, sound command, and deletion word at their native instruction addresses.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
@@ -25,7 +25,7 @@ internal static class MaridiaElevatubeObjectDefinitionsConstants
         return address is AnimationScript or AnimationScript + 2 or
             AnimationScript + 4 or AnimationScript + 7;
     }
-    /// <summary>Supplies the elevatube sound operand at the byte following its library-two command.</summary>
+    /// <summary>Supplies the elevatube stop operand at the byte following its library-two command.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == AnimationScript + 6)

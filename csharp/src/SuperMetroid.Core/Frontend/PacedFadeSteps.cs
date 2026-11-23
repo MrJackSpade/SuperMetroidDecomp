@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 /// it, and the scene that runs the fade owns it. The fade takes its first step on the update its start names and one
 /// every so many updates after, until it has taken them all.
 /// </summary>
-internal sealed class PacedFadeSteps
+internal sealed partial class PacedFadeSteps
 {
     /// <summary>A fade of <paramref name="steps"/> steps that has taken none yet, paced as <see cref="PacedFadeSteps"/> says.</summary>
     /// <param name="steps">The fade's steps from its start to its goal, one or more.</param>
@@ -21,19 +21,15 @@ internal sealed class PacedFadeSteps
     }
 
     /// <summary>The updates the fade takes from one step to the next.</summary>
-    [IntegerQuantity("updates between fade steps")]
     private readonly int updatesPerStep;
 
     /// <summary>The updates the fade takes to its next step, the update that takes it included.</summary>
-    [IntegerQuantity("updates to the next fade step")]
     private readonly UpdateCountdown stepWait;
 
     /// <summary>The fade's steps from its start to its goal.</summary>
-    [IntegerQuantity("colour fade steps from start to goal")]
     internal int Steps { get; }
 
     /// <summary>The steps the fade has taken, from none at its start to <see cref="Steps"/> at its goal.</summary>
-    [IntegerQuantity("colour fade steps taken")]
     internal int Taken { get; private set; }
 
     /// <summary>The steps the fade has still to take before its goal.</summary>
@@ -45,15 +41,21 @@ internal sealed class PacedFadeSteps
     /// <summary>
     /// One update of the fade: on the update its cadence is due it takes its next step, unless it has taken them all.
     /// </summary>
-    /// <returns>Whether the update took a step.</returns>
-    internal bool Advance()
+    internal void Advance()
     {
         if (!stepWait.Step())
-            return false;
+            return;
         stepWait.Restart(updatesPerStep);
-        if (IsComplete)
-            return false;
-        Taken++;
-        return true;
+        if (!IsComplete)
+            Taken++;
+    }
+
+    /// <summary>One update of the fade, as <see cref="Advance"/> runs it, for a scene that shows each step it takes.</summary>
+    /// <returns>Whether the update took a step.</returns>
+    internal bool AdvanceTakingStep()
+    {
+        int taken = Taken;
+        Advance();
+        return Taken != taken;
     }
 }

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// the import pictures every image the game can place from them, and verification compares them with the cartridge's. The
 /// game receives only the layout (<see cref="Presentation"/>), never the tiles (#1616).
 /// </summary>
-public sealed class GameplayHudArtwork
+public sealed partial class GameplayHudArtwork
 {
     /// <summary>The decoded tiles and layout.</summary>
     private readonly GameplayHudArtworkParts parts;
@@ -194,9 +194,12 @@ public sealed class GameplayHudArtwork
         {
             EnergyTankCorners = [.. parts.EnergyTankCells.Select(Shown)],
             HealthAnchor = Shown(parts.HealthAnchor),
-            MissileAmmoAnchor = Shown(parts.MissileAmmoAnchor),
-            SuperMissileAmmoAnchor = Shown(parts.SuperMissileAmmoAnchor),
-            PowerBombAmmoAnchor = Shown(parts.PowerBombAmmoAnchor),
+            AmmoFields = new(new Dictionary<HudAmmoCounter, HudAmmoField>
+            {
+                [HudAmmoCounter.Missiles] = new(Shown(parts.MissileAmmoAnchor), GameplayHudDefinitions.MissileDigits),
+                [HudAmmoCounter.SuperMissiles] = new(Shown(parts.SuperMissileAmmoAnchor), GameplayHudDefinitions.SuperMissileDigits),
+                [HudAmmoCounter.PowerBombs] = new(Shown(parts.PowerBombAmmoAnchor), GameplayHudDefinitions.PowerBombDigits),
+            }),
             // The indicator's cells form its block, so it is placed by its first, upper-left cell.
             AutoReserveCorner = Shown(parts.AutoReserveCells[0]),
             // The cartridge draws an icon only over a blank anchor, and nothing but the template ever sits under an icon.

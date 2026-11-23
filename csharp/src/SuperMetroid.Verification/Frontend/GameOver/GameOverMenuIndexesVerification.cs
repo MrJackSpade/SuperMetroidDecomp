@@ -53,7 +53,7 @@ internal static class GameOverMenuIndexesVerification
         IReadOnlyList<SoundEffectId> library3 = audio.WaitingSounds(SoundEffectLibrary.Room);
         AssertEqual(1, library3.Count,
             "game-over index zero queues one library-three request");
-        AssertEqual<SoundEffectId>(RoomSound.Silence, library3[0],
+        AssertEqual<SoundEffectId>(RoomSoundStop.Any, library3[0],
             "game-over index zero queues library-three cancel");
         // A menu released from the music wait at once shows the Baby and the missile exactly as one held in it for a
         // while (#2488): the wait neither animates the Baby nor draws the missile, and leaves both their holds as they were.
@@ -84,8 +84,9 @@ internal static class GameOverMenuIndexesVerification
 
         foreach (bool ceres in new[] { true, false })
         {
-            var answered = new GameOverMenuState(AudioQueues.Standalone(), presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: ceres);
-            answered.SkipToPhase(GameOverMenuPhase.Main);
+            AudioQueues answeredAudio = AudioQueues.Standalone();
+            var answered = new GameOverMenuState(answeredAudio, presentation, MenuSheetFixtures.For(presentation), continueLoadsCeresArrival: ceres);
+            answered.RunOpening(answeredAudio);
             answered.Step(0);
             answered.Step(ControllerButton.A);
             AssertEqual(ceres, (answered.Outcome == GameOverMenuOutcome.CeresArrival), $"Yes on loading state $1F={ceres} requests the Ceres loader");

@@ -26,14 +26,14 @@ internal static class RetailElevatorDepartureTests
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.RoomLoader.InitializePostCeresZebesRoom();
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPresentation.InitializeAnimation(samus);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.ElevatorToBlueBrinstar);
-        var actor = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Elevator);
+        var actor = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Elevator));
         samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
@@ -49,7 +49,7 @@ internal static class RetailElevatorDepartureTests
         }
         runtime.StepFrame(ControllerButton.Down);
         Compare("departure start");
-        if (!runtime.Enemies.LastEnemyFrame.Reports(ElevatorFrameEvent.DepartureStarted))
+        if (!runtime.Enemies.LastEnemyFrame.Reports(new ElevatorEvent(ElevatorFrameEvent.DepartureStarted)))
             throw new InvalidOperationException("Downward elevator did not accept the input edge.");
         while (runtime.EnteredDoor is null && departure < 240)
         {
@@ -62,7 +62,7 @@ internal static class RetailElevatorDepartureTests
         int doorFrames = 0;
         while (transition.IsActive && doorFrames++ < 512)
         {
-            if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
+            if (transition.Phase is DoorTransitionPhase.Running.WaitForDoorOpeningScroll) scrolling++;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance); Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Definition != RoomDefinitions.MorphBall)

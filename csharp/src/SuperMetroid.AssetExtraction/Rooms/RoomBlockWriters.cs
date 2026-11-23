@@ -1,7 +1,6 @@
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -22,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// into its room closes it behind Samus; nothing follows what a writer goes on to trigger. A block a room shows that no
 /// writer counted for its tileset fails as the room resolves its pictures, naming the sheet and the block.
 /// </summary>
-internal static class RoomBlockWriters
+internal static partial class RoomBlockWriters
 {
     /// <summary>The writers the installed <paramref name="catalogs"/> and <paramref name="xray"/> reveal hold the blocks of.</summary>
     /// <exception cref="InvalidDataException">An installed frame or X-ray reveal has no rule that draws it.</exception>
@@ -119,8 +118,7 @@ internal static class RoomBlockWriters
         RoomObjectSetupBlock.SuperMissileBlockParent => static state => state.HoldsSuperMissileBlocks,
         RoomObjectSetupBlock.CritterWallStruck => BuildsEscapeAnimalWall,
         RoomObjectSetupBlock.TreadmillIdle or RoomObjectSetupBlock.TreadmillRunning => static state => state.Entrances.Any(static door =>
-            door.Setup == DoorSetupDefinitions.WreckedShipEntranceStartsTreadmillRightwards ||
-            door.Setup == DoorSetupDefinitions.WreckedShipEntranceStartsTreadmillLeftwards),
+            door.Setup.RoomEvent.StartsWreckedShipTreadmill),
         _ => throw new InvalidDataException($"Room-object setup block {block} has no writer."),
     };
 
@@ -135,7 +133,7 @@ internal static class RoomBlockWriters
             throw new InvalidDataException($"Blue door frame {draw} is not a blue door cap's frame.");
         ColoredDoorOrientation facing = cap.Orientation;
         return state => state.HoldsBlueDoorCap(facing) ||
-            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation)?.BlueCapFacing == facing);
+            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation) is DoorClosingObjectDefinition.BlueCap { Facing: var closing } && closing == facing);
     }
 
     /// <summary>
@@ -156,7 +154,7 @@ internal static class RoomBlockWriters
         Func<InventoriedRoomState, bool> coloured = state =>
             state.Places(setup => setup is ColoredDoorSetup { Door.Orientation: var placed } && placed == facing);
         return state => grey(state) || coloured(state) || state.HoldsBlueDoorCap(facing) ||
-            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation)?.BlueCapFacing == facing);
+            state.Entrances.Any(door => DoorClosingObjects.GetDefinition(door.Orientation) is DoorClosingObjectDefinition.BlueCap { Facing: var closing } && closing == facing);
     }
 
     /// <summary>Whether a station's frame <paramref name="draw"/> is written in a room state: where a station of the kind that draws it is placed.</summary>
@@ -165,17 +163,7 @@ internal static class RoomBlockWriters
     {
         if (draw is not RoomObjectFrameDraw<StationDraw> { Frame: var station })
             throw new InvalidDataException($"Station frame {draw} is not a station's frame.");
-        return Placing(station switch
-        {
-            StationDraw.MapDim or StationDraw.MapLit or StationDraw.MapBright or StationDraw.MapRightRetracted or
-                StationDraw.MapRightExtended or StationDraw.MapLeftRetracted or StationDraw.MapLeftExtended => [RoomObjectKind.MapStation],
-            StationDraw.EnergyDim or StationDraw.EnergyLit or StationDraw.EnergyBright => [RoomObjectKind.EnergyStation],
-            StationDraw.MissileDim or StationDraw.MissileLit or StationDraw.MissileBright => [RoomObjectKind.MissileStation],
-            StationDraw.SaveIdle or StationDraw.SaveLit or StationDraw.SaveDark => [RoomObjectKind.SaveStation],
-            StationDraw.ResourceRightRetracted or StationDraw.ResourceLeftRetracted or StationDraw.ResourceRightExtended or
-                StationDraw.ResourceLeftExtended => [RoomObjectKind.EnergyStation, RoomObjectKind.MissileStation],
-            _ => throw new InvalidDataException($"Station frame {draw} is of no station."),
-        });
+        return Placing(Ensure.Listed(StationFrameDefinitions.Frames, station).DrawnBy);
     }
 
     /// <summary>Whether a coloured door cap's frame <paramref name="draw"/> is written in a room state: where a door of its colour is placed.</summary>
@@ -250,10 +238,9 @@ internal static class RoomBlockWriters
         {
             XrayRevealShape command = XrayReveals.Find(key.Type, key.Reaction)
                 ?? throw new InvalidDataException($"X-ray visual {key.Type}/reaction {key.Reaction} has no reveal rule.");
-            bool brinstar = command == XrayRevealShape.CopyBrinstar;
-            var blocks = new HashSet<int>(visual.InReadingOrder);
+            var blocks = new HashSet<int>(visual.InReadingOrder.Select(picture => picture.Block));
             yield return new(blocks,
-                state => state.Holds(key.Type, key.Reaction) && (!brinstar || state.Area == AreaId.Brinstar));
+                state => state.Holds(key.Type, key.Reaction) && XrayRevealShapes.RevealsIn(command, state.Area));
         }
     }
 
@@ -264,7 +251,7 @@ internal static class RoomBlockWriters
 
     /// <summary>The blocks <paramref name="shown"/> show, each once; an appearance that shows nothing shows none (#2100).</summary>
     private static HashSet<int> BlocksOf(IEnumerable<RoomBlockAppearance> shown) =>
-        [.. shown.Where(block => block.ShowsBlock).Select(block => block.Block)];
+        [.. shown.Where(block => block.Shows == RoomBlockShown.Block).Select(block => block.Block)];
 
     /// <summary>Every block one installed frame shows.</summary>
     private static HashSet<int> BlocksOf(RoomObjectFrameImage image) => BlocksOf(image.Cells.Values);
@@ -285,5 +272,5 @@ internal static class RoomBlockWriters
 
     /// <summary>Every block any of a room object's installed frames shows.</summary>
     private static HashSet<int> FrameBlocks<TFrame>(RoomObjectFrameImages<TFrame> images) where TFrame : notnull =>
-        [.. images.All.Values.SelectMany(image => image.Cells.Values).Where(block => block.ShowsBlock).Select(block => block.Block)];
+        [.. images.All.Values.SelectMany(image => image.Cells.Values).Where(block => block.Shows == RoomBlockShown.Block).Select(block => block.Block)];
 }

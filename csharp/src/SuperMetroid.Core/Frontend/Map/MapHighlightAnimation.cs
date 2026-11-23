@@ -11,17 +11,17 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// the import pre-colours the map sprite sheet in. Only the highlighted sprites show the cycle (#1544): the pause screen's
 /// other sprites show their own colours.
 /// </summary>
-public sealed class MapHighlightAnimation
+public sealed partial class MapHighlightAnimation
 {
     /// <summary>The cycle as it plays.</summary>
-    private readonly AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> player;
+    internal readonly ShowingAnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> player;
 
     /// <summary>Starts the highlight cycle at its first step, one update from its next, over the installed cycle's timing.</summary>
     /// <param name="cycle">The installed cycle's timing.</param>
     public MapHighlightAnimation(MapHighlightCycle cycle)
     {
         AnimationSegments<MapHighlightSegment, MapHighlightFrame, MapHighlightCue> segments = Segments(cycle);
-        player = AnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
+        player = ShowingAnimationPlayer<MapHighlightSegment, MapHighlightFrame, MapHighlightCue>.StartShowing(segments, Cycling(segments), 1);
     }
 
     /// <summary>

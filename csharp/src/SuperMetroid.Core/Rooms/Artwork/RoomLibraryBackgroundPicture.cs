@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// boss's body, the sky's rows, or nothing), which its own owner draws. Each kind is its own record; the background draws
 /// nothing of a background seen otherwise, whatever is seen there instead.
 /// </summary>
-public abstract record RoomLibraryBackgroundPicture
+public abstract partial record RoomLibraryBackgroundPicture
 {
     /// <summary>Only the nested kinds derive.</summary>
     private RoomLibraryBackgroundPicture()
@@ -16,10 +16,10 @@ public abstract record RoomLibraryBackgroundPicture
     }
 
     /// <summary>The state loads no library background, so its background draws none.</summary>
-    public static RoomLibraryBackgroundPicture NoneLoaded { get; } = new NotLoaded();
+    internal static RoomLibraryBackgroundPicture NoneLoaded { get; } = new NotLoaded();
 
     /// <summary>The state's library background is seen as something else, so its background draws none of it.</summary>
-    public static RoomLibraryBackgroundPicture SeenOtherwise { get; } = new ShownOtherwise();
+    internal static RoomLibraryBackgroundPicture SeenOtherwise { get; } = new ShownOtherwise();
 
     /// <summary>
     /// What a state loading <paramref name="background"/> draws from it: its picture, which <paramref name="picture"/>
@@ -40,10 +40,10 @@ public abstract record RoomLibraryBackgroundPicture
     }
 
     /// <summary>The state loads no library background.</summary>
-    public sealed record NotLoaded : RoomLibraryBackgroundPicture;
+    public sealed partial record NotLoaded : RoomLibraryBackgroundPicture;
 
     /// <summary>The state's background draws its library background's installed picture.</summary>
-    public sealed record Drawn : RoomLibraryBackgroundPicture
+    public sealed partial record Drawn : RoomLibraryBackgroundPicture
     {
         /// <summary>Holds the resolver of the background's picture.</summary>
         /// <param name="image">Resolves what the picture shows as the room's appearance inputs change.</param>
@@ -57,5 +57,5 @@ public abstract record RoomLibraryBackgroundPicture
     /// The state's library background is not seen as its own picture, so the background draws none of it: the player sees
     /// what its view names, which the boss's body or the sky draws, or nothing.
     /// </summary>
-    public sealed record ShownOtherwise : RoomLibraryBackgroundPicture;
+    public sealed partial record ShownOtherwise : RoomLibraryBackgroundPicture;
 }

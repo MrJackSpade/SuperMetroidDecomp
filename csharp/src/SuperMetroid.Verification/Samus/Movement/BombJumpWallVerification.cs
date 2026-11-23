@@ -22,22 +22,22 @@ internal static class BombJumpWallVerification
         var words = new RoomTerrainBlock[16 * 16];
         for (int row = 0; row < 10; row++) words[row * 16 + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphBallGroundRightPose, Position = new(new(59, 0), new(80, 0))};
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(59, 0), new(80, 0))}.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xF000);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x4000);
         samus.RequestMorphedBombJump(SamusBombJumpDirection.Right);
         SamusBombJumpMovement.Start(samus);
-        var result = SamusBombJumpMovement.Step(level, samus, 0, RoomObjectFixtures.Unbound());
+        var result = SamusBombJumpMovement.Step(new RoomTerrain(level, RoomObjectFixtures.Unbound()), samus, 0);
         // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
         AssertTrue(samus.HorizontalSpeed.BaseSpeed.RawValue == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.Position.X.Whole:X4}{samus.Kinematics.Position.X.Fraction:X4}, radius={samus.Kinematics.Radius.X})");
         AssertTrue(result.Vertical is { Collided: false }, "shaft wall leaves vertical travel clear");
         // Original $90:E032 bytes: GrapplePoseAudit bomb-wall. A horizontal collision
         // must not end the special handler; the native branch tests the later Y result.
-        AssertTrue(samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
+        AssertTrue(samus.BombJumpPhase == SamusBombJumpPhase.Rising, "wall-only collision retains native bomb-jump handler");
         AssertEqual(0u, samus.HorizontalSpeed.BaseSpeed.RawValue, "bomb-jump wall hit clears horizontal momentum without cancelling ascent");
-        AssertEqual(SamusBombJumpRequest.Published(SamusBombJumpDirection.Right).Accept(), samus.BombJumpRequest, "the bomb-wall request remains accepted");
+        AssertEqual(SamusBombJump.FromBlast(SamusBombJumpDirection.Right).Arm(), samus.BombJump, "the bomb-wall request remains accepted");
         AssertEqual(59, samus.Position.X.Whole, "native bomb-wall X endpoint");
         AssertEqual(77, samus.Position.Y.Whole, "native bomb-wall Y endpoint");
         AssertEqual(0x4000, samus.Kinematics.Position.Y.Fraction, "native bomb-wall Y fraction");
@@ -53,11 +53,11 @@ internal static class BombJumpWallVerification
         var words = new RoomTerrainBlock[32 * 16];
         words[3 * 32 + 23] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphBallGroundLeftPose, Position = new(new(371, 0), new(71, 0))};
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(371, 0), new(71, 0))}.InPose(SamusPoseId.MorphBallGroundLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(-1);
-        var hit = SamusMorphBallMovement.StepGrounded(level, samus, 0, RoomObjectFixtures.Unbound());
+        var hit = SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), new RoomTerrain(level, RoomObjectFixtures.Unbound()), samus, 0);
         AssertTrue(hit.Vertical.Collided && hit.HitCeiling, "upward platform carry publishes a ceiling collision, not a floor contact");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "movement leaves ceiling response deferred until pose priority is resolved");
         SamusPosturePoseTransitions.ApplySolidCeilingCollision(samus);
@@ -65,37 +65,37 @@ internal static class BombJumpWallVerification
         AssertEqual(71, samus.Position.Y.Whole, "carried Morph Ball remains at the ceiling boundary");
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0);
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1C00);
-        SamusMorphBallMovement.StepGrounded(level, samus, 1, RoomObjectFixtures.Unbound());
+        SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), new RoomTerrain(level, RoomObjectFixtures.Unbound()), samus, 1);
         AssertEqual(71, samus.Position.Y.Whole, "following frame moves by old zero speed, not a one-pixel grounding probe");
         AssertEqual(0x1C00, samus.Kinematics.VerticalVelocity.Speed.Fraction, "following frame stores normal gravity for its successor");
 
         // The native rising helper restores pose input below one whole pixel/frame,
         // using the speed BEFORE this frame's gravity subtraction, not at the apex.
-        var hurt = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.KnockbackRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 120)) };
+        var hurt = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 120)) }.InPose(SamusPoseId.KnockbackRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
         SamusPresentation.InitializeAnimation(hurt);
         SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);
-        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, level, false, 0, controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled), "hurt pose admits bomb start");
+        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), false, 0, controllerNewInput: 0), "hurt pose admits bomb start");
         SamusBombJumpMovement.Start(hurt);
         hurt.Kinematics.VerticalVelocity = hurt.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(1, 0));
         hurt.Kinematics.YAcceleration = hurt.Kinematics.YAcceleration.WithFraction(0x4000);
-        SamusBombJumpMovement.Step(level, hurt, 0, RoomObjectFixtures.Unbound());
+        SamusBombJumpMovement.Step(new RoomTerrain(level, RoomObjectFixtures.Unbound()), hurt, 0);
         AssertTrue(hurt.BombJumpPoseInputLocked, "one-pixel speed keeps input locked despite crossing threshold this frame");
-        SamusBombJumpMovement.Step(level, hurt, 1, RoomObjectFixtures.Unbound());
+        SamusBombJumpMovement.Step(new RoomTerrain(level, RoomObjectFixtures.Unbound()), hurt, 1);
         AssertTrue(!hurt.BombJumpPoseInputLocked, "fractional upward speed restores next frame's input");
-        AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
+        AssertTrue(hurt.BombJumpPhase == SamusBombJumpPhase.Rising, "restoring input does not prematurely end upward movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
         SamusPoseMetadata.PublishBombJumpDirection(hurt, SamusBombJumpDirection.Straight);
-        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, level, false, 0, controllerNewInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled), "fresh bomb command rearms retained hurt pose");
+        AssertTrue(SamusPoseMetadata.TrySetupPublishedBombJump(hurt, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), false, 0, controllerNewInput: 0), "fresh bomb command rearms retained hurt pose");
         AssertTrue(hurt.BombJumpPoseInputLocked, "fresh bomb command locks input again");
 
         // Damage may interrupt a humanoid bomb start before its first moving frame.
         // Native owns independent movement/input pointers: replace only the former
         // until the common hurt-expiry command restores both.
-        hurt.Pose = SamusPoseId.NormalJumpForwardRightPose;
+        hurt.ChangePoseKeepingAnimation(SamusPoseId.NormalJumpForwardRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(hurt);
         AssertTrue(SamusKnockbackMovement.Start(hurt, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = SuperMetroid.Core.Enemies.EnemyCollisionDefinitions.SamusTouchKnockbackUpdates }, poseCollision: null), "normal hurt interrupts humanoid bomb start");
-        AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
+        AssertTrue(hurt.BombJumpPhase is null, "hurt replaces the bomb movement owner immediately");
         AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
         hurt.KnockbackHold = UpdateCountdown.Ended();
         AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(hurt), "hurt expiry consumes its transitional command");

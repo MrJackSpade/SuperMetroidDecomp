@@ -1,114 +1,86 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>Body-overlap scroll, conveyor and sand reactions from Samus's inside-block detection.</summary>
-public static class SamusInsideBlockReactions
+public static partial class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in order.</summary>
-    /// <param name="level">The room's terrain.</param>
+    /// <param name="terrain">The room's terrain: its level and the room objects its scroll, sand and plant blocks reach.</param>
     /// <param name="samus">Samus, whose body the reactions sample and move.</param>
     /// <param name="roomHasPower">Whether the room has the power its on-foot conveyors need to run, as the room supplies it.</param>
-    /// <param name="roomObjects">The room's objects the reactions wake.</param>
     internal static void PrepareFrame(
-        RoomLevelData level,
+        RoomTerrain terrain,
         SamusState samus,
-        bool roomHasPower,
-        ISamusRoomObjects roomObjects)
+        bool roomHasPower)
     {
         var body = samus.Kinematics;
-        SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
-            Visit(y, point == SamusInsideBlockPoint.Bottom, point == SamusInsideBlockPoint.Center));
+        SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, Visit);
 
-        void Visit(int y, bool bottomPoint, bool centerPoint)
+        void Visit(int y, SamusInsideBlockPoint point)
         {
-            var block = level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
-            if (block.Position is null || !level.TryReachBlockStoodFor(ref block) ||
-                block.CollisionType != RoomCollisionType.SpecialAir)
+            var block = terrain.Level.GetCollisionBlockOrEdgeSolid(new(RoomGridConversions.PixelToBlock(body.Position.X.Whole), RoomGridConversions.PixelToBlock(y)));
+            if (block.Position is null || !terrain.Level.TryReachBlockStoodFor(ref block) ||
+                block.CollisionType != RoomCollisionType.SpecialAir || block.Behavior.SpecialAir is not { } air)
                 return;
             // A scroll trigger wakes only from the inside-block sample at Samus's centre.
             // Feet/head contacts belong to the separate movement scans. Keeping
             // this center wake-up lets a lower trigger win after the torso clears
             // an upper trigger, without changing the room-object update order.
-            if (centerPoint && block.Behavior.SpecialAir == SpecialAirReaction.ScrollTrigger &&
-                !roomObjects.Scrolls.TryNotifyScrollTouch(block.At))
-                throw new InvalidOperationException($"Inside scroll trigger block {block.Position} has no active room-object owner.");
+            if (point == SamusInsideBlockPoint.Center && air == SpecialAirReaction.ScrollTrigger)
+                terrain.RoomObjects.Scrolls.NotifyScrollTouch(block.At);
             // The conveyors carry Samus the same in every area; the reactions the area gives meaning
             // own sand and plants. Both are visited in the same bottom/center/top order.
-            if (block.Behavior.SpecialAir is { } conveyed && ConveyorBlockDefinitions.Conveyors.TryGetValue(conveyed, out ConveyorBlock conveyor))
+            if (ConveyorBlockDefinitions.Conveyors.TryGetValue(air, out ConveyorBlock conveyor))
             {
                 ApplyConveyor(conveyor);
                 return;
             }
-            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(block.Behavior.SpecialAir);
+            SpecialAirInsideReaction reaction = SpecialAirReactions.InsideOf(air);
             // A sand reaction takes a room-object place before it acts; with every place taken it does nothing.
             if (QuicksandReactions.PlacesObject(reaction) &&
-                !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
+                !terrain.RoomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
             {
                 return;
             }
-            switch (reaction)
+            if (reaction.Plant is { } plant)
+                terrain.RoomObjects.SamusEater.TrySpawnSamusEater(terrain.Level, block, plant, samus.RoomView);
+            else if (reaction.IsQuicksandSurface)
             {
-                case SpecialAirInsideReaction.Nothing:
-                    break;
-                case SpecialAirInsideReaction.BrinstarFloorPlant:
-                    roomObjects.SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Floor, samus.RoomView);
-                    break;
-                case SpecialAirInsideReaction.BrinstarCeilingPlant:
-                    roomObjects.SamusEater.TrySpawnSamusEater(level, block, SamusEaterObjectDefinitions.Ceiling, samus.RoomView);
-                    break;
-                case SpecialAirInsideReaction.QuicksandSurface:
-                    // The game's setup cancels running momentum even for center/top samples,
-                    // but keeps the base speed's fraction of a pixel rather than stopping it.
-                    var speed = samus.HorizontalSpeed;
-                    speed.HasRunningMomentum = false;
-                    speed.SpeedBoostCounter = default;
-                    speed.EchoSoundPlaying = false;
-                    speed.ExtraRunSpeed = default;
-                    speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);
-                    if (!bottomPoint) return;
-                    QuicksandSurfacePhysics physics =
-                        QuicksandReactions.SurfacePhysics(
-                            samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
-                    // One reaction per vertical direction; a still Samus takes the grounded reaction.
-                    switch (body.VerticalVelocity.Direction)
+                // The game's setup cancels running momentum even for center/top samples,
+                // but keeps the base speed's fraction of a pixel rather than stopping it.
+                var speed = samus.HorizontalSpeed;
+                speed.HasRunningMomentum = false;
+                speed.SpeedBoostCounter = SamusSpeedBoostCounter.NotBuilding;
+                speed.EchoSoundPlaying = false;
+                speed.ExtraRunSpeed = default;
+                speed.BaseSpeed = QuicksandSurfaceSpeedLeftover.Leftover(speed.BaseSpeed);
+                if (point != SamusInsideBlockPoint.Bottom) return;
+                QuicksandSurfacePhysics physics =
+                    QuicksandReactions.SurfacePhysics(
+                        samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit));
+                // One reaction per vertical direction; a still Samus takes the grounded reaction.
+                SamusVerticalDirection direction = body.VerticalVelocity.Direction;
+                if (direction == SamusVerticalDirection.None)
+                {
+                    body.VerticalVelocity = body.VerticalVelocity.Stopped();
+                    SetExtra(physics.StationaryDisplacement);
+                }
+                else
+                {
+                    SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
+                    // A rising speed past the limit takes the limit's whole pixels and fraction; a falling one keeps its own.
+                    if (direction == SamusVerticalDirection.Up && body.VerticalVelocity.Speed.IsFasterInTwoFiftySixthsThan(limit))
                     {
-                        case SamusVerticalDirection.None:
-                            body.VerticalVelocity = body.VerticalVelocity.Stopped();
-                            SetExtra(physics.StationaryDisplacement);
-                            break;
-                        case SamusVerticalDirection.Up:
-                            SignedSixteenSixteen limit = physics.UpwardSpeedLimit;
-                            // A speed past the limit takes the limit's whole pixels and fraction.
-                            if (body.VerticalVelocity.Speed.IsFasterInTwoFiftySixthsThan(limit))
-                            {
-                                body.VerticalVelocity = body.VerticalVelocity.WithSpeed(UnsignedSixteenSixteen.FromDisplacement(limit));
-                            }
-                            SetExtra(physics.MovingDisplacement);
-                            break;
-                        case SamusVerticalDirection.Down:
-                            SetExtra(physics.MovingDisplacement);
-                            break;
-                        default:
-                            throw new InvalidOperationException(
-                                $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
+                        body.VerticalVelocity = body.VerticalVelocity.WithSpeed(UnsignedSixteenSixteen.FromDisplacement(limit));
                     }
-                    break;
-                case SpecialAirInsideReaction.SubmergingQuicksand:
-                    SetExtra(QuicksandDefinitions.SubmergingSinkDisplacement);
-                    break;
-                case SpecialAirInsideReaction.SlowSandfall:
-                    SetExtra(QuicksandDefinitions.SlowSandfallDisplacement);
-                    break;
-                case SpecialAirInsideReaction.FastSandfall:
-                    SetExtra(QuicksandDefinitions.FastSandfallDisplacement);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined {nameof(SpecialAirInsideReaction)} {reaction}.");
+                    SetExtra(physics.MovingDisplacement);
+                }
             }
+            else if (reaction.Sinking is { } sinking)
+                SetExtra(sinking);
         }
         void ApplyConveyor(ConveyorBlock conveyor)
         {
@@ -132,63 +104,52 @@ public static class SamusInsideBlockReactions
     /// blocked: downward movement grounds on the quicksand surface without discarding its accepted sinking displacement,
     /// and pose-clearance probes read only whether the block stops them.
     /// </summary>
-    /// <returns>Whether the block lets Samus's movement pass or stops it.</returns>
+    /// <returns>Whether the block lets Samus's movement pass, lets it pass landing on the sand's surface, or stops it.</returns>
     /// <param name="contact">Samus's body and contact damage.</param>
     /// <param name="terrain">The room's level, which places the sand block a reaction sits on, and its objects, where a sand
     /// reaction takes a place.</param>
-    /// <param name="block">The special-air block the collision scan reached.</param>
+    /// <param name="reached">The special-air block the collision scan reached, with the reaction it carries.</param>
     /// <param name="axis">The axis the scan moves along.</param>
     /// <param name="displacement">The scan's accepted displacement, which sand can limit.</param>
-    /// <param name="surfaceContact">Whether Samus touched the sand's surface.</param>
-    /// <param name="blockReactionDirection">The direction the reaction sees, or null for the scan's own.</param>
+    /// <param name="observes">Whether the scan only observes, so the surface sees no direction of travel.</param>
     internal static SpecialAirCollisionOutcome ReactCollision(
         SamusCollisionContact contact,
-        SamusTerrain terrain,
-        RoomCollisionBlock block,
+        RoomTerrain terrain,
+        SpecialAirContact reached,
         Axis axis,
         ref SignedSixteenSixteen displacement,
-        out bool surfaceContact,
-        SamusCollisionDirection? blockReactionDirection = null)
+        bool observes = false)
     {
-        RoomLevelData level = terrain.Level;
+        _ = terrain.Level;
         ISamusRoomObjects roomObjects = terrain.RoomObjects;
         SamusKinematicsState body = contact.Body;
-        surfaceContact = false;
-        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir);
+        RoomCollisionBlock block = reached.Block;
+        SpecialAirCollisionReaction reaction = SpecialAirReactions.CollisionOf(reached.Reaction);
         // A sand reaction takes a room-object place before it acts; with every place taken Samus passes as through air.
         if (QuicksandReactions.PlacesObject(reaction) &&
             !roomObjects.Quicksand.TrySpawnQuicksandReaction(block.At, reaction))
         {
             return SpecialAirCollisionOutcome.PassesThrough;
         }
-        if (reaction == SpecialAirCollisionReaction.SubmergingQuicksand)
+        if (reaction.StopsFall)
         {
             body.VerticalVelocity = body.VerticalVelocity.Stopped();
             body.YAcceleration = default;
             return SpecialAirCollisionOutcome.PassesThrough;
         }
-        if (reaction != SpecialAirCollisionReaction.QuicksandSurface) return SpecialAirCollisionOutcome.PassesThrough;
-        SamusCollisionDirection reactionDirection = blockReactionDirection ??
-            (axis == Axis.Vertical
-                ? displacement.IsNegative ? SamusCollisionDirection.Up : SamusCollisionDirection.Down
-                : displacement.IsNegative ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
-        // The surface reacts to vertical scans and to the pose-observation probe; ordinary horizontal movement passes
-        // through it untouched.
-        if (reactionDirection is SamusCollisionDirection.Left or SamusCollisionDirection.Right) return SpecialAirCollisionOutcome.PassesThrough;
+        if (!reaction.IsQuicksandSurface) return SpecialAirCollisionOutcome.PassesThrough;
+        // The surface reacts to vertical scans and to observing probes; ordinary horizontal movement passes through it
+        // untouched.
+        if (!observes && axis == Axis.Horizontal) return SpecialAirCollisionOutcome.PassesThrough;
+        // An observing probe moves in no direction; a vertical scan moves down unless it rises.
+        bool movesDown = !observes && !displacement.IsNegative;
         // A rising Samus passes through; a stationary one lands only on an actual downward collision; a falling one lands
         // even during pose-observation probes. The grounded vertical direction never reaches the surface.
-        switch (body.VerticalVelocity.Direction)
+        SamusVerticalDirection direction = body.VerticalVelocity.Direction;
+        if (direction == SamusVerticalDirection.Up ||
+            (direction == SamusVerticalDirection.None && !movesDown))
         {
-            case SamusVerticalDirection.Up:
-                return SpecialAirCollisionOutcome.PassesThrough;
-            case SamusVerticalDirection.None:
-                if (reactionDirection != SamusCollisionDirection.Down) return SpecialAirCollisionOutcome.PassesThrough;
-                break;
-            case SamusVerticalDirection.Down:
-                break;
-            default:
-                throw new InvalidOperationException(
-                    $"Undefined {nameof(SamusVerticalDirection)} {body.VerticalVelocity.Direction}.");
+            return SpecialAirCollisionOutcome.PassesThrough;
         }
         if (contact.ContactDamage == SamusBodyAttack.SpeedBooster)
         {
@@ -199,8 +160,57 @@ public static class SamusInsideBlockReactions
         // pose-observation probe passed through above) and by far less than 256 pixels.
         if (body.VerticalVelocity.HasNoDirection)
             displacement = HeldAtQuicksandSurface(displacement);
-        surfaceContact = true;
-        return SpecialAirCollisionOutcome.PassesThrough;
+        return SpecialAirCollisionOutcome.LandsOnSurface;
+    }
+
+    /// <summary>
+    /// The special-air reaction Samus's inside-block sample reacts to (#2554): only special air reacts to her body's
+    /// overlap; every other kind of block carries no inside reaction.
+    /// </summary>
+    private sealed partial class SpecialAirInside : IWholeBlockReader<SpecialAirReaction?>
+    {
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpecialAir(SpecialAirReaction reaction) => reaction;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? Air() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? Slope() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? UnrevealedAir() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SolidBlock() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? DoorBlock() => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpikeAir(SpikeReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpikeBlock(SpikeReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? SpecialBlock(SpecialBlockReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? ShootableAir(ShootableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? ShootableBlock(ShootableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? BombableAir(BombableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? BombableBlock(BombableReaction reaction) => null;
+
+        /// <inheritdoc/>
+        public SpecialAirReaction? GrappleBlock(GrappleReaction reaction) => null;
     }
 
     /// <summary>

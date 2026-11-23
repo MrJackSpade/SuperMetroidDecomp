@@ -50,7 +50,7 @@ internal static class MessageSnapshotTestsVerification
                     DisplayLayer[] layers = layer is null ? [] : [layer];
                     samples++;
                     var packet = new DisplayPacket((ushort)tick,
-                        new LayeredScene(memory, layers, 15));
+                        new LayeredScene(memory, layers, DisplayBrightness.Full));
                     if (layer is not null)
                     {
                         AssertTrue(ReferenceEquals(layer.Picture, messages.Picture((state.Exposed ?? throw new InvalidOperationException($"Message {id} shows nothing.")).Message)),
@@ -83,13 +83,13 @@ internal static class MessageSnapshotTestsVerification
             {
                 var layer = MessageBoxLayer.Of(height.First(), radius, messages);
                 samples++;
-                _ = new DisplayPacket(0, new LayeredScene(memory, [layer], 15));
+                _ = new DisplayPacket(0, new LayeredScene(memory, [layer], DisplayBrightness.Full));
             }
         }
         SpriteSheetFrame wrongSize = SuperMetroid.Core.Rooms.Backgrounds.RoomBackgroundsFixtures.SeededMessagePicture(new Random(32108),
             [.. Enumerable.Range(0, 256).Select(index => RgbColor.FromWord((ushort)(index * 101 & 32767)))],
             SuperMetroid.AssetExtraction.Hud.GameplayMessageBoxRowsConstants.MaximumRows + 1);
-        AssertThrows<ArgumentException>(() => new MessageBoxLayer(wrongSize, 1), "a picture taller than the open window rejected");
+        AssertThrows<ArgumentException>(() => new global::SuperMetroid.Core.Rendering.MessageBoxLayer(wrongSize, 1), "a picture taller than the open window rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => MessageBoxLayer.Of(GameplayMessageArtwork.Forms().First(), 25, messages),
             "invalid reveal radius rejected");
         Console.WriteLine($"  Message snapshots: {samples} retail/glyph-window captures and ownership checks agree.");

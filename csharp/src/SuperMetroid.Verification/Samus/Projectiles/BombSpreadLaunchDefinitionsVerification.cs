@@ -22,13 +22,13 @@ internal static class BombSpreadLaunchDefinitionsVerification
     /// <summary>Compares five native fuse, X, Y, and subvelocity records and verifies hold-modified launches without reading migrated ROM tables.</summary>
     internal static void VerifyBombSpreadLaunchDefinitions(CartridgeImportAddressSpace rom)
     {
-        int Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        int Word(int address) => rom.ReadCartridgeWord(address);
         var reference = Enumerable.Range(0,MorphBallBombDefinitions.PlaceCount).Select(i =>
             new BombSpreadLaunchDefinition(Word(MorphBallBombDefinitions.FuseTimers+i*2),
                 BombSpreadLaunchWords.Unpack(Word(MorphBallBombDefinitions.XVelocities+i*2)),
                 CartridgeLaunchVelocity(Word(MorphBallBombDefinitions.YSpeeds+i*2), Word(MorphBallBombDefinitions.YSubspeeds+i*2), 0))).ToArray();
         for(int i=0;i<reference.Length;i++)
-            AssertEqual(reference[i],SamusBombSpreadLaunches.ForPlace(i),"All native Bomb Spread launch words");
+            AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.LeftToRight[i],"All native Bomb Spread launch words");
         Action<SamusBombProjectileSystem,SamusState> spawn=(system,player)=>system.SpawnBombSpread(player);
         var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
@@ -71,7 +71,7 @@ internal static class BombSpreadLaunchDefinitionsVerification
         ushort[] boundaries = [0, 1, 0x7fff, 0x8000, 0xff00, 0xffff];
         for (int slot = 0; slot < MorphBallBombDefinitions.PlaceCount; slot++)
         {
-            SignedSixteenSixteen launch = SamusBombSpreadLaunches.ForPlace(slot).HorizontalVelocity;
+            SignedSixteenSixteen launch = SamusBombSpreadLaunchDefinitions.LeftToRight[slot].HorizontalVelocity;
             foreach (SignedSixteenSixteen velocity in new[] { launch, -launch })
             foreach (ushort whole in boundaries)
             foreach (ushort fraction in boundaries)

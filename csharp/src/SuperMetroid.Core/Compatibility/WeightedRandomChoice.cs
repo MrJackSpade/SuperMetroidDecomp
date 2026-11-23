@@ -15,8 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// value and every outcome it drives on every update.
 /// </remarks>
 /// <typeparam name="TOutcome">What the choice chooses.</typeparam>
-[CompatibilityService("which outcome a random number chooses among weighted outcomes, exactly as the game chose it")]
-public sealed class WeightedRandomChoice<TOutcome>
+public sealed partial class WeightedRandomChoice<TOutcome>
 {
     /// <summary>The outcomes in order from the field's lowest values, each with its share.</summary>
     private readonly ImmutableArray<WeightedRandomOutcome<TOutcome>> _outcomes;
@@ -65,7 +64,7 @@ public sealed class WeightedRandomChoice<TOutcome>
     }
 
     /// <summary>The field of the sample the choice reads.</summary>
-    public RandomSampleField Field { get; }
+    internal RandomSampleField Field { get; }
 
     /// <summary>The outcome <paramref name="sample"/> chooses.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>
@@ -80,18 +79,21 @@ public sealed class WeightedRandomChoice<TOutcome>
     /// <param name="advancedBy">The counter added to the field's roll, zero or more.</param>
     public TOutcome Choose(int sample, int advancedBy) => ChooseAt(Field.OfAdvancedBy(sample, advancedBy));
 
-    /// <summary>The outcome the field's value <paramref name="fieldValue"/> chooses.</summary>
+    /// <summary>
+    /// The outcome the field's value <paramref name="fieldValue"/> chooses: the shares, which the constructor requires to
+    /// cover every value the field reads, run from the lowest values, so a value past every earlier run lies in the last
+    /// one's (#2553).
+    /// </summary>
     /// <param name="fieldValue">A value of <see cref="Field"/>, 0 through its outcomes less one.</param>
     private TOutcome ChooseAt(int fieldValue)
     {
         int value = fieldValue;
-        foreach (WeightedRandomOutcome<TOutcome> outcome in _outcomes)
+        foreach (WeightedRandomOutcome<TOutcome> outcome in _outcomes.AsSpan()[..^1])
         {
             if (value < outcome.Values)
                 return outcome.Outcome;
             value -= outcome.Values;
         }
-
-        throw new InvalidOperationException($"Field value {fieldValue} lies past the choice's {Field.Outcomes} values.");
+        return _outcomes[^1].Outcome;
     }
 }

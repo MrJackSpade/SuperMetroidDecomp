@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The Morph Ball's bombs: how many she can place, their fuses and the waits after them, and the charge and held Down a
 /// bomb spread takes.
 /// </summary>
-public static class MorphBallBombDefinitions
+public static partial class MorphBallBombDefinitions
 {
     /// <summary>How many bombs Samus can have out at once.</summary>
     public const int PlaceCount = 5;

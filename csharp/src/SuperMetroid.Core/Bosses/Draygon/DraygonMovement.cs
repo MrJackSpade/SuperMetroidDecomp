@@ -5,8 +5,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>How Draygon moves along an angle or horizontally, and the breath bubbles it trails.</summary>
-[RoomLifetime]
-internal sealed class DraygonMovement
+internal sealed partial class DraygonMovement
 {
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
     private readonly RoomEffectActors _effectActors;
@@ -24,15 +23,15 @@ internal sealed class DraygonMovement
         body.Position = body.Position.WithX(body.Position.X.MovedBy(state.SwoopVelocity));
     }
 
-    /// <summary>Emits a breath bubble every 128 body frames.</summary>
+    /// <summary>Emits a breath bubble at its body-frame cadence.</summary>
     internal void SpawnPeriodicDraygonBreathBubble(DraygonEnemyState state)
     {
-        if (!DraygonCadenceDefinitions.BreathBubbleEvery128thUpdate.IsDue(state.Body.FrameCounter))
+        if (!DraygonCadenceDefinitions.BreathBubble.IsDue(state.Body.FrameCounter))
             return;
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + DraygonArenaDefinitions.BreathBubbleOffset,
             RoomEffectActorKind.DraygonBreathBubbles,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>

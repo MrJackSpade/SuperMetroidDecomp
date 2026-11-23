@@ -12,8 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title;
 /// Decodes the title compositions from the bank-$8C spritemaps the four native title text lists select. This codec is
 /// the only place that knows which cartridge spritemap holds each <see cref="TitleSprite"/> and each card's typing step.
 /// </summary>
-[EncodingOwner("cartridge title sprite instruction words")]
-internal static class TitleSpriteExtractor
+internal static partial class TitleSpriteExtractor
 {
     /// <summary>Decodes the logo's and the copyright's ordered OAM parts, keyed by their semantic names.</summary>
     public static TitleSpriteFrame[] Extract(ISnesAddressSpace bus)
@@ -48,23 +47,17 @@ internal static class TitleSpriteExtractor
     internal static TitleSpritemaps MapSprites(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         var cards = new Dictionary<TitleCardTyping, int>();
         var spritemaps = new Dictionary<TitleSprite, int>
         {
             [TitleSprite.SuperMetroidLogo] = RomDataReader.ReadWordFixedBank(cartridge, FrontendSourceDefinitions.TitleLogoSpritemapOperand),
             [TitleSprite.NintendoCopyright] = FrontendSourceDefinitions.TitleCopyrightSpritemap,
         };
-        foreach (TitleTextSequenceDefinition sequence in new[]
-                 {
-                     TitleSequenceDefinitions.TextSequences.Year,
-                     TitleSequenceDefinitions.TextSequences.Nintendo,
-                     TitleSequenceDefinitions.TextSequences.Presents,
-                     TitleSequenceDefinitions.TextSequences.MetroidThree,
-                 })
+        foreach (TitleTextSequenceDefinition sequence in TitleSequenceDefinitions.TextSequences.All)
         {
             int entry = TitleSourceDefinitions.TextLists[sequence.Phase];
-            foreach (AnimationBeat<TitleCardTyping, TitleCardCue> beat in TitleCards.Segments.Beats(sequence.Phase))
+            foreach (AnimationBeat<TitleCardTyping, TitleCardCue> beat in TitleCards.Segments.Beats(sequence.Card.Card))
             {
                 int durationOrCommand = RomDataReader.ReadWordFixedBank(cartridge, entry);
                 bool nativeCommand = (durationOrCommand & TitleSourceDefinitions.CommandBit) != 0;
@@ -104,15 +97,15 @@ internal static class TitleSpriteExtractor
     private static SpriteVisualPart[] ReadParts(ISnesAddressSpace bus, int pointer)
     {
         int address = ((int)SnesAddress.InBank(FrontendSourceDefinitions.TitleSpritemapBank, pointer));
-        int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        int count = RomDataReader.ReadWordFixedBank(bus, address);
         if (count > TitleGraphicsFormat.MaximumSpriteParts)
             throw new InvalidDataException($"Title sprite $8C:{pointer:X4} exceeds OAM capacity.");
         var parts = new SpriteVisualPart[count];
         for (int index = 0; index < count; index++)
         {
             int source = address + 2 + index * 5;
-            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source));
-            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source + 3));
+            var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(bus, source));
+            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, source + 3));
             parts[index] = new SpriteVisualPart
             {
                 OffsetX = x.SignedOffset,
@@ -120,7 +113,7 @@ internal static class TitleSpriteExtractor
                 TileColumn = attributes.TileNumber % TitleGraphicsFormat.ObjectTileColumns,
                 TileRow = attributes.TileNumber / TitleGraphicsFormat.ObjectTileColumns,
                 Size = x.IsLarge ? 16 : 8,
-                Priority = attributes.Priority,
+                Depth = attributes.Depth,
                 Palette = null,
                 FlipX = attributes.FlipHorizontally,
                 FlipY = attributes.FlipVertically,

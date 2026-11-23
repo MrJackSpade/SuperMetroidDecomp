@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// The state of one Beetom. Its facing is inherited from the previous Beetom in its place (<see
 /// cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
-public sealed class BeetomEnemyState
+public sealed partial class BeetomEnemyState
 {
     /// <summary>
     /// Starts one Beetom, facing the way the previous Beetom in its place last faced, or left for the place's first.
@@ -37,7 +37,7 @@ public sealed class BeetomEnemyState
     /// crawl, and one at zero ends it on its next step (#2281).
     /// </summary>
     public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
-    /// <summary>Remaining controller changes needed to escape attachment, restarted at 64 by the initial touch.</summary>
+    /// <summary>Remaining controller changes needed to escape attachment, restarted at <see cref="BeetomMotionDefinitions.MashCount"/> by the initial touch.</summary>
     public int ButtonCounter { get; internal set; }
     /// <summary>The player's actions last observed by initialization or the attached counter; any differing actions, including releases, decrement <see cref="ButtonCounter"/>.</summary>
     public GameplayAction LastSeenPlayerActions { get; internal set; }

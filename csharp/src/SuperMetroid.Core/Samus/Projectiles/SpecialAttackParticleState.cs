@@ -7,8 +7,17 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// (<see cref="WaveParticleState"/>).
 /// </summary>
 /// <param name="part">The part the particle plays in its attack.</param>
-internal abstract class SpecialAttackParticleState(SpecialAttackParticle part) : SamusShotKindState
+internal abstract partial class SpecialAttackParticleState(SpecialAttackParticle part) : SamusShotKindState
 {
     /// <summary>The part the particle plays in its attack.</summary>
     internal SpecialAttackParticle Part { get; } = Ensure.NotNull(part);
+
+    /// <inheritdoc/>
+    internal sealed override bool AwaitsIgnitionAsFired => false;
+
+    /// <inheritdoc/>
+    internal sealed override int? NamedLinkPlace => null;
+
+    /// <inheritdoc/>
+    internal sealed override bool DeletesItselfAfterEnemyHit => true;
 }

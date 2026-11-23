@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The horizontal launch speeds of rocks spat by Kraid.</summary>
-public static class KraidRockLaunchDefinitions
+public static partial class KraidRockLaunchDefinitions
 {
     /// <summary>Leftward 3.75-pixel/frame launch.</summary>
     private static SignedEightEight SlowLeft { get; } = SignedEightEight.FromPixelFraction(-15, 4);
@@ -20,22 +20,17 @@ public static class KraidRockLaunchDefinitions
     /// The rock spit picks its launch from the current random number, not from its motion or a fresh random number.
     /// </remarks>
     internal static readonly WeightedRandomChoice<SignedEightEight> SpitLaunch = WeightedRandomChoice<SignedEightEight>.InTurn(
-        new RandomSampleField(1, 3), NormalLeft, SlowLeft, FastestLeft, FastLeft, FastestLeft, NormalLeft, FastLeft, SlowLeft);
+        KraidRandomRolls.SpitLaunch, NormalLeft, SlowLeft, FastestLeft, FastLeft, FastestLeft, NormalLeft, FastLeft, SlowLeft);
 
     /// <summary>
-    /// The gravity on a spat or rising rock, each update. A rock is removed when its
-    /// terrain probe finds a block, which it does at the latest as it leaves the room, at most fifty screens tall
-    /// (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>); from its steepest launch, five pixels an update
-    /// upward, its fall speed therefore stays below 96 pixels an update.
+    /// The gravity on a spat or rising rock, each update. A rock is removed when its terrain probe finds a block, which
+    /// it does at the latest as it leaves the room.
     /// </summary>
     internal static SignedEightEight RockGravity { get; } = SignedEightEight.FromPixelFraction(1, 4);
 
     /// <summary>
-    /// The gravity on a rock falling from the ceiling, each update. The rock starts falling
-    /// at under half a pixel an update and is removed when its terrain probe finds a block, at the latest as it leaves the
-    /// room, at most fifty screens tall (<see cref="Rooms.Scrolling.RoomScrollGrid.KeptCellCount"/>); its fall speed
-    /// therefore stays below 50 pixels an update, and the game's restart of a fall reaching 64 pixels an update is never
-    /// reached (#1795).
+    /// The gravity on a rock falling from the ceiling, each update. The rock starts falling at under half a pixel an
+    /// update and is removed when its terrain probe finds a block, at the latest as it leaves the room (#1795).
     /// </summary>
     internal static SignedEightEight CeilingRockGravity { get; } = SignedEightEight.FromPixelFraction(3, 32);
 

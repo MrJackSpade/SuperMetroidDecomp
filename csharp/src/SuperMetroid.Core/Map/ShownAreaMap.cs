@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Map;
 /// How a map screen shows a whole area map (#1466): each of its <see cref="AreaMapSize.WidthInMapTiles"/> by
 /// <see cref="AreaMapSize.HeightInMapTiles"/> cells as <see cref="AreaMapProjection"/> projects it.
 /// </summary>
-public sealed class ShownAreaMap
+public sealed partial class ShownAreaMap
 {
     /// <summary>Keeps each cell, row by row.</summary>
     /// <exception cref="ArgumentException">There is not one shown cell for each of the area map's cells.</exception>

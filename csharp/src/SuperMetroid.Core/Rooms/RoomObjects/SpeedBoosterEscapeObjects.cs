@@ -3,8 +3,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>The Speed Booster escape: its setup and what its lavaquake does to the lava, the earthquake and the events.</summary>
-[RoomLifetime]
-internal sealed class SpeedBoosterEscapeObjects
+internal sealed partial class SpeedBoosterEscapeObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
@@ -77,8 +76,8 @@ internal sealed class SpeedBoosterEscapeObjects
         if (rise.TargetSamusX < _samus.Current.Position.X.Whole)
             return false;
 
-        // A lava with no surface lies below every line, so the rise gives it its highest line.
-        if (rise.HighestLavaSurfaceY < AbsentLiquidSurfaceDepth.Of(fx.BaseY?.Whole))
+        // A lava with no surface takes the rise's highest line, as does one whose surface lies below it (#2558).
+        if (fx.BaseY is not { } surface || rise.HighestLavaSurfaceY < surface.Whole)
             fx.SetLiquidLevel(rise.HighestLavaSurfaceY);
         fx.SetLiquidSpeed(rise.YVelocity);
         return true;

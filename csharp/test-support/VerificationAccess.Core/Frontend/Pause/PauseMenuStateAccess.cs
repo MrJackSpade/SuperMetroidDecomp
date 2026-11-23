@@ -21,33 +21,53 @@ internal static class PauseMenuStateAccess
     {
         /// <summary>
         /// Runs one pause update as a check drives the menu alone: the map's arrows read <paramref name="heldInput"/>, or
-        /// the delayed-held buttons when none are given, the colour animation's phase is <paramref name="frameCycle"/>, and
+        /// the delayed-held buttons when none are given, the short frame count is <paramref name="frameCount"/>, and
         /// no bombs are frozen under the pause beyond an empty set of bomb slots.
         /// </summary>
         internal bool Step(ControllerButton delayedHeldInput, ControllerButton newlyPressedInput, ControllerButton? heldInput = null,
-            int frameCycle = 0) =>
-            self.Step(delayedHeldInput, newlyPressedInput, heldInput ?? delayedHeldInput, frameCycle, NoFrozenBombs());
-
-        /// <summary>Frames the map page by <paramref name="scroll"/> in place of the framing the menu set up, for a check of a map's edges.</summary>
-        internal void FrameMap(MapScroll scroll) =>
-            PrivateFrontendState.Set(self, nameof(PauseMenuState.CurrentMapScroll), Ensure.NotNull(scroll));
+            int frameCount = 0) =>
+            self.Step(delayedHeldInput, newlyPressedInput, heldInput ?? delayedHeldInput, new Compatibility.ShortFrameCount(frameCount), NoFrozenBombs());
 
         /// <summary>
-        /// Moves the map page's scroll to <paramref name="scroll"/> under the page's framing and limits, as a check or an
-        /// imported snapshot places it; no scroll step is under way afterwards.
+        /// Scrolls the map page toward <paramref name="target"/> as a player does (#2554): the horizontal arrow and then the
+        /// vertical one are each held for the eight-pixel steps that bring the shown scroll nearest the target, and an arrow
+        /// the map can no longer scroll takes no step, so the scroll stops at its limit. Each update is a pause update with
+        /// only that arrow held.
         /// </summary>
-        internal void ScrollMapTo(Offset16<MapPixels> scroll) =>
-            self.FrameMap(new MapScroll(self.ActiveMapScroll.Framing, self.ActiveMapScroll.Limits, scroll));
+        /// <returns>The pause updates run.</returns>
+        internal int ScrollMapToward(Offset16<MapPixels> target)
+        {
+            Offset16<MapPixels> start = self.MapScroll;
+            int updates = HoldArrow(self, target.X - start.X, ControllerButton.Left, ControllerButton.Right);
+            return updates + HoldArrow(self, target.Y - start.Y, ControllerButton.Up, ControllerButton.Down);
+        }
+
+        /// <summary>
+        /// Scrolls the map page to exactly <paramref name="target"/> with the arrows (<see cref="ScrollMapToward"/>), as a
+        /// check places it or an imported snapshot brings it where the native menu's steps left it.
+        /// </summary>
+        /// <returns>The pause updates run.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The target does not lie a whole number of steps from the shown scroll, or the arrows stop short of it.
+        /// </exception>
+        internal int ScrollMapTo(Offset16<MapPixels> target)
+        {
+            Offset16<MapPixels> start = self.MapScroll;
+            if ((target.X - start.X) % MapScrollDefinitions.StepPixels != 0 || (target.Y - start.Y) % MapScrollDefinitions.StepPixels != 0)
+                throw new InvalidOperationException(
+                    $"The map scrolls from {start} in {MapScrollDefinitions.StepPixels}-pixel steps, which never reach {target}.");
+            int updates = self.ScrollMapToward(target);
+            Offset16<MapPixels> reached = self.MapScroll;
+            if (reached != target)
+                throw new InvalidOperationException($"The map's arrows stop at {reached} on the way from {start} to {target}.");
+            return updates;
+        }
 
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
-        internal bool IsPageTransitionActive => self.Transition != default;
+        internal bool IsPageTransitionActive => self.Transition is not null;
 
         /// <summary>The column the cursor is in: its selected control's category.</summary>
         internal PauseEquipmentCategory SelectedCategory => self.SelectedControl.Category;
-
-        /// <summary>Read-only diagnostic timing for the native equipment-selector animation.</summary>
-        internal SelectorAnimation ItemSelectorAnimationState =>
-            new(self.itemSelector.Playback.Place, self.itemSelector.Showing, self.itemSelector.UpdatesLeft);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
         internal int LastRenderedSpriteCount => self.screen.Sprites.LastFinalizedSpriteCount;
@@ -122,6 +142,23 @@ internal static class PauseMenuStateAccess
             int tile = PauseMenuLayoutConstants.ReserveSupplyDigitsByteOffset / sizeof(ushort) + digitIndex;
             return new SnesBgTilemapWord(BackgroundTileWords.ToWord(self.ShownEquipmentTiles(artwork)[tile]));
         }
+    }
+
+    /// <summary>
+    /// Holds <paramref name="backward"/>'s arrow, for a negative <paramref name="distance"/>, or <paramref name="forward"/>'s
+    /// for a positive one, for as many whole steps as bring the scroll nearest that distance along its axis: each step runs
+    /// its <see cref="MapScrollDefinitions.StepTicks"/> updates and the next starts on the update after it finishes.
+    /// </summary>
+    /// <returns>The pause updates run.</returns>
+    private static int HoldArrow(PauseMenuState menu, int distance, ControllerButton backward, ControllerButton forward)
+    {
+        int steps = (Math.Abs(distance) + MapScrollDefinitions.StepPixels / 2 - 1) / MapScrollDefinitions.StepPixels;
+        ControllerButton arrow = distance < 0 ? backward : forward;
+        int updates = steps * MapScrollDefinitions.StepTicks;
+        SamusBombProjectileSystem bombs = NoFrozenBombs();
+        for (int update = 0; update < updates; update++)
+            _ = menu.Step(ControllerButton.None, ControllerButton.None, arrow, Compatibility.ShortFrameCount.Zero, bombs);
+        return updates;
     }
 
     /// <summary>

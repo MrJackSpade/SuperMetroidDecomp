@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Samus.Death;
 /// flare show <see cref="SamusShades.DeathWhiteout"/>. The explosion brightens through them to
 /// <see cref="Brightest"/>, and its last update shows <see cref="Final"/>.
 /// </summary>
-public readonly record struct SamusWhiteoutShade
+public readonly partial record struct SamusWhiteoutShade
 {
     /// <summary>The shade <paramref name="step"/> of the whiteout, from zero.</summary>
     /// <exception cref="ArgumentOutOfRangeException">There is no such whiteout shade.</exception>
-    public SamusWhiteoutShade(int step) =>
+    internal SamusWhiteoutShade(int step) =>
         Step = Ensure.BetweenInclusive(0, SamusShadeDefinitions.Death.WhiteoutShadeCount - 1, step);
 
     /// <summary>The brightest shade the explosion brightens to and holds while it lasts.</summary>

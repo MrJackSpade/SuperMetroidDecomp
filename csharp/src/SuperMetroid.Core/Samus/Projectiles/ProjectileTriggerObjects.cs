@@ -1,12 +1,11 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Room objects triggered by Samus projectiles reaching their block rather than by contact.</summary>
-[RoomLifetime]
-internal sealed class ProjectileTriggerObjects
+internal sealed partial class ProjectileTriggerObjects
 {
     /// <summary>The room-object places, searched in update order on a projectile hit.</summary>
     private readonly RoomObjectPlaceList _places;
@@ -19,14 +18,22 @@ internal sealed class ProjectileTriggerObjects
 
     /// <summary>
     /// Publishes a projectile's hit on a resident-trigger block to the room object at <paramref name="block"/>: the first
-    /// active place at that block in update order takes the hit's family, whatever room object it holds. The grapple
-    /// beam's touch (<see cref="SamusProjectileType.None"/>) arrives as a beam.
+    /// active place at that block in update order takes the family the strike lands as, whatever room object it holds; the
+    /// grapple beam's touch (<see cref="BlockStrike.GrappleTouch"/>) lands as a beam.
     /// </summary>
-    /// <returns>Whether an active place lies at <paramref name="block"/>.</returns>
-    public bool TryNotifyResidentProjectileHit(
+    /// <remarks>
+    /// A hit on a block no active place lies at changes nothing (#2553): a resident-trigger block can outlive its object, as
+    /// the n00b tube's setup writes its origin before the already-broken tube deletes itself. The game's generic trigger
+    /// then finds no object and decides nothing, and every reaction goes on as it does after any trigger: the shot, bomb and grapple reactions
+    /// set the shootable block's collision and clear shootable air's after the spawn whatever the setup
+    /// returned, and the trigger deletes itself. The block's own collision decides whether the strike stops, as
+    /// it does with an object there.
+    /// </remarks>
+    public void NotifyResidentProjectileHit(
         Position16<RoomBlocks> block,
-        SamusProjectileType projectileType)
+        BlockStrike strike)
     {
+        Ensure.NotNull(strike);
         foreach (RoomObjectPlace place in _places.InUpdateOrder)
         {
             if (!place.Active || place.Block != block)
@@ -35,10 +42,8 @@ internal sealed class ProjectileTriggerObjects
             // An object a shot can strike keeps the strike until its next update; the hit means nothing to any other
             // object, which takes it all the same, so a place later in the order never sees it.
             if (place.Behaviour is IShootableRoomObject shootable)
-                shootable.Strike(new ResidentObjectProjectileHit(projectileType.Family));
-            return true;
+                shootable.Strike(new ResidentObjectProjectileHit(strike.Family));
+            return;
         }
-
-        return false;
     }
 }

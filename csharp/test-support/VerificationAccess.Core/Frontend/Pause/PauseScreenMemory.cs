@@ -21,14 +21,12 @@ internal static class PauseScreenMemory
     private static readonly ConditionalWeakTable<InstalledScreenContent, byte[]> composedCharacters = new();
 
     /// <summary>The character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it: a copy the caller owns.</summary>
-    [WholeImageFixture("the pause screen's character image")]
     internal static byte[] Characters(InstalledScreenContent artwork) => (byte[])ComposedCharacters(artwork).Clone();
 
     /// <summary>The shared character image of <paramref name="artwork"/>, composed on first use; callers only read it.</summary>
     private static byte[] ComposedCharacters(InstalledScreenContent artwork) => composedCharacters.GetValue(Ensure.NotNull(artwork), ComposeCharacters);
 
     /// <summary>Composes the character image of <paramref name="artwork"/>, as <c>GameState_13</c> uploads it.</summary>
-    [WholeImageFixture("the pause screen's character image")]
     private static byte[] ComposeCharacters(InstalledScreenContent artwork)
     {
         var image = new SnesVram();
@@ -45,7 +43,6 @@ internal static class PauseScreenMemory
     /// The memory image <paramref name="menu"/> shows: the characters of <paramref name="artwork"/>, the presentation its
     /// fixture bound it to, with the tilemaps the cartridge lays out for what it shows over them (#1467).
     /// </summary>
-    [WholeImageFixture("the pause screen's memory image")]
     internal static byte[] Compose(PauseMenuState menu, InstalledScreenContent artwork)
     {
         PauseScreen screen = menu.screen;

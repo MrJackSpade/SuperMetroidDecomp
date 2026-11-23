@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// reads, as the import pipeline replays what the cartridge copies. A later binding shows over an earlier one where they
 /// share characters of one set. Gameplay names what it shows over a room's load by appearance inputs instead.
 /// </summary>
-public sealed class BgArtworkBindings
+public sealed partial class BgArtworkBindings
 {
     /// <summary>The live bindings, oldest first.</summary>
     internal readonly List<BgArtworkBinding> bindings = [];

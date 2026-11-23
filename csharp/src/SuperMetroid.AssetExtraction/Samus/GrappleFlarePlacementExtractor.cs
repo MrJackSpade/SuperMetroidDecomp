@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts Grapple visual offsets for the ten aiming directions, not physical hand origins.</summary>
-public static class GrappleFlarePlacementExtractor
+public static partial class GrappleFlarePlacementExtractor
 {
     /// <summary>Exports Grapple's standing and running visual flare offsets for the ten aiming directions.</summary>
     /// <param name="bus">Import-capable cartridge source for $9B:C14A/C15E and $9B:C19A/C1AE.</param>
@@ -22,10 +22,10 @@ public static class GrappleFlarePlacementExtractor
             int row = SamusProjectileDirectionCodec.FlarePlacementRow(placement.Aim);
             offsets.Add(ChargeFlarePlacementFile.Key(placement), new()
             {
-                X = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), x + row * 2)),
-                Y = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), y + row * 2)),
+                X = unchecked((short)RomDataReader.ReadWordFixedBank(bus, x + row * 2)),
+                Y = unchecked((short)RomDataReader.ReadWordFixedBank(bus, y + row * 2)),
             });
         }
-        return ChargeFlarePlacementFile.WriteGrapple(new() { Version = ChargeFlarePlacementFile.Version, Offsets = offsets });
+        return ChargeFlarePlacementFile.Write(new() { Version = ChargeFlarePlacementFile.Version, Offsets = offsets });
     }
 }

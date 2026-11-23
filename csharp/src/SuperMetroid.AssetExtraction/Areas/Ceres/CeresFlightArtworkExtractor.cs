@@ -14,7 +14,7 @@ using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 
 /// <summary>Exports the Ceres approach's consumed Mode-7 and OBJ visual streams.</summary>
-internal static class CeresFlightArtworkExtractor
+internal static partial class CeresFlightArtworkExtractor
 {
     /// <summary>Exports Ceres flight's Mode-7 tiles/maps, OBJ sheets and frames, palette, and actor placements.</summary>
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
@@ -24,7 +24,7 @@ internal static class CeresFlightArtworkExtractor
             CeresFlightArtworkFileFormat.FloorByteCount, "Mode-7 characters");
         byte[] objectCharacters = Read(CeresCinematicSourceDefinitions.FlightObjectCharacters,
             CeresFlightArtworkFileFormat.ObjectByteCount, "OBJ characters");
-        byte[] decompressedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), CeresCinematicSourceDefinitions.CeresTilemaps,
+        byte[] decompressedMap = RomDataReader.Decompress(bus, CeresCinematicSourceDefinitions.CeresTilemaps,
             maximumOutputBytes: 4096);
         if (decompressedMap.Length < CeresFlightArtworkFileFormat.MapCellCount)
             throw new InvalidDataException("Ceres flight lacks its front and rear Mode-7 map slices.");
@@ -53,7 +53,7 @@ internal static class CeresFlightArtworkExtractor
                 .SelectToArray(value => (int)value),
         });
         byte[] mapFile = mapJson.ToArray();
-        byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativePalette = RomDataReader.ReadFixedBank(bus,
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         var colors = new PaletteRgb5[CgramPalettes.ColorCount];
         for (int index = 0; index < colors.Length; index++)
@@ -63,12 +63,7 @@ internal static class CeresFlightArtworkExtractor
             if (!RgbColor.IsColorWord(checked((ushort)word)))
                 throw new InvalidDataException(
                     $"Ceres flight palette color {index} has an unrepresentable high bit.");
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = word >> 5 & 31,
-                Blue = word >> 10 & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         using var paletteJson = new MemoryStream();
         CeresFlightPaletteFile.Write(paletteJson, new CeresFlightPaletteDocument
@@ -95,9 +90,9 @@ internal static class CeresFlightArtworkExtractor
             .. CeresCinematicSourceDefinitions.RearViewPlacements.Select(source => new CeresFlightActorPlacement
             {
                 Role = source.Role,
-                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                X = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
-                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                Y = CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
             }),
         ];
@@ -120,7 +115,7 @@ internal static class CeresFlightArtworkExtractor
 
         byte[] Read(int address, int expected, string name)
         {
-            byte[] decompressed = RomDataReader.Decompress(CartridgeImportSource.Require(bus), address,
+            byte[] decompressed = RomDataReader.Decompress(bus, address,
                 maximumOutputBytes: expected);
             if (decompressed.Length != expected)
                 throw new InvalidDataException($"Ceres flight {name} has {decompressed.Length} bytes, expected {expected}.");

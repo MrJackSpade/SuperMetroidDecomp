@@ -11,31 +11,32 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres elevator arrival a new game starts with: the moving pad that lowers Samus and the stationary platform behind
 /// it, which hides the landing recess until she lands and both leave.
 /// </summary>
-[RoomLifetime]
-public sealed class CeresElevatorArrivalState
+public sealed partial class CeresElevatorArrivalState : SuperMetroid.Core.Enemies.IActorInFrontOfSamus
 {
     /// <summary>The moving pad, which lowers Samus before the platform checks for her landing, and its wait before it moves.</summary>
-    private readonly CeresElevatorPad pad;
+    internal readonly CeresElevatorPad pad;
     /// <summary>The stationary platform, which waits behind the pad until Samus lands.</summary>
-    private readonly CeresElevatorArrivalActor platform;
+    internal readonly CeresElevatorArrivalActor platform;
 
-    /// <summary>Starts the pad under Samus, waiting before it moves, and the platform at its fixed height below her.</summary>
-    public CeresElevatorArrivalState(SamusState samus)
+    /// <summary>
+    /// Starts the pad under Samus's starting place, <paramref name="samusStart"/>, waiting before it moves, and the platform at
+    /// its fixed height below her.
+    /// </summary>
+    /// <param name="samusStart">Where the Ceres start places Samus: at the load station's X, at the room's top.</param>
+    public CeresElevatorArrivalState(Position16<RoomPixels> samusStart)
     {
-        Ensure.NotNull(samus);
-
         // Both actors show the shared sheet's pictures in the colours their frames author, with the concealer cleared to
         // black (CeresElevatorArrivalDefinitions.StartingGraphics).
         pad = new CeresElevatorPad(CreateActor(
             CeresElevatorArrivalSegment.Pad,
-            MovingPadUnder(samus)));
+            MovingPadUnder(samusStart)));
 
         platform = CreateActor(
             CeresElevatorArrivalSegment.Platform,
-            samus.Position.Whole.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
+            samusStart.WithY(CeresElevatorArrivalDefinitions.StationaryPlatformY));
     }
 
-    /// <summary>True after both actors leave, once Samus has landed at Y=72.</summary>
+    /// <summary>True after both actors leave, once Samus has landed at <see cref="CeresElevatorArrivalDefinitions.LandingSamusY"/>.</summary>
     public bool IsComplete => !pad.Actor.Active && !platform.Active;
 
     /// <summary>Runs the pad, then the platform.</summary>
@@ -44,7 +45,7 @@ public sealed class CeresElevatorArrivalState
     {
         Ensure.NotNull(samus);
 
-        // The pad moves Samus before the platform tests whether she has landed at Y=72, so both leave on the update
+        // The pad moves Samus before the platform tests whether she has landed at her landing height, so both leave on the update
         // she lands, without showing another pose (#2424).
         if (pad.Actor.Active)
         {
@@ -76,7 +77,7 @@ public sealed class CeresElevatorArrivalState
             return false;
         // The descent samples the old Samus position for the pad, then increments
         // Samus. That one-pixel separation is visible throughout the descent.
-        pad.Actor.Position = pad.Actor.Position.WithY(MovingPadUnder(samus).Y);
+        pad.Actor.Position = pad.Actor.Position.WithY(MovingPadUnder(samus.Position.Whole).Y);
         samus.Position += CeresElevatorArrivalDefinitions.SamusDescentStep;
         // Samus starts the descent at the room's top and moves down a pixel an update, so she reaches the landing
         // threshold from above.
@@ -87,12 +88,12 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>
-    /// Emits the low-priority frames selected by the live animations.
+    /// Draws the pad and platform pictures the live animations select, at their actor depth.
     /// </summary>
     /// <param name="sprites">The frame's sprite description.</param>
     /// <param name="presentation">Publishes the platforms from the room's enemy artwork.</param>
     /// <param name="camera">Camera position in whole room pixels.</param>
-    internal void Draw(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
+    void SuperMetroid.Core.Enemies.IActorInFrontOfSamus.DrawInFrontOfSamus(SpriteFrameBuffer sprites, EnemyPresentation presentation, Position16<RoomPixels> camera)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(presentation);
@@ -101,8 +102,8 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>The moving pad's position: Samus's whole position, <see cref="CeresElevatorArrivalDefinitions.MovingPadYOffset"/> lower.</summary>
-    private static Position16<RoomPixels> MovingPadUnder(SamusState samus) =>
-        samus.Position.Whole + new Offset16<RoomPixels>(0, CeresElevatorArrivalDefinitions.MovingPadYOffset);
+    private static Position16<RoomPixels> MovingPadUnder(Position16<RoomPixels> samus) =>
+        samus + new Offset16<RoomPixels>(0, CeresElevatorArrivalDefinitions.MovingPadYOffset);
 
     /// <summary>Creates one arrival actor playing the animation of <paramref name="segment"/> at its room position.</summary>
     private static CeresElevatorArrivalActor CreateActor(
@@ -136,7 +137,7 @@ public sealed class CeresElevatorArrivalState
     /// The moving pad: its actor and the wait before it first moves Samus, which only the pad has (#2426).
     /// </summary>
     /// <param name="actor">The pad's actor.</param>
-    internal sealed class CeresElevatorPad(CeresElevatorArrivalActor actor)
+    internal sealed partial class CeresElevatorPad(CeresElevatorArrivalActor actor)
     {
         /// <summary>The pad's actor: its animation and place.</summary>
         public CeresElevatorArrivalActor Actor { get; } = Ensure.NotNull(actor);
@@ -152,7 +153,7 @@ public sealed class CeresElevatorArrivalState
     }
 
     /// <summary>One of the two arrival actors, the pad or the platform: its animation and place.</summary>
-    internal sealed class CeresElevatorArrivalActor
+    internal sealed partial class CeresElevatorArrivalActor
     {
         /// <summary>Starts an actor's animation at its position, showing its graphics: its first update shows its first pose.</summary>
         public CeresElevatorArrivalActor(

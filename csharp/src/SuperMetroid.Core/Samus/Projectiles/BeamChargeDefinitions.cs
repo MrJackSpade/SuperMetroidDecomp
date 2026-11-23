@@ -1,10 +1,9 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>
-/// Where a held beam's charge sounds, completes and arms a special beam attack, by flare counter, and how long the suit
-/// glows after a charged shot.
+/// Where a held beam's charge sounds, completes and arms a special beam attack, by flare counter.
 /// </summary>
-public static class BeamChargeDefinitions
+public static partial class BeamChargeDefinitions
 {
     /// <summary>Flare-counter value at which the flare draw starts the charging sound.</summary>
     public const int ChargeSoundStartCounter = 16;

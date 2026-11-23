@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 /// options sheet is composed from (#1463); each member keeps its place in the document.
 /// </summary>
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries. The stream loader parses its own document before compiling the runtime presentation.</remarks>
-public record GameOptionsLayoutDocument
+public partial record GameOptionsLayoutDocument
 {
     /// <summary>Schema version that must equal the version the import supports.</summary>
     [JsonPropertyOrder(1)]
@@ -22,9 +22,9 @@ public record GameOptionsLayoutDocument
     /// <summary>Seven named assignable-button glyph patches, each containing six row-major cells forming a 3-by-2 tile rectangle.</summary>
     [JsonPropertyOrder(3)]
     public required Dictionary<string, MapPresentationCell[]> ControllerLabels { get; init; }
-    /// <summary>Seven controller-action glyph origins in action order, in tile units; each 3-by-2 label must fit the page.</summary>
+    /// <summary>Each of the seven controller actions' glyph origin, keyed by the action, in tile units; each 3-by-2 label must fit the page.</summary>
     [JsonPropertyOrder(4)]
-    public required Position16<CharacterCells>[] ControllerLabelAnchors { get; init; }
+    public required Dictionary<string, Position16<CharacterCells>> ControllerLabelAnchors { get; init; }
     /// <summary>Four nonempty, mutually disjoint primary-page cell regions whose palettes reflect the selected language.</summary>
     [JsonPropertyOrder(5)]
     public required GameOptionsLanguageRegionDocument[] LanguageRegions { get; init; }
@@ -34,9 +34,9 @@ public record GameOptionsLayoutDocument
     /// <summary>Heading origins for primary, controller, and special menus in screen pixels, X=0-255 and Y=0-255; drawing subtracts vertical scroll from Y.</summary>
     [JsonPropertyOrder(8)]
     public required Dictionary<string, Offset16<ScreenPixels>> HeadingAnchors { get; init; }
-    /// <summary>Cursor origins in selection-row order for each menu: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
+    /// <summary>Each menu's cursor origins keyed by the row's name: five primary, nine controller, and three special points, in screen pixels X=0-255 and Y=0-255.</summary>
     [JsonPropertyOrder(9)]
-    public required Dictionary<string, Offset16<ScreenPixels>[]> CursorAnchors { get; init; }
+    public required Dictionary<string, Dictionary<string, Offset16<ScreenPixels>>> CursorAnchors { get; init; }
     /// <summary>BG palette index 0-7 for chosen language and toggle regions; must differ from the unselected index.</summary>
     [JsonPropertyOrder(11)]
     public required int SelectedPalette { get; init; }

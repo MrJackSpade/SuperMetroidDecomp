@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The steps of Lower Norfair Ridley's arena reveal (#1413, #2409) and how long he waits before his own. The colours
 /// themselves, and their shapes, are the import's.
 /// </summary>
-public static class NorfairRidleyRevealDefinitions
+public static partial class NorfairRidleyRevealDefinitions
 {
-    /// <summary>The arena reveal's steps, one shown every third reveal update; the reveal ends after the last.</summary>
+    /// <summary>The arena reveal's steps, each shown for <see cref="RevealStepUpdates"/>; the reveal ends after the last.</summary>
     public const int RevealStepCount = 15;
 
     /// <summary>The updates each step of the arena reveal shows; the reveal ends once the last step's have passed.</summary>

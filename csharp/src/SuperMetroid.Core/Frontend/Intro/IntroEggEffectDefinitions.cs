@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Fixed cinematic-actor definitions for egg shell fragments and slime drops.</summary>
-internal static class IntroEggEffectDefinitions
+internal static partial class IntroEggEffectDefinitions
 {
     /// <summary>The shell's pieces in the order the hatching egg spawns them, which is the order they update and draw in.</summary>
     internal static IReadOnlyList<IntroEggShellFragment> ShellFragments { get; } =
@@ -9,18 +9,6 @@ internal static class IntroEggEffectDefinitions
         IntroEggShellFragment.UpperLeft, IntroEggShellFragment.UpperRight, IntroEggShellFragment.Left,
         IntroEggShellFragment.Centre, IntroEggShellFragment.Right, IntroEggShellFragment.Lower,
     ];
-
-    /// <summary>The animation each piece of the shell shows.</summary>
-    internal static IReadOnlyDictionary<IntroEggShellFragment, IntroEggEffectAnimation> ShellFragmentAnimations { get; } =
-        new Dictionary<IntroEggShellFragment, IntroEggEffectAnimation>
-        {
-            [IntroEggShellFragment.UpperLeft] = IntroEggEffectAnimation.ShellUpperLeft,
-            [IntroEggShellFragment.UpperRight] = IntroEggEffectAnimation.ShellUpperRight,
-            [IntroEggShellFragment.Left] = IntroEggEffectAnimation.ShellLeft,
-            [IntroEggShellFragment.Centre] = IntroEggEffectAnimation.ShellCentre,
-            [IntroEggShellFragment.Right] = IntroEggEffectAnimation.ShellRight,
-            [IntroEggShellFragment.Lower] = IntroEggEffectAnimation.ShellLower,
-        };
 
     /// <summary>The screen height a falling slime drop lands at, where its puddle plays in place.</summary>
     public const int SlimeDropLandingY = 168;

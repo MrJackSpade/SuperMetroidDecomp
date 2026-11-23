@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// result and copyright panels, the typed glyphs, the wavy Samus and the explosion's maps, each pre-coloured under the
 /// palette its scene loads and each installed whole (#1634).
 /// </summary>
-internal static class EndingPictureSheetComposer
+internal static partial class EndingPictureSheetComposer
 {
     /// <summary>Pixels along each side of a character.</summary>
     private const int CharacterPixels = RoomTileCanvas.CharacterPixels;
@@ -45,7 +45,7 @@ internal static class EndingPictureSheetComposer
                 EndingPictureNames.JapaneseSubtitle, .. Glyphs().Select(glyph => glyph.Name)],
             [EndingScenery.WaitingBackdrop, EndingScenery.LogoPicture, EndingScenery.PostCreditsText]),
         [SpriteSheetId.EndingWavySamusPicture] = new(ComposeWavySamus, () => [EndingPictureNames.WavySamus], [EndingScenery.WavySamus]),
-        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => EndingObjectArtworkFormat.ExplosionPictures.Select(EndingPictureNames.ExplosionMap),
+        [SpriteSheetId.EndingExplosionPictures] = new(ComposeExplosion, () => EndingObjectArtworkFormat.ExplosionPictures.Select(EndingPictureNames.ExplosionPicture),
             [EndingScenery.ExplosionPictures]),
     };
 
@@ -218,10 +218,10 @@ internal static class EndingPictureSheetComposer
     {
         ImportEndingObjectArtwork objects = sources.EndingObjects;
         var characters = new Characters(RoomTileCanvas.TwoBppCharacterBytes);
-        characters.Load(0, objects.PostCreditsFragmentA.Characters.Span[..EndingTransferExtentDefinitions.PostCreditsFragmentABytes]);
+        characters.Load(0, objects.TransformationCharacters.Characters.Span[..EndingTransferExtentDefinitions.TransformationCharacterBytes]);
         var canvas = new RoomTileCanvas(ScreenSize);
         RgbColor[] colours = Colours(sources, EndingPaletteId.PostCredits);
-        PaintMap(canvas, 0, objects.PostCreditsFragmentB.Tiles.Span, characters, colours);
+        PaintMap(canvas, 0, objects.TransformationMap.Tiles.Span, characters, colours);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal)
         {
             [EndingPictureNames.WavySamus] = WrittenPictureSheetComposer.Frame(canvas, 0, ScreenCells, SpriteImageColours.TwoBppBackground),
@@ -243,7 +243,7 @@ internal static class EndingPictureSheetComposer
         {
             PaintMap(canvas, index * ScreenSize.Y, objects.Fragment(maps[index]).Tiles.Span, characters, colours);
             // Each picture starts at the map's row the screen's top shows, so Core places it whole at the top-left (#1626).
-            frames.Add(EndingPictureNames.ExplosionMap(maps[index]), WrittenPictureSheetComposer.Frame(canvas,
+            frames.Add(EndingPictureNames.ExplosionPicture(maps[index]), WrittenPictureSheetComposer.Frame(canvas,
                 new Position16<ImagePixels>(0, index * ScreenSize.Y + ExplosionRowsAboveScreen),
                 new Extent16<ImagePixels>(ScreenSize.X, ScreenSize.Y - ExplosionRowsAboveScreen), SpriteImageColours.Background));
         }
@@ -274,7 +274,7 @@ internal static class EndingPictureSheetComposer
     /// load placed one, which a map word then shows nothing of.
     /// </summary>
     /// <param name="bytes">The bytes of one character.</param>
-    private sealed class Characters(int bytes)
+    private sealed partial class Characters(int bytes)
     {
         /// <summary>Each character number's bytes.</summary>
         private readonly byte[] data = new byte[CharacterNumbers * bytes];
@@ -319,11 +319,11 @@ internal static class EndingPictureSheetComposer
     /// <param name="Compose">Composes the sheet.</param>
     /// <param name="Frames">The sheet's frame names.</param>
     /// <param name="Scenery">The scenery its pictures are.</param>
-    private sealed record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames,
+    private sealed partial record PictureSheet(Func<ScreenTileSources, ComposedSpriteSheet> Compose, Func<IEnumerable<string>> Frames,
         EndingScenery[] Scenery);
 
     /// <summary>A typed glyph's picture.</summary>
     /// <param name="Name">The glyph's picture name.</param>
     /// <param name="Words">Its one or two map words, top first.</param>
-    private sealed record Glyph(string Name, BackgroundTile[] Words);
+    private sealed partial record Glyph(string Name, BackgroundTile[] Words);
 }

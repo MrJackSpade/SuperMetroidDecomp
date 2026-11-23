@@ -156,14 +156,21 @@ internal sealed class UnitScanner(CoreModel model)
         return scan;
     }
 
-    /// <summary>Whether <paramref name="unit"/> is code that dispatches on its slot's definition: an entity type's, or the behaviour's entity factory.</summary>
+    /// <summary>
+    /// Whether <paramref name="unit"/> is code that dispatches on its slot's definition: an entity type's, or the behaviour's
+    /// factory code (<see cref="CoreModel.IsFactoryCode"/>).
+    /// </summary>
     public bool IsDispatch(Unit unit, Behaviour behaviour) =>
-        model.IsEntityType(unit.Type) || IsCreate(unit, behaviour);
+        model.IsEntityType(unit.Type) || model.IsFactoryCode(unit, behaviour);
 
-    /// <summary>Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s entity factory method.</summary>
+    /// <summary>
+    /// Whether <paramref name="unit"/> is <paramref name="behaviour"/>'s entity factory: its creations (#2553), the method
+    /// that creates every one of its definitions' entities alike, or the method handing the registrar each definition's
+    /// creation (#2554).
+    /// </summary>
     public static bool IsCreate(Unit unit, Behaviour behaviour) =>
-        unit is { Kind: UnitKind.Member, Symbol: IMethodSymbol { Name: "Create" } create }
-        && SymbolEqualityComparer.Default.Equals(create.ContainingType.OriginalDefinition, behaviour.Type);
+        unit is { Kind: UnitKind.Member, Symbol: IMethodSymbol { Name: "Create" or "OfferCreations" } or IPropertySymbol { Name: "Creations" } }
+        && SymbolEqualityComparer.Default.Equals(unit.Symbol.ContainingType.OriginalDefinition, behaviour.Type);
 
     /// <summary>The unevaluated scan of <paramref name="unit"/>.</summary>
     private UnitScan Cached(Unit unit, DefinitionContext? context)
@@ -241,19 +248,26 @@ internal sealed class UnitScanner(CoreModel model)
             case { IsImplicitlyDeclared: true }:
                 break;
             case IFieldSymbol field:
-                foreach (SyntaxReference reference in field.DeclaringSyntaxReferences)
+                foreach (SyntaxReference reference in field.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference)))
                 {
                     if (reference.GetSyntax() is VariableDeclaratorSyntax { Initializer: { } initializer })
                         Visit(scan, initializer, unit, context);
                 }
+                foreach (ExpressionSyntax construction in model.ConstructionsAssignedTo(field.OriginalDefinition))
+                    Visit(scan, construction, unit, context);
                 break;
             case IPropertySymbol or IEventSymbol or IMethodSymbol:
-                foreach (SyntaxReference reference in member.DeclaringSyntaxReferences)
+                foreach (SyntaxReference reference in member.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference)))
                 {
                     SyntaxNode declaration = reference.GetSyntax();
                     // A positional record's property is its constructor parameter, which has no code of its own.
                     if (declaration is not ParameterSyntax)
                         Visit(scan, declaration, unit, context);
+                }
+                if (member is IPropertySymbol property)
+                {
+                    foreach (ExpressionSyntax construction in model.ConstructionsAssignedTo(property))
+                        Visit(scan, construction, unit, context);
                 }
                 break;
             default:
@@ -279,7 +293,8 @@ internal sealed class UnitScanner(CoreModel model)
         bool chainsToThis = false;
         bool callsBase = false;
         // An implicitly declared constructor (a default or record copy constructor) runs only initialization.
-        IEnumerable<SyntaxReference> declarations = constructor.IsImplicitlyDeclared ? [] : constructor.DeclaringSyntaxReferences;
+        IEnumerable<SyntaxReference> declarations = constructor.IsImplicitlyDeclared ? [] :
+            constructor.DeclaringSyntaxReferences.Where(reference => !GameConstructors.IsCompilerWritten(reference));
         foreach (SyntaxReference reference in declarations)
         {
             switch (reference.GetSyntax())
@@ -306,7 +321,7 @@ internal sealed class UnitScanner(CoreModel model)
             return;
         scan.Targets.Add(Unit.InstanceInitialization(type));
         if (!callsBase && type.BaseType is { } baseType && model.IsSource(baseType.OriginalDefinition)
-            && baseType.OriginalDefinition.InstanceConstructors.FirstOrDefault(c => c.Parameters.All(p => p.IsOptional || p.IsParams)) is { } implicitBase)
+            && GameConstructors.Of(baseType.OriginalDefinition).FirstOrDefault(c => c.Parameters.All(p => p.IsOptional || p.IsParams)) is { } implicitBase)
         {
             scan.Targets.Add(Unit.Member(implicitBase.OriginalDefinition));
         }
@@ -337,6 +352,9 @@ internal sealed class UnitScanner(CoreModel model)
             {
                 continue;
             }
+            // A projectile behaviour the constructor builds into one of its type's members is that member's code, read with it (#2554).
+            if (node is AssignmentExpressionSyntax { Right: var assigned } && model.ConstructedMember(semantic, assigned) is not null)
+                continue;
             Bind(scan, semantic, node);
             if (pruner is not null && pruner.TakenChildren(node) is { } taken)
             {
@@ -457,11 +475,11 @@ internal sealed class UnitScanner(CoreModel model)
             && symbol is IMethodSymbol { MethodKind: MethodKind.Constructor } && SymbolEqualityComparer.Default.Equals(containing.OriginalDefinition, family)
             ? creation : null;
         IReadOnlySet<string>? programs = construction is null ? null : model.ProgramsOf(semantic, construction, family);
-        if (programs is null && construction is { ArgumentList.Arguments: [var traced, ..] })
+        if (programs is null && construction is not null && model.ProgramArgumentOf(semantic, construction, family) is { } traced)
         {
             if (!scan.FamilyProgramArguments.TryGetValue(family, out List<(ExpressionSyntax, SemanticModel)>? arguments))
                 scan.FamilyProgramArguments.Add(family, arguments = []);
-            arguments.Add((traced.Expression, semantic));
+            arguments.Add((traced, semantic));
             programs = new HashSet<string>(StringComparer.Ordinal);
         }
         if (programs is null)

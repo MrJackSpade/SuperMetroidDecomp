@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Exports the timer's contiguous twenty-five 4-bpp OBJ characters as indexed PNG.</summary>
-public static class EscapeTimerTileAtlasExtractor
+public static partial class EscapeTimerTileAtlasExtractor
 {
     /// <summary>Converts the escape timer's 25 contiguous four-bit planar OBJ characters into an indexed atlas.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native timer character span.</param>
@@ -18,7 +18,7 @@ public static class EscapeTimerTileAtlasExtractor
         Ensure.NotNull(bus);
         byte[] pixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(
-                CartridgeImportSource.Require(bus),
+                bus,
                 EscapeSourceDefinitions.TimerCharacters,
                 EscapeTimerTileAtlasFormat.TotalByteCount),
             EscapeTimerTileAtlasFormat.BitsPerPixel,

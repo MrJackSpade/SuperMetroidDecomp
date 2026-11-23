@@ -14,8 +14,7 @@ namespace SuperMetroid.AssetExtraction.Compression;
 /// relative-copy, or inverted-relative-copy behavior. The decoder owns the stream's byte widths: an incrementing fill
 /// wraps at a byte and every copy reads the bytes already emitted.
 /// </remarks>
-[EncodingOwner("compressed asset command stream")]
-public static class SmCompression
+public static partial class SmCompression
 {
     /// <summary>
     /// Decompresses exactly one complete stream. Trailing data is rejected because each
@@ -84,14 +83,15 @@ public static class SmCompression
                 return true;
             }
 
-            byte? longLength = null;
+            SmCompressionHeader decoded;
             if (SmCompressionCodes.IsLongHeader(header))
             {
                 if (!Next(out byte lowLength))
                     break;
-                longLength = lowLength;
+                decoded = SmCompressionHeader.DecodeLong(header, lowLength);
             }
-            SmCompressionHeader decoded = SmCompressionHeader.Decode(header, longLength);
+            else
+                decoded = SmCompressionHeader.Decode(header);
 
             switch (decoded.Command)
             {

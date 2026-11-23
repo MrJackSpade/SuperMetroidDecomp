@@ -5,10 +5,10 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// Puromi/Nuclear Waffle's body animation as a typed animation (#641). Each
+/// The Nuclear Waffle's body animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class NuclearWaffleAnimations
+internal static partial class NuclearWaffleAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<NuclearWaffleSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -32,7 +32,7 @@ internal static class NuclearWaffleAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>> StartingAt { get; } = new Dictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>>
+    internal static Dictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>> StartingAt { get; } = new Dictionary<NuclearWaffleSegment, Animation<NuclearWaffleSegment>>
     {
         [P.BodyLoop] = Animation<NuclearWaffleSegment>.Looping([Segments.Whole(P.BodyLoop)]),
     };

@@ -24,7 +24,7 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native velocity table as the selection oracle.</summary>
-    private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidRockLaunchSpeedSelectionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks wrapped spawn offsets, projectile fields, and RNG read count without table rereads.</summary>
     internal static void VerifyKraidRockLaunchDefinitions(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
@@ -43,7 +43,9 @@ internal static class KraidRockLaunchDefinitionsVerification
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Kraid rock must not advance RNG.");
         Action<RoomEnemyPlace> spawn = enemies.KraidBehavior.Head.SpawnKraidSpitRock;
         var body = enemies.Places.InUpdateOrder[0];
-        var rock = enemies.Projectiles.ProjectileInPlace(17);
+        // The place's projectile before each spawn is a stale rock the check leaves there.
+        var rockGraphics = SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading);
+        var rock =FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -54,7 +56,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             reads = 0;
             spawn(body);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
-            rock = enemies.Projectiles.ProjectileInPlace(17);
+            rock = enemies.Projectiles.SpawnedInPlace(17);
             AssertTrue(rock.IsActive, "Kraid rock allocation succeeds: the pool's last place holds a live rock");
             AssertEqual(1, reads, "Kraid rock reads current RNG once");
             AssertEqual(RoomEnemyProjectileKind.KraidSpitRock, rock.Kind, "Native reverse allocation slot");
@@ -64,10 +66,10 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw - 96)), rock.Position.Y.Whole, "Kraid mouth Y offset and wrap");
             AssertEqual((ushort)0, rock.Position.X.Fraction, "Clear stale rock X fraction");
             AssertEqual((ushort)0, rock.Position.Y.Fraction, "Clear stale rock Y fraction");
-            AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedIn(SuperMetroid.Core.Bosses.Kraid.KraidColours.RocksShading), rock.Graphics,
+            AssertEqual(rockGraphics, rock.Graphics,
                 "Native rock: the rocks' colours Kraid loads, at tile base zero");
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace()) occupied.Kind = RoomEnemyProjectileKind.KraidSpitRock;
+        FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.KraidSpitRock, rockGraphics);
         ushort previousX = rock.Position.X.Whole;
         reads = 0;
         spawn(body);
@@ -77,6 +79,6 @@ internal static class KraidRockLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the original launch-speed words for production spawn comparison.</summary>
-    private static byte KraidRockLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidRockLaunchDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

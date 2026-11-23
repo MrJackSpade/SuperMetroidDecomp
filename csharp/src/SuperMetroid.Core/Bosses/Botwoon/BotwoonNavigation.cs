@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's room navigation: its holes, the walk each draw leads to and the steps along it.</summary>
-internal static class BotwoonNavigation
+internal static partial class BotwoonNavigation
 {
     /// <summary>The room hole <paramref name="hole"/>.</summary>
     internal static BotwoonHoleDefinition Hole(BotwoonHole hole) =>
@@ -60,12 +60,6 @@ internal static class BotwoonNavigation
     /// <summary>The movement of step <paramref name="step"/> of authored path <paramref name="path"/>, as authored.</summary>
     internal static Offset16<RoomPixels> Step(BotwoonPathDefinition path, int step) =>
         step >= 0 && step < path.Steps.Length
-            ? Movement(path.Steps[step])
+            ? BotwoonNavigationDefinitions.StepMovements[path.Steps[step]]
             : throw new InvalidDataException($"Botwoon's path from {path.From} to {path.To} has no step {step}.");
-
-    /// <summary>The one-pixel movement a path step stands for.</summary>
-    private static Offset16<RoomPixels> Movement(BotwoonPathStep step) =>
-        BotwoonNavigationDefinitions.StepMovements.TryGetValue(step, out Offset16<RoomPixels> movement)
-            ? movement
-            : throw new InvalidDataException($"Undefined Botwoon path step {step}.");
 }

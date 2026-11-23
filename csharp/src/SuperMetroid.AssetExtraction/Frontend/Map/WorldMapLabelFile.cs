@@ -7,7 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed world-map label anchors.</summary>
-public static class WorldMapLabelFile
+public static partial class WorldMapLabelFile
 {
     /// <summary>Loads and validates label anchors for exactly the six Zebes world-map areas.</summary>
     /// <param name="json">Caller-owned stream containing a world-map label document.</param>
@@ -16,8 +16,7 @@ public static class WorldMapLabelFile
     public static WorldMapLabelPositions Read(Stream json)
     {
         WorldMapLabelDocument document;
-        try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("World-map label layout is null."); }
+        try { document = JsonAssetDocument.Read<WorldMapLabelDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid world-map label layout JSON.", error); }
         if (document.Version != WorldMapLabelFormat.Version || document.Areas is null || document.Areas.Count != 6)
             throw new InvalidDataException("World-map labels require version 1 and exactly the six Zebes areas.");
@@ -38,7 +37,7 @@ public static class WorldMapLabelFile
     /// <param name="document">Document to serialize.</param>
     public static void Write(Stream json, WorldMapLabelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.WorldMapLabelDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

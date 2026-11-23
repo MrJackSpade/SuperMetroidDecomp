@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// the Bomb Torizo statue's hand. The step's outcome carries each in the order it was thrown, and the update that ran the
 /// step spawns them after it.
 /// </summary>
-public abstract record RoomObjectProjectileRequest
+public abstract partial record RoomObjectProjectileRequest
 {
     /// <summary>Only the glass's shards and the statue hand's fragments derive from this.</summary>
     /// <param name="roomObjectBlock">The block of the room object that threw the projectile.</param>
@@ -13,4 +13,7 @@ public abstract record RoomObjectProjectileRequest
 
     /// <summary>The block of the room object that threw the projectile, which the projectile's place is relative to.</summary>
     public Position16<RoomBlocks> RoomObjectBlock { get; }
+
+    /// <summary>Spawns the projectile among the room's enemy projectiles, through the spawner its thrower gave it.</summary>
+    internal abstract void Spawn();
 }

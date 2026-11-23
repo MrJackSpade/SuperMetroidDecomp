@@ -1,26 +1,25 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// An angle along a Nuclear Waffle's sweep (#2042): steps (256ths of a turn) with a 256th-of-a-step fraction, counted on
-/// past a full turn rather than wrapping. A sweep runs over the top of the orbit from just short of a full turn (240
-/// steps) into the next turn (400 steps), and its links trail the head by up to 84 steps, so the angles a sweep compares
+/// An angle along a Nuclear Waffle's sweep (#2042): steps of the turn with a fraction of a step, counted on
+/// past a full turn rather than wrapping. A sweep runs over the top of the orbit from just short of a full turn into
+/// the next turn, and its links trail the head, so the angles a sweep compares
 /// span more than one turn: an angle and the same direction a turn later stand at different places along the sweep and
 /// clamp differently, which a <see cref="RotationAngle"/> that wraps at a full turn cannot tell apart. Only the orbit
 /// reads the direction within the turn (<see cref="ToRotationAngle"/>).
 /// </summary>
-public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffleSweepAngle>
+public readonly partial record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffleSweepAngle>
 {
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;
 
-    /// <summary>The angle <paramref name="fractionsOfStep"/> 256ths of a step on from zero.</summary>
+    /// <summary>The angle <paramref name="fractionsOfStep"/> fractions of a step on from zero.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero.</exception>
     private NuclearWaffleSweepAngle(int fractionsOfStep) =>
         FractionsOfStep = Ensure.AtLeastZero(fractionsOfStep);
 
-    /// <summary>The angle in 256ths of a step from zero, counted on past each full turn.</summary>
-    [IntegerQuantity("sweep angle in 256ths of a step, counted on past each full turn")]
-    public int FractionsOfStep { get; }
+    /// <summary>The angle in fractions of a step from zero, counted on past each full turn.</summary>
+    internal int FractionsOfStep { get; }
 
     /// <summary>The angle <paramref name="steps"/> whole steps on from zero, counted on past each full turn, with no fraction.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The angle lies below zero.</exception>
@@ -39,11 +38,13 @@ public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffl
     /// toward larger angles for a forward sweep, back for a backward one, keeping its fraction (#2439).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The turned angle lies below zero.</exception>
-    internal NuclearWaffleSweepAngle TurnedAhead(int steps, NuclearWaffleSweepDirection direction) => TurnedBySteps(direction switch
+    internal NuclearWaffleSweepAngle TurnedAhead(int steps, NuclearWaffleSweepDirection direction) => TurnedBySteps(steps * StepSign[direction]);
+
+    /// <summary>The sign a sweep running each way turns its steps by: on toward larger angles forward, back backward.</summary>
+    private static IdentityTable<NuclearWaffleSweepDirection, int> StepSign => field ??= new(new Dictionary<NuclearWaffleSweepDirection, int>
     {
-        NuclearWaffleSweepDirection.Forward => steps,
-        NuclearWaffleSweepDirection.Backward => -steps,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined Nuclear Waffle sweep direction."),
+        [NuclearWaffleSweepDirection.Forward] = 1,
+        [NuclearWaffleSweepDirection.Backward] = -1,
     });
 
     /// <summary>
@@ -58,24 +59,14 @@ public readonly record struct NuclearWaffleSweepAngle : IComparable<NuclearWaffl
     /// its fraction carrying into its whole steps (#2439).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The turned angle lies below zero.</exception>
-    internal NuclearWaffleSweepAngle TurnedOn(AngularSpeed speed, NuclearWaffleSweepDirection direction) => direction switch
-    {
-        NuclearWaffleSweepDirection.Forward => this + speed,
-        NuclearWaffleSweepDirection.Backward => this + -speed,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined Nuclear Waffle sweep direction."),
-    };
+    internal NuclearWaffleSweepAngle TurnedOn(AngularSpeed speed, NuclearWaffleSweepDirection direction) => direction == NuclearWaffleSweepDirection.Forward ? this + speed : this + -speed;
 
     /// <summary>
     /// Whether the angle has reached <paramref name="mark"/> along a sweep running <paramref name="direction"/> (#2439): a
     /// forward sweep at or past it, a backward one strictly past it, as the game compares the two ways; an angle standing
     /// on a mark has not yet reached it going backward.
     /// </summary>
-    internal bool HasReached(NuclearWaffleSweepAngle mark, NuclearWaffleSweepDirection direction) => direction switch
-    {
-        NuclearWaffleSweepDirection.Forward => this >= mark,
-        NuclearWaffleSweepDirection.Backward => this < mark,
-        _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined Nuclear Waffle sweep direction."),
-    };
+    internal bool HasReached(NuclearWaffleSweepAngle mark, NuclearWaffleSweepDirection direction) => direction == NuclearWaffleSweepDirection.Forward ? this >= mark : this < mark;
 
     /// <summary>The direction the angle points within one turn, its fraction kept: the rotation angle the orbit is placed at.</summary>
     public RotationAngle ToRotationAngle() => RotationAngle.NormalizeRaw(FractionsOfStep);

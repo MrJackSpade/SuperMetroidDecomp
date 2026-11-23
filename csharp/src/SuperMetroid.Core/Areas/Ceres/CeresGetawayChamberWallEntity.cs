@@ -7,14 +7,31 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// shows the chamber's walls (#1545), and its animation makes it ignore Samus.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the wall occupies.</param>
 /// <param name="common">The shared participation.</param>
-/// <param name="side">The animation the wall starts in, for the side of the chamber it stands on.</param>
-internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, CeresDoorSegment side)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, CeresDoorAnimationState state)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public void Initialize() => doors.Start(Place, side);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the wall occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="side">The animation the wall starts in, for the side of the chamber it stands on.</param>
+    internal CeresGetawayChamberWallEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        CeresDoorSegment side)
+        : this(doors, occupant, place, common, doors.Start(place, HorizontalDirection.Right, side))
+    {
+    }
+
+    /// <summary>The wall's animation, which its setup starts as the wall is built (#2554).</summary>
+    private readonly CeresDoorAnimationState state = state;
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
@@ -23,5 +40,5 @@ internal sealed class CeresGetawayChamberWallEntity(CeresDoorBehavior doors, Roo
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, state, context.Samus);
 }

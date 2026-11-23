@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// variant shows its enemy's frames in its own colours; the spawned-object variants hold each common picture once, on a
 /// common sheet every variant drawing it reads (#1513).
 /// </summary>
-public sealed class InstalledEnemySheets : IEnemySheetSource
+public sealed partial class InstalledEnemySheets : IEnemySheetSource
 {
     /// <summary>Every enemy variant, by name.</summary>
     internal readonly Dictionary<string, EnemyArtworkVariant<SpriteSheet>> variants;

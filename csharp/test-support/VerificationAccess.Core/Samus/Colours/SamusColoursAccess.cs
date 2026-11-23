@@ -36,7 +36,7 @@ internal static class SamusColoursAccess
         foreach (ColourEffect effect in shading.Effects)
         {
             for (int ink = 0; ink < inks.Length; ink++)
-                inks[ink] = effect.Apply(inks[ink]);
+                inks[ink] = effect.Apply(inks[ink], global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         }
         foreach (PictureShade shade in shading.OverEffects)
             Lay(shades[shade.Key], inks);
@@ -46,8 +46,8 @@ internal static class SamusColoursAccess
     /// <summary>Lays <paramref name="shade"/>'s colours over its inks of <paramref name="inks"/>.</summary>
     private static void Lay(SheetShade shade, RgbColor[] inks)
     {
-        for (int index = 0; index < shade.Inks.Length; index++)
-            inks[shade.Inks[index]] = shade.Colours[index];
+        foreach ((int ink, RgbColor colour) in shade.InkColours)
+            inks[ink] = colour;
     }
 
     /// <summary>Reads Samus's colours as a check compares them.</summary>
@@ -73,7 +73,7 @@ internal static class SamusColoursAccess
             self.ShownInks(sources)[SamusSheetInks.Suitless..(SamusSheetInks.Suitless + SamusColourSets.ColoursPerSet)];
 
         /// <summary>The colour her visor shows.</summary>
-        internal RgbColor ShownVisor(SamusShadeSources sources) => self.ShownInks(sources)[SamusSheetInks.Suit + SamusSheetInks.VisorColour];
+        internal RgbColor ShownVisor(SamusShadeSources sources) => self.ShownInks(sources)[SamusSheetInks.Visor];
 
         /// <summary>The visor shade laid over her suit, or null while the suit's own visor colour shows.</summary>
         internal PictureShade? VisorShade => self.SuitOverlays.LastOrDefault(shade =>
@@ -92,6 +92,6 @@ internal static class SamusColoursAccess
         /// update laid one: the shade the effect showed last.
         /// </summary>
         internal int? ShownHyperBeamCycleShade =>
-            self.beamOverlays.Where(shade => shade.Effect == SamusShades.HyperBeamCycle[0].Effect).Select(shade => (int?)shade.Step).LastOrDefault();
+            self.BeamOverlays.Where(shade => shade.Effect == SamusShades.HyperBeamCycle[0].Effect).Select(shade => (int?)shade.Step).LastOrDefault();
     }
 }

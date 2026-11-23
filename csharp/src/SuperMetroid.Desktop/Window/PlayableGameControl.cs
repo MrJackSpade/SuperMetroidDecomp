@@ -72,6 +72,8 @@ public sealed class PlayableGameControl : UserControl
     private readonly HostInputActivationGate inputActivation = new();
     /// <summary>Current Windows gamepad sample merged with keyboard input.</summary>
     private readonly WindowsGamepadInput gamepad = new();
+    /// <summary>Xbox controllers and pads in X-input mode.</summary>
+    private readonly XInputGamepadInput xinputGamepad = new();
     /// <summary>Elapsed wall-clock updates waiting to be simulated.</summary>
     private double pendingPlaybackFrames;
     /// <summary>Current frontend dispatcher and its retained display state.</summary>
@@ -610,6 +612,43 @@ public sealed class PlayableGameControl : UserControl
             RefreshFrame(frame);
     }
 
+    /// <summary>Whether a measured run's next batch is already queued on the message loop, which the timer then leaves to it.</summary>
+    private bool measuredBatchQueued;
+
+    /// <summary>
+    /// Runs frames back to back for one timer interval, publishing each and waiting until the render worker has submitted
+    /// it before the next runs (#2653), so every frame is rendered and presented once for a measurement. The next batch is
+    /// queued at once behind the window's pending messages rather than left to the timer's next tick.
+    /// </summary>
+    private void AdvanceEachFramePresented()
+    {
+        measuredBatchQueued = false;
+        // A paused run queues nothing further; the timer resumes it when playback starts again.
+        if (!playbackTimer.Enabled)
+            return;
+        var worker = gpuWorker ?? throw new InvalidOperationException("A measured replay presents through the Direct3D 11 worker.");
+        long budget = Stopwatch.Frequency * playbackTimer.Interval / 1000;
+        long started = Stopwatch.GetTimestamp();
+        do
+        {
+            PlaybackBatchResult batch = PlaybackFrameBatch.Run(1, BuildControllerWord, input => AdvanceOneFrame(input), CanAdvanceAudioFrame);
+            if (batch.LastFrame is not { } frame)
+                return;
+            RefreshFrame(frame);
+            // The worker takes only the newest packet, so the next frame waits until this one's own packet is submitted.
+            while (worker.LastSubmittedSequence < displaySequence)
+            {
+                worker.ThrowIfFaulted();
+                Thread.Yield();
+            }
+        }
+        while (Stopwatch.GetTimestamp() - started < budget);
+        // The queued batch runs itself: the timer's ticks leave a queued batch to it, so queuing the timer's own entry
+        // would find the batch queued and run nothing.
+        measuredBatchQueued = true;
+        BeginInvoke(AdvanceEachFramePresented);
+    }
+
     /// <summary>
     /// Advances the translated dispatcher according to measured wall-clock time.
     /// </summary>
@@ -618,6 +657,12 @@ public sealed class PlayableGameControl : UserControl
         if (driver?.Pacing == HostFramePacing.Unpaced)
         {
             AdvanceUnpaced();
+            return;
+        }
+        if (driver?.Pacing == HostFramePacing.EachFramePresented)
+        {
+            if (!measuredBatchQueued)
+                AdvanceEachFramePresented();
             return;
         }
 
@@ -733,7 +778,9 @@ public sealed class PlayableGameControl : UserControl
         // Keyboard and gamepad are two host producers for the game's one controller.
         // Merge them before recording so replay sees one exact set of held buttons and
         // never depends on which Windows device pressed a particular button.
-        ControllerButton input = keyboard.BuildControllerWord(gamepad.Poll());
+        // An Xbox controller can also appear through WinMM; both readers map it to the same
+        // buttons, so their union is the same set either way.
+        ControllerButton input = keyboard.BuildControllerWord(gamepad.Poll() | xinputGamepad.Poll());
         return inputActivation.Filter(input);
     }
 
@@ -845,6 +892,9 @@ public sealed class PlayableGameControl : UserControl
 
     /// <summary>Gives a display the game published the next presentation sequence in the current generation.</summary>
     private RenderFrame PresentationFrame(DisplayPacket display) => new(new(++displaySequence, displayGeneration), display);
+
+    /// <summary>The publication sequence of the latest frame the host published (#2653).</summary>
+    internal long DisplaySequence => displaySequence;
     /// <summary>Asynchronous Direct3D worker owning the canvas window when enabled.</summary>
     internal D3D11RenderWorker? gpuWorker;
     /// <summary>Prevents duplicate renderer initialization for this control.</summary>
@@ -930,7 +980,7 @@ public sealed class PlayableGameControl : UserControl
         new D3D11RenderWorker(window, clientSize, generation, D3D11DeviceKind.Hardware));
 
     /// <summary>Verification seam for a worker that genuinely fails asynchronous device/window startup.</summary>
-    internal async Task InitializeRendererAsync(Func<nint, Extent16<DisplayPixels>, long, D3D11RenderWorker> createWorker)
+    internal async Task InitializeRendererAsync(RenderWorkerFactory createWorker)
     {
         Ensure.NotNull(createWorker);
         ObjectDisposedException.ThrowIf(IsDisposed, this);

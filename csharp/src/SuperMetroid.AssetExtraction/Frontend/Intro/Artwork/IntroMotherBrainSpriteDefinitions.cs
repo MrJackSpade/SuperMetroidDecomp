@@ -2,16 +2,13 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Three visual frames selected by the intro Mother Brain's compiled lists.</summary>
-internal static class IntroMotherBrainSpriteDefinitions
+internal static partial class IntroMotherBrainSpriteDefinitions
 {
-    /// <summary>Every retail frame has nine OAM parts.</summary>
-    internal const int StockPartCount = 9;
-
     /// <summary>The intro's three Mother Brain frames.</summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("mother-brain-frame-0", CinematicSpritePose.MotherBrainPulseLow, 9),
-        new("mother-brain-frame-1", CinematicSpritePose.MotherBrainPulseMiddle, 9),
-        new("mother-brain-frame-2", CinematicSpritePose.MotherBrainPulseHigh, 9),
+        new("mother-brain-pulse-low", CinematicSpritePose.MotherBrainPulseLow, 9),
+        new("mother-brain-pulse-middle", CinematicSpritePose.MotherBrainPulseMiddle, 9),
+        new("mother-brain-pulse-high", CinematicSpritePose.MotherBrainPulseHigh, 9),
     ];
 }

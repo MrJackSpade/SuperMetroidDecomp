@@ -16,7 +16,6 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -93,14 +92,14 @@ internal static class NoobTubeObjectVerification
 
         // Repeated #339: BTS $44 is a resident trigger, not a breakable-block index.
         // Exercise StepFiring (including endpoint collision), rather than bypassing
-        // the missing caller dispatch with TryNotifyResidentProjectileHit directly.
+        // the missing caller dispatch with NotifyResidentProjectileHit directly.
         var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var grappleHit = SamusGrappleMovement.StepFiringAndCommit(level, grappleSamus,
-            GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+        var grappleHit = SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(level, roomObjects), grappleSamus,
+            GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");
         AssertEqual(new ResidentObjectProjectileHit(SamusProjectileFamily.Beam), PendingTubeHit(roomObjects),
@@ -114,8 +113,7 @@ internal static class NoobTubeObjectVerification
 
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
         // only queues the retail ineffective-shot sound and clears the transient hit word.
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(new(blockX, blockY), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
-            "n00b-tube collision block locates its resident PLM");
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(new(blockX, blockY), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile)));
         StepNoobTube(roomObjects, level);
         AssertTrue(roomObjects.Sounds.SoundRequests.Contains(new SoundRequest(
                 NoobTubeObjectDefinitions.IneffectiveShotSound,
@@ -130,11 +128,7 @@ internal static class NoobTubeObjectVerification
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "intact n00b-tube draw installs live type-$C collision");
-        SamusBombProjectileSystem.ReactToBombedBlock(
-            level,
-            new(blockX, blockY),
-            roomObjects,
-            SamusBombProjectileSystem.PowerBombType);
+        BombExplosions.ReachBlockWithPowerBomb(new RoomTerrain(level, roomObjects), new(blockX, blockY));
         AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
             "Power Bomb observes the intact tube's type-$C collision");
         AssertEqual(RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger),
@@ -150,22 +144,13 @@ internal static class NoobTubeObjectVerification
         StepNoobTube(roomObjects, level, GameplayAction.Right);
         AssertTrue(samus.Control.InputLocked, "break sequence locks Samus");
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.ScriptLocked, "break sequence installs stationary command-zero animation ownership");
-        var fields = MetadataShape.Fields(typeof(SamusState), System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
-            .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
-            .OrderBy(field => field.MetadataToken).ToArray();
-        AssertTrue(fields.Any(field => field.Name == "<Control>k__BackingField"),
-            "the installed handler pair is serialized with Samus");
-        using (var saved = new MemoryStream())
-        {
-            SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, samus);
-            saved.Position = 0;
-            var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
-            AssertTrue(restored.Control.InputLocked && restored.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
-                "mid-script state retains input and animation ownership");
-            restored.Control.Unlock();
-            AssertTrue(restored.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "generic unlock clears stale stationary ownership");
-        }
+        // A debugger state binds the installed content rather than writing it, as the debugger's store does, so the round
+        // trip carries only Samus's own state.
+        SamusState restored = GraphDigestVerification.RoundTrip(samus);
+        AssertTrue(restored.Control.InputLocked && restored.Control.Mode.Movement == SamusMovementMode.ScriptLocked,
+            "mid-script state retains input and animation ownership");
+        restored.Control.Unlock();
+        AssertTrue(restored.Control.Mode.Movement != SamusMovementMode.ScriptLocked, "generic unlock clears stale stationary ownership");
         AssertEqual(1, projectiles.Count, "break sequence initially spawns only the crack");
         AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].Piece.Definition,
             "first spawned actor is the n00b-tube crack");
@@ -213,7 +198,7 @@ internal static class NoobTubeObjectVerification
         Suite(nameof(VerifyNoobTubeProjectileInitializers), () => VerifyNoobTubeProjectileInitializers(bus, level, blockIndex, projectiles));
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "n00b-tube complete break never rereads its program source bytes");
-        Suite(nameof(VerifyAlreadyBrokenNoobTube), () => VerifyAlreadyBrokenNoobTube(bus, level, samus));
+        Suite(nameof(VerifyAlreadyBrokenNoobTube), () => VerifyAlreadyBrokenNoobTube(bus, level, samus, blockIndex));
         Console.WriteLine(
             "  N00b tube: setup, two-stage wake, debris, earthquake, event, water, and reload agree.");
     }
@@ -244,7 +229,7 @@ internal static class NoobTubeObjectVerification
         enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9600), BgArtworkFixtures.For(new SnesVram()), level, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())));
 
         foreach (NoobTubeProjectileRequest request in requests)
-            enemies.NoobTubeBehavior.SpawnNoobTubeProjectile(request);
+            enemies.RoomObjectSpawns.SpawnNoobTubeProjectile(request);
         AssertEqual(17, enemies.ActiveEnemyProjectileCount,
             "complete n00b-tube burst fits the native eighteen-slot projectile pool");
 
@@ -259,7 +244,7 @@ internal static class NoobTubeObjectVerification
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation first
             && ReferenceEquals(first.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]));
-        AssertEqual(0x0048, firstShard.StateOf<NoobTubeDebrisState>().X.Whole,
+        AssertEqual(0x0048, firstShard.NoobTubeDebris.X.Whole,
             "first shard keeps its signed X origin as its own column");
         AssertEqual(0x0058, firstShard.Position.Y.Whole,
             "first shard stores its signed Y offset");
@@ -272,7 +257,7 @@ internal static class NoobTubeObjectVerification
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeShard &&
             projectile.Animation is NoobTubeProjectileAnimation last
             && ReferenceEquals(last.Playback.Animation, NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownInner]));
-        AssertEqual(0x0078, lastShard.StateOf<NoobTubeDebrisState>().X.Whole,
+        AssertEqual(0x0078, lastShard.NoobTubeDebris.X.Whole,
             "last shard uses final signed X offset");
         AssertEqual(0x0060, lastShard.Position.Y.Whole,
             "last shard uses final signed Y offset");
@@ -283,7 +268,7 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile firstBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
-            projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x0048);
+            projectile.NoobTubeDebris.X.Whole == 0x0048);
         AssertEqual(0x0070, firstBubble.Position.Y.Whole,
             "first bubble uses its first absolute PLM-origin offset");
         AssertEqual(NoobTubeDebrisDefinitions.BubbleInitialYVelocity.RawValue,
@@ -291,7 +276,7 @@ internal static class NoobTubeObjectVerification
 
         EnemyProjectile lastBubble = enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.NoobTubeReleasedAirBubble &&
-            projectile.StateOf<NoobTubeDebrisState>().X.Whole == 0x00d8);
+            projectile.NoobTubeDebris.X.Whole == 0x00d8);
         AssertEqual(0x0074, lastBubble.Position.Y.Whole,
             "last bubble uses its final absolute PLM-origin offset");
 
@@ -299,11 +284,15 @@ internal static class NoobTubeObjectVerification
             "every burst actor retains the executing PLM block");
     }
 
-    /// <summary>Confirms event $0B skips every one-shot effect on subsequent room loads.</summary>
+    /// <summary>
+    /// Confirms event $0B skips every one-shot effect on subsequent room loads, and that the
+    /// solid BTS-$44 origin its setup leaves behind still takes shots and bombs (#2592).
+    /// </summary>
     private static void VerifyAlreadyBrokenNoobTube(
         TestAddressSpace bus,
         RoomLevelData level,
-        SamusState samus)
+        SamusState samus,
+        int blockIndex)
     {
         const ushort populationPointer = 0x9400;
         var projectiles = new List<NoobTubeProjectileRequest>();
@@ -328,6 +317,22 @@ internal static class NoobTubeObjectVerification
             "event-$0B reload keeps fully submerged movement underwater");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "already-broken n00b-tube branch never rereads program bytes");
+
+        // Setup $84:D6CC writes the solid BTS-$44 origin before the program sees event $0B
+        // and deletes the tube, so the broken tube's room keeps that block with no object on
+        // it. On the cartridge the hit lands on the deleted tube's slot and changes nothing;
+        // a wave beam or bomb reaching the block must not stop the game.
+        AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(blockIndex).CollisionType,
+            "already-broken n00b tube leaves its solid origin block");
+        AssertEqual(RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger),
+            level.GetCollisionBlockByIndex(blockIndex).Behavior,
+            "already-broken n00b tube leaves its BTS-$44 origin block");
+        BombExplosions.ExplodeBombAt(new RoomTerrain(level, roomObjects), level.BlockAt(blockIndex));
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(blockIndex),
+            BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false)));
+        AssertEqual(0, roomObjects.Places.ActiveCount, "hits on the deleted tube revive nothing");
+        StepNoobTube(roomObjects, level);
+        AssertEqual(0, projectiles.Count, "hits on the deleted tube spawn no break debris");
     }
 
     /// <summary>Rejects reads from the compiled tube instruction ranges while the fixture runs.</summary>

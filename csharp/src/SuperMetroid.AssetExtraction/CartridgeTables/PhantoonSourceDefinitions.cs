@@ -1,4 +1,6 @@
+using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses.Phantoon;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -6,8 +8,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Phantoon tables extraction reads (#1413): the import pipeline's private knowledge of
 /// the cartridge, decoded once into the installed Phantoon colour document.
 /// </summary>
-[EncodingOwner("cartridge addresses of Phantoon's colour tables")]
-internal static class PhantoonSourceDefinitions
+internal static partial class PhantoonSourceDefinitions
 {
     /// <summary>$A7:CB41, the eight consecutive sixteen-colour health palettes $A7:DC0F selects from.</summary>
     internal const int HealthBandColors = 0xa7cb41;
@@ -18,9 +19,31 @@ internal static class PhantoonSourceDefinitions
     /// <summary>$A7:CA61, the Wrecked Ship power-on target $A7:DC5A interpolates after Phantoon's death.</summary>
     internal const int PowerOnColors = 0xa7ca61;
 
+    /// <summary>The sixteen-colour health palette of <see cref="HealthBandColors"/> each health band shows, lowest band first.</summary>
+    internal static IReadOnlyDictionary<PhantoonHealthBand, int> HealthBandPalettes { get; } = new Dictionary<PhantoonHealthBand, int>
+    {
+        [PhantoonHealthBandDefinitions.BelowEighth] = 0,
+        [PhantoonHealthBandDefinitions.BelowQuarter] = 1,
+        [PhantoonHealthBandDefinitions.BelowThreeEighths] = 2,
+        [PhantoonHealthBandDefinitions.BelowHalf] = 3,
+        [PhantoonHealthBandDefinitions.BelowFiveEighths] = 4,
+        [PhantoonHealthBandDefinitions.BelowThreeQuarters] = 5,
+        [PhantoonHealthBandDefinitions.BelowSevenEighths] = 6,
+        [PhantoonHealthBandDefinitions.Unhurt] = 7,
+    };
+
     /// <summary>
-    /// The colours of the power-on target: the cartridge's background colours from the first through the seventh set in
-    /// its order, which the installed document keeps in that order and the import decodes into the sets they target.
+    /// The background colour group each part the power-on fades is painted in, which is also its sixteen colours' place in
+    /// <see cref="PowerOnColors"/>.
     /// </summary>
-    internal const int PowerOnColourCount = 112;
+    internal static IReadOnlyDictionary<WreckedShipPoweredPart, int> PowerOnGroups { get; } = new Dictionary<WreckedShipPoweredPart, int>
+    {
+        [WreckedShipPoweredPart.Shared] = 0,
+        [WreckedShipPoweredPart.GreenDoors] = 1,
+        [WreckedShipPoweredPart.MagentaDoors] = 2,
+        [WreckedShipPoweredPart.BlueDoors] = 3,
+        [WreckedShipPoweredPart.Foreground] = 4,
+        [WreckedShipPoweredPart.Background] = 5,
+        [WreckedShipPoweredPart.Lights] = 6,
+    };
 }

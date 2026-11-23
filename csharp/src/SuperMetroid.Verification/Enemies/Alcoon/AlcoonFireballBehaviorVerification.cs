@@ -1,6 +1,7 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
@@ -22,20 +23,27 @@ internal static class AlcoonFireballBehaviorVerification
     /// </summary>
     internal static void VerifyAlcoonFireballBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        // The Alcoon is placed as its room's population places it, standing in terrain that its setup's floor search meets at
+        // once; its volley's animation then spits its three fireballs, one at each of its fire cues, facing each way in turn.
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
-        source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
+        source.BindPlaced(EnemyDefinitionId.Alcoon, EnemySpawnSettings.None);
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 0x300));
+        AlcoonEnemyState state = enemies.AlcoonBehavior.InitializeAlcoon(source, PlacedEnemyAccess.SolidRoom(new(64, 64)));
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
-        var state = new AlcoonEnemyState(AlcoonAction.WaitingForSamus);
-        source.SetSpeciesState(state);
-        foreach (HorizontalDirection direction in new[] { HorizontalDirection.Left, HorizontalDirection.Right })
+        var context = new EnemyAnimationCueContext
+            { Samus = RoomEnemyFrameFixtures.StandaloneSamus(), Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Camera = Position16<RoomPixels>.Zero, ControllerInput = default };
+        foreach ((AlcoonWalk direction, AlcoonSegment volley) in new[] { (AlcoonWalk.Left, AlcoonSegment.FireLeft), (AlcoonWalk.Right, AlcoonSegment.FireRight) })
         {
             state.WalkingDirection = direction;
-            foreach (AlcoonFireballLaunch launch in new[] { AlcoonFireballLaunchDefinitions.Upward, AlcoonFireballLaunchDefinitions.Level, AlcoonFireballLaunchDefinitions.Downward })
-                enemies.AlcoonBehavior.SpawnAlcoonFireball(source, launch);
+            state.Playback = new(AlcoonAnimations.StartingWith(volley), AnimationPlace.StartOfAnimation);
+            source.AnimationClock.StepOnNextUpdate();
+            int spat = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball) + 3;
+            for (int update = 0; update < 200 && enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball) < spat; update++)
+                enemies.AlcoonBehavior.AdvanceAlcoonTypedAnimation(source.HeldOccupant(), source, state, context);
         }
         EnemyProjectile[] fireballs = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)];
         AssertEqual(6, fireballs.Length, "all three fire commands spawn in both facings");
@@ -47,7 +55,7 @@ internal static class AlcoonFireballBehaviorVerification
             AssertTrue(!deleted, "a fireball loops until it is shot or leaves");
         }
         fireballs[0].StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(fireballs[0], RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(fireballs[0], RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         AssertTrue(!fireballs[0].IsActive, "the shared shot list still deletes a fireball");
         foreach (EnemyProjectileFrameId frame in AlcoonFireballFrameToolingDefinitions.Frames)
         {

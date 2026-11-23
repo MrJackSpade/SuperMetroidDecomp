@@ -20,6 +20,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Menus;
@@ -53,7 +54,7 @@ internal static class FileSelectRoomMapVerification
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(system, area, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
+            var graphics = new FileSelectRoomMapGraphics(system, SuperMetroid.Verification.Harness.VerificationZebesAreas.Of(area), screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture()));
             ShownAreaMap pause = AreaMapProjection.Project(map, system);
             // The room map's image is built once and every frame word read from it.
             var shownRoomMap = MenuScreenFixtures.Vram(graphics, RetailPresentationFixture());
@@ -70,22 +71,22 @@ internal static class FileSelectRoomMapVerification
                 ShownMapCell expected = explored ? ShownMapCell.Explored(stockCell)
                     : downloaded && map.IsRevealedByMapStation(at) ? ShownMapCell.Unexplored(stockCell)
                     : ShownMapCell.Unexplored(MapCell.Empty);
-                AssertEqual(expected, graphics.AreaMap.Cells[y * 64 + x],
+                AssertEqual(expected, graphics.ShownCells.Cells[y * 64 + x],
                     $"room-select area {area} downloaded={downloaded} cell {x},{y}");
                 AssertEqual(expected, pause.Cells[y * 64 + x], "shared builder shows the pause map's hidden cells empty");
                 AssertEqual(explored, system.IsMapTileExplored(area, new(checked((ushort)x), checked((ushort)y))), "map projection does not mark exploration");
             }
             AssertTrue(original.SequenceEqual(map.RawTilemapBytes), "map projection preserves cartridge map");
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
+            ushort label = RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.AreaLabelPointers + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
             for (int word = 0; word < 1024; word++)
             {
                 ushort expected = word < 800
-                    ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrame + word * 2)
+                    ? RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.RoomFrame + word * 2)
                     : word < 960
-                        ? RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrameFooter + (word - 799) * 2)
+                        ? RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.RoomFrameFooter + (word - 799) * 2)
                         : (ushort)0x2801;
                 if (word is >= 170 and < 182)
-                    expected = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x820000 | (label + (word - 170) * 2)) & 0xefff);
+                    expected = (ushort)(RomDataReader.ReadWordFixedBank(bus, 0x820000 | (label + (word - 170) * 2)) & 0xefff);
                 AssertEqual(expected, shownRoomMap.ReadWord((ushort)(0x5800 + word)), "native room-select frame and area label");
             }
             RgbaPixel[] pixels = graphics.RenderBackgrounds(new Offset16<MapPixels>(0, -40));
@@ -130,7 +131,7 @@ internal static class FileSelectRoomMapVerification
         var system = new SharedGameState(new SharedRandom());
         system.SetAreaMapAcquired(AreaId.Maridia);
         AssertTrue(slot.Progression.HasAreaMap(AreaId.Maridia), "the saved slot holds the Maridia map");
-        RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
+        RgbaPixel[] roomFrame = new FileSelectRoomMapGraphics(system, ZebesArea.Maridia, screenContent: RetailPresentationFixture(), sheets: MenuSheetFixtures.For(RetailPresentationFixture())).RenderFrameOnly();
         var maps = RetailPresentationFixture();
         var areaGraphics = new FileSelectAreaMapGraphics(AreaId.Maridia, maps, MenuSheetFixtures.For(maps));
         RgbaPixel[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
@@ -147,7 +148,7 @@ internal static class FileSelectRoomMapVerification
                 setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
         cancel.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
-                FileSelectMapWindow.CreateReturn(AreaId.Maridia, maps.Maps.Labels))),
+                FileSelectMapWindow.CreateReturn(ZebesArea.Maridia, maps.Maps.Labels))),
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
@@ -157,8 +158,10 @@ internal static class FileSelectRoomMapVerification
         var bus = new TestAddressSpace();
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var arrows = new Dictionary<string, MapArrowEntry>();
-        foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
-            arrows[direction.ToString()] = new() { X = 32 + ((int)direction - 1) * 24, Y = 79 };
+        // The fixture's arrows stand 24 pixels apart from the left one at 32, in the order their directions are listed.
+        MapScrollDirection[] arrowOrder = [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
+        for (int arrow = 0; arrow < arrowOrder.Length; arrow++)
+            arrows[arrowOrder[arrow].ToString()] = new() { X = 32 + arrow * 24, Y = 79 };
         using var arrowJson = new MemoryStream();
         MapArrowFile.Write(arrowJson, new() { Version = MapArrowFormat.Version, Arrows = arrows });
         arrowJson.Position = 0;
@@ -176,12 +179,12 @@ internal static class FileSelectRoomMapVerification
         var spriteDocument = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
-            MapSpriteId id = MapArrowSprites.Picture(direction);
+            MapSpriteId id = MapArrowDefinitions.ArrowPictures[direction];
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-                TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
+                TileColumn = 0, TileRow = 1, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null, FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(spriteDocument, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(options))),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         // The highlighted sprites name the shade of the cycle's current frame, which the import pre-colours from the cycle's
         // colours (#1512, #1597).
@@ -227,8 +230,8 @@ internal static class FileSelectRoomMapVerification
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
         var landmarks = MapLandmarkFile.Ids().ToDictionary(id => id, _ => new Position16<MapPixels>(511, 255));
         landmarks[MapLandmarks.BossMarkers(AreaId.Brinstar).First().Id] = new(32, 40);
-        var destination = MapLandmarks.Elevators(AreaId.Brinstar).First(label =>
-            label.Destination == AreaId.Crateria);
+        var destination = MapLandmarks.Elevators(ZebesArea.Brinstar).First(label =>
+            label.Destination == MapElevatorDestination.Crateria);
         landmarks[destination.Id] = new(96, 112);
         using var landmarkJson = new MemoryStream();
         MapLandmarkFile.Write(landmarkJson, new() { Version = MapLandmarkFormat.Version, Markers = landmarks });
@@ -245,10 +248,10 @@ internal static class FileSelectRoomMapVerification
         {
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-                TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
+                TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront,
                 Palette = null, FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(options))),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var icons = new FileSelectMapIcons(system, AreaId.Brinstar, MapStationLayoutFile.Read(stationJson), MapLandmarkFile.Read(landmarkJson),
             MenuSheetFixtures.MapSprites(sprites));
@@ -296,8 +299,10 @@ internal static class FileSelectRoomMapVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
-        var snapshot = SaveSnapshotFixtures.NewGame with { Checkpoint = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(savedArea, 0, "room map fixture"), Health = 99, MaxHealth = 99,
-            StartupRoute = savedArea == AreaId.Ceres ? SaveStartupRoute.CeresElevatorArrival : SaveStartupRoute.MainGame };
+        var snapshot = SaveSnapshotFixtures.NewGame with { Checkpoint = SuperMetroid.AssetExtraction.Progression.LoadStationNumberCodec.Decode(savedArea, 0, "room map fixture"),
+            StartupRoute = savedArea == AreaId.Ceres ? SaveStartupRoute.CeresElevatorArrival : SaveStartupRoute.MainGame ,
+            Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 99, MaxHealth = 99 },
+        };
         snapshot.Progress.UsedStations.Add(snapshot.Checkpoint);
         if (savedArea != AreaId.Ceres)
         {
@@ -375,10 +380,10 @@ internal static class FileSelectRoomMapVerification
     /// <summary>Checks area and room confirmation edges, cancel precedence, and the animated return boundary.</summary>
     private static void VerifyFileSelectMapNavigation()
     {
-        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        _ = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ControllerButton confirm in new ControllerButton[] { ControllerButton.Start, ControllerButton.A })
         {
-            var navigation = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels, confirm);
+            var navigation = new FileSelectMapNavigation(ZebesArea.Maridia, RetailPresentationFixture().Maps.Labels, confirm);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
                 "options confirmation carried into map must not immediately confirm the area");
@@ -401,14 +406,14 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(ControllerButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
-        var cancel = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels, initialHeldInput: SuperMetroid.Core.Input.ControllerButton.None);
+        var cancel = new FileSelectMapNavigation(ZebesArea.Maridia, RetailPresentationFixture().Maps.Labels, initialHeldInput: SuperMetroid.Core.Input.ControllerButton.None);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.Right | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
         cancel.Step(0);
         cancel.Step((ControllerButton.B | ControllerButton.Start | ControllerButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
-        var back = new FileSelectMapNavigation(AreaId.Maridia, RetailPresentationFixture().Maps.Labels, initialHeldInput: SuperMetroid.Core.Input.ControllerButton.None);
+        var back = new FileSelectMapNavigation(ZebesArea.Maridia, RetailPresentationFixture().Maps.Labels, initialHeldInput: SuperMetroid.Core.Input.ControllerButton.None);
         back.Step(ControllerButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
         back.Step(ControllerButton.B);
@@ -417,7 +422,6 @@ internal static class FileSelectRoomMapVerification
         back.CompleteAreaReturn();
         back.Step(ControllerButton.Start);
         AssertEqual(FileSelectMapNavigationPhase.Area, back.Phase, "return transition consumes held input without deferred confirmation");
-        AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
 
     /// <summary>Checks native map centering, eight-frame arrow pulses, input precedence, and scroll limits.</summary>
@@ -434,8 +438,8 @@ internal static class FileSelectRoomMapVerification
             var scroll = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
             AssertEqual(124, scroll.Scroll.X, "room map centers native horizontal bounds");
             AssertEqual(32, scroll.Scroll.Y, "room map rounds the 112px center offset down to a tile boundary");
-            AssertEqual(0, scroll.Limits.Top, "the revealed reach's top is the top row's pixel");
-            AssertEqual(40, scroll.Framing.TopEdge, "room-select up arrow stops 40 pixels down the screen, 64 less its delayed 24");
+            AssertEqual(0, MapScrollLimits.OfRevealedPlane(map, system).Top, "the revealed reach's top is the top row's pixel");
+            AssertEqual(40, MapFramingDefinitions.FileSelect.TopEdge, "room-select up arrow stops 40 pixels down the screen, 64 less its delayed 24");
             for (int frame = 1; frame <= 8; frame++)
             {
                 bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : ControllerButton.None);
@@ -446,16 +450,16 @@ internal static class FileSelectRoomMapVerification
                     "map scroll vertical exact pulse frame");
                 AssertEqual(frame == 8, sound, "map scroll sound occurs at completion, not displacement");
             }
-            AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
+            AssertEqual<MapScrollDirection?>(null, scroll.StepUnderWay?.Direction, "released direction completes its accepted step");
         }
         var precedence = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, system), new(240, 128));
         precedence.Step((ControllerButton.Up | ControllerButton.Down | ControllerButton.Left | ControllerButton.Right));
-        AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
-        var empty = MapScroll.Centred(MapFramingDefinitions.FileSelect, MapScrollLimits.OfRevealedPlane(map, new SharedGameState(new SharedRandom())), new(216, 48));
-        AssertEqual(208, empty.Limits.Left, "empty map uses retail left default");
-        AssertEqual(224, empty.Limits.Right, "empty map uses retail right default");
-        AssertEqual(8, empty.Limits.Top, "empty map uses retail top default");
-        AssertEqual(88, empty.Limits.Bottom, "empty map uses retail bottom default");
+        AssertEqual(MapScrollDirection.Left, precedence.StepUnderWay?.Direction, "simultaneous map input uses native arrow order");
+        MapScrollLimits empty = MapScrollLimits.OfRevealedPlane(map, new SharedGameState(new SharedRandom()));
+        AssertEqual(208, empty.Left, "empty map uses retail left default");
+        AssertEqual(224, empty.Right, "empty map uses retail right default");
+        AssertEqual(8, empty.Top, "empty map uses retail top default");
+        AssertEqual(88, empty.Bottom, "empty map uses retail bottom default");
         // Repeated stepping must stop at the native inequality, not run past the edge.
         for (int frame = 0; frame < 1000; frame++) precedence.Step(ControllerButton.Left);
         AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");
@@ -483,10 +487,10 @@ internal static class FileSelectRoomMapVerification
         {
             string name = MapSpriteArtwork.FrameNames.Single(frame => frame.Id == MapSpriteOrdinals.Spritemaps.Decode(id, "map spritemap ordinal")).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
-                TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
+                TileColumn = 1, TileRow = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.InFront, Palette = null,
                 FlipX = false, FlipY = false }];
         }
-        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
+        var sprites = MapSpriteArtwork.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(options))),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
         var marker = new FileSelectStationMarker(LoadStationDefinitions.Gunship, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];

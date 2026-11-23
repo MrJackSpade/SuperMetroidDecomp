@@ -9,8 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The bank-$8D spritemap each enemy-projectile composition frame is stored at, and each picture of the Ceres elevator
 /// arrival's pad and platform, which the cartridge composes in the same bank (#2425).
 /// </summary>
-[EncodingOwner("bank-$8D addresses of the enemy-projectile spritemaps")]
-internal static class EnemyProjectileCompositionDefinitions
+internal static partial class EnemyProjectileCompositionDefinitions
 {
     /// <summary>The empty bank-$8D projectile spritemap at $8D:8000, which draws nothing.</summary>
     internal const ushort BlankSpritemap = 0x8000;

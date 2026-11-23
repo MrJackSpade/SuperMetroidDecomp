@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Diagnostics.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
@@ -16,6 +18,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.World;
 namespace SuperMetroid.Verification.Frontend.CeresCinematics;
 using SuperMetroid.Verification.Harness;
 
@@ -42,12 +45,12 @@ internal static class CeresSaveStartupVerification
             Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator,
             StartupRoute = SaveStartupRoute.CeresDestruction,
             Progress = departureProgress,
-            Health = 77,
             GameTime = new SuperMetroid.Core.Progression.GameClockReading(frames: 44, seconds: 11, minutes: 2, hours: 0),
+            Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 77 },
         };
         var saves = new SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(SaveSlot.A, departure);
-        var game = new SuperMetroidGame(saves);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
         Action<SuperMetroidGame, bool> bind = BindInstalledArtwork(InstalledFixtures.GameArtwork, enemyArtwork: null);
         bind(game, true);
         game.BindArtwork(game.Artwork with
@@ -55,7 +58,7 @@ internal static class CeresSaveStartupVerification
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         options.SkipToPhase(GameOptionsPhase.StartGame);
         game.Session.Show(options);
         game.Session.ContinueSavedGame();
@@ -68,7 +71,7 @@ internal static class CeresSaveStartupVerification
         AssertTrue(runtime.Room.ActiveRoom is null, "#1153 destruction load creates no Ceres room");
         AssertTrue(runtime.System.HasDefeatedAnyOf(AreaId.Ceres, DefeatedBosses.AreaBoss),
             "#1153 destruction load retains the defeated-Ridley flag");
-        AssertEqual(77, runtime.Player.IntroducedSamus.Health, "#1153 destruction load retains energy");
+        AssertEqual(77, runtime.Player.Samus.Health, "#1153 destruction load retains energy");
         AssertEqual(2, runtime.GameTime.Minutes, "#1153 destruction load retains minutes");
         AssertEqual(11, runtime.GameTime.Seconds, "#1153 destruction load retains seconds");
         AssertEqual(44, runtime.GameTime.Frames, "#1153 destruction load retains frames");
@@ -92,7 +95,7 @@ internal static class CeresSaveStartupVerification
 
         // A new game must write $1F before capturing the initial checkpoint. Reuse
         // immutable installed catalogs, but enter only the one reported room.
-        var fresh = new SuperMetroidGame(new SaveSlotStore(RetailPresentationFixture()));
+        var fresh = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SaveSlotStore(RetailPresentationFixture()));
         bind(fresh, true);
         fresh.BindArtwork(fresh.Artwork with
         {
@@ -109,14 +112,14 @@ internal static class CeresSaveStartupVerification
 
         // Reload the captured initial checkpoint through options, not Load State.
         var reloadSaves = SaveRamCodec.Decode(SaveRamCodec.Encode(fresh.Saves, RetailPresentationFixture()), RetailPresentationFixture());
-        var reload = new SuperMetroidGame(reloadSaves);
+        var reload = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(reloadSaves);
         bind(reload, true);
         reload.BindArtwork(reload.Artwork with
         {
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var reloadOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var reloadOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         reloadOptions.SkipToPhase(GameOptionsPhase.StartGame);
         reload.Session.Show(reloadOptions);
         reload.Session.ContinueSavedGame();
@@ -138,14 +141,14 @@ internal static class CeresSaveStartupVerification
         // #1275: the game-over menu runs no gameplay owner, so its updates keep counting
         // accepted NMIs in the frontend, and Yes on a $1F save reloads Ceres directly
         // ($81:9171) instead of fading into the area map.
-        var gameOverProbe = new SuperMetroidGame(reloadSaves);
+        var gameOverProbe = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(reloadSaves);
         bind(gameOverProbe, true);
         gameOverProbe.BindArtwork(gameOverProbe.Artwork with
         {
             RoomObjectBlueDoorVisuals = blueDoorVisuals,
             RoomObjectElevatorPlatformVisuals = elevatorPlatformVisuals,
         });
-        var probeOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var probeOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         probeOptions.SkipToPhase(GameOptionsPhase.StartGame);
         gameOverProbe.Session.Show(probeOptions);
         gameOverProbe.Session.ContinueSavedGame();
@@ -158,7 +161,7 @@ internal static class CeresSaveStartupVerification
         // survive game over into the reloaded room.
         var deathCamera = gameOverProbe.GameplayRuntimeForVerification.Room.LoadedCamera;
         deathCamera.Position = deathCamera.Position.WithFractionX(0xbfff).WithFractionY(0x9c00);
-        gameOverProbe.Session.DeathFade.Restart(1, 0);
+        gameOverProbe.Session.DeathFade.Restart(DisplayBrightness.Black.Brighter(1), 0);
         gameOverProbe.Session.Enter(DeathSequenceStep.FinalBlackOut);
         gameOverProbe.Step(0);
         AssertEqual(SuperMetroidGameState.GameOverMenu, gameOverProbe.GameState, "#1275 state $19 reaches the game-over menu");
@@ -169,7 +172,10 @@ internal static class CeresSaveStartupVerification
             gameOverProbe.Session.frameClock.Counter,
             "#1275 accepted NMIs keep counting through the game-over menu");
         var probeMenu = gameOverProbe.Session.ScreenAs<GameOverMenuState>();
-        (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).SkipToPhase(GameOverMenuPhase.Main);
+        // The game runs the menu's opening until its fade-in reaches full brightness and it takes answers.
+        GameOverMenuState answering = probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.");
+        while (!answering.ComposeScene().Brightness.IsFull)
+            gameOverProbe.Step(0);
         gameOverProbe.Step(0);
         gameOverProbe.Step(ControllerButton.A);
         AssertTrue(gameOverProbe.IsAt(GameDataLoadRoute.SelectedGame),
@@ -192,7 +198,7 @@ internal static class CeresSaveStartupVerification
         // Stub only the already-reported landing event, not an entire flight.
         // The production landing saver must reset $22 to $05 for later saves.
         loaded.Enemies.PassEvents.Publish(new GunshipEvent(GunshipFrameEvent.LandingCompleted));
-        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, SaveSlot.A),
+        AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadSaves, loaded, loaded.Room.LoadedScope, SaveSlot.A),
             "#1153 landing checkpoint uses the production event saver");
         var landingSlot = reloadSaves.ReadSlot(SaveSlot.A);
         AssertEqual(SaveStartupRoute.MainGame, (landingSlot ?? throw new InvalidOperationException("Verification requires landingSlot.")).StartupRoute,
@@ -206,12 +212,12 @@ internal static class CeresSaveStartupVerification
         {
             StartupRoute = SaveStartupRoute.MainGame,
         });
-        var unmodified = new SuperMetroidGame(saves);
+        var unmodified = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
         unmodified.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = maps,
         });
-        var oldOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var oldOptions = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         oldOptions.SkipToPhase(GameOptionsPhase.StartGame);
         unmodified.Session.Show(oldOptions);
         unmodified.Session.ContinueSavedGame();

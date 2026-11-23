@@ -35,26 +35,26 @@ internal static class AutoCancelledItemVerification
         foreach (bool autoCancelled in new[] { true, false })
         {
             SamusState samus = InstalledFixtures.CreateSamus();
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
             samus.SelectedHudItem = HudItem.Grapple;
-            samus.AutoCancelledItem = autoCancelled ? HudItem.Grapple : HudItem.Beam;
+            samus.AutoCancelledItem = autoCancelled ? HudItem.Grapple : null;
             samus.Grapple.Phase = phase;
             samus.LiquidPhysics.BeginFrameSoundRequests();
 
             GrappleMovementResult ended = phase == GrapplePhase.CancelPending
                 ? SamusGrappleMovement.CompleteFiringCancellation(air, samus)
-                : SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                : SamusGrappleMovement.StepAndCommit(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
 
             AssertEqual(GrapplePhase.Inactive, ended.Phase, $"the grapple's {ending} ends it");
             AssertEqual(autoCancelled ? HudItem.Beam : HudItem.Grapple, samus.SelectedHudItem,
                 autoCancelled
                     ? $"the grapple's {ending} returns an auto-cancelled Grapple to the beams"
                     : $"the grapple's {ending} keeps a Grapple chosen without Item Cancel");
-            AssertEqual(HudItem.Beam, samus.AutoCancelledItem, $"the grapple's {ending} leaves no auto-cancel");
+            AssertEqual<HudItem?>(null, samus.AutoCancelledItem, $"the grapple's {ending} leaves no auto-cancel");
         }
         Console.WriteLine("  Auto-cancel: each of the grapple's four endings returns an auto-cancelled Grapple to the beams.");
     }
@@ -71,14 +71,13 @@ internal static class AutoCancelledItemVerification
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
                 SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 Health = 99,
                 MaxHealth = 99,
                 EquippedItems = SamusEquipmentFlags.XrayScope,
                 SelectedHudItem = HudItem.XRay,
-                AutoCancelledItem = autoCancelled ? HudItem.XRay : HudItem.Beam,
-            };
+                AutoCancelledItem = autoCancelled ? HudItem.XRay : null,
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusMovementType.Standing,
@@ -97,7 +96,7 @@ internal static class AutoCancelledItemVerification
                 autoCancelled
                     ? "X-ray's end returns an auto-cancelled X-ray to the beams"
                     : "X-ray's end keeps an X-ray chosen without Item Cancel");
-            AssertEqual(HudItem.Beam, samus.AutoCancelledItem, "X-ray's end leaves no auto-cancel");
+            AssertEqual<HudItem?>(null, samus.AutoCancelledItem, "X-ray's end leaves no auto-cancel");
         }
         Console.WriteLine("  Auto-cancel: X-ray's end returns an auto-cancelled X-ray to the beams.");
     }

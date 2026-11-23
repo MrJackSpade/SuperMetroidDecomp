@@ -5,7 +5,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The state of one half of Tourian's Zebetite barrier.</summary>
-public sealed class ZebetiteEnemyState
+public sealed partial class ZebetiteEnemyState
 {
     /// <summary>
     /// Creates the state for one Zebetite half from its spawn parameters: its pairing. It has no linked half until a
@@ -13,7 +13,9 @@ public sealed class ZebetiteEnemyState
     /// </summary>
     internal ZebetiteEnemyState(RoomEnemyPlacement population)
     {
-        Half = population.SpawnSettingsOf<ZebetiteSpawnSettings>().Half;
+        Half = (population.SpawnSettings is ZebetiteSpawnSettings settings
+            ? settings
+            : throw new InvalidDataException($"A Zebetite's population entry carries {population.SpawnSettings}, not its half.")).Half;
         // A primary half first spawns its linked half, which itself waits out the door transition.
         Action = Half == ZebetiteHalf.Linked ? ZebetiteAction.WaitForDoorTransition : ZebetiteAction.SpawnLinkedHalf;
     }
@@ -37,7 +39,7 @@ public sealed class ZebetiteEnemyState
 
     /// <summary>
     /// The picture this half shows, chosen by its form and health (#2250): by its setup, then by each active update; none
-    /// before its setup chose one.
+    /// for a half set up once every barrier is destroyed, which its setup deletes, so it shows nothing.
     /// </summary>
     internal EnemyFrameId? Picture { get; set; }
 

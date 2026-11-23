@@ -22,8 +22,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// velocity check compare the run with that chained arithmetic, and the Baby Metroid gradual acceleration check reproduces the
 /// recorded first rise after the Baby Metroid drains the Sidehopper.
 /// </remarks>
-[CompatibilityService("a seeking boss's acceleration step that takes its velocity across zero makes the next step one 256th of a pixel larger, and a target past the coordinate space's end lengthens the first")]
-internal struct SeekingVelocityRun
+internal partial struct SeekingVelocityRun
 {
     /// <summary>The units a velocity counts through, in 256ths of a pixel an update, before it continues from the other end.</summary>
     private const int VelocityUnits = 65536;

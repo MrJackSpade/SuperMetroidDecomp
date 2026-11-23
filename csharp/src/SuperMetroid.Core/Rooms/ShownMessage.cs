@@ -14,20 +14,17 @@ namespace SuperMetroid.Core.Rooms;
 /// when its action is bound to no button the glyph can show, or null for a message that names no button.
 /// </param>
 /// <param name="Choice">The answer a save confirmation highlights, or null for a message that offers no choice.</param>
-public readonly record struct ShownMessage(GameplayMessageId Message, ControllerButton? Button, SaveChoice? Choice)
+public readonly partial record struct ShownMessage(GameplayMessageId Message, ControllerButton? Button, SaveChoice? Choice)
 {
     /// <summary>The name of the installed image of this form.</summary>
-    [InstalledKey]
     public string FrameName => GameplayMessageIdKeys.Installed.Of(Message) + ButtonName + ChoiceName;
 
     /// <summary>The button part of <see cref="FrameName"/>.</summary>
-    [InstalledKey]
     private string ButtonName => Button is not { } button ? ""
         : button == ControllerButton.None ? ".Unbound"
         : "." + ControllerButtonKeys.Installed.Of(button);
 
     /// <summary>The choice part of <see cref="FrameName"/>.</summary>
-    [InstalledKey]
     private string ChoiceName => Choice switch
     {
         null => "",

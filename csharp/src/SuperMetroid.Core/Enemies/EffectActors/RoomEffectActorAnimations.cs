@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// beat shows a <see cref="RoomEffectActorPicture"/>: an enemy-sheet frame or, for the hit burst, one of Samus's burst
 /// pictures (#1817).
 /// </summary>
-internal static class RoomEffectActorAnimations
+internal static partial class RoomEffectActorAnimations
 {
     /// <summary>How many times a Metroid's shell flickers at its usual size as its first pass starts.</summary>
     private const int ShellFirstFlickers = 7;
@@ -30,8 +30,8 @@ internal static class RoomEffectActorAnimations
     /// Every room effect actor's runs (#2275, #2369): the run each actor starts with, the beats it shows, and a Metroid's
     /// electricity's and shell's cycles, which their first pass runs on into.
     /// </summary>
-    internal static AnimationSegments<RoomEffectActorSegment, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<RoomEffectActorSegment, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>
+    internal static UnpausedAnimationSegments<RoomEffectActorSegment, RoomEffectActorPicture, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<RoomEffectActorSegment, AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused[]>
     {
         [P.Of(K.DraygonFoam)] =
         [
@@ -179,32 +179,32 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftCrackleFlat, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftCrackleArched, 1),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftCrackleFlat, 3),
-            Show(EnemyFrameId.Empty, 4),
+            Show(EnemyFrameId.PointAtOrigin, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightForkHooked, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightForkBent, 5),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightForkZigzag, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightForkBent, 1),
-            Show(EnemyFrameId.Empty, 4),
+            Show(EnemyFrameId.PointAtOrigin, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityLeftArcArched, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityLeftArcKnotTip, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityLeftArcFlat, 4),
-            Show(EnemyFrameId.Empty, 7),
+            Show(EnemyFrameId.PointAtOrigin, 7),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkHooked, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkBent, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkZigzag, 1),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkBent, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkZigzag, 3),
-            Show(EnemyFrameId.Empty, 4),
+            Show(EnemyFrameId.PointAtOrigin, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadBoltHooked, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadBoltBent, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadBoltZigzag, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadBoltHooked, 3),
-            Show(EnemyFrameId.Empty, 1),
+            Show(EnemyFrameId.PointAtOrigin, 1),
             Show(EnemyFrameId.EffectActorMetroidElectricityRightArcArched, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityRightArcKnotted, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityRightArcFlat, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityRightArcKnotted, 2),
-            Show(EnemyFrameId.Empty, 7),
+            Show(EnemyFrameId.PointAtOrigin, 7),
         ],
         [P.MetroidElectricityCycle] =
         [
@@ -213,29 +213,29 @@ internal static class RoomEffectActorAnimations
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightCrackleFlat, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightCrackleArched, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightCrackleFlat, 1),
-            Show(EnemyFrameId.Empty, 3),
+            Show(EnemyFrameId.PointAtOrigin, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadSparkForked, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadSparkKinked, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadSparkSlanted, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadSparkForked, 1),
-            Show(EnemyFrameId.Empty, 3),
+            Show(EnemyFrameId.PointAtOrigin, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightCrackleArched, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightCrackleFlat, 4),
-            Show(EnemyFrameId.Empty, 32),
+            Show(EnemyFrameId.PointAtOrigin, 32),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftCrackleArched, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftCrackleKnotted, 1),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftCrackleFlat, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftCrackleArched, 1),
-            Show(EnemyFrameId.Empty, 4),
+            Show(EnemyFrameId.PointAtOrigin, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadBoltHooked, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadBoltBent, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityOverheadBoltZigzag, 5),
-            Show(EnemyFrameId.Empty, 4),
+            Show(EnemyFrameId.PointAtOrigin, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkHooked, 2),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkBent, 1),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkZigzag, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperLeftForkHooked, 1),
-            Show(EnemyFrameId.Empty, 6),
+            Show(EnemyFrameId.PointAtOrigin, 6),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightForkHooked, 3),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightForkBent, 4),
             Show(EnemyFrameId.EffectActorMetroidElectricityUpperRightForkZigzag, 2),
@@ -322,19 +322,19 @@ internal static class RoomEffectActorAnimations
     /// A Metroid's shell flickering <paramref name="times"/> times (#2369): <paramref name="frame"/> for an update, then
     /// nothing for an update.
     /// </summary>
-    private static IEnumerable<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>> Flickering(EnemyFrameId frame, int times) =>
-        Enumerable.Repeat<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>[]>([Show(frame, 1), Show(EnemyFrameId.Empty, 1)], times)
+    private static IEnumerable<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused> Flickering(EnemyFrameId frame, int times) =>
+        Enumerable.Repeat<AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused[]>([Show(frame, 1), Show(EnemyFrameId.PointAtOrigin, 1)], times)
             .SelectMany(flicker => flicker);
 
     /// <summary>A still picture (#2275): enemy-sheet frame <paramref name="frame"/>, held from the update it shows.</summary>
-    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Hold(EnemyFrameId frame) =>
+    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused Hold(EnemyFrameId frame) =>
         new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.HeldFrame(RoomEffectActorPicture.OfEnemyFrame(frame));
 
     /// <summary>Shows enemy-sheet frame <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Show(EnemyFrameId frame, int duration) =>
+    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused Show(EnemyFrameId frame, int duration) =>
         new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame(RoomEffectActorPicture.OfEnemyFrame(frame), duration);
 
     /// <summary>Shows Samus's hit-burst sprite <paramref name="sprite"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue> Burst(ProjectileSpriteId sprite, int duration) =>
+    private static AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Unpaused Burst(ProjectileSpriteId sprite, int duration) =>
         new AnimationBeat<RoomEffectActorPicture, NoAnimationCue>.Frame(RoomEffectActorPicture.OfHitBurst(sprite), duration);
 }

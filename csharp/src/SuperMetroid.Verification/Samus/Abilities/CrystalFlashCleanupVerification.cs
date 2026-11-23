@@ -42,7 +42,7 @@ internal static class CrystalFlashCleanupVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         // Keep the constructed clearing visible; the old mechanics-only fixture
         // left the displayed camera at zero, outside the tested Samus trajectory.
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite, camera: new Position16<RoomPixels>(384, 384));
@@ -58,9 +58,9 @@ internal static class CrystalFlashCleanupVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.Health = 49; samus.MaxHealth = 1499;
         samus.Missiles = samus.MaxMissiles = 10;
@@ -73,7 +73,7 @@ internal static class CrystalFlashCleanupVerification
         SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0);
         ushort startingY = samus.Position.Y.Whole;
-        runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
+        runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]);
         AssertEqual(capacity - 1, samus.PowerBombs, "normal placement consumes one Power Bomb");
         ControllerButton chord = (ControllerButton.Down | ControllerButton.L | ControllerButton.R | ControllerButton.X);
         int started = -1, finished = -1;
@@ -95,11 +95,11 @@ internal static class CrystalFlashCleanupVerification
                     assertEffect: collected => AssertEqual(10, collected.PowerBombs,
                         "refill after placement reaches ten without increasing capacity"));
             }
-            bool active = samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive;
+            bool active = samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive;
             bool testContact = capacity == 11 && started >= 0 && frame == started + 30;
             if (testContact)
             {
-                AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
+                AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), samus.CrystalFlash.Phase,
                     "contact fixture enters the intended ammo-drain phase");
                 // Replace the population at the contact boundary; retain retail AI,
                 // header damage and the runtime's ordinary collision ordering. A
@@ -108,7 +108,7 @@ internal static class CrystalFlashCleanupVerification
                 runtime.ReplaceRoomEnemiesForVerification(contactBus, new StandaloneRoomEnemyServices(() => 1), RoomEnemyFrameFixtures.StandaloneLoad(contactBus.ReadEnemyPopulation(CrystalFlashContactDefinitions.Pointer), BgArtworkFixtures.For(runtime.Vram), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), samus));
                 // Its placement selects the standing-still speed, so it stays at the contact position (#2450).
                 contactEnemy = runtime.Enemies.Places.InUpdateOrder[0];
-                AssertEqual(SignedSixteenSixteen.Zero, contactEnemy.SpawnSettings<RipperSpawnSettings>().Speed,
+                AssertEqual(SignedSixteenSixteen.Zero, contactEnemy.HeldOccupant().SpawnSettings<RipperSpawnSettings>().Speed,
                     "the contact Ripper's placement holds it still");
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
@@ -139,16 +139,16 @@ internal static class CrystalFlashCleanupVerification
                 contactVerified = true;
                 Console.WriteLine($"Runtime Crystal Flash contact: health {beforeHealth}->{samus.Health}, retail damage={contactDamage}; no retained immunity or knockback.");
             }
-            if (started < 0 && samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive) started = frame;
-            bubble |= runtime.BombProjectiles.PowerBombExplosion.Blast.Phase == PowerBombExplosionPhase.CrystalFlashExplosion;
-            drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
+            if (started < 0 && samus.CrystalFlash.Phase is not CrystalFlashPhase.Inactive) started = frame;
+            bubble |= runtime.BombProjectiles.PowerBombExplosion.Blast.Phase is PowerBombExplosionPhase.Running.CrystalFlashExplosion;
+            drained |= samus.CrystalFlash.Phase is CrystalFlashPhase.Moving.DrainingAmmo;
             if (started >= 0)
             {
                 scenes.Add(VerifyCrystalFlashVisualFrame(runtime, bus, frame - started));
                 AssertEqual(512, samus.Position.X.Whole, "Crystal Flash owns horizontal movement");
                 AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.Position.Y.Whole,
                     "held Jump cannot replace the native Crystal Flash vertical trajectory");
-                if (samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive) { finished = frame; break; }
+                if (samus.CrystalFlash.Phase is CrystalFlashPhase.Inactive) { finished = frame; break; }
             }
         }
         VerifyCrystalFlashVisualFrameResult[] visibility = CrystalFlashVisualsVerification.Visibility(scenes);

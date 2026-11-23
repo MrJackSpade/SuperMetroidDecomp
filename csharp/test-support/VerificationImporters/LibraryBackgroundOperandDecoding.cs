@@ -63,7 +63,6 @@ internal static class LibraryBackgroundOperandDecoding
         LibraryBackgroundSource.SkyPage sky => LibraryBackgroundOperands.SkyPageAddress(sky.Page),
         LibraryBackgroundSource.StatueGhostCharacters => RoomBackgroundSourceDefinitions.TourianStatueGhostCharacters,
         LibraryBackgroundSource.HudCharacterSet => MapSourceDefinitions.Artwork.HudCharacters,
-        LibraryBackgroundSource.NothingRead => throw new ArgumentOutOfRangeException(nameof(source), source, "A clear command reads nothing."),
         _ => throw new ArgumentOutOfRangeException(nameof(source), source, "Unknown library-background source."),
     };
 
@@ -105,9 +104,6 @@ internal static class LibraryBackgroundOperandDecoding
         throw new InvalidDataException($"No library-background destination starts at VRAM word ${word:X4}.");
     }
 
-    /// <summary>The destination a decompression to bank-$7E offset <paramref name="offset"/> fills: always the tilemap staging.</summary>
-    /// <exception cref="InvalidDataException">The decompression stages elsewhere.</exception>
-    internal static LibraryBackgroundDestination DecompressionDestination(ushort offset) =>
-        offset == TilemapStagingOffset ? LibraryBackgroundDestination.TilemapStaging
-            : throw new InvalidDataException($"A library-background decompression stages at $7E:{offset:X4}, not the tilemap staging.");
+    /// <summary>Whether a decompression to bank-$7E offset <paramref name="offset"/> fills the tilemap staging, as every one does.</summary>
+    internal static bool StagesInTilemapStaging(ushort offset) => offset == TilemapStagingOffset;
 }

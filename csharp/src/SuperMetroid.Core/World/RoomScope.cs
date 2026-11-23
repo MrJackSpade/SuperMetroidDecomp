@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
@@ -8,7 +9,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Samus.Movement;
@@ -21,8 +21,7 @@ namespace SuperMetroid.Core.World;
 /// whole by the next load. Nothing in it survives into another room; values a destination reads from its source room
 /// travel through <see cref="RoomTransitionCarryOver"/> instead (#1329).
 /// </summary>
-[RoomLifetime]
-internal sealed record RoomScope
+internal sealed partial record RoomScope
 {
     /// <summary>The door whose destination this room is, or the load station's synthetic door.</summary>
     public required DoorDefinition Door { get; init; }
@@ -35,6 +34,9 @@ internal sealed record RoomScope
 
     /// <summary>The room's foreground, block behaviours and background, shared by rendering and collision.</summary>
     public required RoomLevelData LevelData { get; init; }
+
+    /// <summary>The room's terrain Samus meets (#2553): its level, whose reacting blocks reach its room objects.</summary>
+    internal RoomTerrain SamusTerrain => new(LevelData, RoomObjects);
 
     /// <summary>The room's foreground scroll-boundary camera.</summary>
     public required ScrollBoundaryCamera Camera { get; init; }
@@ -67,10 +69,10 @@ internal sealed record RoomScope
     public required RoomLibraryBackgroundPicture BackgroundImage { get; init; }
 
     /// <summary>
-    /// Resolves what pictures written over the room's layers show, or null in a tileset nothing writes pictures over (#1392,
-    /// #1466): Zebes's warning over the background and Ceres's over the foreground, which no room shows both of.
+    /// The warnings the room's escapes write over its layers, or none in a room whose tileset has no warning picture sheet
+    /// (#1392, #1466, #2554): Zebes's warning over the background and Ceres's over the foreground, which no room shows both of.
     /// </summary>
-    public required WrittenPictureResolver? WrittenPictures { get; init; }
+    public required RoomWarnings? Warnings { get; init; }
 
     /// <summary>Resolves what the room effect's liquid or atmosphere shows on the effect overlay (#1392, #1466, #1706).</summary>
     public required WrittenPictureResolver FxOverlayPictures { get; init; }
@@ -96,6 +98,12 @@ internal sealed record RoomScope
     /// <summary>The room's effect-overlay FX: liquid, rain, fog and the effect overlay picture.</summary>
     public required RoomFxOverlayState FxOverlay { get; init; }
 
+    /// <summary>
+    /// The ground Samus's running footsteps and landings go by in this room (#2416), by its area and its own policy; the
+    /// room sets it as it loads, beside the liquid its effect gives her physics.
+    /// </summary>
+    public required RoomGround SamusGround { get; init; }
+
     /// <summary>The room's colour effects.</summary>
     public required ColourEffectSystem ColourEffects { get; init; }
 
@@ -103,7 +111,7 @@ internal sealed record RoomScope
     public required CeresHazeState? CeresHaze { get; init; }
 
     /// <summary>The room's block animations: those its effect lists and the Wrecked Ship entrance treadmill a door's setup may start.</summary>
-    public required RoomBlockAnimations BlockAnimations { get; init; }
+    public required RoomBlockAnimations BlockAnimations { internal get; init; }
 
     /// <summary>The room's Tourian statue animations and descent, or null for a room whose setup does not unlock the statues (#2287).</summary>
     public required TourianStatueSequence? TourianStatues { get; init; }
@@ -114,29 +122,20 @@ internal sealed record RoomScope
     /// </summary>
     public required IRoomMain? Main { get; init; }
 
-    /// <summary>The Maridia elevatube's ride, which the tube's doors start, or null outside the elevatube (#2287).</summary>
-    public required MaridiaElevatubeRoomMainState? MaridiaElevatube { get; init; }
-
-    /// <summary>
-    /// The Ceres elevator shaft's turn and elevator, or null outside the shaft and in the shaft entered other than through its
-    /// elevator door (#2287).
-    /// </summary>
-    public required CeresElevatorShaftRoomMainState? CeresElevatorShaft { get; init; }
-
     /// <summary>The room's enemy population and the species owners that run it.</summary>
     public required RoomEnemySystem Enemies { get; init; }
 
     /// <summary>The room's room-object population and the family owners that run it.</summary>
     public required RoomObjectSystem RoomObjects { get; init; }
 
-    /// <summary>The load-station record whose load established this room; null for a room entered otherwise.</summary>
+    /// <summary>The load station whose load established this room; null for a room entered otherwise.</summary>
     public LoadStation? LoadStation { get; init; }
 
     /// <summary>
-    /// The two objects carrying Samus into fresh Ceres, once Ceres-start setup has begun them. They
-    /// are projectiles of this room, so the next room's load ends them.
+    /// The two objects carrying Samus into fresh Ceres, built with the Ceres start's room (#2553), so it begins once; the
+    /// arrival belongs to this room and ends with the next room's load. Null for every other room.
     /// </summary>
-    public CeresElevatorArrivalState? CeresElevatorArrival { get; private set; }
+    public CeresElevatorArrivalState? CeresElevatorArrival { get; init; }
 
     /// <summary>
     /// The block animations' step: gameplay, the door transition's scroll and every fade step take it. The X-Ray Scope's
@@ -154,13 +153,40 @@ internal sealed record RoomScope
         TourianStatues?.StepBlockAnimations();
     }
 
-    /// <summary>Begins the Ceres elevator arrival in this room.</summary>
-    /// <exception cref="InvalidOperationException">This room's arrival has already begun.</exception>
-    internal void BeginCeresElevatorArrival(CeresElevatorArrivalState arrival)
+    /// <summary>
+    /// The room's gameplay shading (#1512): each owner of a colour effect names the shades and effects its state shows,
+    /// each later one showing over the earlier: the room's colour effects and the effect overlay colours, then its
+    /// bosses', then <paramref name="shownOver"/>, the display's fades, over all of them.
+    /// </summary>
+    /// <param name="shownOver">The owners of the fades of the whole display, in the order they are laid.</param>
+    internal GameplayShading Shading(IEnumerable<IGameplayShadingSource> shownOver)
     {
-        if (CeresElevatorArrival is not null)
-            throw new InvalidOperationException("This room's Ceres elevator arrival has already begun.");
-        CeresElevatorArrival = Ensure.NotNull(arrival);
+        var shading = new GameplayShadingBuilder();
+        foreach (IGameplayShadingSource source in ShadingSources.Concat(Ensure.NotNull(shownOver)))
+            source.ShadeGameplay(shading);
+        return shading.Build(Assets.BlockSheet.Sheet.Image, Assets.BlockSheet.Backdrop);
     }
+
+    /// <summary>The owners of the colour effects the room shows, in the order they are laid over each other.</summary>
+    private IEnumerable<IGameplayShadingSource> ShadingSources
+    {
+        get
+        {
+            yield return ColourEffects;
+            yield return FxOverlay;
+            foreach (IGameplayShadingSource boss in Enemies.DisplaySources.ShadingSources)
+                yield return boss;
+        }
+    }
+
+    /// <summary>The room's actors that stand in front of Samus (#2571): the Ceres elevator arrival once it has begun.</summary>
+    internal IEnumerable<IActorInFrontOfSamus> ActorsInFrontOfSamus => CeresElevatorArrival is { } arrival ? [arrival] : [];
+
+    /// <summary>
+    /// The displayed states the accepted frame's boundary latches (#2571): the enemies' and, in the statue room, the
+    /// statues' descent.
+    /// </summary>
+    internal IEnumerable<IDisplayLatch> DisplayLatches =>
+        TourianStatues is { } statues ? [.. Enemies.DisplaySources.DisplayLatches, statues] : Enemies.DisplaySources.DisplayLatches;
 
 }

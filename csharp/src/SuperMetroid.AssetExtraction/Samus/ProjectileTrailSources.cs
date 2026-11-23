@@ -8,12 +8,12 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Where the bank-$90 trail programs store each sparkle animation's beats (#2348): a frame's timed record takes four bytes,
 /// a move instruction two, and each program ends with a two-byte end word after its last beat.
 /// </summary>
-internal static class ProjectileTrailSources
+internal static partial class ProjectileTrailSources
 {
     /// <summary>The trail segments in the order their sources are read (#2567).</summary>
     private static readonly IReadOnlyList<ProjectileTrailSegment> TrailSegmentOrder = Ensure.EveryMemberOnce<ProjectileTrailSegment>(
     [
-        ProjectileTrailSegment.Empty,
+        ProjectileTrailSegment.EndsWithoutSparkle,
         ProjectileTrailSegment.LeftIce,
         ProjectileTrailSegment.RightIce,
         ProjectileTrailSegment.Wave,

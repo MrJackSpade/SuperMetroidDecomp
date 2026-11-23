@@ -12,7 +12,7 @@ internal static class FakeKraidAnimationsVerification
     /// <summary>Every segment matches its native list and every animation the lists' control flow.</summary>
     internal static void VerifyFakeKraidAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, FakeKraidAnimations.Segments, FakeKraidAnimations.StartingAt,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries, FakeKraidAnimations.Segments, FakeKraidAnimations.StartingAt,
             FakeKraidFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<FakeKraidCue>(word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null, (word, operands, cue, at) =>
             {
@@ -22,7 +22,7 @@ internal static class FakeKraidAnimationsVerification
             },
             // #2214: the choice always continues at the step or spit it picks, so the step loop each choice list runs on
             // into never plays.
-            EndsList: cue => cue is FakeKraidCue.Signal { Kind: FakeKraidCueKind.ChooseAction }),
+            EndsList: cue => cue is FakeKraidCue.ChooseAction),
             onlyRunOnInto: new HashSet<FakeKraidSegment> { FakeKraidSegment.ChooseAction });
         Console.WriteLine($"  Fake Kraid animations: {Entries.Length} native lists ({beats} beats) match bank $A6.");
     }

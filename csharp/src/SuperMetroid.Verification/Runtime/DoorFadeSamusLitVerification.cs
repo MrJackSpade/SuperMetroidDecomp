@@ -28,10 +28,11 @@ internal static class DoorFadeSamusLitVerification
         fade.Darken();
         AssertEqual(0, LitOnSamus(fade).Length, "the dark display keeps nothing of Samus's lit");
 
-        fade.FadeIn(new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter));
+        var entering = new GradualFadeSteps(DoorTransitionColourDefinitions.FadeLastStep, counter);
+        fade.FadeIn(entering);
         AssertTrue(LitOnSamus(fade).SequenceEqual([SamusShades.Beam(SamusBeamCombination.IceWave)]),
             "the room being entered fades in with Samus's beams lit");
-        fade.DoorOpened();
+        fade.DoorOpened(entering);
         AssertTrue(LitOnSamus(fade).SequenceEqual([SamusShades.Beam(SamusBeamCombination.IceWave), SamusShades.DoorCompletionVisor]),
             "once the door has opened her visor's door-completion green stays lit after her beams");
 
@@ -55,13 +56,13 @@ internal static class DoorFadeSamusLitVerification
         for (int call = 0; call < 7; call++)
             AssertTrue(!leaving.Step(), "the fade out takes a step on each of its first seven calls");
         GameplayShading shown = Shown(fade);
-        AssertEqual<ColourEffect?>(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, 6, 13), shown.Fade?.Effect,
+        AssertEqual<ColourEffect?>(new ColourFade(RgbColor.Black, GradualFadeDirection.Toward, new FadeLevel(6, 13)), shown.Fade?.Effect,
             "after the steps of counter values zero through six the display has faded six of thirteen parts toward black");
         AssertTrue(shown.Of(GameplayPictures.Hud).Fades.SequenceEqual(
-                [new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(DoorFadeShades.HudDark), 6, 13)]),
+                [new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(DoorFadeShades.HudDark), new FadeLevel(6, 13))]),
             "the HUD fades as far toward its dark shade");
         AssertTrue(shown.Of(GameplayPictures.EscapeTimer).Fades.SequenceEqual(
-                [new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(DoorFadeShades.EscapeTimerDark), 6, 13)]),
+                [new PictureShadeFade(PictureShading.Standard, PictureShading.Shaded(DoorFadeShades.EscapeTimerDark), new FadeLevel(6, 13))]),
             "the escape timer fades as far toward its dark shade");
         int calls = 7;
         while (!leaving.Step())
@@ -76,10 +77,10 @@ internal static class DoorFadeSamusLitVerification
         fade.FadeIn(entering);
         AssertTrue(!entering.Step() && !entering.Step(), "the fade in takes a step on each of its first two calls");
         shown = Shown(fade);
-        AssertEqual<ColourEffect?>(new ColourFade(RgbColor.Black, GradualFadeDirection.From, 1, 13), shown.Fade?.Effect,
+        AssertEqual<ColourEffect?>(new ColourFade(RgbColor.Black, GradualFadeDirection.From, new FadeLevel(1, 13)), shown.Fade?.Effect,
             "after the steps of counter values zero and one the display has faded one of thirteen parts in from black");
         AssertTrue(shown.Of(GameplayPictures.Hud).Fades.SequenceEqual(
-                [new PictureShadeFade(PictureShading.Shaded(DoorFadeShades.HudDark), PictureShading.Standard, 1, 13)]),
+                [new PictureShadeFade(PictureShading.Shaded(DoorFadeShades.HudDark), PictureShading.Standard, new FadeLevel(1, 13))]),
             "the HUD fades as far back from its dark shade");
         Console.WriteLine("  Door fade: the display, the HUD and the escape timer show one typed fade's progress; completion is unchanged.");
     }
@@ -90,7 +91,7 @@ internal static class DoorFadeSamusLitVerification
         var frame = new GameplayShadingBuilder();
         fade.ShadeGameplay(frame);
         var roomColours = new PictureColours { Backdrop = ColourKeyConstants.Of(RgbColor.Black), Shades = ImmutableDictionary<PictureShade, PictureRecolouring>.Empty };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours));
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours));
     }
 
     /// <summary>The shades the door's fade keeps lit on Samus's draws this frame, after the fade.</summary>
@@ -99,7 +100,7 @@ internal static class DoorFadeSamusLitVerification
         var frame = new GameplayShadingBuilder();
         fade.ShadeGameplay(frame);
         var roomColours = new PictureColours { Backdrop = ColourKeyConstants.Of(RgbColor.Black), Shades = ImmutableDictionary<PictureShade, PictureRecolouring>.Empty };
-        return frame.Build(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours))
+        return frame.BuildOverFixture(SpriteImageFixtures.Copied("Room", new(1, 1), [default(RgbaPixel)], roomColours))
             .OfSprite(PictureShading.Standard, isSamus: true).OverEffects;
     }
 }

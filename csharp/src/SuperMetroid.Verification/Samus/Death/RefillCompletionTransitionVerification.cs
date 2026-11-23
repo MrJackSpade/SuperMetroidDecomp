@@ -106,12 +106,12 @@ internal static class RefillCompletionTransitionVerification
         // The ship carries Samus, the top hull above her: past the takeoff height, the completion update's unfrozen ascent
         // completes the takeoff.
         RoomEnemyPlace top = runtime.Enemies.Places.InUpdateOrder.Single(place => place.SpeciesState<GunshipState>() is not null);
-        GunshipState.Of(top).Phase = GunshipPhase.AcceleratingLiftoff;
+        top.RequireSpeciesState<GunshipState>().Phase = GunshipPhase.AcceleratingLiftoff;
         samus.Position = samus.Position.WithWholeY(GunshipTakeoffDefinitions.TakeoffCompleteY + GunshipMotionDefinitions.TopHullAboveSamus - 8);
         game.Step(0);
         AssertEqual(0, samus.ReserveEnergy, "the refill's update moves the last reserve unit");
-        AssertTrue(runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.EscapeTakeoffCompleted),
-            $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {GunshipState.Of(top).Phase}");
+        AssertTrue(runtime.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EscapeTakeoffCompleted)),
+            $"the ship's ascent completes the takeoff; the top hull is at {top.Position.Y.Whole} in {top.RequireSpeciesState<GunshipState>().Phase}");
         AssertTrue(game.IsAt(EndingStep.LeavingZebes), $"the gunship's takeoff on the refill's completion update leaves Zebes; ended in {game.GameState}");
 
         Console.WriteLine("The gunship's takeoff on the refill's completion update leaves Zebes.");

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>The extracted audio streams, sample banks, metadata and identity an audio asset catalog is built from (#633).</summary>
-internal sealed record ExtractedAudioAssetParts
+internal sealed partial record ExtractedAudioAssetParts
 {
     /// <summary>Streams.</summary>
     public required IReadOnlyDictionary<AudioBank, byte[]> Streams { get; init; }
@@ -26,9 +26,6 @@ internal sealed record ExtractedAudioAssetParts
 
     /// <summary>The SFX programs' encoded bytes and routes.</summary>
     public required SpcSoundEffectImage SoundEffectImage { get; init; }
-
-    /// <summary>Canonical sample count.</summary>
-    public required int CanonicalSampleCount { get; init; }
 
     /// <summary>Stable SHA-256 identity of the validated selected manifest. The canonical JSON contains every upload/WAV hash plus all editable routing, instrument, music, and SFX definitions, so formatting-only changes do not alter this value while any audible edit does.</summary>
     public required string ContentIdentity { get; init; }

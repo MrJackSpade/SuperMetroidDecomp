@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core;
 using System.Collections.Frozen;
-using System.Collections.ObjectModel;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
@@ -11,8 +11,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// anchors (#1416, #1615): the import pipeline's private knowledge of the cartridge, decoded once into the installed
 /// options presentation.
 /// </summary>
-[EncodingOwner("cartridge addresses of the options screen pages, labels, headings and anchors")]
-internal static class GameOptionsSourceDefinitions
+internal static partial class GameOptionsSourceDefinitions
 {
     /// <summary>Bytes of one stored options page: its tilemap of two-byte cells.</summary>
     internal const int TilemapByteCount =
@@ -26,18 +25,27 @@ internal static class GameOptionsSourceDefinitions
         new Dictionary<GameOptionsScreen, GameOptionsPageResource>
         {
             [GameOptionsScreen.Primary] = new(0x978df4, "primary"),
-            [GameOptionsScreen.ControllerEnglish] = new(0x978fcd, "English controller"),
-            [GameOptionsScreen.ControllerJapanese] = new(0x9791c4, "Japanese controller"),
-            [GameOptionsScreen.SpecialEnglish] = new(0x97938d, "English special-settings"),
-            [GameOptionsScreen.SpecialJapanese] = new(0x97953a, "Japanese special-settings"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English)] = new(0x978fcd, "English controller"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese)] = new(0x9791c4, "Japanese controller"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English)] = new(0x97938d, "English special-settings"),
+            [GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese)] = new(0x97953a, "Japanese special-settings"),
         }.ToFrozenDictionary();
 
     /// <summary>
     /// ControllerButton_TilemapPointers at $82:F647: the bank-$82 label of each assignable button, X, A, B, Select, Y, L
     /// and R, each a 3-by-2 tilemap twelve bytes after the last.
     /// </summary>
-    internal static ReadOnlyCollection<ushort> ControllerLabelSources { get; } =
-        new List<ushort> { 0xf659, 0xf665, 0xf671, 0xf67d, 0xf689, 0xf695, 0xf6a1 }.AsReadOnly();
+    internal static FrozenDictionary<SuperMetroid.Core.Input.ControllerButton, ushort> ControllerLabelSources { get; } =
+        new Dictionary<SuperMetroid.Core.Input.ControllerButton, ushort>
+        {
+            [SuperMetroid.Core.Input.ControllerButton.X] = 0xf659,
+            [SuperMetroid.Core.Input.ControllerButton.A] = 0xf665,
+            [SuperMetroid.Core.Input.ControllerButton.B] = 0xf671,
+            [SuperMetroid.Core.Input.ControllerButton.Select] = 0xf67d,
+            [SuperMetroid.Core.Input.ControllerButton.Y] = 0xf689,
+            [SuperMetroid.Core.Input.ControllerButton.L] = 0xf695,
+            [SuperMetroid.Core.Input.ControllerButton.R] = 0xf6a1,
+        }.ToFrozenDictionary();
 
     /// <summary>The menu spritemap ordinal of each page's heading, as the instruction lists at $82:F47E/F48E/F49E select them.</summary>
     internal static readonly FrozenDictionary<GameOptionsPage, ushort> HeadingSpritemaps =

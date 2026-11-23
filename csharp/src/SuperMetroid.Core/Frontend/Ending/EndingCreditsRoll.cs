@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rendering;
@@ -9,13 +10,12 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// the post-credits logo. It sets each scene up and returns the actors the scene owns; the ending's state shows them with
 /// its phase (#2541).
 /// </summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingCreditsRoll
+internal sealed partial class EndingCreditsRoll
 {
     /// <summary>Collected-item snapshot displayed with the final result.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Chooses the localized post-credits text asset.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
     /// <summary>The ending's screen: its colours and the final page's lower text (#1358, #1515).</summary>
     private readonly EndingScreen screen ;
     /// <summary>The ending's actors in their running order, in which they step and draw (<see cref="EndingCastOrderDefinitions"/>).</summary>
@@ -26,10 +26,10 @@ internal sealed class EndingCreditsRoll
     private readonly EndingArtwork _artwork;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal EndingCreditsRoll(EndingInventorySnapshot inventory, bool japaneseText, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
+    internal EndingCreditsRoll(EndingInventorySnapshot inventory, TextLanguage language, EndingScreen screen, List<EndingSprite> sprites, EndingStage stage, EndingArtwork artwork)
     {
         this.inventory = inventory;
-        this.japaneseText = japaneseText;
+        this.language = language;
         this.screen = screen;
         this.sprites = sprites;
         _stage = stage;
@@ -60,11 +60,11 @@ internal sealed class EndingCreditsRoll
     {
         // The credits' end starts the post-credits scenes in their own colours and blanks the screen.
         _stage.LoadColours(EndingColourLoad.PostCredits);
-        _stage.Fade.Show(0);
+        _stage.Fade.Show(DisplayBrightness.Black);
     }
 
     /// <summary>Replaces the producer result rows with the copyright panel.</summary>
-    internal void ShowRewardCopyright() => _artwork.PostCreditsText.ReplaceResultWithCopyright();
+    internal void ShowRewardCopyright() => _artwork.PostCreditsText.ShowNextPanel();
 
     /// <summary>Whether the reward copyright is showing, which it does from the reveal's first half's end on.</summary>
     internal bool RewardCopyrightShown => _artwork.PostCreditsText.Panel == EndingPostCreditsPanel.Copyright;
@@ -75,14 +75,14 @@ internal sealed class EndingCreditsRoll
     /// <summary>Crossfades waiting colors into the selected non-armored reward colours by <paramref name="fade"/>.</summary>
     private void ShowRewardFade(PacedFadeSteps fade)
     {
-        if (_stage.EndingReward == EndingReward.Armored) return;
+        EndingRewardDefinition reward = EndingRewardDefinitions.Rewards[_stage.EndingReward];
+        if (!EndingRewardCast.CrossfadesReveal(_stage.EndingReward)) return;
         int step = fade.Taken;
         FadeWaitingBackdrop(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - step);
-        screen.Colours.Fade(EndingFade.SuitlessSamus, step);
-        if (_stage.EndingReward == EndingReward.Helmetless)
-            screen.Colours.Fade(EndingFade.SuitedSamus, step);
-        // The fade brightens toward the post-credits colours in 32 steps: step S shows each colour at S 32nds of its
-        // brightness, rounded down, the level the import pre-colours (#1512).
+        foreach (EndingFade colours in reward.RevealFades)
+            screen.Colours.Fade(colours, step);
+        // The fade brightens toward the post-credits colours in its steps: each step shows each colour at that step's share
+        // of its brightness, rounded down, the level the import pre-colours (#1512).
     }
 
     /// <summary>Starts the reward colour fade from its start and shows it there.</summary>
@@ -98,7 +98,7 @@ internal sealed class EndingCreditsRoll
     /// <summary>One update of the reward's colour fade <paramref name="fade"/>: on its due updates it takes its next step and shows it.</summary>
     internal void StepRewardFade(PacedFadeSteps fade)
     {
-        if (Ensure.NotNull(fade).Advance())
+        if (Ensure.NotNull(fade).AdvanceTakingStep())
             ShowRewardFade(fade);
     }
 
@@ -108,18 +108,20 @@ internal sealed class EndingCreditsRoll
     {
         _stage.LoadColours(EndingColourLoad.RestoredShot);
         _artwork.PostCreditsText.Drop = 0;
-        _artwork.PostCreditsText.ClearCopyright();
+        _artwork.PostCreditsText.ShowNextPanel();
         return WhiteWash.FullWhite(EndingCadenceDefinitions.PostCreditsFlashUpdatesPerStep, EndingCadenceDefinitions.PostCreditsFlashFirstStepUpdate);
     }
 
-    /// <summary>Clears the landed Samus and installs the final logo actor.</summary>
+    /// <summary>Clears the landed Samus and adds the final logo actor.</summary>
     /// <returns>The logo's actor.</returns>
     internal EndingLogo FinishPostCreditsWhiteFlash()
     {
         sprites.Clear();
-        return new EndingLogo(_stage,
-            () => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect));
+        return new EndingLogo(_stage, StartLogoLandingColourEffect);
     }
+
+    /// <summary>Starts the screen colour effect the logo's upper S half starts as it lands.</summary>
+    private void StartLogoLandingColourEffect() => _stage.ColourEffects.StartScreen(EndingLogoDefinitions.LandingColourEffect);
 
     /// <summary>Starts the item-percentage text below the completed logo.</summary>
     /// <returns>The text, which types from the next update on.</returns>
@@ -133,7 +135,7 @@ internal sealed class EndingCreditsRoll
     private EndingTypewriterSetup TypewriterSetup() => new()
     {
         Inventory = inventory,
-        JapaneseText = japaneseText,
+        Language = language,
         Text = _artwork.EndingText,
     };
 }

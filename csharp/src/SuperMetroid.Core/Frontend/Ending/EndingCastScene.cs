@@ -1,9 +1,34 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// The ending's cast in its running order (#2541): the escape's clouds, the explosion's actors, the completion text, the
-/// waiting backdrops and the idle reward, which the ending's stage holds and runs, with no actor of the scene's own.
+/// waiting backdrops and the idle reward, which the ending's stage holds and runs, with no actor of the scene's own. The
+/// scene shows one of the cast's phases (#2571), and each cast phase the ending enters shows a scene of its own.
 /// </summary>
-internal sealed class EndingCastScene : EndingScene
+/// <param name="phase">The cast's phase the scene shows.</param>
+internal sealed partial class EndingCastScene(EndingCastPhase phase) : EndingActorScene
 {
+    /// <summary>The cast's phase the scene shows.</summary>
+    internal EndingCastPhase CastPhase { get; } = Ensure.NotNull(phase);
+
+    /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => CastPhase;
+
+    /// <inheritdoc/>
+    internal override bool Step(EndingCreditsState ending)
+    {
+        // Each setup wait ends the update inside the setup phase, before the phase's own work; the update after the last
+        // wait runs the scene setup.
+        return CastPhase.Step(ending);
+    }
+
+    /// <inheritdoc/>
+    internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows) =>
+        EndingCreditsPresentation.DrawCast(ending, sprites, shows);
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

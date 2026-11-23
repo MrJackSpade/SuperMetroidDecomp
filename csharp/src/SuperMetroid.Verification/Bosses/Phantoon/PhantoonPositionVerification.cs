@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Bosses.MotherBrain;
@@ -23,10 +24,9 @@ internal static class PhantoonPositionVerification
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
         // PAL thresholds used here previously allowed continued acceleration.
         var capEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var capBody = capEnemies.Places.InUpdateOrder[0];
-        var capTentacles = capEnemies.Places.InUpdateOrder[2];
-        var capState = new PhantoonEnemyState(capBody, capEnemies.Places.InUpdateOrder[1], capTentacles, capEnemies.Places.InUpdateOrder[3]);
-        capEnemies.BeginPhantoonAsSetUp(capState);
+        // His four parts as his room's population sets them up; the encounter is the one his body's setup began.
+        PhantoonEnemyState capState = capEnemies.PlacePhantoon();
+        RoomEnemyPlace capBody = capState.Body;
         capBody.Position = capBody.Position.WithWhole(new(128, 128));
         capState.Swoop.Velocity = new(new SignedEightEight(0xf800), new SignedEightEight(0xfa00));
         PhantoonPatterns.MovePhantoonInSwoop(capBody, capState, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, PhantoonSwoopTarget.AboveSamus);
@@ -39,7 +39,7 @@ internal static class PhantoonPositionVerification
             var boundary = CreateRetailRuntimeFixture();
             boundary.HudSetup.InitializeHud(HudSnapshot.NewGame);
             boundary.RoomLoader.InitializeStartingCeresRoom();
-            boundary.RoomLoader.InitializeCeresStartSamus();
+            boundary.RoomLoader.InitializeCeresStartSamus(boundary.Room.LoadedScope);
             boundary.LoadCartridgeRoomForDebug(SuperMetroid.Core.Rooms.RoomDefinitions.Phantoon);
             var state = boundary.Enemies.BossEncounters.Phantoon;
             PhantoonEnemyState boundaryState = state ?? throw new InvalidOperationException("Verification requires state.");
@@ -53,12 +53,12 @@ internal static class PhantoonPositionVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState loaded = runtime.Enemies.BossEncounters.Phantoon ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BossEncounters.Phantoon.");
         AssertEqual(120, loaded.PhaseWait.UpdatesLeft,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new(40, 184));
         samus.Control.LockOutPlayer();
         var positions = new HashSet<MotherBrainRinkaDoorSpawnExpected>();
@@ -72,7 +72,7 @@ internal static class PhantoonPositionVerification
             ushort displayedBodyX = (ushort)(phantoon.Body.Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X);
             ushort displayedBodyY = (ushort)(phantoon.Body.Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.LatchedOrdinaryRoom.Bosses.Placement,
+            AssertEqual<Position16<RoomPixels>?>(placementBefore, runtime.Display.LatchedOrdinaryRoom.Bosses?.Placement,
                 $"the accepted frame publishes his body placed where Phantoon lay, frame {frame}");
             if (frame == 0) continue;
             Offset16<BackgroundPixels> bodyScroll = (runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody

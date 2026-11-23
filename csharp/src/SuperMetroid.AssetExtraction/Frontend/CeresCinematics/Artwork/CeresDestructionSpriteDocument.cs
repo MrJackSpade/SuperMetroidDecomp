@@ -3,9 +3,9 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Editable OAM composition schema for the Ceres explosion and Zebes reveal, separate from cinematic actors, motion, timing, and the shared approach artwork.</summary>
-public sealed record CeresDestructionSpriteDocument
+public sealed partial record CeresDestructionSpriteDocument
 {
-    /// <summary>Composition schema revision; loading currently requires version 1.</summary>
+    /// <summary>Composition schema revision; loading requires <see cref="CeresDestructionSpriteFormat.Version"/>.</summary>
     public required int Version { get; init; }
     /// <summary>Exactly 24 named ordered part arrays: seven asteroid/planet/title/star backdrops, six small blasts, four large blasts, six station blasts, and the Japanese PLANET ZEBES subtitle; null part palettes inherit the actor's palette.</summary>
     public required Dictionary<string, SpriteVisualPart[]> Frames { get; init; }

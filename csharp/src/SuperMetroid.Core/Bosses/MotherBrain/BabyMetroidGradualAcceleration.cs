@@ -3,14 +3,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>
 /// The gradual acceleration toward a point and horizontally, shared by the Tourian Baby Metroid and the Mother Brain
 /// baby-Metroid cutscene.
-/// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries
-/// the velocity across zero makes the run's next step a unit larger, and a step taken while already
-/// moving toward the target is a unit larger when the distance to the target wraps around the
-/// coordinate space. A reversal starts fresh runs. The distance is the signed distance across the wrapping space, and
-/// the velocity stays within a few thousand units of rest (each update clamps it to its axis's limit and a step is at
-/// most a room's width), so the clamps compare signed velocities.
+/// Each axis accelerates in runs of steps (<see cref="SeekingVelocityRun"/>): a step that carries the velocity across
+/// rest makes the run's next step a unit larger, and a step taken while already moving toward a target on the far side
+/// of the room's wrap (<see cref="CoordinateAxis"/>) is a unit larger. A reversal starts fresh runs.
 /// </summary>
-internal static class BabyMetroidGradualAcceleration
+internal static partial class BabyMetroidGradualAcceleration
 {
     /// <summary>Extra speed adjustment while reversing direction toward the target: a thirty-second of a pixel an update.</summary>
     private static readonly SignedEightEight ReversalStep = SignedEightEight.FromPixelFraction(1, 32);
@@ -44,6 +41,26 @@ internal static class BabyMetroidGradualAcceleration
         Func<bool> isVaguelyOffScreen)
     {
         Ensure.NotNull(isVaguelyOffScreen);
+        return Accelerate(position, target, velocity, divisor, MaxXSpeed, isVaguelyOffScreen, wrongWayOffScreenSpeed);
+    }
+
+    /// <summary>Returns the new Y velocity (the vertical half of gradual acceleration), whose reversals take no off-screen push.</summary>
+    /// <param name="position">The mover's whole Y coordinate.</param>
+    /// <param name="target">The target's whole Y coordinate.</param>
+    /// <param name="velocity">The mover's Y velocity.</param>
+    /// <param name="divisor">The distance divisor, 1 through 16.</param>
+    public static SignedEightEight AccelerateVertically(int position, int target, SignedEightEight velocity, int divisor) =>
+        Accelerate(position, target, velocity, divisor, MaxYSpeed, NeverPushedOffScreen, default);
+
+    /// <summary>
+    /// One axis's gradual acceleration: the velocity runs towards the target by the distance's step, a reversal first starting
+    /// fresh runs, and is clamped to <paramref name="maxSpeed"/> either way. When <paramref name="isVaguelyOffScreen"/> says
+    /// the mover is off screen, a reversal first pushes it by <paramref name="wrongWayOffScreenSpeed"/>, raising by one unit
+    /// more than the matching lowering does.
+    /// </summary>
+    private static SignedEightEight Accelerate(int position, int target, SignedEightEight velocity, int divisor, SignedEightEight maxSpeed,
+        Func<bool> isVaguelyOffScreen, SignedEightEight wrongWayOffScreenSpeed)
+    {
         var run = new SeekingVelocityRun(velocity, position, target);
         int distance = DistanceAcrossRoomEdge.Apart(position, target);
         if (distance == 0)
@@ -53,8 +70,6 @@ internal static class BabyMetroidGradualAcceleration
             SignedEightEight step = Step(-distance, divisor);
             if (velocity.IsNegative)
             {
-                // Off screen, a reversal first pushes the mover by its off-screen speed, raising by one unit more
-                // than the matching lowering does.
                 if (isVaguelyOffScreen())
                 {
                     run.StartFresh();
@@ -65,7 +80,7 @@ internal static class BabyMetroidGradualAcceleration
                 run.Raise(step);
             }
             run.Raise(step);
-            return SignedEightEight.Min(run.Velocity, MaxXSpeed);
+            return SignedEightEight.Min(run.Velocity, maxSpeed);
         }
         else
         {
@@ -82,48 +97,17 @@ internal static class BabyMetroidGradualAcceleration
                 run.Lower(step);
             }
             run.Lower(step);
-            return SignedEightEight.Max(run.Velocity, -MaxXSpeed);
+            return SignedEightEight.Max(run.Velocity, -maxSpeed);
         }
     }
 
-    /// <summary>Returns the new Y velocity (the vertical half of gradual acceleration).</summary>
-    /// <param name="position">The mover's whole Y coordinate.</param>
-    /// <param name="target">The target's whole Y coordinate.</param>
-    /// <param name="velocity">The mover's Y velocity.</param>
-    /// <param name="divisor">The distance divisor, 1 through 16.</param>
-    public static SignedEightEight AccelerateVertically(int position, int target, SignedEightEight velocity, int divisor)
-    {
-        var run = new SeekingVelocityRun(velocity, position, target);
-        int distance = DistanceAcrossRoomEdge.Apart(position, target);
-        if (distance == 0)
-            return velocity;
-        if (distance < 0)
-        {
-            SignedEightEight step = Step(-distance, divisor);
-            if (velocity.IsNegative)
-            {
-                run.StartFresh();
-                run.Raise(ReversalStep);
-                run.Raise(step);
-            }
-            run.Raise(step);
-            return SignedEightEight.Min(run.Velocity, MaxYSpeed);
-        }
-        else
-        {
-            SignedEightEight step = Step(distance, divisor);
-            if (!velocity.IsNegative)
-            {
-                run.StartFresh();
-                run.Lower(ReversalStep);
-                run.Lower(step);
-            }
-            run.Lower(step);
-            return SignedEightEight.Max(run.Velocity, -MaxYSpeed);
-        }
-    }
+    /// <summary>The vertical axis's reversals: never pushed as an off-screen reversal is.</summary>
+    private static bool NeverPushedOffScreen() => false;
 
-    /// <summary>The step for the distance divided by the divisor, a zero quotient replaced with one (<see cref="SeekingVelocityRun.StepFor"/>).</summary>
+    /// <summary>
+    /// The step for the distance: the distance divided by the divisor, at least one
+    /// (<see cref="SeekingVelocityRun.StepFor"/>).
+    /// </summary>
     private static SignedEightEight Step(int distance, int divisor)
     {
         if (divisor is < 1 or > 16)

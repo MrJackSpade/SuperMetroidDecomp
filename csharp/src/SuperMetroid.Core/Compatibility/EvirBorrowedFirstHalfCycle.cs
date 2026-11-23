@@ -14,8 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// speed's row offset in place of the body's own record, so the word it halves lies in a fixed other enemy's record; the
 /// Evir initial-timer check loads East Sand Hall and compares every body's first half-cycle with the value at that place.
 /// </remarks>
-[CompatibilityService("an Evir body's first bobbing half-cycle is half a value of the enemy its room lists at a place fixed by its bobbing speed")]
-public static class EvirBorrowedFirstHalfCycle
+public static partial class EvirBorrowedFirstHalfCycle
 {
     /// <summary>The slower bobbing speed the game's Evirs bob at: half a pixel an update.</summary>
     private static readonly SignedSixteenSixteen SlowerSpeed = SignedSixteenSixteen.FromPixelFraction(1, 2);
@@ -51,7 +50,7 @@ public static class EvirBorrowedFirstHalfCycle
         if (bobbingSpeed == SlowerSpeed)
         {
             TEnemy enemy = ListedAt(listed, SlowerLenderPlace);
-            return lender.IsEmpty(enemy) ? 0 : lender.DirectionChangePeriod(enemy) / 2;
+            return lender.DirectionChangePeriod(enemy) / 2;
         }
         if (bobbingSpeed == FasterSpeed)
         {

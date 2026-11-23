@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction;
 /// copying a span to an array first. They keep <see cref="Enumerable"/>'s ordering and exception behavior; operations
 /// whose result owns storage say so in their names and allocate exactly that result.
 /// </summary>
-internal static class ImportSpanQueries
+internal static partial class ImportSpanQueries
 {
     /// <summary>Queries over one span of <typeparamref name="T"/>.</summary>
     extension<T>(ReadOnlySpan<T> span)

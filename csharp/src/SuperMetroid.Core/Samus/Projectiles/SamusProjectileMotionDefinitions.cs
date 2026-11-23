@@ -1,9 +1,7 @@
-using System.Collections.Frozen;
-
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The beam speeds and beam/missile acceleration definitions.</summary>
-internal static class SamusProjectileMotionDefinitions
+internal static partial class SamusProjectileMotionDefinitions
 {
     /// <summary>
     /// The horizontal and vertical speed every beam combination launches at: four pixels an update.
@@ -27,19 +25,18 @@ internal static class SamusProjectileMotionDefinitions
     /// <summary>The base speed a fired missile ignites at: one pixel per update.</summary>
     internal static readonly SignedEightEight MissileIgnitionSpeed = SignedEightEight.FromPixels(1);
     /// <summary>
-    /// The base speed a reflected missile re-ignites at: one pixel per update plus the 240/256 head start the
-    /// reflection leaves.
+    /// The base speed a reflected missile re-ignites at: one pixel per update plus the head start the reflection
+    /// leaves, a little under a pixel.
     /// </summary>
     internal static readonly SignedEightEight ReflectedMissileIgnitionSpeed = SignedEightEight.FromPixelFraction(31, 16);
 
     /// <summary>
-    /// What each of the ten firing directions adds to a projectile's velocity on every update, in 256ths of a pixel
-    /// per update per update. A beam (and a missile, before its own acceleration) gains sixteen on each axis it moves
-    /// along; an ignited missile gains 64 along a cardinal direction and 54 on each axis of a diagonal; an ignited Super
-    /// Missile gains 256 and 182. Both vertical directions of a side accelerate alike.
+    /// What each of the ten firing directions adds to a projectile's velocity on every update: a beam (and a missile,
+    /// before its own acceleration) gains a little on each axis it moves along, an ignited missile more, and an ignited
+    /// Super Missile the most, a diagonal gaining a little less on each axis than a cardinal direction. Both vertical
+    /// directions of a side accelerate alike.
     /// </summary>
-    internal static readonly FrozenDictionary<SamusProjectileDirection, SamusDirectionAccelerations> Accelerations =
-        new Dictionary<SamusProjectileDirection, SamusDirectionAccelerations>
+    internal static readonly IdentityTable<SamusProjectileDirection, SamusDirectionAccelerations> Accelerations = new(new Dictionary<SamusProjectileDirection, SamusDirectionAccelerations>
         {
             [SamusProjectileDirection.UpFacingRight] = new(
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 16)),
@@ -81,5 +78,5 @@ internal static class SamusProjectileMotionDefinitions
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 16)),
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixelFraction(-1, 4)),
                 new PixelVelocity<RoomPixels>(SignedEightEight.Zero, SignedEightEight.FromPixels(-1))),
-        }.ToFrozenDictionary();
+        });
 }

@@ -7,8 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Draws both Ridleys' tail and wings before the common enemy drawing draws his body (#2229).</summary>
-[RoomLifetime]
-internal sealed class RidleyDrawing
+internal sealed partial class RidleyDrawing
 {
     /// <summary>Publishes his drawn parts' frames.</summary>
     private readonly EnemyPresentation _presentation;
@@ -47,12 +46,9 @@ internal sealed class RidleyDrawing
         EnemyFrameId tipFrame = RidleySupplementalVisualDefinitions.TailTipFrames.At(tip.PointingDirection);
         DrawTailFrame(sprites, ridley.TailAndWingsShading, tip, tipFrame, camera);
 
-        // The tail draw walks back from the inner joint to the base after emitting the
-        // tip. Earlier draws win equal-priority overlap, so reversing this visually
-        // changes the curl even though every individual piece is otherwise correct.
-        IEnumerable<RidleyTailLinkPicture> links = ridley.Tail.Links.Zip(
-            RidleySupplementalVisualDefinitions.LinkFrames, (link, frame) => new RidleyTailLinkPicture(link, frame));
-        foreach (RidleyTailLinkPicture picture in links.Reverse())
+        // The tail is drawn from the tip back from the inner joint to the base, so the links nearer the tip lie over
+        // the others; drawn the other way, the curl would look different.
+        foreach (RidleyTailLinkPicture picture in ridley.Tail.LinkPictures.Reverse())
             DrawTailFrame(sprites, ridley.TailAndWingsShading, picture.Link, picture.Frame, camera);
     }
 
@@ -66,7 +62,8 @@ internal sealed class RidleyDrawing
         RidleyFacing facing = ridley.Flight.FacingDirection;
         if (facing == RidleyFacing.Turning)
             return;
-        EnemyFrameId wingFrame = ridley.Flight.Wings.Pose.Entry.For(facing);
+        RidleyWingPose pose = ridley.Flight.Wings.Pose.Entry;
+        EnemyFrameId wingFrame = facing == RidleyFacing.Left ? pose.FacingLeft : pose.FacingRight;
         _presentation.PublishEncounterFrame(sprites, new SpriteSource(SpriteSourceKind.RidleyWings), wingFrame,
             place.Position.Whole.RelativeToCamera(camera), ridley.TailAndWingsShading);
     }

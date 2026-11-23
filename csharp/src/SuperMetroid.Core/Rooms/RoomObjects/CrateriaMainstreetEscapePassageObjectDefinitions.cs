@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// Definitions for the room object that clears the Crateria mainstreet escape
 /// passage when the critters escaped. The room's setup spawns it during the escape.
 /// </summary>
-internal static class CrateriaMainstreetEscapePassageObjectDefinitions
+internal static partial class CrateriaMainstreetEscapePassageObjectDefinitions
 {
     /// <summary>The column of the block the room object is spawned at.</summary>
     internal const int BlockX = 61;

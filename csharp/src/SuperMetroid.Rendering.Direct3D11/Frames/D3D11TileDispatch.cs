@@ -17,9 +17,9 @@ internal sealed record D3D11TileDispatch
     public Position16<PlanePixels> Scroll { get; init; } = default;
 
     /// <summary>
-    /// The depth of what the pass draws (#1514, #1634): zero for everything, otherwise one more than the actor depth a sprite
-    /// insertion inserts (<see cref="D3D11FrameRenderer.DepthOf"/>), or, for a room layer pass, which part of its pictures it
-    /// draws: one for the part behind, two for the part in front.
+    /// The depth of what the pass draws (#1514, #1634): zero for everything, otherwise for a sprite insertion a bit for each
+    /// actor depth's word it inserts (<see cref="D3D11FrameRenderer.DepthWord"/>, #2583), or, for a room layer pass, which part
+    /// of its pictures it draws: one for the part behind, two for the part in front.
     /// </summary>
     public uint DrawnDepth { get; init; } = 0;
 
@@ -52,5 +52,5 @@ internal sealed record D3D11TileDispatch
     public ScreenWindow? Window { get; init; } = null;
 
     /// <summary>How a layer pass pixelates what it draws (#1774); the default leaves it unpixelated.</summary>
-    public BackgroundPixelation Pixelation { get; init; } = default;
+    public BackgroundPixelation Pixelation { get; init; } = BackgroundPixelation.Unpixelated;
 }

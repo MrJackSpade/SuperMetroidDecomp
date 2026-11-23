@@ -7,12 +7,12 @@ using SuperMetroid.AssetExtraction.Fx.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Fx;
 
-/// <summary>Reads and writes the installed room-FX blend colour document.</summary>
-public static class RoomFxPaletteBlendFile
+/// <summary>Reads and writes the import's room-FX blend colour document.</summary>
+public static partial class RoomFxPaletteBlendFile
 {
     /// <summary>Loads all eight three-color room-FX blends, rejecting duplicate or unknown JSON properties, incomplete selections, and RGB components outside 0..31.</summary>
     /// <param name="json">Caller-owned stream containing the supported blend-palette JSON document.</param>
-    /// <returns>Installed BG3 inks, which only the import reads; native selectors, CGRAM destinations, and fade timing remain compiled mechanics.</returns>
+    /// <returns>The import's BG3 inks, which only the import reads; native selectors, CGRAM destinations, and fade timing remain compiled mechanics.</returns>
     /// <exception cref="InvalidDataException">The JSON, schema version, blend identities, color count, or RGB5 values are invalid.</exception>
     public static RoomFxBlendInks Read(Stream json)
     {
@@ -47,5 +47,5 @@ public static class RoomFxPaletteBlendFile
     /// <param name="document">Eight named blend selections.</param>
     /// <returns>The UTF-8 JSON payload; this method does not write an external resource.</returns>
     public static byte[] Write(RoomFxPaletteBlendDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxPaletteBlendDocument>(ArtworkJson.Options));
 }

@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// traces and the checks that compare them with the cartridge's records (#1551). The game never
 /// reads these bytes.
 /// </summary>
-[EncodingOwner("Samus pose record facing, movement and aim bytes")]
 internal static class SamusPoseRecordCodecTooling
 {
     /// <summary>The facing byte of a pose that faces neither way.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -12,14 +13,13 @@ using System.Diagnostics.CodeAnalysis;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Initial turning-floor leg of Samus's flight toward Ceres station.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class IntroCeresFlightState
+internal sealed partial class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
     internal readonly AudioQueues audio;
     /// <summary>The colour the flight shows behind every layer, the installed flight's backdrop (#1512).</summary>
     internal RgbColor Backdrop { get; private set; }
-    /// <summary>The front-star or rear-view actors' sprite entries over the flight sprite page (#1358).</summary>
+    /// <summary>The front-star or rear-view actors' sprites over the flight sprite page (#1358).</summary>
     internal readonly ScreenSprites screenSprites;
     /// <summary>The installed Ceres flight sheet the stars and rear-view actors draw from, rebound without restarting the scene.</summary>
     private SpriteSheet flightSprites;
@@ -42,46 +42,32 @@ internal sealed class IntroCeresFlightState
         SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialFloorScrollX),
         SignedSixteenSixteen.FromWholePixels(CeresFlightSceneDefinitions.FrontInitialFloorScrollY));
     /// <summary>
-    /// The floor's zoom: two floor pixels per screen pixel at the start, narrowed by the slow step per update while at
-    /// least an eighth (ending at a sixteenth) for the front approach, then widened by the slow step below twelve and by
-    /// the fast step below thirty-two for the rear view, ending at thirty-two (<see cref="CeresFlightRenderDefinitions"/>).
+    /// The floor's zoom: its front zoom at the start, narrowed by the slow step per update to its narrowest for the front
+    /// approach, then widened by the slow step and then the fast step for the rear view, to its widest
+    /// (<see cref="CeresFlightRenderDefinitions"/>).
     /// </summary>
     private FloorZoom zoom = CeresFlightRenderDefinitions.FrontInitialZoom;
     /// <summary>How far the scene has turned its floor clockwise.</summary>
     private RotationAngle angle = CeresFlightSceneDefinitions.FrontInitialAngle;
     /// <summary>
-    /// The screen's brightness: held black until music is ready, then fully lit, and lowered one level every other update
+    /// The screen's brightness: held black until music is ready, then fully lit, and lowered a level at the fade-out's pace
     /// in the final fade, stopping at black.
     /// </summary>
-    private readonly ScreenFade fade = new(0);
+    private readonly ScreenFade fade = new(DisplayBrightness.Black);
     /// <summary>The rear view's five station, asteroid, vortex and star actors, in spawn order, created when the camera switches to it.</summary>
     internal IReadOnlyList<CeresRearViewActor> RearViewActors { get; private set; } = [];
-    /// <summary>
-    /// The rear-view flash's white wash (<see cref="WhiteWash"/>): full white when the rear view starts, one step fewer each
-    /// update, stopping at none; none before the rear view.
-    /// </summary>
-    private WhiteWash? rearViewFlash;
-    /// <summary>
-    /// The SPACE COLONY caption's typing (#2488), played by the shared player from the title's setup: its letters, with
-    /// Japanese text its katakana caption, its hold and the fade-out cue; none before the title.
-    /// </summary>
-    private AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>? caption;
-    /// <summary>How many of the caption's letters are shown, in order; none before the title.</summary>
-    internal int CaptionLettersShown => caption?.Shown?.Letters ?? 0;
-    /// <summary>Whether the Japanese text's katakana caption has shown, from the update it shows until the flight ends.</summary>
-    internal bool JapaneseCaptionShown => caption?.Shown?.Shows == SpaceColonyCaptionText.WithKatakana;
     /// <summary>Whether the Japanese text is selected, which shows the katakana caption.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
 
     /// <summary>Loads installed flight art and leaves the scene black for the setup update.</summary>
     /// <param name="audio">The shared music queue the approach waits on.</param>
     /// <param name="artwork">Installed cinematic artwork.</param>
     /// <param name="sheets">The installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</param>
-    /// <param name="japaneseText">The Japanese text option, which adds the katakana SPACE COLONY caption.</param>
+    /// <param name="language">The text language; Japanese adds the katakana SPACE COLONY caption.</param>
     public IntroCeresFlightState(AudioQueues audio, CeresFlightArtwork artwork, InstalledSpriteSheets sheets,
-        bool japaneseText)
+        TextLanguage language)
     {
-        this.japaneseText = japaneseText;
+        this.language = language;
         this.audio = Ensure.NotNull(audio);
         BindSheets(sheets);
         CeresFlightArtwork content = Ensure.NotNull(artwork);
@@ -92,7 +78,6 @@ internal sealed class IntroCeresFlightState
         Backdrop = content.Backdrop;
         // The loads above are invisible: the screen stays black until the music queue drains.
         // The display setup itself runs as the next update's cinematic phase.
-        Phase = IntroCeresFlightPhase.Initial;
     }
 
     /// <summary>Rebinds the installed sheets: the Ceres flight sheet the stars and rear-view actors draw from, and the caption's pictures.</summary>
@@ -113,8 +98,14 @@ internal sealed class IntroCeresFlightState
         Backdrop = artwork.Backdrop;
     }
 
-    /// <summary>Current cinematic phase, including the final handoff to Ceres gameplay.</summary>
-    public IntroCeresFlightPhase Phase { get; private set; }
+    /// <summary>Current cinematic phase, including the final handoff to Ceres gameplay: the one its stage is.</summary>
+    internal IntroCeresFlightPhase Phase => stage.Phase;
+
+    /// <summary>
+    /// The flight's stage, holding what it shows: the rear view's flash while the gunship flies toward Ceres, and the SPACE
+    /// COLONY caption from the title's setup to the flight's end.
+    /// </summary>
+    private FlightStage stage = InitialStage.Instance;
 
     /// <summary>True after the SPACE COLONY hold and final fade reach black.</summary>
     public bool Finished => Phase == IntroCeresFlightPhase.Finished;
@@ -122,62 +113,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Advances the music gate, camera, rear-view actors, title cadence, or final fade for one update.</summary>
     public void Step()
     {
-        switch (Phase)
-        {
-            case IntroCeresFlightPhase.Initial:
-                // The flight's music data, then its track, on the shared queue.
-                audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
-                audio.ScheduleMusic(
-                    MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
-                    CeresFlightSceneDefinitions.MusicDelay);
-                Phase = IntroCeresFlightPhase.WaitForMusicQueue;
-                break;
-
-            case IntroCeresFlightPhase.WaitForMusicQueue:
-                // The approach enables the display once the music queue is empty.
-                if (!audio.HasQueuedMusic)
-                {
-                    fade.Show(DisplayBrightness.Full);
-                    Phase = IntroCeresFlightPhase.FlyingIntoCamera;
-                }
-                break;
-
-            case IntroCeresFlightPhase.FlyingIntoCamera:
-                if (zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
-                {
-                    zoom = zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
-                }
-                else
-                {
-                    SetupRearView();
-                }
-                break;
-
-            case IntroCeresFlightPhase.FlyingTowardCeres:
-                StepFlyingTowardCeres();
-                break;
-
-            case IntroCeresFlightPhase.SpaceColonyTitle:
-                StepSpaceColonyTitle();
-                break;
-
-            case IntroCeresFlightPhase.FadeOut:
-                StepFadeOut();
-                break;
-
-            case IntroCeresFlightPhase.StartGameAtCeres:
-                // The handoff runs as the update after the screen goes black; it hands control to
-                // the new-game setup state, whose owner also performs this phase's Ceres checkpoint save.
-                Phase = IntroCeresFlightPhase.Finished;
-                break;
-
-            case IntroCeresFlightPhase.Finished:
-                // The flight has ended; its owner moves to the new-game setup state.
-                break;
-
-            default:
-                throw new InvalidOperationException($"Undefined Ceres flight phase {Phase}.");
-        }
+        stage.Step(this);
 
         if (Phase == IntroCeresFlightPhase.FlyingIntoCamera)
             StepStarsAndBackground();
@@ -206,14 +142,12 @@ internal sealed class IntroCeresFlightState
         // each whole.
         var sprites = new SpritesLayer(screenSprites.Draws);
         var layers = new List<DisplayLayer> { sprites };
-        if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
-            IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
+        if (stage is CaptionedStage captioned)
         {
             // The caption shows the pictures of the letters typed so far and, once drawn, the katakana caption (#1467),
             // over the station it names.
-            layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(
-                floorSheets,
-                CaptionLettersShown, JapaneseCaptionShown), Offset16<PlanePixels>.Zero));
+            SpaceColonyCaptionTyping? shown = captioned.Caption.Shown;
+            layers.Add(new PicturedPlaneLayer(CeresCinematicPictures.Caption(floorSheets, shown), Offset16<PlanePixels>.Zero));
         }
         else
         {
@@ -222,9 +156,9 @@ internal sealed class IntroCeresFlightState
                 CeresFloors.Of(floorSheets,
                     ShowsRearView ? CeresFloorShot.FlightRear : CeresFloorShot.FlightFront).Shaded(FloorShading)));
         }
-        if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
+        if (stage is RearViewStage rearView)
         {
-            layers.Add((rearViewFlash ?? throw new InvalidOperationException("The rear view shows no flash before its setup.")).Layer);
+            layers.Add(rearView.Flash.Layer);
         }
         return new(new FramePaint(Backdrop), layers.ToArray(), fade.Level);
     }
@@ -237,7 +171,7 @@ internal sealed class IntroCeresFlightState
         ? PictureShading.Standard.With(ColourEffectShades.Of(CeresFlightSceneDefinitions.EngineColours, frame))
         : PictureShading.Standard;
 
-    /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
+    /// <summary>Places the front stars or surviving rear-view actors as this frame's sprites.</summary>
     private void PrepareRenderSprites()
     {
         screenSprites.BeginFrame();
@@ -263,11 +197,11 @@ internal sealed class IntroCeresFlightState
         return shading;
     }
 
-    /// <summary>Whether the scene shows its rear view: once the rear-view map has been queued.</summary>
+    /// <summary>Whether the scene shows its rear view: once the camera has switched to it.</summary>
     internal bool ShowsRearView => Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
         IntroCeresFlightPhase.FlyingIntoCamera);
 
-    /// <summary>Loads the rear map, places five actors, and starts the white flash.</summary>
+    /// <summary>Switches the floor to the rear view, places five actors, and starts the white flash.</summary>
     private void SetupRearView()
     {
         // The rear view's map loads; the rear view's phase selects its installed floor (#1467).
@@ -285,8 +219,8 @@ internal sealed class IntroCeresFlightState
 
         // The flash washes the rear view, sprites and backdrop toward white. It begins fully white and takes one step
         // off the wash per frame, from the next, until none is left.
-        rearViewFlash = WhiteWash.FullWhite(CeresFlightSceneDefinitions.RearViewFlashUpdatesPerStep, CeresFlightSceneDefinitions.RearViewFlashFirstStepUpdate);
-        Phase = IntroCeresFlightPhase.FlyingTowardCeres;
+        stage = new RearViewStage(WhiteWash.FullWhite(CeresFlightSceneDefinitions.RearViewFlashUpdatesPerStep,
+            CeresFlightSceneDefinitions.RearViewFlashFirstStepUpdate));
         // The rear view's setup starts the gunship engine's flicker, then the station's blinking navigation lights (#1733).
         ColourEffects.StartScreen(CeresFlightSceneDefinitions.GunshipEngineFlicker);
         ColourEffects.StartScreen(CeresFlightSceneDefinitions.NavigationLights);
@@ -307,13 +241,14 @@ internal sealed class IntroCeresFlightState
     }
 
     /// <summary>Fades the white flash and enlarges the rear-view turning image until the title begins.</summary>
-    private void StepFlyingTowardCeres()
+    /// <param name="flash">The rear view's flash, fading as the gunship flies.</param>
+    private void StepFlyingTowardCeres(WhiteWash flash)
     {
         // The white flash fades by one step per frame, stopping at none.
-        (rearViewFlash ?? throw new InvalidOperationException("The rear view flies with no flash set up.")).Fade();
+        flash.Fade();
 
-        // The rear view drifts left by an eighth of a pixel and grows the rear-of-gunship turning
-        // image in two bands: the slow step until twelve floor pixels per screen pixel, then the fast step until thirty-two.
+        // The rear view drifts left by its drift and grows the rear-of-gunship turning
+        // image in two bands: the slow step and then the fast step, to the rear view's widest zoom.
         background = background.WithX(background.X - CeresFlightRenderDefinitions.RearViewDrift);
         if (zoom < CeresFlightRenderDefinitions.RearSlowWideningLimit)
             zoom = zoom.Widened(CeresFlightRenderDefinitions.SlowZoomStep);
@@ -326,39 +261,38 @@ internal sealed class IntroCeresFlightState
     /// <summary>Switches to the caption page and starts typing the caption, its first glyph shown at once.</summary>
     private void SetupSpaceColonyTitle()
     {
-        // The title replaces the turning image with the caption page
-        // and starts the caption's background text object. The rear-view cinematic actors are not
-        // deleted, so Ceres and both asteroid layers remain behind the title text.
-        // English text shows no katakana caption; Japanese text shows it for one frame before the hold.
-        caption = AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
+        // The title shows the caption over the scene and starts typing it; the rear view's actors stay, so Ceres and
+        // both asteroid layers remain behind the title text. English text shows no katakana caption; Japanese text
+        // shows it for one frame before the hold.
+        // English text shows no katakana caption.
+        stage = new TitleStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue>.StartShowing(
             SpaceColonyCaptionAnimations.Segments,
-            SpaceColonyCaptionAnimations.Typing(japaneseText ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English));
-        Phase = IntroCeresFlightPhase.SpaceColonyTitle;
+            SpaceColonyCaptionAnimations.Typing(language == TextLanguage.Japanese ? SpaceColonyCaptionText.WithKatakana : SpaceColonyCaptionText.English)));
     }
 
     /// <summary>
-    /// Types the title's letters every sixteen frames, optionally adds katakana, then holds the completed caption before
-    /// the fade step installs the ordinary fade owner.
+    /// Types the title's letters at the title's typing pace, optionally adds katakana, then holds the completed caption
+    /// before the fade step hands over to the ordinary fade owner.
     /// </summary>
-    private void StepSpaceColonyTitle() =>
-        (caption ?? throw new InvalidOperationException("The SPACE COLONY title runs with no caption set up.")).Step(CarryOut);
+    /// <param name="caption">The caption the title types.</param>
+    private void StepSpaceColonyTitle(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) =>
+        caption.Step(_ => CarryOut(caption));
 
-    /// <summary>Carries out <paramref name="cue"/> of the caption's typing.</summary>
-    /// <exception cref="InvalidOperationException">The cue is not one the caption's typing raises.</exception>
-    private void CarryOut(SpaceColonyCaptionCue cue)
+    /// <summary>Carries out the cue the caption's typing raises at its end: the fade-out starts.</summary>
+    /// <param name="caption">The caption raising it, which stays shown through the fade.</param>
+    private void CarryOut(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption)
     {
-        if (cue != SpaceColonyCaptionCue.StartFadeOut)
-            throw new InvalidOperationException($"Undefined SPACE COLONY caption cue {cue}.");
         fade.StepEvery(CeresFlightSceneDefinitions.FadeOutUpdatesPerStep);
-        Phase = IntroCeresFlightPhase.FadeOut;
+        stage = new FadeOutStage(caption);
     }
 
     /// <summary>Lowers brightness every other update until the black screen permits the Ceres handoff.</summary>
-    private void StepFadeOut()
+    /// <param name="caption">The caption shown through the fade.</param>
+    private void StepFadeOut(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption)
     {
-        // The fade-out removes one brightness level every other frame and ends with the screen black.
+        // The fade-out removes a brightness level at its pace and ends with the screen black.
         if (fade.Darken())
-            Phase = IntroCeresFlightPhase.StartGameAtCeres;
+            stage = new StartGameStage(caption);
     }
 
     /// <summary>Moves each rear-view actor according to its defined motion before stepping its sprite animation.</summary>
@@ -367,10 +301,8 @@ internal sealed class IntroCeresFlightState
         foreach ((CeresRearViewActorRole role, CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> actor) in RearViewActors)
         {
             CeresFlightActorDefinition definition = CeresFlightActors.RearViewActor(role);
-            if (definition.DriftsRoundLoop)
-                actor.DriftRoundLoop(definition.HorizontalDelta);
-            else
-                actor.Position = actor.Position.WithX(actor.Position.X + definition.HorizontalDelta);
+            // A looping actor's own loop carries it round (CinematicActor.Drift).
+            actor.Drift(definition.HorizontalDelta);
             actor.Step();
         }
     }
@@ -378,14 +310,167 @@ internal sealed class IntroCeresFlightState
     /// <summary>Accelerates the front stars and both turning-floor scroll offsets along the same diagonal.</summary>
     private void StepStarsAndBackground()
     {
-        // The star field's speed grows by half a pixel each update, and that same growing distance moves the star
+        // The star field's speed grows by its acceleration each update, and that same growing distance moves the star
         // actor and both turning-floor offsets, so the ship's rush looks diagonal.
-        // The rush lasts while the zoom falls from two floor pixels by a sixteenth an update, about 32 updates, so the speed rises from four
-        // pixels an update one way to at most twelve the other.
+        // The rush lasts while the zoom falls to its narrowest, so the speed reverses and grows only a few pixels an update
+        // the other way.
         starsVelocity += CeresFlightActorDefinitions.FrontStarAcceleration;
         SignedSixteenSixteen rush = starsVelocity.ToSixteenSixteenDelta();
         stars.Position = new(stars.Position.X + rush, stars.Position.Y + rush);
         background = new(background.X + rush, background.Y + rush);
     }
 
+    /// <summary>A stage of the flight, named by the phase it is.</summary>
+    private abstract partial class FlightStage
+    {
+        /// <summary>The phase the stage is.</summary>
+        internal abstract IntroCeresFlightPhase Phase { get; }
+
+        /// <summary>Runs one update of the stage.</summary>
+        /// <param name="flight">The flight the stage is of.</param>
+        internal abstract void Step(IntroCeresFlightState flight);
+    }
+
+    /// <summary>The flight's first update, which queues its music.</summary>
+    private sealed partial class InitialStage : FlightStage
+    {
+        /// <summary>The stage's only value.</summary>
+        internal static InitialStage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.Initial;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+            // The flight's music data, then its track, on the shared queue.
+            flight.audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.Ceres));
+            flight.audio.ScheduleMusic(
+                MusicRequest.SelectTrack(CeresFlightSceneDefinitions.FlightSong),
+                CeresFlightSceneDefinitions.MusicDelay);
+            flight.stage = WaitingForMusicStage.Instance;
+        }
+    }
+
+    /// <summary>The wait for the music queue to empty, before the display shows.</summary>
+    private sealed partial class WaitingForMusicStage : FlightStage
+    {
+        /// <summary>The stage's only value.</summary>
+        internal static WaitingForMusicStage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.WaitForMusicQueue;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+            // The approach enables the display once the music queue is empty.
+            if (flight.audio.HasQueuedMusic)
+                return;
+            flight.fade.Show(DisplayBrightness.Full);
+            flight.stage = FlyingIntoCameraStage.Instance;
+        }
+    }
+
+    /// <summary>The gunship's rush into the camera, the front stars streaming past.</summary>
+    private sealed partial class FlyingIntoCameraStage : FlightStage
+    {
+        /// <summary>The stage's only value.</summary>
+        internal static FlyingIntoCameraStage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.FlyingIntoCamera;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+            if (flight.zoom >= CeresFlightRenderDefinitions.FrontNarrowingFloor)
+                flight.zoom = flight.zoom.Narrowed(CeresFlightRenderDefinitions.SlowZoomStep);
+            else
+                flight.SetupRearView();
+        }
+    }
+
+    /// <summary>
+    /// The rear view's flight toward Ceres under its flash.
+    /// </summary>
+    /// <param name="flash">
+    /// The rear-view flash's white wash (<see cref="WhiteWash"/>): full white when the rear view starts, one step fewer each
+    /// update, stopping at none.
+    /// </param>
+    private sealed partial class RearViewStage(WhiteWash flash) : FlightStage
+    {
+        /// <summary>The rear-view flash's white wash, fading a step each update.</summary>
+        internal WhiteWash Flash { get; } = flash;
+
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.FlyingTowardCeres;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight) => flight.StepFlyingTowardCeres(Flash);
+    }
+
+    /// <summary>
+    /// A stage showing the SPACE COLONY caption (#2488), from the title's setup to the flight's end.
+    /// </summary>
+    /// <param name="caption">
+    /// The caption's typing, played by the shared player: its letters, with Japanese text its katakana caption, its hold and
+    /// the fade-out cue.
+    /// </param>
+    private abstract partial class CaptionedStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : FlightStage
+    {
+        /// <summary>The caption's typing.</summary>
+        internal AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> Caption { get; } = caption;
+    }
+
+    /// <summary>The title, typing the caption and holding it.</summary>
+    /// <param name="caption">The caption the title types.</param>
+    private sealed partial class TitleStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    {
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.SpaceColonyTitle;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight) => flight.StepSpaceColonyTitle(Caption);
+    }
+
+    /// <summary>The fade to black under the caption.</summary>
+    /// <param name="caption">The caption shown.</param>
+    private sealed partial class FadeOutStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    {
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.FadeOut;
+
+        /// <inheritdoc/>
+        internal override void Step(IntroCeresFlightState flight) => flight.StepFadeOut(Caption);
+    }
+
+    /// <summary>The update after the screen goes black, which hands over to Ceres.</summary>
+    /// <param name="caption">The caption shown.</param>
+    private sealed partial class StartGameStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    {
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.StartGameAtCeres;
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// The handoff runs as the update after the screen goes black; it hands control to the new-game setup state, whose
+        /// owner also performs this phase's Ceres checkpoint save.
+        /// </remarks>
+        internal override void Step(IntroCeresFlightState flight) => flight.stage = new FinishedStage(Caption);
+    }
+
+    /// <summary>The flight has ended.</summary>
+    /// <param name="caption">The caption shown.</param>
+    private sealed partial class FinishedStage(AnimationPlayer<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> caption) : CaptionedStage(caption)
+    {
+        /// <inheritdoc/>
+        internal override IntroCeresFlightPhase Phase => IntroCeresFlightPhase.Finished;
+
+        /// <inheritdoc/>
+        /// <remarks>The flight has ended; its owner moves to the new-game setup state.</remarks>
+        internal override void Step(IntroCeresFlightState flight)
+        {
+        }
+    }
 }

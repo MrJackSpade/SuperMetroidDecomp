@@ -11,8 +11,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the echo's kind, pictures, animation and angle but not its position, which stays as the place's previous shot left it
 /// until the echo's update recalculates it.
 /// </remarks>
-[CompatibilityService("a released crash echo stands where the shot it replaced was until its first update")]
-public static class ReleasedEchoStartsAtReplacedShot
+public static partial class ReleasedEchoStartsAtReplacedShot
 {
     /// <summary>The whole position a released echo starts at.</summary>
     /// <param name="replacedShot">The position of the shot the echo replaces, or null when no shot held the place.</param>

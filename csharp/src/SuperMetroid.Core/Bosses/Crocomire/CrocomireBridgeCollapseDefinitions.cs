@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's fall through his bridge (#2171): where it breaks, how he sinks and rises, and where his sinking body disappears.</summary>
-internal static class CrocomireBridgeCollapseDefinitions
+internal static partial class CrocomireBridgeCollapseDefinitions
 {
     /// <summary>The body X from which Crocomire's weight breaks the bridge and he falls through it.</summary>
     internal const int CollapseStartX = 1600;
@@ -29,7 +29,7 @@ internal static class CrocomireBridgeCollapseDefinitions
     internal static readonly SignedSixteenSixteen MaximumSinkAcceleration = SignedSixteenSixteen.FromPixelFraction(3, 16);
 
     /// <summary>
-    /// The sink's fastest whole pixels an update, three (#2299): a speed past them keeps them and its own fraction
+    /// The sink's fastest whole pixels an update (#2299): a speed past them keeps them and its own fraction
     /// (<see cref="CrocomireSpeedGain"/>). Each rise starts at this speed.
     /// </summary>
     internal static readonly SignedEightEight MaximumSinkSpeed = SignedEightEight.FromPixels(3);

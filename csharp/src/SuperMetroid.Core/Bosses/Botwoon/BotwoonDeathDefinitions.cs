@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// Botwoon's death: how long he waits before he falls and how fast he falls, how long his wall bursts, how many drops it
 /// leaves, and where his drops fall and where and how often his wall explosions burst.
 /// </summary>
-internal static class BotwoonDeathDefinitions
+internal static partial class BotwoonDeathDefinitions
 {
     /// <summary>
     /// The updates Botwoon waits once his tail has finished entering the wall after the fatal hit, the update it does so
@@ -50,26 +50,26 @@ internal static class BotwoonDeathDefinitions
     /// <summary>How far down the wall the band the wall explosions burst in moves each update of the sequence, in pixels.</summary>
     internal const int ExplosionBandDescent = 1;
 
-    /// <summary>The updates from one large wall explosion to the next once they run: one bursts every thirteenth update.</summary>
+    /// <summary>The updates from one large wall explosion to the next once they run.</summary>
     internal const int LargeExplosionInterval = 13;
 
-    /// <summary>The updates from one pair of small wall explosions to the next once they run: a pair bursts every fifth update.</summary>
+    /// <summary>The updates from one pair of small wall explosions to the next once they run.</summary>
     internal const int SmallExplosionInterval = 5;
 
-    /// <summary>A death drop's X across its 128-pixel strip from X 64.</summary>
-    internal static readonly RandomSampleField DropX = new(0, 7);
+    /// <summary>A death drop's X across its strip from <see cref="DropLeft"/>.</summary>
+    internal static readonly RandomSampleField DropX = RandomSampleField.OneOf(128);
 
-    /// <summary>A death drop's Y down its 64-pixel band from Y 128.</summary>
-    internal static readonly RandomSampleField DropY = new(8, 6);
+    /// <summary>A death drop's Y down its band from <see cref="DropTop"/>.</summary>
+    internal static readonly RandomSampleField DropY = RandomSampleField.SecondOf(64);
 
-    /// <summary>A large wall explosion's X across its 32-pixel strip from X 232.</summary>
-    internal static readonly RandomSampleField LargeExplosionX = new(0, 5);
+    /// <summary>A large wall explosion's X across its strip from <see cref="LargeExplosionLeft"/>.</summary>
+    internal static readonly RandomSampleField LargeExplosionX = RandomSampleField.OneOf(32);
 
-    /// <summary>A small wall explosion's X across its 64-pixel strip from X 224.</summary>
-    internal static readonly RandomSampleField SmallExplosionX = new(0, 6);
+    /// <summary>A small wall explosion's X across its strip from <see cref="SmallExplosionLeft"/>.</summary>
+    internal static readonly RandomSampleField SmallExplosionX = RandomSampleField.OneOf(64);
 
     /// <summary>
-    /// A wall explosion's height jitter, 0 through 31 pixels below the top of the band it bursts in, drawn for large and small explosions alike.
+    /// A wall explosion's height jitter, in pixels below the top of the band it bursts in, drawn for large and small explosions alike.
     /// </summary>
-    internal static readonly RandomSampleField ExplosionYJitter = new(0, 5);
+    internal static readonly RandomSampleField ExplosionYJitter = RandomSampleField.OneOf(32);
 }

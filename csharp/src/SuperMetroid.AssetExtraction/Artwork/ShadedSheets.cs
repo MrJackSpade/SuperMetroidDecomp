@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Pre-colours composed sheets in further shades (#1512), beside any their composer gave them.</summary>
-internal static class ShadedSheets
+internal static partial class ShadedSheets
 {
     /// <summary><paramref name="sheet"/>, also pre-coloured in <paramref name="shades"/>.</summary>
     /// <exception cref="InvalidDataException">A shade's name is one the sheet already has, or its lists differ in length.</exception>

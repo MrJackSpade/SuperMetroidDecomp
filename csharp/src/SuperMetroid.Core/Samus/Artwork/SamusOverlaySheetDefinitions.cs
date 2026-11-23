@@ -6,10 +6,9 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// The pre-coloured sheet of the single sprites drawn over Samus's body (#1392): the arm cannon's cover in each
 /// direction and opening picture. The Power Suit chest cover is part of the forward-facing body's own frames (#1513).
 /// </summary>
-public static class SamusOverlaySheetDefinitions
+public static partial class SamusOverlaySheetDefinitions
 {
     /// <summary>The arm cannon's cover aimed in <paramref name="direction"/>, showing picture <paramref name="frame"/>.</summary>
-    [InstalledKey]
     public static string ArmCannonFrame(SamusProjectileDirection direction, SamusArmCannonCoverFrame frame) =>
         $"ArmCannon.{SamusProjectileDirectionKeys.Installed.Of(direction)}.{SamusArmCannonCoverFrameKeys.Installed.Of(frame)}";
 }

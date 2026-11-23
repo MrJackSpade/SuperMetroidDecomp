@@ -11,8 +11,7 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// This type is the codec of that word: <c>At(PpuLayoutCell, int, VramIncrement)</c> encodes it, and
 /// <see cref="Word"/> and <see cref="WordIncrement"/> are the only decoders, so the word it stores is the encoding.
 /// </remarks>
-[EncodingOwner("queued video transfer destination word")]
-public readonly record struct VramDmaDestination
+public readonly partial record struct VramDmaDestination
 {
     /// <summary>Native DMA queue bit 15, selecting 32-word column increments.</summary>
     internal const ushort ColumnFlag = 1 << 15;

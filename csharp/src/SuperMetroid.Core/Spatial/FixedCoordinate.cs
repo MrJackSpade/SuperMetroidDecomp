@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>One axis of a 16.16 fixed-point position: the whole pixel and its fraction, each wrapping at sixteen bits.</summary>
-[EncodingOwner("16.16 fixed-point coordinate")]
-public readonly record struct FixedCoordinate
+public readonly partial record struct FixedCoordinate
 {
     /// <summary>The position at <paramref name="whole"/> pixels and <paramref name="fraction"/> 65536ths, each 0 through 65535.</summary>
     /// <param name="whole">The whole pixel, 0 through 65535; the coordinate range wraps past either end.</param>
@@ -14,7 +13,6 @@ public readonly record struct FixedCoordinate
     }
 
     /// <summary>The whole pixel, 0 through 65535; the coordinate range wraps past either end.</summary>
-    [IntegerQuantity("whole-pixel coordinate")]
     public ushort Whole { get; init; }
 
     /// <summary>The fraction of a pixel, in 65536ths, 0 through <see cref="LastFraction"/>.</summary>
@@ -62,9 +60,6 @@ public readonly record struct FixedCoordinate
     /// (<see cref="CoordinateAxis.Wrap"/>), keeping the fraction.
     /// </summary>
     public FixedCoordinate WithWrappedWhole(int whole) => WithWhole(CoordinateAxis.Wrap(whole));
-
-    /// <summary>Replaces only the fraction, 0 through 65535 65536ths of a pixel, keeping the whole pixel.</summary>
-    public FixedCoordinate WithFraction(int fraction) => this with { Fraction = checked((ushort)fraction) };
 
     /// <summary>
     /// This position moved by <paramref name="displacement"/>: the fraction carries into the whole pixel, and the whole

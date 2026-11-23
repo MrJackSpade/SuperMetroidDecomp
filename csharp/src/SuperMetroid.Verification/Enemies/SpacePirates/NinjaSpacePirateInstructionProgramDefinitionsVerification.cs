@@ -1,6 +1,5 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates;
@@ -38,7 +37,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         var colors = new PaletteRgb5[EnemyPaletteSheetFile.ColorCount];
         for (int color = 0; color < colors.Length; color++)
         {
-            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));
+            ushort word = rom.ReadCartridgeWord((NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource + color * 2));
             colors[color] = new PaletteRgb5 { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         }
         // This instruction-only fixture never renders character graphics, but the
@@ -48,7 +47,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         using var tilePng = new MemoryStream();
         IndexedPng.Write(tilePng, size, pixels, SnesGraphics.DiagnosticPalette(16));
         tilePng.Position = 0;
-        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+        var artwork = EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlasPng.Read(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
             }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
@@ -82,11 +81,11 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
 
         foreach (NinjaSpacePirateSegment program in programs)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus) = CreateSystem();
-            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
+            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus, NinjaSpacePirateEnemyState state) = CreateSystem();
+            state.Playback =
                 new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, 140);
+            RunFrames(enemies, place, state, samus, 140);
         }
 
         Suite(nameof(VerifyClawAttack), () => VerifyClawAttack(
@@ -114,9 +113,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         // dive's Y fraction. The contributed lowc movie lands one with a fraction of $0780 (update 111,288).
         void VerifyDiveLanding(bool movingRight)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState _) = CreateSystem();
-            NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
-                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
+            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState _, NinjaSpacePirateEnemyState state) = CreateSystem();
             const ushort diveFraction = 1920;
             place.Position = place.Position.WithFractionY(diveFraction);
             // One speed step left: the dive ends after this movement, wherever it is.
@@ -139,9 +136,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         {
             const ushort initialDiveSpeed = 1536;
             const int speedStep = 64;
-            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus) = CreateSystem();
-            NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
-                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
+            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus, NinjaSpacePirateEnemyState state) = CreateSystem();
             NinjaSpacePirateAction rising = NinjaSpacePirateAction.DivekickJump;
             NinjaSpacePirateAction diving = NinjaSpacePirateAction.DivekickDive;
             HorizontalDirection heading = movingRight ? HorizontalDirection.Right : HorizontalDirection.Left;
@@ -150,7 +145,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             state.DiveSpeed = new SignedEightEight(initialDiveSpeed);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
             ushort nativeSpeed = initialDiveSpeed;
             int risingUpdates = 0;
             for (int update = 1; update <= 40; update++)
@@ -158,7 +153,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 ushort expectedY = unchecked((ushort)(place.Position.Y.Whole - nativeSpeed / 256));
                 nativeSpeed = unchecked((ushort)(nativeSpeed - speedStep));
                 bool riseEnds = unchecked((short)nativeSpeed) < 0;
-                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, frame);
+                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(place, state, frame);
                 AssertEqual(expectedY, place.Position.Y.Whole, $"ninja divekick rise update {update} climbs by the speed's whole pixels");
                 if (!riseEnds)
                 {
@@ -181,9 +176,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         // negative raw value and that negative speed lands the dive, exactly as the native word does.
         void VerifyDiveSpeedWrap(bool movingRight)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState _) = CreateSystem();
-            NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
-                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
+            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState _, NinjaSpacePirateEnemyState state) = CreateSystem();
             state.DiveSpeed = new SignedEightEight(0);
             RoomLevelData level = VerificationHelpersVerification.CreateEmptyRoom(new(32, 32));
             ushort nativeSpeed = unchecked((ushort)(0 - 64));
@@ -196,12 +189,11 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         // Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.
         void VerifyClawAttack(NinjaSpacePirateSegment program, int expectedFirstXOffset)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus) = CreateSystem();
-            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
+            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus, NinjaSpacePirateEnemyState state) = CreateSystem();
+            state.Playback =
                 new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, 40);
-            NinjaSpacePirateEnemyState state = (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0]."));
+            RunFrames(enemies, place, state, samus, 40);
             AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(p => p.IsActive && p.Kind == RoomEnemyProjectileKind.PirateClaw),
                 $"ninja Pirate claw program {program} first spawn count");
             EnemyProjectile claw = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
@@ -214,12 +206,12 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         // Checks the dive's function switch, shared gold palette, and attack sound.
         void VerifyDive(NinjaSpacePirateSegment program, HorizontalDirection heading)
         {
-            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus) = CreateSystem();
-            (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized ninja state.")).Playback =
+            (RoomEnemySystem enemies, RoomEnemyPlace place, SamusState samus, NinjaSpacePirateEnemyState state) = CreateSystem();
+            state.Playback =
                 new(NinjaSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, 3);
-            NinjaSpacePirateEnemyState diving = enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].");
+            RunFrames(enemies, place, state, samus, 3);
+            NinjaSpacePirateEnemyState diving = state;
             AssertEqual(NinjaSpacePirateAction.DivekickDive, diving.Action, $"ninja Pirate dive program {program} function");
             AssertEqual(heading, diving.Heading, $"ninja Pirate dive program {program} dives its way (#2165)");
             AssertEqual(SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateShades.GoldWallFlash, place.Shading,
@@ -234,25 +226,28 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(artwork), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.PirateSilverNinja, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.PirateSilverNinja, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateSilverNinja, 0x0080);
-            NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place);
-            return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
+            // The Pirate's setup builds the state its steps and its animation, which the check plays, run on.
+            NinjaSpacePirateEnemyState state = NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(place.HeldOccupant().SpawnSettings<NinjaSpacePirateSpawnSettings>(), place);
+            return new NinjaSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) }, state);
         }
 
         // Advances production enemy instructions for the requested number of updates.
         static void RunFrames(
             RoomEnemySystem enemies,
             RoomEnemyPlace place,
+            NinjaSpacePirateEnemyState state,
             SamusState samus,
             int frames)
         {
-            object?[] arguments =
-                [place, samus, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
-            for (int frame = 0; frame < frames; frame++) EnemyInstructionRunner.Process(arguments);
+            var context = new EnemyAnimationCueContext
+                { Samus = samus, Level = RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Camera = Position16<RoomPixels>.Zero, ControllerInput = default };
+            for (int frame = 0; frame < frames; frame++)
+                enemies.NinjaSpacePirateBehavior.AdvanceNinjaSpacePirateTypedAnimation(place.HeldOccupant(), place, state, context);
         }
     }
 

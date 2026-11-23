@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// change on the next room-object update and then rests again, ready for the next touch.
 /// </summary>
 /// <param name="change">The room's authored scroll change.</param>
-internal sealed class ScrollTriggerObject(RoomScrollChange change) : RoomObjectBehaviour
+internal sealed partial class ScrollTriggerObject(RoomScrollChange change) : RoomObjectBehaviour
 {
     /// <summary>Whether Samus has touched the trigger since its writes last ran; repeated touches before then change nothing.</summary>
-    internal bool Triggered { get; private set; }
+    internal bool Triggered { get; set; }
 
     /// <summary>The room's authored scroll change the trigger applies.</summary>
     internal RoomScrollChange Change { get; } = change;
@@ -31,7 +31,7 @@ internal sealed class ScrollTriggerObject(RoomScrollChange change) : RoomObjectB
 
     /// <summary>
     /// Makes the trigger's block special air that reacts as a scroll trigger, as its setup does and as it rests again
-    /// after its writes. Both rewrite only the block's type and parameter, so it keeps its picture and what it shows (#2502).
+    /// after its changes; the block keeps its picture and what it shows (#2502).
     /// </summary>
     /// <param name="level">The room's level data.</param>
     /// <param name="block">The trigger's block.</param>
@@ -39,7 +39,6 @@ internal sealed class ScrollTriggerObject(RoomScrollChange change) : RoomObjectB
     {
         Ensure.NotNull(level);
         Triggered = false;
-        level.SetCollision(block, RoomCollisionType.SpecialAir);
-        level.SetBehavior(block, RoomBlockBehavior.Reacting(SpecialAirReaction.ScrollTrigger));
+        level.SetCollisionAndBehavior(block, RoomCollisionType.SpecialAir, RoomBlockBehavior.Reacting(SpecialAirReaction.ScrollTrigger));
     }
 }

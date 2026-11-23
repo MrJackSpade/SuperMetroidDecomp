@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Spatial;
 /// 256ths of the whole, exactly as <see cref="Trigonometry.SignedSine"/> samples it. A length laid along the direction
 /// reaches this share of itself along the axis; a turn carries a point along the axis at this share of its speed.
 /// </summary>
-public readonly record struct UnitComponent
+public readonly partial record struct UnitComponent
 {
     /// <summary>The 256ths in the whole of a direction, as a power of two.</summary>
     private const int WholeExponent = 8;
@@ -17,7 +17,6 @@ public readonly record struct UnitComponent
     private UnitComponent(int twoFiftySixths) => TwoFiftySixths = Ensure.BetweenInclusive(-Whole, Whole, twoFiftySixths);
 
     /// <summary>The share in 256ths of the whole, -256 through 256: negative toward the axis's decreasing side.</summary>
-    [IntegerQuantity("signed share of a unit direction in 256ths")]
     private int TwoFiftySixths { get; }
 
     /// <summary>The game's sine of <paramref name="angle"/>: the share of its direction along the axis a quarter turn on from zero.</summary>
@@ -27,8 +26,8 @@ public readonly record struct UnitComponent
     private const int TwoFiftySixthsPerCoarseStep = 2;
 
     /// <summary>
-    /// The fine sine (<see cref="Trigonometry.FineSignedSine"/>) of <paramref name="angle"/> read coarsely (#2453): its size
-    /// as <see cref="Trigonometry.CoarseSizeOfFineSine"/> reads it, 128ths of the whole, with the sine's sign at the angle.
+    /// The fine sine (<see cref="Trigonometry.FineSignedSine"/>) of <paramref name="angle"/> read coarsely (#2453): its
+    /// size as <see cref="Trigonometry.CoarseSizeOfFineSine"/> reads it, with the sine's sign at the angle.
     /// </summary>
     public static UnitComponent CoarseFineSineOf(TrigonometryAngle angle) =>
         new(angle.WithSineSign(Trigonometry.CoarseSizeOfFineSine(angle) * TwoFiftySixthsPerCoarseStep));

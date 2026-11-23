@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
@@ -18,12 +17,10 @@ internal static class PolypBehaviorVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Polyp, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        enemies.PolypBehavior.InitializePolyp(place);
-        AssertEqual(new AnimationPlayback<PolypSegment>(PolypAnimations.StartingWith(PolypSegment.Stationary), AnimationPlace.StartOfAnimation),
-            (enemies.Places.InUpdateOrder[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Playback,
-            "real Polyp initializer starts the stationary program");
+        place.Bind(EnemyDefinitionId.Polyp, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+        // The Polyp is set up as the population load sets it up.
+        _ = enemies.LoadAuthoredPopulation();
         // A still picture is held (#2276): it is new on the update it shows and stays without showing anew.
         ushort frame = PolypAnimationsConstants.Spritemaps(PolypSegment.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame], [1]),

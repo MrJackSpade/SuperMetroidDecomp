@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// Editable JSON schema for the Japanese text's next-page arrow compositions (#1655); its position, cadence and hidden delay
 /// remain the narration's behaviour, not authored frames.
 /// </summary>
-public sealed record IntroNextPageArrowSpriteDocument
+public sealed partial record IntroNextPageArrowSpriteDocument
 {
     /// <summary>Must match <see cref="IntroNextPageArrowSpriteFormat.Version"/> before any visual frame is accepted.</summary>
     public required int Version { get; init; }

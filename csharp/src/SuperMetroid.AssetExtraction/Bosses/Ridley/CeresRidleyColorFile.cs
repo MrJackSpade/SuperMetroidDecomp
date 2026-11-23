@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 
 /// <summary>Reads and writes the installed Ceres Ridley colour document.</summary>
-public static class CeresRidleyColorFile
+public static partial class CeresRidleyColorFile
 {
     /// <summary>Compiles RGB5 JSON into a validated immutable color catalog, rejecting unknown/duplicate properties, unsupported versions, wrong row dimensions, and channels outside 0..31.</summary>
     /// <param name="json">JSON input read from its current position; the caller retains ownership of the stream.</param>
@@ -26,8 +26,9 @@ public static class CeresRidleyColorFile
         RgbColor[] start = Compile(document.Start, CeresRidleyColorFormat.StartColorCount, "start");
         RgbColor[][] eyeFade = CompileRows(document.EyeFade, CeresRidleyColorFormat.EyeFadeShadeCount,
             CeresRidleyColorFormat.EyeFadeColorCount, "eye fade");
-        RgbColor[][] health = CompileRows(document.Health, CeresRidleyColorFormat.HealthBandCount,
-            CeresRidleyColorFormat.HealthColorCount, "health");
+        Dictionary<SuperMetroid.Core.Bosses.Ridley.RidleyHealthShade, RgbColor[]> health = Rgb5Rows.CompileKeyed(document.Health,
+            SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst, band => band.Key,
+            CeresRidleyColorFormat.HealthColorCount, "Ceres Ridley health");
         RgbColor[][] alarm = CompileRows(document.Alarm, CeresRidleyColorFormat.AlarmStepCount,
             CeresRidleyColorFormat.AlarmColorCount, "alarm");
         var retreat = new CeresRidleyRetreatColours
@@ -35,14 +36,13 @@ public static class CeresRidleyColorFile
             Background = Compile(document.RetreatBg, CeresRidleyColorFormat.RetreatBgColorCount, "retreat BG"),
             Shared = Compile(document.RetreatShared, CeresRidleyColorFormat.RetreatSharedColorCount, "retreat shared"),
         };
-        CeresBabyShadeColours baby = CompileShades(document.BabyShades
-            ?? throw new InvalidDataException("Ceres Ridley Baby requires its shades."));
+        CeresBabyShadeColours baby = CompileShades(document.BabyShades);
         return new CeresRidleyColorCatalog(start, eyeFade, bodyFade, health, alarm, retreat, baby);
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(CeresRidleyColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
     private static RgbColor[][] CompileRows(PaletteRgb5[][]? rows, int count,

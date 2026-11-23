@@ -19,7 +19,6 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.WorkRobots;
-using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.AssetExtraction.Fx;
@@ -41,18 +40,19 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// that recolour fixed rows or select another row (the statue scenes, the Ninja Pirates' gold wall, the Ceres doors, the
 /// drained corpses and the n00b tube's cracks).
 /// </summary>
-internal sealed class EnemySheetShades
+internal sealed partial class EnemySheetShades
 {
+    /// <summary>
+    /// The palette row an enemy sheet draws a part in when neither the part nor its frame's draw chooses one: every
+    /// enemy sheet is laid in the first row, with its family's palette bits ORed in.
+    /// </summary>
+    internal const int SheetRow = 0;
+
     /// <summary>Each catalogued frame colouring by the sheet frame name its frame takes.</summary>
     private static readonly Lazy<Dictionary<string, FrameColouring>> FrameColourings = new(() => new Dictionary<string, FrameColouring>(
         FrameColouringDefinitions.Projectiles.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.ProjectileFrameName(entry.Key), entry.Value))
             .Concat(FrameColouringDefinitions.Frames.Select(entry => KeyValuePair.Create(EnemySheetDefinitions.FrameName(entry.Key), entry.Value))),
         StringComparer.Ordinal));
-
-    /// <summary>Each catalogued common spawner's frame colouring by the sheet frame name its frame takes.</summary>
-    private static readonly Lazy<Dictionary<string, CommonSpawnerShades>> CommonFrameColourings = new(() =>
-        FrameColouringDefinitions.CommonProjectiles.ToDictionary(entry => EnemySheetDefinitions.ProjectileFrameName(entry.Key), entry => entry.Value,
-            StringComparer.Ordinal));
 
     /// <summary>The installed artwork the effects' colours come from.</summary>
     private readonly EnemySheetInputs inputs;
@@ -79,7 +79,19 @@ internal sealed class EnemySheetShades
         this.inputs = Ensure.NotNull(inputs);
         this.colours = Ensure.NotNull(colours);
         this.placements = Ensure.NotNull(placements);
+        ownRowEffects = OwnRowEffects();
+        fixedEffects = FixedEffects();
+        spawnedObjectEffects = SpawnedObjectEffects();
     }
+
+    /// <summary>Each enemy's effects over the row it draws in (<see cref="OwnRowEffects"/>).</summary>
+    private readonly Dictionary<EnemyDefinitionId, OwnRowShading> ownRowEffects;
+
+    /// <summary>Each enemy's effects over fixed rows (<see cref="FixedEffects"/>).</summary>
+    private readonly Dictionary<EnemyDefinitionId, Func<SheetShadeSet>> fixedEffects;
+
+    /// <summary>Each enemy's spawned objects' encounter colours (<see cref="SpawnedObjectEffects"/>).</summary>
+    private readonly Dictionary<EnemyDefinitionId, Func<IEnumerable<SheetShade>>> spawnedObjectEffects;
 
     /// <summary>
     /// The shades laid before <paramref name="enemy"/>'s frames first show under the set, in laying order: those its
@@ -138,9 +150,8 @@ internal sealed class EnemySheetShades
             var left = new Dictionary<int, RgbColor>();
             foreach (PictureShade name in laid)
             {
-                SheetShade shade = EffectOf(enemy, name);
-                for (int index = 0; index < shade.Inks.Length; index++)
-                    left[shade.Inks[index]] = shade.Colours[index];
+                foreach ((int ink, RgbColor colour) in EffectOf(enemy, name).InkColours)
+                    left[ink] = colour;
             }
             foreach ((int ink, RgbColor colour) in left)
             {
@@ -179,11 +190,9 @@ internal sealed class EnemySheetShades
         var recolouredBy = new Dictionary<int, string>();
         foreach (FramePictures pictures in frames)
         {
-            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? 0) | paletteBits))];
+            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? SheetRow) | paletteBits))];
             if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
                 Lay([.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))], rows, $"frame {pictures.Name}'s family colouring");
-            else if (CommonFrameColourings.Value.TryGetValue(pictures.Name, out CommonSpawnerShades common))
-                Lay(Common([common]).Inks, rows, $"frame {pictures.Name}'s common spawner colouring");
             else
             {
                 foreach (EnemyDefinitionId spawner in sharedSpawners.SpawnersOf(pictures.Name))
@@ -202,10 +211,10 @@ internal sealed class EnemySheetShades
             var left = new Dictionary<int, RgbColor>();
             foreach (SheetShade shade in laid)
             {
-                for (int index = 0; index < shade.Inks.Length; index++)
+                foreach ((int ink, RgbColor colour) in shade.InkColours)
                 {
-                    if (rows.Contains(shade.Inks[index] / LoadedSetColours.RowColours))
-                        left[shade.Inks[index]] = shade.Colours[index];
+                    if (rows.Contains(ink / LoadedSetColours.RowColours))
+                        left[ink] = colour;
                 }
             }
             foreach ((int ink, RgbColor colour) in left)
@@ -277,157 +286,159 @@ internal sealed class EnemySheetShades
     /// on the sheet: Dachora's colours, the face blocks', Magdollites' and Work Robots' glows, the ghost's fade and the
     /// Baby Metroid victim's drain.
     /// </summary>
-    internal IReadOnlyList<SheetShade> OwnRow(EnemyDefinitionId enemy, int row)
+    internal IReadOnlyList<SheetShade> OwnRow(EnemyDefinitionId enemy, int row) =>
+    [
+        .. ownRowEffects.TryGetValue(enemy, out OwnRowShading? shading) ? shading(enemy, row, row * LoadedSetColours.RowColours) : [],
+        .. SharedRowGlow(enemy, row),
+    ];
+
+    /// <summary>
+    /// The face blocks' glow over <paramref name="row"/> for another enemy drawing in the face blocks' row under a set that
+    /// loads them (#2622): the game draws it in their colours, so their glow shows on it, as on the Morph Ball eye's pupil in
+    /// their room; none for the face blocks themselves or an enemy drawing in another row.
+    /// </summary>
+    private IEnumerable<SheetShade> SharedRowGlow(EnemyDefinitionId enemy, int row) =>
+        enemy != EnemyDefinitionId.FaceBlock && colours.Loads(EnemyDefinitionId.FaceBlock) && colours.RowOf(EnemyDefinitionId.FaceBlock) == row
+            ? FaceBlockGlow(row * LoadedSetColours.RowColours)
+            : [];
+
+    /// <summary>The shades one enemy's effects lay over the row it draws in, <paramref name="row"/>, from its first ink <paramref name="first"/>.</summary>
+    private delegate IEnumerable<SheetShade> OwnRowShading(EnemyDefinitionId enemy, int row, int first);
+
+    /// <summary>
+    /// Each enemy that shows effects over the row it draws in, with the shades of those effects; every other enemy shows
+    /// none over its row.
+    /// </summary>
+    private Dictionary<EnemyDefinitionId, OwnRowShading> OwnRowEffects()
     {
-        int first = row * LoadedSetColours.RowColours;
-        var shades = new List<SheetShade>();
-        switch (enemy)
+        OwnRowShading gunshipGlow = (_, _, first) =>
+            // The gunship's pieces show its lights' glow, which its placement starts, over their own row (#1733).
+            PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, ColourEffectColours.GunshipGlow,
+                first, inputs.Maps.RoomPaletteFx);
+        OwnRowShading ridleyEncounter = (_, _, _) =>
+            // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
+            SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps.CeresRidleyColors, inputs.Bosses);
+        OwnRowShading motherBrainEncounter = (enemy, row, _) =>
         {
-            case EnemyDefinitionId.Dachora:
+            // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
+            SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
+            return SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses);
+        };
+        var effects = new Dictionary<EnemyDefinitionId, OwnRowShading>
+        {
+            [EnemyDefinitionId.Dachora] = (_, _, first) => DachoraColours(first),
+            [EnemyDefinitionId.FaceBlock] = (_, _, first) => FaceBlockGlow(first),
+            [EnemyDefinitionId.Magdollite] = (_, _, first) => MagdolliteGlow(first),
+            [EnemyDefinitionId.WorkRobot] = (_, _, first) => WorkRobotGlow(first),
+            // The first escape room's shutters show the escape's red flash over their own row.
+            [EnemyDefinitionId.ShutterDestroyable] = (_, _, first) => PaletteFxSpriteShades.Of(ColourEffectId.TourianShutterRedFlashing,
+                ColourEffectColours.TourianShutters, first, inputs.Maps.RoomPaletteFx),
+            [EnemyDefinitionId.ShipTop] = gunshipGlow,
+            [EnemyDefinitionId.ShipBottomEntrance] = gunshipGlow,
+            [EnemyDefinitionId.Coven] = (_, _, first) => GhostFadeSteps().Select(step => SheetShade.Run(step.Shade, first, step.Colours)),
+            // The Torizos' colourings over their own rows (#1512), each with its own belly glow.
+            [EnemyDefinitionId.BombTorizo] = (_, _, _) => TorizoColourings(ColourEffectId.BombTorizoBelly),
+            [EnemyDefinitionId.GoldenTorizo] = (_, _, _) => TorizoColourings(ColourEffectId.GoldenTorizoBelly),
+            [EnemyDefinitionId.RidleyCeres] = ridleyEncounter,
+            [EnemyDefinitionId.Ridley] = ridleyEncounter,
+            [EnemyDefinitionId.RidleyBreakupPiece] = ridleyEncounter,
+            [EnemyDefinitionId.CeresDoor] = ridleyEncounter,
+            [EnemyDefinitionId.CeresRidleyRoomDoor] = ridleyEncounter,
+            [EnemyDefinitionId.CeresElevatorDoor] = ridleyEncounter,
+            [EnemyDefinitionId.CeresElevatorRoomWall] = ridleyEncounter,
+            [EnemyDefinitionId.CeresGetawayChamberWall] = ridleyEncounter,
+            [EnemyDefinitionId.MotherBrainHead] = motherBrainEncounter,
+            [EnemyDefinitionId.MotherBrainBody] = motherBrainEncounter,
+            [EnemyDefinitionId.BabyMetroidCutscene] = motherBrainEncounter,
+            [EnemyDefinitionId.BabyMetroid] = (enemy, row, _) =>
             {
-                DachoraColorCatalog dachora = inputs.Enemies.DachoraColors ?? throw Missing("Dachora colours");
-                shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Default, 0), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Default, 0, colour))));
-                for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
-                {
-                    int step = frame;
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Speed, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Speed, step, colour))));
-                    shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Shine, step), first, Frame(16, colour => dachora.Resolve(DachoraColourPhase.Shine, step, colour))));
-                }
-                break;
-            }
-            case EnemyDefinitionId.FaceBlock:
-            {
-                EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("face-block glow colours");
-                // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
-                // one level show it in one colouring, so each level installs one shade (#2477).
-                foreach (FaceBlockGlowLevel level in FaceBlockGlowAnimations.Levels)
-                    shades.Add(SheetShade.Run(FaceBlockShades.Glow(level), first + EnemySheetRowDefinitions.GlowFirstColour, FaceBlockGlowColours(auxiliary, level)));
-                break;
-            }
-            case EnemyDefinitionId.Magdollite:
-            {
-                MagdollitePaletteCycle cycle = inputs.Enemies.MagdollitePaletteCycle ?? throw Missing("Magdollite glow colours");
-                // The cartridge's glow colour rows are the glow's frames in the order the glow shows them; each frame installs
-                // one shade named by the frame (#2474).
-                for (int glowRow = 0; glowRow < MagdolliteGlowAnimations.Cycle.Count; glowRow++)
-                {
-                    int colours = glowRow;
-                    shades.Add(SheetShade.Run(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[glowRow]), first + MagdollitePaletteCycle.FirstAnimatedColor,
-                        Frame(MagdollitePaletteCycle.AnimatedColorCount, colour => cycle.Resolve(colours, colour))));
-                }
-                break;
-            }
-            case EnemyDefinitionId.WorkRobot:
-            {
-                WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle ?? throw Missing("Work Robot glow colours");
-                // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
-                // one place show it in one colouring, so each place installs one shade (#2393).
-                foreach (WorkRobotGlowPlace place in WorkRobotGlowAnimations.Places)
-                {
-                    RgbColor[] colours = WorkRobotGlowColours(cycle, place);
-                    shades.Add(SheetShade.Run(WorkRobotShades.Glow(place), first + WorkRobotPaletteDefinitions.FirstAnimatedColor, colours));
-                }
-                break;
-            }
-            case EnemyDefinitionId.ShutterDestroyable:
-                // The first escape room's shutters show the escape's red flash over their own row.
-                shades.AddRange(PaletteFxSpriteShades.Of(ColourEffectId.TourianShutterRedFlashing, ColourEffectColours.TourianShutters,
-                    first, (inputs.Maps ?? throw Missing("Tourian shutter flash colours")).RoomPaletteFx));
-                break;
-            case EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance:
-                // The gunship's pieces show its lights' glow, which its placement starts, over their own row (#1733).
-                shades.AddRange(PaletteFxSpriteShades.Of(GunshipLightDefinitions.Glow, ColourEffectColours.GunshipGlow,
-                    first, (inputs.Maps ?? throw Missing("gunship glow colours")).RoomPaletteFx));
-                break;
-            case EnemyDefinitionId.Coven:
-                foreach (ShadeColours step in GhostFadeSteps())
-                    shades.Add(SheetShade.Run(step.Shade, first, step.Colours));
-                break;
-            case EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo:
-                // The Torizos' colourings over their own rows (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors ?? throw Missing("Golden Torizo health colours"),
-                    (inputs.Maps ?? throw Missing("Torizo belly glow colours")).RoomPaletteFx,
-                    enemy is EnemyDefinitionId.GoldenTorizo ? ColourEffectId.GoldenTorizoBelly : ColourEffectId.BombTorizoBelly));
-                break;
-            case EnemyDefinitionId.SporeSpawn or EnemyDefinitionId.DraygonBody or EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms
-                or EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue or EnemyDefinitionId.Botwoon or EnemyDefinitionId.Kraid or EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle
-                or EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidFirstNail or EnemyDefinitionId.KraidSecondNail:
-                // The bosses' own effects over the row they draw in (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(inputs.Bosses, enemy, first));
-                break;
-            case EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyBreakupPiece or EnemyDefinitionId.CeresDoor
-                or EnemyDefinitionId.CeresRidleyRoomDoor or EnemyDefinitionId.CeresElevatorDoor or EnemyDefinitionId.CeresElevatorRoomWall
-                or EnemyDefinitionId.CeresGetawayChamberWall:
-                // The Ridley encounters' colour loads over Ridley's, the doors', the container's and the Baby's rows (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses));
-                break;
-            case EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.BabyMetroidCutscene:
-                // Mother Brain's encounter's colour loads over her brain's, attack's, legs' and the Baby's rows (#1512).
                 SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses));
-                break;
-            case EnemyDefinitionId.BabyMetroid:
-                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.BabyMetroid(inputs.Bosses));
-                break;
-            case EnemyDefinitionId.Zebetite:
-                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Zebetites(inputs.Bosses));
-                break;
-            case EnemyDefinitionId.CorpseSidehopper:
+                return SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.BabyMetroid(inputs.Bosses);
+            },
+            [EnemyDefinitionId.Zebetite] = (enemy, row, _) =>
             {
-                // The Baby Metroid's victim shows the encounter's entry colours before it is drained (#1512).
-                shades.AddRange(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.BabyMetroid(inputs.Bosses));
-                EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors ?? throw Missing("dead Sidehopper drain colours");
-                foreach (SidehopperDrainStage stage in SidehopperDrainStage.Shaded)
-                {
-                    int step = stage.ShadeStep;
-                    shades.Add(SheetShade.Run(TourianCorpseShades.SidehopperDrain(stage), first + EnemySheetRowDefinitions.SidehopperDrainFirstColour,
-                        Frame(LoadedSetColours.RowColours - EnemySheetRowDefinitions.SidehopperDrainFirstColour,
-                            colour => auxiliary.Resolve(EnemyAuxiliaryPalette.DeadSidehopper, step, colour))));
-                }
-                break;
-            }
-            case EnemyDefinitionId.None or EnemyDefinitionId.Boyon or EnemyDefinitionId.MamaTurtle
-                or EnemyDefinitionId.BabyTurtle or EnemyDefinitionId.Puyo or EnemyDefinitionId.Cacatac or EnemyDefinitionId.Owtch
-                or EnemyDefinitionId.Mellow or EnemyDefinitionId.Mella
-                or EnemyDefinitionId.MaridiaFly or EnemyDefinitionId.Multiviola or EnemyDefinitionId.Polyp or EnemyDefinitionId.Rinka
-                or EnemyDefinitionId.Rio or EnemyDefinitionId.Squeept or EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Oum
-                or EnemyDefinitionId.Choot or EnemyDefinitionId.GrappleRipper or EnemyDefinitionId.JetRipper or EnemyDefinitionId.Ripper
-                or EnemyDefinitionId.Dragon or EnemyDefinitionId.ShutterGrowing or EnemyDefinitionId.ShutterShootable
-                or EnemyDefinitionId.Kamer or EnemyDefinitionId.Waver or EnemyDefinitionId.Metaree
-                or EnemyDefinitionId.Fireflea or EnemyDefinitionId.Skultera or EnemyDefinitionId.Elevator or EnemyDefinitionId.Sciser
-                or EnemyDefinitionId.Zero or EnemyDefinitionId.Tripper or EnemyDefinitionId.SuspensorPlatform or EnemyDefinitionId.Sbug
-                or EnemyDefinitionId.Mochtroid or EnemyDefinitionId.Sidehopper or EnemyDefinitionId.Dessgeega
-                or EnemyDefinitionId.SidehopperLarge or EnemyDefinitionId.SidehopperTourian or EnemyDefinitionId.DessgeegaLarge
-                or EnemyDefinitionId.Zoa or EnemyDefinitionId.Viola or EnemyDefinitionId.Skree
-                or EnemyDefinitionId.Yard or EnemyDefinitionId.OrangeZoomer or EnemyDefinitionId.Zeela
-                or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer or EnemyDefinitionId.Metroid
-                or EnemyDefinitionId.Boulder or EnemyDefinitionId.KzanTop or EnemyDefinitionId.KzanBottom
-                or EnemyDefinitionId.Hibashi or EnemyDefinitionId.NuclearWaffle or EnemyDefinitionId.FakeKraid or EnemyDefinitionId.CeresSteam
-                or EnemyDefinitionId.PhantoonBody or EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles
-                or EnemyDefinitionId.PhantoonMouth or EnemyDefinitionId.Etecoon or EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile
-                or EnemyDefinitionId.MorphBallEye or EnemyDefinitionId.Fune or EnemyDefinitionId.Namihe or EnemyDefinitionId.YappingMaw
-                or EnemyDefinitionId.Kago or EnemyDefinitionId.Beetom or EnemyDefinitionId.Powamp or EnemyDefinitionId.UnpoweredWorkRobot
-                or EnemyDefinitionId.Bull or EnemyDefinitionId.Alcoon or EnemyDefinitionId.Atomic or EnemyDefinitionId.Spark
-                or EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellow
-                or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRed or EnemyDefinitionId.KihunterRedWings
-                or EnemyDefinitionId.MotherBrainTubes or EnemyDefinitionId.CorpseTorizo
-                or EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree
-                or EnemyDefinitionId.TourianStatue or EnemyDefinitionId.Shaktool
-                or EnemyDefinitionId.NoobTubeCrack or EnemyDefinitionId.Chozo or EnemyDefinitionId.Zeb
-                or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega or EnemyDefinitionId.EtecoonEscape
-                or EnemyDefinitionId.DachoraEscape or EnemyDefinitionId.PirateGreyWall
-                or EnemyDefinitionId.PirateGoldWall or EnemyDefinitionId.PirateMagentaWall
-                or EnemyDefinitionId.PirateSilverWall
-                or EnemyDefinitionId.PirateGoldNinja
-                or EnemyDefinitionId.PirateSilverNinja or EnemyDefinitionId.PirateGreyWalking or EnemyDefinitionId.PirateGreenWalking
-                or EnemyDefinitionId.PirateRedWalking or EnemyDefinitionId.PirateGoldWalking or EnemyDefinitionId.PirateMagentaWalking
-                or EnemyDefinitionId.PirateSilverWalking:
-                // Every other enemy shows no effect over the row it draws in.
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(enemy), enemy, "Undefined enemy definition.");
+                SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.RequireDrawRow(enemy, row);
+                return SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Zebetites(inputs.Bosses);
+            },
+            [EnemyDefinitionId.CorpseSidehopper] = (_, _, first) => SidehopperDrain(first),
+        };
+        // The bosses' own effects over the row they draw in (#1512).
+        foreach (EnemyDefinitionId boss in SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRowEnemies)
+            effects.Add(boss, (enemy, _, first) => SuperMetroid.AssetExtraction.Bosses.BossSheetShades.OwnRow(inputs.Bosses, enemy, first));
+        return effects;
+    }
+
+    /// <summary>Dachora's colours over its row from <paramref name="first"/>: its default colouring and each frame of its speed and shine.</summary>
+    private List<SheetShade> DachoraColours(int first)
+    {
+        DachoraColorCatalog dachora = inputs.Enemies.DachoraColors;
+        var shades = new List<SheetShade>
+        {
+            SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Default, 0), first, Frame(LoadedSetColours.RowColours, colour => dachora.Resolve(DachoraColourPhase.Default, 0, colour))),
+        };
+        for (int frame = 0; frame < DachoraColorDefinitions.AnimatedFrameCount; frame++)
+        {
+            int step = frame;
+            shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Speed, step), first, Frame(LoadedSetColours.RowColours, colour => dachora.Resolve(DachoraColourPhase.Speed, step, colour))));
+            shades.Add(SheetShade.Run(DachoraShades.Of(DachoraColourPhase.Shine, step), first, Frame(LoadedSetColours.RowColours, colour => dachora.Resolve(DachoraColourPhase.Shine, step, colour))));
+        }
+        return shades;
+    }
+
+    /// <summary>The face blocks' glow over their row from <paramref name="first"/>: one shade a level.</summary>
+    private IEnumerable<SheetShade> FaceBlockGlow(int first)
+    {
+        EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors;
+        // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
+        // one level show it in one colouring, so each level installs one shade (#2477).
+        return [.. FaceBlockGlowAnimations.Levels.Select(level =>
+            SheetShade.Run(FaceBlockShades.Glow(level), first + EnemySheetRowDefinitions.GlowFirstColour, FaceBlockGlowColours(auxiliary, level)))];
+    }
+
+    /// <summary>The Magdollites' glow over their row from <paramref name="first"/>: one shade a glow frame.</summary>
+    private List<SheetShade> MagdolliteGlow(int first)
+    {
+        MagdollitePaletteCycle cycle = inputs.Enemies.MagdollitePaletteCycle;
+        // The cartridge's glow colour rows are the glow's frames in the order the glow shows them; each frame installs
+        // one shade named by the frame (#2474).
+        var shades = new List<SheetShade>();
+        for (int glowRow = 0; glowRow < MagdolliteGlowAnimations.Cycle.Count; glowRow++)
+        {
+            int colours = glowRow;
+            shades.Add(SheetShade.Run(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[glowRow]), first + MagdollitePaletteCycle.FirstAnimatedColor,
+                Frame(MagdollitePaletteCycle.AnimatedColorCount, colour => cycle.Resolve(colours, colour))));
+        }
+        return shades;
+    }
+
+    /// <summary>The Work Robots' glow over their row from <paramref name="first"/>: one shade a place.</summary>
+    private IEnumerable<SheetShade> WorkRobotGlow(int first)
+    {
+        WorkRobotPaletteCycle cycle = inputs.Enemies.WorkRobotPaletteCycle;
+        // The cartridge's colour records are the glow's steps in the order the glow shows them. The steps that show
+        // one place show it in one colouring, so each place installs one shade (#2393).
+        return [.. WorkRobotGlowAnimations.Places.Select(place => cycle.GlowShade(place, first))];
+    }
+
+    /// <summary>A Torizo's colourings over its own rows (#1512), with <paramref name="belly"/>, its belly's glow.</summary>
+    private IEnumerable<SheetShade> TorizoColourings(ColourEffectId belly) =>
+        SuperMetroid.AssetExtraction.Bosses.TorizoSheetShades.Of(inputs.Enemies.AuxiliaryColors,
+            inputs.Maps.RoomPaletteFx, belly);
+
+    /// <summary>
+    /// The Baby Metroid's victim's colours over its row from <paramref name="first"/>: the encounter's entry colours before
+    /// it is drained, then each shaded stage of its drain (#1512).
+    /// </summary>
+    private List<SheetShade> SidehopperDrain(int first)
+    {
+        var shades = new List<SheetShade>(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.BabyMetroid(inputs.Bosses));
+        EnemyAuxiliaryColorCatalog auxiliary = inputs.Enemies.AuxiliaryColors;
+        foreach (SidehopperDrainStage stage in SidehopperDrainStage.Shaded)
+        {
+            int step = stage.ShadeStep;
+            shades.Add(SheetShade.Run(TourianCorpseShades.SidehopperDrain(stage), first + EnemySheetRowDefinitions.SidehopperDrainFirstColour,
+                Frame(LoadedSetColours.RowColours - EnemySheetRowDefinitions.SidehopperDrainFirstColour,
+                    colour => auxiliary.Resolve(EnemyAuxiliaryPalette.DeadSidehopper, step, colour))));
         }
         return shades;
     }
@@ -437,34 +448,52 @@ internal sealed class EnemySheetShades
     /// row, which hold wherever its sheets lie: the Chozo statues', the drained corpses', the Ninja Pirates' gold wall and
     /// the Ceres doors'.
     /// </summary>
-    internal SheetShadeSet Fixed(EnemyDefinitionId enemy)
+    internal SheetShadeSet Fixed(EnemyDefinitionId enemy) =>
+        fixedEffects.TryGetValue(enemy, out Func<SheetShadeSet>? shades) ? shades() : new SheetShadeSet([], []);
+
+    /// <summary>
+    /// Each enemy that shows effects over fixed rows or by selecting another row, with their shades; every other enemy
+    /// shows none.
+    /// </summary>
+    private Dictionary<EnemyDefinitionId, Func<SheetShadeSet>> FixedEffects()
     {
-        var inks = new List<SheetShade>();
-        var rows = new List<SheetRowShade>();
-        if (enemy == EnemyDefinitionId.Chozo)
+        Func<SheetShadeSet> drained = () => new([], [DrainedCorpses()]);
+        Func<SheetShadeSet> goldWall = () => new([], [new(NinjaSpacePirateShades.GoldWall, EnemySheetRowDefinitions.NinjaGoldWall,
+            colours.With(EnemySheetRowDefinitions.NinjaGoldWall, 0, inputs.Enemies.PaletteOf(EnemyDefinitionId.PirateGoldWall).Colours))]);
+        Func<SheetShadeSet> ceresDoors = () => new([], CeresDoorLooks());
+        var effects = new Dictionary<EnemyDefinitionId, Func<SheetShadeSet>>
         {
-            ChozoAndTubeColorCatalog chozo = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("Chozo statue colours");
-            inks.Add(SheetShade.Run(ChozoAndTubeShades.WreckedShipStatue, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
-                Frame(ChozoAndTubeColorDefinitions.ColorCount, colour => chozo.ResolveStatue(ChozoStatuePalette.WreckedShip, colour))));
-            inks.Add(SheetShade.Run(ChozoAndTubeShades.LowerNorfairStatue, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
-                Frame(ChozoAndTubeColorDefinitions.ColorCount, colour => chozo.ResolveStatue(ChozoStatuePalette.LowerNorfair, colour))));
-        }
-        if (enemy == EnemyDefinitionId.CorpseSidehopper || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
-        {
-            BabyMetroidColorCatalog babyMetroid = inputs.Bosses.BabyMetroidColors ?? throw Missing("drained corpse colours");
-            rows.Add(new(TourianCorpseShades.Drained, EnemySheetRowDefinitions.DrainedCorpses, colours.With(EnemySheetRowDefinitions.DrainedCorpses, 0,
-                Frame(BabyMetroidColorDefinitions.TargetColorCount, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.DeadSidehopper, colour)))));
-        }
-        if (enemy is EnemyDefinitionId.PirateGoldNinja
-            or EnemyDefinitionId.PirateSilverNinja)
-        {
-            rows.Add(new(NinjaSpacePirateShades.GoldWall, EnemySheetRowDefinitions.NinjaGoldWall, colours.With(EnemySheetRowDefinitions.NinjaGoldWall, 0,
-                inputs.Enemies.PaletteOf(EnemyDefinitionId.PirateGoldWall).Colours)));
-        }
-        if (enemy is EnemyDefinitionId.CeresDoor or EnemyDefinitionId.CeresRidleyRoomDoor or EnemyDefinitionId.CeresElevatorDoor
-            or EnemyDefinitionId.CeresElevatorRoomWall or EnemyDefinitionId.CeresGetawayChamberWall)
-            rows.AddRange(CeresDoorLooks());
-        return new SheetShadeSet(inks, rows);
+            [EnemyDefinitionId.Chozo] = () => new(ChozoStatues(), []),
+            [EnemyDefinitionId.CorpseSidehopper] = drained,
+            [EnemyDefinitionId.PirateGoldNinja] = goldWall,
+            [EnemyDefinitionId.PirateSilverNinja] = goldWall,
+            [EnemyDefinitionId.CeresDoor] = ceresDoors,
+            [EnemyDefinitionId.CeresRidleyRoomDoor] = ceresDoors,
+            [EnemyDefinitionId.CeresElevatorDoor] = ceresDoors,
+            [EnemyDefinitionId.CeresElevatorRoomWall] = ceresDoors,
+            [EnemyDefinitionId.CeresGetawayChamberWall] = ceresDoors,
+        };
+        foreach (EnemyDefinitionId corpse in DeadTourianCorpseSpeciesDefinitions.Species.Keys)
+            effects.Add(corpse, drained);
+        return effects;
+    }
+
+    /// <summary>The Chozo statues' colourings, by ink: the Wrecked Ship's and Lower Norfair's.</summary>
+    private SheetShade[] ChozoStatues()
+    {
+        ChozoAndTubeColorCatalog chozo = inputs.Enemies.ChozoAndTubeColors;
+        return [SheetShade.Run(ChozoAndTubeShades.WreckedShipStatue, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
+                Frame(ChozoAndTubeColorDefinitions.ColorCount, colour => chozo.ResolveStatue(ChozoStatuePalette.WreckedShip, colour))),
+            SheetShade.Run(ChozoAndTubeShades.LowerNorfairStatue, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
+                Frame(ChozoAndTubeColorDefinitions.ColorCount, colour => chozo.ResolveStatue(ChozoStatuePalette.LowerNorfair, colour)))];
+    }
+
+    /// <summary>The drained corpses' row, in the Baby Metroid's drained colours.</summary>
+    private SheetRowShade DrainedCorpses()
+    {
+        BabyMetroidColorCatalog babyMetroid = inputs.Bosses.BabyMetroidColors;
+        return new(TourianCorpseShades.Drained, EnemySheetRowDefinitions.DrainedCorpses, colours.With(EnemySheetRowDefinitions.DrainedCorpses, 0,
+            Frame(BabyMetroidColorDefinitions.TargetColorCount, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.DeadSidehopper, colour))));
     }
 
     /// <summary>
@@ -477,20 +506,46 @@ internal sealed class EnemySheetShades
     internal SheetShadeSet SpawnedBy(EnemyDefinitionId enemy)
     {
         IEnumerable<SheetShade> inks = SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedObjects(inputs.Bosses, enemy);
-        if (enemy == EnemyDefinitionId.TourianStatue)
-            inks = inks.Concat(TourianStatueScene());
-        if (enemy is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.RidleyBreakupPiece)
-            inks = inks.Concat(RidleySprites());
-        if (enemy is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead or EnemyDefinitionId.MotherBrainTubes
-            or EnemyDefinitionId.BabyMetroidCutscene)
-            inks = inks.Concat(SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses));
+        if (spawnedObjectEffects.TryGetValue(enemy, out Func<IEnumerable<SheetShade>>? spawned))
+            inks = inks.Concat(spawned());
         return new SheetShadeSet([.. inks], SuperMetroid.AssetExtraction.Bosses.BossSheetShades.SpawnedRows(inputs.Bosses, colours, enemy));
     }
 
     /// <summary>
-    /// The shades the objects of a common spawner show on the shared sheet (#1513), as its presence names them: the n00b
-    /// tube's cracks, the Ceres elevator concealer's cleared colour, the Ceres doors' looks the escape's falling tiles show,
-    /// and Ridley's sprite colours.
+    /// Each enemy whose spawned objects show its encounter's sprite colours on the sheets they spawn onto, with those shades:
+    /// the Tourian statue scene's looks, the Ridleys' sprite colours, Mother Brain's and the n00b tube's crack colours; the
+    /// objects every other enemy spawns show only the bosses' own objects' shades.
+    /// </summary>
+    private Dictionary<EnemyDefinitionId, Func<IEnumerable<SheetShade>>> SpawnedObjectEffects()
+    {
+        Func<IEnumerable<SheetShade>> ridley = RidleySprites;
+        Func<IEnumerable<SheetShade>> motherBrain = () => SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.Sprites(inputs.Maps, inputs.Bosses);
+        return new Dictionary<EnemyDefinitionId, Func<IEnumerable<SheetShade>>>
+        {
+            [EnemyDefinitionId.TourianStatue] = TourianStatueScene,
+            [EnemyDefinitionId.Ridley] = ridley,
+            [EnemyDefinitionId.RidleyCeres] = ridley,
+            [EnemyDefinitionId.RidleyBreakupPiece] = ridley,
+            [EnemyDefinitionId.MotherBrainBody] = motherBrain,
+            [EnemyDefinitionId.MotherBrainHead] = motherBrain,
+            [EnemyDefinitionId.MotherBrainTubes] = motherBrain,
+            [EnemyDefinitionId.BabyMetroidCutscene] = motherBrain,
+            [EnemyDefinitionId.NoobTubeCrack] = () => [TubeCracks()],
+        };
+    }
+
+    /// <summary>The n00b tube's crack colours, which its cracks, shards and released air show.</summary>
+    private SheetShade TubeCracks()
+    {
+        ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors;
+        return SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
+            Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks));
+    }
+
+    /// <summary>
+    /// The shades the objects of a common spawner show on the shared sheet (#1513), as its presence names them: the Ceres
+    /// elevator concealer's cleared colour, the Ceres doors' looks the escape's falling tiles show, and Ridley's sprite
+    /// colours.
     /// </summary>
     internal SheetShadeSet Common(IEnumerable<CommonSpawnerShades> named)
     {
@@ -501,11 +556,6 @@ internal sealed class EnemySheetShades
         {
             switch (shades)
             {
-                case CommonSpawnerShades.TubeCracks:
-                    ChozoAndTubeColorCatalog tube = inputs.Enemies.ChozoAndTubeColors ?? throw Missing("n00b tube crack colours");
-                    inks.Add(SheetShade.Run(ChozoAndTubeShades.TubeCracks, EnemySheetRowDefinitions.ChozoAndTubeFirst * LoadedSetColours.RowColours,
-                        Frame(ChozoAndTubeColorDefinitions.ColorCount, tube.ResolveTubeCracks)));
-                    break;
                 case CommonSpawnerShades.CeresElevatorConcealer:
                     // A new game clears the enemy projectiles' last colour, the Ceres elevator concealer's solid pixels.
                     inks.Add(SheetShade.Run(CeresElevatorShades.ConcealerCleared,
@@ -526,7 +576,7 @@ internal sealed class EnemySheetShades
 
     /// <summary>The Ridley encounters' sprite colours.</summary>
     private IReadOnlyList<SheetShade> RidleySprites() =>
-        SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps?.CeresRidleyColors, inputs.Bosses);
+        SuperMetroid.AssetExtraction.Bosses.RidleySheetShades.Sprites(inputs.Maps.CeresRidleyColors, inputs.Bosses);
 
     /// <summary>The enemy projectiles' colour the Ceres elevator concealer's solid pixels show.</summary>
     private const int CeresConcealerColour = 15;
@@ -534,7 +584,7 @@ internal sealed class EnemySheetShades
     /// <summary>The Ceres doors' normal and escaping looks: their colours one to fifteen in the active doors' row.</summary>
     private SheetRowShade[] CeresDoorLooks()
     {
-        CeresDoorVisuals door = inputs.Areas.CeresDoorVisual ?? throw Missing("Ceres door colours");
+        CeresDoorVisuals door = inputs.Areas.CeresDoorVisual;
         int row = EnemySheetRowDefinitions.CeresDoorActive;
         return
         [
@@ -550,24 +600,26 @@ internal sealed class EnemySheetShades
     /// </summary>
     private IEnumerable<SheetShade> TourianStatueScene()
     {
-        TourianStatuePalettes statue = inputs.Areas.TourianStatueColors ?? throw Missing("Tourian statue colours");
+        TourianStatuePalettes statue = inputs.Areas.TourianStatueColors;
         int body = EnemySheetRowDefinitions.TourianStatueBody * LoadedSetColours.RowColours;
         int decoration = EnemySheetRowDefinitions.TourianStatueBase * LoadedSetColours.RowColours;
         int ridley = EnemySheetRowDefinitions.TourianStatueRidley * LoadedSetColours.RowColours;
-        yield return new SheetShade(TourianStatueShades.Entrance,
-            [.. Enumerable.Range(body, 16), .. Enumerable.Range(decoration, 16)],
-            [.. Frame(16, statue.StatueColor), .. Frame(16, statue.BaseColor)]);
-        foreach ((PictureShade glow, int row) in TourianStatueColorDefinitions.EyeGlowRows)
+        yield return SheetShade.Combined(TourianStatueShades.Entrance,
+        [
+            SheetShade.Run(TourianStatueShades.Entrance, body, Frame(LoadedSetColours.RowColours, statue.StatueColor)),
+            SheetShade.Run(TourianStatueShades.Entrance, decoration, Frame(LoadedSetColours.RowColours, statue.BaseColor)),
+        ]);
+        foreach (SuperMetroid.Core.Areas.Tourian.TourianStatue boss in TourianStatueColorDefinitions.EyeGlowOrder)
         {
-            yield return SheetShade.Run(glow, decoration + 9,
-                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(row, colour)));
+            yield return SheetShade.Run(Ensure.Listed(TourianStatueColorDefinitions.EyeGlows, boss), decoration + 9,
+                Frame(TourianStatueColorDefinitions.EyeColorCount, colour => statue.ResolveEye(boss, colour)));
         }
         yield return SheetShade.Run(TourianStatueShades.PhantoonCleared, body + 12, Frame(3, _ => RgbColor.Black));
         yield return SheetShade.Run(TourianStatueShades.PhantoonGrey, body, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
         yield return SheetShade.Run(TourianStatueShades.RidleyCleared, ridley + 9, Frame(3, _ => RgbColor.Black));
         yield return SheetShade.Run(TourianStatueShades.RidleyGrey, ridley, Frame(TourianStatueColorDefinitions.GreyColorCount, statue.GreyColor));
         // The sprite statues grey out through palette-FX records over their own rows, Ridley's and the statue body's.
-        IPaletteFxColorSource paletteFx = (inputs.Maps ?? throw Missing("Tourian statue grey-out colours")).RoomPaletteFx;
+        IPaletteFxColorSource paletteFx = inputs.Maps.RoomPaletteFx;
         foreach (SheetShade greyOut in PaletteFxSpriteShades.Of(ColourEffectId.GreyOutTourianStatueRidley, ColourEffectColours.RidleyStatue,
                      ridley, paletteFx))
             yield return greyOut;
@@ -593,7 +645,7 @@ internal sealed class EnemySheetShades
         }
         for (int cycle = 0; cycle < 2; cycle++)
         {
-            fade = fade.Materializing(WreckedShipGhostAppearance.Colours);
+            fade = fade.Materializing(WreckedShipGhostFade.GhostColours);
             fade = RecordFade(steps, fade);
             fade = fade.Vanishing();
             fade = RecordFade(steps, fade);
@@ -626,27 +678,12 @@ internal sealed class EnemySheetShades
     /// <summary>The ice beam's colours, which a frozen enemy shows.</summary>
     private RgbColor[] FrozenColours()
     {
-        InstalledBeamPalettes beams = inputs.BeamPalettes ?? throw Missing("beam colours");
-        return Frame(16, colour => beams.ColourOf(SamusBeamCombination.Ice, colour));
+        InstalledBeamPalettes beams = inputs.BeamPalettes;
+        return Frame(LoadedSetColours.RowColours, colour => beams.ColourOf(SamusBeamCombination.Ice, colour));
     }
 
     /// <summary><paramref name="count"/> colours, colour after colour.</summary>
     private static RgbColor[] Frame(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];
-
-    /// <summary>
-    /// The colours the Work Robot glow shows <paramref name="place"/> in (#2393): the record of every step showing it, which
-    /// must agree, since the place installs one shade.
-    /// </summary>
-    /// <exception cref="InvalidDataException">Two steps showing the place have different colours.</exception>
-    private static RgbColor[] WorkRobotGlowColours(WorkRobotPaletteCycle cycle, WorkRobotGlowPlace place)
-    {
-        RgbColor[][] showing = [.. Enumerable.Range(0, WorkRobotGlowAnimations.Cycle.Count)
-            .Where(step => WorkRobotGlowAnimations.Cycle[step] == place)
-            .Select(step => Frame(WorkRobotPaletteDefinitions.ColorCount, colour => cycle.Resolve(step, colour)))];
-        if (showing.Any(colours => !colours.SequenceEqual(showing[0])))
-            throw new InvalidDataException($"The Work Robot glow colour records for {place} differ; each place has one colouring.");
-        return showing[0];
-    }
 
     /// <summary>
     /// The colours of face-block glow level <paramref name="level"/> (#2477): those of every colour record of a step showing
@@ -662,7 +699,4 @@ internal sealed class EnemySheetShades
             throw new InvalidDataException($"The face-block glow colour records for {level} differ; each level has one colouring.");
         return showing[0];
     }
-
-    /// <summary>The error for installed colours a shade needs and the inputs lack.</summary>
-    private static InvalidDataException Missing(string what) => new($"Enemy sheet shades require the installed {what}.");
 }

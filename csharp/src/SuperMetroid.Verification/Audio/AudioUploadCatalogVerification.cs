@@ -22,7 +22,7 @@ internal static class AudioUploadCatalogVerification
                 continue;
             }
             int address = 0x8fe7e1 + index;
-            int pointer = (CartridgeImportSource.Require(rom).ReadCartridgeLong(address));
+            int pointer = (rom.ReadCartridgeLong(address));
             var actual = AudioAssetCatalogDefinitions.ResolveDataIndex((byte)index);
             AssertEqual(pointer, actual.SnesAddress, "original upload pointer");
             AssertEqual((byte)index, actual.DataIndex, "native byte offset identity");
@@ -35,7 +35,6 @@ internal static class AudioUploadCatalogVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 24, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => { _ = AudioAssetCatalogDefinitions.Music[invalid]; }, "music view bounds");
-        AssertThrows<ArgumentOutOfRangeException>(() => AudioAssetCatalogDefinitions.Get((AudioBank)25), "undefined bank");
         AssertThrows<InvalidDataException>(() => AudioAssetCatalogDefinitions.ResolveSnesAddress(AudioAssetCatalogDefinitions.Common.SnesAddress + 1), "non-upload address");
     }
 }

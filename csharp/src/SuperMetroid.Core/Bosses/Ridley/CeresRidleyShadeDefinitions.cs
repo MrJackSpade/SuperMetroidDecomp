@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// steps (<see cref="RidleyFadeDefinitions"/>), and the alarm's animation shows each colouring for its steps, as well as
 /// the import reading them.
 /// </remarks>
-public static class CeresRidleyShadeDefinitions
+public static partial class CeresRidleyShadeDefinitions
 {
     /// <summary>The getaway's zoom steps, selected by the whole part of the getaway zoom (zero to eight).</summary>
     public const int GetawayZoomStepCount = 9;
@@ -18,7 +18,7 @@ public static class CeresRidleyShadeDefinitions
     public const int AlarmStepCount = 16;
 
     /// <summary>
-    /// The alarm steps each of the alarm's colourings shows for (#2409): one, as each step, every fourth update, shows the
+    /// The alarm steps each of the alarm's colourings shows for (#2409): each step, at the alarm's cadence, shows the
     /// next.
     /// </summary>
     public const int AlarmStepsPerColouring = 1;

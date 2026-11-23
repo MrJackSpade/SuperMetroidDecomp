@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="Station">The station whose access block it is.</param>
 /// <param name="Side">The side of the station the access block lies on.</param>
-public readonly record struct StationAccess(StationKind Station, HorizontalDirection Side);
+public readonly partial record struct StationAccess(StationKind Station, HorizontalDirection Side);

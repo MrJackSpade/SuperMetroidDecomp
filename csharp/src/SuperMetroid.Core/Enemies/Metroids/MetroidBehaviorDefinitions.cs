@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The fixed behavior definitions of ordinary Metroids.</summary>
-internal static class MetroidBehaviorDefinitions
+internal static partial class MetroidBehaviorDefinitions
 {
     /// <summary>
     /// The two-pixel moves a Metroid a Power Bomb shakes loose makes, one an update, in the order it makes them (#2343):
@@ -14,7 +14,7 @@ internal static class MetroidBehaviorDefinitions
     /// squeal and the Metroid's shot sound, the three again, then the squeal and the shot sound, so the drain is played for
     /// two rolls and the other two for three each.
     /// </summary>
-    internal static readonly WeightedRandomChoice<SoundEffectId> Cry = new(new RandomSampleField(0, 3),
+    internal static readonly WeightedRandomChoice<SoundEffectId> Cry = new(RandomSampleField.OneOf(8),
         new(1, EnemySound.MetroidDrain), new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid),
         new(1, EnemySound.MetroidDrain), new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid),
         new(1, EnemySound.RisingSqueal), new(1, EnemySound.ShotMetroid));
@@ -67,8 +67,8 @@ internal static class MetroidBehaviorDefinitions
     /// <summary>How long a Metroid whose ice threshold is exhausted stays frozen, in updates.</summary>
     internal const int FrozenDuration = 400;
 
-    /// <summary>How long a latched Metroid a Power Bomb shakes loose takes to escape Samus, in updates.</summary>
-    internal const int EscapeDuration = 4;
+    /// <summary>How long a latched Metroid a Power Bomb shakes loose takes to escape Samus, in updates: one per escape move.</summary>
+    internal static int EscapeDuration => EscapeMoves.Length;
 
     /// <summary>The fastest a chasing Metroid moves on each axis, in whole pixels an update.</summary>
     internal const int FastestChase = 3;

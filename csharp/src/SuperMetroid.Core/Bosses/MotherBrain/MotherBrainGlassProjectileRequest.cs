@@ -1,10 +1,16 @@
-﻿using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>One glass shard the glass's animation throws.</summary>
 /// <param name="Shard">Which way the shard flies, selecting its emitter on the glass.</param>
 /// <param name="RoomObjectBlock">The glass room object's block, the origin of the emitters.</param>
-internal sealed record MotherBrainGlassProjectileRequest(
+/// <param name="Spawner">The room's enemy projectiles, among which the shard spawns.</param>
+internal sealed partial record MotherBrainGlassProjectileRequest(
     MotherBrainGlassShard Shard,
-    Position16<RoomBlocks> RoomObjectBlock) : RoomObjectProjectileRequest(RoomObjectBlock);
+    Position16<RoomBlocks> RoomObjectBlock,
+    IMotherBrainGlassShardSpawner Spawner) : RoomObjectProjectileRequest(RoomObjectBlock)
+{
+    /// <inheritdoc/>
+    internal override void Spawn() => Spawner.SpawnMotherBrainGlassProjectile(this);
+}

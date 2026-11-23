@@ -15,11 +15,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// and four each put back half of what the X-ray covered and advance to the next state, one update apiece (each would
 /// wait for room to send its half, which there always is then); state five releases Samus on the update after them.
 /// </remarks>
-[CompatibilityService("X-ray's beam spends two updates of frozen time closing after Run is released before Samus is released, and its window closes after the first of them")]
-public readonly record struct XrayClosing
+public readonly partial record struct XrayClosing
 {
     /// <summary>The updates the closing lasts.</summary>
-    public const int Updates = 2;
+    internal const int Updates = 2;
 
     /// <summary>A closing with <paramref name="updatesLeft"/> updates still to spend.</summary>
     private XrayClosing(int updatesLeft) => UpdatesLeft = updatesLeft;
@@ -31,7 +30,7 @@ public readonly record struct XrayClosing
     public static XrayClosing Over => default;
 
     /// <summary>The closing's updates still to spend, from <see cref="Updates"/> down to zero.</summary>
-    public int UpdatesLeft { get; }
+    internal int UpdatesLeft { get; }
 
     /// <summary>Whether the closing is over.</summary>
     public bool IsOver => UpdatesLeft == 0;

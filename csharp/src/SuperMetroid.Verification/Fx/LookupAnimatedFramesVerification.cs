@@ -64,7 +64,7 @@ internal static class LookupAnimatedFramesVerification
             for (int index = 0; index < definition.Frames.Count; index++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x870000 | (original.First + 4 * index));
-                AssertEqual(expected, definition.Frames[index].Duration, "Native frame duration");
+                AssertEqual(expected, BlockAnimationLoopPasses.Of(definition)[index], "Native frame duration");
                 AssertTrue(definition.TryReadMechanicsWord(definition.FrameInstructionPointer(index), out ushort value), "Frame duration is compiled");
                 AssertEqual(expected, value, "Mechanics word duration view");
             }

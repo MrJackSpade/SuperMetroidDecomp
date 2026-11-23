@@ -22,10 +22,12 @@ internal static class FallingSparkLaunchDefinitionsVerification
         ushort random = 0;
         int advances = 0;
         enemies.VerificationServices().NextRandom = () => { advances++; return random; };
-        Action<RoomEnemyPlace> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
-        Action<EnemyProjectile> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
+        Action<RoomEnemyPlace> spawn = spark => enemies.FallingSparksBehavior.SpawnFallingSpark(spark.BoundFor(EnemyDefinitionId.Spark), spark);
+        Action<EnemyProjectile> move = enemies.FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.Places.InUpdateOrder[0];
-        var projectile = enemies.Projectiles.ProjectileInPlace(17);
+        // The place's projectile before each spawn is a stale spark the check leaves there.
+        var sparkGraphics = new SpriteGraphics(SpawnedObjectOwner.Of(EnemyDefinitionId.Spark), source.Shading);
+        var projectile = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.FallingSpark, sparkGraphics);
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             random = (ushort)raw;
@@ -41,7 +43,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             advances = 0;
             spawn(source);
             // A spawn creates a new projectile in the place, which the place now holds (#1590).
-            projectile = enemies.Projectiles.ProjectileInPlace(17);
+            projectile = enemies.Projectiles.SpawnedInPlace(17);
             AssertEqual(1, advances, "Successful spark spawn advances RNG once");
             AssertEqual(RoomEnemyProjectileKind.FallingSpark, projectile.Kind, "Reverse allocator owns last free slot");
             AssertEqual(source.Position.X.Whole, projectile.Position.X.Whole, "Spark copies source X");
@@ -50,7 +52,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual(source.Position.Y.Fraction, projectile.Position.Y.Fraction, "Spark copies source Y fraction");
             AssertEqual((ushort)0, projectile.Velocity.X.RawValue, "Spark clears aliased vertical fraction");
             AssertEqual((ushort)0, projectile.Velocity.Y.RawValue, "Spark clears aliased vertical whole");
-            SignedSixteenSixteen drift = projectile.StateOf<FallingSparkState>().HorizontalStep;
+            SignedSixteenSixteen drift = enemies.FallingSparksBehavior.Spark.States.Of(projectile).HorizontalStep;
             AssertEqual(whole, drift.UnsignedWholePixels, "Actual spark drift whole pixels");
             AssertEqual(fraction, drift.Fraction, "Actual spark drift fraction");
             uint expected = unchecked(SixteenSixteenWords.Compose(source.Position.X.Whole, source.Position.X.Fraction) + (SixteenSixteenWords.FromWhole(whole) | fraction));
@@ -58,7 +60,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
             AssertEqual((ushort)SixteenSixteenWords.WholeOf(expected), projectile.Position.X.Whole, "Native signed launch reaches actual wrapped movement");
             AssertEqual((ushort)expected, projectile.Position.X.Fraction, "Native fractional launch reaches actual movement");
         }
-        foreach (var occupied in enemies.Projectiles.EveryPlace()) occupied.Kind = RoomEnemyProjectileKind.FallingSpark;
+        FamilyProjectileStarts.FillPool(enemies, RoomEnemyProjectileKind.FallingSpark, sparkGraphics);
         advances = 0;
         ushort previousX = projectile.Position.X.Whole;
         spawn(source);
@@ -68,5 +70,5 @@ internal static class FallingSparkLaunchDefinitionsVerification
     }
 
     /// <summary>Reads the native launch table as the independent speed oracle.</summary>
-    private static byte FallingSparkLaunchDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FallingSparkLaunchDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

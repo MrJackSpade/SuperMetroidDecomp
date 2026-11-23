@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable components of one SNES BG tilemap word: a ten-bit character index, three-bit palette index, priority, and per-tile flips.</summary>
-public sealed record RoomMetatileCell
+public sealed partial record RoomMetatileCell
 {
     /// <summary>Zero-based column 0..31 in the logical 32-column character catalog; character index equals TileRow times 32 plus TileColumn.</summary>
     public required int TileColumn { get; init; }

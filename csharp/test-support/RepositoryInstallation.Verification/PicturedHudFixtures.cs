@@ -20,7 +20,7 @@ internal static class PicturedHudFixtures
     /// The HUD the gameplay BG3 tilemap's top rows in <paramref name="image"/> show, their words' characters read from
     /// <paramref name="characterWord"/> and coloured from <paramref name="palette"/>.
     /// </summary>
-    internal static PicturedHud FromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int characterWord = GameplayVramLayout.HudCharacterWord)
+    internal static PicturedHud FromVram(ReadOnlySpan<byte> image, ReadOnlySpan<RgbColor> palette, int? characterWord = null)
     {
         const int tile = ScreenGeometry.BackgroundCellSizePixels, characterWords = 8;
         const int columns = GameplayHudDocumentDefinitions.Columns, rows = GameplayHudDocumentDefinitions.DrawnRows + 1;
@@ -33,7 +33,7 @@ internal static class PicturedHudFixtures
             var word = new SnesBgTilemapWord(LittleEndianBytes.Word(image[at], image[at + 1]));
             for (int part = 0; part < characterWords; part++)
             {
-                int source = SnesVramAddressingConstants.ByteOffsetOfWord(characterWord + word.CharacterIndex * characterWords + part);
+                int source = SnesVramAddressingConstants.ByteOffsetOfWord((characterWord ?? GameplayVramLayout.HudCharacterWord) + word.CharacterIndex * characterWords + part);
                 character[part * 2] = image[source];
                 character[part * 2 + 1] = image[source + 1];
             }
@@ -45,7 +45,7 @@ internal static class PicturedHudFixtures
         };
         ComposedSpriteSheet composed = canvas.ToRoomSheet(colours, frames, SpriteImageColours.TwoBppBackground);
         SpriteSheet sheet = SpriteSheetFileConstants.Load(composed.Manifest, "hud-fixture",
-            composed.Size, composed.Pixels, composed.PaletteIndices);
+            composed.Size, composed.Pixels, composed.Inks);
         // The fixture's HUD shows the colours it was composed in, in gameplay and frontend frames alike (#1512).
         return new PicturedHud([new PlacedHudPicture(sheet.Frame("hud"), Position16<ScreenPixels>.Zero, PictureShading.Standard)]);
     }

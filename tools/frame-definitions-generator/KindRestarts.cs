@@ -82,8 +82,8 @@ internal sealed class KindRestarts
                     continue;
                 }
                 IReadOnlySet<string>? programs = model.ProgramsOf(semantic, creation, family)
-                    ?? (creation.ArgumentList is { Arguments: [var program, ..] } && model.ProgramTypeOf(family) is { } programType
-                        ? new ProgramTracer(model, reaches: null).Programs(programType, program.Expression, semantic)
+                    ?? (model.ProgramArgumentOf(semantic, creation, family) is { } program && model.ProgramTypeOf(family) is { } programType
+                        ? new ProgramTracer(model, reaches: null).Programs(programType, program, semantic)
                         : null);
                 if (_restarts.TryGetValue(creation, out KindRestart? known))
                 {
@@ -164,7 +164,7 @@ internal sealed class KindRestarts
     {
         var sources = new MotionSources();
         var names = new HashSet<string>(_starting.MotionTypes.SelectMany(type => type.GetMembers().OfType<IFieldSymbol>()).Select(member => member.Name), StringComparer.Ordinal);
-        foreach (SyntaxTree tree in _model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in _model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (IdentifierNameSyntax name in tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>())
@@ -176,6 +176,8 @@ internal sealed class KindRestarts
                 if (semantic.GetSymbolInfo(name).Symbol is not IFieldSymbol named || !_starting.IsMotion(named)
                     || _starting.IsStartingValue(name)
                     || name.Ancestors().Any(node => ProjectileProgramFrames.IsTest(node, name))
+                    // An identity table's key labels the entry for that motion; it gives no object the motion (#2553).
+                    || _model.Dispatch.IsEntryKey(semantic, name)
                     || name.Ancestors().OfType<InvocationExpressionSyntax>().Any(invocation => invocation.Expression is IdentifierNameSyntax { Identifier.Text: "nameof" }))
                 {
                     continue;
@@ -276,7 +278,7 @@ internal sealed class KindRestarts
     /// </summary>
     private IEnumerable<(SyntaxNode Region, HashSet<IFieldSymbol> Motions)> GuardedRegions()
     {
-        foreach (SyntaxTree tree in _model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in _model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (MethodDeclarationSyntax move in tree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>())
@@ -299,6 +301,18 @@ internal sealed class KindRestarts
                             when IsObjectMotion(semantic, governing) && section.Labels.All(label => LabelMotions(semantic, label, motions)):
                             yield return (section, motions);
                             break;
+                    }
+                }
+                // An identity table of motion handlers indexed with the moving object's motion runs each entry under its
+                // key's motion alone, as a switch's case does (#2553).
+                foreach ((ISymbol table, ExpressionSyntax index) in _model.Dispatch.LookupsIn(semantic, move))
+                {
+                    if (!IsObjectMotion(semantic, index))
+                        continue;
+                    foreach (IdentityTableEntry entry in _model.Dispatch.Entries(table))
+                    {
+                        if (_starting.IsMotion(entry.Key))
+                            yield return (entry.Value, new HashSet<IFieldSymbol>(SymbolEqualityComparer.Default) { entry.Key });
                     }
                 }
             }
@@ -408,17 +422,25 @@ internal sealed class KindRestarts
                         .Where(member => member.ContainingType.TypeKind == TypeKind.Enum).Select(member => ProjectileProgramFrames.CueKey(member.OriginalDefinition))];
                     if (cues.Count == 0)
                         continue;
-                    regions.Add((section, cues));
-                    foreach (string cue in cues)
-                    {
-                        if (!publishers.TryGetValue(cue, out HashSet<INamedTypeSymbol>? families))
-                            publishers.Add(cue, families = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
-                        families.UnionWith(byCue);
-                    }
+                    Add(section, cues, byCue);
                 }
             }
+            // An identity table of cases indexed with the cue, or its kind, runs each entry for its key's cue alone (#2553).
+            foreach (IdentityTableEntry entry in _model.Dispatch.CueEntries(cueType))
+                Add(entry.Value, [ProjectileProgramFrames.CueKey(entry.Key)], byCue);
         }
         return (regions, publishers);
+
+        void Add(SyntaxNode region, HashSet<string> cues, IEnumerable<INamedTypeSymbol> publishing)
+        {
+            regions.Add((region, cues));
+            foreach (string cue in cues)
+            {
+                if (!publishers.TryGetValue(cue, out HashSet<INamedTypeSymbol>? families))
+                    publishers.Add(cue, families = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
+                families.UnionWith(publishing);
+            }
+        }
 
         static bool IsCue(SemanticModel semantic, ExpressionSyntax expression, INamedTypeSymbol cueType) =>
             semantic.GetTypeInfo(expression).Type is { } type && SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, cueType);
@@ -455,7 +477,7 @@ internal sealed class KindRestarts
             || method.ContainingType.AllInterfaces.SelectMany(type => type.GetMembers()).Any(member => SymbolEqualityComparer.Default.Equals(
                 method.ContainingType.FindImplementationForInterfaceMember(member)?.OriginalDefinition, method))), SymbolEqualityComparer.Default);
         var names = new HashSet<string>(candidates.Select(method => method.Name), StringComparer.Ordinal);
-        foreach (SyntaxTree tree in _model.Compilation.SyntaxTrees)
+        foreach (SyntaxTree tree in _model.AuthoredTrees)
         {
             SemanticModel? semantic = null;
             foreach (SimpleNameSyntax name in tree.GetRoot().DescendantNodes().OfType<SimpleNameSyntax>())

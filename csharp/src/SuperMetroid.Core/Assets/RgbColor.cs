@@ -2,11 +2,11 @@ namespace SuperMetroid.Core.Assets;
 
 /// <summary>
 /// One plain colour (#1420, #1544): red, green and blue, each from none (0) to full (<see cref="FullChannel"/>), as the
-/// display shows it. A colour is made from and read as its channels. Every colour the game shows lies on its fade scale
-/// (<see cref="FadeLevelColour"/>): a fade, flash, glow or ramp computes its steps on those levels and shows the plain
-/// colour of the level it reaches, so the colour itself holds no levels, no stored form and no colour arithmetic of its own.
+/// display shows it. A colour is made from and read as its channels. Every colour the game shows lies on its colour steps
+/// (<see cref="FadeLevelColour"/>): a glow steps on them, and the backend blends a fade in them (<see cref="IColourBlend"/>),
+/// so the colour itself holds no steps, no stored form and no colour arithmetic of its own.
 /// </summary>
-public readonly record struct RgbColor
+public readonly partial record struct RgbColor
 {
     /// <summary>A channel at full strength.</summary>
     public const int FullChannel = 255;
@@ -36,7 +36,7 @@ public readonly record struct RgbColor
     public int Blue { get; }
 
     /// <summary>The host pixel showing this colour, opaque.</summary>
-    public RgbaPixel ToRgbaPixel() => new((byte)Red, (byte)Green, (byte)Blue); // cartridge-encoding: allow(HostPixelFormat) - each channel is held to 0-255 by the constructor, and the host RGBA8888 pixel stores it in one byte
+    public RgbaPixel ToRgbaPixel() => new((byte)Red, (byte)Green, (byte)Blue);
 
     /// <inheritdoc />
     public override string ToString() => $"Rgb(r{Red}, g{Green}, b{Blue})";

@@ -12,13 +12,13 @@ namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 /// Reads and writes the installed Kraid eye colours (#1637): the only colours of Kraid's the game works with, named by
 /// what they colour, without the colour groups and places the cartridge kept them at.
 /// </summary>
-public static class KraidEyeColourFile
+public static partial class KraidEyeColourFile
 {
     /// <summary>The installed document's file name, beside the enemy compositions.</summary>
     public const string FileName = "kraid-eye-colours.json";
 
-    /// <summary>Supported schema revision: 2 writes each colour as <c>#rrggbb</c> (#2564).</summary>
-    public const int Version = 2;
+    /// <summary>Supported schema revision: 3 keys each health band's colours by the band (#2565).</summary>
+    public const int Version = 3;
 
     /// <summary>The document holding <paramref name="eyes"/>.</summary>
     /// <param name="eyes">The eyes' colours under the hurt flash and each health band.</param>
@@ -30,8 +30,8 @@ public static class KraidEyeColourFile
         {
             Version = Version,
             HurtFlash = Written(eyes.Hurt),
-            HealthBands = [.. KraidHealthBandDefinitions.MostHurtFirst.Select(band => Written(eyes.Of(band)))],
-        }, JsonOptions);
+            HealthBands = KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band.Key, band => Written(eyes.Of(band)), StringComparer.Ordinal),
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork.KraidEyeColourDocument>(JsonOptions));
 
         static string[] Written(ReadOnlySpan<RgbColor> colours)
         {
@@ -55,11 +55,13 @@ public static class KraidEyeColourFile
         KraidEyeColourDocument document = JsonAssetDocument.Read<KraidEyeColourDocument>(json, JsonOptions, "Kraid eye colours");
         if (document.Version != Version)
             throw new InvalidDataException($"Kraid eye colours require version {Version}.");
-        IReadOnlyList<KraidHealthBand> bands = KraidHealthBandDefinitions.MostHurtFirst;
-        if (document.HealthBands is not { } healthBands || healthBands.Length != bands.Count)
-            throw new InvalidDataException($"Kraid eye colours require {bands.Count} health bands, most hurt first.");
+        IReadOnlyList<KraidHealthBand> bands = KraidHealthBandDefinitions.HighestFirst;
+        if (document.HealthBands is not { } healthBands || healthBands.Count != bands.Count)
+            throw new InvalidDataException($"Kraid eye colours require {bands.Count} health bands, each keyed by its band.");
         return new KraidEyeColours(Compile(document.HurtFlash, "hurt flash"),
-            Enumerable.Range(0, bands.Count).ToDictionary(place => bands[place], place => (IReadOnlyList<RgbColor>)Compile(healthBands[place], $"{bands[place]} health band")));
+            bands.ToDictionary(band => band, band => (IReadOnlyList<RgbColor>)Compile(
+                healthBands.TryGetValue(band.Key, out string[]? colours) ? colours : throw new InvalidDataException($"Kraid eye colours hold none for his {band} health band."),
+                $"{band} health band")));
     }
 
     /// <summary>One eye colour set's colours, one per eye, each on the game's fade scale.</summary>

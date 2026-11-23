@@ -41,17 +41,17 @@ internal static class FileCopyArrowVerification
                 menu.ComposeScene();
                 return menu.screen.Sprites;
             }
-            Until(FileSelectPhase.Main);
+            Until(new FileSelectPhase.Main());
             for (int i = 0; i < 3; i++) Press(ControllerButton.Down);
             Press(ControllerButton.A);
-            Until(FileSelectPhase.CopySelectSource);
+            Until(new FileSelectPhase.DataManagement.CopySelectSource());
             for (int i = 0; i < pair.Slots.First; i++) Press(ControllerButton.Down);
             Press(ControllerButton.A);
             int firstDestination = pair.Slots.First == 0 ? 1 : 0;
             if (pair.Slots.Second != firstDestination) Press(ControllerButton.Down);
             int noArrowCount = Capture().LastFinalizedSpriteCount;
             Press(ControllerButton.A);
-            AssertEqual(FileSelectPhase.CopyConfirm, menu.Phase, "arrow appears at confirmation");
+            AssertEqual(true, menu.Phase is FileSelectPhase.DataManagement.CopyConfirm, "arrow appears at confirmation");
             int record = 0x82bb0c + pair.Row * 6;
             ushort id = ReadVerificationWord(rom, record);
             ushort originX = ReadVerificationWord(rom, record + 2);
@@ -62,15 +62,36 @@ internal static class FileCopyArrowVerification
             AssertEqual(noArrowCount + count, actual.LastFinalizedSpriteCount, "confirmation adds native Copy arrow sprite parts");
             var expected = new OamBuffer();
             expected.BeginFrame();
+            var cartridgeParts = new OamEntry[count];
             for (int part = 0; part < count; part++)
             {
                 int address = spritemap + 2 + part * 5;
                 expected.AddOnScreenSpritePart(new SnesSpritemapXWord(ReadVerificationWord(rom, address)),
                     new SnesSpritemapYByte(FileCopyArrowRomByte(rom, address + 2)), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<ScreenPixels>(originX, originY));
-                AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
-                    $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part}");
+                cartridgeParts[part] = expected.GetEntry(part);
             }
             expected.FinalizeFrame();
+            // The arrow is one picture (#2557): no part of the cartridge's arrow covers another, so the order its parts are
+            // listed in shows nothing, and an upward arrow is pictured from its downward arrow's parts mirrored, in that
+            // arrow's order. Every part the picture is composed of has the cartridge part's place, tile, flip, palette and
+            // priority.
+            Extent16<ScreenPixels> small = ObjectSelectionCodec.Sizes(SuperMetroid.AssetExtraction.Frontend.Menus.MenuRenderDefinitions.ObjectSelection).Small;
+            for (int part = 0; part < count; part++)
+            {
+                for (int other = part + 1; other < count; other++)
+                {
+                    OamEntry one = cartridgeParts[part], two = cartridgeParts[other];
+                    AssertTrue(!one.IsLarge && !two.IsLarge &&
+                        (Math.Abs(one.Position.X - two.Position.X) >= small.X || Math.Abs(one.Position.Y - two.Position.Y) >= small.Y),
+                        $"copy {pair.Slots}: the cartridge's arrow parts {part} and {other} cover no pixel in common");
+                }
+            }
+            OamEntry[] cartridgePicture = [.. cartridgeParts.OrderBy(entry => entry.Position.Y).ThenBy(entry => entry.Position.X)];
+            OamEntry[] drawnPicture = [.. Enumerable.Range(noArrowCount, count).Select(actual.GetEntry)
+                .OrderBy(entry => entry.Position.Y).ThenBy(entry => entry.Position.X)];
+            for (int part = 0; part < count; part++)
+                AssertEqual(cartridgePicture[part], drawnPicture[part],
+                    $"copy {pair.Slots}: exact arrow position, tile, flip, palette and priority, part {part} from the top left");
             // The arrows' rotation is typed state (#1512): each step names the shade the import pre-coloured from the
             // cartridge's file-select colours, its sprite colours 145..151 moved the step's number of places along.
             ReadOnlySpan<RgbColor> cartridge = InstalledFixtures.ImportOf(art).Palettes.FileSelect;
@@ -88,7 +109,7 @@ internal static class FileCopyArrowVerification
                     "the copy arrow draws in its rotation step's shade");
                 // The sheet's colours laid out by the palette index each was composed as (#1544); a colour none of its
                 // pixels shows is not one of its colours.
-                RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(arrowSheet, shading.KeyColours(arrowSheet));
+                RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(arrowSheet, shading.KeyColours(arrowSheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
                 for (int color = 128; color < 256; color++)
                 {
                     if (InstalledPictureColoursConstants.KeyComposedAs(arrowSheet, color - 128) is null)
@@ -102,14 +123,14 @@ internal static class FileCopyArrowVerification
             menu.Render(); menu.ComposeScene();
             AssertEqual(beforeRender, menu.CopyArrowRotation, "render leaves the arrows' rotation alone");
             Press(ControllerButton.A);
-            AssertEqual(FileSelectPhase.CopyCompleted, menu.Phase, "copy completes");
+            AssertEqual(new FileSelectPhase.DataManagement.CopyCompleted(), menu.Phase, "copy completes");
             AssertTrue(Capture().LastFinalizedSpriteCount < noArrowCount + count, "completed page removes Copy arrow");
         }
         Console.WriteLine("Copy arrow: all six native slot pairs match OAM; confirmation-only visibility and palette timing pass.");
     }
 
     /// <summary>Reads native arrow spritemap bytes for the independent OAM reference.</summary>
-    private static byte FileCopyArrowRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FileCopyArrowRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the retail copy-confirmation arrow check.</summary>
     [VerificationCommand("--file-copy-arrow")]

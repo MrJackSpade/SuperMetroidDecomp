@@ -62,7 +62,7 @@ internal static class IntroScientistSpriteArtworkVerification
 
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroScientistSprites);
         var examination = IntroScientistCutsceneState.CreateExamination();
-        examination.Step(new IntroCrossfadeTick(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory, 0));
+        examination.Step(new IntroCrossfadeTick(IntroCrossfadeScene.Narration, IntroCrossfadeScene.Laboratory, 1));
         var installedExamination = ScreenSpritesFixtures.Blank();
         installedExamination.BeginFrame();
         examination.Draw(installedExamination, CinematicSheetFixtures.Drawer(stock.Sprites.Scientist));
@@ -76,7 +76,7 @@ internal static class IntroScientistSpriteArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production scientist scenes never reread six native spritemaps");
 
-        document.Frames.Remove("delivered-baby-1");
+        document.Frames.Remove("delivered-baby-pulse-low");
         AssertThrows<InvalidDataException>(() =>
         {
             using var malformed = new MemoryStream();

@@ -15,8 +15,8 @@ internal static class RoomLevelDataAccess
         /// <summary>Each foreground block's behaviour, row by row.</summary>
         internal ReadOnlySpan<RoomBlockBehavior> BehaviorGrid => BehaviorsOf(self);
 
-        /// <summary>Where each foreground block leads as a door block, row by row, or null where it leads nowhere.</summary>
-        internal ReadOnlySpan<Doors.DoorBlockExit?> ExitGrid => ExitsOf(self);
+        /// <summary>Where the foreground block at row-major <paramref name="place"/> leads as a door block, or null where it leads nowhere.</summary>
+        internal Doors.DoorBlockExit? ExitAt(int place) => ExitsOf(self).TryGetValue(place, out Doors.DoorBlockExit? exit) ? exit : null;
 
         /// <summary>What each foreground block shows, row by row.</summary>
         internal ReadOnlySpan<RoomBlockAppearance> ShownForegroundGrid => ShownForegroundOf(self);
@@ -25,7 +25,7 @@ internal static class RoomLevelDataAccess
         /// <exception cref="InvalidOperationException">No door block of the grid leads through it.</exception>
         internal RoomCollisionBlock DoorBlockLeadingThrough(Doors.DoorBlockExit exit)
         {
-            int place = Array.IndexOf(ExitsOf(self), exit);
+            int place = ExitsOf(self).Where(entry => entry.Value == exit).Select(entry => entry.Key).DefaultIfEmpty(-1).Min();
             return place >= 0 && TerrainOf(self)[place].Collision == RoomCollisionType.DoorBlock
                 ? self.GetCollisionBlock(self.Size.CellAtRowMajorIndex(place))
                 : throw new InvalidOperationException($"No door block of the room leads through {exit}.");
@@ -63,7 +63,10 @@ internal static class RoomLevelDataAccess
                     NextDifference(shown, sourceShown, index + 1));
             }
             BehaviorsOf(source).AsSpan().CopyTo(BehaviorsOf(self));
-            ExitsOf(source).AsSpan().CopyTo(ExitsOf(self));
+            Dictionary<int, Doors.DoorBlockExit> exits = ExitsOf(self);
+            exits.Clear();
+            foreach ((int place, Doors.DoorBlockExit exit) in ExitsOf(source))
+                exits[place] = exit;
             for (int beyond = 0; beyond < source.BeyondRoom.Count; beyond++)
             {
                 self.BeyondRoom.SetTerrain(beyond, source.BeyondRoom.TerrainAt(beyond));
@@ -72,52 +75,24 @@ internal static class RoomLevelDataAccess
         }
     }
 
-    /// <summary>The level's private terrain array.</summary>
-    private static readonly System.Reflection.FieldInfo TerrainField = GridField("terrain");
-
-    /// <summary>The level's private behaviour array.</summary>
-    private static readonly System.Reflection.FieldInfo BehaviorsField = GridField("behaviors");
-
-    /// <summary>The level's private door-exit array.</summary>
-    private static readonly System.Reflection.FieldInfo ExitsField = GridField("exits");
-
-    /// <summary>The level's private shown-foreground array.</summary>
-    private static readonly System.Reflection.FieldInfo ShownForegroundField = GridField("shownForeground");
-
-    /// <summary>
-    /// The level's private terrain write at a place in its level space, bound once: a fixture restoring a room writes many
-    /// blocks per case.
-    /// </summary>
-    private static readonly Action<RoomLevelData, int, RoomTerrainBlock, RoomBlockAppearance> TerrainWrite =
-        (typeof(RoomLevelData).GetMethod("WriteObjectTerrain", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            ?? throw new MissingMemberException(nameof(RoomLevelData), "WriteObjectTerrain"))
-        .CreateDelegate<Action<RoomLevelData, int, RoomTerrainBlock, RoomBlockAppearance>>();
-
     /// <summary>
     /// Writes <paramref name="terrain"/> at <paramref name="place"/> of <paramref name="level"/>'s level space, showing
-    /// <paramref name="shown"/>, through the level's own private write.
+    /// <paramref name="shown"/>, through the level's own terrain write.
     /// </summary>
     internal static void WriteObjectTerrain(RoomLevelData level, int place, RoomTerrainBlock terrain, RoomBlockAppearance shown) =>
-        TerrainWrite(Ensure.NotNull(level), place, terrain, shown);
-
-    /// <summary>The level's private grid field <paramref name="name"/>.</summary>
-    /// <exception cref="MissingMemberException">The level has no such field.</exception>
-    private static System.Reflection.FieldInfo GridField(string name) =>
-        typeof(RoomLevelData).GetField(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-            ?? throw new MissingMemberException(nameof(RoomLevelData), name);
+        Ensure.NotNull(level).WriteObjectTerrain(place, terrain, shown);
 
     /// <summary>The grid's terrain array of <paramref name="level"/>, which a restore writes.</summary>
-    private static RoomTerrainBlock[] TerrainOf(RoomLevelData level) => (RoomTerrainBlock[])TerrainField.GetValue(Ensure.NotNull(level))!;
+    private static RoomTerrainBlock[] TerrainOf(RoomLevelData level) => Ensure.NotNull(level).terrain;
 
     /// <summary>The grid's behaviour array of <paramref name="level"/>, which a restore writes.</summary>
-    private static RoomBlockBehavior[] BehaviorsOf(RoomLevelData level) => (RoomBlockBehavior[])BehaviorsField.GetValue(Ensure.NotNull(level))!;
+    private static RoomBlockBehavior[] BehaviorsOf(RoomLevelData level) => Ensure.NotNull(level).behaviors;
 
-    /// <summary>The grid's door-exit array of <paramref name="level"/>, which a restore writes.</summary>
-    private static Doors.DoorBlockExit?[] ExitsOf(RoomLevelData level) => (Doors.DoorBlockExit?[])ExitsField.GetValue(Ensure.NotNull(level))!;
+    /// <summary>The grid's door exits of <paramref name="level"/> by row-major place, which a restore writes.</summary>
+    private static Dictionary<int, Doors.DoorBlockExit> ExitsOf(RoomLevelData level) => Ensure.NotNull(level).exits;
 
     /// <summary>The grid's shown-foreground array of <paramref name="level"/>.</summary>
-    private static RoomBlockAppearance[] ShownForegroundOf(RoomLevelData level) =>
-        (RoomBlockAppearance[])ShownForegroundField.GetValue(Ensure.NotNull(level))!;
+    private static RoomBlockAppearance[] ShownForegroundOf(RoomLevelData level) => Ensure.NotNull(level).shownForeground;
 
     /// <summary>
     /// The first place from <paramref name="from"/> on whose element's bytes differ between <paramref name="now"/> and

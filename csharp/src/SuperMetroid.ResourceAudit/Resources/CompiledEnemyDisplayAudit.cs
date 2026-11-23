@@ -33,7 +33,7 @@ internal static class CompiledEnemyDisplayAudit
     {
         var displays = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, displaysPath)));
         var draw = CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, drawPath)));
-        if (!HasNoOpBranch(Method(displays, "TryGetDisplay"), Method(draw, "Advance"), Method(draw, "Draw")))
+        if (!HasNoOpBranch(Method(displays, "TryGetDisplay"), Method(draw, "Advance"), Method(draw, "PublishStanding")))
             throw new InvalidDataException("The compiled empty-OAM renderer contract changed; review the resource audit adapter.");
     }
 

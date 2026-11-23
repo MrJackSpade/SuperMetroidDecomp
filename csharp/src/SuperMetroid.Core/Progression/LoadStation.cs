@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Progression;
 /// record (<see cref="PersistentProgress.UsedStations"/>) keeps the stations Samus has used, and the room loader reads
 /// where loading at the station puts Samus from the station's placement.
 /// </summary>
-public sealed class LoadStation
+public sealed partial class LoadStation
 {
     /// <summary>Names one load station.</summary>
     /// <param name="name">The station's name.</param>
     /// <param name="area">The area the station is in.</param>
-    internal LoadStation([InstalledKey] string name, AreaId area)
+    internal LoadStation(string name, AreaId area)
     {
         Name = Ensure.NotNull(name);
-        Area = AreaIds.Require(area);
+        Area = area;
     }
 
     /// <summary>The station's name.</summary>

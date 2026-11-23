@@ -72,8 +72,7 @@ internal static class DraygonCannonObjectProgramVerification
         // stays, as the native hit list's draws and durations say.
         RoomTerrainBlock rightShield = RoomTerrainBlock.Of(0x114, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
         RoomTerrainBlock rightWhite = RoomTerrainBlock.Of(0x116, BlockMirroring.Horizontal, RoomCollisionType.ShootableBlock);
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightShieldBlock), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
-            "Missile reaches live right cannon");
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(rightShieldBlock), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile)));
         RoomTerrainBlock[] expectedFlash =
         [
             .. Enumerable.Repeat(0, 3).SelectMany(_ => Enumerable.Repeat(rightShield, 3).Concat(Enumerable.Repeat(rightWhite, 4))),
@@ -88,8 +87,7 @@ internal static class DraygonCannonObjectProgramVerification
         AssertTrue(expectedFlash.SequenceEqual(shownFlash),
             $"a Missile flashes the right cannon's shield three times and returns to it: {string.Join(", ", shownFlash.Select(block => block == rightWhite ? "white" : block == rightShield ? "shield" : block.ToString()))}");
         int rightBlock = rightShieldBlock;
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightBlock), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
-            "Super Missile reaches live right cannon");
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(rightBlock), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)));
         var seenRightDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)
         {
@@ -103,8 +101,7 @@ internal static class DraygonCannonObjectProgramVerification
         AssertTrue(disabled.Contains(DraygonWallCannon.LowerLeft),
             "right cannon follows native three-hit threshold to damaged list");
         int leftBlock = leftShieldBlock;
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(leftBlock), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
-            "Super Missile reaches live left cannon");
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(leftBlock), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)));
         var seenLeftDamageBlocks = new HashSet<RoomTerrainBlock>();
         for (int frame = 0; frame < 28; frame++)
         {

@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <param name="Count">The spits the volley fires.</param>
 /// <param name="FirstOffsetSteps">The turn, in steps, from his aim to the volley's first spit.</param>
 /// <param name="CooldownUpdates">The updates after the volley before his head follows his movement again (#2267).</param>
-internal readonly record struct BotwoonSpitVolley(int Count, int FirstOffsetSteps, int CooldownUpdates);
+internal readonly partial record struct BotwoonSpitVolley(int Count, int FirstOffsetSteps, int CooldownUpdates);

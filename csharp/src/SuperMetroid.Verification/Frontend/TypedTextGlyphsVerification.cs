@@ -34,7 +34,7 @@ internal static class TypedTextGlyphsVerification
         };
         foreach (TitleCardDefinition card in TitleCards.All)
         {
-            foreach (TitleCardTyping step in TitleCards.Typings(card.Card))
+            foreach (TitleCardTyping step in TitleCards.Typings(card))
                 titleFrames.Add(TitleSpriteDefinitions.LetterFrameName(step));
         }
         SpriteSheet titleSheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.Title);
@@ -44,7 +44,7 @@ internal static class TypedTextGlyphsVerification
         // frame of the family would picture a typing step whole.
         var resultFrames = new HashSet<string>(StringComparer.Ordinal);
         foreach (CinematicSpriteFrameDefinition whole in EndingCompletionTextSpriteDefinitions.Frames)
-            resultFrames.Add(CinematicSpriteSheet.FrameName(EndingTextAnimations.Family, whole.Pose));
+            resultFrames.Add(CinematicSpriteSheet.FrameName(EndingSpriteSheets.Cinematic(EndingTextAnimations.Family), whole.Pose));
         foreach (EndingTypedText text in Enum.GetValues<EndingTypedText>())
         {
             foreach (EndingTextTyping step in EndingTextAnimations.Typings(text))
@@ -61,7 +61,7 @@ internal static class TypedTextGlyphsVerification
         var glyphs = new List<TypedStepFrame>();
         foreach (TitleCardDefinition card in TitleCards.All)
         {
-            foreach (TitleCardTyping step in TitleCards.Typings(card.Card))
+            foreach (TitleCardTyping step in TitleCards.Typings(card))
                 glyphs.Add(new(SpriteSheetId.Title, TitleSpriteDefinitions.LetterFrameName(step)));
         }
         glyphs.AddRange(typed);

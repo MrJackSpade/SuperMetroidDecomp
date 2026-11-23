@@ -3,11 +3,11 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The loadout Golden Torizo grants as he appears when the player holds his secret chord.</summary>
-internal static class GoldenTorizoCodeDefinitions
+internal static partial class GoldenTorizoCodeDefinitions
 {
     /// <summary>The secret chord: exactly Jump, Dash, Shoot and item cancel held, with no other action.</summary>
     internal const GameplayAction ControllerChord = GameplayAction.Jump | GameplayAction.Dash | GameplayAction.Shoot | GameplayAction.ItemCancel;
-    /// <summary>Current and maximum energy, exactly 700 rather than 799.</summary>
+    /// <summary>Current and maximum energy.</summary>
     internal const int Energy = 700;
     /// <summary>Current and maximum reserve energy; the reserve mode stays as it was.</summary>
     internal const int ReserveEnergy = 300;

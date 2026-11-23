@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The installed key of each <see cref="CollectibleDraw"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class CollectibleDrawKeys
+internal static partial class CollectibleDrawKeys
 {
     /// <summary>Each CollectibleDraw member's installed key.</summary>
     internal static InstalledKeys<CollectibleDraw> Installed { get; } = new(new Dictionary<CollectibleDraw, string>
@@ -22,14 +22,14 @@ internal static class CollectibleDrawKeys
         [CollectibleDraw.SuperMissileTankBright] = "SuperMissileTankBright",
         [CollectibleDraw.PowerBombTankBright] = "PowerBombTankBright",
         [CollectibleDraw.PowerBombTankDim] = "PowerBombTankDim",
-        [CollectibleDraw.FirstBlockPairPrimaryLook] = "FirstBlockPairPrimaryLook",
-        [CollectibleDraw.FirstBlockPairAlternateLook] = "FirstBlockPairAlternateLook",
-        [CollectibleDraw.SecondBlockPairPrimaryLook] = "SecondBlockPairPrimaryLook",
-        [CollectibleDraw.SecondBlockPairAlternateLook] = "SecondBlockPairAlternateLook",
-        [CollectibleDraw.ThirdBlockPairPrimaryLook] = "ThirdBlockPairPrimaryLook",
-        [CollectibleDraw.ThirdBlockPairAlternateLook] = "ThirdBlockPairAlternateLook",
-        [CollectibleDraw.FourthBlockPairPrimaryLook] = "FourthBlockPairPrimaryLook",
-        [CollectibleDraw.FourthBlockPairAlternateLook] = "FourthBlockPairAlternateLook",
+        [CollectibleDraw.SolidPairPrimaryLook] = "SolidPairPrimaryLook",
+        [CollectibleDraw.SolidPairAlternateLook] = "SolidPairAlternateLook",
+        [CollectibleDraw.FirstDoorPairPrimaryLook] = "FirstDoorPairPrimaryLook",
+        [CollectibleDraw.FirstDoorPairAlternateLook] = "FirstDoorPairAlternateLook",
+        [CollectibleDraw.SecondDoorPairPrimaryLook] = "SecondDoorPairPrimaryLook",
+        [CollectibleDraw.SecondDoorPairAlternateLook] = "SecondDoorPairAlternateLook",
+        [CollectibleDraw.ThirdDoorPairPrimaryLook] = "ThirdDoorPairPrimaryLook",
+        [CollectibleDraw.ThirdDoorPairAlternateLook] = "ThirdDoorPairAlternateLook",
         [CollectibleDraw.ShotBlockIntact] = "ShotBlockIntact",
         [CollectibleDraw.ShotBlockCracking] = "ShotBlockCracking",
         [CollectibleDraw.ShotBlockDust] = "ShotBlockDust",

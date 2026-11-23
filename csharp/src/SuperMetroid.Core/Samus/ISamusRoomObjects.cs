@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Samus;
 /// <summary>
 /// The room objects Samus's movement, collision, grapple and projectiles reach when a block they touch reacts (#1395, #2490):
 /// the families those reactions spawn or notify and whether the room's object places are all held, nothing else of the
-/// room's room objects. The room composition implements it; the intro's collision rooms, which hold no reacting block,
-/// implement it as rooms no reaction reaches.
+/// room's room objects. The room composition implements it, and a room's terrain (<see cref="Movement.RoomTerrain"/>)
+/// carries it; a plain terrain holds no reacting block and has none.
 /// </summary>
 internal interface ISamusRoomObjects
 {

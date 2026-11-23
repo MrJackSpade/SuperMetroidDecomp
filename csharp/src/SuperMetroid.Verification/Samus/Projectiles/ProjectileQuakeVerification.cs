@@ -26,13 +26,13 @@ internal static class ProjectileQuakeVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         var enemies = runtime.Enemies;
-        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
+        enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         var actor = enemies.Projectiles.EnemyProjectiles.First(p => p.Kind == RoomEnemyProjectileKind.TourianStatueRidley);
         foreach (var other in enemies.Projectiles.EnemyProjectiles)
-            if (other != actor) other.Kind = 0;
+            if (other != actor) other.Delete();
         ushort nativeSpritemap = NativeEnemyProjectileSpritemap(bus, actor);
         int cases = 0;
         foreach (ushort type in Enumerable.Range(0, NativeEarthquakeTypes.ShownTypeCount).Select(x => (ushort)x))
@@ -47,8 +47,8 @@ internal static class ProjectileQuakeVerification
             short dx = 0, dy = 0;
             if (timer != 0 && !frozen)
             {
-                dx = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x86846b + type * 4));
-                dy = unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x86846d + type * 4));
+                dx = unchecked((short)RomDataReader.ReadWordFixedBank(bus, 0x86846b + type * 4));
+                dy = unchecked((short)RomDataReader.ReadWordFixedBank(bus, 0x86846d + type * 4));
                 if ((timer & 2) != 0) { dx = unchecked((short)-dx); dy = unchecked((short)-dy); }
             }
             ushort x = unchecked((ushort)(position + dx)), y = unchecked((ushort)(position + dy));
@@ -58,7 +58,7 @@ internal static class ProjectileQuakeVerification
             // and leaves clipping at the screen edges to the display (#1520), so the oracle places every native part
             // without the cartridge's origin culling, which hid an object whose origin lay off screen even where its
             // parts showed, or its parking of a part that crosses the top or bottom edge at Y=$F0.
-            ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), expected, new NativeEnemySpritemapDraw
+            ImportedSpritemapOracle.DrawEnemy(bus, expected, new NativeEnemySpritemapDraw
                 {
                     Bank = 0x8d, Pointer = nativeSpritemap, Origin = new(x, y),
                     PaletteBits = SuperMetroid.Core.Assets.NativeSpriteGraphicsWords.PaletteBits(actor.Graphics.PaletteRowIn(enemies)),

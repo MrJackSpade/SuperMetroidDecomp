@@ -50,13 +50,13 @@ internal static class SpcDriverMemoryVerification
         // library for it, none withdraws the library's request, and another library's sound is refused.
         var clock = new SoundAcceptanceClock<SoundEffectLibrary, SoundEffectId>(
             [SoundEffectLibrary.Samus, SoundEffectLibrary.Enemies], SoundEffectLibrary.Samus);
-        clock.Request(SoundEffectLibrary.Enemies, EnemySound.SmallEnergyPickup);
+        clock.Request(SoundEffectLibrary.Enemies, new RequestedSound<SoundEffectId>(EnemySound.SmallEnergyPickup));
         AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundEffectLibrary.Room, null), "a library the clock was not given is rejected");
         AssertEqual(new AudioRequest.RequestSound(EnemySound.SmallEnergyPickup),
             AudioRequest.ForSound(SoundEffectLibrary.Enemies, EnemySound.SmallEnergyPickup), "a sound requests that sound of its library");
         AssertEqual(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies),
             AudioRequest.ForSound(SoundEffectLibrary.Enemies, null), "no sound withdraws the library's request");
-        AssertThrows<ArgumentException>(() => AudioRequest.ForSound(SoundEffectLibrary.Enemies, SamusSound.Silence),
+        AssertThrows<ArgumentException>(() => AudioRequest.ForSound(SoundEffectLibrary.Enemies, SamusSoundStop.Any),
             "another library's sound is refused");
     }
 

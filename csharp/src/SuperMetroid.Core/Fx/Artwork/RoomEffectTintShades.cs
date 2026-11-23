@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// selects (#1512): the colours of its liquid, fog or rain, or, for the untinted look, the pictures' own colours with one
 /// that every tint recolours shown black.
 /// </summary>
-public static class RoomEffectTintShades
+public static partial class RoomEffectTintShades
 {
     /// <summary>The untinted look: the pictures keep their own colours, except one that every tint recolours, which shows black.</summary>
     public static PictureShade None { get; } = new("room-fx-blend-none", 0);

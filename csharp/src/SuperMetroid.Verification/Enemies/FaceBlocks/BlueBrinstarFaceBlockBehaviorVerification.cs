@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.CompiledEnemyVisualSelectorsVerification;
 using SuperMetroid.Core;
@@ -12,6 +11,7 @@ namespace SuperMetroid.Verification.Enemies.FaceBlocks;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Checks which face-block animation each activation side starts and how long each pose holds.</summary>
 internal static class BlueBrinstarFaceBlockBehaviorVerification
@@ -23,8 +23,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     /// </summary>
     internal static void VerifyBlueBrinstarFaceBlockBehavior()
     {
-        (RoomEnemySystem enemies, RoomEnemyPlace place, BlueBrinstarFaceBlockEnemyState state) = Create(parameter2: 0);
-        AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(BlueBrinstarFaceBlockSegment.LookingAhead), AnimationPlace.StartOfAnimation), state.Playback, "face block starts neutral");
+        (RoomEnemySystem enemies, RoomEnemyPlace place) = Create(parameter2: 0);
         ushort neutral = BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockSegment.LookingAhead).Single();
         // A still picture shows once and holds (#2275).
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral], [1]), EnemyInstructionRunner.ShownFrames(place, 3), "face block neutral pose");
@@ -35,15 +34,14 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
                      new VerifyBlueBrinstarFaceBlockBehaviorCase(1, 32, BlueBrinstarFaceBlockSegment.SamusRight),
                  })
         {
-            (enemies, place, state) = Create(parameter2);
+            (enemies, place) = Create(parameter2);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 CollectedItems = SamusEquipmentWordCodec.FromEquipmentWord(BlueBrinstarFaceBlockNativeValues.MorphBallItem),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(place.Position.X.Whole + samusX)), place.Position.Y.Whole)),
             };
-            enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
-            AssertTrue(state.Activated, $"face block {program} activates");
-            AssertEqual(new AnimationPlayback<BlueBrinstarFaceBlockSegment>(BlueBrinstarFaceBlockAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback, $"face block {program} selection");
+            // The block activates for Samus on the side it faces and turns toward her: its turn's poses show it chose them.
+            place.RunMainAi(samus);
             int[] holds = [48, 16, 16];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(program), holds),
                 EnemyInstructionRunner.ShownFrames(place, holds.Sum() + 1), $"face block {program} poses");
@@ -61,13 +59,9 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
-        place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, parameter2);
-        place.Position = place.Position.WithWhole(new(256, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
-        return new BlueBrinstarFaceBlockBehaviorCreateResult(enemies, place, enemies.BlueBrinstarFaceBlockStates[0] ?? throw new InvalidOperationException("The face block has no state."));
+        var settings = (FaceBlockSpawnSettings)EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.FaceBlock, PopulationWords.Parameters(64, parameter2));
+        _ = enemies.PlaceAs<BlueBrinstarFaceBlockEntity>(EnemyDefinitionId.FaceBlock, settings, RoomEnemyFrameFixtures.StandaloneSamus(), new(256, 256));
+        return new BlueBrinstarFaceBlockBehaviorCreateResult(enemies, place);
     }
 
     /// <summary>Runs the face-block behavior check, its program oracle and the compiled selector check.</summary>

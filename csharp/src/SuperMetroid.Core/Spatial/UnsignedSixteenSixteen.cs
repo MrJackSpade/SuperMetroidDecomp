@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <see cref="Samus.Movement.SamusVerticalVelocity"/>, and her running speed taken toward her side), and how a speed slowed
 /// past zero reads is <see cref="SamusSpeedMagnitude"/>'s.
 /// </summary>
-[EncodingOwner("unsigned 16.16 fixed-point number")]
-public readonly record struct UnsignedSixteenSixteen
+public readonly partial record struct UnsignedSixteenSixteen
 {
     /// <summary>Holds the two parts, each checked to lie in 0 through 65535.</summary>
     public UnsignedSixteenSixteen(int whole, int fraction)
@@ -17,7 +16,6 @@ public readonly record struct UnsignedSixteenSixteen
     }
 
     /// <summary>The whole part, 0 through 65535.</summary>
-    [IntegerQuantity("whole-pixel part of an unsigned distance")]
     public int Whole { get; }
 
     /// <summary>The fraction, 0 through 65535.</summary>
@@ -65,7 +63,7 @@ public readonly record struct UnsignedSixteenSixteen
     public static UnsignedSixteenSixteen FromWholePixels(int wholePixels) => new(wholePixels, 0);
 
     /// <summary>A speed of <paramref name="twoHundredFiftySixths"/> 256ths of a pixel, which must not be negative.</summary>
-    public static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
+    internal static UnsignedSixteenSixteen FromTwoHundredFiftySixthsOfPixel(int twoHundredFiftySixths) =>
         FromRaw(checked((uint)twoHundredFiftySixths * 256u));
 
     /// <summary>
@@ -143,7 +141,7 @@ public readonly record struct UnsignedSixteenSixteen
         FromTwoHundredFiftySixthsOfPixel(InTwoFiftySixths / Ensure.BetweenInclusive(1, int.MaxValue, divisor));
 
     /// <summary>This speed with its whole part replaced.</summary>
-    public UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
+    internal UnsignedSixteenSixteen WithWhole(int whole) => new(whole, Fraction);
 
     /// <summary>
     /// This speed scaled by a whole <paramref name="factor"/>, zero or more (#2555): the product must fit the type.

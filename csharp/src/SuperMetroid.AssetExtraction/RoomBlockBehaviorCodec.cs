@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction;
 /// <list type="bullet">
 /// <item>a reaction: bit seven selects the area's table over the common one, and the low seven bits are the entry, which
 /// each reacting kind's dispatch tables give their own meaning; an entry past a kind's tables is no reaction of that kind,
-/// which no retail block of the kind holds (<see cref="HoldsReaction"/>, #1742). The special-block and special-air area
+/// which no retail block of the kind holds (<c>HoldsReaction</c>, #1742). The special-block and special-air area
 /// tables give an entry what the room's area makes of it, which the codec resolves into that meaning's own reaction
 /// (#1805): <see cref="ReadingsOf(AreaId, int)"/> reads a byte in an area, and <see cref="ReadingsOf(int)"/> leaves both
 /// readings out of a byte whose meaning the areas give differently;</item>
@@ -25,8 +25,7 @@ namespace SuperMetroid.AssetExtraction;
 /// the installation holds each block's behaviour as the reading its collision kind takes, and the X-ray reveals' rules by
 /// their reactions' names (#1709, #1722), so nothing the game loads holds the byte.
 /// </summary>
-[EncodingOwner("room block behaviour byte")]
-public static class RoomBlockBehaviorCodec
+public static partial class RoomBlockBehaviorCodec
 {
     /// <summary>The number of behaviour bytes.</summary>
     public const int ByteCount = 256;
@@ -97,35 +96,27 @@ public static class RoomBlockBehaviorCodec
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, <paramref name="value"/> is not a byte, or no kept behaviour holds its readings.</exception>
     public static RoomBlockBehavior Decode(AreaId area, int value) =>
-        InAreas.Value[AreaIds.Require(area)][Ensure.BetweenInclusive(0, byte.MaxValue, value)];
+        InAreas.Value[area][Ensure.BetweenInclusive(0, byte.MaxValue, value)];
 
     /// <summary>The slope shape a slope's shape bits number.</summary>
     /// <param name="number">The shape bits, 0 through 31.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> numbers no slope shape.</exception>
-    public static SlopeShape SlopeShapeOf(int number) => SlopeShapes[Ensure.BetweenInclusive(0, SlopeShapeMask, number)];
+    internal static SlopeShape SlopeShapeOf(int number) => SlopeShapes[Ensure.BetweenInclusive(0, SlopeShapeMask, number)];
 
     /// <summary>Encodes a behaviour as its byte.</summary>
     /// <param name="behavior">A decoded behaviour, or one a room object wrote.</param>
     public static int Encode(RoomBlockBehavior behavior) => Bytes.Value[behavior];
 
     /// <summary>
-    /// Whether a block of collision kind <paramref name="kind"/> with <paramref name="behavior"/> has a reaction its kind
-    /// reads: true for a kind that reads none. The import refuses a level block without one (#1742): its kind's dispatch
-    /// would read past the end of its tables, and no retail block does.
-    /// </summary>
-    public static bool HoldsReaction(RoomCollisionType kind, RoomBlockBehavior behavior) =>
-        BlockReactionFamilies.Of(kind) is not { } family || behavior.ReactionIn(family) is not null;
-
-    /// <summary>
     /// Decodes a behaviour byte into every reading the block's collision kinds take of it in any area: when the areas make
-    /// different things of it to special blocks and special air, it holds neither of those readings.
+    /// different things of it to special blocks and special air, it is resolved by its area and holds neither of those readings.
     /// </summary>
     /// <param name="value">The byte, 0 through 255.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
     public static RoomBlockReadings ReadingsOf(int value)
     {
         List<RoomBlockReadings> inAreas = [.. AreaIds.All.Select(area => ReadingsOf(area, value)).Distinct()];
-        return inAreas.Count == 1 ? inAreas[0] : inAreas[0] with { Special = null, SpecialAir = null };
+        return inAreas.Count == 1 ? inAreas[0] : inAreas[0] with { Special = null, SpecialAir = null, ResolvedByArea = true };
     }
 
     /// <summary>Decodes a behaviour byte into every reading the block's collision kinds take of it in <paramref name="area"/>.</summary>
@@ -134,7 +125,6 @@ public static class RoomBlockBehaviorCodec
     /// <exception cref="ArgumentOutOfRangeException">The area is not a retail area, or <paramref name="value"/> is not a byte.</exception>
     public static RoomBlockReadings ReadingsOf(AreaId area, int value)
     {
-        _ = AreaIds.Require(area);
         _ = Ensure.BetweenInclusive(0, byte.MaxValue, value);
         bool areaTable = (value & HighBit) != 0;
         int entry = value & EntryMask;
@@ -156,11 +146,29 @@ public static class RoomBlockBehaviorCodec
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
     public static int DoorLinkOf(int value) => Ensure.BetweenInclusive(0, byte.MaxValue, value) & EntryMask;
 
-    /// <summary>The shot, bomb and grapple dispatchers' table entry for a shootable block, or none past their tables.</summary>
-    private static ShootableReaction? ShootableOf(bool area, int entry) => new TableEntry(area, entry) switch
+    /// <summary>The number of entries each area's shootable table holds.</summary>
+    private const int AreaShootableEntries = 8;
+
+    /// <summary>
+    /// Whether a shootable block with behaviour byte <paramref name="value"/> reads its reaction past its area's shootable
+    /// table, into the other areas' tables and the code after them (#2553): an area entry of 8 or more, bytes $88 and up.
+    /// That reading is outside the emulation's scope, so the import refuses such a block (no retail block holds one).
+    /// </summary>
+    /// <param name="value">The byte, 0 through 255.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is not a byte.</exception>
+    public static bool ReadsPastAreaShootableTable(int value) =>
+        (Ensure.BetweenInclusive(0, byte.MaxValue, value) & HighBit) != 0 && (value & EntryMask) >= AreaShootableEntries;
+
+    /// <summary>
+    /// The shot, bomb and grapple dispatchers' table entry for a shootable block. Every area entry sets off nothing in
+    /// shootable air, which passes an area byte by ($94:9E60), and the area tables' nothing in a shootable block; the
+    /// import refuses a block whose area entry reads past its area's table (<see cref="ReadsPastAreaShootableTable"/>).
+    /// The common entries past the common table's 80 read on into the area tables' 64 entries, every one the room object
+    /// that does nothing, which shots pass by (#2553).
+    /// </summary>
+    private static ShootableReaction ShootableOf(bool area, int entry) => new TableEntry(area, entry) switch
     {
-        (true, < 8) => ShootableReaction.NothingWhenSolid,
-        (true, _) => null,
+        (true, _) => ShootableReaction.NothingWhenSolid,
         (false, 0) => ShootableReaction.RespawningBreak1x1,
         (false, 1) => ShootableReaction.RespawningBreak2x1,
         (false, 2) => ShootableReaction.RespawningBreak1x2,
@@ -192,7 +200,7 @@ public static class RoomBlockBehaviorCodec
         (false, 77) => ShootableReaction.GateTriggerYellowRight,
         (false, 78) => ShootableReaction.IgnoresShots,
         (false, 79) => ShootableReaction.AnimalEscape,
-        (false, _) => null,
+        (false, _) => ShootableReaction.IgnoresShots,
     };
 
     /// <summary>The bomb-block table's entry for a bombable block, or none past the table.</summary>
@@ -297,7 +305,7 @@ public static class RoomBlockBehaviorCodec
     /// <summary>One entry of an area's own dispatch table.</summary>
     /// <param name="Area">The room's area.</param>
     /// <param name="Index">The entry, 0 through 127.</param>
-    private readonly record struct AreaEntry(AreaId Area, int Index);
+    private readonly partial record struct AreaEntry(AreaId Area, int Index);
 
     /// <summary>
     /// The spike dispatchers' entry for a spike block or spike air, or none past the enemy's spike table, which reads both
@@ -321,7 +329,7 @@ public static class RoomBlockBehaviorCodec
     /// <summary>One entry of a reacting kind's dispatch tables: the common or the area's table, and the entry in it.</summary>
     /// <param name="Area">Whether the entry is of the area's table.</param>
     /// <param name="Index">The entry, 0 through 127.</param>
-    private readonly record struct TableEntry(bool Area, int Index);
+    private readonly partial record struct TableEntry(bool Area, int Index);
 
     /// <summary>The grapple dispatcher's entry for a grapple block, or none past its table.</summary>
     private static GrappleReaction? GrappleOf(bool area, int entry) => new TableEntry(area, entry) switch

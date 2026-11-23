@@ -33,7 +33,7 @@ internal static class CrocomireAnimationsVerification
     /// </summary>
     internal static void VerifyCrocomireBodyAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertTrue(BodyEntriesAscend, "native body entries ascend");
         AssertEqual(Enum.GetValues<CrocomireBodyAnimation>().Length, BodyStarts.Count, "every body animation has a native entry");
 
@@ -107,12 +107,7 @@ internal static class CrocomireAnimationsVerification
     private static NewCrocomireResult NewCrocomire()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
-        body.Position = body.Position.WithWhole(new(576, 144));
-        var state = new CrocomireEnemyState(body);
-        body.SetSpeciesState(state);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(576, 144));
         enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
         enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return new NewCrocomireResult(enemies, state);
@@ -228,15 +223,12 @@ internal static class CrocomireAnimationsVerification
     /// <summary>Each tongue program plays its native list update by update through the production interpreter.</summary>
     internal static void VerifyCrocomireTongueAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<CrocomireTongueSegment>().Length, TongueEntries.Length, "every tongue program has a native entry");
         foreach ((CrocomireTongueSegment program, ushort entry) in TongueEntries)
         {
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             RoomEnemyPlace tongue = enemies.Places.InUpdateOrder[1];
-            tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.Definition);
-            tongue.SetSpeciesState(new CrocomireTongueState(state));
-            state.JoinTongue(tongue);
             state.TonguePlayback = new AnimationPlayback<CrocomireTongueSegment>(CrocomireAnimations.TongueStartingWith(program), AnimationPlace.StartOfAnimation);
             tongue.AnimationClock.StepOnNextUpdate();
             var native = new NativeEnemyListReader(BodyBankNumber, entry, 1, _ => 0);
@@ -260,7 +252,7 @@ internal static class CrocomireAnimationsVerification
     /// </summary>
     internal static void VerifyCrocomireProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
 
         (RoomEnemySystem mouthSystem, CrocomireEnemyState mouthState) = NewCrocomire();
         mouthSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(mouthState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
@@ -286,7 +278,7 @@ internal static class CrocomireAnimationsVerification
         shotSystem.CrocomireBehavior.Fight.SpawnCrocomireProjectile(shotState.Body, gradient: CrocomireProjectileDefinitions.AuthoredGradients[0]);
         EnemyProjectile exploding = shotSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireProjectile);
-        exploding.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.Shot));
+        exploding.StartAnimation(new CrocomireProjectileAnimation(shotSystem.CrocomireBehavior.Combat.MouthShot, CrocomireProjectileSegment.Shot));
         CompareProjectile(cartridge, shotSystem, exploding, RoomEnemyProjectileKind.CrocomireProjectile, shot: true, "shot");
         AssertTrue(!exploding.IsActive, "the shot program deletes the projectile");
         AssertTrue(shotSystem.Projectiles.EnemyProjectiles.Any(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
@@ -313,7 +305,7 @@ internal static class CrocomireAnimationsVerification
         int dropsBefore = enemies.Projectiles.EnemyProjectiles.Count(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         for (int update = 0; update < 50 && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             native.Step(cartridge);
             string at = $"Crocomire {label} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");

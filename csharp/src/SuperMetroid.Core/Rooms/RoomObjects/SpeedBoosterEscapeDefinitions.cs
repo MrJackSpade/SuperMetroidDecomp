@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>When the Speed Booster escape's lavaquake starts and how fast it begins.</summary>
-public static class SpeedBoosterEscapeDefinitions
+public static partial class SpeedBoosterEscapeDefinitions
 {
     /// <summary>The whole-pixel X Samus must reach, moving left, before the liquid starts moving.</summary>
     public const int LavaStartsMovingSamusX = 2784;

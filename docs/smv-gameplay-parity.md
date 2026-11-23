@@ -133,11 +133,10 @@ pinned ROM.
 | Mother Brain glitch | `csharp/test-fixtures/replay-traces/mother-brain-glitch` | `--mother-brain-glitch-movie DIR` |
 | 13% Speed Booster | `csharp/test-fixtures/replay-traces/low-13-percent` | `--lsmv-playthrough-movie DIR` |
 | 100% | `csharp/test-fixtures/replay-traces/full-100-percent` | `--full-playthrough-movie DIR` |
-| Samus drunk | `csharp/test-fixtures/replay-traces/samus-drunk` | `--drunk-playthrough-movie DIR` |
 | lowc (contributed) | `csharp/test-fixtures/replay-traces/lowc` | `--lowc-playthrough-movie DIR` |
 | Ridley showcase | `csharp/test-fixtures/replay-traces/ridley` | `--ridley-full-movie` |
 
-The no-argument Verification suite runs all six replays from these paths; each command also
+The no-argument Verification suite runs all five replays from these paths; each command also
 runs one alone. Produce or refresh a trace with one command:
 
 ```text
@@ -180,7 +179,7 @@ adapter alone, which is deleted once the diagnosis is done.
 
 ## Replaying through the Direct3D 11 host
 
-`SuperMetroid.DesktopVerification --desktop-movie <glitch|13|100|drunk|lowc|ridley>` runs one
+`SuperMetroid.DesktopVerification --desktop-movie <glitch|13|100|lowc|ridley>` runs one
 movie through the production host instead of headless: a hidden `GameForm` on a private copy
 of the repository installation, presenting on the hardware Direct3D 11 worker, with only the
 host's own WinForms timer advancing frames. The converted movie session is the host's

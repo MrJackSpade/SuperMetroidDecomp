@@ -1,11 +1,12 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// The game's sine and cosine over trigonometry angles, counted in 256ths of a turn, and the multiplications that use
-/// them (#1422): the signed sine in 256ths of its peak and the fine one peaking at 32767, their coarse and unsigned
-/// half-waves and the negative-cosine view, exactly as every enemy, boss, projectile and screen effect computes them. These are engine math definitions, not editable presentation assets.
+/// The game's sine and cosine over trigonometry angles, and the multiplications that use them (#1422): the signed sine,
+/// the fine one peaking at 32767, their coarse and unsigned half-waves and the negative-cosine view, exactly as every
+/// enemy, boss, projectile and screen effect computes them. These are engine math definitions, not editable
+/// presentation assets.
 /// </summary>
-public static class Trigonometry
+public static partial class Trigonometry
 {
 
     /// <summary>The fine sine's steps in each step of its coarse reading (<see cref="CoarseSizeOfFineSine"/>).</summary>
@@ -14,7 +15,7 @@ public static class Trigonometry
     /// <summary>The game's fine signed sine over the whole turn, peaking at +/-32767, unlike
     /// <see cref="SignedSine"/>. The positive half equals the unsigned half-wave
     /// (<see cref="UnsignedHalfWave"/>) halved; sign is restored only after that truncation.</summary>
-    /// <remarks>For angle a in 256ths of a turn, let n = a mod 128 and
+    /// <remarks>For angle a in steps of the turn, let n = a mod 128 and
     /// U(n) = floor(65535*sin(n*pi/128)). The result is floor(U(n)/2),
     /// negated only when a &gt;= 128: a half-unit scale of 32767.5, not 32767.
     /// The values come from bounded decimal arithmetic, not Math.Sin, so every
@@ -26,18 +27,18 @@ public static class Trigonometry
     }
 
     /// <summary>
-    /// The velocity <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels an update (#2482): the signed
-    /// sine's 256ths of its peak taken as 256ths of a pixel, times the peak, exactly with nothing dropped. A cosine is the sine
-    /// a quarter-turn on, a negative cosine the sine a quarter-turn back.
+    /// The velocity <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels an update (#2482):
+    /// the signed sine's share of its peak taken as a share of a pixel, times the peak, exactly with nothing dropped. A
+    /// cosine is the sine a quarter-turn on, a negative cosine the sine a quarter-turn back.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The velocity is faster, either way, than a velocity can be.</exception>
     public static SignedEightEight SineVelocity(TrigonometryAngle angle, int peakPixels) =>
         SignedEightEight.FromTwoHundredFiftySixthsOfPixel(peakPixels * SignedSine(angle));
 
     /// <summary>
-    /// The displacement <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels (#2491), as a liquid's
-    /// tide lifts and lowers its surface: the signed sine's 256ths of its peak taken as 256ths of a pixel, times the peak,
-    /// exactly with nothing dropped. A negative cosine is the sine a quarter-turn back.
+    /// The displacement <paramref name="angle"/>'s sine gives at <paramref name="peakPixels"/> pixels (#2491), as a
+    /// liquid's tide lifts and lowers its surface: the signed sine's share of its peak taken as a share of a pixel,
+    /// times the peak, exactly with nothing dropped. A negative cosine is the sine a quarter-turn back.
     /// </summary>
     public static SignedSixteenSixteen SineDisplacement(TrigonometryAngle angle, int peakPixels) =>
         SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(peakPixels * SignedSine(angle));
@@ -65,8 +66,8 @@ public static class Trigonometry
         return angle.WithSineSign(steps == 64 ? 256 : CoarseHalfWave(steps));
     }
 
-    /// <summary>The game's coarse half-wave, the sine in 256ths of its peak over the first half turn:
-    /// min(255, floor(256*sin(step*pi/128))) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
+    /// <summary>The game's coarse half-wave, the sine's share of its peak over the first half turn: min(255,
+    /// floor(256*sin(step*pi/128))) for the turn's step <paramref name="step"/>, 0..127.</summary>
     /// <remarks>
     /// Each of the half turn's 128 steps gives the game's own value.
     /// Scale 256 before truncation; only the exact quarter-turn saturates to 255.
@@ -80,7 +81,7 @@ public static class Trigonometry
     }
 
     /// <summary>The game's unsigned half-wave, the sine in 65535ths of its peak over the first half turn:
-    /// floor(65535*sin(step*pi/128)) for <paramref name="step"/> 256ths of a turn, 0..127.</summary>
+    /// floor(65535*sin(step*pi/128)) for the turn's step <paramref name="step"/>, 0..127.</summary>
     /// <remarks>
     /// Each of the half turn's 128 steps gives the game's own value.
     /// Scale 65535, not saturated 65536; preserve quantization

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Progression;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// The game's automatic saves: the gameplay events that write the game's ordinary save without a save station's
 /// prompt.
 /// </summary>
-internal static class AutomaticCheckpointSaver
+internal static partial class AutomaticCheckpointSaver
 {
     /// <summary>
     /// The Ceres opening publishes its checkpoint game state before saving the initial Ceres checkpoint.
@@ -40,11 +41,13 @@ internal static class AutomaticCheckpointSaver
     public static bool TrySaveGunshipLanding(
         SaveSlotStore saves,
         SuperMetroidRuntime runtime,
+        RoomScope loaded,
         SaveSlot selectedSaveSlot)
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
-        if (!runtime.EnemyFrameResults.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted))
+        Ensure.NotNull(loaded);
+        if (!loaded.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)))
             return false;
 
         // The gunship sets the ship-landed marker before moving the checkpoint from the Zebes arrival to

@@ -9,39 +9,66 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// unless the object rests, its animation counts down the updates its shown frame stays and, when they run out, shows its
 /// next frame, raising the events it passes on the way, or, after the last frame, ends and the object decides what comes
 /// next. An animation the object starts while it updates shows its first frame on that same update, as the game's
-/// objects continued into their next sequence on the same update. An object just placed decides on its first update,
-/// ending its empty first animation there. An object whose ended animation is followed by nothing rests on the frame it
-/// last showed until what it waits for starts another.
+/// objects continued into their next sequence on the same update. An object just placed decides on its first update. An
+/// object whose ended animation is followed by nothing rests on the frame it last showed until what it waits for starts
+/// another; where its animations stand is its progress (<see cref="SequencedRoomObjectProgress{TSegment, TFrame, TEvent}"/>).
 /// </summary>
 /// <typeparam name="TSegment">The object's segment identity.</typeparam>
 /// <typeparam name="TFrame">What one of its frames draws.</typeparam>
 /// <typeparam name="TEvent">What the object does as its animation passes an event.</typeparam>
-internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObjectBehaviour
+internal abstract partial class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObjectBehaviour
     where TSegment : struct
     where TFrame : struct
     where TEvent : notnull
 {
-    /// <summary>The animation that plays nothing: it is over on its first update.</summary>
-    private static readonly Animation<TSegment> PlaysNothing = new([], AnimationEnd.Stops);
+    /// <summary>The segments the object's animations play.</summary>
+    private readonly AnimationSegments<TSegment, TFrame, TEvent> _segments;
 
-    /// <summary>The object's animation playing.</summary>
-    private readonly AnimationPlayer<TSegment, TFrame, TEvent> _player;
+    /// <summary>Where the object's animations stand: placed, it decides on its first update.</summary>
+    internal SequencedRoomObjectProgress<TSegment, TFrame, TEvent> Progress { get; private set; } = SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Deciding.OnNextUpdate;
 
-    /// <summary>Starts the object playing nothing of <paramref name="segments"/>, so its first update ends it at once.</summary>
+    /// <summary>Places the object playing animations of <paramref name="segments"/>, deciding what it plays on its first update.</summary>
     /// <param name="segments">The segments the object's animations play.</param>
     private protected SequencedRoomObject(AnimationSegments<TSegment, TFrame, TEvent> segments) =>
-        _player = AnimationPlayer<TSegment, TFrame, TEvent>.Starting(segments, PlaysNothing);
+        _segments = Ensure.NotNull(segments);
 
     /// <summary>Whether the object rests: its animation has ended with nothing to follow, until what it waits for wakes it.</summary>
-    internal bool Resting => _player.HasStopped;
+    private protected bool Resting => Progress is SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting
+        or SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.RestingUnshown;
 
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
         Ensure.NotNull(place);
-        if (Resting)
-            return;
-        Step(place, context);
+        switch (Progress)
+        {
+            case SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting or SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.RestingUnshown:
+                return;
+            case SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Deciding:
+                Decide(null, place, context);
+                return;
+            case SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Playing playing:
+                if (!ShowNextFrame(playing.Player, place, context) && playing.Player.HasStopped)
+                    Decide(playing.Player.Shown, place, context);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined room object progress {Progress}.");
+        }
+    }
+
+    /// <summary>
+    /// Decides what follows the object's ended animation (<see cref="SequenceEnded"/>): the object rests on
+    /// <paramref name="lastShown"/>, or showing nothing, unless the decision starts another animation or another decision.
+    /// </summary>
+    /// <param name="lastShown">The frame the ended animation last showed; none when it showed none, or nothing played.</param>
+    /// <param name="place">The object's place.</param>
+    /// <param name="context">The update.</param>
+    private void Decide(TFrame? lastShown, RoomObjectPlace place, RoomObjectStepContext context)
+    {
+        Progress = lastShown is { } shown
+            ? new SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Resting(shown)
+            : SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.RestingUnshown.Instance;
+        SequenceEnded(place, context);
     }
 
     /// <summary>Decides what follows the animation that just ended, on the update its last frame's updates ran out.</summary>
@@ -55,41 +82,44 @@ internal abstract class SequencedRoomObject<TSegment, TFrame, TEvent> : RoomObje
     /// <param name="context">The update.</param>
     private protected abstract void Show(TFrame frame, RoomObjectPlace place, RoomObjectStepContext context);
 
-    /// <summary>Carries out <paramref name="raised"/>, which the animation passes just before the frame after it shows.</summary>
-    /// <param name="raised">The event.</param>
-    /// <param name="place">The object's place.</param>
-    /// <param name="context">The update.</param>
-    /// <exception cref="InvalidOperationException">The object's animations raise no event.</exception>
-    private protected virtual void Raise(TEvent raised, RoomObjectPlace place, RoomObjectStepContext context) =>
-        throw new InvalidOperationException($"{GetType().Name} at block {place.Block} raised {raised}, but its animations raise no event.");
+    /// <summary>
+    /// What carries out an event the animation passes just before the frame after it shows, given the object's place and
+    /// the update; none for an object whose animations raise no event (<see cref="SilentSequencedRoomObject{TSegment, TFrame}"/>),
+    /// which plays them silently.
+    /// </summary>
+    private protected virtual Action<TEvent, RoomObjectPlace, RoomObjectStepContext>? Raiser => null;
 
     /// <summary>Plays <paramref name="animation"/> from its start, its first frame showing on this update.</summary>
     /// <exception cref="InvalidOperationException">The animation shows no frame on its first update.</exception>
     private protected void Play(Animation<TSegment> animation, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        _player.Start(animation);
-        if (!ShowNextFrame(place, context))
+        AnimationPlayer<TSegment, TFrame, TEvent> player = Start(animation);
+        if (!ShowNextFrame(player, place, context))
             throw new InvalidOperationException("A room object's animation shows a frame as it starts.");
     }
 
     /// <summary>Plays <paramref name="animation"/> from its start, its first frame showing on the object's next update.</summary>
-    private protected void PlayFromNextUpdate(Animation<TSegment> animation) => _player.Start(animation);
+    private protected void PlayFromNextUpdate(Animation<TSegment> animation) => _ = Start(animation);
 
-    /// <summary>Ends the object's animation on its next update without showing anything more.</summary>
-    private protected void EndOnNextUpdate() => _player.Start(PlaysNothing);
+    /// <summary>Ends the object's animation, its next update deciding what follows without showing anything more.</summary>
+    private protected void EndOnNextUpdate() => Progress = SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Deciding.OnNextUpdate;
 
-    /// <summary>Runs one update of the animation: its next frame once the shown one's updates run out, or its end.</summary>
-    private void Step(RoomObjectPlace place, RoomObjectStepContext context)
+    /// <summary>Starts <paramref name="animation"/> playing from its start, its first frame due on the object's next step.</summary>
+    private AnimationPlayer<TSegment, TFrame, TEvent> Start(Animation<TSegment> animation)
     {
-        if (!ShowNextFrame(place, context) && _player.HasStopped)
-            SequenceEnded(place, context);
+        var playing = new SequencedRoomObjectProgress<TSegment, TFrame, TEvent>.Playing(AnimationPlayer<TSegment, TFrame, TEvent>.Starting(_segments, animation));
+        Progress = playing;
+        return playing.Player;
     }
 
-    /// <summary>Counts the shown frame down and shows the next frame its updates run out on, if any.</summary>
+    /// <summary>Counts <paramref name="player"/>'s shown frame down and shows the next frame its updates run out on, if any.</summary>
     /// <returns>Whether the update showed a frame.</returns>
-    private bool ShowNextFrame(RoomObjectPlace place, RoomObjectStepContext context)
+    private bool ShowNextFrame(AnimationPlayer<TSegment, TFrame, TEvent> player, RoomObjectPlace place, RoomObjectStepContext context)
     {
-        if (_player.StepToNewFrame(raised => Raise(raised, place, context)) is not { } frame)
+        TFrame? shown = Raiser is { } raise
+            ? player.StepToNewFrame(raised => raise(raised, place, context))
+            : player.StepToNewFrame();
+        if (shown is not { } frame)
             return false;
         Show(frame, place, context);
         return true;

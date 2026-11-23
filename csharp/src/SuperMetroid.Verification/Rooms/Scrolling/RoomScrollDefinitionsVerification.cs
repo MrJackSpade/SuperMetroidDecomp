@@ -40,7 +40,7 @@ internal static class RoomScrollDefinitionsVerification
         foreach (ushort roomPointer in roomPointers)
         foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
         {
-            SelectedRoom header = SelectedRoom.LoadUsingCompiledSelection(
+            SelectedRoom header = SelectedRoom.ForProgress(
                 RoomDefinitions.Get(roomPointer), context);
             if (!auditedStates.Add(header.State.Pointer))
                 continue;
@@ -58,7 +58,7 @@ internal static class RoomScrollDefinitionsVerification
                 // The table's fifty bytes are compared as the cells the camera reads them as: the room's own screens
                 // the catalog authors, then the installed cells the load writes past them (#2356).
                 expected = RoomScrollStates.FromStorageBytes(native);
-                RoomScrollDefinition layout = RoomScrollDefinitions.Get(scrollPointer);
+                var layout = AssertIs<RoomScrollDefinition.ExplicitLayout>(RoomScrollDefinitions.Get(scrollPointer), $"scroll table $8F:{scrollPointer:X4}");
                 AssertEqual(header.Size.X * header.Size.Y, layout.Cells.Count,
                     $"compiled explicit scroll table $8F:{scrollPointer:X4} authors the room's own screens");
                 AssertTrue(expected.SequenceEqual([.. layout.Cells, .. pastScreens.After(layout.Name)]),
@@ -104,7 +104,7 @@ internal static class RoomScrollDefinitionsVerification
             () => RoomScrollGrid.LoadNativeTable([0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");
 
-        SelectedRoom ceres = SelectedRoom.LoadUsingCompiledSelection(
+        SelectedRoom ceres = SelectedRoom.ForProgress(
             SuperMetroid.Core.Progression.LoadStationDefinitions.CeresElevator.Placement.Door.DestinationRoom, RoomStateSelectionContexts.NoProgress);
         var guardedCeres = CreateRetailRuntimeFixture();
         // A new session's scroll cells start cleared, so Ceres's cells past its own read red.

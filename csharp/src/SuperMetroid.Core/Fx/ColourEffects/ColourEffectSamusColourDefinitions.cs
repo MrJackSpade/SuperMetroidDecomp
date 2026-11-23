@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// materializing as she loads. She lays the shade of each frame they show over her suit; which of her colours each
 /// recolours is the import's.
 /// </summary>
-internal static class ColourEffectSamusColourDefinitions
+internal static partial class ColourEffectSamusColourDefinitions
 {
     /// <summary>The groups that recolour her suit.</summary>
     internal static ImmutableHashSet<ColourEffectColours> SuitColours { get; } =

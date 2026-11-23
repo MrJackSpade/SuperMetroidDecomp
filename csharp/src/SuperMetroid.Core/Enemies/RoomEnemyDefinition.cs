@@ -11,37 +11,37 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="HurtSoundEffect">The enemy-library cry the enemy makes when a shot hurts it, or none.</param>
 /// <param name="Boss">The boss a room containing this enemy holds, or null when the enemy is no boss.</param>
 /// <param name="GrappleResponse">
-/// How the enemy reacts to the grapple beam reaching it, or null for an empty place and for the elevator, whose own
-/// behaviour carries on and to which the grapple has no reaction (#2283).
+/// How the enemy reacts to the grapple beam reaching it; the elevator, whose own behaviour carries on, has none
+/// (<see cref="EnemyGrappleResponse.Unreactive"/>, #2283).
 /// </param>
 /// <param name="HurtResponse">What the enemy does while it is hurt and flashing.</param>
 /// <param name="DeathExplosion">The explosion the enemy leaves when an ordinary shot kills it.</param>
 /// <param name="PowerBombReaction">
-/// The Power Bomb reaction, or null when the definition names none and the common Power Bomb damage applies.
+/// The Power Bomb reaction: the ignoring one, or the common Power Bomb damage (<see cref="EnemyReaction.CommonPowerBomb"/>).
 /// </param>
-/// <param name="Touch">The Samus-contact reaction, or null when the definition names none and only extended hitboxes name one.</param>
-/// <param name="Shot">The projectile-hit reaction, or null when the definition names none and only extended hitboxes name one.</param>
+/// <param name="Touch">The Samus-contact reaction that runs when Samus meets the enemy by its radius: a shared one or its species' own.</param>
+/// <param name="Shot">The projectile-hit reaction that runs when a shot or bomb meets the enemy by its radius: a shared one or its species' own.</param>
 
 /// <param name="TouchHitboxScan">Whether Samus's touch is tested against the enemy's extended hitboxes or withheld.</param>
 /// <param name="ShotHitboxScan">Whether shots and bombs are tested against the enemy's extended hitboxes or withheld.</param>
-/// <param name="DropChances">The item-drop chances, or null when the enemy drops nothing.</param>
-/// <param name="Vulnerability">
-/// The enemy's own vulnerabilities, or null when it takes the standard ones; <see cref="EnemyVulnerabilities.Of"/> resolves it.
-/// </param>
-public readonly record struct RoomEnemyDefinition(
+/// <param name="Drops">What the enemy's death drops: nothing, or a pickup its chances roll for.</param>
+/// <param name="Vulnerability">The enemy's vulnerabilities, the standard ones (<see cref="EnemyVulnerabilityDefinitions.Standard"/>) or its own.</param>
+/// <param name="Stacking">Where the enemy's picture stands among the room's actors as it spawns (#2618); its behaviour may move it.</param>
+public readonly partial record struct RoomEnemyDefinition(
     int Health,
     int Damage,
     Extent16<RoomPixels> Radius,
     int HurtFlashFrames,
     SoundEffectId? HurtSoundEffect,
     AreaBoss? Boss,
-    GrappleEnemyReaction? GrappleResponse,
+    EnemyGrappleResponse GrappleResponse,
     EnemyHurtResponse HurtResponse,
     EnemyDeathExplosion DeathExplosion,
-    EnemyReaction? PowerBombReaction,
-    EnemyReaction? Touch,
-    EnemyReaction? Shot,
+    EnemyReaction PowerBombReaction,
+    EnemyReaction Touch,
+    EnemyReaction Shot,
     EnemyHitboxScan TouchHitboxScan,
     EnemyHitboxScan ShotHitboxScan,
-    EnemyDropChances? DropChances,
-    EnemyVulnerabilities? Vulnerability);
+    EnemyDrops Drops,
+    EnemyVulnerabilities Vulnerability,
+    EnemyStacking Stacking);

@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Tooling;
@@ -45,7 +44,7 @@ internal static class BeamPaletteArtworkVerification
             RgbColor[] shown = actual.ShownBeams(InstalledFixtures.SamusShadeSources with { BeamPalettes = catalog });
             for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
                 AssertEqual(expected.Colors[SamusColourNative.BeamFirstCgram + i], shown[i], "Extracted beam palette matches the native beam colours");
-            AssertTrue(catalog.Colours(SamusBeamCombinationTableOrder.FromTableIndex(selection)).SequenceEqual(shown),
+            AssertTrue(catalog.Colours(SamusBeamCombinationTableOrderConstants.FromTableIndex(selection)).SequenceEqual(shown),
                 "The shown beams are the extracted selection's palette");
         }
         string json = Encoding.UTF8.GetString(bytes);
@@ -81,7 +80,7 @@ internal static class BeamPaletteArtworkVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { EquippedBeams = beams };
             samus.SpecialColouring.Take(SamusSpecialColouringKind.CrystalFlash);
-            PrivateState.Set(samus.CrystalFlash, nameof(SamusCrystalFlashState.Colouring), SpecialColouringStage.Ending);
+            samus.CrystalFlash.Colouring = SpecialColouringStage.Ending;
             var finishedColours = new SamusColours();
             AssertTrue(samus.CrystalFlash.UpdateColouring(finishedColours, samus),
                 $"{beams}: Crystal Flash's finish runs");
@@ -104,14 +103,14 @@ internal static class BeamPaletteArtworkVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        var flash = runtime.Player.IntroducedSamus.CrystalFlash;
-        runtime.Player.IntroducedSamus.SpecialColouring.Take(SamusSpecialColouringKind.CrystalFlash);
-        PrivateState.Set(flash, nameof(SamusCrystalFlashState.Colouring), SpecialColouringStage.Ending);
-        AssertTrue(flash.UpdateColouring(runtime.Player.Colours, runtime.Player.IntroducedSamus), "Crystal Flash completes");
-        AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(runtime.Player.IntroducedSamus.EquippedBeams)), runtime.Player.Colours.Beams,
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        var flash = runtime.Player.Samus.CrystalFlash;
+        runtime.Player.Samus.SpecialColouring.Take(SamusSpecialColouringKind.CrystalFlash);
+        flash.Colouring = SpecialColouringStage.Ending;
+        AssertTrue(flash.UpdateColouring(runtime.Player.Colours, runtime.Player.Samus), "Crystal Flash completes");
+        AssertEqual(SamusShades.Beam(SamusBeamCombinations.Of(runtime.Player.Samus.EquippedBeams)), runtime.Player.Colours.Beams,
             "Crystal Flash completion shows the equipped beams' shade");
-        AssertTrue(!runtime.Player.IntroducedSamus.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash), "Crystal Flash still clears its owner on completion");
+        AssertTrue(!runtime.Player.Samus.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash), "Crystal Flash still clears its owner on completion");
 
         var nativeRuntime = CreateRetailRuntimeFixture();
         nativeRuntime.ShowDebugGrappleShades();

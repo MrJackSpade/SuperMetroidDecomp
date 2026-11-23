@@ -14,8 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// land on their third update past it. The intro egg motion check decodes the steps from the cartridge, compares them
 /// with this service and follows every fragment to the floor.
 /// </remarks>
-[CompatibilityService("the two highest egg-shell fragments fall by the steps read past the gravity curve before they land")]
-public sealed class ShellFragmentFallPastCurve
+public sealed partial class ShellFragmentFallPastCurve
 {
     /// <summary>The steps, in the order the updates past the curve read them.</summary>
     private readonly IReadOnlyList<SignedSixteenSixteen> _steps;
@@ -34,14 +33,11 @@ public sealed class ShellFragmentFallPastCurve
     /// <summary>The updates a fragment can fall past its curve: one for each decoded step.</summary>
     public int Updates => _steps.Count;
 
-    /// <summary>The step a fragment falls by on the update <paramref name="updatesPastCurve"/> after its curve ends.</summary>
+    /// <summary>
+    /// The step a fragment falls by on the update <paramref name="updatesPastCurve"/> after its curve ends: one of the
+    /// <see cref="Updates"/> decoded steps, within which the opening cinematic confirmed, as it accepted them, that every
+    /// fragment lands.
+    /// </summary>
     /// <param name="updatesPastCurve">Updates fallen past the curve, zero for the first.</param>
-    /// <exception cref="ArgumentOutOfRangeException">No fragment is still airborne that far past the curve.</exception>
-    public SignedSixteenSixteen Step(int updatesPastCurve) =>
-        updatesPastCurve >= 0 && updatesPastCurve < _steps.Count
-            ? _steps[updatesPastCurve]
-            // Rejected, not read: every fragment has reached the floor by the last decoded step, so a later read is
-            // never made; the intro egg motion check follows every fragment from its spawn to its deletion.
-            : throw new ArgumentOutOfRangeException(nameof(updatesPastCurve), updatesPastCurve,
-                $"Every shell fragment has landed within {_steps.Count} updates past its gravity curve.");
+    public SignedSixteenSixteen Step(int updatesPastCurve) => _steps[updatesPastCurve];
 }

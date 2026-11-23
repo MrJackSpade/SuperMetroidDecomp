@@ -7,10 +7,10 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Kraid ceiling and spike visual blocks, and the editable identities that name them.</summary>
-public static class RoomObjectKraidVisualFiles
+public static partial class RoomObjectKraidVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for Kraid's ten ceiling and spike layouts, including the fifteen- and twenty-two-block clears.</summary>
-    public const string VisualFileName = "kraid-room.json";
+    internal const string VisualFileName = "kraid-room.json";
 
     /// <summary>The stages of a crumbling block's breakup the room draws, in their published order; the last stage is the picture its draw leaves.</summary>
     private static readonly BlockBreakupStage[] CrumbleStages = [BlockBreakupStage.Rock, BlockBreakupStage.Pieces, BlockBreakupStage.Dust];
@@ -41,7 +41,7 @@ public static class RoomObjectKraidVisualFiles
     /// <summary>Loads the installed Kraid room pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectKraidVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Gets the stable artwork identifier of a Kraid room draw: a crumble stage's, or a picture or clear's.</summary>
@@ -62,7 +62,7 @@ public static class RoomObjectKraidVisualFiles
     };
 
     /// <summary>Maps a named ceiling or spike draw to its stable artwork identifier.</summary>
-    private static string VisualId(KraidRoomDraw draw) => draw switch
+    internal static string VisualId(KraidRoomDraw draw) => draw switch
     {
         KraidRoomDraw.CeilingBackgroundLeftEdge => "ceiling-background-left-edge",
         KraidRoomDraw.CeilingBackgroundOddColumn => "ceiling-background-odd-column",

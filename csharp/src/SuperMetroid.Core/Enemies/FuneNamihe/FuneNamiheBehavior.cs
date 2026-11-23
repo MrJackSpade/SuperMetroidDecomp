@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
@@ -9,17 +8,24 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// The Fune and Namihe species owner: their per-room behaviour, the animations and fireball they share, and the
 /// interactions they register. A Fune spits on its cooldown, a Namihe when Samus comes level with it (#2063).
 /// </summary>
-[RoomLifetime]
-internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Fune, EnemyDefinitionId.Namihe];
+    /// <summary>A Fune or a Namihe, each from its own settings.</summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
+    {
+        Ensure.NotNull(registrar).Spawns<NamiheSpawnSettings>([EnemyDefinitionId.Namihe], CreateNamihe);
+        registrar.Spawns<FuneSpawnSettings>([EnemyDefinitionId.Fune], CreateFune);
+    }
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).DefinitionId == EnemyDefinitionId.Namihe
-            ? new NamiheEntity(this, place, common)
-            : new FuneEntity(this, place, common);
+    /// <summary>A Namihe, from its settings.</summary>
+    private EnemyOccupant CreateNamihe(RoomEnemyOccupant occupant, NamiheSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new NamiheEntity(this, occupant, place, common, settings));
+
+    /// <summary>A Fune, from its settings.</summary>
+    private EnemyOccupant CreateFune(RoomEnemyOccupant occupant, FuneSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new FuneEntity(this, occupant, place, common, settings));
 
     /// <summary>Allocates the shared directional fireball fired by either species' animation.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -34,118 +40,123 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
+    /// <summary>What <see cref="ApplyFuneNamiheCue"/> does for each <see cref="FuneNamiheCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<FuneNamiheCueKind, Action<FuneNamiheEnemyState>> ApplyFuneNamiheCueForFuneNamiheCueKind => field ??= new(new Dictionary<FuneNamiheCueKind, Action<FuneNamiheEnemyState>>
+    {
+        [FuneNamiheCueKind.SpitSound] = state =>
+        {
+            // Shared mouth animation queues the spit sound.
+            QueueFuneNamiheSpitSound();
+        },
+        [FuneNamiheCueKind.FinishActivity] = state =>
+        {
+            // The spit ends the activity whichever way the Fune faces.
+            state.FinishSpit();
+        },
+    });
+
     /// <summary>Carries out one cue of the Fune's and Namihe's animations: the spit sound, a fireball, or finishing the spit.</summary>
-    private FuneNamiheSegment? ApplyFuneNamiheCue(RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
+    private void ApplyFuneNamiheCue(RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace place, FuneNamiheEnemyState state, FuneNamiheCue cue)
     {
         if (cue is FuneNamiheCue.Fire fire)
         {
-            SpawnFuneNamiheFireball(place, state, fire.Direction, state.Fireball);
-            return null;
+            SpawnFuneNamiheFireball(occupant, funeNamiheSpawnSettings, place, state, fire.Direction, state.Fireball);
+            return;
         }
         FuneNamiheCueKind kind = ((FuneNamiheCue.Signal)cue).Kind;
-        switch (kind)
-        {
-            case FuneNamiheCueKind.SpitSound:
-                // Shared mouth animation queues the spit sound.
-                QueueFuneNamiheSpitSound();
-                break;
-            case FuneNamiheCueKind.FinishActivity:
-                // The spit ends the activity whichever way the Fune faces.
-                state.FinishSpit();
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(FuneNamiheCueKind)} {kind}.");
-        }
-        return null;
+        ApplyFuneNamiheCueForFuneNamiheCueKind[kind](state);
     }
 
     /// <summary>Starts the Fune waiting on its cooldown and its idle animation, facing as its spawn settings say.</summary>
-    internal static void InitializeFune(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static FuneEnemyState InitializeFune(FuneNamiheSpawnSettings funeNamiheSpawnSettings, FuneSpawnSettings funeSpawnSettings, RoomEnemyPlace place)
     {
-        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = CooldownOf(place) };
-        place.SetSpeciesState(state);
-        StartFuneNamiheAnimation(place, state);
+        var state = new FuneEnemyState(FuneAction.WaitForCooldown) { Cooldown = CooldownOf(funeSpawnSettings) };
+        StartFuneNamiheAnimation(funeNamiheSpawnSettings, place, state);
+        return state;
     }
 
     /// <summary>Starts the Namihe waiting for Samus and its idle animation, facing as its spawn settings say.</summary>
-    internal static void InitializeNamihe(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static NamiheEnemyState InitializeNamihe(FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace place)
     {
         var state = new NamiheEnemyState(NamiheAction.WaitForSamus);
-        place.SetSpeciesState(state);
-        StartFuneNamiheAnimation(place, state);
+        StartFuneNamiheAnimation(funeNamiheSpawnSettings, place, state);
+        return state;
     }
 
     /// <summary>
     /// The Fune's wait between spits, as its spawn settings give it: the cooldown time's updates, the last the one it spits
     /// on; a cooldown of nothing spits on the first waiting update, as a cooldown of one does.
     /// </summary>
-    internal static UpdateCountdown CooldownOf(RoomEnemyPlace place) =>
-        UpdateCountdown.Lasting(Math.Max(1, place.SpawnSettings<FuneSpawnSettings>().CooldownTime));
+    internal static UpdateCountdown CooldownOf(FuneSpawnSettings funeSpawnSettings) =>
+        UpdateCountdown.Lasting(Math.Max(1, funeSpawnSettings.CooldownTime));
+
+    /// <summary>What <see cref="RunFuneMain"/> does for each <see cref="FuneAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<FuneAction, Action<FuneNamiheSpawnSettings, FuneSpawnSettings, RoomEnemyPlace, FuneEnemyState>> RunFuneMainForFuneAction => field ??= new(new Dictionary<FuneAction, Action<FuneNamiheSpawnSettings, FuneSpawnSettings, RoomEnemyPlace, FuneEnemyState>>
+    {
+        [FuneAction.WaitForCooldown] = static (funeNamiheSpawnSettings, funeSpawnSettings, place, state) =>
+        {
+            if (!state.Cooldown.Count())
+                return;
+
+            state.Action = FuneAction.Spitting;
+            StartFuneNamiheAnimation(funeNamiheSpawnSettings, place, state);
+            state.Cooldown = CooldownOf(funeSpawnSettings);
+        },
+        [FuneAction.Spitting] = static (_, _, place, state) =>
+        {
+            // The active animation's finish step is the only owner allowed to leave
+            // the spit. Main AI does nothing until that step.
+        },
+    });
 
     /// <summary>Starts the Fune's spit after its cooldown; the active animation owns the return to idle.</summary>
-    internal static void RunFuneMain(RoomEnemyPlace place, FuneEnemyState state)
+    internal static void RunFuneMain(FuneNamiheSpawnSettings funeNamiheSpawnSettings, FuneSpawnSettings funeSpawnSettings, RoomEnemyPlace place, FuneEnemyState state)
     {
-        switch (state.Action)
-        {
-            case FuneAction.WaitForCooldown:
-                if (!state.Cooldown.Count())
-                    return;
-
-                state.Action = FuneAction.Spitting;
-                StartFuneNamiheAnimation(place, state);
-                state.Cooldown = CooldownOf(place);
-                return;
-
-            case FuneAction.Spitting:
-                // The active animation's finish step is the only owner allowed to leave
-                // the spit. Main AI does nothing until that step.
-                return;
-
-            default:
-                throw new InvalidDataException($"Fune has no behaviour for action {state.Action}.");
-        }
+        RunFuneMainForFuneAction[state.Action](funeNamiheSpawnSettings, funeSpawnSettings, place, state);
     }
 
-    /// <summary>Starts the Namihe's spit once Samus is vertically closer than its proximity; the spitting animation returns it to waiting.</summary>
-    internal static void RunNamiheMain(RoomEnemyPlace place, NamiheEnemyState state, SamusState samus)
+    /// <summary>What <see cref="RunNamiheMain"/> does for each <see cref="NamiheAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<NamiheAction, Action<FuneNamiheSpawnSettings, NamiheSpawnSettings, RoomEnemyPlace, NamiheEnemyState, SamusState>> RunNamiheMainForNamiheAction => field ??= new(new Dictionary<NamiheAction, Action<FuneNamiheSpawnSettings, NamiheSpawnSettings, RoomEnemyPlace, NamiheEnemyState, SamusState>>
     {
-        switch (state.Action)
+        [NamiheAction.WaitForSamus] = static (funeNamiheSpawnSettings, namiheSpawnSettings, place, state, samus) =>
         {
-            case NamiheAction.WaitForSamus:
-                // Samus exactly at the proximity distance does not wake the Namihe.
-                if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= place.SpawnSettings<NamiheSpawnSettings>().YProximity)
-                {
-                    return;
-                }
-
-                state.Action = NamiheAction.Spitting;
-                StartFuneNamiheAnimation(place, state);
+            // Samus exactly at the proximity distance does not wake the Namihe.
+            if (Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= namiheSpawnSettings.YProximity)
+            {
                 return;
+            }
 
-            case NamiheAction.Spitting:
-                // The active animation's finish step is the only owner allowed to leave
-                // the spit. Main AI does nothing until that step.
-                return;
+            state.Action = NamiheAction.Spitting;
+            StartFuneNamiheAnimation(funeNamiheSpawnSettings, place, state);
+        },
+        [NamiheAction.Spitting] = static (_, _, place, state, samus) =>
+        {
+            // The active animation's finish step is the only owner allowed to leave
+            // the spit. Main AI does nothing until that step.
+        },
+    });
 
-            default:
-                throw new InvalidDataException($"Namihe has no behaviour for action {state.Action}.");
-        }
+    /// <summary>Starts the Namihe's spit once Samus is vertically closer than its proximity; the spitting animation returns it to waiting.</summary>
+    internal static void RunNamiheMain(FuneNamiheSpawnSettings funeNamiheSpawnSettings, NamiheSpawnSettings namiheSpawnSettings, RoomEnemyPlace place, NamiheEnemyState state, SamusState samus)
+    {
+        RunNamiheMainForNamiheAction[state.Action](funeNamiheSpawnSettings, namiheSpawnSettings, place, state, samus);
     }
 
     /// <summary>
-    /// Installs the animation the species, activity and facing select. Both
-    /// animation timers are reset together.
+    /// Starts, from its first frame, the animation the species, activity and facing select.
     /// </summary>
     private static void StartFuneNamiheAnimation(
-        RoomEnemyPlace place,
+        FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace place,
         FuneNamiheEnemyState state)
     {
-        state.Playback = EnemyAnimationPlayback.Start(place, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(place, state)));
+        state.Playback = EnemyAnimationPlayback.Start(place, FuneNamiheAnimations.StartingWith(SelectFuneNamiheAnimation(funeNamiheSpawnSettings, state)));
     }
 
     /// <summary>The animation for <paramref name="state"/>'s species and activity, facing as <paramref name="place"/>'s spawn settings say.</summary>
-    internal static FuneNamiheSegment SelectFuneNamiheAnimation(RoomEnemyPlace place, FuneNamiheEnemyState state) =>
-        Ensure.NotNull(state).Animation(Ensure.NotNull(place).SpawnSettings<FuneNamiheSpawnSettings>().Facing);
+    internal static FuneNamiheSegment SelectFuneNamiheAnimation(FuneNamiheSpawnSettings funeNamiheSpawnSettings, FuneNamiheEnemyState state) =>
+        Ensure.NotNull(state).Animation(funeNamiheSpawnSettings.Facing);
 
     /// <summary>Publishes the shared enemy-library spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
@@ -156,41 +167,32 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         context => FlyFuneNamiheFireball(context.Projectile, context.Camera));
 
     /// <summary>Advances a Fune's or Namihe's typed animation, whose state is a <typeparamref name="TState"/>.</summary>
-    internal void AdvanceFuneNamiheTypedAnimation<TState>(RoomEnemyPlace place) where TState : FuneNamiheEnemyState =>
-        EnemyAnimationPlayback.Advance(place, FuneNamiheAnimations.Segments,
+    internal void AdvanceFuneNamiheTypedAnimation<TState>(RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace place, TState tState) where TState : FuneNamiheEnemyState =>
+        EnemyAnimationPlayback.AdvanceApplyingCues(place, tState, FuneNamiheAnimations.Segments,
             static (TState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            (state, cue) => ApplyFuneNamiheCue(place, state, cue) is { } target
-                ? new AnimationContinuation<FuneNamiheSegment>(FuneNamiheAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
-                : null);
+            (TState state, FuneNamiheCue cue) => ApplyFuneNamiheCue(occupant, funeNamiheSpawnSettings, place, state, cue));
 
     /// <summary>
     /// Runs the shared projectile setup. The fireball flies at the spitter's spawn settings' launch speed in its direction,
     /// from its mouth (<see cref="FuneNamiheEnemyState.MouthDrop"/>).
     /// </summary>
     internal void SpawnFuneNamiheFireball(
-        RoomEnemyPlace source,
+        RoomEnemyOccupant occupant, FuneNamiheSpawnSettings funeNamiheSpawnSettings, RoomEnemyPlace source,
         FuneNamiheEnemyState state,
         HorizontalDirection direction,
         RoomEnemyProjectileKind kind)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, Fireball, SpriteGraphics.SpawnedBy(occupant, source.Shading), new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            kind,
-            Fireball,
-            SpriteGraphics.SpawnedBy(source));
-        projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballSegment.Right : FuneNamiheFireballSegment.Left));
-
         projectile.Position = source.Position;
 
-        // Namihe's mouth is four pixels lower than Fune's in the shared art.
+        // Namihe's mouth is lower than Fune's in the shared art.
         if (state.MouthDrop != 0)
             projectile.Position = projectile.Position.WithWholeY(projectile.Position.Y.Whole + state.MouthDrop);
 
-        SignedEightEight launchSpeed = source.SpawnSettings<FuneNamiheSpawnSettings>().LaunchSpeed;
+        SignedEightEight launchSpeed = funeNamiheSpawnSettings.LaunchSpeed;
         projectile.Velocity = new(
             launchSpeed.Toward(direction),
             SignedEightEight.Zero);

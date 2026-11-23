@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Progression;
 /// and its item and, where two would share that name, its block. Regenerate with
 /// tools/generate-room-object-population-definitions.ps1.
 /// </summary>
-[NumberedIdentities("Each item location named with its block is one distinct location of its room, told apart by where it stands; nothing indexes them.")]
-public static class ItemLocationDefinitions
+public static partial class ItemLocationDefinitions
 {
     /// <summary>The Power Bomb Tank lying in the open at column 29, row 7 of the Crateria Power Bombs room.</summary>
     public static ItemLocation CrateriaPowerBombsExposedPowerBombTank { get; } = new("CrateriaPowerBombsExposedPowerBombTank");
@@ -301,7 +300,7 @@ public static class ItemLocationDefinitions
     /// <summary>The Spring Ball held in a Chozo statue's orb at column 24, row 22 of the Springball room.</summary>
     public static ItemLocation SpringballChozoSpringBall { get; } = new("SpringballChozoSpringBall");
 
-    /// <summary>The Missile Tank hidden in a shot block at column 28, row 6 of the The Precious room.</summary>
+    /// <summary>The Missile Tank hidden in a shot block at column 28, row 6 of the Precious room.</summary>
     public static ItemLocation ThePreciousShotBlockMissileTank { get; } = new("ThePreciousShotBlockMissileTank");
 
     /// <summary>The Energy Tank lying in the open at column 50, row 5 of the Botwoon Energy Tank room.</summary>

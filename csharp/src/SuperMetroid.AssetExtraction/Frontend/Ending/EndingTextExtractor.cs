@@ -8,8 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Extracts bounded post-credit labels while validating native stream mechanics.</summary>
-[EncodingOwner("cartridge ending text script words")]
-public static class EndingTextExtractor
+public static partial class EndingTextExtractor
 {
     /// <summary>Imports post-credit labels, item-percentage wording, Japanese subtitle cells, and the final message while checking native text-stream mechanics.</summary>
     /// <param name="bus">Non-null cartridge import address space containing ending tilemap panels, glyphs, and instruction streams.</param>
@@ -159,11 +158,11 @@ public static class EndingTextExtractor
     }
 
     /// <summary>Reads one bank-local glyph or stream byte from the import cartridge.</summary>
-    private static byte ReadByte(ISnesAddressSpace bus, int pointer) =>
+    private static byte ReadByte(IImportCartridgeSource bus, int pointer) =>
         bus.ReadCartridgeByte((int)SnesAddress.InBank(EndingSourceDefinitions.EndingBank, pointer));
     /// <summary>Reads one little-endian bank-local ending-text word from the import cartridge.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)SnesAddress.InBank(EndingSourceDefinitions.EndingBank, pointer));
+        bus.ReadCartridgeWordFixedBank((int)SnesAddress.InBank(EndingSourceDefinitions.EndingBank, pointer));
     /// <summary>Advances a native 16-bit stream pointer by a byte count with cartridge wrap semantics.</summary>
     private static int Add(int pointer, int bytes) => unchecked((ushort)(pointer + bytes));
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// a leftover that is no number at all, names the small explosion. The enemies give it their five explosions by name. Three deaths take their explosion so: a Fireflea Samus touches and a Kraid fingernail
 /// Samus's touch leaves in its place die in the explosion their health left by the touch names, so one with one to four
 /// health left dies in the contact, normal, Fake Kraid or big explosion and one with none or more in the small one; and a
-/// Powamp shot dead dies in the explosion twice its burst's last spike's place in the enemy projectile pool names, so the
+/// Powamp shot dead dies in the explosion twice its burst's last spike's place among the enemy-projectile places names, so the
 /// first three places give the small, normal and big explosions and any later place, or a burst into a full pool, the
 /// small one. Each caller names where its leftover comes from.
 /// </summary>
@@ -23,16 +23,21 @@ namespace SuperMetroid.Core.Compatibility;
 /// the first.
 /// </remarks>
 /// <typeparam name="TExplosion">An enemy's death explosion.</typeparam>
-/// <param name="small">The small explosion, which zero, any number past four and no number name.</param>
-/// <param name="samusContact">The explosion of an enemy Samus's contact kills, which one names.</param>
-/// <param name="normal">The normal explosion, which two names.</param>
-/// <param name="fakeKraid">Fake Kraid's explosion, which three names.</param>
-/// <param name="big">The big explosion, which four names.</param>
-[CompatibilityService("an enemy death that takes its explosion from a leftover number dies in the explosion the number names in the authored order, or in the small explosion past the last")]
-public sealed class LeftoverNumberDeathExplosion<TExplosion>(TExplosion small, TExplosion samusContact, TExplosion normal, TExplosion fakeKraid, TExplosion big)
+public sealed partial class LeftoverNumberDeathExplosion<TExplosion>
 {
+    /// <summary>Creates a <see cref="LeftoverNumberDeathExplosion{TExplosion}"/>.</summary>
+    /// <param name="small">The small explosion, which zero, any number past four and no number name.</param>
+    /// <param name="samusContact">The explosion of an enemy Samus's contact kills, which one names.</param>
+    /// <param name="normal">The normal explosion, which two names.</param>
+    /// <param name="fakeKraid">Fake Kraid's explosion, which three names.</param>
+    /// <param name="big">The big explosion, which four names.</param>
+    public LeftoverNumberDeathExplosion(TExplosion small, TExplosion samusContact, TExplosion normal, TExplosion fakeKraid, TExplosion big)
+    {
+        this._numbered = [small, samusContact, normal, fakeKraid, big];
+    }
+
     /// <summary>The death explosions in the order the leftover numbers zero through four name them.</summary>
-    private readonly TExplosion[] _numbered = [small, samusContact, normal, fakeKraid, big];
+    private readonly TExplosion[] _numbered;
 
     /// <summary>
     /// The explosion <paramref name="leftoverNumber"/> names: zero through four the small, Samus contact, normal, Fake
@@ -44,11 +49,10 @@ public sealed class LeftoverNumberDeathExplosion<TExplosion>(TExplosion small, T
         leftoverNumber is int number && Ensure.AtLeastZero(number) < _numbered.Length ? _numbered[number] : _numbered[0];
 
     /// <summary>
-    /// The explosion a death names that takes its number from the enemy projectile pool place a spawn last took (#2474):
-    /// the game leaves twice the place, so the first three places name the small, normal and big explosions and any later
-    /// place the small one; a spawn into a full pool, which leaves no place, also names the small one.
+    /// The explosion a death names that takes its number from the enemy-projectile place the room's latest spawn took
+    /// (#2474, #2556): the game leaves twice the place, so the first three places name the small, normal and big explosions
+    /// and any later place the small one; a spawn into a full pool, which leaves no place, also names the small one.
     /// </summary>
-    /// <param name="projectilePlace">The zero-based pool place the spawn last took, or null when the pool was full.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="projectilePlace"/> is negative.</exception>
-    public TExplosion LeftByProjectilePlace(int? projectilePlace) => Named(projectilePlace * 2);
+    /// <param name="places">The room's enemy-projectile places, which hold what the latest spawn took.</param>
+    public TExplosion LeftByLatestSpawn(EnemyProjectilePlaces places) => Named(Ensure.NotNull(places).LatestSpawn * 2);
 }

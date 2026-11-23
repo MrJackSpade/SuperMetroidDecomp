@@ -10,7 +10,8 @@ namespace SuperMetroid.RenderVerification.PpuFeatures;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.TestSupport.FrameRendering;
-using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Compares D3D11 on the graphics device and the WARP reference's windowed-scene rendering across native PPU geometry and brightness cases.</summary>
 internal static class WindowSceneSmokeTests
@@ -32,14 +33,14 @@ internal static class WindowSceneSmokeTests
         AffineFloor childFloor = AffineFloorFixtures.Floor(childMemory.Vram, childMemory.Colors);
         LayeredScene Child(byte brightness) => new(new FramePaint(childMemory.Paint.Backdrop), new DisplayLayer[] {
             new TurningFloorLayer(new FloorView(0.27, 1.05, new(128, 112), new(13, -11), FloorOverflowMode.Wrap), childFloor),
-            new SpritesLayer(childMemory.Paint.SpriteDraws) }, brightness);
+            new SpritesLayer(childMemory.Paint.SpriteDraws) }, DisplayBrightness.Black.Brighter(brightness));
         var parentSprites = new SpritesLayer(parentMemory.Paint.SpriteDraws);
         var parentPaint = new FramePaint(parentMemory.Paint.Backdrop);
         // The parent's pictured plane and the child's floor pack once; drawing them before the counted frames leaves each of
         // those only its memory and sprite-draw uploads.
         int count = 0;
         renderer.RenderForReadback(new DisplayPacket(0, new LayeredScene(parentPaint,
-            [background, new InsetSceneLayer(Child(15), 0, 0, 256, 224)], 15)));
+            [background, new InsetSceneLayer(Child(15), 0, 0, 256, 224)], DisplayBrightness.Full)));
         // Each scene render uploads its memory and sprite-draw buffers once. The draw buffer uploads its grown capacity,
         // so a frame's bytes are fixed per window shape rather than computable from the scene alone.
         var bytesByChildren = new Dictionary<int, long>();
@@ -52,7 +53,7 @@ internal static class WindowSceneSmokeTests
             count++;
             var frame = new DisplayPacket(0, new LayeredScene(parentPaint,
                 new DisplayLayer[] { parentSprites, window,
-                    background, window, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()) }, DisplayBrightness.Combine(13, 11)));
+                    background, window, new ScreenTintLayer(new FadeLevelColour(1, 2, 3).ToColour()) }, DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(13), DisplayBrightness.Black.Brighter(11))));
             var before = renderer.UploadStatistics;
             PixelComparison.Verify(frame, DisplayRendering.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: scene window {count}, edges {edges}, brightness {brightness}");

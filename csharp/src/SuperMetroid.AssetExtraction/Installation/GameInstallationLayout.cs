@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Shared on-disk layout used by the desktop host, Android host, and installation CLI.</summary>
-public static class GameInstallationLayout
+public static partial class GameInstallationLayout
 {
     /// <summary>Replaceable stock-content child directory, atomically published and repaired by the installer.</summary>
     public const string ContentDirectoryName = "game";
@@ -151,7 +151,7 @@ public static class GameInstallationLayout
     /// <summary>Receipt filename within stock content, recording the installation format and source cartridge digest.</summary>
     public const string ReceiptFileName = "installation.json";
     /// <summary>Current installation-receipt version; content whose receipt names another is extracted again before opening.</summary>
-    public const int FormatVersion = 504;
+    public const int FormatVersion = 535;
 
     /// <summary>Backup of the previously published stock game tree during an atomic install.</summary>
     internal const string PreviousDirectoryName = ".game.previous";

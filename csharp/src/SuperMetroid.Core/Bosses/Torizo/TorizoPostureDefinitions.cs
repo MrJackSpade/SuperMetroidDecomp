@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// How far a Torizo facing right moves as it stands up through each pose (#1891, #2411); one facing left moves as far the
 /// other way, and sitting down moves it back by as much as standing up moved it.
 /// </summary>
-internal static class TorizoPostureDefinitions
+internal static partial class TorizoPostureDefinitions
 {
     /// <summary>From its seat to rising from it.</summary>
     internal static Offset16<RoomPixels> SeatedToRising { get; } = new(9, 0);

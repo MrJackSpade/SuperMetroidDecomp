@@ -12,5 +12,4 @@ namespace SuperMetroid.Core.World;
 /// fractions (#1266); the runtime's first room takes the fractions the previous game left
 /// (<see cref="CameraFractionsKeptAcrossGames"/>).
 /// </param>
-[RoomScopeBoundary("Captures the outgoing room's parts the destination reads.")]
-internal sealed record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera);
+internal sealed partial record RoomTransitionCarryOver(ScrollBoundaryCamera? PreviousCamera);

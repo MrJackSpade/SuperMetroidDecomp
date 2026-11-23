@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// packed sprite placements (#1638), are import data the installation never holds (<see cref="CeresFlightCharacters"/>);
 /// its colours are a palette document only the import reads (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>).
 /// </summary>
-public class CeresFlightSourceArtwork
+public partial class CeresFlightSourceArtwork
 {
     /// <summary>Retains the selected backdrop and actor placements.</summary>
     /// <param name="backdrop">The colour the Ceres scenes show behind every layer.</param>
@@ -22,13 +22,6 @@ public class CeresFlightSourceArtwork
 
     /// <summary>What the game binds of the approach: its backdrop and the rear-view actors' placements.</summary>
     public CeresFlightArtwork Flight { get; }
-
-    /// <summary>
-    /// Identity of the selected approach backdrop and placements, which is the identity of what the game binds of them
-    /// (<see cref="Flight"/>); the characters (#1636), floor maps (#1693) and compositions (#1638) are import data, which the
-    /// import's read adds (<see cref="CeresFlightCharacters"/>).
-    /// </summary>
-    public virtual string ContentIdentity => Flight.ContentIdentity;
 
     /// <summary>Compiles the installed Ceres approach documents into actor presentation data.</summary>
     /// <param name="backdrop">The colour the Ceres scenes show behind every layer, read from the opening's backdrop document.</param>

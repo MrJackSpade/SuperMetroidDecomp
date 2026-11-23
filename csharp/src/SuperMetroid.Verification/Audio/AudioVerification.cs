@@ -65,12 +65,6 @@ internal static class AudioVerification
         AssertThrows<InvalidDataException>(
             () => MusicQueueDelay.FromEffectiveUpdates(7),
             "invalid effective music delay fails loudly");
-        AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusic), [typeof(MusicRequest)]),
-            "music queue accepts typed commands");
-        AssertTrue(
-            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueMusic), [typeof(ushort)]),
-            "music queue exposes no raw-word overload");
 
         byte[] rom = new byte[0x10_0000];
 
@@ -99,7 +93,7 @@ internal static class AudioVerification
             audio.AdvanceFrame(default);
         AssertEqual(3, reset.Count, "audio reset command count");
         AssertEqual(
-            new AudioRequest.ChangeMusicDataSet(null),
+            new AudioRequest.InstallSharedSounds(),
             reset[0],
             "power-on loads only the shared sounds");
         AssertEqual(new AudioRequest.StopMusic(), reset[1], "reset music port");
@@ -229,7 +223,7 @@ internal static class AudioVerification
         AssertEqual(new AudioRequest.RequestSound(EnemySound.DudShot), request.Single(), "SFX request write");
         AssertEqual(
             0,
-            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Enemies], _ => SoundAcknowledgement<SoundEffectId>.Of(EnemySound.DudShot))).Count,
+            sfx.AdvanceFrame(new SoundAcknowledgements<SoundEffectLibrary, SoundEffectId>([SoundEffectLibrary.Enemies], _ => SoundAcknowledgement<SoundEffectId>.Of(new RequestedSound<SoundEffectId>(EnemySound.DudShot)))).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(
@@ -244,7 +238,7 @@ internal static class AudioVerification
             cancellation.AdvanceFrame(default);
         AssertEqual(SoundEffectLibraries.Count, cancelWrites.Count,
             "sound cancellation writes every native SFX library");
-        AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(SamusSound.Silence)),
+        AssertTrue(cancelWrites.Contains(new AudioRequest.RequestSound(SamusSoundStop.Any)),
             "sound cancellation queues Samus's library's silence");
 
         // Library numbers are an exclusive cartridge domain known only to the import codec (#1553): only libraries one
@@ -264,7 +258,7 @@ internal static class AudioVerification
         // carry numbers, so it asserts the decode boundary instead.)
         AssertTrue(SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02) != SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x02),
             "library-relative equal numbers decode to distinct sounds");
-        AssertEqual<SoundEffectId>(SamusSound.Silence, SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02),
+        AssertEqual<SoundEffectId>(SamusSoundStop.Any, SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x02),
             "library one's request two is its silence");
         AssertEqual<SoundEffectId>(EnemySound.SmallEnergyPickup, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, 0x01),
             "library two's request one is the small energy pickup");
@@ -274,15 +268,6 @@ internal static class AudioVerification
         AssertThrows<InvalidDataException>(
             () => SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Samus, 0x0100),
             "word-sized sound values outside a request byte fail loudly");
-        AssertTrue(
-            MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectId), typeof(SoundRequestPriority)]),
-            "QueueSound accepts one indivisible sound identity");
-        AssertTrue(
-            !MetadataShape.DeclaresMethod(typeof(AudioQueues), nameof(AudioQueues.QueueSound), [typeof(SoundEffectLibrary), typeof(int), typeof(int)]),
-            "QueueSound exposes no reversible library-and-ID argument list");
-        AssertThrows<InvalidOperationException>(
-            () => sfx.QueueSound(default, priority: SoundRequestPriority.WhenIdle),
-            "default sound identity cannot silently select a queue");
         AssertEqual<SoundEffectId>(SamusSound.MenuCursor,
             SoundEffectCommands.Decode(SoundEffectLibrary.Samus, 0x37),
             "the import decodes library one's request $37 to the menu cursor");

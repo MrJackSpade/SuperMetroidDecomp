@@ -8,12 +8,19 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Where the cartridge stores Kraid's four head tilemaps, by mouth stage: extraction's own knowledge, which the game
 /// never reads.
 /// </summary>
-[EncodingOwner("cartridge addresses of Kraid's head tilemaps")]
-internal static class KraidHeadArtworkDefinitions
+internal static partial class KraidHeadArtworkDefinitions
 {
-    /// <summary>Where each head tilemap is stored, from the closed mouth to the fully open one.</summary>
-    private static readonly SnesAddress[] ByMouthStage = [new(0xa7, 0x97c8), new(0xa7, 0x9ac8), new(0xa7, 0x9dc8), new(0xa7, 0xa0c8)];
+    /// <summary>Where each head tilemap is stored, by the head pose it shows.</summary>
+    private static readonly Dictionary<KraidHeadFrame, SnesAddress> ByHead = new()
+    {
+        [KraidHeadFrame.Closed] = new(0xa7, 0x97c8),
+        [KraidHeadFrame.Opening] = new(0xa7, 0x9ac8),
+        [KraidHeadFrame.Wider] = new(0xa7, 0x9dc8),
+        [KraidHeadFrame.Open] = new(0xa7, 0xa0c8),
+    };
 
     /// <summary>The bank-$A7 address of the head tilemap <paramref name="head"/> shows.</summary>
-    internal static ushort Address(KraidHeadFrame head) => ByMouthStage[KraidHeadTilemapFormat.ImportKey(head)].Offset;
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="head"/> is no head pose the import extracts.</exception>
+    internal static ushort Address(KraidHeadFrame head) =>
+        ByHead.TryGetValue(head, out SnesAddress address) ? address.Offset : throw new ArgumentOutOfRangeException(nameof(head), head, "Kraid's head has no such tilemap.");
 }

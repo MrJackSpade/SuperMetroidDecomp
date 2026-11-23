@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>The conveyor blocks among the special-air reactions, and how far they carry Samus each frame.</summary>
-internal static class ConveyorBlockDefinitions
+internal static partial class ConveyorBlockDefinitions
 {
     /// <summary>How far a rightward conveyor carries Samus each frame: two pixels right.</summary>
     public static readonly SignedSixteenSixteen RightwardCarry = SignedSixteenSixteen.FromWholePixels(2);

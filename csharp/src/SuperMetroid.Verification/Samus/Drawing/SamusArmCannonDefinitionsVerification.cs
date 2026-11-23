@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
@@ -27,9 +28,8 @@ internal static class SamusArmCannonDefinitionsVerification
 
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = selectedHudItem,
-            };
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             samus.Artwork.ArmCannon = artwork;
             _ = NewArmCannonPolicyReadGuard(rom);
 
@@ -56,10 +56,9 @@ internal static class SamusArmCannonDefinitionsVerification
 
         // The cartridge stores at most two (INC, then 2 once it reaches 3), so a stable selection holds the count there and
         // the closed Beam selection starts no transition.
-        var holding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
+        var holding = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { SelectedHudItem = HudItem.Beam }.InPose(SamusPoseId.FacingRightNormalPose);
         holding.Artwork.ArmCannon = artwork;
-        SuperMetroid.Core.PrivateState.SetField(holding.ArmCannon, "stability",
-            SuperMetroid.Core.UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, 2));
+        holding.ArmCannon.stability.PlaceAt(SuperMetroid.Core.UpdateCountdownAccess.AtAge(SamusArmCannonDefinitions.StableSelectionUpdates, 2));
         holding.ArmCannon.Update(holding);
         AssertEqual(2, holding.ArmCannon.StableSelectionUpdates, "a stable selection holds the count at two");
         AssertEqual(new VerifySamusArmCannonDefinitionsCase(0, 0, null), new VerifySamusArmCannonDefinitionsCase(holding.ArmCannon.IsOpen ? 1 : 0, holding.ArmCannon.IsTransitioning ? 1 : 0, holding.ArmCannon.Frame),

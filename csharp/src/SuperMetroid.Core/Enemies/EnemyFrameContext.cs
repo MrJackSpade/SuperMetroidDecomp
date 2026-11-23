@@ -7,10 +7,9 @@ namespace SuperMetroid.Core.Enemies;
 /// deferred-camera flags for the current enemy pass. Samus, her projectiles, her colours and her bombs reach enemies
 /// through each update's own context (#2159).
 /// </summary>
-[RoomLifetime]
-internal sealed class EnemyFrameContext
+internal sealed partial class EnemyFrameContext
 {
-    /// <summary>Binds the enemy pass to the session that holds the random enemy counter.</summary>
+    /// <summary>Binds the enemy pass to the session that holds the count of enemy passes that outlives each room.</summary>
     /// <param name="session">The enemy state that outlives each room.</param>
     internal EnemyFrameContext(EnemySession session) => _session = Ensure.NotNull(session);
 
@@ -19,7 +18,7 @@ internal sealed class EnemyFrameContext
 
     /// <summary>
     /// The count of enemy passes, read by AI and projectiles: every reader takes a power-of-two cadence of it (an
-    /// <see cref="UpdateCadence"/> or <see cref="UpdateCounterField"/>), so it is a plain count.
+    /// <see cref="UpdateCadence"/>, an <see cref="UpdateAlternation"/> or an <see cref="UpdateCycle"/>), so it is a plain count.
     /// </summary>
     internal int EnemyPassCount
     {
@@ -36,20 +35,21 @@ internal sealed class EnemyFrameContext
     /// <summary>Forces every enemy place through the current pass when processing requires a full sweep.</summary>
     internal bool ProcessAllEnemies { get; private set; }
 
-    /// <summary>Freeze flag captured during the enemy pass and retained for the draw hooks that follow it.</summary>
+    /// <summary>Whether time was frozen during the enemy pass, which the drawing that follows reads.</summary>
     internal bool TimeIsFrozen { get; private set; }
 
-    /// <summary>Defers init-AI camera reads until the door loader installs its final camera after the door-transition scroll.</summary>
+    /// <summary>Whether an enemy set up while the door scrolls reads the destination's final camera.</summary>
     internal bool DeferLoaderTimeCameraReads { get; private set; }
 
-    /// <summary>Room load: records whether init AI defers its camera reads.</summary>
+    /// <summary>Room load: records whether the room's enemy setup reads the destination's final camera rather than the
+    /// camera the door leaves.</summary>
     internal void BeginRoomLoad(bool deferLoaderTimeCameraReads) => DeferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
 
 
     /// <summary>Forces every enemy place through the passes that follow, as Draygon and Spore Spawn request.</summary>
     internal void RequestFullSweep() => ProcessAllEnemies = true;
 
-    /// <summary>Enemy frame start: the freeze flag and the frame clock's count.</summary>
+    /// <summary>Enemy frame start: whether time is frozen, and the frame clock's count.</summary>
     internal void BeginFrame(bool timeIsFrozen, int frameCounter)
     {
         TimeIsFrozen = timeIsFrozen;

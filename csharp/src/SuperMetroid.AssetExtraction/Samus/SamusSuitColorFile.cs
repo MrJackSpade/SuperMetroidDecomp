@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus suit colour document.</summary>
-public static class SamusSuitColorFile
+public static partial class SamusSuitColorFile
 {
     /// <summary>Supported normal-suit color schema version.</summary>
     public const int Version = 1;
@@ -32,7 +32,7 @@ public static class SamusSuitColorFile
     /// <param name="document">Document containing all three 16-color palettes.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(SamusSuitColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusSuitColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The assists a gameplay runtime plays under (<see cref="Current"/>), and the owner of the two that change saved
 /// progress: the granted loadout and the encounter reset applied when a save is loaded.
 /// </summary>
-internal sealed class ActiveAssists
+internal sealed partial class ActiveAssists
 {
     /// <summary>The current Samus's owner: a loadout granted mid-play reaches her, and the grant shows on her colours.</summary>
     private readonly SamusFrameState _player;
@@ -45,7 +45,7 @@ internal sealed class ActiveAssists
         if (Current.GrantedLoadout is null && assists.GrantedLoadout is not null)
             _loadoutRecipient = null;
         Current = assists;
-        GrantLoadoutToNewSamus(_player.IntroducedSamus);
+        GrantLoadoutToNewSamus(_player.Samus);
     }
 
     /// <summary>

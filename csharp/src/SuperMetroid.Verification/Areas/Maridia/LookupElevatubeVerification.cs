@@ -35,7 +35,7 @@ internal static class LookupElevatubeVerification
     }
 
     /// <summary>Reads a native elevatube draw byte for the independent geometry comparison.</summary>
-    private static byte ElevatubePhysicalDrawRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte ElevatubePhysicalDrawRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the elevatube's three compiled control words.</summary>
     internal static void VerifyElevatubeProgramControls(CartridgeImportAddressSpace rom) => VerifyElevatubeProgramField(rom, false);
@@ -69,5 +69,5 @@ internal static class LookupElevatubeVerification
     }
 
     /// <summary>Reads the native elevatube sound byte for comparison.</summary>
-    private static byte ElevatubeProgramSoundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte ElevatubeProgramSoundRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

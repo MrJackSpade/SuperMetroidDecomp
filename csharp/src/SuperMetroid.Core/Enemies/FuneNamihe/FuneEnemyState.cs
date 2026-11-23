@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>The state of one Fune, which spits each time its cooldown runs out.</summary>
-public sealed class FuneEnemyState : FuneNamiheEnemyState
+public sealed partial class FuneEnemyState : FuneNamiheEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal FuneEnemyState(FuneAction action) => Action = action;
@@ -11,7 +11,7 @@ public sealed class FuneEnemyState : FuneNamiheEnemyState
 
     /// <summary>
     /// The wait between spits, counted once each waiting update and started again when it ends: it lasts its spawn
-    /// settings' cooldown time (#2045, #2476, <see cref="FuneNamiheBehavior.CooldownOf"/>).
+    /// settings' cooldown time (#2045, #2476, <see cref="FuneNamiheBehavior"/>).
     /// </summary>
     public UpdateCountdown Cooldown { get; internal set; } = UpdateCountdown.Ended();
 

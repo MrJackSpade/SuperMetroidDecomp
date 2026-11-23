@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>What one effect-overlay FX step reads from the frame: camera, freeze and darkness (#633).</summary>
-public sealed record RoomFxOverlayFrame
+public sealed partial record RoomFxOverlayFrame
 {
     /// <summary>The camera's place in the room this frame.</summary>
     public required Position16<RoomPixels> Camera { get; init; }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// each mover caps or floors its place well inside the curve, and a place past the curve's last mark or before its start
 /// fails when its speed is read.
 /// </summary>
-public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSpeedCurvePlace>
+public readonly partial record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSpeedCurvePlace>
 {
     /// <summary>The 256ths in a mark, as a power of two.</summary>
     private const int TwoHundredFiftySixthsPerMarkExponent = 8;
@@ -22,7 +22,6 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     private QuadraticSpeedCurvePlace(int twoHundredFiftySixthsOfMark) => InTwoHundredFiftySixthsOfMark = twoHundredFiftySixthsOfMark;
 
     /// <summary>The place in 256ths of a mark, below zero only for a mover that keeps a place it took before the start.</summary>
-    [IntegerQuantity("place along the quadratic speed curve in 256ths of a mark")]
     public int InTwoHundredFiftySixthsOfMark { get; }
 
     /// <summary>The curve's start, its first mark with no fraction: the place an accelerating mover starts from.</summary>
@@ -44,7 +43,7 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
     public static QuadraticSpeedCurvePlace FromMarks(int marks) => new(checked(marks * TwoHundredFiftySixthsPerMark));
 
     /// <summary>The place <paramref name="twoHundredFiftySixths"/> 256ths of a mark along the curve, or the step of that many.</summary>
-    public static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
+    internal static QuadraticSpeedCurvePlace FromTwoHundredFiftySixthsOfMark(int twoHundredFiftySixths) => new(twoHundredFiftySixths);
 
     /// <summary>
     /// The place <paramref name="numerator"/> <paramref name="denominator"/>ths of a mark along the curve, or the step of that
@@ -55,7 +54,6 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
         new(PowerOfTwoFraction.InFinestUnits(numerator, denominator, TwoHundredFiftySixthsPerMark));
 
     /// <summary>The whole marks of the place, its fraction dropped toward negative infinity.</summary>
-    [IntegerQuantity("whole marks of a quadratic speed curve place")]
     public int WholeMarks => InTwoHundredFiftySixthsOfMark >> TwoHundredFiftySixthsPerMarkExponent;
 
     /// <summary>The speed that applies at this place: the speed of its whole marks.</summary>
@@ -95,12 +93,6 @@ public readonly record struct QuadraticSpeedCurvePlace : IComparable<QuadraticSp
 
     /// <summary>Orders places by how far along the curve they lie.</summary>
     public int CompareTo(QuadraticSpeedCurvePlace other) => InTwoHundredFiftySixthsOfMark.CompareTo(other.InTwoHundredFiftySixthsOfMark);
-
-    /// <summary>Whether <paramref name="left"/> lies earlier along the curve.</summary>
-    public static bool operator <(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) => left.CompareTo(right) < 0;
-
-    /// <summary>Whether <paramref name="left"/> lies further along the curve.</summary>
-    public static bool operator >(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) => left.CompareTo(right) > 0;
 
     /// <summary>Whether <paramref name="left"/> lies no further along the curve.</summary>
     public static bool operator <=(QuadraticSpeedCurvePlace left, QuadraticSpeedCurvePlace right) => left.CompareTo(right) <= 0;

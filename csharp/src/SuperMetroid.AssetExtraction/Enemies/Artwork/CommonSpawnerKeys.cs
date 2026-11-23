@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// The installed key of each <see cref="CommonSpawner"/> (#2548), written out so renaming the code a spawner is named for
 /// never changes the name the installed spawned-object sheets' common lists spell it by.
 /// </summary>
-internal static class CommonSpawnerKeys
+internal static partial class CommonSpawnerKeys
 {
     /// <summary>Each CommonSpawner member's installed key.</summary>
     internal static InstalledKeys<CommonSpawner> Installed { get; } = new(new Dictionary<CommonSpawner, string>
@@ -18,7 +18,6 @@ internal static class CommonSpawnerKeys
         [CommonSpawner.EnemyCollision] = "EnemyCollision",
         [CommonSpawner.EyeDoorBehavior] = "EyeDoorBehavior",
         [CommonSpawner.FallingSparksBehavior] = "FallingSparksBehavior",
-        [CommonSpawner.NoobTubeBehavior] = "NoobTubeBehavior",
         [CommonSpawner.OldTourianEscapeShaftWallBehavior] = "OldTourianEscapeShaftWallBehavior",
         [CommonSpawner.DownwardGateBehavior] = "DownwardGateBehavior",
         [CommonSpawner.SaveStationElectricity] = "SaveStationElectricity",

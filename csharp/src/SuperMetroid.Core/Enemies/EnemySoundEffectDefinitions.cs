@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>
 /// The game sound effect ids ordinary enemies queue, by enemy and event. Each value is the id within the library its queuing call names.
 /// </summary>
-internal static class EnemySoundEffectDefinitions
+internal static partial class EnemySoundEffectDefinitions
 {
     /// <summary>Enemy-library sound queued when Alcoon emerges near Samus.</summary>
     internal static readonly SoundEffectId AlcoonEmergeSound = EnemySound.LowThud;
@@ -26,32 +26,33 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Enemy-library sound queued when Samus wakes the tutorial Dachora.</summary>
     internal static readonly SoundEffectId DachoraActivationSound = EnemySound.DachoraCry;
 
-    /// <summary>Enemy-library sound queued on Dachora's ceiling contact.</summary>
-    internal static readonly SoundEffectId DachoraCeilingImpactSound = EnemySound.ShinesparkEnd;
+    /// <summary>Room-library sound queued on Dachora's ceiling contact (#2580).</summary>
+    internal static readonly SoundEffectId DachoraCeilingImpactSound = RoomSound.ShinesparkEnd;
 
-    /// <summary>Enemy-library sound queued while Dachora stores its shinespark.</summary>
-    internal static readonly SoundEffectId DachoraChargeSound = EnemySound.StoredShinespark;
+    /// <summary>Room-library sound queued while Dachora stores its shinespark (#2580).</summary>
+    internal static readonly SoundEffectId DachoraChargeSound = RoomSound.StoredShinespark;
 
     /// <summary>Enemy-library sound queued when Dachora launches upward.</summary>
     internal static readonly SoundEffectId DachoraLaunchSound = EnemySound.Shinespark;
 
-    /// <summary>Enemy-library sound accompanying Dachora's Speed Booster run.</summary>
-    internal static readonly SoundEffectId DachoraSpeedBoosterSound = EnemySound.SpeedBooster;
+    /// <summary>Room-library sound accompanying Dachora's Speed Booster run (#2580).</summary>
+    internal static readonly SoundEffectId DachoraSpeedBoosterSound = RoomSound.SpeedBooster;
 
     /// <summary>
-    /// The enemy-library silence queued at the scripted left wall turn. It is a real request (#1842): it interrupts the
-    /// looping <see cref="DachoraSpeedBoosterSound"/> of the run that hit the wall.
+    /// The room-library stop queued at the scripted left wall turn. It is a real request (#1842): it interrupts the
+    /// looping <see cref="DachoraSpeedBoosterSound"/> of the run that hit the wall. The run plays in the room library since
+    /// #2580, so its stop is that library's stop of the run, no longer the enemies' library's stop of any sound.
     /// </summary>
-    internal static readonly SoundEffectId DachoraSpeedBoosterSoundStop = EnemySound.Silence;
+    internal static readonly SoundEffectId DachoraSpeedBoosterSoundStop = RoomSoundStop.SpeedBoosterOrElevator;
 
     /// <summary>Enemy-library cue published by a Dragon fireball volley.</summary>
     internal static readonly SoundEffectId DragonFireballSound = EnemySound.FireSpit;
 
     /// <summary>The room-library request that stops the looping <see cref="ElevatorDepartureSound"/> when arrival reaches the resting height.</summary>
-    internal static readonly SoundEffectId ElevatorSoundStop = RoomSound.SpeedBoosterOrElevatorStop;
+    internal static readonly SoundEffectId ElevatorSoundStop = RoomSoundStop.SpeedBoosterOrElevator;
 
-    /// <summary>The Samus-library sound that accompanies departure.</summary>
-    internal static readonly SoundEffectId ElevatorDepartureSpinEndSound = SamusSound.SpinJumpEnd;
+    /// <summary>The Samus-library stop that ends a spin jump's sound as the elevator departs.</summary>
+    internal static readonly SoundEffectId ElevatorDepartureSpinJumpStop = SamusSoundStop.SpinJump;
 
     /// <summary>The room-library elevator sound that accompanies departure.</summary>
     internal static readonly SoundEffectId ElevatorDepartureSound = RoomSound.Elevator;
@@ -72,10 +73,10 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId EyeActivationSound = EnemySound.MorphBallEyeRay;
 
     /// <summary>
-    /// The enemy-library silence queued when Samus leaves the active eye's range. It is a real request (#1842): it
+    /// The enemy-library stop queued when Samus leaves the active eye's range. It is a real request (#1842): it
     /// interrupts the looping <see cref="EyeActivationSound"/> of the eye's beam.
     /// </summary>
-    internal static readonly SoundEffectId EyeRaySoundStop = EnemySound.Silence;
+    internal static readonly SoundEffectId EyeRaySoundStop = EnemySoundStop.Any;
 
     /// <summary>Enemy-library cue emitted when a live bug's sound countdown reaches zero.</summary>
     internal static readonly SoundEffectId KagoBugSoundEffect = EnemySound.KagoBug;
@@ -147,7 +148,7 @@ internal static class EnemySoundEffectDefinitions
     internal static readonly SoundEffectId DeathContactKilledSound = EnemySound.ContactKill;
 
     /// <summary>Enemy-library sound queued as a Metaree or Skree releases its dive.</summary>
-    internal static readonly SoundEffectId DiveSound = EnemySound.DiveScreech;
+    internal static readonly SoundEffectId DiveSound = EnemySound.Screech;
 
     /// <summary>Enemy-library sound queued as a Metaree or Skree hits the floor and burrows.</summary>
     internal static readonly SoundEffectId BurrowSound = EnemySound.Burrow;

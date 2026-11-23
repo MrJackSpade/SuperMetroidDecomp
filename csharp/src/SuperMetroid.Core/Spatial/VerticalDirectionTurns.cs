@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Turning a vertical direction around (#2369).</summary>
-public static class VerticalDirectionTurns
+public static partial class VerticalDirectionTurns
 {
     /// <summary>The direction opposite <paramref name="direction"/>: down for up and up for down.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not up or down.</exception>

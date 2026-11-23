@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// the rectangle its runs span. A cell of that rectangle no run writes keeps the map's tile, which nothing else writes, so
 /// the picture replaces exactly what the frame's write changes.
 /// </summary>
-internal static class CeresFloorDrawings
+internal static partial class CeresFloorDrawings
 {
     /// <summary>The floor's animation frames in the order the floor sheet holds their pictures (#2567).</summary>
     private static readonly IReadOnlyList<CeresFloorActorPicture> FrameOrder = Ensure.EveryMemberOnce<CeresFloorActorPicture>(
@@ -25,7 +25,7 @@ internal static class CeresFloorDrawings
     ]);
 
     /// <summary>The tiles of each cell <paramref name="frame"/>'s runs write, by floor cell.</summary>
-    internal static IReadOnlyDictionary<int, int> Cells(CeresFloorActorPicture frame)
+    internal static Dictionary<int, int> Cells(CeresFloorActorPicture frame)
     {
         if (!CeresFloorDrawingDefinitions.Frames.TryGetValue(frame, out IReadOnlyList<CeresFloorRunDefinition>? rows))
             throw new InvalidDataException($"Unknown Ceres floor animation frame {frame}.");

@@ -4,12 +4,13 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>
-/// The game-over JSON's Baby palette phases and screen layout the game binds. The document the import
-/// pipeline reads also holds the actor compositions the game-over sheet is composed from (#1463); each member keeps its
-/// place in the document.
+/// The layout and colour part of the import-data game-over artwork document: the Baby's palette phases, the anchors and
+/// the palette selectors the import composes the game-over sheet from. The game binds
+/// <see cref="GameOverPlacementDocument"/>, not this record. The document also holds the actor compositions (#1463);
+/// each member keeps its place in the document.
 /// </summary>
 /// <remarks>Init-only properties retain caller-owned mutable arrays and dictionaries; the stream loader parses its own independent document.</remarks>
-public record GameOverLayoutDocument
+public partial record GameOverLayoutDocument
 {
     /// <summary>Schema version that must equal the version the import supports.</summary>
     [JsonPropertyOrder(1)]

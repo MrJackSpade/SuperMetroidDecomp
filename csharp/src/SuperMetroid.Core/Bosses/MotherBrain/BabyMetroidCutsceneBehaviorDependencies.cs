@@ -5,8 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The collaborators a <see cref="BabyMetroidCutsceneBehavior"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[RoomLifetime]
-internal sealed record BabyMetroidCutsceneBehaviorDependencies
+internal sealed partial record BabyMetroidCutsceneBehaviorDependencies
 {
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }

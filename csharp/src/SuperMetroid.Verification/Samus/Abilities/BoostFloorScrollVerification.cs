@@ -23,9 +23,9 @@ internal static class BoostFloorScrollVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Dachora, camera: new Position16<RoomPixels>(1024, 0));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.EquippedItems = SamusEquipmentFlags.SpeedBooster;
@@ -40,7 +40,7 @@ internal static class BoostFloorScrollVerification
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
         for (int tick = 0; tick < 420; tick++)
         {
-            runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
+            runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash] | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
             if (tick >= 40)
             {
                 AssertEqual(RoomScrollState.Open, runtime.Room.LoadedCamera.Scrolls.ReadScreen(new(4, 1)),

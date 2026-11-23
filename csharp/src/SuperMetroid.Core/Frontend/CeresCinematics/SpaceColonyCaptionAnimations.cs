@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// then shows for <see cref="CeresFlightSceneDefinitions.JapaneseCaptionDelay"/>, the whole caption holds for
 /// <see cref="CeresFlightSceneDefinitions.CaptionHold"/>, and the flight then fades out.
 /// </summary>
-internal static class SpaceColonyCaptionAnimations
+internal static partial class SpaceColonyCaptionAnimations
 {
     /// <summary>Each caption's typing.</summary>
     internal static AnimationSegments<SpaceColonyCaptionText, SpaceColonyCaptionTyping, SpaceColonyCaptionCue> Segments { get; } = new(

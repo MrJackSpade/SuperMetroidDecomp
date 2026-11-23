@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -16,21 +17,25 @@ internal static class MotherBrainLateFightFixtures
     /// <summary>A late-fight sequence as <see cref="NewSequence()"/> builds, whose encounter's bursts are <paramref name="bursts"/>.</summary>
     internal static MotherBrainRainbowBeamAttackSequence NewSequence(MotherBrainBurstCycle bursts)
     {
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
-        var brain = new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Health = 3000 };
-        var encounter = new MotherBrainEnemyState(body, brain, new MotherBrainWalkCounter(), bursts, new MotherBrainBrainAnimation()) { RainbowPhase = MotherBrainRainbowPhase.StartCharging, DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
-        return new MotherBrainRainbowBeamAttackSequence(encounter);
+        var body = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>());
+        var brain = new RoomEnemyPlace(1, new RemovedEnemyLeftovers<IEnemyEntity>()) { Health = 3000 };
+        var encounter = new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), brain, new MotherBrainWalkCounter(), bursts, new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes()) { DroolGenerationEnabled = true, SmallPurpleBreathGenerationEnabled = true, HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck };
+        var sequence = new MotherBrainRainbowBeamAttackSequence(encounter);
+        sequence.State.RainbowPhase = MotherBrainRainbowPhase.StartCharging;
+        return sequence;
     }
 
     /// <summary>
-    /// Gives <paramref name="baby"/> a standalone place that holds <paramref name="leftInPlace"/> from its previous occupant,
-    /// as the final beam's spawn does, and initializes the Baby there (#2572): its position and health live in the place.
+    /// Makes <paramref name="lateFight"/>'s Baby in a standalone place that holds <paramref name="leftInPlace"/> from its
+    /// previous occupant, as the final beam's spawn does, and initializes the Baby there (#2572): its position and health
+    /// live in the place.
     /// </summary>
-    internal static RoomEnemyPlace Arrive(BabyMetroidCutsceneState baby, FixedPosition<RoomPixels> leftInPlace)
+    internal static BabyMetroidCutsceneState Arrive(MotherBrainRainbowBeamAttackSequence lateFight, FixedPosition<RoomPixels> leftInPlace)
     {
-        var place = new RoomEnemyPlace(2, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = leftInPlace };
-        Ensure.NotNull(baby).Arrive(place);
-        return place;
+        var place = new RoomEnemyPlace(2, new RemovedEnemyLeftovers<IEnemyEntity>()) { Position = leftInPlace };
+        BabyMetroidCutsceneState baby = Ensure.NotNull(lateFight).MakeBaby(place);
+        baby.Arrive();
+        return baby;
     }
 
     /// <summary>
@@ -48,7 +53,7 @@ internal static class MotherBrainLateFightFixtures
         PowerBombActive = false,
         RandomNumberSeed = MotherBrainRandomSample.FromGenerator(0),
         NextRandomNumber = new SuperMetroid.Core.Compatibility.SharedRandom().Generate,
-        AlternateEscapeText = false,
+        Language = SuperMetroid.Core.Progression.TextLanguage.English,
         TypewriterFinished = false,
         RoomEarthquakeStopped = false,
     };

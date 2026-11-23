@@ -78,7 +78,7 @@ internal static class PhantoonNativeWords
     /// <summary>Imports the death's pixelation from the eye's recorded word C, when it holds a mosaic word.</summary>
     internal static void ImportDeathMosaic(PhantoonDeathState death, ushort wordC)
     {
-        death.PixelationFinished = wordC == DeathMosaicFinished;
+        death.Stage = wordC == DeathMosaicFinished ? PhantoonDeathStage.FadingOut : PhantoonDeathStage.Pixelating;
         for (int size = PhantoonDeathDefinitions.InitialPixelationSize; size <= PhantoonDeathDefinitions.FinalPixelationSize; size++)
             if (wordC == DeathMosaicWord(size))
                 death.PixelationSize = size;

@@ -20,7 +20,7 @@ internal static class ZoaAnimationDefinitionsVerification
         for (int index = 0; index < 4; index++)
         {
             ZoaSegment selector = ZoaNativeWords.AnimationSelectorOf(index);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((ZoaAnimationDefinitionsConstants.ReferenceAddress + index * 2)),
+            AssertEqual(rom.ReadCartridgeWord((ZoaAnimationDefinitionsConstants.ReferenceAddress + index * 2)),
                 NativeEnemyAnimationOracle.EntryOf(ZoaNativeListAddresses.Entries, selector),
                 $"Zoa animation selector {selector}");
         }
@@ -67,9 +67,9 @@ internal static class ZoaAnimationDefinitionsVerification
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.Position = place.Position.WithWhole(new(0x0100, 0x0080));
 
-        place.Bind(EnemyDefinitionId.Zoa, place.Definition);
-        ZoaBehavior.InitializeZoa(place);
-        ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
+        place.Bind(EnemyDefinitionId.Zoa, place.KeptDefinition);
+        // The Zoa's setup builds the state its steps run on.
+        ZoaEnemyState state = ZoaBehavior.InitializeZoa(place);
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
@@ -98,7 +98,7 @@ internal static class ZoaAnimationDefinitionsVerification
 
     /// <summary>Seeds nondefault list and timer values so animation handoff writes are visible.</summary>
     private static RoomEnemyPlace NewZoaAnimationPlace() =>
-        new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()).WithAnimationClock(hold: 0x2222);
+        new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>()).WithAnimationClock(hold: 0x2222);
 
     /// <summary>Checks the started animation and reset timers.</summary>
     private static void AssertZoaAnimationHandoff(

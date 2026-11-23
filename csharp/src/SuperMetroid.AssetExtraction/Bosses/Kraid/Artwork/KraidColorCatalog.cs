@@ -4,7 +4,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 /// <summary>Kraid's installed RGB5 sources, each kept as installed; boss phase and fade arithmetic stay engine-owned.</summary>
-public sealed class KraidColorCatalog
+public sealed partial class KraidColorCatalog
 {
     /// <summary>
     /// Each named editable source: the room-backdrop fade targets, the rock sprite targets staged during initial setup,

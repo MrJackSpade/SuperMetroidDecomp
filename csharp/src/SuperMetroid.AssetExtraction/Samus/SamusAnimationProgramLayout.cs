@@ -7,17 +7,17 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The cartridge's layout of Samus's animation programs (#1473, #1535, #2048): where each program starts, in the order the
 /// programs lie, read once from the table of each pose record's program for the over-read decoders.
 /// </summary>
-internal static class SamusAnimationProgramLayout
+internal static partial class SamusAnimationProgramLayout
 {
     /// <summary>A program as the cartridge lays it out.</summary>
     /// <param name="Program">The program: the animation it holds.</param>
     /// <param name="Start">Where it starts in the programs' bank.</param>
-    internal readonly record struct LaidOutProgram(SamusPoseAnimation Program, int Start);
+    internal readonly partial record struct LaidOutProgram(SamusPoseAnimation Program, int Start);
 
     /// <summary>A pose record's number and the animation the record plays.</summary>
     /// <param name="Number">The record's number in the cartridge's pose tables.</param>
     /// <param name="Animation">The animation the record plays.</param>
-    internal readonly record struct RecordAnimation(int Number, SamusPoseAnimation Animation);
+    internal readonly partial record struct RecordAnimation(int Number, SamusPoseAnimation Animation);
 
     /// <summary>
     /// The animation each record the import lays out plays, by record number: the animation of the pose the record names,
@@ -54,8 +54,9 @@ internal static class SamusAnimationProgramLayout
         }
         if (starts.Values.Distinct().Count() != starts.Count)
             throw new InvalidDataException("Two Samus animation programs start at the same place.");
-        if (starts.Count != SamusAnimationDelayDefinitions.All.Count)
-            throw new InvalidDataException($"The cartridge lays out {starts.Count} of Samus's {SamusAnimationDelayDefinitions.All.Count} animations.");
+        if (starts.Count != SamusAnimationDelayDefinitions.All.Count ||
+            SamusAnimationDelayDefinitions.All.Any(animation => !starts.ContainsKey(animation)))
+            throw new InvalidDataException($"The cartridge lays out {starts.Count} of Samus's {SamusAnimationDelayDefinitions.All.Count} animations, not each of them.");
         return [.. starts.OrderBy(pair => pair.Value).Select(pair => new LaidOutProgram(pair.Key, pair.Value))];
     }
 }

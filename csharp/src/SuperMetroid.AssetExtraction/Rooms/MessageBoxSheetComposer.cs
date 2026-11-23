@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// box shows (<see cref="GameplayMessageArtwork.Forms"/>), named by the form, painted from the installed messages' words
 /// over the HUD's characters in the tileset's standard BG3 colours with the two colours a message box installs.
 /// </summary>
-internal static class MessageBoxSheetComposer
+internal static partial class MessageBoxSheetComposer
 {
     /// <summary>Composes <paramref name="tileset"/>'s message box images.</summary>
     internal static ComposedSpriteSheet Compose(RoomBlockSheetInputs inputs, TilesetDefinition tileset)
@@ -48,5 +48,5 @@ internal static class MessageBoxSheetComposer
     /// <summary>One form of a message the sheet pictures, with the tiles it lays out.</summary>
     /// <param name="Form">The form.</param>
     /// <param name="Tiles">Its tiles, row by row across the message box.</param>
-    private sealed record MessageForm(ShownMessage Form, BackgroundTile[] Tiles);
+    private sealed partial record MessageForm(ShownMessage Form, BackgroundTile[] Tiles);
 }

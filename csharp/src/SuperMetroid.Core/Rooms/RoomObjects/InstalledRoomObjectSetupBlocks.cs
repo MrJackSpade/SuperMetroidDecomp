@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// each <see cref="RoomObjectSetupBlock"/>, the block of the room's block sheet it shows and how that block is mirrored.
 /// The import pictures every one; the game shows it as installed. How each collides stays with the setup that writes it.
 /// </summary>
-public sealed class InstalledRoomObjectSetupBlocks
+public sealed partial class InstalledRoomObjectSetupBlocks
 {
     /// <summary>Holds the pictures, which the import has checked name every setup block once.</summary>
     /// <param name="blocks">What each setup block shows, owned by these pictures.</param>

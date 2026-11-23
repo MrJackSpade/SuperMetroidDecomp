@@ -11,8 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The enemy animation player (#1624): advances each animating enemy's typed animation through its entity, and shows
 /// the body frames bosses show on their bodies.
 /// </summary>
-[RoomLifetime]
-internal sealed class EnemyAnimationPlayer
+internal sealed partial class EnemyAnimationPlayer
 {
     /// <summary>Holds the body the room's boss shows its parts' frames on.</summary>
     private readonly EnemyPresentation _presentation;
@@ -28,19 +27,16 @@ internal sealed class EnemyAnimationPlayer
     /// pose with no body frame leaves the part's frame as it was.
     /// </summary>
     /// <exception cref="InvalidDataException">The installed body sheet lacks the frame.</exception>
-    /// <exception cref="InvalidOperationException">
-    /// The frame is shown before its boss attached the body it shows on, or by a part its boss does not draw there.
-    /// </exception>
-    internal void DrawBossBodyFrame(RoomEnemyPlace place, EnemyFrameId selected)
+    /// <exception cref="InvalidOperationException">The frame is shown by a part its boss does not draw there.</exception>
+    internal static void DrawBossBodyFrame(RoomEnemyPlace place, RoomEnemyOccupant occupant, EnemyFrameId selected)
     {
-        if ((place.Entity as IBossBodyFrames)?.FindBodyFrame(selected) is not { } frame)
+        if (place.Entity is not IBossBodyFrames bossFrames || bossFrames.FindBodyFrame(selected) is not { } frame)
             return;
-        // Every boss that shows a body attaches it at initialization; Mother Brain's shows only once her second phase begins.
-        BossBodyParts body = _presentation.BossBody
-            ?? throw new InvalidOperationException("A boss body frame was shown before its owner attached the body it shows on.");
-        if (!place.AnimationClock.ShowsNewFrame && body.ShowsSelected(place.DefinitionId, selected))
+        // Every boss that shows a body holds it from its setup; Mother Brain's shows only once her second phase begins.
+        BossBodyParts body = bossFrames.BodyParts;
+        if (!place.AnimationClock.ShowsNewFrame && body.ShowsSelected(Ensure.NotNull(occupant).DefinitionId, selected))
             return;
-        body.ShowSelected(place.DefinitionId, selected, frame);
+        body.ShowSelected(occupant.DefinitionId, selected, frame);
     }
 
     /// <summary>
@@ -57,7 +53,7 @@ internal sealed class EnemyAnimationPlayer
         if (place.Entity is not IEnemyTypedAnimation animation)
         {
             throw new InvalidDataException(
-                $"Enemy {place.DefinitionId} animates but has no typed animation.");
+                $"Enemy {place.Occupant?.DefinitionId} animates but has no typed animation.");
         }
         animation.AdvanceTypedAnimation(new EnemyAnimationCueContext
             { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });

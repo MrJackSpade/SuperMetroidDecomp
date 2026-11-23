@@ -743,7 +743,7 @@ internal static class EnemyTrigonometryVerification
         short Reference(int index)
         {
             int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
-            return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            return unchecked((short)rom.ReadCartridgeWord(address));
         }
         // The cartridge's 320 words are the negative cosine, the sine a quarter turn back, for the first quarter turn
         // of angles, then the sine for every angle: each word is the sine a quarter turn behind its place.
@@ -754,27 +754,36 @@ internal static class EnemyTrigonometryVerification
         }
         Console.WriteLine("Compiled signed sine: all 320 native words match, including +/-256 peaks.");
         if (definitionsOnly) return;
-        var tide = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
-        Action step = tide.StepTideForCheck;
-        // The import decides the small tide's precedence over the large one (#1695); each liquid holds one tide.
+        // The import decides the small tide's precedence over the large one (#1695); each liquid holds one tide. Each tide
+        // runs in a room of water whose surface it moves, from the phase zero the room's load starts it at, through the
+        // liquid's own motion passes: the first begins the motion and each later one steps the tide. The tide is checked at
+        // every phase it reaches, until the native rule brings it back to a phase it has already stood at.
+        int phases = 0;
         foreach (LiquidTide option in Enum.GetValues<LiquidTide>())
         {
-            var liquid = new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false);
-            for (int phase = 0; phase <= ushort.MaxValue; phase++)
+            RoomFxOverlayState tide = RoomFxOverlayState.ForDefinition(new RoomEffectDefinition(LiquidStartLevel: 128, LiquidTargetLevel: null,
+                LiquidLevelSpeed: default, LiquidMoveDelay: 0, Type: RoomFxType.Water, VisorAnimation: RoomVisorAnimation.Steady,
+                EffectBlend: RoomEffectBlendDefinitions.OverlayBrightens,
+                Liquid: new RoomWater(option, SurfaceDrift: false, BackgroundWave: false, IgnoresSurfaceUntilEnabled: false),
+                ColourEffects: [], BlockAnimations: [], Tint: SuperMetroid.Core.Fx.Artwork.RoomEffectTint.None), randomNumber: 0);
+            var system = new SuperMetroid.Core.Progression.SharedGameState(new SuperMetroid.Core.Compatibility.SharedRandom());
+            tide.AdvanceLiquidMotion(system, timeIsFrozen: false);
+            bool small = option == LiquidTide.Small;
+            bool still = option == LiquidTide.None;
+            int scale = still ? 0 : small ? 8 : 32;
+            var reached = new HashSet<int>();
+            for (int phase = 0; reached.Add(phase); phases++)
             {
-                tide.SetTideForCheck(liquid, RotationAngleConstants.FromRaw(phase), SignedSixteenSixteen.FromParts(0, 12345));
-                step();
+                tide.AdvanceLiquidMotion(system, timeIsFrozen: false);
                 short sample = Reference(RotationAngleConstants.FromRaw(unchecked((ushort)phase)).ToTrigonometryAngle().RawValue);
-                bool small = option == LiquidTide.Small;
-                bool still = option == LiquidTide.None;
-                int scale = still ? 0 : small ? 8 : 32;
                 int delta = still ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
                 if (tide.TideOffset.RawValue != EightEightOracle.ToSixteenSixteen(sample * scale) ||
                     tide.TidePhase.RawValue != unchecked((ushort)(phase + delta)))
                     throw new InvalidDataException($"Native tide differs at options={option}, phase={phase:X4}.");
+                phase = unchecked((ushort)(phase + delta));
             }
         }
-        Console.WriteLine("Compiled tide: all 65,536 phases of each tide preserve exact offset and phase advance without a bus.");
+        Console.WriteLine($"Compiled tide: all {phases} phases the tides reach from a room's load keep exact offset and phase advance without a bus.");
     }
 
     /// <summary>Runs the registered compiled enemy trigonometry family, each part a suite of its own, in registry order.</summary>

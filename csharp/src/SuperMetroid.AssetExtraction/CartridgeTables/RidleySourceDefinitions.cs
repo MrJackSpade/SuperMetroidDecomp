@@ -6,11 +6,10 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Ridley data extraction reads (#1413): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed colour documents.
 /// </summary>
-[EncodingOwner("cartridge addresses of Ridley's colour tables")]
-internal static class RidleySourceDefinitions
+internal static partial class RidleySourceDefinitions
 {
     /// <summary>Ceres Ridley's bank-$A6 colour sources.</summary>
-    internal static class Ceres
+    internal static partial class Ceres
     {
         /// <summary>$A6:E16F-$E1AE: the door, Baby container and initial Baby colours Ceres Ridley's initialization loads.</summary>
         internal const int StartColors = 0xa6e16f;
@@ -23,6 +22,10 @@ internal static class RidleySourceDefinitions
 
         /// <summary>$A6:E46A: the three fourteen-colour damage shades shared by Ceres and Norfair Ridley.</summary>
         internal const int HealthColors = 0xa6e46a;
+
+        /// <summary>The health colourings in the order <see cref="HealthColors"/> holds their shades: least hurt first.</summary>
+        internal static IReadOnlyList<SuperMetroid.Core.Bosses.Ridley.RidleyHealthShade> HealthTableOrder =>
+            SuperMetroid.Core.Bosses.Ridley.RidleyHealthShadeDefinitions.LeastHurtFirst;
 
         /// <summary>$A6:C1DF: the sixteen three-colour self-destruct alarm shades.</summary>
         internal const int AlarmColors = 0xa6c1df;

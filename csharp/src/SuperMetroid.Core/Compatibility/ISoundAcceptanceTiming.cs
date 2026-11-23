@@ -21,10 +21,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// update each waiting library moved on, and the clock reproduces those updates.
 /// </para>
 /// </remarks>
-[CompatibilityService("on which update each sound library accepts the sound the game requested, as its sound queues see it")]
 public interface ISoundAcceptanceTiming<TLibrary, TSound>
     where TLibrary : struct, Enum
-    where TSound : struct, IEquatable<TSound>
+    where TSound : notnull, IEquatable<TSound>
 {
     /// <summary>What each library reports as accepted to the next update's sound queues.</summary>
     /// <param name="clocked">What each library reported as accepted by the session's clock after the previous update.</param>

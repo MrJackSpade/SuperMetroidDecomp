@@ -35,7 +35,7 @@ internal static class CeresElevatorArrivalVerification
         var bus = NewCeresArrivalDefinitionReadGuard(memory);
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
-        var arrival = new CeresElevatorArrivalState(samus);
+        var arrival = new CeresElevatorArrivalState(samus.Position.Whole);
         arrival.Step(samus);
 
         // With tile base zero, each actor shows its composition at tile base zero in the parts' own palettes; leaked
@@ -81,9 +81,9 @@ internal static class CeresElevatorArrivalVerification
     /// sprite colour, and the concealer's draw shows it. A sheet holding the pad apart from the concealer, as the common art
     /// held once holds it (#1544), has no colour of the concealer's for the shade to recolour.
     /// </summary>
-    private static void VerifyConcealerShade(ISnesAddressSpace rom, CeresElevatorArrivalState arrival)
+    private static void VerifyConcealerShade(CartridgeImportAddressSpace rom, CeresElevatorArrivalState arrival)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         VerificationAssertions.AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x82812d), "the new-game clear loads an immediate colour");
         VerificationAssertions.AssertEqual((ushort)0, cartridge.ReadCartridgeWord(0x82812e), "the new-game clear's colour is black");
         VerificationAssertions.AssertEqual((byte)0x8f, rom.ReadCartridgeByte(0x828130), "the new-game clear stores a long address");
@@ -111,7 +111,7 @@ internal static class CeresElevatorArrivalVerification
         // The arrival draws the installed pictures, some of whose pixels the installed concealer's shade shows black.
         var frame = new SpriteFrameBuffer();
         frame.BeginFrame();
-        arrival.Draw(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault),
+        ((SuperMetroid.Core.Enemies.IActorInFrontOfSamus)arrival).DrawInFrontOfSamus(frame, SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault),
             Position16<RoomPixels>.Zero);
         frame.FinalizeFrame();
         VerificationAssertions.AssertTrue(frame.Draws.Length > 0, "the arrival draws while it runs");
@@ -156,7 +156,7 @@ internal static class CeresElevatorArrivalVerification
     /// <summary>Matches the arrival actors' typed programs (#641) to the retail bank-$86 projectile definitions and lists the cartridge runs them as.</summary>
     private static void VerifyCompiledDefinitions(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         foreach ((CeresElevatorArrivalSegment animation, ushort definitionPointer) in new[]
         {
             new VerifyCompiledDefinitionsCase(CeresElevatorArrivalSegment.Pad, 0xa387),

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 /// repeat (#1555). Equal to another showing the same pictures the same way in every square, so an unchanged map keeps the
 /// backend's packing.
 /// </summary>
-public sealed class PictureGrid : IEquatable<PictureGrid>
+public sealed partial class PictureGrid : IEquatable<PictureGrid>
 {
     /// <summary>Pixels along each side of a square.</summary>
     public const int CellPixels = ScreenGeometry.BackgroundCellSizePixels;

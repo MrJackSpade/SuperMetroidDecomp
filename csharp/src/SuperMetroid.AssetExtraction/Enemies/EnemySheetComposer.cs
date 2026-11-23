@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -23,7 +24,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// sheet is also pre-coloured in the shades its enemy shows (#1512): a hit or freeze flash and the enemy projectiles'
 /// colours as the cartridge ORs their row into each part's own, and its own effects.
 /// </summary>
-internal static class EnemySheetComposer
+internal static partial class EnemySheetComposer
 {
     /// <summary>The enemies in the order a sheet appends those its set does not load (#2567), each listed once.</summary>
     private static readonly IReadOnlyList<EnemyDefinitionId> AppendedOrder = Ensure.EveryMemberOnce(EnemyDefinitionIdKeys.ListedOrder);
@@ -57,19 +58,21 @@ internal static class EnemySheetComposer
         var setLayouts = new SetLayouts[drawnSets.Length];
         Parallel.For(0, drawnSets.Length, index =>
         {
-            GraphicsSetSheetSources setSources = Sources(inputs, drawnSets[index]);
-            setLayouts[index] = new SetLayouts(setSources,
-                [.. setSources.Enemies.Select(source => new SpriteSheetLayout(source.Sources, 0, 0))],
-                [.. setSources.Spawned.Select(source => new SpriteSheetLayout(source.Sources, 0, 0))]);
+            RoomEnemyGraphicsSetDefinition set = drawnSets[index];
+            GraphicsSetSheetSources setSources = Sources(inputs, set);
+            setLayouts[index] = new SetLayouts(set,
+                [.. setSources.Enemies.Select(source => new LaidOutEnemySheet(source,
+                    new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, ActorDepth.BehindRoom)))],
+                [.. setSources.Spawned.Select(source => new LaidOutSpawnedSheet(source,
+                    new SpriteSheetLayout(source.Sources, EnemySheetShades.SheetRow, ActorDepth.BehindRoom)))]);
         });
-        for (int index = 0; index < drawnSets.Length; index++)
+        foreach (SetLayouts laid in setLayouts)
         {
-            SetLayouts laid = setLayouts[index];
-            laidSets.Add(new LaidGraphicsSet(drawnSets[index],
-                [.. laid.Sources.Enemies.Select((source, sheet) => new LaidEnemySheet(source.Enemy, Laid(laid.Enemies[sheet], layouts, layoutOf),
-                    source.LookChanges, source.CorpsePictures))],
-                [.. laid.Sources.Spawned.Select((source, sheet) => new LaidSpawnedSheet(source.Plan, Laid(laid.Spawned[sheet], spawnedLayouts, spawnedLayoutOf),
-                    source.LookChanges, source.CorpsePictures, source.Empty))]));
+            laidSets.Add(new LaidGraphicsSet(laid.Set,
+                [.. laid.Enemies.Select(enemy => new LaidEnemySheet(enemy.Source.Enemy, Laid(enemy.Layout, layouts, layoutOf),
+                    enemy.Source.LookChanges, enemy.Source.CorpsePictures))],
+                [.. laid.Spawned.Select(spawned => new LaidSpawnedSheet(spawned.Source.Plan, Laid(spawned.Layout, spawnedLayouts, spawnedLayoutOf),
+                    spawned.Source.LookChanges, spawned.Source.CorpsePictures, spawned.Source.Empty))]));
         }
         var installed = new InstalledSheet[layouts.Count];
         Parallel.For(0, layouts.Count, () => new InstalledSheetPainter(), (index, _, painter) =>
@@ -79,8 +82,8 @@ internal static class EnemySheetComposer
         }, _ => { });
         SharedSpawnedSheets shared = SpawnedObjectSheetSharing.Share(spawnedLayouts);
         var names = new SheetNames();
-        var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document));
-        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document));
+        var variants = new VariantNames<EnemyVariantDocument>(document => JsonSerializer.Serialize(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyVariantDocument>()));
+        var spawnedVariants = new VariantNames<SpawnedObjectSheetDocument>(document => JsonSerializer.Serialize(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.SpawnedObjectSheetDocument>()));
         var setArtwork = new Dictionary<RoomEnemyGraphicsSetDefinition, PopulationArtworkDocument>();
         // The session start's variants are named first, as each owner's standard variant.
         foreach (LaidGraphicsSet set in laidSets.OrderBy(set => set.Set == RoomEnemyGraphicsSetDefinitions.SessionStart ? 0 : 1))
@@ -111,9 +114,9 @@ internal static class EnemySheetComposer
                 // colouring (#1513).
                 string? own = share.Own is { } ownSheet ? names.Of(ownSheet, $"Spawned-{SpawnedObjectOwnerNames.Name(plan.Owner)}") : null;
                 var commonPictures = new Dictionary<string, List<string>>(StringComparer.Ordinal);
-                foreach ((string picture, int commonSheet) in share.Common.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+                foreach ((string picture, InstalledSheet commonSheet) in share.Common.OrderBy(entry => entry.Key, StringComparer.Ordinal))
                 {
-                    string commonName = names.Of(shared.Common[commonSheet], "Spawned-Common");
+                    string commonName = names.Of(commonSheet, "Spawned-Common");
                     if (!commonPictures.TryGetValue(commonName, out List<string>? held))
                         commonPictures.Add(commonName, held = []);
                     held.Add(picture);
@@ -174,25 +177,43 @@ internal static class EnemySheetComposer
         return index;
     }
 
-    /// <summary>A graphics set's sheet sources and each sheet's layout, in the order the sources list them.</summary>
-    /// <param name="Sources">The set's sheet sources.</param>
-    /// <param name="Enemies">Each enemy sheet's layout.</param>
-    /// <param name="Spawned">Each spawned-object sheet's layout.</param>
-    private sealed record SetLayouts(GraphicsSetSheetSources Sources, SpriteSheetLayout[] Enemies, SpriteSheetLayout[] Spawned);
+    /// <summary>A graphics set's sheets, each source with its layout, in the order the set's sources list them.</summary>
+    /// <param name="Set">The set.</param>
+    /// <param name="Enemies">Each enemy sheet's source and layout.</param>
+    /// <param name="Spawned">Each spawned-object sheet's source and layout.</param>
+    private sealed partial record SetLayouts(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidOutEnemySheet> Enemies,
+        IReadOnlyList<LaidOutSpawnedSheet> Spawned);
+
+    /// <summary>An enemy sheet's source and the layout of its pictures.</summary>
+    /// <param name="Source">The sheet's source.</param>
+    /// <param name="Layout">The layout of the source's pictures.</param>
+    private sealed partial record LaidOutEnemySheet(EnemySheetSource Source, SpriteSheetLayout Layout);
+
+    /// <summary>A spawned-object sheet's source and the layout of its pictures.</summary>
+    /// <param name="Source">The sheet's source.</param>
+    /// <param name="Layout">The layout of the source's pictures.</param>
+    private sealed partial record LaidOutSpawnedSheet(SpawnedObjectSheetSource Source, SpriteSheetLayout Layout);
 
     /// <summary>A graphics set's sheets, each by the distinct layout it paints.</summary>
     /// <param name="Set">The set.</param>
     /// <param name="Enemies">Each enemy's sheet, in the order the set's sources list them.</param>
     /// <param name="Spawned">Each spawned-object sheet, in the order the set's sources list them.</param>
-    private sealed record LaidGraphicsSet(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);
+    private sealed partial record LaidGraphicsSet(RoomEnemyGraphicsSetDefinition Set, IReadOnlyList<LaidEnemySheet> Enemies, IReadOnlyList<LaidSpawnedSheet> Spawned);
 
     /// <summary>One enemy's sheet under a graphics set.</summary>
     /// <param name="Enemy">The enemy.</param>
     /// <param name="Layout">The index of the distinct layout its sheet paints.</param>
     /// <param name="LookChanges">How encounters' looks change each frame they change.</param>
     /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
-    private sealed record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
+    private sealed partial record LaidEnemySheet(EnemyDefinitionId Enemy, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
         IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures);
+
+    /// <summary>
+    /// The part of an installed sheet's or variant's name that says what it holds: the first twelve hexadecimal digits of the
+    /// digest of <paramref name="content"/>, how its content is spelled.
+    /// </summary>
+    private static string ContentName(string content) =>
+        Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(content)))[..12];
 
     /// <summary>One spawned-object sheet under a graphics set.</summary>
     /// <param name="Plan">The tile base, palette and spawners of the objects it draws.</param>
@@ -200,23 +221,20 @@ internal static class EnemySheetComposer
     /// <param name="LookChanges">How encounters' looks change each frame they change.</param>
     /// <param name="CorpsePictures">Where a rotting corpse lies in each frame that shows one.</param>
     /// <param name="Empty">The frames' finished pictures that show nothing.</param>
-    private sealed record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
+    private sealed partial record LaidSpawnedSheet(SpawnedObjectSheetPlan Plan, int Layout, IReadOnlyDictionary<string, IReadOnlyList<FrameLookChange>> LookChanges,
         IReadOnlyDictionary<string, CorpsePicturePlacement> CorpsePictures, IReadOnlySet<string> Empty);
 
     /// <summary>
-    /// Names the distinct variants of each owner in the order they are first asked for (#1599): a variant the same as an
-    /// earlier one takes its name; otherwise the session start's is its owner's standard variant, and any other its owner's
-    /// next ordinal.
+    /// Names the distinct variants of each owner (#1599, #2556): a variant the same as an earlier one takes its name;
+    /// otherwise the session start's is its owner's standard variant, and any other is named for how the manifest spells
+    /// it, its owner's name followed by a digest of that spelling, so no name depends on the order variants are asked for.
     /// </summary>
     /// <typeparam name="TDocument">How the manifest spells a variant.</typeparam>
     /// <param name="spelling">How the manifest spells a document; two variants are the same exactly when they spell alike.</param>
-    private sealed class VariantNames<TDocument>(Func<TDocument, string> spelling)
+    private sealed partial class VariantNames<TDocument>(Func<TDocument, string> spelling)
     {
         /// <summary>The name of the variant with each identity: its owner and how the manifest spells it.</summary>
         private readonly Dictionary<string, string> named = new(StringComparer.Ordinal);
-
-        /// <summary>How many ordinal variants each owner has been given.</summary>
-        private readonly Dictionary<string, int> ordinals = new(StringComparer.Ordinal);
 
         /// <summary>Each distinct variant by name, in the order they were named.</summary>
         internal Dictionary<string, TDocument> Documents { get; } = new(StringComparer.Ordinal);
@@ -231,40 +249,30 @@ internal static class EnemySheetComposer
             string identity = $"{owner}\n{spelling(document)}";
             if (named.TryGetValue(identity, out string? known))
                 return known;
-            string name;
-            if (standard)
-                name = $"{owner}.Standard";
-            else
-            {
-                int ordinal = ordinals.GetValueOrDefault(owner);
-                ordinals[owner] = ordinal + 1;
-                name = $"{owner}.{ordinal}";
-            }
-            Documents.Add(name, document);
+            string name = standard ? $"{owner}.Standard" : $"{owner}.{ContentName(identity)}";
+            if (!Documents.TryAdd(name, document))
+                throw new InvalidOperationException($"Two variants of {owner} are both named {name}.");
             named.Add(identity, name);
             return name;
         }
     }
 
     /// <summary>
-    /// Names the distinct sheets in the order they are first asked for: a sheet whose installed manifest, pixels and maps are
-    /// the same as an earlier named sheet's takes its name; otherwise its owner's next ordinal, an enemy's sheets named for
+    /// Names the distinct sheets: a sheet whose installed manifest, pixels and maps are the same as an earlier named sheet's
+    /// takes its name; otherwise its owner's name followed by a digest of its content (#2556), an enemy's sheets named for
     /// the enemy, a spawned-object sheet's own pictures for its owner and a common sheet of spawned-object pictures as common
     /// (#1513). This is what makes variants the player cannot tell apart one sheet (#1643), for any enemy: graphics sets that
     /// load an enemy into different palette rows compose it different sheets, but the installation holds only its pictures,
     /// frame list and the looks its draws show, so where those are the same the sheets are installed once, every set's
     /// variant names that one sheet, and the variants, then spelled alike, are one variant every placement draws in.
     /// </summary>
-    private sealed class SheetNames
+    private sealed partial class SheetNames
     {
         /// <summary>The name each converted sheet was given.</summary>
         private readonly Dictionary<InstalledSheet, string> names = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>The name of the sheet with each fingerprint.</summary>
         private readonly Dictionary<string, string> distinct = new(StringComparer.Ordinal);
-
-        /// <summary>How many distinct sheets each owner has been given.</summary>
-        private readonly Dictionary<string, int> ordinals = new(StringComparer.Ordinal);
 
         /// <summary>Each distinct sheet by installed name, in the order they were named.</summary>
         internal Dictionary<string, InstalledSheet> Sheets { get; } = new(StringComparer.Ordinal);
@@ -277,11 +285,10 @@ internal static class EnemySheetComposer
             string key = Fingerprint(sheet);
             if (!distinct.TryGetValue(key, out string? name))
             {
-                int ordinal = ordinals.GetValueOrDefault(owner);
-                ordinals[owner] = ordinal + 1;
-                name = $"{owner}.{ordinal}";
+                name = $"{owner}.{ContentName(key)}";
                 distinct.Add(key, name);
-                Sheets.Add(name, sheet);
+                if (!Sheets.TryAdd(name, sheet))
+                    throw new InvalidOperationException($"Two sheets of {owner} are both named {name}.");
             }
             names.Add(sheet, name);
             return name;
@@ -307,7 +314,7 @@ internal static class EnemySheetComposer
     /// </summary>
     internal static GraphicsSetSheetSources Sources(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
     {
-        LoadedGraphicsSet loaded = Load(inputs, set);
+        LoadedGraphicsSet loaded = LoadedGraphicsSet.Of(inputs, set);
         // The shared sheet holds the objects of the common spawners the set's rooms run (#1513).
         IReadOnlyList<CommonSpawnedObjects> common = CommonSpawnersOf(set, inputs.SetMembers);
         // A spawned-object sheet with no picture to show is not installed (#1513): nothing draws from it.
@@ -371,23 +378,6 @@ internal static class EnemySheetComposer
                 Shades: [.. loaded.Shades.OwnRow(enemy, paletteBits), .. fixedShades],
                 RowShades: [.. loaded.Shades.SharedSelectedBy(enemy), .. rowShades], Blank: [.. blank.Order(StringComparer.Ordinal)]), changes, corpses);
         }
-    }
-
-    /// <summary>
-    /// Graphics set <paramref name="set"/> as a room load leaves it: its enemy graphics, its OBJ page, its sprite colours,
-    /// and the enemies drawn under it, its members in record order, then each enemy its rooms place without the set
-    /// loading it, then the enemies those enemies' encounters spawn.
-    /// </summary>
-    internal static LoadedGraphicsSet Load(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
-    {
-        Ensure.NotNull(inputs);
-        Ensure.NotNull(set);
-        RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(set, inputs.SetMembers);
-        GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(members);
-        LoadedSetColours colours = LoadedSetColours.Of(inputs, members);
-        EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
-        return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Encounters(inputs, members), RottingCorpseCells.Of(drawn)),
-            colours, new EnemySheetShades(inputs, colours, Placements(set)), drawn);
     }
 
     /// <summary>
@@ -470,8 +460,26 @@ internal static class EnemySheetComposer
     /// <param name="Colours">Its sprite colours and the row each enemy drawn under it draws in.</param>
     /// <param name="Shades">The shades its sheets are pre-coloured in.</param>
     /// <param name="Drawn">The enemies drawn under it: its members in record order, then the enemies its rooms place without it loading them.</param>
-    internal sealed record LoadedGraphicsSet(GraphicsSetCharacterLayout Layout, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
-        IReadOnlyList<EnemyDefinitionId> Drawn);
+    internal sealed partial record LoadedGraphicsSet(GraphicsSetCharacterLayout Layout, SetCharacters Characters, LoadedSetColours Colours, EnemySheetShades Shades,
+        IReadOnlyList<EnemyDefinitionId> Drawn)
+    {
+        /// <summary>
+        /// Graphics set <paramref name="set"/> as a room load leaves it, from <paramref name="inputs"/>: its enemy graphics,
+        /// its OBJ page, its sprite colours, and the enemies drawn under it, its members in record order, then each enemy its
+        /// rooms place without the set loading it, then the enemies those enemies' encounters spawn.
+        /// </summary>
+        internal static LoadedGraphicsSet Of(EnemySheetInputs inputs, RoomEnemyGraphicsSetDefinition set)
+        {
+            Ensure.NotNull(inputs);
+            Ensure.NotNull(set);
+            RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(set, inputs.SetMembers);
+            GraphicsSetCharacterLayout layout = GraphicsSetCharacterLayout.Of(members);
+            LoadedSetColours colours = LoadedSetColours.Of(inputs, members);
+            EnemyDefinitionId[] drawn = DrawnUnder(set, layout);
+            return new LoadedGraphicsSet(layout, new SetCharacters(Table(inputs, layout), Encounters(inputs, members), RottingCorpseCells.Of(drawn)),
+                colours, new EnemySheetShades(inputs, colours, Placements(set)), drawn);
+        }
+    }
 
     /// <summary>The OBJ character table as the set leaves it: the standard characters, then each member's tile upload.</summary>
     private static byte[] Table(EnemySheetInputs inputs, GraphicsSetCharacterLayout layout)
@@ -500,8 +508,37 @@ internal static class EnemySheetComposer
         GraphicsSetCharacterLayout layout, SetCharacters characters) =>
         // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row. A rotting corpse's
         // frames name where the corpse lies in them (#1539).
-        Composed(enemies, shown).Select(frame => characters.Pictures(frame.Name, frame.Picture(checked((ushort)layout.TileBaseOf(enemy, frame.Frame))),
-            FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
+        Composed(enemies, shown).SelectMany(frame => WithSecondPictures(enemy, frame)).Select(frame => characters.Pictures(frame.Name,
+            frame.Picture(layout.TileBaseOf(enemy, frame.Frame)), FrameDrawings.Of(frame.Frame), RottingCorpseCells.Shows(enemy, frame.Frame)));
+
+    /// <summary>
+    /// <paramref name="frame"/>, or for Mother Brain's body its picture without her far leg and her far leg as a picture of its
+    /// own (#2633, #2634): the game draws her far leg behind the room's front tiles and her body, her near leg in front of
+    /// them, so each is a picture at its own depth. The far leg is every piece the game draws behind the room's front tiles.
+    /// </summary>
+    /// <exception cref="InvalidDataException">One of her body frames has no far leg, or nothing but one.</exception>
+    private static IEnumerable<ComposedFrame> WithSecondPictures(EnemyDefinitionId enemy, ComposedFrame frame)
+    {
+        if (enemy != EnemyDefinitionId.MotherBrainBody)
+        {
+            yield return frame;
+            yield break;
+        }
+        EnemyExtendedDrawComponent[] near = PiecesWhere(frame.Pieces, part => part.Depth != ActorDepth.BehindFrontParts);
+        EnemyExtendedDrawComponent[] far = PiecesWhere(frame.Pieces, part => part.Depth == ActorDepth.BehindFrontParts);
+        if (near.Length == 0 || far.Length == 0)
+            throw new InvalidDataException($"Mother Brain's body frame {frame.Frame} does not show both her near and her far leg.");
+        yield return frame with { Pieces = near };
+        yield return frame with { Name = MotherBrainBodyVisualDefinitions.SecondPictureName(frame.Frame), Pieces = far };
+    }
+
+    /// <summary>The pieces of <paramref name="pieces"/> with only their parts <paramref name="kept"/> keeps; a piece left with none is dropped.</summary>
+    private static EnemyExtendedDrawComponent[] PiecesWhere(ReadOnlyMemory<EnemyExtendedDrawComponent> pieces, Func<SpritePart, bool> kept) =>
+    [
+        .. pieces.ToArray()
+            .Select(piece => piece with { Parts = EnemySpritemapParts.FromOwnedArray([.. piece.Parts.Where(kept)]) })
+            .Where(piece => piece.Parts.Count > 0),
+    ];
 
     /// <summary>
     /// Each shown frame's composition by sheet frame name: an ordinary frame as one piece at the frame's origin, an
@@ -509,8 +546,8 @@ internal static class EnemySheetComposer
     /// no sprite piece, draw nothing to compose.
     /// </summary>
     private static IEnumerable<ComposedFrame> Composed(EnemyTileSourceArtwork enemies, IReadOnlyList<EnemyFrameId> shown) =>
-        Composed(enemies.Spritemaps ?? throw new InvalidDataException("Enemy sheets require the installed enemy compositions."),
-            enemies.ExtendedFrames ?? throw new InvalidDataException("Enemy sheets require the installed extended frames."), shown);
+        Composed(enemies.Spritemaps,
+            enemies.ExtendedFrames, shown);
 
     /// <summary>Each shown frame's composition by sheet frame name, from the enemy compositions and extended frames.</summary>
     private static IEnumerable<ComposedFrame> Composed(EnemySpritemapCatalog spritemaps, EnemyExtendedFrameCatalog extended, IReadOnlyList<EnemyFrameId> shown)
@@ -528,7 +565,7 @@ internal static class EnemySheetComposer
     /// <param name="Frame">The enemy frame it shows.</param>
     /// <param name="Name">The sheet frame's name.</param>
     /// <param name="Pieces">Its pieces in drawing order, frontmost first, each placed from the frame's origin.</param>
-    private readonly record struct ComposedFrame(EnemyFrameId Frame, string Name, ReadOnlyMemory<EnemyExtendedDrawComponent> Pieces)
+    private readonly partial record struct ComposedFrame(EnemyFrameId Frame, string Name, ReadOnlyMemory<EnemyExtendedDrawComponent> Pieces)
     {
         /// <summary>
         /// The frame's one whole picture over characters from <paramref name="tileBase"/>: each piece's parts moved by

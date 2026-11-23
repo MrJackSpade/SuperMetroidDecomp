@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
-/// The frames an enemy shows: every installed enemy frame, and the empty frame every enemy family shares. Each is named for
+/// The frames an enemy shows: every installed enemy frame, and the pictureless origin-point frame every enemy family shares. Each is named for
 /// what its picture shows: its owner, then its pose and facing, or the turn, size or placement that tells it from the
 /// owner's other pictures, which its summary spells out; no animation that shows it and no place in one names it. One
-/// picture is one frame however many records store it; frames that share a picture are named for what tells them apart,
+/// picture is one frame; frames that share a picture are named for what tells them apart,
 /// such as their hitboxes. Its installed name is its name in snake case (<see cref="EnemyFrameNameDefinitions"/>), which
 /// gives its installed sheet key (<see cref="EnemyFrameSheetKeys"/>), so a frame's identity never reaches a file.
 /// </summary>
@@ -3293,12 +3293,8 @@ public enum EnemyFrameId
     MotherBrainBodyArmFlungOut,
     /// <summary>Mother Brain: her body as her hand beam's arm returns: the standing picture, its arm's hitbox a pixel further out.</summary>
     MotherBrainBodyArmReturning,
-    /// <summary>Phantoon: invulnerable body.</summary>
-    PhantoonInvulnerableBody,
-    /// <summary>Phantoon: full hitbox body.</summary>
-    PhantoonFullHitboxBody,
-    /// <summary>Phantoon: eye hitbox body.</summary>
-    PhantoonEyeHitboxBody,
+    /// <summary>Phantoon: his body, its eye socket filled by his closed eye; which of its parts are hittable is his fight's <see cref="Bosses.Phantoon.PhantoonBodyHitArea"/>.</summary>
+    PhantoonBody,
     /// <summary>Phantoon: eye closed.</summary>
     PhantoonEyeClosed,
     /// <summary>Phantoon: its eye half open.</summary>
@@ -3474,8 +3470,9 @@ public enum EnemyFrameId
     /// <summary>Kraid: its foot reaching forward.</summary>
     KraidFootReaching,
     /// <summary>
-    /// The empty frame every enemy family shares: an enemy showing it draws nothing, and one that collides by its frames'
-    /// hitboxes collides at the single point at its origin.
+    /// The frame every enemy family shares that has no picture (#2558): its one hitbox is the point at the enemy's origin,
+    /// so an enemy showing it draws nothing, and one that collides by its frames' hitboxes collides at that point. A
+    /// spawned or loaded enemy that animates shows it until its first animation step, and an enemy that hides shows it.
     /// </summary>
-    Empty,
+    PointAtOrigin,
 }

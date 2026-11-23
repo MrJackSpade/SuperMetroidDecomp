@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// over the room colour group his growth recolours, and black. His fades between them, and from the room's own colours, are
 /// typed fades the encounter publishes over these shadings (#2215); the import pre-colours none of their colours partway.
 /// </summary>
-internal static class KraidBackdropShades
+internal static partial class KraidBackdropShades
 {
     /// <summary>The first ink of a room picture the backdrop recolours: the fifth tile colour group's first.</summary>
     private const int FirstInk = 96;

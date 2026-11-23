@@ -40,7 +40,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="TurningFloor">The turning floor the state shows.</param>
 /// <param name="Entrances">The doors that lead into the state's room.</param>
 /// <param name="XrayOverlay">The X-ray reveal's overlay of the state, or null where it has none.</param>
-internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Area, IReadOnlySet<int> Placed,
+internal sealed partial record InventoriedRoomState(TilesetDefinition Tileset, AreaId Area, IReadOnlySet<int> Placed,
     IReadOnlySet<RoomTerrainReaction> Terrain, IReadOnlySet<RoomTerrainReaction> StraddledShots, IReadOnlySet<RoomObjectKind> Headers,
     IReadOnlyList<RoomObjectPlacementSetup> Setups,
     IReadOnlySet<EnemyDefinitionId> Enemies, RoomSetupBehavior SetupBehavior, RoomMainBehavior MainBehavior,
@@ -71,13 +71,13 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool InCeres => Area == AreaId.Ceres;
 
     /// <summary>Whether the state draws its level's blocks: every state but the Ceres elevator shaft's, whose screen is its Mode 7 floor (#1647).</summary>
-    internal bool DrawsLevel => TurningFloor != RoomTurningFloor.ElevatorShaft;
+    internal bool DrawsLevel => !TurningFloor.HidesLevelBlocks;
 
     /// <summary>
     /// Whether a block of the state's terrain collides as <paramref name="collision"/> and selects <paramref name="reaction"/>,
     /// the reaction that kind reads; null for a kind that reads none, which any block of the kind holds.
     /// </summary>
-    internal bool Holds(RoomCollisionType collision, Enum? reaction) =>
+    internal bool Holds(RoomCollisionType collision, BlockReaction? reaction) =>
         Terrain.Any(block => block.Collision == collision && Equals(block.Behavior.ReactionUnder(collision), reaction));
 
     /// <summary>Whether the state's terrain holds a shot block that any weapon breaks and that grows back, or a Wave shot's straddled read sets one off.</summary>
@@ -110,12 +110,10 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
     internal bool HoldsSpeedBoosterBlocks => Terrain.Any(block =>
         (block.Collision == RoomCollisionType.SpecialBlock &&
             (SpeedBoosterBlocks.TryResolve(block.Behavior, out _) ||
-                (block.Behavior.Special is not null &&
-                    BombSpecialBlockReactions.ChangeFor(block.Behavior.Special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
-        (IsReactingSpecialAir(block) &&
-            SpecialAirReactions.CollisionOf(block.Behavior.SpecialAir) is SpecialAirCollisionReaction.BrinstarSlowRespawningSpeedBlock
-                or SpecialAirCollisionReaction.BrinstarSlowPermanentSpeedBlock or SpecialAirCollisionReaction.DachoraRespawningSpeedBlock
-                or SpecialAirCollisionReaction.PermanentSpeedBlock));
+                (block.Behavior.Special is { } special &&
+                    BombSpecialBlockReactions.ChangeFor(special) == SpeedBoosterBlockObjectDefinitions.BombReveal))) ||
+        (RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) &&
+            kind is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.CollisionOf(air).IsSpeedBlock));
 
     /// <summary>Whether the state's terrain holds a Grapple block that breaks under the beam.</summary>
     internal bool HoldsBreakableGrappleBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.GrappleBlock &&
@@ -142,20 +140,14 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         Terrain.Contains(new(EscapeAnimalWallDefinitions.OriginCollisionType, EscapeAnimalWallDefinitions.ReactionBehavior));
 
     /// <summary>Whether the state's terrain holds a special-air block whose inside reaction is a Brinstar plant that bites Samus.</summary>
-    internal bool HoldsSamusEaterPlants => Terrain.Any(block => IsReactingSpecialAir(block) &&
-        SpecialAirReactions.InsideOf(block.Behavior.SpecialAir) is SpecialAirInsideReaction.BrinstarFloorPlant
-            or SpecialAirInsideReaction.BrinstarCeilingPlant);
-
-    /// <summary>
-    /// Whether <paramref name="block"/> is a special-air block with a reaction: a reaction that is the same in every area
-    /// (the conveyors, the scroll trigger, passing through) means nothing to the area's own reactions.
-    /// </summary>
-    private static bool IsReactingSpecialAir(RoomTerrainReaction block) =>
-        block.Collision == RoomCollisionType.SpecialAir && block.Behavior.SpecialAir is not null;
+    internal bool HoldsSamusEaterPlants => Terrain.Any(block =>
+        RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) &&
+        kind is RoomBlockKind.SpecialAir { Reaction: var air } && SpecialAirReactions.InsideOf(air).Plant is not null);
 
     /// <summary>Whether the state's terrain holds a spike block an enemy breaks.</summary>
-    internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block => block.Collision == RoomCollisionType.SpikeBlock &&
-        block.Behavior.Spike is not null && EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior));
+    internal bool HoldsEnemyBreakableBlocks => Terrain.Any(block =>
+        RoomBlockKind.TryOf(block.Collision, block.Behavior, out RoomBlockKind? kind) &&
+        kind is RoomBlockKind.SpikeBlock { Reaction: var spike } && EnemyBreakableTerrain.IsEnemyBreakable(spike));
 
     /// <summary>
     /// Whether the state's terrain holds a block whose reaction breaks it up, or a Wave shot's straddled read sets one off:
@@ -222,14 +214,14 @@ internal sealed record InventoriedRoomState(TilesetDefinition Tileset, AreaId Ar
         var placed = new HashSet<int>();
         foreach (RoomBlockAppearance block in level.Foreground.Span)
         {
-            if (block.ShowsBlock)
+            if (block.Shows == RoomBlockShown.Block)
                 placed.Add(block.Block);
         }
         if (state.BackgroundScrollModes.Source == RoomBackgroundSource.Level)
         {
             foreach (RoomBlockAppearance block in level.Background.Span)
             {
-                if (block.ShowsBlock)
+                if (block.Shows == RoomBlockShown.Block)
                     placed.Add(block.Block);
             }
         }

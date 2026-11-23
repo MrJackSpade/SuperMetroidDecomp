@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Hud;
@@ -26,7 +27,7 @@ internal static class CeresRidleyBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Display.Latched is OrdinaryRoomFrameLatch, "the arena shows its ordinary layers, its blocks' pictures among them, before the getaway");
@@ -36,24 +37,23 @@ internal static class CeresRidleyBodyPublicationVerification
         // (64, 64), the starting table position and animation frames ($A6:A2E3); the check turns it from one step.
         CeresEscape escape = runtime.Enemies.CeresEscape;
         escape.BeginGetaway();
-        escape.Floor.Angle = RotationAngleConstants.FromRaw(1);
-        RotationAngle? previousAngle = null;
+        double? previousAngle = null;
         foreach ((int nmiFrame, CeresFloorActorPicture wings) in new[] { new VerifyCeresRidleyBodyPublicationCase(0, CeresFloorActorPicture.WingsLowered), new VerifyCeresRidleyBodyPublicationCase(8, CeresFloorActorPicture.WingsRaised) })
         {
-            escape.RunGetawayRoomMain(runtime.Player.IntroducedSamus, runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor."), nmiFrame);
+            escape.RunGetawayRoomMain(runtime.Player.Samus, runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor."), nmiFrame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            AssertTrue(previousAngle is not { } previous || escape.Floor.Angle != previous, "the getaway turns Ridley between the two frames");
-            previousAngle = escape.Floor.Angle;
+            FloorView shown = escape.ShownFloor ?? throw new InvalidOperationException("Ridley flies his getaway.");
+            AssertTrue(previousAngle is not { } previous || shown.Angle != previous, "the getaway turns Ridley between the two frames");
+            previousAngle = shown.Angle;
             PerspectiveFloorFrameLatch getaway = runtime.Display.LatchedPerspectiveFloor;
-            AssertEqual(escape.ShownFloor
-                ?? throw new InvalidOperationException("Ridley flies his getaway."), getaway.Floor.Transform, $"angle {escape.Floor.Angle} publishes Ridley's floor");
+            AssertEqual(shown, getaway.Floor.Transform, $"angle {shown.Angle} publishes Ridley's floor");
             AssertTrue(getaway.BackgroundBand is not null, "the getaway shows the room's background below its floor");
             AffineFloor map = getaway.FloorMap;
             RoomFloorSheet sheet = (runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("The arena shows a floor.")).Sheet;
             AssertTrue(map.DrawnOver.Contains(sheet.Picture(wings)),
-                $"angle {escape.Floor.Angle} publishes his {wings} body frame");
+                $"angle {shown.Angle} publishes his {wings} body frame");
             var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-            AssertTrue(mode7.Floor.Equals(map), $"angle {escape.Floor.Angle} draws his published body");
+            AssertTrue(mode7.Floor.Equals(map), $"angle {shown.Angle} draws his published body");
             VerifyChamberWalls(mode7, runtime.Display.LatchedRoomFrame.Scrolls.ForegroundPosition);
         }
         Console.WriteLine("  Ceres Ridley body: two getaway rotations publish his transform and body frames on the Mode 7 layer.");
@@ -61,7 +61,8 @@ internal static class CeresRidleyBodyPublicationVerification
 
     /// <summary>
     /// The getaway shows the chamber's two walls behind its turning floor (#1545), each picture's origin on its wall's room
-    /// point, on a plane scrolled with the camera the actors are drawn against.
+    /// point, in the doors' colours from before the escape (#2621), on a plane scrolled with the camera the actors are drawn
+    /// against.
     /// </summary>
     private static void VerifyChamberWalls(TurningRoomLayer mode7, Position16<RoomPixels> camera)
     {
@@ -73,6 +74,10 @@ internal static class CeresRidleyBodyPublicationVerification
             PlacedPlanePicture placed = walls.Plane.Pictures[wall];
             AssertEqual(new Offset16<PlanePixels>(points[wall].X - placed.Picture.Origin.X, points[wall].Y - placed.Picture.Origin.Y),
                 placed.Corner, $"wall {wall}'s picture places its origin on the wall's room point");
+            // The wall actors are set up before the getaway begins the escape, so the walls keep the doors' colours from
+            // before the escape (#2621).
+            AssertEqual(SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorShades.InNormalColours, placed.Shading,
+                $"wall {wall} shows the doors' colours from before the escape");
         }
         AssertEqual(camera.AsPlaneOffset(), walls.Scroll, "the walls scroll with the actors' camera");
     }

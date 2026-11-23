@@ -14,41 +14,36 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// normal movement returns on a direction cancellation, downward turn, or collision.
 /// The retained pose can be morphed, humanoid, or damaged rather than always a ball.
 /// </remarks>
-public static class SamusBombJumpMovement
+public static partial class SamusBombJumpMovement
 {
     /// <summary>Runs the bomb jump's setup, which initializes velocity but deliberately moves zero pixels.</summary>
-    public static BombJumpMovementResult Start(SamusState samus)
+    internal static BombJumpMovementResult Start(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (!samus.BombJumpRequest.Accepted)
-            throw new InvalidOperationException($"Bomb-jump start requires an accepted request, got {samus.BombJumpRequest}.");
+        if (samus.BombJump is not { IsArmed: true })
+            throw new InvalidOperationException($"Bomb-jump start requires an accepted request, got {samus.BombJump}.");
 
         // The launch uses the same bottom-edge air/water/lava classification as ordinary
         // launch, with a launch speed for each medium. Gravity is refreshed by
         // the input phase, so this launch replaces only the launch speed/direction.
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Rising(
             SamusVerticalMotion.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus)));
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = true;
+        samus.BombJumpPhase = SamusBombJumpPhase.Rising;
         return new BombJumpMovementResult(null);
     }
 
-    /// <summary>Runs one bomb-jump frame.</summary>
+    /// <summary>Runs one update of the bomb jump's rise, which only its rising phase runs.</summary>
     internal static BombJumpMovementResult Step(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
-        Ensure.NotNull(roomObjects);
-        if (!samus.BombJumpActive)
-            throw new InvalidOperationException("Bomb-jump movement requires an active jump.");
 
-        SamusBombJumpDirection direction = samus.BombJumpRequest.Direction;
-        if (direction == SamusBombJumpDirection.None)
+        if (samus.BombJump is not { } request)
             return End(samus, null);
+        SamusBombJumpDirection direction = request.Direction;
 
         BlockMoveResult? horizontal;
         if (direction != SamusBombJumpDirection.Straight)
@@ -59,10 +54,8 @@ public static class SamusBombJumpMovement
                 SamusHorizontalSpeedDefinitions.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(
                 direction == SamusBombJumpDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
-            // The direction-aware X mover clears momentum on a wall hit
-            // before the later Y scan replaces its collision result. This must
-            // not end the bomb ascent, but it must stop horizontal acceleration.
+            horizontal = SamusBlockCollision.MoveHorizontal(terrain, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
+            // A wall stops her horizontal acceleration but does not end the rise.
             if (horizontal.Value.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
@@ -89,13 +82,10 @@ public static class SamusBombJumpMovement
             return End(samus, null);
 
         (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
-            level,
+            terrain,
             samus,
-            frameCounter,
-            roomObjects);
-        // The movement tests Samus's collision result after moving Y. That move
-        // replaces the horizontal result, so a shaft wall alone must not cancel the
-        // upward bomb arc or return control to ordinary Morph Ball movement early.
+            frameCounter);
+        // Only a ceiling ends the rise; a shaft wall does not, and she stays in the bomb jump.
         if (vertical.Collided)
             return End(samus, vertical);
 
@@ -106,10 +96,9 @@ public static class SamusBombJumpMovement
 
     /// <summary>Applies bomb-jump gravity and vertical block collision, reporting whether she has passed the apex and moved down.</summary>
     private static BombJumpRise MoveUpWithGravity(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
         // The rise moves by its OLD velocity before gravity slows it; it never falls here, so the terminal speed takes no
         // part.
@@ -117,7 +106,7 @@ public static class SamusBombJumpMovement
         SignedSixteenSixteen rise = state.VerticalVelocity.Displacement;
         state.VerticalVelocity = state.VerticalVelocity.AfterGravity(state.YAcceleration, SamusVerticalMotionDefinitions.TerminalFallWholeSpeed);
         SignedSixteenSixteen displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(state, rise);
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, state, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(terrain, state, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter) });
         if (result.Collided)
         {
             state.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
@@ -126,14 +115,13 @@ public static class SamusBombJumpMovement
         return new BombJumpRise(result, !displacement.IsNegative);
     }
 
-    /// <summary>Clears bomb-jump direction, movement, and pose-input latches before normal movement resumes.</summary>
+    /// <summary>Ends the bomb jump and hands her movement and pose input back.</summary>
     private static BombJumpMovementResult End(
         SamusState samus,
         BlockMoveResult? vertical)
     {
-        samus.BombJumpRequest = SamusBombJumpRequest.None;
-        samus.BombJumpStarting = false;
-        samus.BombJumpActive = false;
+        samus.BombJump = null;
+        samus.BombJumpPhase = null;
         samus.BombJumpPoseInputLocked = false;
         return new BombJumpMovementResult(vertical);
     }

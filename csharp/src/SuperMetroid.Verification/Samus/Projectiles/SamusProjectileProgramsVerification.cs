@@ -23,7 +23,7 @@ internal static class SamusProjectileProgramsVerification
     /// <summary>Every program, record and header matches bank $93.</summary>
     internal static void VerifySamusProjectilePrograms(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(SamusSourceDefinitions.ProjectileDataBank.Value | (ushort)address);
 
         Dictionary<ushort, SamusProjectileSegment> byEntry = Enum.GetValues<SamusProjectileSegment>()
@@ -124,11 +124,11 @@ internal static class SamusProjectileProgramsVerification
             ushort native = Word(powerBomb + sizeof(ushort) * (1 + direction.ToAimIndex()));
             string at = $"the Murder Beam fired {direction}";
             if (native == 0)
-                AssertEqual(null, SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: no list");
+                AssertEqual(null, SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitionsConstants.MurderBeam, charged: true, direction), $"{at}: no list");
             else if (byEntry.TryGetValue(native, out SamusProjectileSegment program))
-                AssertEqual(program, SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: list");
+                AssertEqual(program, SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitionsConstants.MurderBeam, charged: true, direction), $"{at}: list");
             else
-                AssertThrows<InvalidDataException>(() => SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitions.MurderBeam, charged: true, direction), $"{at}: a word that is not a list fails");
+                AssertThrows<InvalidDataException>(() => SamusProjectileSelection.BeamShotAnimation(SamusProjectileSelectionDefinitionsConstants.MurderBeam, charged: true, direction), $"{at}: a word that is not a list fails");
             fields++;
         }
         Console.WriteLine($"  Samus projectile programs: {byEntry.Count} programs ({steps} steps, {records.Count} records) and {fields} header fields match bank $93.");

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -40,6 +40,6 @@ internal static class KraidMouthMappingsVerification
     private const int UnselectedRecord = 4;
 
     /// <summary>Reads an original shape-table byte for the authored-case comparison.</summary>
-    private static byte KraidMouthShapeCasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidMouthShapeCasesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

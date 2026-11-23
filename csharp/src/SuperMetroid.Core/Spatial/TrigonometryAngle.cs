@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Spatial;
 /// points right and <c>64</c> up (negative Y). This is the angle the game's sine and cosine take
 /// (<see cref="Trigonometry"/>); <see cref="RotationAngle"/> is the form with a fraction, whose whole steps are this value.
 /// </summary>
-[EncodingOwner("sine-table byte angle")]
-public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
+public readonly partial record struct TrigonometryAngle : IComparable<TrigonometryAngle>
 {
     /// <summary>Orders angles by how far they lie through the turn from zero.</summary>
     public int CompareTo(TrigonometryAngle other) => RawValue.CompareTo(other.RawValue);
@@ -39,6 +38,9 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// half of the turn, as the game's sine folds it before restoring the sign from <see cref="IsInSecondHalf"/>.
     /// </summary>
     public int StepsIntoHalfTurn => RawValue % HalfTurn.RawValue;
+
+    /// <summary>The angle's place within its half of the turn, from zero up to a half turn (#2563).</summary>
+    public TrigonometryAngle IntoHalfTurn => new(StepsIntoHalfTurn);
 
     /// <summary>
     /// Whether this angle lies in the first or the third quarter of the turn: less than a quarter turn into its half (#2439).
@@ -127,7 +129,7 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// This angle carried into the half turn from <see cref="HalfTurn"/> up to a full turn, keeping its position within
     /// the half turn: an angle in the other half turns on by a half turn.
     /// </summary>
-    public TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
+    internal TrigonometryAngle InSecondHalfTurn() => new(RawValue % HalfTurn.RawValue + HalfTurn.RawValue);
 
     /// <summary>
     /// This angle carried into the half turn on <paramref name="side"/> (#2555): on the right from just past straight down
@@ -159,8 +161,8 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     ];
 
     /// <summary>The four straight directions in clockwise order from up, each a quarter of the turn on from the last.</summary>
-    private static readonly CompassDirection[] StraightDirectionsClockwise =
-        [CompassDirection.Up, CompassDirection.Right, CompassDirection.Down, CompassDirection.Left];
+    private static readonly StraightDirection[] StraightDirectionsClockwise =
+        [StraightDirection.Up, StraightDirection.Right, StraightDirection.Down, StraightDirection.Left];
 
     /// <summary>
     /// The compass direction opening the eighth of the turn that holds the angle: each direction's eighth runs from it
@@ -179,7 +181,7 @@ public readonly record struct TrigonometryAngle : IComparable<TrigonometryAngle>
     /// The straight direction, up, right, down or left, nearest the angle: the one whose quarter of the turn, centred on
     /// it, holds the angle. An angle exactly halfway between two takes the later one clockwise.
     /// </summary>
-    public CompassDirection NearestStraightDirection() =>
+    public StraightDirection NearestStraightDirection() =>
         StraightDirectionsClockwise[(StepsClockwiseFromUp + StepsPerTurn / 8) % StepsPerTurn / (StepsPerTurn / 4)];
 
     /// <summary>This angle as the whole steps of an 8.8 <see cref="RotationAngle"/>.</summary>

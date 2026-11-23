@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the velocity words alone, so the next projectile there starts from them (<see cref="EnemyProjectileHandOver"/>), in that room or the next
 /// (<see cref="RoomHandOver"/>).
 /// </remarks>
-[CompatibilityService("an explosion that follows an actor leaves its offset from that actor as its projectile place's velocity, which the place's next occupant inherits")]
-public static class FollowingExplosionLeftVelocity
+public static partial class FollowingExplosionLeftVelocity
 {
     /// <summary>The velocity the explosion leaves in its place: <paramref name="offset"/>'s pixels as 256ths of a pixel an update.</summary>
     /// <param name="offset">The explosion's offset from the actor it follows.</param>

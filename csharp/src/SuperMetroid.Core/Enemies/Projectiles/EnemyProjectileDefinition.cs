@@ -8,14 +8,23 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="Damage">Samus contact damage, zero or more.</param>
 /// <param name="Properties">The Samus-damage, contact-persistence and shot-blocking behaviours.</param>
 /// <param name="Depth">Whether the projectile starts drawn in front of or behind Samus.</param>
-/// <param name="SamusTouch">What touching Samus does to the projectile's animation.</param>
-internal readonly record struct EnemyProjectileDefinition(
+/// <param name="SamusTouch">What touching Samus does to the projectile's animation; nearly every kind keeps it.</param>
+internal readonly partial record struct EnemyProjectileDefinition(
     Extent16<RoomPixels> Radius,
     int Damage,
     EnemyProjectilePropertyFlags Properties,
     EnemyProjectileDepth Depth,
-    EnemyProjectileSamusTouch SamusTouch)
+    EnemyProjectileSamusTouch SamusTouch = EnemyProjectileSamusTouch.KeepsAnimation)
 {
+    /// <summary>
+    /// A decorative kind's definition (#2557): no size and no damage, keeping its animation when it touches Samus, so only
+    /// its behaviours and where it is drawn differ.
+    /// </summary>
+    /// <param name="properties">The kind's Samus-damage, contact-persistence and shot-blocking behaviours.</param>
+    /// <param name="depth">Whether the kind starts drawn in front of or behind Samus.</param>
+    internal static EnemyProjectileDefinition Decorative(EnemyProjectilePropertyFlags properties, EnemyProjectileDepth depth) =>
+        new(default, 0, properties, depth);
+
     /// <summary>Whether the projectile's damage value affects Samus.</summary>
     internal bool CanDamageSamus => !Properties.HasFlag(EnemyProjectilePropertyFlags.HarmlessToSamus);
     /// <summary>Whether the projectile is retained after touching Samus.</summary>

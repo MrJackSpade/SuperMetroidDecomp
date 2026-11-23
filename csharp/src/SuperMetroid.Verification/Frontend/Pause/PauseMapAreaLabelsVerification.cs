@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -24,7 +25,7 @@ internal static class PauseMapAreaLabelsVerification
     internal static void VerifyPauseMapAreaLabels()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var cart = CartridgeImportSource.Require(bus);
+        var cart = bus;
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia })
         {
             var system = new SharedGameState(new SharedRandom());
@@ -42,12 +43,15 @@ internal static class PauseMapAreaLabelsVerification
             system.SetAreaMapAcquired(area);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), System = system, Area = area, RoomMapPosition = new(0, 1), GameplayHud = global::SuperMetroid.Core.Hud.ShownHud.Nothing, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             int list = 0x820000 | Read(0x82c74d + SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.Encode(area) * 2);
-            // The map is scrolled so every label lies on the screen's lines, the topmost LabelTopLine lines down: a label's
-            // origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).
+            // The arrows scroll the map so every label lies on the screen's lines, the topmost about LabelTopLine lines down: a
+            // label's origin is its signed screen position, and one below the screen no longer comes round at the top (#1587).
+            // The arrows reach only their eight-pixel steps from where the menu opens the map, so the labels are compared at
+            // the scroll they stop at (#2554).
             int topmost = int.MaxValue;
             for (int entry = list; Read(entry) != 0xffff; entry += 6) topmost = Math.Min(topmost, Read(entry + 2));
-            int x = Read(list) - 128, y = topmost - LabelTopLine;
-            pause.ScrollMapTo(new Offset16<MapPixels>(x, y));
+            _ = pause.ScrollMapToward(new Offset16<MapPixels>(Read(list) - 128, topmost - LabelTopLine));
+            Offset16<MapPixels> scrolled = pause.MapScroll;
+            int x = scrolled.X, y = scrolled.Y;
             var native = new OamBuffer(); native.BeginFrame();
             for (int entry = list; Read(entry) != 0xffff; entry += 6)
             {
@@ -68,9 +72,10 @@ internal static class PauseMapAreaLabelsVerification
             AssertTrue(differs < 0, $"{area} destination spelling, order, coordinates and palette match raw ROM OAM" + (differs < 0 ? "" :
                 $"; object {differs / 4} emitted {Convert.ToHexString(emitted, differs / 4 * 4, 4)}, native {Convert.ToHexString(native.LowTable.Slice(differs / 4 * 4, 4))}"));
             AssertLabels(start, "stable map");
-            pause.AdvanceAnimations(0, PauseAnimationPhase.FadingOut); _ = pause.ComposeScene();
-            // The labels keep the stable map's layering through every fade (#2573).
-            AssertLabels(start, "outer unpause fade-out");
+            pause.AdvanceAnimations(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, PauseAnimationPhase.FadingOut); _ = pause.ComposeScene();
+            // The labels keep the stable map's layering through every fade (#2573), still drawn last, after the arrows the
+            // fade hides once the scroll has shown them (#2554).
+            AssertLabels(pause.screen.Sprites.LastFinalizedSpriteCount * 4 - labelBytes, "outer unpause fade-out");
             LayeredScene beforeRestore = pause.ComposeScene();
             // The capture names the installed content by path, as a host's store does, instead of copying it (#1532).
             pause = SuperMetroid.Verification.Harness.GraphDigestVerification.RoundTrip(pause);

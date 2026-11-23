@@ -46,14 +46,14 @@ internal static class FullBodyPalettePointerListsVerification
             {
                 ushort suitOffset = (ushort)(suit * 2);
                 ushort expectedList = (ushort)(family.FirstList + suit * family.Phases * 2);
-                AssertEqual(expectedList, CartridgeImportSource.Require(rom).ReadCartridgeWord((family.Top + suitOffset)),
+                AssertEqual(expectedList, rom.ReadCartridgeWord((family.Top + suitOffset)),
                     $"{family.Name} top-level list for suit {suit}");
                 for (int phase = 0; phase < family.Phases; phase++)
                 {
                     int shade = family.PingPong ? Math.Min(phase, 6 - phase) : phase;
                     ushort expectedPalette = (ushort)(family.FirstPalette + suit * 0x200 + shade * 0x20);
                     AssertEqual(expectedPalette,
-                        CartridgeImportSource.Require(rom).ReadCartridgeWord((SamusPaletteDefinitionsBanksConstants.Movement | (expectedList + phase * 2))),
+                        rom.ReadCartridgeWord((SamusPaletteDefinitionsBanksConstants.Movement | (expectedList + phase * 2))),
                         $"{family.Name} nested pointer for suit {suit}, phase {phase}");
                 }
             }
@@ -68,8 +68,7 @@ internal static class FullBodyPalettePointerListsVerification
                 var speed = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
                 speed.CycleShadeStep = phase;
                 var actual = new SamusColours();
-                AssertTrue(speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-                    "Screw Attack copies a palette without reading either pointer table");
+                speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
                 int shade = Math.Min(phase, 6 - phase);
                 AssertPaletteColors(rom, actual, 0x9ca0 + suit * 0x200 + shade * 0x20,
                     $"Screw Attack suit {suit}, phase {phase}");
@@ -86,8 +85,7 @@ internal static class FullBodyPalettePointerListsVerification
                 speed.CycleShadeStep = phase;
                 speed.CycleShadeTimer = 1;
                 var actual = new SamusColours();
-                AssertTrue(speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-                    "active Speed Booster copies a palette without reading either pointer table");
+                speed.UpdateSpeedBoosterGlow(actual, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
                 AssertPaletteColors(rom, actual, 0x9b20 + suit * 0x200 + phase * 0x20,
                     $"active Speed Booster suit {suit}, phase {phase}");
                 AssertEqual(phase == 3 ? 3 : phase + 1, speed.CycleShadeStep,
@@ -141,7 +139,7 @@ internal static class FullBodyPalettePointerListsVerification
     {
         for (int color = 0; color < SamusColourSets.ColoursPerSet; color++)
             AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(
-                    CartridgeImportSource.Require(rom),
+                    rom,
                     SamusSourceDefinitions.PaletteBank.Value | (pointer + color * sizeof(ushort))) & 0x7fff),
                 actual.ShownSuit(InstalledFixtures.SamusShadeSources)[color],
                 $"{context} CGRAM color {color} matches ROM");

@@ -6,14 +6,13 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the enemy species tables extraction reads (#1412): the import pipeline's private knowledge
 /// of the cartridge, decoded once into the installed colour documents and definitions.
 /// </summary>
-[EncodingOwner("cartridge addresses of the enemy species colour tables")]
-internal static class EnemySpeciesSourceDefinitions
+internal static partial class EnemySpeciesSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>
     internal const int ColorWordBytes = sizeof(ushort);
 
     /// <summary>Dachora's bank-$A7 colour images.</summary>
-    internal static class Dachora
+    internal static partial class Dachora
     {
         /// <summary>$A7:F225, the default sixteen-colour image.</summary>
         internal const int DefaultColors = 0xa7f225;
@@ -29,7 +28,7 @@ internal static class EnemySpeciesSourceDefinitions
     }
 
     /// <summary>The bank-$AA n00b tube and Chozo statue colour transfers: two sixteen-colour rows each.</summary>
-    internal static class ChozoAndTube
+    internal static partial class ChozoAndTube
     {
         /// <summary>$AA:E2DD, the n00b tube crack initializer $AA:E716's 32 colours.</summary>
         internal const int TubeCracksColors = 0xaae2dd;
@@ -42,7 +41,7 @@ internal static class EnemySpeciesSourceDefinitions
     }
 
     /// <summary>Magdollite's bank-$A8 colour-cycle rows.</summary>
-    internal static class Magdollite
+    internal static partial class Magdollite
     {
         /// <summary>$A8:AC1C, four complete sixteen-colour rows the graphics-drawn hook $A8:B0B2 copies colours nine to twelve from.</summary>
         internal const int CycleColors = 0xa8ac1c;

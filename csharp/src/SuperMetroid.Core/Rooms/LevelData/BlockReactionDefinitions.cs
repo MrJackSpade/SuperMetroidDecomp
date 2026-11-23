@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The reactions several collision kinds' responses name that stand for one meaning each: the crumble blocks, door caps,
 /// station accesses and gate triggers.
 /// </summary>
-public static class BlockReactionDefinitions
+public static partial class BlockReactionDefinitions
 {
     /// <summary>The four blue-door caps a shootable block selects.</summary>
     public static readonly BlockReactionMeanings<ShootableReaction, ColoredDoorOrientation> BlueDoorCaps = new(

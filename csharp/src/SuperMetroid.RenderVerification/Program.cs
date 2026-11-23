@@ -33,11 +33,6 @@ internal static class Program
             NativeConsoleErrors.DisableDialogs();
             SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Start("SuperMetroid.RenderVerification " + string.Join(' ', args));
             SuperMetroid.TestSupport.RunTimeLimit.VerificationRunTimeLimit.Activity = string.Join(' ', args);
-            if (args is ["--packet-input"])
-            {
-                DisplayPacketInputTests.Run();
-                return;
-            }
             if (args is ["--ending-shooting-stars"])
             {
                 foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
@@ -166,8 +161,8 @@ internal static class Program
                 return;
             }
             // No argument runs the device contract suite: shader failure, readback, solid compute and threading.
-            if (args.Length > 1 || args.Length == 1 && args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--sprite-draw-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio" or "--xray-smoke"))
-                throw new ArgumentException("Usage: SuperMetroid.RenderVerification [--solid-smoke | --tile-smoke | --obj-smoke | --sprite-draw-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --xray-smoke]");
+            if (args.Length > 1 || args.Length == 1 && args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--sprite-draw-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio" or "--xray-smoke" or "--actor-order" or "--translucent-sprites"))
+                throw new ArgumentException("Usage: SuperMetroid.RenderVerification [--solid-smoke | --tile-smoke | --obj-smoke | --sprite-draw-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --xray-smoke | --actor-order | --translucent-sprites]");
             foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
             {
                 using var device = new D3D11RenderDevice(kind);
@@ -186,6 +181,8 @@ internal static class Program
                 if (args is ["--sprite-draw-smoke"]) { SpriteDrawSmokeTests.Run(device, renderer); continue; }
                 if (args is ["--tile-smoke"]) { TileSmokeTests.Run(device, renderer); continue; }
                 if (args is ["--xray-smoke"]) { XrayGameplayTests.Run(device, renderer); continue; }
+                if (args is ["--actor-order"]) { ActorOrderTests.Run(device, renderer); continue; }
+                if (args is ["--translucent-sprites"]) { TranslucentSpriteTests.Run(device, renderer); continue; }
                 bool rejected = false;
                 ShaderFailureTests.Run(device);
                 try { renderer.Readback(); } catch (InvalidOperationException) { rejected = true; }
@@ -207,7 +204,7 @@ internal static class Program
                 for (byte brightness = 0; brightness <= 15; brightness++)
                 {
                     samples++;
-                    var frame = new DisplayPacket(0, new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(brightness, 11));
+                    var frame = new global::SuperMetroid.Core.Rendering.DisplayPacket(0, new RgbaPixel(231, 123, 47, alpha), DisplayBrightness.Combine(DisplayBrightness.Black.Brighter(brightness), DisplayBrightness.Black.Brighter(11)));
                     RgbaPixel[] expected = DisplayRendering.Render(frame);
                     RgbaPixel[] actual = renderer.RenderForReadback(frame);
                     PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");

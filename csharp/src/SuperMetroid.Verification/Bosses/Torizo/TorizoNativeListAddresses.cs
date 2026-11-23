@@ -318,13 +318,13 @@ internal static class TorizoNativeListAddresses
     /// </summary>
     internal static IReadOnlyList<NativeNamedAnimationEntry<TorizoProjectileSegment>> NamedProjectileAnimationEntries { get; } =
     [
-        new(nameof(TorizoProjectileAnimations.DroolFormingForFourUpdates), TorizoProjectileAnimations.DroolFormingForFourUpdates, 0xa46a),
-        new(nameof(TorizoProjectileAnimations.DroolFormingForTwoUpdates), TorizoProjectileAnimations.DroolFormingForTwoUpdates, 0xa46e),
+        new(nameof(TorizoProjectileAnimations.DroolFormingLong), TorizoProjectileAnimations.DroolFormingLong, 0xa46a),
+        new(nameof(TorizoProjectileAnimations.DroolFormingShort), TorizoProjectileAnimations.DroolFormingShort, 0xa46e),
     ];
 
     /// <summary>The native place a projectile animation started by a segment or by its own name starts at.</summary>
     internal static ushort ProjectileEntryOf(Animation<TorizoProjectileSegment> animation) =>
-        ProjectileAnimationEntries.Where(pair => ReferenceEquals(TorizoProjectileAnimations.StartingWith(pair.Key), animation)).Select(pair => pair.Value)
+        ProjectileAnimationEntries.Where(pair => ReferenceEquals(TorizoProjectileAnimations.StartingAt[pair.Key], animation)).Select(pair => pair.Value)
             .Concat(NamedProjectileAnimationEntries.Where(named => ReferenceEquals(named.Animation, animation)).Select(named => named.Entry))
             .Single();
 

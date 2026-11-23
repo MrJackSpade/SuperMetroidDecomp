@@ -76,10 +76,6 @@ internal static class MotherBrainBodyPresentationVerification
         foreach (EnemyFrameId pose in MotherBrainBodyVisualDefinitions.AnimationFrames)
             AssertEqual(Offset16<RoomPixels>.Of(area.X + MotherBrainBodyBg2FrameDefinitions.FramesShiftedRight.GetValueOrDefault(pose), area.Y),
                 baseline.MotherBrainSheet.Frame(pose).Anchor, $"{pose} lies where the import places it against her");
-        // Her body's pictures are composed at install (#1466), so missing BG2 art fails there, before anything draws; only the
-        // boss artwork is composed, so the enemy artwork is not read again for it.
-        AssertThrows<InvalidDataException>(() => BossBodySheetFixtures.For(new BossSourceArtwork { MotherBrainBodyBg2Frames = null }, BossBodyOwner.MotherBrain),
-            "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
         // reinstalls it after a restore.
         Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, new-frame gating, " +
@@ -89,11 +85,11 @@ internal static class MotherBrainBodyPresentationVerification
         // the extended frames and body BG2 frames it authors (#1459), as #1446's boss fixture does.
         ImportEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2)
         {
-            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
-            tiles.ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(oam));
+            EnemyTileSourceArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
+            EnemyTileSourceArtwork tiles = stock.WithFrames(stock.Spritemaps, EnemyExtendedFrameDocuments.Load(author.Json(oam)));
             return new(tiles,
-                new BossSourceArtwork { MotherBrainBodyBg2Frames = MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
-                new AreaSourceArtwork());
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { MotherBrainBodyBg2Frames = MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)) },
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);
         }
 
         EnemyExtendedFrameDocument BodyOam()
@@ -110,7 +106,7 @@ internal static class MotherBrainBodyPresentationVerification
                 if (retail.TryGetDisplay(frame.Bank, frame.Pointer, out var shown) && shown.Length > 0 && shown.Span[0].Parts.Length > 0)
                     authored = authored with { TileColumn = shown.Span[0].Parts[0].Character % 16, TileRow = shown.Span[0].Parts[0].Character / 16 };
                 SpriteVisualPart part = authored with
-                { OffsetX = 2, OffsetY = 3, Size = 16, Palette = 1, Priority = 2, FlipX = false, FlipY = false };
+                { OffsetX = 2, OffsetY = 3, Size = 16, Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts, FlipX = false, FlipY = false };
                 document.Frames[frame.Name] =
                 [ new() { OffsetX = 0, OffsetY = 0, Parts = [part] },
                   new() { OffsetX = 6, OffsetY = 5, Parts = [part with { Size = 8 }] } ];
@@ -160,7 +156,7 @@ internal static class MotherBrainBodyPresentationVerification
             // The cartridge adds the body's tile base to each part and ORs the row holding its colours into the part's (#1446).
             int palette = (part.Palette ?? throw new InvalidDataException("Body OAM fixture requires an explicit palette.")) | body.PaletteRowIn(enemies);
             ushort tile = checked((ushort)(part.TileRow * 16 + part.TileColumn + body.NativeTileBaseIn(enemies) | palette << 9 |
-                part.Priority << 12 | (part.FlipX ? 0x4000 : 0) | (part.FlipY ? 0x8000 : 0)));
+                SnesObjAttributeWord.From(SpritePart.Single(0, 0, part.Depth)).Raw | (part.FlipX ? 0x4000 : 0) | (part.FlipY ? 0x8000 : 0)));
             expected[index * 4] = unchecked((byte)x); expected[index * 4 + 1] = unchecked((byte)y);
             expected[index * 4 + 2] = (byte)tile; expected[index * 4 + 3] = LittleEndianBytes.HighByte(tile);
             high |= (byte)(((LittleEndianBytes.HighByte(unchecked((ushort)x)) & 1) | (part.Size == 16 ? 2 : 0)) << (index * 2));

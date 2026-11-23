@@ -9,26 +9,26 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Kraid's two visual BG2 source maps. These are tile references, not the boss's
 /// attack, collision, or growth instructions; the engine composes the working map.
 /// </summary>
-public sealed class KraidBackgroundArtwork
+public sealed partial class KraidBackgroundArtwork
 {
 
-    /// <summary>Immutable head tilemaps keyed by the import's key for each head pose (<see cref="KraidHeadTilemapFormat.ImportKey"/>).</summary>
-    private readonly Dictionary<int, KraidHeadTilemapAtlas> heads;
+    /// <summary>Immutable head tilemaps keyed by the head pose each shows.</summary>
+    private readonly Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas> heads;
 
     /// <summary>Groups installed Kraid BG2 maps, head frames, and revealed room characters without composing or uploading the boss's mutable working tilemap.</summary>
     /// <param name="upper">Upper-body source atlas with the native $1000-byte decompressed layout.</param>
     /// <param name="lower">Lower-body source atlas with the native $1000-byte decompressed layout.</param>
-    /// <param name="heads">Head-frame atlases keyed by the import's key for each head pose (<see cref="KraidHeadTilemapFormat.ImportKey"/>). The dictionary is copied; immutable atlas objects are shared.</param>
+    /// <param name="heads">Head-frame atlases keyed by the head pose each shows. The dictionary is copied; immutable atlas objects are shared.</param>
     /// <param name="roomBackgroundTiles">The $0200-byte 4-bpp character stream revealed after growth or defeat, separate from the boss's BG2 tile references.</param>
     /// <remarks>The caller supplies already validated atlases. Construction retains the upper, lower, and character objects and does not validate their lengths or the completeness of the head-frame set.</remarks>
-    public KraidBackgroundArtwork(RoomBackgroundTilemapAtlas upper,
+    internal KraidBackgroundArtwork(RoomBackgroundTilemapAtlas upper,
         RoomBackgroundTilemapAtlas lower,
-        IReadOnlyDictionary<int, KraidHeadTilemapAtlas> heads,
+        IReadOnlyDictionary<KraidHeadFrame, KraidHeadTilemapAtlas> heads,
         RoomCharacterAtlas roomBackgroundTiles)
     {
         Upper = upper;
         Lower = lower;
-        this.heads = new Dictionary<int, KraidHeadTilemapAtlas>(heads);
+        this.heads = new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas>(heads);
         RoomBackgroundTiles = roomBackgroundTiles;
     }
 
@@ -42,7 +42,7 @@ public sealed class KraidBackgroundArtwork
 
     /// <summary>The installed head image <paramref name="frame"/> shows, without changing its timing or hitboxes.</summary>
     internal ReadOnlySpan<BackgroundTile> HeadTiles(KraidHeadFrame frame) =>
-        heads.TryGetValue(KraidHeadTilemapFormat.ImportKey(frame), out KraidHeadTilemapAtlas? image)
+        heads.TryGetValue(frame, out KraidHeadTilemapAtlas? image)
             ? image.Tiles.Span
             : throw new InvalidDataException(
                 $"Kraid head {frame.FrameName} has no installed tilemap.");

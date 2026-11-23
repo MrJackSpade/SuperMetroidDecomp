@@ -2,7 +2,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The steps and ends of a Dachora's glow cycles (#1544): its speed glow while it runs at full speed and its stored-shine glow.</summary>
-internal static class DachoraGlowCycleDefinitions
+internal static partial class DachoraGlowCycleDefinitions
 {
     /// <summary>One step of the speed glow: the next frame, sixteen updates later.</summary>
     internal static DachoraGlowCycle SpeedStep { get; } = DachoraGlowCycle.At(1, 16);
@@ -11,8 +11,8 @@ internal static class DachoraGlowCycleDefinitions
     internal static DachoraGlowCycle SpeedEnd { get; } = DachoraGlowCycle.At(4, 16);
 
     /// <summary>
-    /// Where the speed glow restarts: its brightest frame, three, sixteen updates away, so from then on it shows that frame
-    /// every sixteen updates instead of starting over from frame zero.
+    /// Where the speed glow restarts: its brightest frame, a step away, so from then on it shows that frame at each step
+    /// instead of starting over from frame zero.
     /// </summary>
     internal static DachoraGlowCycle SpeedRestart { get; } = DachoraGlowCycle.At(3, 16);
 

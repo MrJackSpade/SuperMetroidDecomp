@@ -4,12 +4,16 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>Powamp spike's typed animation.</summary>
-internal sealed class PowampSpikeAnimation(PowampSpikeSegment segment)
-    : EnemyProjectileFrameAnimation<PowampSpikeSegment, EnemyProjectileCommonCue>(PowampSpikeAnimations.StartingWith(segment))
+internal sealed partial class PowampSpikeAnimation
+    : EnemyProjectileFrameAnimation<PowampSpikeSegment, EnemyProjectileCommonCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
+    /// <summary>Creates a <see cref="PowampSpikeAnimation"/>.</summary>
+    /// <param name="segment">segment</param>
+    public PowampSpikeAnimation(PowampSpikeSegment segment)
+        : base(segment, PowampSpikeAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<PowampSpikeSegment>())
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PowampSpikeSegment, Animation<PowampSpikeSegment>> StartingAt => PowampSpikeAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<PowampSpikeSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => PowampSpikeAnimations.Segments;
 }

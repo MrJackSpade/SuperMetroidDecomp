@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Defines one line of opening-narration text and its text row.</summary>
-public sealed record IntroNarrationLine
+public sealed partial record IntroNarrationLine
 {
     /// <summary>Even text row from the first through last supported text row.</summary>
     public required int Row { get; init; }

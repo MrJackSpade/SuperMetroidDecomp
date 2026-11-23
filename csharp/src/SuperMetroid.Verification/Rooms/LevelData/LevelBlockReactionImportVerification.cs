@@ -44,11 +44,11 @@ internal static class LevelBlockReactionImportVerification
                 if (area != AreaId.Crateria && value is < AreaTableBehaviors or >= AreaTableBehaviors + AreaMeanings)
                     continue;
                 RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(area, value);
-                Enum? reaction = family is { } reacting ? behavior.ReactionIn(reacting) : null;
+                BlockReaction? reaction = family is { } reacting ? behavior.ReactionIn(reacting) : null;
                 // A reacting block keeps the first behaviour holding its reaction, which must react as its own byte does.
                 bool refusedHere = family is not null && (reaction is null ||
                     !Enum.GetValues<BlockReactionFamily>().All(other =>
-                        Equals(RoomBlockBehavior.ReactingAs(reaction).In(area).ReactionIn(other), behavior.ReactionIn(other))));
+                        Equals(reaction.Behavior.In(area).ReactionIn(other), behavior.ReactionIn(other))));
                 if (!refusedHere)
                 {
                     keptValues.Add(value);

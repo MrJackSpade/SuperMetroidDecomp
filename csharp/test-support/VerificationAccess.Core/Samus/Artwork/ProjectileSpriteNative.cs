@@ -11,12 +11,12 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal static class ProjectileSpriteNative
 {
     /// <summary>
-    /// The bank-$93 address of each projectile composition record, in <see cref="ProjectileSpriteDefinitions.Stored"/> order:
+    /// The bank-$93 address of each projectile composition record, in the order <c>ProjectileSpriteDefinitions.Stored</c> lists the stored records:
     /// a record that stores a composition again, byte for byte, holds that composition (#2295).
     /// </summary>
     private static readonly ushort[] ProjectileAddresses =
     [
-        0xa117, 0xa24d, 0xa254, 0xa25b, 0xa262, 0xa269, 0xa270, 0xa277, 0xa27e, 0xa37d, 0xa393, 0xa3b3,
+        0xa24d, 0xa254, 0xa25b, 0xa262, 0xa269, 0xa270, 0xa277, 0xa27e, 0xa37d, 0xa393, 0xa3b3,
         0xa3c9, 0xa7c9, 0xa7d0, 0xa7e6, 0xa7fc, 0xa812, 0xa828, 0xa83e, 0xa854, 0xa86a, 0xa880, 0xa896,
         0xaa84, 0xaa9a, 0xaab0, 0xaac6, 0xab04, 0xab2e, 0xab97, 0xab9e, 0xaba5, 0xabb3, 0xabba, 0xabc1,
         0xabd7, 0xabed, 0xac03, 0xad45, 0xad4c, 0xad53, 0xad5a, 0xad61, 0xad6d, 0xad7e, 0xad8a, 0xad9b,
@@ -77,7 +77,10 @@ internal static class ProjectileSpriteNative
     /// stores it, a record that stores it again byte for byte holding the same composition (#2295).
     /// </summary>
     /// <exception cref="InvalidDataException">No projectile composition is stored there.</exception>
-    internal static ushort FirstStored(int address) => Address(Projectile(address));
+    internal static ushort FirstStored(int address) => address == EmptyRecordAddress ? EmptyRecordAddress : Address(Projectile(address));
+
+    /// <summary>The bank-$93 address of the empty composition record, which a frame that draws nothing selects (#2558).</summary>
+    internal const ushort EmptyRecordAddress = 0xa117;
 
     /// <summary>The timed record stored at bank-$93 <paramref name="address"/>.</summary>
     /// <exception cref="InvalidDataException">No timed record is stored there.</exception>
@@ -124,7 +127,7 @@ internal static class ProjectileSpriteNative
     extension(InstalledProjectileFrameBindings bindings)
     {
         /// <summary>The bank-$93 address of the composition the record stored at bank-$93 <paramref name="address"/> draws.</summary>
-        internal ushort Resolve(int address) => Address(bindings.Resolve(Frame(address)));
+        internal ushort Resolve(int address) => bindings.Resolve(Frame(address)) is { } sprite ? Address(sprite) : EmptyRecordAddress;
     }
 
     /// <summary>A projectile slot's composition by address.</summary>
@@ -133,8 +136,8 @@ internal static class ProjectileSpriteNative
         /// <summary>The bank-$93 address of the composition the slot shows, or zero for none.</summary>
         internal int SpritemapPointer
         {
-            get => slot.Sprite is { } sprite ? Address(sprite) : 0;
-            set => slot.Sprite = value == 0 ? null : Projectile(value);
+            get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
+            set => slot.HeldShot().Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }
 
@@ -144,8 +147,8 @@ internal static class ProjectileSpriteNative
         /// <summary>The bank-$93 address of the composition the bomb shows, or zero for none.</summary>
         internal int SpritemapPointer
         {
-            get => slot.Sprite is { } sprite ? Address(sprite) : 0;
-            set => slot.Sprite = value == 0 ? null : Projectile(value);
+            get => slot.Sprite is { } sprite ? Address(sprite) : slot.Animation?.Shown is not null ? EmptyRecordAddress : 0;
+            set => slot.HeldBomb().Sprite = value is 0 or EmptyRecordAddress ? null : Projectile(value);
         }
     }
 }

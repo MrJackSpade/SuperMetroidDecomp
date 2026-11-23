@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// passing in front of the room's back tiles and its part in front of them (#1634). Immutable; the room resolves a new table
 /// when a picture it shows or an input it reads changes.
 /// </summary>
-public sealed class RoomBlockPictureTable
+public sealed partial class RoomBlockPictureTable
 {
     /// <summary>The picture of each block the planes use, by block, null for the rest.</summary>
     private readonly LayeredPicture?[] blocks;

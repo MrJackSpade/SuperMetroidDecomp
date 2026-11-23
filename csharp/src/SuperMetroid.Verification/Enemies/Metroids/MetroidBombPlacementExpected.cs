@@ -1,11 +1,7 @@
-using SuperMetroid.Core.Enemies.Metroids;
-
 namespace SuperMetroid.Verification.Enemies.Metroids;
 
-/// <summary>The x, y, state, timer and health of one metroid bomb placement expected.</summary>
-/// <param name="X">The x.</param>
-/// <param name="Y">The y.</param>
-/// <param name="State">The state.</param>
-/// <param name="Timer">The timer.</param>
-/// <param name="Health">The health.</param>
-internal readonly record struct MetroidBombPlacementExpected(ushort X, ushort Y, MetroidMovement State, ushort Timer, ushort Health);
+/// <summary>Where the Metroid stands and how much health Samus has after one update of the bomb detach trajectory.</summary>
+/// <param name="X">The Metroid's x.</param>
+/// <param name="Y">The Metroid's y.</param>
+/// <param name="Health">Samus's health, which an attached Metroid drains.</param>
+internal readonly record struct MetroidBombPlacementExpected(ushort X, ushort Y, ushort Health);

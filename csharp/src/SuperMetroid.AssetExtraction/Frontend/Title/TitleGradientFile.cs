@@ -10,7 +10,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Reads and writes the installed title gradient: sixteen zoom variants, each described by its stops (#1468).</summary>
-public static class TitleGradientFile
+public static partial class TitleGradientFile
 {
     /// <summary>Installed JSON filename selected by the title presentation catalog.</summary>
     public const string FileName = "title-gradient.json";
@@ -36,8 +36,7 @@ public static class TitleGradientFile
         {
             document = JsonAssetDocument.Read<TitleGradientDocument>(
                 json,
-                ArtworkJson.Options)
-                ?? throw new InvalidDataException("Title gradient presentation is null.");
+                ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -61,10 +60,8 @@ public static class TitleGradientFile
                 throw new InvalidDataException($"Title gradient variant {variant} must contain stops.");
 
             var stops = ImmutableArray.CreateBuilder<GradientStop>(source.Stops.Length);
-            foreach (TitleGradientStop? value in source.Stops)
+            foreach (TitleGradientStop value in source.Stops)
             {
-                if (value is null)
-                    throw new InvalidDataException($"Title gradient variant {variant}, stop {stops.Count} is missing.");
                 RgbColor colour = InstalledColourText.ParseOnFadeScale(value.Colour, $"Title gradient variant {variant}, stop {stops.Count}");
                 bool placed = stops.Count == 0 ? value.Line == 0 : value.Line > stops[^1].Line && value.Line < ScreenGeometry.ScreenHeightPixels;
                 if (!placed)
@@ -76,7 +73,8 @@ public static class TitleGradientFile
             }
             variants[variant] = new ScreenGradient(stops.MoveToImmutable(), ScreenGeometry.ScreenHeightPixels);
         }
-        return new TitleGradientPresentation(variants);
+        // The installed file's first gradient, the no-zoom range's, is also the one the floor shows at its own size.
+        return new TitleGradientPresentation(variants, ownSize: variants[0]);
     }
 
     /// <summary>
@@ -106,7 +104,7 @@ public static class TitleGradientFile
     /// <param name="document">Authored gradient whose mutable arrays are read for serialization, not retained by the writer.</param>
     public static void Write(Stream json, TitleGradientDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.Artwork.TitleGradientDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

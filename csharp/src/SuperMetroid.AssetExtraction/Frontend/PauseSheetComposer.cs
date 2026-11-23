@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// selector and the strip show their own colours (#1544): the map highlight cycle shades only the map's highlighted
 /// sprites.
 /// </summary>
-internal static class PauseSheetComposer
+internal static partial class PauseSheetComposer
 {
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
@@ -32,7 +32,7 @@ internal static class PauseSheetComposer
         Ensure.NotNull(selectors);
         Ensure.NotNull(tanks);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        SpriteArtwork page = maps.Sprites.Page;
         List<SheetFrameSource> frames = [.. selectors.FrameNames.Select(frame =>
         {
             string name = PauseSelectorAnchors.SheetFrameName(frame);

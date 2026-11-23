@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Exports Botwoon's eight complete health-band sprite palettes.</summary>
-public static class BotwoonColorExtractor
+public static partial class BotwoonColorExtractor
 {
     /// <summary>Reads all complete native Botwoon health-band palettes, rejects colors with the high bit set, and serializes their RGB5 components.</summary>
     /// <param name="bus">Supported-cartridge address space containing Botwoon's contiguous health palette table.</param>
@@ -17,26 +17,27 @@ public static class BotwoonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[BotwoonColorFormat.HealthBandCount][];
-        for (int band = 0; band < bands.Length; band++)
-        {
-            bands[band] = new PaletteRgb5[BotwoonColorFormat.ColorsPerPalette];
-            for (int color = 0; color < bands[band].Length; color++)
-            {
-                int address = BotwoonSourceDefinitions.HealthColors +
-                    (band * BotwoonColorFormat.ColorsPerPalette + color) *
-                    sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-                if (!RgbColor.IsColorWord(checked((ushort)native)))
-                    throw new InvalidDataException(
-                        $"Botwoon color ${address:X6} has an unrepresentable high bit.");
-                bands[band][color] = PaletteRgb5.From(RgbColor.FromWord(checked((ushort)native)));
-            }
-        }
         return BotwoonColorFile.Write(new BotwoonColorDocument
         {
             Version = BotwoonColorFormat.Version,
-            Health = bands,
+            Health = Rgb5Rows.KeyedInTableOrder(BotwoonSourceDefinitions.HealthTableOrder, band => band.Key, Row),
         });
+
+        PaletteRgb5[] Row(int row)
+        {
+            var colours = new PaletteRgb5[BotwoonColorFormat.ColorsPerPalette];
+            for (int color = 0; color < colours.Length; color++)
+            {
+                int address = BotwoonSourceDefinitions.HealthColors +
+                    (row * BotwoonColorFormat.ColorsPerPalette + color) *
+                    sizeof(ushort);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
+                if (!RgbColor.IsColorWord(checked((ushort)native)))
+                    throw new InvalidDataException(
+                        $"Botwoon color ${address:X6} has an unrepresentable high bit.");
+                colours[color] = PaletteRgb5.From(RgbColor.FromWord(checked((ushort)native)));
+            }
+            return colours;
+        }
     }
 }

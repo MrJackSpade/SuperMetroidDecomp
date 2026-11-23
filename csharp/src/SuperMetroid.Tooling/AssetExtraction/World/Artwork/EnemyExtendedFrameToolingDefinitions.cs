@@ -17,7 +17,7 @@ internal static class EnemyExtendedFrameToolingDefinitions
     /// <exception cref="InvalidOperationException">The document does not list <paramref name="first"/>.</exception>
     internal static int FramesBefore(EnemyFrameId first)
     {
-        int place = EnemyExtendedFrameDocumentOrder.Frames.IndexOf(first);
+        int place = EnemyExtendedFrameDefinitions.Frames.Select(frame => frame.Frame).ToList().IndexOf(first);
         return place >= 0 ? place : throw new InvalidOperationException($"The extended enemy frame document does not list {first}.");
     }
 }

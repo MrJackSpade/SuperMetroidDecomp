@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 /// Dragon's rising and falling fireball animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class DragonFireballAnimations
+internal static partial class DragonFireballAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<DragonFireballSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<DragonFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<DragonFireballSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.RisingLeft] =
         [
@@ -37,17 +37,9 @@ internal static class DragonFireballAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DragonFireballSegment, Animation<DragonFireballSegment>> StartingAt { get; } = new Dictionary<DragonFireballSegment, Animation<DragonFireballSegment>>
-    {
-        [P.RisingLeft] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.RisingLeft)]),
-        [P.RisingRight] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.RisingRight)]),
-        [P.FallingLeft] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.FallingLeft)]),
-        [P.FallingRight] = Animation<DragonFireballSegment>.Looping([Segments.Whole(P.FallingRight)]),
-    };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<DragonFireballSegment> StartingWith(DragonFireballSegment segment) => StartingAt[segment];
+    internal static IReadOnlyDictionary<DragonFireballSegment, Animation<DragonFireballSegment>> StartingAt { get; } = Segments.EachLooping(
+        P.RisingLeft, P.RisingRight, P.FallingLeft, P.FallingRight);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 }

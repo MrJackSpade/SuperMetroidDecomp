@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// The installed key of each <see cref="AudioSoundOperation"/> (#2548), the operation name the installed audio manifest
 /// spells a sound-effect instruction by, written out so renaming a member never changes it.
 /// </summary>
-internal static class AudioSoundOperationKeys
+internal static partial class AudioSoundOperationKeys
 {
     /// <summary>Each AudioSoundOperation member's installed key.</summary>
     internal static InstalledKeys<AudioSoundOperation> Installed { get; } = new(new Dictionary<AudioSoundOperation, string>

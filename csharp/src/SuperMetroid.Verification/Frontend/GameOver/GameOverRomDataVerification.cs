@@ -36,18 +36,30 @@ internal static class GameOverRomDataVerification
         // The Baby stream advances only in indexes one and three onward. A separate menu walks
         // index zero and its NMI continuation, takes index one's first Baby tick, and then
         // enters the fade so every later update ticks the Baby; the music wait and index
-        // one's continuation never touch it, so skipping them leaves the stream intact.
+        // one's continuation never touch it, so running them leaves the stream intact.
         var babyAudio = AudioQueues.Standalone();
         var babyMenu = new GameOverMenuState(babyAudio, RetailPresentationFixture(), MenuSheetFixtures.For(RetailPresentationFixture()), continueLoadsCeresArrival: false);
         babyMenu.Step(0);
         babyMenu.Step(0);
+        // The requests library three holds before the Baby's first cry: the black hold's CancelAll until the music wait has
+        // the menu's audio play its set-up music out, which plays that request too.
+        int setUpRequests = 1;
         void StepBaby()
         {
             babyMenu.Step(0);
             if (babyMenu.IsWaitingOutDisplayFrame)
-                babyMenu.SkipToPhase(GameOverMenuPhase.FadeIn);
+            {
+                // The set-up's display frame and the music wait after it never step the Baby: the menu runs both, its
+                // music played out so the wait ends, and reaches the fade-in, whose every update steps the Baby.
+                babyMenu.Step(0);
+                while (babyAudio.HasQueuedMusic)
+                    _ = babyAudio.AdvanceFrame(default);
+                setUpRequests = babyAudio.WaitingSounds(SoundEffectLibrary.Room).Count;
+                babyMenu.Step(0);
+            }
         }
-        // The standalone menu's audio is never advanced, so its room-library queue keeps every request the menu made.
+        // The standalone menu's audio is advanced only to play the set-up's music out, so its room-library queue keeps every
+        // request the menu makes after that.
         IReadOnlyList<SoundEffectId> roomRequests = babyAudio.WaitingSounds(SoundEffectLibrary.Room);
         ushort pointer = GameOverBabyAnimationDefinitions.FirstPointer;
         int timer = rom.ReadCartridgeWordFixedBank(0x820000 | pointer), cries = 0, records = 0, ticks = 0;
@@ -70,8 +82,8 @@ internal static class GameOverRomDataVerification
                     AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x820000 | command),
                         "game-over reference cry starts with LDA immediate");
                     StepBaby();
-                    // Library three's first request is index zero's CancelAll request.
-                    AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, (byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1))), roomRequests[cries + 1],
+                    // Library three's requests before the cries are the set-up's.
+                    AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, (byte)rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(command + 1))), roomRequests[cries + setUpRequests],
                         "game-over cry queues the exact native library-three effect");
                     cries++;
                     next += 2;
@@ -84,12 +96,12 @@ internal static class GameOverRomDataVerification
             else StepBaby();
             ticks++;
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 4)),
-                GameOverBabyAnimationDefinitions.NativePalettePointer(babyMenu.BabyColours),
+                GameOverBabyAnimationDefinitions.PalettePointers.Word(babyMenu.BabyColours),
                 "game-over live colours match independent ROM stream record each tick");
             AssertEqual(rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)(pointer + 2)),
-                GameOverBabyAnimationDefinitions.NativeSpritemap(babyMenu.BabyFrame),
+                GameOverBabyAnimationDefinitions.Spritemaps.Word(babyMenu.BabyFrame),
                 "game-over live pose matches independent ROM stream spritemap each tick");
-            AssertEqual(cries + 1, roomRequests.Count, "game-over cry queue changes only at native handoffs");
+            AssertEqual(cries + setUpRequests, roomRequests.Count, "game-over cry queue changes only at native handoffs");
         }
         AssertTrue(looped, "game-over Baby reaches the native end marker and loops");
         AssertEqual(60, records, "game-over loop visits all sixty native frame records");
@@ -104,7 +116,7 @@ internal static class GameOverRomDataVerification
             },
             maximumFrames: 160,
             "game-over menu fade-in");
-        AssertTrue(framesToMenu > SuperMetroid.Core.Rendering.DisplayBrightness.Full,
+        AssertTrue(framesToMenu > SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
             "game-over menu waits for queued music before fading");
 
         menu.Step(ControllerButton.Down);

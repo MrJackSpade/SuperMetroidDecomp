@@ -9,26 +9,22 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// the frame of the installed pause sheet it shows, and how long it holds (#2359). The frames' compositions belong to the
 /// import pipeline that reads the installed presentation and never reach the game (#1463, #1616).
 /// </summary>
-public sealed class PauseSelectorPresentation
+public sealed partial class PauseSelectorPresentation
 {
     /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
     internal readonly Dictionary<string, Offset16<ScreenPixels>> anchors;
 
     /// <summary>Keeps the complete installed anchors, looks and timing.</summary>
     /// <param name="parts">The validated selector anchors, frame sequences and timing.</param>
-    /// <exception cref="InvalidDataException">A category's frame sequence does not name a frame for every step.</exception>
     internal PauseSelectorPresentation(PauseSelectorParts parts)
     {
         Ensure.NotNull(parts);
         anchors = new Dictionary<string, Offset16<ScreenPixels>>(parts.Anchors, StringComparer.Ordinal);
-        int steps = parts.Durations.Count;
-        if (parts.Reserve.Count != steps || parts.Beam.Count != steps || parts.Equipment.Count != steps)
-            throw new InvalidDataException($"The installed pause selector's frame sequences do not each name one frame for its {steps} steps.");
-        Looks = [.. Enumerable.Range(0, steps).Select(step => new PauseSelectorLook(parts.Reserve[step], parts.Beam[step], parts.Equipment[step]))];
+        Looks = [.. parts.Steps.Select(step => step.Look)];
         Segments = new(new Dictionary<PauseSelectorSegment, AnimationBeat<PauseSelectorLook, NoAnimationCue>[]>
         {
             [PauseSelectorSegment.Cycle] =
-                [.. Enumerable.Range(0, steps).Select(step => new AnimationBeat<PauseSelectorLook, NoAnimationCue>.Frame(Looks[step], parts.Durations[step]))],
+                [.. parts.Steps.Select(step => new AnimationBeat<PauseSelectorLook, NoAnimationCue>.Frame(step.Look, step.Duration))],
         });
         Cycling = Animation<PauseSelectorSegment>.Looping([Segments.Whole(PauseSelectorSegment.Cycle)]);
         InitialDurationTicks = parts.InitialDuration;
@@ -48,7 +44,7 @@ public sealed class PauseSelectorPresentation
 
     /// <summary>The installed screen-pixel anchor of <paramref name="control"/>.</summary>
     /// <exception cref="InvalidDataException">The installation has no anchor for the control.</exception>
-    public Offset16<ScreenPixels> Anchor(PauseEquipmentControl control)
+    internal Offset16<ScreenPixels> Anchor(PauseEquipmentControl control)
     {
         string name = Ensure.NotNull(control).Anchor;
         return anchors.TryGetValue(name, out Offset16<ScreenPixels> anchor) ? anchor
@@ -67,24 +63,20 @@ public sealed class PauseSelectorPresentation
     }
 
     /// <summary>Validated selector parts passed into the installed representation.</summary>
-    internal sealed record PauseSelectorParts
+    internal sealed partial record PauseSelectorParts
     {
         /// <summary>The installed anchor of each equipment control, by its stable anchor name.</summary>
         public required IReadOnlyDictionary<string, Offset16<ScreenPixels>> Anchors { get; init; }
 
-        /// <summary>The reserve category's frame for each step, in order.</summary>
-        public required IReadOnlyList<string> Reserve { get; init; }
-
-        /// <summary>The beam category's frame for each step, in order.</summary>
-        public required IReadOnlyList<string> Beam { get; init; }
-
-        /// <summary>The shared suit and boot category's frame for each step, in order.</summary>
-        public required IReadOnlyList<string> Equipment { get; init; }
-
-        /// <summary>Each step's hold in updates, in order; its length is the animation's length.</summary>
-        public required IReadOnlyList<int> Durations { get; init; }
+        /// <summary>The animation's steps in order, each with its look and its hold.</summary>
+        public required IReadOnlyList<PauseSelectorStep> Steps { get; init; }
 
         /// <summary>How long the first look shows on entering the equipment page.</summary>
         public required int InitialDuration { get; init; }
     }
+
+    /// <summary>One step of the selector's animation (#2565): its look and how many updates it holds.</summary>
+    /// <param name="Look">The step's reserve, beam and equipment frames.</param>
+    /// <param name="Duration">The step's hold in updates.</param>
+    internal sealed partial record PauseSelectorStep(PauseSelectorLook Look, int Duration);
 }

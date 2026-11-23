@@ -19,20 +19,20 @@ internal static class FallingSparkBehaviorVerification
     /// </summary>
     internal static void VerifyFallingSparkBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, FallingSparkNativeListAddresses.Extent, "falling-spark");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
 
         RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
         source.Position = source.Position.WithWhole(new(288, 96));
-        enemies.FallingSparksBehavior.SpawnFallingSpark(source);
+        enemies.FallingSparksBehavior.SpawnFallingSpark(source.BoundFor(EnemyDefinitionId.Spark), source);
         EnemyProjectile spark = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == RoomEnemyProjectileKind.FallingSpark);
         AssertEqual(FallingSparkSegment.Falling, ProgramOf(spark), "a spawned spark starts its falling program");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkSegment.Falling), 30, "falling spark flight");
         AssertTrue(!deleted, "the falling program loops until the floor");
 
-        FallingSparksBehavior.BeginFallingSparkFloorImpact(spark);
+        enemies.FallingSparksBehavior.BeginFallingSparkFloorImpact(spark);
         AssertEqual(FallingSparkSegment.HitFloor, ProgramOf(spark), "the floor impact starts the impact program");
         (deleted, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, spark, Entry(FallingSparkSegment.HitFloor), 30, "falling spark impact");
         AssertTrue(deleted, "the impact program deletes the spark");

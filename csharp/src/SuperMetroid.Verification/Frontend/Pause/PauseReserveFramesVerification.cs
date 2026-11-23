@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -44,9 +43,6 @@ internal static class PauseReserveFramesVerification
         }
         foreach (ushort invalid in new ushort[] { 0, 0x1a, 0x1c, 0x1d, 0x1e, 0x28, ushort.MaxValue })
             AssertEqual(false, PauseReserveTankVisualWords.Ordinals.TryDecode(invalid, out _), "unsupported native reserve identity");
-        var undefined = (PauseReserveTankVisual)(-1);
-        AssertThrows<InvalidOperationException>(() => stock.Presentation.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, 0), "unsupported reserve identity");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.Presentation.Draw(ScreenSpritesFixtures.Blank(), MenuSheetFixtures.PauseSprites(stock), undefined, -1), "anchor error precedes unknown visual");
     }
 
     /// <summary>

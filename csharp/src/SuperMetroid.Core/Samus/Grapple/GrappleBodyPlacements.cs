@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Samus.Grapple.GrappleBodyPlacementDefinitions;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Where Samus's body sits on the grapple at each angle.</summary>
-internal static class GrappleBodyPlacements
+internal static partial class GrappleBodyPlacements
 {
     /// <summary>
     /// Samus's offset from the rope's start while swinging in <paramref name="direction"/>, facing left or right. The
@@ -11,6 +11,6 @@ internal static class GrappleBodyPlacements
     /// turn, so the number measures the direction's angle in those shares, and the offsets are laid out one for each share
     /// around the turn.
     /// </summary>
-    internal static Offset16<RoomPixels> Offset(GrappleSwingDirection direction, bool left) =>
-        (left ? LeftOffsets : RightOffsets)[direction.Number];
+    internal static Offset16<RoomPixels> Offset(GrappleSwingDirection direction, SamusFacingDirection facing) =>
+        (facing is SamusFacingDirection.Left ? LeftOffsets : RightOffsets)[direction.Number];
 }

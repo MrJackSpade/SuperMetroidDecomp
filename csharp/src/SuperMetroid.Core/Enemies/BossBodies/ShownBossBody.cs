@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// frontmost part inking a pixel shows it at that part's depth (#1634): behind the sprites, or in front of them.
 /// </summary>
 /// <param name="Parts">The parts showing, the first drawn beneath the others.</param>
-public sealed record ShownBossBody(ImmutableArray<ShownBossBodyPart> Parts);
+public sealed partial record ShownBossBody(ImmutableArray<ShownBossBodyPart> Parts);

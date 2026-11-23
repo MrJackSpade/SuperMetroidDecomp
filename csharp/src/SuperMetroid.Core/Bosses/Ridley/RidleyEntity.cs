@@ -11,10 +11,11 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// and wings, his hand-authored extended body and tail tip, his shot reaction and his Power Bomb reaction.
 /// </summary>
 /// <param name="body">The parts of Ridley's body both encounters run.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation,
+internal abstract partial class RidleyEntity(RidleyBody body, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation,
         IEnemyFrameHitboxes, IEnemyContactHooks, IEnemyAfterSamusContact, IEnemyDrawHooks, IEnemyPrivateShotReaction, IRidleyBodyOwner
 {
     /// <summary>The parts of Ridley's body both encounters run.</summary>
@@ -23,9 +24,6 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, Enem
     /// <summary>The encounter the body holds from its initialization (#2231).</summary>
     /// <exception cref="InvalidOperationException">The body has begun no encounter.</exception>
     internal abstract RidleyEncounterState Encounter { get; }
-
-    /// <inheritdoc/>
-    public abstract void Initialize();
 
     /// <inheritdoc/>
     public abstract void RunMainAi(IEnemyAiFrame frame);
@@ -40,19 +38,13 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, Enem
     /// <inheritdoc/>
     public abstract RidleyBodySegment? CutFireballingShort(SamusState samus);
 
-    /// <summary>None: both Ridley bodies' definitions name the ordinary touch.</summary>
-    public EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>Both Ridley bodies' shot reaction, which their definitions leave to them.</summary>
-    public EnemyReaction? SpeciesShot => RidleyReactions.Shot;
-
     /// <summary>Both Ridley bodies' own Power Bomb reaction where their definitions leave the blast to them, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction =>
+    public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? RidleyInteractions.RidleyPowerBombReaction : base.PowerBombReaction;
 
     /// <inheritdoc/>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        RidleyInteractions.FindRidleyHitboxReaction(Place, probe, out reaction);
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        RidleyInteractions.FindRidleyHitboxReaction(Place, probe);
 
     /// <summary>
     /// Both Ridley bodies use a hand-authored extended body plus a separately solved tail tip, resolved by their own
@@ -69,7 +61,7 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, Enem
     /// <param name="samus">Samus.</param>
     /// <param name="pseudoScrew">Samus's held charge, which her Pseudo Screw contact spends.</param>
     public virtual void ResolveAfterSamusContact(SamusState samus, PseudoScrewCharge pseudoScrew) =>
-        _ = Body.Contact.ResolveSamusContact(Place, samus, pseudoScrew);
+        Body.Contact.ResolveSamusContact(Occupant, samus, pseudoScrew);
 
     /// <summary>Ridley's AI publishes the shading the common enemy drawing draws him in: his body, wings and tail share one latched phase (#1512).</summary>
     public PictureShading? CommonDrawShading() => Encounter.CommonDrawShading;
@@ -81,6 +73,6 @@ internal abstract class RidleyEntity(RidleyBody body, RoomEnemyPlace place, Enem
         Body.Drawing.DrawTailAndWings(sprites, Place, Encounter, camera);
 
     /// <summary>Both Ridley bodies' shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == RidleyReactions.Shot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == RidleyReactions.Shot;
 }

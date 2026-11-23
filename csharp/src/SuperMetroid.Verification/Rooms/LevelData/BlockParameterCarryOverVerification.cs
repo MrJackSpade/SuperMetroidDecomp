@@ -50,7 +50,7 @@ internal static class BlockParameterCarryOverVerification
         RoomBlockBehavior[] everyArea =
             [.. decoded, .. AreaIds.All.SelectMany(area => decoded.Select((_, value) => RoomBlockBehaviorCodec.Decode(area, value)))];
         foreach (BlockReactionFamily family in Enum.GetValues<BlockReactionFamily>())
-        foreach (Enum reaction in BlockReactionFamilies.Reactions(family))
+        foreach (BlockReaction reaction in BlockReactionFamilies.Reactions(family))
             AssertTrue(everyArea.Any(behavior => reaction.Equals(behavior.ReactionIn(family))),
                 $"{family} reaction {reaction} is held by a byte");
         Console.WriteLine($"Block-parameter carry-over: {decoded.Length} kept behaviours; {pairs} written-reading and read-reading pairs match the codec in every area.");

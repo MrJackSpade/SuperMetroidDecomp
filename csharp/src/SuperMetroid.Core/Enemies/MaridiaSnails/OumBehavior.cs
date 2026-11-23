@@ -7,14 +7,14 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>The Oum species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class OumBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Oum];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new OumEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new OumEntity(this, occupant, place, common));
 
     /// <summary>Resolves floor, ledge, and wall contact during bounce and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
@@ -33,7 +33,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes the Oum.</summary>
-    internal static void InitializeOum(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static OumEnemyState InitializeOum()
     {
         var state = new OumEnemyState(OumAction.Idle, OumBouncePhase.Falling)
         {
@@ -43,12 +44,23 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             Heading = HorizontalDirection.Right,
             RemainingBounces = OumMotionDefinitions.SettlingBounces,
         };
-        place.SetSpeciesState(state);
 
         // The spawn's left-facing idle disagrees with the right-facing Oum it counts as (ShowsSpawnIdle), which is
         // observable until the snail first starts an animation.
         state.Playback = new(OumAnimations.StartingWith(OumSegment.FacingLeftIdle), AnimationPlace.StartOfAnimation);
+        return state;
     }
+
+    /// <summary>What <see cref="RunOumMain"/> does for each <see cref="OumAction"/> member, each member's own arm.</summary>
+    private IdentityTable<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>> RunOumMainForOumAction => field ??= new(new Dictionary<OumAction, Action<RoomEnemyPlace, OumEnemyState, SamusState, RoomLevelData, HorizontalDirection?>>
+    {
+        [OumAction.Idle] = (place, state, samus, level, pushSide) => RunOumIdle(place, state, samus, level),
+        [OumAction.Rolling] = (place, state, samus, level, pushSide) => RunOumRolling(place, state, samus, level, pushSide),
+        [OumAction.Attacking] = (place, state, samus, level, pushSide) =>
+        {
+        },
+        [OumAction.AttackFinished] = (place, state, samus, level, pushSide) => RollOumAfterAttack(place, state),
+    });
 
     /// <summary>
     /// Runs the Oum's main behaviour and actions. Ordering is exact: proximity and
@@ -65,23 +77,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection? pushSide = OumPushSide(place, samus);
         Position16<RoomPixels> previousPosition = place.Position.Whole;
 
-        switch (state.Action)
-        {
-            case OumAction.Idle:
-                RunOumIdle(place, state, samus, level);
-                break;
-            case OumAction.Rolling:
-                RunOumRolling(place, state, samus, level, pushSide);
-                break;
-            case OumAction.Attacking:
-                break;
-            case OumAction.AttackFinished:
-                RollOumAfterAttack(place, state);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Maridia Large Snail has no behaviour for action {state.Action}.");
-        }
+        RunOumMainForOumAction[state.Action](place, state, samus, level, pushSide);
 
         CarrySamusWithOum(place, state, samus, previousPosition, pushSide);
         UpdateOumInputStop(place, state, controllerInput, previousPosition, pushSide);
@@ -131,7 +127,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         else if (!_terrain.MoveEnemyVertically(level, place, OumMotionDefinitions.FloorProbe))
         {
             // No floor one pixel below means Oum walked off a ledge. Oum restarts the
-            // complete three-impact settling sequence without skipping horizontal work.
+            // complete settling sequence without skipping horizontal work.
             state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
             state.BouncePhase = OumBouncePhase.Falling;
             state.RemainingBounces = OumMotionDefinitions.SettlingBounces;
@@ -171,58 +167,57 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = OumAction.Rolling;
     }
 
+    /// <summary>What <see cref="RunOumBounce"/> does for each <see cref="OumBouncePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>> RunOumBounceForOumBouncePhase => field ??= new(new Dictionary<OumBouncePhase, Action<RoomEnemyPlace, OumEnemyState, RoomLevelData>>
+    {
+        [OumBouncePhase.Falling] = (place, state, level) =>
+        {
+            // Falling holds the place at its fastest fall place.
+            state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
+                state.YSpeedCurvePlace + OumMotionDefinitions.BounceAcceleration,
+                OumMotionDefinitions.FastestFallPlace);
+
+            if (!_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.YSpeedCurvePlace.Speed.Positive))
+            {
+                return;
+            }
+
+            state.RemainingBounces--;
+            // An impact that leaves the place below the start ends the bounces; the negative place is kept.
+            state.YSpeedCurvePlace -= OumMotionDefinitions.ImpactCurveLoss;
+            if (state.YSpeedCurvePlace.IsNegative)
+                state.RemainingBounces = 0;
+            state.BouncePhase = OumBouncePhase.Rising;
+        },
+        [OumBouncePhase.Rising] = (place, state, level) =>
+        {
+            state.YSpeedCurvePlace -= OumMotionDefinitions.BounceAcceleration;
+            if (state.YSpeedCurvePlace.IsNegative)
+            {
+                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+                state.BouncePhase = OumBouncePhase.Falling;
+                return;
+            }
+
+            // The rising half moves at the same curve mark's speed upward; the place lies at or past the curve's start
+            // here, so its whole marks are that mark.
+            _terrain.MoveEnemyVertically(
+                level,
+                place,
+                state.YSpeedCurvePlace.Speed.Negative);
+        },
+    });
+
     /// <summary>Alternates quadratic-speed fall and rise phases, moving the place back after each impact.</summary>
     private void RunOumBounce(
         RoomEnemyPlace place,
         OumEnemyState state,
         RoomLevelData level)
     {
-        switch (state.BouncePhase)
-        {
-            case OumBouncePhase.Falling:
-                // Falling holds the place at mark 64.
-                state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Min(
-                    state.YSpeedCurvePlace + OumMotionDefinitions.BounceAcceleration,
-                    OumMotionDefinitions.FastestFallPlace);
-
-                if (!_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.YSpeedCurvePlace.Speed.Positive))
-                {
-                    return;
-                }
-
-                state.RemainingBounces--;
-                // An impact that leaves the place below the start ends the bounces; the negative place is kept.
-                state.YSpeedCurvePlace -= OumMotionDefinitions.ImpactCurveLoss;
-                if (state.YSpeedCurvePlace.IsNegative)
-                    state.RemainingBounces = 0;
-                state.BouncePhase = OumBouncePhase.Rising;
-                return;
-
-            case OumBouncePhase.Rising:
-                state.YSpeedCurvePlace -= OumMotionDefinitions.BounceAcceleration;
-                if (state.YSpeedCurvePlace.IsNegative)
-                {
-                    state.YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-                    state.BouncePhase = OumBouncePhase.Falling;
-                    return;
-                }
-
-                // The rising half moves at the same curve mark's speed upward; the place lies at or past the curve's start
-                // here, so its whole marks are that mark.
-                _terrain.MoveEnemyVertically(
-                    level,
-                    place,
-                    state.YSpeedCurvePlace.Speed.Negative);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Maridia Large Snail has no behaviour for bounce phase " +
-                    $"{state.BouncePhase}.");
-        }
+        RunOumBounceForOumBouncePhase[state.BouncePhase](place, state, level);
     }
 
     /// <summary>Temporarily extends the collision probe toward Samus, then retracts it after wall resolution.</summary>
@@ -237,8 +232,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         if (temporarilyReachTowardSamus)
         {
             // Temporarily extends the whole-pixel move toward Samus by the push's reach,
-            // performs collision, then retracts the center. Net velocity remains one
-            // pixel per frame while wall clipping naturally passes the lost distance to Samus.
+            // performs collision, then retracts the center. Net velocity remains its
+            // roll speed while wall clipping naturally passes the lost distance to Samus.
             speed += OumMotionDefinitions.PushReach.Toward(state.Heading);
         }
 
@@ -262,7 +257,7 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// The side of Oum Samus is on while she is within its strict 24-by-32 pushing range, or none while she is not (#2473).
+    /// The side of Oum Samus is on while she is within its strict pushing range, or none while she is not (#2473).
     /// </summary>
     private static HorizontalDirection? OumPushSide(RoomEnemyPlace place, SamusState samus) =>
         Math.Abs(samus.Position.Y.Whole - place.Position.Y.Whole) >= OumMotionDefinitions.PushingReachY ||
@@ -334,28 +329,24 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Position = place.Position.WithWholeX(previousPosition.X);
     }
 
+    /// <summary>What <see cref="ApplyOumCue"/> does for each <see cref="OumCueKind"/> member, each member's own arm.</summary>
+    private IdentityTable<OumCueKind, Action<OumEnemyState>> ApplyOumCueForOumCueKind => field ??= new(new Dictionary<OumCueKind, Action<OumEnemyState>>
+    {
+        [OumCueKind.PlaySplash] = state => _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumSplashSound, priority: SoundRequestPriority.Normal),
+        [OumCueKind.FinishAttack] = state =>
+        {
+            if (state.Action != OumAction.Attacking)
+                throw new InvalidOperationException($"Oum's attack finished while it was {state.Action}.");
+            state.Action = OumAction.AttackFinished;
+        },
+        [OumCueKind.AllowAttackRotation] = state => state.AttackAllowsRotation = true,
+        [OumCueKind.DisallowAttackRotation] = state => state.AttackAllowsRotation = false,
+    });
+
     /// <summary>Carries out one cue of Oum's animations: the splash sound, attack completion and the attack-rotation window.</summary>
     private void ApplyOumCue(OumEnemyState state, OumCue cue)
     {
-        switch (cue.Kind)
-        {
-            case OumCueKind.PlaySplash:
-                _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumSplashSound, priority: SoundRequestPriority.Normal);
-                break;
-            case OumCueKind.FinishAttack:
-                if (state.Action != OumAction.Attacking)
-                    throw new InvalidOperationException($"Oum's attack finished while it was {state.Action}.");
-                state.Action = OumAction.AttackFinished;
-                break;
-            case OumCueKind.AllowAttackRotation:
-                state.AttackAllowsRotation = true;
-                break;
-            case OumCueKind.DisallowAttackRotation:
-                state.AttackAllowsRotation = false;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(OumCueKind)} {cue.Kind}.");
-        }
+        ApplyOumCueForOumCueKind[cue.Kind](state);
     }
 
     /// <summary>The roll Oum shows: facing as it faced when the roll began, forwards or, after a wall, backwards.</summary>
@@ -405,32 +396,39 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Plays the Oum's shot sound after the common shot damage, for damaging, freezing, and zero-damage vulnerability
+    /// Plays the Oum's shot sound after a bomb's common damage, for damaging, freezing, and zero-damage vulnerability
     /// results alike.
     /// </summary>
-    private void ResolveOumShotAfterCommon() =>
+    private void ResolveOumShotAfterCommon(EnemyBombHitContext context) =>
+        _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumShotSound, priority: SoundRequestPriority.Normal);
+
+    /// <summary>
+    /// Plays the Oum's shot sound after a shot's common damage, for damaging, freezing, and zero-damage vulnerability
+    /// results alike.
+    /// </summary>
+    private void ResolveOumShotAfterCommon(EnemyShotHitContext context) =>
         _audio.QueueEnemySound(EnemySoundEffectDefinitions.OumShotSound, priority: SoundRequestPriority.Normal);
 
     /// <summary>Publishes Oum's shot sound after common bomb damage.</summary>
     internal EnemyBombReaction OumBombReaction => field ??= new()
     {
-        AfterCommon = _ => ResolveOumShotAfterCommon(),
+        AfterCommon = ResolveOumShotAfterCommon,
     };
 
     /// <summary>Runs the Oum's main AI.</summary>
-    internal void RunOumMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunOumMainAi(RoomEnemyPlace place, OumEnemyState oumEnemyState, IEnemyAiFrame frame)
     {
         RunOumMain(
             place,
-            place.RequireSpeciesState<OumEnemyState>(),
+            oumEnemyState,
             frame.Samus,
             frame.Level,
             frame.ControllerInput);
     }
 
     /// <summary>Advances the Oum's typed animation.</summary>
-    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, OumAnimations.Segments,
+    internal void AdvanceOumTypedAnimation(RoomEnemyPlace place, OumEnemyState oumEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, oumEnemyState, OumAnimations.Segments,
             static (OumEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {
@@ -441,27 +439,35 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>A hit on the protected shell does nothing; only a vulnerable hitbox takes common damage.</summary>
     internal EnemyShotReaction OumShotReaction => field ??= new()
     {
-        AfterSuperMissileQuake = (in EnemyShotContext c) =>
-        {
-            if (!c.UsesFrameHitboxes)
-                throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
-            if (c.HitboxShot == EnemyReaction.Ignore)
-            {
-                // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
-                // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
-                c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Projectile, c.MarksCollision);
-                return true;
-            }
-            if (c.HitboxShot != OumReactions.Shot)
-            {
-                throw new InvalidDataException(
-                    $"Maridia Large Snail has no response to shot reaction " +
-                    $"{c.HitboxShot?.ToString() ?? "(unnamed)"}.");
-            }
-            return false;
-        },
-        AfterCommon = _ => ResolveOumShotAfterCommon(),
+        AfterSuperMissileQuake = ReactToShellShot,
+        AfterCommon = ResolveOumShotAfterCommon,
     };
+
+    /// <summary>
+    /// Takes a shot meeting the Oum's protected shell after the Super Missile quake: it only marks the projectile. Its
+    /// vulnerable hitbox goes on to the common damage.
+    /// </summary>
+    /// <param name="c">The shot meeting the Oum.</param>
+    /// <returns>Whether the shell took the shot.</returns>
+    private static bool ReactToShellShot(in EnemyShotContext c)
+    {
+        if (!c.UsesFrameHitboxes)
+            throw new InvalidDataException("Maridia Large Snail's shots no longer meet its frames' hitboxes.");
+        if (c.HitboxShot == EnemyReaction.Ignore)
+        {
+            // Frame-hitbox collision marks the projectile, and nothing more happens: the protected shell
+            // takes no shot damage, makes no impact, plays no shot sound and has no vulnerability.
+            c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+            return true;
+        }
+        if (c.HitboxShot != OumReactions.Shot)
+        {
+            throw new InvalidDataException(
+                $"Maridia Large Snail has no response to shot reaction " +
+                $"{c.HitboxShot}.");
+        }
+        return false;
+    }
 
     /// <summary>Reacts to Samus touching a damaging or non-damaging Oum hitbox, each with its own push.</summary>
     internal void ReactToOumTouch(EnemyTouchContext context)
@@ -472,11 +478,11 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             throw new InvalidDataException(
                 $"Maridia Large Snail has no response to touch reaction " +
-                $"{context.HitboxTouch?.ToString() ?? "(unnamed)"}.");
+                $"{context.HitboxTouch}.");
         }
 
         // The damaging touch hurts Samus as any enemy does and then shoves her as the harmless touch does. A harmless
-        // touch only shoves, which is how the closed shell carries and pushes Samus without its 100 damage.
+        // touch only shoves, which is how the closed shell carries and pushes Samus without its damage.
         if (context.HitboxTouch == OumReactions.DamagingTouch)
             _collision.ResolveOrdinaryTouch(context);
         ResolveOumTouchAfterCommon(context.Place, context.Samus);
@@ -484,10 +490,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The reaction of the first of the occupant's hitboxes the probe overlaps on the frame it shows.</summary>
     /// <exception cref="InvalidDataException">The frame shown has no Oum collision.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // The frame's hitboxes are read in order, and the first the probe overlaps gives the reaction.
         foreach (EnemyCollisionHitbox hitbox in
                  OumCollisionDefinitions.Frames.Of(enemy.Frame))
@@ -498,9 +502,8 @@ internal sealed class OumBehavior : IEnemySpecies, IEnemyEntityFactory
             int bottom = enemy.Position.Y.Whole + hitbox.Bottom;
             if (!probe.Overlaps(left, top, right, bottom))
                 continue;
-            reaction = probe.SelectsShot ? hitbox.Shot : hitbox.Touch;
-            return true;
+            return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot ? hitbox.Shot : hitbox.Touch);
         }
-        return false;
+        return EnemyHitboxContact.Missed;
     }
 }

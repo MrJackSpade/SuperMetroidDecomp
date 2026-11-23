@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.World;
@@ -11,23 +11,14 @@ namespace SuperMetroid.Core.World;
 /// unlocks the statues, has one; its load builds it before the room's room objects, whose grey door waits for the statue
 /// to finish (#2486), and before its enemies, which take it as theirs, and its statue sequence lowers the statue.
 /// </summary>
-[RoomLifetime]
-public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgress
+public sealed partial class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgress
 {
-    /// <summary>The room's effect, whose water surface the liquid step moves.</summary>
-    private readonly RoomFxOverlayState _roomFxOverlay;
+    /// <summary>The live surface of the room effect's water, which the liquid step moves.</summary>
+    private readonly RoomLiquidSurfaceLine _water;
 
-    /// <summary>Builds the statue room over its effect, the statue standing raised.</summary>
-    /// <param name="roomFxOverlay">The room's effect, whose water the particles splash through.</param>
-    /// <exception cref="InvalidDataException">The room's effect, as its load selected it, names no water surface.</exception>
-    internal TourianStatueRoom(RoomFxOverlayState roomFxOverlay)
-    {
-        _roomFxOverlay = Ensure.NotNull(roomFxOverlay);
-        // The statue room is composed only over water (#2486): its load rejects an effect without a surface, which no liquid
-        // step takes away, so the statues' particles always have a surface to cross.
-        if (roomFxOverlay.Surface is null)
-            throw new InvalidDataException("The Tourian statue room's effect names no water surface.");
-    }
+    /// <summary>Builds the statue room over its effect's water, the statue standing raised.</summary>
+    /// <param name="water">The live surface of the room effect's water, which the particles splash through.</param>
+    internal TourianStatueRoom(RoomLiquidSurfaceLine water) => _water = Ensure.NotNull(water);
 
     /// <inheritdoc/>
     public TourianStatueAnimation Animation { get; } = new();
@@ -36,25 +27,24 @@ public sealed class TourianStatueRoom : ITourianStatueRoom, ITourianStatueProgre
     public bool IsFinished => Animation.Finished;
 
     /// <summary>
-    /// How far the statues have lowered, zero through the authored distance and the few quarter-steps that first reach it,
-    /// exposed as a negative background vertical offset. The statue sequence lowers it.
+    /// How far the statues have sunk into the room, zero through the authored distance and the few quarter-steps that
+    /// first reach it, which the display shows as the statues' placement. The statue sequence lowers it.
     /// </summary>
     internal SignedSixteenSixteen Descent { get; set; }
 
     /// <inheritdoc/>
     /// <remarks>
-    /// The whole pixels of the statues' descent upward, which descends by a quarter pixel per frame. The upward distance's
-    /// whole pixels round toward negative infinity, so the first quarter-pixel step already reads -1. The descent stops at
+    /// The whole pixels of the statues' descent upward, which descends by <see cref="TourianStatueSequenceDefinitions.DescentStep"/> each frame. The upward distance's
+    /// whole pixels round toward negative infinity, so the first step already reads -1. The descent stops at
     /// its authored distance, so the offset stays between minus that distance and zero.
     /// </remarks>
     public int StatueOffset => (-Descent).WholePixels;
 
     /// <inheritdoc/>
     /// <remarks>
-    /// Read live from the room's effect, which the update's liquid step has already moved. The effect keeps a liquid's
-    /// surface once its load has given it one, so the guard below fails only if that invariant of the effect breaks.
+    /// Read live from the room effect's water surface, which the update's liquid step has already moved. The statue room's
+    /// effect names its water's surface, and no step in the room takes a liquid's surface away once its load has given it
+    /// one: the only effect step that could, a reapplied effect, is never applied there.
     /// </remarks>
-    /// <exception cref="InvalidOperationException">The statue room's effect has lost the water surface its load gave it.</exception>
-    public int WaterSurface => _roomFxOverlay.Surface ??
-        throw new InvalidOperationException("The Tourian statue room's effect has lost the water surface its load gave it.");
+    public int WaterSurface => _water.Line;
 }

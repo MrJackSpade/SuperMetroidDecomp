@@ -3,7 +3,6 @@ using SuperMetroid.Core;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Audio;
@@ -15,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// compiled engine build, and replaceable presentation are deliberately separate so future
 /// replay/state compatibility can distinguish a mechanics change from an art or audio edit.
 /// </summary>
-public sealed record GameContentIdentity(
+public sealed partial record GameContentIdentity(
     int FormatVersion,
     string SourceCartridgeSha256,
     Guid CompiledDefinitionsBuildId,
@@ -60,7 +59,7 @@ public sealed record GameContentIdentity(
             audio.ContentIdentity,
             maps.ContentIdentity,
             projectiles.ContentSha256,
-            typeof(SuperMetroidRuntime).Module.ModuleVersionId,
+            global::SuperMetroid.Core.BuildIdentity.Version,
             additionalContentSha256);
     }
 
@@ -68,7 +67,7 @@ public sealed record GameContentIdentity(
     /// Builds the same identity from validated component digests. This is also the narrow test
     /// seam for proving that each independently replaceable domain invalidates the aggregate.
     /// </summary>
-    public static GameContentIdentity Create(
+    internal static GameContentIdentity Create(
         string audioContentSha256,
         string mapContentSha256,
         string projectileContentSha256,

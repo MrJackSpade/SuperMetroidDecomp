@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// setup, including opposite alignment edges and held-Y adjustments. Both run the same chew with their own artwork; the
 /// ceiling plant chews twice as many times.
 /// </summary>
-internal static class SamusEaterObjectDefinitions
+internal static partial class SamusEaterObjectDefinitions
 {
     /// <summary>How many chews the floor plant makes.</summary>
     internal const int FloorChews = 4;
@@ -21,30 +21,26 @@ internal static class SamusEaterObjectDefinitions
     internal const int ReleaseDuration = 96;
 
     /// <summary>The Brinstar floor plant.</summary>
-    public static readonly SamusEaterObjectDefinition Floor = new(Ceiling: false, FloorChews,
-    [
-        new(SamusEaterDraw.FloorTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.FloorTeethPeeking, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.FloorTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.FloorFangsOut, ChewFrameDuration, SamusEaterBite.SoundAndDamage),
-        new(SamusEaterDraw.FloorTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.FloorTeethPeeking, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.FloorTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.FloorFangsOut, ChewFrameDuration, SamusEaterBite.Damage),
-    ], SamusEaterDraw.FloorFangsOut, SamusEaterDraw.FloorIdle);
+    public static readonly SamusEaterObjectDefinition Floor = new(Side: VerticalDirection.Down, FloorChews, Chew(SamusEaterDraw.FloorTeethBared, SamusEaterDraw.FloorTeethPeeking, SamusEaterDraw.FloorFangsOut), SamusEaterDraw.FloorFangsOut, SamusEaterDraw.FloorIdle);
 
     /// <summary>The Brinstar ceiling plant.</summary>
-    public static readonly SamusEaterObjectDefinition Ceiling = new(Ceiling: true, CeilingChews,
+    public static readonly SamusEaterObjectDefinition Ceiling = new(Side: VerticalDirection.Up, CeilingChews, Chew(SamusEaterDraw.CeilingTeethBared, SamusEaterDraw.CeilingTeethPeeking, SamusEaterDraw.CeilingFangsOut), SamusEaterDraw.CeilingFangsOut, SamusEaterDraw.CeilingIdle);
+
+    /// <summary>
+    /// One chew over a plant's looks, each for <see cref="ChewFrameDuration"/>: its teeth bared, peeking and bared again, its
+    /// fangs out with the bite's sound and damage, then again with the damage alone.
+    /// </summary>
+    private static SamusEaterChewFrame[] Chew(SamusEaterDraw teethBared, SamusEaterDraw teethPeeking, SamusEaterDraw fangsOut) =>
     [
-        new(SamusEaterDraw.CeilingTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.CeilingTeethPeeking, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.CeilingTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.CeilingFangsOut, ChewFrameDuration, SamusEaterBite.SoundAndDamage),
-        new(SamusEaterDraw.CeilingTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.CeilingTeethPeeking, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.CeilingTeethBared, ChewFrameDuration, SamusEaterBite.None),
-        new(SamusEaterDraw.CeilingFangsOut, ChewFrameDuration, SamusEaterBite.Damage),
-    ], SamusEaterDraw.CeilingFangsOut, SamusEaterDraw.CeilingIdle);
+        new(teethBared, ChewFrameDuration, SamusEaterBite.None),
+        new(teethPeeking, ChewFrameDuration, SamusEaterBite.None),
+        new(teethBared, ChewFrameDuration, SamusEaterBite.None),
+        new(fangsOut, ChewFrameDuration, SamusEaterBite.SoundAndDamage),
+        new(teethBared, ChewFrameDuration, SamusEaterBite.None),
+        new(teethPeeking, ChewFrameDuration, SamusEaterBite.None),
+        new(teethBared, ChewFrameDuration, SamusEaterBite.None),
+        new(fangsOut, ChewFrameDuration, SamusEaterBite.Damage),
+    ];
 
     /// <summary>The chew sound.</summary>
     public static readonly SoundEffectId ChewSound = EnemySound.PlantChewing;

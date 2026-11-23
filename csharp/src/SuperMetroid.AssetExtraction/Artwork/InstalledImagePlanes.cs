@@ -11,27 +11,8 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Planes">The pixels, row by row from the top, with the recolour-region and blend maps where the image has them.</param>
 /// <param name="Size">The image's width and height.</param>
-internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, Extent16<ImagePixels> Size)
+internal readonly partial record struct InstalledImagePlanes(SpriteImagePixels Planes, Extent16<ImagePixels> Size)
 {
-    /// <summary>
-    /// Copies <paramref name="source"/>'s rectangle of this image to <paramref name="target"/> with its top-left pixel at
-    /// <paramref name="corner"/>. A pixel of an image without a map lies in region zero and does not blend; a target without a
-    /// map keeps none, so the rectangle must hold only region zero or no blending where the target has no such map.
-    /// </summary>
-    /// <exception cref="ArgumentException">A rectangle reaches outside its image.</exception>
-    /// <exception cref="InvalidOperationException">The rectangle holds a recolour region or blending the target has no map for.</exception>
-    internal void CopyTo(FrameRectangle source, InstalledImagePlanes target, Position16<ImagePixels> corner)
-    {
-        CopyPixelsTo(source, target, corner);
-        int width = source.Size.X;
-        for (int row = 0; row < source.Size.Y; row++)
-        {
-            int from = ((source.Corner.Y + row) * Size.X) + source.Corner.X;
-            int to = ((corner.Y + row) * target.Size.X) + corner.X;
-            CopyMap(Planes.RecolourRegions, from, target.Planes.RecolourRegions, to, width, "recolour region");
-            CopyMap(Planes.Blending, from, target.Planes.Blending, to, width, "blending");
-        }
-    }
 
     /// <summary>
     /// Copies the pixels of <paramref name="source"/>'s rectangle of this image to <paramref name="target"/> with its
@@ -53,27 +34,6 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
         {
             Planes.Pixels.AsSpan(((source.Corner.Y + row) * Size.X) + source.Corner.X, width)
                 .CopyTo(target.Planes.Pixels.AsSpan(((corner.Y + row) * target.Size.X) + corner.X, width));
-        }
-    }
-
-    /// <summary>
-    /// Copies one row of a map from <paramref name="source"/> to <paramref name="target"/>; a missing source map holds the
-    /// default value throughout, and a missing target map takes only it.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The target has no map, but the source row holds another value.</exception>
-    private static void CopyMap<T>(T[]? source, int from, T[]? target, int to, int width, string map)
-        where T : struct, IEquatable<T>
-    {
-        if (target is not null)
-        {
-            if (source is not null)
-                source.AsSpan(from, width).CopyTo(target.AsSpan(to, width));
-            else
-                target.AsSpan(to, width).Clear();
-        }
-        else if (source is not null && source.AsSpan(from, width).ContainsAnyExcept(default(T)))
-        {
-            throw new InvalidOperationException($"A picture's {map} map is copied to an image that has none.");
         }
     }
 
@@ -101,26 +61,31 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
         Ensure.NotNull(Planes);
         if (!rectangle.LiesInside(Size))
             throw new ArgumentException($"Picture rectangle {rectangle} reaches outside its {Size.X}x{Size.Y} image.", nameof(rectangle));
-        int left = int.MaxValue, right = -1, top = -1, bottom = -1;
+        // The box starts at the first row that holds something and takes in every later row that does.
         for (int row = 0; row < rectangle.Size.Y; row++)
         {
-            int line = ((rectangle.Corner.Y + row) * Size.X) + rectangle.Corner.X;
-            int first = Earliest(Earliest(FirstHeld(Planes.Pixels, line, rectangle.Size.X), FirstHeld(Planes.RecolourRegions, line, rectangle.Size.X)),
-                FirstHeld(Planes.Blending, line, rectangle.Size.X));
-            if (first < 0)
-                continue;
-            int last = Math.Max(Math.Max(LastHeld(Planes.Pixels, line, rectangle.Size.X), LastHeld(Planes.RecolourRegions, line, rectangle.Size.X)),
-                LastHeld(Planes.Blending, line, rectangle.Size.X));
-            left = Math.Min(left, first);
-            right = Math.Max(right, last);
-            if (top < 0)
-                top = row;
-            bottom = row;
+            if (HeldRun(LineOf(rectangle, row), rectangle.Size.X) is { } run)
+                return BoxFrom(rectangle, ImageContentBox.OfRow(run, row), row + 1);
         }
-        if (top < 0)
-            throw new InvalidOperationException($"Picture rectangle {rectangle} holds nothing, so it has no box of what it holds.");
-        return new FrameRectangle(Position16<ImagePixels>.Of(rectangle.Corner.X + left, rectangle.Corner.Y + top),
-            new Extent16<ImagePixels>(right - left + 1, bottom - top + 1));
+        throw new InvalidOperationException($"Picture rectangle {rectangle} holds nothing, so it has no box of what it holds.");
+    }
+
+    /// <summary>The start of <paramref name="row"/> of <paramref name="rectangle"/> in the image's pixels.</summary>
+    private int LineOf(FrameRectangle rectangle, int row) => ((rectangle.Corner.Y + row) * Size.X) + rectangle.Corner.X;
+
+    /// <summary>
+    /// The box of what <paramref name="rectangle"/> holds, from <paramref name="box"/>, the box of its rows before
+    /// <paramref name="from"/>, taking in every row from there that holds something.
+    /// </summary>
+    private FrameRectangle BoxFrom(FrameRectangle rectangle, ImageContentBox box, int from)
+    {
+        for (int row = from; row < rectangle.Size.Y; row++)
+        {
+            if (HeldRun(LineOf(rectangle, row), rectangle.Size.X) is { } run)
+                box = box.Including(run, row);
+        }
+        return new FrameRectangle(Position16<ImagePixels>.Of(rectangle.Corner.X + box.Left, rectangle.Corner.Y + box.Top),
+            new Extent16<ImagePixels>(box.Right - box.Left + 1, box.Bottom - box.Top + 1));
     }
 
     /// <summary>
@@ -195,24 +160,31 @@ internal readonly record struct InstalledImagePlanes(SpriteImagePixels Planes, E
         where T : struct, IEquatable<T> =>
         plane is null || plane.AsSpan(first, width).SequenceEqual(plane.AsSpan(second, width));
 
-    /// <summary>The earlier of two places in a row, either of which is -1 where its plane holds nothing there.</summary>
-    private static int Earliest(int first, int second) => first < 0 ? second : second < 0 ? first : Math.Min(first, second);
+    /// <summary>
+    /// The first and last places of the <paramref name="width"/> entries from <paramref name="line"/> that some plane holds
+    /// something other than the default at; null where no plane does.
+    /// </summary>
+    private ImageRowRun? HeldRun(int line, int width) =>
+        Spanning(Spanning(HeldRun(Planes.Pixels, line, width), HeldRun(Planes.RecolourRegions, line, width)),
+            HeldRun(Planes.Blending, line, width));
+
+    /// <summary>The run spanning two runs of a row, either of which is null where its plane holds nothing there.</summary>
+    private static ImageRowRun? Spanning(ImageRowRun? first, ImageRowRun? second) =>
+        first is not { } one ? second : second is not { } other ? first : one.Spanning(other);
 
     /// <summary>
-    /// The place of the first of <paramref name="width"/> entries of <paramref name="plane"/> from <paramref name="line"/> that
-    /// is not the default; -1 where none is, and for a missing plane.
+    /// The first and last places of the <paramref name="width"/> entries of <paramref name="plane"/> from <paramref name="line"/>
+    /// that are not the default; null where none is, and for a missing plane.
     /// </summary>
-    private static int FirstHeld<T>(T[]? plane, int line, int width)
-        where T : struct, IEquatable<T> =>
-        plane is null ? -1 : plane.AsSpan(line, width).IndexOfAnyExcept(default(T));
-
-    /// <summary>
-    /// The place of the last of <paramref name="width"/> entries of <paramref name="plane"/> from <paramref name="line"/> that
-    /// is not the default; -1 where none is, and for a missing plane.
-    /// </summary>
-    private static int LastHeld<T>(T[]? plane, int line, int width)
-        where T : struct, IEquatable<T> =>
-        plane is null ? -1 : plane.AsSpan(line, width).LastIndexOfAnyExcept(default(T));
+    private static ImageRowRun? HeldRun<T>(T[]? plane, int line, int width)
+        where T : struct, IEquatable<T>
+    {
+        if (plane is null)
+            return null;
+        ReadOnlySpan<T> run = plane.AsSpan(line, width);
+        int first = run.IndexOfAnyExcept(default(T));
+        return first < 0 ? null : new ImageRowRun(first, run.LastIndexOfAnyExcept(default(T)));
+    }
 
     /// <summary>Whether every entry of <paramref name="plane"/> in <paramref name="rectangle"/> is the default; a missing plane is.</summary>
     private bool AllDefault<T>(T[]? plane, FrameRectangle rectangle)

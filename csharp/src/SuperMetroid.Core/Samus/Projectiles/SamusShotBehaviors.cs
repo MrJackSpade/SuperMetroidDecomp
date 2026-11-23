@@ -1,46 +1,46 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The one shared instance of each behaviour Samus's shots run (#1923).</summary>
-internal static class SamusShotBehaviors
+internal static partial class SamusShotBehaviors
 {
     /// <summary>A beam without the Wave Beam: it stops at the first block it meets.</summary>
     internal static SamusShotBehavior Beam { get; } = new BeamFlight();
 
-    /// <summary>An uncharged Wave or Ice and Wave shot: the Wave Beam's flight, a trail every three updates after its first.</summary>
-    internal static WaveBeamFlight WaveBeamThreeUpdateTrail { get; } = new(ProjectileTimingDefinitions.UnchargedWaveTrailInterval);
+    /// <summary>An uncharged Wave or Ice and Wave shot: the Wave Beam's flight, a trail every <see cref="ProjectileTimingDefinitions.UnchargedWaveTrailInterval"/> after its first.</summary>
+    internal static WaveBeamFlight UnchargedWaveBeamTrail { get; } = new(ProjectileTimingDefinitions.UnchargedWaveTrailInterval);
 
-    /// <summary>Every other Wave shot: the Wave Beam's flight, a trail every four updates.</summary>
-    internal static WaveBeamFlight WaveBeamFourUpdateTrail { get; } = new(ProjectileTimingDefinitions.TrailInterval);
+    /// <summary>Every other Wave shot: the Wave Beam's flight, a trail every <see cref="ProjectileTimingDefinitions.TrailInterval"/>.</summary>
+    internal static WaveBeamFlight WaveBeamTrail { get; } = new(ProjectileTimingDefinitions.TrailInterval);
 
     /// <summary>The Hyper Beam shot.</summary>
     internal static SamusShotBehavior HyperBeam { get; } = new HyperBeamFlight();
 
     /// <summary>A missile.</summary>
-    internal static SamusShotBehavior Missile { get; } = new MissileFlight();
+    internal static SamusStatefulShotBehavior<MissileShotState> Missile { get; } = new MissileFlight();
 
     /// <summary>A Super Missile.</summary>
-    internal static SamusShotBehavior SuperMissile { get; } = new SuperMissileFlight();
+    internal static SamusStatefulShotBehavior<SuperMissileShotState> SuperMissile { get; } = new SuperMissileFlight();
 
     /// <summary>A Super Missile's invisible link.</summary>
-    internal static SamusShotBehavior SuperMissileLink { get; } = new SuperMissileLinkHold();
+    internal static SamusStatefulShotBehavior<SuperMissileShotState> SuperMissileLink { get; } = new SuperMissileLinkHold();
 
     /// <summary>An Ice special attack particle orbiting inward.</summary>
-    internal static SpecialAttackParticleBehavior IceSpecialAttackInward { get; } = new IceSpecialAttackOrbit();
+    internal static SpecialAttackParticleBehavior<IceParticleState> IceSpecialAttackInward { get; } = new IceSpecialAttackOrbit();
 
     /// <summary>An Ice special attack particle that has turned outward.</summary>
-    internal static SpecialAttackParticleBehavior IceSpecialAttackOutward { get; } = new IceSpecialAttackSpread();
+    internal static SpecialAttackParticleBehavior<IceParticleState> IceSpecialAttackOutward { get; } = new IceSpecialAttackSpread();
 
     /// <summary>A Wave special attack particle.</summary>
-    internal static SpecialAttackParticleBehavior WaveSpecialAttack { get; } = new WaveSpecialAttackHoming();
+    internal static SpecialAttackParticleBehavior<WaveParticleState> WaveSpecialAttack { get; } = new WaveSpecialAttackHoming();
 
     /// <summary>A Spazer special attack particle, circling, flying up and falling.</summary>
-    internal static SpecialAttackParticleBehavior SpazerSpecialAttack { get; } = new SpazerSpecialAttackFlight();
+    internal static SpecialAttackParticleBehavior<SpazerParticleState> SpazerSpecialAttack { get; } = new SpazerSpecialAttackFlight();
 
     /// <summary>A Plasma special attack particle.</summary>
-    internal static SpecialAttackParticleBehavior PlasmaSpecialAttack { get; } = new PlasmaSpecialAttackRing();
+    internal static SpecialAttackParticleBehavior<PlasmaParticleState> PlasmaSpecialAttack { get; } = new PlasmaSpecialAttackRing();
 
     /// <summary>A shinespark crash echo.</summary>
-    internal static SamusShotBehavior ShinesparkEcho { get; } = new ShinesparkEchoFlight();
+    internal static SamusStatefulShotBehavior<ShinesparkEchoShotState> ShinesparkEcho { get; } = new ShinesparkEchoFlight();
 
     /// <summary>The Spacetime shot, an uncharged Spazer, Plasma and Ice beam.</summary>
     internal static SamusShotBehavior Spacetime { get; } = new SpacetimeShotOverwrite();
@@ -48,16 +48,16 @@ internal static class SamusShotBehaviors
     /// <summary>The Chainsaw shot, an uncharged Spazer, Plasma and Wave beam.</summary>
     internal static SamusShotBehavior ChainsawPowerBomb { get; } = new ChainsawPowerBombShot();
 
-    /// <summary>The uncharged Spazer and Plasma shot, which runs whatever an unconnected region holds.</summary>
-    internal static SamusShotBehavior UnchargedSpazerPlasma { get; } =
+    /// <summary>The uncharged Spazer and Plasma shot, whose behaviour lies outside the emulation scope limit.</summary>
+    internal static SamusShotFiring UnchargedSpazerPlasma { get; } =
         new ShotRefusedWhenFired("whatever an unconnected region holds");
 
     /// <summary>The uncharged all-beams shot, which runs whatever the game's live state holds.</summary>
-    internal static SamusShotBehavior UnchargedAllBeams { get; } =
+    internal static SamusShotFiring UnchargedAllBeams { get; } =
         new ShotRefusedWhenFired("whatever the game's live state holds");
 
     /// <summary>The charged Spazer and Plasma shot, which runs whatever the game's live state holds.</summary>
-    internal static SamusShotBehavior ChargedSpazerPlasma { get; } =
+    internal static SamusShotFiring ChargedSpazerPlasma { get; } =
         new ShotRefusedWhenFired("whatever the game's live state holds");
 
     /// <summary>

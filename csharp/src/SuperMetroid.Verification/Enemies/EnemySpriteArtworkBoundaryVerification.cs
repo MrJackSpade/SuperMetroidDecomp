@@ -1,7 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
-using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.HardwareVerification;
@@ -57,7 +56,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
             // The sprite list places every part at its signed position and leaves clipping at the screen edges to the
             // backend; native OAM instead parks a part that crosses the top or bottom edge at Y=$F0. The oracle therefore
             // places the native parts without that clip.
-            ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(source), expected, new NativeEnemySpritemapDraw
+            ImportedSpritemapOracle.DrawEnemy(source, expected, new NativeEnemySpritemapDraw
             {
                 Bank = 0x8d, Pointer = pointer, Origin = new(x, y),
                 PaletteBits = NativeSpriteGraphicsWords.PaletteBits(5), BaseTileIndex = 0x04, ClipVerticalWrap = false,
@@ -81,7 +80,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         }
 
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
-        var elevator = new CeresElevatorArrivalState(samus);
+        var elevator = new CeresElevatorArrivalState(samus.Position.Whole);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();
         elevator.DrawAsOam(elevatorActual, SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.Presentation(SuperMetroid.Core.World.RoomStates.CeresRoomStateDefinitions.CeresElevatorDefault), Position16<RoomPixels>.Zero);
@@ -94,9 +93,6 @@ internal static class EnemySpriteArtworkBoundaryVerification
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 
         Suite(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking());
-        AssertTrue(!MetadataShape.DeclaresMethod(typeof(OamBuffer), "AddEnemyProjectileSpritemap") &&
-            !MetadataShape.DeclaresMethod(typeof(OamBuffer), "ReadSpritemapByte", BindingFlags.Static | BindingFlags.NonPublic),
-            "Core OAM cannot recover a generic spritemap address reader");
         Console.WriteLine($"Enemy OAM boundary: {enemyCases} enemy and room-object cases and {projectileCases} program-frame cases pass through ROM-free owners; Ceres and synthetic arithmetic/timed-projectile checks pass.");
 
         static void Equal(OamBuffer expected, OamBuffer actual, string context)

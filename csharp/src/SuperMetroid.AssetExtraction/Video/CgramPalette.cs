@@ -9,12 +9,12 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// native word encoding and bit-15 masking stay behind the view. A struct over the backend, so
 /// palette fades and render lookups allocate nothing.
 /// </summary>
-public readonly struct CgramPalette
+public readonly partial struct CgramPalette
 {
     /// <summary>Underlying colour table to which writes must propagate: CGRAM or a screen palette.</summary>
-    internal readonly IPaletteColors cgram;
+    private readonly IPaletteColors cgram;
     /// <summary>First CGRAM color slot represented by this bounded view.</summary>
-    internal readonly int first;
+    private readonly int first;
 
     /// <summary>Binds the CGRAM colours described by <paramref name="cell"/>.</summary>
     public CgramPalette(IPaletteColors cgram, PpuLayoutCell cell)
@@ -33,7 +33,7 @@ public readonly struct CgramPalette
     }
 
     /// <summary>The number of colours in the range.</summary>
-    public int Count { get; }
+    internal int Count { get; }
 
     /// <summary>The range's colours, in CGRAM order.</summary>
     public ReadOnlySpan<RgbColor> Colors => cgram.Colors.Slice(first, Count);
@@ -49,12 +49,12 @@ public readonly struct CgramPalette
     }
 
     /// <summary>Rejects a color index outside this view before adding its CGRAM base offset.</summary>
-    internal int Index(int index) => (uint)index < (uint)Count
+    private int Index(int index) => (uint)index < (uint)Count
         ? index
         : throw new ArgumentOutOfRangeException(nameof(index), index, $"The palette range holds {Count} colours.");
 
     /// <summary>Guards a requested color span against the bounds of this palette view.</summary>
-    internal void CheckSpan(int start, int count)
+    private void CheckSpan(int start, int count)
     {
         if (start < 0 || count < 0 || start + count > Count)
             throw new ArgumentOutOfRangeException(nameof(start), start, $"Colours {start}+{count} exceed the {Count}-colour range.");

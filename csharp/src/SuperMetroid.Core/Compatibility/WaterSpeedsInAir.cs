@@ -18,8 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TMovement">A movement of Samus's.</typeparam>
 /// <typeparam name="TSpeeds">A movement's horizontal speeds.</typeparam>
-[CompatibilityService("Draygon's hold and special movement in air move by the speeds water gives standing and running")]
-public sealed class WaterSpeedsInAir<TMovement, TSpeeds>
+public sealed partial class WaterSpeedsInAir<TMovement, TSpeeds>
     where TMovement : notnull
     where TSpeeds : notnull
 {

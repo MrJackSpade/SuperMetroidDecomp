@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.CartridgeTables;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
@@ -20,8 +21,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Extracts the blocks the retail X-ray reveal table shows. Rule selection,
 /// copy shape, extensions, and area gating stay in the compiled collision dispatcher.
 /// </summary>
-[EncodingOwner("retail X-ray reveal table words")]
-public static class XrayRevealVisualFiles
+public static partial class XrayRevealVisualFiles
 {
     /// <summary>
     /// The tank kinds in the order the cartridge's X-ray reveal lists their draws, after the block pairs' (#2484): the
@@ -34,7 +34,7 @@ public static class XrayRevealVisualFiles
     ];
 
     /// <summary>Family-relative version-nine installed JSON filename for reveal-rule blocks, the four tanks' reveal blocks, and special-room overlay records.</summary>
-    public const string VisualFileName = "reveals.json";
+    internal const string VisualFileName = "reveals.json";
     /// <summary>
     /// Schema revision that includes rule operands, tank metatiles, and room-overlay records: revision 3 holds the four tanks'
     /// reveal blocks alone, every other item being revealed as its kind's own picture (#1538); revision 4 holds the block an
@@ -86,7 +86,7 @@ public static class XrayRevealVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
 
-        var groups = new Dictionary<XrayRevealGroupKey, List<Enum?>>();
+        var groups = new Dictionary<XrayRevealGroupKey, List<BlockReaction?>>();
         var grouped = new Dictionary<XrayRevealVisualKeyDocument, XrayRevealGroupKey?>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
@@ -95,15 +95,17 @@ public static class XrayRevealVisualFiles
             // The Brinstar-only copy reveals nothing in another area, whose table the import resolves to plain solid blocks
             // at the entries Brinstar gives its own Speed Booster blocks (#1805).
             XrayRevealDefinition? native = ReadNative(bus, type, value) is { } read &&
-                (read.Shape != XrayRevealShape.CopyBrinstar || area == AreaId.Brinstar) ? read : null;
+                XrayRevealShapes.RevealsIn(read.Shape, area) ? read : null;
             RoomBlockBehavior behavior = RoomBlockBehaviorCodec.Decode(area, value);
             if (native?.Shape != XrayReveals.Find(type, behavior))
                 throw new InvalidDataException(
                     $"Compiled X-ray command {type}/behaviour ${value:X2} in {area} differs from the cartridge.");
             // Every behaviour holding the same reaction for the kind must reveal the same blocks: the installation names the
             // reaction, not the behaviour.
-            Enum? reaction = behavior.ReactionUnder(type);
-            XrayRevealGroupKey? key = native is { } drawn && InstalledXrayReveals.IsDrawable(drawn.Shape) ? new XrayRevealGroupKey(type, drawn) : null;
+            BlockReaction? reaction = behavior.ReactionUnder(type);
+            XrayRevealGroupKey? key = native is { } drawn && InstalledXrayReveals.IsDrawable(drawn.Shape, out XrayRevealCopyShape copy)
+                ? new XrayRevealGroupKey(type, drawn, copy)
+                : null;
             var named = new XrayRevealVisualKeyDocument(type, reaction);
             if (grouped.TryGetValue(named, out XrayRevealGroupKey? earlier))
             {
@@ -114,19 +116,20 @@ public static class XrayRevealVisualFiles
             grouped.Add(named, key);
             if (key is not { } drawable)
                 continue;
-            if (!groups.TryGetValue(drawable, out List<Enum?>? reactions))
+            if (!groups.TryGetValue(drawable, out List<BlockReaction?>? reactions))
                 groups.Add(drawable, reactions = []);
             reactions.Add(reaction);
         }
 
         XrayRevealVisualEntry[] entries = groups
             .Select(pair => new XrayRevealVisualEntry(
-                pair.Key.Type, [.. pair.Value.OfType<Enum>().Select(BlockReactionFamilies.KeyOf)],
+                pair.Key.Type, [.. pair.Value.OfType<BlockReaction>().Select(reaction => reaction.Key)],
                 NameOf(pair.Key.Definition.Shape),
-                [.. (pair.Key.Definition.Blocks ?? throw new InvalidOperationException(
-                    $"Drawable X-ray reveal {pair.Key.Type} shows no blocks.")).InReadingOrder]))
+                RevealBlocksDocument.Of(pair.Key.Definition.Blocks ?? throw new InvalidOperationException(
+                    $"Drawable X-ray reveal {pair.Key.Type} shows no blocks."))))
             .OrderBy(entry => CollisionOrder.PlaceOf(entry.CollisionType))
-            .ThenBy(entry => entry.Reactions.Length == 0 ? -1 : ReactionsOf(entry.CollisionType).Select(BlockReactionFamilies.KeyOf).ToList().IndexOf(entry.Reactions[0]))
+            .ThenBy(entry => entry.Reactions.Length != 0)
+            .ThenBy(entry => entry.Reactions.Take(1).Select(first => ReactionsOf(entry.CollisionType).Select(reaction => reaction.Key).ToList().IndexOf(first)).Sum())
             .ToArray();
         // The first draws reveal the item set up in each block pair as that pair's first frame, which shows the item's own
         // picture; the port reveals such an item as its kind's first frame (#1538). The tanks' draws follow, in the order of
@@ -144,9 +147,7 @@ public static class XrayRevealVisualFiles
             tanks.Add(TankDrawOrder[place], ItemDrawAppearance(bus, CollectibleBlockPairs.InTurn.Count + place));
         XrayRoomOverlayEntry[] rooms = XrayRoomOverlayDefinitions.All
             .Select(overlay => ReadRoomOverlay(bus, overlay)).ToArray();
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(
-            new XrayRevealVisualDocument(FormatVersion, entries, tanks.ToDictionary(tank => tank.Key, tank => AppearanceDocument.Of(tank.Value)), rooms),
-            JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new XrayRevealVisualDocument(FormatVersion, entries, tanks.ToDictionary(tank => tank.Key, tank => AppearanceDocument.Of(tank.Value)), rooms), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.XrayRevealVisualFiles.XrayRevealVisualDocument>(JsonOptions));
         using var file = new FileStream(Path.Combine(directory, VisualFileName), FileMode.CreateNew, FileAccess.Write);
         file.Write(json);
     }
@@ -168,8 +169,8 @@ public static class XrayRevealVisualFiles
         var mappings = new List<XrayRevealVisualDefinition>();
         foreach (XrayRevealVisualEntry entry in document.Entries)
         {
-            var visual = XrayRevealVisualBlocks.ForShape(ShapeOf(entry), entry.Blocks);
-            foreach (Enum? reaction in ReadingsNamed(entry))
+            var visual = entry.Blocks.ToBlocks(CopyShapeOf(entry));
+            foreach (BlockReaction? reaction in ReadingsNamed(entry))
                 mappings.Add(new XrayRevealVisualDefinition(entry.CollisionType, reaction, visual));
         }
         Dictionary<InWorldCollectibleKind, RoomBlockAppearance> tanks;
@@ -210,12 +211,12 @@ public static class XrayRevealVisualFiles
             if (entry is null || entry.Reactions is null || !Enum.IsDefined(entry.CollisionType) ||
                 (BlockReactionFamilies.Of(entry.CollisionType) is null ? entry.Reactions.Length != 0 : entry.Reactions.Length == 0) ||
                 entry.Reactions.Any(name => name is null ||
-                    !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(BlockReactionFamilies.KeyOf(reaction), name, StringComparison.Ordinal))))
+                    !ReactionsOf(entry.CollisionType).Any(reaction => string.Equals(reaction.Key, name, StringComparison.Ordinal))))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid reaction group.");
             if (XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is not { } command ||
-                !InstalledXrayReveals.IsDrawable(command) || entry.Shape != NameOf(command))
+                !InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy) || entry.Shape != NameOf(command))
                 throw new InvalidDataException($"X-ray visuals {path} contain an invalid copy shape.");
-            if (entry.Blocks is null || entry.Blocks.Length != XrayRevealVisualBlocks.CountFor(command))
+            if (entry.Blocks is null || !entry.Blocks.NamesExactlyThePlacesOf(copy))
                 throw new InvalidDataException($"X-ray visuals {path} list other blocks than a {entry.Shape} reveal copies.");
         }
     }
@@ -265,9 +266,9 @@ public static class XrayRevealVisualFiles
                 XrayRevealShape command = SamusIdentityWords.XrayRevealShapes.Decode(
                     ReadWord(bus, pointer), "native X-ray reveal command");
                 // A copy command's blocks follow its word in reading order, as many as its shape copies.
-                return InstalledXrayReveals.IsDrawable(command)
-                    ? new(command, XrayRevealVisualBlocks.ForShape(command,
-                        [.. Enumerable.Range(1, XrayRevealVisualBlocks.CountFor(command)).Select(operand => (int)ReadWord(bus, pointer + operand * sizeof(ushort)))]))
+                return InstalledXrayReveals.IsDrawable(command, out XrayRevealCopyShape copy)
+                    ? new(command, XrayRevealVisualBlocks.ForShape(copy,
+                        [.. Enumerable.Range(1, XrayRevealVisualBlocks.CountFor(copy)).Select(operand => RoomCellPicture.OfBlock(ReadWord(bus, pointer + operand * sizeof(ushort))))]))
                     : new(command, null);
             }
         }
@@ -277,10 +278,10 @@ public static class XrayRevealVisualFiles
     /// <exception cref="InvalidDataException">The draw pointer is invalid.</exception>
     private static RoomBlockAppearance ItemDrawAppearance(ISnesAddressSpace bus, int index)
     {
-        int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + index * sizeof(ushort)));
+        int pointer = bus.ReadCartridgeWord((SamusSourceDefinitions.ItemDrawPointers.Value + index * sizeof(ushort)));
         if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
             throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
-        return RoomLevelWordCodec.DecodeAppearance(CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
+        return RoomLevelWordCodec.DecodeAppearance(bus.ReadCartridgeWord((SamusSourceDefinitions.XrayItemDrawBank.Value | (pointer + 2))));
     }
 
     /// <summary>Reads one fixed-bank $91 word only after rejecting addresses outside the native table bank.</summary>
@@ -288,7 +289,7 @@ public static class XrayRevealVisualFiles
     {
         if (pointer is < SnesBusLayout.RomWindowStart or >= ushort.MaxValue)
             throw new InvalidDataException($"X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SamusSourceDefinitions.XrayRevealTableBank.Value | pointer);
+        return bus.ReadCartridgeWordFixedBank(SamusSourceDefinitions.XrayRevealTableBank.Value | pointer);
     }
 
     /// <summary>The marker words of the reveal tables, beside the block types and BTS values they hold.</summary>
@@ -311,14 +312,14 @@ public static class XrayRevealVisualFiles
         var tiles = new List<XrayRoomOverlayTileDocument>();
         for (int cursor = pointer; cursor <= ushort.MaxValue - 3; cursor += 4)
         {
-            int coordinate = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
+            int coordinate = bus.ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | cursor));
             if (coordinate == 0)
             {
                 if (tiles.Count == 0)
                     throw new InvalidDataException($"X-ray room overlay ${pointer:X4} is empty.");
                 return new XrayRoomOverlayEntry(overlay.Name, tiles.ToArray());
             }
-            int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
+            int word = bus.ReadCartridgeWord((SamusSourceDefinitions.XrayRoomOverlayBank.Value | (cursor + 2)));
             RoomTerrainBlock decoded = RoomLevelWordCodec.Decode(checked((ushort)word));
             if (decoded.Collision != RoomCollisionType.Air)
                 throw new InvalidDataException(
@@ -349,17 +350,17 @@ public static class XrayRevealVisualFiles
     /// <param name="Entries">Every drawable rule's blocks.</param>
     /// <param name="Tanks">Each tank's reveal appearance, keyed by the tank's kind.</param>
     /// <param name="Rooms">The special rooms' overlays.</param>
-    private sealed record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
+    internal sealed partial record XrayRevealVisualDocument(int Version, XrayRevealVisualEntry[] Entries,
         Dictionary<InWorldCollectibleKind, AppearanceDocument> Tanks, XrayRoomOverlayEntry[] Rooms);
 
     /// <summary>An appearance as the document writes it (#2100).</summary>
     /// <param name="Block">The block shown, or null where nothing shows.</param>
     /// <param name="Mirroring">How it is mirrored.</param>
-    private sealed record AppearanceDocument(int? Block, BlockMirroring Mirroring)
+    internal sealed partial record AppearanceDocument(int? Block, BlockMirroring Mirroring)
     {
         /// <summary>The document of <paramref name="appearance"/>.</summary>
         internal static AppearanceDocument Of(RoomBlockAppearance appearance) =>
-            new(appearance.ShowsNothing ? null : appearance.Block, appearance.Mirroring);
+            new(appearance.Shows == RoomBlockShown.Nothing ? null : appearance.Block, appearance.Mirroring);
 
         /// <summary>The appearance the document names.</summary>
         /// <exception cref="ArgumentOutOfRangeException">The block is negative, or the mirroring is not the two reflections.</exception>
@@ -370,43 +371,122 @@ public static class XrayRevealVisualFiles
     /// <param name="CollisionType">The rule's collision kind.</param>
     /// <param name="Reactions">The reactions the rule covers, named as the kind's reactions; none for a kind that reads none.</param>
     /// <param name="Shape">The rule's copy shape.</param>
-    /// <param name="Blocks">The block numbers the shape copies, in reading order: one for a single copy, left then right for a
-    /// wide one, top then bottom for a tall one, and top left, top right, bottom left, bottom right for a square.</param>
-    private sealed record XrayRevealVisualEntry(RoomCollisionType CollisionType, string[] Reactions,
-        string Shape, int[] Blocks);
+    /// <param name="Blocks">The blocks the shape copies, each named by its place in the shape.</param>
+    internal sealed partial record XrayRevealVisualEntry(RoomCollisionType CollisionType, string[] Reactions,
+        string Shape, RevealBlocksDocument Blocks);
+
+    /// <summary>
+    /// The blocks one reveal copies, each named by its place in the copy shape (#2556): a single copy names its
+    /// <paramref name="Block"/>, a wide one its <paramref name="Left"/> and <paramref name="Right"/>, a tall one its
+    /// <paramref name="Top"/> and <paramref name="Bottom"/>, and a square its four corners. A shape names only its own places.
+    /// </summary>
+    /// <param name="Block">The block a single copy shows.</param>
+    /// <param name="Left">A wide copy's left block.</param>
+    /// <param name="Right">A wide copy's right block.</param>
+    /// <param name="Top">A tall copy's upper block.</param>
+    /// <param name="Bottom">A tall copy's lower block.</param>
+    /// <param name="TopLeft">A square copy's top-left block.</param>
+    /// <param name="TopRight">A square copy's top-right block.</param>
+    /// <param name="BottomLeft">A square copy's bottom-left block.</param>
+    /// <param name="BottomRight">A square copy's bottom-right block.</param>
+    internal sealed partial record RevealBlocksDocument(
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Block = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Left = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Right = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Top = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? Bottom = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TopLeft = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? TopRight = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomLeft = null,
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? BottomRight = null)
+    {
+
+        /// <summary>
+        /// The document of <paramref name="blocks"/>: each copy shape's blocks are their own kind (#2560), one block, a wide
+        /// or tall pair, or a square of four.
+        /// </summary>
+        internal static RevealBlocksDocument Of(XrayRevealVisualBlocks blocks)
+        {
+            if (blocks is XrayRevealVisualBlocks.OneBlock one)
+                return new(Block: one.Block.Block);
+            if (blocks is XrayRevealVisualBlocks.WidePair wide)
+                return new(Left: wide.Left.Block, Right: wide.Right.Block);
+            if (blocks is XrayRevealVisualBlocks.TallPair tall)
+                return new(Top: tall.Top.Block, Bottom: tall.Bottom.Block);
+            // The remaining kind, a square of four.
+            var square = (XrayRevealVisualBlocks.SquareOfFour)blocks;
+            return new(TopLeft: square.UpperLeft.Block, TopRight: square.UpperRight.Block, BottomLeft: square.LowerLeft.Block,
+                BottomRight: square.LowerRight.Block);
+        }
+
+        /// <summary>Whether the document names exactly the places a <paramref name="shape"/> copy shows.</summary>
+        internal bool NamesExactlyThePlacesOf(XrayRevealCopyShape shape)
+        {
+            int?[] own = PlacesOf(shape);
+            return Named().Count(named => named is not null) == own.Length && own.All(named => named is not null);
+        }
+
+        /// <summary>The blocks the document names for a <paramref name="shape"/> copy.</summary>
+        /// <exception cref="InvalidDataException">The document does not name exactly the shape's places.</exception>
+        internal XrayRevealVisualBlocks ToBlocks(XrayRevealCopyShape shape)
+        {
+            if (!NamesExactlyThePlacesOf(shape))
+                throw new InvalidDataException($"An X-ray {shape} reveal's blocks name other places than the shape copies.");
+            // The check above found every place of the shape named.
+            return XrayRevealVisualBlocks.ForShape(shape, [.. PlacesOf(shape).OfType<int>().Select(RoomCellPicture.OfBlock)]);
+        }
+
+        /// <summary>The blocks of the places a <paramref name="shape"/> copy shows, in the copy's reading order.</summary>
+        private int?[] PlacesOf(XrayRevealCopyShape shape) => Places[shape](this);
+
+        /// <summary>The places each copy shape shows, in the copy's reading order.</summary>
+        private static IdentityTable<XrayRevealCopyShape, Func<RevealBlocksDocument, int?[]>> Places => field ??=
+            new(new Dictionary<XrayRevealCopyShape, Func<RevealBlocksDocument, int?[]>>
+            {
+                [XrayRevealCopyShape.CopyOne] = static document => [document.Block],
+                [XrayRevealCopyShape.CopyBrinstar] = static document => [document.Block],
+                [XrayRevealCopyShape.CopyWide] = static document => [document.Left, document.Right],
+                [XrayRevealCopyShape.CopyTall] = static document => [document.Top, document.Bottom],
+                [XrayRevealCopyShape.CopySquare] = static document => [document.TopLeft, document.TopRight, document.BottomLeft, document.BottomRight],
+            });
+
+        /// <summary>The blocks of every place the document can name.</summary>
+        private int?[] Named() => [Block, Left, Right, Top, Bottom, TopLeft, TopRight, BottomLeft, BottomRight];
+
+    }
 
     /// <summary>The compiled copy shape of an entry <see cref="ValidateStructure"/> has admitted.</summary>
-    private static XrayRevealShape ShapeOf(XrayRevealVisualEntry entry) =>
-        XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0])
-            ?? throw new InvalidOperationException($"Admitted X-ray visual {entry.CollisionType} has no reveal rule.");
+    private static XrayRevealCopyShape CopyShapeOf(XrayRevealVisualEntry entry) =>
+        XrayReveals.Find(entry.CollisionType, ReadingsNamed(entry)[0]) is { } shape && InstalledXrayReveals.IsDrawable(shape, out XrayRevealCopyShape copy)
+            ? copy
+            : throw new InvalidOperationException($"Admitted X-ray visual {entry.CollisionType} has no copying reveal rule.");
 
     /// <summary>A collision kind and the reaction it reads, for checking that each is revealed alike.</summary>
     /// <param name="Type">The collision kind.</param>
     /// <param name="Reaction">The reaction it reads, or null for a kind that reads none.</param>
-    private readonly record struct XrayRevealVisualKeyDocument(RoomCollisionType Type, Enum? Reaction);
+    private readonly partial record struct XrayRevealVisualKeyDocument(RoomCollisionType Type, BlockReaction? Reaction);
 
     /// <summary>Every reaction <paramref name="type"/> reads, none for a kind that reads none.</summary>
-    private static IReadOnlyList<Enum> ReactionsOf(RoomCollisionType type) =>
+    private static IReadOnlyList<BlockReaction> ReactionsOf(RoomCollisionType type) =>
         BlockReactionFamilies.Of(type) is { } family ? BlockReactionFamilies.Reactions(family) : [];
 
     /// <summary>
     /// The reactions an entry, which <see cref="ValidateStructure"/> has admitted, names: each one it lists, or a single
     /// null for a kind that reads none.
     /// </summary>
-    private static IReadOnlyList<Enum?> ReadingsNamed(XrayRevealVisualEntry entry) =>
+    private static IReadOnlyList<BlockReaction?> ReadingsNamed(XrayRevealVisualEntry entry) =>
         entry.Reactions.Length == 0
             ? [null]
-            : [.. entry.Reactions.Select(name => ReactionsOf(entry.CollisionType).Single(reaction => string.Equals(BlockReactionFamilies.KeyOf(reaction), name, StringComparison.Ordinal)))];
+            : [.. entry.Reactions.Select(name => ReactionsOf(entry.CollisionType).Single(reaction => string.Equals(reaction.Key, name, StringComparison.Ordinal)))];
     /// <summary>One room-specific overlay, named by its overlay, and its ordered editable block records.</summary>
     /// <param name="Overlay">The overlay's name in <see cref="XrayRoomOverlayDefinitions"/>.</param>
     /// <param name="Tiles">The overlay's block records, in order.</param>
-    private sealed record XrayRoomOverlayEntry(string Overlay, XrayRoomOverlayTileDocument[] Tiles);
+    internal sealed partial record XrayRoomOverlayEntry(string Overlay, XrayRoomOverlayTileDocument[] Tiles);
 
     /// <summary>Requires explicit X/Y JSON bytes so omitted coordinates cannot become a legal default block.</summary>
     /// <remarks>Keep file admission separate from the runtime value type. A missing coordinate must not become the
     /// struct's legal zero/default value during deserialization.</remarks>
-    [SpatialComponents("External format: reveals.json stores each room-overlay tile's block coordinates as x/y bytes.")]
-    private sealed record XrayRoomOverlayTileDocument(int X, int Y, AppearanceDocument Appearance)
+    internal sealed partial record XrayRoomOverlayTileDocument(int X, int Y, AppearanceDocument Appearance)
     {
         /// <summary>The tile's block column, 0 through 255.</summary>
         public int X { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, X);

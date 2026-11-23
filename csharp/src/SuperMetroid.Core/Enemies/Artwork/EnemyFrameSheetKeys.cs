@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <c>"DraygonArmsFacingLeftForward"</c>). The key stays derived from the document name, the installed artwork document's own key, so renaming a frame's identity
 /// never changes a key on disk.
 /// </summary>
-internal static class EnemyFrameSheetKeys
+internal static partial class EnemyFrameSheetKeys
 {
     /// <summary>Each frame's key.</summary>
     private static readonly FrozenDictionary<EnemyFrameId, string> Keys = Build();
@@ -20,12 +20,12 @@ internal static class EnemyFrameSheetKeys
         ? key
         : throw new ArgumentOutOfRangeException(nameof(frame), frame, "The frame is not installed.");
 
-    /// <summary>Keys every installed frame by its document name, and the shared empty frame by its own name.</summary>
+    /// <summary>Keys every installed frame by its document name, and the shared origin-point frame by its own name.</summary>
     private static FrozenDictionary<EnemyFrameId, string> Build()
     {
         var keys = new Dictionary<EnemyFrameId, string>
         {
-            [EnemyFrameId.Empty] = "Empty",
+            [EnemyFrameId.PointAtOrigin] = "PointAtOrigin",
         };
         foreach ((EnemyFrameId frame, string name) in EnemyFrameNameDefinitions.Names)
             keys.Add(frame, PascalCase(name));

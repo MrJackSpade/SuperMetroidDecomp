@@ -7,9 +7,10 @@ namespace SuperMetroid.Core.Areas.WreckedShip;
 /// The Wrecked Ship entrance treadmill (#1554). On its first update, if Phantoon was defeated when it spawned, it turns
 /// its row of blank blocks into a running belt pushing in its direction; either way it then leaves the room.
 /// </summary>
+/// <param name="row">The row the treadmill writes, checked to fit its room as it spawned.</param>
 /// <param name="direction">The belt's push direction.</param>
 /// <param name="areaBossDefeated">Whether Phantoon was defeated when the treadmill spawned.</param>
-internal sealed class WreckedShipTreadmillObject(WreckedShipTreadmillDirection direction, bool areaBossDefeated) : RoomObjectBehaviour
+internal sealed partial class WreckedShipTreadmillObject(WreckedShipTreadmillRow row, WreckedShipTreadmillDirection direction, bool areaBossDefeated) : RoomObjectBehaviour
 {
     /// <summary>The belt's push direction.</summary>
     internal WreckedShipTreadmillDirection Direction { get; } = direction;
@@ -22,7 +23,7 @@ internal sealed class WreckedShipTreadmillObject(WreckedShipTreadmillDirection d
     {
         Ensure.NotNull(place);
         if (AreaBossDefeated)
-            WreckedShipTreadmillObjects.RunBelt(context.Level, place.Block, Direction, context.RoomObjects.Drawing);
+            WreckedShipTreadmillObjects.RunBelt(context.Level, row, Direction, context.RoomObjects.Drawing);
         context.RoomObjects.DeleteObject(place);
     }
 }

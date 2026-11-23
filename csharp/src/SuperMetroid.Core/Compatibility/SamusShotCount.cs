@@ -17,8 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// word, written by the fire routines and the projectile deletion separately from the projectile slots; the special
 /// attacks store their particle count into it directly.
 /// </remarks>
-[CompatibilityService("Samus's shot count, which admits firing and the crash echoes, drifts from the places her shots hold: a special attack sets it to its particle count and a deletion at zero leaves zero")]
-public sealed class SamusShotCount
+public sealed partial class SamusShotCount
 {
     /// <summary>The shots counted out, zero or more.</summary>
     public int Count

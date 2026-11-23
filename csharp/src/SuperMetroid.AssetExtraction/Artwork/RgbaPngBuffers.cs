@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// rows as the file stores them before compression, and their compressed stream, each grown to the largest image
 /// encoded so far. Not shared between threads.
 /// </summary>
-internal sealed class RgbaPngBuffers : IDisposable
+internal sealed partial class RgbaPngBuffers : IDisposable
 {
     /// <summary>The rows of the image being encoded, each led by its filter byte.</summary>
     private byte[] scanlines = [];

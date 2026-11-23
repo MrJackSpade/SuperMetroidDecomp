@@ -43,54 +43,47 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             DraygonColorDefinitions.SpriteCount, native.ResolveSprite, "sprite"));
         Suite(nameof(VerifyBand), () => VerifyBand(DraygonSourceDefinitions.WhiteFlashColors,
             DraygonColorDefinitions.WhiteFlashCount, native.ResolveWhiteFlash, "white flash"));
-        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        for (int band = 0; band < SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count; band++)
         for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     DraygonSourceDefinitions.HealthBandColors +
                     (band * DraygonColorDefinitions.HealthBandColorCount + color) * sizeof(ushort)),
-                native.ResolveHealthBand(band, color),
+                native.ResolveHealthBand(DraygonHealthBandDefinitions.HighestFirst[band], color),
                 $"installed Draygon health band {band} color {color} preserves native RGB5");
 
         string file = Path.Combine(stockDirectory, DraygonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        DraygonColorDocument visual = JsonSerializer.Deserialize<DraygonColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        DraygonColorDocument visual = JsonSerializer.Deserialize<DraygonColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.DraygonColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Draygon color JSON is null.");
         DraygonColorCatalog colors = native;
 
         // Invoke the actual body initializer and hurt program with the visual source
         // windows forbidden. Only the resource may supply colors during installed play.
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
-            address => address is >= DraygonSourceDefinitions.HealthBandColors and
-                    < (DraygonSourceDefinitions.HealthBandColors +
-                        DraygonColorDefinitions.HealthBandCount *
+            address => (address >= DraygonSourceDefinitions.HealthBandColors &&
+                    address < DraygonSourceDefinitions.HealthBandColors +
+                        SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count *
                         DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort))
-                    or >= DraygonSourceDefinitions.SpriteColors and
-                    < (DraygonSourceDefinitions.WhiteFlashColors +
+                || (address >= DraygonSourceDefinitions.SpriteColors &&
+                    address < DraygonSourceDefinitions.WhiteFlashColors +
                         DraygonColorDefinitions.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
-        enemies.DraygonBehavior.Parts.InitializeDraygonBody(body);
-        // His hurt update shades every part he draws (#1512), so his eye, tail and arms attach after the body as in his room.
-        (EnemyDefinitionId Definition, Action<RoomEnemyPlace> Initialize)[] parts =
-        [
-            (EnemyDefinitionId.DraygonEye, enemies.DraygonBehavior.Parts.InitializeDraygonEye),
-            (EnemyDefinitionId.DraygonTail, enemies.DraygonBehavior.Parts.InitializeDraygonTail),
-            (EnemyDefinitionId.DraygonArms, enemies.DraygonBehavior.Parts.InitializeDraygonArms),
-        ];
+        body.Bind(EnemyDefinitionId.DraygonBody, body.KeptDefinition);
+        // His hurt update shades every part he draws (#1512), so his eye, tail and arms set up after the body as in his room.
+        EnemyDefinitionId[] parts = [EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail, EnemyDefinitionId.DraygonArms];
         for (int index = 0; index < parts.Length; index++)
         {
             RoomEnemyPlace part = enemies.Places.InUpdateOrder[index + 1];
-            part.Bind(parts[index].Definition, part.Definition);
-            parts[index].Initialize(part);
+            part.Bind(parts[index], part.KeptDefinition);
         }
+        _ = enemies.LoadAuthoredPopulation();
         DraygonEnemyState state = enemies.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");
-        AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
+        AssertEqual(DraygonPhaseSteps.IntroInitialDelay(), state.Step,
             "installed Draygon colors leave intro mechanics unchanged");
         AssertBand(DraygonColorDestinations.IntroDestination,
             DraygonColorDefinitions.IntroCount, colors.ResolveIntro, "intro CGRAM");
@@ -114,7 +107,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         {
             body.HurtFlash.Restart(flash);
             enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, grappling);
-            if (DraygonCadenceDefinitions.HurtWhiteFlashShown.IsSetIn(flash))
+            if (DraygonCadenceDefinitions.HurtWhiteFlashShown.IsInSecondHalfAt(flash))
                 continue;
             nonWhite++;
             AssertStartingBandShown($"the grapple shock's hurt update at flash {flash}");
@@ -128,7 +121,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         for (int color = 0; color < DraygonColorDefinitions.BackgroundCount; color++)
         {
             RgbColor expected = color is >= 9 and <= 12
-                ? colors.ResolveHealthBand(1, color - 9)
+                ? colors.ResolveHealthBand(DraygonHealthBandDefinitions.HighestFirst[1], color - 9)
                 : colors.ResolveBackground(color);
             AssertEqual(expected,
                 Shown()[DraygonColorDestinations.BackgroundDestination + color],
@@ -148,23 +141,19 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         // His white flash covers his band while it shows (#1597), so the bands are checked once the flash has ended.
         body.HurtFlash.End();
         enemies.DraygonBehavior.Combat.ApplyDraygonHurt(body, state, SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus());
-        for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+        for (int band = 0; band < SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count; band++)
         {
             state.HealthBand = DraygonHealthBandDefinitions.HighestFirst[band];
             DraygonCombat.ShowDraygonHealthBand(state);
             for (int color = 0; color < DraygonColorDefinitions.HealthBandColorCount; color++)
-                AssertEqual(colors.ResolveHealthBand(band, color),
+                AssertEqual(colors.ResolveHealthBand(DraygonHealthBandDefinitions.HighestFirst[band], color),
                     Shown()[DraygonColorDestinations.HealthDestination + color],
                     $"Draygon live health band {band} color {color}");
         }
-        AssertEqual(DraygonPhase.IntroInitialDelay, state.Phase,
+        AssertEqual(DraygonPhaseSteps.IntroInitialDelay(), state.Step,
             "visual health-band checks leave Draygon AI unchanged");
-        AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(-1, 0),
-            "negative Draygon health band fails loudly");
-        AssertThrows<ArgumentOutOfRangeException>(() => colors.ResolveHealthBand(8, 0),
-            "out-of-range Draygon health-band index fails loudly");
 
-        visual.HealthBands[1][1] = visual.HealthBands[1][1] with { Blue = 32 };
+        visual.HealthBands.Values.ElementAt(1)[1] = visual.HealthBands.Values.ElementAt(1)[1] with { Blue = 32 };
         AssertThrows<InvalidDataException>(() => DraygonColorFile.Read(new MemoryStream(DraygonColorFile.Write(visual), writable: false)),
             "reading Draygon colors rejects an RGB5 channel outside five-bit precision");
         Console.WriteLine("  Draygon colors: 105 native RGB5 words, live intro/hurt/flash/eight health bands, ROM guard, and strict failures pass.");
@@ -172,14 +161,14 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         void VerifyBand(int source, int count, Func<int, RgbColor> resolve, string name)
         {
             for (int color = 0; color < count; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)), resolve(color),
                     $"installed Draygon {name} color {color} preserves native RGB5");
         }
 
         void AssertStartingBandShown(string when)
         {
-            int shownBand = DraygonHealthBandDefinitions.HighestFirst.ToList().IndexOf(DraygonHealthBand.Of(body.Health));
+            DraygonHealthBand shownBand = DraygonHealthBand.Of(body.Health);
             AssertBand(DraygonColorDestinations.HealthDestination, DraygonColorDefinitions.HealthBandColorCount,
                 color => colors.ResolveHealthBand(shownBand, color), $"starting health band after {when}");
         }

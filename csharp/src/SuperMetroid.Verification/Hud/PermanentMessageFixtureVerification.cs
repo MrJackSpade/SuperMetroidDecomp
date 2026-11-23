@@ -22,7 +22,7 @@ internal static class PermanentMessageFixtureVerification
             SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName);
         JsonNode Read(string name) => RequiredJson.Parse(File.ReadAllText(Path.Combine(directory, name)));
         // Documents store tiles; each cell here is the tile the cartridge word it names places.
-        static JsonNode Cell(int word) => JsonSerializer.SerializeToNode(BackgroundTileWordBytes.Tile(word), ArtworkJson.Options)
+        static JsonNode Cell(int word) => JsonSerializer.SerializeToNode(BackgroundTileWordBytes.Tile(word), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.BackgroundTile>(ArtworkJson.Options))
             ?? throw new InvalidOperationException("A message tile serialized to null.");
         static void SetBorder(JsonNode document)
         {

@@ -11,7 +11,6 @@ namespace SuperMetroid.Diagnostics.Saves;
 /// (<see cref="LegacyGameSaveJson"/>) and the native-state checks read and write these numbers through it; the game
 /// itself holds only <see cref="HudItem"/> and <see cref="ReserveTankMode"/>.
 /// </summary>
-[EncodingOwner("save slot selection numbers")]
 public static class SaveSlotNumbering
 {
     /// <summary>The HUD selection a saved number keeps; any other number is corrupt.</summary>

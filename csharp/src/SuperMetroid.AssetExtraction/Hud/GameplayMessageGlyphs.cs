@@ -3,7 +3,7 @@ using static SuperMetroid.AssetExtraction.Hud.GameplayMessageTitleDefinitions;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Which characters and tiles the message boxes' text alphabet holds.</summary>
-public static class GameplayMessageGlyphs
+public static partial class GameplayMessageGlyphs
 {
     /// <summary>True when <paramref name="tile"/> is one of the A-Z letter tiles.</summary>
     public static bool IsLetterTile(int tile) => (uint)(tile - FirstLetterTile) < LetterCount;

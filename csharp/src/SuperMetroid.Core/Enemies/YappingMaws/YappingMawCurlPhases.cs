@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>The way a Yapping Maw's curl phase moves its tongue (#2569).</summary>
-internal static class YappingMawCurlPhases
+internal static partial class YappingMawCurlPhases
 {
     /// <summary>
     /// The change one curl update at <paramref name="speed"/> makes to the tongue's curl in <paramref name="phase"/>: out by

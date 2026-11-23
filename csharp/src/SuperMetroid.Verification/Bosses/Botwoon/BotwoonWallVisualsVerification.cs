@@ -18,7 +18,7 @@ internal static class BotwoonWallVisualsVerification
     internal static void VerifyBotwoonWallStockMapping(CartridgeImportAddressSpace rom)
     {
         LookupEscapeGateStockFrame[] frames = [new LookupEscapeGateStockFrame(0x930f, "clear-wall")];
-        InstalledRoomObjectBotwoonWallVisuals stock = InstalledRoomObjectBotwoonWallVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.BotwoonWall;
         AssertPicturedAsNative(rom, stock.Images, RoomObjectBotwoonWallVisualFiles.Family, frames, WrittenCells(RoomObjectBotwoonWallVisualFiles.Family));
         foreach (ushort pointer in new ushort[] {0,0x930e,0x9310,0xffff})
             AssertThrows<InvalidDataException>(() => stock.Image(NativeObjectDraws.At<BotwoonWallDraw>(pointer)), "Botwoon visual pointer domain");
@@ -46,7 +46,7 @@ internal static class BotwoonWallVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectBotwoonWallVisualFilesConstants.ValidateStock(
                 installation.RoomObjectBotwoonWallVisualDirectory);
-            InstalledRoomObjectBotwoonWallVisuals stock =
+            InstalledRoomObjectPictures stock =
                 installation.LoadRoomObjectBotwoonWallVisuals();
             for (int block = 0; block < 9; block++)
                 AssertEqual(RoomBlockAppearance.Nothing,

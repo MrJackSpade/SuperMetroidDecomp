@@ -30,7 +30,7 @@ public enum BabyMetroidAction
     HoverNearSamus,
     /// <summary>Chases Samus for the scripted drain.</summary>
     ChaseSamus,
-    /// <summary>Installs the Samus-draining attachment state.</summary>
+    /// <summary>Latches onto Samus and starts draining her.</summary>
     BeginDrainingSamus,
     /// <summary>Drains Samus while controlling her attached position.</summary>
     DrainSamus,

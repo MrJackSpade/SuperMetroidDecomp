@@ -28,15 +28,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         int checksum = 0;
         foreach (RoomEnemyProjectileKind kind in Enum.GetValues<RoomEnemyProjectileKind>())
         {
-            if (kind == RoomEnemyProjectileKind.None)
-                continue;
-
             // Every translated kind has a definition; the catalog rejects any other.
             _ = EnemyProjectileKinds.Get(kind);
-            var projectile = new EnemyProjectile(0, default)
-            {
-                Kind = kind,
-            };
+            var projectile = new EnemyProjectile(0, default, kind, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
             // Botwoon's, Crocomire's, Draygon's and Kraid's spawners (and Kago's, which shares Kraid's rock pose) start
             // typed animations (#641); their oracles match them to these native lists frame by frame, and no
             // interpreter owns the lists. Crocomire's mouth projectile, Draygon's goop and Kraid's spat rock also start
@@ -56,7 +50,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.MotherBrainGlassShard or RoomEnemyProjectileKind.MotherBrainGlassSparkle or
                 RoomEnemyProjectileKind.MotherBrainHandBeamCharging or RoomEnemyProjectileKind.MotherBrainHandBeamFired or
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame or RoomEnemyProjectileKind.PhantoonStartingFlame or
-                RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.RidleyFireball or
+                RoomEnemyProjectileKind.RidleyFireball or
                 RoomEnemyProjectileKind.RidleyAfterburnCenter or RoomEnemyProjectileKind.RidleyHorizontalAfterburn or
                 RoomEnemyProjectileKind.RidleyVerticalAfterburn or
                 RoomEnemyProjectileKind.SporeSpawnStalk or RoomEnemyProjectileKind.SporeSpawnSpore or
@@ -100,7 +94,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
                 RoomEnemyProjectileKind.MotherBrainOnionRing))
-                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                VerifySharedDelete(rom.ReadCartridgeWord(
                     NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + TouchListOffset)), "touch");
             if (kind is not (RoomEnemyProjectileKind.CrocomireProjectile or RoomEnemyProjectileKind.DraygonGoop or
                 RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
@@ -114,7 +108,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile or
                 // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
                 RoomEnemyProjectileKind.DraygonWallTurret))
-                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                VerifySharedDelete(rom.ReadCartridgeWord(
                     NativeEnemyProjectileListDefinitions.ProjectileBank | (definitionWord + ShotListOffset)), "shot");
             }
 
@@ -124,7 +118,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 if (address == 0)
                     return;
                 AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
+                    rom.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | address),
                     $"Projectile {kind} {role} list $86:{address:X4} is the shared delete");
                 entryCount++;
                 reactionCount++;

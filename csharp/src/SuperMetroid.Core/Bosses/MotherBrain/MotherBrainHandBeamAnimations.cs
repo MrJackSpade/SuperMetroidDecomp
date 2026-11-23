@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Enemies.Projectiles;
-using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamCue>;
+using Beat = SuperMetroid.Core.Animation.AnimationBeat<SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileFrameId, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamCue>.Unpaused;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -8,16 +8,16 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The red hand beam's typed animation (#641, #1600, #2011), each beat the installed <see cref="EnemyProjectileFrameId"/> it
 /// shows.
 /// </summary>
-internal static class MotherBrainHandBeamAnimations
+internal static partial class MotherBrainHandBeamAnimations
 {
     /// <summary>How many stages the beam plays before it deletes itself.</summary>
     private const int Stages = 3;
 
     /// <summary>
-    /// The beam's stage, spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2, 1, 1
-    /// and 1 updates, and its deletion.
+    /// The beam's stage, spawning the next beam after its first frame and fading over its frames, each held shorter than
+    /// the last, and its deletion.
     /// </summary>
-    internal static AnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments { get; } = new(
+    internal static UnpausedAnimationSegments<MotherBrainHandBeamSegment, EnemyProjectileFrameId, MotherBrainHandBeamCue> Segments { get; } = new(
         new Dictionary<MotherBrainHandBeamSegment, Beat[]>
         {
             [MotherBrainHandBeamSegment.Stage] =
@@ -35,7 +35,7 @@ internal static class MotherBrainHandBeamAnimations
         });
 
     /// <summary>
-    /// The beam's animation: its three stages and its deletion, played once; the deleted beam then rests. The charging beam
+    /// The beam's animation: its stages (<see cref="Stages"/>) and its deletion, played once; the deleted beam then rests. The charging beam
     /// and every fired beam play it.
     /// </summary>
     internal static IReadOnlyDictionary<MotherBrainHandBeamSegment, Animation<MotherBrainHandBeamSegment>> StartingAt { get; } =

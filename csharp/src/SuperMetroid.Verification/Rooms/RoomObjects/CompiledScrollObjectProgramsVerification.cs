@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rooms;
@@ -11,9 +12,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks compiled room-scroll PLM programs through both catalog lookup and retail execution.</summary>
 internal static class CompiledScrollObjectProgramsVerification
 {
@@ -42,8 +40,8 @@ internal static class CompiledScrollObjectProgramsVerification
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.Closed);
         scrolls.SetRoomScreen(new(0, 0), RoomScrollState.Closed);
-        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(new(8, 13)),
-            "retail scroll trigger wakes at its authored coordinate");
+        // The room load bound the retail scroll trigger to its authored block, where the touch wakes it.
+        roomObjects.Scrolls.NotifyScrollTouch(new(8, 13));
         roomObjects.Step(level, scrolls);
         AssertEqual(RoomScrollState.Open, scrolls.ReadScreen(new(0, 0)),
             "compiled retail scroll program mutates the intended cell");

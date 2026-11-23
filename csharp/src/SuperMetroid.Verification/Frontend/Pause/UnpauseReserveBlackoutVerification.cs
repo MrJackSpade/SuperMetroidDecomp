@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
@@ -31,30 +32,30 @@ internal static class UnpauseReserveBlackoutVerification
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-            runtime.Player.IntroducedSamus.Control.Unlock();
+            runtime.Player.Samus.Control.Unlock();
             game.AdoptRuntime(runtime);
-            game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+            game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
             return new UnpauseReserveBlackoutCreateResult(game, runtime);
         }
 
         var (unpausing, unpausingRuntime) = Create();
-        SamusState samus = unpausingRuntime.Player.IntroducedSamus;
+        SamusState samus = unpausingRuntime.Player.Samus;
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
         samus.ReserveTankMode = ReserveTankMode.Auto;
-        unpausing.Session.screenFade.Show(0);
+        unpausing.Session.screenFade.Show(DisplayBrightness.Black);
         unpausing.Session.Enter(PauseStep.BrighteningGameplay);
         unpausing.Step(0);
         AssertEqual(SuperMetroidGameState.ReserveTankRefill, unpausing.GameState,
             "state $12's gameplay pass routes zero health into the auto reserve refill");
-        AssertEqual(0, unpausing.Session.PauseBrightness, "the interrupted fade-in leaves $51 black");
+        AssertEqual(0, unpausing.Session.PauseBrightness.StepsAboveBlack, "the interrupted fade-in leaves $51 black");
 
         // Once gameplay resumes the screen is still black; a pause darkens from there.
         var (pausing, _) = Create();
         pausing.Session.Enter(SuperMetroidGameState.MainGameplay);
-        pausing.Session.screenFade.Show(0);
+        pausing.Session.screenFade.Show(DisplayBrightness.Black);
         pausing.Step(0);
         pausing.Step(ControllerButton.Start);
         AssertTrue(pausing.IsAt(PauseStep.DarkeningGameplay), "Start pauses");

@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>
@@ -9,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// or a definition instance, such as a door setup (#1721), compared as itself.
 /// </summary>
 /// <typeparam name="TIdentity">The identity.</typeparam>
-internal sealed class NativeWordIdentities<TIdentity>
+internal sealed partial class NativeWordIdentities<TIdentity>
     where TIdentity : notnull
 {
     /// <summary>Each word's identity.</summary>
@@ -46,9 +44,6 @@ internal sealed class NativeWordIdentities<TIdentity>
     internal TIdentity Decode(int word, string meaning) => _identities.TryGetValue(word, out TIdentity? identity)
         ? identity
         : throw new InvalidDataException($"${word:X4} is not a {meaning} ({typeof(TIdentity).Name}).");
-
-    /// <summary>Decodes <paramref name="word"/> when it names an identity.</summary>
-    internal bool TryDecode(int word, [MaybeNullWhen(false)] out TIdentity identity) => _identities.TryGetValue(word, out identity);
 
     /// <summary>
     /// The one word naming <paramref name="identity"/>. An identity several words name has no one word, so this throws;

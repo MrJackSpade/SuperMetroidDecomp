@@ -28,9 +28,9 @@ internal static class TreadmillPhysicsVerification
         var level = CreateRoom(new(4, 4), terrain, behavior);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = new(new(24, 0), new(40, 0))};
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
-        SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, roomHasPower: true);
         AssertEqual(2 << 16, samus.Kinematics.ExtraDisplacement.X.RawValue, "treadmill inside reaction publishes carry");
-        SamusGroundedMovement.StepStanding(level, samus, 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusGroundedMovement.StepStanding(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, controllerInput: 0);
         AssertEqual((ushort)26, samus.Position.X.Whole, "standing movement consumes treadmill carry");
         int cases = 0;
         foreach (ConveyorCase conveyor in Conveyors)
@@ -48,13 +48,13 @@ internal static class TreadmillPhysicsVerification
                 conveyor.Behavior == WreckedShipTreadmillBlockDefinitions.LeftwardsBehavior;
             bool admitted = !gated || (verticalSpeed == 0 && roomHasPower);
             int expected = admitted ? SixteenSixteenConstants2.FromWhole(conveyor.Direction == WreckedShipTreadmillDirection.Rightwards ? 2 : -2) : 0x71234;
-            SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, roomHasPower);
             AssertEqual(expected, body.ExtraDisplacement.X.RawValue, $"conveyor behaviour {conveyor.Behavior}, power {roomHasPower}, Y {verticalSpeed}");
             AssertEqual(SamusMovementDefinitions.HorizontalMotion.NormalAirSpeedTable,
                 samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, "conveyor inside handler restores normal speed pointer");
             if (admitted)
             {
-                SamusGroundedMovement.StepStanding(level, samus, 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+                SamusGroundedMovement.StepStanding(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, controllerInput: 0);
                 AssertEqual((ushort)(24 + SixteenSixteenConstants.WholeOf(expected)), samus.Position.X.Whole, "conveyor actual horizontal motion");
             }
             cases++;
@@ -64,8 +64,8 @@ internal static class TreadmillPhysicsVerification
         level.SetBehavior(9, WreckedShipTreadmillBlockDefinitions.RightwardsBehavior);
         samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(27, 40)) };
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
-        SamusInsideBlockReactions.PrepareFrame(level, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.Uninstalled);
-        SamusGroundedMovement.StepStanding(level, samus, 0, controllerInput: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, roomHasPower: true);
+        SamusGroundedMovement.StepStanding(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 0, controllerInput: 0);
         AssertEqual((ushort)27, samus.Position.X.Whole, "conveyor carry clips at solid wall");
         Console.WriteLine($"  Conveyors: {cases} direction/power/vertical-speed cases, actual carry and wall clipping agree.");
     }

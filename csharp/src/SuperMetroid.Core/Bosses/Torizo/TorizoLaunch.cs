@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// <param name="MovingRight">The animation a launch to the right starts.</param>
 /// <param name="Offset">A launch to the right's offset from the Torizo.</param>
 /// <param name="BaseVelocity">A launch to the right's velocity, before its random displacements.</param>
-internal sealed record TorizoLaunch(
+internal sealed partial record TorizoLaunch(
     TorizoProjectileSegment MovingLeft, TorizoProjectileSegment MovingRight, Offset16<RoomPixels> Offset, PixelVelocity<RoomPixels> BaseVelocity)
 {
     /// <summary>The launch toward <paramref name="direction"/>.</summary>

@@ -9,8 +9,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Bomb and Golden Torizo's setup and movement: walking, jumps, falls and air transitions under gravity.</summary>
-[RoomLifetime]
-internal sealed class TorizoMovement
+internal sealed partial class TorizoMovement
 {
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
@@ -20,8 +19,8 @@ internal sealed class TorizoMovement
     private readonly RoomEarthquake _earthquake;
     /// <summary>The medium up-and-down foreground shake a landing statue starts.</summary>
     private static readonly EarthquakeShake LandingShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
-    /// <summary>Bomb and Golden Torizo's body: its behaviour flags, colours, animation start and the low-health drool it triggers.</summary>
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
+    /// <summary>Bomb and Golden Torizo's body, which shows the Torizo's colouring and drips its low-health drool.</summary>
     private readonly TorizoBody _body;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
@@ -37,21 +36,22 @@ internal sealed class TorizoMovement
     /// Sets up Crateria's Bomb Torizo or Norfair's Golden Torizo as he spawns; which Torizo he is, not the room's area,
     /// chooses his values.
     /// </summary>
-    internal void InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
+    /// <returns>The state the Torizo holds from its setup.</returns>
+    internal TorizoEnemyState InitializeTorizo(RoomEnemyPlace torizo, TorizoVariant variant, SamusState samus, GameplayAction controllerInput)
     {
         var state = new TorizoEnemyState(variant)
         {
             // Every Torizo placement starts it standing, unstunned and whole, its face and gut not yet blown up.
             Posture = TorizoPosture.Initial,
         };
-        torizo.SetSpeciesState(state);
+
 
         // Each area keeps its own Torizo defeat, which both encounters read: a Torizo already beaten in this area
         // never appears.
         if (_room.Services.Bosses.IsDefeated(DefeatedBosses.AreaTorizo))
         {
             torizo.Presence = torizo.Presence.With(EnemyPresence.Deleted);
-            return;
+            return state;
         }
 
         TorizoInitializationDefinition definition = variant.Start;
@@ -64,7 +64,7 @@ internal sealed class TorizoMovement
         torizo.Shading = state.Colours.Shading;
         torizo.Frame = definition.InitialFrame;
 
-        state.Motion = null;
+        state.Motion = TorizoBodyMotion.HoldingStill;
         state.Velocity = PixelVelocity<RoomPixels>.Zero;
         state.FallAtRestingSpeed();
 
@@ -73,18 +73,19 @@ internal sealed class TorizoMovement
         // A Torizo with a secret code grants its loadout as it appears while the player holds its chord.
         if (variant.SecretCode is { } code && controllerInput == code.Chord)
             code.GrantTo(samus);
+        return state;
     }
 
     /// <summary>Interrupts Bomb Torizo's fight at its gut and face health thresholds; otherwise its body moves by its motion.</summary>
     internal void RunBombTorizoActiveState(
-        RoomEnemyPlace torizo,
+        RoomEnemyOccupant occupant, RoomEnemyPlace torizo,
         TorizoEnemyState state,
         RoomLevelData level)
     {
-        _body.MaybeSpawnLowHealthDrool(torizo);
+        _body.MaybeSpawnLowHealthDrool(occupant, torizo, state);
 
         // Until its gut and face are blown up, which its death also does, health thresholds interrupt the current
-        // authored animation with the core/head bursts.
+        // authored animation with the gut's and the face's blow-ups.
         if (!state.GutBlownUp &&
             torizo.Health < TorizoDecisionDefinitions.GutBlowUpHealth)
         {
@@ -104,29 +105,22 @@ internal sealed class TorizoMovement
         MoveBody(torizo, state, level);
     }
 
-    /// <summary>Moves Bomb or Golden Torizo's body by the motion its animation started, or holds it still with none (#1931).</summary>
+    /// <summary>Moves Bomb or Golden Torizo's body by the motion its animation started, or holds it still (#1931).</summary>
     internal void MoveBody(
         RoomEnemyPlace torizo,
         TorizoEnemyState state,
-        RoomLevelData level)
-    {
-        switch (state.Motion)
+        RoomLevelData level) =>
+        MotionSteps[state.Motion](torizo, state, level);
+
+    /// <summary>How the body moves in each motion (#2553): not at all while holding still, a walk, gravity while standing, or a leap.</summary>
+    private IdentityTable<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>> MotionSteps => field ??= new(
+        new Dictionary<TorizoBodyMotion, Action<RoomEnemyPlace, TorizoEnemyState, RoomLevelData>>
         {
-            case null:
-                return;
-            case TorizoBodyMotion.Walking:
-                Walk(torizo, state, level);
-                return;
-            case TorizoBodyMotion.Standing:
-                ApplyTorizoGravity(torizo, state, level);
-                return;
-            case TorizoBodyMotion.Leaping:
-                Leap(torizo, state, level);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(TorizoBodyMotion)} {state.Motion}.");
-        }
-    }
+            [TorizoBodyMotion.HoldingStill] = static (_, _, _) => { },
+            [TorizoBodyMotion.Walking] = Walk,
+            [TorizoBodyMotion.Standing] = ApplyTorizoGravity,
+            [TorizoBodyMotion.Leaping] = Leap,
+        });
 
     /// <summary>
     /// Moves the statue vertically. Meeting the ground while falling faster than it rests, it lands: a quake starts and it
@@ -190,14 +184,14 @@ internal sealed class TorizoMovement
         if (state.TurnTowardSamus is { } turn && turn.StepRunsOut())
         {
             state.TurnTowardSamus = null;
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Walker.TurnAbout(torizo)));
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(state.Walker.TurnAbout(state)));
             return;
         }
 
         if (!_terrain.MoveEnemyVertically(level, torizo, SignedSixteenSixteen.FromWholePixels(TorizoGroundProbeFall.Pixels(state.Velocity.X))))
         {
             // The fall swaps to the in-air animation while the downward probe stays clear; its leaping motion lands it.
-            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoFacing.FacesRight(torizo)
+            TorizoBody.StartTorizoBodyAnimation(torizo, state, TorizoAnimations.Start(TorizoFacing.FacesRight(state)
                 ? TorizoAnimation.FacingRightFalling
                 : TorizoAnimation.FacingLeftFalling));
             // The fall starts at the resting speed, so a Torizo whose ground returns at once lands without a quake.

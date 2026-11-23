@@ -76,9 +76,8 @@ internal static class KraidMovementChoicesVerification
         }
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         var foot = enemies.Places.InUpdateOrder[5];
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         KraidFootState part = state.FootState;
         ushort rng = 0;
         int reads = 0;
@@ -99,8 +98,7 @@ internal static class KraidMovementChoicesVerification
                 bool right = expected.TargetX >= raw;
                 AssertEqual(expected.TargetX, state.WalkTargetX, "Actual target includes fallback row");
                 AssertEqual(expected.ThinkUpdates, part.ThinkWait.UpdatesLeft, "Actual thinking delay includes weighted final choice");
-                AssertEqual(KraidFootPhase.SecondPhaseWalking, state.FootState.Phase, "A choice sets the foot walking");
-                AssertEqual(right ? HorizontalDirection.Right : HorizontalDirection.Left, state.FootState.WalkDirection, "He walks right to a target at or right of him, left otherwise (#2165, #2299)");
+                AssertEqual(right ? KraidFootPhase.SecondPhaseWalkingRight : KraidFootPhase.SecondPhaseWalkingLeft, state.FootState.Phase, "He walks right to a target at or right of him, left otherwise (#2165, #2299)");
                 AssertEqual(
                     new AnimationPlayback<KraidPartSegment>(KraidAnimations.StartingWith(right ? KraidPartSegment.FootWalkingBackward : KraidPartSegment.FootWalkingForward), AnimationPlace.StartOfAnimation),
                     state.FootState.Playback,
@@ -124,5 +122,5 @@ internal static class KraidMovementChoicesVerification
     }
 
     /// <summary>Reads one native movement-table byte for the independent selection oracle.</summary>
-    private static byte KraidMovementChoicesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidMovementChoicesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

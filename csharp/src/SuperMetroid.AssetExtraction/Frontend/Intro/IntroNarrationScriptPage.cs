@@ -7,8 +7,12 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// <param name="InstructionPointer">Offset of the page's stock background-object list within the narration script bank.</param>
 /// <param name="BeginOpcode">Callback offset expected at the list's start, establishing that page's subtitle state.</param>
 /// <param name="FinishOpcode">Callback offset expected before deletion, establishing the next wait or scene transition.</param>
-internal readonly record struct IntroNarrationScriptPage(
+/// <param name="EndsWithBlinkingCaret">
+/// Whether the page's text ends by setting the caret blinking and holding the finished page, as the last page does.
+/// </param>
+internal readonly partial record struct IntroNarrationScriptPage(
     IntroNarrationPageId Id,
     int InstructionPointer,
     int BeginOpcode,
-    int FinishOpcode);
+    int FinishOpcode,
+    bool EndsWithBlinkingCaret = false);

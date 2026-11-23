@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Kraid's physical foot components for its walk frames and the small-Kraid initial frame. The pictures are
 /// presentation; these offsets and the one shared hitbox govern collision.
 /// </summary>
-internal static class KraidFootCollisionDefinitions
+internal static partial class KraidFootCollisionDefinitions
 {
     /// <summary>
     /// The offsets of each foot picture's two components from the foot where its walk first shows the picture, in collision

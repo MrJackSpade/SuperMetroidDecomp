@@ -1,6 +1,5 @@
 ﻿using System.Collections.Frozen;
 using SuperMetroid.Core.Frontend.Intro;
-using static SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteFrameDefinitions;
 
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
@@ -12,18 +11,18 @@ internal static class CeresDestructionSpritePoses
 {
     /// <summary>The pose of single-part asteroid explosion frame <paramref name="frame"/>, 0 through 3.</summary>
     internal static CinematicSpritePose LargeFrame(int frame) =>
-        (uint)frame < 4 ? Frames[13 + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
+        (uint)frame < 4 ? CeresDestructionSpriteFrameDefinitions.Frames[13 + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 
     /// <summary>
     /// The OAM part count of station blast <paramref name="frame"/>: frames zero through two use one part per reflected
     /// quadrant; frame four has two lobes per quadrant; frames three and five add two tips to a core per quadrant.
     /// </summary>
     internal static int StationPartCount(int frame) =>
-        (uint)frame < 6 ? Frames[17 + frame].StockPartCount : throw new ArgumentOutOfRangeException(nameof(frame));
+        (uint)frame < 6 ? CeresDestructionSpriteFrameDefinitions.Frames[17 + frame].StockPartCount : throw new ArgumentOutOfRangeException(nameof(frame));
 
     /// <summary>The pose of station blast <paramref name="frame"/>, 0 through 5.</summary>
     internal static CinematicSpritePose StationFrame(int frame) =>
-        (uint)frame < 6 ? Frames[17 + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
+        (uint)frame < 6 ? CeresDestructionSpriteFrameDefinitions.Frames[17 + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 
     /// <summary>The pose that shows <paramref name="backdrop"/>.</summary>
     internal static CinematicSpritePose BackdropPose(CeresDestructionBackdrop backdrop) =>
@@ -35,6 +34,6 @@ internal static class CeresDestructionSpritePoses
     /// </summary>
     private static readonly FrozenDictionary<CeresDestructionBackdrop, CinematicSpritePose> BackdropPoses =
         Enum.GetValues<CeresDestructionBackdrop>()
-            .Select((backdrop, frame) => KeyValuePair.Create(backdrop, Frames[frame].Pose))
+            .Select((backdrop, frame) => KeyValuePair.Create(backdrop, CeresDestructionSpriteFrameDefinitions.Frames[frame].Pose))
             .ToFrozenDictionary();
 }

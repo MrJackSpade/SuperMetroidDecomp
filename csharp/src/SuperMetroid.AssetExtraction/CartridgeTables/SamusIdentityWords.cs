@@ -5,8 +5,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge words naming Samus's X-ray reveal commands (#1411).</summary>
-[EncodingOwner("X-ray reveal command words")]
-internal static class SamusIdentityWords
+internal static partial class SamusIdentityWords
 {
     /// <summary>The bank-$91 revealed-block command an X-ray reveal table entry names.</summary>
     internal static readonly NativeWordIdentities<XrayRevealShape> XrayRevealShapes = new(new Dictionary<XrayRevealShape, ushort>

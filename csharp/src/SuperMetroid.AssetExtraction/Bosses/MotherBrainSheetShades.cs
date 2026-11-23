@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// and colour groups its loads write: her brain's, attack's, legs' and the Baby's rows, her body layer's colours and her
 /// room's. Each owner names only its own shades: her body layer's are not her room's.
 /// </summary>
-internal static class MotherBrainSheetShades
+internal static partial class MotherBrainSheetShades
 {
     /// <summary>
     /// The row each enemy whose shades this places draws in, as Mother Brain's encounter writes it: her brain's, her body's
@@ -87,16 +87,15 @@ internal static class MotherBrainSheetShades
     /// The shades of the sheets Mother Brain's encounter draws: her brain and neck, the Baby, and the objects she
     /// spawns, from her installed colours in <paramref name="maps"/> and <paramref name="bosses"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
-    internal static IReadOnlyList<SheetShade> Sprites(ImportAreaMapPresentation? maps, BossSourceArtwork bosses)
+    internal static IReadOnlyList<SheetShade> Sprites(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        ImportAreaMapPresentation presentation = maps ?? throw Missing("Mother Brain's map-installed colours");
+        ImportAreaMapPresentation presentation = Ensure.NotNull(maps);
         MotherBrainHealthPalettePresentation health = presentation.MotherBrainHealthPalette;
         InstalledMotherBrainRainbowPalette rainbow = presentation.MotherBrainRainbowColours;
         MotherBrainRoomColorPresentation room = presentation.MotherBrainRoomColors;
-        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
-        BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors ?? throw Missing("the Baby's cutscene colours");
+        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors;
+        BabyMetroidCutsceneColorCatalog baby = bosses.BabyMetroidCutsceneColors;
 
         var shades = new List<SheetShade>([.. HealthSprites(health), .. RainbowSprites(rainbow)]);
         shades.AddRange(RoomSprites(room));
@@ -114,24 +113,22 @@ internal static class MotherBrainSheetShades
         }
         shades.Add(SheetShade.Run(MotherBrainShades.BabyArrives, SeventhRow + FirstColour,
             Colours(BabyMetroidCutsceneColorFormat.InitialColorCount, baby.InitialColor)));
-        // The Baby's installed fade colours number its images from one.
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.BabyFade, BabyMetroidCutsceneColorDefinitions.FadeFrameCount))
         {
             shades.Add(SheetShade.Run(MotherBrainShades.Fade(image), SeventhRow + FirstColour,
-                Colours(BabyMetroidCutsceneColorFormat.FadeColorCount, colour => baby.FadeColor(image.Step + 1, colour))));
+                Colours(BabyMetroidCutsceneColorFormat.FadeColorCount, colour => baby.FadeColor(image.Step, colour))));
         }
         return shades;
     }
 
     /// <summary>The shades of her body layer: her body's health bands, rainbow, grey and death fades.</summary>
-    /// <exception cref="InvalidDataException">Her colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> BodyLayer(ImportAreaMapPresentation maps, BossSourceArtwork bosses)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(bosses);
         MotherBrainHealthPalettePresentation health = maps.MotherBrainHealthPalette;
         InstalledMotherBrainRainbowPalette rainbow = maps.MotherBrainRainbowColours;
-        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors ?? throw Missing("Mother Brain's death colours");
+        MotherBrainDeathColorCatalog death = bosses.MotherBrainDeathColors;
         var shades = new List<SheetShade>([.. HealthBackground(health), .. RainbowBackground(rainbow)]);
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DeathBody, death.BodyFadeFrameCount))
             shades.Add(Body(MotherBrainShades.Fade(image), Colours(MotherBrainDeathColorFormat.BodyColorCount, colour => death.BodyColor(image.Step, colour))));
@@ -146,16 +143,15 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The sprite shades of her health bands: her brain's and rear legs' colours in each.</summary>
-    internal static IReadOnlyList<SheetShade> HealthSprites(MotherBrainHealthPalettePresentation health)
+    internal static List<SheetShade> HealthSprites(MotherBrainHealthPalettePresentation health)
     {
         Ensure.NotNull(health);
         var shades = new List<SheetShade>();
-        for (int band = 0; band < MotherBrainHealthPaletteFormat.StateCount; band++)
+        foreach (MotherBrainHealthBand band in MotherBrainHealthBandDefinitions.HighestFirst)
         {
-            int shown = band;
-            shades.Add(BrainAndLegs(MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[shown]), LegsRow + FirstColour,
-                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(shown, colour)),
-                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.backLegs.Colour(shown, colour))));
+            shades.Add(BrainAndLegs(MotherBrainShades.Health(band), LegsRow + FirstColour,
+                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(band, colour)),
+                Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.backLegs.Colour(band, colour))));
         }
         return shades;
     }
@@ -164,12 +160,12 @@ internal static class MotherBrainSheetShades
     /// The sprite shades of her rainbow colours: her brain's and rear legs' colours in each rainbow phase, restored, in
     /// each step of the drain to grey and the revival from it, and her brain's in each step of the fake death's fades.
     /// </summary>
-    internal static IReadOnlyList<SheetShade> RainbowSprites(InstalledMotherBrainRainbowPalette rainbow)
+    internal static List<SheetShade> RainbowSprites(InstalledMotherBrainRainbowPalette rainbow)
     {
         Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
-            shades.Add(Phase(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), rainbow.rainbow[frame]));
+        foreach (MotherBrainRainbowImage image in Steps(MotherBrainRainbowImage.All, rainbow.rainbow.Length, "rainbow"))
+            shades.Add(Phase(MotherBrainShades.Rainbow(image), rainbow.rainbow[image.Step]));
         shades.Add(Phase(MotherBrainShades.Restored, rainbow.normal));
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DrainToGrey, rainbow.toGrey.Length))
         {
@@ -201,27 +197,24 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The background shades of her health bands: her body's colours in each.</summary>
-    internal static IReadOnlyList<SheetShade> HealthBackground(MotherBrainHealthPalettePresentation health)
+    internal static List<SheetShade> HealthBackground(MotherBrainHealthPalettePresentation health)
     {
         Ensure.NotNull(health);
         var shades = new List<SheetShade>();
-        for (int band = 0; band < MotherBrainHealthPaletteFormat.StateCount; band++)
-        {
-            int shown = band;
-            shades.Add(Body(MotherBrainShades.Health(MotherBrainHealthBandDefinitions.HighestFirst[shown]), Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(shown, colour))));
-        }
+        foreach (MotherBrainHealthBand band in MotherBrainHealthBandDefinitions.HighestFirst)
+            shades.Add(Body(MotherBrainShades.Health(band), Colours(MotherBrainRainbowPaletteGeometry.ColorCount, colour => health.body.Colour(band, colour))));
         return shades;
     }
 
     /// <summary>The background shades of her rainbow colours: her body's colours in each rainbow phase, restored, and in each step of the drain and revival.</summary>
-    internal static IReadOnlyList<SheetShade> RainbowBackground(InstalledMotherBrainRainbowPalette rainbow)
+    internal static List<SheetShade> RainbowBackground(InstalledMotherBrainRainbowPalette rainbow)
     {
         Ensure.NotNull(rainbow);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < rainbow.rainbow.Length; frame++)
+        foreach (MotherBrainRainbowImage image in Steps(MotherBrainRainbowImage.All, rainbow.rainbow.Length, "rainbow"))
         {
-            InstalledMotherBrainRainbowPalette.PaletteFrame phase = rainbow.rainbow[frame];
-            shades.Add(Body(MotherBrainShades.Rainbow(MotherBrainRainbowImage.All[frame]), Colours(phase.Body.Length, colour => phase.Body[colour])));
+            InstalledMotherBrainRainbowPalette.PaletteFrame phase = rainbow.rainbow[image.Step];
+            shades.Add(Body(MotherBrainShades.Rainbow(image), Colours(phase.Body.Length, colour => phase.Body[colour])));
         }
         shades.Add(Body(MotherBrainShades.Restored, Colours(rainbow.normal.Body.Length, colour => rainbow.normal.Body[colour])));
         foreach (MotherBrainFadeImage image in Images(MotherBrainFadeDefinitions.DrainToGrey, rainbow.toGrey.Length))
@@ -247,15 +240,12 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The background shades of her room's colours: each step of its flash, its steady grey, and its lights going out and recovering.</summary>
-    internal static IReadOnlyList<SheetShade> RoomBackground(MotherBrainRoomColorPresentation room)
+    internal static List<SheetShade> RoomBackground(MotherBrainRoomColorPresentation room)
     {
         Ensure.NotNull(room);
         var shades = new List<SheetShade>();
-        for (int frame = 0; frame < MotherBrainRoomFlashDefinitions.FlashFrameCount; frame++)
-        {
-            int shown = frame;
-            shades.Add(Flash(MotherBrainShades.Flash(MotherBrainRoomFlashImage.All[shown]), colour => room.flash.Colour(shown, colour)));
-        }
+        foreach (MotherBrainRoomFlashImage image in Steps(MotherBrainRoomFlashImage.All, room.flash.RowCount, "room flash"))
+            shades.Add(Flash(MotherBrainShades.Flash(image), colour => room.flash.Colour(image.Step, colour)));
         shades.Add(Flash(MotherBrainShades.FinalRoom, colour => room.finalRoom.Colour(colour)));
         shades.Add(Lights(MotherBrainShades.LightsOut, _ => RgbColor.Black));
         foreach (MotherBrainFadeImage lights in MotherBrainFadeDefinitions.RecoveryLights.Images)
@@ -264,35 +254,41 @@ internal static class MotherBrainSheetShades
     }
 
     /// <summary>The shades of the Baby Metroid's and its victim's sheets: its entry's colours and each phase of its membrane's pulse.</summary>
-    /// <exception cref="InvalidDataException">Its colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> BabyMetroid(BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        BabyMetroidColorCatalog babyMetroid = bosses.BabyMetroidColors ?? throw Missing("the Shitroid's colours");
+        BabyMetroidColorCatalog babyMetroid = bosses.BabyMetroidColors;
         var shades = new List<SheetShade>
         {
             Rows(TourianCorpseShades.BabyMetroidTargets,
                 new ColourRun(BrainRow + FirstColour, Colours(Group - FirstColour, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.Sidehopper, colour + FirstColour))),
                 new ColourRun(AttackRow + FirstColour, Colours(Group - FirstColour, colour => babyMetroid.TargetColor(BabyMetroidColorTarget.BabyMetroid, colour + FirstColour)))),
         };
-        for (int phase = 0; phase < BabyMetroidColorDefinitions.NormalFrameCount; phase++)
+        foreach (BabyMetroidMembranePulse pulse in Steps(BabyMetroidMembranePulse.All, BabyMetroidColorDefinitions.NormalFrameCount, "membrane pulse"))
         {
-            int shown = phase;
-            shades.Add(SheetShade.Run(BabyMetroidShades.Membrane(BabyMetroidMembranePulse.All[shown]), AttackRow + MembraneFirstColour,
-                Colours(BabyMetroidColorDefinitions.NormalColorsPerFrame, colour => babyMetroid.NormalColor(shown, colour))));
+            shades.Add(SheetShade.Run(BabyMetroidShades.Membrane(pulse), AttackRow + MembraneFirstColour,
+                Colours(BabyMetroidColorDefinitions.NormalColorsPerFrame, colour => babyMetroid.NormalColor(pulse.Step, colour))));
         }
         return shades;
     }
 
     /// <summary>The shades of the Zebetites' sheets: each frame of their shared pulse.</summary>
-    /// <exception cref="InvalidDataException">Their colours are not installed.</exception>
     internal static IReadOnlyList<SheetShade> Zebetites(BossSourceArtwork bosses)
     {
         Ensure.NotNull(bosses);
-        ZebetiteColorCatalog zebetites = bosses.ZebetiteColors ?? throw Missing("the Zebetites' colours");
-        return [.. Enumerable.Range(0, ZebetiteColorFormat.FrameCount).Select(frame => SheetShade.Run(ZebetiteShades.Pulse(ZebetitePulse.All[frame]),
-            AttackRow + PulseFirstColour, Colours(ZebetiteColorFormat.ColorsPerFrame, colour => zebetites.Resolve(frame, colour))))];
+        ZebetiteColorCatalog zebetites = bosses.ZebetiteColors;
+        return [.. Steps(ZebetitePulse.All, ZebetiteColorFormat.FrameCount, "Zebetite pulse").Select(pulse => SheetShade.Run(ZebetiteShades.Pulse(pulse),
+            AttackRow + PulseFirstColour, Colours(ZebetiteColorFormat.ColorsPerFrame, colour => zebetites.Resolve(pulse.Step, colour))))];
     }
+
+    /// <summary>
+    /// The steps of a cycle whose colours the installation holds <paramref name="installed"/> rows of, one for each step and
+    /// read at the step's own place in its cycle.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The installation holds another number of rows than the cycle has steps.</exception>
+    private static IReadOnlyList<T> Steps<T>(IReadOnlyList<T> steps, int installed, string cycle) => installed == steps.Count
+        ? steps
+        : throw new InvalidDataException($"Mother Brain's {cycle} shows {steps.Count} steps, but the installation holds {installed} rows of its colours.");
 
     /// <summary>
     /// <paramref name="fade"/>'s images, whose colours the installation holds <paramref name="installed"/> rows of: one for
@@ -326,11 +322,9 @@ internal static class MotherBrainSheetShades
 
     /// <summary>A shade of several runs of colours, each from its first ink, in rising order.</summary>
     private static SheetShade Rows(PictureShade shade, params ColourRun[] runs) =>
-        new(shade, [.. runs.SelectMany(run => Enumerable.Range(run.FirstInk, run.Colours.Length))], [.. runs.SelectMany(run => run.Colours)]);
+        SheetShade.Combined(shade, runs.Select(run => SheetShade.Run(shade, run.FirstInk, run.Colours)));
 
     /// <summary><paramref name="count"/> colours, each from <paramref name="colour"/>.</summary>
     private static RgbColor[] Colours(int count, Func<int, RgbColor> colour) => [.. Enumerable.Range(0, count).Select(colour)];
 
-    /// <summary>The error for an encounter whose colours are not installed.</summary>
-    private static InvalidDataException Missing(string colours) => new($"The sheets are shaded from {colours}, which are not installed.");
 }

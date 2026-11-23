@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// Every assist works at one seam around the game's own behaviour, so damage, firing, timers and room setup keep their
 /// ordinary side effects. Attract-demo playback always runs unassisted.
 /// </remarks>
-public sealed record GameplayAssists
+public sealed partial record GameplayAssists
 {
     /// <summary>The unassisted game: no assist is active.</summary>
     public static GameplayAssists None { get; } = new();
@@ -45,12 +45,7 @@ public sealed record GameplayAssists
     /// How much of the map the HUD minimap and the pause map show. The reveal is drawn only: it never marks rooms
     /// explored or area maps collected, so returning to <see cref="MapRevealMode.None"/> restores the saved map.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The mode is not a named reveal.</exception>
-    public MapRevealMode MapReveal
-    {
-        get;
-        init => field = Enum.IsDefined(value) ? value : throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown map reveal mode.");
-    }
+    public MapRevealMode MapReveal { get; init; }
 
     /// <summary>
     /// Whether the Tourian statues stand open: the statue room starts fully descended with its passage cleared, without

@@ -22,8 +22,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// ends the effects whose colours it restores (<see cref="EndingColourOwnerDefinitions.Restores"/>), so no shade depends
 /// on which was shown last.
 /// </remarks>
-[RoomScopeBoundary("The ending's colours own the ending's colour effects for the cinematic's lifetime; no gameplay room is loaded during it.")]
-internal sealed class EndingColours
+internal sealed partial class EndingColours
 {
     /// <summary>The order the restoring loads' shades lie in, which lists every load once (#2543).</summary>
     private static readonly IReadOnlyList<EndingColourLoad> LoadLayers = Ensure.EveryMemberOnce(EndingShadeLayeringDefinitions.Loads);
@@ -59,30 +58,28 @@ internal sealed class EndingColours
     internal ColourEffectSystem ColourEffects { get; private set; } = ColourEffectSystem.ForScreen();
 
     /// <summary>
-    /// Shows the installed colours <paramref name="load"/>. A scene's whole screen of colours starts that scene, with
-    /// <paramref name="backdrop"/> as its backdrop: nothing shown before it shows any more. A load within a scene restores
-    /// some of its colours and ends the effects in them.
+    /// Shows the installed colours of scene <paramref name="sceneLoad"/>, its whole screen of colours, which starts that
+    /// scene with <paramref name="backdrop"/> as its backdrop: nothing shown before it shows any more.
     /// </summary>
-    /// <exception cref="ArgumentException">A scene's load names no backdrop, or a load within a scene names one.</exception>
-    /// <exception cref="InvalidOperationException">A load within a scene restores colours a running colour effect still animates.</exception>
-    internal void Load(EndingColourLoad load, RgbColor? backdrop)
+    internal void StartScene(EndingColourLoad sceneLoad, RgbColor backdrop)
     {
-        if (StartsScene(load))
-        {
-            scene = load;
-            sceneBackdrop = backdrop ?? throw new ArgumentException($"The ending's {load} scene names no backdrop.", nameof(backdrop));
-            restored.Clear();
-            restoredColourEffects.Clear();
-            fades.Clear();
-            flashes.Clear();
-            logoCrossfadeStep = null;
-            return;
-        }
-        if (backdrop is not null)
-            throw new ArgumentException($"The ending's {load} load restores colours within its scene and shows no backdrop of its own.", nameof(backdrop));
-        EndingRestoredEffects restores = EndingColourOwnerDefinitions.Restores.TryGetValue(load, out EndingRestoredEffects? listed)
-            ? listed
-            : throw new InvalidDataException($"The ending's {load} load lists nothing it restores.");
+        scene = sceneLoad;
+        sceneBackdrop = backdrop;
+        restored.Clear();
+        restoredColourEffects.Clear();
+        fades.Clear();
+        flashes.Clear();
+        logoCrossfadeStep = null;
+    }
+
+    /// <summary>
+    /// Shows the installed colours <paramref name="load"/> restores within the running scene, which shows no backdrop of its
+    /// own, and ends the effects in them.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The load restores colours a running colour effect still animates.</exception>
+    internal void Restore(EndingColourLoad load)
+    {
+        EndingRestoredEffects restores = EndingColourOwnerDefinitions.Restores[load];
         foreach (EndingFade fade in restores.Fades)
             fades.Remove(fade);
         foreach (ColourEffectColours colours in restores.ColourEffects)
@@ -116,16 +113,14 @@ internal sealed class EndingColours
     /// whiteout and the flyaway's clearing of it to black, each over those the scene brings in before it.
     /// </summary>
     /// <param name="space">The installed backdrops of the space behind the exploding planet.</param>
-    /// <exception cref="InvalidOperationException">The space behind the exploding planet shows while its backdrops are not installed.</exception>
-    internal RgbColor Backdrop(EndingSpaceBackdrops? space)
+    internal RgbColor Backdrop(EndingSpaceBackdrops space)
     {
         RgbColor backdrop = sceneBackdrop;
         if (FlashBackdrop(EndingFlash.SilhouetteBackdrop) is { } silhouette)
             backdrop = silhouette;
         if (ColourEffects.FrameOf(EndingColourEffectDefinitions.SpaceColours) is { } frame)
         {
-            backdrop = (space ?? throw new InvalidOperationException(
-                "The ending's explosion requires the installed backdrops of the space behind the exploding planet.")).Of(frame);
+            backdrop = Ensure.NotNull(space).Of(frame);
         }
         if (FlashBackdrop(EndingFlash.ExplosionWhiteout) is { } whiteout)
             backdrop = whiteout;
@@ -207,9 +202,6 @@ internal sealed class EndingColours
         return new PictureShading(shades.ToImmutable(), []);
     }
 
-    /// <summary>Whether <paramref name="load"/> is a scene's whole screen of colours, which starts that scene.</summary>
-    private static bool StartsScene(EndingColourLoad load) =>
-        load is EndingColourLoad.Escape or EndingColourLoad.Explosion or EndingColourLoad.Credits or EndingColourLoad.PostCredits;
 
     /// <summary>The backdrop colour <paramref name="flash"/> shows while the scene shows it, or none.</summary>
     private RgbColor? FlashBackdrop(EndingFlash flash) => flashes.TryGetValue(flash, out RgbColor? backdrop) ? backdrop : null;

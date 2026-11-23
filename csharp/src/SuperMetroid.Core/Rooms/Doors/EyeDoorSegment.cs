@@ -13,9 +13,7 @@ internal enum EyeDoorSegment
     Opening,
 
     /// <summary>
-    /// The open eye watching Samus: it fires three shots, then blinks slowly, its eye closed for 96 updates. The game draws
-    /// the closed eye for 48 updates and then again for 48, the second draw writing the same picture to the same blocks,
-    /// which nothing else writes in between, so it is one picture of both lengths (#2480).
+    /// The open eye watching Samus: it fires three shots, then blinks slowly, its eye closed for 96 updates (#2480).
     /// </summary>
     Watching,
 

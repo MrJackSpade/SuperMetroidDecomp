@@ -41,7 +41,7 @@ internal static class RoomObjectPlacementAccess
     /// <exception cref="InvalidDataException">The record gives the kind's family what it does not read, or lacks what it requires.</exception>
     internal static RoomObjectPlacement Placed(RoomObjectKind kind, Position16<RoomBlocks> block, RoomObjectRoomArgument? argument = null,
         DraygonWallCannon? cannon = null, RoomScrollChange? scrollChange = null) =>
-        new(kind, block, SetupOf(kind, argument, cannon, scrollChange));
+        new(block, SetupOf(kind, argument, cannon, scrollChange));
 
     /// <summary>The family setup of <paramref name="kind"/> holding what its record gives it.</summary>
     /// <exception cref="InvalidDataException">The record gives the kind's family what it does not read, or lacks what it requires.</exception>

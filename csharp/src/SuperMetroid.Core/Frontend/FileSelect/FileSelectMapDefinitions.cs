@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 /// <remarks>
 /// A reveal opens the window from the area's label towards the screen's edges: each edge has its own authored speed, the
-/// edge farthest from the label moving four pixels an update, and the edges stop on the reveal's last moving update.
+/// edge farthest from the label moving fastest, and the edges stop on the reveal's last moving update.
 /// </remarks>
-public static class FileSelectMapDefinitions
+public static partial class FileSelectMapDefinitions
 {
     /// <summary>Where the area map's title is drawn, centred above the areas' labels.</summary>
     internal static Offset16<ScreenPixels> WorldTitlePosition => new(128, 16);
@@ -28,7 +28,7 @@ public static class FileSelectMapDefinitions
     /// <summary>Updates the load prelude takes before the screen fades.</summary>
     public const int LoadPreludeFrames = 2;
 
-    /// <summary>Updates the load's fade to black takes from full brightness: one brightness step each update.</summary>
+    /// <summary>Updates the load's fade to black takes from full brightness, a brightness step each update.</summary>
     public const int LoadFadeFrames = 15;
 
     /// <summary>Black updates the load waits after the fade before gameplay setup begins.</summary>
@@ -53,7 +53,7 @@ public static class FileSelectMapDefinitions
     public const int EntryWindowSpeed = 4;
 
     /// <summary>
-    /// Crateria's reveal: its four edges move outward on 52 updates, each at its own speed per update.
+    /// Crateria's reveal: its edges move outward on each of its moving updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion CrateriaReveal { get; } = new(
         MovingUpdates: 52,
@@ -63,7 +63,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromWholePixels(4));
 
     /// <summary>
-    /// Brinstar's reveal: its four edges move outward on 54 updates, each at its own speed per update.
+    /// Brinstar's reveal: its edges move outward on each of its moving updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion BrinstarReveal { get; } = new(
         MovingUpdates: 54,
@@ -73,7 +73,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromPixelFraction(77, 32));
 
     /// <summary>
-    /// Norfair's reveal: its four edges move outward on 46 updates, each at its own speed per update.
+    /// Norfair's reveal: its edges move outward on each of its moving updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion NorfairReveal { get; } = new(
         MovingUpdates: 46,
@@ -83,7 +83,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromPixelFraction(53, 32));
 
     /// <summary>
-    /// Wrecked Ship's reveal: its four edges move outward on 52 updates, each at its own speed per update.
+    /// Wrecked Ship's reveal: its edges move outward on each of its moving updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion WreckedShipReveal { get; } = new(
         MovingUpdates: 52,
@@ -93,7 +93,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromPixelFraction(109, 32));
 
     /// <summary>
-    /// Maridia's reveal: its four edges move outward on 52 updates, each at its own speed per update.
+    /// Maridia's reveal: its edges move outward on each of its moving updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion MaridiaReveal { get; } = new(
         MovingUpdates: 52,
@@ -103,7 +103,7 @@ public static class FileSelectMapDefinitions
         Bottom: SignedSixteenSixteen.FromPixelFraction(15, 8));
 
     /// <summary>
-    /// Tourian's reveal: its four edges move outward on 35 updates, each at its own speed per update.
+    /// Tourian's reveal: its edges move outward on each of its moving updates, each at its own speed per update.
     /// </summary>
     internal static FileSelectMapWindowMotion TourianReveal { get; } = new(
         MovingUpdates: 35,

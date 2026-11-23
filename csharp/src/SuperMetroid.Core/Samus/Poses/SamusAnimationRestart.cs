@@ -4,4 +4,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// Restarts the animation at frame zero of the pose it animates (#1473). Unlike <see cref="SamusAnimationRepeat"/>,
 /// whose target is a frame of its own animation, a restart read past another pose's animation still restarts that pose.
 /// </summary>
-internal sealed record SamusAnimationRestart : SamusAnimationCue;
+internal sealed partial record SamusAnimationRestart : SamusAnimationCue
+{
+    /// <inheritdoc/>
+    internal override TResult Match<TContext, TResult>(SamusAnimationCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).Restart(this, context);
+}

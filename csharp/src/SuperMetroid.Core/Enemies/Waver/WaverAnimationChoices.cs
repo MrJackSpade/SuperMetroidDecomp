@@ -1,29 +1,37 @@
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>Chooses a Waver's animation by its facing and spinning.</summary>
-internal static class WaverAnimationChoices
+internal static partial class WaverAnimationChoices
 {
-    /// <summary>The steady animation facing <paramref name="facing"/>.</summary>
-    internal static WaverSegment Steady(HorizontalDirection facing) => facing switch
+    /// <summary>The steady of each facing.</summary>
+    private static IdentityTable<HorizontalDirection, WaverSegment> SteadyByFacing => field ??= new(new Dictionary<HorizontalDirection, WaverSegment>
     {
-        HorizontalDirection.Left => WaverSegment.SteadyFacingLeft,
-        HorizontalDirection.Right => WaverSegment.SteadyFacingRight,
-        _ => throw new InvalidDataException($"Waver facing {facing} is not a horizontal direction."),
-    };
+        [HorizontalDirection.Left] = WaverSegment.SteadyFacingLeft,
+        [HorizontalDirection.Right] = WaverSegment.SteadyFacingRight,
+    });
+
+    /// <summary>The steady animation facing <paramref name="facing"/>.</summary>
+    internal static WaverSegment Steady(HorizontalDirection facing) => SteadyByFacing[facing];
+
+    /// <summary>The is spin of each animation.</summary>
+    private static IdentityTable<WaverSegment, bool> IsSpinByAnimation => field ??= new(new Dictionary<WaverSegment, bool>
+    {
+        [WaverSegment.SpinningFacingLeft] = true,
+        [WaverSegment.SpinningFacingRight] = true,
+        [WaverSegment.SteadyFacingLeft] = false,
+        [WaverSegment.SteadyFacingRight] = false,
+    });
 
     /// <summary>Whether <paramref name="animation"/> is one of the two spins rather than a steady pose.</summary>
-    internal static bool IsSpin(WaverSegment animation) => animation switch
+    internal static bool IsSpin(WaverSegment animation) => IsSpinByAnimation[animation];
+
+    /// <summary>The spinning of each facing.</summary>
+    private static IdentityTable<HorizontalDirection, WaverSegment> SpinningByFacing => field ??= new(new Dictionary<HorizontalDirection, WaverSegment>
     {
-        WaverSegment.SpinningFacingLeft or WaverSegment.SpinningFacingRight => true,
-        WaverSegment.SteadyFacingLeft or WaverSegment.SteadyFacingRight => false,
-        _ => throw new InvalidDataException($"Waver animation {animation} is not one of its four animations."),
-    };
+        [HorizontalDirection.Left] = WaverSegment.SpinningFacingLeft,
+        [HorizontalDirection.Right] = WaverSegment.SpinningFacingRight,
+    });
 
     /// <summary>The spin facing <paramref name="facing"/>.</summary>
-    internal static WaverSegment Spinning(HorizontalDirection facing) => facing switch
-    {
-        HorizontalDirection.Left => WaverSegment.SpinningFacingLeft,
-        HorizontalDirection.Right => WaverSegment.SpinningFacingRight,
-        _ => throw new InvalidDataException($"Waver facing {facing} is not a horizontal direction."),
-    };
+    internal static WaverSegment Spinning(HorizontalDirection facing) => SpinningByFacing[facing];
 }

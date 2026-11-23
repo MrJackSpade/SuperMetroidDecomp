@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts only the four colors that the Magdollite draw hook actually cycles.</summary>
-public static class MagdollitePaletteCycleExtractor
+public static partial class MagdollitePaletteCycleExtractor
 {
     /// <summary>Exports OBJ-row colors nine through twelve from each of the four Magdollite palette rows at $A8:AC1C.</summary>
     /// <param name="bus">Non-null import-capable cartridge source containing four sixteen-color source rows.</param>
@@ -31,16 +31,11 @@ public static class MagdollitePaletteCycleExtractor
                 int source = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                     (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors +
                      MagdollitePaletteCycle.FirstAnimatedColor + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
+                int native = RomDataReader.ReadWordFixedBank(bus, source);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Magdollite color ${source:X6} has an unrepresentable high bit.");
-                frames[frame][color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                frames[frame][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
         }
         return MagdollitePaletteCycleFile.Write(new MagdollitePaletteCycleDocument

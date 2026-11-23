@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -42,7 +43,7 @@ internal static class MotherBrainDeathHandoffVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), 256).ToArray();
         var level = CreateRoom(new(16, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level, new MotherBrainMutationRequest(new(0, 6), MotherBrainRoomMutation.EscapeDoor)), "escape PLM allocates");
+        roomObjects.BossRoomMutations.MotherBrainRoom.Spawn(level, new MotherBrainMutationRequest(new(0, 6), MotherBrainRoomMutation.EscapeDoor));
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.DoorBlock), level.GetCollisionBlock(new(0, 6)).Terrain, "door setup preserves the block's appearance");
         // #2090: the door block holds no behaviour and leads through the door Mother Brain's death names, the second of her
         // room's list.

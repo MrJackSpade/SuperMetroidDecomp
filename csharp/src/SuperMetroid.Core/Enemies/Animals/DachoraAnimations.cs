@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// The Dachora's run, idle, blink, shinespark charge, echo and fall animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class DachoraAnimations
+internal static partial class DachoraAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DachoraSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -17,61 +17,19 @@ internal static class DachoraAnimations
         [P.RunningLeft] = Stride(DachoraStride.Left, 5),
         [P.RunningLeftFast] = Stride(DachoraStride.Left, 3),
         [P.RunningLeftVeryFast] = Stride(DachoraStride.Left, 1),
-        [P.IdleLeft] =
-        [
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadUp, 48),
-            Show(EnemyFrameId.DachoraStandingFacingLeftNeckStretched, 10),
-        ],
-        [P.PeckLeft] =
-        [
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadLowered, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadRaising, 7),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadToGround, 7),
-        ],
-        [P.RisingFromPecksLeft] = [Show(EnemyFrameId.DachoraStandingFacingLeftNeckStretched, 10)],
-        [P.BlinkLeft] =
-        [
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadUp, 11),
-            Show(EnemyFrameId.DachoraStandingFacingLeftEyeHalfShut, 8),
-            Show(EnemyFrameId.DachoraStandingFacingLeftEyeShut, 8),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadUp, 4),
-            Show(EnemyFrameId.DachoraStandingFacingLeftEyeHalfShut, 4),
-            Show(EnemyFrameId.DachoraStandingFacingLeftEyeShut, 4),
-            Show(EnemyFrameId.DachoraStandingFacingLeftHeadUp, 10),
-            Show(EnemyFrameId.DachoraStandingFacingLeftEyeHalfShut, 5),
-            Show(EnemyFrameId.DachoraStandingFacingLeftEyeShut, 11),
-        ],
+        [P.IdleLeft] = Idle(DachoraStance.Left),
+        [P.PeckLeft] = Peck(DachoraStance.Left),
+        [P.RisingFromPecksLeft] = [Show(DachoraStance.Left.NeckStretched, 10)],
+        [P.BlinkLeft] = Blink(DachoraStance.Left),
         [P.EchoLeft] = [Hold(EnemyFrameId.DachoraStretchedUpFacingLeft)],
         [P.FallingLeft] = [Hold(EnemyFrameId.DachoraRunningLeftNearLegPassing)],
         [P.RunningRight] = Stride(DachoraStride.Right, 5),
         [P.RunningRightFast] = Stride(DachoraStride.Right, 3),
         [P.RunningRightVeryFast] = Stride(DachoraStride.Right, 1),
-        [P.IdleRight] =
-        [
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadUp, 48),
-            Show(EnemyFrameId.DachoraStandingFacingRightNeckStretched, 10),
-        ],
-        [P.PeckRight] =
-        [
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadLowered, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadRaising, 7),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadToGround, 7),
-        ],
-        [P.RisingFromPecksRight] = [Show(EnemyFrameId.DachoraStandingFacingRightNeckStretched, 10)],
-        [P.BlinkRight] =
-        [
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadUp, 11),
-            Show(EnemyFrameId.DachoraStandingFacingRightEyeHalfShut, 8),
-            Show(EnemyFrameId.DachoraStandingFacingRightEyeShut, 8),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadUp, 4),
-            Show(EnemyFrameId.DachoraStandingFacingRightEyeHalfShut, 4),
-            Show(EnemyFrameId.DachoraStandingFacingRightEyeShut, 4),
-            Show(EnemyFrameId.DachoraStandingFacingRightHeadUp, 10),
-            Show(EnemyFrameId.DachoraStandingFacingRightEyeHalfShut, 5),
-            Show(EnemyFrameId.DachoraStandingFacingRightEyeShut, 11),
-        ],
+        [P.IdleRight] = Idle(DachoraStance.Right),
+        [P.PeckRight] = Peck(DachoraStance.Right),
+        [P.RisingFromPecksRight] = [Show(DachoraStance.Right.NeckStretched, 10)],
+        [P.BlinkRight] = Blink(DachoraStance.Right),
         [P.ChargeRight] = [Hold(EnemyFrameId.DachoraCrouchedFacingRight)],
         [P.EchoRight] = [Hold(EnemyFrameId.DachoraStretchedUpFacingRight)],
         [P.FallingRight] = [Hold(EnemyFrameId.DachoraRunningRightNearLegPassing)],
@@ -85,7 +43,7 @@ internal static class DachoraAnimations
     /// neck, pecks <see cref="IdlePecks"/> times and stretches back up, repeating (#2432). The echoes, the falls and the
     /// charge's crouch are still pictures (#2275).
     /// </summary>
-    internal static IReadOnlyDictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
+    internal static Dictionary<DachoraSegment, Animation<DachoraSegment>> StartingAt { get; } = new Dictionary<DachoraSegment, Animation<DachoraSegment>>
     {
         [P.RunningLeft] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningLeft)]),
         [P.RunningLeftFast] = Animation<DachoraSegment>.Looping([Segments.Whole(P.RunningLeftFast)]),
@@ -113,6 +71,36 @@ internal static class DachoraAnimations
     /// </summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Stride(DachoraStride stride, int updates) =>
         [.. stride.Poses.Select(pose => Show(pose, updates))];
+
+    /// <summary>An idle Dachora standing with its head up, then stretching its neck, facing as <paramref name="stance"/> does.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Idle(DachoraStance stance) =>
+    [
+        Show(stance.HeadUp, 48),
+        Show(stance.NeckStretched, 10),
+    ];
+
+    /// <summary>One peck at the ground, facing as <paramref name="stance"/> does.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Peck(DachoraStance stance) =>
+    [
+        Show(stance.HeadLowered, 7),
+        Show(stance.HeadToGround, 7),
+        Show(stance.HeadRaising, 7),
+        Show(stance.HeadToGround, 7),
+    ];
+
+    /// <summary>A standing Dachora's three blinks, facing as <paramref name="stance"/> does.</summary>
+    private static AnimationBeat<EnemyFrameId, NoAnimationCue>[] Blink(DachoraStance stance) =>
+    [
+        Show(stance.HeadUp, 11),
+        Show(stance.EyeHalfShut, 8),
+        Show(stance.EyeShut, 8),
+        Show(stance.HeadUp, 4),
+        Show(stance.EyeHalfShut, 4),
+        Show(stance.EyeShut, 4),
+        Show(stance.HeadUp, 10),
+        Show(stance.EyeHalfShut, 5),
+        Show(stance.EyeShut, 11),
+    ];
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, NoAnimationCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, NoAnimationCue>.HeldFrame(frame);

@@ -1,35 +1,33 @@
 namespace SuperMetroid.Core.Enemies.Puyo;
 
-/// <summary>Seven immutable Puyo hop definitions, independent of animation artwork.</summary>
-internal static class PuyoHopDefinitions
+/// <summary>The immutable Puyo hop definitions, independent of animation artwork.</summary>
+internal static partial class PuyoHopDefinitions
 {
     /// <summary>
-    /// Each hop's height, horizontal speed, launch search step, speed-curve step, airborne behaviour and the speed its drop falls at when a
-    /// wall or ceiling cuts it short (#1820): two pixels each update after a small, big or giant hop, three after the long
-    /// hop and a pixel and three quarters after a dropped bounce.
+    /// Each hop's height, whole pixels moved across each update, launch search step, speed-curve step, airborne behaviour and the speed its drop falls at when a
+    /// wall or ceiling cuts it short (#1820): one speed after a small, big or giant hop, faster after the long hop and
+    /// slower after a dropped bounce.
     /// </summary>
     internal static readonly Dictionary<PuyoHopType, PuyoHopDefinition> Hops = new()
     {
-        [PuyoHopType.NormalSmall] = new(16, SignedEightEight.FromPixels(1), QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalShortHop, SignedSixteenSixteen.FromWholePixels(2)),
-        [PuyoHopType.NormalBig] = new(32, SignedEightEight.FromPixels(1), QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalBigHop, SignedSixteenSixteen.FromWholePixels(2)),
-        [PuyoHopType.NormalLong] = new(32, SignedEightEight.FromPixels(2), QuadraticSpeedCurvePlace.FromMarks(2), QuadraticSpeedCurvePlace.FromMarks(3), PuyoAirborneMovement.NormalLongHop, SignedSixteenSixteen.FromWholePixels(3)),
-        [PuyoHopType.Giant] = new(128, SignedEightEight.FromPixelFraction(5, 4), QuadraticSpeedCurvePlace.FromMarkFraction(5, 4), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.GiantHop, SignedSixteenSixteen.FromWholePixels(2)),
-        [PuyoHopType.Dropping] = new(0, SignedEightEight.Zero, QuadraticSpeedCurvePlace.Start, QuadraticSpeedCurvePlace.FromMarks(0), PuyoAirborneMovement.Dropping, SignedSixteenSixteen.FromWholePixels(1)),
-        [PuyoHopType.DroppedSmall] = new(16, SignedEightEight.FromPixels(1), QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarkFraction(7, 4), PuyoAirborneMovement.Dropped, SignedSixteenSixteen.FromPixelFraction(7, 4)),
-        [PuyoHopType.DroppedBig] = new(21, SignedEightEight.FromPixels(1), QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarkFraction(7, 4), PuyoAirborneMovement.Dropped, SignedSixteenSixteen.FromPixelFraction(7, 4)),
+        [PuyoHopType.NormalSmall] = new(16, 1, QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalShortHop, SignedSixteenSixteen.FromWholePixels(2)),
+        [PuyoHopType.NormalBig] = new(32, 1, QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.NormalBigHop, SignedSixteenSixteen.FromWholePixels(2)),
+        [PuyoHopType.NormalLong] = new(32, 2, QuadraticSpeedCurvePlace.FromMarks(2), QuadraticSpeedCurvePlace.FromMarks(3), PuyoAirborneMovement.NormalLongHop, SignedSixteenSixteen.FromWholePixels(3)),
+        [PuyoHopType.Giant] = new(128, 1, QuadraticSpeedCurvePlace.FromMarkFraction(5, 4), QuadraticSpeedCurvePlace.FromMarks(2), PuyoAirborneMovement.GiantHop, SignedSixteenSixteen.FromWholePixels(2)),
+        [PuyoHopType.Dropping] = new(0, 0, QuadraticSpeedCurvePlace.Start, QuadraticSpeedCurvePlace.FromMarks(0), PuyoAirborneMovement.Dropping, SignedSixteenSixteen.FromWholePixels(1)),
+        [PuyoHopType.DroppedSmall] = new(16, 1, QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarkFraction(7, 4), PuyoAirborneMovement.Dropped, SignedSixteenSixteen.FromPixelFraction(7, 4)),
+        [PuyoHopType.DroppedBig] = new(21, 1, QuadraticSpeedCurvePlace.FromMarks(1), QuadraticSpeedCurvePlace.FromMarkFraction(7, 4), PuyoAirborneMovement.Dropped, SignedSixteenSixteen.FromPixelFraction(7, 4)),
     };
 
     /// <summary>
-    /// The random field a Puyo's hop roll starts from. The roll adds the enemy's frame counter and
-    /// continues past the field's last value from zero.
+    /// The random field a Puyo's hop roll starts from: the roll and the enemy's update count together choose its hop.
     /// </summary>
-    internal static readonly RandomSampleField HopRoll = new(0, 3);
+    internal static readonly RandomSampleField HopRoll = RandomSampleField.OneOf(8);
 
     /// <summary>
-    /// The lowest bit of <see cref="HopRoll"/>: the part of the roll a choice between two outcomes reads, the same bit
-    /// whether the frame counter advances the whole roll or this part alone.
+    /// The part of <see cref="HopRoll"/> a choice between two outcomes reads, taking each one time in two.
     /// </summary>
-    private static readonly RandomSampleField HopRollParity = new(0, 1);
+    private static readonly RandomSampleField HopRollParity = RandomSampleField.OneOf(2);
 
     /// <summary>
     /// The ordinary hop a Puyo that last made the small one takes next (#1619): its hop roll advanced by the enemy's frame
@@ -53,6 +51,9 @@ internal static class PuyoHopDefinitions
     /// </summary>
     internal static readonly RandomChance BigDroppedBounce = RandomChance.Highest(1, HopRollParity);
 
-    /// <summary>The farthest place along the quadratic speed curve, mark 64, an airborne Puyo's speed is read from.</summary>
+    /// <summary>The farthest place along the quadratic speed curve an airborne Puyo's speed is read from.</summary>
     internal static QuadraticSpeedCurvePlace FastestSpeedPlace { get; } = QuadraticSpeedCurvePlace.FromMarks(64);
+
+    /// <summary>The ordinary hops, whose next hop proximity and chance choose: the small, big and long ones.</summary>
+    internal static readonly PuyoHopType[] NormalHops = [PuyoHopType.NormalSmall, PuyoHopType.NormalBig, PuyoHopType.NormalLong];
 }

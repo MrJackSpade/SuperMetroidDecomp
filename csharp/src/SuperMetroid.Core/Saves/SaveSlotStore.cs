@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Saves;
 /// Gameplay, menus, checkpoints and JSON read and write it directly by <see cref="SaveSlot"/>; a slot's number and the
 /// raw save image are only the save files' formats (#2083, #2140).
 /// </summary>
-public sealed class SaveSlotStore
+public sealed partial class SaveSlotStore
 {
     /// <summary>Each saved slot's decoded record; a slot with no entry is empty or invalid.</summary>
-    internal readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];
+    private readonly Dictionary<SaveSlot, SuperMetroidSaveSlot> slots = [];
 
     /// <summary>The file-select menu's persistent selection.</summary>
     private SaveSlot selectedSlot;
@@ -33,15 +33,14 @@ public sealed class SaveSlotStore
         IAreaMapSource maps)
     {
         Ensure.NotNull(saved);
-        RequireSlot(selectedSlot);
         var store = new SaveSlotStore(maps)
         {
             selectedSlot = selectedSlot,
-            History = RequireHistory(history),
+            History = history,
         };
         foreach (SuperMetroidSaveSlot save in saved)
         {
-            RequireSlot(Ensure.NotNull(save).Slot);
+            Ensure.NotNull(save);
             if (!store.slots.TryAdd(save.Slot, save))
                 throw new ArgumentException($"Two imported saves name slot {save.Slot}.", nameof(saved));
         }
@@ -57,8 +56,19 @@ public sealed class SaveSlotStore
     /// <summary>A detached copy of the save in <paramref name="slot"/>, or null when it is empty or invalid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(SaveSlot slot)
     {
-        RequireSlot(slot);
         return slots.TryGetValue(slot, out SuperMetroidSaveSlot? saved) ? Detached(saved, slot) : null;
+    }
+
+    /// <summary>
+    /// A detached copy of the save in <paramref name="slot"/>, which the running game was chosen from or has just written
+    /// (#2554): the file select's existing save, the copy it made, or the save a continue resumes.
+    /// </summary>
+    /// <param name="slot">A slot holding a valid save.</param>
+    /// <exception cref="InvalidDataException">The slot holds no valid save.</exception>
+    public SuperMetroidSaveSlot ReadSavedSlot(SaveSlot slot)
+    {
+        return slots.TryGetValue(slot, out SuperMetroidSaveSlot? saved) ? Detached(saved, slot)
+            : throw new InvalidDataException($"Save slot {slot} holds no valid save.");
     }
 
     /// <summary>
@@ -67,15 +77,12 @@ public sealed class SaveSlotStore
     /// </summary>
     public void SaveSlot(SaveSlot slot, SuperMetroidSaveSnapshot snapshot)
     {
-        RequireSlot(slot);
         slots[slot] = SaveSlotRetention.Retain(snapshot, slot, maps);
     }
 
     /// <summary>Copies a save as the file-select menu's data copy does: the destination receives the source's save.</summary>
     public void CopySlot(SaveSlot sourceSlot, SaveSlot destinationSlot)
     {
-        RequireSlot(sourceSlot);
-        RequireSlot(destinationSlot);
         if (sourceSlot == destinationSlot)
             throw new ArgumentException("File copy requires two different save slots.");
         if (!slots.TryGetValue(sourceSlot, out SuperMetroidSaveSlot? source))
@@ -86,14 +93,12 @@ public sealed class SaveSlotStore
     /// <summary>Clears a save as the file-select menu's data clear does: the slot becomes empty.</summary>
     public void ClearSlot(SaveSlot slot)
     {
-        RequireSlot(slot);
         slots.Remove(slot);
     }
 
     /// <summary>Stores the menu's selected slot.</summary>
     public void SelectSlot(SaveSlot slot)
     {
-        RequireSlot(slot);
         selectedSlot = slot;
     }
 
@@ -101,22 +106,21 @@ public sealed class SaveSlotStore
     public SaveSlot ReadSelectedSlot() => selectedSlot;
 
     /// <summary>Whether the save file's history holds a completed game, which unlocks the completion demo set.</summary>
-    public bool HasCompletedGame => History == SaveFileHistory.GameCompleted;
+    internal bool HasCompletedGame => History == SaveFileHistory.GameCompleted;
 
     /// <summary>The ending completes the game; the save file's history keeps it until a power-on finds no valid save.</summary>
     public void CompleteGame() => History = SaveFileHistory.GameCompleted;
 
     /// <summary>Restores the history a save file kept, as its host reads it back.</summary>
     /// <param name="history">The save file's history of the game as a whole.</param>
-    public void RestoreHistory(SaveFileHistory history) => History = RequireHistory(history);
+    public void RestoreHistory(SaveFileHistory history) => History = history;
 
     /// <summary>
     /// The frame this save file adds at power-on to every earthquake rumble's delay, which
     /// <see cref="PowerOnEarthquakeSoundDelay"/> derives from whether a slot is valid and from the file's history.
     /// </summary>
     public PowerOnEarthquakeSoundDelay EarthquakeSoundDelayAtPowerOn() => PowerOnEarthquakeSoundDelay.FoundAtPowerOn(
-        AnySlotValid, gameCompleted: History == SaveFileHistory.GameCompleted,
-        powerOnFoundNoValidSave: History == SaveFileHistory.PowerOnFoundNoValidSave);
+        AnySlotValid, historyKept: History != SaveFileHistory.None);
 
     /// <summary>
     /// Decides at boot, once, whether the title's attract demos include the completion set. When every save slot is
@@ -133,20 +137,10 @@ public sealed class SaveSlotStore
         }
         return HasCompletedGame;
     }
-    /// <summary>Rejects a value that names none of the slots A, B and C.</summary>
-    private static void RequireSlot(SaveSlot slot)
-    {
-        if (!Enum.IsDefined(slot))
-            throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C.");
-    }
 
     /// <summary>Whether any slot holds a save.</summary>
     private bool AnySlotValid => slots.Count > 0;
 
-    /// <summary>Rejects a value that names no save-file history.</summary>
-    private static SaveFileHistory RequireHistory(SaveFileHistory history) => Enum.IsDefined(history)
-        ? history
-        : throw new ArgumentOutOfRangeException(nameof(history), history, "Undefined save-file history.");
 
     /// <summary>A copy of <paramref name="saved"/> as slot <paramref name="slot"/>, sharing no array with it.</summary>
     private static SuperMetroidSaveSlot Detached(SuperMetroidSaveSlot saved, SaveSlot slot) => saved with

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Installed filename and supported schema revision for editable completion-message OAM compositions.</summary>
-public static class EndingCompletionTextSpriteFormat
+public static partial class EndingCompletionTextSpriteFormat
 {
     /// <summary>Supported composition schema revision, requiring the complete 56-name frame set.</summary>
     public const int Version = 1;

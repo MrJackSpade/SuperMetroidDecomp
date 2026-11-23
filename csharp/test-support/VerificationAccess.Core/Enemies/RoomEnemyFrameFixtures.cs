@@ -44,7 +44,7 @@ internal static class RoomEnemyFrameFixtures
             ControllerInput = GameplayAction.None,
             Camera = Position16<RoomPixels>.Zero,
             GunshipScenario = GunshipLoadScenario.Ordinary,
-            DeferLoaderTimeCameraReads = false,
+            ViewportLoadMode = SuperMetroid.Core.Rooms.RoomViewportLoadMode.DisplayInitialViewport,
         };
 
     /// <summary>
@@ -86,13 +86,13 @@ internal static class RoomEnemyFrameFixtures
         Samus = inputs.Samus,
         NewlyPressedControllerInput = GameplayAction.None,
         ControllerInput = GameplayAction.None,
-        SamusPreviousPositionCheckpoint = null,
+        SamusPreviousPositionCheckpoint = SuperMetroid.Core.Samus.Movement.SamusScrollCheckpoint.SincePlacement,
         Level = Ensure.NotNull(level),
         SamusProjectiles = inputs.Projectiles,
         SamusColours = inputs.Colours,
         SamusBombs = inputs.Bombs,
         FrameCounter = frameCounter,
-        ShortCounter = frameCounter % FrameClock.ShortCounterPeriod,
+        ShortCounter = SuperMetroid.Core.Compatibility.ShortFrameCount.Zero.After(frameCounter),
     };
 
     /// <summary>Supplies and runs a check's enemy passes on one enemy system.</summary>
@@ -115,7 +115,7 @@ internal static class RoomEnemyFrameFixtures
             Ensure.NotNull(frame);
             // A standalone frame is an update of its own: it begins the check's record of the requests the enemies join.
             self.Audio.Requests.BeginRecordedUpdate();
-            self.ProcessingWindow.PrepareEnemyProcessingList(frame.Camera);
+            self.PrepareEnemyProcessingList(frame.Camera);
             return self.StepFrame(frame);
         }
 
@@ -123,32 +123,20 @@ internal static class RoomEnemyFrameFixtures
         /// Runs the ordinary shot pass outside the enemy pass (#2391): Samus's shots meet each interactive enemy in turn, in
         /// the order the enemy pass reaches them, with the camera at the room's origin.
         /// </summary>
-        /// <returns>How many of the enemies a shot hit.</returns>
-        internal int ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs, AreaId roomArea, SamusState samus)
+        internal void ResolveShotsOnInteractiveEnemies(SamusProjectileSystem projectiles, SamusBombProjectileSystem samusBombs, AreaId roomArea, SamusState samus)
         {
-            int hits = 0;
-            foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
-            {
-                if (self.Collision.ResolveOrdinaryProjectileHit(projectiles, samusBombs, roomArea, samus, enemy, Position16<RoomPixels>.Zero))
-                    hits++;
-            }
-            return hits;
+            foreach (RoomEnemyOccupant enemy in self.ProcessingWindow.InteractiveEnemies)
+                self.Collision.ResolveOrdinaryProjectileHit(projectiles, samusBombs, roomArea, samus, enemy, Position16<RoomPixels>.Zero);
         }
 
         /// <summary>
         /// Runs the ordinary bomb pass outside the enemy pass (#2391): Samus's bombs meet each interactive enemy in turn, in
         /// the order the enemy pass reaches them, with the camera at the room's origin.
         /// </summary>
-        /// <returns>How many of the enemies a bomb hit.</returns>
-        internal int ResolveBombsOnInteractiveEnemies(SamusBombProjectileSystem bombs, SamusProjectileSystem ordinaryProjectiles, SamusState samus)
+        internal void ResolveBombsOnInteractiveEnemies(SamusBombProjectileSystem bombs, SamusProjectileSystem ordinaryProjectiles, SamusState samus)
         {
-            int hits = 0;
-            foreach (RoomEnemyPlace enemy in self.ProcessingWindow.InteractiveEnemies)
-            {
-                if (self.Collision.ResolveOrdinaryBombHit(bombs, ordinaryProjectiles, samus, enemy, Position16<RoomPixels>.Zero))
-                    hits++;
-            }
-            return hits;
+            foreach (RoomEnemyOccupant enemy in self.ProcessingWindow.InteractiveEnemies)
+                self.Collision.ResolveOrdinaryBombHit(bombs, ordinaryProjectiles, samus, enemy, Position16<RoomPixels>.Zero);
         }
     }
 

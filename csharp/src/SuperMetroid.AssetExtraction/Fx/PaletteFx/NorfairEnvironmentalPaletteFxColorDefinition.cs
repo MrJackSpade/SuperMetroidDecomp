@@ -2,22 +2,21 @@ using SuperMetroid.Core.Fx.ColourEffects;
 
 namespace SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
-/// <summary>One complete Norfair environmental palette control program.</summary>
-public sealed class NorfairEnvironmentalPaletteFxColorDefinition
+/// <summary>One Norfair environmental effect's records and the colours each writes.</summary>
+public sealed partial class NorfairEnvironmentalPaletteFxColorDefinition
 {
-    /// <summary>Only the catalog creates definitions.</summary>
-    internal NorfairEnvironmentalPaletteFxColorDefinition()
+    /// <summary>Only the catalog creates definitions: the records <paramref name="effect"/> shows, each writing <paramref name="colorsPerFrame"/> colours.</summary>
+    /// <param name="effect">The colour effect whose records the program holds.</param>
+    /// <param name="colorsPerFrame">The colours each record writes.</param>
+    internal NorfairEnvironmentalPaletteFxColorDefinition(ColourEffectId effect, int colorsPerFrame)
     {
+        Effect = effect;
+        ColorFrames = PaletteFxColorFrames.Of(effect, colorsPerFrame);
     }
 
-
-    /// <summary>The mutually exclusive environmental palette owner.</summary>
-    public required NorfairEnvironmentalPaletteOwner Owner { get; init; }
-    /// <summary>The palette-FX object that installs this program.</summary>
-    public required ColourEffectId Object { get; init; }
-    /// <summary>Whether each record begins with a byte-sized heat-phase publication.</summary>
-    public required bool PublishesHeatPhase { get; init; }
+    /// <summary>The colour effect whose records the program holds, which identifies the definition.</summary>
+    public ColourEffectId Effect { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public required PaletteFxColorFrames ColorFrames { get; init; }
+    public PaletteFxColorFrames ColorFrames { get; }
 }

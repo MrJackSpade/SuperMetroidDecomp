@@ -21,22 +21,22 @@ internal static class GunshipEscapeTimerVerification
     /// <summary>Confirms boarding suppresses timer sprites and countdown before liftoff reuses their VRAM tiles for dust.</summary>
     internal static int VerifyGunshipEscapeTimer()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         var top = runtime.Enemies.Places.InUpdateOrder.First(place => place.NativeHeader.InitializationAiPointer == 0xa644);
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         SamusPresentation.InitializeAnimation(samus);
         runtime.EscapeTimer.RunIntoPlace();
@@ -44,12 +44,12 @@ internal static class GunshipEscapeTimerVerification
         runtime.StepFrame(0);
         AssertTrue(samus.Control.Mode.Movement != SamusMovementMode.Gunship, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWholeY(0x0440);
         SamusPresentation.InitializeAnimation(samus);
         var timeBeforeBoarding = Time();
         runtime.StepFrame(ControllerButton.Down);
-        AssertTrue(runtime.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.EntryStarted), "Down starts actual Landing Site boarding");
+        AssertTrue(runtime.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.EntryStarted)), "Down starts actual Landing Site boarding");
         AssertEqual(timeBeforeBoarding, Time(), "Boarding handler stops the timer on its installation frame");
         AssertTrue(!TimerSpritesPresent(), "Boarding removes the timer draws immediately");
         bool sawDustUpload = false;
@@ -59,7 +59,7 @@ internal static class GunshipEscapeTimerVerification
             AssertTrue(runtime.EscapeTimer.IsActive, "Gunship preserves native active timer status");
             AssertEqual(timeBeforeBoarding, Time(), "Gunship handler omits timer countdown");
             AssertTrue(!TimerSpritesPresent(), "No timer sprites reference repurposed dust tiles");
-            if (GunshipState.Of(top).Phase == GunshipPhase.FireUpEngines)
+            if (runtime.Enemies.Places.InUpdateOrder.Single(place => place.SpeciesState<GunshipState>() is not null).RequireSpeciesState<GunshipState>().Phase == GunshipPhase.FireUpEngines)
             {
                 sawDustUpload = true;
                 break;

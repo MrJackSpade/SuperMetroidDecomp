@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// <summary>
 /// What the gameplay display currently shows: the elevator shaft's transform and the latched scene.
 /// </summary>
-internal sealed class GameplayDisplayState
+internal sealed partial class GameplayDisplayState
 {
     /// <summary>
     /// The Ceres elevator shaft's current turning floor. The shaft's door shows it as the room loads and the shaft room

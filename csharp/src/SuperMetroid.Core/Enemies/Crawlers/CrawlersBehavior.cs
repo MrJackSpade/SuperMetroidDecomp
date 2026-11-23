@@ -9,36 +9,50 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Crawlers;
 
 /// <summary>The Crawlers species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Sciser, EnemyDefinitionId.Zero, EnemyDefinitionId.Viola, EnemyDefinitionId.Zeela,
-        EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer, EnemyDefinitionId.OrangeZoomer,
-    ];
-
     /// <summary>
     /// A crawler set up in its animation family that crawls by the shared crawl: Sciser, Zero and Viola each in their own,
     /// Zeela, Sova and both Zoomers in the shared family; or an orange Zoomer (#2146).
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place holds no crawler definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <param name="registrar">The room's registry being composed.</param>
+    [field: NonSerialized]
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Sciser)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Sciser);
-        if (definition == EnemyDefinitionId.Zero)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Zero);
-        if (definition == EnemyDefinitionId.Viola)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Viola);
-        if (definition is EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.ArmoredZoomer)
-            return new SurfaceCrawlerEntity(this, place, common, CrawlerAnimationFamily.Shared);
-        if (definition == EnemyDefinitionId.OrangeZoomer)
-            return new OrangeZoomerEntity(this, place, common);
-        throw new InvalidOperationException($"The crawler species creates no {place.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Sciser], CreateSciser);
+        registrar.Spawns<CrawlerSpawnSettings>([EnemyDefinitionId.Zero], CreateZero);
+        registrar.Spawns<ViolaSpawnSettings>([EnemyDefinitionId.Viola], CreateViola);
+        registrar.Spawns<CrawlerSpawnSettings>(
+            [EnemyDefinitionId.Zeela, EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.ArmoredZoomer], CreateSharedCrawler);
+        registrar.Spawns<OrangeZoomerSpawnSettings>([EnemyDefinitionId.OrangeZoomer], CreateOrangeZoomer);
     }
+
+    /// <summary>A Sciser, crawling in its own animation family.</summary>
+    private EnemyOccupant CreateSciser(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Sciser, settings));
+
+    /// <summary>A Zero, crawling in its own animation family.</summary>
+    private EnemyOccupant CreateZero(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Zero, settings));
+
+    /// <summary>A Viola, crawling in its own animation family along the side of the block it is placed against.</summary>
+    private EnemyOccupant CreateViola(RoomEnemyOccupant occupant, ViolaSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Viola, OnBlockSide(settings)));
+
+    /// <summary>A Zeela, Sova or Zoomer, crawling in the shared animation family.</summary>
+    private EnemyOccupant CreateSharedCrawler(RoomEnemyOccupant occupant, CrawlerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new SurfaceCrawlerEntity(this, occupant, place, common, CrawlerAnimationFamily.Shared, settings));
+
+    /// <summary>An orange Zoomer.</summary>
+    private EnemyOccupant CreateOrangeZoomer(RoomEnemyOccupant occupant, OrangeZoomerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new OrangeZoomerEntity(this, occupant, place, common, settings));
+
+    /// <summary>
+    /// A Viola's settings as a crawler's: it starts crawling along the side of the block it is placed against, at its
+    /// placement's speed or the default one.
+    /// </summary>
+    private static CrawlerSpawnSettings OnBlockSide(ViolaSpawnSettings viola) =>
+        new(Ensure.NotNull(viola).BlockSide, viola.BlockSide, viola.CrawlSpeed);
 
     /// <summary>Performs wall, floor, and slope probes for attached crawlers and falling Zoomers.</summary>
     private readonly EnemyTerrain _terrain;
@@ -74,43 +88,38 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Initializes a crawler of any species through the shared setup. Each species differs only by the family whose
     /// animations it shows on each surface and switches between at corners.
     /// </summary>
-    internal static void InitializeCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static CrawlerEnemyState InitializeCrawler(CrawlerSpawnSettings settings, RoomEnemyPlace place, CrawlerAnimationFamily animationFamily)
     {
-        // The population entry names the starting surface. The Viola's setup alone takes its block side
-        // instead, and a Viola's entry names no surface.
-        CrawlerSurfaceOrientation orientation;
-        CrawlerSurfaceOrientation blockSide;
-        SignedEightEight? crawlSpeed;
-        if (animationFamily == CrawlerAnimationFamily.Viola)
-        {
-            ViolaSpawnSettings viola = place.SpawnSettings<ViolaSpawnSettings>();
-            orientation = viola.BlockSide;
-            blockSide = viola.BlockSide;
-            crawlSpeed = viola.CrawlSpeed;
-        }
-        else
-        {
-            CrawlerSpawnSettings settings = place.SpawnSettings<CrawlerSpawnSettings>();
-            orientation = settings.Orientation;
-            blockSide = settings.BlockSide;
-            crawlSpeed = settings.CrawlSpeed;
-        }
+        CrawlerSurfaceOrientation orientation = settings.Orientation;
+        CrawlerSurfaceOrientation blockSide = settings.BlockSide;
+        SignedEightEight? crawlSpeed = settings.CrawlSpeed;
 
-        // The crawler settles for its first update before it crawls.
+        return SetUpCrawler(place, animationFamily, orientation, blockSide, crawlSpeed);
+    }
+
+    /// <summary>
+    /// The setup every crawler shares: it settles for its first update before it crawls on <paramref name="orientation"/>,
+    /// showing <paramref name="animationFamily"/>'s animations, its velocity the crawl speed signed for
+    /// <paramref name="blockSide"/>; one placed without a crawl speed takes the default speed on its first landing.
+    /// </summary>
+    private static CrawlerEnemyState SetUpCrawler(RoomEnemyPlace place, CrawlerAnimationFamily animationFamily, CrawlerSurfaceOrientation orientation,
+        CrawlerSurfaceOrientation blockSide, SignedEightEight? crawlSpeed)
+    {
         var state = new CrawlerEnemyState(CrawlerAction.Settling)
         {
             TakesDefaultSpeedOnLanding = crawlSpeed is null,
             SurfaceFamily = animationFamily,
             Surface = orientation,
         };
-        Bind(place, state);
 
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             animationFamily, orientation)), AnimationPlace.StartOfAnimation);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
 
         state.Velocity = ResetCrawlerVelocities(blockSide, crawlSpeed, state.Velocity);
+        return state;
     }
 
     /// <summary>Shared crawler velocity reset, also called by Yard after landing.</summary>
@@ -137,12 +146,11 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(CrawlerSurfaceOrientation)} {blockSide}."),
         };
 
-    /// <summary>Runs the separate orange-Zoomer setup.</summary>
-    internal static void InitializeOrangeZoomer(RoomEnemyPlace place)
+    /// <summary>Runs the orange Zoomer's setup, the shared one on its family's surfaces; its placement always names its speed.</summary>
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static CrawlerEnemyState InitializeOrangeZoomer(OrangeZoomerSpawnSettings settings, RoomEnemyPlace place)
     {
-        CrawlerSpawnSettings settings = place.SpawnSettings<CrawlerSpawnSettings>();
-        SignedEightEight crawlSpeed = settings.CrawlSpeed ??
-            throw new InvalidDataException("An orange Zoomer's placement keeps its velocity, which its setup has no speed for.");
+        SignedEightEight crawlSpeed = settings.CrawlSpeed;
 
         CrawlerSurfaceOrientation orientation = settings.Orientation;
         var state = new CrawlerEnemyState(CrawlerAction.Settling)
@@ -150,116 +158,33 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             SurfaceFamily = CrawlerAnimationFamily.Shared,
             Surface = orientation,
         };
-        Bind(place, state);
         state.Playback = new(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
             CrawlerAnimationFamily.Shared, orientation)), AnimationPlace.StartOfAnimation);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         place.AnimationClock.StepOnNextUpdate();
         state.Velocity = SignedForBlockSide(settings.BlockSide, new PixelVelocity<RoomPixels>(crawlSpeed, crawlSpeed));
+        return state;
     }
+
+    /// <summary>What <see cref="RunOrangeZoomerMain"/> does for each <see cref="CrawlerAction"/> member, each member's own arm.</summary>
+    private IdentityTable<CrawlerAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, CrawlerEnemyState>> RunOrangeZoomerMainForCrawlerAction => field ??= new(new Dictionary<CrawlerAction, Action<RoomEnemyPlace, SamusState, RoomLevelData, CrawlerEnemyState>>
+    {
+        [CrawlerAction.Settling] = (place, samus, level, state) => state.Action = CrawlActionOn(state),
+        [CrawlerAction.CrawlingVertically] = (place, samus, level, state) => RunCrawlerVertical(place, state, level, samus),
+        [CrawlerAction.CrawlingHorizontally] = (place, samus, level, state) => RunCrawlerHorizontal(place, state, level, samus),
+        [CrawlerAction.Falling] = (place, samus, level, state) => RunCrawlerFalling(place, state, level),
+    });
 
     /// <summary>
     /// Runs the orange Zoomer, which crawls as the other crawlers do except that, while attached, it reverses its
     /// tangent to pursue Samus and falls off during a Super Missile wall-impact earthquake.
     /// </summary>
     private void RunOrangeZoomerMain(
-        RoomEnemyPlace place,
+        RoomEnemyPlace place, CrawlerEnemyState state,
         SamusState samus,
         RoomLevelData level)
     {
-        CrawlerEnemyState state = place.RequireSpeciesState<CrawlerEnemyState>();
-        switch (state.Action)
-        {
-            case CrawlerAction.Settling:
-                state.Action = CrawlActionOn(state);
-                return;
-            case CrawlerAction.CrawlingVertically:
-                RunOrangeZoomerVertical(place, state, samus, level);
-                return;
-            case CrawlerAction.CrawlingHorizontally:
-                RunOrangeZoomerHorizontal(place, state, samus, level);
-                return;
-            case CrawlerAction.Falling:
-                RunCrawlerFalling(place, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"OrangeZoomer has no behaviour for action {state.Action}.");
-        }
-    }
-
-    /// <summary>Tracks Samus while attached to a wall, reversing its vertical tangent or falling after lost contact.</summary>
-    private void RunOrangeZoomerVertical(
-        RoomEnemyPlace place,
-        CrawlerEnemyState state,
-        SamusState samus,
-        RoomLevelData level)
-    {
-        TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen wallProbe = WithProbeMargin(state.Velocity.X, CrawlerMotionDefinitions.ProbeMargin);
-        if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, wallProbe))
-        {
-            state.ConsecutiveMissedProbes = 0;
-            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
-            SignedSixteenSixteen tangent = state.Velocity.Y.ToSixteenSixteenDelta();
-            if (_terrain.MoveEnemyVertically(level, place, tangent))
-            {
-                state.Velocity = state.Velocity.ReversedX();
-                SetCrawlerVerticalSurfaceAnimation(place, state);
-                return;
-            }
-
-            bool samusBelow = samus.Position.Y.Whole >= place.Position.Y.Whole;
-            bool movingDown = !state.Velocity.Y.IsNegative;
-            if (samusBelow != movingDown)
-                state.Velocity = state.Velocity.ReversedY();
-            return;
-        }
-
-        if (state.MissedSurfaceTooOften())
-        {
-            BeginCrawlerFall(state);
-            return;
-        }
-        state.Velocity = state.Velocity.ReversedY();
-        SetCrawlerVerticalSurfaceAnimation(place, state);
-    }
-
-    /// <summary>Tracks Samus along a floor or ceiling, accounting for slopes and repeated loss of surface contact.</summary>
-    private void RunOrangeZoomerHorizontal(
-        RoomEnemyPlace place,
-        CrawlerEnemyState state,
-        SamusState samus,
-        RoomLevelData level)
-    {
-        TriggerCrawlerEarthquakeFall(state);
-        SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, CrawlerMotionDefinitions.ProbeMargin);
-        if (_terrain.MoveEnemyVertically(level, place, surfaceProbe))
-        {
-            state.ConsecutiveMissedProbes = 0;
-            SignedSixteenSixteen tangent = GetCrawlerSlopeAdjustedHorizontalDisplacement(place, state, level);
-            if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, place, tangent))
-            {
-                state.Velocity = state.Velocity.ReversedY();
-                SetCrawlerHorizontalSurfaceAnimation(place, state);
-                return;
-            }
-
-            EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
-            bool samusRight = samus.Position.X.Whole >= place.Position.X.Whole;
-            bool movingRight = !state.Velocity.X.IsNegative;
-            if (samusRight != movingRight)
-                state.Velocity = state.Velocity.ReversedX();
-            return;
-        }
-
-        if (state.MissedSurfaceTooOften())
-        {
-            BeginCrawlerFall(state);
-            return;
-        }
-        state.Velocity = state.Velocity.ReversedX();
-        SetCrawlerHorizontalSurfaceAnimation(place, state);
+        RunOrangeZoomerMainForCrawlerAction[state.Action](place, samus, level, state);
     }
 
     /// <summary>Changes an attached orange Zoomer to falling during the Super Missile earthquake.</summary>
@@ -269,35 +194,30 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             BeginCrawlerFall(state);
     }
 
-    /// <summary>Runs shared crawler main AI.</summary>
-    private void RunCrawlerMain(RoomEnemyPlace place, RoomLevelData level)
+    /// <summary>What <see cref="RunCrawlerMain"/> does for each <see cref="CrawlerAction"/> member, each member's own arm.</summary>
+    private IdentityTable<CrawlerAction, Action<RoomEnemyPlace, RoomLevelData, CrawlerEnemyState>> RunCrawlerMainForCrawlerAction => field ??= new(new Dictionary<CrawlerAction, Action<RoomEnemyPlace, RoomLevelData, CrawlerEnemyState>>
     {
-        CrawlerEnemyState state = place.RequireSpeciesState<CrawlerEnemyState>();
-        switch (state.Action)
-        {
-            case CrawlerAction.Settling:
-                state.Action = CrawlActionOn(state);
-                return;
-            case CrawlerAction.CrawlingVertically:
-                RunCrawlerVertical(place, state, level);
-                return;
-            case CrawlerAction.Falling:
-                RunCrawlerFalling(place, state, level);
-                return;
-            case CrawlerAction.CrawlingHorizontally:
-                RunCrawlerHorizontal(place, state, level);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Crawler has no behaviour for action {state.Action}.");
-        }
+        [CrawlerAction.Settling] = (place, level, state) => state.Action = CrawlActionOn(state),
+        [CrawlerAction.CrawlingVertically] = (place, level, state) => RunCrawlerVertical(place, state, level, pursued: null),
+        [CrawlerAction.Falling] = (place, level, state) => RunCrawlerFalling(place, state, level),
+        [CrawlerAction.CrawlingHorizontally] = (place, level, state) => RunCrawlerHorizontal(place, state, level, pursued: null),
+    });
+
+    /// <summary>Runs shared crawler main AI.</summary>
+    private void RunCrawlerMain(RoomEnemyPlace place, CrawlerEnemyState state, RoomLevelData level)
+    {
+        RunCrawlerMainForCrawlerAction[state.Action](place, level, state);
     }
 
-    /// <summary>Moves while attached to a vertical wall.</summary>
+    /// <summary>
+    /// Moves while attached to a vertical wall; an orange Zoomer, which pursues <paramref name="pursued"/>, turns along the
+    /// wall towards her after each move that reaches no corner. Other crawlers pursue no one.
+    /// </summary>
     private void RunCrawlerVertical(
         RoomEnemyPlace place,
         CrawlerEnemyState state,
-        RoomLevelData level)
+        RoomLevelData level,
+        SamusState? pursued)
     {
         // Sets the next action but still moves along the wall in this update; the fall begins on the next.
         TriggerCrawlerEarthquakeFall(state);
@@ -307,12 +227,16 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ConsecutiveMissedProbes = 0;
             EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
             SignedSixteenSixteen tangent = state.Velocity.Y.ToSixteenSixteenDelta();
-            if (!_terrain.MoveEnemyVertically(level, place, tangent))
+            if (_terrain.MoveEnemyVertically(level, place, tangent))
+            {
+                // Inside corner: the wall normal changes from X to Y.
+                state.Velocity = state.Velocity.ReversedX();
+                SetCrawlerVerticalSurfaceAnimation(place, state);
                 return;
+            }
 
-            // Inside corner: the wall normal changes from X to Y.
-            state.Velocity = state.Velocity.ReversedX();
-            SetCrawlerVerticalSurfaceAnimation(place, state);
+            if (pursued is { } samus && samus.Position.Y.Whole >= place.Position.Y.Whole == state.Velocity.Y.IsNegative)
+                state.Velocity = state.Velocity.ReversedY();
             return;
         }
 
@@ -322,17 +246,22 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Outside corner: reverse the tangent for up to three frames while the
+        // Outside corner: reverse the tangent for up to its missed probes while the
         // animation rotates the actor around the exposed block edge.
         state.Velocity = state.Velocity.ReversedY();
         SetCrawlerVerticalSurfaceAnimation(place, state);
     }
 
-    /// <summary>Moves while attached to a floor or ceiling.</summary>
+    /// <summary>
+    /// Moves while attached to a floor or ceiling, accounting for slopes and repeated loss of surface contact; an orange
+    /// Zoomer, which pursues <paramref name="pursued"/>, turns along the surface towards her after each move that reaches no
+    /// corner. Other crawlers pursue no one.
+    /// </summary>
     private void RunCrawlerHorizontal(
         RoomEnemyPlace place,
         CrawlerEnemyState state,
-        RoomLevelData level)
+        RoomLevelData level,
+        SamusState? pursued)
     {
         TriggerCrawlerEarthquakeFall(state);
         SignedSixteenSixteen surfaceProbe = WithProbeMargin(state.Velocity.Y, CrawlerMotionDefinitions.ProbeMargin);
@@ -349,6 +278,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             else
             {
                 EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, place);
+                if (pursued is { } samus && samus.Position.X.Whole >= place.Position.X.Whole == state.Velocity.X.IsNegative)
+                    state.Velocity = state.Velocity.ReversedX();
             }
             return;
         }
@@ -437,8 +368,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         GetSurfaceSlopeAdjustedHorizontalDisplacement(place, state.Velocity, level);
 
     /// <summary>
-    /// Shared geometry from the crawlers' slope-processing horizontal mover. Both the common
-    /// crawlers and Yard multiply their tangent by the game's non-square-slope factor.
+    /// The crawl's horizontal step along the slope it stands on, which the common crawlers and Yard share.
     /// </summary>
     internal static SignedSixteenSixteen GetSurfaceSlopeAdjustedHorizontalDisplacement(
         RoomEnemyPlace place,
@@ -461,9 +391,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         return velocity.X.ToSixteenSixteenDelta();
     }
 
-    /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
-    private static void Bind(RoomEnemyPlace place, CrawlerEnemyState state) =>
-        place.SetSpeciesState(state);
 
     /// <summary>The velocity's step with a whole-pixel probe margin added in the direction it moves.</summary>
     internal static SignedSixteenSixteen WithProbeMargin(SignedEightEight velocity, int wholePixels)
@@ -473,15 +400,14 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the shared crawler main AI.</summary>
-    internal void RunCrawlerMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) => RunCrawlerMain(place, frame.Level);
+    internal void RunCrawlerMainAi(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState, IEnemyAiFrame frame) => RunCrawlerMain(place, crawlerEnemyState, frame.Level);
 
     /// <summary>Runs orange Zoomer's Samus-tracking main AI.</summary>
-    internal void RunOrangeZoomerMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
-        RunOrangeZoomerMain(place, frame.Samus, frame.Level);
+    internal void RunOrangeZoomerMainAi(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState, IEnemyAiFrame frame) =>
+        RunOrangeZoomerMain(place, crawlerEnemyState, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations (#641).</summary>
-    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, CrawlerAnimations.Segments,
-            static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free crawler animation raised {cue}."));
+    internal static void AdvanceCrawlerTypedAnimation(RoomEnemyPlace place, CrawlerEnemyState crawlerEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, crawlerEnemyState, CrawlerAnimations.Segments,
+            static (CrawlerEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 }

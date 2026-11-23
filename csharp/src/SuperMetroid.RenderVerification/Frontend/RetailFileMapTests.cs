@@ -35,7 +35,7 @@ internal static class RetailFileMapTests
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.ComposeScene(FileSelectMapGraphicsPixelsAccess.UsedStations(masks), backdrop ? AreaMapBackgroundGlow.WholeScreen : AreaMapBackgroundGlow.ForegroundOnly), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(new SharedGameState(new SharedRandom()), SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), screenContent: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
+            var room = new FileSelectRoomMapGraphics(new SharedGameState(new SharedRandom()), (global::SuperMetroid.Core.Progression.AreaIds.IsZebes(SuperMetroid.AssetExtraction.Progression.AreaNumberCodec.At(area), out global::SuperMetroid.Core.Progression.ZebesArea zebes) ? zebes : throw new InvalidOperationException($"Area {area} is not a Zebes area.")), screenContent: InstalledFixtures.Maps, sheets: MenuSheetFixtures.For(InstalledFixtures.Maps));
             Compare(room.RenderFrameOnly(), room.ComposeScene(content: RoomMapContent.FrameOnly), "frame-only");
             foreach (int scroll in new[] { 0, 255, 511, -1 })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.ComposeScene(new(scroll, scroll)), $"room={area}, scroll={scroll}");

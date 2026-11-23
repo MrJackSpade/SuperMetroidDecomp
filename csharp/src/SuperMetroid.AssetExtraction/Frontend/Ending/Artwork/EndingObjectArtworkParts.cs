@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 
@@ -9,18 +8,17 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// and sheets are composed from and named by. Its characters are import data the installation never holds
 /// (<see cref="EndingObjectCharacters"/>).
 /// </summary>
-[ArchitectureReview("context-bag", "The ending's installed object documents read together; every member is an immutable map or composition the pictures are composed from and named by, not a service.")]
-public sealed record EndingObjectArtworkParts
+public sealed partial record EndingObjectArtworkParts
 {
 
-    /// <summary>Four 32-by-32-cell explosion maps, ordered by <see cref="EndingExplosionPicture"/>.</summary>
-    public required IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments { get; init; }
+    /// <summary>The four 32-by-32-cell explosion maps, each keyed by the explosion picture it holds.</summary>
+    public required IReadOnlyDictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> Fragments { get; init; }
 
     /// <summary>$0800-byte, 32-by-32-cell BG2 waiting-scene map.</summary>
     public required RoomBackgroundTilemapAtlas WaitingTilemap { get; init; }
 
     /// <summary>32-by-32-cell BG3 transformation map.</summary>
-    public required RoomBackgroundTilemapAtlas PostCreditsFragmentB { get; init; }
+    public required RoomBackgroundTilemapAtlas TransformationMap { get; init; }
 
     /// <summary>$0800-byte, 32-by-32-cell final-logo map.</summary>
     public required RoomBackgroundTilemapAtlas PostShotLogoMap { get; init; }

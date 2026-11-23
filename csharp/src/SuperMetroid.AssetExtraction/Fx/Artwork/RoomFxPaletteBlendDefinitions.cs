@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Fx.Artwork;
 
 /// <summary>Room-FX blend selectors, distinct from editable colors.</summary>
-public static class RoomFxPaletteBlendDefinitions
+public static partial class RoomFxPaletteBlendDefinitions
 {
     /// <summary>The colours one palette blend writes.</summary>
     public const int ColorCount = 3;

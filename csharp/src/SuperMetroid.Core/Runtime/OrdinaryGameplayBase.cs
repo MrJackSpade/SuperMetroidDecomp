@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 /// <param name="Room">The room's layers and the actors, as the frame shows them before any effect blends them.</param>
 /// <param name="Hud">The HUD the frame boundary latched, its own layer (#1466).</param>
-public sealed record OrdinaryGameplayBase(GameplaySceneLayer Room, HudLayer Hud);
+public sealed partial record OrdinaryGameplayBase(GameplaySceneLayer Room, HudLayer Hud);

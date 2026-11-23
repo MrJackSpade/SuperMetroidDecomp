@@ -88,6 +88,9 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
         var programs = new HashSet<string>(StringComparer.Ordinal);
         foreach (ExpressionSyntax choice in CoreModel.Choices(expression))
         {
+            // No program handed is none: only a program starts an animation.
+            if (choice is LiteralExpressionSyntax { RawKind: (int)Microsoft.CodeAnalysis.CSharp.SyntaxKind.NullLiteralExpression })
+                continue;
             ISymbol? symbol = semantic.GetSymbolInfo(choice).Symbol;
             if (symbol is IFieldSymbol member && SymbolEqualityComparer.Default.Equals(member.ContainingType, programType))
             {
@@ -138,6 +141,9 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
                     Outcomes(semantic.GetSymbolInfo(chooser).Symbol),
                 InvocationExpressionSyntax when symbol is IMethodSymbol method && Returned(method) is { } returned => (method.OriginalDefinition, returned.Values, returned.Semantic),
                 ElementAccessExpressionSyntax access => Entries(semantic.GetSymbolInfo(access.Expression).Symbol),
+                // A local a pattern declares holds what the pattern tests (#2571): shot is { } segment is the program shot holds.
+                IdentifierNameSyntax when symbol is ILocalSymbol tested && PatternTested(tested) is { } subject =>
+                    ((ISymbol)tested.OriginalDefinition, (IReadOnlyList<ExpressionSyntax>)[subject], semantic),
                 IdentifierNameSyntax when symbol is ILocalSymbol local => Entries(LookedUpIn(semantic, local)),
                 _ => null,
             };
@@ -253,6 +259,9 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
             };
             while (initializer is InvocationExpressionSyntax { Expression: MemberAccessExpressionSyntax { Expression: var converted }, ArgumentList.Arguments.Count: 0 })
                 initializer = converted;
+            // An identity table is built over the dictionary it is given (#2553): its values are that dictionary's.
+            while (initializer is BaseObjectCreationExpressionSyntax { Initializer: null, ArgumentList.Arguments: [{ Expression: BaseObjectCreationExpressionSyntax given }] })
+                initializer = given;
             IReadOnlyList<ExpressionSyntax>? values = initializer switch
             {
                 CollectionExpressionSyntax collection when collection.Elements.All(element => element is ExpressionElementSyntax) =>
@@ -344,6 +353,40 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
     }
 
     /// <summary>
+    /// The expression the pattern declaring <paramref name="local"/> tests (<c>shot is { } segment</c>'s <c>shot</c>), when an
+    /// is-pattern declares it and no other code in its member assigns it; null for any other local.
+    /// </summary>
+    internal static ExpressionSyntax? PatternTested(ILocalSymbol local)
+    {
+        if (local.DeclaringSyntaxReferences is not [var reference] || reference.GetSyntax() is not SingleVariableDesignationSyntax designation)
+            return null;
+        SyntaxNode? node = designation.Parent;
+        while (node is PatternSyntax or PositionalPatternClauseSyntax or PropertyPatternClauseSyntax or SubpatternSyntax)
+            node = node.Parent;
+        if (node is not IsPatternExpressionSyntax test
+            || test.Ancestors().OfType<MemberDeclarationSyntax>().FirstOrDefault() is not { } member
+            || member.DescendantNodes().OfType<AssignmentExpressionSyntax>()
+                .Any(assignment => assignment.Left is IdentifierNameSyntax { Identifier.Text: var name } && name == local.Name))
+            return null;
+        // Only the pattern's whole subject is the local's value: a nested pattern declares a part of it.
+        return designation.Parent is DeclarationPatternSyntax or RecursivePatternSyntax { Parent: IsPatternExpressionSyntax } ? test.Expression : null;
+    }
+
+    /// <summary>
+    /// The constructor parameter <paramref name="program"/> reads, directly or through the local a pattern testing it
+    /// declares; null when it reads none.
+    /// </summary>
+    internal static IParameterSymbol? ConstructorParameterOf(ExpressionSyntax program, SemanticModel semantic)
+    {
+        ISymbol? symbol = semantic.GetSymbolInfo(program).Symbol;
+        if (symbol is ILocalSymbol local && PatternTested(local) is { } tested)
+            symbol = semantic.GetSymbolInfo(tested).Symbol;
+        return symbol is IParameterSymbol { ContainingSymbol: IMethodSymbol { MethodKind: MethodKind.Constructor } } parameter
+            ? parameter.OriginalDefinition
+            : null;
+    }
+
+    /// <summary>
     /// The table <paramref name="local"/> was looked up in: the receiver of the <c>TryGetValue</c> call whose <c>out</c>
     /// argument declares it, when no other code in its method assigns it; null for any other local.
     /// </summary>
@@ -374,7 +417,14 @@ internal sealed class ProgramTracer(CoreModel model, Func<Unit, bool>? reaches)
         var programs = new HashSet<string>(StringComparer.Ordinal);
         foreach (CallSite site in reached.Count > 0 ? reached : sites)
         {
-            if (site.ArgumentFor(parameter) is not { } argument || Traced(programType, argument, site.Semantic, visiting) is not { } traced)
+            if (site.ArgumentFor(parameter) is not { } argument)
+            {
+                // A call leaving a nullable parameter to its null default hands no program.
+                if (parameter.HasExplicitDefaultValue && parameter.ExplicitDefaultValue is null && (parameter.NullableAnnotation == NullableAnnotation.Annotated || parameter.Type.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T))
+                    continue;
+                return null;
+            }
+            if (Traced(programType, argument, site.Semantic, visiting) is not { } traced)
                 return null;
             programs.UnionWith(traced);
         }

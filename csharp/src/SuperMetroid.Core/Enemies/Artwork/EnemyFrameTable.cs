@@ -3,7 +3,7 @@ using System.Collections;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>A family's frames mapped to the installed frames they show; a frame outside the table fails loudly.</summary>
-internal sealed class EnemyFrameTable<TFrame> : IEnumerable<KeyValuePair<TFrame, EnemyFrameId>>
+internal sealed partial class EnemyFrameTable<TFrame> : IEnumerable<KeyValuePair<TFrame, EnemyFrameId>>
     where TFrame : notnull
 {
     /// <summary>The installed frame each family frame shows.</summary>

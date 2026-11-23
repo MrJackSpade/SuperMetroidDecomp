@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The installed key of each <see cref="SamusPoseId"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusPoseIdKeys
+internal static partial class SamusPoseIdKeys
 {
     /// <summary>Each SamusPoseId member's installed key.</summary>
     internal static InstalledKeys<SamusPoseId> Installed { get; } = new(new Dictionary<SamusPoseId, string>
@@ -23,12 +23,12 @@ internal static class SamusPoseIdKeys
         [SamusPoseId.MoonwalkAimUpRightPose] = "MoonwalkAimUpRightPose",
         [SamusPoseId.MoonwalkAimDownLeftPose] = "MoonwalkAimDownLeftPose",
         [SamusPoseId.MoonwalkAimDownRightPose] = "MoonwalkAimDownRightPose",
-        [SamusPoseId.MoonwalkTurnJumpLeftPose] = "MoonwalkTurnJumpLeftPose",
-        [SamusPoseId.MoonwalkTurnJumpRightPose] = "MoonwalkTurnJumpRightPose",
-        [SamusPoseId.MoonwalkTurnJumpAimUpLeftPose] = "MoonwalkTurnJumpAimUpLeftPose",
-        [SamusPoseId.MoonwalkTurnJumpAimUpRightPose] = "MoonwalkTurnJumpAimUpRightPose",
-        [SamusPoseId.MoonwalkTurnJumpAimDownLeftPose] = "MoonwalkTurnJumpAimDownLeftPose",
-        [SamusPoseId.MoonwalkTurnJumpAimDownRightPose] = "MoonwalkTurnJumpAimDownRightPose",
+        [SamusPoseId.MoonwalkTurnToSpinJumpLeftPose] = "MoonwalkTurnJumpLeftPose",
+        [SamusPoseId.MoonwalkTurnToSpinJumpRightPose] = "MoonwalkTurnJumpRightPose",
+        [SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose] = "MoonwalkTurnJumpAimUpLeftPose",
+        [SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose] = "MoonwalkTurnJumpAimUpRightPose",
+        [SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose] = "MoonwalkTurnJumpAimDownLeftPose",
+        [SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose] = "MoonwalkTurnJumpAimDownRightPose",
         [SamusPoseId.ShinesparkWindupRightPose] = "ShinesparkWindupRightPose",
         [SamusPoseId.ShinesparkWindupLeftPose] = "ShinesparkWindupLeftPose",
         [SamusPoseId.ShinesparkHorizontalRightPose] = "ShinesparkHorizontalRightPose",
@@ -244,12 +244,12 @@ internal static class SamusPoseIdKeys
         SamusPoseId.MoonwalkAimUpRightPose,
         SamusPoseId.MoonwalkAimDownLeftPose,
         SamusPoseId.MoonwalkAimDownRightPose,
-        SamusPoseId.MoonwalkTurnJumpLeftPose,
-        SamusPoseId.MoonwalkTurnJumpRightPose,
-        SamusPoseId.MoonwalkTurnJumpAimUpLeftPose,
-        SamusPoseId.MoonwalkTurnJumpAimUpRightPose,
-        SamusPoseId.MoonwalkTurnJumpAimDownLeftPose,
-        SamusPoseId.MoonwalkTurnJumpAimDownRightPose,
+        SamusPoseId.MoonwalkTurnToSpinJumpLeftPose,
+        SamusPoseId.MoonwalkTurnToSpinJumpRightPose,
+        SamusPoseId.MoonwalkTurnToSpinJumpAimUpLeftPose,
+        SamusPoseId.MoonwalkTurnToSpinJumpAimUpRightPose,
+        SamusPoseId.MoonwalkTurnToSpinJumpAimDownLeftPose,
+        SamusPoseId.MoonwalkTurnToSpinJumpAimDownRightPose,
         SamusPoseId.ShinesparkWindupRightPose,
         SamusPoseId.ShinesparkWindupLeftPose,
         SamusPoseId.ShinesparkHorizontalRightPose,

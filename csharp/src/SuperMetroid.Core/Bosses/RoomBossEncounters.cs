@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Bosses;
 /// lifetime, so those reads go on after the boss's own place is gone. No boss's part reads it: each part holds the
 /// encounter it joined.
 /// </summary>
-[RoomLifetime]
-internal sealed class RoomBossEncounters
+internal sealed partial class RoomBossEncounters
 {
     /// <summary>The room's Crocomire, once his body has set up; none in a room without him.</summary>
     internal CrocomireEnemyState? Crocomire { get; private set; }

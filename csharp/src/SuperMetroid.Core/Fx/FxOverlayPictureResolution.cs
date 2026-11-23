@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>Resolves what the effect overlay shows from the room's effect overlay picture sheet (#1392, #1403, #1466, #1514, #1706).</summary>
-internal static class FxOverlayPictureResolution
+internal static partial class FxOverlayPictureResolution
 {
 
     /// <summary>

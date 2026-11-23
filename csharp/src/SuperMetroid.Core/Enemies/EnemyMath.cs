@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Stateless enemy arithmetic shared by the species: bearings, whole-pixel velocity clamps, points on circles of short
 /// radius (<see cref="ShortCircleProduct"/>) and the parts of a speed along an angle's sine and cosine.
 /// </summary>
-internal static class EnemyMath
+internal static partial class EnemyMath
 {
     /// <summary>
     /// Holds a velocity within <paramref name="fastest"/>, a whole-pixel speed, either way (#2555): a velocity at or past
@@ -18,8 +18,8 @@ internal static class EnemyMath
 
     /// <summary>
     /// The proportional pull a Metroid or Mochtroid takes from its velocity for a signed distance of
-    /// <paramref name="distance"/> pixels from its target: a 1024th of the distance, a quarter of its pixels in 256ths of a
-    /// pixel, rounded toward minus infinity to the 256th (<see cref="SignedSixteenSixteen.DividedInTwoFiftySixths"/>).
+    /// <paramref name="distance"/> pixels from its target: a 1024th of the distance, rounded down to the speed's
+    /// precision (<see cref="SignedSixteenSixteen.DividedInTwoFiftySixths"/>).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The distance lies outside a signed distance's whole pixels.</exception>
     internal static SignedSixteenSixteen HomingPull(int distance) =>
@@ -27,7 +27,7 @@ internal static class EnemyMath
 
     /// <summary>
     /// The direction of an offset, as every enemy aims along one (#2555): zero points right and a quarter turn up, the
-    /// angle the game's sine and cosine take.
+    /// angle the shared trigonometry takes.
     /// </summary>
     internal static TrigonometryAngle CalculateAimAngle(Offset16<RoomPixels> delta)
     {
@@ -56,10 +56,9 @@ internal static class EnemyMath
     }
 
     /// <summary>
-    /// The whole pixels of the sine distance of the point <paramref name="radius"/> pixels along <paramref name="angle"/>
-    /// (<see cref="CircleSine"/>): in the turn's second half the reversed whole pixels of the first half's distance, as
-    /// <see cref="ShortCircleProduct.Reversed"/> leaves them, so <c>Math.Sin</c> or a reversal of the whole distance would
-    /// disagree by one pixel.
+    /// The whole pixels of the sine distance of the point <paramref name="radius"/> pixels along
+    /// <paramref name="angle"/> (<see cref="CircleSine"/>): in the turn's second half, the first half's distance
+    /// reversed (<see cref="ShortCircleProduct.Reversed"/>).
     /// </summary>
     internal static int CircleSinePixels(TrigonometryAngle angle, int radius) =>
         CircleSine(angle, radius).WholePixels;

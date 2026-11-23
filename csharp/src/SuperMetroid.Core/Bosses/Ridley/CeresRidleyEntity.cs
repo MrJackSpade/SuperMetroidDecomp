@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
@@ -12,16 +13,32 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// </summary>
 /// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
 /// <param name="escape">The station's escape progress, which ends his body's touch and drawing.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : RidleyEntity(ceres.Body, place, common), IEnemyShotAdmission
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomEnemyOccupant occupant,
+    RoomEnemyPlace place, EnemyCommonParticipation common, CeresRidleyState encounter)
+    : RidleyEntity(ceres.Body, occupant, place, common), IEnemyShotAdmission
 {
-    /// <summary>The Ceres encounter his body holds from its initialization.</summary>
-    internal override CeresRidleyState Encounter => Place.RequireSpeciesState<CeresRidleyState>();
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
+    /// <param name="escape">The station's escape progress, which ends his body's touch and drawing.</param>
+    /// <param name="warning">The room's foreground warning, which the self-destruct his getaway starts writes.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place Ridley occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeStatus escape, RoomWarning warning, RoomEnemyOccupant occupant,
+        RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(ceres, escape, occupant, place, common, ceres.Flight.InitializeCeresRidley(place, warning))
+    {
+    }
 
-    /// <inheritdoc/>
-    public override void Initialize() => ceres.Flight.InitializeCeresRidley(Place);
+    /// <summary>The Ceres encounter his body holds from its initialization.</summary>
+    internal override CeresRidleyState Encounter { get; } = encounter;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) =>
@@ -60,7 +77,7 @@ internal sealed class CeresRidleyEntity(CeresRidleyBehavior ceres, ICeresEscapeS
         if (context.SelectedShot != RidleyReactions.Shot)
             return base.TryReactToBomb(context);
         // Ceres Ridley takes no damage: an exploding bomb counts toward his hits like any shot, the bomb already marked
-        // as having struck, while Ridley alternates his hurt timing and moves on toward his hundredth hit's escape.
+        // as having struck, while Ridley alternates his hurt timing and moves on toward the escape his last hit brings.
         CeresRidleyHits.ResolveCeresRidleyShotAfterCollision(Place, Encounter);
         return true;
     }

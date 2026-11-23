@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The pacing every corpse's rot schedule shares (#1472): Mother Brain's, the dead Torizo's and every dead monster's.</summary>
-internal static class CorpseRotScheduleDefinitions
+internal static partial class CorpseRotScheduleDefinitions
 {
     /// <summary>
     /// The AI updates a dead Torizo, dead sidehopper or other Tourian corpse waits, once Samus has stood on it, before it starts

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// projectiles, so the frame generator finds no projectile frame of theirs, and the shared sheet of the sets whose rooms
 /// run the arrival holds the pictures of their poses under the arrival's own names.
 /// </summary>
-internal static class CeresElevatorArrivalCommonSpawner
+internal static partial class CeresElevatorArrivalCommonSpawner
 {
     /// <summary>What the arrival puts on the shared sheet: no projectile or effect actor, the pictures of every pose.</summary>
     internal static CommonSpawnedObjects Spawned { get; } =

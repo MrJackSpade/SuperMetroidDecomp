@@ -12,14 +12,14 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// sets each on its own (for example, a right wall puts Samus at the largest fraction of her pixel).
 /// Collapsing this state to floats would erase those observable edge semantics.
 /// </remarks>
-public sealed class SamusKinematicsState
+public sealed partial class SamusKinematicsState
 {
     /// <summary>
     /// The solid enemy Samus met moving in each direction, holding no entry for a direction where she met none, kept until
     /// the end of the enemy pass clears them; the corpses' and idle shutters' contact tests observe this delayed result.
     /// They name enemies of the room they were made in, which forgets them when it unloads (#1702).
     /// </summary>
-    private readonly Dictionary<SamusCollisionDirection, ISolidEnemy> _solidEnemyContacts = [];
+    internal Dictionary<SamusCollisionDirection, ISolidEnemy> SolidEnemyContactsByDirection { get; } = [];
 
     /// <summary>
     /// The solid enemy Samus's latest wall jump launched from, which the next enemy pass shakes. Each wall-jump check
@@ -27,16 +27,6 @@ public sealed class SamusKinematicsState
     /// withdraws it when it unloads.
     /// </summary>
     internal WallJumpLaunchShake<ISolidEnemy> WallJumpLaunch { get; } = new();
-
-    /// <summary>
-    /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
-    /// collision input even when a probe deliberately cannot mutate the full owner.
-    /// </summary>
-    internal SamusBodyAttack? ProbeBodyAttack { get; init; }
-
-    /// <summary>The captured contact mode of an ownerless probe, otherwise <paramref name="owner"/>'s live mode.</summary>
-    internal SamusBodyAttack CollisionBodyAttack(SamusState? owner) =>
-        ProbeBodyAttack ?? owner?.HorizontalSpeed.BodyAttack ?? SamusBodyAttack.None;
 
     /// <summary>Constructs kinematics with no owner, for block collision that moves no Samus.</summary>
     public SamusKinematicsState()
@@ -50,7 +40,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal SamusKinematicsState CreateCollisionProbe()
     {
-        var probe = new SamusKinematicsState { ProbeBodyAttack = ProbeBodyAttack };
+        var probe = new SamusKinematicsState();
         probe.Position = Position;
         probe.Radius = Radius;
         probe.VerticalVelocity = VerticalVelocity;
@@ -67,16 +57,14 @@ public sealed class SamusKinematicsState
     /// values of the enemies it lists.
     /// </summary>
     /// <remarks>
-    /// Movement owns this snapshot because every ordinary movement probes
-    /// solid/frozen enemies before reacting to room blocks. Empty remains the
-    /// correct default for rooms whose enemy actor loader has not run. Keeping the
-    /// list explicit prevents decorative render sprites from accidentally becoming physics.
+    /// The enemies Samus's movement collides with, solid or frozen, which every ordinary movement meets before room
+    /// blocks; a room whose enemies have not been placed has none.
     /// </remarks>
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveEnemies { get; set; } =
         Array.Empty<SolidEnemyCollisionBody>();
 
     /// <summary>The solid enemies Samus met moving in any direction since the enemy pass last cleared them.</summary>
-    public IEnumerable<ISolidEnemy> SolidEnemyContacts => _solidEnemyContacts.Values;
+    public IEnumerable<ISolidEnemy> SolidEnemyContacts => SolidEnemyContactsByDirection.Values;
 
     /// <summary>
     /// Room position, to a fraction of a pixel.
@@ -104,6 +92,18 @@ public sealed class SamusKinematicsState
     /// </summary>
     public SamusVerticalVelocity VerticalVelocity { get; set; }
 
+    /// <summary>
+    /// Turns Samus at her apex (#2557): an upward speed that has passed zero becomes a stationary downward one on this same
+    /// update; it returns whether she turned.
+    /// </summary>
+    internal bool TurnAtApex()
+    {
+        if (!VerticalVelocity.HasPassedApex)
+            return false;
+        VerticalVelocity = SamusVerticalVelocity.FallFromRest;
+        return true;
+    }
+
     /// <summary>The gravity applied to vertical speed.</summary>
     public UnsignedSixteenSixteen YAcceleration { get; set; }
 
@@ -112,7 +112,7 @@ public sealed class SamusKinematicsState
     /// which the next vertical move without speed reads for its one-pixel grounding probe, and the next terrain Y move of
     /// some distance ends.
     /// </summary>
-    public bool PositionAdjustedBySlope { get; set; }
+    public bool PositionAdjustedBySlope { get; internal set; }
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
@@ -139,30 +139,20 @@ public sealed class SamusKinematicsState
         ISolidEnemy? solidEnemy)
     {
         if (solidEnemy is null)
-            _solidEnemyContacts.Remove(RequireContactDirection(direction));
+            SolidEnemyContactsByDirection.Remove(direction);
         else
-            _solidEnemyContacts[RequireContactDirection(direction)] = solidEnemy;
+            SolidEnemyContactsByDirection[direction] = solidEnemy;
     }
-
-    /// <summary><paramref name="direction"/>, which must be one Samus can meet an enemy moving in.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not left, right, up or down.</exception>
-    internal static SamusCollisionDirection RequireContactDirection(SamusCollisionDirection direction) => direction switch
-    {
-        SamusCollisionDirection.Left or SamusCollisionDirection.Right or SamusCollisionDirection.Up or SamusCollisionDirection.Down => direction,
-        SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction), direction,
-            "A non-directional probe meets no solid enemy."),
-        _ => throw new ArgumentOutOfRangeException(nameof(direction)),
-    };
 
     /// <summary>Whether Samus met <paramref name="enemy"/> in any direction, as the corpses' wait for her contact tests.</summary>
     internal bool DidCollideWithSolidEnemy(ISolidEnemy enemy)
     {
         Ensure.NotNull(enemy);
-        return _solidEnemyContacts.Values.Any(contact => ReferenceEquals(contact, enemy));
+        return SolidEnemyContactsByDirection.Values.Any(contact => ReferenceEquals(contact, enemy));
     }
 
     /// <summary>Forgets every direction's contact, as the end of the enemy pass does.</summary>
-    internal void ClearSolidEnemyCollisions() => _solidEnemyContacts.Clear();
+    internal void ClearSolidEnemyCollisions() => SolidEnemyContactsByDirection.Clear();
 
     /// <summary>
     /// Forgets the enemies of a room that unloads (#1697, #1702): a waiting launch shake and every direction's contact

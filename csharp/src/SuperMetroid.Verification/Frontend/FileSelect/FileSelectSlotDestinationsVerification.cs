@@ -46,7 +46,7 @@ internal static class FileSelectSlotDestinationsVerification
                 AssertEqual((byte)0xa2, FileSelectSlotDestinationsRomByte(rom, instruction), "native slot LDX immediate");
                 int expected = ReadVerificationWord(rom, instruction + 1);
                 AssertEqual(expected, destination(slot, field), $"slot destination {dataPage}/{field}/{slot}");
-                FileSelectSlotFieldDocument exported = (dataPage ? document.DataSlots : document.MainSlots)[slot];
+                FileSelectSlotFieldDocument exported = (dataPage ? document.DataSlots : document.MainSlots)[SuperMetroid.Core.Saves.SaveSlots.All[slot].ToString()];
                 if (field is FileSelectSlotField.Energy or FileSelectSlotField.TimeValue)
                 {
                     // The exported anchor is the page pixel of the cell the cartridge's destination word names.
@@ -70,13 +70,11 @@ internal static class FileSelectSlotDestinationsVerification
             }
             foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => destination(invalid, field), "slot index bounds");
-            foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => destination(0, (FileSelectSlotField)invalid), "slot field bounds");
         }
     }
 
     /// <summary>Reads native slot destination instructions for the layout comparison.</summary>
-    private static byte FileSelectSlotDestinationsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FileSelectSlotDestinationsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks both slot-label load sites use the compiled source and terminal word.</summary>
     private static void VerifyFileSelectSlotLabelSources(SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace rom)

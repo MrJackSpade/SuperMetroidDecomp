@@ -9,18 +9,16 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// A few backgrounds, the scrolling skies', show another picture when the room is entered through particular doors; the
 /// room selects that picture by the door, and every other door shows the background's ordinary picture.
 /// </summary>
-public sealed class LibraryBackground
+public sealed partial class LibraryBackground
 {
     /// <summary>Names the background, what the player sees of it and the entry doors that show their own pictures of it.</summary>
     /// <param name="name">The background's name.</param>
     /// <param name="view">What the player sees on the background of a room that loads it.</param>
     /// <param name="pictureDoors">The entry doors that each show their own picture, in the order the list names them.</param>
-    /// <exception cref="ArgumentException">The name is empty, the view is undefined, or a door is named twice.</exception>
-    public LibraryBackground([InstalledKey] string name, LibraryBackgroundView view, IEnumerable<DoorDefinition> pictureDoors)
+    /// <exception cref="ArgumentException">The name is empty or a door is named twice.</exception>
+    public LibraryBackground(string name, LibraryBackgroundView view, IEnumerable<DoorDefinition> pictureDoors)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
-        if (!Enum.IsDefined(view))
-            throw new ArgumentException($"Library background {name} has undefined view {view}.", nameof(view));
         Name = name;
         View = view;
         PictureDoors = [.. Ensure.NotNull(pictureDoors)];
@@ -41,10 +39,11 @@ public sealed class LibraryBackground
     public ImmutableArray<DoorDefinition> PictureDoors { get; }
 
     /// <summary>
-    /// The door whose picture a room entered through <paramref name="entry"/> shows: that door when it shows its own
-    /// picture, otherwise null for the background's ordinary picture.
+    /// The picture a room entered through <paramref name="entry"/> shows: that door's when it shows its own picture,
+    /// otherwise the background's ordinary picture (#2558).
     /// </summary>
-    public DoorDefinition? PictureDoor(DoorDefinition entry) => PictureDoors.Contains(Ensure.NotNull(entry)) ? entry : null;
+    public LibraryBackgroundPicture PictureFor(DoorDefinition entry) =>
+        PictureDoors.Contains(Ensure.NotNull(entry)) ? LibraryBackgroundPicture.Of(entry) : LibraryBackgroundPicture.Ordinary;
 
     /// <inheritdoc cref="Name"/>
     public override string ToString() => Name;

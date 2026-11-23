@@ -2,11 +2,9 @@ using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.Verification.Hardware;
 /// <summary>Uses cartridge spritemaps as a diagnostic oracle for installed enemy artwork.</summary>
@@ -14,7 +12,7 @@ internal static class ImportedSpritemapsVerification
 {
     /// <summary>Draws a native enemy map through the import boundary, including constructed cartridge fixtures.</summary>
     internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, NativeEnemySpritemapDraw draw) =>
-        ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, draw);
+        ImportedSpritemapOracle.DrawEnemy(bus, oam, draw);
 
     /// <summary>
     /// The cartridge spritemap an enemy projectile draws this frame. Installed-presentation frames
@@ -23,7 +21,7 @@ internal static class ImportedSpritemapsVerification
     /// </summary>
     internal static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, EnemyProjectile projectile) =>
         projectile.PresentationOperandAddress != 0
-            ? SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            ? SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadWordFixedBank(bus,
                 0x860000 | projectile.PresentationOperandAddress)
             : projectile.SpritemapPointer;
 
@@ -31,7 +29,7 @@ internal static class ImportedSpritemapsVerification
     internal static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<ScreenPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
-        ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
+        ImportedSpritemapOracle.DrawEnemyProjectile(bus, oam,
             bank8dSpritemapPointer, origin, graphicsIndex, originYIsOnScreen);
 
 
@@ -70,8 +68,8 @@ internal static class ImportedSpritemapsVerification
             clipVerticalWrap: true, originYIsOnScreen: true);
         AssertEqual(expected.NextByteOffset, actual.NextByteOffset,
             $"projectile frame $86:{operand:X4} native sprite part count");
-        AssertTrue(expected.ImageEquals(actual),
-            $"projectile frame $86:{operand:X4} installed composition matches native OAM");
+        AssertTrue(SuperMetroid.Verification.Harness.OamPriorityComparison.SameApartFromPriority(expected, actual),
+            $"projectile frame $86:{operand:X4} installed composition matches native OAM apart from the priority tier each part's depth replaces (#2550)");
     }
 
     /// <summary>Reads a native bank-$86 projectile frame-selector byte for the OAM comparison.</summary>

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// It is JSON: <c>{ "version": 2, "maps": { "R0000": { "size": { "x": W, "y": H }, "rows": [ [region, count, ...], ... ] } } }</c>,
 /// each map's rows from the top a run-length list of regions from the left whose counts cover exactly the picture's width.
 /// </summary>
-internal static class RecolourRegionMapFile
+internal static partial class RecolourRegionMapFile
 {
     /// <summary>
     /// The map format's revision: 1 held one page's map; 2 holds every map the pictures are shown with, each once by its tag,
@@ -38,7 +38,7 @@ internal static class RecolourRegionMapFile
             if (!documents.TryAdd(tag, Encoded(tag, map)))
                 throw new ArgumentException($"Recolour-region map {tag} is named twice.", nameof(maps));
         }
-        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), Options);
+        return JsonSerializer.SerializeToUtf8Bytes(new Document(Version, documents), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Artwork.RecolourRegionMapFile.Document>(Options));
     }
 
     /// <summary>One map's runs.</summary>
@@ -83,8 +83,8 @@ internal static class RecolourRegionMapFile
         if (document.Maps is null)
             throw new InvalidDataException($"Recolour-region maps {name} list no maps.");
         var maps = new Dictionary<string, PictureMap<int>>(StringComparer.Ordinal);
-        foreach ((string tag, MapDocument? map) in document.Maps)
-            maps.Add(tag, Decoded($"{name} map {tag}", map ?? throw new InvalidDataException($"Recolour-region maps {name} map {tag} is null.")));
+        foreach ((string tag, MapDocument map) in document.Maps)
+            maps.Add(tag, Decoded($"{name} map {tag}", map));
         return maps;
     }
 
@@ -127,10 +127,10 @@ internal static class RecolourRegionMapFile
     /// <summary>The map file.</summary>
     /// <param name="Version">The format revision.</param>
     /// <param name="Maps">Every map, by tag.</param>
-    private sealed record Document(int Version, Dictionary<string, MapDocument> Maps);
+    internal sealed partial record Document(int Version, Dictionary<string, MapDocument> Maps);
 
     /// <summary>One map.</summary>
     /// <param name="Size">The width and height of the picture it is for.</param>
     /// <param name="Rows">Each row's runs, region then count.</param>
-    private sealed record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
+    internal sealed partial record MapDocument(Extent16<ImagePixels> Size, int[][] Rows);
 }

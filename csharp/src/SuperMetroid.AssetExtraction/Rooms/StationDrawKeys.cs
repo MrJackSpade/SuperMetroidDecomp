@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each station frame (<see cref="StationDraw"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class StationDrawKeys
+internal static partial class StationDrawKeys
 {
     /// <summary>Each StationDraw member's installed key.</summary>
     internal static InstalledKeys<StationDraw> Installed { get; } = new(new Dictionary<StationDraw, string>

@@ -11,7 +11,8 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction;
 namespace SuperMetroid.Verification.Samus.Palettes;
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks fixed RGB5 colors through Power Bomb and Crystal Flash lifecycles against retail data.</summary>
 internal static class PowerBombGlowColorsVerification
@@ -110,9 +111,7 @@ internal static class PowerBombGlowColorsVerification
     /// <summary>Checks that the Power Bomb colour codec rejects out-of-range colours.</summary>
     internal static void VerifyPowerBombGlowColorsRejectMalformedDocuments(string stock)
     {
-        PowerBombGlowColorDocument document = JsonSerializer.Deserialize<PowerBombGlowColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, PowerBombGlowColorFile.FileName)),
-            ArtworkJson.Options)
+        PowerBombGlowColorDocument document = JsonSerializer.Deserialize<PowerBombGlowColorDocument>(File.ReadAllBytes(Path.Combine(stock, PowerBombGlowColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.PowerBombGlowColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Power Bomb color document is null.");
         AssertThrows<InvalidDataException>(() => PowerBombGlowColorFile.Read(new MemoryStream(PowerBombGlowColorFile.Write(document with
         {

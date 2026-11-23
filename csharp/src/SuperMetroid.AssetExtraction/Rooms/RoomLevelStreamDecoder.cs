@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using System.Buffers.Binary;
 using System.Collections.Immutable;
 using SuperMetroid.Core.Progression;
@@ -17,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// level omits read as that fill, and the level space past the foreground grid holds the rest of the decompressed data,
 /// read as level words, and then the fill.
 /// </remarks>
-internal static class RoomLevelStreamDecoder
+internal static partial class RoomLevelStreamDecoder
 {
     /// <summary>Bytes in the leading size word.</summary>
     private const int SizeWordBytes = sizeof(ushort);
@@ -77,7 +78,7 @@ internal static class RoomLevelStreamDecoder
         return new InstalledRoomLevel(
             new Extent16<RoomBlocks>(checked((ushort)widthInBlocks), checked((ushort)(blockCount / widthInBlocks))),
             foreground.MoveToImmutable(), behaviors.MoveToImmutable(), background.MoveToImmutable(),
-            following.ToImmutable(), space.Length - blockCount);
+            new LevelDataPastGrid<RoomTerrainBlock>(following.ToImmutable(), space.Length - blockCount));
     }
 
     /// <summary>
@@ -126,7 +127,7 @@ internal static class RoomLevelStreamDecoder
     /// <param name="LayerBytes">The foreground's byte count.</param>
     /// <param name="BlockCount">The grid's block count.</param>
     /// <param name="BehaviorOffset">Where the behaviour bytes start in the decompressed level.</param>
-    private readonly record struct LevelLayers(int LayerBytes, int BlockCount, int BehaviorOffset);
+    private readonly partial record struct LevelLayers(int LayerBytes, int BlockCount, int BehaviorOffset);
 
     /// <summary>
     /// A block's behaviour as the installation holds it (#1805). A door block holds none: where it leads is its room's own
@@ -139,7 +140,8 @@ internal static class RoomLevelStreamDecoder
     /// door, kinds nothing changes a reacting retail block to without writing its behaviour.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The block's kind has no reaction for the byte in an area, the areas give it different reactions, or the first
+    /// The block's kind has no reaction for the byte in an area, a shootable kind reads it past its area's table, the areas
+    /// give it different reactions, or the first
     /// behaviour holding its reaction gives another reacting kind something else.
     /// </exception>
     private static RoomBlockBehavior InstalledBehavior(RoomLevelId level, int index, RoomCollisionType kind, int value,
@@ -149,22 +151,35 @@ internal static class RoomLevelStreamDecoder
             return RoomBlockBehavior.None;
         if (BlockReactionFamilies.Of(kind) is not { } family)
             return RoomBlockBehaviorCodec.Decode(value);
-        RoomBlockBehavior? installed = null;
-        foreach (AreaId area in areas)
+        if (family == BlockReactionFamily.Shootable && RoomBlockBehaviorCodec.ReadsPastAreaShootableTable(value))
+            throw new InvalidDataException(
+                $"Room level {level} block {index} is {kind} with behaviour byte {value}, whose reaction the game reads past its area's shootable table.");
+        // Every area the level lies in must give the block the same installed behaviour: the first area's.
+        AreaId[] inAreas = [.. areas];
+        if (inAreas.Length == 0)
+            throw new InvalidOperationException($"Room level {level} belongs to no area.");
+        RoomBlockBehavior installed = FirstBehaviorIn(inAreas[0]);
+        foreach (AreaId area in inAreas.Skip(1))
+        {
+            RoomBlockBehavior first = FirstBehaviorIn(area);
+            if (installed != first)
+                throw new InvalidDataException(
+                    $"Room level {level} block {index} is {kind} with a behaviour its areas give different reactions, {installed} and {first}.");
+        }
+        return installed;
+
+        // The first behaviour holding the reaction the block's kind reads in the area.
+        RoomBlockBehavior FirstBehaviorIn(AreaId area)
         {
             RoomBlockBehavior resolved = RoomBlockBehaviorCodec.Decode(area, value);
-            Enum reaction = resolved.ReactionIn(family) ?? throw new InvalidDataException(
+            BlockReaction reaction = resolved.ReactionIn(family) ?? throw new InvalidDataException(
                 $"Room level {level} block {index} is {kind} with behaviour {resolved}, which gives its kind no reaction in {area}.");
-            RoomBlockBehavior first = RoomBlockBehavior.ReactingAs(reaction);
+            RoomBlockBehavior first = reaction.Behavior;
             if (!GiveSameReactions(first.In(area), resolved))
                 throw new InvalidDataException(
                     $"Room level {level} block {index} is {kind} with behaviour {resolved}, whose reaction's first behaviour {first} reacts otherwise.");
-            if (installed is { } earlier && earlier != first)
-                throw new InvalidDataException(
-                    $"Room level {level} block {index} is {kind} with a behaviour its areas give different reactions, {earlier} and {first}.");
-            installed = first;
+            return first;
         }
-        return installed ?? throw new InvalidOperationException($"Room level {level} belongs to no area.");
     }
 
     /// <summary>Whether two behaviours give every reacting kind the same reaction.</summary>

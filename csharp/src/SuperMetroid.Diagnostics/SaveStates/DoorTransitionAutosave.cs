@@ -18,12 +18,16 @@ internal static class DoorTransitionAutosave
             game.GameState != SuperMetroidGameState.MainGameplay) return null;
         // Recovery I/O must not terminate a healthy emulation session. The store
         // replaces the previous state only after serialization and durable flush.
-        return store.SaveInBackground(DebuggerStateFormat.AutomaticSlot, game,
+        // The capture runs on the game thread, so its time is the door's own pause; the session log keeps it (#2619).
+        var capturing = System.Diagnostics.Stopwatch.StartNew();
+        DebuggerSaveStateMetadata captured = store.SaveInBackground(DebuggerStateFormat.AutomaticSlot, game,
             saved => Console.WriteLine($"Door autosave: {saved.Path} | frame {saved.FrameNumber} | room {saved.Room}"),
             exception =>
             {
                 Console.Error.WriteLine("Door autosave failed; previous recovery state retained.");
                 Console.Error.WriteLine(exception.ToString());
             });
+        Console.WriteLine($"Door autosave captured in {capturing.ElapsedMilliseconds} ms.");
+        return captured;
     }
 }

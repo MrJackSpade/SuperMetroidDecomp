@@ -14,11 +14,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// the centre's coordinate instead of the top's own; the inside-block sampling check compares the rule with that
 /// combination for every centre row and radius.
 /// </remarks>
-[CompatibilityService("Samus's inside-block reactions skip her top point when its row and her bottom's, combined bit by bit, give her centre's row")]
-public static class InsideBlockTopSample
+public static partial class InsideBlockTopSample
 {
     /// <summary>Pixels along a block's side.</summary>
-    private const int BlockPixels = 16;
+    private const int BlockPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>
     /// Whether the top point is sampled for a body whose top, bottom and centre lie at the room pixel rows given, each

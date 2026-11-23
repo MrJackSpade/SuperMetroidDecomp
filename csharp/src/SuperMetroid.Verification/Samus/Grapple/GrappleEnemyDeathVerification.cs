@@ -32,11 +32,10 @@ internal static class GrappleEnemyDeathVerification
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SpawnedObjectFixtures.LoadSetDrawing(fixture.System, EnemyDefinitionId.Zeela);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
         SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
-        ushort header = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
-        SeedEnemyDropChancePointer(fixture.Bus, header);
+        SeedStandInDropper(fixture.Bus);
         var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
+        enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
         {
             GrappleResponse = GrappleEnemyReaction.Kill,
             DeathExplosion = EnemyDeathExplosion.Big,
@@ -45,8 +44,8 @@ internal static class GrappleEnemyDeathVerification
         enemy.Radius = new(8, 8);
         enemy.Health = 500;
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus });
-        var contact = fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
-        AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
+        GrappleEnemyCollision? contact = fixture.System.GrappleBehavior.ResolveGrappleEndpoint(new(100, 100));
+        AssertEqual<GrappleEnemyReaction?>(GrappleEnemyReaction.Kill, contact?.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         var explosion = fixture.System.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
@@ -55,7 +54,7 @@ internal static class GrappleEnemyDeathVerification
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
         AssertEqual(100, explosion.Position.X.Whole, "death explosion preserves enemy X");
         AssertEqual(100, explosion.Position.Y.Whole, "death explosion preserves enemy Y");
-        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().DropDefinitionId, "death actor retains drop-table identity");
+        AssertEqual(EnemyPlaceFixtures.StandIn, fixture.System.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
@@ -65,7 +64,7 @@ internal static class GrappleEnemyDeathVerification
             // The death program queues its cry as the projectile pass runs it.
             heardDeath |= fixture.System.Audio.LatestSound ==
                 EnemySound.EnemyKilled;
-            if (explosion.State is EnemyPickupState { Kind: EnemyPickupKind.SmallEnergy })
+            if (fixture.System.DeathsAndDrops.Pickups.Of(explosion) is { Kind: EnemyPickupKind.SmallEnergy })
             {
                 AssertEqual(31, frame, "small explosion uses the cartridge's complete 31-frame animation");
                 sawPickup = true;
@@ -84,7 +83,7 @@ internal static class GrappleEnemyDeathVerification
     }
 
     /// <summary>Reads a retail cartridge byte while seeding the focused synthetic death fixture.</summary>
-    private static byte GrappleEnemyDeathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleEnemyDeathRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Copies the retail enemy-projectile ($86) and sprite-map ($8D) banks into the synthetic cartridge.</summary>
     private static void SeedGrappleEnemyDeathRetailBanks(TestAddressSpace bus)
@@ -106,7 +105,7 @@ internal static class GrappleEnemyDeathVerification
             SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.FacingRightNormalPose })
         {
             var samus = CreateDropTestSamus();
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             // The logged 51->01 request used the standing-size live radius, retained
             // across a pose handoff; C8C5 branches on that word, not pose metadata.
@@ -115,8 +114,8 @@ internal static class GrappleEnemyDeathVerification
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
             var enemy = fixture.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
+            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
+            enemy.Bind(enemy.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 GrappleResponse = GrappleEnemyReaction.Kill,
             });
@@ -129,7 +128,7 @@ internal static class GrappleEnemyDeathVerification
             fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(new(32, 32), new RoomTerrainBlock[32 * 32], new RoomBlockBehavior[32 * 32]);
-            var result = SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = movementRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+            var result = SamusGrappleMovement.StepAndCommit(new RoomTerrain(movementRoom, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)SamusPoseNumbers.Number(pose):X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,

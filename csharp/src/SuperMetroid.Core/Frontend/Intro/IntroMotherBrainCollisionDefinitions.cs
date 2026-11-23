@@ -1,4 +1,6 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using System.Collections.Immutable;
+using SuperMetroid.Core.Samus.Movement;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -7,18 +9,18 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// them, the formation hanging from the middle of the ceiling, the pillar standing on the floor below it and the ledge
 /// at the right wall, the pillar's and the ledge's tops being slopes. Rows are counted from the room's top.
 /// </summary>
-internal static class IntroMotherBrainCollisionDefinitions
+internal static partial class IntroMotherBrainCollisionDefinitions
 {
     /// <summary>The room's width in blocks.</summary>
     internal const int Columns = 16;
     /// <summary>The room's height in blocks; the rows under the floor are open air.</summary>
     internal const int RoomRows = 16;
     /// <summary>A solid block.</summary>
-    internal const RoomCollisionType Solid = RoomCollisionType.SolidBlock;
+    internal const PlainTerrainBlock Solid = PlainTerrainBlock.Solid;
     /// <summary>A slope block: the pillar's and the ledge's tops.</summary>
-    internal const RoomCollisionType PlatformTop = RoomCollisionType.Slope;
+    internal const PlainTerrainBlock PlatformTop = PlainTerrainBlock.Slope;
     /// <summary>An air block: every block the terrain leaves open.</summary>
-    internal const RoomCollisionType Empty = RoomCollisionType.Air;
+    internal const PlainTerrainBlock Empty = PlainTerrainBlock.Air;
     /// <summary>The rows of the full-width ceiling and the full-width floor.</summary>
     internal const int CeilingRow = 1, FloorRow = 13;
     /// <summary>
@@ -34,5 +36,5 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// tank, the notch above it and the pipe's base. They give the wall its blocking shape independently of the room's
     /// picture; a fitted curve would restate or alter it.
     /// </summary>
-    internal static ReadOnlySpan<int> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
+    internal static ImmutableArray<int> LeftContourWidths { get; } = [6, 6, 5, 6, .. Repeated(4, 3), 6, .. Repeated(7, 3)];
 }

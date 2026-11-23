@@ -23,12 +23,11 @@ internal static class HiddenSoakTests
     internal static async Task RunHiddenSoak(int seconds)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds), "Use 5..300 seconds per scene.");
-        var results = new List<object>();
+        var results = new List<HiddenSoakResult>();
         foreach (bool paused in new[] { false, true })
         {
-            var game = InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
-                new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
-            game.BindAudio(DesktopAccess.LoadAudioClips());
+            var game = InstalledFixtures.CreateGameWithAudio(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+                DesktopAccess.LoadAudioClips(), new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true, SamusCannotDie = true });
             var audio = new short[AudioSession.PcmSamplesPerFrame];
             long sequence = 0;
             CapturedFrontendFrame Step(ControllerButton input)
@@ -82,28 +81,72 @@ internal static class HiddenSoakTests
                 var health = output.QueueHealth;
                 var timing = worker.CaptureTimings();
                 Array.Sort(producerMs); Array.Sort(latenessMs);
-                results.Add(new
-                {
-                    Room = room.Name, Paused = paused, Adapter = adapter, Seconds = clock.Elapsed.TotalSeconds, Frames = frames,
-                    ProducerP50Ms = producerMs[(int)Math.Ceiling(frames * .5) - 1],
-                    ProducerP95Ms = producerMs[(int)Math.Ceiling(frames * .95) - 1],
-                    ProducerP99Ms = producerMs[(int)Math.Ceiling(frames * .99) - 1],
-                    MaximumLatenessMs = latenessMs[^1], AverageAllocatedBytes = allocation / frames,
-                    PcmSamples = pcmSamples, NonzeroPcmSamples = nonzero, Audio = health, Renderer = timing,
-                    worker.PresentedFrames, worker.OccludedFrames, worker.MailboxMetrics, worker.DeviceRecoveries,
-                });
+                results.Add(new HiddenSoakResult(
+                    Room: room.Name, Paused: paused, Adapter: adapter, Seconds: clock.Elapsed.TotalSeconds, Frames: frames,
+                    ProducerP50Ms: producerMs[(int)Math.Ceiling(frames * .5) - 1],
+                    ProducerP95Ms: producerMs[(int)Math.Ceiling(frames * .95) - 1],
+                    ProducerP99Ms: producerMs[(int)Math.Ceiling(frames * .99) - 1],
+                    MaximumLatenessMs: latenessMs[^1], AverageAllocatedBytes: allocation / frames,
+                    PcmSamples: pcmSamples, NonzeroPcmSamples: nonzero, Audio: health, Renderer: timing,
+                    PresentedFrames: worker.PresentedFrames, OccludedFrames: worker.OccludedFrames, MailboxMetrics: worker.MailboxMetrics,
+                    DeviceRecoveries: worker.DeviceRecoveries));
                 Console.WriteLine($"Hidden soak paused={paused}: finished {frames} frames; producer p95={producerMs[(int)Math.Ceiling(frames * .95) - 1]:F3}ms, drains={health.EmptyBeforeRefill}.");
             }
             finally { await worker.StopAsync(); }
         }
-        Console.WriteLine("Hidden soak report: " + JsonSerializer.Serialize(new
+        Console.WriteLine("Hidden soak report: " + JsonSerializer.Serialize(new HiddenSoakReport
         {
             Scope = "Paced standalone producer + real silent waveOut + hidden GPU HWND. Not visible Present or the production WinForms timer loop; not cross-backend PCM parity.",
             TimestampUtc = DateTimeOffset.UtcNow, Runtime = RuntimeInformation.FrameworkDescription,
-            OS = RuntimeInformation.OSDescription, CoreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
-            DiagnosticBuild = typeof(Program).Module.ModuleVersionId, Results = results,
-        }, new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
+            OS = RuntimeInformation.OSDescription, CoreBuild = global::SuperMetroid.Core.BuildIdentity.Version,
+            DiagnosticBuild = global::SuperMetroid.DesktopVerification.BuildIdentity.Version, Results = results,
+        }, global::SuperMetroid.DesktopVerification.DesktopVerificationJson.Info<HiddenSoakReport>(
+            new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals })));
     }
+
+    /// <summary>The hidden soak's report: what ran, on which machine and builds, and each run's result.</summary>
+    internal sealed record HiddenSoakReport
+    {
+        /// <summary>What the soak exercises.</summary>
+        public required string Scope { get; init; }
+        /// <summary>When the report was written.</summary>
+        public required DateTimeOffset TimestampUtc { get; init; }
+        /// <summary>The .NET runtime.</summary>
+        public required string Runtime { get; init; }
+        /// <summary>The operating system.</summary>
+        public required string OS { get; init; }
+        /// <summary>The simulation's build.</summary>
+        public required Guid CoreBuild { get; init; }
+        /// <summary>The desktop checks' build.</summary>
+        public required Guid DiagnosticBuild { get; init; }
+        /// <summary>Each run's result.</summary>
+        public required List<HiddenSoakResult> Results { get; init; }
+    }
+
+    /// <summary>One hidden soak run's timing, audio and renderer measurements.</summary>
+    /// <param name="Room">The room the run played.</param>
+    /// <param name="Paused">Whether the run was paused.</param>
+    /// <param name="Adapter">The GPU adapter.</param>
+    /// <param name="Seconds">The run's length.</param>
+    /// <param name="Frames">The frames it produced.</param>
+    /// <param name="ProducerP50Ms">The producer's median frame time.</param>
+    /// <param name="ProducerP95Ms">The producer's 95th-percentile frame time.</param>
+    /// <param name="ProducerP99Ms">The producer's 99th-percentile frame time.</param>
+    /// <param name="MaximumLatenessMs">The latest a frame was.</param>
+    /// <param name="AverageAllocatedBytes">The bytes allocated per frame on average.</param>
+    /// <param name="PcmSamples">The PCM samples produced.</param>
+    /// <param name="NonzeroPcmSamples">The PCM samples that were not silent.</param>
+    /// <param name="Audio">The audio queue's health.</param>
+    /// <param name="Renderer">The renderer's timings.</param>
+    /// <param name="PresentedFrames">The frames presented.</param>
+    /// <param name="OccludedFrames">The frames the hidden window occluded.</param>
+    /// <param name="MailboxMetrics">The render mailbox's counters.</param>
+    /// <param name="DeviceRecoveries">The device recoveries the renderer made.</param>
+    internal sealed record HiddenSoakResult(string Room, bool Paused, string Adapter, double Seconds, int Frames,
+        double ProducerP50Ms, double ProducerP95Ms, double ProducerP99Ms, double MaximumLatenessMs, long AverageAllocatedBytes,
+        long PcmSamples, long NonzeroPcmSamples, global::SuperMetroid.Desktop.Audio.WaveOutQueueHealthSnapshot Audio,
+        global::SuperMetroid.Rendering.Direct3D11.Telemetry.RenderWorkerTimings Renderer, long PresentedFrames, long OccludedFrames,
+        global::SuperMetroid.Rendering.Direct3D11.Frames.RenderMailboxMetrics MailboxMetrics, long DeviceRecoveries);
 
     /// <summary>Preserves host capture, PCM queue, acknowledgement, and publish order within one synchronous call.</summary>
     private static void MixAndSubmit(short[] samples, WaveOutAudioDevice output, SuperMetroidGame game,

@@ -19,7 +19,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// sprite set of the colouring the title draws it in (#1513), coloured as the title loads its palette, with a shade for each colouring the compositions draw in, for
 /// the copyright's colours as the skip restores them (#1512) and for each record the logo's and copyright's fades show (#1714).
 /// </summary>
-internal static class TitleSheetComposer
+internal static partial class TitleSheetComposer
 {
     /// <summary>The sprite colourings in the order the title sheet lists their drawn shades (#2567): text, logo, copyright.</summary>
     private static readonly IReadOnlyList<TitleSpriteColouring> Colourings = Ensure.EveryMemberOnce<TitleSpriteColouring>(
@@ -38,7 +38,7 @@ internal static class TitleSheetComposer
     /// What the title sheet composes from <paramref name="graphics"/>, coloured with <paramref name="palette"/>, its fades'
     /// records coloured from <paramref name="paletteFx"/>.
     /// </summary>
-    /// <exception cref="InvalidDataException">A fade's record has no installed colour, or writes past its colours.</exception>
+    /// <exception cref="InvalidDataException">A fade's record has no colour in the import's palette-effect colours, or writes past its colours.</exception>
     internal static SpriteSheetSources Sources(TitleGraphicsCharacters graphics, TitlePalettePresentation palette, IPaletteFxColorSource paletteFx)
     {
         TitleGraphicsCharacters characters = Ensure.NotNull(graphics);
@@ -58,7 +58,7 @@ internal static class TitleSheetComposer
         }
         foreach (TitleCardDefinition card in TitleCards.All)
         {
-            IReadOnlyList<TitleCardTyping> typings = TitleCards.Typings(card.Card);
+            IReadOnlyList<TitleCardTyping> typings = TitleCards.Typings(card);
             SpriteFramePart[][] letters = TypedTextGlyphs.Of(card.Card.ToString(),
                 [.. typings.Select(typed => characters.Frame(typed, TitleSpriteDefinitions.LetterFrameName(typed)))],
                 Offset16<ScreenPixels>.Of(TitleCardDefinitions.TypedScroll.X, TitleCardDefinitions.TypedScroll.Y));
@@ -84,9 +84,11 @@ internal static class TitleSheetComposer
                 sprites.AsSpan(set * TitleSheetInks.GroupColours, TitleSheetInks.GroupColours), set));
         }
         int copyright = TitleSheetInks.SpriteSet(TitleSequenceDefinitions.Sprites.CopyrightColouring) * TitleSheetInks.GroupColours;
-        shades.Add(new SheetShade(TitleShades.RestoredCopyright,
-            [copyright + TitleSheetInks.CopyrightWhiteColour, copyright + TitleSheetInks.CopyrightRedColour],
-            [palette.SkipCopyrightWhite, palette.SkipCopyrightTint]));
+        shades.Add(SheetShade.Of(TitleShades.RestoredCopyright,
+        [
+            KeyValuePair.Create(copyright + TitleSheetInks.CopyrightWhiteColour, palette.SkipCopyrightWhite),
+            KeyValuePair.Create(copyright + TitleSheetInks.CopyrightRedColour, palette.SkipCopyrightTint),
+        ]));
         // The logo and the copyright show each record their fades show over the inks each fade recolours (#1714), laid
         // over their drawn shades.
         foreach (ColourEffectColours faded in TitleSheetInks.Fades)

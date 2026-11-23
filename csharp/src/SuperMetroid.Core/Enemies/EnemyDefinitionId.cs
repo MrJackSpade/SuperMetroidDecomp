@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public enum EnemyDefinitionId
 {
-    /// <summary>No enemy: a cleared or inactive place.</summary>
-    None,
     /// <summary>A Boyon, the jelly that bounces in place.</summary>
     Boyon,
     /// <summary>The Mama Turtle, the giant Maridia turtle whose shell Samus can ride.</summary>
@@ -82,8 +80,8 @@ public enum EnemyDefinitionId
     /// <summary>A Tripper, the flying platform that carries Samus.</summary>
     Tripper,
     /// <summary>
-    /// The suspensor platform: the Tripper's carrying platform with its suspensor art, which sinks under Samus and floats
-    /// back up. The original calls it Kamer too; the shutter-family Kamer is <see cref="Kamer"/>.
+    /// The suspensor platform: the Tripper's carrying platform with its suspensor art, which sinks under Samus and
+    /// floats back up.
     /// </summary>
     SuspensorPlatform,
     /// <summary>An Sbug, one of the tiny bugs that dart about.</summary>
@@ -159,8 +157,8 @@ public enum EnemyDefinitionId
     Ridley,
     /// <summary>One piece of Ridley's body as it breaks apart at his death.</summary>
     RidleyBreakupPiece,
-    /// <summary>A jet of steam in Ceres station.</summary>
-    CeresSteam,
+    /// <summary>A steam vent, which Ceres and the escaping Zebes place.</summary>
+    SteamVent,
     /// <summary>An ordinary Ceres door, facing either way, which opens as Samus comes near (#1989).</summary>
     CeresDoor,
     /// <summary>The door of Ceres Ridley's room, which his scene draws while he holds the room (#1989).</summary>
@@ -275,7 +273,6 @@ public enum EnemyDefinitionId
     /// <remarks>The dead Skree, with its three corpse variants sharing the corpse-rotting engine.</remarks>
     CorpseSkree,
     /// <summary>The Baby Metroid in Tourian, which drains Samus and then leaves her.</summary>
-    /// <remarks>The Baby Metroid actor.</remarks>
     BabyMetroid,
     /// <summary>Bomb Torizo, the Chozo statue that wakes in Crateria.</summary>
     BombTorizo,

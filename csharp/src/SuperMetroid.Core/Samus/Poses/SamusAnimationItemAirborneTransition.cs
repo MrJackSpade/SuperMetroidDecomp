@@ -11,13 +11,16 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <param name="UnequippedAirborne">The pose taken without the items while moving vertically.</param>
 /// <param name="EquippedGrounded">The pose taken with one of the items while not moving vertically.</param>
 /// <param name="EquippedAirborne">The pose taken with one of the items while moving vertically.</param>
-internal sealed record SamusAnimationItemAirborneTransition(
+internal sealed partial record SamusAnimationItemAirborneTransition(
     SamusEquipmentFlags Item,
     SamusPoseId UnequippedGrounded,
     SamusPoseId UnequippedAirborne,
     SamusPoseId EquippedGrounded,
     SamusPoseId EquippedAirborne) : SamusAnimationCue
 {
+    /// <inheritdoc/>
+    internal override TResult Match<TContext, TResult>(SamusAnimationCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).ItemAirborneTransition(this, context);
+
     /// <inheritdoc/>
     internal override IReadOnlyList<SamusPoseId> PublishedPoses => [UnequippedGrounded, UnequippedAirborne, EquippedGrounded, EquippedAirborne];
 }

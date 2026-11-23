@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// positions; a reaction sets only the stages it has. The species' entity decides when it applies
 /// (<see cref="IEnemyPowerBombReaction.PowerBombReaction"/>).
 /// </summary>
-internal sealed class EnemyPowerBombReaction
+internal sealed partial class EnemyPowerBombReaction
 {
     /// <summary>Whether the enemy is skipped before its reaction is examined.</summary>
     internal Func<RoomEnemyPlace, bool>? SkipsEnemy { get; init; }
@@ -13,14 +13,10 @@ internal sealed class EnemyPowerBombReaction
     /// <summary>A private reaction that replaces common power-bomb damage entirely.</summary>
     internal EnemyPowerBombStage? ReplacesCommon { get; init; }
 
-    /// <summary>Whether a lethal hit leaves the death to the species instead of the generic death animation.</summary>
-    internal bool ExemptFromGenericDeath { get; init; }
+    /// <summary>What a lethal hit does: the generic death, after a stage, replaced, or the species' own (#2560).</summary>
+    internal EnemyPowerBombLethal Lethal { get; init; } = EnemyPowerBombLethal.Generic;
 
-    /// <summary>Runs on a lethal hit immediately before the generic death.</summary>
-    internal EnemyPowerBombStage? BeforeGenericDeath { get; init; }
 
-    /// <summary>Replaces the generic death animation on a lethal hit.</summary>
-    internal EnemyPowerBombStage? ReplacesGenericDeath { get; init; }
 
     /// <summary>What the species does after the common power-bomb damage.</summary>
     internal EnemyPowerBombStage? AfterCommon { get; init; }

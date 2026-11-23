@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Hud;
 /// What the HUD shows (#1466): its images, each placed at the screen pixel its corner shows at, in the order they are
 /// drawn, a later image covering an earlier one where they meet. Each image is opaque over the pixels it covers.
 /// </summary>
-public sealed class ShownHud
+public sealed partial class ShownHud
 {
     /// <summary>Keeps the placements in drawing order.</summary>
     /// <param name="images">The placed images, earliest first.</param>
@@ -29,7 +29,7 @@ public sealed class ShownHud
     public static ShownHud Nothing { get; } = new([]);
 
     /// <summary>The placed images, earliest first.</summary>
-    public ImmutableArray<PlacedHudImage> Images { get; }
+    internal ImmutableArray<PlacedHudImage> Images { get; }
 
     /// <summary>
     /// The HUD as the backend draws it: each placed image's installed picture at the screen pixel its corner shows at, in

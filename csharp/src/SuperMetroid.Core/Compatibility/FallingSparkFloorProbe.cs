@@ -15,8 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// whole-pixel word of its fall speed to the enemy projectiles' vertical block-collision mover, which reads its argument
 /// as a speed in 256ths of a pixel, and the spark's own sixteen-bit fall is added afterwards.
 /// </remarks>
-[CompatibilityService("a falling spark's floor probe creeps it down by its whole fall speed read as 256ths of a pixel before it falls")]
-public sealed class FallingSparkFloorProbe
+public sealed partial class FallingSparkFloorProbe
 {
     /// <summary>The creep for each whole pixel of fall speed: a 256th of a pixel.</summary>
     private readonly SignedEightEight _creepPerWholePixel = SignedEightEight.FinestStep;

@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace SuperMetroid.AssetExtraction.Assets;
 
 /// <summary>Defines the gameplay base-palette files and their fixed dimensions.</summary>
-public static class GameplayBasePaletteFormat
+public static partial class GameplayBasePaletteFormat
 {
     /// <summary>Supported gameplay base-palette schema revision.</summary>
     public const int Version = 1;

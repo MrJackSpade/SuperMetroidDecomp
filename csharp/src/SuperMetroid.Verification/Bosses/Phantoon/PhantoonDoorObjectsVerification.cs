@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -66,7 +67,7 @@ internal static class PhantoonDoorObjectsVerification
     /// </summary>
     private static void VerifyPhantoonDoorSpawnCalls(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         (int Call, ushort Header, PhantoonDoorChange Change)[] spawns =
             [(0xa7d4e5, 0xb781, PhantoonDoorChange.FightDoor), (0xa7db89, 0xb78b, PhantoonDoorChange.RestoredDoor)];
         foreach ((int call, ushort header, PhantoonDoorChange change) in spawns)
@@ -115,7 +116,7 @@ internal static class PhantoonDoorObjectsVerification
         RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = enemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("Verification requires Phantoon's state.");
-        state.StartingFlames.NextFlame = SuperMetroid.Core.Bosses.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, 6);
+        state.StartingFlames.NextFlame = SuperMetroid.Core.ListStep<TrigonometryAngle>.At(PhantoonFlameSpawns.StartingFlameStarts, 6);
         state.PhaseWait.LastFor(1);
         enemies.PhantoonBehavior.Opening.RunPhantoonStartingFlameSpawner(state);
         AssertEqual(null, enemies.LastEnemyFrame.All<PhantoonDoorChanged>().Select(door => (PhantoonDoorChange?)door.Change).LastOrDefault(), "the seventh starting flame asks for no door change");
@@ -170,13 +171,13 @@ internal static class PhantoonDoorObjectsVerification
     private static void VerifyChange(CartridgeImportAddressSpace rom, RoomLevelData level, PhantoonDoorChange change,
         Dictionary<Offset16<RoomBlocks>, RoomTerrainBlock> before, ushort drawList, ushort priorList)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         Position16<RoomBlocks> top = PhantoonDoorChangeDefinitions.Block;
         RoomBlockBehavior[] behaviors = [.. before.Keys.Select(cell => level.GetCollisionBlock(top + cell).Behavior)];
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
         string at = $"Phantoon {change}";
 
-        AssertTrue(roomObjects.BossRoomMutations.PhantoonDoor.TrySpawn(level, change), $"{at} spawns");
+        roomObjects.BossRoomMutations.PhantoonDoor.Spawn(level, change);
         AssertEqual(1, roomObjects.Places.ActiveCount, $"{at} takes one room-object place");
         ushort priorTopWord = cartridge.ReadCartridgeWord(ProgramBank | (priorList + 2));
         AssertEqual(RoomLevelWordCodec.Decode((ushort)(priorTopWord & DeactivationMask)), level.GetCollisionBlock(top).Terrain,

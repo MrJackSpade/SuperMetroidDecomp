@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
@@ -20,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// an encounter shows only its room's load under it. Ceres Ridley's escape warning shows through his room's backgrounds
 /// alone, so no frame is listed for it.
 /// </summary>
-internal static class EncounterArtworkDrawingDefinitions
+internal static partial class EncounterArtworkDrawingDefinitions
 {
     /// <summary>The frames Mother Brain's dead brain shows as a corpse, the only frames the game shows her corpse's rot in.</summary>
     internal static readonly EnemyFrameId[] MotherBrainCorpseFrames =
@@ -75,17 +76,43 @@ internal static class EncounterArtworkDrawingDefinitions
     /// face half blown away and its face blown away.
     /// </summary>
     private static readonly EncounterArtworkDrawing BombTorizoBody =
-        new(ComposedEncounter.BombTorizo, [ComposedLook.Loaded(ComposedEncounter.BombTorizo), .. Bomb(L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
+        new(ComposedEncounter.BombTorizo, [ComposedLook.Loaded(ComposedEncounter.BombTorizo), .. Bomb(L.ChozoCrumbled, L.EyesDark, L.EyesGlowingFaintly, L.EyesGlowingBrightly, L.EyesGlowingFully,
             L.EyesDarkAgain, L.EyesGlowingFaintlyAgain, L.EyesGlowingBrightlyAgain, L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
             Frames = [.. TorizoAnimations.Segments.Frames],
         };
 
+    /// <summary>
+    /// The pieces of Bomb Torizo's statue that break off and fall as the Chozo hand holding the bombs crumbles (#2623),
+    /// before it wakes: drawn over the statue's own characters.
+    /// </summary>
+    private static readonly EnemyProjectileFrameId[] BombTorizoStatueFragmentFrames =
+    [
+        EnemyProjectileFrameId.BombTorizoStatueMossClump,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitCenter,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitSpot,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleMossyTop,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleMossSpeck,
+        EnemyProjectileFrameId.BombTorizoStatueRubbleLitBase,
+        EnemyProjectileFrameId.BombTorizoStatueSlab,
+    ];
+
     /// <summary>Bomb Torizo's projectiles, which fly only once it has woken.</summary>
     private static readonly EncounterArtworkDrawing BombTorizoProjectiles =
         new(ComposedEncounter.BombTorizo, [.. Bomb(L.EyesGlowingFullyAgain, L.GutBlownUp, L.FaceHalfBlownAway, L.FaceBlownUp)])
         {
-            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames],
+            Projectiles = [.. TorizoProjectileAnimations.Segments.Frames.Except(BombTorizoStatueFragmentFrames)],
+        };
+
+    /// <summary>
+    /// Bomb Torizo's statue fragments (#2623), drawn over the debris the crumbling hand copies, in every look from it on:
+    /// they fall as the hand crumbles, and the room's load holds none of their characters.
+    /// </summary>
+    private static readonly EncounterArtworkDrawing BombTorizoStatueFragments =
+        new(ComposedEncounter.BombTorizo, [.. Bomb(TorizoLookUploadDefinitions.BombEncounterLooks)])
+        {
+            Projectiles = BombTorizoStatueFragmentFrames,
         };
 
     /// <summary>
@@ -111,7 +138,7 @@ internal static class EncounterArtworkDrawingDefinitions
     private static readonly EncounterArtworkDrawing CeresDoors =
         new(ComposedEncounter.CeresElevatorDoor, [ComposedLook.Loaded(ComposedEncounter.CeresElevatorDoor), ComposedLook.Of(ComposedEncounter.CeresElevatorDoor, CeresElevatorDoorLookDefinitions.OverlayLook)])
         {
-            Frames = [.. CeresDoorAnimations.Segments.Frames.Except([EnemyFrameId.CeresElevatorDoorBlocked])],
+            Frames = [.. CeresDoorAnimations.Frames.Except([EnemyFrameId.CeresElevatorDoorBlocked])],
         };
 
     /// <summary>
@@ -268,6 +295,15 @@ internal static class EncounterArtworkDrawingDefinitions
             Projectiles = [.. DustExplosionProjectileAnimations.Segments.Frames],
         };
 
+    /// <summary>
+    /// Ridley's and Phantoon's statues, drawn in each eye picture their animations copy over them (#2625), and in their
+    /// room's load before the first.
+    /// </summary>
+    private static readonly EncounterArtworkDrawing RidleyStatueEyes = StatueEyes(ComposedEncounter.RidleyStatue, EnemyProjectileFrameId.TourianStatueRidley);
+
+    /// <summary>Phantoon's statue, drawn in each eye picture its animation copies over it (#2625).</summary>
+    private static readonly EncounterArtworkDrawing PhantoonStatueEyes = StatueEyes(ComposedEncounter.PhantoonStatue, EnemyProjectileFrameId.TourianStatuePhantoon);
+
     /// <summary>Every entry, by encounter.</summary>
     internal static IReadOnlyList<EncounterArtworkDrawing> All { get; } =
     [
@@ -278,6 +314,7 @@ internal static class EncounterArtworkDrawingDefinitions
         CrocomireProjectiles,
         BombTorizoBody,
         BombTorizoProjectiles,
+        BombTorizoStatueFragments,
         GoldenTorizo,
         CeresDoors,
         CeresElevatorDoorBlocked,
@@ -294,7 +331,13 @@ internal static class EncounterArtworkDrawingDefinitions
         MotherBrainSubtitleDrawn,
         MotherBrainHandBeam,
         MotherBrainDust,
+        RidleyStatueEyes,
+        PhantoonStatueEyes,
     ];
+
+    /// <summary>A sprite statue's picture, <paramref name="frame"/>, drawn in every look of <paramref name="encounter"/>.</summary>
+    private static EncounterArtworkDrawing StatueEyes(ComposedEncounter encounter, EnemyProjectileFrameId frame) =>
+        new(encounter, EncounterLookUploads.Looks(encounter)) { Projectiles = [frame] };
 
     /// <summary>Bomb Torizo's <paramref name="looks"/>.</summary>
     private static IEnumerable<ComposedLook> Bomb(params TorizoArtworkLook[] looks) =>

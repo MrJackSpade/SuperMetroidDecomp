@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 /// The shades the import pre-colours Kraid's pictures in (#1512): his health bands, his death colours and rocks, and what
 /// his room's backdrop settles on; its fades between them are typed fades the encounter publishes (#2215).
 /// </summary>
-public static class KraidShades
+public static partial class KraidShades
 {
     /// <summary>
     /// Kraid's colours for health band <paramref name="band"/>: his body's on the background and his sprite parts' (#1512),
@@ -20,7 +20,7 @@ public static class KraidShades
     /// <summary>His body's colours as he dies, with his arm drawn into them.</summary>
     public static PictureShade DeathArm { get; } = new("kraid-death-arm", 0);
 
-    /// <summary>The colours his ceiling rocks and spat rocks draw in, which his initialization loads.</summary>
+    /// <summary>The shade his ceiling rocks and spat rocks are drawn in.</summary>
     public static PictureShade Rocks { get; } = new("kraid-rocks", 0);
 
     /// <summary>Kraid's backdrop colours, as his defeated room shows them.</summary>

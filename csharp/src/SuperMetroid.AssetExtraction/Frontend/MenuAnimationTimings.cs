@@ -8,13 +8,13 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// The menu missile's and the file-select helmet's frame holds as the import reads them from the cartridge (#1615); the
 /// game reads them only from the installed menu presentations.
 /// </summary>
-internal static class MenuAnimationTimings
+internal static partial class MenuAnimationTimings
 {
     /// <summary>The ticks the menu missile holds each frame: the one value every frame's timer reload holds.</summary>
     /// <exception cref="InvalidDataException">The cartridge's reloads differ, which one installed hold cannot carry.</exception>
     internal static int MissileFrameDuration(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         int duration = RomDataReader.ReadWordFixedBank(cartridge, MenuAnimationSourceDefinitions.MissileFrameDurations);
         for (int frame = 1; frame < MenuMissileAnimationDefinitions.Roll.Count; frame++)
         {
@@ -27,5 +27,5 @@ internal static class MenuAnimationTimings
 
     /// <summary>The ticks the file-select helmet holds each frame.</summary>
     internal static int HelmetFrameDuration(ISnesAddressSpace bus) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuAnimationSourceDefinitions.HelmetFrameDuration);
+        RomDataReader.ReadWordFixedBank(bus, MenuAnimationSourceDefinitions.HelmetFrameDuration);
 }

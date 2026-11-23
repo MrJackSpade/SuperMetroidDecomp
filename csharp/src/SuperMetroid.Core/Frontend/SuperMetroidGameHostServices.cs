@@ -2,29 +2,44 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
 /// The compatibility services and display policy a session runs against, fixed at construction. The game uses
-/// <see cref="Default"/>, the game's own timing with every gameplay frame captured; another host may supply its own
-/// timing or keep the display it last showed.
+/// <see cref="Default"/>, the game's own timing with every gameplay frame captured;
+/// another host may supply its own timing or keep the display it last showed.
 /// </summary>
-internal sealed record SuperMetroidGameHostServices
+internal sealed partial record SuperMetroidGameHostServices
 {
     /// <summary>The game's own timing, which every production host uses.</summary>
-    public static SuperMetroidGameHostServices Default { get; } = new()
+    public static SuperMetroidGameHostServices Default { get; } = new(
+        InstantDoorMusicLoad.Instance,
+        InstantRoomLoad.Instance,
+        ClockedSoundAcceptance<SoundEffectLibrary, SoundEffectId>.Instance,
+        CapturedGameplayFrames.Instance);
+
+    /// <summary>The services a session runs against; the game builds only <see cref="Default"/>.</summary>
+    /// <param name="doorMusicLoadFrames">Frames counted while a door's new music loads.</param>
+    /// <param name="roomLoadProgress">How far room loading has progressed when each enemy initializes.</param>
+    /// <param name="soundAcceptance">On which update each sound library accepts the sound the game requested.</param>
+    /// <param name="gameplayFrames">How each gameplay update becomes the published display.</param>
+    internal SuperMetroidGameHostServices(
+        IDoorMusicLoadFrames doorMusicLoadFrames,
+        IRoomLoadProgress roomLoadProgress,
+        ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId> soundAcceptance,
+        IGameplayFramePublication gameplayFrames)
     {
-        DoorMusicLoadFrames = InstantDoorMusicLoad.Instance,
-        RoomLoadProgress = InstantRoomLoad.Instance,
-        SoundAcceptance = ClockedSoundAcceptance<SoundEffectLibrary, SoundEffectId>.Instance,
-        GameplayFrames = CapturedGameplayFrames.Instance,
-    };
+        DoorMusicLoadFrames = doorMusicLoadFrames;
+        RoomLoadProgress = roomLoadProgress;
+        SoundAcceptance = soundAcceptance;
+        GameplayFrames = gameplayFrames;
+    }
 
     /// <summary>Frames counted while a door's new music loads.</summary>
-    public required IDoorMusicLoadFrames DoorMusicLoadFrames { get; init; }
+    public IDoorMusicLoadFrames DoorMusicLoadFrames { get; }
 
     /// <summary>How far room loading has progressed when each enemy initializes.</summary>
-    public required IRoomLoadProgress RoomLoadProgress { get; init; }
+    public IRoomLoadProgress RoomLoadProgress { get; }
 
     /// <summary>On which update each sound library accepts the sound the game requested.</summary>
-    public required ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId> SoundAcceptance { get; init; }
+    public ISoundAcceptanceTiming<SoundEffectLibrary, SoundEffectId> SoundAcceptance { get; }
 
     /// <summary>How each gameplay update becomes the published display.</summary>
-    public required IGameplayFramePublication GameplayFrames { get; init; }
+    public IGameplayFramePublication GameplayFrames { get; }
 }

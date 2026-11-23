@@ -23,6 +23,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 
+using SuperMetroid.Core.Compatibility;
+
 /// <summary>Verifies Samus's Crystal Flash, X-ray, and death state machines with focused cartridge fixtures.</summary>
 internal static class SamusSpecialStatesVerification
 {
@@ -109,7 +111,6 @@ internal static void VerifySamusCrystalFlash()
     const GameplayAction chord = (GameplayAction.Down | GameplayAction.AimDown | GameplayAction.AimUp | GameplayAction.Shoot);
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0120, 0x0080)),
         Health = 1,
         MaxHealth = 99,
@@ -117,7 +118,7 @@ internal static void VerifySamusCrystalFlash()
         SuperMissiles = 10,
         PowerBombs = 10,
         InvincibilityTimer = WrappingCountdown.Start(96),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
 
     samus.PoseHistory.Restore(SamusPoseId.FacingRightNormalPose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
@@ -136,7 +137,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(SamusMovementType.Standing, samus.PoseHistory.MovementBeforePrevious, "Crystal Flash shifts previous metadata");
     AssertEqual(SamusPoseId.CrystalFlashRightPose, samus.PoseHistory.PreviousPose, "Crystal Flash commits right pose");
     AssertEqual(SamusMovementType.Special, samus.PoseHistory.PreviousMovement, "Crystal Flash commits right metadata");
-    AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
+    AssertEqual(new CrystalFlashPhase.Moving.Raising(), samus.CrystalFlash.Phase,
         "Crystal Flash installs raise handler");
     AssertEqual(SamusSpecialColouringKind.CrystalFlash, samus.SpecialColouring.Holder,
         "Crystal Flash takes Samus's suit colouring");
@@ -158,7 +159,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble shade holds five updates");
     AssertEqual(10, samus.CrystalFlash.BodyPulse.UpdatesLeft,
         "Crystal Flash body shade holds ten updates");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.CrystalFlashBody[0], samus.CrystalFlash.BodyPulse.Showing,
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.CrystalFlashBody[0], samus.CrystalFlash.BodyPulse.Shown,
         "Crystal Flash body pulse shows its first shade");
 
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
@@ -174,18 +175,18 @@ internal static void VerifySamusCrystalFlash()
     samus.InvincibilityTimer = WrappingCountdown.Start(77);
     for (int frame = 0; frame < 9; frame++)
     {
-        samus.CrystalFlash.Step(samus, (ushort)frame);
-        AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
+        samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, (ushort)frame);
+        AssertEqual(new CrystalFlashPhase.Moving.Raising(), samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer.RawValue, "ordinary raise handler does not clear immunity");
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
-    CrystalFlashMovementResult raiseEnd = samus.CrystalFlash.Step(samus, 9);
+    CrystalFlashMovementResult raiseEnd = samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, 9);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "raise completion clears hit immunity");
-    AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
+    AssertEqual(new CrystalFlashPhase.Moving.DrainingAmmo(), samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
     AssertEqual((initialY - 20), samus.Position.Y.Whole, "complete raise is 20 pixels");
     AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedHeight,
@@ -193,8 +194,8 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(6, samus.AnimationNumber, "raise transition forces animation frame six");
     AssertTrue(raiseEnd.BubbleStarted,
         "raise transition publishes Crystal Flash HDMA spawn seam");
-    AssertSequenceEqual(new[] { new SoundRequest(RoomSound.Silence, SoundRequestPriority.Essential) },
-        samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSound.Silence),
+    AssertSequenceEqual(new[] { new SoundRequest(RoomSoundStop.Any, SoundRequestPriority.Essential) },
+        samus.AudioRequests.SoundRequests.Where(request => request.SoundEffect == RoomSoundStop.Any),
         "the raise's end queues the Crystal Flash activation sound once, at essential priority");
 
     var crystalWindowGlowColors = PowerBombGlowColorFile.Read(new MemoryStream(
@@ -204,7 +205,7 @@ internal static void VerifySamusCrystalFlash()
     crystalWindow.BeginCrystalFlash(samus.Position.Whole);
     AssertTrue(!crystalWindow.IsArmed,
         "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
-    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Blast.Phase,
+    AssertEqual(new PowerBombExplosionPhase.Running.CrystalFlashExplosion(), crystalWindow.Blast.Phase,
         "Crystal Flash installs bank-$88 stage-one pre-instruction");
     AssertEqual(PowerBombRadius.FromWholePixels(4), crystalWindow.Blast.ExplosionRadius,
         "Crystal Flash bubble begins at radius four");
@@ -213,10 +214,10 @@ internal static void VerifySamusCrystalFlash()
     // reaches 32 and 176/256 pixels, and installs the afterglow. Its rendered table still used 29 and a half pixels.
     for (int hdmaCall = 1; hdmaCall <= 17; hdmaCall++)
         AssertTrue(!crystalWindow.StepFrame(crystalWindowGlowColors), $"Crystal Flash expansion call {hdmaCall}");
-    AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Blast.Phase,
+    AssertEqual(new PowerBombExplosionPhase.Running.CrystalFlashExplosion(), crystalWindow.Blast.Phase,
         "Crystal Flash expansion remains active through call seventeen");
     AssertTrue(!crystalWindow.StepFrame(crystalWindowGlowColors), "Crystal Flash expansion transition is not cleanup");
-    AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Blast.Phase,
+    AssertEqual(new PowerBombExplosionPhase.Running.CrystalFlashAfterglow(), crystalWindow.Blast.Phase,
         "Crystal Flash call eighteen installs afterglow");
     AssertEqual(PowerBombRadius.FromPixels(32, 176), crystalWindow.Blast.ExplosionRadius,
         "Crystal Flash transition radius preserves 8.8 acceleration sum");
@@ -240,12 +241,12 @@ internal static void VerifySamusCrystalFlash()
     }
     AssertTrue(crystalWindow.StepFrame(crystalWindowGlowColors),
         "Crystal Flash cleans up on the call after the native fade count");
-    AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Blast.Phase,
+    AssertEqual(new PowerBombExplosionPhase.Inactive(), crystalWindow.Blast.Phase,
         "Crystal Flash HDMA cleanup clears phase");
     AssertTrue(!crystalWindow.IsActive,
         "Crystal Flash HDMA cleanup ends the shared explosion");
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     AssertEqual(2, samus.AnimationFrameTimer.RawValue,
         "same beta frame decrements forced timer three to two");
 
@@ -255,7 +256,7 @@ internal static void VerifySamusCrystalFlash()
     samus.KnockbackHold = UpdateCountdown.For(5);
     var resourcesBeforeSkipped =
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
-    samus.CrystalFlash.Step(samus, 15);
+    samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, 15);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
     AssertEqual(0, samus.KnockbackHold.UpdatesLeft, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
@@ -265,7 +266,7 @@ internal static void VerifySamusCrystalFlash()
     {
         samus.InvincibilityTimer = WrappingCountdown.Start(77);
         samus.KnockbackHold = UpdateCountdown.For(5);
-        samus.CrystalFlash.Step(samus, unchecked((ushort)(drain * 8)));
+        samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, unchecked((ushort)(drain * 8)));
         AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
         AssertEqual(0, samus.KnockbackHold.UpdatesLeft, "ammo-drain frame clears knockback timer");
     }
@@ -274,31 +275,31 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0, samus.SuperMissiles, "Crystal Flash consumes ten supers");
     AssertEqual(0, samus.PowerBombs, "Crystal Flash consumes ten power bombs");
     AssertEqual(99, samus.Health, "Crystal Flash energy restoration caps at max");
-    AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
+    AssertEqual(new CrystalFlashPhase.Moving.Finishing(), samus.CrystalFlash.Phase,
         "thirtieth drain installs finish handler");
     AssertEqual(12, samus.AnimationNumber, "ammo completion forces finish frame twelve");
 
     // Finish animation is ROM bytecode, not a host countdown. Movement runs before animation
     // each frame; `$FD,$01` publishes standing-right, which is committed after animation.
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     int finishFrames = 0;
     while (samus.CuePose.Named is null && finishFrames++ < 20)
     {
-        samus.CrystalFlash.Step(samus, (ushort)(0x0100 + finishFrames));
+        samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, (ushort)(0x0100 + finishFrames));
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom(), ControllerInput = chord });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom(), ControllerInput = chord });
     }
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.CuePose.Named,
         "Crystal Flash ROM finish command publishes standing right");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(samus),
         "Crystal Flash standing transition is applied");
-    AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
+    AssertEqual(new CrystalFlashPhase.Moving.Finishing(), samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
     samus.InvincibilityTimer = WrappingCountdown.Start(77);
-    samus.CrystalFlash.Step(samus, 0x0200);
+    samus.CrystalFlash.Step(samus, (CrystalFlashPhase.Moving)samus.CrystalFlash.Phase, 0x0200);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
-    AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
+    AssertEqual(new CrystalFlashPhase.Inactive(), samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
     AssertTrue(samus.CrystalFlash.Colouring == SpecialColouringStage.Ending,
         "cleanup requests normal palette restoration");
@@ -313,12 +314,11 @@ internal static void VerifySamusCrystalFlash()
 
     var left = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingLeftNormalPose,
         Health = 50,
         Missiles = 10,
         SuperMissiles = 10,
         PowerBombs = 10,
-    };
+    }.InPose(SamusPoseId.FacingLeftNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(left);
     left.PoseHistory.Restore(left.Pose, SamusMovementType.Standing, left.PoseHistory.MovementBeforePrevious);
     AssertTrue(left.CrystalFlash.TryBegin(left, chord),
@@ -393,9 +393,8 @@ internal static void VerifySamusXray()
         SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
     var standing = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     // The X-ray visor names shades (#1512); the import resolves them from the fixture's visor and suit colours.
     var xraySources = InstalledFixtures.SamusShadeSources with { Visor = xrayColors, Suits = xraySuitColors };
     SamusPoseMetadata.RefreshCollisionRadii(standing);
@@ -414,11 +413,12 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayStart), "X-ray startup queues its sound once");
 
-    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Level, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    standing.Xray.StepMovement(standing);
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Level, standing.AnimationFrame,
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
     standing.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(standing, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(standing, new SamusAnimationStep { Ground = standing.Ground, Random = new SharedRandom() });
     AssertEqual(14, standing.AnimationFrameTimer.RawValue,
         "generic animation follows X-ray movement timer write");
 
@@ -427,7 +427,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, xrayColours.ShownVisor(xraySources), "first widening visor shade shows its installed color");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Showing, "widening visor shows its first shade");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.XrayWideningVisor[0], standing.Xray.Visor.Shown, "widening visor shows its first shade");
     AssertEqual(XrayScopeDefinitionsConstants.VisorShades.FrameDelay, standing.Xray.Visor.UpdatesLeft,
         "widening visor shade holds five updates");
 
@@ -478,7 +478,7 @@ internal static void VerifySamusXray()
         "full beam enters visor cycle");
     AssertEqual(XrayVisorShadeMode.FullBeam, standing.Xray.VisorShadeMode, "full beam palette mode");
     AssertEqual(0x43ff, xrayColours.ShownVisor(xraySources), "first full-beam visor shade shows its installed color");
-    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.VisorCycle[0], standing.Xray.Visor.Showing, "full-beam visor shows the cycle's first shade");
+    AssertEqual(SuperMetroid.Core.Samus.Colours.SamusShades.VisorCycle[0], standing.Xray.Visor.Shown, "full-beam visor shows the cycle's first shade");
 
     // Full-beam aiming moves one angle unit per call and Up wins over Down. Width ten clamps
     // the right-facing center at angle ten, so 80 calls cannot wrap into left-facing space.
@@ -489,7 +489,8 @@ internal static void VerifySamusXray()
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(standing, (GameplayAction.Dash | GameplayAction.Up));
     AssertEqual(10, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "right X-ray upper clamp includes width");
-    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    standing.Xray.StepMovement(standing);
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, standing.AnimationFrame,
         "upper-clamped angle selects looking-up art");
 
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
@@ -506,12 +507,15 @@ internal static void VerifySamusXray()
     AssertEqual(SamusMovementType.TurningOnGround, standing.PoseHistory.PreviousMovement, "X-ray turn publishes turning metadata");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.Pose, "X-ray right-to-left standing turn pose");
     AssertEqual(0xf6, standing.Xray.Angle.ToTrigonometryAngle().RawValue, "X-ray turn mirrors angle");
-    AssertTrue(standing.Xray.StepMovement(standing) is null,
-        "X-ray movement is RTS during type-E turn");
+    SamusAnimationFrame frameDuringTurn = standing.AnimationFrame;
+    int timerDuringTurn = standing.AnimationFrameTimer.RawValue;
+    standing.Xray.StepMovement(standing);
+    AssertEqual(frameDuringTurn, standing.AnimationFrame, "X-ray movement is RTS during type-E turn: the frame stays");
+    AssertEqual(timerDuringTurn, standing.AnimationFrameTimer.RawValue, "X-ray movement is RTS during type-E turn: the timer stays");
     for (int tick = 0; tick < 5; tick++)
     {
         standing.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(standing, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(standing, new SamusAnimationStep { Ground = standing.Ground, Random = new SharedRandom() });
     }
     AssertEqual(2, standing.AnimationNumber, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer.RawValue, "X-ray turn reaches timer one");
@@ -521,7 +525,8 @@ internal static void VerifySamusXray()
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
     AssertEqual(SamusMovementType.Standing, standing.PoseHistory.PreviousMovement, "X-ray completion publishes stable metadata");
     AssertEqual(SamusPoseId.XrayingStandingLeftPose, standing.Pose, "X-ray turn installs left standing body");
-    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    standing.Xray.StepMovement(standing);
+    AssertEqual(SuperMetroid.Core.Samus.Abilities.XrayScopeDefinitions.Aims.Up, standing.AnimationFrame,
         "left near-up angle selects looking-up art");
 
     // Releasing Dash starts the beam's two-update closing; its last step then restores ordinary left
@@ -538,7 +543,7 @@ internal static void VerifySamusXray()
     AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
     AssertEqual(XrayVisorShadeMode.TornDown, standing.Xray.VisorShadeMode,
         "X-ray teardown requests palette restoration");
-    AssertEqual(1, standing.AudioRequests.CountOf(SamusSound.XrayEnd), "X-ray teardown queues its sound once");
+    AssertEqual(1, standing.AudioRequests.CountOf(SamusSoundStop.Xray), "X-ray teardown queues its sound once");
     AssertTrue(standing.Xray.UpdateColouring(xrayColours, standing.EquippedItems),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, xrayColours.ShownSuit(xraySources)[4], "normal palette replaces visor color");
@@ -549,9 +554,8 @@ internal static void VerifySamusXray()
     // 16 -> 21, and move the center five pixels upward: the retail X-ray stand-up glitch.
     var crouched = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(crouched);
     SamusPresentation.InitializeAnimation(crouched);
     AssertTrue(crouched.Xray.TryBeginAndActivate(crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }),
@@ -581,9 +585,8 @@ internal static void VerifySamusXray()
     // that ownership split rather than cancelling the complete X-Ray setup with its pose.
     var interrupted = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingLeftNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0174, 0x028b)),
-    };
+    }.InPose(SamusPoseId.FacingLeftNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(interrupted);
     SamusPresentation.InitializeAnimation(interrupted);
     AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }, activationPose: out SamusPoseId? interruptedPose),
@@ -599,7 +602,7 @@ internal static void VerifySamusXray()
     AssertEqual(0, interrupted.AudioRequests.CountOf(SamusSound.XrayStart),
         "deferred setup does not queue command-five activation sound early");
 
-    interrupted.Pose = SamusPoseId.MovingLeftNormalPose;
+    interrupted.ChangePoseKeepingAnimation(SamusPoseId.MovingLeftNormalPose);
     AssertTrue(!interrupted.Xray.CommitActivation(interrupted, interruptedPose ?? throw new InvalidOperationException("The admitted setup returned no activation pose."), superseded: true),
         "higher-priority hit expiry suppresses only X-Ray's Samus command");
     AssertEqual(SamusPoseId.MovingLeftNormalPose, interrupted.Pose,
@@ -619,7 +622,7 @@ internal static void VerifySamusXray()
     // five-bomb conjunction checks.
     SamusState Rejected(SamusPoseId pose, ushort ySpeed = 0, ushort ySubspeed = 0)
     {
-        var sample = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose };
+        var sample = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(pose);
         SamusPoseMetadata.RefreshCollisionRadii(sample);
         SamusPresentation.InitializeAnimation(sample);
         sample.Kinematics.VerticalVelocity = sample.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(ySpeed, ySubspeed));
@@ -717,7 +720,8 @@ static InstalledSamusDeathPalettes DecodeSamusDeathFixtureArtwork(TestAddressSpa
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
     ushort[] paletteIndices = Enumerable.Range(0, SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount)
         .Select(index => (ushort)bus.ReadByte(SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.NativeFirstTimerAddress + index * 2 + 1)).ToArray();
-    return new InstalledSamusDeathPalettes([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)], ToColors(suitlessColors), ToColors(shades), paletteIndices);
+    return new InstalledSamusDeathPalettes(SamusDeathPaletteFixtureKeys.Suits([ToColors(suitColors), ToColors(suitColors), ToColors(suitColors)]),
+        ToColors(suitlessColors), ToColors(shades), SamusDeathPaletteFixtureKeys.ExplosionSteps(paletteIndices));
 }
 
 /// <summary>
@@ -741,9 +745,8 @@ internal static void VerifySamusDeathSequence()
     var guardedBus = NewSamusDeathExplosionTimingReadGuard(bus);
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x04c0)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(samus);
     SamusPresentation.InitializeAnimation(samus);
     samus.PoseHistory.Restore(samus.Pose, SamusMovementType.Standing, SamusMovementType.SpinJumping);
@@ -759,15 +762,15 @@ internal static void VerifySamusDeathSequence()
         samus.PoseHistory.PreviousMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationNumber, "ordinary death starts unmorphed frame five");
     AssertEqual(new Offset16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
-    AssertEqual(0, samus.AudioRequests.CountOf(SamusSound.SpinJumpEnd), "ordinary death does not request spin SFX");
+    AssertEqual(0, samus.AudioRequests.CountOf(SamusSoundStop.SpinJump), "ordinary death does not request spin SFX");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "death pose retains two-tick delay");
 
     var samusColours = new SamusColours();
     var deathSources = InstalledFixtures.SamusShadeSources with { Death = artwork };
     SamusDeathSequenceStepResult step = default;
     for (int call = 1; call <= 16; call++)
-        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
-    AssertEqual(SamusDeathSequencePhase.Flashing, samus.DeathSequence.Phase,
+        step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours, artwork.Steps);
+    AssertEqual(new SamusDeathSequencePhase.Begun.Flashing(), samus.DeathSequence.Phase,
         "sixteen preflash calls enter flashing");
     AssertEqual(5, samus.AnimationNumber, "unmorphed death frame loops at five");
     AssertEqual(SuperMetroid.Core.Samus.Death.SamusDeathDraw.Pose, step.Draws, "last preflash call still draws death pose");
@@ -776,13 +779,11 @@ internal static void VerifySamusDeathSequence()
     // queues segment four at `$6000`, resets the explosion state, immediately decrements
     // 21 to 20, and draws right-facing spritemap `$81C`.
     for (int call = 1; call <= 60; call++)
-        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
-    AssertEqual(SamusDeathSequencePhase.SuitExplosion, samus.DeathSequence.Phase,
+        step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours, artwork.Steps);
+    AssertEqual(new SamusDeathSequencePhase.Begun.SuitExplosion(), samus.DeathSequence.Phase,
         "60 flashing calls enter suit explosion");
     AssertEqual(SuperMetroid.Core.Samus.Artwork.SamusDeathExplosionFrame.SuitGlowing, samus.DeathSequence.ExplosionFrame,
         "explosion begins on its first picture");
-    AssertEqual(20, samus.DeathSequence.Explosion?.UpdatesLeft,
-        "same-call first explosion decrement");
     AssertEqual(0x081c, (samus.DeathSequence.ExplosionSpritemapIndex ?? throw new InvalidOperationException("Verification requires samus.DeathSequence.ExplosionSpritemapIndex.")),
         "right explosion base spritemap");
     AssertEqual(0x0100, samusColours.ShownSuit(deathSources)[0], "finish restores suit palette zero");
@@ -791,19 +792,19 @@ internal static void VerifySamusDeathSequence()
     // The remaining dwell times total 135 calls. The terminal call ends the explosion after its
     // last picture, forces the final white shade, and deliberately emits no tenth spritemap.
     int explosionCalls = 0;
-    while (samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete)
+    while (samus.DeathSequence.Phase is not SamusDeathSequencePhase.Begun.Complete)
     {
-        step = samus.DeathSequence.Step(samus, samusColours, artwork.Steps);
+        step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours, artwork.Steps);
         explosionCalls++;
         AssertTrue(explosionCalls <= 135, "death explosion terminates on native timer sum");
     }
     AssertEqual(135, explosionCalls, "death explosion remaining call count");
     AssertTrue(step.Completed && step.Draws == SuperMetroid.Core.Samus.Death.SamusDeathDraw.Nothing,
         "terminal death call completes without drawing");
-    AssertEqual(true, samus.DeathSequence.Explosion?.HasStopped,
-        "the explosion has played its last picture");
-    AssertEqual(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final, samus.DeathSequence.WhiteoutShade,
-        "death terminal whiteout shade");
+    AssertEqual(null, samus.DeathSequence.ExplosionFrame,
+        "the explosion has played its last picture and shows none");
+    AssertEqual(SamusShades.DeathWhiteout(SuperMetroid.Core.Samus.Death.SamusWhiteoutShade.Final), samusColours.Beams,
+        "the beams show the death's terminal whiteout shade");
     AssertEqual(RgbColor.White, samus.DeathSequence.Whiteout, "death whiteout the display shows reaches the cartridge's full white");
     AssertEqual(0x7fff, samusColours.ShownBeams(deathSources)[15], "death whiteout includes the beams' last colour");
     AssertEqual(0x0220, samusColours.ShownSuit(deathSources)[0],
@@ -817,9 +818,8 @@ internal static void VerifySamusDeathSequence()
     // five but uniquely requests library-one sound `$32` before pose replacement.
     var morphedLeft = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.MorphBallGroundLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 80)),
-    };
+    }.InPose(SamusPoseId.MorphBallGroundLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(morphedLeft);
     SamusPresentation.InitializeAnimation(morphedLeft);
     morphedLeft.PoseHistory.Restore(morphedLeft.Pose, SamusMovementType.MorphBallGround, morphedLeft.PoseHistory.MovementBeforePrevious);
@@ -832,13 +832,13 @@ internal static void VerifySamusDeathSequence()
         morphedLeft.PoseHistory.PreviousMovement, "death commits left metadata");
     AssertEqual(1, morphedLeft.AnimationNumber, "Morph death begins unmorph frame one");
 
-    var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.SpinJumpRightPose };
+    var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.SpinJumpRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(spinning);
     SamusPresentation.InitializeAnimation(spinning);
     spinning.DeathSequence.Begin(
         spinning, cameraPosition: new(0, 0));
-    AssertSequenceEqual(new[] { new SoundRequest(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal) },
-        spinning.AudioRequests.SoundRequests.Where(request => request.SoundEffect == SamusSound.SpinJumpEnd),
+    AssertSequenceEqual(new[] { new SoundRequest(SamusSoundStop.SpinJump, SoundRequestPriority.Normal) },
+        spinning.AudioRequests.SoundRequests.Where(request => request.SoundEffect == SamusSoundStop.SpinJump),
         "spin death queues the spin's end once, at normal priority, as it begins");
     AssertEqual(5, spinning.AnimationNumber, "spin death begins unmorphed frame five");
 

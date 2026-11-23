@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
 /// <summary>Fixed actor metadata and motion parameters for Samus's flight toward Ceres.</summary>
-internal static class CeresFlightActorDefinitions
+internal static partial class CeresFlightActorDefinitions
 {
     /// <summary>The rear view's actors in the order its setup spawns them, which is the order they update and draw in.</summary>
     internal static IReadOnlyList<CeresRearViewActorRole> RearViewSpawnOrder { get; } =
@@ -22,8 +22,8 @@ internal static class CeresFlightActorDefinitions
     /// pixels an update toward the top-left.
     /// </summary>
     /// <remarks>
-    /// The opening stars and the rear view's stars share this star animation: the star picture for ten updates, again and
-    /// again while its scene keeps the actor. Which stars they are changes their motion, not their animation.
+    /// The opening stars and the rear view's stars share this star animation: the stars hold their one picture while
+    /// their scene keeps the actor. Which stars they are changes their motion, not their animation.
     /// </remarks>
     public static CeresFlightActorDefinition FrontStars => new(
         Animation: CeresAnimation.Stars,

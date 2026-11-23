@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -31,7 +32,7 @@ internal static class ElevatorStandUpContactVerification
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(Width, Height), new RoomLevelPlanes(blocks, behaviors, new RoomBlockAppearance[Width * Height]), RoomLevelData.NothingBeyondGrid(), doorBlocks);
 
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(24, 0)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(24, 0)) }.InPose(SamusPoseId.CrouchingLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // Feet on the elevator's top surface; the standing body grows five pixels upward.
@@ -39,8 +40,7 @@ internal static class ElevatorStandUpContactVerification
         ISamusRoomObjects roomObjects = SamusRoomObjectFixtures.Uninstalled;
         AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take() is false, "no contact before the stand-up");
 
-        AssertTrue(SamusPosturePoseTransitions.TryApplyDirectCrouchToStandingTransition(samus, level, SamusPoseId.FacingLeftNormalPose, 0, roomObjects: roomObjects),
-            "the standing body fits above the elevator");
+        SamusPosturePoseTransitions.ApplyDirectCrouchToStandingTransition(samus, new RoomTerrain(level, roomObjects), SamusPoseId.FacingLeftNormalPose, 0);
         AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose, "Samus stands");
         AssertTrue(roomObjects.DoorContacts.ElevatorStand.Take(),
             "the probe for the new standing pose ($02 < $09) arms the elevator");

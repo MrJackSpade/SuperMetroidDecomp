@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 
 /// <summary>One of the thirteen map-screen tilemap pages: the shared world foreground, or an area's world background or room frame.</summary>
-public abstract record MapScreenPageId
+public abstract partial record MapScreenPageId
 {
     /// <summary>Closes the hierarchy to the three page kinds below.</summary>
     private MapScreenPageId()
@@ -12,11 +12,10 @@ public abstract record MapScreenPageId
     }
 
     /// <summary>The page's key in the map-screen document.</summary>
-    [InstalledKey]
     public abstract string Name { get; }
 
     /// <summary>The world map's foreground, shared by every area.</summary>
-    public sealed record WorldForeground : MapScreenPageId
+    public sealed partial record WorldForeground : MapScreenPageId
     {
         /// <summary>The only foreground page.</summary>
         public static WorldForeground Instance { get; } = new();
@@ -31,7 +30,7 @@ public abstract record MapScreenPageId
     }
 
     /// <summary>A playable area's world-map background.</summary>
-    public sealed record WorldBackground : MapScreenPageId
+    public sealed partial record WorldBackground : MapScreenPageId
     {
         /// <summary>Selects <paramref name="area"/>'s world-map background.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a playable Zebes area.</exception>
@@ -45,7 +44,7 @@ public abstract record MapScreenPageId
     }
 
     /// <summary>A playable area's room-map frame.</summary>
-    public sealed record RoomFrame : MapScreenPageId
+    public sealed partial record RoomFrame : MapScreenPageId
     {
         /// <summary>Selects <paramref name="area"/>'s room-map frame.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a playable Zebes area.</exception>

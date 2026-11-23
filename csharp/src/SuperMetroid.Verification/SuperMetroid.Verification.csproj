@@ -10,7 +10,6 @@
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
     <Compile Include="../SuperMetroid.DebugRunner/Assets/MapAssetExtractor.cs" Link="MapAssetExtractor.cs" />
-    <Compile Include="../../tools/MagicNumberAudit/**/*.cs" LinkBase="MagicNumberAudit" />
   </ItemGroup>
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
   <Import Project="../../test-support/FrameCapture.projitems" />

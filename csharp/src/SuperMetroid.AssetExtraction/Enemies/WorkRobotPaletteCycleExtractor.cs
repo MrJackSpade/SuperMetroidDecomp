@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts the four RGB5 words preceding each compiled Work Robot timer.</summary>
-public static class WorkRobotPaletteCycleExtractor
+public static partial class WorkRobotPaletteCycleExtractor
 {
     /// <summary>The bytes of one of the cartridge's cycle records: four colour words, then the record's timer word.</summary>
     private const int CycleRecordBytes = 10;
@@ -34,16 +34,11 @@ public static class WorkRobotPaletteCycleExtractor
                 int source = EnemySourceDefinitions.WorkRobotPaletteCycleRecords +
                     frame * CycleRecordBytes +
                     color * sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), source);
+                int native = RomDataReader.ReadWordFixedBank(bus, source);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Work Robot color ${source:X6} has an unrepresentable high bit.");
-                frames[frame][color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                frames[frame][color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
         }
         return WorkRobotPaletteCycleFile.Write(new WorkRobotPaletteCycleDocument

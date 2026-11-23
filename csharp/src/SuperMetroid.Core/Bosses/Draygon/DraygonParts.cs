@@ -11,9 +11,8 @@ using SuperMetroid.Core.Earthquakes;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
-/// <summary>Draygon's body, eye and tail: their setup, animations and cues.</summary>
-[RoomLifetime]
-internal sealed class DraygonParts
+/// <summary>Draygon's four parts, his body, eye, tail and arms: their setup, animations and cues.</summary>
+internal sealed partial class DraygonParts
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -52,75 +51,75 @@ internal sealed class DraygonParts
     /// Sets Draygon's body up when the room spawns it: it begins the encounter with his eye, tail and arms, which his room
     /// lists right after his body (#2298), each playing the animation its setup starts.
     /// </summary>
-    internal void InitializeDraygonBody(RoomEnemyPlace body)
+    /// <returns>The encounter the body holds from its setup.</returns>
+    internal DraygonEnemyState InitializeDraygonBody(RoomEnemyOccupant occupant)
     {
-        // His opening's colours are the import's shade of them, which his sprites draw in (#1512).
+        RoomEnemyPlace body = occupant.Place;
 
         body.AnimationClock.StepOnNextUpdate();
 
         _frameContext.RequestFullSweep();
-        RoomEnemyPlace[] parts = _places.ListedRunAfter(body, DraygonPartListingDefinitions.PartsAfterBody);
-        var draygon = new DraygonEnemyState(body, eye: parts[0], tail: parts[1], arms: parts[2])
-        {
-            Phase = DraygonPhase.IntroInitialDelay,
-        };
+        var draygon = new DraygonEnemyState(occupant, eye: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye),
+            tail: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonTail),
+            arms: Partner(body, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonArms));
         // Draygon shows his body, eye and dying arms' frames on his body (#1354, #1466, #1515, #1540), nothing at first; the
         // room keeps showing it, hidden, once his body is deleted (#2194). The room's display reads only what he attaches;
         // his parts each hold the encounter from their own setup.
-        _presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Draygon, draygon));
+        _presentation.AttachBossBody(new PlacedBossBody(draygon.BodyParts, draygon));
         _presentation.BossShadings.Show(BossShadingLayer.Draygon, draygon.Colours);
-        body.SetSpeciesState(draygon);
         // His setup shows only his opening's colours (#2547). His health band is the one his health starts in (#2304), so a
         // hurt the grapple's shock starts before any hit shows it, but his body layer shows it only from his first hurt
         // update or from the reaction that moves his health into another band.
         body.Shading = draygon.Colours.Sprites;
+        return draygon;
     }
 
+    /// <summary>The member of Draygon's that plays <paramref name="role"/>, as his room lists them (#2298, #2556).</summary>
+    private RoomEnemyPlace Partner(RoomEnemyPlace member, EnemyDefinitionId memberRole, EnemyDefinitionId role) =>
+        _places.Member(member, DraygonPartListingDefinitions.Listing, memberRole, role);
+
     /// <summary>
-    /// The part a part other than the body joins as it sets up, of the encounter his body, listed
-    /// <paramref name="placesAfterBody"/> places before the part, began (#2298): the part holds it as its species state, and
-    /// its animation, the one the encounter began it with, steps on its next update.
+    /// The part of the encounter his body began that a part joins as it sets up in <paramref name="place"/> (#2298): the
+    /// part holds it from its setup, and its animation, the one the encounter began it with, steps on its next update.
     /// </summary>
-    private DraygonPart JoiningPart(RoomEnemyPlace place, int placesAfterBody, Func<DraygonEnemyState, DraygonPart> part)
+    private static DraygonPart JoiningPart(RoomEnemyPlace place, DraygonPart joined)
     {
-        DraygonPart joined = part(_places.ListedBefore(place, placesAfterBody).RequireSpeciesState<DraygonEnemyState>());
-        place.SetSpeciesState(joined);
         place.AnimationClock.StepOnNextUpdate();
         return joined;
     }
 
     /// <summary>Sets Draygon's eye up, listed right after his body, inert until the body publishes facing AI.</summary>
-    internal void InitializeDraygonEye(RoomEnemyPlace eye) => JoiningPart(eye, DraygonPartListingDefinitions.EyePlacesAfterBody, draygon => draygon.EyePart);
+    /// <returns>The eye's part of <paramref name="draygon"/>, which it holds from its setup.</returns>
+    internal static DraygonPart InitializeDraygonEye(RoomEnemyPlace eye, DraygonEnemyState draygon) => JoiningPart(eye, Ensure.NotNull(draygon).EyePart);
 
     /// <summary>Sets Draygon's tail up, listed after his eye, starting with its fake whip.</summary>
-    internal void InitializeDraygonTail(RoomEnemyPlace tail) =>
-        tail.Shading = JoiningPart(tail, DraygonPartListingDefinitions.TailPlacesAfterBody, draygon => draygon.TailPart).Draygon.Colours.Sprites;
+    /// <returns>The tail's part of <paramref name="draygon"/>, which it holds from its setup.</returns>
+    internal static DraygonPart InitializeDraygonTail(RoomEnemyPlace tail, DraygonEnemyState draygon)
+    {
+        DraygonPart joined = JoiningPart(tail, Ensure.NotNull(draygon).TailPart);
+        tail.Shading = draygon.Colours.Sprites;
+        return joined;
+    }
 
     /// <summary>Sets Draygon's arms up, listed after his tail, in their idle loop.</summary>
-    internal void InitializeDraygonArms(RoomEnemyPlace arms) =>
-        arms.Shading = JoiningPart(arms, DraygonPartListingDefinitions.ArmsPlacesAfterBody, draygon => draygon.ArmsPart).Draygon.Colours.Sprites;
+    /// <returns>The arms' part of <paramref name="draygon"/>, which they hold from their setup.</returns>
+    internal static DraygonPart InitializeDraygonArms(RoomEnemyPlace arms, DraygonEnemyState draygon)
+    {
+        DraygonPart joined = JoiningPart(arms, Ensure.NotNull(draygon).ArmsPart);
+        arms.Shading = draygon.Colours.Sprites;
+        // The arms stand in front of Samus, whom they carry (#2618).
+        arms.Stacking = EnemyStacking.InFrontOfSamus;
+        return joined;
+    }
 
     /// <summary>Sets <paramref name="eye"/> tracking Samus facing <paramref name="facing"/> (#2165).</summary>
-    private static void Track(DraygonEyeState eye, HorizontalDirection facing)
-    {
-        eye.Action = DraygonEyeAction.Tracking;
-        eye.Facing = facing;
-    }
+    private static void Track(DraygonEyeState eye, HorizontalDirection facing) => eye.TrackingFacing = facing;
 
     /// <summary>Runs the eye's step: inert, or tracking Samus the way the body faces.</summary>
     internal void RunDraygonEyeMain(DraygonEnemyState state, SamusState samus)
     {
-        DraygonEyeState eye = state.EyeTracking;
-        switch (eye.Action)
-        {
-            case DraygonEyeAction.Inert:
-                return;
-            case DraygonEyeAction.Tracking:
-                TrackSamusWithDraygonEye(state, samus, eye.Facing);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Draygon eye action {eye.Action}.");
-        }
+        if (state.EyeTracking.TrackingFacing is { } facing)
+            TrackSamusWithDraygonEye(state, samus, facing);
     }
 
     /// <summary>
@@ -144,30 +143,12 @@ internal sealed class DraygonParts
                 ApplyDraygonCue(state, samus, cue);
                 return null;
             });
-        switch (shown)
-        {
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Frame frame:
-                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
-                part.Frame = frame.Shown;
-                part.AnimationClock.Show(frame.Duration);
-                return;
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Paused paused:
-                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
-                part.AnimationClock.Pause(paused.Duration);
-                return;
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Held:
-                // A rest: the last frame stays and the clock stops (#2454).
-                running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
-                part.AnimationClock.Stop();
-                return;
-            case AnimationShown<DraygonSegment, EnemyFrameId>.Ended:
-                // The end deletes the part; its animation stays where it stood and takes no further step (#2532).
-                part.Presence = part.Presence.With(EnemyPresence.Deleted);
-                part.AnimationClock.Stop();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined animation outcome {shown}.");
-        }
+        // The end deletes the part; its animation stays where it stood and takes no further step (#2532). Every other
+        // outcome stands the part's animation where its play stopped. A rest keeps the last frame and stops the clock
+        // (#2454); every outcome takes the shared enemy animation's meaning.
+        if (shown is not AnimationShown<DraygonSegment, EnemyFrameId>.Ended)
+            running.Playback = new AnimationPlayback<DraygonSegment>(animation, place);
+        EnemyAnimationPlayback.Show(part, shown, static frame => frame);
     }
 
     /// <summary>
@@ -178,50 +159,41 @@ internal sealed class DraygonParts
     /// <remarks>Draygon's cues never continue the running part's play elsewhere.</remarks>
     private void ApplyDraygonCue(DraygonEnemyState state, SamusState samus, DraygonCue cue)
     {
-        switch (cue)
-        {
-            case DraygonCue.StartPartAnimations start:
-                state.BodyPart.SetAnimation(start.Body);
-                state.EyePart.SetAnimation(start.Eye);
-                state.TailPart.SetAnimation(start.Tail);
-                state.ArmsPart.SetAnimation(start.Arms);
-                state.Arms.AnimationClock.StepOnNextUpdate();
-                state.Tail.AnimationClock.StepOnNextUpdate();
-                state.Eye.AnimationClock.StepOnNextUpdate();
-                state.Body.AnimationClock.StepOnNextUpdate();
-                return;
-            case DraygonCue.TrackWithEye track:
-                Track(state.EyeTracking, track.Facing);
-                return;
-            case DraygonCue.ShiftBodyPicture shift:
-                state.BodyPictureShift = shift.Shift;
-                return;
-            case DraygonCue.QueueSound sound:
-                RequestDraygonSound(sound.Sound);
-                return;
-            case DraygonCue.SpawnDyingEffect dying:
-                SpawnRandomDyingDraygonEffect(state, dying.Kind);
-                return;
-            case DraygonCue.ParalyseTailAndArms:
-                state.TailPart.StartAnimation(DraygonSegment.Rest);
-                state.ArmsPart.StartAnimation(DraygonSegment.Rest);
-                return;
-            case DraygonCue.SetBodyIntangible:
-                state.Body.Contact = state.Body.Contact.With(EnemyContact.IgnoresSamus);
-                return;
-            case DraygonCue.SetBodyPhase bodyPhase:
-                state.Phase = bodyPhase.Phase;
-                return;
-            case DraygonCue.TailWhipHit:
-                ApplyDraygonTailWhipHit(state, samus);
-                return;
-            case DraygonCue.SpawnGoop goop:
-                SpawnDraygonGoop(state, goop.Direction);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
-        }
+        cue.React(ApplyDraygonCueReactions, new ApplyDraygonCueContext(state, samus, this));
     }
+
+    /// <summary>What <see cref="ApplyDraygonCue"/> does on each <see cref="DraygonCue"/>, built once (#2553).</summary>
+    private static DraygonCueReactions<ApplyDraygonCueContext> ApplyDraygonCueReactions { get; } = new(
+        StartPartAnimations: static (start, context) =>
+        {
+            context.State.BodyPart.SetAnimation(start.Body);
+            context.State.EyePart.SetAnimation(start.Eye);
+            context.State.TailPart.SetAnimation(start.Tail);
+            context.State.ArmsPart.SetAnimation(start.Arms);
+            context.State.Arms.AnimationClock.StepOnNextUpdate();
+            context.State.Tail.AnimationClock.StepOnNextUpdate();
+            context.State.Eye.AnimationClock.StepOnNextUpdate();
+            context.State.Body.AnimationClock.StepOnNextUpdate();
+        },
+        TrackWithEye: static (track, context) => Track(context.State.EyeTracking, track.Facing),
+        ShiftBodyPicture: static (shift, context) => context.State.BodyPictureShift = shift.Shift,
+        QueueSound: static (sound, context) => context.Owner.RequestDraygonSound(sound.Sound),
+        SpawnDyingEffect: static (dying, context) => context.Owner.SpawnRandomDyingDraygonEffect(context.State, dying.Kind),
+        ParalyseTailAndArms: static (_, context) =>
+        {
+            context.State.TailPart.StartAnimation(DraygonSegment.Rest);
+            context.State.ArmsPart.StartAnimation(DraygonSegment.Rest);
+        },
+        SetBodyIntangible: static (_, context) => context.State.Body.Contact = context.State.Body.Contact.With(EnemyContact.IgnoresSamus),
+        ReleaseSamus: static (_, context) => context.State.Step = DraygonPhaseSteps.ReleaseSamus(),
+        TailWhipHit: static (_, context) => context.Owner.ApplyDraygonTailWhipHit(context.State, context.Samus),
+        SpawnGoop: static (goop, context) => context.Owner.SpawnDraygonGoop(context.State, goop.Direction));
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Owner">The <see cref="DraygonParts"/> reacting.</param>
+    private readonly partial record struct ApplyDraygonCueContext(DraygonEnemyState State, SamusState Samus, DraygonParts Owner);
 
     /// <summary>Queues a sound from one of Draygon's animations as the animation makes it, after the update's earlier requests.</summary>
     private void RequestDraygonSound(SoundEffectId sound) =>
@@ -231,18 +203,34 @@ internal sealed class DraygonParts
     internal void RequestDraygonMusic(MusicRequest request) =>
         _audio.QueueEnemyMusic(new DelayedMusicRequest(request, MusicQueueDelay.Shortest));
 
-    /// <summary>Runs the eye direction partition.</summary>
+    /// <summary>The eye's look toward each straight direction, facing right and facing left.</summary>
+    private static readonly IdentityTable<StraightDirection, EyeLooksByFacing> EyeLooks = new(
+        new Dictionary<StraightDirection, EyeLooksByFacing>
+        {
+            [StraightDirection.Up] = new(DraygonSegment.EyeFacingRightLookingUp, DraygonSegment.EyeFacingLeftLookingUp),
+            [StraightDirection.Right] = new(DraygonSegment.EyeFacingRightLookingRight, DraygonSegment.EyeFacingLeftLookingRight),
+            [StraightDirection.Down] = new(DraygonSegment.EyeFacingRightLookingDown, DraygonSegment.EyeFacingLeftLookingDown),
+            [StraightDirection.Left] = new(DraygonSegment.EyeFacingRightLookingLeft, DraygonSegment.EyeFacingLeftLookingLeft),
+        });
+
+    /// <summary>The eye's look toward one straight direction, facing right and facing left.</summary>
+    /// <param name="FacingRight">The look while Draygon faces right.</param>
+    /// <param name="FacingLeft">The look while Draygon faces left.</param>
+    private readonly partial record struct EyeLooksByFacing(DraygonSegment FacingRight, DraygonSegment FacingLeft);
+
+    /// <summary>The eye breathes its bubble and turns its look toward Samus.</summary>
     internal void TrackSamusWithDraygonEye(DraygonEnemyState state, SamusState samus, HorizontalDirection facing)
     {
         RoomEnemyPlace eye = state.Eye;
+        // The eye's mouth, toward his facing, is where its bubble rises and where its gaze starts.
+        Offset16<RoomPixels> mouth = TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
         // The eye breathes its bubble on its cadence whether or not its gaze turns,
         // as one of the room's dust and explosion effects.
-        if (DraygonCadenceDefinitions.EyeBreathBubbleEvery128thUpdate.IsDue(eye.FrameCounter))
+        if (DraygonCadenceDefinitions.EyeBreathBubble.IsDue(eye.FrameCounter))
             _projectiles.SpawnDustOrExplosion(
-                new(OffRoomPlaces.Place(eye.Position.X.Whole + (DraygonEyeEffects.HorizontalOffset.Toward(facing))), OffRoomPlaces.Place(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset)),
+                new(OffRoomPlaces.Place(eye.Position.X.Whole + mouth.X), OffRoomPlaces.Place(eye.Position.Y.Whole + mouth.Y)),
                 DraygonEyeEffects.DustVariant);
-        Position16<RoomPixels> gaze = eye.Position.Whole +
-            TowardFacing(new(DraygonEyeEffects.HorizontalOffset, DraygonEyeEffects.VerticalOffset), facing);
+        Position16<RoomPixels> gaze = eye.Position.Whole + mouth;
         TrigonometryAngle aim = EnemyMath.CalculateAimAngle(samus.Position.Whole - gaze);
         DraygonEyeState eyeState = state.EyeTracking;
         if (aim == eyeState.LookAngle)
@@ -250,25 +238,8 @@ internal sealed class DraygonParts
 
         eyeState.LookAngle = aim;
         // The straight direction nearest the aim, up, right, down or left, chooses the look.
-        CompassDirection direction = aim.NearestStraightDirection();
-        DraygonSegment look = direction switch
-        {
-            CompassDirection.Up => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingUp
-                : DraygonSegment.EyeFacingLeftLookingUp,
-            CompassDirection.Right => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingRight
-                : DraygonSegment.EyeFacingLeftLookingRight,
-            CompassDirection.Down => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingDown
-                : DraygonSegment.EyeFacingLeftLookingDown,
-            CompassDirection.Left => facing == HorizontalDirection.Right
-                ? DraygonSegment.EyeFacingRightLookingLeft
-                : DraygonSegment.EyeFacingLeftLookingLeft,
-            CompassDirection.UpRight or CompassDirection.DownRight or CompassDirection.DownLeft or CompassDirection.UpLeft =>
-                throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest the diagonal {direction}."),
-            _ => throw new InvalidOperationException($"Draygon's eye aim {aim} is nearest no straight direction."),
-        };
+        EyeLooksByFacing looks = EyeLooks[aim.NearestStraightDirection()];
+        DraygonSegment look = facing == HorizontalDirection.Right ? looks.FacingRight : looks.FacingLeft;
         state.EyePart.StartAnimation(look);
     }
 
@@ -283,23 +254,23 @@ internal sealed class DraygonParts
         _effectActors.SpawnRoomEffectActor(
             state.Body.Position.Whole + scatter,
             kind,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>Applies the tail whip's hit to grabbed Samus, including suit damage.</summary>
     private void ApplyDraygonTailWhipHit(DraygonEnemyState state, SamusState samus)
     {
         state.SwoopAcceleration = DraygonSwoopDefinitions.InitialAcceleration;
-        SamusSuitDamage.Hurt(samus, state.Body.Definition.Damage);
+        SamusSuitDamage.Hurt(samus, state.BodyOccupant.Definition.Damage);
 
-        // The tail hit also shakes the foreground strongly for 32 updates, so the camera shows the hit as well as the
+        // The tail hit also shakes the foreground strongly for its shake's updates, so the camera shows the hit as well as the
         // energy it costs.
-        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.Foreground), DraygonArenaDefinitions.TailHitShakeUpdates);
+        _earthquake.Start(new EarthquakeShake(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks), DraygonArenaDefinitions.TailHitShakeUpdates);
 
         _effectActors.SpawnRoomEffectActor(
             new(samus.Position.X.Whole, samus.Position.Y.Whole + DraygonArenaDefinitions.TailHitDustBelowSamus),
             RoomEffectActorKind.BigDustCloud,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>
@@ -312,16 +283,10 @@ internal sealed class DraygonParts
     /// <summary>Spawns a goop as either of the body animation's two goop cues does.</summary>
     internal void SpawnDraygonGoop(DraygonEnemyState state, HorizontalDirection direction)
     {
-        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? goop = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonGoop, _shots.Goop, graphics: SpriteGraphics.SharedIn(DraygonColours.Goop), new DraygonProjectileAnimation(_shots.Goop, DraygonProjectileSegment.Goop));
         if (goop is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            goop,
-            RoomEnemyProjectileKind.DraygonGoop,
-            _shots.Goop,
-            graphics: SpriteGraphics.SharedIn(DraygonColours.Goop));
-        goop.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.Goop));
         goop.Position = FixedPosition<RoomPixels>.FromWhole(state.Body.Position.Whole + (direction == HorizontalDirection.Right
             ? DraygonArenaDefinitions.GoopSpawnMovingRight : DraygonArenaDefinitions.GoopSpawnMovingLeft));
 
@@ -330,13 +295,14 @@ internal sealed class DraygonParts
         // turn when he moves right.
         TrigonometryAngle firstAngle = direction == HorizontalDirection.Right ? TrigonometryAngle.HalfTurn + TrigonometryAngle.QuarterTurn : TrigonometryAngle.HalfTurn;
         TrigonometryAngle angle = firstAngle + new TrigonometryAngle(DraygonRandomDefinitions.GoopAngleSpread.Of(random));
-        SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
+        SetDraygonProjectileVelocity(_shots.Goop, goop, angle, DraygonProjectileSpeeds.Goop);
     }
 
-    /// <summary>Launches a Draygon projectile along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
+    /// <summary>Launches a Draygon projectile, which <paramref name="owner"/> is bound to, along <paramref name="angle"/> at <paramref name="speed"/>.</summary>
     internal static void SetDraygonProjectileVelocity(
+        DraygonShots.DraygonShotBehavior owner,
         EnemyProjectile projectile,
         TrigonometryAngle angle,
         int speed) =>
-        projectile.State = AngledFlightState.Launch(angle, speed);
+        Ensure.NotNull(owner).Flights.Start(projectile, AngledFlightState.Launch(angle, speed));
 }

@@ -91,7 +91,7 @@ internal static class InvalidBeamSelectionVerification
     }
 
     /// <summary>Reads native Spazer label words for the disabled-beam comparison.</summary>
-    private static byte InvalidBeamSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte InvalidBeamSelectionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the retail inventory beam-selection fixture.</summary>
     [VerificationCommand("--inventory-fixture")]

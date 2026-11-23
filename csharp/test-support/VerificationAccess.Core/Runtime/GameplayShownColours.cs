@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Colours;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -42,13 +43,19 @@ internal static class GameplayShownColours
     /// quirk (#1544): the room's pictures show the room's own colours under the room's shading, so the native colours at
     /// those places say nothing about what the port's room shows, and only the HUD's own places in its range are compared.
     /// </remarks>
-    internal static IReadOnlyList<int> ComparedIn(SuperMetroidRuntime runtime)
-    {
-        Ensure.NotNull(runtime);
-        SpriteImage room = runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image;
-        SpriteImage hud = runtime.Room.LoadedScope.HudPictures.Sheet.Image;
-        return [.. Places(room).Where(place => place >= HudColours).Concat(Places(hud)).Distinct().Order(),
+    internal static IReadOnlyList<int> ComparedIn(SuperMetroidRuntime runtime) =>
+        [.. BackgroundComparedIn(Ensure.NotNull(runtime).Room.LoadedScope),
             .. Enumerable.Range(SamusSuitFirst + 1, RowColours - 1), .. Enumerable.Range(SamusBeamsFirst + 1, RowColours - 1)];
+
+    /// <summary>
+    /// The background colours <see cref="BackgroundOf"/> composes for <paramref name="room"/>: each the HUD's pictures have,
+    /// and each the room's pictures have outside the HUD's colours, as <see cref="ComparedIn"/> compares them.
+    /// </summary>
+    internal static IReadOnlyList<int> BackgroundComparedIn(RoomScope room)
+    {
+        Ensure.NotNull(room);
+        return [.. Places(room.Assets.BlockSheet.Sheet.Image).Where(place => place >= HudColours)
+            .Concat(Places(room.HudPictures.Sheet.Image)).Distinct().Order()];
     }
 
     /// <summary>The places in the native image each of <paramref name="picture"/>'s colour keys was coloured from.</summary>
@@ -64,13 +71,7 @@ internal static class GameplayShownColours
         Ensure.NotNull(sources);
         GameplayShading shading = runtime.PublishDisplayFrame().Paint.Gameplay
             ?? throw new InvalidOperationException("A gameplay frame publishes its pictures' shading.");
-        var image = new RgbColor[SnesColourCount];
-        // The room's colours show as its tileset's pictures show them under the room's shading.
-        Lay(image, runtime.Room.LoadedScope.Assets.BlockSheet.Sheet.Image, shading.Of(GameplayPictures.Room));
-        // The HUD's colours, its layer's eight sets of four, show as its pictures show them under the HUD's shading: a
-        // door's fade spares the HUD and lays the import's shade of each step over it instead, which keeps its minimap
-        // and highlighted item lit where the room fades.
-        Lay(image, runtime.Room.LoadedScope.HudPictures.Sheet.Image, shading.Of(GameplayPictures.Hud));
+        RgbColor[] image = BackgroundOf(runtime.Room.LoadedScope, shading);
         // Samus's draws show her shading, then the display's fade, then any of her colours written over the faded display.
         RgbColor[] samus = SamusColoursAccess.InksUnder(shading.OfSprite(runtime.Player.Colours.Shading, isSamus: true), sources);
         Array.Copy(samus, SamusSheetInks.Suit, image, SamusSuitFirst, RowColours);
@@ -78,11 +79,30 @@ internal static class GameplayShownColours
         return image;
     }
 
+    /// <summary>
+    /// The native image's background colours <paramref name="room"/>'s pictures show under <paramref name="shading"/>, at the
+    /// places <see cref="BackgroundComparedIn"/> names; its sprite colours are unset.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A room or HUD picture's colour lies outside the background colours.</exception>
+    internal static RgbColor[] BackgroundOf(RoomScope room, GameplayShading shading)
+    {
+        Ensure.NotNull(room);
+        Ensure.NotNull(shading);
+        var image = new RgbColor[SnesColourCount];
+        // The room's colours show as its tileset's pictures show them under the room's shading.
+        Lay(image, room.Assets.BlockSheet.Sheet.Image, shading.Of(GameplayPictures.Room));
+        // The HUD's colours, its layer's eight sets of four, show as its pictures show them under the HUD's shading: a
+        // door's fade spares the HUD and lays the import's shade of each step over it instead, which keeps its minimap
+        // and highlighted item lit where the room fades.
+        Lay(image, room.HudPictures.Sheet.Image, shading.Of(GameplayPictures.Hud));
+        return image;
+    }
+
     /// <summary>Lays each of <paramref name="picture"/>'s colour keys under <paramref name="shading"/> at every place it was coloured from.</summary>
     /// <exception cref="InvalidDataException">A colour lies outside the background colours.</exception>
     private static void Lay(RgbColor[] image, SpriteImage picture, PictureShading shading)
     {
-        RgbColor[] colours = shading.KeyColours(picture);
+        RgbColor[] colours = shading.KeyColours(picture, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance);
         System.Collections.Immutable.ImmutableArray<ColourKey> keys = picture.ColourKeys;
         for (int key = 0; key < colours.Length; key++)
         {

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// that the door's scroll is placed from, the steps of the fade under way, the destination-setup wait and the stage it has
 /// reached.
 /// </summary>
-internal sealed class OrdinaryDoorTransition : DoorTransitionStage
+internal sealed partial class OrdinaryDoorTransition : DoorTransitionStage
 {
     /// <summary>Starts a transition at its sound drain, the source room's fade out over <paramref name="fadeOut"/>.</summary>
     /// <param name="door">The door being gone through.</param>
@@ -17,7 +17,6 @@ internal sealed class OrdinaryDoorTransition : DoorTransitionStage
     /// <param name="destinationIsolated">Whether the destination room selects the isolated door transition.</param>
     /// <param name="sourceSamus">Samus's source-room position as the transition begins.</param>
     /// <param name="fadeOut">The steps of the source room's fade out.</param>
-    [IndependentFlag("Whether the source and destination rooms are isolated are independent room properties.")]
     internal OrdinaryDoorTransition(
         DoorDefinition door,
         bool sourceIsolated,
@@ -57,11 +56,14 @@ internal sealed class OrdinaryDoorTransition : DoorTransitionStage
     internal UpdateCountdown DestinationSetupWait { get; set; } = UpdateCountdown.Ended();
 
     /// <inheritdoc/>
-    internal override DoorTransitionPhase Phase => _phase;
+    internal override DoorTransitionPhase Phase => RunningPhase;
 
-    /// <summary>The stage this transition has reached; it begins at the sound drain.</summary>
-    private DoorTransitionPhase _phase = DoorTransitionPhase.WaitForSoundQueues;
+    /// <summary>
+    /// The stage this transition has reached, one of the phases only a transition under way holds (#2553); it begins at
+    /// the sound drain.
+    /// </summary>
+    internal DoorTransitionPhase.Running RunningPhase { get; private set; } = new DoorTransitionPhase.Running.WaitForSoundQueues();
 
     /// <summary>Moves the transition on to <paramref name="phase"/>, which the next update runs.</summary>
-    internal void Enter(DoorTransitionPhase phase) => _phase = phase;
+    internal void Enter(DoorTransitionPhase.Running phase) => RunningPhase = phase;
 }

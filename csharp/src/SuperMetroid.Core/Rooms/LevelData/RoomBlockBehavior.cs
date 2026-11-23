@@ -13,9 +13,10 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </summary>
 /// <remarks>
 /// A block whose collision kind changes keeps its behaviour, and the new kind reads it through its own reading, so every
-/// behaviour is one of the kept behaviours, each holding every reading (<see cref="RoomBlockReadingDefinitions"/>). A
-/// behaviour is written as the reading it is meant for and carries the others through
-/// <see cref="BlockParameterCarryOver{TBehavior, TReading}"/>. The default behaviour is <see cref="None"/>.
+/// behaviour is one of the kept behaviours, each holding every reading. A behaviour is written as the reading it is meant
+/// for, the catalog naming for each kind's every reading the behaviour the write keeps (<see cref="RoomBlockReadingDefinitions"/>),
+/// and carries the others through <see cref="BlockParameterCarryOver{TBehavior, TReading}"/>. The default behaviour is
+/// <see cref="None"/>.
 /// <para>
 /// A few behaviours mean what the room's area makes of them to special blocks and special air (#1805): the import resolves
 /// each area's meaning into its own reaction, and such a behaviour is kept once unresolved, holding neither reading, and
@@ -23,23 +24,19 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// as its area resolves them (<see cref="In"/>).
 /// </para>
 /// </remarks>
-public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
+public readonly partial struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 {
     /// <summary>
-    /// Every kept behaviour in the order the game numbers them, each one the areas resolve followed by its resolutions in the
-    /// game's area order, so a write of a reading keeps the unresolved behaviour before any area's.
+    /// The kept behaviour each set of readings is, for <see cref="Holding"/>: every behaviour some write keeps and every
+    /// area's resolution, each held once.
     /// </summary>
-    private static readonly IReadOnlyList<RoomBlockReadings> Kept = KeptInOrder();
+    private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings = KeptBehaviors();
 
     /// <summary>The farthest an extension of any kept behaviour reaches backward, in blocks (or rows): a negative offset.</summary>
-    public static int MostBackwardExtension { get; } = Kept.Min(static readings => readings.ExtensionOffset);
+    internal static int MostBackwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Min();
 
     /// <summary>The farthest an extension of any kept behaviour reaches forward, in blocks (or rows).</summary>
-    public static int MostForwardExtension { get; } = Kept.Max(static readings => readings.ExtensionOffset);
-
-    /// <summary>The kept behaviour each set of readings is, for <see cref="Holding"/>.</summary>
-    private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> KeptByReadings =
-        Kept.ToDictionary(readings => readings);
+    internal static int MostForwardExtension { get; } = RoomBlockReadingDefinitions.Extension.Keys.Max();
 
     /// <summary>The unresolved behaviour each behaviour the areas resolve is, keyed by itself and by each of its resolutions.</summary>
     private static readonly Dictionary<RoomBlockReadings, RoomBlockReadings> UnresolvedOf = [];
@@ -49,51 +46,59 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>Writes behaviours as shootable reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, ShootableReaction> ShootableWrites =
-        ReactionWrites(static readings => readings.Shootable);
+        Writes(RoomBlockReadingDefinitions.Shootable);
 
     /// <summary>Writes behaviours as bombable reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, BombableReaction> BombableWrites =
-        ReactionWrites(static readings => readings.Bombable);
+        Writes(RoomBlockReadingDefinitions.Bombable);
 
     /// <summary>Writes behaviours as special-block reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SpecialBlockReaction> SpecialWrites =
-        ReactionWrites(static readings => readings.Special);
+        Writes(RoomBlockReadingDefinitions.Special);
 
     /// <summary>Writes behaviours as special-air reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SpecialAirReaction> SpecialAirWrites =
-        ReactionWrites(static readings => readings.SpecialAir);
+        Writes(RoomBlockReadingDefinitions.SpecialAir);
 
     /// <summary>Writes behaviours as spike reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SpikeReaction> SpikeWrites =
-        ReactionWrites(static readings => readings.Spike);
+        Writes(RoomBlockReadingDefinitions.Spike);
 
     /// <summary>Writes behaviours as grapple reactions.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, GrappleReaction> GrappleWrites =
-        ReactionWrites(static readings => readings.Grapple);
+        Writes(RoomBlockReadingDefinitions.Grapple);
 
     /// <summary>Writes behaviours as slopes.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, SlopeGeometry> SlopeWrites =
-        new(Kept, static readings => readings.Slope);
+        Writes(RoomBlockReadingDefinitions.Slope);
 
     /// <summary>Writes behaviours as extension offsets.</summary>
     private static readonly BlockParameterCarryOver<RoomBlockReadings, int> ExtensionWrites =
-        new(Kept, static readings => readings.ExtensionOffset);
+        Writes(RoomBlockReadingDefinitions.Extension);
 
     /// <summary>
-    /// Writes behaviours as one reacting kind's reactions: the kept behaviours that give the kind a reaction, read as it. A
-    /// behaviour giving the kind none is never written as its reaction.
+    /// Writes behaviours as one kind's readings: the behaviour the catalog names for each reading, held as the kept behaviour
+    /// it is. A reading the catalog names no behaviour for is never written; a reacting kind's absent reaction is one.
     /// </summary>
-    private static BlockParameterCarryOver<RoomBlockReadings, TReaction> ReactionWrites<TReaction>(Func<RoomBlockReadings, TReaction?> read)
-        where TReaction : struct, Enum =>
-        new(Kept.Where(readings => read(readings) is not null),
-            readings => read(readings) ?? throw new InvalidOperationException("A kept behaviour lost its reaction."));
+    private static BlockParameterCarryOver<RoomBlockReadings, TReading> Writes<TReading>(IReadOnlyDictionary<TReading, RoomBlockReadings> written)
+        where TReading : notnull =>
+        new(written.ToDictionary(static write => write.Key, static write => KeptByReadings[write.Value]));
 
-    /// <summary>The kept behaviours in order: each of the catalog's, followed by its resolutions in the areas.</summary>
-    private static List<RoomBlockReadings> KeptInOrder()
+    /// <summary>Every kept behaviour, each once by its readings: every behaviour some write keeps and every area's resolution.</summary>
+    private static Dictionary<RoomBlockReadings, RoomBlockReadings> KeptBehaviors()
     {
-        ILookup<RoomBlockReadings, RoomBlockReadings> resolutions = RoomBlockReadingDefinitions.InAreas.ToLookup(
-            static resolution => Unresolved(resolution.Readings), static resolution => resolution.Readings);
-        return [.. RoomBlockReadingDefinitions.Kept.SelectMany(kept => resolutions[kept].Prepend(kept))];
+        IEnumerable<RoomBlockReadings> every =
+        [
+            .. RoomBlockReadingDefinitions.Shootable.Values, .. RoomBlockReadingDefinitions.Bombable.Values,
+            .. RoomBlockReadingDefinitions.Special.Values, .. RoomBlockReadingDefinitions.SpecialAir.Values,
+            .. RoomBlockReadingDefinitions.Spike.Values, .. RoomBlockReadingDefinitions.Grapple.Values,
+            .. RoomBlockReadingDefinitions.Slope.Values, .. RoomBlockReadingDefinitions.Extension.Values,
+            .. RoomBlockReadingDefinitions.InAreas.Select(static resolution => resolution.Readings),
+        ];
+        var kept = new Dictionary<RoomBlockReadings, RoomBlockReadings>();
+        foreach (RoomBlockReadings readings in every)
+            kept.TryAdd(readings, readings);
+        return kept;
     }
 
     /// <summary>
@@ -109,10 +114,11 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
             RoomBlockReadings unresolved = KeptByReadings.TryGetValue(Unresolved(resolution.Readings), out RoomBlockReadings? kept)
                 ? kept
                 : throw new InvalidOperationException($"The area resolution {resolution.Readings} resolves no kept behaviour.");
+            RoomBlockReadings resolved = KeptByReadings[resolution.Readings];
             UnresolvedOf[unresolved] = unresolved;
-            UnresolvedOf.Add(resolution.Readings, unresolved);
+            UnresolvedOf.Add(resolved, unresolved);
             foreach (AreaId area in resolution.Areas)
-                byArea.Add(new AreaResolution(unresolved, area), resolution.Readings);
+                byArea.Add(new AreaResolution(unresolved, area), resolved);
         }
         foreach (RoomBlockReadings unresolved in UnresolvedOf.Values.Distinct())
         {
@@ -125,11 +131,11 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <summary>An unresolved behaviour in one area, which resolves it.</summary>
     /// <param name="Unresolved">The behaviour holding neither the special-block nor the special-air reading.</param>
     /// <param name="Area">The area resolving it.</param>
-    private readonly record struct AreaResolution(RoomBlockReadings Unresolved, AreaId Area);
+    private readonly partial record struct AreaResolution(RoomBlockReadings Unresolved, AreaId Area);
 
     /// <summary>A resolution's readings with the special-block and special-air readings its area gives left out.</summary>
     private static RoomBlockReadings Unresolved(RoomBlockReadings resolution) =>
-        resolution with { Special = null, SpecialAir = null };
+        resolution with { Special = null, SpecialAir = null, ResolvedByArea = true };
 
     /// <summary>The empty behaviour's readings: the kept behaviour whose extension ends its chain.</summary>
     private static readonly RoomBlockReadings EmptyReadings = ExtensionWrites.Carrying(0);
@@ -180,20 +186,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// <param name="reaction">The reaction.</param>
     public static RoomBlockBehavior Reacting(GrappleReaction reaction) => new(GrappleWrites.Carrying(reaction));
 
-    /// <summary>The behaviour of a block whose family's reaction is <paramref name="reaction"/>, of any family.</summary>
-    /// <param name="reaction">A reaction of one of the families (<see cref="BlockReactionFamily"/>).</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="reaction"/> is no family's reaction.</exception>
-    public static RoomBlockBehavior ReactingAs(Enum reaction) => Ensure.NotNull(reaction) switch
-    {
-        ShootableReaction shootable => Reacting(shootable),
-        BombableReaction bombable => Reacting(bombable),
-        SpecialBlockReaction special => Reacting(special),
-        SpecialAirReaction specialAir => Reacting(specialAir),
-        SpikeReaction spike => Reacting(spike),
-        GrappleReaction grapple => Reacting(grapple),
-        _ => throw new ArgumentOutOfRangeException(nameof(reaction), reaction, "Not a block reaction."),
-    };
-
     /// <summary>An extension's behaviour.</summary>
     /// <param name="offset">The signed displacement, <see cref="MostBackwardExtension"/> through <see cref="MostForwardExtension"/>.</param>
     public static RoomBlockBehavior Extending(int offset) =>
@@ -204,9 +196,9 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public static RoomBlockBehavior Sloping(SlopeGeometry slope) => new(SlopeWrites.Carrying(slope));
 
     /// <summary>
-    /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour whose special-block and special-air
-    /// readings the area's own tables give, as the area resolves it, and any other behaviour unchanged. The installation and
-    /// the room objects' writes hold such a behaviour unresolved, and a room's load resolves it.
+    /// This behaviour as a room of <paramref name="area"/> holds it (#1805): a behaviour with the special-block and
+    /// special-air reactions it has in that area, and any other behaviour unchanged. The installation and the room
+    /// objects' changes hold such a behaviour unresolved, and a room's load resolves it.
     /// </summary>
     /// <param name="area">The room's area, one of the game's areas.</param>
     /// <exception cref="ArgumentOutOfRangeException">
@@ -214,7 +206,6 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     /// </exception>
     public RoomBlockBehavior In(AreaId area)
     {
-        _ = AreaIds.Require(area);
         RoomBlockReadings readings = Readings;
         if (!UnresolvedOf.TryGetValue(readings, out RoomBlockReadings? unresolved))
             return this;
@@ -225,7 +216,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     }
 
     /// <summary>The reaction shootable blocks and shootable air read, or null when they have none for this behaviour.</summary>
-    public ShootableReaction? Shootable => Readings.Shootable;
+    public ShootableReaction Shootable => Readings.Shootable;
 
     /// <summary>The reaction bombable blocks and bombable air read, or null when they have none for this behaviour.</summary>
     public BombableReaction? Bombable => Readings.Bombable;
@@ -256,19 +247,19 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
 
     /// <summary>The reaction <paramref name="family"/>'s kinds read, or null when they have none for this behaviour.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="family"/> is undefined.</exception>
-    public Enum? ReactionIn(BlockReactionFamily family) => family switch
+    public BlockReaction? ReactionIn(BlockReactionFamily family) => family switch
     {
-        BlockReactionFamily.Shootable => Shootable,
-        BlockReactionFamily.Bombable => Bombable,
-        BlockReactionFamily.Special => Special,
-        BlockReactionFamily.SpecialAir => SpecialAir,
-        BlockReactionFamily.Spike => Spike,
-        BlockReactionFamily.Grapple => Grapple,
+        BlockReactionFamily.Shootable => BlockReaction.Of(Shootable),
+        BlockReactionFamily.Bombable => Bombable is { } bombable ? BlockReaction.Of(bombable) : null,
+        BlockReactionFamily.Special => Special is { } special ? BlockReaction.Of(special) : null,
+        BlockReactionFamily.SpecialAir => SpecialAir is { } specialAir ? BlockReaction.Of(specialAir) : null,
+        BlockReactionFamily.Spike => Spike is { } spike ? BlockReaction.Of(spike) : null,
+        BlockReactionFamily.Grapple => Grapple is { } grapple ? BlockReaction.Of(grapple) : null,
         _ => throw new InvalidOperationException($"Undefined reaction family {family}."),
     };
 
     /// <summary>The reaction <paramref name="kind"/> reads, or null for a kind that reads no reaction or has none for this behaviour.</summary>
-    public Enum? ReactionUnder(RoomCollisionType kind) =>
+    public BlockReaction? ReactionUnder(RoomCollisionType kind) =>
         BlockReactionFamilies.Of(kind) is { } family ? ReactionIn(family) : null;
 
     /// <summary>The blue-door cap a shootable block's reaction selects, if it selects one.</summary>
@@ -325,7 +316,7 @@ public readonly struct RoomBlockBehavior : IEquatable<RoomBlockBehavior>
     public override string ToString()
     {
         RoomBlockReadings readings = Readings;
-        return $"shootable {Named(readings.Shootable)}, bombable {Named(readings.Bombable)}, special {Named(readings.Special)}, " +
+        return $"shootable {Named<ShootableReaction>(readings.Shootable)}, bombable {Named(readings.Bombable)}, special {Named(readings.Special)}, " +
             $"special air {Named(readings.SpecialAir)}, spike {Named(readings.Spike)}, grapple {Named(readings.Grapple)}, " +
             $"slope {readings.Slope.Shape} {readings.Slope.Mirroring}, extension {readings.ExtensionOffset}";
     }

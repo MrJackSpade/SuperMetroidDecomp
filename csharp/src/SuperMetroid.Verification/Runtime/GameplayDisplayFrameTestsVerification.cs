@@ -13,13 +13,13 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Video;
-using SuperMetroid.Core.World;
-namespace SuperMetroid.Verification.Runtime;
+using SuperMetroid.Core.World;namespace SuperMetroid.Verification.Runtime;
 
 /// <summary>
 /// Confirms the published gameplay display frame (#1307): repainting never advances or changes it,
@@ -42,7 +42,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         VerifyCeresModeTiming(runtime);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -95,9 +95,9 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplaySceneView before = Registers(runtime);
-        RoomEnemyPlace kraidBody = runtime.Enemies.KraidBehavior.Parts.Body;
-        kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         KraidEnemyState kraid = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
+        RoomEnemyPlace kraidBody = kraid.Parts.Body;
+        kraidBody.Position = kraidBody.Position.WithWhole(new(320, 88));
         Offset16<BackgroundPixels>? bodyBefore = runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll;
         kraid.ShowsBodyLayer = true;
         AssertEqual(bodyBefore, runtime.PublishDisplayFrame().OrdinaryBase.Room.BossBody?.Scroll,
@@ -114,10 +114,11 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         before = Registers(runtime);
-        var motherBrain = new MotherBrainEnemyState(runtime.Enemies.Places.InUpdateOrder[0], runtime.Enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { BodyPlacement = MotherBrainBodyPlacement.FollowsBody, DeathHidesBodyLayer = true };
-        runtime.Enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
-        // The room's display reads the body the encounter attached as it set up (#2194): this one's.
-        runtime.Enemies.Presentation.AttachBossBody(BossBodyParts.Hidden(BossBodyOwner.MotherBrain, motherBrain));
+        // Her room's population set her up as the room loaded: the encounter is the one her body's setup began, and the room's
+        // display reads the hidden body it attached (#2194). Her body is placed with her and her death hides its layer.
+        MotherBrainEnemyState motherBrain = runtime.Enemies.Places.InUpdateOrder[0].EntityOf<MotherBrainBodyEntity>().Encounter;
+        motherBrain.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
+        motherBrain.DeathHidesBodyLayer = true;
         AssertPending(runtime, registers => registers.ShownLayers == before.ShownLayers, "Mother Brain's hidden background");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(!Registers(runtime).ShownLayers.HasFlag(ScreenLayers.BossBody), "the accepted NMI publishes Mother Brain's hidden body");
@@ -153,23 +154,25 @@ internal static class GameplayDisplayFrameTestsVerification
     /// <summary>Each effect's tint publishes at the accepted frame while the same effect's window table is read live.</summary>
     private static void VerifyFixedColorTiming(SuperMetroidRuntime runtime)
     {
-        // Fireflea darkness: the effect and the shade it publishes. From the first flash shade (level zero), a step at darkness
+        // Fireflea darkness: the effect and the shade it publishes. A Fireflea room's load starts its darkness from the first
+        // flash shade (level zero); the frame boundary before it latched the room before, which has none. A step at darkness
         // offset six shades level eighteen and one at offset two level six.
-        RoomFxType originalFx = runtime.RoomFxOverlay.Type;
-        FirefleaFxState fireflea = runtime.RoomFxOverlay.StartFirefleaDarknessForCheck();
-        fireflea.Step(frozen: false, new FirefleaDarkness(3));
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LowerNorfairFireflea, new Position16<RoomPixels>(0, 0));
+        FirefleaFxState fireflea = runtime.RoomFxOverlay.Fireflea
+            ?? throw new InvalidOperationException("The Lower Norfair Fireflea room's load starts its Fireflea darkness.");
+        fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(3));
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Fireflea darkness waits for the accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(18, darkness.Blend.Colour.FadeLevels.Red, "Fireflea's shade publishes with its blend");
-        fireflea.Step(frozen: false, new FirefleaDarkness(1));
-        AssertEqual(18, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
+        AssertEqual(18, ((FirefleaDarknessBlend)darkness.Blend).Shade.FadeLevels.Red, "Fireflea's shade publishes with its blend");
+        fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(1));
+        AssertEqual(18, ((FirefleaDarknessBlend)((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend).Shade.FadeLevels.Red,
             "a shade chosen in the main loop waits for the next accepted frame");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual(6, ((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend.Colour.FadeLevels.Red,
+        AssertEqual(6, ((FirefleaDarknessBlend)((GameplayBlendLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).Blend).Shade.FadeLevels.Red,
             "the next accepted frame publishes the chosen shade");
-        runtime.RoomFxOverlay.EndFirefleaDarknessForCheck(originalFx);
+        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual<LatchedFirefleaDarkness?>(null, runtime.PublishDisplayFrame().OrdinaryLatch.Fireflea,
             "a room whose effect is not Fireflea darkness publishes no Fireflea shade");
@@ -195,7 +198,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Suit pickup: the light beam is a live HDMA window; its COLDATA follows the NMI.
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(samus, runtime.Player.Colours);
         RgbColor suitBefore = runtime.PublishDisplayFrame().RoomLatch.Tints.SuitPickup;
@@ -226,21 +229,23 @@ internal static class GameplayDisplayFrameTestsVerification
         AssertTrue(runtime.PublishDisplayFrame().Latched is OrdinaryRoomFrameLatch,
             "the accepted frame shows Ceres Ridley's room without the elevator shaft's floor");
 
-        // The station's escape owns the getaway's floor (#2228).
-        CeresTurningFloor getaway = runtime.Enemies.CeresEscape.Floor;
-        getaway.Active = true;
-        getaway.Angle = RotationAngle.FromSteps(5);
-        getaway.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(240);
-        getaway.Center = new Offset16<FloorPixels>(128, 120);
-        getaway.Offset = new Offset16<FloorPixels>(7, 19);
+        // The station's escape owns the getaway's floor (#2228), which its first update turns, zooms and scrolls.
+        CeresEscape escape = runtime.Enemies.CeresEscape;
+        RoomFloor arena = runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor.");
+        escape.BeginGetaway();
+        escape.RunGetawayRoomMain(runtime.Player.Samus, arena, 0);
+        FloorView shown = escape.ShownFloor ?? throw new InvalidOperationException("Ridley flies his getaway.");
         AssertTrue(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0] is GameplaySceneLayer,
             "Ridley's floor and fake BGMODE wait for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var mode7 = (TurningRoomLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual(RotationAngle.FromSteps(5).Radians, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
-        AssertEqual(240 / 256.0, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
+        AssertEqual(shown.Angle, mode7.Transform.Angle, "the accepted NMI publishes Ridley's floor angle");
+        AssertEqual(shown.Scale, mode7.Transform.Scale, "the accepted NMI publishes Ridley's floor zoom");
         AssertTrue(mode7.LowerBand is not null, "the accepted NMI publishes Ridley's mixed Mode 7 band");
-        getaway.Active = false;
+        // The getaway flies its remaining steps, and the update after its last hands on to the self-destruct warning.
+        for (int update = 1; update <= CeresRidleyGetawayCurve.Steps.Count; update++)
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, update);
+        AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
     }
 

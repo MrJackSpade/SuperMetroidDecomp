@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Conversions from room positions and views to the signed floor offsets a floor transform takes.</summary>
-public static class FloorConversions
+public static partial class FloorConversions
 {
     /// <summary>
     /// A room point as a floor offset when the turning floor is the foreground, as in the Ceres elevator shaft: the point

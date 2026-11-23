@@ -24,15 +24,14 @@ internal static class CompactWalkOffCollisionVerification
             // that body, so F404 must shift its center and clamp its fractional word.
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 240)),
-            };
+            }.InPose(left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x6400);
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(2, 0xf400));
             SamusPoseId target = left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
-            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, target, frameCounter: 0, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), frameCounter: 0);
             AssertEqual(FixedCoordinate.Of(0x00ed, 0xffff), samus.Kinematics.Position.Y, "compact walk-off uses native floor center/subpixel correction");
             AssertEqual(target, samus.Pose, "compact walk-off selects ordinary falling art");
             AssertEqual(16, samus.Kinematics.Radius.Y, "compact walk-off retains live crouch radius until alpha");

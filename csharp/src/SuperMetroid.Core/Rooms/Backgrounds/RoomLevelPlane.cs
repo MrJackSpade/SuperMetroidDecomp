@@ -4,15 +4,15 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// One room background plane as the room shows it: a grid of 16x16 blocks, each naming the block it shows and its
+/// One room background plane as the room shows it: a grid of blocks (<see cref="BlockPixels"/> square), each naming the block it shows and its
 /// mirroring, or the collectible picture shown where a collectible showing its own picture lies (#1538). Immutable; the
 /// room publishes a new plane when gameplay changes a block, so the display draws each block's picture from the room's grid
 /// with no stored picture grid (#1346, #1431, #1469).
 /// </summary>
-public sealed class RoomLevelPlane
+public sealed partial class RoomLevelPlane
 {
     /// <summary>Pixels along each side of a level block.</summary>
-    public const int BlockPixels = 16;
+    public const int BlockPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>What each block shows, row by row.</summary>
     private readonly RoomBlockAppearance[] blocks;
@@ -43,7 +43,8 @@ public sealed class RoomLevelPlane
 
     /// <summary>
     /// The plane's blocks as a frame shows them (#1403), read once: a collectible's picture where one lies, unmirrored, and
-    /// each other block's own (#1764), or nothing (#2100).
+    /// each other block's own (#1764), or nothing (#2100). They are worked out from the blocks and collectible pictures alone,
+    /// so a snapshot neither holds nor works them out.
     /// </summary>
     /// <exception cref="InvalidOperationException">A block is terrain beyond the room, which no plane shows.</exception>
     public RoomBlockCells Cells => field ??= new RoomBlockCells(Size,

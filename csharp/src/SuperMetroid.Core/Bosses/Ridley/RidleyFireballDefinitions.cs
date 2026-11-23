@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Where both Ridleys breathe their fireballs from, how far the afterburn of one spreads (#2232), and how fast and within
 /// which arcs they aim them (#2335).
 /// </summary>
-internal static class RidleyFireballDefinitions
+internal static partial class RidleyFireballDefinitions
 {
     /// <summary>His mouth, where a fireball leaves and is aimed from, while he faces left; facing right mirrors it.</summary>
     internal static readonly Offset16<RoomPixels> MuzzleFacingLeft = new(-25, -43);

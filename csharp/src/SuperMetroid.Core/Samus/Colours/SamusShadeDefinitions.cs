@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Samus.Colours;
 
 /// <summary>Immutable game data shared by Samus shades.</summary>
@@ -8,13 +6,13 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// names the shade colours, colour-animation steps, the colours each shade changes, and endpoint colours those
 /// machines consume, so no raw number masquerades as gameplay behavior.
 /// </remarks>
-public static class SamusShadeDefinitions
+public static partial class SamusShadeDefinitions
 {
     /// <summary>
     /// The visor's two shade sequences (#2285): the X-ray widening glow, which brightens the visor while the beam widens,
     /// and the steady visor cycle, which the full X-ray beam and rooms that animate the visor show in turn.
     /// </summary>
-    public static class Visor
+    public static partial class Visor
     {
         /// <summary>The X-ray widening glow's shades, shown in order; the last is held.</summary>
         public const int XrayWideningShades = 3;
@@ -23,21 +21,21 @@ public static class SamusShadeDefinitions
     }
 
     /// <summary>The charge glows Samus's suit pulses through while a beam is charged or the pseudo Screw Attack holds.</summary>
-    public static class Charge
+    public static partial class Charge
     {
         /// <summary>The shades each charge pulse shows in order, in every suit, before it starts again.</summary>
         public const int PulseShades = 6;
     }
 
     /// <summary>The Hyper Beam's own colour cycle, which its beams show.</summary>
-    public static class HyperBeamCycle
+    public static partial class HyperBeamCycle
     {
         /// <summary>The cycle's beam colourings: red, yellow, green, blue and magenta, each followed by its blend into the next.</summary>
         public const int Frames = 10;
     }
 
     /// <summary>The cycle shades the special full-body suit colourings show, by suit and phase.</summary>
-    public static class FullBodyCycles
+    public static partial class FullBodyCycles
     {
         /// <summary>Number of full-body Hyper Beam shades.</summary>
         public const int HyperBeamShadeCount = 10;
@@ -50,7 +48,7 @@ public static class SamusShadeDefinitions
     }
 
     /// <summary>The shades the fatal-damage sequence shows.</summary>
-    public static class Death
+    public static partial class Death
     {
         /// <summary>Number of suited and suitless explosion shade variants.</summary>
         public const int ExplosionShadeCount = 10;
@@ -60,11 +58,11 @@ public static class SamusShadeDefinitions
 
     /// <summary>Two independently timed colour cycles used by Crystal Flash.</summary>
     /// <remarks>
-    /// Samus's body brightens through six grey shades and dims back again, ten steps in all; the bubble around her cycles
-    /// its own six shades on a separate timer, wrapping independently of the body. Both cycles stay live while Crystal
+    /// Samus's body brightens through its grey shades and dims back again (<see cref="BodyStepCount"/>); the bubble around her cycles
+    /// its own shades (<see cref="BubbleShadeCount"/>) on a separate timer, wrapping independently of the body. Both cycles stay live while Crystal
     /// Flash runs. The shades themselves are installed colours (#625, #902, #903).
     /// </remarks>
-    public static class CrystalFlash
+    public static partial class CrystalFlash
     {
         /// <summary>Number of Crystal Flash body steps.</summary>
         public const int BodyStepCount = 10;
@@ -77,7 +75,7 @@ public static class SamusShadeDefinitions
     /// its suit's colour, each channel rises toward white while the beam widens, and each falls back toward the suit's
     /// settling colour while the beam shrinks, every channel at its own step until it reaches its target.
     /// </summary>
-    public static class SuitPickup
+    public static partial class SuitPickup
     {
         /// <summary>The Varia beam's colour as it appears.</summary>
         public static readonly FadeLevelColour VariaBeam = new(16, 16, 0);
@@ -94,7 +92,7 @@ public static class SamusShadeDefinitions
     }
 
     /// <summary>The glow colour sequences of the Power Bomb and Crystal Flash explosions.</summary>
-    public static class PowerBomb
+    public static partial class PowerBomb
     {
         /// <summary>Number of pre-explosion glow colours.</summary>
         public const int PreExplosionColorCount = 16;

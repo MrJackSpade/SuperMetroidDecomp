@@ -10,75 +10,88 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// explosions, which publishes its destruction so the shaft starts to turn.
 /// </summary>
 /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the door occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="floor">The room's turning floor, whose elevator platform the door cycles (#2382).</param>
-internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyPlace place, EnemyCommonParticipation common, RoomFloor floor)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
+/// <param name="ownState">What the enemy's setup built (#2554).</param>
+internal sealed partial class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, RoomFloor floor, CeresDoorAnimationState ownState)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation
 {
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="doors">The room's owner of the Ceres doors and walls.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the door occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="floor">The room's turning floor, whose elevator platform the door cycles (#2382).</param>
+    internal CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RoomFloor floor)
+        : this(doors, occupant, place, common, floor, doors.Start(place, HorizontalDirection.Right, CeresDoorSegment.ElevatorDoor))
+    {
+    }
+
     /// <summary>How many updates the door's destruction lasts, the last the one it ends on (#2281).</summary>
     private const int RumbleDuration = 49;
 
     /// <summary>How many updates apart the destruction's explosions burst (#2281).</summary>
     private const int RumbleInterval = 5;
 
-    /// <inheritdoc/>
-    public void Initialize()
+    /// <summary>The door's animation, which its setup starts as the door is built (#2554).</summary>
+    private readonly CeresDoorAnimationState ownState = ownState;
+
+    /// <summary>The door's phase and destruction counters, intact from its setup.</summary>
+    private readonly CeresElevatorDoorState ownDoor = new() { Phase = CeresElevatorDoorPhase.Intact };
+
+    /// <summary>Shows the door's own look as it is set up: only the elevator door shows it (#1406, #1538).</summary>
+    public void Initialize() => doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
+
+    /// <summary>What <see cref="RunMainAi"/> does for each <see cref="CeresElevatorDoorPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>> RunMainAiForCeresElevatorDoorPhase => field ??= new(new Dictionary<CeresElevatorDoorPhase, Action<CeresElevatorDoorState>>
     {
-        doors.Start(Place, CeresDoorSegment.ElevatorDoor);
-        Place.SetSpeciesState(new CeresElevatorDoorState { Phase = CeresElevatorDoorPhase.Intact });
-        // Only the elevator door shows the door's own look (#1406, #1538).
-        doors.Presentation.ShowLook(CeresElevatorDoorLookDefinitions.OverlayLook);
-    }
+        [CeresElevatorDoorPhase.Intact] = state =>
+        {
+            CycleGlowAndPlatform();
+            if (doors.Escape.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
+            {
+                // Entering the destruction starts its three counters, but deliberately does not run its first step
+                // until the following enemy frame.
+                state.Phase = CeresElevatorDoorPhase.Exploding;
+                state.Rumble = UpdateCountdown.Lasting(RumbleDuration);
+                // The first explosion bursts on the destruction's first update.
+                state.ExplosionWait = UpdateCountdown.LastingOneUpdate();
+                state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
+            }
+        },
+        [CeresElevatorDoorPhase.Exploding] = state => Explode(),
+        [CeresElevatorDoorPhase.Destroyed] = state => CycleGlowAndPlatform(),
+    });
 
     /// <inheritdoc/>
     public void RunMainAi(IEnemyAiFrame frame)
     {
-        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
-        switch (state.Phase)
-        {
-            case CeresElevatorDoorPhase.Intact:
-                CycleGlowAndPlatform();
-                if (doors.Escape.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
-                {
-                    // Entering the destruction starts its three counters, but deliberately does not run its first step
-                    // until the following enemy frame.
-                    state.Phase = CeresElevatorDoorPhase.Exploding;
-                    state.Rumble = UpdateCountdown.Lasting(RumbleDuration);
-                    // The first explosion bursts on the destruction's first update.
-                    state.ExplosionWait = UpdateCountdown.LastingOneUpdate();
-                    state.NextExplosion = CyclingSequence<Offset16<RoomPixels>>.StartOf(CeresDoorRumbleGeometryDefinitions.ExplosionOffsets);
-                }
-                return;
-
-            case CeresElevatorDoorPhase.Exploding:
-                Explode();
-                return;
-
-            case CeresElevatorDoorPhase.Destroyed:
-                CycleGlowAndPlatform();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresElevatorDoorPhase)} {state.Phase}.");
-        }
+        CeresElevatorDoorState state = ownDoor;
+        RunMainAiForCeresElevatorDoorPhase[state.Phase](state);
     }
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, context.Samus);
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => doors.AdvanceAnimation(Place, ownState, context.Samus);
 
     /// <summary>Runs one update of the destruction.</summary>
     private void Explode()
     {
-        CeresElevatorDoorState state = Place.RequireSpeciesState<CeresElevatorDoorState>();
+        CeresElevatorDoorState state = ownDoor;
         if (state.Rumble.Count())
         {
             // The last update ends the destruction: the door hides, keeps cycling the glow and platform from the next update
             // on, and publishes its destruction so the room's turning floor begins the rotation after Ridley's escape.
             Place.Presence = Place.Presence.With(EnemyPresence.Hidden);
+            // The escape status only ever advances, and the destruction began once it reached the self-destruct.
             state.Phase = CeresElevatorDoorPhase.Destroyed;
-            if (doors.Escape.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
-                doors.Escape.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
+            doors.Escape.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
             return;
         }
 
@@ -111,9 +124,9 @@ internal sealed class CeresElevatorDoorEntity(CeresDoorBehavior doors, RoomEnemy
         // The elevator platform's animation does not belong to the arrival's pad or platform: the elevator door alternates
         // the turning floor's platform frames for as long as the room runs, so the landed platform keeps flashing after the
         // arrival's touchdown ends. The import pictures both strips (#1467).
-        floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.Of(frame)));
+        floor.Show(CeresFloorAnimation.ElevatorPlatformFrameForPhase(CeresDoorCadenceDefinitions.PlatformPicture.StepAt(frame)));
 
-        // The glow takes its next step every eight updates.
-        doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.Of(frame);
+        // The glow takes its next step at its cadence's place.
+        doors.ElevatorRoomGlowStep = CeresDoorCadenceDefinitions.GlowStep.StepAt(frame);
     }
 }

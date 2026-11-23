@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Complete installed room-layout artwork selected by the room state's level.</summary>
-public sealed class RoomLevelArtworks
+public sealed partial class RoomLevelArtworks
 {
     /// <summary>Validated level selection for all installed room-level visual planes.</summary>
     internal readonly Dictionary<RoomLevelId, RoomLevelArtwork> layouts;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleEnemyDeathVerification;
@@ -31,9 +32,10 @@ internal static class GrappleGatesVerification
             var (bus, level, roomObjects, gateIndex) = CreateDownwardGateFixture(trigger);
             // Use the cartridge's actual gate sprite maps for the observable OAM check.
             SeedRetailGateSpriteMaps(bus, retail);
-            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => 0, SeedRandom = _ => { } }, installedBosses: InstalledFixtures.BossArtwork);
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => 0, SeedRandom = _ => { } }, installedBosses: InstalledFixtures.BossArtwork);
             // The gate draws from the sheets of the set its room loads; Green Hill Zone, the room this fixture models, loads
-            // its set with its own population (an empty population would keep the session's standard sprites).
+            // its set with its own population (an empty population would keep the session's standard sprites), whose enemies
+            // take the game's compiled definitions: the gate fixture's sparse bus holds no enemy header.
             enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(RoomEnemyPopulationDefinitions.GreenHillZone, BgArtworkFixtures.For(new SnesVram()), level, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())));
             enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(roomObjects.Gates.TakeDownwardGateProjectileRequests().Single());
             enemies.StepEnemyProjectiles(level, RoomEnemyFrameFixtures.StandaloneSamus());
@@ -55,7 +57,7 @@ internal static class GrappleGatesVerification
                 if (frame == 2)
                 {
                     SeedStationaryGrappleCollisionProbe(samus);
-                    var result = SamusGrappleMovement.StepFiringAndCommit(level, samus, GameplayAction.Shoot, roomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                    var result = SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(level, roomObjects), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
                 StepDownwardGateObject(roomObjects, level);

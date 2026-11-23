@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Outcome">
 /// The step's outcome, which its pickups, station actions and thrown projectiles join for the update to act on (#2514).
 /// </param>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct RoomObjectStepContext(
+internal readonly partial record struct RoomObjectStepContext(
     IRoomObjects RoomObjects, RoomLevelData Level, RoomObjectFrameInputs Frame, RoomObjectStepOutcome Outcome)
 {
     /// <summary>Draws <paramref name="draw"/> at the place's block through its family, as a timed draw does.</summary>

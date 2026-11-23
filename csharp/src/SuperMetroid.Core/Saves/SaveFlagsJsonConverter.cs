@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="keys">The flags' written-out keys.</param>
 /// <param name="order">Each flag on its own, in the order a save lists a set of them (#2567).</param>
 /// <param name="union">The set holding both sets' flags.</param>
-internal sealed class SaveFlagsJsonConverter<TFlags>(InstalledKeys<TFlags> keys, IReadOnlyList<TFlags> order, Func<TFlags, TFlags, TFlags> union)
+internal sealed partial class SaveFlagsJsonConverter<TFlags>(InstalledKeys<TFlags> keys, IReadOnlyList<TFlags> order, Func<TFlags, TFlags, TFlags> union)
     : SaveKeyJsonConverter<TFlags>(keys)
     where TFlags : struct, Enum
 {
@@ -36,6 +36,6 @@ internal sealed class SaveFlagsJsonConverter<TFlags>(InstalledKeys<TFlags> keys,
     /// <inheritdoc />
     /// <exception cref="JsonException">A part of the text names no flag.</exception>
     private protected override TFlags Named(string text) =>
-        text.Split(',').Select(part => Member(part.Trim()) ?? throw new JsonException($"'{text}' names no {typeof(TFlags).Name}."))
+        text.Split(',').Select(part => TryMember(part.Trim(), out TFlags member) ? member : throw new JsonException($"'{text}' names no {typeof(TFlags).Name}."))
             .Aggregate(default(TFlags), union);
 }

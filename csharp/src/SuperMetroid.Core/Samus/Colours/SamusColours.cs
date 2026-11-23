@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// The import pre-colours every one of her sheets in every shade; she never selects a colour herself.
 /// </summary>
 /// <remarks>
-/// A later colouring of the suit or the beams replaces everything laid over them, as a complete load of their colours did;
-/// a shade laid over them replaces an earlier shade of the same effect and covers the rest. Her colours are her own:
+/// A new colouring of the suit or the beams replaces everything laid over them; a shade laid over them replaces an
+/// earlier shade of the same effect and covers the rest. Her colours are her own:
 /// another owner's colours never show on her draws, and hers never show on theirs (#1512).
 /// </remarks>
-public sealed class SamusColours
+public sealed partial class SamusColours
 {
     /// <summary>The shades laid over the suit's, in the order they were laid; the last covers the others.</summary>
     internal readonly List<PictureShade> suitOverlays = [];
@@ -24,7 +24,7 @@ public sealed class SamusColours
     internal readonly List<PictureShade> beamOverlays = [];
 
     /// <summary>The shade the suit shows.</summary>
-    public PictureShade Suit { get; private set; } = SamusShades.StartingSuit;
+    internal PictureShade Suit { get; set; } = SamusShades.StartingSuit;
 
     /// <summary>The shade the beams show.</summary>
     public PictureShade Beams { get; private set; } = SamusShades.StartingBeams;
@@ -33,11 +33,11 @@ public sealed class SamusColours
     public PictureShade? Suitless { get; private set; }
 
     /// <summary>The shade her grapple flare shows, or null for its own colour until she first fires the grapple.</summary>
-    public PictureShade? GrappleFlare { get; private set; }
+    internal PictureShade? GrappleFlare { get; set; }
 
     /// <summary>The shading her draws show now: the suit's and the beams' shades, what lies over each, and the suitless body's.</summary>
     [AllowNull]
-    public PictureShading Shading { get => field ??= Compose(); private set; }
+    internal PictureShading Shading { get => field ??= Compose(); set; }
 
     /// <summary>Shows <paramref name="shade"/> as the suit's colours, replacing whatever was laid over them.</summary>
     public void ShowSuit(PictureShade shade)

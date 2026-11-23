@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// Each options page's rows from the top (#2206, #2225): the order the cursor moves through, the controller page's action
 /// labels included.
 /// </summary>
-internal static class GameOptionsPageRows
+internal static partial class GameOptionsPageRows
 {
     /// <summary>The primary page's rows from the top.</summary>
     internal static readonly MenuRowOrder<GameOptionsPrimaryRow> Primary = new(

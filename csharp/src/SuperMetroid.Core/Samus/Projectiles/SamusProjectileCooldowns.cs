@@ -4,7 +4,7 @@ using static SuperMetroid.Core.Samus.Projectiles.SamusProjectileCooldownDefiniti
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The cooldown each beam combination's shots set the shared shot timer to.</summary>
-internal static class SamusProjectileCooldowns
+internal static partial class SamusProjectileCooldowns
 {
     /// <summary>
     /// The cooldown a beam combination's <paramref name="shot"/> sets the shared shot timer to. Beam charge doubles
@@ -21,7 +21,7 @@ internal static class SamusProjectileCooldowns
             throw new InvalidDataException($"{beams} pairs Spazer with Plasma, whose cooldowns are not authored.");
         return shot switch
         {
-            BeamShotCooldowns.Shot.Uncharged => beams == SamusBeamCombination.PlasmaIce ? PlasmaIceUnchargedShot : UnchargedShot,
+            BeamShotCooldowns.Shot.Uncharged => UnchargedShots[beams],
             BeamShotCooldowns.Shot.Charged => ChargedShot,
             BeamShotCooldowns.Shot.HeldFire => HeldFireShot,
             _ => throw new ArgumentOutOfRangeException(nameof(shot), shot, "Undefined beam shot."),

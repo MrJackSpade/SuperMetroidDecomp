@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <see cref="RoomObjectDrawSourceDefinitions"/>; families whose draws the cartridge lays out at a fixed stride compute it from the
 /// family's first draw.
 /// </summary>
-internal static class RoomObjectDrawAddressCodec
+internal static partial class RoomObjectDrawAddressCodec
 {
     /// <summary>Bytes between successive one-block draws (shot-block single frames, collectibles, Grapple blocks).</summary>
     private const int OneBlockStride = 6;
@@ -58,7 +58,7 @@ internal static class RoomObjectDrawAddressCodec
         RoomObjectFrameDraw<BotwoonWallDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.BotwoonWall[frame],
         RoomObjectFrameDraw<ChozoStatueDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.ChozoStatue[frame],
         RoomObjectFrameDraw<ContactCrumbleRestoreDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.ContactCrumbleRestore[frame],
-        RoomObjectFrameDraw<CrocomireArenaDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.CrocomireArena[frame],
+        RoomObjectFrameDraw<CrocomireArenaMutation> { Frame: var frame } => RoomObjectDrawSourceDefinitions.CrocomireArena[frame],
         RoomObjectFrameDraw<DownwardGateDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.DownwardGate[frame],
         RoomObjectFrameDraw<DraygonCannonDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.DraygonCannon[frame],
         RoomObjectFrameDraw<ElevatorPlatformDraw> { Frame: var frame } => RoomObjectDrawSourceDefinitions.ElevatorPlatform[frame],
@@ -124,10 +124,10 @@ internal static class RoomObjectDrawAddressCodec
         int side = eye.Orientation == EyeDoorOrientation.Left ? 0 : RoomObjectDrawSourceDefinitions.EyeDoorRightOffset;
         return eye.Part switch
         {
-            null => Offset(RoomObjectDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
-            EyeDoorComponent.Eye => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * EyeStride),
-            EyeDoorComponent.Door => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
-            EyeDoorComponent.Bottom => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
+            EyeDoorDrawnPart.WholeDoorClear => Offset(RoomObjectDrawSourceDefinitions.EyeDoorMirroredOpeningClear, side),
+            EyeDoorDrawnPart.Eye => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftEyeFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * EyeStride),
+            EyeDoorDrawnPart.Door => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftMiddleFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
+            EyeDoorDrawnPart.Bottom => Offset(RoomObjectDrawSourceDefinitions.EyeDoorLeftBottomFirst, side + EyeDoorLookNames.TableIndex(eye.Look) * OneBlockStride),
             _ => throw new InvalidDataException($"Eye-door draw {eye} has no cartridge address."),
         };
     }

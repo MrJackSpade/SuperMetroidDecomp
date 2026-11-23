@@ -68,7 +68,7 @@ internal static class FrozenGateGlitchVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(
             RoomDefinitions.Caterpillar,
             new Position16<RoomPixels>(FrozenGateCameraX, FrozenGateCameraY));
@@ -81,7 +81,7 @@ internal static class FrozenGateGlitchVerification
             "Caterpillar retail downward gate block");
 
         RoomEnemyPlace[] zeros = runtime.Enemies.Places.InUpdateOrder
-            .Where(enemy => enemy.DefinitionId == EnemyDefinitionId.Zero)
+            .Where(enemy => enemy.Holds(EnemyDefinitionId.Zero))
             .ToArray();
         AssertEqual(3, zeros.Length, "Caterpillar retains its three retail Zero enemies");
         RoomEnemyPlace zero = zeros[0];
@@ -96,10 +96,10 @@ internal static class FrozenGateGlitchVerification
         }
         gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingClosed },
+        AssertTrue(gate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Closed, Resting: true },
             "Caterpillar gate rests closed, waiting for a trigger or Samus in its column");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(FrozenGateStartX);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
@@ -121,10 +121,10 @@ internal static class FrozenGateGlitchVerification
                 zero.Contact.HasAny(EnemyContact.SolidToSamus)),
         ];
 
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SixteenSixteenWords.ToDisplacement(SixteenSixteenConstants2.FromWhole(expected.Distance)) });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, roomObjects), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SixteenSixteenWords.ToDisplacement(SixteenSixteenConstants2.FromWhole(expected.Distance)) });
         AssertTrue(movement.Collided,
             $"{expected.Distance}-pixel native case collides with enemy or terrain");
-        AssertEqual(expected.EnemyCollision, movement.EnemyCollision.HasValue,
+        AssertEqual(expected.EnemyCollision, movement.EnemyCollision is not null,
             $"{expected.Distance}-pixel case preserves native collision owner");
         AssertEqual(expected.FinalX, samus.Position.X.Whole,
             $"{expected.Distance}-pixel case preserves native final X");
@@ -132,7 +132,7 @@ internal static class FrozenGateGlitchVerification
         roomObjects.Step(level);
         gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        bool gateWoke = gate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.RestingClosed };
+        bool gateWoke = gate.Behaviour is not DownwardGateObject { Phase: DownwardGatePhase.Closed, Resting: true };
         AssertEqual(expected.GateWoke, gateWoke,
             $"{expected.Distance}-pixel case preserves native gate wake state");
 

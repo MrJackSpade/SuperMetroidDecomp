@@ -3,8 +3,8 @@
 The Direct3D 11 backend (`csharp/src/SuperMetroid.Rendering.Direct3D11`) draws a `DisplayPacket` and nothing else
 (#1408). It knows no console memory image, palette memory, sprite table, register or bit depth: its inputs are the
 packet's typed layers and effect descriptions, and the installed pre-coloured images the packet's layers and draws
-name. `--packet-input` in `SuperMetroid.RenderVerification` checks that the renderer takes no other frame input and that
-none of its code names a hardware type.
+name. Since #1422 removed Core's Hardware module there is no hardware type for it to take: `D3D11FrameRenderer.Render`
+takes the packet, and the render checks in `SuperMetroid.RenderVerification` draw packets and compare the pixels.
 
 The backend is an intermediate step. v1.0.0 ports each rule below into Godot's own rendering, one by one; this page is
 the list to port. Every rule reproduces a visible result of the game exactly: each was proven against the software
@@ -18,9 +18,10 @@ to the WARP reference.
 | Image texture (`D3D11ImageAtlas`) | `Images`, t4 | Every installed image a scene draws: sprite frames, block pictures, background images, tile sheets, the message box. Each texel holds the image's pixel and its key word: for a clear pixel (alpha zero) only that it is clear; for a visible pixel the place of its colour key among the image's (`SpriteImage.ColourKeys`) and whether it blends where it is drawn as a sprite (its frame blends, or its sheet's blend map marks it). An image keeps its place while later scenes show it; a scene that does not fit empties the texture and lays its images tallest first on a skyline. |
 | Floor image (`D3D11FloorImage`) | `Floor`, t5 | The perspective floor, 1024 pixels square, laid out from its tiles' pictures whenever the floor changes, with its first tile's picture beside it. |
 | Scene colours (`D3D11SceneColourBuffer`) | `Colours`, t0 | The backdrop, then one colour table per image and colouring: the colour each of the image's colour keys shows under the colouring's shading, in the keys' order. |
-| Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, depth among the room's layers, image place, colours), front to back: the paint's draws grouped by depth from the front back, then each sprite layer's. |
+| Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, depth among the room's layers, image place, colours), front to back: the paint's draws in emission order, then each sprite layer's. |
 | Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' block grids, each picture's place, size and colour slot, the pictures written over the layers and the HUD's at the pixels they show at, the effect overlay's placed picture, a boss body's placed pieces, the sky's bands, the door window and the floor's sheets (#1514). |
 | Sprite layer | `SpriteLayer`, u1 / render target | Per pixel, the frontmost sprite pixel's colour and its draw's depth, with whether it blends. |
+| Translucent sprite layer | `TranslucentLayer`, u2 / render target | As the sprite layer, for the draws shown at half strength (#2642). |
 | Output | `Output`, u0 | The composed 256 by 224 frame, eight bits a channel. |
 
 ## Colour
@@ -29,7 +30,10 @@ A picture is only its colours (#1633): each pixel is an RGBA colour, alpha zero 
 key is its colour with its recolour region, which the sheet's recolour-region map gives where pixels of one colour
 recolour differently. A visible pixel shows the colour its key shows under its colour slot's shading (`TexelColour`): the
 shading's shades overwrite the colours of the keys they name, then its colour effects change every key's colour, then its
-shades over the effects overwrite again (`PictureShading.KeyColours`). This is how glows, fades and tints recolour
+shades over the effects overwrite again (`PictureShading.KeyColours`). A fade names only how far it has come (`FadeLevel`); the
+backend blends it (`D3D11ColourBlend`, #2563), so a fade's colours are worked out here, never in the simulation. A colour the
+frame shows outside a picture, such as the backdrop, a white wash or a sprite tint, is a `ShownColour` the backend works out
+the same way. This is how glows, fades and tints recolour
 pre-coloured art. A clear pixel has no key and is never recoloured. A see-through layer leaves clear pixels out; a layer
 drawn opaque (`HudLayer.DrawsOpaque`, `PicturedPlaneLayer.DrawsOpaque`) shows a clear pixel's stored colour as it is: the
 colour the pixel keeps of its own (the HUD band and room-effect art), or black where it keeps none.
@@ -47,9 +51,13 @@ art is from the room's.
 Each pass runs over the screen, or over a band of lines, in the order the scene lists its layers.
 
 - **Sprite layer** (`Sprites.hlsl`). Each sprite draw is an instanced quad over its image, drawn back to front into the
-  sprite layer, so each pixel keeps the frontmost draw's opaque pixel. A gameplay frame's draws are packed by depth from
-  the front back (#1514), so the frontmost draw is one at the frontmost depth, and each pixel records its draw's depth: a
-  whole draw sits at one depth among the room's layers.
+  sprite layer, so each pixel keeps the frontmost draw's opaque pixel. A gameplay frame's draws are packed in emission
+  order, frontmost first (#2620): where actors overlap, the one the game draws in front shows, whatever its depth, and each
+  pixel records its draw's depth: a whole draw sits at one depth among the room's layers. A translucent draw (#2642) goes
+  into the translucent sprite layer instead, by a second pass over the same records; inserting the sprites at a depth then
+  shows each translucent pixel at that depth at half strength over what the screen holds there by then, the room behind it
+  and the opaque sprites at its depth among it. A Metroid's shell is drawn so, the steady equivalent of the game showing it
+  every other update.
 - **Backdrop.** Fills the screen with the backdrop colour.
 - **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the effect overlay, a boss body, the
   X-ray reveal, a library background, or a frontend layer's cells. Each pixel of the layer shows its picture's pixel at
@@ -72,7 +80,7 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
   sprite layer's colour from the floor.
 - **Add colour.** Adds a fixed colour to every pixel, in the colour's thirty-two levels a channel, clamped. The display
   model describes colours as plain colours (`RgbColor`, 0-255 a channel), each on the game's fade scale; a colour reaches
-  the tile shaders' colour maths as its own levels (`FadeLevelColour`, #1544), and one off the scale is rejected.
+  the tile shaders' colour maths as its own steps (`FadeLevelColour`, #1544), and one off the steps is rejected.
 - **Line colour add.** Adds each line's colour within that line's window.
 - **Add / subtract layer.** Adds or subtracts the room effect's overlay, each line at its own horizontal scroll, eight
   bits a channel, clamped. The overlay is a liquid or an atmosphere (`OverlayPicture`, #1514, #1706), each picture

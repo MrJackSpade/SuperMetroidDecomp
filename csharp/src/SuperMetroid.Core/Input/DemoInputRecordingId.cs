@@ -1,8 +1,9 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The demos' recordings (#1300, #1600), one per recorded input a demo or its owner starts: the title's demonstrations play
-/// one each in the player's place, and the intro plays its own.
+/// The demos' recordings that end by stopping or looping (#1300, #1600, #2553), one per recorded input a demo or its owner
+/// starts: the title's demonstrations play one each in the player's place, and the intro plays its own. None signals its
+/// owner; the intro's recordings that do are <see cref="DemoSignallingRecordingId"/>.
 /// </summary>
 public enum DemoInputRecordingId
 {
@@ -57,12 +58,8 @@ public enum DemoInputRecordingId
     AttractSpeedBooster,
     /// <summary>Samus enters the statue room at Tourian's entrance, Kraid already defeated.</summary>
     AttractTourianEntrance,
-    /// <summary>The input that ends the intro's discovery of the Baby, once Samus has looked at it.</summary>
-    IntroBabyDiscoveryEnd,
     /// <summary>The intro's discovery of the Baby: the input that runs Samus left toward it.</summary>
     IntroBabyDiscoveryRunningLeft,
     /// <summary>The intro's discovery of the Baby: the input that stops Samus and has her look.</summary>
     IntroBabyDiscoveryStopAndLook,
-    /// <summary>The input Samus fires with in the intro's flashback of her fight with Mother Brain.</summary>
-    IntroMotherBrainFlashback,
 }

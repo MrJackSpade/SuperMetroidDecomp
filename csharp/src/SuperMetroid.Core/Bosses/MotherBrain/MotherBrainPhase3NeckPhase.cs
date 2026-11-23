@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Reachable third-phase neck phases.</summary>
+/// <summary>Her third phase's neck movements and recoils.</summary>
 public enum MotherBrainPhase3NeckPhase
 {
     /// <summary>No phase-three neck phase is active.</summary>

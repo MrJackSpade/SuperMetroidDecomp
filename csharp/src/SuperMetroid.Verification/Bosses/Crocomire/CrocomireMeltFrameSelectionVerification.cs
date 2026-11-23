@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Verification.Enemies;
@@ -30,7 +30,7 @@ internal static class CrocomireMeltFrameSelectionVerification
             // A round shows the image's six bands, and the bare skull's one more update that shows none (#2573).
             int bands = CrocomireMelting.BandRound(pass);
             fixture.InitializeMap(pass);
-            fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
+            fixture.Call(_ => state => CrocomireMelting.BeginCrocomireMeltPass(state, pass));
             AssertBands(fixture, expected, $"{pass} pass begins");
 
             ListStep<CrocomireDeathStage> showing = fixture.Actor.DeathStage;
@@ -62,7 +62,7 @@ internal static class CrocomireMeltFrameSelectionVerification
                 AssertBands(fixture, expected, $"{pass} dissolve update");
             }
             AssertEqual(CrocomireMeltingDefinitions.ColumnCount, step, $"{pass} dissolve erases every column before it ends");
-            fixture.Call(c => c.Melting.FinishCrocomireMeltingPass);
+            fixture.Call(c => CrocomireMelting.FinishCrocomireMeltingPass);
             AssertBands(fixture, expected, $"{pass} pass finishes");
         }
         Console.WriteLine($"  Crocomire melt: {updates} updates over both passes select each band's picture on the cartridge's schedule.");

@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// coloured as file select loads the menu palette, with a shade for each colouring the map sprites draw in on each map
 /// screen and for each frame of the highlight cycle (#1512).
 /// </summary>
-internal static class MapSpriteSheetComposer
+internal static partial class MapSpriteSheetComposer
 {
     /// <summary>The map sprite colourings in the order the sheet lists their shades (#2567).</summary>
     private static readonly IReadOnlyList<MapSpriteColouring> Colourings = Ensure.EveryMemberOnce<MapSpriteColouring>(
@@ -30,21 +30,17 @@ internal static class MapSpriteSheetComposer
     /// <summary>CGRAM's first sprite colour.</summary>
     private const int SpriteColours = 128;
 
-    /// <summary>What the map sprite sheet composes.</summary>
-    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).Sprites, maps);
-
-    /// <summary>What the map sprite sheet composes from <paramref name="sprites"/>, coloured with the menus of <paramref name="maps"/>.</summary>
-    internal static SpriteSheetSources Sources(MapSpriteCompositions sprites, ImportAreaMapPresentation maps)
+    /// <summary>What the map sprite sheet composes from the map sprites of <paramref name="maps"/>, coloured with its menus.</summary>
+    internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps)
     {
-        Ensure.NotNull(sprites);
         Ensure.NotNull(maps);
-        MapSpriteArtwork artwork = MapSpriteArtwork.Of(sprites);
+        MapSpriteArtwork artwork = maps.Sprites;
         // Each sprite is pictured once, its palette-inheriting parts in its standard colouring's set (#1513).
         List<ColouredFrame<MapSpriteColouring>> frames = [.. MapSpriteArtwork.FrameNames.Select(frame =>
         {
-            MapSpriteColouring[] colourings = [.. Ensure.Listed(MapSpriteColourings.Drawn, frame.Id)];
+            MapSpriteDrawnColourings colourings = Ensure.Listed(MapSpriteColourings.Drawn, frame.Id);
             return new ColouredFrame<MapSpriteColouring>(new SheetFrameSource(frame.Name, artwork.Frame(frame.Id), artwork.Page,
-                MapSpriteColouringSets.SpriteSet(colourings[0])), colourings);
+                MapSpriteColouringSets.SpriteSet(colourings.Standard)), colourings.Standard, colourings.All);
         })];
         ColouringPictures<MapSpriteColouring> pictures = ColouringPictures<MapSpriteColouring>.Of(frames, MapSpriteColouringSets.SpriteSet);
         MapStaticPalettes palettes = maps.Palettes;

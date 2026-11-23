@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// the block it shows and how it lays the block's picture out. A reveal that writes more than one block writes those that
 /// lie inside the revealed area.
 /// </summary>
-public static class XrayRevealMap
+public static partial class XrayRevealMap
 {
     /// <summary>
     /// Runs the reveal's base-copy and terrain-reveal passes. Item and special-room
@@ -42,10 +42,19 @@ public static class XrayRevealMap
             if (RoomBlock(level, cameraBlock.X - 1, cameraBlock.Y + row) is { } before &&
                 Lookup(before)?.Blocks is { } predecessor)
             {
-                if (predecessor.BottomRight is { } bottomRight)
-                    CopyBlock(Position16<RoomBlocks>.Of(0, row + 1), bottomRight);
-                if (predecessor.TopRight is { } topRight)
-                    CopyBlock(Position16<RoomBlocks>.Of(0, row), topRight);
+                switch (predecessor)
+                {
+                    case XrayRevealVisualBlocks.SquareOfFour square:
+                        CopyBlock(Position16<RoomBlocks>.Of(0, row + 1), square.LowerRight);
+                        CopyBlock(Position16<RoomBlocks>.Of(0, row), square.UpperRight);
+                        break;
+                    case XrayRevealVisualBlocks.WidePair wide:
+                        CopyBlock(Position16<RoomBlocks>.Of(0, row), wide.Right);
+                        break;
+                    default:
+                        // A single block or a tall pair has no right half to show.
+                        break;
+                }
             }
             for (int column = 0; column < XrayRevealGrid.Size.X; column++)
             {
@@ -60,15 +69,30 @@ public static class XrayRevealMap
                         CopyBlock(place, replacement);
                     continue;
                 }
-                if (reveal.Shape == XrayRevealShape.CopyBrinstar && area != AreaId.Brinstar)
+                if (!XrayRevealShapes.RevealsIn(reveal.Shape, area))
                     continue;
-                CopyBlock(place, shown.TopLeft);
-                if (shown.TopRight is { } topRight)
-                    CopyBlock(place + Right, topRight);
-                if (shown.BottomLeft is { } bottomLeft)
-                    CopyBlock(place + Down, bottomLeft);
-                if (shown.BottomRight is { } bottomRight)
-                    CopyBlock(place + Right + Down, bottomRight);
+                switch (shown)
+                {
+                    case XrayRevealVisualBlocks.OneBlock one:
+                        CopyBlock(place, one.Block);
+                        break;
+                    case XrayRevealVisualBlocks.WidePair wide:
+                        CopyBlock(place, wide.Left);
+                        CopyBlock(place + Right, wide.Right);
+                        break;
+                    case XrayRevealVisualBlocks.TallPair tall:
+                        CopyBlock(place, tall.Top);
+                        CopyBlock(place + Down, tall.Bottom);
+                        break;
+                    case XrayRevealVisualBlocks.SquareOfFour square:
+                        CopyBlock(place, square.UpperLeft);
+                        CopyBlock(place + Right, square.UpperRight);
+                        CopyBlock(place + Down, square.LowerLeft);
+                        CopyBlock(place + Right + Down, square.LowerRight);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Undefined X-ray reveal blocks {shown}.");
+                }
             }
         }
         return result;
@@ -86,10 +110,9 @@ public static class XrayRevealMap
             RoomBlockCell cell = foreground[block];
             return new RevealedBlock(cell.Picture, Mirrored(cell.Flips));
         }
-        // A reveal block is placed as it is defined; its number is validated as a room block. Only blocks inside the
-        // revealed area are shown.
-        void CopyBlock(Position16<RoomBlocks> place, int blockNumber) =>
-            result.Show(place, new RevealedBlock(RoomCellPicture.OfBlock(blockNumber), RevealedBlockArrangement.AsDefined));
+        // A reveal block is placed as it is defined. Only blocks inside the revealed area are shown.
+        void CopyBlock(Position16<RoomBlocks> place, RoomCellPicture picture) =>
+            result.Show(place, new RevealedBlock(picture, RevealedBlockArrangement.AsDefined));
     }
 
     /// <summary>The next place to the right, where a wide or square reveal's right half lies.</summary>
@@ -116,13 +139,15 @@ public static class XrayRevealMap
     public static Position16<RoomPixels> OriginOf(Position16<RoomPixels> foregroundPosition) =>
         foregroundPosition.ToRoomBlock().ToRoomPixels();
 
-    /// <summary>How a revealed block lays out its picture: mirrored as the room mirrors it.</summary>
-    internal static RevealedBlockArrangement Mirrored(BlockMirroring flips) => flips switch
+    /// <summary>How a revealed block lays out its picture under each of the room's mirrorings.</summary>
+    private static IdentityTable<BlockMirroring, RevealedBlockArrangement> MirroredByFlips => field ??= new(new Dictionary<BlockMirroring, RevealedBlockArrangement>
     {
-        BlockMirroring.None => RevealedBlockArrangement.AsDefined,
-        BlockMirroring.Horizontal => RevealedBlockArrangement.MirroredHorizontally,
-        BlockMirroring.Vertical => RevealedBlockArrangement.MirroredVertically,
-        BlockMirroring.Horizontal | BlockMirroring.Vertical => RevealedBlockArrangement.MirroredBoth,
-        _ => throw new InvalidDataException($"A revealed block has undefined flips {flips}."),
-    };
+        [BlockMirroring.None] = RevealedBlockArrangement.AsDefined,
+        [BlockMirroring.Horizontal] = RevealedBlockArrangement.MirroredHorizontally,
+        [BlockMirroring.Vertical] = RevealedBlockArrangement.MirroredVertically,
+        [BlockMirroring.Both] = RevealedBlockArrangement.MirroredBoth,
+    });
+
+    /// <summary>How a revealed block lays out its picture: mirrored as the room mirrors it.</summary>
+    internal static RevealedBlockArrangement Mirrored(BlockMirroring flips) => MirroredByFlips[flips];
 }

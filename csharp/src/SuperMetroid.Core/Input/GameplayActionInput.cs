@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Input;
 /// The player's gameplay actions, latched once per accepted update after the controller is read: the actions held and
 /// the actions newly pressed. Gameplay reads its input here.
 /// </summary>
-public sealed class GameplayActionInput
+public sealed partial class GameplayActionInput
 {
     /// <summary>
     /// The actions the previous latch held, against which the next latch finds the newly pressed ones; a demo's substituted
@@ -22,8 +22,8 @@ public sealed class GameplayActionInput
 
     /// <summary>
     /// Temporarily publishes a demo's explicit held/edge pair in the player's place. Disposing restores the real
-    /// latched actions for the demo-cancellation check. This is deliberately not <see cref="Latch"/>: recorded edges
-    /// need not equal held-input changes.
+    /// latched actions for the demo-cancellation check. It does not <see cref="Latch"/>: recorded edges need not equal
+    /// held-input changes.
     /// </summary>
     internal IDisposable UseDemoInput(GameplayAction held, GameplayAction newlyPressed)
     {
@@ -34,7 +34,7 @@ public sealed class GameplayActionInput
     }
 
     /// <summary>Restores the real latched actions after a scoped demo input override.</summary>
-    private sealed class DemoInputRestore(GameplayActionInput owner, GameplayAction held, GameplayAction newlyPressed) : IDisposable
+    private sealed partial class DemoInputRestore(GameplayActionInput owner, GameplayAction held, GameplayAction newlyPressed) : IDisposable
     {
         /// <summary>Prevents a repeated dispose from replacing a later latch.</summary>
         private bool disposed;

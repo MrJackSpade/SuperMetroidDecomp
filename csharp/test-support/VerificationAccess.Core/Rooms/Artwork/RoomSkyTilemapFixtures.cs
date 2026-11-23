@@ -18,7 +18,7 @@ internal static class RoomSkyTilemapFixtures
             var bytes = new byte[RoomSkyTilemapFormat.PageByteCount];
             for (int cell = 0; cell < bytes.Length / sizeof(ushort); cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(cell * 2), NumberedWord(page, cell));
-            pages[page] = new RoomBackgroundTilemapAtlas(BackgroundTileWordBytes.Tiles(bytes));
+            pages[page] = new global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas(BackgroundTileWordBytes.Tiles(bytes));
         }
         return new RoomSkyTilemaps(pages);
     }

@@ -20,9 +20,9 @@ internal static class TorizoDefinitionMigrationVerification
         AssertEqual(TorizoCueKind.StopMoving, TorizoNativeWords.MotionCues.Decode(0xc95e, "idle movement routine"), "idle movement routine");
 
         // The latches sit where the cartridge's parameter words keep them.
-        AssertEqual(0xb234, TorizoParameterWords.ToParameterWord(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left), 0x1234),
+        AssertEqual(0xb234, TorizoParameterWords.ToParameterWord(TorizoPosture.AfterStep(HorizontalDirection.Right, HorizontalDirection.Left), 0x1234),
             "posture word facing right, opposite leg forward");
-        AssertEqual(new TorizoPosture(HorizontalDirection.Right, LeadingFoot: HorizontalDirection.Left).TurningAround,
+        AssertEqual(TorizoPosture.AfterStep(HorizontalDirection.Right, HorizontalDirection.Left).TurningAround,
             TorizoParameterFlagWords.PostureOf(0xe123), "posture of an authored word");
         AssertEqual(0x0123, TorizoParameterFlagWords.PostureLowBitsOf(0xe123), "low bits of an authored word");
 
@@ -35,9 +35,9 @@ internal static class TorizoDefinitionMigrationVerification
                 mismatches += decision.IsTakenBy(sample) == ((sample & mask) == 0) ? 0 : 1;
             AssertEqual(0, mismatches, $"{name} is taken by every sample its mask leaves clear and no other");
         }
-        AssertMaskedDecision(0x8142, TorizoRandomDefinitions.LowHealthDrool, "low-health drool");
-        AssertMaskedDecision(0x0102, TorizoRandomDefinitions.LowHealthEggs, "low-health eggs");
-        AssertMaskedDecision(0x0110, TorizoRandomDefinitions.MediumRangeAttack, "medium-range attack");
+        AssertMaskedDecision(0x8142, TorizoRandomRolls.LowHealthDrool, "low-health drool");
+        AssertMaskedDecision(0x0102, TorizoRandomRolls.LowHealthEggs, "low-health eggs");
+        AssertMaskedDecision(0x0110, TorizoRandomRolls.MediumRangeAttack, "medium-range attack");
         AssertMaskedDecision(0x0101, TorizoRandomDefinitions.ForwardLeap, "forward leap");
 
         // The code's inventory is the cartridge's two immediates. The items immediate also sets the bit that records no

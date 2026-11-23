@@ -12,7 +12,7 @@ internal static class YardCueMovements
         YardCue.Signal { Kind: YardCueKind.BeginTurn } => YardNativeWords.YardMovements.Word(YardMovement.HoldingStill),
         YardCue.BeginCrawling crawling => YardNativeWords.Crawls.Word(crawling.Crawl),
         YardCue.Signal { Kind: YardCueKind.BeginHiding } => YardNativeWords.YardMovements.Word(YardMovement.Hiding),
-        YardCue.Signal { Kind: YardCueKind.BeginFlight } => YardNativeWords.YardMovements.Word(YardMovement.Airborne),
+        YardCue.BeginFlight => YardNativeWords.YardMovements.Word(YardMovement.Airborne),
         _ => null,
     };
 }

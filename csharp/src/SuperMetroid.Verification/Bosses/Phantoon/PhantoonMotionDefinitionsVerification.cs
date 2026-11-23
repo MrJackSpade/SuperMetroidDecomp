@@ -24,7 +24,7 @@ internal static class PhantoonMotionDefinitionsVerification
         for (int i = 0; i < native.Length; i++)
         {
             int address = 0xa7cd73 + i * 2;
-            native[i] = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            native[i] = rom.ReadCartridgeWord(address);
             AssertEqual(unchecked((short)native[i]), definitions[i], "Phantoon compiled motion value");
         }
         Action<PhantoonFigureEightState> forward = PhantoonPatterns.AdjustPhantoonForwardFigureEightSpeed;
@@ -43,7 +43,7 @@ internal static class PhantoonMotionDefinitionsVerification
             // Every whole speed the figure-eight reaches, with a margin: its caps keep it within seven entries of rest.
             for (int whole = -16; whole <= 16; whole++)
             {
-                words.Speed = new PhantoonPathSpeed(SignedSixteenSixteen.FromParts(whole, fraction));
+                words.Speed = new global::SuperMetroid.Core.Bosses.Phantoon.PhantoonPathSpeed(SignedSixteenSixteen.FromParts(whole, fraction));
                 words.Stage = SuperMetroid.TestSupport.MovieReplay.PhantoonFigureEightStageWords.Decode(phase);
                 (ushort low, ushort high, ushort next) = Expected(fraction, unchecked((ushort)whole), phase, backwards);
                 (backwards ? reverse : forward)(words);

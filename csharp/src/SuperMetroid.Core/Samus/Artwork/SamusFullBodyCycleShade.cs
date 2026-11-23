@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <param name="Family">The cycle the shade belongs to.</param>
 /// <param name="Suit">The suit whose version of the shade it is.</param>
 /// <param name="Shade">The shade's place among the family's four authored shades.</param>
-public readonly record struct SamusFullBodyCycleShade(SamusFullBodyCycleFamily Family, SamusSuit Suit, int Shade);
+public readonly partial record struct SamusFullBodyCycleShade(SamusFullBodyCycleFamily Family, SamusSuit Suit, int Shade);

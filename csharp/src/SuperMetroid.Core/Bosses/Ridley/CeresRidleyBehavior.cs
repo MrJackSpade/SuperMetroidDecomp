@@ -7,17 +7,16 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// Ceres Ridley's encounter (#2229): his reveal's Ceres timings, his flight and attacks, the Baby he carries, the shots
-/// that count toward his hundred hits, and his handoff to the station's escape. His body runs the parts both Ridleys share
+/// that count toward the hits that drive him off, and his handoff to the station's escape. His body runs the parts both Ridleys share
 /// (<see cref="RidleyBody"/>); none runs through Lower Norfair Ridley's encounter.
 /// </summary>
-[RoomLifetime]
-internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleyState>
+internal sealed partial class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleyState>
 {
     /// <summary>The room's view of Ridley and the station's escape progress, which gates his movement and the Baby.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
 
     /// <summary>The station's escape, which his getaway begins and whose step his AI runs once he has got away.</summary>
-    private readonly CeresEscape _escape;
+    internal CeresEscape Escape { get; }
 
     /// <summary>The parts of his body both Ridleys run.</summary>
     internal RidleyBody Body { get; }
@@ -35,15 +34,18 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
     internal CeresRidleyBehavior(CeresRidleyBehaviorDependencies dependencies)
     {
         _ridleyEncounter = dependencies.RidleyEncounter;
-        _escape = dependencies.Escape;
+        Escape = dependencies.Escape;
         Body = dependencies.RidleyBody;
-        Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Lifecycle = dependencies.Lifecycle, Room = dependencies.Room, Audio = dependencies.Audio, Places = dependencies.Places, RidleyEncounter = _ridleyEncounter, Presentation = dependencies.Presentation });
+        Flight = new CeresRidleyFlight(new CeresRidleyFlightDependencies { Lifecycle = dependencies.Lifecycle, Room = dependencies.Room, Audio = dependencies.Audio, Places = dependencies.Places, RidleyEncounter = _ridleyEncounter, Presentation = dependencies.Presentation, GetawayWalls = dependencies.GetawayWalls });
         BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Audio, dependencies.Presentation, _ridleyEncounter);
         Hits = new CeresRidleyHits(_ridleyEncounter);
     }
 
     /// <summary>Ceres Ridley's wait once Samus's door has finished, its first update the one the door finishes on.</summary>
     public int InitialDelayUpdates => CeresRidleyFightDefinitions.RevealDelayUpdates;
+
+    /// <summary>Ceres Ridley stands in front of Samus once his body has faded in; he stood behind her while he was unseen.</summary>
+    public EnemyStacking RevealedStacking => EnemyStacking.InFrontOfSamus;
 
     /// <summary>Begins Ceres Ridley's hold after his roar, on whose last update he takes off.</summary>
     /// <param name="ridley">His encounter.</param>
@@ -102,149 +104,8 @@ internal sealed class CeresRidleyBehavior : IRidleyRevealEncounter<CeresRidleySt
     /// </summary>
     private bool RunCeresRidleyPhase(RoomEnemyPlace place, CeresRidleyState state, SamusState samus)
     {
-        switch (state.Phase)
-        {
-            case CeresRidleyPhase.LiftoffAccelerating:
-                // The rising step speeds his rise by a sixteenth of a pixel an update before the common movement pass. Ridley rises from rest
-                // until he passes line 112 of his chamber, so the speed stays a few pixels an update.
-                state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y - CeresRidleyFlightDefinitions.LiftoffClimbStep);
-                if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.LiftoffSlowingLineY)
-                {
-                    state.Phase = CeresRidleyPhase.LiftoffDecelerating;
-                    CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(place, state);
-                }
-                return true;
-
-            case CeresRidleyPhase.LiftoffDecelerating:
-                CeresRidleyFlight.TickCeresRidleyLiftoffDecelerating(place, state);
-                return true;
-
-            case CeresRidleyPhase.Hovering:
-                Flight.TickCeresRidleyHover(place, state, samus);
-                return true;
-
-            case CeresRidleyPhase.FireballMoveToPosition:
-                Flight.TickCeresRidleyFireballMove(place, state);
-                return true;
-
-            case CeresRidleyPhase.FireballShooting:
-                Flight.TickCeresRidleyFireballShooting(place, state);
-                return true;
-
-            case CeresRidleyPhase.LungeSetup:
-                RidleyFlight.StartAnimation(state.Flight, place, RidleyAnimations.CeresLunge);
-                state.Phase = CeresRidleyPhase.LungeMain;
-                state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.LungeUpdates);
-                CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus);
-                return true;
-
-            case CeresRidleyPhase.LungeMain:
-                CeresRidleyFlight.TickCeresRidleyLunge(place, state, samus);
-                return true;
-
-            case CeresRidleyPhase.SwoopSetup:
-                state.Phase = CeresRidleyPhase.SwoopMoveToPosition;
-                state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.SwoopDiveUpdates);
-                state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
-                state.Tail.IdleWhipEnabled = false;
-                CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state);
-                return true;
-
-            case CeresRidleyPhase.SwoopMoveToPosition:
-                CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(place, state);
-                return true;
-
-            case CeresRidleyPhase.SwoopDescendingAimingDown:
-                CeresRidleyFlight.TickCeresRidleySwoopPhase(
-                    state,
-                    turn: CeresRidleyFlightDefinitions.SwoopDiveTurn,
-                    targetAngle: CeresRidleyFlightDefinitions.SwoopDiveAim,
-                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed,
-                    nextPhase: CeresRidleyPhase.SwoopDescendingAimingLeft,
-                    nextUpdates: CeresRidleyFlightDefinitions.SwoopSweepUpdates);
-                return true;
-
-            case CeresRidleyPhase.SwoopDescendingAimingLeft:
-                CeresRidleyFlight.TickCeresRidleySwoopPhase(
-                    state,
-                    turn: CeresRidleyFlightDefinitions.SwoopSweepTurn,
-                    targetAngle: CeresRidleyFlightDefinitions.SwoopSweepAim,
-                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed,
-                    nextPhase: CeresRidleyPhase.SwoopAscendingAimingUp,
-                    nextUpdates: CeresRidleyFlightDefinitions.SwoopClimbUpdates);
-                if (state.Phase == CeresRidleyPhase.SwoopAscendingAimingUp)
-                {
-                    // At the bottom of the swoop his tail flings once, aimed: the neutral tail takes the order later
-                    // this update.
-                    state.Tail.Whip.Give();
-                }
-                return true;
-
-            case CeresRidleyPhase.SwoopAscendingAimingUp:
-                CeresRidleyFlight.TickCeresRidleySwoopPhase(
-                    state,
-                    turn: CeresRidleyFlightDefinitions.SwoopClimbTurn,
-                    targetAngle: RotationAngle.Zero - RidleyFlightDefinitions.SwoopClimbTarget,
-                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed,
-                    nextPhase: CeresRidleyPhase.SwoopAscendingAimingUpFaster,
-                    nextUpdates: CeresRidleyFlightDefinitions.SwoopFinalClimbUpdates);
-                return true;
-
-            case CeresRidleyPhase.SwoopAscendingAimingUpFaster:
-                RidleyFlight.UpdateSwoopVelocity(state.Flight, turn: CeresRidleyFlightDefinitions.SwoopFinalClimbTurn, targetAngle: RotationAngle.Zero - RidleyFlightDefinitions.SwoopClimbTarget,
-                    targetSpeed: CeresRidleyFlightDefinitions.SwoopSpeed);
-                if (state.PhaseTimer.StepRunsOut())
-                {
-                    CeresRidleyFlight.BeginHover(state);
-                    state.Tail.IdleWhipEnabled = true;
-                }
-                return true;
-
-            case CeresRidleyPhase.FakeRetreatMoveToPosition:
-                CeresRidleyFlight.TickCeresRidleyFakeRetreatMoveToPosition(place, state);
-                return true;
-
-            case CeresRidleyPhase.FakeRetreatRising:
-                CeresRidleyFlight.TickCeresRidleyFakeRetreatRising(place, state);
-                return true;
-
-            case CeresRidleyPhase.WaitBeforeRetrievingBaby:
-                if (state.PhaseTimer.StepRunsOut())
-                {
-                    RidleyFlight.StartAnimation(state.Flight, place, RidleyAnimations.RetrieveBabyMetroid);
-                    state.Phase = CeresRidleyPhase.RetrieveBaby;
-                    CeresRidleyFlight.TickCeresRidleyRetrieveBaby(place, state);
-                }
-                return true;
-
-            case CeresRidleyPhase.RetrieveBaby:
-                CeresRidleyFlight.TickCeresRidleyRetrieveBaby(place, state);
-                return true;
-
-            case CeresRidleyPhase.RealRetreatRising:
-                Flight.TickCeresRidleyRetreat(place, state);
-                return true;
-
-            case CeresRidleyPhase.RetreatDelay:
-                Flight.TickCeresRidleyRetreatDelay(state);
-                return true;
-
-            case CeresRidleyPhase.PublishEscapeHandoff:
-                // The getaway handoff leaves Ridley with nothing to do and publishes his escape. The turning floor's
-                // view shows his departure, so his body is hidden.
-                state.Phase = CeresRidleyPhase.Escaped;
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                _escape.BeginGetaway();
-                return true;
-
-            case CeresRidleyPhase.Escaped:
-                // The escape runs its own step here, in his place in the update: nothing while the room main flies the
-                // getaway, then the self-destruct warning and its alarm.
-                _escape.RunRidleysStep(place.FrameCounter);
-                return false;
-
-            default:
-                throw new InvalidDataException($"Undefined {nameof(CeresRidleyPhase)} {state.Phase}.");
-        }
+        CeresRidleyPhase phase = state.Phase;
+        phase.Run(this, place, state, samus);
+        return !phase.HandsTheRoomToTheEscape;
     }
 }

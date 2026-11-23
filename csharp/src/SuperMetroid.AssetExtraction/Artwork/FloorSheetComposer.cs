@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// it. Each is placed by its frame's origin at the floor point its top-left cell lies on. Gameplay and the screens never see
 /// the cells: they select the pictures.
 /// </summary>
-internal static class FloorSheetComposer
+internal static partial class FloorSheetComposer
 {
     /// <summary>Cells along each side of the floor.</summary>
     internal const int Side = 128;
@@ -46,7 +46,7 @@ internal static class FloorSheetComposer
     /// <param name="Column">The floor column its left cells lie in.</param>
     /// <param name="Row">The floor row its top cells lie in.</param>
     /// <param name="TilePixels">The pixels of the tiles its cells show.</param>
-    internal sealed record FloorPicture(string Name, byte[] Cells, int Columns, int Column, int Row, byte[] TilePixels)
+    internal sealed partial record FloorPicture(string Name, byte[] Cells, int Columns, int Column, int Row, byte[] TilePixels)
     {
         /// <summary>Its height in cells.</summary>
         internal int Rows => Cells.Length / Columns;
@@ -117,7 +117,7 @@ internal static class FloorSheetComposer
     /// <param name="Canvas">The canvas every picture is painted on.</param>
     /// <param name="Colours">The colours the pixels name.</param>
     /// <param name="Frames">Each picture's frame by its name.</param>
-    private sealed record PaintedFloors(RoomTileCanvas Canvas, RgbColor[] Colours, Dictionary<string, SpriteSheetFrameDocument> Frames);
+    private sealed partial record PaintedFloors(RoomTileCanvas Canvas, RgbColor[] Colours, Dictionary<string, SpriteSheetFrameDocument> Frames);
 
     /// <summary>Paints <paramref name="pictures"/> laid out in rows in <paramref name="palette"/>'s colours.</summary>
     /// <exception cref="InvalidDataException">A picture is not whole rows of cells, leaves the floor, or two share a name.</exception>
@@ -192,7 +192,7 @@ internal static class FloorSheetComposer
                 Corner = corner,
                 Size = new Extent16<ImagePixels>(checked((ushort)(picture.Columns * TilePixels)), checked((ushort)(picture.Rows * TilePixels))),
                 Origin = Offset16<ImagePixels>.Of(-picture.Column * TilePixels, -picture.Row * TilePixels),
-                ColourGroups = coloured.ManifestMembers,
+                ColourGroups = coloured,
             };
             if (!frames.TryAdd(picture.Name, frame))
                 throw new InvalidDataException($"Two floor pictures are named {picture.Name}.");

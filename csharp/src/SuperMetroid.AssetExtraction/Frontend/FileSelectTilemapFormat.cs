@@ -4,8 +4,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>Control words in the bank-$81 file-select tilemap stream format.</summary>
-[EncodingOwner("bank-$81 file-select tilemap stream control words")]
-internal static class FileSelectTilemapFormat
+internal static partial class FileSelectTilemapFormat
 {
     /// <summary>Bank containing the file-select text streams.</summary>
     public const int Bank = MapSourceDefinitions.Menu.TilemapTextBank;
@@ -16,7 +15,7 @@ internal static class FileSelectTilemapFormat
 
     /// <summary>The stream labelling save slot <paramref name="slot"/>; the main and copy/clear screens draw the same three.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="slot"/> is not a save slot.</exception>
-    public static ushort SlotLabel(int slot) => (uint)slot < SuperMetroid.AssetExtraction.Frontend.FileSelect.FileSelectCursorPositions.SaveSlotCount
+    public static ushort SlotLabel(int slot) => (uint)slot < SuperMetroid.Core.Saves.SaveSlots.All.Count
         ? FileSelectTilemapSourceDefinitions.SlotLabels[slot]
         : throw new ArgumentOutOfRangeException(nameof(slot));
 }

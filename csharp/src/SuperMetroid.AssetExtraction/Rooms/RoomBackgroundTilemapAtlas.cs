@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Editable room background tile placements, preserving each 32x32 page's cell order.</summary>
-public sealed class RoomBackgroundTilemapAtlas
+public sealed partial class RoomBackgroundTilemapAtlas
 {
     /// <summary>The placed tiles in page order, row-major inside each 32-by-32 page.</summary>
     private readonly BackgroundTile[] tiles;
@@ -45,16 +45,7 @@ public sealed class RoomBackgroundTilemapAtlas
                     $"{RoomBackgroundTilemapFormat.CellsPerPage} ordered cells.");
             for (int cell = 0; cell < cells.Length; cell++)
             {
-                RoomBackgroundTilemapCell? definition = cells[cell];
-                if (definition is null ||
-                    (uint)definition.TileColumn >= RoomBackgroundTilemapFormat.TileColumns ||
-                    (uint)definition.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
-                    (uint)definition.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
-                    throw new InvalidDataException(
-                        $"Room background page {page} cell {cell} has an invalid tile or palette.");
-                tiles[page * RoomBackgroundTilemapFormat.CellsPerPage + cell] = new BackgroundTile(
-                    definition.TileRow * RoomBackgroundTilemapFormat.TileColumns + definition.TileColumn,
-                    definition.Palette, definition.FlipX, definition.FlipY, definition.Priority);
+                tiles[page * RoomBackgroundTilemapFormat.CellsPerPage + cell] = cells[cell].Placement($"Room background page {page} cell {cell}");
             }
         }
         return new RoomBackgroundTilemapAtlas(tiles);
@@ -67,7 +58,7 @@ public sealed class RoomBackgroundTilemapAtlas
     public static void Write(Stream json, RoomBackgroundTilemapDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapDocument>(JsonOptions)));
     }
 
     /// <summary>Accepts casing variations but rejects unknown or duplicate tilemap properties.</summary>

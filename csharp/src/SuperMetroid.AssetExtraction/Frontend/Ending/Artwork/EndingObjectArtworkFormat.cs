@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>File identities and exact ending/credits artwork dimensions.</summary>
-public static class EndingObjectArtworkFormat
+public static partial class EndingObjectArtworkFormat
 {
     /// <summary>Required ending-artwork manifest schema revision, including all selected character, map, and sprite-composition resources; 14 is import data (#1693).</summary>
     public const int ManifestVersion = 14;
@@ -22,9 +22,9 @@ public static class EndingObjectArtworkFormat
     /// <summary>JSON filename for the waiting scene's ordered BG2 tile, palette, priority, and flip references.</summary>
     public const string WaitingTilemapFileName = "credits-waiting-tilemap.json";
     /// <summary>PNG filename preserving the small BG3 transformation-character transfer.</summary>
-    public const string PostCreditsFragmentAFileName = "post-credits-tile-fragment-a.png";
+    public const string TransformationCharactersFileName = "post-credits-transformation-characters.png";
     /// <summary>JSON filename for the BG3 transformation tilemap's ordered tile, palette, priority, and flip references.</summary>
-    public const string PostCreditsFragmentBFileName = "post-credits-tile-fragment-b.json";
+    public const string TransformationMapFileName = "post-credits-transformation-map.json";
     /// <summary>Indexed PNG filename for the final-logo characters.</summary>
     public const string PostShotLogoTileFileName = "post-credits-logo-tiles.png";
     /// <summary>JSON filename for the final-logo tilemap.</summary>
@@ -40,9 +40,9 @@ public static class EndingObjectArtworkFormat
     /// <summary>Exact waiting-map length, 2048 bytes containing 1024 sixteen-bit cells in one ordered 32-by-32 page.</summary>
     public const int WaitingTilemapByteCount = MapCellCount * sizeof(ushort);
     /// <summary>Exact BG3 transformation-character length, 256 bytes, retained without format conversion when loaded.</summary>
-    public const int PostCreditsFragmentAByteCount = 256;
+    public const int TransformationCharactersByteCount = 256;
     /// <summary>Exact BG3 transformation tilemap length, 2048 bytes containing 1024 tilemap words.</summary>
-    public const int PostCreditsFragmentBByteCount = MapCellCount * sizeof(ushort);
+    public const int TransformationMapByteCount = MapCellCount * sizeof(ushort);
     /// <summary>Exact final-logo character length, 8192 bytes or 256 4-bpp characters, divided among four 2048-byte loads.</summary>
     public const int PostShotLogoTileByteCount = 256 * 32;
     /// <summary>Exact final-logo map length, 2048 bytes containing one 32-by-32 page of sixteen-bit tilemap cells.</summary>
@@ -59,8 +59,8 @@ public static class EndingObjectArtworkFormat
         EndingObjectTransfer.WaitingSamus or EndingObjectTransfer.ShootingScreen or
             EndingObjectTransfer.SuitlessSamus => RewardByteCount,
         EndingObjectTransfer.WaitingTilemap => WaitingTilemapByteCount,
-        EndingObjectTransfer.PostCreditsFragmentA => PostCreditsFragmentAByteCount,
-        EndingObjectTransfer.PostCreditsFragmentB => PostCreditsFragmentBByteCount,
+        EndingObjectTransfer.TransformationCharacters => TransformationCharactersByteCount,
+        EndingObjectTransfer.TransformationMap => TransformationMapByteCount,
         EndingObjectTransfer.PostShotLogoTiles => PostShotLogoTileByteCount,
         EndingObjectTransfer.PostShotLogoMap => PostShotLogoMapByteCount,
         EndingObjectTransfer.ExplosionFragment => FragmentByteCount,
@@ -73,22 +73,11 @@ public static class EndingObjectArtworkFormat
     /// hold their pictures in.
     /// </summary>
     internal static IReadOnlyList<EndingExplosionPicture> ExplosionPictures { get; } =
-        [EndingExplosionPicture.WideExplosion, EndingExplosionPicture.ConcentricExplosion, EndingExplosionPicture.Eclipse, EndingExplosionPicture.Blank];
-    /// <summary>The installed fragment each explosion picture fills (#2567): its map page, counted from page $70 in fours.</summary>
-    internal static IReadOnlyDictionary<EndingExplosionPicture, int> FragmentNumbers { get; } = new Dictionary<EndingExplosionPicture, int>
-    {
-        [EndingExplosionPicture.WideExplosion] = 0,
-        [EndingExplosionPicture.ConcentricExplosion] = 1,
-        [EndingExplosionPicture.Eclipse] = 2,
-        [EndingExplosionPicture.Blank] = 3,
-    };
-    /// <summary>Published fragment keys use the page sequence70,74,78,7c.</summary>
-    /// <param name="index">Zero-based fragment index, zero through three; <see cref="FragmentNumbers"/> names each picture's.</param>
-    /// <returns>The lowercase page-keyed JSON filename of the fragment's tile references.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside zero through three.</exception>
-    public static string FragmentFileName(int index)
-    {
-        if ((uint)index >= FragmentCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return "ending-explosion-fragment-" + (112 + 4 * index).ToString("x2", System.Globalization.CultureInfo.InvariantCulture) + ".json";
-    }
+        [EndingExplosionPicture.WideExplosion, EndingExplosionPicture.ConcentricExplosion, EndingExplosionPicture.Eclipse, EndingExplosionPicture.BurstGlow];
+    /// <summary>The JSON filename of the tile references of the map <paramref name="picture"/> shows, spelled from its installed key (#2556).</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="picture"/> is no explosion picture.</exception>
+    internal static string FragmentFileName(EndingExplosionPicture picture) =>
+        EndingExplosionPictureKeys.Installed.ByIdentity.TryGetValue(picture, out string? key)
+            ? "ending-explosion-" + key + ".json"
+            : throw new ArgumentOutOfRangeException(nameof(picture));
 }

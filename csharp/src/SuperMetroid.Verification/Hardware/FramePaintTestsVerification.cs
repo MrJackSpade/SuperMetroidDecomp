@@ -22,7 +22,7 @@ internal static class FramePaintTestsVerification
         // colours as the loader's pictures are (#1512, #1544): its colours are all black and visible but the clear first.
         byte[] indices = [.. Enumerable.Range(0, ImageColourGroup.HalfColours).Select(index => (byte)index)];
         RgbaPixel[] fixturePixels = [.. indices.Select(index => index == 0 ? default(RgbaPixel) : new RgbaPixel(0, 0, 0))];
-        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), fixturePixels, indices,
+        SpriteImage image = ComposedPictures.Install("Fixture", new(16, 8), fixturePixels, ComposedPictures.InksAt(indices.Select(place => (int)place), SpriteImageColours.Sprite),
             SpriteImageColours.Sprite, new RgbColor[ImageColourGroup.HalfColours]);
         sprites.BeginFrame();
         sprites.Add(new ImageSpriteDraw(new(SpriteSourceKind.EscapeTimer), new SpriteSheetFrame(image, default, new(16, 8), default),
@@ -61,7 +61,7 @@ internal static class FramePaintTestsVerification
         // image (#1512): the fixture's sprite picture takes the sprite half but its clear first colour, its colour keys in the
         // order its visible pixels show them, which is the order of their palette indices (#1633).
         static RgbColor[] Shown(FramePaint paint) =>
-            [paint.Backdrop, .. paint.SpriteDraws.SelectMany(draw => draw.Image.Sheet.ColourKeys.Select(key => key.Colour))];
+            [paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), .. paint.SpriteDraws.SelectMany(draw => draw.Image.Sheet.ColourKeys.Select(key => key.Colour))];
         static RgbColor[] NativeShown(RgbColor[] native) => [native[0], .. native.AsSpan(SnesCgram.ColorCount / 2 + 1)];
 
         // A native-coloured frame draws a copy of each picture (#1512), so a draw is known by its source and where, in order.

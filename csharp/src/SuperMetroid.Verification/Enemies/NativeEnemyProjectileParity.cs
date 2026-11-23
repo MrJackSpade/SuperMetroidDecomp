@@ -28,7 +28,7 @@ internal static class NativeEnemyProjectileParity
         int update = 0;
         for (; update < updates; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             native.Step(cartridge);
             string at = $"{label} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
@@ -39,9 +39,9 @@ internal static class NativeEnemyProjectileParity
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.EnemyProjectileProgramFrameOperands.OwnOperand(native.Operand),
                 projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.FrameBehaviorCleared)
-                AssertEqual<Enum?>(null, projectile.Motion, $"{at}: cleared pre-instruction");
+                AssertTrue(projectile.HoldsStill, $"{at}: cleared pre-instruction");
             else if (native.FrameBehavior is { } installed)
-                AssertEqual(EnemyProjectileMotionAccess.FromWord(installed), projectile.Motion, $"{at}: installed pre-instruction");
+                AssertEqual(projectile.MotionOfWord(installed), projectile.Motion, $"{at}: installed pre-instruction");
         }
         return new CompareResult(false, update);
     }

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// The reactions of Crocomire's own that its frames' hitboxes name (#1759). Only Crocomire's own behaviour tells them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
-internal static class CrocomireReactions
+internal static partial class CrocomireReactions
 {
     /// <summary>The claws' touch reaction, which pushes Samus back.</summary>
     internal static EnemyReaction ClawTouch { get; } = EnemyReaction.OfSpecies("Crocomire.ClawTouch");
@@ -18,11 +18,13 @@ internal static class CrocomireReactions
     internal static EnemyReaction AbsorbedShot { get; } = EnemyReaction.OfSpecies("Crocomire.AbsorbedShot");
 
     /// <summary>
-    /// The shot reaction of his body and his corpse, which raises dust where the shot strikes (#1939: the two dust
-    /// reactions his frames named are one).
+    /// The shot reaction of his body and his corpse, which raises dust where the shot strikes.
     /// </summary>
     internal static EnemyReaction DustShot { get; } = EnemyReaction.OfSpecies("Crocomire.DustShot");
 
     /// <summary>The open mouth's shot reaction.</summary>
     internal static EnemyReaction MouthShot { get; } = EnemyReaction.OfSpecies("Crocomire.MouthShot");
+
+    /// <summary>His hitboxes' own shot reactions: the absorbing, the dust-raising and the mouth's.</summary>
+    internal static IReadOnlyList<EnemyReaction> OwnShots { get; } = [AbsorbedShot, DustShot, MouthShot];
 }

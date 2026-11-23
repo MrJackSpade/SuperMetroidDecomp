@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// The Shaktool's saw-hand, arm and head animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ShaktoolCue"/> naming what it does.
 /// </summary>
-internal static class ShaktoolAnimations
+internal static partial class ShaktoolAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ShaktoolSegment, EnemyFrameId, ShaktoolCue> Segments { get; } = new(
@@ -76,7 +76,7 @@ internal static class ShaktoolAnimations
     /// The animation that starts at each segment an owner can start or restart at; the final piece's spin only runs on from
     /// its head bob (#2166).
     /// </summary>
-    internal static IReadOnlyDictionary<ShaktoolSegment, Animation<ShaktoolSegment>> StartingAt { get; } = new Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>>
+    internal static Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>> StartingAt { get; } = new Dictionary<ShaktoolSegment, Animation<ShaktoolSegment>>
     {
         [P.SawHandHeadBobPrimaryPiece] = Animation<ShaktoolSegment>.LeadingInto([Segments.Whole(P.SawHandHeadBobPrimaryPiece)], [Segments.Whole(P.SawHandPrimaryPiece)]),
         [P.SawHandHeadBobFinalPiece] = Animation<ShaktoolSegment>.LeadingInto([Segments.Whole(P.SawHandHeadBobFinalPiece)], [Segments.Whole(P.SawHandFinalPiece)]),

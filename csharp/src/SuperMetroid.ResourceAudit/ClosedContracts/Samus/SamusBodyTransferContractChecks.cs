@@ -1,92 +1,21 @@
-using SuperMetroid.Core.Assets;
-using SuperMetroid.AssetExtraction.Samus;
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Samus.Colours;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.AssetExtraction.Samus.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 
 /// <summary>Confirms the identified missing-record admission gap using authored data, not poses in gameplay.</summary>
 internal static class SamusBodyTransferContractChecks
 {
-    /// <summary>Checks physical-definition admission, the import's cross-group picture resolution, and static consumer classification.</summary>
-    internal static void Run()
-    {
-        bool rejected = false;
-        try { _ = Body(shortFirstGroup: true); }
-        catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "construction must reject a nonempty group missing one required physical definition");
-        // Pose zero's frames select top group 0 position 0, top group 0 position 2, top group 1 position 0, and the
-        // last top group's position 1 with bottom group 0 position 0: the import resolves each to the picture of the
-        // physical definition record it lands on, across group and half boundaries.
-        SamusBodyFrameSelection[] crossing = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        crossing[1] = new(0, 2, SamusBodyFrameSelection.NoBottomSet, 0);
-        crossing[2] = new(1, 0, SamusBodyFrameSelection.NoBottomSet, 0);
-        crossing[3] = new(SamusBodySources.TopSetCount - 1, 1, 0, 0);
-        SamusBodyCharacterArtwork characters = Body(shortFirstGroup: false, crossing);
-        SamusBodySources pictures = characters.Body;
-        Require(ReferenceEquals(characters.DefinitionAt(SamusBodySources.Record(pictures.Pictures(0, 0).Top)), characters.TopSet(0)[0]),
-            "a published frame resolves an admitted physical definition");
-        Require(pictures.Pictures(0, 1).Top == pictures.Pictures(0, 2).Top && pictures.Pictures(0, 3).Top == pictures.Pictures(0, 3).Bottom,
-            "native position arithmetic can cross set and half boundaries");
-        SamusBodyFrameSelection[] invalidAdjacent = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        invalidAdjacent[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
-        InstalledSamusBodyArtwork body = Body(shortFirstGroup: false, invalidAdjacent).Body.Gameplay;
-        _ = body.OriginRise(0, SamusAnimationDelays.AnimationForPose(0).Start);
-        rejected = false;
-        try { _ = body.OriginRise(0, SamusAnimationDelays.AnimationForPose(0).AfterStart); }
-        catch (InvalidDataException) { rejected = true; }
-        Require(rejected, "unselected backing bytes are accepted but invalid frame selection still fails loudly");
-        ConfirmStaticCalls();
-    }
-
-    /// <summary><paramref name="value"/> for each pose with a record in the pose tables.</summary>
-    private static Dictionary<SamusPoseId, int> EveryRecordedPose(int value) =>
-        SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => value);
-
-    /// <summary>Builds a minimal body catalog and its characters, with a missing physical record when requested and the supplied frame selectors.</summary>
-    private static SamusBodyCharacterArtwork Body(bool shortFirstGroup, SamusBodyFrameSelection[]? selectors = null)
-    {
-        // Twenty-four groups, with two records in the first and one in each other
-        // group. The final group ends at the last record, just like import.
-        int count = SamusBodySources.TopSetCount + SamusBodySources.BottomSetCount;
-        int start = SamusBodySources.RecordCount - (count + 1);
-        int[] starts = [.. Enumerable.Range(0, count).Select(index => start + (index == 0 ? 0 : index + 1))];
-        SamusBodyTileTransfer[][] groups = Enumerable.Range(0, count).Select(index =>
-            Enumerable.Range(0, index == 0 && !shortFirstGroup ? 2 : 1).Select(_ =>
-                new SamusBodyTileTransfer(32, 0, new byte[32])).ToArray()).ToArray();
-        var spritemaps = new SamusSpritemapSources(EveryRecordedPose(0), EveryRecordedPose(0),
-            new SamusSpritemapId?[SamusSpritemapSources.EntryCount], []);
-        var atmosphere = new SamusAtmosphericSourceArtwork(
-            new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount],
-            new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount]);
-        RgbColor[][] Rows() => Enumerable.Range(0, SamusShadeDefinitions.Death.ExplosionShadeCount)
-            .Select(_ => new RgbColor[InstalledSamusDeathPalettes.ColorCount]).ToArray();
-        var deathColors = new InstalledSamusDeathPalettes(
-            Enumerable.Range(0, InstalledSamusDeathPalettes.SuitCount).Select(_ => Rows()).ToArray(), Rows(),
-            new RgbColor[SamusShadeDefinitions.Death.WhiteoutShadeCount], new ushort[SuperMetroid.Core.Samus.Artwork.SamusDeathSheetDefinitions.Explosion.Count]);
-        var cannonDocument = new SamusArmCannonArtworkDocument {
-            Version = SamusArmCannonArtworkFormat.Version,
-            PoseDescriptors = EveryRecordedPose(0),
-            DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
-            CoverAppearances = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-                .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
-            CoverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count).Select(_ =>
-                new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray() };
-        using var cannonJson = new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument));
-        SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(cannonJson);
-        SamusBodyFrameSelection[] frames = selectors ?? new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodySources.TopSetCount], BottomSetStarts = starts[SamusBodySources.TopSetCount..], PoseFirstFrames = EveryRecordedPose(0), Placements = SamusBodyPlacementDecoding.Decode(new int[SamusBodySources.PoseCount], new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount], new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]), Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathColors.Steps, ArmCannon = cannon },
-            groups[..SamusBodySources.TopSetCount], groups[SamusBodySources.TopSetCount..]);
-    }
+    /// <summary>
+    /// Checks the static consumer classification of the installed body's frame placements. The import decodes which
+    /// definition each frame selects once (#2556); the retail decoding is compared with the cartridge by the body artwork
+    /// verification, so no fixture body is built here.
+    /// </summary>
+    internal static void Run() => ConfirmStaticCalls();
 
     /// <summary>Compiles representative transfer calls and checks audit behavior under valid and stale source contracts.</summary>
     private static void ConfirmStaticCalls()
@@ -107,7 +36,7 @@ internal static class SamusBodyTransferContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("SamusTransferFixture", sources,
-            platforms.Append(typeof(InstalledSamusBodyArtwork).Assembly.Location).Distinct().Select(path => MetadataReference.CreateFromFile(path)),
+            platforms.Append(FixtureAssemblies.Core).Distinct().Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
         {

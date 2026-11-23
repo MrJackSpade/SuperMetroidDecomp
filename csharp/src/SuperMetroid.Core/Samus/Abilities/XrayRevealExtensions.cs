@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
-/// <summary>The X-ray scope's extension traversal; deliberately not the collision extension resolver.</summary>
-public static class XrayRevealExtensions
+/// <summary>How the X-ray scope follows a block's extensions, apart from how collision follows them.</summary>
+public static partial class XrayRevealExtensions
 {
     /// <summary>
     /// Returns the replacement block, or null to retain copied foreground art. Unlike collision,
@@ -18,14 +19,16 @@ public static class XrayRevealExtensions
     /// <param name="level">The room whose extension chain is followed.</param>
     /// <param name="start">The extension block the chain starts at, in the room's columns.</param>
     /// <param name="visuals">The installed reveal blocks, which a terminal special-air block shows.</param>
-    public static int? Resolve(RoomLevelData level, Position16<RoomBlocks> start, InstalledXrayReveals visuals)
+    public static RoomCellPicture? Resolve(RoomLevelData level, Position16<RoomBlocks> start, InstalledXrayReveals visuals)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(visuals);
         RoomCollisionBlock block = level.GetObjectCollisionBlock(start);
-        if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension))
-            throw new ArgumentException("X-ray extension traversal requires an extension block.", nameof(start));
-        if (block.Behavior.EndsExtension) return null;
+        // A start that links on to no block, an extension ending its chain or a block that extends nothing, has no chain
+        // to follow.
+        if (block.CollisionType is not (RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension) ||
+            block.Behavior.EndsExtension)
+            return null;
         Position16<RoomBlocks> reached = start;
         bool vertical = block.CollisionType == RoomCollisionType.VerticalExtension;
         int step = block.Behavior.ExtensionOffset;

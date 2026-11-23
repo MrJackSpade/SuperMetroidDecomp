@@ -47,7 +47,7 @@ internal static class KraidNailSiblingVerification
     }
 
     /// <summary>Reads one native launch-table byte for the field comparison.</summary>
-    private static byte KraidNailLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidNailLaunchFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>
     /// Checks both nail slots, sibling flags, RNG preservation, the actual launch or waiting phase, and that a launch
@@ -61,19 +61,20 @@ internal static class KraidNailSiblingVerification
         Suite(nameof(VerifyKraidNailLaunchYWhole), () => VerifyKraidNailLaunchYWhole(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidNailSiblingRomByte(rom, a), KraidNailSiblingRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.Kraid, enemies.Places.InUpdateOrder[0].Definition);
+        // Kraid's room has not seen him beaten, so his rise begins.
+        enemies.VerificationServices().IsAreaBossDefeated = () => false;
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
+        // His setup reads whether his room's boss is defeated, which this room's is not, and writes the screen
+        // scrolls his fight frames, which this room takes.
+        enemies.VerificationServices().IsAreaBossDefeated ??= () => false;
+        enemies.VerificationServices().SetRoomScrollState ??= (_, _) => { };
+        KraidEnemyState state = enemies.PlaceKraid();
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = () => random;
         enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Nail initialization must not advance RNG.");
         Action<RoomEnemyPlace, KraidNailState> initialize = enemies.KraidBehavior.Projectiles.InitializeKraidNailFlight;
-        // Both fingernails live in their places, so each launch reads its sibling's speed.
-        foreach ((int place, EnemyDefinitionId nailDefinition) in new[] { (6, EnemyDefinitionId.KraidFirstNail), (7, EnemyDefinitionId.KraidSecondNail) })
-        {
-            RoomEnemyPlace living = enemies.Places.InUpdateOrder[place];
-            living.Bind(nailDefinition, living.Definition);
-            KraidEncounterAccess.AttachKraidPart(place == 6 ? state.FirstNailState : state.SecondNailState);
-        }
+        // Both fingernails live in their places, which his room's population load set up, so each launch reads its sibling's
+        // speed.
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         foreach (bool siblingAlternate in new[] { false, true })
@@ -84,8 +85,8 @@ internal static class KraidNailSiblingVerification
             random = (ushort)raw;
             ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity = ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.WithY(((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.WithWholePixels(unchecked((short)raw)));
             ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity = ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.WithY(((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.WithWholePixels(unchecked((short)~raw)));
-            ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).AlternateSpawn = siblingAlternate;
-            part.AlternateSpawn = !siblingAlternate;
+            ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).LaunchSide = siblingAlternate ? KraidNailLaunchSide.FixedLeft : KraidNailLaunchSide.BodySide;
+            part.LaunchSide = siblingAlternate ? KraidNailLaunchSide.BodySide : KraidNailLaunchSide.FixedLeft;
             bool diagonal = (random & 1) == 0 || siblingAlternate;
             int table = ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.WholePixels < 0 ? 0xa7be3e : 0xa7be46;
             int pointer = 0xa70000 | Word(table + (random & 6));
@@ -95,8 +96,8 @@ internal static class KraidNailSiblingVerification
             AssertEqual((ushort)0, ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.Fraction, "Launch clears old Y fraction");
             AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.UnsignedWholePixels, "Nail launch Y velocity comes from sibling sign");
             AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).NailVelocity.X.UnsignedWholePixels, "Nail launch X velocity and horizontal override");
-            AssertEqual(!diagonal, part.AlternateSpawn, "Nail spawn mode consults sibling flag, writes own flag");
-            AssertEqual(siblingAlternate, ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).AlternateSpawn, "Sibling flag remains unchanged");
+            AssertEqual(!diagonal, part.LaunchSide == KraidNailLaunchSide.FixedLeft, "Nail spawn mode consults sibling flag, writes own flag");
+            AssertEqual(siblingAlternate, ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).LaunchSide == KraidNailLaunchSide.FixedLeft, "Sibling flag remains unchanged");
             AssertEqual((ushort)raw, ((KraidNailState)sibling.RequireSpeciesState<KraidPartState>()).NailVelocity.Y.UnsignedWholePixels, "Sibling velocity remains unchanged");
             AssertEqual((diagonal ? KraidNailPhase.Fire : KraidNailPhase.WaitForLint), ((KraidNailState)nail.RequireSpeciesState<KraidPartState>()).Phase, "Sibling choice selects actual launch phase");
         }
@@ -106,7 +107,7 @@ internal static class KraidNailSiblingVerification
         RoomEnemyPlace secondNail = enemies.Places.InUpdateOrder[7];
         KraidNailState killedSibling = ((KraidNailState)secondNail.RequireSpeciesState<KraidPartState>());
         killedSibling.NailVelocity = FixedVector<RoomPixels>.FromStoredParts(0, 0, 0x8000, 0);
-        killedSibling.AlternateSpawn = false;
+        killedSibling.LaunchSide = KraidNailLaunchSide.BodySide;
         random = 0;
         secondNail.Clear();
         initialize(firstNail, ((KraidNailState)firstNail.RequireSpeciesState<KraidPartState>()));
@@ -117,7 +118,7 @@ internal static class KraidNailSiblingVerification
 
         // A killed sibling took no alternate spawn, whatever its mark last held, so a draw that allows it sends the launch
         // to wait for the lint (#1620).
-        killedSibling.AlternateSpawn = true;
+        killedSibling.LaunchSide = KraidNailLaunchSide.FixedLeft;
         random = 1;
         initialize(firstNail, ((KraidNailState)firstNail.RequireSpeciesState<KraidPartState>()));
         AssertEqual(KraidNailPhase.WaitForLint, ((KraidNailState)firstNail.RequireSpeciesState<KraidPartState>()).Phase,
@@ -126,5 +127,5 @@ internal static class KraidNailSiblingVerification
     }
 
     /// <summary>Reads native nail launch words solely as the verification oracle.</summary>
-    private static byte KraidNailSiblingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidNailSiblingRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

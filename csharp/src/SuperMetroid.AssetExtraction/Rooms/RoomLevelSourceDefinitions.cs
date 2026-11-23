@@ -5,8 +5,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Where the cartridge keeps each room level's compressed blocks, block types and background blocks.</summary>
-[EncodingOwner("cartridge addresses of the compressed room levels")]
-internal static class RoomLevelSourceDefinitions
+internal static partial class RoomLevelSourceDefinitions
 {
     /// <summary>Each level's compressed source, by the level the room states name.</summary>
     internal static IReadOnlyDictionary<RoomLevelId, int> Addresses { get; } = new Dictionary<RoomLevelId, int>
@@ -15,7 +14,7 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.GauntletEntrance] = 0xC2D6E8,
         [RoomLevelDefinitions.Parlor] = 0xC2DBC4,
         [RoomLevelDefinitions.CrateriaPowerBombs] = 0xC2E977,
-        [RoomLevelDefinitions.CrateriaSave] = 0xCE92CB,
+        [RoomLevelDefinitions.SaveRoomDoorOnRight] = 0xCE92CB,
         [RoomLevelDefinitions.WestOcean] = 0xC2EB45,
         [RoomLevelDefinitions.BowlingAlleyPath] = 0xC38E1F,
         [RoomLevelDefinitions.CrateriaKihunter] = 0xC38FFE,
@@ -38,7 +37,7 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.Terminator] = 0xC3E2FC,
         [RoomLevelDefinitions.GreenBrinstarElevator] = 0xC3E985,
         [RoomLevelDefinitions.LowerMushrooms] = 0xC3EB35,
-        [RoomLevelDefinitions.CrateriaMap] = 0xCE86BD,
+        [RoomLevelDefinitions.MapStationRoomDoorOnLeft] = 0xCE86BD,
         [RoomLevelDefinitions.GreenPiratesShaft] = 0xC3EE60,
         [RoomLevelDefinitions.CrateriaSuper] = 0xC3F4D3,
         [RoomLevelDefinitions.FinalMissileBombway] = 0xC4811E,
@@ -48,7 +47,7 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.BrinstarPreMap] = 0xC59642,
         [RoomLevelDefinitions.EarlySupers] = 0xC59755,
         [RoomLevelDefinitions.BrinstarReserveTank] = 0xC59B00,
-        [RoomLevelDefinitions.GreenBrinstarMap] = 0xCE83C3,
+        [RoomLevelDefinitions.MapStationRoomDoorOnRight] = 0xCE83C3,
         [RoomLevelDefinitions.GreenBrinstarFirefleas] = 0xC59CAC,
         [RoomLevelDefinitions.GreenBrinstarMissileRefill] = 0xCE8CB3,
         [RoomLevelDefinitions.Dachora] = 0xC5A15F,
@@ -64,7 +63,7 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.GreenBrinstarBeetoms] = 0xC5EF71,
         [RoomLevelDefinitions.EtecoonEnergyTank] = 0xC5F057,
         [RoomLevelDefinitions.EtecoonSuper] = 0xC5F43E,
-        [RoomLevelDefinitions.DachoraEnergyRefill] = 0xCE89B6,
+        [RoomLevelDefinitions.EnergyRefillRoomDoorOnRight] = 0xCE89B6,
         [RoomLevelDefinitions.SporeSpawnFarming] = 0xC5F4C9,
         [RoomLevelDefinitions.WaterwayEnergyTank] = 0xC5F778,
         [RoomLevelDefinitions.FirstMissile] = 0xC5FD50,
@@ -93,7 +92,7 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.Statues] = 0xCE9BE9,
         [RoomLevelDefinitions.WarehouseEntrance] = 0xC6DEE0,
         [RoomLevelDefinitions.VariaSuit] = 0xC6E355,
-        [RoomLevelDefinitions.WarehouseSave] = 0xCE95C2,
+        [RoomLevelDefinitions.SaveRoomDoorOnLeft] = 0xCE95C2,
         [RoomLevelDefinitions.IceBeamAcid] = 0xC6E4A4,
         [RoomLevelDefinitions.Cathedral] = 0xC6E5F5,
         [RoomLevelDefinitions.CathedralEntrance] = 0xC6ECB9,
@@ -141,12 +140,12 @@ internal static class RoomLevelSourceDefinitions
         [RoomLevelDefinitions.BatCave] = 0xC8BB21,
         [RoomLevelDefinitions.FrogSpeedway] = 0xC8BDE8,
         [RoomLevelDefinitions.RedPirateShaft] = 0xC8C165,
-        [RoomLevelDefinitions.FrogSave] = 0xCE9EF6,
+        [RoomLevelDefinitions.SaveRoomDoorsOnBothSides] = 0xCE9EF6,
         [RoomLevelDefinitions.AcidStatue] = 0xC8C4D3,
         [RoomLevelDefinitions.MainHall] = 0xC8D59C,
         [RoomLevelDefinitions.GoldenTorizo] = 0xC8E09D,
         [RoomLevelDefinitions.FastRipper] = 0xC8E900,
-        [RoomLevelDefinitions.GoldenTorizoEnergyRefill] = 0xCE98DC,
+        [RoomLevelDefinitions.EnergyRefillRoomDoorOnLeft] = 0xCE98DC,
         [RoomLevelDefinitions.Ridley] = 0xC8EBFD,
         [RoomLevelDefinitions.LowerNorfairFarming] = 0xC8EDCE,
         [RoomLevelDefinitions.FastPillarsSetup] = 0xC8F01F,

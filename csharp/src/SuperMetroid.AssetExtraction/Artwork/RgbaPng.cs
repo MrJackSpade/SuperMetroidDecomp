@@ -14,8 +14,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// edited image is saved in the same form as the stock one. The codec owns the file's byte-wide filter bytes, channel
 /// samples and chunk checksums.
 /// </summary>
-[EncodingOwner("RGBA PNG file")]
-public static class RgbaPng
+public static partial class RgbaPng
 {
     /// <summary>The eight-byte PNG signature.</summary>
     private static ReadOnlySpan<byte> Signature => [137, 80, 78, 71, 13, 10, 26, 10];
@@ -281,5 +280,5 @@ public static class RgbaPng
     }
 
     /// <summary>The CRC-32 polynomial PNG uses, bit-reversed.</summary>
-    private const uint ReflectedPolynomial = 0xedb88320; // cartridge-encoding: allow(WireFormat) - PNG's reflected CRC-32 polynomial
+    private const uint ReflectedPolynomial = 0xedb88320;
 }

@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads and writes the installed Work Robot palette cycle document.</summary>
-public static class WorkRobotPaletteCycleFile
+public static partial class WorkRobotPaletteCycleFile
 {
     /// <summary>Loads and validates the six four-color Work Robot frames from JSON.</summary>
     /// <param name="json">Caller-owned stream containing the palette-cycle document.</param>
@@ -49,5 +49,5 @@ public static class WorkRobotPaletteCycleFile
     /// <param name="document">Document containing all six ordered frames.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
     public static byte[] Write(WorkRobotPaletteCycleDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.WorkRobotPaletteCycleDocument>(ArtworkJson.Options));
 }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// <param name="Door">The door through which the station's room is entered.</param>
 /// <param name="CameraPosition">The initial camera top-left.</param>
 /// <param name="SamusPosition">The room position loading at the station places Samus at.</param>
-public sealed record LoadStationPlacement(
+public sealed partial record LoadStationPlacement(
     DoorDefinition Door,
     Position16<RoomPixels> CameraPosition,
     Position16<RoomPixels> SamusPosition);

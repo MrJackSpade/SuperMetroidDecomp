@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -12,8 +11,7 @@ namespace SuperMetroid.Core.Areas.Maridia;
 /// room's main left, because the door behaviours do not set it, and is left for the following room's main
 /// (<see cref="ElevatubeInheritedFraction"/>).
 /// </summary>
-[RoomLifetime]
-public sealed class MaridiaElevatubeRoomMainState
+public sealed partial class MaridiaElevatubeRoomMainState
 {
     /// <summary>
     /// The tube's tracked room height (#2016): the room Y its ride moves by the velocity each update, with its fraction.
@@ -24,7 +22,7 @@ public sealed class MaridiaElevatubeRoomMainState
     private readonly ElevatubeInheritedFraction _fraction;
 
     /// <summary>The tube's vertical velocity in room pixels per update, negative upward.</summary>
-    public SignedEightEight Velocity { get; private set; }
+    internal SignedEightEight Velocity { get; set; }
 
     /// <summary>The tube's vertical acceleration in room pixels per update per update, negative upward.</summary>
     public SignedEightEight Acceleration { get; private set; }
@@ -57,18 +55,16 @@ public sealed class MaridiaElevatubeRoomMainState
     }
 
     /// <summary>
-    /// Runs the elevatube once: hold Samus at X 128, move both the tracked height and Samus by the velocity, Samus
+    /// Runs the elevatube once: hold Samus at the tube's centre (<see cref="MaridiaElevatubeDefinitions.SamusCenterX"/>), move both the tracked height and Samus by the velocity, Samus
     /// through her ordinary vertical collision check, then add the acceleration to the velocity unless that passes the
     /// maximum speed.
     /// </summary>
     internal void Step(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
-        Ensure.NotNull(roomObjects);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
 
         // Samus is held at the tube's centre every update, with no fraction of a pixel.
@@ -78,7 +74,7 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedY = TrackedY.MovedBy(displacement);
         _fraction.Leave(TrackedY.Fraction);
 
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
+        SamusBlockCollision.MoveVertical(terrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter), IncludeSolidEnemies = false });
 
         // The game's range test is exactly the inclusive range of the maximum speed either way; a candidate outside it is
         // rejected rather than clamped, leaving the preceding velocity intact.

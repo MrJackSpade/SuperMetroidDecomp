@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Fx;
 /// liquid with its artwork, where its surface lies, its surface's wave and its blend (<see cref="LiquidEffectOverlay"/>).
 /// Whether the overlay lies over the room or behind it is its blend's kind (<see cref="ShownRoomEffectOverlay.Blend"/>).
 /// </summary>
-public abstract record RoomEffectOverlay
+public abstract partial record RoomEffectOverlay
 {
     /// <summary>Only the kinds of overlay below derive from this.</summary>
     private protected RoomEffectOverlay()

@@ -7,58 +7,58 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// </summary>
 internal enum ColourEffectSegment
 {
-    /// <summary>Eight looks of three updates each: the title logo, the copyright and the Planet Zebes caption fading.</summary>
+    /// <summary>A quick fade through its looks: the title logo, the copyright and the Planet Zebes caption fading.</summary>
     TextFade,
 
-    /// <summary>Two looks of one update each: the title screen's displays and the gunship's engine flickering.</summary>
+    /// <summary>A flicker between its looks on alternate updates: the title screen's displays and the gunship's engine flickering.</summary>
     Flicker,
 
-    /// <summary>Eight looks of ten updates each: the Baby Metroid's tube light and Wrecked Ship's green lights glowing.</summary>
+    /// <summary>A slow glow through its looks: the Baby Metroid's tube light and Wrecked Ship's green lights glowing.</summary>
     SlowGlow,
 
     /// <summary>
-    /// Fourteen looks of four updates each: Ceres station's navigation lights blinking, and Tourian's background flashing
+    /// A steady blink through its looks: Ceres station's navigation lights blinking, and Tourian's background flashing
     /// red alike.
     /// </summary>
     SteadyBlink,
 
-    /// <summary>The old Mother Brain fight's background lights: fourteen looks of six updates each.</summary>
+    /// <summary>The old Mother Brain fight's background lights, pulsing slowly.</summary>
     OldMotherBrainBackgroundLights,
 
-    /// <summary>The gunship's glow: fourteen looks of five updates each.</summary>
+    /// <summary>The gunship's glow, pulsing through its looks.</summary>
     GunshipGlow,
 
-    /// <summary>The zoomed-out exploding Zebes fading out: seven looks of eight updates each.</summary>
+    /// <summary>The zoomed-out exploding Zebes fading out.</summary>
     ZoomedOutZebesFade,
 
-    /// <summary>The wide part of Zebes's explosion in front: four quick looks, a long fourth, then twelve of six updates.</summary>
+    /// <summary>The wide part of Zebes's explosion in front: quick looks, a long hold, then a slower run.</summary>
     WideZebesExplosionForeground,
 
-    /// <summary>Zebes's explosion's finale: fifteen looks of two updates each, then thirty of nine.</summary>
+    /// <summary>Zebes's explosion's finale: a quick run of looks, then a long slow one.</summary>
     ZebesExplosionFinale,
 
     /// <summary>
-    /// Fifteen looks of fourteen updates each: space whiting out during Zebes's explosion, and the explosion's wide part
+    /// A long slow run of looks: space whiting out during Zebes's explosion, and the explosion's wide part
     /// behind alike.
     /// </summary>
     ZebesExplosionWhiteOut,
 
-    /// <summary>The exploded planet's afterglow: six looks of sixteen updates each.</summary>
+    /// <summary>The exploded planet's afterglow, fading slowly.</summary>
     ZebesAfterglow,
 
-    /// <summary>Exploding Zebes's lava: ten looks easing from nine updates down to five and back.</summary>
+    /// <summary>Exploding Zebes's lava: its looks quickening and then slowing again.</summary>
     ExplodingZebesLava,
 
-    /// <summary>Exploding Zebes's crust fading out: eight looks of twenty updates each.</summary>
+    /// <summary>Exploding Zebes's crust fading out slowly.</summary>
     ExplodingZebesCrustFade,
 
-    /// <summary>Exploding Zebes's grey clouds fading out: eight looks of fourteen updates each.</summary>
+    /// <summary>Exploding Zebes's grey clouds fading out slowly.</summary>
     ExplodingZebesGreyCloudsFade,
 
-    /// <summary>The gunship emerging from Zebes's explosion: sixteen looks of twenty-four updates each.</summary>
+    /// <summary>The gunship emerging from Zebes's explosion, brightening slowly.</summary>
     GunshipEmerging,
 
-    /// <summary>The Hyper Beam's glow: ten looks of two updates each.</summary>
+    /// <summary>The Hyper Beam's glow, cycling quickly.</summary>
     HyperBeam,
 
     /// <summary>A suit's loading opening: its first two looks, which flicker for the longest stretch.</summary>
@@ -76,17 +76,17 @@ internal enum ColourEffectSegment
     /// <summary>A suit's loading: its loaded look, shown for one update as the effect ends.</summary>
     SuitLoaded,
 
-    /// <summary>The post-credits Super Metroid icon: fourteen looks of one update each.</summary>
+    /// <summary>The post-credits Super Metroid icon, a new look each update.</summary>
     PostCreditsIcon,
 
-    /// <summary>Eight looks of eight updates each: a Tourian statue greying out.</summary>
+    /// <summary>A Tourian statue greying out through its looks.</summary>
     StatueGreyOut,
 
-    /// <summary>A Torizo's belly glowing: six looks, the first and fourth held longest.</summary>
+    /// <summary>A Torizo's belly glowing, two of its looks held longest.</summary>
     TorizoBelly,
 
     /// <summary>
-    /// The heat pulse: the sixteen heat phases' looks in phase order, longest at the coolest and quickest between, which
+    /// The heat pulse: the heat phases' looks in phase order, longest at the coolest and quickest between, which
     /// the Varia and Gravity Suits shimmer in and Norfair's heated foregrounds glow in.
     /// </summary>
     HeatPulse,
@@ -97,22 +97,22 @@ internal enum ColourEffectSegment
     /// <summary>The landing site's calm sky before its double strike of lightning.</summary>
     LandingSiteCalm,
 
-    /// <summary>The landing site's double strike of lightning: seven quick looks, struck twice.</summary>
+    /// <summary>The landing site's double strike of lightning: quick looks, struck twice.</summary>
     LandingSiteDoubleStrike,
 
     /// <summary>The landing site's calm sky before its single strike of lightning.</summary>
     LandingSiteSecondCalm,
 
-    /// <summary>The landing site's single strike of lightning: four quick looks.</summary>
+    /// <summary>The landing site's single strike of lightning: quick looks.</summary>
     LandingSiteSingleStrike,
 
     /// <summary>
-    /// Fourteen looks of ten updates each: Brinstar's blue background spores drifting, Spore Spawn's alike, and Brinstar's
+    /// A slow drift through its looks: Brinstar's blue background spores drifting, Spore Spawn's alike, and Brinstar's
     /// red background glowing alike.
     /// </summary>
     SporeDrift,
 
-    /// <summary>The beacon flashing: ten looks of ten updates each, its beep sounding before the seventh.</summary>
+    /// <summary>The beacon flashing through its looks, its beep sounding partway through.</summary>
     BeaconFlashing,
 
     /// <summary>
@@ -121,28 +121,28 @@ internal enum ColourEffectSegment
     /// </summary>
     NorfairHeatPhases,
 
-    /// <summary>Four looks of ten updates each: Maridia's sand pits and sand falls.</summary>
+    /// <summary>A slow cycle of looks: Maridia's sand pits and sand falls.</summary>
     MaridiaSand,
 
-    /// <summary>Maridia's background waterfalls: eight looks of two updates each.</summary>
+    /// <summary>Maridia's background waterfalls, flowing quickly.</summary>
     MaridiaBackgroundWaterfalls,
 
-    /// <summary>Tourian's Arkanoid blocks and red orbs glowing: eleven looks of ten updates each.</summary>
+    /// <summary>Tourian's Arkanoid blocks and red orbs glowing slowly.</summary>
     TourianArkanoidBlocksGlow,
 
     /// <summary>
-    /// Fourteen looks of two updates each: Tourian flashing red during the escape, its shutters, its level and its Arkanoid
+    /// A quick red flash through its looks: Tourian flashing red during the escape, its shutters, its level and its Arkanoid
     /// blocks and red orbs alike.
     /// </summary>
     TourianEscapeRedFlashing,
 
-    /// <summary>Old Tourian flashing red: fourteen looks of three updates each.</summary>
+    /// <summary>Old Tourian flashing red, quickly.</summary>
     OldTourianRedFlashing,
 
-    /// <summary>Old Tourian's background railings and panels flashing yellow alike: fifteen looks, two of them held long.</summary>
+    /// <summary>Old Tourian's background railings and panels flashing yellow alike, two of its looks held long.</summary>
     OldTourianYellowFlash,
 
-    /// <summary>Upper Crateria flashing red: fourteen looks easing from eight updates down to one and back.</summary>
+    /// <summary>Upper Crateria flashing red: its looks quickening and then slowing again.</summary>
     UpperCrateriaRedFlashing,
 
     /// <summary>The escape's sky lightning: Crateria's yellow lightning and the Parlor's sky flicker alike.</summary>

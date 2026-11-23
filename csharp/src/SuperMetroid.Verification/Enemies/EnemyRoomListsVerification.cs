@@ -18,14 +18,27 @@ internal static class EnemyRoomListsVerification
     /// <summary>Compares every ordered enemy placement, death quota, and graphics-set member to the cartridge.</summary>
     internal static void VerifyCompiledEnemyRoomLists()
     {
-        ISnesAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         ushort[] populationPointers = RoomStateDefinitions.All
             .Select(state => RoomEnemyPopulationDefinitions.PointerOf(state.EnemyPopulation)).Distinct().Order().ToArray();
         ushort[] graphicsPointers = RoomStateDefinitions.All
             .Select(state => RoomEnemyGraphicsSetDefinitions.PointerOf(RoomEnemyGraphicsSetLists.Of(state))).Distinct().Order().ToArray();
-        AssertEqual(RoomEnemyPopulationDefinitions.ListCount, populationPointers.Length,
+        // A population the cartridge reads from another's stored list (the Mother Brain room's once her area's boss is dead
+        // reads the Draygon room's empty one, #2574) is compiled as its own definition: the definitions address exactly the
+        // stored lists the room states name, and each holds what the list it reads holds.
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Select(RoomEnemyPopulationDefinitions.PointerOf).Distinct().Count(), populationPointers.Length,
             "all retail population identities are compiled");
+        foreach (RoomEnemyPopulationDefinition definition in RoomEnemyPopulationDefinitions.Definitions)
+        {
+            RoomEnemyPopulationDefinition stored = RoomEnemyPopulationDefinitions.Get(RoomEnemyPopulationDefinitions.PointerOf(definition));
+            AssertTrue(definition.GetType() == stored.GetType() && definition.Placements.Span.SequenceEqual(stored.Placements.Span) &&
+                    (definition is not PlacedRoomEnemyPopulationDefinition placed || placed.DeathQuota == ((PlacedRoomEnemyPopulationDefinition)stored).DeathQuota),
+                $"population {definition.Name} holds what its stored list holds");
+        }
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Length,
+            RoomEnemyPopulationDefinitions.Definitions.Select(list => list.Name).Distinct().Count(),
+            "every compiled population has its own name");
         AssertEqual(RoomEnemyGraphicsSetLists.ListCount, graphicsPointers.Length,
             "all retail graphics-set identities are compiled");
         AssertTrue(populationPointers.SequenceEqual(RoomEnemyPopulationDefinitions.Pointers),
@@ -58,11 +71,16 @@ internal static class EnemyRoomListsVerification
             }
             AssertEqual(0xffff, ReadVerificationWord(bus, address),
                 $"population $A1:{pointer:X4} length reaches its native terminator");
-            AssertEqual(bus.ReadCartridgeByte(address + 2), compiled.DeathQuota,
-                $"population $A1:{pointer:X4} death quota follows its terminator");
+            // The room load reads the quota after the terminator only of a list that places enemies; an empty list has
+            // none, and the byte after the first list's terminator is the next list's first (#2584).
+            if (compiled is PlacedRoomEnemyPopulationDefinition placed)
+            {
+                AssertEqual(bus.ReadCartridgeByte(address + 2), placed.DeathQuota,
+                    $"population $A1:{pointer:X4} death quota follows its terminator");
+            }
             populationRecords += records.Length;
         }
-        AssertEqual(RoomEnemyPopulationDefinitions.PlacementCount, populationRecords,
+        AssertEqual(RoomEnemyPopulationDefinitions.Definitions.Sum(list => list.Placements.Length), populationRecords,
             "every ordered retail enemy placement is compiled");
 
         int graphicsRecords = 0;
@@ -70,7 +88,6 @@ internal static class EnemyRoomListsVerification
         {
             RoomEnemyGraphicsSetDefinition compiled = RoomEnemyGraphicsSetDefinitions.Get(pointer);
             RoomEnemyGraphicsSetMembers members = RoomEnemyGraphicsSetLists.MembersOf(compiled);
-            var importRows = new GraphicsSetRows(members, EnemyGraphicsSetPaletteRowDefinitions.Rows);
             int address = RoomEnemyRomLayout.TilesetBank | pointer;
             ReadOnlySpan<RoomEnemyGraphicsSetMember> records = members.Records.Span;
             int index = 0;
@@ -82,15 +99,15 @@ internal static class EnemyRoomListsVerification
                     continue;
                 AssertTrue(index < records.Length, $"graphics set $B4:{pointer:X4} compiles its native record {index}");
                 ushort placementWord = ReadVerificationWord(bus, address + 2);
+                // The member's palette row is the import's knowledge, which colours its sheets (#1512), so the record the
+                // import holds names the row the native record's placement word names.
+                int nativeRow = RoomEnemyGraphicsSetMember.NativePaletteRow(placementWord);
                 RoomEnemyGraphicsSetMember native = EnemyDefinitionIdsConstants2.TryFromHeaderPointer(definitionWord, out EnemyDefinitionId enemy)
-                    ? new RoomEnemyGraphicsSetMember(enemy)
+                    ? new RoomEnemyGraphicsSetMember(enemy, nativeRow)
                     : new RoomEnemyGraphicsSetMember(SuperMetroid.AssetExtraction.CartridgeTables.EnemyHeaderWords.UnplacedArtworkHeaders
-                        .Decode(definitionWord, "header of unplaced enemy artwork"));
+                        .Decode(definitionWord, "header of unplaced enemy artwork"), nativeRow);
                 AssertEqual(native, records[index],
-                    $"graphics set $B4:{pointer:X4} ordered member {index}");
-                // The member's palette row is the import's knowledge, which colours its sheets (#1512).
-                AssertEqual(RoomEnemyGraphicsSetMember.NativePaletteRow(placementWord), importRows.RecordRow(index),
-                    $"graphics set $B4:{pointer:X4} member {index}'s palette row in the import's catalog");
+                    $"graphics set $B4:{pointer:X4} ordered member {index} and its palette row");
                 // So is the fixed block its tiles stage at, which places them among the sprite characters (#1513).
                 AssertEqual(RoomEnemyGraphicsSetMember.NativeStagingBlock(placementWord), native.FixedBlock ?? 0,
                     $"graphics set $B4:{pointer:X4} member {index}'s staging block in the import's catalog");

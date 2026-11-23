@@ -7,8 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Cartridge regions whose bank-local pointers pause-menu codecs resolve.</summary>
-[EncodingOwner("cartridge regions and addresses of the pause menu tables")]
-internal static class PauseMenuSourceDefinitions
+internal static partial class PauseMenuSourceDefinitions
 {
     /// <summary>
     /// $82:8000-$82:FFFF: pause-menu tilemap data. Equipment-label sources and reserve-screen label

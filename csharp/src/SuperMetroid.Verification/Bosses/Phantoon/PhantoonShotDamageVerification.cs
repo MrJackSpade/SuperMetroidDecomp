@@ -26,7 +26,7 @@ internal static class PhantoonShotDamageVerification
         AssertEqual(1, dudHits, "an uncharged beam meets his eye");
         AssertEqual(2500, dudBody.Health, "an uncharged beam does him no harm");
         AssertTrue(dud.IsSpent, "the common dud spends the uncharged beam");
-        AssertEqual(1, dudEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Kind == RoomEffectActorKind.DudShot),
+        AssertEqual(1, dudEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Shows(RoomEffectActorKind.DudShot)),
             "the common dud shows its flash where the beam struck");
         AssertTrue((dudBody.AiStates & EnemyAiStates.Hurt) == EnemyAiStates.None, "a dud does not hurt him");
 
@@ -35,7 +35,7 @@ internal static class PhantoonShotDamageVerification
         AssertEqual(2500 - 60, hurtBody.Health, "a charged beam takes its full damage");
         AssertEqual(hurtBody.HurtFlashFrames + 8, hurtBody.HurtFlash.UpdatesLeft, "the common damage starts his hurt flash");
         AssertTrue((hurtBody.AiStates & EnemyAiStates.Hurt) != EnemyAiStates.None, "the common damage hurts him");
-        AssertEqual(0, hurtEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Kind == RoomEffectActorKind.DudShot),
+        AssertEqual(0, hurtEnemies.RoomEffectActors.Count(actor => actor.IsActive && actor.Shows(RoomEffectActorKind.DudShot)),
             "a hurting beam shows no dud");
         PhantoonEnemyState state = hurtEnemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("The fixture's room holds Phantoon's encounter.");
@@ -48,38 +48,40 @@ internal static class PhantoonShotDamageVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.PhantoonBody, RoomEnemyDefinitionLookup.Get(EnemyDefinitionId.PhantoonBody));
+        // His four parts as his room's population sets them up, with his definition's health; the encounter is the one his
+        // body's setup began. He swoops with his eye open and his body no longer ignoring Samus.
+        PhantoonEnemyState state = enemies.PlacePhantoon();
+        RoomEnemyPlace body = state.Body;
         body.Position = body.Position.WithWhole(new(128, 96));
-        body.Frame = EnemyFrameId.PhantoonEyeHitboxBody;
+        body.Frame = EnemyFrameId.PhantoonBody;
         body.Contact = body.Contact.Without(EnemyContact.IgnoresSamus);
-        body.Health = 2500;
-        PhantoonEnemyState state = enemies.BeginPhantoonAsSetUp(new PhantoonEnemyState(body, enemies.Places.InUpdateOrder[1],
-            enemies.Places.InUpdateOrder[2], enemies.Places.InUpdateOrder[3]) { Phase = PhantoonPhase.Swooping });
+        state.Phase = PhantoonPhase.Swooping;
         state.PhaseWait.LastFor(60);
+        state.ShowBody(PhantoonBodyHitArea.EyeOnly);
+        state.BodyPictureShown();
 
         Position16<RoomPixels> eye = EyeCentre(body);
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
             new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(),
             InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         SamusProjectile shot = shots.Shots[0];
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged);
-        shot.Damage = damage;
-        shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(eye);
-        shot.Radius = new(4, 4);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
-        shot.Behavior = SamusShotBehaviors.Beam;
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged), damage);
+        shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(eye);
+        shot.HeldShot().Radius = new(4, 4);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
+        shot.HeldShot().Behavior = SamusShotBehaviors.Beam;
 
-        int hits = enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots,
+        enemies.PhantoonBehavior.Combat.ResolvePhantoonProjectileHits(state, shots,
             new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), InstalledFixtures.SamusArtwork()));
-        return (enemies, body, shot, hits);
+        // A Power Beam shot that meets one of his hitboxes is spent: the one projectile the pass resolves.
+        return (enemies, body, shot, shot.IsSpent ? 1 : 0);
     }
 
     /// <summary>The centre of the hitbox on his body's frame whose shot reaction is his own: his eye.</summary>
     private static Position16<RoomPixels> EyeCentre(RoomEnemyPlace body)
     {
-        foreach (EnemyCollisionComponent component in PhantoonCollision.ComponentsAt(body.Frame))
+        foreach (EnemyCollisionComponent component in PhantoonCollision.ComponentsAt(body.Frame, PhantoonBodyHitArea.EyeOnly))
         {
             foreach (EnemyCollisionHitbox hitbox in component.Hitboxes)
             {

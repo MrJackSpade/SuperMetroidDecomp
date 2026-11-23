@@ -1,16 +1,35 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of Bomb Torizo's intact and cleared hand frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectBombTorizoHandVisualFiles
+public static partial class RoomObjectBombTorizoHandVisualFiles
 {
+    /// <summary>
+    /// Each hand frame's strips, where each starts and how many blocks long: the intact hand is written as the hand's block
+    /// and the one right of it, the block left of it, the pair above and the three below; the cleared hand splits the
+    /// hand's row into its right and left halves, then writes the rows below, at the top and above.
+    /// </summary>
+    private static readonly Dictionary<BombTorizoHandDraw, RoomObjectShapeRun[]> Strips =
+        new Dictionary<BombTorizoHandDraw, RoomObjectShapeRun[]>
+        {
+            [BombTorizoHandDraw.Intact] =
+            [
+                RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(-1, 0), 1),
+                RoomObjectShapeRun.Row(new(0, -1), 2), RoomObjectShapeRun.Row(new(-1, 1), 3),
+            ],
+            [BombTorizoHandDraw.Cleared] =
+            [
+                RoomObjectShapeRun.Row(new(0, 0), 2), RoomObjectShapeRun.Row(new(-2, 0), 2), RoomObjectShapeRun.Row(new(-2, 1), 4),
+                RoomObjectShapeRun.Row(new(-2, -2), 4), RoomObjectShapeRun.Row(new(-2, -1), 4),
+            ],
+        };
+
     /// <summary>Editable Bomb Torizo hand PLM visual JSON filename.</summary>
-    public const string VisualFileName = "bomb-torizo-hand.json";
+    internal const string VisualFileName = "bomb-torizo-hand.json";
 
     /// <summary>The Bomb Torizo hand as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -26,7 +45,7 @@ public static class RoomObjectBombTorizoHandVisualFiles
     /// <summary>Loads the installed Bomb Torizo hand pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectBombTorizoHandVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The intact and cleared hand draw lists, in authored order.</summary>
@@ -34,12 +53,15 @@ public static class RoomObjectBombTorizoHandVisualFiles
     {
         get
         {
-            TryGet(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Intact), out var intact);
-            yield return intact;
-            TryGet(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Cleared), out var cleared);
-            yield return cleared;
+            yield return DrawListOf(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Intact));
+            yield return DrawListOf(BombTorizoHandDraws.Family.Of(BombTorizoHandDraw.Cleared));
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Bomb Torizo hand draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Bomb Torizo hand draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Bomb Torizo hand draw.");
 
     /// <summary>
     /// The draw list of the intact or cleared hand as the cartridge writes it: its horizontal strips in write order, each
@@ -53,19 +75,8 @@ public static class RoomObjectBombTorizoHandVisualFiles
             list = default;
             return false;
         }
-        RoomBlockShape shape = described;
-        // The intact hand is written as the hand's block and the one right of it, the block left of it, the pair above
-        // and the three below. The cleared hand splits the hand's row into its right and left halves, then writes the
-        // rows below, at the top and above.
-        Offset16<RoomBlocks>[] intactStarts = [new(0, 0), new(-1, 0), new(0, -1), new(-1, 1)];
-        int[] intactCounts = [2, 1, 2, 3];
-        Offset16<RoomBlocks>[] clearedStarts = [new(0, 0), new(-2, 0), new(-2, 1), new(-2, -2), new(-2, -1)];
-        int[] clearedCounts = [2, 2, 4, 4, 4];
-        bool intact = RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand") == BombTorizoHandDraw.Intact;
-        Offset16<RoomBlocks>[] starts = intact ? intactStarts : clearedStarts;
-        int[] counts = intact ? intactCounts : clearedCounts;
-        list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
-            (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)), run => starts[run]);
+        list = RoomObjectDrawListExport.Runs(request, described,
+            Ensure.Listed(Strips, RoomObjectDrawIdentity.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand")));
         return true;
     }
 

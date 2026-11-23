@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <param name="Kind">The charge sequence the shade belongs to.</param>
 /// <param name="Suit">The suit whose version of the step it is.</param>
 /// <param name="Step">The sequence's step, counted from its first.</param>
-public readonly record struct SamusChargeShade(SamusChargeKind Kind, SamusSuit Suit, int Step);
+public readonly partial record struct SamusChargeShade(SamusChargeKind Kind, SamusSuit Suit, int Step);

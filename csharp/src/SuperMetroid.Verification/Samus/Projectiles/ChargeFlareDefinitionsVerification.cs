@@ -1,8 +1,8 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Samus.Projectiles;
@@ -26,7 +26,7 @@ internal static class ChargeFlareDefinitionsVerification
     /// </summary>
     internal static void VerifyChargeFlareDefinitions(CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         ChargeFlareComponent[] components = Enum.GetValues<ChargeFlareComponent>();
         for (int place = 0; place < components.Length; place++)
         {
@@ -41,24 +41,18 @@ internal static class ChargeFlareDefinitionsVerification
                 position++;
             }
             int continuesAt = entry == NativeRestart ? 0 : position - Delay(program, position + 1);
-            IReadOnlyList<AnimationBeat<ChargeFlarePicture, NoAnimationCue>> beats = ChargeFlareAnimationDefinitions.Pictures(component);
-            AssertEqual(waits.Count, beats.Count, $"{component} shows the original program's pictures");
-            for (int picture = 0; picture < beats.Count; picture++)
-            {
-                var beat = (AnimationBeat<ChargeFlarePicture, NoAnimationCue>.Frame)beats[picture];
-                AssertEqual(waits[picture] + 1, beat.Duration, $"{component} picture {picture} shows for its wait and one update");
-            }
-            Animation<ChargeFlareSegment> animation = ChargeFlareAnimationDefinitions.Animations[component];
-            var loop = (AnimationEnd.Loop)animation.End;
-            AnimationPhase<ChargeFlareSegment> repeated = animation.Phases[loop.Phase];
-            int repeatedFrom = animation.Phases.Take(loop.Phase).Sum(phase => phase.BeatCount * phase.Plays) + repeated.FirstBeat;
+            IReadOnlyList<int> durations = ChargeFlareAnimationDefinitions.PictureDurations(component);
+            AssertEqual(waits.Count, durations.Count, $"{component} shows the original program's pictures");
+            for (int picture = 0; picture < durations.Count; picture++)
+                AssertEqual(waits[picture] + 1, durations[picture], $"{component} picture {picture} shows for its wait and one update");
+            (int repeatedFrom, int repeatedEnd) = ChargeFlareAnimationDefinitions.LoopedPictures(component);
             AssertEqual(continuesAt, repeatedFrom, $"{component} continues past its last picture where the original program does");
-            AssertEqual(beats.Count, repeatedFrom + repeated.BeatCount * repeated.Plays, $"{component}'s repeated run ends at its last picture");
+            AssertEqual(durations.Count, repeatedEnd, $"{component}'s repeated run ends at its last picture");
             if (component == ChargeFlareComponent.MainFlare)
             {
-                var grappleFlare = new ChargeFlareComponentState(component);
+                var grappleFlare = ChargeFlarePlays.MainFlare();
                 grappleFlare.RestartAtLoop();
-                AssertEqual<int?>(continuesAt, grappleFlare.NativePicture,
+                AssertEqual(Shown(component, continuesAt), grappleFlare.Composition(HorizontalDirection.Right),
                     "The grapple's flare restarts at the main flare's loop, where the original program continues");
             }
         }
@@ -68,28 +62,38 @@ internal static class ChargeFlareDefinitionsVerification
         for (int place = 0; place < components.Length; place++)
         {
             ChargeFlareComponent component = components[place];
-            ChargeFlareComponentState flare = system.Charge.Flare(component);
-            flare.ShowNative(0, WrappingCountdown.Start(0));
+            // A cleared flare shows each component's first picture with its wait spent, as the original's first picture
+            // with a wait of zero. Each update shows the picture the original program reaches, so each picture's wait shows
+            // in the update its next picture first shows on.
+            system.Charge.ClearFlare();
             ushort expectedPhase = 0, expectedHold = 0;
+            AssertEqual(Shown(component, 0), system.Charge.FlareComposition(component, HorizontalDirection.Right), $"a cleared {component} shows its first picture");
+            var shownPictures = new HashSet<int> { 0 };
             for (int tick = 0; tick < 1024; tick++)
             {
                 Reference(place, ref expectedPhase, ref expectedHold);
                 system.Animation.AdvanceFlareComponent(component);
-                AssertEqual(new VerifyChargeFlareDefinitionsCase(expectedPhase, expectedHold), new VerifyChargeFlareDefinitionsCase(ShownPicture(flare), flare.NativeWait.RawValue),
+                AssertEqual(Shown(component, expectedPhase), system.Charge.FlareComposition(component, HorizontalDirection.Right),
                     "Flare playback matches the original program over repeated loops and restarts");
+                shownPictures.Add(expectedPhase);
                 ticks++;
             }
+            AssertEqual(ChargeFlareAnimationDefinitions.PictureCount(component), shownPictures.Count, $"{component}'s playback shows every picture of its program");
             // The ordinary flare's waits run from a picture's whole wait down to zero; it never leaves one run past zero.
             IEnumerable<int> starts = Enumerable.Range(0, ChargeFlareAnimationDefinitions.PictureCount(component));
             foreach (ushort hold in new ushort[] { 0, 1, 2 })
             foreach (int start in starts)
             {
                 expectedPhase = (ushort)start;
-                flare.ShowNative(start, WrappingCountdown.Start(hold));
+                // The flare plays to the picture with the wait, the other components standing at their first pictures.
+                int[] startPictures = new int[components.Length], startWaits = new int[components.Length];
+                startPictures[place] = start;
+                startWaits[place] = hold;
+                system.Charge.PlayFlareTo(startPictures, startWaits);
                 expectedHold = hold;
                 Reference(place, ref expectedPhase, ref expectedHold);
                 system.Animation.AdvanceFlareComponent(component);
-                AssertEqual(new VerifyChargeFlareDefinitionsCase(expectedPhase, expectedHold), new VerifyChargeFlareDefinitionsCase(ShownPicture(flare), flare.NativeWait.RawValue),
+                AssertEqual(Shown(component, expectedPhase), system.Charge.FlareComposition(component, HorizontalDirection.Right),
                     $"{component} picture {start} with wait {hold} moves on as the original program does");
                 boundaries++;
             }
@@ -101,17 +105,17 @@ internal static class ChargeFlareDefinitionsVerification
         // routine, which counts its wait word to zero and runs a component's place past its first picture (#2396: the
         // check compares what each component shows, where it compared the wait word the port no longer keeps).
         int hyperTicks = 0;
-        foreach ((bool shot, int[] startPhases, ushort[] startHolds) in new[]
+        foreach ((bool shot, int[] startPhases, int[] startHolds) in new[]
                  {
-                     (true, new[] { 29, 5, 5 }, new ushort[] { 3, 3, 3 }),
-                     (false, new[] { 0, 0, 0 }, new ushort[] { 3, 5, 4 }),
-                     (false, new[] { 17, 0, 3 }, new ushort[] { 1, 0, 2 }),
-                     (false, new[] { 2, 1, 0 }, new ushort[] { 0, 1, 2 }),
+                     (true, new[] { 29, 5, 5 }, new[] { 3, 3, 3 }),
+                     (false, new[] { 0, 0, 0 }, new[] { 3, 5, 4 }),
+                     (false, new[] { 17, 0, 3 }, new[] { 1, 0, 2 }),
+                     (false, new[] { 2, 1, 0 }, new[] { 0, 1, 2 }),
                  })
         {
             var hyper = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var samus = new SuperMetroid.Core.Samus.SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-                SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge, artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { HyperBeamEnabled = true };
+                SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), hyper.Charge, artwork: global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) .WithHyperBeam(true);
             if (shot)
             {
                 hyper.Charge.StartHyperBeamFlare();
@@ -119,12 +123,11 @@ internal static class ChargeFlareDefinitionsVerification
             else
             {
                 // An ordinary charge the Baby's gift catches: the count still runs and each component stands where the
-                // ordinary flare left it.
+                // ordinary flare's play left it.
                 hyper.Charge.SetFlareCount(ChargeFlareAnimationDefinitions.SparksShownFrom);
-                for (int place = 0; place < 3; place++)
-                    hyper.Charge.Flare(components[place]).ShowNative(startPhases[place], WrappingCountdown.Start(startHolds[place]));
+                hyper.Charge.PlayFlareTo(startPhases, startHolds);
             }
-            ushort[] expectedPhases = [.. startPhases.Select(phase => (ushort)phase)], expectedHolds = [.. startHolds];
+            ushort[] expectedPhases = [.. startPhases.Select(phase => (ushort)phase)], expectedHolds = [.. startHolds.Select(hold => (ushort)hold)];
             bool expectedLit = true;
             for (int tick = 0; tick < 800 && expectedLit; tick++)
             {
@@ -143,8 +146,8 @@ internal static class ChargeFlareDefinitionsVerification
                 ChargeFlareComponents shown = hyper.AdvanceChargeFlare(samus);
                 AssertEqual(ChargeFlareComponents.HyperBeamFlare, shown, "The Hyper Beam's flare shows every component, fast sparks first");
                 // A place the original count wrapped past zero is the port's component stepped back past its first picture.
-                AssertTrue(components.Select((component, place) => expectedPhases[place] < ChargeFlareAnimationDefinitions.PictureCount(component) ? expectedPhases[place] : (int?)null)
-                        .SequenceEqual(components.Select(component => hyper.Charge.Flare(component).NativePicture))
+                AssertTrue(components.Select((component, place) => expectedPhases[place] < ChargeFlareAnimationDefinitions.PictureCount(component) ? Shown(component, expectedPhases[place]) : (SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId?)null)
+                        .SequenceEqual(components.Select(component => hyper.Charge.FlareComposition(component, HorizontalDirection.Right)))
                     && expectedLit == hyper.Charge.IsCharging,
                     $"Hyper Beam flare from [{string.Join(", ", startPhases)}] matches the original count on tick {tick}");
                 hyperTicks++;
@@ -171,14 +174,12 @@ internal static class ChargeFlareDefinitionsVerification
             int runLength = ChargeFlareAnimationDefinitions.PictureCount(component);
             for (int phase = 0; phase < runLength; phase++)
             {
-                SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId picture = SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(component, facingLeft, ChargeFlareAnimationDefinitions.PictureNumbered(component, phase));
+                SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId picture = ChargeFlareAnimationDefinitions.CompositionNumbered(component,
+                    facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, phase);
                 AssertEqual(nativeTable[runStart + phase], SuperMetroid.Core.Samus.Artwork.ProjectileSpriteNative.Address(picture),
                     $"{component} place {phase} facing left {facingLeft} shows the original selector's composition");
                 pictures++;
             }
-            ChargeFlarePicture another = component == ChargeFlareComponent.MainFlare ? ChargeFlarePicture.SparksWidest : ChargeFlarePicture.Ember;
-            AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.Core.Samus.Artwork.ChargeFlarePictures.Of(component, facingLeft, another),
-                $"{component} facing left {facingLeft} shows none of another component's pictures ({another})");
         }
         Console.WriteLine($"Charge flare: three original programs decode to the typed pictures, waits and loops; {ticks} loop ticks, {boundaries} boundary advances and {hyperTicks} Hyper Beam ticks match the original playback; {pictures} pictures match the original selector table.");
 
@@ -196,9 +197,9 @@ internal static class ChargeFlareDefinitionsVerification
             hold = delay;
         }
 
-        // The ordinary flare plays only through its components' pictures: none steps past its first.
-        static int ShownPicture(ChargeFlareComponentState flare) =>
-            flare.NativePicture ?? throw new InvalidOperationException($"{flare.Component} stepped past its first picture in ordinary playback.");
+        // The composition the component's picture numbered as the original counts it shows facing right.
+        static SuperMetroid.Core.Samus.Artwork.ProjectileSpriteId Shown(ChargeFlareComponent component, int number) =>
+            ChargeFlareAnimationDefinitions.CompositionNumbered(component, HorizontalDirection.Right, number);
     }
 
     /// <summary>Runs the charge flare cadence definitions against the retail cartridge.</summary>

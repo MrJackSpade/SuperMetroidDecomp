@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -10,7 +9,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core;
-using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Audio;
 
 using SuperMetroid.Verification.Harness;
@@ -24,21 +22,19 @@ internal static class HostIndependentAudioAcknowledgementsVerification
 
     /// <summary>
     /// The SFX handshake must not depend on whether a host renders audio (#1303). Two
-    /// identical Landing Site sessions enter the same door with library 2 already waiting
-    /// for an echo. The silent subject has no audio catalog and no host audio calls (audio
-    /// disabled or no device); the playing subject binds the catalog and copies its PCM every
-    /// update (audio enabled). Every frame must agree. Backends publish no acknowledgements
+    /// identical Landing Site sessions, each mixing the installed clips as every game does, enter
+    /// the same door with library 2 already waiting for an echo. The silent subject's host makes
+    /// no audio calls (audio disabled or no device); the playing subject's host copies its PCM
+    /// every update (audio enabled). Every frame must agree. Backends publish no acknowledgements
     /// (#1304), so the oracle for the playing subject's PCM is a separate backend driven only by
-    /// the silent subject's published audio events: the events a session publishes without
-    /// synthesis must reproduce the synthesizing session's sound exactly.
+    /// the silent subject's published audio events: the events a session publishes must reproduce
+    /// the sound the copying host plays exactly.
     /// </summary>
     internal static void VerifyHostIndependentAudioAcknowledgements()
     {
-        var assets = RepositoryInstallation.Installation.LoadAudioClips().Clips;
-        var oracle = new ClipAudioBackend(assets);
+        var oracle = new ClipAudioBackend(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AudioClips);
         SuperMetroidGame silent = CreateLandingSiteSession();
         SuperMetroidGame playing = CreateLandingSiteSession();
-        playing.BindAudio(assets);
         SuperMetroidGame[] subjects = [silent, playing];
         SuperMetroidGame[] sessions = subjects;
         var pcm = new short[AudioSession.PcmSamplesPerFrame];
@@ -82,7 +78,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
                 AssertEqual(silent.AudioForVerification.SoundQueueForVerification(library),
                     playing.AudioForVerification.SoundQueueForVerification(library),
                     $"{library} library queue after door frame {frame}");
-            if (silentLeftSoundWait < 0 && silent.DoorTransitionPhaseForVerification > DoorTransitionPhase.WaitForSoundQueues)
+            if (silentLeftSoundWait < 0 && silent.DoorTransitionPhaseForVerification is DoorTransitionPhase.Running and not DoorTransitionPhase.Running.WaitForSoundQueues or DoorTransitionPhase.Complete)
                 silentLeftSoundWait = frame;
         }
         AssertTrue(silentLeftSoundWait >= 0, "the sessions leave WaitForSoundQueues");
@@ -93,15 +89,17 @@ internal static class HostIndependentAudioAcknowledgementsVerification
     private static SuperMetroidGame CreateLandingSiteSession()
     {
         var random = new SharedRandom();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(
+            new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+            renderGameplayFrames: false, random: random);
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.AudioForVerification.Reset();
         return game;
@@ -117,8 +115,9 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            runtime.MeetDoorBlock(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
-            game.Session.Enter(DoorTransitionStep.EnteringDoor);
+            runtime.MeetDoorBlock(block, runtime.Player.Samus.Pose.ForRoomCollision());
+            game.Session.EnterDoor(runtime.RoomObjects.DoorContacts.EnteredDoor
+                ?? throw new InvalidOperationException("Verification requires the door block Samus met to be entered."));
             return;
         }
         throw new InvalidDataException("Landing Site has no door block.");

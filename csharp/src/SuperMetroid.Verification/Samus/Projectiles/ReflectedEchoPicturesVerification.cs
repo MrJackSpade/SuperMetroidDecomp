@@ -32,8 +32,7 @@ internal static class ReflectedEchoPicturesVerification
                     continue;
                 foreach (SamusProjectileFrameId frame in ShownFrames(program))
                 {
-                    ProjectileSpriteId composition = bindings.Resolve(frame);
-                    if (!composition.DrawsNothing)
+                    if (bindings.Resolve(frame) is { } composition)
                         frames.Add(ProjectileSheetFrames.ProjectileFrame(composition));
                 }
             }

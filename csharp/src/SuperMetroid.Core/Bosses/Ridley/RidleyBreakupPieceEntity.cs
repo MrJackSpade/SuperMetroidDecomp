@@ -4,35 +4,47 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
 /// A piece of Lower Norfair Ridley's breakup explosion (#2146): it flies apart by its own AI and animation, answers
-/// Ridley's hitboxes, and takes the shared reactions its definition names.
+/// Ridley's hitboxes, and takes the shared reactions its definition names. It joins the breakup that spawned it as it is
+/// built, and holds the state its setup builds from it (#2554).
 /// </summary>
-/// <param name="ridley">The Lower Norfair Ridley owner.</param>
+/// <param name="death">Lower Norfair Ridley's death, which spawns the breakup.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the piece occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class RidleyBreakupPieceEntity(NorfairRidleyBehavior ridley, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
+/// <param name="fragment">What the enemy's setup built (#2554).</param>
+internal sealed partial class RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, RidleyExplosionFragmentState fragment)
+    : CommonParticipationEnemyEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IEnemyFrameHitboxes
 {
-    /// <inheritdoc/>
-    public void Initialize() => ridley.Death.InitializeNorfairRidleyExplosion(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="death">Lower Norfair Ridley's death, which spawns the breakup.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the piece occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">The part of Ridley the piece is.</param>
+    /// <param name="breakup">The breakup the piece joins.</param>
+    internal RidleyBreakupPieceEntity(NorfairRidleyDeath death, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        RidleyExplosionSpawnSettings settings, RidleyBreakupSource breakup)
+        : this(death, occupant, place, common, death.InitializeNorfairRidleyExplosion(settings, place, breakup))
+    {
+    }
+
+    /// <summary>The piece's flight, which its setup builds from the breakup it joins.</summary>
+    internal RidleyExplosionFragmentState Fragment { get; } = fragment;
 
     /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => ridley.Death.RunNorfairRidleyExplosionMain(Place, frame.Samus);
+    public void RunMainAi(IEnemyAiFrame frame) => death.RunNorfairRidleyExplosionMain(Occupant, Fragment, Ensure.NotNull(frame).Samus);
 
     /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place);
-
-    /// <summary>None: the piece's definition ignores Samus's touch.</summary>
-    public EnemyReaction? SpeciesTouch => null;
-
-    /// <summary>None: the piece's definition ignores shots.</summary>
-    public EnemyReaction? SpeciesShot => null;
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => RidleyBodyAnimation.AdvanceRidleyBreakupAnimation(Place, Fragment);
 
     /// <summary>None: the game defines no hitboxes for a breakup piece's frames (#2335).</summary>
     /// <param name="probe">The colliding edges and walker.</param>
-    /// <param name="reaction">No reaction.</param>
-    public bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    public EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe)
     {
-        reaction = null;
-        return null;
+        throw EnemyCollision.UncoveredFrame(Place);
     }
 }

@@ -4,26 +4,44 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's foot (#2146): it follows his walk, with the limbs' own shot and bomb reactions.</summary>
 /// <param name="species">The Kraid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the foot occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidFootEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : KraidLimbEntity(species, place, common, species.Parts.FootReference)
+/// <param name="encounter">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class KraidFootEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, KraidEnemyState encounter)
+    : KraidLimbEntity(species, occupant, place, common, encounter)
 {
-    /// <inheritdoc/>
-    protected override void SetUp() => Species.Limbs.InitializeKraidFoot(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Kraid species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the foot occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="encounter">The encounter his body began, which the part joins as it is built.</param>
+    /// <returns>The enemy, set up.</returns>
+    internal static KraidFootEntity SetUp(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        KraidEnemyState encounter) =>
+        new(species, occupant, place, common, species.Limbs.InitializeKraidFoot(place, encounter));
 
     /// <summary>The foot's own part of the encounter.</summary>
-    protected override KraidAnimatedPartState Part => Encounter.FootState;
+    internal override KraidAnimatedPartState Part => Encounter.FootState;
 
     /// <summary>The foot's hitboxes, which its pose places.</summary>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        KraidCombat.FindKraidFootHitboxReaction(Place, Part.Pose, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        KraidCombat.FindKraidFootHitboxReaction(Place, Part.Pose, probe);
 
     /// <summary>The foot's shot reaction.</summary>
     protected override EnemyShotReaction LimbShotReaction => KraidCombat.FootShotReaction;
 
-    /// <summary>The foot's bomb reaction.</summary>
-    protected override void ReactToLimbBomb(EnemyBombContext context) => KraidCombat.ReactToFootBomb(context);
+    /// <summary>
+    /// Takes every bomb that overlaps the foot, before the ignoring check, with no reaction of its own: every foot
+    /// rectangle ignores it (<see cref="KraidFootCollisionDefinitions.SharedHitboxes"/>, #2301).
+    /// </summary>
+    /// <param name="context">The bomb contact.</param>
+    public override bool TryReactToBomb(EnemyBombContext context) => true;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.Limbs.RunKraidFootMain(Place, Encounter.FootState, frame.Camera.Y);

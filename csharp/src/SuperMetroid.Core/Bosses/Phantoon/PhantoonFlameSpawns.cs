@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Where Phantoon's flames start: the rage waves' and the spiral's circles, the intro's flames and the rain columns.</summary>
-public static class PhantoonFlameSpawns
+public static partial class PhantoonFlameSpawns
 {
     /// <summary>The flames of an even rage wave, in the order they spawn.</summary>
     internal static IReadOnlyList<PhantoonRageFlameStart> EvenRageWave => PhantoonFlameSpawnDefinitions.EvenRageWave;
@@ -23,13 +23,25 @@ public static class PhantoonFlameSpawns
     internal static ListStep<int> RainColumn(int place) => ListStep<int>.At(RainXs, place);
 
     /// <summary>
+    /// The rain column after the one at <paramref name="bodyX"/>, the first after the last (#2556): where a rain whose
+    /// gap is his body's column starts.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">No rain column lies at <paramref name="bodyX"/>.</exception>
+    internal static ListStep<int> RainColumnAfter(int bodyX)
+    {
+        for (int column = 0; column < RainXs.Count; column++)
+        {
+            if (RainXs[column] == bodyX)
+                return RainColumn(column).NextInCycle;
+        }
+        throw new ArgumentOutOfRangeException(nameof(bodyX), bodyX, "No rain column lies at his body's X.");
+    }
+
+    /// <summary>
     /// The turn a rage flame starting at <paramref name="start"/> makes each update: the rage turn clockwise, or the same
     /// turn back, a full circle less it, counterclockwise. The flame's angle grows clockwise round the body.
     /// </summary>
-    internal static TrigonometryAngle RageTurnPerUpdate(PhantoonRageFlameStart start) => start.Turn switch
-    {
-        RotationDirection.Clockwise => PhantoonFlameMotionDefinitions.RageTurnPerUpdate,
-        RotationDirection.Counterclockwise => TrigonometryAngle.Zero - PhantoonFlameMotionDefinitions.RageTurnPerUpdate,
-        _ => throw new ArgumentOutOfRangeException(nameof(start), start.Turn, $"Undefined {nameof(RotationDirection)}."),
-    };
+    internal static TrigonometryAngle RageTurnPerUpdate(PhantoonRageFlameStart start) => start.Turn == RotationDirection.Clockwise
+        ? PhantoonFlameMotionDefinitions.RageTurnPerUpdate
+        : TrigonometryAngle.Zero - PhantoonFlameMotionDefinitions.RageTurnPerUpdate;
 }

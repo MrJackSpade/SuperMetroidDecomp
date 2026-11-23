@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>Animation selection for the Tripper and suspensor platforms.</summary>
-internal static class PlatformAnimationDefinitions
+internal static partial class PlatformAnimationDefinitions
 {
     /// <summary>
     /// Animation choice for each platform pose; initialization uses the still art. The suspensor platform looks the same moving or

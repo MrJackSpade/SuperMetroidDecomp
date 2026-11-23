@@ -8,7 +8,6 @@ using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Menus;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Map;
-using SuperMetroid.AssetExtraction.Map.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
@@ -18,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// cursor compositions and palette selectors the game-over sheet is composed from, and the layout
 /// (<see cref="Presentation"/>), which the installed layout holds for the game (<see cref="GameOverLayoutFile"/>).
 /// </summary>
-public sealed class GameOverSourcePresentation
+public sealed partial class GameOverSourcePresentation
 {
     /// <summary>The page's tiles, row by row, which the menus' picture of the page is composed from (#1467).</summary>
     internal readonly BackgroundTile[] page;
@@ -82,8 +81,7 @@ public sealed class GameOverSourcePresentation
         try
         {
             document = JsonAssetDocument.Read<GameOverPresentationDocument>(
-                bytes, ArtworkJson.Options) ??
-                throw new InvalidDataException("Game-over presentation document is null.");
+                bytes, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -117,15 +115,8 @@ public sealed class GameOverSourcePresentation
         var tilemap = new BackgroundTile[GameOverPageDefinitions.TilemapCellCount];
         for (int index = 0; index < document.Tilemap.Length; index++)
         {
-            MapPresentationCell? cell = document.Tilemap[index];
-            if (cell is null ||
-                (uint)cell.TileColumn >= MapTileAtlasFormat.TileColumns ||
-                (uint)cell.TileRow >= MapPresentationFormat.AtlasRows ||
-                (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-                throw new InvalidDataException(
-                    $"Game-over tilemap cell {index} has an invalid atlas coordinate or palette.");
-            tilemap[index] = new BackgroundTile(cell.TileRow * MapTileAtlasFormat.TileColumns + cell.TileColumn, cell.Palette,
-                cell.FlipX, cell.FlipY, cell.Priority);
+            tilemap[index] = document.Tilemap[index].Placement(MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.TileRows,
+                $"Game-over tilemap cell {index}");
         }
 
         var babySprites = Enum.GetValues<GameOverBabyFrame>().ToDictionary(frame => frame,
@@ -155,7 +146,7 @@ public sealed class GameOverSourcePresentation
     /// <param name="document">Caller-owned artwork and layout; its collections are not modified.</param>
     public static void Write(Stream output, GameOverPresentationDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPresentationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 
@@ -166,14 +157,14 @@ public sealed class GameOverSourcePresentation
     /// <summary>Rejects an OBJ palette selector outside the eight hardware rows.</summary>
     private static void ValidatePaletteIndex(int value, string name)
     {
-        if ((uint)value > 7)
-            throw new InvalidDataException($"{name} must be 0..7.");
+        if ((uint)value > SpritePart.MaximumPalette)
+            throw new InvalidDataException($"{name} must be 0..{SpritePart.MaximumPalette}.");
     }
 
     /// <summary>The compiled Baby frames, egg and cursor frames.</summary>
     /// <param name="Baby">Each Baby frame's composition.</param>
     /// <param name="Egg">The egg's composition.</param>
     /// <param name="Cursors">The missile cursor's composition of each of its pictures.</param>
-    private sealed record GameOverSprites(Dictionary<GameOverBabyFrame, SpriteComposition> Baby, SpriteComposition Egg,
+    private sealed partial record GameOverSprites(Dictionary<GameOverBabyFrame, SpriteComposition> Baby, SpriteComposition Egg,
         Dictionary<MenuMissileFrame, SpriteComposition> Cursors);
 }

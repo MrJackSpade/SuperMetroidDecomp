@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </summary>
 /// <param name="IsActive">Whether the blast is running.</param>
 /// <param name="Oval">The oval the blast shows this frame.</param>
-public readonly record struct PowerBombRenderSnapshot(bool IsActive, PowerBombBlastOval Oval)
+public readonly partial record struct PowerBombRenderSnapshot(bool IsActive, PowerBombBlastOval Oval)
 {
     /// <summary>Copies the blast's shown oval.</summary>
     public static PowerBombRenderSnapshot Capture(SamusPowerBombExplosionState explosion)

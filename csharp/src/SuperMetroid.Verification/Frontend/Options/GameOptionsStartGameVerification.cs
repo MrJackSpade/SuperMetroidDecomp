@@ -24,10 +24,10 @@ internal static class GameOptionsStartGameVerification
             new VerifyGameOptionsStartGameCase(SaveStartupRoute.OpeningCinematic, GameOptionsPhase.FadeOutToIntro),
         })
         {
-            var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false) { StartupRoute = route };
-            for (int frame = 0; frame < 80 && options.Phase != GameOptionsPhase.Main; frame++)
+            var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English) { StartupRoute = route };
+            for (int frame = 0; frame < 80 && options.Phase != GameOptionsPhase.Browsing; frame++)
                 options.Step(ControllerButton.None);
-            AssertEqual(GameOptionsPhase.Main, options.Phase, $"{route} save reaches the primary options page");
+            AssertTrue(options.Phase == GameOptionsPhase.Browsing && options.Page == GameOptionsPage.Primary, $"{route} save reaches the primary options page");
             AssertEqual<GameOptionsRow>(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.StartGame), options.SelectedRow, "the cursor starts on START GAME");
             options.Step(ControllerButton.A);
             AssertEqual(afterPress, options.Phase, $"START GAME with a {route} save");

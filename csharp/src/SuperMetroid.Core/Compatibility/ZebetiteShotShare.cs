@@ -10,21 +10,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// health and flash to the enemy record its link value names, and the spawn records and a kill leave that value naming
 /// the first record; only a linked pair's spawn writes it.
 /// </remarks>
-[CompatibilityService("a shot on a Zebetite with no linked half shares its health and flash with the first enemy placed in its room, which in Tourian is Mother Brain's body")]
-public static class ZebetiteShotShare
+public static partial class ZebetiteShotShare
 {
     /// <summary>The enemy the struck Zebetite shares its health and flash with.</summary>
     /// <typeparam name="TPlace">An enemy place.</typeparam>
-    /// <param name="places">Every enemy place, in placement order.</param>
+    /// <param name="firstPlace">The room's first enemy place in placement order.</param>
     /// <param name="linkedHalf">The struck Zebetite's linked half, or null when it has none.</param>
-    /// <exception cref="InvalidOperationException">The room places no enemy.</exception>
-    public static TPlace Recipient<TPlace>(IReadOnlyList<TPlace> places, TPlace? linkedHalf) where TPlace : class
-    {
-        Ensure.NotNull(places);
-        if (linkedHalf is not null)
-            return linkedHalf;
-        return places.Count != 0
-            ? places[0]
-            : throw new InvalidOperationException("A Zebetite with no linked half was shot in a room that places no enemy.");
-    }
+    public static TPlace Recipient<TPlace>(TPlace firstPlace, TPlace? linkedHalf) where TPlace : class =>
+        linkedHalf ?? Ensure.NotNull(firstPlace);
 }

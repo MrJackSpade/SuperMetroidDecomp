@@ -7,11 +7,15 @@ namespace SuperMetroid.AssetExtraction.Video;
 /// knowledge, which decodes the installed starting image and native colour images into owners. Core never addresses a
 /// colour by these positions.
 /// </summary>
-[EncodingOwner("colour positions of gameplay's 256-colour image")]
-internal static class GameplayColourPositionDefinitions
+internal static partial class GameplayColourPositionDefinitions
 {
-    /// <summary>The first background set's first colour.</summary>
-    internal const int BackgroundSetsFirst = 0;
+
+    /// <summary>
+    /// The colour a room shows where nothing is drawn: the background half's first, which the room's colour effects change
+    /// as they change its tiles' colours (#1544). The import turns it into the colour a block sheet's manifest names as its
+    /// rooms' backdrop.
+    /// </summary>
+    internal const int RoomBackdrop = 0;
 
     /// <summary>The first sprite set's first colour: the image's upper half.</summary>
     internal const int SpriteSetsFirst = 128;

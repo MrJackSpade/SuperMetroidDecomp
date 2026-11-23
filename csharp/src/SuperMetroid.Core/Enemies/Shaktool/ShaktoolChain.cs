@@ -5,14 +5,7 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 /// is placed, and every later segment joins it as it is placed; the chain lasts the room, and its death deletes all its
 /// segments together.
 /// </summary>
-/// <remarks>
-/// The game writes the chain's motion and target into every segment together; one owner holds them. A segment a hit kills
-/// leaves its state emptied, which the rest of its chain still reaches through the update of the kill
-/// (<see cref="RemovedEnemyLeftovers{TStates}"/>), but the emptied copy of the motion and the target never shows: a killed
-/// segment runs no more, the chain-wide writes reach the emptied state as they reach the others, and the turn speeds the
-/// chain sets after a wall read each segment's copy only after the motion and target are written to it.
-/// </remarks>
-internal sealed class ShaktoolChain
+internal sealed partial class ShaktoolChain
 {
     /// <summary>Starts the chain of <paramref name="segments"/>, its leading saw first, moving as <paramref name="motion"/> says.</summary>
     /// <param name="segments">The chain's seven segments, leading saw first, each in its place with its definition.</param>
@@ -29,18 +22,38 @@ internal sealed class ShaktoolChain
     /// <summary>The chain's leading saw: its fixed anchor, the first enemy its room lists.</summary>
     internal RoomEnemyPlace LeadingSaw => Segments[0].Place;
 
+    /// <summary>The place of the segment the chain lists right before the one <paramref name="segment"/> defines, which it orbits.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is the chain's first, its leading saw, which orbits nothing.</exception>
+    internal RoomEnemyPlace Before(ShaktoolSegmentDefinition segment) => Segments[Ensure.BetweenInclusive(1, Segments.Count - 1, IndexOf(segment)) - 1].Place;
+
+    /// <summary>The segment the chain lists right after the one <paramref name="segment"/> defines, which the centre faces.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is the chain's last, its trailing saw.</exception>
+    internal ShaktoolChainSegment After(ShaktoolSegmentDefinition segment) => Segments[Ensure.BetweenInclusive(0, Segments.Count - 2, IndexOf(segment)) + 1];
+
+    /// <summary>The state the chain holds for the segment <paramref name="segment"/> defines, which its setup initializes.</summary>
+    internal ShaktoolSegmentState StateOf(ShaktoolSegmentDefinition segment) => Segments[IndexOf(segment)].State;
+
+    /// <summary>The chain's segment <paramref name="segment"/> defines.</summary>
+    internal ShaktoolChainSegment Segment(ShaktoolSegmentDefinition segment) => Segments[IndexOf(segment)];
+
+    /// <summary>Where the chain lists the segment <paramref name="segment"/> defines.</summary>
+    private int IndexOf(ShaktoolSegmentDefinition segment)
+    {
+        for (int listed = 0; listed < Segments.Count; listed++)
+        {
+            if (Segments[listed].Definition == segment)
+                return listed;
+        }
+        throw new ArgumentOutOfRangeException(nameof(segment), segment, "The chain lists no such segment.");
+    }
+
     /// <summary>How the chain moves: its reversal, straightening and orbit direction.</summary>
     internal ShaktoolChainMotion Motion { get; set; }
 
     /// <summary>
     /// The heading the chain turns toward after a wall, a quarter turn on from the trailing saw's bearing from the leading
     /// saw; zero until the first wall. The trailing saw's reaching it starts the chain's curl again, the segments turn toward
-    /// it at a sixty-fourth of the steps left, and their head bob moves them along it.
+    /// it at a share of the steps left (<see cref="ShaktoolOrbitDefinitions.ConvergenceShares"/>), and their head bob moves them along it.
     /// </summary>
-    /// <remarks>
-    /// The game also turns each segment's copy of the target a step on for every update the segment orbits while the chain
-    /// straightens, the trailing saw's twice; no copy is read before the wall that ends the straightening writes the target
-    /// again, so the chain's target does not turn.
-    /// </remarks>
     internal RotationAngle TargetAngle { get; set; }
 }

@@ -4,10 +4,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>
 /// The pause screen's editable backdrops, wireframes, equipment-page artwork and reserve display (#1467), which the import
-/// pictures into the pause sheet; the game draws that sheet's pictures and reads none of these but the reserve arrow's
-/// colours, which it binds through <see cref="PauseReserveUiPresentation.ArrowColours"/>.
+/// pictures into the pause sheet; the game draws that sheet's pre-coloured pictures and reads none of this artwork.
 /// </summary>
-public sealed class PauseScreenArtwork
+public sealed partial class PauseScreenArtwork
 {
     /// <summary>Keeps the pause screen's artwork.</summary>
     /// <param name="backdrops">The map and equipment backdrops and the area-name buttons.</param>

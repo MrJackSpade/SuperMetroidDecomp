@@ -26,13 +26,13 @@ internal static class EscapeTimerPresentationVerification
         byte[] extractedTiles = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTileAtlasExtractor.Extract(bus);
 
         var tileAtlas = EscapeTimerCharacters.Read(new MemoryStream(extractedTiles));
-        byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeFirstTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
             EscapeTimerTileSourceConstants.FirstSourceAddress, EscapeTimerTileAtlasFormat.FirstByteCount);
-        byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativeSecondTiles = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.ReadFixedBank(bus,
             EscapeTimerTileSourceConstants.SecondSourceAddress, EscapeTimerTileAtlasFormat.SecondByteCount);
-        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerFirstTiles).Span),
+        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.First).Span),
             "first timer PNG page compiles to exact native characters");
-        AssertTrue(nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerSecondTiles).Span),
+        AssertTrue(nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.Second).Span),
             "second timer PNG page compiles to exact native characters");
 
         var synchronous = new SpriteArtworkPlacements();
@@ -54,8 +54,8 @@ internal static class EscapeTimerPresentationVerification
                 (EscapeNativePageWords.TimerSecond - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2 / SpriteArtworkPlacements.CharacterByteCount,
                 EscapeTimerTileAtlasFormat.SecondByteCount / SpriteArtworkPlacements.CharacterByteCount),
             synchronous.Uploads[1], "Mother Brain synchronous second timer transfer shows the installed second page");
-        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerFirstTiles).ToArray()) &&
-                nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, InstalledArtworkId.EscapeTimerSecondTiles).ToArray()),
+        AssertTrue(nativeFirstTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.First).ToArray()) &&
+                nativeSecondTiles.SequenceEqual(EscapeTimerTilePageTransfers.Resolve(tileAtlas, EscapeTimerTilePage.Second).ToArray()),
             "Mother Brain synchronous timer pages hold the installed artwork");
 
         var presentation = EscapeTimerPresentationFile.Load(new MemoryStream(extracted));
@@ -84,7 +84,7 @@ internal static class EscapeTimerPresentationVerification
         for (int digit = 0; digit < 10; digit++)
         {
             ushort nativePointer = RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
+                bus,
                 EscapeTimerPresentationDefinitions.DigitPointerTable + digit * sizeof(ushort));
             AssertEqual(nativePointer,
                 EscapeTimerPresentationDefinitions.DigitSpritemapPointer(digit),
@@ -101,8 +101,8 @@ internal static class EscapeTimerPresentationVerification
                     address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort),
                 address => $"Escape timer reread compiled digit pointer at ${address:X6}."));
         AssertTrue(nativeSheet.Pixels.AsSpan().SequenceEqual(guardedSheet.Pixels) &&
-                System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(nativeSheet.Manifest, SpriteSheetFile.Options).AsSpan()
-                    .SequenceEqual(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(guardedSheet.Manifest, SpriteSheetFile.Options)),
+                System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(nativeSheet.Manifest, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetDocument>(SpriteSheetFile.Options)).AsSpan()
+                    .SequenceEqual(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(guardedSheet.Manifest, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Artwork.SpriteSheetDocument>(SpriteSheetFile.Options))),
             "timer sheet composition selects the same spritemaps without rereading the pointer table");
         Console.WriteLine("Escape timer digit pointers: ten cartridge words and a sheet composed without rereading the pointer table.");
     }

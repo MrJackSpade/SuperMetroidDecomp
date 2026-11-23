@@ -3,7 +3,6 @@ using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
 using S = SuperMetroid.Core.Bosses.Torizo.TorizoBodySegment;
 using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoPostureDefinitions;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoAnimationSteps;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoSide;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -15,11 +14,9 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// and each segment names the side, the foot and the animations it continues in; where the facings differ, the difference
 /// is written where its segment is: facing left, Golden Torizo lowers its arm again before it throws a caught Super Missile,
 /// and facing right lifts it straight on; facing right on its left leg, it decides whether to jump back as its leg plants
-/// rather than as it reaches. A pose shown twice running, with nothing between, is one beat of both durations
-/// (#2331): a Torizo is no boss-body part, so nothing waits on a second showing of a picture, and no owner resumes a
-/// catch partway.
+/// rather than as it reaches. A pose shown twice running, with nothing between, is one beat of both durations (#2331).
 /// </summary>
-internal static class GoldenTorizoAnimations
+internal static partial class GoldenTorizoAnimations
 {
     /// <summary>Each segment's steps, in the order it plays them.</summary>
     internal static Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()
@@ -44,37 +41,13 @@ internal static class GoldenTorizoAnimations
         [S.GoldenTorizoSettling] =
         [
             Cue(new TorizoCue.Signal(K.PlayFootstepSound)),
-            Show(Left.HalfRisen, 3),
-            SitDown(Left, P.CrouchedToHalfRisen),
-            Show(Left.Crouched, 4),
-            SitDown(Left, P.RisingToCrouched),
-            Show(Left.RisingFromSeat, 5),
-            SitDown(Left, P.SeatedToRising),
+            .. SittingDownFromHalfRisen(Left, 3, 4, 5),
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Idle)),
-            Show(Left.Seated, 48),
-            ShowArtwork(L.EyesDark),
-            Show(Left.Seated, 32),
-            ShowArtwork(L.EyesGlowingFaintly),
-            Show(Left.Seated, 16),
-            ShowArtwork(L.EyesGlowingBrightly),
-            Show(Left.Seated, 8),
-            ShowArtwork(L.EyesGlowingFully),
-            Show(Left.Seated, 32),
+            .. SeatedEyesLightingUp,
         ],
         [S.GoldenTorizoStandingUp] =
         [
-            Show(Left.Seated, 32),
-            StandUp(Left, P.SeatedToRising),
-            Show(Left.RisingFromSeat, 12),
-            StandUp(Left, P.RisingToCrouched),
-            Show(Left.Crouched, 8),
-            StandUp(Left, P.CrouchedToHalfRisen),
-            Show(Left.HalfRisen, 8),
-            StandUp(Left, P.HalfRisenToNearlyUpright),
-            Show(Left.NearlyUpright, 8),
-            StandUp(Left, P.NearlyUprightToStepping),
-            Show(Left.UprightStepping, 8),
-            StandUp(Left, P.SteppingToWideStance),
+            .. StandingUp(Left, 32, 12, 8, 8, 8, 8),
             Cue(new TorizoCue.Signal(K.FadeToGoldenColors)),
         ],
         [S.GoldenTorizoFightStart] =
@@ -314,30 +287,8 @@ internal static class GoldenTorizoAnimations
     private static AnimationBeat<EnemyFrameId, TorizoCue>[] SittingDownAttack(TorizoSide side) =>
     [
         Cue(new TorizoCue.Signal(K.StartStanding)),
-        Show(side.UprightWideStance, 8),
-        SitDown(side, P.SteppingToWideStance),
-        Show(side.UprightStepping, 8),
-        SitDown(side, P.NearlyUprightToStepping),
-        Show(side.NearlyUpright, 6),
-        SitDown(side, P.HalfRisenToNearlyUpright),
-        Show(side.HalfRisen, 6),
-        SitDown(side, P.CrouchedToHalfRisen),
-        Show(side.Crouched, 4),
-        SitDown(side, P.RisingToCrouched),
-        Show(side.RisingFromSeat, 4),
-        SitDown(side, P.SeatedToRising),
-        Show(side.Seated, 8),
-        StandUp(side, P.SeatedToRising),
-        Show(side.RisingFromSeat, 8),
-        StandUp(side, P.RisingToCrouched),
-        Show(side.Crouched, 8),
-        StandUp(side, P.CrouchedToHalfRisen),
-        Show(side.HalfRisen, 8),
-        StandUp(side, P.HalfRisenToNearlyUpright),
-        Show(side.NearlyUpright, 10),
-        StandUp(side, P.NearlyUprightToStepping),
-        Show(side.UprightStepping, 10),
-        StandUp(side, P.SteppingToWideStance),
+        .. SittingDown(side, 8, 8, 6, 6, 4, 4),
+        .. StandingUp(side, 8, 8, 8, 8, 10, 10),
         Cue(new TorizoCue.Signal(K.StartWalking)),
     ];
 

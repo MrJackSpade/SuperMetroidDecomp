@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// selection row, and the button glyphs an item panel's words show and where they go. The import composes each message
 /// form's image from them; the game names the form it shows.
 /// </summary>
-public static class GameplayMessageTilemapDefinitions
+public static partial class GameplayMessageTilemapDefinitions
 {
     /// <summary>Width of a message in tile cells.</summary>
     public const int TilemapWidth = 32;
@@ -26,7 +26,7 @@ public static class GameplayMessageTilemapDefinitions
     public const int SaveSelectionRowWords = 32;
 
     /// <summary>The blank glyph drawn when no button the glyphs show is bound.</summary>
-    public static BackgroundTile UnknownGlyph { get; } = new(78, 2, highPriority: true);
+    internal static BackgroundTile UnknownGlyph { get; } = new(78, 2, highPriority: true);
 
     /// <summary>The glyph of each button a panel can name, and of no such button.</summary>
     public static FrozenDictionary<ControllerButton, BackgroundTile> Glyphs { get; } = new Dictionary<ControllerButton, BackgroundTile>

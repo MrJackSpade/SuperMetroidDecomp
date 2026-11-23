@@ -26,9 +26,8 @@ internal static class ActorPartDrawsVerification
     {
         SamusState samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        });
+        }.InPose(SamusPoseId.FacingRightNormalPose));
         // Entering a pose starts its animation, at the first frame of the animation's first segment (#2530).
         SamusPresentation.InitializeAnimation(samus);
         var sprites = new SpriteFrameBuffer();
@@ -57,7 +56,7 @@ internal static class ActorPartDrawsVerification
         EnemyFrameId frame = EnemyDefinitionFrameDefinitions.Frames[EnemyDefinitionId.PirateGreenWalking]
             .First(shown => compositions.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedDrawComponent> pieces) && pieces.Length > 1);
         RoomEnemyPlace pirate = enemies.Places.InUpdateOrder[0];
-        pirate.Bind(EnemyDefinitionId.PirateGreenWalking, default(RoomEnemyDefinition));
+        pirate.Bind(EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionFixtures.Blank);
         pirate.CollidesByFrameHitboxes = true;
         pirate.Frame = frame;
         pirate.Position = pirate.Position.WithWhole(new(120, 110));
@@ -65,8 +64,7 @@ internal static class ActorPartDrawsVerification
 
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
-        enemies.Drawing.Advance(Position16<RoomPixels>.Zero);
-        enemies.Drawing.Draw(sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
+        enemies.Drawing.Draw(enemies.Drawing.Advance(Position16<RoomPixels>.Zero), sprites, Position16<RoomPixels>.Zero, RoomEnemyFrameFixtures.StandaloneSamus());
         sprites.FinalizeFrame();
         AssertEqual(1, sprites.Draws.Length, $"the pirate showing {frame} publishes one draw");
         IReadOnlyList<string> violations = PublishedPartDraws.Violations(sprites.Draws);

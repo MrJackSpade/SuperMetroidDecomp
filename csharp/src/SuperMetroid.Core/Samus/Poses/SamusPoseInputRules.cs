@@ -1,109 +1,35 @@
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Input.GameplayAction;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputs;
-using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseTransitionSetup;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Ordered pose-input decisions; the first satisfied chord wins, and each names the setup that installs its pose.</summary>
-internal static class SamusPoseInputRules
+internal static partial class SamusPoseInputRules
 {
     /// <summary>Selects the first satisfied input chord in <paramref name="inputList"/>, in the order the list authors them.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, GameplayAction held, GameplayAction newlyPressed) => inputList switch
-    {
-        NoInputTransitions => MatchNoInputTransitions(),
-        ForwardFacing => MatchForwardFacing(held),
-        StandingAndLandingRight => MatchStandingAndLandingRight(held, newlyPressed),
-        StandingAndLandingLeft => MatchStandingAndLandingRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        RunningRight => MatchRunningRight(held, newlyPressed),
-        RunningLeft => MatchRunningRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        JumpTransitionRight => MatchJumpTransitionRight(held),
-        JumpTransitionLeft => MatchJumpTransitionLeft(held),
-        NormalJumpRight => MatchNormalJumpRight(held),
-        NormalJumpLeft => MatchNormalJumpRight(MirrorButtons(held)).Mirrored(),
-        DamageBoostLeft => MatchDamageBoostLeft(held),
-        DamageBoostRight => MatchDamageBoostRight(held),
-        SpinJumpRight => MatchSpinJumpRight(held, newlyPressed),
-        SpinJumpLeft => MatchSpinJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        SpaceJumpRight => MatchSpaceJumpRight(held, newlyPressed),
-        SpaceJumpLeft => MatchSpaceJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        ScrewAttackRight => MatchScrewAttackRight(held, newlyPressed),
-        ScrewAttackLeft => MatchScrewAttackRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        MorphBallRight => MatchMorphBallRight(held, newlyPressed),
-        MorphBallLeft => MatchMorphBallLeft(held, newlyPressed),
-        CrouchingRight => MatchCrouchingRight(held, newlyPressed),
-        CrouchingLeft => MatchCrouchingLeft(held, newlyPressed),
-        FallingRight => MatchFallingRight(held),
-        FallingLeft => MatchFallingRight(MirrorButtons(held)).Mirrored(),
-        MorphBallFallingRight => MatchMorphBallFallingRight(held, newlyPressed),
-        MorphBallFallingLeft => MatchMorphBallFallingRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        MoonwalkLeft => MatchMoonwalkLeft(held, newlyPressed),
-        MoonwalkRight => MatchMoonwalkRight(held, newlyPressed),
-        KnockbackRight => MatchKnockbackRight(held),
-        KnockbackLeft => MatchKnockbackRight(MirrorButtons(held)).Mirrored(),
-        SpringBallGroundRight => MatchSpringBallGroundRight(held, newlyPressed),
-        SpringBallGroundLeft => MatchSpringBallGroundLeft(held, newlyPressed),
-        SpringBallFallingRight => MatchSpringBallFallingRight(held, newlyPressed),
-        SpringBallFallingLeft => MatchSpringBallFallingRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        SpringBallJumpRight => MatchSpringBallJumpRight(held, newlyPressed),
-        SpringBallJumpLeft => MatchSpringBallJumpLeft(held, newlyPressed),
-        WallJumpRight => MatchWallJumpRight(held, newlyPressed),
-        WallJumpLeft => MatchWallJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        RanIntoWallRight => MatchRanIntoWallRight(held, newlyPressed),
-        RanIntoWallLeft => MatchRanIntoWallRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        NormalJumpGunExtendedRight => MatchNormalJumpGunExtendedRight(held),
-        NormalJumpGunExtendedLeft => MatchNormalJumpGunExtendedRight(MirrorButtons(held)).Mirrored(),
-        NormalJumpAimDownRight => MatchNormalJumpAimDownRight(held, newlyPressed),
-        NormalJumpAimDownLeft => MatchNormalJumpAimDownLeft(held, newlyPressed),
-        UnmorphingTransitionRight => MatchUnmorphingTransitionRight(held),
-        UnmorphingTransitionLeft => MatchUnmorphingTransitionRight(MirrorButtons(held)).Mirrored(),
-        TurningRightToLeft => MatchTurningRightToLeft(held, newlyPressed),
-        TurningLeftToRight => MatchTurningRightToLeft(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        TurningRightToLeftAimUp => MatchTurningRightToLeftAimUp(held, newlyPressed),
-        TurningLeftToRightAimUp => MatchTurningRightToLeftAimUp(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        TurningRightToLeftAimDiagonalDown => MatchTurningRightToLeftAimDiagonalDown(held, newlyPressed),
-        TurningLeftToRightAimDiagonalDown => MatchTurningRightToLeftAimDiagonalDown(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        ShinesparkWindupRight => MatchShinesparkWindupRight(held),
-        ShinesparkWindupLeft => MatchShinesparkWindupRight(MirrorButtons(held)).Mirrored(),
-        FallingAimDownRight => MatchFallingAimDownRight(held, newlyPressed),
-        FallingAimDownLeft => MatchFallingAimDownRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        DraygonHeldBallLeft => MatchDraygonHeldBallLeft(newlyPressed),
-        DraygonGrabbedLeft => MatchDraygonGrabbedLeft(held),
-        DraygonGrabbedRight => MatchDraygonGrabbedRight(held),
-        MovingRightGunExtended => MatchMovingRightGunExtended(held, newlyPressed),
-        MovingLeftGunExtended => MatchMovingRightGunExtended(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        FallingGunExtendedRight => MatchFallingGunExtendedRight(held),
-        FallingGunExtendedLeft => MatchFallingGunExtendedRight(MirrorButtons(held)).Mirrored(),
-        MoonwalkTurnJumpLeft => MatchMoonwalkTurnJumpRight(MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        MoonwalkTurnJumpRight => MatchMoonwalkTurnJumpRight(held, newlyPressed),
-        MoonwalkTurnJumpAimUpLeft => MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimUpRightPose,
-            MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        MoonwalkTurnJumpAimUpRight => MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimUpRightPose, held, newlyPressed),
-        MoonwalkTurnJumpAimDownLeft => MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimDownRightPose,
-            MirrorButtons(held), MirrorButtons(newlyPressed)).Mirrored(),
-        MoonwalkTurnJumpAimDownRight => MatchMoonwalkTurnJumpAimedRight(SamusPoseId.MoonwalkTurnJumpAimDownRightPose, held, newlyPressed),
-        _ => throw new InvalidOperationException($"Undefined {nameof(SamusPoseInputList)} {inputList}."),
-    };
+    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, GameplayAction held, GameplayAction newlyPressed) =>
+        Ensure.NotNull(inputList).Match(held, newlyPressed);
 
     /// <summary>The list with no transitions: no input changes the pose.</summary>
-    private static SamusPoseInputMatch MatchNoInputTransitions()
+    internal static SamusPoseInputMatch MatchNoInputTransitions()
     {
-        return new(null, HasConditions: false);
+        return SamusPoseInputMatch.NoTransitions;
     }
 
     /// <summary>The priority order of both forward-facing poses' input list, in the power suit and suited.</summary>
-    private static SamusPoseInputMatch MatchForwardFacing(GameplayAction held)
+    internal static SamusPoseInputMatch MatchForwardFacing(GameplayAction held)
     {
         if (Has(held, Right))
             return Accept(SamusPoseId.TurningLeftToRightPose, TurnOnGround);
         if (Has(held, Left))
             return Accept(SamusPoseId.TurningRightToLeftPose, TurnOnGround);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the right-facing standing poses' and landings' input list, whatever their aim; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchStandingAndLandingRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchStandingAndLandingRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Up))
             return Accept(SamusPoseId.NormalJumpTransitionAimUpRightPose, StartJump);
@@ -149,11 +75,26 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.StandingAimDiagonalDownRightPose, ChangeGroundedAim);
         if (Has(held, Right))
             return Accept(SamusPoseId.MovingRightNormalPose, StartRunning);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the right-facing running poses' input list, whatever their aim; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchRunningRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchRunningRight(GameplayAction held, GameplayAction newlyPressed) =>
+        RunningOpening(held, newlyPressed)
+        ?? (Has(held, Shoot | Right) ? Accept(SamusPoseId.MovingRightGunExtendedPose, ChangeGroundedAim)
+            : Has(held, Right) ? Accept(SamusPoseId.MovingRightNormalPose, ChangeGroundedAim)
+            : RunningClosing(held));
+
+    /// <summary>
+    /// The priority order of the right-facing gun-extended run's input list (#2557): the running chords, Right with or
+    /// without Shoot keeping the gun-extended run; the mirrored list has the same order mirrored.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchMovingRightGunExtended(GameplayAction held, GameplayAction newlyPressed) =>
+        RunningOpening(held, newlyPressed)
+        ?? (Has(held, Right) ? Accept(SamusPoseId.MovingRightGunExtendedPose, KeepPose) : RunningClosing(held));
+
+    /// <summary>The right-facing running chords before its forward ones; none when no chord holds.</summary>
+    private static SamusPoseInputMatch? RunningOpening(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.CrouchingTransitionRightPose, CrouchOrStand);
@@ -167,10 +108,12 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.RunningAimDiagonalUpRightPose, ChangeGroundedAim);
         if (Has(held, Right | Down))
             return Accept(SamusPoseId.RunningAimDiagonalDownRightPose, ChangeGroundedAim);
-        if (Has(held, Shoot | Right))
-            return Accept(SamusPoseId.MovingRightGunExtendedPose, ChangeGroundedAim);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.MovingRightNormalPose, ChangeGroundedAim);
+        return null;
+    }
+
+    /// <summary>The right-facing running chords after its forward ones.</summary>
+    private static SamusPoseInputMatch RunningClosing(GameplayAction held)
+    {
         if (Has(held, Left))
             return Accept(SamusPoseId.TurningRightToLeftPose, TurnOnGround);
         if (Has(held, Up))
@@ -179,11 +122,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.StandingAimDiagonalUpRightPose, ChangeGroundedAim);
         if (Has(held, AimDown))
             return Accept(SamusPoseId.StandingAimDiagonalDownRightPose, ChangeGroundedAim);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the right-facing jump transitions' input list, whatever their aim.</summary>
-    private static SamusPoseInputMatch MatchJumpTransitionRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchJumpTransitionRight(GameplayAction held)
     {
         if (Has(held, Jump | Left))
             return Accept(SamusPoseId.TurningRightToLeftJumpPose, TurnInAir);
@@ -201,11 +144,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeAerialAim);
         if (Has(held, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeAerialAim);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the left-facing jump transitions' input list, whatever their aim.</summary>
-    private static SamusPoseInputMatch MatchJumpTransitionLeft(GameplayAction held)
+    internal static SamusPoseInputMatch MatchJumpTransitionLeft(GameplayAction held)
     {
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.TurningLeftToRightJumpPose, TurnInAir);
@@ -225,11 +168,29 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.TurningLeftToRightJumpPose, TurnInAir);
         if (Has(held, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose, ChangeAerialAim);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the right-facing neutral, forward, aimed-up and diagonal normal jumps' input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchNormalJumpRight(GameplayAction held) =>
+        AimedJumpChords(held, gunExtended: ChangeAerialAim)
+        ?? (Has(held, Jump) ? Accept(SamusPoseId.NeutralJumpRightPose, ChangeAerialAim)
+            : Has(held, Shoot) ? Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeAerialAim)
+            : SamusPoseInputMatch.Exhausted);
+
+    /// <summary>
+    /// The priority order of the right-facing gun-extended normal jump's input list (#2557): the normal jump's chords, the
+    /// gun-extended pose kept rather than set up again, and no bare Jump chord; the mirrored list has the same order mirrored.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchNormalJumpGunExtendedRight(GameplayAction held) =>
+        AimedJumpChords(held, gunExtended: KeepPose)
+        ?? (Has(held, Shoot) ? Accept(SamusPoseId.NormalJumpGunExtendedRightPose, KeepPose) : SamusPoseInputMatch.Exhausted);
+
+    /// <summary>
+    /// The chords a right-facing normal jump and its gun-extended pose test alike, in order (#2557), the gun-extended pose set
+    /// up by <paramref name="gunExtended"/>; none when no chord holds.
+    /// </summary>
+    private static SamusPoseInputMatch? AimedJumpChords(GameplayAction held, SamusPoseTransitionSetup gunExtended)
     {
         if (Has(held, Jump | Right | Up))
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeAerialAim);
@@ -256,7 +217,7 @@ internal static class SamusPoseInputRules
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.NormalJumpForwardRightPose, ChangeAerialAim);
         if (Has(held, Shoot | Jump))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeAerialAim);
+            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, gunExtended);
         if (Has(held, Left))
             return Accept(SamusPoseId.TurningRightToLeftJumpPose, TurnInAir);
         if (Has(held, Up))
@@ -269,39 +230,33 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, ChangeAerialAim);
         if (Has(held, Right))
             return Accept(SamusPoseId.NormalJumpForwardRightPose, ChangeAerialAim);
-        if (Has(held, Jump))
-            return Accept(SamusPoseId.NeutralJumpRightPose, ChangeAerialAim);
-        if (Has(held, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeAerialAim);
-        return new(null, HasConditions: true);
+        return null;
     }
 
-    /// <summary>The priority order of the damage boost left input list.</summary>
-    private static SamusPoseInputMatch MatchDamageBoostLeft(GameplayAction held)
+    /// <summary>
+    /// The priority order of a damage boost's input list, the boost facing <paramref name="toward"/> (#2557): Jump with Left is
+    /// tested before Jump with Right whichever way it faces; Jump toward its facing jumps forward, away from it keeps the
+    /// boost, and Jump alone jumps neutrally. Its poses are the right-facing boost's, mirrored for one facing left.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchDamageBoost(GameplayAction toward, GameplayAction held)
     {
-        if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.NormalJumpForwardLeftPose, JumpFromDamageBoost);
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.DamageBoostLeftPose, KeepPose);
-        if (Has(held, Jump))
-            return Accept(SamusPoseId.NeutralJumpLeftPose, JumpFromDamageBoost);
-        return new(null, HasConditions: true);
+        SamusPoseInputMatch match = Has(held, Jump | Left) ? DamageBoostJump(Left)
+            : Has(held, Jump | Right) ? DamageBoostJump(Right)
+            : Has(held, Jump) ? Accept(SamusPoseId.NeutralJumpRightPose, JumpFromDamageBoost)
+            : SamusPoseInputMatch.Exhausted;
+        return toward == Left ? match.Mirrored() : match;
+
+        SamusPoseInputMatch DamageBoostJump(GameplayAction direction) => direction == toward
+            ? Accept(SamusPoseId.NormalJumpForwardRightPose, JumpFromDamageBoost)
+            : Accept(SamusPoseId.DamageBoostRightPose, KeepPose);
     }
 
-    /// <summary>The priority order of the damage boost right input list.</summary>
-    private static SamusPoseInputMatch MatchDamageBoostRight(GameplayAction held)
-    {
-        if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.DamageBoostRightPose, KeepPose);
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.NormalJumpForwardRightPose, JumpFromDamageBoost);
-        if (Has(held, Jump))
-            return Accept(SamusPoseId.NeutralJumpRightPose, JumpFromDamageBoost);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the spin jump right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchSpinJumpRight(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>
+    /// The priority order of a right-facing spin's input list, the spin jump's, the Space Jump's or the Screw Attack's
+    /// (#2557): the spin keeps <paramref name="spin"/> and turns into its left-facing mirror; the mirrored list has the same
+    /// order mirrored.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchSpinRight(SamusPoseId spin, GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, AimFromSpin);
@@ -314,7 +269,7 @@ internal static class SamusPoseInputRules
         if (Has(held, AimDown | Shoot))
             return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, AimFromSpin);
         if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.SpinJumpRightPose, KeepPose);
+            return Accept(spin, KeepPose);
         if (Has(held, Up))
             return Accept(SamusPoseId.NormalJumpAimUpRightPose, AimFromSpin);
         if (Has(held, AimUp))
@@ -324,102 +279,31 @@ internal static class SamusPoseInputRules
         if (Has(held, Down))
             return Accept(SamusPoseId.NormalJumpAimDownRightPose, AimFromSpin);
         if (Has(held, Right))
-            return Accept(SamusPoseId.SpinJumpRightPose, KeepPose);
+            return Accept(spin, KeepPose);
         if (Has(held, Left))
-            return Accept(SamusPoseId.SpinJumpLeftPose, ChangeSpinDirection);
-        return new(null, HasConditions: true);
+            return Accept(SamusPoseMirror.Of(spin), ChangeSpinDirection);
+        return SamusPoseInputMatch.Exhausted;
     }
 
-    /// <summary>The priority order of the space jump right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchSpaceJumpRight(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, AimFromSpin);
-        if (Has(held, Shoot | Up))
-            return Accept(SamusPoseId.NormalJumpAimUpRightPose, AimFromSpin);
-        if (Has(held, Shoot | Down))
-            return Accept(SamusPoseId.NormalJumpAimDownRightPose, AimFromSpin);
-        if (Has(held, AimUp | Shoot))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, AimFromSpin);
-        if (Has(held, AimDown | Shoot))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, AimFromSpin);
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.SpaceJumpRightPose, KeepPose);
-        if (Has(held, Up))
-            return Accept(SamusPoseId.NormalJumpAimUpRightPose, AimFromSpin);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, AimFromSpin);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, AimFromSpin);
-        if (Has(held, Down))
-            return Accept(SamusPoseId.NormalJumpAimDownRightPose, AimFromSpin);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.SpaceJumpRightPose, KeepPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.SpaceJumpLeftPose, ChangeSpinDirection);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the screw attack right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchScrewAttackRight(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, AimFromSpin);
-        if (Has(held, Shoot | Up))
-            return Accept(SamusPoseId.NormalJumpAimUpRightPose, AimFromSpin);
-        if (Has(held, Shoot | Down))
-            return Accept(SamusPoseId.NormalJumpAimDownRightPose, AimFromSpin);
-        if (Has(held, AimUp | Shoot))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, AimFromSpin);
-        if (Has(held, AimDown | Shoot))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, AimFromSpin);
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.ScrewAttackRightPose, KeepPose);
-        if (Has(held, Up))
-            return Accept(SamusPoseId.NormalJumpAimUpRightPose, AimFromSpin);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, AimFromSpin);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, AimFromSpin);
-        if (Has(held, Down))
-            return Accept(SamusPoseId.NormalJumpAimDownRightPose, AimFromSpin);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.ScrewAttackRightPose, KeepPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.ScrewAttackLeftPose, ChangeSpinDirection);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the right-facing morph ball's input list on the ground, still or rolling.</summary>
-    private static SamusPoseInputMatch MatchMorphBallRight(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>
+    /// The priority order of the morph ball's input list on the ground, still or rolling (#2557): Up or Jump unmorphs it
+    /// through <paramref name="unmorph"/>, its facing's transition, and a direction rolls it that way.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchMorphBall(SamusPoseId unmorph, GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionRightPose, MorphOrUnmorph);
+            return Accept(unmorph, MorphOrUnmorph);
         if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.UnmorphingTransitionRightPose, MorphOrUnmorph);
+            return Accept(unmorph, MorphOrUnmorph);
         if (Has(held, Right))
             return Accept(SamusPoseId.MorphBallMovingRightPose, ChangeBallPose);
         if (Has(held, Left))
             return Accept(SamusPoseId.MorphBallMovingLeftPose, ChangeBallPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the left-facing morph ball's input list on the ground, still or rolling.</summary>
-    private static SamusPoseInputMatch MatchMorphBallLeft(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionLeftPose, MorphOrUnmorph);
-        if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.UnmorphingTransitionLeftPose, MorphOrUnmorph);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.MorphBallMovingRightPose, ChangeBallPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.MorphBallMovingLeftPose, ChangeBallPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the crouching right input list.</summary>
-    private static SamusPoseInputMatch MatchCrouchingRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchCrouchingRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up) && Has(held, AimUp | AimDown))
             return Accept(SamusPoseId.StandingTransitionAimUpRightPose, CrouchOrStand);
@@ -447,12 +331,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.CrouchingAimDiagonalDownRightPose, ChangeGroundedAim);
         if (Has(held, Right))
             return Accept(SamusPoseId.FacingRightNormalPose, StandFromCrouch);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the crouching left input list.</summary>
-    [MirroredAsymmetry("the left-facing crouch list exchanges the diagonal aim-up and aim-down chords as well as the directions")]
-    private static SamusPoseInputMatch MatchCrouchingLeft(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchCrouchingLeft(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up) && Has(held, AimUp | AimDown))
             return Accept(SamusPoseId.StandingTransitionAimUpLeftPose, CrouchOrStand);
@@ -480,11 +363,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.CrouchingAimDiagonalDownLeftPose, ChangeGroundedAim);
         if (Has(held, Left))
             return Accept(SamusPoseId.FacingLeftNormalPose, StandFromCrouch);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the falling right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchFallingRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchFallingRight(GameplayAction held)
     {
         if (Has(held, Right | Up))
             return Accept(SamusPoseId.FallingAimDiagonalUpRightPose, ChangeAerialAim);
@@ -508,11 +391,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.FallingGunExtendedRightPose, ChangeAerialAim);
         if (Has(held, Right))
             return Accept(SamusPoseId.FallingRightPose, ChangeAerialAim);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the morph ball falling right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchMorphBallFallingRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchMorphBallFallingRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionRightPose, MorphOrUnmorph);
@@ -522,16 +405,16 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.MorphBallFallingRightPose, KeepPose);
         if (Has(held, Left))
             return Accept(SamusPoseId.MorphBallFallingLeftPose, ChangeBallPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the left-facing moonwalk poses' input list, whatever their aim.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkLeft(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchMoonwalkLeft(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.CrouchingTransitionLeftPose, CrouchOrStand);
         if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.MoonwalkTurnJumpRightPose, StartMoonwalkTurnJump);
+            return Accept(SamusPoseId.MoonwalkTurnToSpinJumpRightPose, StartMoonwalkTurnToSpinJump);
         if (Has(held, AimDown | Shoot | Right))
             return Accept(SamusPoseId.MoonwalkAimDownLeftPose, ChangeMoonwalkPose);
         if (Has(held, AimUp | Shoot | Right))
@@ -542,17 +425,16 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.MovingLeftNormalPose, ChangeMoonwalkPose);
         if (Has(held, Right))
             return Accept(SamusPoseId.TurningLeftToRightPose, TurnOnGround);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the right-facing moonwalk poses' input list, whatever their aim.</summary>
-    [MirroredAsymmetry("the right-facing moonwalk list exchanges the diagonal aim-up and aim-down chords and aimed poses as well as the directions")]
-    private static SamusPoseInputMatch MatchMoonwalkRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchMoonwalkRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.CrouchingTransitionRightPose, CrouchOrStand);
         if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.MoonwalkTurnJumpLeftPose, StartMoonwalkTurnJump);
+            return Accept(SamusPoseId.MoonwalkTurnToSpinJumpLeftPose, StartMoonwalkTurnToSpinJump);
         if (Has(held, AimUp | Shoot | Left))
             return Accept(SamusPoseId.MoonwalkAimUpRightPose, ChangeMoonwalkPose);
         if (Has(held, AimDown | Shoot | Left))
@@ -563,46 +445,36 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.MovingRightNormalPose, ChangeMoonwalkPose);
         if (Has(held, Left))
             return Accept(SamusPoseId.TurningRightToLeftPose, TurnOnGround);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the knockback right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchKnockbackRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchKnockbackRight(GameplayAction held)
     {
         if (Has(held, Jump | Left))
             return Accept(SamusPoseId.DamageBoostRightPose, StartDamageBoost);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
-    /// <summary>The priority order of the spring ball ground right input list.</summary>
-    private static SamusPoseInputMatch MatchSpringBallGroundRight(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>
+    /// The priority order of the Spring Ball's input list on the ground (#2557): Up unmorphs it through
+    /// <paramref name="unmorph"/> and Jump springs it into <paramref name="jump"/>, its facing's, and a direction rolls it
+    /// that way.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchSpringBallGround(SamusPoseId unmorph, SamusPoseId jump, GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionRightPose, MorphOrUnmorph);
+            return Accept(unmorph, MorphOrUnmorph);
         if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.SpringBallJumpRightPose, JumpSpringBall);
+            return Accept(jump, JumpSpringBall);
         if (Has(held, Right))
             return Accept(SamusPoseId.SpringBallMovingRightPose, ChangeBallPose);
         if (Has(held, Left))
             return Accept(SamusPoseId.SpringBallMovingLeftPose, ChangeBallPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the spring ball ground left input list.</summary>
-    private static SamusPoseInputMatch MatchSpringBallGroundLeft(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionLeftPose, MorphOrUnmorph);
-        if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.SpringBallJumpLeftPose, JumpSpringBall);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.SpringBallMovingRightPose, ChangeBallPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.SpringBallMovingLeftPose, ChangeBallPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the spring ball falling right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchSpringBallFallingRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchSpringBallFallingRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionRightPose, MorphOrUnmorph);
@@ -610,35 +482,27 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.SpringBallFallingLeftPose, ChangeBallPose);
         if (Has(held, Right))
             return Accept(SamusPoseId.SpringBallFallingRightPose, KeepPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
-    /// <summary>The priority order of the spring ball jump right input list.</summary>
-    private static SamusPoseInputMatch MatchSpringBallJumpRight(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>
+    /// The priority order of the Spring Ball jump's input list, the jump facing <paramref name="toward"/> (#2557): Up unmorphs
+    /// it through its facing's transition, and Right is tested before Left whichever way it faces, a direction toward its
+    /// facing keeping the jump and one away from it turning the ball.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchSpringBallJump(GameplayAction toward, GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionRightPose, MorphOrUnmorph);
+            return Accept(toward == Left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, MorphOrUnmorph);
         if (Has(held, Right))
-            return Accept(SamusPoseId.SpringBallJumpRightPose, KeepPose);
+            return Accept(SamusPoseId.SpringBallJumpRightPose, toward == Right ? KeepPose : ChangeBallPose);
         if (Has(held, Left))
-            return Accept(SamusPoseId.SpringBallJumpLeftPose, ChangeBallPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the spring ball jump left input list.</summary>
-    private static SamusPoseInputMatch MatchSpringBallJumpLeft(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Up))
-            return Accept(SamusPoseId.UnmorphingTransitionLeftPose, MorphOrUnmorph);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.SpringBallJumpRightPose, ChangeBallPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.SpringBallJumpLeftPose, KeepPose);
-        return new(null, HasConditions: true);
+            return Accept(SamusPoseId.SpringBallJumpLeftPose, toward == Left ? KeepPose : ChangeBallPose);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the wall jump right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchWallJumpRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchWallJumpRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionRightPose, MorphOrUnmorph);
@@ -652,11 +516,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, AimFromSpin);
         if (Has(held, Jump))
             return Accept(SamusPoseId.WallJumpRightPose, KeepPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the ran into wall right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchRanIntoWallRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchRanIntoWallRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.NeutralJumpTransitionRightPose, StartJump);
@@ -680,57 +544,26 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.TurningRightToLeftPose, TurnOnGround);
         if (Has(held, Right))
             return Accept(SamusPoseId.MovingRightNormalPose, StartRunning);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
-    /// <summary>The priority order of the normal jump gun extended right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpGunExtendedRight(GameplayAction held)
-    {
-        if (Has(held, Jump | Right | Up))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeAerialAim);
-        if (Has(held, Jump | Right | Down))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, ChangeAerialAim);
-        if (Has(held, AimUp | Jump | Right))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeAerialAim);
-        if (Has(held, AimDown | Jump | Right))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, ChangeAerialAim);
-        if (Has(held, Right | Up))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeAerialAim);
-        if (Has(held, Right | Down))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, ChangeAerialAim);
-        if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.TurningRightToLeftJumpPose, TurnInAir);
-        if (Has(held, Jump | Up))
-            return Accept(SamusPoseId.NormalJumpAimUpRightPose, ChangeAerialAim);
-        if (Has(held, Jump | Down))
-            return Accept(SamusPoseId.NormalJumpAimDownRightPose, ChangeCompactAerialPose);
-        if (Has(held, AimUp | Jump))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeAerialAim);
-        if (Has(held, AimDown | Jump))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, ChangeAerialAim);
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.NormalJumpForwardRightPose, ChangeAerialAim);
-        if (Has(held, Shoot | Jump))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, KeepPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.TurningRightToLeftJumpPose, TurnInAir);
-        if (Has(held, Up))
-            return Accept(SamusPoseId.NormalJumpAimUpRightPose, ChangeAerialAim);
-        if (Has(held, Down))
-            return Accept(SamusPoseId.NormalJumpAimDownRightPose, ChangeCompactAerialPose);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeAerialAim);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, ChangeAerialAim);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.NormalJumpForwardRightPose, ChangeAerialAim);
-        if (Has(held, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, KeepPose);
-        return new(null, HasConditions: true);
-    }
+    /// <summary>
+    /// The priority order of the right-facing aimed-down normal jump's input list (#2557); the left-facing list is it mirrored
+    /// without its forward Shoot-and-Jump chord (<see cref="MatchNormalJumpAimDownLeftOfRight"/>).
+    /// </summary>
+    internal static SamusPoseInputMatch MatchNormalJumpAimDownRight(GameplayAction held, GameplayAction newlyPressed) =>
+        AimedDownJumpOpening(held, newlyPressed)
+        ?? (Has(held, Shoot | Jump | Right) ? Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeCompactAerialPose) : AimedDownJumpClosing(held));
 
-    /// <summary>The priority order of the normal jump aim down right input list.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpAimDownRight(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>
+    /// The left-facing aimed-down normal jump's input list read as the right-facing one (#2557), its buttons and poses to be
+    /// mirrored for the left-facing jump: the right-facing list without its forward Shoot-and-Jump chord.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchNormalJumpAimDownLeftOfRight(GameplayAction held, GameplayAction newlyPressed) =>
+        AimedDownJumpOpening(held, newlyPressed) ?? AimedDownJumpClosing(held);
+
+    /// <summary>The right-facing aimed-down jump's chords before its forward Shoot-and-Jump chord; none when no chord holds.</summary>
+    private static SamusPoseInputMatch? AimedDownJumpOpening(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionRightPose, MorphOrUnmorph);
@@ -742,8 +575,12 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeCompactAerialPose);
         if (Has(held, AimDown | Jump | Right))
             return Accept(SamusPoseId.NormalJumpAimDiagonalDownRightPose, ChangeCompactAerialPose);
-        if (Has(held, Shoot | Jump | Right))
-            return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeCompactAerialPose);
+        return null;
+    }
+
+    /// <summary>The right-facing aimed-down jump's chords after its forward Shoot-and-Jump chord.</summary>
+    private static SamusPoseInputMatch AimedDownJumpClosing(GameplayAction held)
+    {
         if (Has(held, Right | Up))
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose, ChangeCompactAerialPose);
         if (Has(held, Right | Down))
@@ -778,61 +615,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NormalJumpAimDownRightPose, KeepPose);
         if (Has(held, Shoot))
             return Accept(SamusPoseId.NormalJumpGunExtendedRightPose, ChangeCompactAerialPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the normal jump aim down left input list.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpAimDownLeft(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Down))
-            return Accept(SamusPoseId.MorphingTransitionLeftPose, MorphOrUnmorph);
-        if (Has(held, Jump | Left | Up))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Jump | Left | Down))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, ChangeCompactAerialPose);
-        if (Has(held, AimUp | Jump | Left))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, ChangeCompactAerialPose);
-        if (Has(held, AimDown | Jump | Left))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Left | Up))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Left | Down))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.TurningLeftToRightJumpPose, TurnInAir);
-        if (Has(held, Jump | Up))
-            return Accept(SamusPoseId.NormalJumpAimUpLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Jump | Down))
-            return Accept(SamusPoseId.NormalJumpAimDownLeftPose, KeepPose);
-        if (Has(held, AimUp | Jump))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, ChangeCompactAerialPose);
-        if (Has(held, AimDown | Jump))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Jump | Left))
-            return Accept(SamusPoseId.NormalJumpForwardLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Shoot | Jump))
-            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.TurningLeftToRightJumpPose, TurnInAir);
-        if (Has(held, Up))
-            return Accept(SamusPoseId.NormalJumpAimUpLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Down))
-            return Accept(SamusPoseId.NormalJumpAimDownLeftPose, KeepPose);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, ChangeCompactAerialPose);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.NormalJumpForwardLeftPose, ChangeCompactAerialPose);
-        if (Has(held, Jump))
-            return Accept(SamusPoseId.NormalJumpAimDownLeftPose, KeepPose);
-        if (Has(held, Shoot))
-            return Accept(SamusPoseId.NormalJumpGunExtendedLeftPose, ChangeCompactAerialPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the unmorphing transition right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchUnmorphingTransitionRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchUnmorphingTransitionRight(GameplayAction held)
     {
         if (Has(held, Shoot | Right))
             return Accept(SamusPoseId.FallingGunExtendedRightPose, FallFromUnmorph);
@@ -840,11 +627,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.FallingAimUpRightPose, FallFromUnmorph);
         if (Has(held, Shoot | Down))
             return Accept(SamusPoseId.FallingAimDownRightPose, FallFromUnmorph);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the turning right to left input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchTurningRightToLeft(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchTurningRightToLeft(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(held, Jump | Left))
             return Accept(SamusPoseId.SpinJumpLeftPose, StartJump);
@@ -852,47 +639,38 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NeutralJumpTransitionLeftPose, StartJump);
         if (Has(held, Left))
             return Accept(SamusPoseId.TurningRightToLeftPose, KeepPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
-    /// <summary>The priority order of the turning right to left aim up input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchTurningRightToLeftAimUp(GameplayAction held, GameplayAction newlyPressed)
+    /// <summary>
+    /// The priority order of an aimed right-to-left ground turn's input list, aimed up or diagonally down (#2557): the turn
+    /// keeps <paramref name="turn"/>; the mirrored list has the same order mirrored.
+    /// </summary>
+    internal static SamusPoseInputMatch MatchAimedTurningRightToLeft(SamusPoseId turn, GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
             return Accept(SamusPoseId.SpinJumpLeftPose, StartJump);
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.NeutralJumpTransitionLeftPose, StartJump);
         if (Has(held, Left))
-            return Accept(SamusPoseId.TurningRightToLeftAimUpPose, KeepPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the turning right to left aim diagonal down input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchTurningRightToLeftAimDiagonalDown(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Jump) && Has(held, Left))
-            return Accept(SamusPoseId.SpinJumpLeftPose, StartJump);
-        if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.NeutralJumpTransitionLeftPose, StartJump);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.TurningRightToLeftAimDiagonalDownPose, KeepPose);
-        return new(null, HasConditions: true);
+            return Accept(turn, KeepPose);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the shinespark windup right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchShinesparkWindupRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchShinesparkWindupRight(GameplayAction held)
     {
         if (Has(held, Jump | Up))
-            return Accept(SamusPoseId.ShinesparkVerticalRightPose, AimShinespark);
+            return Accept(SamusPoseId.ShinesparkVerticalRightPose, AimShinesparkVertical);
         if (Has(held, AimUp | Jump))
-            return Accept(SamusPoseId.ShinesparkDiagonalRightPose, AimShinespark);
+            return Accept(SamusPoseId.ShinesparkDiagonalRightPose, AimShinesparkDiagonal);
         if (Has(held, Jump | Right))
-            return Accept(SamusPoseId.ShinesparkHorizontalRightPose, AimShinespark);
-        return new(null, HasConditions: true);
+            return Accept(SamusPoseId.ShinesparkHorizontalRightPose, AimShinesparkHorizontal);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the falling aim down right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchFallingAimDownRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchFallingAimDownRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionRightPose, MorphOrUnmorph);
@@ -914,19 +692,19 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.FallingGunExtendedRightPose, ChangeCompactAerialPose);
         if (Has(held, Right))
             return Accept(SamusPoseId.FallingRightPose, ChangeCompactAerialPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the input list of the left-facing ball pose Draygon holds Samus in.</summary>
-    private static SamusPoseInputMatch MatchDraygonHeldBallLeft(GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchDraygonHeldBallLeft(GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.DraygonHeldStandingUpLeftPose, StandUpFromDraygonHold);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the input list of every right-facing pose Draygon's grab holds Samus in.</summary>
-    private static SamusPoseInputMatch MatchDraygonGrabbedRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchDraygonGrabbedRight(GameplayAction held)
     {
         if (Has(held, Shoot | Right | Up))
             return Accept(SamusPoseId.DraygonGrabbedAimUpRightPose, ChangeDraygonGrabbedPose);
@@ -948,67 +726,11 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.DraygonGrabbedMovingRightPose, ChangeDraygonGrabbedPose);
         if (Has(held, Down))
             return Accept(SamusPoseId.DraygonGrabbedMovingRightPose, ChangeDraygonGrabbedPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the input list of every left-facing pose Draygon's grab holds Samus in.</summary>
-    private static SamusPoseInputMatch MatchDraygonGrabbedLeft(GameplayAction held)
-    {
-        if (Has(held, Shoot | Left | Up))
-            return Accept(SamusPoseId.DraygonGrabbedAimUpLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, Shoot | Left | Down))
-            return Accept(SamusPoseId.DraygonGrabbedAimDownLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, Shoot | Left))
-            return Accept(SamusPoseId.DraygonGrabbedFiringLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.DraygonGrabbedAimUpLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.DraygonGrabbedAimDownLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, Shoot))
-            return Accept(SamusPoseId.DraygonGrabbedFiringLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, Up))
-            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose, ChangeDraygonGrabbedPose);
-        if (Has(held, Down))
-            return Accept(SamusPoseId.DraygonGrabbedMovingLeftPose, ChangeDraygonGrabbedPose);
-        return new(null, HasConditions: true);
-    }
-
-    /// <summary>The priority order of the moving right gun extended input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchMovingRightGunExtended(GameplayAction held, GameplayAction newlyPressed)
-    {
-        if (Has(newlyPressed, Down))
-            return Accept(SamusPoseId.CrouchingTransitionRightPose, CrouchOrStand);
-        if (Has(newlyPressed, Jump))
-            return Accept(SamusPoseId.SpinJumpRightPose, StartJump);
-        if (Has(held, AimUp | Right))
-            return Accept(SamusPoseId.RunningAimDiagonalUpRightPose, ChangeGroundedAim);
-        if (Has(held, AimDown | Right))
-            return Accept(SamusPoseId.RunningAimDiagonalDownRightPose, ChangeGroundedAim);
-        if (Has(held, Right | Up))
-            return Accept(SamusPoseId.RunningAimDiagonalUpRightPose, ChangeGroundedAim);
-        if (Has(held, Right | Down))
-            return Accept(SamusPoseId.RunningAimDiagonalDownRightPose, ChangeGroundedAim);
-        if (Has(held, Shoot | Right))
-            return Accept(SamusPoseId.MovingRightGunExtendedPose, KeepPose);
-        if (Has(held, Right))
-            return Accept(SamusPoseId.MovingRightGunExtendedPose, KeepPose);
-        if (Has(held, Left))
-            return Accept(SamusPoseId.TurningRightToLeftPose, TurnOnGround);
-        if (Has(held, Up))
-            return Accept(SamusPoseId.StandingAimUpRightPose, ChangeGroundedAim);
-        if (Has(held, AimUp))
-            return Accept(SamusPoseId.StandingAimDiagonalUpRightPose, ChangeGroundedAim);
-        if (Has(held, AimDown))
-            return Accept(SamusPoseId.StandingAimDiagonalDownRightPose, ChangeGroundedAim);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the falling gun extended right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchFallingGunExtendedRight(GameplayAction held)
+    internal static SamusPoseInputMatch MatchFallingGunExtendedRight(GameplayAction held)
     {
         if (Has(held, Right | Up))
             return Accept(SamusPoseId.FallingAimDiagonalUpRightPose, ChangeAerialAim);
@@ -1028,26 +750,26 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.FallingGunExtendedRightPose, KeepPose);
         if (Has(held, Right))
             return Accept(SamusPoseId.FallingGunExtendedRightPose, KeepPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>The priority order of the moonwalk turn jump right input list; the mirrored list has the same order mirrored.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpRight(GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchMoonwalkTurnToSpinJumpRight(GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.SpinJumpRightPose, StartJump);
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.NeutralJumpTransitionRightPose, StartJump);
         if (Has(held, Right))
-            return Accept(SamusPoseId.MoonwalkTurnJumpRightPose, KeepPose);
-        return new(null, HasConditions: true);
+            return Accept(SamusPoseId.MoonwalkTurnToSpinJumpRightPose, KeepPose);
+        return SamusPoseInputMatch.Exhausted;
     }
 
     /// <summary>
     /// The aimed-up and aimed-down moonwalk turn-jump input lists, in both directions: one priority order for an aimed
     /// moonwalk turn jump to the right, continuing <paramref name="aimedTurnJump"/>; the leftward lists are it mirrored.
     /// </summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimedRight(SamusPoseId aimedTurnJump, GameplayAction held, GameplayAction newlyPressed)
+    internal static SamusPoseInputMatch MatchMoonwalkTurnToSpinJumpAimedRight(SamusPoseId aimedTurnJump, GameplayAction held, GameplayAction newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
             return Accept(SamusPoseId.SpinJumpRightPose, StartJump);
@@ -1055,6 +777,6 @@ internal static class SamusPoseInputRules
             return Accept(SamusPoseId.NeutralJumpTransitionRightPose, StartJump);
         if (Has(held, Right))
             return Accept(aimedTurnJump, KeepPose);
-        return new(null, HasConditions: true);
+        return SamusPoseInputMatch.Exhausted;
     }
 }

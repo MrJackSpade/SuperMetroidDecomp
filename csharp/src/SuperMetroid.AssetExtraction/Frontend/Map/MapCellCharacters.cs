@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// cell is pictured from the first character and mirroring that pictures it, in the colour row of the shade it is shown
 /// in. The game never sees a character, a mirroring or a colour row.
 /// </summary>
-internal static class MapCellCharacters
+internal static partial class MapCellCharacters
 {
     /// <summary>Each classified character and mirroring's cell.</summary>
     private static readonly Dictionary<MapCellSource, MapCell> CellsBySource = IndexSources();
@@ -94,10 +94,10 @@ internal static class MapCellCharacters
     internal static void RequireOnePicturePerCell(ScreenCharacters characters)
     {
         Ensure.NotNull(characters);
-        var painted = new Dictionary<MapCell, byte[]>();
+        var painted = new Dictionary<MapCell, ComposedInk[]>();
         foreach (MapCellCharacter entry in MapCellCharacterDefinitions.Characters)
         {
-            byte[] pixels = Paint(characters, entry.Source, ComparedRow, Unshaded).PaletteIndices;
+            ComposedInk[] pixels = Paint(characters, entry.Source, ComparedRow, Unshaded).Inks;
             if (!painted.TryAdd(entry.Cell, pixels) && !painted[entry.Cell].SequenceEqual(pixels))
                 throw new InvalidDataException(
                     $"Map character {entry.Source.Character} mirrored {entry.Source.Mirroring} paints other pixels than the first source of the map cell {entry.Cell.Name}, so the cell is two pictures.");

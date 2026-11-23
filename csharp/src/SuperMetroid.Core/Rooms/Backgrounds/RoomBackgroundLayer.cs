@@ -8,6 +8,6 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// </summary>
 /// <param name="Blocks">The room plane's blocks shown (#1403).</param>
 /// <param name="Pictures">The pre-coloured picture each of the plane's blocks shows (#1392), resolved as the plane is latched (#2498).</param>
-public sealed record RoomBackgroundLayer(RoomBlockCells Blocks, RoomBlockPictureTable Pictures)
+public sealed partial record RoomBackgroundLayer(RoomBlockCells Blocks, RoomBlockPictureTable Pictures)
 {
 }

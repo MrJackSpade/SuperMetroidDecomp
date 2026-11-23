@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// displacement. The profiles and multipliers give the exact discrete geometry and whole-pixel
 /// movement.
 /// </remarks>
-public static class SamusSlopePhysics
+public static partial class SamusSlopePhysics
 {
     /// <summary>
     /// Reacts to a non-square slope during horizontal block collision.
@@ -20,19 +20,18 @@ public static class SamusSlopePhysics
     /// The slope block's behaviour: its profile and whether it is a ceiling slope.
     /// </param>
     /// <param name="displacement">The horizontal displacement.</param>
-    /// <param name="verticalSpeed">Samus's vertical speed. Any motion suppresses grounded slope scaling exactly as the game does.</param>
+    /// <param name="verticalSpeed">Samus's vertical speed; any vertical motion leaves the displacement
+    /// unscaled.</param>
     public static SignedSixteenSixteen ScaleGroundedHorizontalDisplacement(
         RoomBlockBehavior behavior,
         SignedSixteenSixteen displacement,
         UnsignedSixteenSixteen verticalSpeed)
     {
-        // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
-        // the game's complete early-return condition, not an invented policy choice.
+        // Ceiling slopes and an airborne Samus keep their horizontal displacement unscaled.
         if (behavior.Slope.FlipsVertically || !verticalSpeed.IsZero)
             return displacement;
 
-        // The displacement is counted in whole 256ths of a pixel before scaling, rounding toward negative infinity, so a
-        // leftward displacement scales by the same rule as a rightward one.
+        // A slope scales leftward and rightward movement by the same rule (SignedSixteenSixteen.ScaledBy).
         return displacement.ScaledBy(behavior.Slope.Shape.GroundedSpeedShare);
     }
 

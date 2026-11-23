@@ -26,7 +26,7 @@ internal static class CrystalFlashVisualsVerification
     /// </summary>
     internal static CrystalFlashFrameScenes VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, SuperMetroid.AssetExtraction.Cartridge.ISnesAddressSpace bus, int elapsed)
     {
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         if (samus.SpecialColouring.Holds(SamusSpecialColouringKind.CrystalFlash))
         {
@@ -56,8 +56,8 @@ internal static class CrystalFlashVisualsVerification
         RgbColor dark = InstalledFixtures.SamusShadeSources.Death.WhiteoutColor(DarkBeamsStep);
         RgbColor light = InstalledFixtures.SamusShadeSources.Death.WhiteoutColor(LightBeamsStep);
         AssertTrue(dark != light, "the two whiteout shades that isolate the Crystal Flash body show different colours");
-        FramePaint beamsDark = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(new SuperMetroid.Core.Samus.Death.SamusWhiteoutShade(DarkBeamsStep))));
-        FramePaint beamsLight = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(new SuperMetroid.Core.Samus.Death.SamusWhiteoutShade(LightBeamsStep))));
+        FramePaint beamsDark = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(new global::SuperMetroid.Core.Samus.Death.SamusWhiteoutShade(DarkBeamsStep))));
+        FramePaint beamsLight = packet.Paint.WithShownDraws(ShadeSamus(packet.Paint.SpriteDraws, SamusShades.DeathWhiteout(new global::SuperMetroid.Core.Samus.Death.SamusWhiteoutShade(LightBeamsStep))));
         int centerX = samus.Position.X.Whole - runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.X;
         int centerY = samus.Position.Y.Whole - runtime.Display.DisplayedGameplayScrolls.ForegroundPosition.Y;
         AssertTrue(centerX is >= 32 and <= 223 && centerY is >= 64 and <= 191,
@@ -65,12 +65,12 @@ internal static class CrystalFlashVisualsVerification
         // Removing only the captured color window keeps identical OAM, palette, terrain and camera, isolating its actual
         // visible contribution.
         LayeredScene? withoutWindow = runtime.BombProjectiles.PowerBombExplosion.Blast.Phase is
-            PowerBombExplosionPhase.CrystalFlashExplosion or PowerBombExplosionPhase.CrystalFlashAfterglow
+            PowerBombExplosionPhase.Running.CrystalFlashExplosion or PowerBombExplosionPhase.Running.CrystalFlashAfterglow
             ? packet.Without<ColourAddWindowLayer>() : null;
         return new CrystalFlashFrameScenes(elapsed, packet, new LayeredScene(beamsDark, packet.Layers, packet.Brightness),
             new LayeredScene(beamsLight, packet.Layers, packet.Brightness), withoutWindow, centerX, centerY);
 
-        ushort Word(int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        ushort Word(int address) => bus.ReadCartridgeWord(address);
     }
 
     /// <summary>

@@ -10,14 +10,12 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// Shows an area map as the map screens draw it (#1467): a picture grid of the map's cells, each the installed picture of
 /// the cell (#1513) in the shade the screen shows it in.
 /// </summary>
-internal static class AreaMapPictures
+internal static partial class AreaMapPictures
 {
     /// <summary>The frame name of the picture of <paramref name="shown"/>'s cell in its shade.</summary>
-    [InstalledKey]
     internal static string FrameName(ShownMapCell shown) => $"Map.Cell.{shown.Cell.Name}.{MapCellShadeKeys.Installed.Of(shown.Shade)}";
 
     /// <summary>The frame name of <paramref name="area"/>'s room-map frame page.</summary>
-    [InstalledKey]
     internal static string RoomFrameName(AreaId area) => $"Map.RoomFrame.{AreaIdKeys.Installed.Of(area)}";
 
     /// <summary>The frame name of the world map's foreground page in an area's world-map sheet.</summary>

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres elevator arrival actors' typed animations (#641, #1600): the pad alternates two poses, each for one update
 /// at a time, and the platform rests on its one pose, until both leave as Samus lands (#2424).
 /// </summary>
-internal static class CeresElevatorArrivalAnimations
+internal static partial class CeresElevatorArrivalAnimations
 {
     /// <summary>Every arrival segment's beats.</summary>
     internal static AnimationSegments<CeresElevatorArrivalSegment, CeresElevatorArrivalPose, NoAnimationCue> Segments { get; } = new(

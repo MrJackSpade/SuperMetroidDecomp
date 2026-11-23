@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// circle him, how his casual flames bounce, his intro's waits, his rounds' waits, where he rises for his rage, how his
 /// swoop and gaze measure Samus, his rain's flames, and his death's band, fades, explosions, drops and power delay.
 /// </summary>
-internal static class PhantoonArenaDefinitions
+internal static partial class PhantoonArenaDefinitions
 {
     /// <summary>The width and height of his one-screen room, outside which his enraged flames go.</summary>
     internal const int RoomSize = RoomGridConversions.BlocksPerScreen * RoomGridConversions.BlockPixels;
@@ -122,8 +122,8 @@ internal static class PhantoonArenaDefinitions
     internal const int FirstDyingExplosionUpdates = 15;
 
     /// <summary>
-    /// The updates of the wait, once he is gone, before the Wrecked Ship's power starts coming on: sixty updates pass, and
-    /// the power may start on the next, which is the wait's last.
+    /// The updates of the wait, once he is gone, before the Wrecked Ship's power starts coming on: the power may start on
+    /// the wait's last.
     /// </summary>
     internal const int PowerReturnDelayUpdates = 61;
 

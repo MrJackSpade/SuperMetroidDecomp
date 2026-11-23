@@ -3,10 +3,10 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The state of a Yard. Names follow what each value does.</summary>
-public sealed class YardEnemyState
+public sealed partial class YardEnemyState
 {
-    /// <summary>Starts the Yard in <paramref name="movement"/>.</summary>
-    internal YardEnemyState(YardMovement movement) => Movement = movement;
+    /// <summary>Starts the Yard holding still, as it is placed in the room.</summary>
+    internal YardEnemyState() => Motion = YardMotion.HoldingStill;
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<YardSegment> Playback { get; set; }
@@ -26,23 +26,36 @@ public sealed class YardEnemyState
     internal YardSegment? HidingAnimation { get; set; }
 
     /// <summary>The missing-surface probes in a row that drop Yard.</summary>
-    internal const int MissedProbesBeforeFalling = 4;
+    private const int MissedProbesBeforeFalling = 4;
 
     /// <summary>
-    /// Consecutive missing-surface probe count, 0 through 4, reset on surface contact and landing; the fourth failure
-    /// drops Yard instead of installing another outside-corner turn.
+    /// Consecutive missing-surface probe count, 0 through <see cref="MissedProbesBeforeFalling"/>: only a missed probe
+    /// counts it, and the miss that reaches that count drops Yard instead of installing another outside-corner turn, while
+    /// surface contact and landing reset it.
     /// </summary>
-    public int ConsecutiveTurnCounter
+    private int ConsecutiveTurnCounter { get; set; }
+
+    /// <summary>
+    /// Counts one more missed surface probe and reports whether Yard has now missed enough in a row to drop instead of
+    /// turning the outside corner.
+    /// </summary>
+    internal bool MissedSurfaceTooOften()
     {
-        get;
-        internal set => field = Ensure.BetweenInclusive(0, MissedProbesBeforeFalling, value);
+        ConsecutiveTurnCounter++;
+        return ConsecutiveTurnCounter >= MissedProbesBeforeFalling;
     }
+
+    /// <summary>Resets the missed-probe count, as surface contact and landing do.</summary>
+    internal void ResetMissedProbes() => ConsecutiveTurnCounter = 0;
 
     /// <summary>
     /// The Yard's movement step, which may lag a direction cue by one update and so is chosen independently of
-    /// <see cref="Direction"/>.
+    /// <see cref="Direction"/>: the movement its <see cref="Motion"/> is.
     /// </summary>
-    public YardMovement Movement { get; internal set; }
+    public YardMovement Movement => Motion.Movement;
+
+    /// <summary>How the Yard moves, holding what its movement needs: an airborne Yard holds the animation it lands with.</summary>
+    internal YardMotion Motion { get; set; }
 
     /// <summary>
     /// The way the Yard crawls while its <see cref="Movement"/> is <see cref="YardMovement.Crawling"/>: the surface and way
@@ -51,9 +64,9 @@ public sealed class YardEnemyState
     public YardDirection Crawl { get; internal set; }
 
     /// <summary>
-    /// The airborne Yard's velocity in pixels per update. Gravity adds an eighth of a pixel to its fall, its sideways
-    /// speed slows by a sixteenth of a pixel toward rest while it meets nothing, and a collision reverses each part as the
-    /// compatibility services describe; a downward collision lands it while it falls less than three pixels an update.
+    /// The airborne Yard's velocity in pixels per update. Gravity adds to its fall, its sideways speed slows toward rest
+    /// while it meets nothing, and a collision reverses each part as the compatibility services describe; a downward
+    /// collision lands it while it falls slower than its landing limit.
     /// </summary>
     public FixedVector<RoomPixels> AirborneVelocity { get; internal set; }
     /// <summary>

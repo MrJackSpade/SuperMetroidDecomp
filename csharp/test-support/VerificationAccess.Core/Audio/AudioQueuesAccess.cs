@@ -39,7 +39,7 @@ internal static class AudioQueuesAccess
         /// </summary>
         /// <param name="library">The library marked.</param>
         internal SoundRequestsMark MarkSoundRequestsForVerification(SoundEffectLibrary library) =>
-            new(library, self.SoundHandshakes.Awaited(library), HandshakeOf(self, library).Phase, [.. self.WaitingSounds(library)]);
+            new(library, self.SoundHandshakes.Awaited(library)?.Sound, HandshakeOf(self, library).Phase, [.. self.WaitingSounds(library)]);
 
         /// <summary>
         /// The requests queued for <paramref name="mark"/>'s library since the mark, oldest first, across at most one
@@ -78,8 +78,7 @@ internal static class AudioQueuesAccess
 
     /// <summary>The handshake <paramref name="library"/>'s handler runs in <paramref name="queues"/>.</summary>
     private static SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.Handshake HandshakeOf(AudioQueues queues, SoundEffectLibrary library) =>
-        PrivateState.Field<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>,
-            Dictionary<SoundEffectLibrary, SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.Handshake>>(queues.SoundHandshakes, "handshakes")[library];
+        queues.SoundHandshakes.handshakes[library];
 
     /// <summary>Creates queues for a check that runs them without a game session.</summary>
     extension(AudioQueues)

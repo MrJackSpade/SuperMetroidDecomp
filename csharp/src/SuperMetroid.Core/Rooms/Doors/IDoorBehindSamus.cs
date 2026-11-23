@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// (#1554, #2091, #2493): a coloured or grey cap, a blue cap a shot opened or another door turned into, an eye door's body,
 /// or the gate Mother Brain's escape room shuts. Its owner places it as a door (<see cref="RoomObjectPlace.BecomeDoor{TDoor}"/>),
 /// and the door transition's search for the first door at the door's block, in the room's update order, reads only such
-/// objects (<see cref="DoorObjects.TrySpawnDoorClosingObject"/>).
+/// objects (<see cref="DoorObjects.SpawnDoorClosingObject"/>).
 /// </summary>
 /// <remarks>
 /// The search asks <see cref="StaysOpenBehindSamus"/> first and asks only a door that does not stay open to close: the

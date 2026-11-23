@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 
@@ -12,13 +11,13 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// pictures one period of what it shows (#1651), laid out as its room shows it (#1617), which the background shows over and
 /// over across and down; the scrolling sky pictures all its rows.
 /// </summary>
-public sealed class RoomBackgroundImage
+public sealed partial class RoomBackgroundImage
 {
     /// <summary>The frame of an image's sheet that pictures the whole background.</summary>
     public const string FrameName = "image";
 
     /// <summary>Pixels along a cell's side.</summary>
-    public const int CellPixels = 16;
+    internal const int CellPixels = RoomGridConversions.BlockPixels;
 
     /// <summary>
     /// Checks the image is whole cells across and down, that each installed part of its picture (#1634) is the image's size,
@@ -68,23 +67,20 @@ public sealed class RoomBackgroundImage
     /// <summary>The image's width and height.</summary>
     public Extent16<ImagePixels> Size { get; }
 
-    /// <summary>The image's 16x16 cells, row by row across the picture.</summary>
+    /// <summary>The image's block-sized cells, row by row across the picture.</summary>
     public int CellCount { get; }
 
     /// <summary>The cells whose pictures change with the room's appearance inputs; every other cell always shows the image.</summary>
     public IReadOnlyList<RoomBackgroundCell> Cells { get; }
 
     /// <summary>The installed name of the sky <paramref name="sky"/>'s rows in a room of <paramref name="tileset"/>.</summary>
-    [InstalledKey]
     public static string SkyNameOf(ScrollingSky sky, TilesetDefinition tileset) =>
         $"Sky{ScrollingSkyKeys.Installed.Of(sky)}.{RoomBlockSheet.NameOf(tileset)}";
 
     /// <summary>
-    /// The installed name of <paramref name="background"/>'s picture in a room of <paramref name="tileset"/>: the picture a
-    /// room entered through <paramref name="door"/> shows when that door shows its own picture, otherwise, for no door,
-    /// the ordinary one.
+    /// The installed name of <paramref name="background"/>'s picture <paramref name="picture"/> in a room of
+    /// <paramref name="tileset"/>: a door's picture is named for its door, the ordinary picture for the background alone.
     /// </summary>
-    [InstalledKey]
-    public static string NameOf(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
-        $"{Ensure.NotNull(background).Name}{(door is null ? "" : "." + door.Name)}.{RoomBlockSheet.NameOf(tileset)}";
+    public static string NameOf(LibraryBackground background, LibraryBackgroundPicture picture, TilesetDefinition tileset) =>
+        $"{Ensure.NotNull(background).Name}{(Ensure.NotNull(picture) is LibraryBackgroundPicture.DoorPicture shown ? "." + shown.Door.Name : "")}.{RoomBlockSheet.NameOf(tileset)}";
 }

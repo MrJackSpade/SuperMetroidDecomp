@@ -9,8 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// The single owner of the WAVE file encoding: its two-byte header fields and sixteen-bit samples are read and written
 /// at the widths the file format defines.
 /// </remarks>
-[EncodingOwner("PCM16 RIFF/WAVE file")]
-public static class PcmWaveFile
+public static partial class PcmWaveFile
 {
     /// <summary>RIFF format code one, required to exclude compressed WAVE encodings.</summary>
     private const ushort PcmFormat = 1;

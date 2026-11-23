@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 /// Which of a map screen's sprite sets each map sprite colouring is (#1512): the cartridge draws each colouring's
 /// palette-inheriting parts in that set, and the import pre-colours the colouring's shade from it.
 /// </summary>
-internal static class MapSpriteColouringSets
+internal static partial class MapSpriteColouringSets
 {
     /// <summary>The sprite set each colouring draws in.</summary>
     private static readonly Dictionary<MapSpriteColouring, int> Sets = new()

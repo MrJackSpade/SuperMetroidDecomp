@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// The shares of a grounded horizontal move, and of a crawler's tangent speed, that cross each family of slope shapes
 /// (<see cref="SlopeShapeDefinitions"/>).
 /// </summary>
-public static class SlopeSpeedDefinitions
+public static partial class SlopeSpeedDefinitions
 {
     /// <summary>The whole distance, for the square, flat, peaked, open and overhanging shapes.</summary>
     /// <remarks>Family membership follows the authored height profiles. The shares are authored tuning, not a function of a

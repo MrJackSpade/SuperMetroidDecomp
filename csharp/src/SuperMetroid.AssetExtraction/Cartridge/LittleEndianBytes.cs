@@ -14,8 +14,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// memory, a register's low/high byte, or a byte the cartridge stores in a word's high half. A shift that divides
 /// by 256 for another reason (an 8.8 whole part, a 256-pixel screen, a fraction scale) belongs to that domain's type.
 /// </remarks>
-[EncodingOwner("little-endian byte order of stored words")]
-public static class LittleEndianBytes
+public static partial class LittleEndianBytes
 {
     /// <summary>Bits in one storage byte, the distance between adjacent byte lanes.</summary>
     public const int BitsPerByte = 8;

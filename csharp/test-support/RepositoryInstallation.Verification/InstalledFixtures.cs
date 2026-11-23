@@ -65,7 +65,7 @@ internal static class InstalledFixtures
 
     /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations, made once.</summary>
     private static readonly Lazy<SamusShownFrameAnalysis> samusShownFrameAnalysis = Shared<SamusShownFrameAnalysis>("Samus shown frames", () =>
-        new SamusShownFrameAnalysis(SamusAnimationLayout.Read(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(
+        new SamusShownFrameAnalysis(SamusAnimationLayout.Read((
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))))));
 
     /// <summary>The import's analysis of the frames Samus's body can show, decided from the retail cartridge's layout of her animations.</summary>
@@ -197,6 +197,20 @@ internal static class InstalledFixtures
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
 
+    /// <summary>The installed catalogs fixture games are built with, loaded once per process.</summary>
+    private static readonly Lazy<GameArtwork> fixtureGameArtwork =
+        new(() => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
+
+    /// <summary>
+    /// The installation's enemy catalog parts as the import reads them, every member complete, loaded once per process:
+    /// what a check copies with the one catalog it replaces.
+    /// </summary>
+    internal static EnemyTileArtworkParts EnemyArtworkParts => enemyArtworkParts.Value;
+
+    /// <summary>Lazy enemy catalog parts as the import reads them.</summary>
+    private static readonly Lazy<EnemyTileArtworkParts> enemyArtworkParts = Shared<EnemyTileArtworkParts>("enemy artwork parts", () =>
+        EnemyArtwork.Enemies.Parts);
+
     /// <summary>The installation's stock room catalogs, the cartridge reference extracted from the ROM.</summary>
     internal static RoomAssetCatalogs RoomAssets => roomAssets.Value;
 
@@ -294,6 +308,17 @@ internal static class InstalledFixtures
     internal static SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays EnemyFrameDisplays => EnemyTiles.FrameDisplays
         ?? throw new InvalidDataException("The installed enemy artwork holds no enemy frames.");
 
+    /// <summary>
+    /// Every enemy frame's display as the game binds it from the installation's display bindings (#2606), read without the
+    /// import's characters, which <see cref="EnemyFrameDisplays"/> loads with the stock enemy artwork.
+    /// </summary>
+    internal static SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays InstalledEnemyFrameDisplays => installedEnemyFrameDisplays.Value;
+
+    /// <summary>Backing loader for <see cref="InstalledEnemyFrameDisplays"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays> installedEnemyFrameDisplays =
+        Shared<SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays>("installed enemy frame displays", () => EnemyTileArtworkFiles.FrameDisplays(
+            Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName)).Displays());
+
     /// <summary>The installation's complete game artwork as the game binds it, loaded once per process and only read.</summary>
     private static readonly Lazy<SuperMetroid.Core.Frontend.GameArtwork> gameArtwork =
         Shared<SuperMetroid.Core.Frontend.GameArtwork>("game artwork", () => InstalledGameBindings.Artwork(RepositoryInstallation.Installation));
@@ -334,7 +359,8 @@ internal static class InstalledFixtures
 
     /// <summary>Backing loader for <see cref="EnemySheets"/>.</summary>
     private static readonly Lazy<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets> enemySheets =
-        Shared<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets>("enemy sheets", () => RepositoryInstallation.Installation.LoadEnemySheets());
+        Shared<SuperMetroid.Core.Enemies.Artwork.InstalledEnemySheets>("enemy sheets", () => EnemySheetFiles.Load(
+            Path.Combine(RepositoryInstallation.Installation.ContentDirectory, GameInstallationLayout.EnemySheetDirectoryName)));
 
     /// <summary>
     /// The installation's pre-coloured sprite sheets with <paramref name="reloaded"/> loaded again from its installed files:
@@ -445,7 +471,7 @@ internal static class InstalledFixtures
     internal static CeresDestructionCinematicState CreateDestruction(AudioQueues audio, ImportIntroCinematicArtwork? artwork = null) =>
         new(audio, Maps.PowerBombGlowColors, (artwork ?? IntroArtwork).BoundCatalog,
             spriteSheets: CinematicSheetFixtures.WithIntro(artwork ?? IntroArtwork),
-            outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, japaneseText: false);
+            outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, language: TextLanguage.English);
 
     /// <summary>
     /// Creates an intro scene with installed character, projectile, narration, and hurt-color art, queueing its music on
@@ -456,7 +482,7 @@ internal static class InstalledFixtures
         InstalledSamusBodyArtwork? samusBodyArtwork = null)
     {
         var intro = new IntroCinematicState(new IntroCinematicOverreads(SamusOverreads, BossAndIntroOverreads.ShellFragmentFallPastCurve), audio ?? AudioQueues.Standalone(),
-            SamusArtwork(samusBodyArtwork), (characterArtwork ?? IntroArtwork).BoundCatalog, japaneseText: false)
+            SamusArtwork(samusBodyArtwork), (characterArtwork ?? IntroArtwork).BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -468,9 +494,9 @@ internal static class InstalledFixtures
 
     /// <summary>Creates ending credits with installed flight, Mode 7, object, palette, and staff art.</summary>
     internal static EndingCreditsState CreateEnding(AudioQueues audio,
-        ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
+        ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, TextLanguage language = TextLanguage.English)
     {
-        return new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, CrittersEscaped = false },
+        return new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, Language = language, CrittersEscaped = false },
             Maps.EndingText, endingBackdrops.Value, EndingSheetFixtures.WithEnding(endingObjects.Value));
     }
 
@@ -505,7 +531,10 @@ internal static class InstalledFixtures
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 
-    /// <summary>A frontend game over <paramref name="saves"/>, bound to the installation's presentation catalogs.</summary>
+    /// <summary>
+    /// A frontend game over <paramref name="saves"/> whose audio mixes the installation's clips, built with the
+    /// installation's presentation catalogs, as a host builds its game.
+    /// </summary>
     /// <param name="saves">The saves the game owns.</param>
     /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
@@ -513,15 +542,29 @@ internal static class InstalledFixtures
     /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
     internal static SuperMetroidGame CreateGame(SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
+        SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null) =>
+        CreateGameWithAudio(saves, AudioClips, assists, renderGameplayFrames, hostServices, random);
+
+    /// <summary>
+    /// A frontend game over <paramref name="saves"/> whose audio mixes <paramref name="audioClips"/>, built with the
+    /// installation's presentation catalogs, as a host builds its game with both (#2554).
+    /// </summary>
+    /// <param name="saves">The saves the game owns.</param>
+    /// <param name="audioClips">The clips the game's audio mixes.</param>
+    /// <param name="assists">The assists the game plays under, or <see langword="null"/> for the unassisted game.</param>
+    /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
+    /// <param name="hostServices">The hardware-timing policies, or <see langword="null"/> for the lag-free defaults.</param>
+    /// <param name="random">The session's random-number word, or <see langword="null"/> for a game that owns its own.</param>
+    internal static SuperMetroidGame CreateGameWithAudio(SuperMetroid.Core.Saves.SaveSlotStore saves,
+        SuperMetroid.Core.Audio.ClipAudioLibrary audioClips,
+        SuperMetroid.Core.Gameplay.GameplayAssists? assists = null, bool renderGameplayFrames = true,
         SuperMetroidGameHostServices? hostServices = null, SharedRandom? random = null)
     {
         // A fixture game without a supplied word is a session of its own.
         SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
         if (!renderGameplayFrames)
-            services = services with { GameplayFrames = RetainedGameplayFrames.Instance };
-        var game = new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom());
-        gameBindings.Value(game);
-        return game;
+            services = SuperMetroidGameHostServicesFixtures.With(services.DoorMusicLoadFrames, services.RoomLoadProgress, services.SoundAcceptance, RetainedGameplayFrames.Instance);
+        return new SuperMetroidGame(saves, assists, services, random ?? new SharedRandom(), audioClips, fixtureGameArtwork.Value);
     }
 
     /// <summary>
@@ -542,12 +585,20 @@ internal static class InstalledFixtures
             bossAndIntroOverreads.IsValueCreated, roomAssets.IsValueCreated, roomCharacters.IsValueCreated,
             blockCompositions.IsValueCreated, maps.IsValueCreated, enemyArtwork.IsValueCreated, projectiles.IsValueCreated,
             samusBody.IsValueCreated, introArtwork.IsValueCreated, enemySheets.IsValueCreated, spriteSheets.IsValueCreated,
-            standardObjects.IsValueCreated, bossBodySheets.IsValueCreated, importProjectiles.IsValueCreated,
+            standardObjects.IsValueCreated, bossBodySheets.IsValueCreated, importProjectiles.IsValueCreated, audioClips.IsValueCreated,
         }.Count(loaded => loaded);
 
     /// <summary>The bound content, gathered once so every graph names it by the same paths.</summary>
     private static readonly Lazy<object[]> boundContent = new(() =>
-        [RepositoryInstallation.ArtworkLoader, samusOverreads, enemyOverreads, bossAndIntroOverreads, roomAssets,
-            roomCharacters, blockCompositions, maps, enemyArtwork, projectiles, samusBody, introArtwork, enemySheets, spriteSheets,
-            standardObjects, bossBodySheets, importProjectiles]);
+        [Bound(RepositoryInstallation.ArtworkLoader), Bound(samusOverreads), Bound(enemyOverreads), Bound(bossAndIntroOverreads),
+            Bound(roomAssets), Bound(roomCharacters), Bound(blockCompositions), Bound(maps), Bound(enemyArtwork), Bound(projectiles),
+            Bound(samusBody), Bound(introArtwork), Bound(enemySheets), Bound(spriteSheets), Bound(standardObjects),
+            Bound(bossBodySheets), Bound(importProjectiles), Bound(audioClips)]);
+
+    /// <summary>A bound catalog's loader, whose lazily loaded type a debugger state learns to walk (#2602).</summary>
+    private static Lazy<T> Bound<T>(Lazy<T> loader)
+    {
+        SuperMetroid.Diagnostics.SaveStates.StateGraphTypes.Shared.Add(static registry => registry.Lazy<T>());
+        return loader;
+    }
 }

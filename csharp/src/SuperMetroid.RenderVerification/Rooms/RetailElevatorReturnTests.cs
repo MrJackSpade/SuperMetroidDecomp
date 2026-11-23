@@ -32,8 +32,8 @@ internal static class RetailElevatorReturnTests
         var runtime = RepositoryInstallation.CreateRuntime();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        var samus = runtime.Player.IntroducedSamus;
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+        var samus = runtime.Player.Samus;
         samus.CollectedItems |= SamusEquipmentFlags.MorphBall;
         samus.EquippedItems |= SamusEquipmentFlags.MorphBall;
         samus.MaxMissiles = samus.Missiles = 5;
@@ -60,7 +60,7 @@ internal static class RetailElevatorReturnTests
         }
         while (transition.IsActive && samples < 512)
         {
-            if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
+            if (transition.Phase is DoorTransitionPhase.Running.WaitForDoorOpeningScroll) scrolling++;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             Compare(transition.Phase.ToString());
         }
@@ -72,7 +72,7 @@ internal static class RetailElevatorReturnTests
             runtime.StepFrame(0);
             arrivalFrames++;
             cameraPositions.Add(runtime.Room.LoadedCamera.PixelPosition.Y);
-            var actor = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Elevator);
+            var actor = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Elevator));
             actorPositions.Add(actor.Position.Y.Whole);
             Compare("return");
         }

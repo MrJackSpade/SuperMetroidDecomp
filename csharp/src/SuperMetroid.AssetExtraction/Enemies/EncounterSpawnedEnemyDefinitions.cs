@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// graphics set therefore draws: Mother Brain's fight drops the tubes of her tank as it breaks and brings in the Baby
 /// Metroid, and Ceres Ridley's getaway places the walls of his getaway chamber, whose pictures the getaway shows (#1989).
 /// </summary>
-internal static class EncounterSpawnedEnemyDefinitions
+internal static partial class EncounterSpawnedEnemyDefinitions
 {
     /// <summary>The enemies each spawner's encounter brings into its room.</summary>
     internal static IReadOnlyDictionary<EnemyDefinitionId, EnemyDefinitionId[]> BySpawner { get; } = new Dictionary<EnemyDefinitionId, EnemyDefinitionId[]>

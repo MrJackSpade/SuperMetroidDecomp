@@ -5,10 +5,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the nineteen ordinary shot-block frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectShotBlockVisualFiles
+public static partial class RoomObjectShotBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for all nineteen ordinary shot-block breakup and restoration draws.</summary>
-    public const string VisualFileName = "shot-blocks.json";
+    internal const string VisualFileName = "shot-blocks.json";
 
     /// <summary>The breakup's stages in the installed file's order (#2567): rock, pieces, dust, gone, each in every arrangement.</summary>
     private static readonly IReadOnlyList<BlockBreakupStage> BreakupStages = Ensure.EveryMemberOnce<BlockBreakupStage>(
@@ -32,7 +32,7 @@ public static class RoomObjectShotBlockVisualFiles
     /// <summary>Loads the installed shot-block pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectShotBlockVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The published artwork identity of a shot-block draw: its shape and breakup stage, or its restoration (#1994).</summary>

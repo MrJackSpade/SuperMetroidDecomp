@@ -4,15 +4,15 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's neck (#2314): three lower joints hanging from her body and two upper joints hanging from the last
 /// lower joint, each at its own distance; her brain sits on the last upper joint. Made with her encounter.
 /// </summary>
-public sealed class MotherBrainNeck
+public sealed partial class MotherBrainNeck
 {
     /// <summary>Makes the neck's joints at their distances.</summary>
     internal MotherBrainNeck()
     {
-        Lower = [.. MotherBrainNeckJointDefinitions.LowerJointDistances.Select(distance => new MotherBrainNeckJoint(distance))];
-        Upper = [.. MotherBrainNeckJointDefinitions.UpperJointDistances.Select(distance => new MotherBrainNeckJoint(distance))];
+        Lower = [.. MotherBrainNeckJointDefinitions.LowerJoints.Select(definition => new MotherBrainNeckJoint(definition))];
+        Upper = [.. MotherBrainNeckJointDefinitions.UpperJoints.Select(definition => new MotherBrainNeckJoint(definition))];
         Joints = [.. Lower, .. Upper];
-        ExposedJoints = [.. Joints.Skip(1).SkipLast(1)];
+        ExposedJoints = [.. Joints.Where(joint => joint.Exposure == MotherBrainNeckJointExposure.Exposed)];
     }
 
     /// <summary>The lower joints, from the body up, which hang from her body on the lower-neck angle.</summary>
@@ -31,8 +31,8 @@ public sealed class MotherBrainNeck
     public IReadOnlyList<MotherBrainNeckJoint> Joints { get; }
 
     /// <summary>
-    /// The joints Samus can touch: all but the first, which lies inside her body, and the last, which her brain's own
-    /// hit area covers.
+    /// The joints Samus can touch, from the body to the brain: each joint's definition says whether it is
+    /// (<see cref="MotherBrainNeckJointExposure"/>).
     /// </summary>
     public IReadOnlyList<MotherBrainNeckJoint> ExposedJoints { get; }
 }

@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>
@@ -23,16 +21,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TReaction">A special block's reaction.</typeparam>
 /// <typeparam name="TChange">What a bomb sets off at the block.</typeparam>
-[CompatibilityService("a normal bomb shows four plain solid special blocks as Speed Booster blocks in every area, as it shows Brinstar's")]
-public sealed class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
+public sealed partial class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
     where TReaction : notnull
     where TChange : class
 {
     /// <summary>The plain solid special blocks' reactions a bomb shows as Speed Booster blocks.</summary>
     private readonly HashSet<TReaction> shownAsSpeedBlocks;
-
-    /// <summary>The Speed Booster block's bomb reveal.</summary>
-    private readonly TChange speedBlockReveal;
 
     /// <summary>Names the reactions a bomb shows as Speed Booster blocks and the reveal it sets off at them.</summary>
     /// <param name="shownAsSpeedBlocks">The plain solid special blocks' reactions a bomb shows as Speed Booster blocks.</param>
@@ -44,23 +38,12 @@ public sealed class BombRevealedSpeedBlockLookalikes<TReaction, TChange>
         this.shownAsSpeedBlocks = [.. Ensure.NotNull(shownAsSpeedBlocks)];
         if (this.shownAsSpeedBlocks.Count == 0)
             throw new ArgumentException("The run-on shows at least one special block as a Speed Booster block.", nameof(shownAsSpeedBlocks));
-        this.speedBlockReveal = Ensure.NotNull(speedBlockReveal);
+        SpeedBlockReveal = Ensure.NotNull(speedBlockReveal);
     }
 
-    /// <summary>
-    /// The Speed Booster block's bomb reveal, when a normal bomb shows a special block with <paramref name="reaction"/> as a
-    /// Speed Booster block; otherwise false, and the block's own bombed reaction applies.
-    /// </summary>
-    /// <param name="reaction">The bombed special block's reaction.</param>
-    /// <param name="change">The reveal, when the bomb shows the block as a Speed Booster block.</param>
-    public bool TryShowAsSpeedBlock(TReaction reaction, [MaybeNullWhen(false)] out TChange change)
-    {
-        if (shownAsSpeedBlocks.Contains(reaction))
-        {
-            change = speedBlockReveal;
-            return true;
-        }
-        change = null;
-        return false;
-    }
+    /// <summary>The plain solid special blocks' reactions a bomb shows as Speed Booster blocks.</summary>
+    public IReadOnlySet<TReaction> ShownAsSpeedBlocks => shownAsSpeedBlocks;
+
+    /// <summary>The Speed Booster block's bomb reveal, which a normal bomb sets off at each of <see cref="ShownAsSpeedBlocks"/>.</summary>
+    public TChange SpeedBlockReveal { get; }
 }

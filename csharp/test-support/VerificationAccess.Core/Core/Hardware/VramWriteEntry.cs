@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Hardware;
 /// <param name="SizeInBytes">DMA byte count written to <c>DAS1</c>.</param>
 /// <param name="SourceAddress">24-bit CPU bus address written to <c>A1T1/A1B1</c>.</param>
 /// <param name="Destination">Where the transfer lands in VRAM, and the increment it writes with.</param>
-public readonly record struct VramWriteEntry(
+public readonly partial record struct VramWriteEntry(
     int SizeInBytes,
     int SourceAddress,
     VramDmaDestination Destination)

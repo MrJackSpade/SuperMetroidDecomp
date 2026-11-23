@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The state of the escape Etecoon.</summary>
-public sealed class EscapeEtecoonEnemyState
+public sealed partial class EscapeEtecoonEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal EscapeEtecoonEnemyState(EscapeEtecoonAction action) => Action = action;
@@ -12,16 +12,16 @@ public sealed class EscapeEtecoonEnemyState
 
 
     /// <summary>The way the Etecoon walks (#2369); a wall turns it around.</summary>
-    public HorizontalDirection Direction { get; private set; }
+    public HorizontalDirection Direction { get; internal set; }
 
     /// <summary>How far the Etecoon walks each update toward its <see cref="Direction"/>.</summary>
-    public SignedEightEight Speed { get; private set; }
+    internal SignedEightEight Speed { get; set; }
 
     /// <summary>The Etecoon's horizontal velocity: its <see cref="Speed"/> toward its <see cref="Direction"/>.</summary>
     internal SignedEightEight Velocity => Speed.Toward(Direction);
 
     /// <summary>What the Etecoon is doing.</summary>
-    public EscapeEtecoonAction Action { get; private set; }
+    public EscapeEtecoonAction Action { get; internal set; }
 
     /// <summary>
     /// Sets the Etecoon walking toward <paramref name="direction"/> at <paramref name="speed"/>, as its setup does once it

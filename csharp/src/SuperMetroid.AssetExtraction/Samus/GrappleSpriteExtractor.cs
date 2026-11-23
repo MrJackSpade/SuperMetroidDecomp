@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -6,7 +7,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts attribute words, not the adjacent instruction timers or control flow.</summary>
-public static class GrappleSpriteExtractor
+public static partial class GrappleSpriteExtractor
 {
     /// <summary>Decodes the endpoint OBJ attributes and four rope-animation attribute words into editable tile, palette, priority, and flip selections.</summary>
     /// <param name="bus">Import-capable cartridge source for endpoint operand $94:B13D and rope operands $94:B18D/B191/B195/B199.</param>
@@ -17,12 +18,12 @@ public static class GrappleSpriteExtractor
     {
         GrappleSpriteStyle Read(int address)
         {
-            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address));
+            var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, address));
             return new()
             {
                 TileColumn = attributes.TileNumber % ProjectileSpriteDefinitions.TileColumns,
                 TileRow = attributes.TileNumber / ProjectileSpriteDefinitions.TileColumns,
-                Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                 FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
             };
         }
@@ -30,7 +31,9 @@ public static class GrappleSpriteExtractor
         {
             Version = GrappleSpriteDefinitions.Version,
             Endpoint = Read(SamusSourceDefinitions.GrappleEndpointAttributes.Value),
-            Segments = Enumerable.Range(0, GrappleSpriteDefinitions.SegmentFrameCount).Select(frame => Read(SegmentAttributeAddress(frame))).ToArray(),
+            // The rope's timed records hold its pictures' appearances in the order its animation shows them.
+            Segments = GrappleSheetDefinitions.RopePattern.Select((picture, frame) => KeyValuePair.Create(picture.ToString(),
+                Read(SegmentAttributeAddress(frame)))).ToDictionary(StringComparer.Ordinal),
         });
     }
 

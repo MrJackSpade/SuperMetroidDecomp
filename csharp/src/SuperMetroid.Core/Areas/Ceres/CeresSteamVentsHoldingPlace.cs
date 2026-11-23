@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The motions of the steam vents of a room that is no turning elevator shaft (#2480): every vent there holds its place,
 /// and a vent whose variant rides the shaft's turn cannot be placed.
 /// </summary>
-internal sealed class CeresSteamVentsHoldingPlace : CeresSteamVentMotions
+internal sealed partial class CeresSteamVentsHoldingPlace : CeresSteamVentMotions
 {
     /// <summary>The one such room's motions.</summary>
     internal static CeresSteamVentsHoldingPlace Instance { get; } = new();

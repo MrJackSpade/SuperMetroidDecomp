@@ -36,8 +36,8 @@ internal static class TorizoSwapArtworkVerification
             "installed Torizo instruction tile pages exist");
         var installedEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace installedPlace = installedEnemies.Places.InUpdateOrder[0];
-        installedPlace.Bind(EnemyDefinitionId.GoldenTorizo, installedPlace.Definition);
-        installedPlace.Bind(installedPlace.DefinitionId, default(RoomEnemyDefinition));
+        installedPlace.Bind(EnemyDefinitionId.GoldenTorizo, installedPlace.KeptDefinition);
+        installedPlace.Bind(installedPlace.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();
@@ -52,17 +52,17 @@ internal static class TorizoSwapArtworkVerification
             previousInstruction = instruction;
             authoredOpcodes.Add(instruction);
             AssertEqual(CommonEnemyInstructionConstants.CopyToVram,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | instruction)),
+                rom.ReadCartridgeWord((0xaa0000 | instruction)),
                 $"Torizo transfer $AA:{instruction:X4} opcode");
             int descriptor = 0xaa0000 | unchecked((ushort)(instruction + 2));
-            AssertEqual(transfer.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
+            AssertEqual(transfer.ByteCount, rom.ReadCartridgeWord(descriptor),
                 $"Torizo transfer $AA:{instruction:X4} byte count");
-            int nativeSource = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
+            int nativeSource = (rom.ReadCartridgeLong(descriptor + 2));
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{instruction:X4} source");
             EncounterLook look = site.Look.Of(site.Torizo);
             EncounterArtworkUpload upload = UploadsOf(look, stock)[copy];
-            AssertEqual(ObjCharacterNativeWords.Of(upload.FirstByte / 32), CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
+            AssertEqual(ObjCharacterNativeWords.Of(upload.FirstByte / 32), rom.ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{instruction:X4} VRAM destination");
             AssertTrue((stock.Bosses.TorizoSwaps ?? throw new InvalidOperationException("Verification requires stock.TorizoSwaps.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
@@ -85,12 +85,12 @@ internal static class TorizoSwapArtworkVerification
         for (int address = 0xb000; address < 0xd369; address++)
         {
             int opcode = 0xaa0000 | address;
-            if (CartridgeImportSource.Require(rom).ReadCartridgeWord(opcode) != CommonEnemyInstructionConstants.CopyToVram)
+            if (rom.ReadCartridgeWord(opcode) != CommonEnemyInstructionConstants.CopyToVram)
                 continue;
             int descriptor = opcode + 2;
-            ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);
-            int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
-            ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
+            ushort byteCount = rom.ReadCartridgeWord(descriptor);
+            int source = (rom.ReadCartridgeLong(descriptor + 2));
+            ushort destination = rom.ReadCartridgeWord((descriptor + 5));
             if (byteCount is 0 or > 0x2000 ||
                 (SnesAddressMath.BankNumber(source)) < 0x80 || destination > 0x7fff)
                 continue;
@@ -106,8 +106,8 @@ internal static class TorizoSwapArtworkVerification
             "stock Golden Torizo upload remains addressable");
         var goldenEnemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: stock.Bosses);
         RoomEnemyPlace goldenPlace = goldenEnemies.Places.InUpdateOrder[0];
-        goldenPlace.Bind(EnemyDefinitionId.GoldenTorizo, goldenPlace.Definition);
-        goldenPlace.Bind(goldenPlace.DefinitionId, installedPlace.Definition);
+        goldenPlace.Bind(EnemyDefinitionId.GoldenTorizo, goldenPlace.KeptDefinition);
+        goldenPlace.Bind(goldenPlace.HeldOccupant().DefinitionId, installedPlace.KeptDefinition);
         // Golden Torizo's initial program shows its awakening sheet first.
         TorizoArtworkLook goldenAwakening = TorizoAnimations.Segments.Beats(TorizoBodySegment.GoldenTorizoDormant)
             .OfType<AnimationBeat<EnemyFrameId, TorizoCue>.Event>().Select(beat => beat.Raised).OfType<TorizoCue.ShowArtwork>().First().Look;
@@ -138,7 +138,7 @@ internal static class TorizoSwapArtworkVerification
 
     /// <summary>Shows artwork look <paramref name="look"/> through the production cue of <paramref name="torizo"/>, whose programs make it.</summary>
     private static void ShowTorizoArtwork(RoomEnemySystem enemies, RoomEnemyPlace place, EncounterArtwork torizo, TorizoArtworkLook look) =>
-        AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place,
+        AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(place.HeldOccupant(), place,
                 new TorizoEnemyState(torizo == EncounterArtwork.GoldenTorizo ? TorizoVariant.Golden : TorizoVariant.Bomb),
                 new TorizoCueInputs { Torizo = LivingTorizo.Instance, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.ShowArtwork(look),

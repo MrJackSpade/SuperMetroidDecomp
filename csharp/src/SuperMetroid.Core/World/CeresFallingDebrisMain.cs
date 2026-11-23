@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.World;
 
 /// <summary>The Ceres pre-elevator hall's main (#2287): its falling debris once Ridley has escaped.</summary>
 /// <param name="debris">The countdown to the next falling tile.</param>
-[RoomLifetime]
-internal sealed class CeresFallingDebrisMain(CeresFallingDebrisRoomMainState debris) : IRoomMain
+internal sealed partial class CeresFallingDebrisMain(CeresFallingDebrisRoomMainState debris) : IRoomMain
 {
     /// <inheritdoc/>
     /// <remarks>

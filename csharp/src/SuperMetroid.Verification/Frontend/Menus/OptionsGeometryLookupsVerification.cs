@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Options.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Frontend;
@@ -29,32 +30,33 @@ internal static class OptionsGeometryLookupsVerification
     private static void VerifyOptionsCursorRows(ISnesAddressSpace rom, int address, int count, GameOptionsPage page, string name)
     {
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(GameOptionsPresentationExtractor.Extract(rom), ArtworkJson.Options);
-        Offset16<ScreenPixels>[] anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-        AssertEqual(count, anchors.Length, $"{name} row count");
+        Dictionary<string, Offset16<ScreenPixels>> anchors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+        IReadOnlyList<GameOptionsCursorRow> rows = GameOptionsLayoutFile.CursorRowsOn(page);
+        AssertEqual(count, anchors.Count, $"{name} row count");
         for (int index = 0; index < count; index++)
-            AssertEqual(ReadVerificationWord(rom, address + 4 * index), anchors[index].Y, $"{name} native word {index}");
+            AssertEqual(ReadVerificationWord(rom, address + 4 * index), anchors[rows[index].Name].Y, $"{name} native word {index}");
     }
 
     /// <summary>Checks the seven controller-label boxes against the native byte offsets their labels are drawn at.</summary>
     internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f639, 2, 7,
-            action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(action).Y * GameOptionsPageDefinitions.MenuTilemapWidth
-                + GameOptionsPageCells.ControllerLabelAnchor(action).X) * sizeof(ushort))), "controller label box"));
+            action => checked((ushort)((GameOptionsPageCells.ControllerLabelAnchor(ActionAt(action)).Y * GameOptionsPageDefinitions.MenuTilemapWidth
+                + GameOptionsPageCells.ControllerLabelAnchor(ActionAt(action)).X) * sizeof(ushort))), "controller label box"));
+
+    /// <summary>The controller action listed <paramref name="row"/> rows from the top.</summary>
+    private static SuperMetroid.Core.Input.ControllerAction ActionAt(int row) => GameOptionsPageRows.ControllerActions[row];
 
     /// <summary>Checks seven source words used by controller-label transfers.</summary>
     internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f647, 2, 7,
-            index => GameOptionsSourceDefinitions.ControllerLabelSources[index], "controller label source"));
+            index => GameOptionsSourceDefinitions.ControllerLabelSources[GameOptionsPresentationDefinitions.ControllerLabelButtons[index]], "controller label source"));
 
-    /// <summary>Compares an indexed native geometry sequence and rejects indexes beyond its declared count.</summary>
+    /// <summary>Compares an indexed native geometry sequence.</summary>
     private static void VerifyOptionsGeometryWords(ISnesAddressSpace rom, int address,
         int stride, int count, Func<int, int> actual, string name)
     {
         for (int index = 0; index < count; index++)
             AssertEqual(ReadVerificationWord(rom, address + stride * index), actual(index),
                 $"{name} native word {index}");
-        foreach (int index in new[] { int.MinValue, -1, count, count + 1, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => actual(index),
-                $"{name} rejects {index}");
     }
 }

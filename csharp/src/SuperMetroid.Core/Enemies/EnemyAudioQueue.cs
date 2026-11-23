@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// another request. The sound queues admit requests by how full they already are, so this order decides which requests a
 /// full queue drops.
 /// </remarks>
-internal sealed class EnemyAudioQueue
+internal sealed partial class EnemyAudioQueue
 {
     /// <summary>Creates the room's enemy audio, whose requests join <paramref name="requests"/>, the runtime's update's (#2057).</summary>
     internal EnemyAudioQueue(GameplayAudioRequests requests) => Requests = Ensure.NotNull(requests);

@@ -22,8 +22,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// stage, countdown and gate against that word arithmetic and every queue report against the cartridge's tables, and
 /// the Ridley full movie's and the 13% movie's running cadences depend on the occupancy.
 /// </remarks>
-[CompatibilityService("the Speed Booster's boost restarts on the cadence its echo's sound request picks by how many requests it found waiting, and a run counted off an empty countdown takes the boost down a stage")]
-public sealed class BoostRestartAfterEcho
+public sealed partial class BoostRestartAfterEcho
 {
     /// <summary>The runs a boost taken down a stage counts down before it climbs back.</summary>
     public const int CountdownAfterBorrow = 255;
@@ -41,25 +40,40 @@ public sealed class BoostRestartAfterEcho
         _authoredStages = Ensure.BetweenInclusive(TurnedAwayEchoStage + 1, int.MaxValue, authoredStages);
 
     /// <summary>
-    /// The authored stage whose cadence the boost restarts on after its echo's sound request, or none for the unauthored
-    /// cadence: an admitted request picks the stage numbered by the requests it found waiting, and the unauthored cadence
-    /// when it found as many as there are authored stages; a turned-away request picks <see cref="TurnedAwayEchoStage"/>.
+    /// Whether the boost restarts on the unauthored cadence after its echo's sound request rather than an authored stage's:
+    /// an admitted request picks the stage numbered by the requests it found waiting, and the unauthored cadence when it
+    /// found as many as there are authored stages; a turned-away request picks <see cref="TurnedAwayEchoStage"/>.
     /// </summary>
     /// <param name="echo">What the echo's sound request found.</param>
     /// <exception cref="InvalidOperationException">
     /// The request was admitted with more requests waiting than the echo's priority admits.
     /// </exception>
-    public int? StageAfterEcho(SoundQueueAdmission echo)
+    public bool PicksUnauthoredCadence(SoundQueueAdmission echo) =>
+        echo.IsAdmitted && RequireAdmitted(echo).Occupancy == _authoredStages;
+
+    /// <summary>
+    /// The authored stage the boost restarts on after its echo's sound request found <paramref name="echo"/>, where it does
+    /// not pick the unauthored cadence (<see cref="PicksUnauthoredCadence"/>).
+    /// </summary>
+    /// <param name="echo">What the echo's sound request found.</param>
+    /// <exception cref="InvalidOperationException">
+    /// The request was admitted with more requests waiting than the echo's priority admits, or picks the unauthored cadence.
+    /// </exception>
+    public int AuthoredStageAfterEcho(SoundQueueAdmission echo)
     {
         if (!echo.IsAdmitted)
             return TurnedAwayEchoStage;
-        if (echo.Occupancy < _authoredStages)
+        if (RequireAdmitted(echo).Occupancy < _authoredStages)
             return echo.Occupancy;
-        if (echo.Occupancy == _authoredStages)
-            return null;
-        throw new InvalidOperationException(
-            $"The echo's sound request was admitted with {echo.Occupancy} requests waiting, more than its priority admits.");
+        throw new InvalidOperationException("The echo's sound request found every authored stage waiting: it picks the unauthored cadence.");
     }
+
+    /// <summary><paramref name="echo"/>, an admitted request that found no more requests waiting than its priority admits.</summary>
+    /// <exception cref="InvalidOperationException">The request found more requests waiting than its priority admits.</exception>
+    private SoundQueueAdmission RequireAdmitted(SoundQueueAdmission echo) => echo.Occupancy <= _authoredStages
+        ? echo
+        : throw new InvalidOperationException(
+            $"The echo's sound request was admitted with {echo.Occupancy} requests waiting, more than its priority admits.");
 
     /// <summary>
     /// Counts one completed run off a boost at <paramref name="stage"/> with <paramref name="countdown"/> runs left: a

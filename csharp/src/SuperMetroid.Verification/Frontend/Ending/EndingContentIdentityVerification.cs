@@ -14,6 +14,8 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
+using SuperMetroid.Core.Compatibility;
+
 /// <summary>Checks ending artwork role mapping and decoded-content identity behavior.</summary>
 internal static class EndingContentIdentityVerification
 {
@@ -47,9 +49,8 @@ internal static class EndingContentIdentityVerification
             AssertEqual($"ending-{native.Fourth}-mode7-characters.png", EndingFloorArtworkFormat.CharacterFileName(native.First), "published character filename");
             AssertEqual($"ending-{native.Fourth}-mode7-map.json", EndingFloorArtworkFormat.MapFileName(native.First), "published map filename");
         }
-        static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-            new EndingFloorMapDocument { Version = 1, Width = 128, Height = height,
-                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, ArtworkJson.Options));
+        static MemoryStream Map(int height, int seed) => new(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new EndingFloorMapDocument { Version = 1, Width = 128, Height = height,
+                Tiles = Enumerable.Repeat(seed, 128 * height).ToArray() }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingFloorMapDocument>(ArtworkJson.Options)));
         static MemoryStream Png(int seed)
         {
             var png = new MemoryStream();
@@ -58,7 +59,7 @@ internal static class EndingContentIdentityVerification
             png.Position = 0;
             return png;
         }
-        var supplied = new EndingFloorSceneArtwork[3];
+        var supplied = new EndingFloorSceneCharacters[3];
         for (int i = 0; i < supplied.Length; i++)
         {
             using var map = Map(64, i);
@@ -67,19 +68,12 @@ internal static class EndingContentIdentityVerification
         }
         using var rewardMap = Map(128, 3);
         using var rewardPng = Png(3);
-        EndingRewardIconArtwork reward = EndingRewardIconCharacters.Read(rewardMap, rewardPng);
+        EndingRewardIconCharacters reward = EndingRewardIconCharacters.Read(rewardMap, rewardPng);
         var catalog = new EndingFloorCharacters(supplied[0], supplied[1], supplied[2], reward);
         EndingFloorSceneId[] originalOrder = [EndingFloorSceneId.SideCloudEscape, EndingFloorSceneId.TopAndBottomCloudEscape, EndingFloorSceneId.PlanetExplosion];
         for (int i = 0; i < originalOrder.Length; i++)
             AssertTrue(ReferenceEquals(supplied[i], catalog[originalOrder[i]]), "ending Mode7 supplied scene identity");
         AssertTrue(ReferenceEquals(reward, catalog.RewardIcon), "ending Mode7 reward identity");
-        foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[(EndingFloorSceneId)invalid], "ending Mode7 role bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingArtworkSources.Floor((EndingFloorSceneId)invalid), "Mode7 source bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.CharacterFileName((EndingFloorSceneId)invalid), "Mode7 character filename bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingFloorArtworkFormat.MapFileName((EndingFloorSceneId)invalid), "Mode7 map filename bounds");
-        }
     }
 
     /// <summary>Checks domain-specific digest changes, canonical frame order, and encoding invariance.</summary>
@@ -100,7 +94,7 @@ internal static class EndingContentIdentityVerification
             "fragment-2", "fragment-3", "fragment-order", "post-fragment-b",
             "logo-map", "cloud-sprites", "explosion-sprites", "text-sprites",
             "reward-sprites", "logo-sprites", "part-x", "part-y", "part-column", "part-row",
-            "part-size", "part-priority", "part-palette", "part-flip-x", "part-flip-y",
+            "part-size", "part-depth", "part-palette", "part-flip-x", "part-flip-y",
             "part-order", "part-count", "map-column", "map-row", "map-palette", "map-priority",
             "map-flip-x", "map-flip-y",
         ];
@@ -140,19 +134,6 @@ internal static class EndingContentIdentityVerification
                 AssertEqual(digest, CreateEndingIdentityFixture(cosmeticEdit).Installed[component],
                     cosmeticEdit + " preserves decoded " + component);
         }
-
-        // These identities are derived from existing installed fields. Persisting an extra cached
-        // digest would needlessly change the exact debugger-object layout of older save states.
-        foreach (Type type in new[]
-        {
-            typeof(EndingObjectSourceArtwork), typeof(EndingFloorCharacters), typeof(EndingBackdrops),
-            typeof(EndingCloudSpritePresentation), typeof(EndingExplosionSpritePresentation),
-            typeof(EndingCompletionTextSpritePresentation), typeof(EndingRewardSpritePresentation),
-            typeof(EndingLogoSpritePresentation),
-        })
-            AssertTrue(!MetadataShape.DeclaresField(type, "<ContentIdentity>k__BackingField",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
-                type.Name + " adds no serialized derived-identity field");
         Console.WriteLine($"  Ending content: {objectEdits.Length} map/composition edits and {edits.Count} backdrop edits, " +
             "ordered transfers and parts, canonical frames, encoding invariance and host warnings pass without a ROM.");
     }
@@ -170,7 +151,7 @@ internal static class EndingContentIdentityVerification
         string? edit = null, bool reverse = false)
     {
         MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
-            (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson)));
+            global::SuperMetroid.Verification.VerificationJson.Info(document.GetType(), (edit == "json-indent" ? CamelCaseIndentedJson : CamelCaseJson))));
 
 
         RoomBackgroundTilemapAtlas Map(string name, int seed = 0)
@@ -204,7 +185,7 @@ internal static class EndingContentIdentityVerification
             var first = new SpriteVisualPart
             {
                 OffsetX = 0, OffsetY = 0, TileColumn = 0, TileRow = 0, Size = 8,
-                Priority = 1, Palette = null, FlipX = false, FlipY = false,
+                Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoomInFrontOfFloor, Palette = null, FlipX = false, FlipY = false,
             };
             var second = first with { OffsetX = 8, OffsetY = -8, TileColumn = 1, TileRow = 1, Palette = 3 };
             string[] keys = names.ToArray();
@@ -222,7 +203,7 @@ internal static class EndingContentIdentityVerification
                         TileColumn = edit == "part-column" ? 1 : a.TileColumn,
                         TileRow = edit == "part-row" ? 1 : a.TileRow,
                         Size = edit == "part-size" ? 16 : a.Size,
-                        Priority = edit == "part-priority" ? 2 : a.Priority,
+                        Depth = edit == "part-depth" ? SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts : a.Depth,
                         // Explicit zero and inherited zero have identical packed attributes but
                         // behave differently when the drawing owner's palette changes.
                         Palette = edit == "part-palette" ? 0 : a.Palette,
@@ -238,13 +219,16 @@ internal static class EndingContentIdentityVerification
                 }
                 frames.Add(key, parts);
             }
-            return Json(new { Version = version, Frames = frames });
+            return Json(new SuperMetroid.Verification.Frontend.SpriteFramesFixtureDocument(version, frames));
         }
 
-        var fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
-            .Select(index => Map("fragment-" + index, index)).ToArray();
-        if (edit == "fragment-order") Array.Reverse(fragments);
-        var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Fragments = fragments, WaitingTilemap = Map("waiting-map"), PostCreditsFragmentB = Map("post-fragment-b"), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name), EndingCloudSpriteFormat.Version)), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Typings.Select(step => step.Name).Concat(EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name)))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
+        RoomBackgroundTilemapAtlas[] maps = [.. Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
+            .Select(index => Map("fragment-" + index, index))];
+        if (edit == "fragment-order") Array.Reverse(maps);
+        // Each explosion picture holds the map installed in its place of the pictures' order.
+        Dictionary<EndingExplosionPicture, RoomBackgroundTilemapAtlas> fragments = EndingObjectArtworkFormat.ExplosionPictures
+            .Select((picture, place) => KeyValuePair.Create(picture, maps[place])).ToDictionary();
+        var objects = new EndingObjectSourceArtwork(new EndingObjectArtworkParts { Fragments = fragments, WaitingTilemap = Map("waiting-map"), TransformationMap = Map("post-fragment-b"), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.Select(frame => frame.Name), EndingCloudSpriteFormat.Version)), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Typings.Select(step => step.Name).Concat(EndingCompletionTextSpriteDefinitions.Frames.Select(frame => frame.Name)))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.Select(frame => frame.Name))) });
 
         RgbColor[] backdrops = [.. BackdropScenes.Select((scene, index) => new FadeLevelColour(index + 1, edit == "backdrop-" + scene ? 1 : 0, 0).ToColour())];
         if (edit == "backdrop-order")

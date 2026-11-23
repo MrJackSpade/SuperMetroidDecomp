@@ -8,15 +8,17 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// that the import supplies, not a blend of the fade's ends, so a fade is its images rather than a typed blend. The fade is
 /// over once its last image has shown its hold out.
 /// </summary>
-public sealed class MotherBrainFade
+public sealed partial class MotherBrainFade
 {
     /// <summary>Defines a fade.</summary>
     /// <param name="key">The name of its installed shades.</param>
     /// <param name="imageCount">The images it shows, in order.</param>
     /// <param name="imageUpdates">The updates each image shows for before the next, or before the fade is over.</param>
-    internal MotherBrainFade([InstalledKey] string key, int imageCount, int imageUpdates)
+    /// <param name="layer">The colouring of the encounter its images show on.</param>
+    internal MotherBrainFade(string key, int imageCount, int imageUpdates, MotherBrainFadeLayer layer)
     {
         Key = Ensure.NotNull(key);
+        Layer = layer;
         Images = [.. Enumerable.Range(0, Ensure.BetweenInclusive(1, int.MaxValue, imageCount)).Select(step => new MotherBrainFadeImage(this, step))];
         ImageUpdates = Ensure.BetweenInclusive(1, int.MaxValue, imageUpdates);
         Segments = new(new Dictionary<MotherBrainFadeSegment, AnimationBeat<MotherBrainFadeImage, NoAnimationCue>[]>
@@ -28,6 +30,9 @@ public sealed class MotherBrainFade
 
     /// <summary>The name of its installed shades.</summary>
     public string Key { get; }
+
+    /// <summary>The colouring of the encounter its images show on.</summary>
+    public MotherBrainFadeLayer Layer { get; }
 
     /// <summary>Its images, in the order it shows them.</summary>
     public IReadOnlyList<MotherBrainFadeImage> Images { get; }

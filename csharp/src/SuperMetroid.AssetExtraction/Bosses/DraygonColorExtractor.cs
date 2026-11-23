@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Draygon;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Draygon's four transfer images and eight health-band color records.</summary>
-public static class DraygonColorExtractor
+public static partial class DraygonColorExtractor
 {
     /// <summary>Imports Draygon's intro, background, sprite, and white-flash palettes and eight ordered health-band color records.</summary>
     /// <param name="bus">Non-null cartridge import address space containing the native Draygon palette sources.</param>
@@ -21,11 +21,6 @@ public static class DraygonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[DraygonColorDefinitions.HealthBandCount][];
-        for (int band = 0; band < bands.Length; band++)
-            bands[band] = Read(DraygonSourceDefinitions.HealthBandColors +
-                band * DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort),
-                DraygonColorDefinitions.HealthBandColorCount);
         return DraygonColorFile.Write(new DraygonColorDocument
         {
             Version = DraygonColorFormat.Version,
@@ -36,7 +31,9 @@ public static class DraygonColorExtractor
                 DraygonColorDefinitions.SpriteCount),
             WhiteFlash = Read(DraygonSourceDefinitions.WhiteFlashColors,
                 DraygonColorDefinitions.WhiteFlashCount),
-            HealthBands = bands,
+            HealthBands = Rgb5Rows.KeyedInTableOrder(DraygonSourceDefinitions.HealthTableOrder, band => band.Key,
+                row => Read(DraygonSourceDefinitions.HealthBandColors + row * DraygonColorDefinitions.HealthBandColorCount * sizeof(ushort),
+                    DraygonColorDefinitions.HealthBandColorCount)),
         });
 
         PaletteRgb5[] Read(int source, int count)
@@ -45,16 +42,11 @@ public static class DraygonColorExtractor
             for (int index = 0; index < count; index++)
             {
                 int address = source + index * sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Draygon color ${address:X6} has an unrepresentable high bit.");
-                colors[index] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

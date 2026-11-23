@@ -38,9 +38,9 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Initialized retail room fixture stepped by this controller sequence.</summary>
     internal SuperMetroidRuntime Runtime { get; }
     /// <summary>Samus state owned by the scenario runtime.</summary>
-    internal SamusState Samus => Runtime.Player.IntroducedSamus;
+    internal SamusState Samus => Runtime.Player.Samus;
     /// <summary>Shutter enemy tracked for position comparison.</summary>
-    internal RoomEnemyPlace Platform => Runtime.Room.LoadedScope.Enemies.Places.InUpdateOrder[SlotIndex];
+    internal RoomEnemyPlace Platform => ScenarioRooms.LoadedScope(Runtime).Enemies.Places.InUpdateOrder[SlotIndex];
 
     /// <summary>Places morphed, bomb-equipped Samus on or beside the selected shutter before the recorded sequence.</summary>
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>
@@ -59,17 +59,17 @@ internal sealed class ShutterBombArcScenario
         Runtime = runtime;
         Runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         Runtime.RoomLoader.InitializeStartingCeresRoom();
-        Runtime.RoomLoader.InitializeCeresStartSamus();
+        Runtime.RoomLoader.InitializeCeresStartSamus(ScenarioRooms.LoadedScope(Runtime));
         Runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
         var samus = Samus;
         var platform = Platform;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
         samus.EquippedItems |= SamusEquipmentFlags.Bombs;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole - (approach ? Toward * 32 : 0)), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
-        Runtime.StepFrame(0, new RuntimeFrameRequest());
+        ScenarioRooms.Step(Runtime, 0, new RuntimeFrameRequest());
     }
 
     /// <summary>The reported case: left shutter, starting on it, bombing every 8 frames, a 4-frame roll at 75.</summary>
@@ -85,7 +85,7 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Controller buttons for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>
     internal ControllerButton Input(int frame)
     {
-        ControllerButton input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings.Shoot : ControllerButton.None;
+        ControllerButton input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot] : ControllerButton.None;
         int direction = Approach && frame < 12 ? Toward : 0;
         if (frame >= RollAt && frame < RollAt + Duration) direction = -Toward;
         if (frame >= RollAt + Duration && frame < RollAt + Duration * 2) direction = Toward;
@@ -98,5 +98,5 @@ internal sealed class ShutterBombArcScenario
 
     /// <summary>One native-comparison row after <paramref name="frame"/> has run.</summary>
     internal string ArcRow(int frame) =>
-        $"{frame},{InSubpixels(Samus.Kinematics.Position.X)},{InSubpixels(Samus.Kinematics.Position.Y)},{Samus.Kinematics.VerticalVelocity.Speed.RawValue},{SamusBombJumpRequestCodec.ToNative(Samus.BombJumpRequest)},{Platform.Position.Y.Whole},{Platform.Position.Y.Fraction}";
+        $"{frame},{InSubpixels(Samus.Kinematics.Position.X)},{InSubpixels(Samus.Kinematics.Position.Y)},{Samus.Kinematics.VerticalVelocity.Speed.RawValue},{SamusBombJumpCodec.ToNative(Samus.BombJump)},{Platform.Position.Y.Whole},{Platform.Position.Y.Fraction}";
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// Where Magdollite's parts hide and surface, how long it waits between throws (#2043), how fast its lava flies and how
 /// long each frame of its glow shows (#2156).
 /// </summary>
-internal static class MagdolliteMotionDefinitions
+internal static partial class MagdolliteMotionDefinitions
 {
     /// <summary>How far below its origin a dormant arm or the hidden overlay waits, in pixels.</summary>
     internal const int HiddenDepth = 32;
@@ -25,14 +25,14 @@ internal static class MagdolliteMotionDefinitions
     internal const int LavaDrop = 2;
 
     /// <summary>
-    /// How long the head waits after a throw before it may attack again, in overlay updates: 257, the head polling after
+    /// How long the head waits after a throw before it may attack again, in overlay updates, the head polling after
     /// the last of them.
     /// </summary>
     internal const int AttackCooldown = 257;
 
     /// <summary>
     /// The overlay updates a placed head, or one that has just polled an expired cooldown, waits before its next poll may
-    /// attack: one.
+    /// attack.
     /// </summary>
     internal const int AttackPollWait = 1;
 

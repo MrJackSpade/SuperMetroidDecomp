@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>The animation each of Mother Brain's body-relative death explosions plays.</summary>
-internal static class MotherBrainDeathExplosionDefinitions
+/// <summary>Where and how often Mother Brain's body-relative death explosions burst.</summary>
+internal static partial class MotherBrainDeathExplosionDefinitions
 {
     /// <summary>The updates after a burst of smoky explosions before the next.</summary>
     internal const int SmokyIntervalUpdates = 16;
@@ -13,9 +11,8 @@ internal static class MotherBrainDeathExplosionDefinitions
 
     /// <summary>
     /// The groups of four body-relative explosion positions her death explosions burst at, in the order they burst
-    /// (#2315), read before the random number that selects each explosion's type. The explosion's setup adds these
-    /// offsets to the moving body without velocity integration; the explosion projectile has zero hitbox radii and cannot
-    /// damage Samus.
+    /// (#2315), read before the random number that selects each explosion's type. The explosions ride with her moving
+    /// body and cannot hurt Samus.
     /// </summary>
     internal static IReadOnlyList<MotherBrainDeathExplosionGroup> Groups { get; } =
     [
@@ -27,16 +24,4 @@ internal static class MotherBrainDeathExplosionDefinitions
         new(new(17, -55), new(30, -22), new(-3, -5), new(0, 40)),
         new(new(36, -37), new(-19, -15), new(-4, 13), new(29, 25)),
     ];
-
-    /// <summary>
-    /// The shared misc-dust animation each of Mother Brain's death explosions shows: the small explosion, smoke and the big
-    /// explosion.
-    /// </summary>
-    internal static readonly IReadOnlyDictionary<MotherBrainDeathExplosionAnimation, DustExplosionAnimation> Animations =
-        new Dictionary<MotherBrainDeathExplosionAnimation, DustExplosionAnimation>
-        {
-            [MotherBrainDeathExplosionAnimation.SmallExplosion] = DustExplosionAnimation.SmallExplosion,
-            [MotherBrainDeathExplosionAnimation.Smoke] = DustExplosionAnimation.Smoke,
-            [MotherBrainDeathExplosionAnimation.BigExplosion] = DustExplosionAnimation.BigExplosion,
-        };
 }

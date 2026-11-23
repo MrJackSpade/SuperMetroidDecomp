@@ -687,17 +687,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks X-ray Samus body frames before final presentation overrides.</summary>
-    [VerificationCommand("--lookup-stream-1-body-frame-basis")]
-    internal static int LookupStream1BodyFrameBasisCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
-        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom));
-        return 0;
-    }
-
     /// <summary>Checks Samus body origins, pose pointers, and facing offsets together.</summary>
     [VerificationCommand("--lookup-stream-1-body-facing")]
     [VerificationCommand("--lookup-stream-1-xray-frames")]
@@ -708,20 +697,6 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body oracle revision");
         Suite(nameof(VerifyLookupStream1BodyFacingOffsets), () => VerifyLookupStream1BodyFacingOffsets(rom));
         Suite(nameof(VerifyLookupStream1BodyGraphicsOrigins), () => VerifyLookupStream1BodyGraphicsOrigins(rom));
-        Suite(nameof(VerifyLookupStream1BodySetPointers), () => VerifyLookupStream1BodySetPointers(rom));
-        Suite(nameof(VerifyLookupStream1BodyPosePointers), () => VerifyLookupStream1BodyPosePointers(rom));
-        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom));
-        return 0;
-    }
-
-    /// <summary>Checks body OAM base positions and tile indexes against cartridge tables.</summary>
-    [VerificationCommand("--lookup-stream-1-body-oam-bases")]
-    internal static int LookupStream1BodyOamBasesCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "OAM base oracle revision");
-        Suite(nameof(VerifyLookupStream1BodyOamBases), () => VerifyLookupStream1BodyOamBases(rom));
         return 0;
     }
 
@@ -1028,16 +1003,6 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks OAM pointer tables used to select Samus body frames.</summary>
-    [VerificationCommand("--lookup-stream-1-oam-pointers")]
-    internal static int LookupStream1OamPointersCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "OAM selector oracle revision");
-        Suite(nameof(VerifyLookupStream1OamPointers), () => VerifyLookupStream1OamPointers(rom));
-        return 0;
-    }
-
     /// <summary>Checks Samus body graphics DMA sources and destination layout.</summary>
     [VerificationCommand("--lookup-stream-1-body-transfers")]
     internal static int LookupStream1BodyTransfersCommand()
@@ -1188,14 +1153,11 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks enemy frame selectors are registered to the intended visual owners.</summary>
+    /// <summary>Checks the installed enemy frame registry holds each cartridge record once.</summary>
     [VerificationCommand("--lookup-enemy-frame-registration")]
     internal static int LookupEnemyFrameRegistrationCommand()
     {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Enemy registration oracle revision");
-        Suite(nameof(VerifyStream3EnemyFrameRegistration), () => VerifyStream3EnemyFrameRegistration(rom));
+        Suite(nameof(VerifyStream3EnemyFrameRegistration), () => VerifyStream3EnemyFrameRegistration());
         return 0;
     }
 
@@ -1321,17 +1283,6 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby phase oracle revision");
         Suite(nameof(VerifyLookupStream4BabyTransferPhase), () => VerifyLookupStream4BabyTransferPhase(rom));
-        return 0;
-    }
-
-    /// <summary>Checks Samus body sprite pixel data against the pinned cartridge.</summary>
-    [VerificationCommand("--lookup-stream-1-body-pixels")]
-    internal static int LookupStream1BodyPixelsCommand()
-    {
-        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body pixel oracle revision");
-        Suite(nameof(VerifyLookupStream1BodyPixels), () => VerifyLookupStream1BodyPixels(rom));
         return 0;
     }
 

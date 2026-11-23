@@ -87,10 +87,10 @@ internal sealed class ClosedPresentationAudit
                 contract.Type is "SuperMetroid.AssetExtraction.Enemies.EnemySpritemapCatalog" or "SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays")
             {
                 string[] definitions = contract.Type == typeof(EnemySpritemapCatalog).FullName
-                    ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapDocumentOrder)),
+                    ? [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapComposedFrames)),
                         ContractTypeNames.MetadataName(typeof(EnemyFrameNameDefinitions))]
-                    : [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapDocumentOrder)),
-                        ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameSequence)),
+                    : [ContractTypeNames.MetadataName(typeof(EnemySpritemapDefinitions)), ContractTypeNames.MetadataName(typeof(EnemySpritemapComposedFrames)),
+                        ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDefinitions)),
                         ContractTypeNames.MetadataName(typeof(BossSpriteFrameDefinitions)), ContractTypeNames.MetadataName(typeof(EnemyExtendedFrameDocumentOrder)),
                         ContractTypeNames.MetadataName(typeof(EnemyFrameNameDefinitions)),
                         ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyFrames))];
@@ -110,7 +110,9 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "TimedRecordAddresses")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IPropertySymbol property &&
                             property.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Samus.Projectiles.SamusProjectileFrameDefinitions).FullName));
-            if (valid && contract.Type == typeof(SamusArmCannonSourceArtwork).FullName)
+            // The arm cannon's descriptors are the artwork's (#2570): an unvalidated placement builds both, so it revokes both.
+            if (valid && (contract.Type == typeof(SamusArmCannonSourceArtwork).FullName ||
+                contract.Type == typeof(SamusArmCannonDescriptors).FullName))
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
                         .Where(name => name.Identifier.ValueText == "FromPlacement")
@@ -125,6 +127,15 @@ internal sealed class ClosedPresentationAudit
                 valid = false;
                 staleReason = "the provider is constructed outside its reviewed loader, in " + constructor;
             }
+            // The room's read of its room-object pictures composes every family's and the setup blocks' (#2571), so a
+            // construction of any of their providers outside its loader revokes the composed read as well as that provider.
+            if (valid && contract.Type == RoomObjectFrameClosedContractDefinitions.Composed.Type &&
+                RoomObjectFrameClosedContractDefinitions.Families.Append(RoomObjectFrameClosedContractDefinitions.SetupBlocks)
+                    .Select(composed => ConstructedOutsideSources(compilation, composed)).FirstOrDefault(found => found is not null) is { } composedConstructor)
+            {
+                valid = false;
+                staleReason = "a provider it composes is constructed outside its reviewed loader, in " + composedConstructor;
+            }
             foreach (string method in contract.Methods)
                 contracts.Add(new PresentationMethod(contract.Type, method), new ContractValidity(contract, valid, valid ? null : staleReason ?? "a reviewed escape condition no longer holds"));
             if (!valid)
@@ -137,13 +148,14 @@ internal sealed class ClosedPresentationAudit
 
     /// <summary>
     /// The providers whose complete key domain only their reviewed loader's checks establish: the room artwork and a
-    /// spawned-object sheet (#1536), and every room object's frame pictures (#1732).
+    /// spawned-object sheet (#1536), every room object's frame pictures (#1732) and the room-object setup blocks.
     /// </summary>
     private static readonly HashSet<string> LoaderBuiltProviders =
     [
         ContractTypeNames.MetadataName(typeof(SuperMetroid.Core.Rooms.Artwork.InstalledRoomArtwork)),
         ContractTypeNames.MetadataName(typeof(SpawnedObjectSheet)),
-        .. RoomObjectFrameClosedContractDefinitions.All.Select(contract => contract.Type),
+        .. RoomObjectFrameClosedContractDefinitions.Families.Select(contract => contract.Type),
+        RoomObjectFrameClosedContractDefinitions.SetupBlocks.Type,
     ];
 
     /// <summary>

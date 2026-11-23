@@ -4,14 +4,17 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A falling ceiling tube's typed animation.</summary>
-internal sealed class MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment segment)
-    : EnemyProjectileFrameAnimation<MotherBrainTopTubeSegment, NoAnimationCue>(MotherBrainTopTubeAnimations.StartingAt[segment])
+internal sealed partial class MotherBrainTopTubeAnimation
+    : EnemyProjectileSilentFrameAnimation<MotherBrainTopTubeSegment>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
-        MotherBrainTopTubeAnimations.Segments;
+    /// <summary>Creates a <see cref="MotherBrainTopTubeAnimation"/>.</summary>
+    /// <param name="segment">segment</param>
+    public MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment segment)
+        : base(segment, MotherBrainTopTubeAnimations.StartingAt[segment])
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<MotherBrainTopTubeSegment, Animation<MotherBrainTopTubeSegment>> StartingAt =>
-        MotherBrainTopTubeAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments =>
+        MotherBrainTopTubeAnimations.Segments;
 }

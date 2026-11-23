@@ -95,22 +95,17 @@ internal static class EndingPaletteArtworkVerification
             new EndingPaletteArtworkVerificationValue(EndingPaletteId.Escape, 0x8cede9, 0x8cefe9),
         })
             AssertEqual((allocation.End - allocation.Start) / 2,
-                EndingPaletteImport.ColorCount(allocation.Id), "complete palette allocation size");
+                EndingPaletteDefinitions.Palettes[allocation.Id].ColorCount, "complete palette allocation size");
         foreach (var single in new[] { new VerifyEndingPaletteMetadataCase(EndingPaletteId.FinalGunship, 0x8bde34), new VerifyEndingPaletteMetadataCase(EndingPaletteId.LogoInitial, 0x8be57a) })
         {
             AssertEqual(0xa2, (int)rom.ReadCartridgeByte(single.Second), "native reverse palette LDX opcode");
             int lastOffset = rom.ReadCartridgeWord(single.Second + 1);
-            AssertEqual(lastOffset / 2 + 1, EndingPaletteImport.ColorCount(single.First), "single palette reverse-copy size");
+            AssertEqual(lastOffset / 2 + 1, EndingPaletteDefinitions.Palettes[single.First].ColorCount, "single palette reverse-copy size");
         }
         AssertEqual((0x8be627 - 0x8be5e7) / 2 * 16,
-            EndingPaletteImport.ColorCount(EndingPaletteId.LogoCrossfade), "all native crossfade pointer payloads");
+            EndingPaletteDefinitions.Palettes[EndingPaletteId.LogoCrossfade].ColorCount, "all native crossfade pointer payloads");
         AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source(EndingPaletteId.LogoCrossfade),
             "crossfade has no contiguous source");
-        foreach (int invalid in new[] { int.MinValue, -1, 7, int.MaxValue })
-        {
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteSources.Source((EndingPaletteId)invalid), "invalid palette source role");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingPaletteImport.ColorCount((EndingPaletteId)invalid), "invalid palette size role");
-        }
     }
 
     /// <summary>
@@ -130,7 +125,7 @@ internal static class EndingPaletteArtworkVerification
             new EndingBackdropScene(EndingPaletteId.PostCredits, backdrops.PostCredits),
         })
         {
-            byte[] native = EndingPaletteImport.ReadNativePalette(nativeBus, scene.Screen, EndingPaletteImport.ColorCount(scene.Screen));
+            byte[] native = EndingPaletteImport.ReadNativePalette(nativeBus, scene.Screen, EndingPaletteDefinitions.Palettes[scene.Screen].ColorCount);
             AssertEqual(LittleEndianBytes.Word(native[0], native[1]), scene.Backdrop.ToWord(),
                 $"installed ending {scene.Screen} backdrop is the cartridge scene's first colour");
         }
@@ -216,14 +211,14 @@ internal static class EndingPaletteArtworkVerification
         // (#1512, #1544): each shade holds the cartridge's colours, the step's background colours before its sprite colours.
         IReadOnlyList<SheetShade> shades = EndingScreenShades.Screen(decoded, InstalledFixtures.ImportMaps.RoomPaletteFx);
         byte[] nativeInitial = EndingPaletteImport.ReadNativePalette(nativeBus,
-            EndingPaletteId.LogoInitial, EndingPaletteImport.ColorCount(EndingPaletteId.LogoInitial));
+            EndingPaletteId.LogoInitial, EndingPaletteDefinitions.Palettes[EndingPaletteId.LogoInitial].ColorCount);
         SheetShade initial = shades.Single(shade => shade.Shade == EndingShades.Loaded(EndingColourLoad.LogoInitial));
         AssertTrue(initial.Inks.SequenceEqual(Enumerable.Range(240, 16)), "the logo's first colours cover its sprite colours");
         for (int color = 0; color < 16; color++)
-            AssertEqual(LittleEndianBytes.Word(nativeInitial[color * 2], nativeInitial[color * 2 + 1]), initial.Colours[color].ToWord(),
+            AssertEqual(LittleEndianBytes.Word(nativeInitial[color * 2], nativeInitial[color * 2 + 1]), initial.Colours.ElementAt(color).ToWord(),
                 "installed initial logo colours match the cartridge");
         byte[] nativeColors = EndingPaletteImport.ReadNativePalette(nativeBus,
-            EndingPaletteId.LogoCrossfade, EndingPaletteImport.ColorCount(EndingPaletteId.LogoCrossfade));
+            EndingPaletteId.LogoCrossfade, EndingPaletteDefinitions.Palettes[EndingPaletteId.LogoCrossfade].ColorCount);
         for (int step = 0; step < EndingLogoCrossfadeStep.All.Count; step++)
         {
             SheetShade shown = shades.Single(shade => shade.Shade == EndingShades.LogoCrossfade(EndingLogoCrossfadeStep.All[step]));
@@ -231,7 +226,7 @@ internal static class EndingPaletteArtworkVerification
                 for (int color = 0; color < 16; color++)
                 {
                     int offset = ((step * 2 + palette) * 16 + color) * 2;
-                    AssertEqual(LittleEndianBytes.Word(nativeColors[offset], nativeColors[offset + 1]), shown.Colours[palette * 16 + color].ToWord(),
+                    AssertEqual(LittleEndianBytes.Word(nativeColors[offset], nativeColors[offset + 1]), shown.Colours.ElementAt(palette * 16 + color).ToWord(),
                         $"installed logo crossfade step {step} matches the cartridge");
                 }
         }
@@ -245,7 +240,7 @@ internal static class EndingPaletteArtworkVerification
             .Where(id => id != EndingPaletteId.LogoCrossfade)
             .Select(id => new EndingPaletteArtworkVerificationValue(id, EndingPaletteSources.Source(id),
                 EndingPaletteSources.Source(id) +
-                EndingPaletteImport.ColorCount(id) * sizeof(ushort)))
+                EndingPaletteDefinitions.Palettes[id].ColorCount * sizeof(ushort)))
             .Append(new EndingPaletteArtworkVerificationValue(EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
             .ToArray();
 

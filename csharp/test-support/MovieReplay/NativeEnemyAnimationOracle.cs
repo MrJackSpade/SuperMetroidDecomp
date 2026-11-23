@@ -54,6 +54,10 @@ internal static class NativeEnemyAnimationOracle
     /// The animations the family's owners start at one of a segment's repeats continuing elsewhere (#2512), compared from
     /// those repeats' entries.
     /// </param>
+    /// <param name="covered">
+    /// The segments <paramref name="entries"/> cover when they are one of several lists a family's segments run as, a
+    /// door's facing's (#2557); every segment when not given.
+    /// </param>
     internal static int CompareAll<TSegment, TFrame, TEvent>(
         IImportCartridgeSource cartridge,
         byte bank,
@@ -65,12 +69,13 @@ internal static class NativeEnemyAnimationOracle
         IReadOnlyDictionary<TSegment, AnimationContinuation<TSegment>>? countDownContinuations = null,
         IReadOnlyList<NativeCountedEntry<TSegment>>? countedEntries = null,
         IReadOnlySet<TSegment>? onlyRunOnInto = null,
-        IReadOnlyList<NativeRepeatEntryStart<TSegment>>? repeatEntryStarts = null)
+        IReadOnlyList<NativeRepeatEntryStart<TSegment>>? repeatEntryStarts = null,
+        IReadOnlySet<TSegment>? covered = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
     {
-        Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, bank, entries, segments, spritemap, rules);
+        Dictionary<TSegment, NativeEnemyList<TSegment>> lists = Lists(cartridge, bank, entries, segments, spritemap, rules, covered);
         CompareAnimations(lists, startingAt, onlyRunOnInto: onlyRunOnInto,
             countedStarts: CountedStarts(cartridge, bank, entries, countedEntries ?? [], rules));
         CompareRepeatEntryStarts(lists, repeatEntryStarts ?? []);
@@ -152,7 +157,8 @@ internal static class NativeEnemyAnimationOracle
         NativeProgramEntry<TSegment>[] entries,
         AnimationSegments<TSegment, TFrame, TEvent> segments,
         Func<TFrame, ushort> spritemap,
-        NativeEnemyCueRules<TEvent> rules)
+        NativeEnemyCueRules<TEvent> rules,
+        IReadOnlySet<TSegment>? covered = null)
         where TSegment : struct, Enum
         where TFrame : struct
         where TEvent : notnull
@@ -160,7 +166,7 @@ internal static class NativeEnemyAnimationOracle
         Ensure.NotNull(entries);
         Ensure.NotNull(segments);
         Ensure.NotNull(rules);
-        RequireAuthoredOrder(entries);
+        RequireAuthoredOrder(entries, covered);
         // A segment the cartridge repeats under more than one entry (#1842) is its first list; every repeat is read
         // against the same beats. A repeat continuing as that list does is read as it; one continuing elsewhere (#2399:
         // Crocomire's claw swing, heading three lists that each go on differently) is kept as a repeat of its own, which the
@@ -187,14 +193,15 @@ internal static class NativeEnemyAnimationOracle
     /// order. A segment whose list the cartridge repeats under more entries (#1842) lists each repeat where the cartridge
     /// places it.
     /// </summary>
-    internal static void RequireAuthoredOrder<TSegment>(NativeProgramEntry<TSegment>[] entries)
+    internal static void RequireAuthoredOrder<TSegment>(NativeProgramEntry<TSegment>[] entries, IReadOnlySet<TSegment>? covered = null)
         where TSegment : struct, Enum
     {
         Ensure.NotNull(entries);
         TSegment[] firsts = [.. entries.Select(entry => entry.Program).Distinct()];
-        VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>().Length, firsts.Length, $"every typed {typeof(TSegment).Name} has a native entry");
+        TSegment[] expected = [.. Enum.GetValues<TSegment>().Where(segment => covered?.Contains(segment) ?? true)];
+        VerificationAssertions.AssertEqual(expected.Length, firsts.Length, $"every typed {typeof(TSegment).Name} it covers has a native entry");
         for (int index = 0; index < firsts.Length; index++)
-            VerificationAssertions.AssertEqual(Enum.GetValues<TSegment>()[index], firsts[index], $"the {typeof(TSegment).Name} values are declared in authored order");
+            VerificationAssertions.AssertEqual(expected[index], firsts[index], $"the {typeof(TSegment).Name} values are declared in authored order");
     }
 
     /// <summary>
@@ -228,7 +235,8 @@ internal static class NativeEnemyAnimationOracle
                 && (control.TargetEntry is not { } counted || counted == lists[control.Target!.Value].Entry))
             .Select(control => control.Target!.Value)];
         HashSet<TSegment> tails = CountDownTails(lists);
-        foreach (TSegment start in Enum.GetValues<TSegment>())
+        // Lists read for one of several facings (#2557) hold only that facing's segments; every other family's hold them all.
+        foreach (TSegment start in Enum.GetValues<TSegment>().Where(lists.ContainsKey))
         {
             // A segment an animation only runs on into starts no animation of its own (#1948); the animations that run on
             // into it are compared through it.
@@ -330,7 +338,7 @@ internal static class NativeEnemyAnimationOracle
         Ensure.NotNull(startingAt);
         Animation<TSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        if (place.Beat == AnimationPlace.NotEntered)
+        if (place.HasNotEntered)
         {
             if (place.Phase != 0)
                 throw new InvalidOperationException($"A {typeof(TSegment).Name} playback before phase {place.Phase} stands at no native place.");
@@ -511,10 +519,10 @@ internal static class NativeEnemyAnimationOracle
         where TSegment : struct
     {
         AnimationPlace place = playback.Place;
-        if (place.Beat == AnimationPlace.NotEntered || playback.Animation.Phases.Count == 0)
+        if (place.HasNotEntered || playback.Animation.Phases.Count == 0)
             return playback;
         AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
-        if (!phase.IsRepeated || place.Beat > phase.BeatCount)
+        if (!phase.IsRepeated || place.IsHolding)
             return playback;
         if (counter < 1 || counter > phase.Plays)
             throw new InvalidDataException($"A native loop counter of {counter} stands outside the {phase.Plays} plays of repeated phase {place.Phase} ({phase.Segment}).");
@@ -537,10 +545,10 @@ internal static class NativeEnemyAnimationOracle
         where TSegment : struct
     {
         AnimationPlace place = playback.Place;
-        if (place.Beat == AnimationPlace.NotEntered || playback.Animation.Phases.Count == 0)
+        if (place.HasNotEntered || playback.Animation.Phases.Count == 0)
             return null;
         AnimationPhase<TSegment> phase = playback.Animation.Phases[place.Phase];
-        return phase.IsRepeated && place.Beat <= phase.BeatCount ? place.PlaysLeft : null;
+        return phase.IsRepeated && !place.IsHolding ? place.PlaysLeft : null;
     }
 
     /// <summary>

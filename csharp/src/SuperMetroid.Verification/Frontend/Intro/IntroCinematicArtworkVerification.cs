@@ -49,7 +49,6 @@ internal static class IntroCinematicArtworkVerification
     private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
 
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
-    [PrivateInstallation("Corrupts and removes opening-scene stock files and BG pages on a private copy to check that missing and damaged stock fails where it is read.")]
     internal static void VerifyIntroCinematicArtwork(string sourceRom)
     {
         // Corruption and repairs run on a private copy of the installation's opening-cinematic artwork, the only content
@@ -69,7 +68,7 @@ internal static class IntroCinematicArtworkVerification
                         maximumOutputBytes: IntroCinematicArtworkFormat.BackgroundByteCount)),
                 "extracted intro BG page preserves every native tile byte");
             AssertTrue(stock.IntroObjectCharacters.Characters.Span.SequenceEqual(
-                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.IntroObjectCharacters,
+                    RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.IntroObjectCharacters,
                         IntroCinematicArtworkFormat.IntroObjectByteCount)),
                 "installed fixed intro OBJ PNG preserves every native tile byte");
             AssertTrue(stock.CinematicObjectCharacters.Characters.Span.SequenceEqual(
@@ -93,14 +92,14 @@ internal static class IntroCinematicArtworkVerification
                 int source = IntroCinematicSourceDefinitions.FinalTextLine + index * sizeof(ushort);
                 ushort nativeWord = LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, source), CpuBusRegionRead.Read(bus, source + 1));
                 AssertEqual(nativeWord, stock.FinalLine.Tiles.Span[index].PackedWord,
-                    $"opening divider tile {index} matches cartridge source");
+                    $"final-line map tile {index} matches cartridge source");
             }
             Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(bus));
-            for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
+            foreach (SuperMetroid.Core.Frontend.Intro.IntroEyeFrame frame in IntroEyeTilemapFormat.Eyes)
             {
                 int source = (int)new SnesAddress(IntroCinematicSourceDefinitions.SpritemapBank,
                     (ushort)(FrontendSourceDefinitions.IntroEyeFrameRecords +
-                        frame * FrontendSourceDefinitions.IntroEyeFrameRecordStride));
+                        FrontendSourceDefinitions.IntroEyeFrameRecordOf[frame] * FrontendSourceDefinitions.IntroEyeFrameRecordStride));
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
@@ -120,7 +119,7 @@ internal static class IntroCinematicArtworkVerification
             Suite(nameof(VerifyIntroScientistSpriteArtwork), () => VerifyIntroScientistSpriteArtwork(bus, stock));
             Suite(nameof(VerifyIntroMotherBrainDemoInput), () => VerifyIntroMotherBrainDemoInput(bus, stock));
             AssertTrue(ScreenColourWords.Words(stock.Palette.BackgroundColours.AsSpan(), stock.Palette.SpriteColours.AsSpan()).AsSpan().SequenceEqual(
-                    RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), IntroCinematicSourceDefinitions.Palette,
+                    RomDataReader.ReadFixedBank(bus, IntroCinematicSourceDefinitions.Palette,
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
 
@@ -161,21 +160,19 @@ internal static class IntroCinematicArtworkVerification
             }
             string paletteStockPath = Path.Combine(importData, IntroCinematicPaletteFile.FileName);
             IntroCinematicPaletteDocument paletteDocument =
-                JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(
-                    File.ReadAllBytes(paletteStockPath),
-                    CaseInsensitiveJson)
+                JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(File.ReadAllBytes(paletteStockPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>(CaseInsensitiveJson))
                 ?? throw new InvalidDataException("Extracted opening palette is empty.");
             AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Take(255).ToArray(),
-                }))), "opening palette rejects a truncated color table");
+                }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>()))), "opening palette rejects a truncated color table");
             AssertThrows<InvalidDataException>(() => IntroCinematicPaletteFile.Read(
                 new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(paletteDocument with
                 {
                     Colors = paletteDocument.Colors.Select((color, index) =>
                         index == 1 ? color with { Red = 32 } : color).ToArray(),
-                }))), "opening palette rejects out-of-range RGB5 channels");
+                }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicPaletteDocument>()))), "opening palette rejects out-of-range RGB5 channels");
             byte[] stockPalette = File.ReadAllBytes(paletteStockPath);
             File.WriteAllBytes(paletteStockPath, [0]);
             AssertThrows<InvalidDataException>(() => IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, importData),
@@ -187,28 +184,26 @@ internal static class IntroCinematicArtworkVerification
                 "the restored stock shows exact cartridge opening palette colors");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed opening palette never rereads its cartridge source");
-            // The divider is a layout only the import reads (#1638): its document is the cartridge-derived extraction's.
-            string dividerStockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
+            // The final-line map is a layout only the import reads (#1638): its document is the cartridge-derived extraction's.
+            string finalLineStockPath = Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
                 SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroFinalLineTilemapFormat.FileName);
-            IntroFinalLineTilemapDocument dividerDocument =
-                JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(
-                    File.ReadAllBytes(dividerStockPath),
-                    CaseInsensitiveJson)
-                ?? throw new InvalidDataException("Extracted opening divider is empty.");
-            var nativeDividerState = CreateRetailIntroFixture();
-            var stockDividerState = CreateRetailIntroFixture(characterArtwork: stock);
-            foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
+            IntroFinalLineTilemapDocument finalLineDocument =
+                JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(File.ReadAllBytes(finalLineStockPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapDocument>(CaseInsensitiveJson))
+                ?? throw new InvalidDataException("Extracted final-line map is empty.");
+            var nativeFinalLineState = CreateRetailIntroFixture();
+            var stockFinalLineState = CreateRetailIntroFixture(characterArtwork: stock);
+            foreach (IntroCinematicState scene in new[] { nativeFinalLineState, stockFinalLineState })
                 scene.SetupFirstIllustratedPage();
-            AssertTrue(stockDividerState.ShownVram().SequenceEqual(
-                    nativeDividerState.ShownVram()),
-                "installed opening divider produces exact native illustrated-page VRAM");
+            AssertTrue(stockFinalLineState.ShownVram().SequenceEqual(
+                    nativeFinalLineState.ShownVram()),
+                "installed final-line map produces exact native illustrated-page VRAM");
             AssertThrows<InvalidDataException>(() => IntroFinalLineTilemap.Load(
-                new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(dividerDocument with
+                new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(finalLineDocument with
                 {
-                    Cells = dividerDocument.Cells.Take(127).ToArray(),
-                }))), "opening divider rejects a truncated tilemap");
+                    Cells = finalLineDocument.Cells.Take(127).ToArray(),
+                }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroFinalLineTilemapDocument>()))), "final-line map rejects a truncated tilemap");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                "installed opening divider never rereads its cartridge source");
+                "installed final-line map never rereads its cartridge source");
 
             Console.WriteLine(
                 "Intro art: three extracted character pages, seven full tilemaps, eye/caret/Mother Brain/explosion/Rinka/egg-effect/discovery/scientist compositions and full RGB5 palette; native parity and strict failures pass.");
@@ -219,9 +214,9 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroEyeArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var native = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
+        var native = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.English), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         var installed = new IntroNarrationActors(new IntroNarrationText(),
-            new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
+            new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.English), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         native.Step(0);
         installed.Step(0);
         AssertEqual(native.EyeFrame, installed.EyeFrame, "installed opening eye shows the native frame");
@@ -290,16 +285,17 @@ internal static class IntroCinematicArtworkVerification
         installedState.SetupFirstIllustratedPage();
         ((nativeState.CurrentNarration ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
         ((installedState.CurrentNarration ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
-        var nativeOam = nativeState.PrepareIllustratedPageSprites().FinalizedAsOam();
-        var installedOam = installedState.PrepareIllustratedPageSprites().FinalizedAsOam();
-        AssertTrue(installedOam.ImageEquals(nativeOam),
+        // The illustrated page's scene draws the caret (#2554).
+        PlacedSpritePart[] nativeParts = PlacedSpritePart.Of(nativeState.ComposeScene().SpriteDraws);
+        PlacedSpritePart[] installedParts = PlacedSpritePart.Of(installedState.ComposeScene().SpriteDraws);
+        AssertTrue(nativeParts.Length > 0 && installedParts.SequenceEqual(nativeParts),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
+        var nativeBlink = new IntroNarrationActors(new IntroNarrationText(), new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.English), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         var installedBlink = new IntroNarrationActors(new IntroNarrationText(),
-            new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
+            new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.English), AudioQueues.Standalone(), narrationPresentation: RetailPresentationFixture().IntroNarration);
         nativeBlink.SetCaretBlinking();
         installedBlink.SetCaretBlinking();
         for (int frame = 0; frame < 20; frame++)
@@ -320,14 +316,18 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainCollision(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         ImportIntroCinematicArtwork stock)
     {
-        RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
+        RoomCollisionType[] native = VerifyIntroMotherBrainCollisionSource(bus);
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var state = CreateRetailIntroFixture(characterArtwork: stock);
-        state.SetupFirstIllustratedPage();
-        state.SetupMotherBrainFlashback();
-        var level = state.CurrentFlashbackLevel ?? throw new InvalidOperationException("Verification requires level.");
+        var audio = AudioQueues.Standalone();
+        var state = CreateRetailIntroFixture(audio, characterArtwork: stock);
+        // The intro runs to the flashback's setup, which builds its room from the installed collision (#2554).
+        _ = state.StepToMotherBrainFlashback(audio);
+        RoomCollisionType[] installed = PlainTerrainCollision.Of(
+            new Extent16<RoomBlocks>(IntroMotherBrainCollisionDefinitions.Columns, IntroMotherBrainCollisionDefinitions.RoomRows),
+            IntroMotherBrainCollision.CreateCollision());
+        AssertTrue(installed.Length >= native.Length, "the flashback's installed collision covers the decoded original");
         for (int index = 0; index < native.Length; index++)
-            AssertEqual(native[index], level.GetCollisionBlockByIndex(index).Terrain.Collision,
+            AssertEqual(native[index], installed[index],
                 $"Mother Brain flashback collision block {index} matches the decoded original without ROM reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "flashback setup never rereads the physical level source");
@@ -397,8 +397,7 @@ internal static class IntroCinematicArtworkVerification
                 File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName), IntroMotherBrainExplosionSpriteFormat.FileName)),
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         explosions.Step(crossfadeFinishing: false);
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
@@ -407,7 +406,7 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro explosion actors never reread the twelve native compositions");
 
-        document.Frames.Remove("small-explosion-0");
+        document.Frames.Remove("small-explosion-spark");
         AssertThrows<InvalidDataException>(() =>
         {
             using var malformed = new MemoryStream();
@@ -482,7 +481,7 @@ internal static class IntroCinematicArtworkVerification
             < (IntroCinematicSourceDefinitions.FinalTextLine +
                 IntroFinalLineTilemapFormat.CellCount * sizeof(ushort)))
         {
-            return $"Cinematic reread opening divider ${address:X6}.";
+            return $"Cinematic reread final-line map ${address:X6}.";
         }
         if (address is >= IntroCinematicCheckSources.MotherBrainLevelData
             and < IntroCinematicCheckSources.MotherBrainLevelData + IntroMotherBrainFlashbackConstants.MotherBrainLevelByteCount)

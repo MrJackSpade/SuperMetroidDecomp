@@ -27,8 +27,8 @@ internal static class PauseReserveUiAssetsVerification
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {
-            native.Step(0, 0, frameCycle: (byte)frame);
-            installed.Step(0, 0, frameCycle: (byte)frame);
+            native.Step(0, 0, frameCount: (byte)frame);
+            installed.Step(0, 0, frameCount: (byte)frame);
             var shownNative = native.ShownVram(original);
             var shownInstalled = installed.ShownVram(original);
             AssertTrue(shownNative.SequenceEqual(shownInstalled),
@@ -48,7 +48,7 @@ internal static class PauseReserveUiAssetsVerification
         };
         static void EnterEquipment(PauseMenuState pause)
         {
-            byte nmiFrame = 0; ChangePausePage(pause, ControllerButton.R, input => pause.Step(input, input, frameCycle: nmiFrame++));
+            byte nmiFrame = 0; ChangePausePage(pause, ControllerButton.R, input => pause.Step(input, input, frameCount: nmiFrame++));
             AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve UI fixture enters equipment");
         }
     }
@@ -62,7 +62,7 @@ internal static class PauseReserveUiAssetsVerification
         Block(0x82ad5d, 64); Block(0x82ad9d, 64);
         for (int index = 0; index < 2; index++)
         {
-            int sourceAddress = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c088 + index * 2);
+            int sourceAddress = 0x820000 | RomDataReader.ReadWordFixedBank(source, 0x82c088 + index * 2);
             Block(sourceAddress, 14);
         }
         return new CartridgeReadGuard(source).Forbid(blocked.Contains,

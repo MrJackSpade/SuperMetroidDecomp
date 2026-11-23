@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Enemies;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -30,14 +31,14 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         runtime.BossArtwork.KraidEyes = installedArtwork.KraidEyes;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GoldenTorizo);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new(0x0180, 0x0150));
         samus.MaxHealth = 1499;
         samus.Health = 1499;
         RoomEnemyPlace boss = runtime.Enemies.Places.InUpdateOrder.Single(place =>
-            place.DefinitionId == EnemyDefinitionId.GoldenTorizo);
+            place.Holds(EnemyDefinitionId.GoldenTorizo));
         TorizoEnemyState state = boss.RequireSpeciesState<TorizoEnemyState>();
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)
@@ -58,7 +59,7 @@ internal static class GoldenTorizoCartridgeFallbackVerification
             // Golden Torizo animation is combat.
             TorizoAnimation playing = TorizoAnimations.Playing(state.BodyPlayback);
             enteredCombat |= playing is not (TorizoAnimation.GoldenTorizoDormant or TorizoAnimation.GoldenTorizoAwakening or TorizoAnimation.GoldenTorizoSettling)
-                || (playing == TorizoAnimation.GoldenTorizoSettling && state.BodyPlayback.Place.Phase >= TorizoAnimations.StartingWith(playing).CyclePhase);
+                || (playing == TorizoAnimation.GoldenTorizoSettling && state.BodyPlayback.Place.Phase >= ((AnimationEnd.Loop)TorizoAnimations.StartingWith(playing).End).Phase);
         }
         AssertTrue(enteredCombat,
             "cartridge-backed installed-art Golden Torizo reaches walking combat; " +

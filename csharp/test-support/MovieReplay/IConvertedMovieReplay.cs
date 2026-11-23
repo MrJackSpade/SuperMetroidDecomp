@@ -15,6 +15,12 @@ internal interface IConvertedMovieReplay : IDisposable
     SuperMetroidGame Game { get; }
 
     /// <summary>
+    /// Where the frame whose input <see cref="Frames"/> last yielded comes from in the movie, or <see langword="null"/>
+    /// before the first frame.
+    /// </summary>
+    MovieReplayPosition? Position { get; }
+
+    /// <summary>
     /// The replay as a sequence: the opening import, then each frame's expectations and input, then that frame's
     /// completion and comparison. Each boundary is <see langword="null"/>; each frame to run is its input.
     /// </summary>

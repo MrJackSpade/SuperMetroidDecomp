@@ -20,7 +20,7 @@ internal static class MotherBrainRaiseCounterVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
@@ -28,7 +28,7 @@ internal static class MotherBrainRaiseCounterVerification
         state.Body.Position = state.Body.Position.WithWhole(new(0x003b, 0x0117));
         var camera = runtime.Room.LoadedCamera;
 
-        void Step(byte counter8, ushort counter) => runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = camera.PixelPosition, TimeIsFrozen = false, Samus = runtime.Player.IntroducedSamus, ShortCounter = counter8, FrameCounter = counter });
+        void Step(byte counter8, ushort counter) => runtime.Enemies.StepStandaloneFrame(runtime.Enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = camera.PixelPosition, TimeIsFrozen = false, Samus = runtime.Player.Samus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(counter8), FrameCounter = counter });
 
         Step(0x68, 0x01ff);
         AssertEqual((ushort)0x0117, state.Body.Position.Y.Whole, "no raise while $05B6 & 3 is nonzero, whatever $05B5 holds");

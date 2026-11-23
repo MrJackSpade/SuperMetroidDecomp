@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -7,64 +6,85 @@ using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
-/// Crocomire's body (#2146): his fight, his frames' hitboxes, the normal bombs they take and the frames he shows on his
-/// boss body layer.
+/// Crocomire's body (#2146): his fight, his frames' hitboxes, the normal bombs they take and the frames he shows as his
+/// body's pictures.
 /// </summary>
 /// <param name="species">The Crocomire species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : CrocomireEntity(species, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, CrocomireEnemyState encounter)
+    : CrocomireEntity(species, occupant, place, common), IEnemyNormalBombAdmission, IBossBodyFrames
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Fight.InitializeCrocomire(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Crocomire species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    internal CrocomireBodyEntity(CrocomireBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork)
+        : this(species, occupant, place, common, bossArtwork, species.Fight.InitializeCrocomire(occupant, place))
+    {
+    }
 
     /// <summary>The encounter the body set up.</summary>
-    internal override CrocomireEnemyState Encounter => Place.RequireSpeciesState<CrocomireEnemyState>();
+    internal override CrocomireEnemyState Encounter { get; } = encounter;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunCrocomireMainAi(Occupant, Encounter, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, context);
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.AdvanceCrocomireTypedAnimation(Place, Encounter, context);
 
     /// <inheritdoc/>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        CrocomireCombat.FindCrocomireBodyHitboxReaction(Place, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        CrocomireCombat.FindCrocomireBodyHitboxReaction(Place, probe);
 
-    /// <summary>The body's ignoring touch leads to Crocomire's component contact.</summary>
-    protected override bool OwnsTouch => Place.Definition.Touch == EnemyReaction.Ignore;
+    /// <summary>Crocomire's components own his touch: Samus meets his body through their contact.</summary>
+    protected override bool OwnsTouch => true;
 
-    /// <summary>The body's definition names no shot reaction, which leads to his hitboxes' reactions.</summary>
-    protected override bool OwnsShot => Place.Definition.Shot is null;
+    /// <summary>Crocomire's hitboxes own his shot reaction: a shot meets the reaction the hitbox it strikes selects.</summary>
+    protected override bool OwnsShot => true;
 
     /// <summary>
     /// Runs the body's own reaction to a bomb its frames' hitboxes meet with one of his own reactions, before the ignoring
-    /// check: the body's definition names no shot reaction, so normal bombs reach the hit counter, dust or mouth reaction
-    /// the hitbox selects.
+    /// check: his hitboxes own his shot reaction, so normal bombs reach the hit counter, dust or mouth reaction the hitbox
+    /// selects.
     /// </summary>
     /// <param name="context">The bomb contact.</param>
     public override bool TryReactToBomb(EnemyBombContext context)
     {
-        if (Place.Definition.Shot is not null || !context.UsesFrameHitboxes ||
-            context.SelectedShot == EnemyReaction.OrdinaryShot)
+        if (!context.UsesFrameHitboxes || context.SelectedShot.IsOrdinary)
             return base.TryReactToBomb(context);
         Species.Combat.ReactToCrocomireBomb(context, Encounter);
         return true;
     }
 
     /// <summary>The body's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction =>
+    public override EnemyPowerBombReaction PowerBombReaction =>
         LeavesPowerBombToSpecies ? OwnPowerBombReaction : base.PowerBombReaction;
 
     /// <summary>The body's own Power Bomb reaction, which acts on the encounter the body set up.</summary>
-    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= CrocomireCombat.CrocomirePowerBombReactionOf(this);
+    private EnemyPowerBombReaction OwnPowerBombReaction => field ??= new() { ReplacesCommon = ReactToOwnPowerBomb };
 
-    /// <summary>The body takes normal bombs on its frames' hitboxes although its species definition names no shot reaction.</summary>
-    public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => Place.Definition.Shot is null && collidesByFrameHitboxes;
+    /// <summary>Routes a Power Bomb's hit on the body to its encounter's authored reaction.</summary>
+    /// <param name="context">The Power Bomb's hit.</param>
+    private void ReactToOwnPowerBomb(EnemyPowerBombContext context) => CrocomireCombat.ReactToCrocomirePowerBomb(context, Encounter);
+
+    /// <summary>The body takes normal bombs on its frames' hitboxes, which own his shot reaction.</summary>
+    public bool AdmitsNormalBombs(bool collidesByFrameHitboxes) => collidesByFrameHitboxes;
+
+    /// <inheritdoc/>
+    public BossBodyParts BodyParts => Encounter.BodyParts;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
-        CrocomireBodyLayerFrameDefinitions.Frames.Contains(selected) ? bossArtwork.Body(BossBodyOwner.Crocomire).Frame(selected) : null;
+        bossArtwork.Body(BossBodyOwner.Crocomire).Find(selected);
 }

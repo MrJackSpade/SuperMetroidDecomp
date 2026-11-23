@@ -22,7 +22,7 @@ using SuperMetroid.Core.Samus.Colours;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>The installed content identities of the sprite, enemy, boss-body and room sheets, the X-ray, Samus death and cinematic catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
-internal static class InstalledArtworkContentIdentity
+internal static partial class InstalledArtworkContentIdentity
 {
     /// <summary>The destruction's actor roles in the order the content identity hashes them (#2567).</summary>
     private static readonly CeresDestructionActorRole[] DestructionRoleOrder = [.. Ensure.EveryMemberOnce<CeresDestructionActorRole>(
@@ -261,9 +261,9 @@ internal static class InstalledArtworkContentIdentity
                 content.Append("tiles", tiles.Length);
                 foreach (XrayRoomOverlayVisual tile in tiles)
                 {
-                    // Identity hashes the authored byte coordinates.
-                    content.Append("x", Ensure.BetweenInclusive(0, byte.MaxValue, tile.Block.X));
-                    content.Append("y", Ensure.BetweenInclusive(0, byte.MaxValue, tile.Block.Y));
+                    // Identity hashes the block's place in the room.
+                    content.Append("x", tile.Block.X);
+                    content.Append("y", tile.Block.Y);
                     content.AppendAppearances("block", [tile.Appearance]);
                 }
             }
@@ -285,8 +285,8 @@ internal static class InstalledArtworkContentIdentity
                 content.AppendName("kind", pair.Key.Type.ToString());
                 content.AppendName("reaction", pair.Key.Reaction?.ToString() ?? string.Empty);
                 content.Append("blocks", visual.InReadingOrder.Count);
-                foreach (int block in visual.InReadingOrder)
-                    content.Append("block", block);
+                foreach (SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture block in visual.InReadingOrder)
+                    content.Append("block", block.Block);
             }
             content.Append("overlays", Convert.FromHexString(reveals.Overlays.ContentIdentity));
         });

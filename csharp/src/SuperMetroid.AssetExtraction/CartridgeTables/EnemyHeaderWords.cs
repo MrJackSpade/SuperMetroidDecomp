@@ -8,16 +8,14 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// <summary>
 /// The bank-$A0 header pointers that name the enemy definitions (#1412): the words a room population entry, a graphics
 /// set record, a spawn and an enemy slot's identity hold, decoded once here. Each entry's comment is the header's label in
-/// the pinned disassembly; zero names the cleared slot.
+/// the pinned disassembly. A cleared slot's zero names no definition: the slot holds no enemy.
 /// </summary>
-[EncodingOwner("bank-$A0 enemy header pointer words")]
-internal static class EnemyHeaderWords
+internal static partial class EnemyHeaderWords
 {
 
     /// <summary>The bank-$A0 pointer of each enemy definition's 64-byte header.</summary>
     internal static readonly NativeWordIdentities<EnemyDefinitionId> Headers = new(new Dictionary<EnemyDefinitionId, ushort>
     {
-        [EnemyDefinitionId.None] = 0x0000,
         [EnemyDefinitionId.Boyon] = 0xcebf,
         [EnemyDefinitionId.MamaTurtle] = 0xcf3f,
         [EnemyDefinitionId.BabyTurtle] = 0xcf7f,
@@ -88,7 +86,7 @@ internal static class EnemyHeaderWords
         [EnemyDefinitionId.RidleyCeres] = 0xe13f,
         [EnemyDefinitionId.Ridley] = 0xe17f,
         [EnemyDefinitionId.RidleyBreakupPiece] = 0xe1bf,
-        [EnemyDefinitionId.CeresSteam] = 0xe1ff,
+        [EnemyDefinitionId.SteamVent] = 0xe1ff,
         [EnemyDefinitionId.Zebetite] = 0xe27f,
         [EnemyDefinitionId.Kraid] = 0xe2bf,
         [EnemyDefinitionId.KraidArm] = 0xe2ff,

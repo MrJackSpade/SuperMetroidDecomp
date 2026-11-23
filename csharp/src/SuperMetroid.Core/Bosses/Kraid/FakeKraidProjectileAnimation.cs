@@ -4,28 +4,29 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>A Fake Kraid spit or spike's typed animation: it shows its pose and holds it for good.</summary>
-/// <param name="pose">The pose to show.</param>
-internal sealed class FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
-    : EnemyProjectileTypedAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue>(PoseAnimations[pose])
+internal sealed partial class FakeKraidProjectileAnimation
+    : EnemyProjectileSilentAnimation<FakeKraidProjectilePose, FakeKraidProjectilePose>
 {
+    /// <summary>Creates a <see cref="FakeKraidProjectileAnimation"/>.</summary>
+    /// <param name="pose">The pose to show.</param>
+    public FakeKraidProjectileAnimation(FakeKraidProjectilePose pose)
+        : base(pose, PoseAnimations[pose])
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
-
-    /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FakeKraidProjectilePose, Animation<FakeKraidProjectilePose>> StartingAt => PoseAnimations;
+    private protected override IUnpausedAnimationPlay<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> Segments => PoseSegments;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(FakeKraidProjectilePose frame) =>
         ShownProjectileFrames[frame];
 
     /// <summary>
-    /// Each pose's segment: the spit and the left and right spikes each hold their pose for good (#1627). The game's
-    /// animations show it for the longest frame an animation gives and then rest on it; nothing reads the projectile's frame timer,
-    /// so the pose simply stays until a shot deletes it.
+    /// Each pose's segment: the spit and the left and right spikes each hold their pose for good (#1627), until a shot
+    /// deletes the projectile.
     /// </summary>
-    private static AnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
-        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>[]
+    private static UnpausedAnimationSegments<FakeKraidProjectilePose, FakeKraidProjectilePose, NoAnimationCue> PoseSegments { get; } = new(
+        Enum.GetValues<FakeKraidProjectilePose>().ToDictionary(pose => pose, pose => new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>.Unpaused[]
         {
             new AnimationBeat<FakeKraidProjectilePose, NoAnimationCue>.HeldFrame(pose),
         }));

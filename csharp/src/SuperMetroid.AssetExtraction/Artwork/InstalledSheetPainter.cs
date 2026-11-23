@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// holds of it (#1633), so a thread painting many sheets allocates only their installed pixels. The picture store writes
 /// their pictures (#1635). Not shared between threads.
 /// </summary>
-internal sealed class InstalledSheetPainter
+internal sealed partial class InstalledSheetPainter
 {
     /// <summary>The planes a laid-out sheet is painted on before it is converted.</summary>
     private readonly SpriteSheetCanvas canvas = new();
@@ -19,7 +19,7 @@ internal sealed class InstalledSheetPainter
         Ensure.NotNull(layout);
         SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
         SpriteSheetDocument manifest = layout.Paint(planes);
-        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.PaletteIndices);
+        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.Inks);
     }
 
     /// <summary>Paints a sheet of pictures already painted (#1513) on the reused canvas and converts it.</summary>
@@ -29,6 +29,6 @@ internal sealed class InstalledSheetPainter
         Ensure.NotNull(layout);
         SpriteSheetPlanes planes = canvas.Cleared(layout.Size);
         SpriteSheetDocument manifest = layout.Paint(planes);
-        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.PaletteIndices);
+        return InstalledSheetConversion.Install(manifest, planes.Size, planes.Pixels, planes.Inks);
     }
 }

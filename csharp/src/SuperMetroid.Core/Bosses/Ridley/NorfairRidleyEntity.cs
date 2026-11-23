@@ -9,16 +9,29 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley found defeated is deleted as he initializes and begins no encounter.
 /// </summary>
 /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place Ridley occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : RidleyEntity(norfair.Body, place, common)
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, NorfairRidleyState encounter)
+    : RidleyEntity(norfair.Body, occupant, place, common)
 {
-    /// <summary>The Lower Norfair encounter his body holds from its initialization.</summary>
-    internal override NorfairRidleyState Encounter => Place.RequireSpeciesState<NorfairRidleyState>();
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place Ridley occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(norfair, occupant, place, common, norfair.Combat.InitializeNorfairRidley(place))
+    {
+    }
 
-    /// <inheritdoc/>
-    public override void Initialize() => norfair.Combat.InitializeNorfairRidley(Place);
+    /// <summary>The Lower Norfair encounter his body holds from its initialization.</summary>
+    internal override NorfairRidleyState Encounter { get; } = encounter;
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => norfair.RunRidleyMainAi(Place, Encounter, frame);
@@ -43,11 +56,11 @@ internal sealed class NorfairRidleyEntity(NorfairRidleyBehavior norfair, RoomEne
     }
 
     /// <summary>Ridley's own shot reaction where his definition leaves shots to him, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? RidleyInteractions.RidleyShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == RidleyReactions.Shot ? RidleyInteractions.RidleyShotReaction : base.ShotReaction;
 
     /// <summary>Ridley's own stages around common bomb damage, for a bomb that selects his shot reaction.</summary>
     /// <param name="context">The bomb contact.</param>
-    public override EnemyBombReaction? CommonBombDamageReaction(EnemyBombContext context) =>
+    public override EnemyBombReaction CommonBombDamageReaction(EnemyBombContext context) =>
         context.SelectedShot == RidleyReactions.Shot ? RidleyInteractions.RidleyBombReaction : base.CommonBombDamageReaction(context);
 
     /// <summary>Only shots meet Ridley's frames' hitboxes; his contact is his own.</summary>

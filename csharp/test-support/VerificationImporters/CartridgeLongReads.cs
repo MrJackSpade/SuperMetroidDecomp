@@ -8,7 +8,6 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// byte follows its word on the 24-bit bus. Production reads its longs bank-relative through
 /// <see cref="CartridgeWordReads"/>.
 /// </summary>
-[EncodingOwner("cartridge 24-bit long reads")]
 internal static class CartridgeLongReads
 {
     /// <summary>Adds a linear 24-bit pointer read to imported cartridge sources for verification oracles.</summary>

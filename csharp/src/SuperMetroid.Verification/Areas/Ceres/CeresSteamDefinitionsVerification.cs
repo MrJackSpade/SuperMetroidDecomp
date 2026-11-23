@@ -1,5 +1,6 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -27,10 +28,10 @@ internal static class CeresSteamDefinitionsVerification
             CeresSteamVariant variant = variants[index];
             CeresSteamInitialization definition =
                 CeresSteamInitializations.Initialization(variant);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((instructionTable + index * 2)),
-                NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.Entries, definition.Animation),
+            AssertEqual(rom.ReadCartridgeWord((instructionTable + index * 2)),
+                NativeEnemyAnimationOracle.EntryOf(CeresSteamNativeListAddresses.EntriesOf(definition.Way), CeresSteamSegment.Dormant),
                 $"Ceres steam {variant} instruction list");
-            AssertEqual(CeresNativeWords.DecodeSteamAction(CartridgeImportSource.Require(rom).ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
+            AssertEqual(CeresNativeWords.DecodeSteamAction(rom.ReadCartridgeWord(functionTable + index * 2), "native Ceres steam function"),
                 definition.Action,
                 $"Ceres steam {variant} function");
 
@@ -40,25 +41,34 @@ internal static class CeresSteamDefinitionsVerification
                 shaftTurn: shaft);
             enemies.VerificationServices().NextRandom = () => 0x001f;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)index);
-            place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
-            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
+            place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)index);
+            place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
+            // The vent is set up as the population load sets it up, its species building its entity.
+            _ = enemies.LoadAuthoredPopulation();
 
-            AssertEqual(new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(definition.Animation), AnimationPlace.StartOfAnimation), place.RequireSpeciesState<CeresSteamEnemyState>().Playback,
-                $"production Ceres steam {variant} program");
-            CeresSteamEnemyState steamState = place.SpeciesState<CeresSteamEnemyState>()
-                ?? throw new InvalidOperationException("The initialized vent has no state.");
-            AssertEqual<CeresSteamMotion>(definition.Action == CeresSteamAction.ApplyRotatingElevatorOffset
-                    ? new CeresSteamMotion.RidesShaftTurn(shaft)
-                    : CeresSteamMotion.HoldsItsPlace.Instance,
-                steamState.Motion, $"production Ceres steam {variant} motion carries out its function");
-            AssertEqual(32, steamState.UpdatesToActivation,
-                $"production Ceres steam {variant} waits the drawn 32 updates, the one it appears on included");
+            // The vent's motion carries out its function: a vent riding the shaft's turn is drawn where the turn carries the
+            // point it stands on, and one holding its place is drawn where it stands.
+            SamusState samus = RoomEnemyFrameFixtures.StandaloneSamus();
+            Position16<RoomPixels> standing = place.Position.Whole;
+            place.RunMainAi(samus);
+            AssertEqual(definition.Action == CeresSteamAction.ApplyRotatingElevatorOffset
+                    ? shaft.Transform.Transform(standing) - standing
+                    : default,
+                place.DrawOffset, $"production Ceres steam {variant} motion carries out its function");
+
+            // The dormant program hides the vent for the drawn 32 updates and shows the puff's first picture on the next.
+            bool Hidden() => place.Presence.HasAny(EnemyPresence.Hidden) && place.Contact.HasAny(EnemyContact.IgnoresSamus);
+            for (int update = 1; update <= 32; update++)
+            {
+                place.AdvanceAnimation(samus);
+                AssertTrue(Hidden(), $"production Ceres steam {variant} stays hidden on dormant update {update}");
+            }
+            place.AdvanceAnimation(samus);
+            AssertTrue(!Hidden(), $"production Ceres steam {variant} appears after the drawn 32 updates");
+            AssertEqual<EnemyFrameId?>(definition.Way.Segments.Beats(CeresSteamSegment.Puffing)[0].ShownFrame, place.Frame,
+                $"production Ceres steam {variant} program puffs as it appears");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => CeresSteamInitializations.Initialization((CeresSteamVariant)6),
-            "Ceres steam variant past tables");
         Console.WriteLine(
             "Ceres steam definitions: twelve native words and all six production initialization paths pass with both selector tables forbidden.");
     }

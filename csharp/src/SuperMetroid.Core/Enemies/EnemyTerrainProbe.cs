@@ -5,13 +5,20 @@ namespace SuperMetroid.Core.Enemies;
 /// at an offset from it, which a mover moves in the enemy's stead. What the enemy keeps of the probe's movement is the
 /// enemy's own choice (<see cref="ProbeMovementKept"/>).
 /// </summary>
-/// <param name="enemy">The enemy the probe is taken for, whose size it has.</param>
-/// <param name="offset">How far from the enemy, in whole pixels, the probe stands.</param>
-internal sealed class EnemyTerrainProbe(IEnemyTerrainBody enemy, Offset16<RoomPixels> offset) : IEnemyTerrainBody
+internal sealed partial class EnemyTerrainProbe : IEnemyTerrainBody
 {
-    /// <inheritdoc/>
-    public FixedPosition<RoomPixels> Position { get; set; } = Ensure.NotNull(enemy).Position + offset;
+    /// <summary>Creates an <see cref="EnemyTerrainProbe"/>.</summary>
+    /// <param name="enemy">The enemy the probe is taken for, whose size it has.</param>
+    /// <param name="offset">How far from the enemy, in whole pixels, the probe stands.</param>
+    public EnemyTerrainProbe(IEnemyTerrainBody enemy, Offset16<RoomPixels> offset)
+    {
+        this.Position = Ensure.NotNull(enemy).Position + offset;
+        this.Radius = enemy.Radius;
+    }
 
     /// <inheritdoc/>
-    public Extent16<RoomPixels> Radius { get; } = enemy.Radius;
+    public FixedPosition<RoomPixels> Position { get; set; }
+
+    /// <inheritdoc/>
+    public Extent16<RoomPixels> Radius { get; }
 }

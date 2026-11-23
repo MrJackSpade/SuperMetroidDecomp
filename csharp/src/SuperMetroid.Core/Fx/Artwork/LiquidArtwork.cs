@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 /// A liquid's artwork (#1706): the strip its surface shows and the body below it, which repeats down from the strip's last
 /// line. The strip's origin is the pixel on the liquid's surface line, so the strip may show rows above the surface.
 /// </summary>
-public sealed record LiquidArtwork : RoomEffectArtwork
+public sealed partial record LiquidArtwork : RoomEffectArtwork
 {
     /// <summary>Checks that both pictures install a part and that the strip's two parts place the surface alike.</summary>
     /// <param name="surface">The surface strip, its origin on the surface line.</param>
@@ -16,11 +16,16 @@ public sealed record LiquidArtwork : RoomEffectArtwork
     {
         Surface = Ensure.NotNull(surface);
         Body = Ensure.NotNull(body);
-        SurfaceSize = surface.Size ?? throw new InvalidDataException("A liquid's surface strip installs neither of its parts.");
-        BodySize = body.Size ?? throw new InvalidDataException("A liquid's body installs neither of its parts.");
+        if (!surface.ShowsSomething(out Extent16<ImagePixels> surfaceSize))
+            throw new InvalidDataException("A liquid's surface strip installs neither of its parts.");
+        if (!body.ShowsSomething(out Extent16<ImagePixels> bodySize))
+            throw new InvalidDataException("A liquid's body installs neither of its parts.");
+        SurfaceSize = surfaceSize;
+        BodySize = bodySize;
         if (surface.Behind is { } behind && surface.InFront is { } inFront && behind.Origin != inFront.Origin)
             throw new InvalidDataException("A liquid's surface strip places its surface differently in its two parts.");
-        SurfaceRow = (surface.Behind ?? surface.InFront ?? throw new InvalidDataException("A liquid's surface strip installs neither of its parts.")).Origin.Y;
+        // The strip shows something, so it installs a part; both parts place the surface alike.
+        SurfaceRow = surface.Parts.First().Origin.Y;
     }
 
     /// <summary>The surface strip, its origin on the surface line.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Progression;
@@ -15,7 +16,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// start once the enemies are loaded (<see cref="StartWithRoomEnemies"/>). <see cref="None"/> does nothing. Only the
 /// import oracle relates each to the original game.
 /// </summary>
-public abstract class RoomSetupBehavior
+public abstract partial class RoomSetupBehavior
 {
     /// <summary>Names the behaviour.</summary>
     /// <param name="name">The behaviour's name, as the room states author it.</param>
@@ -40,9 +41,8 @@ public abstract class RoomSetupBehavior
     public override string ToString() => Name;
 
     /// <summary>
-    /// No room-specific setup behaviour runs: the state names no setup, one that returns at once without changing
-    /// anything (#1787), or Draygon's room's, which only restores the room's display effects when the game unpauses; the
-    /// port draws the room without them, so nothing acts on it (#1827).
+    /// These rooms run no room-specific setup as they load (#1787); Draygon's room draws without the display effects
+    /// its unpausing would restore, so it runs none either (#1827).
     /// </summary>
     public static RoomSetupBehavior None { get; } = new NoRoomSetup();
 
@@ -117,10 +117,10 @@ public abstract class RoomSetupBehavior
     public static RoomSetupBehavior SealCeresElevatorDoorAndSpawnHaze { get; } = new CeresElevatorEscapeSetup();
 
     /// <summary>The setup that does nothing.</summary>
-    private sealed class NoRoomSetup() : RoomSetupBehavior(nameof(None));
+    private sealed partial class NoRoomSetup() : RoomSetupBehavior(nameof(None));
 
     /// <summary>A scrolling sky's setup, which spawns its bands.</summary>
-    private sealed class SkyBandsSetup() : RoomSetupBehavior(nameof(SpawnScrollingSkyBands))
+    private sealed partial class SkyBandsSetup() : RoomSetupBehavior(nameof(SpawnScrollingSkyBands))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomSetupComposition composition) => Ensure.NotNull(composition).Scope.ComposeSkyBands();
@@ -130,7 +130,7 @@ public abstract class RoomSetupBehavior
     /// A Ceres room's setup, which spawns its haze: red once Ceres Ridley is dead, and shown at once in a room loaded on its
     /// first view rather than through a door.
     /// </summary>
-    private sealed class CeresHazeSetup() : RoomSetupBehavior(nameof(SpawnCeresHaze))
+    private sealed partial class CeresHazeSetup() : RoomSetupBehavior(nameof(SpawnCeresHaze))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomSetupComposition composition) => ComposeCeresHaze(composition);
@@ -140,30 +140,49 @@ public abstract class RoomSetupBehavior
     /// The elevator shaft's escape setup: the Ceres haze, and while the room's objects are placed, the seal of the shaft's
     /// door (#2494).
     /// </summary>
-    private sealed class CeresElevatorEscapeSetup() : RoomSetupBehavior(nameof(SealCeresElevatorDoorAndSpawnHaze))
+    private sealed partial class CeresElevatorEscapeSetup() : RoomSetupBehavior(nameof(SealCeresElevatorDoorAndSpawnHaze))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomSetupComposition composition) => ComposeCeresHaze(composition);
 
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.CeresEscape.TrySealElevatorDoor(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.CeresEscape.SealElevatorDoor(placing.Level);
     }
 
     /// <summary>
-    /// The statue room's setup, which starts the statues' unlocking: it composes their room, whose statues' enemies take it
-    /// and whose sequence the room's load builds once its enemies are in (#2287, #2382).
+    /// The statue room's setup, which starts the statues' unlocking: it composes their room over the room effect's water,
+    /// whose statues' enemies take it and whose sequence the room's load builds once its enemies are in (#2287, #2382).
     /// </summary>
-    private sealed class StatueUnlockingSetup() : RoomSetupBehavior(nameof(RunStatueUnlockingAnimations))
+    private sealed partial class StatueUnlockingSetup() : RoomSetupBehavior(nameof(RunStatueUnlockingAnimations))
     {
         /// <inheritdoc/>
-        internal override void Compose(RoomSetupComposition composition) =>
-            Ensure.NotNull(composition).Scope.ComposeTourianStatueRoom(composition.FxOverlay);
+        /// <exception cref="InvalidDataException">The room's effect, as its load selected it, names no water surface.</exception>
+        internal override void Compose(RoomSetupComposition composition)
+        {
+            Ensure.NotNull(composition);
+            // The statue room is composed only over water (#2486): its load rejects an effect without a surface.
+            if (!composition.FxOverlay.TryLiveSurface(out RoomLiquidSurfaceLine? water))
+                throw new InvalidDataException("The Tourian statue room's effect names no water surface.");
+            composition.Scope.ComposeTourianStatueRoom(water);
+        }
     }
 
     /// <summary>An escape room's setup that starts its quake once the room's enemies are loaded.</summary>
-    private sealed class EscapeQuakeSetup(string name, EarthquakeShake quake) : RoomSetupBehavior(name)
+    private sealed partial class EscapeQuakeSetup : RoomSetupBehavior
     {
+        /// <summary>quake</summary>
+        private readonly EarthquakeShake quake;
+
+        /// <summary>Creates an <see cref="EscapeQuakeSetup"/>.</summary>
+        /// <param name="name">name</param>
+        /// <param name="quake">quake</param>
+        public EscapeQuakeSetup(string name, EarthquakeShake quake)
+            : base(name)
+        {
+            this.quake = quake;
+        }
+
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>
             Ensure.NotNull(loaded).Enemies.Earthquake.ShakeIndefinitely(quake);
@@ -173,8 +192,20 @@ public abstract class RoomSetupBehavior
     /// An escape room's setup that, once the room's enemies are loaded, clears the diagonal quake the previous room's main
     /// left and starts its own quake.
     /// </summary>
-    private sealed class DiagonalClearingEscapeQuakeSetup(string name, EarthquakeShake quake) : RoomSetupBehavior(name)
+    private sealed partial class DiagonalClearingEscapeQuakeSetup : RoomSetupBehavior
     {
+        /// <summary>quake</summary>
+        private readonly EarthquakeShake quake;
+
+        /// <summary>Creates a <see cref="DiagonalClearingEscapeQuakeSetup"/>.</summary>
+        /// <param name="name">name</param>
+        /// <param name="quake">quake</param>
+        public DiagonalClearingEscapeQuakeSetup(string name, EarthquakeShake quake)
+            : base(name)
+        {
+            this.quake = quake;
+        }
+
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded)
         {
@@ -184,7 +215,7 @@ public abstract class RoomSetupBehavior
     }
 
     /// <summary>The Landing Site's escape setup: its sky's bands, and its quake once the room's enemies are loaded.</summary>
-    private sealed class LandingSiteEscapeSetup() : RoomSetupBehavior(nameof(LandSkyWithLandingSiteQuake))
+    private sealed partial class LandingSiteEscapeSetup() : RoomSetupBehavior(nameof(LandSkyWithLandingSiteQuake))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomSetupComposition composition) => Ensure.NotNull(composition).Scope.ComposeSkyBands();
@@ -195,7 +226,7 @@ public abstract class RoomSetupBehavior
     }
 
     /// <summary>The first escape room's setup: once the room's enemies are loaded, its light quake, then the timebomb set.</summary>
-    private sealed class TimebombEscapeSetup() : RoomSetupBehavior(nameof(SetZebesTimebombEventAndLightHorizontalShaking))
+    private sealed partial class TimebombEscapeSetup() : RoomSetupBehavior(nameof(SetZebesTimebombEventAndLightHorizontalShaking))
     {
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded)
@@ -209,11 +240,11 @@ public abstract class RoomSetupBehavior
     /// The escape room before the old Tourian escape shaft: it places the room object that raises its acid, then, once
     /// the room's enemies are loaded, clears the diagonal quake and starts its medium horizontal quake (#1800).
     /// </summary>
-    private sealed class RisingAcidEscapeSetup() : RoomSetupBehavior(nameof(MediumHorizontalShakingWithRisingAcid))
+    private sealed partial class RisingAcidEscapeSetup() : RoomSetupBehavior(nameof(MediumHorizontalShakingWithRisingAcid))
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.Tourian.TrySpawnEscapeAcidRise(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.Tourian.SpawnEscapeAcidRise(placing.Level);
 
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded)
@@ -224,11 +255,11 @@ public abstract class RoomSetupBehavior
     }
 
     /// <summary>Mainstreet's escape setup: it places the rescued animals' passage, then starts the room's strong quake.</summary>
-    private sealed class MainstreetEscapeSetup() : RoomSetupBehavior(nameof(OpenRescuedAnimalsPassageAndQuake))
+    private sealed partial class MainstreetEscapeSetup() : RoomSetupBehavior(nameof(OpenRescuedAnimalsPassageAndQuake))
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.EscapeAnimals.TrySpawnCrateriaMainstreetEscapePassage(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.EscapeAnimals.SpawnCrateriaMainstreetEscapePassage(placing.Level);
 
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>
@@ -236,35 +267,35 @@ public abstract class RoomSetupBehavior
     }
 
     /// <summary>The Climb's escape setup, which places the old Tourian escape shaft's fake wall.</summary>
-    private sealed class OldTourianEscapeShaftWallSetup() : RoomSetupBehavior(nameof(AutoDestroyWallDuringEscape))
+    private sealed partial class OldTourianEscapeShaftWallSetup() : RoomSetupBehavior(nameof(AutoDestroyWallDuringEscape))
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.Tourian.TrySpawnOldTourianEscapeShaftWall(placing.Level);
+            Ensure.NotNull(placing).RoomObjects.Tourian.SpawnOldTourianEscapeShaftWall(placing.Level);
     }
 
     /// <summary>The rescued animals' room's escape setup, which spawns the room object that turns their wall into shootable blocks.</summary>
-    private sealed class EscapeAnimalWallSetup() : RoomSetupBehavior(nameof(TurnWallIntoShotBlocksDuringEscape))
+    private sealed partial class EscapeAnimalWallSetup() : RoomSetupBehavior(nameof(TurnWallIntoShotBlocksDuringEscape))
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing)
         {
             Ensure.NotNull(placing);
-            placing.RoomObjects.EscapeAnimals.TrySpawnCrittersEscapeWall(placing.Level,
+            placing.RoomObjects.EscapeAnimals.SpawnCrittersEscapeWall(placing.Level,
                 placing.Level.GridBlock(new(EscapeAnimalWallDefinitions.WallX, EscapeAnimalWallDefinitions.WallY)));
         }
     }
 
     /// <summary>Shaktool's room's setup, which spawns Shaktool's room controller.</summary>
-    private sealed class ShaktoolControllerSetup() : RoomSetupBehavior(nameof(SpawnShaktoolController))
+    private sealed partial class ShaktoolControllerSetup() : RoomSetupBehavior(nameof(SpawnShaktoolController))
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
-            Ensure.NotNull(placing).RoomObjects.Shaktool.TrySpawnShaktoolRoomController(placing.Scrolls);
+            Ensure.NotNull(placing).RoomObjects.Shaktool.SpawnShaktoolRoomController(placing.Scrolls);
     }
 
     /// <summary>Tourian's first room's setup, which hands Samus its area's map as a map station would (#1799).</summary>
-    private sealed class CollectedMapSetup() : RoomSetupBehavior(nameof(SetCollectedMap))
+    private sealed partial class CollectedMapSetup() : RoomSetupBehavior(nameof(SetCollectedMap))
     {
         /// <inheritdoc/>
         internal override void PlaceRoomObjects(RoomSetupPlacing placing) =>
@@ -272,11 +303,11 @@ public abstract class RoomSetupBehavior
     }
 
     /// <summary>The pre-Phantoon room's setup, which holds its projectile place in the pool the enemies' load has just cleared.</summary>
-    private sealed class PrePhantoonProjectileSetup() : RoomSetupBehavior(nameof(HoldPrePhantoonProjectilePlace))
+    private sealed partial class PrePhantoonProjectileSetup() : RoomSetupBehavior(nameof(HoldPrePhantoonProjectilePlace))
     {
         /// <inheritdoc/>
         internal override void StartWithRoomEnemies(RoomSetupEnemiesLoaded loaded) =>
-            Ensure.NotNull(loaded).Enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile();
+            Ensure.NotNull(loaded).Enemies.LoaderHooks.HoldPrePhantoonRoomProjectilePlace();
     }
 
     /// <summary>
@@ -287,7 +318,8 @@ public abstract class RoomSetupBehavior
     {
         RoomScopeConstruction scope = Ensure.NotNull(composition).Scope;
         scope.ComposeCeresHaze(
-            ridleyIsDead: composition.System.HasDefeatedAnyOf(scope.Room.Area, DefeatedBosses.AreaBoss),
+            composition.System.HasDefeatedAnyOf(scope.Room.Area, DefeatedBosses.AreaBoss)
+                ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives,
             immediateViewport: composition.DisplaysInitialViewport);
     }
 

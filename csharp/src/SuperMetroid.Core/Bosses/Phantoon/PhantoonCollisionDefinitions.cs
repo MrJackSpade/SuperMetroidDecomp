@@ -5,11 +5,12 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>
-/// Phantoon's fixed hitboxes, separate from his editable background frames (#1937): the five-rectangle full body, the
+/// Phantoon's fixed hitboxes, separate from his editable body pictures (#1937): the five-rectangle full body, the
 /// vulnerable eye alone, and the invulnerable body's centre point (<see cref="PhantoonSolidifyingCentre"/>). Every
-/// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore Samus.
+/// component lies at his origin. The eye's, tentacles' and mouth's looks have no hitboxes: those parts always ignore
+/// Samus.
 /// </summary>
-internal static class PhantoonCollisionDefinitions
+internal static partial class PhantoonCollisionDefinitions
 {
 
     /// <summary>Half width of the full body's central collision rectangle.</summary>
@@ -65,30 +66,28 @@ internal static class PhantoonCollisionDefinitions
     private static EnemyCollisionHitbox Centered(int halfWidth, int top, int bottom) =>
         Contact(-halfWidth, top, halfWidth - 1, bottom);
     /// <summary>
-    /// Each Phantoon background frame's components: the full body, the eye alone and the invulnerable body each have one
-    /// component, and the eye's, tentacles' and mouth's looks none.
+    /// The components of each hit area his body's picture can have live: the full body, the eye alone and the
+    /// invulnerable body's centre point each have one component; the eye's, tentacles' and mouth's looks are
+    /// <see cref="PartsWithoutHitboxes"/>.
     /// </summary>
-    internal static readonly Dictionary<EnemyFrameId, ImmutableArray<EnemyCollisionComponent>> FrameComponents = new()
+    internal static readonly Dictionary<PhantoonBodyHitArea, ImmutableArray<EnemyCollisionComponent>> HitAreaComponents = new()
     {
-        [EnemyFrameId.PhantoonInvulnerableBody] = SolidifyingCentreComponents,
-        [EnemyFrameId.PhantoonFullHitboxBody] = FullBodyComponents,
-        [EnemyFrameId.PhantoonEyeHitboxBody] = EyeOnlyComponents,
-        [EnemyFrameId.PhantoonEyeClosed] = NoComponents,
-        [EnemyFrameId.PhantoonEyeHalfOpen] = NoComponents,
-        [EnemyFrameId.PhantoonEyeballCentered] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingUp] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingDown] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingLeft] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingRight] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingDownLeft] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingDownRight] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingUpLeft] = NoComponents,
-        [EnemyFrameId.PhantoonEyeLookingUpRight] = NoComponents,
-        [EnemyFrameId.PhantoonTentaclesNarrow] = NoComponents,
-        [EnemyFrameId.PhantoonTentaclesSpreading] = NoComponents,
-        [EnemyFrameId.PhantoonTentaclesSpread] = NoComponents,
-        [EnemyFrameId.PhantoonMouthOpen] = NoComponents,
-        [EnemyFrameId.PhantoonMouthHalfOpen] = NoComponents,
-        [EnemyFrameId.PhantoonMouthNarrow] = NoComponents,
+        [PhantoonBodyHitArea.SolidifyingCentre] = SolidifyingCentreComponents,
+        [PhantoonBodyHitArea.WholeBody] = FullBodyComponents,
+        [PhantoonBodyHitArea.EyeOnly] = EyeOnlyComponents,
+    };
+
+    /// <summary>
+    /// The looks of his eye, tentacles and mouth, which carry no hitbox: his body's picture alone holds his components, so
+    /// every one of these has none.
+    /// </summary>
+    internal static readonly IReadOnlySet<EnemyFrameId> PartsWithoutHitboxes = new HashSet<EnemyFrameId>
+    {
+        EnemyFrameId.PhantoonEyeClosed, EnemyFrameId.PhantoonEyeHalfOpen, EnemyFrameId.PhantoonEyeballCentered,
+        EnemyFrameId.PhantoonEyeLookingUp, EnemyFrameId.PhantoonEyeLookingDown, EnemyFrameId.PhantoonEyeLookingLeft,
+        EnemyFrameId.PhantoonEyeLookingRight, EnemyFrameId.PhantoonEyeLookingDownLeft, EnemyFrameId.PhantoonEyeLookingDownRight,
+        EnemyFrameId.PhantoonEyeLookingUpLeft, EnemyFrameId.PhantoonEyeLookingUpRight,
+        EnemyFrameId.PhantoonTentaclesNarrow, EnemyFrameId.PhantoonTentaclesSpreading, EnemyFrameId.PhantoonTentaclesSpread,
+        EnemyFrameId.PhantoonMouthOpen, EnemyFrameId.PhantoonMouthHalfOpen, EnemyFrameId.PhantoonMouthNarrow,
     };
 }

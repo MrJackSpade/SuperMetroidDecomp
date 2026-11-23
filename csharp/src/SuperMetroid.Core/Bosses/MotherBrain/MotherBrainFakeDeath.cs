@@ -6,8 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's false death: the fade to gray, the tubes collapsing and falling, the room rows and the fade back.</summary>
-[RoomLifetime]
-internal sealed class MotherBrainFakeDeath
+internal sealed partial class MotherBrainFakeDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -26,6 +25,8 @@ internal sealed class MotherBrainFakeDeath
     private readonly MotherBrainEncounterAccess _access;
     /// <summary>Mother Brain's projectiles, whose ceiling tubes the collapse drops.</summary>
     private readonly MotherBrainProjectiles _projectileAttacks;
+    /// <summary>Builds the falling tubes, which join the encounter whose fake death drops them.</summary>
+    private readonly IEnemyJoiningFactory<MotherBrainEnemyState, MotherBrainTubeSpawnSettings> _tubes;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainFakeDeath(MotherBrainFakeDeathDependencies dependencies)
@@ -39,6 +40,7 @@ internal sealed class MotherBrainFakeDeath
 
         _access = dependencies.Access;
         _projectileAttacks = dependencies.ProjectileAttacks;
+        _tubes = dependencies.Tubes;
     }
 
     /// <summary>
@@ -53,8 +55,8 @@ internal sealed class MotherBrainFakeDeath
     {
         if (state.FakeDeathGreying.Step() is { } image)
         {
-            // The fake-death fade greys her brain's three colours only; the room's other colours stay as they are.
-            state.Colours.ShowFakeDeathToGrey(image);
+            // The fake-death fade greys only her brain; the room stays as it is.
+            state.Colours.ShowFade(image);
         }
         else if (state.FakeDeathGreying.IsOver)
         {
@@ -62,7 +64,7 @@ internal sealed class MotherBrainFakeDeath
         }
 
         // Every update of the grey fade also runs the tube collapse and the explosion, so tube sequencing and dust
-        // begin during the grey fade rather than waiting for the eighth fade step.
+        // begin during the grey fade rather than waiting for its last fade step.
         RunMotherBrainTubeCollapse(state);
         RunMotherBrainFakeDeathExplosion(state);
     }
@@ -104,38 +106,39 @@ internal sealed class MotherBrainFakeDeath
     /// <exception cref="InvalidOperationException">Her fake death has not started the collapse.</exception>
     internal void RunMotherBrainTubeCollapse(MotherBrainEnemyState state)
     {
-        MotherBrainTubeCollapseProgress progress = state.TubeCollapse ??
-            throw new InvalidOperationException("Mother Brain's tube collapse ran before her fake death started it.");
+        MotherBrainTubeCollapseProgress progress = state.TubeCollapse;
         if (progress.Tube is not { } tube)
             return;
 
         MotherBrainTubeDrop drop = tube.Entry;
         if (progress.Stage == MotherBrainTubeDropStage.Standing)
         {
-            bool falls = tube == MotherBrainTubeCollapseProgress.FirstTube
+            bool falls = drop.WaitsForFreeProjectiles
                 ? _projectiles.FreePlaceCount >= MotherBrainTubeCollapseDefinitions.FreeProjectilesNeeded
                 : state.TubeCollapseTimer.StepRunsOut();
             if (!falls)
                 return;
-            switch (drop)
-            {
-                case MotherBrainBottomTubeDrop bottom:
-                    SpawnMotherBrainFallingTube(state, bottom.Piece);
-                    break;
-                case MotherBrainTopTubeDrop top:
-                    SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Mother Brain's tube collapse cannot drop {drop}.");
-            }
+            drop.React(TubeDrops, new TubeDropping(this, state));
             state.TubeCollapse = new(tube, MotherBrainTubeDropStage.Fallen);
             return;
         }
 
         _access.RequestMotherBrainObject(drop.Clears.Block, drop.Clears.RoomObject);
-        state.TubeCollapseTimer.LastFor(drop.WaitAfterUpdates);
+        if (drop is MotherBrainFollowedTubeDrop followed)
+            state.TubeCollapseTimer.LastFor(followed.WaitAfterUpdates);
         state.TubeCollapse = new(tube.Following, MotherBrainTubeDropStage.Standing);
     }
+
+    /// <summary>What the collapse drops for each tube (#2553): a bottom or the main tube falls, a top tube spawns as a projectile.</summary>
+    private static MotherBrainTubeDropReactions<TubeDropping> TubeDrops { get; } = new(
+        Bottom: static (bottom, dropping) => dropping.Owner.SpawnMotherBrainFallingTube(dropping.State, bottom.Piece),
+        Top: static (top, dropping) => dropping.Owner.SpawnMotherBrainTopTube(top.Kind, top.Segment, top.Start),
+        Main: static (_, dropping) => dropping.Owner.SpawnMotherBrainFallingTube(dropping.State, MotherBrainTubePiece.Main));
+
+    /// <summary>A tube the collapse drops (#2553): the fake death dropping it and Mother Brain's state.</summary>
+    /// <param name="Owner">The fake death dropping the tube.</param>
+    /// <param name="State">Mother Brain's state.</param>
+    private readonly partial record struct TubeDropping(MotherBrainFakeDeath Owner, MotherBrainEnemyState State);
 
     /// <summary>Spawns the top tube projectile of <paramref name="kind"/>, falling as <paramref name="tube"/> shows, for the scripted collapse.</summary>
     internal void SpawnMotherBrainTopTube(
@@ -143,16 +146,13 @@ internal sealed class MotherBrainFakeDeath
         MotherBrainTopTubeSegment tube,
         Position16<RoomPixels> position)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes), new MotherBrainTopTubeAnimation(tube));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, _projectileAttacks.Projectile,
-            graphics: SpriteGraphics.SharedIn(MotherBrainColours.GlassAndTubes));
-        projectile.StartAnimation(new MotherBrainTopTubeAnimation(tube));
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
-        projectile.State = new MotherBrainTopTubeState();
+        _projectileAttacks.Projectile.TopTubes.Start(projectile, new MotherBrainTopTubeState());
     }
 
     /// <summary>Creates the falling tube enemy of <paramref name="piece"/>.</summary>
@@ -161,68 +161,63 @@ internal sealed class MotherBrainFakeDeath
         // The bound source supplies the fixed cutscene placement; rooms resolve it from the loaded definitions.
         RoomEnemyPlacement population = _room.Definitions.ReadFallingTubePopulation(piece);
 
-        // A spawn quietly does nothing when all 32 enemy places are occupied.
+        // A spawn quietly does nothing when every enemy place is occupied.
         // Each tube holds the encounter that spawned it from its setup (#2218).
-        _ = _lifecycle.SpawnEnemyJoining(population, state);
+        _ = _lifecycle.SpawnEnemy(new JoiningEnemySpawn<MotherBrainEnemyState, MotherBrainTubeSpawnSettings>(
+            population, new MotherBrainTubeSpawnSettings(piece), _tubes, state));
     }
 
     /// <summary>Initializes a falling tube.</summary>
-    internal static void InitializeMotherBrainFallingTube(RoomEnemyPlace tube)
+    /// <returns>The state the tube holds from its setup.</returns>
+    internal static MotherBrainFallingTubeState InitializeMotherBrainFallingTube(MotherBrainTubeSpawnSettings settings, RoomEnemyPlace tube)
     {
-        MotherBrainTubeSpawnSettings settings = tube.Spawn.Population.SpawnSettingsOf<MotherBrainTubeSpawnSettings>();
         MotherBrainTubePiece piece = settings.Piece;
         MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(piece);
         tube.Radius = tubeBody.Radius;
-        bool main = piece == MotherBrainTubePiece.Main;
-        var state = new MotherBrainFallingTubeState(piece, main ? MotherBrainTubeAction.WaitingToFall : MotherBrainTubeAction.NonMainTube)
+        var state = new MotherBrainFallingTubeState(piece, tubeBody.FallWaitUpdates is null ? MotherBrainTubeAction.NonMainTube : MotherBrainTubeAction.WaitingToFall)
         {
             FloorY = tubeBody.Floor,
         };
         // Only the main tube waits before it falls; the side tubes fall from their first update.
-        if (main)
-            state.FallDelay.LastFor(MotherBrainFallingTubePopulationDefinitions.MainFallWaitUpdates);
-        tube.SetSpeciesState(state);
+        if (tubeBody.FallWaitUpdates is { } wait)
+            state.FallDelay.LastFor(wait);
+        return state;
     }
 
-    /// <summary>Runs the actions of the falling tubes.</summary>
-    internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube)
+    /// <summary>What <see cref="RunMotherBrainFallingTubeMain"/> does for each <see cref="MotherBrainTubeAction"/> member, each member's own arm.</summary>
+    private IdentityTable<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState, MotherBrainEnemyState>> RunMotherBrainFallingTubeMainForMotherBrainTubeAction => field ??= new(new Dictionary<MotherBrainTubeAction, Action<RoomEnemyPlace, MotherBrainFallingTubeState, MotherBrainEnemyState>>
     {
-        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        switch (tubeState.Action)
+        [MotherBrainTubeAction.NonMainTube] = (tube, tubeState, _) => FallMotherBrainSideTube(tube, tubeState),
+        [MotherBrainTubeAction.WaitingToFall] = (tube, tubeState, encounter) =>
         {
-            case MotherBrainTubeAction.NonMainTube:
-                FallMotherBrainSideTube(tube);
+            // The main tube falls as its fall delay runs out.
+            if (tubeState.FallDelay.StepKeepsRunning())
                 return;
-            case MotherBrainTubeAction.WaitingToFall:
-                // The main tube falls as its fall delay runs out.
-                if (tubeState.FallDelay.StepKeepsRunning())
-                    return;
-                tubeState.Action = MotherBrainTubeAction.Falling;
-                FallMotherBrainMainTube(tube);
-                return;
-            case MotherBrainTubeAction.Falling:
-                FallMotherBrainMainTube(tube);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain falling tube has no behaviour for action {tubeState.Action}.");
-        }
+            tubeState.Action = MotherBrainTubeAction.Falling;
+            FallMotherBrainMainTube(tube, tubeState, encounter);
+        },
+        [MotherBrainTubeAction.Falling] = (tube, tubeState, encounter) => FallMotherBrainMainTube(tube, tubeState, encounter),
+    });
+
+    /// <summary>Runs the actions of the falling tubes.</summary>
+    internal void RunMotherBrainFallingTubeMain(RoomEnemyPlace tube, MotherBrainEnemyState motherBrainEnemyState, MotherBrainFallingTubeState tubeState)
+    {
+        RunMotherBrainFallingTubeMainForMotherBrainTubeAction[tubeState.Action](tube, tubeState, motherBrainEnemyState);
     }
 
     /// <summary>Drops a side tube until it reaches the floor and explodes, trailing smoke as it falls.</summary>
-    private void FallMotherBrainSideTube(RoomEnemyPlace tube)
+    private void FallMotherBrainSideTube(RoomEnemyPlace tube, MotherBrainFallingTubeState motherBrainFallingTubeState)
     {
-        MotherBrainFallingTubeState tubeState = AccelerateMotherBrainTube(tube);
+        MotherBrainFallingTubeState tubeState = AccelerateMotherBrainTube(tube, motherBrainFallingTubeState);
         if (tube.Position.Y.Whole >= tubeState.FloorY)
             ExplodeMotherBrainTube(tube);
         else
-            SpawnMotherBrainTubeSmoke(tube);
+            SpawnMotherBrainTubeSmoke(tube, motherBrainFallingTubeState);
     }
 
     /// <summary>Accelerates a falling tube by its gravity and moves it down by its fall speed.</summary>
-    private static MotherBrainFallingTubeState AccelerateMotherBrainTube(RoomEnemyPlace tube)
+    private static MotherBrainFallingTubeState AccelerateMotherBrainTube(RoomEnemyPlace tube, MotherBrainFallingTubeState tubeState)
     {
-        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         // A tube falls to its floor and explodes there, so its speed stays a few pixels an update.
         tubeState.FallSpeed += MotherBrainTubeCollapseDefinitions.TubeGravity;
         tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
@@ -230,27 +225,25 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Drops the main tube, carrying Mother Brain's head with it and landing her body on the floor.</summary>
-    private void FallMotherBrainMainTube(RoomEnemyPlace tube)
+    private void FallMotherBrainMainTube(RoomEnemyPlace tube, MotherBrainFallingTubeState motherBrainFallingTubeState, MotherBrainEnemyState state)
     {
-        AccelerateMotherBrainTube(tube);
+        AccelerateMotherBrainTube(tube, motherBrainFallingTubeState);
 
-        // Hiding the tube and moving the brain are independent branches.
-        // The brain follows the tube throughout its descent, including before hiding.
+        // Her brain follows the tube all the way down, even before the tube hides.
         if (tube.Position.Y.Whole >= MotherBrainTubeCollapseDefinitions.MainTubeHiddenFromY)
             tube.Presence = tube.Presence.With(EnemyPresence.Hidden);
         // The tube holds the encounter that spawned it (#2218).
-        MotherBrainEnemyState state = tube.RequireSpeciesState<MotherBrainEnemyState>();
         state.Head.Position = state.Head.Position.WithWholeY(tube.Position.Y.Whole - MotherBrainTubeCollapseDefinitions.HeadAboveMainTube);
         if (state.Head.Position.Y.Whole < MotherBrainFightDefinitions.BrainFloorY)
         {
-            SpawnMotherBrainTubeSmoke(tube);
+            SpawnMotherBrainTubeSmoke(tube, motherBrainFallingTubeState);
             return;
         }
 
         StopMotherBrainRoomFlash(state);
         _earthquake.Start(MotherBrainTubeCollapseDefinitions.LandingShake, MotherBrainTubeCollapseDefinitions.LandingShakeUpdates);
         // The fake death removes the room's liquid effects, and any X-ray cone, for the rest of the encounter.
-        _passEvents.Publish(new MotherBrainTubeLanded());
+        _passEvents.Publish(new LiquidSurfaceStilled());
         state.Head.Position = state.Head.Position.WithWholeY(MotherBrainFightDefinitions.BrainFloorY);
         state.Body.Position = state.Body.Position.WithWhole(MotherBrainFightDefinitions.StandingBodyPosition);
 
@@ -265,10 +258,9 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>Emits smoke at the falling tube's current position.</summary>
-    private void SpawnMotherBrainTubeSmoke(RoomEnemyPlace tube)
+    private void SpawnMotherBrainTubeSmoke(RoomEnemyPlace tube, MotherBrainFallingTubeState tubeState)
     {
         // The smoke cadence counts down and emits as it runs out.
-        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         if (tubeState.SmokeDelay.StepKeepsRunning())
             return;
 
@@ -289,7 +281,7 @@ internal sealed class MotherBrainFakeDeath
     }
 
     /// <summary>
-    /// Draws the next rows of the mural the tube collapse revealed, two an update from the top (#2211), and hands off to
+    /// Draws the next rows of the mural the tube collapse revealed, <see cref="MotherBrainMuralDefinitions.RowsEachUpdate"/> an update from the top (#2211), and hands off to
     /// the phase-two graphics setup once every row is drawn.
     /// </summary>
     internal void DrawNextMuralRows(MotherBrainEnemyState state)
@@ -310,8 +302,8 @@ internal sealed class MotherBrainFakeDeath
     {
         if (state.FromFakeDeathGrey.Step() is { } image)
         {
-            // The restoration from grey recolours only three of the brain's colours.
-            state.Colours.ShowFakeDeathFromGrey(image);
+            // Only her brain's colours return from grey.
+            state.Colours.ShowFade(image);
             return;
         }
         if (!state.FromFakeDeathGrey.IsOver)

@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 /// frames shared by the Ceres approach and destruction scenes. Animation timing
 /// and actor motion remain in their compiled owners.
 /// </summary>
-public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
+public sealed partial class CeresFlightSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Installed Ceres compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -24,16 +24,13 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(CeresFlightSpritePresentation), frames);
-
     /// <summary>Retains the validated composition map shared by approach and destruction scenes.</summary>
     private CeresFlightSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Loads exactly the six named visual compositions, rejecting duplicate properties, unsupported versions, missing frames, and invalid OAM parts; compiles selected artwork without importing actor timing or motion.</summary>
     /// <param name="json">Caller-owned UTF-8 JSON stream containing the versioned Ceres flight sprite document.</param>
-    /// <returns>The immutable bank-$8C-keyed presentation shared by approach and destruction scenes.</returns>
+    /// <returns>The immutable presentation shared by approach and destruction scenes, its compositions keyed by the poses that show them.</returns>
     public static CeresFlightSpritePresentation Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -61,8 +58,7 @@ public sealed class CeresFlightSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, CeresFlightSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

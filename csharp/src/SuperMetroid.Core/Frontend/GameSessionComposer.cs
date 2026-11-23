@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// display, menus and compatibility services) lives until the host restarts it or replaces it with another game; a gameplay
 /// runtime lives inside it from a game or demo start to title, game over or soft reset (<see cref="GameplayRuntimeFactory"/>).
 /// </summary>
-public static class GameSessionComposer
+public static partial class GameSessionComposer
 {
     /// <summary>Creates a game running on its own timing, with its installed content bound before the first frame.</summary>
     /// <param name="saves">The saves the session owns.</param>
@@ -24,15 +24,16 @@ public static class GameSessionComposer
         ISessionSaveStorage? storage)
     {
         Ensure.NotNull(content);
-        var game = new SuperMetroidGame(saves, assists);
-        Bind(game, content, storage);
+        var game = new SuperMetroidGame(saves, assists, SuperMetroidGameHostServices.Default, new SharedRandom(),
+            content.AudioClips, content.Artwork);
+        if (storage is not null)
+            game.SavesChanged += () => storage.Persist(game.Saves);
         return game;
     }
 
     /// <summary>
-    /// Binds a game to the installed content it draws and plays, and to the storage that keeps its saves. Creation binds
-    /// every new game; a host binds a game it brings back the same way. The clips bind first, then the artwork, then the
-    /// save storage: a game whose session never bound clips is rejected before anything else is bound.
+    /// Binds a game a host brings back to the installed content it draws, and to the storage that keeps its saves. The
+    /// clips it mixes come back with it, named in the content they were built from.
     /// </summary>
     /// <param name="game">The game to bind.</param>
     /// <param name="content">The installed content.</param>
@@ -41,7 +42,6 @@ public static class GameSessionComposer
     {
         Ensure.NotNull(game);
         Ensure.NotNull(content);
-        game.BindAudio(content.AudioClips);
         game.BindArtwork(content.Artwork);
         if (storage is not null)
             game.SavesChanged += () => storage.Persist(game.Saves);

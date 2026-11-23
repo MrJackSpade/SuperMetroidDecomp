@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// state on top of this; her breath, beam charge and hand beams keep only this.
 /// </summary>
 /// <param name="motherBrain">The encounter that spawned the projectile.</param>
-internal class MotherBrainProjectileState(MotherBrainEnemyState motherBrain) : EnemyProjectileState
+internal partial class MotherBrainProjectileState(MotherBrainEnemyState motherBrain) : EnemyProjectileState
 {
     /// <summary>The encounter that spawned the projectile, which it holds from its spawn.</summary>
     internal MotherBrainEnemyState MotherBrain { get; } = Ensure.NotNull(motherBrain);

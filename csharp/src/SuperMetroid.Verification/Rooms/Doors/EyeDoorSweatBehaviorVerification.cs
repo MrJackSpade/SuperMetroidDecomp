@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.TestSupport.MovieReplay;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -23,7 +24,7 @@ internal static class EyeDoorSweatBehaviorVerification
     /// </summary>
     internal static void VerifyEyeDoorSweatBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, EyeDoorSweatNativeListAddresses.Extent, "eye-door sweat");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         const int roomWidth = 16;
@@ -38,9 +39,9 @@ internal static class EyeDoorSweatBehaviorVerification
             EyeDoorSweatNativeListAddresses.Entry(EyeDoorSweatSegment.Falling), 20, "eye-door sweat fall");
         AssertTrue(!deleted, "the fall loops");
 
-        EyeDoorBehavior.DripEyeDoorSweat(sweat, level);
+        EyeDoorBehavior.DripEyeDoorSweat(enemies.EyeDoorBehavior.Sweat, sweat, level);
         AssertTrue(sweat.Animation is EyeDoorSweatAnimation { PlayingSegment: EyeDoorSweatSegment.HitFloor }, "the floor collision starts the splash");
-        AssertEqual<Enum?>(null, sweat.Motion,
+        AssertTrue(sweat.HoldsStill,
             "the splash stops the drop with the native inert pre-instruction");
         AssertEqual((ushort)76, sweat.Position.Y.Whole, "the splash applies the native four-pixel floor correction");
         (deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, sweat,

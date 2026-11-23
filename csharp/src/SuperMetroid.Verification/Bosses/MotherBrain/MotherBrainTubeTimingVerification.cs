@@ -23,12 +23,12 @@ internal static class MotherBrainTubeTimingVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         const EnemyDefinitionId fallingTube = EnemyDefinitionId.MotherBrainTubes;
-        int Tubes() => runtime.Enemies.Places.InUpdateOrder.Count(place => place.DefinitionId == fallingTube);
+        int Tubes() => runtime.Enemies.Places.InUpdateOrder.Count(place => place.Occupant?.DefinitionId == fallingTube);
 
         state.TubeCollapse = MotherBrainTubeCollapseProgress.Start;
         int firstSpawn = -1, secondSpawn = -1;

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The selected Mother Brain room colours.</summary>
-internal sealed record MotherBrainRoomColours
+internal sealed partial record MotherBrainRoomColours
 {
     /// <summary>The fourteen flash frames.</summary>
     public required RgbColor[][] Flash { get; init; }

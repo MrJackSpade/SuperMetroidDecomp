@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// escape flashes. The room's pictures are shaded with the frames these groups last showed; which inks each group
 /// recolours is the import's.
 /// </summary>
-internal static class ColourEffectRoomColourDefinitions
+internal static partial class ColourEffectRoomColourDefinitions
 {
     /// <summary>The groups the room's pictures show.</summary>
     internal static ImmutableHashSet<ColourEffectColours> RoomColours { get; } =

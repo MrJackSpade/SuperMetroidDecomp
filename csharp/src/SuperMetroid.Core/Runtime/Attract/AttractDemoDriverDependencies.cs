@@ -6,7 +6,7 @@ using SuperMetroid.Core.World;
 namespace SuperMetroid.Core.Runtime.Attract;
 
 /// <summary>The collaborators a <see cref="AttractDemoDriver"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record AttractDemoDriverDependencies
+internal sealed partial record AttractDemoDriverDependencies
 {
     /// <summary>The attract demo's session: its scripted input and the scope that substitutes it for the player's controller.</summary>
     public required AttractDemoSession AttractSession { get; init; }

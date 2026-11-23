@@ -35,9 +35,8 @@ internal static class SamusDeathFrameSelectionVerification
         {
             SamusState samus = (new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            });
+            }.InPose(facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.DeathSequence.Begin(samus, cameraPosition: new(0, 0));
@@ -46,11 +45,11 @@ internal static class SamusDeathFrameSelectionVerification
             var samusColours = new SamusColours();
             for (int update = 1; update <= CompletionUpdate; update++)
             {
-                SamusDeathSequenceStepResult step = samus.DeathSequence.Step(samus, samusColours,
+                SamusDeathSequenceStepResult step = samus.DeathSequence.Step(samus, (SamusDeathSequencePhase.Begun)samus.DeathSequence.Phase, samusColours,
                     InstalledFixtures.SamusBody.Gameplay.DeathSteps);
                 string context = $"death facing {facing}, update {update}";
                 int? expectedFrame = ExpectedFrame(update);
-                AssertEqual(ExpectedPhase(update), step.PhaseAfterStep, context + ": phase");
+                AssertEqual(ExpectedPhase(update), samus.DeathSequence.Phase, context + ": phase");
                 AssertEqual(expectedFrame is int expected ? SamusDeathSheetDefinitions.Explosion[expected] : null,
                     samus.DeathSequence.ExplosionFrame, context + ": selected explosion frame");
                 AssertEqual(update < FirstExplosionUpdate, step.Draws == SamusDeathDraw.Pose, context + ": draws the death pose");
@@ -73,7 +72,7 @@ internal static class SamusDeathFrameSelectionVerification
                     AssertEqual(0, sprites.Draws.Length, context + ": draws no explosion");
                 }
             }
-            AssertEqual(SamusDeathSequencePhase.Complete, samus.DeathSequence.Phase, $"death facing {facing}: completes");
+            AssertEqual(new SamusDeathSequencePhase.Begun.Complete(), samus.DeathSequence.Phase, $"death facing {facing}: completes");
         }
         Console.WriteLine($"Samus death frame selection: phase, explosion frame and sheet frame match on all {CompletionUpdate} updates facing each way.");
     }
@@ -92,10 +91,10 @@ internal static class SamusDeathFrameSelectionVerification
     /// <summary>The phase after <paramref name="update"/>: sixteen pose calls, sixty flash calls, the explosion, then completion.</summary>
     private static SamusDeathSequencePhase ExpectedPhase(int update) => update switch
     {
-        < 16 => SamusDeathSequencePhase.PreFlashing,
-        < FirstExplosionUpdate => SamusDeathSequencePhase.Flashing,
-        < CompletionUpdate => SamusDeathSequencePhase.SuitExplosion,
-        _ => SamusDeathSequencePhase.Complete,
+        < 16 => new SamusDeathSequencePhase.Begun.PreFlashing(),
+        < FirstExplosionUpdate => new SamusDeathSequencePhase.Begun.Flashing(),
+        < CompletionUpdate => new SamusDeathSequencePhase.Begun.SuitExplosion(),
+        _ => new SamusDeathSequencePhase.Begun.Complete(),
     };
 
     /// <summary>Runs the death frame-selection fixture.</summary>

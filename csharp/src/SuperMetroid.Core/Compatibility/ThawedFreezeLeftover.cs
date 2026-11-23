@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// original thaw branch stores the remaining AI state into the freeze timer as well as the AI state, as the
 /// frozen-pass comment in <c>RoomEnemySystem</c> records.
 /// </remarks>
-[CompatibilityService("a thawing enemy is left one freeze update while grappled and two while hurt instead of none")]
-public static class ThawedFreezeLeftover
+public static partial class ThawedFreezeLeftover
 {
     /// <summary>The freeze updates left while the grapple beam holds the thawing enemy.</summary>
     private const int WhileGrappled = 1;
@@ -35,13 +34,15 @@ public static class ThawedFreezeLeftover
         GrappledAndHurt,
     }
 
-    /// <summary>The freeze updates a thawing enemy <paramref name="hold"/> holds is left with.</summary>
-    public static int Of(Hold hold) => hold switch
+    /// <summary>The value of each hold.</summary>
+    private static IdentityTable<Hold, int> ValueByHold => field ??= new(new Dictionary<Hold, int>
     {
-        Hold.None => 0,
-        Hold.Grappled => WhileGrappled,
-        Hold.Hurt => WhileHurt,
-        Hold.GrappledAndHurt => WhileGrappled + WhileHurt,
-        _ => throw new ArgumentOutOfRangeException(nameof(hold), hold, "Undefined thaw hold."),
-    };
+        [Hold.None] = 0,
+        [Hold.Grappled] = WhileGrappled,
+        [Hold.Hurt] = WhileHurt,
+        [Hold.GrappledAndHurt] = WhileGrappled + WhileHurt,
+    });
+
+    /// <summary>The freeze updates a thawing enemy <paramref name="hold"/> holds is left with.</summary>
+    public static int Of(Hold hold) => ValueByHold[hold];
 }

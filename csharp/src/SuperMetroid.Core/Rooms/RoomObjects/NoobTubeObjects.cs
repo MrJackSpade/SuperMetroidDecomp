@@ -1,17 +1,16 @@
-﻿using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Maridia's glass tube: its setup and what its break does to Samus, the events, the water, the earthquake and the debris.</summary>
-[RoomLifetime]
-internal sealed class NoobTubeObjects
+internal sealed partial class NoobTubeObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
     /// <summary>The game's event flags.</summary>
     private readonly IStoryEvents _events;
-    /// <summary>The room's effect overlay FX.</summary>
+    /// <summary>The room's water physics, which the tube's break enables.</summary>
     private readonly IRoomWaterPhysics _waterPhysics;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter _earthquake;
@@ -29,17 +28,17 @@ internal sealed class NoobTubeObjects
     }
 
     /// <summary>
-    /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping its picture and
-    /// what it shows (#1580, #2502), as the setup rewrites only the block's type and parameter.
+    /// Runs the tube's setup: its origin block becomes a solid block whose reaction is the tube's, keeping its picture
+    /// and what it shows (#1580, #2502).
     /// </summary>
     internal void SetupNoobTube(RoomLevelData level, RoomObjectPlace place)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(place);
         place.Become(new NoobTubeObject(this));
-        level.SetCollision(place.Block, NoobTubeObjectDefinitions.OriginCollision);
-        level.SetBehavior(
+        level.SetCollisionAndBehavior(
             place.Block,
+            NoobTubeObjectDefinitions.OriginCollision,
             RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
     }
 

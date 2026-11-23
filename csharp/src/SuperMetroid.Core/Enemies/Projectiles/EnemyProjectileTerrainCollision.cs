@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// profile, and the solid, door, spike, special, shootable and bombable blocks are walls. Air of every kind and grapple
 /// blocks let it pass.
 /// </summary>
-internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockCollision
+internal sealed partial class EnemyProjectileTerrainCollision : EnemyProjectileBlockCollision
 {
     /// <summary>The collision every enemy projectile without one of its own moves with.</summary>
     internal static EnemyProjectileTerrainCollision Rule { get; } = new();
@@ -21,28 +21,25 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
     }
 
     /// <inheritdoc/>
-    protected override bool BlockStops(
+    protected override EnemyProjectileBlockReaction BlockReaction(
         RoomLevelData level,
         EnemyProjectileScannedMove move,
         Position16<RoomBlocks> block,
-        bool firstOfScan,
-        out int? alignedPosition)
+        bool firstOfScan)
     {
-        alignedPosition = null;
         if (!level.Size.Contains(block))
-            return true;
+            return EnemyProjectileBlockReaction.StopsAtFace;
 
-        // Resolve horizontal- and vertical-extension links before reacting to the final block kind, just as
-        // the projectile collision loop does. Air is open, while a door
-        // remains a wall to an enemy projectile.
+        // A projectile meets the block an extension link leads to. Air is open, while a door remains a wall to an enemy
+        // projectile.
         if (EnemyTerrain.ResolveEnemyCollisionBlock(level, block) is not { } collisionBlock)
-            return true;
+            return EnemyProjectileBlockReaction.StopsAtFace;
 
         EnemyProjectile projectile = move.Projectile;
         Axis axis = move.Scan.Edge;
         int targetEdge = move.LeadingEdge;
         RoomCollisionType type = collisionBlock.CollisionType;
-        if (type == RoomCollisionType.Slope && !collisionBlock.Behavior.Slope.IsNonSquare)
+        if (type == RoomCollisionType.Slope && collisionBlock.Behavior.Slope.Shape.SquareQuarters is { } square)
         {
             // The horizontal scan tests only occupied eight-pixel quadrants touched by the
             // leading edge. Empty halves of square slopes are not solid walls.
@@ -54,43 +51,38 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
             int lastPixel = Math.Min(RoomGridConversions.BlockEnd(blockStart), perpendicularPosition + perpendicularRadius - 1);
             for (int half = RoomGridConversions.HalfBlockOf(firstPixel); half <= RoomGridConversions.HalfBlockOf(lastPixel); half++)
             {
-                bool edgeInSecondHalf = RoomGridConversions.InSecondHalfOfBlock(targetEdge);
-                bool halfIsSecond = RoomGridConversions.IsBlockSecondHalf(half);
                 SquareSlopeQuadrant quadrant = axis == Axis.Horizontal
-                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(edgeInSecondHalf), SquareSlopeQuadrant.RowFor(halfIsSecond))
-                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(halfIsSecond), SquareSlopeQuadrant.RowFor(edgeInSecondHalf));
-                if (!SquareSlopes.IsSolid(collisionBlock.Behavior, quadrant))
+                    ? SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnFor(targetEdge), SquareSlopeQuadrant.RowOfHalf(half))
+                    : SquareSlopeQuadrant.Showing(collisionBlock.Behavior, SquareSlopeQuadrant.ColumnOfHalf(half), SquareSlopeQuadrant.RowFor(targetEdge));
+                if (!SquareSlopes.IsSolid(square, quadrant))
                     continue;
 
                 // The square-slope reaction places the projectile at an eight-pixel
                 // boundary before the collision's full-block clamp.
                 int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
-                alignedPosition = move.MovingNegative
+                return new EnemyProjectileBlockReaction.StopsAligned(move.MovingNegative
                     ? TerrainScanEdges.Edge(RoomGridConversions.HalfBlockEnd(targetEdge) + radius + 1)
-                    : TerrainScanEdges.Edge(RoomGridConversions.HalfBlockStart(targetEdge) - radius);
-                return true;
+                    : TerrainScanEdges.Edge(RoomGridConversions.HalfBlockStart(targetEdge) - radius));
             }
-            return false;
+            return EnemyProjectileBlockReaction.Passes;
         }
 
         if (type == RoomCollisionType.Slope && collisionBlock.Behavior.Slope.IsNonSquare)
         {
-            // Horizontal motion ignores non-square slopes; the following
-            // vertical pass owns their height profile. Treating one as a full wall can
-            // consume every Kago falling frame before Y collision is ever attempted.
+            // A horizontal move passes a non-square slope; the vertical move meets its height profile.
             if (axis == Axis.Horizontal)
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
 
             // Vertical projectile collision uses the same 16-sample slope
             // profiles as Samus's. Only the column containing the projectile center owns
             // non-square geometry; neighboring columns touched by its radius do not turn
             // the slope into a full-height wall.
             if (block.X != RoomGridConversions.PixelToBlock(projectile.Position.X.Whole))
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
 
             bool movingUp = move.MovingNegative;
             if (movingUp != collisionBlock.Behavior.Slope.FlipsVertically)
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
 
             int height = EnemyTerrain.ReadNonSquareSlopeHeight(
                 collisionBlock.Behavior,
@@ -100,21 +92,20 @@ internal sealed class EnemyProjectileTerrainCollision : EnemyProjectileBlockColl
             if (movingUp)
             {
                 if (adjustment > 0)
-                    return false;
+                    return EnemyProjectileBlockReaction.Passes;
             }
             else if (height - edgeWithinBlock != 1 && adjustment >= 0)
             {
-                return false;
+                return EnemyProjectileBlockReaction.Passes;
             }
 
             int blockTop = block.ToRoomPixels().Y;
-            alignedPosition = movingUp
+            return new EnemyProjectileBlockReaction.StopsAligned(movingUp
                 ? TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(blockTop) + 1 - height + projectile.Radius.Y)
-                : TerrainScanEdges.Edge(blockTop + height - projectile.Radius.Y);
-            return true;
+                : TerrainScanEdges.Edge(blockTop + height - projectile.Radius.Y));
         }
 
-        return IsWall(type);
+        return IsWall(type) ? EnemyProjectileBlockReaction.StopsAtFace : EnemyProjectileBlockReaction.Passes;
     }
 
     /// <summary>

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Cacatac;
@@ -9,14 +8,13 @@ using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.FuneNamihe;
-using SuperMetroid.Core.Enemies.KiHunters;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.NoobTube;
 using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.SaveStation;
-using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.YappingMaws;
 using SuperMetroid.Core.Rooms.Doors;
@@ -44,16 +42,73 @@ internal static class FamilyProjectileStarts
         enemies.TourianUnlockEffects
             ?? throw new InvalidOperationException($"A {kind} projectile spawns only in the Tourian statue room, which these enemies are not.");
 
-    /// <summary>Initializes <paramref name="projectile"/> as its kind's production spawner does.</summary>
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> through the game's spawn, into the first free place searched from the
+    /// last down, and starts the animation its kind's production spawner starts.
+    /// </summary>
     /// <param name="enemies">The enemy system whose species own the room-lifetime behaviours.</param>
-    /// <param name="projectile">The freshly spawned projectile.</param>
     /// <param name="kind">What the projectile is.</param>
     /// <param name="graphics">The sheet and shading the projectile draws with.</param>
-    internal static void Initialize(RoomEnemySystem enemies, EnemyProjectile projectile, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal static EnemyProjectile Spawn(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Started(enemies, Allocate(enemies, kind, graphics));
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> through the game's spawn
+    /// (<see cref="AllocateAt"/>) and starts the animation its kind's production spawner starts.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is held, or a place the search reaches first cannot be filled.</exception>
+    internal static EnemyProjectile SpawnAt(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Started(enemies, AllocateAt(enemies, place, kind, graphics));
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> through the game's spawn (<see cref="EnemyProjectileEngine.AllocateEnemyProjectile"/>),
+    /// bound to the behaviour its production spawner binds: the first free place searched from the last down takes it, and
+    /// it holds its kind's definition and <paramref name="graphics"/> before its spawner's animation starts: until a check
+    /// starts one, it runs the animation that deletes it at its first animation step, since every projectile runs one.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Every place is held.</exception>
+    internal static EnemyProjectile Allocate(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics) =>
+        Ensure.NotNull(enemies).Projectiles.AllocateEnemyProjectile(kind, BehaviorOf(enemies, kind), graphics,
+            EnemyProjectileDeleteAnimation.Instance)
+            ?? throw new InvalidOperationException($"A {kind} spawn found every enemy-projectile place held.");
+
+    /// <summary>
+    /// Spawns a projectile of <paramref name="kind"/> into <paramref name="place"/> through the game's spawn: spawns of the
+    /// kind take the free places the search reaches before it, as the game's would, and are deleted once the projectile
+    /// holds <paramref name="place"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The place is held, so the search passes it.</exception>
+    internal static EnemyProjectile AllocateAt(RoomEnemySystem enemies, int place, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
     {
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, BehaviorOf(enemies, kind), graphics);
-        if (StartingAnimation(kind) is { } animation)
-            projectile.StartAnimation(animation);
+        var before = new List<EnemyProjectile>();
+        EnemyProjectile projectile;
+        while ((projectile = Allocate(enemies, kind, graphics)).Place != place)
+        {
+            if (projectile.Place < place)
+                throw new InvalidOperationException($"A check spawns into enemy-projectile place {place}, which is held: the spawn took place {projectile.Place}.");
+            before.Add(projectile);
+        }
+        foreach (EnemyProjectile filler in before)
+            filler.Delete();
+        return projectile;
+    }
+
+    /// <summary>Spawns projectiles of <paramref name="kind"/> through the game's spawn until every place is held; returns them.</summary>
+    internal static IReadOnlyList<EnemyProjectile> FillPool(RoomEnemySystem enemies, RoomEnemyProjectileKind kind, SpriteGraphics graphics)
+    {
+        var spawned = new List<EnemyProjectile>();
+        while (Ensure.NotNull(enemies).Projectiles.FreePlaceCount > 0)
+            spawned.Add(Allocate(enemies, kind, graphics));
+        return spawned;
+    }
+
+    /// <summary><paramref name="projectile"/> after starting the animation its kind's production spawner starts.</summary>
+    private static EnemyProjectile Started(RoomEnemySystem enemies, EnemyProjectile projectile)
+    {
+        if (StartingAnimation(projectile.Kind) is { } start)
+            projectile.StartAnimation(start(enemies));
+        return projectile;
     }
 
     /// <summary>The behaviour the production spawner of <paramref name="kind"/> binds to it.</summary>
@@ -61,14 +116,13 @@ internal static class FamilyProjectileStarts
     /// <param name="kind">What the projectile is; a Tourian statue's spawns only in the statue room's enemies.</param>
     internal static EnemyProjectileBehavior BehaviorOf(RoomEnemySystem enemies, RoomEnemyProjectileKind kind) => kind switch
     {
-        RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace => enemies.PrePhantoonRoomBehavior.HoldingProjectile,
         RoomEnemyProjectileKind.SkreeMetareeParticle =>
             SuperMetroid.Core.Enemies.Skree.SkreeMetareeParticles.Behavior,
         RoomEnemyProjectileKind.CrocomireProjectile => enemies.CrocomireBehavior.Combat.MouthShot,
         RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces =>
             enemies.CrocomireBehavior.Combat.Debris,
-        RoomEnemyProjectileKind.KraidSpitRock => KraidProjectiles.SpitRock,
-        RoomEnemyProjectileKind.KraidCeilingRock or RoomEnemyProjectileKind.KraidRisingRock => KraidProjectiles.Rocks,
+        RoomEnemyProjectileKind.KraidSpitRock => enemies.KraidBehavior.Projectiles.SpitRock,
+        RoomEnemyProjectileKind.KraidCeilingRock or RoomEnemyProjectileKind.KraidRisingRock => enemies.KraidBehavior.Projectiles.Rocks,
         RoomEnemyProjectileKind.PhantoonDestroyableFlame => enemies.PhantoonBehavior.Combat.DestroyableFlame,
         RoomEnemyProjectileKind.PhantoonStartingFlame => enemies.PhantoonBehavior.Combat.StartingFlame,
         RoomEnemyProjectileKind.DraygonGoop => enemies.DraygonBehavior.Shots.Goop,
@@ -90,16 +144,16 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.RidleyHorizontalAfterburn or RoomEnemyProjectileKind.RidleyVerticalAfterburn =>
             enemies.RidleyProjectiles.Fireballs,
         RoomEnemyProjectileKind.CeresFallingDebris => enemies.CeresFallingTiles.Behavior,
-        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => SuperMetroid.Core.Enemies.Gunship.GunshipLiftoffDust.Behavior,
+        RoomEnemyProjectileKind.GunshipLiftoffDustCloud => new GunshipLiftoffDust.GunshipDustBehavior(),
         RoomEnemyProjectileKind.AlcoonFireball => AlcoonBehavior.Fireball,
-        RoomEnemyProjectileKind.PowampSpike => PowampBehavior.Spike,
+        RoomEnemyProjectileKind.PowampSpike => enemies.PowampBehavior.Spike,
         RoomEnemyProjectileKind.WorkRobotLaserDiagonal or RoomEnemyProjectileKind.WorkRobotLaserHorizontal => WorkRobotBehavior.Laser,
         RoomEnemyProjectileKind.FallingSpark => enemies.FallingSparksBehavior.Spark,
-        RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpike => FakeKraidBehavior.SpitAndSpikes,
-        RoomEnemyProjectileKind.KiHunterAcidSpit => KiHunterBehavior.Acid,
-        RoomEnemyProjectileKind.PirateMotherBrainLaser => WalkingSpacePirateBehavior.Laser,
-        RoomEnemyProjectileKind.PirateClaw => NinjaSpacePirateBehavior.Claw,
-        RoomEnemyProjectileKind.PolypRock => PolypBehavior.Rock,
+        RoomEnemyProjectileKind.FakeKraidSpit or RoomEnemyProjectileKind.FakeKraidSpike => enemies.FakeKraidBehavior.SpitAndSpikes,
+        RoomEnemyProjectileKind.KiHunterAcidSpit => enemies.KiHunterBehavior.Acid,
+        RoomEnemyProjectileKind.PirateMotherBrainLaser => enemies.WalkingSpacePirateBehavior.Laser,
+        RoomEnemyProjectileKind.PirateClaw => enemies.NinjaSpacePirateBehavior.Claw,
+        RoomEnemyProjectileKind.PolypRock => enemies.PolypBehavior.Rock,
         RoomEnemyProjectileKind.CacatacSpike => CacatacBehavior.Spike,
         RoomEnemyProjectileKind.NamiheFireball or RoomEnemyProjectileKind.FuneFireball => FuneNamiheBehavior.Fireball,
         RoomEnemyProjectileKind.LavaThrownByMagdollite => enemies.MagdolliteBehavior.Lava,
@@ -130,79 +184,79 @@ internal static class FamilyProjectileStarts
         RoomEnemyProjectileKind.SporeSpawnStalk => enemies.SporeSpawnBehavior.Stalk,
         RoomEnemyProjectileKind.SporeSpawnSpore => enemies.SporeSpawnBehavior.Spore,
         RoomEnemyProjectileKind.SporeSpawnSpawner => enemies.SporeSpawnBehavior.Spawner,
-        RoomEnemyProjectileKind.DownwardGateMoving or RoomEnemyProjectileKind.DownwardGateClosed => DownwardGateBehavior.Gate,
+        RoomEnemyProjectileKind.DownwardGateMoving or RoomEnemyProjectileKind.DownwardGateClosed => enemies.DownwardGateBehavior.Gate,
         RoomEnemyProjectileKind.NoobTubeCrack or RoomEnemyProjectileKind.NoobTubeShard or
-            RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies.NoobTubeBehavior.TubePieces,
+            RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => NoobTubePieceFixtures.PlacedPieces(enemies),
         RoomEnemyProjectileKind.YappingMawBody or RoomEnemyProjectileKind.NuclearWaffleBody or
             RoomEnemyProjectileKind.EyeDoorSmoke or RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
             RoomEnemyProjectileKind.SaveStationElectricity =>
             EnemyProjectileBehavior.Still,
-        RoomEnemyProjectileKind.None => throw new ArgumentOutOfRangeException(nameof(kind), kind, "A gone projectile has no behaviour."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined enemy projectile kind."),
     };
 
     /// <summary>
-    /// A new typed animation the production spawner of <paramref name="kind"/> starts as it spawns the projectile, before
-    /// anything else the spawn chooses, or null when its spawner starts the animation its producer chooses afterwards.
+    /// Creates the typed animation the production spawner of <paramref name="kind"/> starts as it spawns the projectile,
+    /// before anything else the spawn chooses, bound to the cue owner that spawner binds (#2571), from the enemy system
+    /// whose species own the behaviours; null when its spawner starts the animation its producer chooses afterwards.
     /// </summary>
     /// <param name="kind">What the projectile is.</param>
-    internal static EnemyProjectileAnimation? StartingAnimation(RoomEnemyProjectileKind kind) => kind switch
+    internal static Func<RoomEnemySystem, EnemyProjectileAnimation>? StartingAnimation(RoomEnemyProjectileKind kind) => kind switch
     {
-        RoomEnemyProjectileKind.DragonFireball => new DragonFireballAnimation(DragonFireballSegment.RisingLeft),
-        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or RoomEnemyProjectileKind.WorkRobotLaserHorizontal => new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare),
-        RoomEnemyProjectileKind.FallingSpark => new FallingSparkAnimation(FallingSparkSegment.Falling),
-        RoomEnemyProjectileKind.PowampSpike => new PowampSpikeAnimation(PowampSpikeSegment.Flying),
-        RoomEnemyProjectileKind.AlcoonFireball => new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning),
+        RoomEnemyProjectileKind.DragonFireball => _ => new DragonFireballAnimation(DragonFireballSegment.RisingLeft),
+        RoomEnemyProjectileKind.WorkRobotLaserDiagonal or RoomEnemyProjectileKind.WorkRobotLaserHorizontal => _ => new WorkRobotLaserAnimation(WorkRobotLaserSegment.Flare),
+        RoomEnemyProjectileKind.FallingSpark => _ => new FallingSparkAnimation(FallingSparkSegment.Falling),
+        RoomEnemyProjectileKind.PowampSpike => _ => new PowampSpikeAnimation(PowampSpikeSegment.Flying),
+        RoomEnemyProjectileKind.AlcoonFireball => _ => new AlcoonFireballAnimation(AlcoonFireballSegment.Spinning),
         RoomEnemyProjectileKind.FuneFireball or RoomEnemyProjectileKind.NamiheFireball =>
-            new FuneNamiheFireballAnimation(FuneNamiheFireballSegment.Left),
-        RoomEnemyProjectileKind.PolypRock => new PolypRockAnimation(PolypRockSegment.LavaRock),
-        RoomEnemyProjectileKind.LavaThrownByMagdollite => new MagdolliteLavaAnimation(MagdolliteLavaSegment.Left),
-        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingWith(ChozoTourianDustSegment.Footsteps)),
-        RoomEnemyProjectileKind.TourianStatueDescentDust => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust),
+            _ => new FuneNamiheFireballAnimation(FuneNamiheFireballSegment.Left),
+        RoomEnemyProjectileKind.PolypRock => _ => new PolypRockAnimation(PolypRockSegment.LavaRock),
+        RoomEnemyProjectileKind.LavaThrownByMagdollite => enemies => new MagdolliteLavaAnimation(enemies.MagdolliteBehavior.Lava, MagdolliteLavaSegment.Left),
+        RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep => _ => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.StartingAt[ChozoTourianDustSegment.Footsteps]),
+        RoomEnemyProjectileKind.TourianStatueDescentDust => _ => new ChozoTourianDustAnimation(ChozoTourianDustAnimations.TourianDescentDust),
         RoomEnemyProjectileKind.EnemyDeathPickup or RoomEnemyProjectileKind.EnemyDeathExplosion =>
-            new EnemyDeathAndDropAnimation(EnemyDeathAndDropSegment.SmallEnergy),
-        RoomEnemyProjectileKind.CacatacSpike => new CacatacProjectileAnimation(CacatacSpikeDirection.LeftFacingUp),
-        RoomEnemyProjectileKind.NuclearWaffleBody => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Churning),
-        RoomEnemyProjectileKind.YappingMawBody => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment.FacingDown),
-        RoomEnemyProjectileKind.EyeDoorProjectile => new EyeDoorProjectileAnimation(EyeDoorProjectileSegment.Fired),
-        RoomEnemyProjectileKind.EyeDoorSweat => new EyeDoorSweatAnimation(EyeDoorSweatSegment.Falling),
-        RoomEnemyProjectileKind.EyeDoorSmoke => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion),
-        RoomEnemyProjectileKind.SaveStationElectricity => new SaveStationElectricityAnimation(),
-        RoomEnemyProjectileKind.DownwardGateMoving => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Moving),
-        RoomEnemyProjectileKind.DownwardGateClosed => new DownwardGateProjectileAnimation(DownwardGateProjectileSegment.Closed),
-        RoomEnemyProjectileKind.NoobTubeCrack => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.Crack)),
-        RoomEnemyProjectileKind.NoobTubeShard => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
-        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => new NoobTubeProjectileAnimation(NoobTubeProjectileAnimations.StartingWith(NoobTubeProjectileSegment.ReleasedAirBubble)),
+            enemies => new EnemyDeathAndDropAnimation(enemies.DeathsAndDrops.ExplosionsAndPickups, EnemyDeathAndDropSegment.SmallEnergy),
+        RoomEnemyProjectileKind.CacatacSpike => _ => new CacatacProjectileAnimation(CacatacSpikeDirection.LeftFacingUp),
+        RoomEnemyProjectileKind.NuclearWaffleBody => _ => new NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment.Churning),
+        RoomEnemyProjectileKind.YappingMawBody => _ => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileSegment.FacingDown),
+        RoomEnemyProjectileKind.EyeDoorProjectile => enemies => new EyeDoorProjectileAnimation(enemies.EyeDoorBehavior.Shot, EyeDoorProjectileSegment.Fired),
+        RoomEnemyProjectileKind.EyeDoorSweat => enemies => new EyeDoorSweatAnimation(enemies.EyeDoorBehavior.Sweat, EyeDoorSweatSegment.Falling),
+        RoomEnemyProjectileKind.EyeDoorSmoke => _ => new DustExplosionProjectileAnimation(DustExplosionAnimation.SmallExplosion),
+        RoomEnemyProjectileKind.SaveStationElectricity => _ => new SaveStationElectricityAnimation(),
+        RoomEnemyProjectileKind.DownwardGateMoving => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Moving),
+        RoomEnemyProjectileKind.DownwardGateClosed => enemies => new DownwardGateProjectileAnimation(enemies.DownwardGateBehavior.Gate, DownwardGateProjectileSegment.Closed),
+        RoomEnemyProjectileKind.NoobTubeCrack => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.Crack]),
+        RoomEnemyProjectileKind.NoobTubeShard => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.ShardAnimations[NoobTubeShard.DownOutward]),
+        RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => enemies => new NoobTubeProjectileAnimation(NoobTubePieceFixtures.PlacedPieces(enemies), NoobTubeProjectileAnimations.StartingAt[NoobTubeProjectileSegment.ReleasedAirBubble]),
         RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion =>
-            new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
-        RoomEnemyProjectileKind.MotherBrainTopRightTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),
-        RoomEnemyProjectileKind.MotherBrainTopLeftTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopLeft),
-        RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleLeft),
-        RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleRight),
-        RoomEnemyProjectileKind.MotherBrainOnionRing => new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing),
-        RoomEnemyProjectileKind.MotherBrainBomb => new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb),
-        RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging => new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging),
-        RoomEnemyProjectileKind.MotherBrainPurpleBreathBig => new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig),
-        RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall => new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall),
+            _ => new DustExplosionProjectileAnimation(DustExplosionAnimation.MotherBrainRainbowBeamExplosion),
+        RoomEnemyProjectileKind.MotherBrainTopRightTube => _ => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopRight),
+        RoomEnemyProjectileKind.MotherBrainTopLeftTube => _ => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopLeft),
+        RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube => _ => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleLeft),
+        RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube => _ => new MotherBrainTopTubeAnimation(MotherBrainTopTubeSegment.TopMiddleRight),
+        RoomEnemyProjectileKind.MotherBrainOnionRing => enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.OnionRing, MotherBrainEffectSegment.OnionRing),
+        RoomEnemyProjectileKind.MotherBrainBomb => enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainEffectSegment.Bomb),
+        RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging => enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainEffectSegment.RainbowBeamCharging),
+        RoomEnemyProjectileKind.MotherBrainPurpleBreathBig => enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainEffectSegment.PurpleBreathBig),
+        RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall => enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainEffectSegment.PurpleBreathSmall),
         RoomEnemyProjectileKind.MotherBrainDrool or RoomEnemyProjectileKind.MotherBrainDyingDrool =>
-            new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool),
-        RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment => new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeDoorParticle),
-        RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => new MotherBrainEffectAnimation(MotherBrainEffectSegment.EscapeSubtitle),
-        RoomEnemyProjectileKind.TourianStatueSplash => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Splash),
-        RoomEnemyProjectileKind.TourianStatueEyeGlow => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.EyeGlow),
-        RoomEnemyProjectileKind.TourianStatueParticle => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Particle),
-        RoomEnemyProjectileKind.TourianStatueTail => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Tail),
-        RoomEnemyProjectileKind.TourianStatueSoul => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Soul),
-        RoomEnemyProjectileKind.TourianStatueRidley => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Ridley),
-        RoomEnemyProjectileKind.TourianStatuePhantoon => new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.Phantoon),
+            enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainEffectSegment.Drool),
+        RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment => enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainEffectSegment.EscapeDoorParticle),
+        RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => enemies => new MotherBrainEffectAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainEffectSegment.EscapeSubtitle),
+        RoomEnemyProjectileKind.TourianStatueSplash => enemies => new TourianStatueProjectileAnimation(UnlockEffects(enemies, kind), TourianStatueProjectileSegment.Splash),
+        RoomEnemyProjectileKind.TourianStatueEyeGlow => enemies => new TourianStatueProjectileAnimation(UnlockEffects(enemies, kind), TourianStatueProjectileSegment.EyeGlow),
+        RoomEnemyProjectileKind.TourianStatueParticle => enemies => new TourianStatueProjectileAnimation(UnlockEffects(enemies, kind), TourianStatueProjectileSegment.Particle),
+        RoomEnemyProjectileKind.TourianStatueTail => enemies => new TourianStatueProjectileAnimation(UnlockEffects(enemies, kind), TourianStatueProjectileSegment.Tail),
+        RoomEnemyProjectileKind.TourianStatueSoul => enemies => new TourianStatueProjectileAnimation(UnlockEffects(enemies, kind), TourianStatueProjectileSegment.Soul),
+        RoomEnemyProjectileKind.TourianStatueRidley => enemies => new TourianStatueProjectileAnimation(RequireStatueScene(enemies, kind).Decorations, TourianStatueProjectileSegment.Ridley),
+        RoomEnemyProjectileKind.TourianStatuePhantoon => enemies => new TourianStatueProjectileAnimation(RequireStatueScene(enemies, kind).Decorations, TourianStatueProjectileSegment.Phantoon),
         RoomEnemyProjectileKind.TourianStatueBaseDecoration =>
-            new TourianStatueProjectileAnimation(TourianStatueProjectileSegment.BaseDecoration),
+            enemies => new TourianStatueProjectileAnimation(RequireStatueScene(enemies, kind).Decorations, TourianStatueProjectileSegment.BaseDecoration),
         // The Skree's and Metaree's particles show their enemy's look and Ki-Hunter acid its way, which their spawners
         // choose (#2278), and so do Ridley's afterburn centre the axis its pair flies along, a Torizo's landing dust its
         // foot and a Ceres falling tile its look (#2378).
         RoomEnemyProjectileKind.SkreeMetareeParticle or RoomEnemyProjectileKind.KiHunterAcidSpit or
             RoomEnemyProjectileKind.RidleyAfterburnCenter or
-            RoomEnemyProjectileKind.PrePhantoonRoomHeldPlace or RoomEnemyProjectileKind.CrocomireProjectile or
+            RoomEnemyProjectileKind.CrocomireProjectile or
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling or RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
             RoomEnemyProjectileKind.KraidSpitRock or RoomEnemyProjectileKind.KraidCeilingRock or
             RoomEnemyProjectileKind.KraidRisingRock or
@@ -227,7 +281,6 @@ internal static class FamilyProjectileStarts
             RoomEnemyProjectileKind.GoldenTorizoEgg or RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
             RoomEnemyProjectileKind.GoldenTorizoEyeBeam or RoomEnemyProjectileKind.SporeSpawnStalk or
             RoomEnemyProjectileKind.SporeSpawnSpore or RoomEnemyProjectileKind.SporeSpawnSpawner => null,
-        RoomEnemyProjectileKind.None => throw new ArgumentOutOfRangeException(nameof(kind), kind, "A gone projectile starts nothing."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined enemy projectile kind."),
     };
 }

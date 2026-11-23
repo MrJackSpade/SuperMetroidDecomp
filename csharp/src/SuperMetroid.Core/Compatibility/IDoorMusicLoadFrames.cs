@@ -11,7 +11,6 @@ namespace SuperMetroid.Core.Compatibility;
 /// Consulted once per door transition, when the transition starts the destination's music set. Evidence: the music
 /// upload wait (<c>$80:8028</c>) in the SMV recordings' input-consumption traces.
 /// </remarks>
-[CompatibilityService("frames counted while a door's new music loads")]
 public interface IDoorMusicLoadFrames
 {
     /// <summary>The frames counted while the destination room's music data set loads.</summary>

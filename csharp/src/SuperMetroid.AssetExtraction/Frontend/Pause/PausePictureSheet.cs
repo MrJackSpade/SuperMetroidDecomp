@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 /// rows without their labels, each label lit and dim, and the equipment page's template and dynamic parts in each state
 /// (<see cref="PauseEquipmentPageLayout"/>). The game places them by frame name.
 /// </summary>
-internal static class PausePictureSheet
+internal static partial class PausePictureSheet
 {
     /// <summary>Cells across the pause frame.</summary>
     private const int Columns = PauseBackdropDefinitions.Columns;
@@ -35,27 +35,43 @@ internal static class PausePictureSheet
         Ensure.NotNull(maps);
         foreach (ScreenPictureSubject cell in MapPictureSheets.CellSubjects(maps))
             yield return cell;
-        int[] buttonCells = [.. ButtonRowCells()];
-        foreach (AreaId area in AreaIds.All)
-        {
-            var backdrop = new BackgroundTile[PauseBackdropDefinitions.Cells];
-            maps.Pause.Backdrops.LoadTo(backdrop, area);
-            yield return ScreenPictureSubject.Page(PauseFramePictures.BackdropFrame(area), backdrop, Columns, buttonCells);
-        }
-        BackgroundTile[] buttons = ButtonRows(maps);
-        int[] labelCells = [.. PauseMenuButtonLabels.ButtonLabelSpans.SelectMany(span => Enumerable.Range(span.Word, span.Count))];
-        yield return ScreenPictureSubject.Cells(PauseFramePictures.ButtonRowsFrame, buttons, Columns, [.. buttonCells.Except(labelCells)]);
-        foreach (PauseButtonLabel label in PauseSheetFrameOrder.ButtonLabels)
-        foreach (PauseButtonLabelShade shade in PauseSheetFrameOrder.ButtonLabelShades)
-        {
-            BackgroundTile[] shaded = ButtonRows(maps);
-            int[] cells = [.. LabelCells(label)];
-            foreach (int cell in cells)
-                shaded[cell] = shaded[cell] with { ColourVariant = PaletteOf(shade) };
-            yield return ScreenPictureSubject.Cells(PauseFramePictures.ButtonFrame(label, shade), shaded, Columns, cells);
-        }
+        foreach (NamedScreenPicture<ImportAreaMapPresentation> picture in FramePictures())
+            yield return picture.Picture(maps);
         foreach (ScreenPictureSubject equipment in PauseEquipmentPageLayout.Subjects(maps))
             yield return equipment;
+    }
+
+    /// <summary>The frame's own pictures by name, with how each is laid out from the import's artwork, in the order they are placed.</summary>
+    private static IEnumerable<NamedScreenPicture<ImportAreaMapPresentation>> FramePictures()
+    {
+        foreach (AreaId area in AreaIds.All)
+        {
+            string name = PauseFramePictures.BackdropFrame(area);
+            yield return new(name, maps =>
+            {
+                var backdrop = new BackgroundTile[PauseBackdropDefinitions.Cells];
+                maps.Pause.Backdrops.LoadTo(backdrop, area);
+                return ScreenPictureSubject.Page(name, backdrop, Columns, [.. ButtonRowCells()]);
+            });
+        }
+        int[] labelCells = [.. PauseMenuButtonLabels.ButtonLabelSpans.SelectMany(span => Enumerable.Range(span.Word, span.Count))];
+        yield return new(PauseFramePictures.ButtonRowsFrame, maps =>
+            ScreenPictureSubject.Cells(PauseFramePictures.ButtonRowsFrame, ButtonRows(maps), Columns, [.. ButtonRowCells().Except(labelCells)]));
+        foreach (PauseButtonLabel label in PauseSheetFrameOrder.ButtonLabels)
+        {
+            foreach (PauseButtonLabelShade shade in PauseSheetFrameOrder.ButtonLabelShades)
+            {
+                string name = PauseFramePictures.ButtonFrame(label, shade);
+                yield return new(name, maps =>
+                {
+                    BackgroundTile[] shaded = ButtonRows(maps);
+                    int[] cells = [.. LabelCells(label)];
+                    foreach (int cell in cells)
+                        shaded[cell] = shaded[cell] with { ColourVariant = PaletteOf(shade) };
+                    return ScreenPictureSubject.Cells(name, shaded, Columns, cells);
+                });
+            }
+        }
     }
 
     /// <summary>The frame's cells the button rows replace.</summary>
@@ -125,12 +141,8 @@ internal static class PausePictureSheet
         Ensure.NotNull(maps);
         foreach (ScreenPictureSubject cell in MapPictureSheets.CellSubjects(maps))
             yield return cell.Name;
-        foreach (AreaId area in AreaIds.All)
-            yield return PauseFramePictures.BackdropFrame(area);
-        yield return PauseFramePictures.ButtonRowsFrame;
-        foreach (PauseButtonLabel label in PauseSheetFrameOrder.ButtonLabels)
-        foreach (PauseButtonLabelShade shade in PauseSheetFrameOrder.ButtonLabelShades)
-            yield return PauseFramePictures.ButtonFrame(label, shade);
+        foreach (NamedScreenPicture<ImportAreaMapPresentation> picture in FramePictures())
+            yield return picture.Name;
         foreach (string equipment in PauseEquipmentPageLayout.SubjectNames())
             yield return equipment;
     }

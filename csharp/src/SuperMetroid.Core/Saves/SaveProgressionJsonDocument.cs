@@ -4,16 +4,15 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>A save slot's persistent progress, each set listed by its own identities (schema three, #1475).</summary>
-public sealed record SaveProgressionJsonDocument
+public sealed partial record SaveProgressionJsonDocument
 {
     /// <summary>
     /// The story events that have happened, by name (schema six, #1553), written in the order the save lists them and read
     /// in any order (#2543).
     /// </summary>
-    [InstalledKey]
     public required string[] Events { get; init; }
 
-    /// <summary>How many Zebetites have been destroyed, 0 through 4 (schema five, #1527).</summary>
+    /// <summary>How many Zebetites have been destroyed, up to <see cref="PersistentProgress.ZebetiteCount"/> (schema five, #1527).</summary>
     public required int ZebetitesDestroyed { get; init; }
 
     /// <summary>Each area's defeated bosses, one entry per area in area order.</summary>

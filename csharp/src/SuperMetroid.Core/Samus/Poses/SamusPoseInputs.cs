@@ -3,12 +3,8 @@ using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Which pose each pose's input list selects for the held and newly pressed actions.</summary>
-internal static class SamusPoseInputs
+internal static partial class SamusPoseInputs
 {
-    /// <summary>Evaluates the selected transition list using held and edge inputs.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, GameplayAction held, GameplayAction newlyPressed) =>
-        SamusPoseInputRules.Match(inputList, held, newlyPressed);
-
     /// <summary>
     /// Exchanges Left and Right in <paramref name="input"/>. A left-facing list is its right-facing list read with the
     /// directions exchanged, its selected pose mirrored back.
@@ -27,5 +23,5 @@ internal static class SamusPoseInputs
     /// transition list.
     /// </summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target, SamusPoseTransitionSetup setup) =>
-        new(new SamusPoseTransition(target, setup), HasConditions: true);
+        SamusPoseInputMatch.Accepting(new SamusPoseTransition(target, setup));
 }

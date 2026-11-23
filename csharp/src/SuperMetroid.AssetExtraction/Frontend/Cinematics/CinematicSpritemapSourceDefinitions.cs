@@ -5,8 +5,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
 
 /// <summary>The bank-$8C spritemap each cinematic sprite pose shows, which import reads its stock artwork from.</summary>
-[EncodingOwner("bank-$8C addresses of the cinematic spritemaps")]
-internal static class CinematicSpritemapSourceDefinitions
+internal static partial class CinematicSpritemapSourceDefinitions
 {
     /// <summary>Bank $8C, where every cinematic spritemap is stored.</summary>
     internal const byte Bank = 0x8c;
@@ -96,7 +95,6 @@ internal static class CinematicSpritemapSourceDefinitions
         new(CinematicSpritePose.ExaminedBabyNarrowing, new(Bank, 0x8d5a)),
         new(CinematicSpritePose.ExaminedBabyNarrow, new(Bank, 0x8d61)),
         new(CinematicSpritePose.CaretVisible, new(Bank, 0x8d68)),
-        new(CinematicSpritePose.Blank, null),
         new(CinematicSpritePose.NextPageArrowBright, new(Bank, 0x8ccf)),
         new(CinematicSpritePose.NextPageArrowFading, new(Bank, 0x8cdb)),
         new(CinematicSpritePose.NextPageArrowFaint, new(Bank, 0x8ce7)),
@@ -106,8 +104,8 @@ internal static class CinematicSpritemapSourceDefinitions
         new(CinematicSpritePose.StationUnderAttackLargeAsteroid, new(Bank, 0x909d)),
         new(CinematicSpritePose.StationUnderAttack, new(Bank, 0x9150)),
         new(CinematicSpritePose.SmallAsteroid, new(Bank, 0x90fe)),
-        new(CinematicSpritePose.VortexFirst, new(Bank, 0x8fe7)),
-        new(CinematicSpritePose.VortexSecond, new(Bank, 0x93d1)),
+        new(CinematicSpritePose.VortexBrightSparks, new(Bank, 0x8fe7)),
+        new(CinematicSpritePose.VortexFaintSparks, new(Bank, 0x93d1)),
         new(CinematicSpritePose.PlanetZebes, new(Bank, 0x9558)),
         new(CinematicSpritePose.PlanetZebesTitle, new(Bank, 0x9654)),
         new(CinematicSpritePose.ZebesJapaneseTitle, new(Bank, 0x968d)),

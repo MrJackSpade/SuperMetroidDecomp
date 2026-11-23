@@ -68,17 +68,17 @@ internal static class SamusHyperBeamColorsVerification
             for (int color = 0; color < 16; color++)
             {
                 ushort expected = ReadVerificationWord(rom, 0x9b0000 | (pointer + 2 * color));
-                AssertEqual(expected, shot.ResolveHyper(frame, color), "Every original Hyper-shot color");
+                AssertEqual(expected, shot.ResolveHyperStep(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - (frame), color), "Every original Hyper-shot color");
                 AssertEqual(expected, shotColours.ShownSuit(shotSources)[color], "Every original Hyper-shot shade color");
             }
         }
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(invalid, 0), "Hyper-shot frame bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyperStep(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - (invalid), 0), "Hyper-shot frame bounds");
         }
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyper(0, invalid), "Hyper-shot color bounds");
-        var shotSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { HyperBeamEnabled = true };
+            AssertThrows<ArgumentOutOfRangeException>(() => shot.ResolveHyperStep(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - (0), invalid), "Hyper-shot color bounds");
+        var shotSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).WithHyperBeam(true);
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Charge.ChargedShotGlow = ChargedShotGlow.StartHyperBeamGlow();
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);
@@ -125,9 +125,7 @@ internal static class SamusHyperBeamColorsVerification
     /// <summary>Checks that the Hyper Beam colour codec rejects out-of-range colours.</summary>
     internal static void VerifySamusHyperBeamColorsRejectMalformedDocuments(string stock)
     {
-        SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, SamusHyperBeamColorFormat.FileName)),
-            ArtworkJson.Options)
+        SamusHyperBeamColorDocument document = JsonSerializer.Deserialize<SamusHyperBeamColorDocument>(File.ReadAllBytes(Path.Combine(stock, SamusHyperBeamColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusHyperBeamColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Hyper Beam color document is null.");
         AssertThrows<InvalidDataException>(() => SamusHyperBeamColorFile.Read(new MemoryStream(SamusHyperBeamColorFile.Write(document with
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Frontend.Ending;
@@ -26,8 +27,8 @@ internal static class CinematicScreenPublicationVerification
         AssertEqual(new ScreenObjectSizes(new Extent16<ScreenPixels>(32, 32), new Extent16<ScreenPixels>(64, 64)), clouds,
             "OBSEL $A3 selects 32- and 64-pixel objects");
         SpriteFrame sized = new SpriteComposition([
-            new CompiledSpritePart(SpritePart.Create(Offset16<ScreenPixels>.Of(0, 0), large: true, character: 0, palette: 0, priority: 0), InheritPalette: false),
-            new CompiledSpritePart(SpritePart.Create(Offset16<ScreenPixels>.Of(0, 0), large: false, character: 0, palette: 0, priority: 0), InheritPalette: false),
+            new CompiledSpritePart(SpritePart.Create(Offset16<ScreenPixels>.Of(0, 0), large: true, character: 0, palette: 0, depth: SuperMetroid.Core.Assets.ActorDepth.BehindRoom), InheritPalette: false),
+            new CompiledSpritePart(SpritePart.Create(Offset16<ScreenPixels>.Of(0, 0), large: false, character: 0, palette: 0, depth: SuperMetroid.Core.Assets.ActorDepth.BehindRoom), InheritPalette: false),
         ]).ToFrame("sized", 0, clouds);
         AssertEqual(clouds.Large, sized.Parts[0].Size, "a large part is composed at the selection's large size");
         AssertEqual(clouds.Small, sized.Parts[1].Size, "a small part is composed at the selection's small size");
@@ -67,7 +68,7 @@ internal static class CinematicScreenPublicationVerification
     /// </summary>
     internal static void VerifyCinematicRoundTrips()
     {
-        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), japaneseText: false);
+        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), language: TextLanguage.English);
         for (int frame = 0; frame < 5000 && flight.Phase != IntroCeresFlightPhase.FlyingTowardCeres; frame++)
             flight.StepFrame();
         AssertEqual(IntroCeresFlightPhase.FlyingTowardCeres, flight.Phase, "the flight reaches its rear view");

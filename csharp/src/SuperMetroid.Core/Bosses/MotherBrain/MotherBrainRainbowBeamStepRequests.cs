@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// What one update of Mother Brain's late fight asks of the room, gathered while the update runs through her phases and
 /// reported as one <see cref="MotherBrainRainbowBeamAttackStepResult"/>.
 /// </summary>
-internal sealed class MotherBrainRainbowBeamStepRequests
+internal sealed partial class MotherBrainRainbowBeamStepRequests
 {
     /// <summary>The forced Samus movement the update applied, if any.</summary>
     internal MotherBrainForcedSamusMovementResult? Movement { get; set; }
@@ -59,22 +59,19 @@ internal sealed class MotherBrainRainbowBeamStepRequests
     internal MotherBrainEarthquakeRequest? Earthquake { get; private set; }
 
     /// <summary>Starts the room's earthquake with <paramref name="shake"/> for <paramref name="frames"/> frames.</summary>
-    internal void StartEarthquake(EarthquakeShake shake, int frames) => Earthquake = new(shake, frames);
+    internal void StartEarthquake(EarthquakeShake shake, int frames) => Earthquake = new(shake, new MotherBrainEarthquakeLength.Lasting(frames));
 
     /// <summary>Starts the room's earthquake with <paramref name="shake"/> until a producer gives it a length.</summary>
-    internal void StartIndefiniteEarthquake(EarthquakeShake shake) => Earthquake = new(shake, Frames: null);
+    internal void StartIndefiniteEarthquake(EarthquakeShake shake) => Earthquake = new(shake, MotherBrainEarthquakeLength.Indefinite);
 
     /// <summary>
     /// Runs the room's earthquake on until a producer gives it a length, keeping any shake this update started or else the
     /// room's own.
     /// </summary>
-    internal void KeepEarthquakeGoing() => Earthquake = new(Earthquake?.Shake, Frames: null);
-
-    /// <summary>Runs the room's earthquake on for <paramref name="frames"/> frames, keeping any shake this update started.</summary>
-    internal void RunEarthquakeOn(int frames) => Earthquake = new(Earthquake?.Shake, frames);
+    internal void KeepEarthquakeGoing() => Earthquake = new(Earthquake?.Shake, MotherBrainEarthquakeLength.Indefinite);
 
     /// <summary>Stops the room's earthquake, keeping any shake this update started for a later run.</summary>
-    internal void StopEarthquake() => RunEarthquakeOn(0);
+    internal void StopEarthquake() => Earthquake = new(Earthquake?.Shake, MotherBrainEarthquakeLength.Stopped);
 
     /// <summary>The update's result.</summary>
     internal MotherBrainRainbowBeamAttackStepResult ToResult() =>

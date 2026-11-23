@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -8,8 +7,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain encounter state shared across Tourian: her setup's attachment to the room, the warning Zebes's escape
 /// shows, and the encounter's sound and music requests.
 /// </summary>
-[RoomLifetime]
-internal sealed class MotherBrainEncounter
+internal sealed partial class MotherBrainEncounter
 {
     /// <summary>Receives the encounter's sound and music requests.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -37,16 +35,6 @@ internal sealed class MotherBrainEncounter
     }
 
     /// <summary>
-    /// The warning Zebes's escape shows over Mother Brain's room background (#1555): the glyphs her death's typewriter has
-    /// typed, in the order typed, each at its background cell; nothing before her death types any. It lasts the room, as
-    /// the encounter does.
-    /// </summary>
-    public RoomWarningText ZebesWarning { get; private set; } = RoomWarningText.Empty;
-
-    /// <summary>Shows <paramref name="picture"/> as the next glyph of <see cref="ZebesWarning"/>.</summary>
-    internal void ShowZebesWarning(WrittenPicture picture) => ZebesWarning = ZebesWarning.With(picture);
-
-    /// <summary>
     /// Queues a sound of the body's fight, fake death and tube collapse, or of the Baby Metroid's cries in the cutscene,
     /// as it is made, after the update's earlier requests.
     /// </summary>
@@ -57,14 +45,11 @@ internal sealed class MotherBrainEncounter
     internal void RequestRainbowBeamSound(SoundEffectId sound) =>
         _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
 
-    /// <summary>
-    /// Queues a sound a Mother Brain animation cue or explosion makes. Mother Brain's explosion competes at low priority;
-    /// every other cue sound at normal priority.
-    /// </summary>
-    internal void RequestCueSound(SoundEffectId sound) =>
-        _audio.QueueEnemySound(
-            sound,
-            sound == MotherBrainSoundDefinitions.Explosion ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
+    /// <summary>Queues a sound a Mother Brain animation cue makes, at normal priority.</summary>
+    internal void RequestCueSound(SoundEffectId sound) => _audio.QueueEnemySound(sound, SoundRequestPriority.Normal);
+
+    /// <summary>Queues a sound request that carries its own priority, as an explosion's does.</summary>
+    internal void RequestCueSound(SoundRequest request) => _audio.QueueEnemySound(request.SoundEffect, request.Priority);
 
     /// <summary>
     /// Queues one music change. Mother Brain's changes come in sequences (stop, load a data set, select a track), each

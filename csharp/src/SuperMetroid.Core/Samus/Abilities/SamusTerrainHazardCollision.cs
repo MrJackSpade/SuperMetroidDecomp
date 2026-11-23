@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// top points during the input phase, before movement. Keeping both checks
 /// here prevents their similar damage values from erasing that timing distinction.
 /// </remarks>
-public static class SamusTerrainHazardCollision
+public static partial class SamusTerrainHazardCollision
 {
     /// <summary>
     /// Runs the damaging subset of Samus's inside-block detection and
@@ -29,16 +29,18 @@ public static class SamusTerrainHazardCollision
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
 
-        // The spike reaction makes Wrecked Ship's heavy spike blocks harmless until Phantoon is defeated.
-        // Every other area admits that reaction unconditionally.
-        level.HeavySpikesDamage =
-            area != AreaId.WreckedShip || areaBossDefeated;
+        // The spike reaction makes an unpowered area's heavy spike blocks harmless, as the Wrecked Ship's are until Phantoon is
+        // defeated. Every other area admits that reaction unconditionally.
+        level.HeavySpikesDamage = AreaIds.HasPower(area, areaBossDefeated);
 
         SamusInsideBlockSamplePoints.Visit(samus.Position.Y.Whole, samus.Kinematics.Radius.Y, (y, _) =>
             VisitInsidePoint(level, samus, Position16<RoomPixels>.Of(samus.Position.X.Whole, y)));
     }
 
     /// <summary>Applies the solid spike reactions after a solid spike block of <paramref name="level"/> is contacted.</summary>
+    /// <param name="level">The room's level, whose heavy spikes may be harmless.</param>
+    /// <param name="samus">Samus, whom a damaging spike hurts.</param>
+    /// <param name="block">The contacted spike block.</param>
     internal static void ApplySolidSpikeCollision(
         RoomLevelData level,
         SamusState samus,
@@ -51,19 +53,10 @@ public static class SamusTerrainHazardCollision
         if (block.Behavior.Spike is not { } spike ||
             !SpikeHazardDefinitions.DamagingSpikeBlocks.TryGetValue(spike, out SpikeBlockBehavior behavior))
             return;
-        int damage = behavior switch
-        {
-            SpikeBlockBehavior.Heavy => level.HeavySpikesDamage
-                ? SpikeHazardDefinitions.HeavySpikeDamage
-                : 0,
-            SpikeBlockBehavior.Light =>
-                SpikeHazardDefinitions.LightSpikeDamage,
-            _ => throw new InvalidOperationException($"Undefined SpikeBlockBehavior {behavior}."),
-        };
-        if (damage == 0)
+        // Heavy spikes are harmless in a level whose heavy spikes do no damage.
+        if (behavior == SpikeBlockBehavior.Heavy && !level.HeavySpikesDamage)
             return;
-
-        PublishDamage(samus, damage);
+        PublishDamage(samus, behavior == SpikeBlockBehavior.Light ? SpikeHazardDefinitions.LightSpikeDamage : SpikeHazardDefinitions.HeavySpikeDamage);
     }
 
     /// <summary>Tests one input-phase body sample for damaging spike-air, restoring normal-air speed selection before the invincibility and contact-damage gates.</summary>

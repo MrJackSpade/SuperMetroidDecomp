@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.World;
 /// still has its room FX, whose liquid motion reports the absence (<see cref="IRoomLiquid.BaseY"/> and
 /// <see cref="IRoomLiquid.TargetSurface"/>).
 /// </summary>
-[RoomLifetime]
-public sealed record RoomObjectServices
+public sealed partial record RoomObjectServices
 {
     /// <summary>Samus as room objects see her.</summary>
     public required IRoomSamusAccess Samus { get; init; }

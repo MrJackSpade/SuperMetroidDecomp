@@ -18,13 +18,12 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>MetroidDrainCountersVerification</c>) exercises a fraction that uses up what is held over exactly and one that
 /// exceeds it, and the wrapped remainder it leaves.
 /// </remarks>
-[CompatibilityService("a Metroid's drain takes one energy whenever its suit's fraction exceeds what is held over from the last energy taken, keeping the rest of that energy for later updates")]
-public readonly record struct FractionalEnergyDrain
+public readonly partial record struct FractionalEnergyDrain
 {
     /// <summary>The parts one energy is drained in: a fraction and what is held over are counted in these parts.</summary>
-    public const int PartsPerEnergy = WrappingCounter.LargestCount + 1;
+    private const int PartsPerEnergy = WrappingCounter.LargestCount + 1;
 
-    /// <summary>Stores what is held over, 0 through one part short of an energy; callers use <see cref="HoldingOver"/>.</summary>
+    /// <summary>Stores what is held over, 0 through one part short of an energy; callers use <see cref="Start"/> or <see cref="After"/>.</summary>
     private FractionalEnergyDrain(int heldOver) => HeldOver = Ensure.BetweenInclusive(0, PartsPerEnergy - 1, heldOver);
 
     /// <summary>What is held over from the last energy taken, 0 through one part short of an energy, in <see cref="PartsPerEnergy"/>ths.</summary>
@@ -33,8 +32,6 @@ public readonly record struct FractionalEnergyDrain
     /// <summary>A drain that has taken nothing yet: nothing is held over, so its first fraction takes an energy.</summary>
     public static FractionalEnergyDrain Start => default;
 
-    /// <summary>A drain holding <paramref name="heldOver"/> parts over, 0 through one part short of an energy, as a parity check states one.</summary>
-    public static FractionalEnergyDrain HoldingOver(int heldOver) => new(heldOver);
 
     /// <summary>Whether draining <paramref name="fraction"/> takes an energy: whether it is more than what is held over.</summary>
     /// <param name="fraction">One update's fraction, 0 through one part short of an energy.</param>

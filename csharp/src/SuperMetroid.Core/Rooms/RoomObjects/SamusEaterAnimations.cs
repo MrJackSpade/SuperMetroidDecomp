@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// shown for its own updates: its chew, played its plant's number of times, its fangs out as it releases Samus, and its
 /// idle image.
 /// </summary>
-internal sealed class SamusEaterAnimations
+internal sealed partial class SamusEaterAnimations
 {
     /// <summary>Builds <paramref name="plant"/>'s animations.</summary>
     internal SamusEaterAnimations(SamusEaterObjectDefinition plant)

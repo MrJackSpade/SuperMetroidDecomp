@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
 
@@ -11,19 +10,15 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <param name="Draw">The frame's draw.</param>
 /// <param name="Runs">The frame's runs in write order; the first starts at the origin.</param>
-internal readonly record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadOnlyMemory<RoomObjectDrawLists.Run> Runs)
+internal readonly partial record struct RoomObjectFrameLayout(RoomObjectDraw Draw, ReadOnlyMemory<RoomObjectDrawLists.Run> Runs)
 {
-    /// <summary>The layout of a frame whose runs are described one by one, each placed where it starts.</summary>
+    /// <summary>The layout of a frame written as <paramref name="runs"/>, each cell colliding as the game's <paramref name="shape"/> says.</summary>
     /// <param name="draw">The frame's draw.</param>
-    /// <param name="runCount">The number of runs the frame writes.</param>
-    /// <param name="count">The number of cells in a run.</param>
-    /// <param name="collisionAt">How a cell of a run collides.</param>
-    /// <param name="direction">The direction a run writes its cells in.</param>
-    /// <param name="start">Where a run starts, in blocks from the origin.</param>
+    /// <param name="shape">The block shape the game draws the frame as.</param>
+    /// <param name="runs">The frame's runs in the cartridge's write order; the first starts at the origin.</param>
     /// <exception cref="InvalidDataException">The frame has no run, or its first run does not start at its origin.</exception>
-    internal static RoomObjectFrameLayout Of(RoomObjectDraw draw, int runCount, Func<int, int> count,
-        Func<int, int, RoomCollisionType> collisionAt, Func<int, RoomObjectRunDirection> direction, Func<int, Offset16<RoomBlocks>> start) =>
-        Of(RoomObjectDrawListExport.Runs(draw, runCount, count, collisionAt, direction, start));
+    internal static RoomObjectFrameLayout Of(RoomObjectDraw draw, RoomBlockShape shape, IReadOnlyList<RoomObjectShapeRun> runs) =>
+        Of(RoomObjectDrawListExport.Runs(draw, shape, runs));
 
     /// <summary>The layout of a frame the game draws as <paramref name="list"/>: the same runs, directions, starts and collision.</summary>
     /// <param name="list">The frame's runs as the game draws them.</param>

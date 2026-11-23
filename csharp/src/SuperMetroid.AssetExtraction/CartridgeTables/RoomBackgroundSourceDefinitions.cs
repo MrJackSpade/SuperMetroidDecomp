@@ -8,15 +8,14 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the library backgrounds' sources and where their transfers write (#1414): the import
 /// pipeline's private knowledge of the cartridge, decoded once into the installed background tilemaps and images.
 /// </summary>
-[EncodingOwner("cartridge addresses of the library background tilemaps and their transfer destinations")]
-internal static class RoomBackgroundSourceDefinitions
+internal static partial class RoomBackgroundSourceDefinitions
 {
     /// <summary>Where each compressed background tilemap is stored, as the disassembly labels it.</summary>
     internal static readonly FrozenDictionary<RoomBackgroundTilemap, int> Tilemaps =
         new Dictionary<RoomBackgroundTilemap, int>
         {
             [RoomBackgroundTilemap.NorfairSmallPatternBrownPurpleBright] = 0xb9a634,
-            [RoomBackgroundTilemap.NorfairSmallPatternBrownPurple0] = 0xb9a714,
+            [RoomBackgroundTilemap.NorfairSmallPatternBrownPurple] = 0xb9a714,
             [RoomBackgroundTilemap.NorfairVerticalPatternBrick] = 0xb9a83a,
             [RoomBackgroundTilemap.NorfairCavernStalactites] = 0xb9ac83,
             [RoomBackgroundTilemap.NorfairCavernVertical] = 0xb9aeff,
@@ -33,19 +32,19 @@ internal static class RoomBackgroundSourceDefinitions
             [RoomBackgroundTilemap.BrinstarThinHorizontalPattern] = 0xb9d1fb,
             [RoomBackgroundTilemap.BrinstarSmallPattern] = 0xb9d38f,
             [RoomBackgroundTilemap.BrinstarSpheresPattern] = 0xb9d3c5,
-            [RoomBackgroundTilemap.BrinstarSmallPatternVariety0] = 0xb9d3fb,
+            [RoomBackgroundTilemap.BrinstarSmallPatternVariety] = 0xb9d3fb,
             [RoomBackgroundTilemap.BrinstarDarkPattern] = 0xb9d5d8,
-            [RoomBackgroundTilemap.BrinstarWideVerticalTowerBrick0] = 0xb9d715,
+            [RoomBackgroundTilemap.BrinstarWideVerticalTowerBrick] = 0xb9d715,
             [RoomBackgroundTilemap.BrinstarVerticalTower] = 0xb9e1b3,
             [RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrick] = 0xb9e61c,
-            [RoomBackgroundTilemap.BrinstarVerticalBrick0] = 0xb9e885,
+            [RoomBackgroundTilemap.BrinstarVerticalBrick] = 0xb9e885,
             [RoomBackgroundTilemap.BrinstarMechanicalRoomSpikeFloor] = 0xb9ea80,
             [RoomBackgroundTilemap.BrinstarMechanicalRoom] = 0xb9ebc7,
-            [RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickVines0] = 0xb9ee52,
-            [RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickGrey0] = 0xb9f1c8,
+            [RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickVines] = 0xb9ee52,
+            [RoomBackgroundTilemap.BrinstarNarrowVerticalTowerBrickGrey] = 0xb9f1c8,
             [RoomBackgroundTilemap.BrinstarBlueGridBlocks] = 0xb9f94f,
             [RoomBackgroundTilemap.BrinstarKraidUpper] = 0xb9fa38,
-            [RoomBackgroundTilemap.BrinstarKraidLower0] = 0xb9fe3e,
+            [RoomBackgroundTilemap.BrinstarKraidLower] = 0xb9fe3e,
             [RoomBackgroundTilemap.CrateriaVerticalPatternRocks] = 0xba807e,
             [RoomBackgroundTilemap.CrateriaHorizontalPatternRocks] = 0xba82c4,
             [RoomBackgroundTilemap.CrateriaRocks] = 0xba8437,
@@ -55,7 +54,7 @@ internal static class RoomBackgroundSourceDefinitions
             [RoomBackgroundTilemap.CrateriaBrickRoomWallArt] = 0xba8a49,
             [RoomBackgroundTilemap.CrateriaElevator] = 0xba8acd,
             [RoomBackgroundTilemap.CrateriaBrickRoom] = 0xba8dbd,
-            [RoomBackgroundTilemap.WreckedShipEntranceHall0] = 0xba8de7,
+            [RoomBackgroundTilemap.WreckedShipEntranceHall] = 0xba8de7,
             [RoomBackgroundTilemap.WreckedShipColumnsTubes] = 0xba9386,
             [RoomBackgroundTilemap.WreckedShipExperimentRoom] = 0xba988d,
             [RoomBackgroundTilemap.WreckedShipPanelsVents] = 0xba9c35,

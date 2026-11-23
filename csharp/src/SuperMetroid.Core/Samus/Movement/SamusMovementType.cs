@@ -54,8 +54,8 @@ public enum SamusMovementType
     RanIntoWall,
     /// <summary>Grapple firing, connection, swing, and release movement owned by the grapple subsystem.</summary>
     Grappling,
-    /// <summary>Midair facing-reversal animation while vertical movement is rising.</summary>
-    TurningWhileJumping,
+    /// <summary>Facing reversal while Samus rises in midair, and the aimed crouching turns on the ground, which move the same way.</summary>
+    TurningRisingOrAimedCrouched,
     /// <summary>Midair facing-reversal animation while vertical movement is descending.</summary>
     TurningWhileFalling,
     /// <summary>Intentional damage-boost trajectory produced by directional input during knockback.</summary>

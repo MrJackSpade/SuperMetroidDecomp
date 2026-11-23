@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// rebinding reaches the Samus already playing. It is built over installed artwork, and a rebinding replaces a catalog
 /// with another installed one: the host installs its artwork before anything that builds Samus exists.
 /// </summary>
-[ArchitectureReview("context-bag", "The installed Samus artwork every Samus, shot and bomb system of a session draws from, rebound in place when the host binds new content; every member is an immutable artwork catalog, not a service.")]
-public sealed class SamusArtworkBinding
+public sealed partial class SamusArtworkBinding
 {
     /// <summary>Binds the installed Samus artwork.</summary>
     /// <param name="body">Samus's installed body placements, death steps, arm-cannon cover and presentation catalogs.</param>

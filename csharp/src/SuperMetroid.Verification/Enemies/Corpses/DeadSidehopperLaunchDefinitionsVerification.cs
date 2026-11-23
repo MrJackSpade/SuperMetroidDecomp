@@ -20,11 +20,11 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemyPlace, DeadSidehopperEnemyState, SamusState, RoomLevelData, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.RunDeadSidehopperState;
         var place = enemies.Places.InUpdateOrder[0];
-        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PostLandingDelay);
+        var state = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.PostLandingDelay, SidehopperCorpseLayout.PlacedDead);
         for (ushort phase = 0; phase < 4; phase++)
         {
-            ushort vx = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
-            ushort vy = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2));
+            ushort vx = rom.ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
+            ushort vy = rom.ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2));
             AssertEqual(vx, DeadSidehopperLaunchDefinitions.Launches[phase].X.RawValue, "Native corpse X launch");
             AssertEqual(vy, DeadSidehopperLaunchDefinitions.Launches[phase].Y.RawValue, "Native corpse Y launch");
             foreach (SidehopperDrainStage drainStage in new[] { SidehopperDrainStage.Untouched, SidehopperDrainStage.LatchedOn })
@@ -34,7 +34,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             {
                 state.Action = DeadSidehopperAction.PostLandingDelay;
                 state.PostLandingPause = UpdateCountdown.For(raw);
-                state.DrainStage = drainStage;
+                state.Layout = new SidehopperVictim(drainStage);
                 state.NextHop = CyclingSequence<PixelVelocity<RoomPixels>>.At(DeadSidehopperLaunchDefinitions.Launches, phase);
                 state.Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(4660));
                 state.Playback = new(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperCorpse), AnimationPlace.StartOfAnimation);

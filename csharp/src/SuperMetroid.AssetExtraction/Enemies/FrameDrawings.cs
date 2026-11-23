@@ -9,12 +9,12 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Which looks of each encounter one frame is drawn in (#1513, #1538), as <see cref="EncounterArtworkDrawingDefinitions"/>
 /// lists them: a sheet holds the frame's finished pictures of only those looks.
 /// </summary>
-internal sealed class FrameDrawings
+internal sealed partial class FrameDrawings
 {
     /// <summary>Every catalogue entry with the frames it lists resolved, its effect actors' frames among them.</summary>
     private static readonly ResolvedDrawing[] Entries = [.. EncounterArtworkDrawingDefinitions.All.Select(drawing => new ResolvedDrawing(drawing,
         new HashSet<EnemyFrameId>(drawing.Frames.Concat(drawing.EffectActors.SelectMany(kind =>
-            RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind))).Select(picture => picture.RequireEnemyFrame()))),
+            RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind))).Select(picture => picture.EnemyFrame).OfType<EnemyFrameId>())),
         new HashSet<EnemyProjectileFrameId>(drawing.Projectiles)))];
 
     /// <summary>The entries listing the frame.</summary>
@@ -44,7 +44,7 @@ internal sealed class FrameDrawings
         bool[] own = [.. drawn.Select(entry => entry.ArtworkOfLook).Distinct()];
         if (own.Length != 1)
             throw new InvalidDataException($"Entries listing a frame for {encounter} disagree on whether its artwork is its look's own.");
-        return new FrameDrawnLooks([.. drawn.SelectMany(entry => entry.Looks).Select(look => EncounterLookUploads.IndexOf(encounter, look)).Distinct().Order()],
+        return new FrameDrawnLooks([.. drawn.SelectMany(entry => entry.Looks).Distinct().OrderBy(look => EncounterLookUploads.IndexOf(encounter, look))],
             own[0]);
     }
 
@@ -52,5 +52,5 @@ internal sealed class FrameDrawings
     /// <param name="Drawing">The entry.</param>
     /// <param name="Frames">The enemy frames it lists, its effect actors' frames among them.</param>
     /// <param name="Projectiles">The projectile frames it lists.</param>
-    private sealed record ResolvedDrawing(EncounterArtworkDrawing Drawing, IReadOnlySet<EnemyFrameId> Frames, IReadOnlySet<EnemyProjectileFrameId> Projectiles);
+    private sealed partial record ResolvedDrawing(EncounterArtworkDrawing Drawing, IReadOnlySet<EnemyFrameId> Frames, IReadOnlySet<EnemyProjectileFrameId> Projectiles);
 }

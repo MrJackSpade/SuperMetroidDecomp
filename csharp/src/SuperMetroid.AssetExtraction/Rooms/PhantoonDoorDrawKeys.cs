@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each Phantoon door frame (<see cref="PhantoonDoorDraw"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class PhantoonDoorDrawKeys
+internal static partial class PhantoonDoorDrawKeys
 {
     /// <summary>Each PhantoonDoorDraw member's installed key.</summary>
     internal static InstalledKeys<PhantoonDoorDraw> Installed { get; } = new(new Dictionary<PhantoonDoorDraw, string>

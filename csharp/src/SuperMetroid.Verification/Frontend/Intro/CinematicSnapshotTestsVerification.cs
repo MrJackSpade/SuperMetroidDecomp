@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
@@ -28,7 +29,7 @@ internal static class CinematicSnapshotTestsVerification
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), japaneseText: false);
+        var flight = new IntroCeresFlightState(AudioQueues.Standalone(), InstalledFixtures.IntroArtwork.FlightCharacters.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(InstalledFixtures.IntroArtwork.FlightCharacters), language: TextLanguage.English);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;
@@ -41,7 +42,7 @@ internal static class CinematicSnapshotTestsVerification
                 LayeredScene snapshot = flight.ComposeScene();
                 byte[] held = GraphDigest(snapshot);
                 coloredRearView |= snapshot.Layers.Any(layer => layer is ScreenTintLayer c
-                    && c.Colour != RgbColor.Black);
+                    && c.Colour.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance) != RgbColor.Black);
                 AssertTrue(ScenePixels.Same(flight.ComposeScene(), snapshot), $"Ceres flight snapshot tick {tick} shows the live scene's pixels");
                 flight.StepFrame();
                 Survives(held, snapshot, tick);
@@ -146,6 +147,10 @@ internal static class CinematicSnapshotTestsVerification
             // Each owner draws every update for those side effects; the pixels are compared on sampled updates only (#1532).
             LayeredScene expected = legacy.ComposeScene();
             LayeredScene snapshot = captured.ComposeScene();
+            // What the flashback shows of its actors after the last update (#2554): the drawn Samus and Mother Brain's look,
+            // which a hit's flash whitens.
+            AssertEqual(expected.DrawnSamusOrigin, snapshot.DrawnSamusOrigin, $"intro drawn Samus after draw, tick {tick}");
+            AssertEqual(expected.DrawnMotherBrainShading, snapshot.DrawnMotherBrainShading, $"intro drawn Mother Brain after draw, tick {tick}");
             bool newPhase = phases.Add(legacy.Phase);
             bool sample = newPhase || tick % 62 == 0;
             byte[] held = sample ? GraphDigest(snapshot) : [];
@@ -166,9 +171,6 @@ internal static class CinematicSnapshotTestsVerification
                 AssertTrue(held.AsSpan().SequenceEqual(GraphDigest(snapshot)),
                     "intro packet survives subsequent simulation mutations");
             AssertEqual(legacy.Phase, captured.Phase, "intro phase after draw");
-            AssertEqual(legacy.MotherBrainHitCount, captured.MotherBrainHitCount, "intro hits after draw");
-            AssertEqual(legacy.FlashbackSamusX, captured.FlashbackSamusX, "intro Samus X after draw");
-            AssertEqual(legacy.FlashbackSamusY, captured.FlashbackSamusY, "intro Samus Y after draw");
             AssertEqual(legacy.ActiveFlashbackProjectileCount, captured.ActiveFlashbackProjectileCount, "intro projectiles after draw");
         }
         AssertTrue(legacy.CeresFlightFinished && captured.CeresFlightFinished, "full intro capture reaches completed flight");
@@ -182,6 +184,9 @@ internal static class CinematicSnapshotTestsVerification
     [VerificationCommand("--cinematic-fixtures")]
     internal static int CinematicFixturesCommand()
     {
-     VerifyCinematicRenderSnapshots(); VerifyEndingRenderSnapshots(); VerifyEndingCreditsState(); return 0; 
+        Suite(nameof(VerifyCinematicRenderSnapshots), VerifyCinematicRenderSnapshots);
+        Suite(nameof(VerifyEndingRenderSnapshots), VerifyEndingRenderSnapshots);
+        Suite(nameof(VerifyEndingCreditsState), VerifyEndingCreditsState);
+        return 0;
     }
 }

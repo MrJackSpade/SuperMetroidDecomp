@@ -2,54 +2,70 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>One dead Sidehopper occupant: its own AI, with the shared reactions.</summary>
 /// <param name="species">The dead Sidehopper species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(place, common), IEnemyInitialization, IEnemyAi, IEnemyTypedAnimation, IEnemyPrivateShotReaction,
-        IShowsCorpseRotRows
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, DeadSidehopperEnemyState state)
+    : CorpseEntity(occupant, place, common), IEnemyAi, IEnemyTypedAnimation, IShowsCorpseRotRows
 {
-    /// <inheritdoc/>
-    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(Place);
-
-    /// <inheritdoc/>
-    public void Initialize() => species.InitializeDeadSidehopper(Place);
-
-    /// <inheritdoc/>
-    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, frame);
-
-    /// <inheritdoc/>
-    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadSidehopperBehavior.AdvanceDeadSidehopperTypedAnimation(Place, context);
-
-    /// <summary>Whether the dead Sidehopper's own touch, where its definition leaves Samus's touch to it, or a shared one applies.</summary>
-    public override bool ReactsToTouch => LeavesTouchToSpecies || base.ReactsToTouch;
-
-    /// <summary>Runs the dead Sidehopper's own touch where its definition leaves Samus's touch to it, or the shared one.</summary>
-    /// <param name="context">The touch.</param>
-    public override void ReactToTouch(EnemyTouchContext context)
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The dead Sidehopper species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the enemy occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the enemy's population entry tells its species.</param>
+    internal DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        DeadSidehopperSpawnSettings settings)
+        : this(species, occupant, place, common, species.InitializeDeadSidehopper(settings, place))
     {
-        if (LeavesTouchToSpecies)
-            species.ReactToDeadSidehopperTouch(context);
-        else
-            base.ReactToTouch(context);
     }
 
-    /// <summary>The dead Sidehopper's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? DeadSidehopperBehavior.DeadSidehopperShotReaction : base.ShotReaction;
+    /// <summary>The species' DeadSidehopperShotReaction, built once for this enemy with its state (#2554).</summary>
+    private EnemyShotReaction OwnDeadSidehopperShotReaction => field ??= DeadSidehopperBehavior.DeadSidehopperShotReaction(MarkShotWithoutDamage);
 
-    /// <summary>Runs the dead Sidehopper's own bomb reaction in place of common bomb damage, for a bomb whose hit selects the corpse's own shot reaction.</summary>
-    /// <param name="context">The bomb contact.</param>
-    public override bool TryReplaceCommonBombDamage(EnemyBombContext context)
+    /// <inheritdoc/>
+    public CorpseRotRows ShownRotRows => DeadSidehopperBehavior.ShownDeadSidehopperRows(State);
+
+    /// <summary>The enemy's state, which its setup builds as the enemy is built (#2554).</summary>
+    internal DeadSidehopperEnemyState State { get; } = state;
+
+    /// <summary>Runs the corpse's own Power Bomb reaction, in place of its common damage.</summary>
+    /// <param name="context">The blast meeting the corpse.</param>
+    internal void ReactToPowerBomb(EnemyPowerBombContext context) => species.ResolveDeadSidehopperPowerBomb(context, State);
+
+    /// <summary>Marks a shot's hit on the corpse, which ignores it until drained and then starts rotting.</summary>
+    /// <param name="c">The shot meeting the corpse.</param>
+    /// <returns>Always true: the corpse takes no damage or impact.</returns>
+    internal bool MarkShotWithoutDamage(in EnemyShotContext c)
     {
-        if (!(context.SelectedShot is null))
-            return base.TryReplaceCommonBombDamage(context);
-        DeadSidehopperBehavior.ReplaceDeadSidehopperBombDamage(context);
+        c.Projectiles.EnemyImpacts.TouchEnemyWithoutImpact(c.Shot, c.MarksCollision);
+        DeadSidehopperBehavior.ResolveDeadSidehopperShot(c.Enemy, State);
         return true;
     }
 
-    /// <summary>The dead Sidehopper's own Power Bomb reaction where its definition leaves the blast to it, or the shared one.</summary>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies ? species.DeadSidehopperPowerBombReaction : base.PowerBombReaction;
+    /// <inheritdoc/>
+    public void RunMainAi(IEnemyAiFrame frame) => species.RunDeadSidehopperMainAi(Place, State, frame);
 
-    /// <summary>The dead Sidehopper's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the radius path or a hitbox selects; none where the definition leaves shots to the species.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction is null && LeavesShotToSpecies;
+    /// <inheritdoc/>
+    public void AdvanceTypedAnimation(EnemyAnimationCueContext context) => DeadSidehopperBehavior.AdvanceDeadSidehopperTypedAnimation(Place, State);
+
+    /// <inheritdoc/>
+    private protected override void ReactToOwnTouch(EnemyTouchContext context) => species.ReactToDeadSidehopperTouch(context, State);
+
+    /// <inheritdoc/>
+    private protected override EnemyShotReaction OwnShotReaction => OwnDeadSidehopperShotReaction;
+
+    /// <inheritdoc/>
+    private protected override EnemyPowerBombReaction OwnPowerBombReaction => OwnPowerBomb;
+
+    /// <inheritdoc/>
+    private protected override void ReplaceBombDamage(EnemyBombContext context) => DeadSidehopperBehavior.ReplaceDeadSidehopperBombDamage(context, State);
+
+    /// <summary>The corpse's own Power Bomb reaction, built once for this corpse with its state (#2554).</summary>
+    private EnemyPowerBombReaction OwnPowerBomb => field ??= DeadSidehopperBehavior.DeadSidehopperPowerBombReaction(ReactToPowerBomb);
 }

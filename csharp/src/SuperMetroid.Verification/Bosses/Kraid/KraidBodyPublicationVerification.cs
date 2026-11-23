@@ -31,7 +31,7 @@ internal static class KraidBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Kraid);
         KraidEnemyState state = runtime.Enemies.Kraid
@@ -45,13 +45,12 @@ internal static class KraidBodyPublicationVerification
 
         // Risen: his body shown as it now appears, with the head it rises with before his head shows a pose, placed at his
         // position (#1515, #1540, #2031).
-        RoomEnemyPlace body = runtime.Enemies.KraidBehavior.Parts.Body;
-        state.BodyAppearance = KraidBodyAppearance.BehindSprites;
+        RoomEnemyPlace body = state.Parts.Body;
         state.ShowBody();
         state.DisplayedHeadFrame = null;
         body.Position = body.Position.WithWhole(new(320, 88));
         GameplayLatchedBossBody risen = Published(runtime);
-        AssertTrue((risen.Body?.Frames.Select(frame => frame.Name) ?? []).SequenceEqual(["Body", "RestingHead"]),
+        AssertTrue(risen.Body.Frames.Select(frame => frame.Name).SequenceEqual(["Body", "RestingHead"]),
             "the risen body shows his body and the head it rises with");
         AssertTrue(Words(risen, art).AsSpan().SequenceEqual(KraidBodyFixtures.Tilemap(upper, [], lower)),
             "the risen body publishes both working pages, blank elsewhere");
@@ -60,7 +59,7 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the published body on the background");
 
         // Mouth open: his head's current pose shows over his body (#1515).
-        state.DisplayedHeadFrame = KraidHeadFrame.Open;
+        state.DisplayedHeadFrame = (global::SuperMetroid.Core.Bosses.Kraid.KraidHeadFrame?)(KraidHeadFrame.Open);
         body.Position = body.Position.WithWhole(new(300, 96));
         GameplayLatchedBossBody roaring = Published(runtime);
         ReadOnlySpan<ushort> head = (art.KraidBackground ?? throw new InvalidOperationException("Kraid art installs his BG2."))
@@ -70,7 +69,7 @@ internal static class KraidBodyPublicationVerification
         AssertTrue(roaring.Placement == body.Position.Whole, "the roaring body publishes placed where he moved in the room");
 
         // Dead: the death clear keeps BG2 as Kraid's map, every word blank; the room's own BG2 never returns (#1427).
-        state.BodyAppearance = KraidBodyAppearance.Hidden;
+        state.HideBody();
         GameplayLatchedBossBody cleared = Published(runtime);
         AssertTrue(Words(cleared, art).All(word => word == KraidWorkingMapDefinitions.BlankTile.PackedWord),
             "the cleared body publishes only the blank tile");
@@ -83,14 +82,15 @@ internal static class KraidBodyPublicationVerification
     private static GameplayLatchedBossBody Published(SuperMetroidRuntime runtime)
     {
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        GameplayLatchedBossBody bosses = runtime.Display.LatchedOrdinaryRoom.Bosses;
-        return bosses.Body is not null && bosses.Placement is not null ? bosses
-            : throw new InvalidOperationException("Kraid owning BG2 publishes his body.");
+        GameplayLatchedBossBody bosses = runtime.Display.LatchedOrdinaryRoom.Bosses
+            ?? throw new InvalidOperationException("Kraid owning BG2 publishes his body.");
+        return bosses.Placement is not null ? bosses
+            : throw new InvalidOperationException("Kraid owning BG2 publishes his body placed.");
     }
 
     /// <summary>The tilemap entry each cell of the latched Kraid body shows, from the frames <paramref name="art"/> installs.</summary>
     private static ushort[] Words(GameplayLatchedBossBody bosses, BossSourceArtwork art) =>
-        BossBodyWords.Of(bosses.Body ?? throw new InvalidOperationException("Kraid owning BG2 publishes his body."), BossBodyOwner.Kraid, art);
+        BossBodyWords.Of(bosses.Body, BossBodyOwner.Kraid, art);
 
     /// <summary>Runs the Kraid body publication check.</summary>
     [VerificationCommand("--kraid-body")]

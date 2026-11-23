@@ -1,13 +1,18 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>A Magdollite's rising body's state, the arm that grows out of the lava: what it is doing and how far it has grown.</summary>
-public sealed class MagdolliteBodyState : MagdollitePartState
+public sealed partial class MagdolliteBodyState : MagdollitePartState
 {
     /// <summary>Creates the body's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteBodyState(MagdolliteBodyAction action)
     {
         Action = action;
     }
+
+    /// <summary>The animation the body plays and where it stands in it (#1600, #2554).</summary>
+    internal AnimationPlayback<MagdolliteBodySegment> Playback { get; set; }
 
     /// <summary>What the arm is doing.</summary>
     public MagdolliteBodyAction Action { get; internal set; }
@@ -24,9 +29,9 @@ public sealed class MagdolliteBodyState : MagdollitePartState
     /// </summary>
     public int RiseDisplacementY { get; internal set; }
 
-    /// <summary>The head releases the dormant arm (#2439): the arm starts rising from its origin on its next update.</summary>
-    /// <exception cref="InvalidOperationException">The arm is not dormant.</exception>
-    internal void Release() => Action = Action == MagdolliteBodyAction.Dormant
-        ? MagdolliteBodyAction.Released
-        : throw new InvalidOperationException($"A Magdollite's head released its arm while the arm was {Action}.");
+    /// <summary>
+    /// The head releases the dormant arm (#2439): the arm moves into its released phase, which its next update consumes,
+    /// rising from its origin.
+    /// </summary>
+    internal void Release() => Action = MagdolliteBodyAction.Released;
 }

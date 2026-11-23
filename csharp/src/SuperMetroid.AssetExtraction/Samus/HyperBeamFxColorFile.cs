@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Hyper Beam effect colour document.</summary>
-public static class HyperBeamFxColorFile
+public static partial class HyperBeamFxColorFile
 {
     /// <summary>Strict camel-case JSON settings for the editable Hyper Beam FX palette.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -26,7 +26,7 @@ public static class HyperBeamFxColorFile
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<HyperBeamFxColorDocument>(Options)
+            document = parsed.RootElement.Deserialize<HyperBeamFxColorDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorDocument>(Options))
                 ?? throw new InvalidDataException("Hyper Beam FX colors are null.");
         }
         catch (JsonException error)
@@ -60,7 +60,7 @@ public static class HyperBeamFxColorFile
     /// <param name="document">Document containing the supported version and all ten eight-color RGB5 rows.</param>
     /// <returns>JSON bytes suitable for the projectile-color asset file.</returns>
     public static byte[] Write(HyperBeamFxColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.HyperBeamFxColorDocument>(Options));
 
     /// <summary>Rejects duplicate palette properties before document deserialization.</summary>
     private static void RejectDuplicateProperties(JsonElement value) =>

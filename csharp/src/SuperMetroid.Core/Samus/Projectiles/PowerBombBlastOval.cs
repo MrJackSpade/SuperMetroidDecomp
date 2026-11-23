@@ -10,11 +10,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Centre">The blast's centre in the room.</param>
 /// <param name="Radii">The oval's horizontal and vertical radii in whole pixels; an oval with no height shows nothing.</param>
 /// <param name="Colour">The colour the oval adds to the scene.</param>
-public readonly record struct PowerBombBlastOval(Position16<RoomPixels> Centre, Extent16<RoomPixels> Radii, RgbColor Colour)
+public readonly partial record struct PowerBombBlastOval(Position16<RoomPixels> Centre, Extent16<RoomPixels> Radii, RgbColor Colour)
 {
     /// <summary>
-    /// The oval <paramref name="horizontalRadius"/> pixels wide either side of <paramref name="centre"/>, three quarters
-    /// of that tall, rounded down.
+    /// The oval <paramref name="horizontalRadius"/> pixels wide either side of <paramref name="centre"/>, its height that
+    /// width in the oval's proportion, rounded down.
     /// </summary>
     /// <param name="centre">The blast's centre in the room.</param>
     /// <param name="horizontalRadius">The oval's horizontal radius in whole pixels.</param>
@@ -24,7 +24,8 @@ public readonly record struct PowerBombBlastOval(Position16<RoomPixels> Centre, 
 
     /// <summary>
     /// The vertical radius, in whole pixels, of a blast oval <paramref name="horizontalRadius"/> pixels wide either side of
-    /// its centre: three quarters of it, rounded down. A blast centred on the screen rather than in a room shapes its oval
+    /// its centre: its width in the oval's proportion (<see cref="PowerBombExplosionDefinitions.OvalHeightParts"/> to
+    /// <see cref="PowerBombExplosionDefinitions.OvalWidthParts"/>), rounded down. A blast centred on the screen rather than in a room shapes its oval
     /// the same way (#2000).
     /// </summary>
     /// <param name="horizontalRadius">The oval's horizontal radius in whole pixels.</param>

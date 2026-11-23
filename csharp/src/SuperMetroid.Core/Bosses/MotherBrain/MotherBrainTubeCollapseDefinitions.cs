@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// waits for, the waits between its steps, the blocks each step clears, where the ceiling tubes start falling, how the
 /// tubes fall, and how the main tube carries her head down and lands her.
 /// </summary>
-internal static class MotherBrainTubeCollapseDefinitions
+internal static partial class MotherBrainTubeCollapseDefinitions
 {
     /// <summary>The free enemy projectiles the collapse waits for before it starts.</summary>
     internal const int FreeProjectilesNeeded = 4;
@@ -23,17 +23,14 @@ internal static class MotherBrainTubeCollapseDefinitions
     /// </summary>
     internal const int MainTubeWaitUpdates = 3;
 
-    /// <summary>The updates the collapse's wait is loaded with once the main tube's place is cleared; no tube follows to wait them out.</summary>
-    internal const int AfterLastClearUpdates = 1;
-
     /// <summary>
     /// The tubes the collapse drops, in the order they fall (#2258): what falls, the blocks clearing its place leaves, and
-    /// the wait after the clear before the next tube falls.
+    /// the wait after the clear before the next tube falls; the main tube falls last and waits for none.
     /// </summary>
     internal static IReadOnlyList<MotherBrainTubeDrop> Drops { get; } =
     [
         new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomLeft,
-            new(new(5, 9), MotherBrainRoomMutation.ClearBottomLeftTube), StepWaitUpdates),
+            new(new(5, 9), MotherBrainRoomMutation.ClearBottomLeftTube), StepWaitUpdates) { WaitsForFreeProjectiles = true },
         new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopRightTube, MotherBrainTopTubeSegment.TopRight, new(152, 47),
             new(new(9, 2), MotherBrainRoomMutation.ClearCeilingBlock), StepWaitUpdates),
         new MotherBrainTopTubeDrop(RoomEnemyProjectileKind.MotherBrainTopLeftTube, MotherBrainTopTubeSegment.TopLeft, new(104, 47),
@@ -48,8 +45,7 @@ internal static class MotherBrainTubeCollapseDefinitions
             new(new(8, 2), MotherBrainRoomMutation.ClearCeilingTube), StepWaitUpdates),
         new MotherBrainBottomTubeDrop(MotherBrainTubePiece.BottomMiddleRight,
             new(new(9, 10), MotherBrainRoomMutation.ClearBottomMiddleSideTube), MainTubeWaitUpdates),
-        new MotherBrainBottomTubeDrop(MotherBrainTubePiece.Main,
-            new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes), AfterLastClearUpdates),
+        new MotherBrainMainTubeDrop(new(new(7, 7), MotherBrainRoomMutation.ClearBottomMiddleTubes)),
     ];
 
     /// <summary>The gravity a falling tube gains each update.</summary>
@@ -72,7 +68,7 @@ internal static class MotherBrainTubeCollapseDefinitions
 
     /// <summary>The strong vertical shake of the foreground, background and enemies the main tube starts as it lands her.</summary>
     internal static readonly EarthquakeShake LandingShake =
-        new(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundBackgroundAndEnemies);
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocksSceneryAndEnemies);
 
     /// <summary>The updates between the smoke puffs of the falling main tube.</summary>
     internal const int SmokeIntervalUpdates = 9;

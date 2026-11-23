@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// passage of Crateria's main street escape, the opened wall of the old Tourian escape shaft and the four rescue-wall
 /// frames of the escape animals, and the identities that name them.
 /// </summary>
-public static class RoomObjectRevealAndWallVisualFiles
+public static partial class RoomObjectRevealAndWallVisualFiles
 {
     /// <summary>The installed JSON filename of the reveal and wall pictures.</summary>
     public const string VisualFileName = "reveals-and-walls.json";
@@ -45,7 +45,7 @@ public static class RoomObjectRevealAndWallVisualFiles
     /// <summary>Loads the installed reveal and wall pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectRevealAndWallVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Every reveal and wall frame's draw list, built from the geometry and collision the game writes.</summary>

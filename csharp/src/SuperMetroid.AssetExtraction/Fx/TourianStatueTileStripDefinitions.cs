@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// pictures, bright, dim and dark, and its released picture are windows of the one strip the room-FX atlas packs
 /// (#1415: by character position). Only the import pictures the statues' frames from it.
 /// </summary>
-internal static class TourianStatueTileStripDefinitions
+internal static partial class TourianStatueTileStripDefinitions
 {
     /// <summary>The bytes of one four-colour character.</summary>
     internal const int CharacterByteCount = 16;

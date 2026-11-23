@@ -5,17 +5,16 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The four Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
+/// The Rinkas (the ring-shaped “Cheerios”) fired during the Mother Brain flashback.
 /// </summary>
 /// <remarks>
-/// This models the Rinka definitions, their animations and the scene's two waves of launches.
-/// Only the first Rinka launched is scripted to strike Samus; the other three deliberately miss.
-/// The hit step does not subtract health in the cinematic. It publishes eleven
-/// frames of invincibility and knockback, which makes Samus flash and visibly react.
+/// The scene launches its Rinkas in two waves. Only the first Rinka launched strikes Samus; the others miss.
+/// The hit step does not subtract health in the cinematic. It publishes its invincibility and knockback
+/// (<see cref="IntroRinkaDefinitions.StrikeKnockbackUpdates"/>), which makes Samus flash and visibly react.
 /// The Rinkas are a list in spawn order with no cap (#1625): only the first one launched touches Samus, so the order the
 /// others step and draw in is not observable.
 /// </remarks>
-internal sealed class IntroRinkaSystem
+internal sealed partial class IntroRinkaSystem
 {
     /// <summary>The live Rinkas, in spawn order; a deleted Rinka leaves the list at the end of the pass that deletes it.</summary>
     internal readonly List<IntroRinka> rinkas = [];
@@ -23,23 +22,14 @@ internal sealed class IntroRinkaSystem
     private readonly Queue<IntroRinkaLaunchWave> waves = new(IntroRinkaDefinitions.Launches);
     /// <summary>The next wave's wait, counted once each update; the update it ends on launches the wave.</summary>
     private UpdateCountdown launchWait = UpdateCountdown.Lasting(IntroRinkaDefinitions.Launches[0].Wait);
-    /// <summary>Whether Mother Brain's explosions have started, after which no wave is left to launch.</summary>
-    private bool spawnsForbidden;
 
     /// <summary>One update of the launch schedule, then of every Rinka.</summary>
     /// <param name="samus">Samus, whose X position a hitting Rinka crosses before applying its knockback.</param>
     /// <param name="motherBrainExploding">True once Mother Brain's exploding step deletes the Rinkas.</param>
-    /// <param name="explosionsAllocated">
-    /// True once Mother Brain's explosions have started. The schedule launches every Rinka before then, so a launch after it
-    /// is a fault in the cinematic's script.
-    /// </param>
-    [IndependentFlag("Mother Brain exploding and her explosions having started are separate intro states read each frame.")]
-    public void Step(SamusState samus, bool motherBrainExploding,
-        bool explosionsAllocated)
+    public void Step(SamusState samus, bool motherBrainExploding)
     {
         Ensure.NotNull(samus);
 
-        spawnsForbidden = explosionsAllocated;
         // The schedule runs before the Rinkas, so a Rinka it launches runs its first flight check and animation step in this
         // same update.
         if (waves.Count != 0 && launchWait.Count())
@@ -67,33 +57,58 @@ internal sealed class IntroRinkaSystem
             rinka.Sprite.Draw(screenSprites, installedArt: installedArt);
     }
 
+    /// <summary>What <see cref="HandleRinkaCue"/> does for each <see cref="IntroRinkaCue"/> member, each member's own arm.</summary>
+    private static IdentityTable<IntroRinkaCue, Action<IntroRinka>> HandleRinkaCueForIntroRinkaCue => field ??= new(new Dictionary<IntroRinkaCue, Action<IntroRinka>>
+    {
+        [IntroRinkaCue.StartMoving] = static rinka => rinka.StartMoving(),
+    });
+
     /// <summary>Starts a Rinka's movement, selecting the hit route for the Rinka that strikes Samus and the miss route for the others.</summary>
     private static void HandleRinkaCue(
         IntroRinka rinka,
         IntroRinkaCue cue)
     {
-        switch (cue)
-        {
-            case IntroRinkaCue.StartMoving:
-                rinka.StartMoving();
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaCue)} {cue}.");
-        }
+        HandleRinkaCueForIntroRinkaCue[cue](rinka);
     }
 
-    /// <summary>Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live.</summary>
+    /// <summary>
+    /// Spawns the Rinkas of <paramref name="pair"/>, in launch order, after the Rinkas already live, as the spawner's
+    /// animation spawns each pair whatever else the flashback is showing.
+    /// </summary>
     private void Spawn(IReadOnlyList<IntroRinkaLaunch> pair)
     {
-        if (spawnsForbidden)
-        {
-            throw new InvalidOperationException(
-                "The intro Rinka schedule launched a Rinka after Mother Brain's explosions started.");
-        }
-
         foreach (IntroRinkaLaunch launch in pair)
             rinkas.Add(new IntroRinka(launch));
     }
+
+    /// <summary>What <c>Fly</c> does for each <see cref="IntroRinkaFlight"/> member, each member's own arm.</summary>
+    private static IdentityTable<IntroRinkaFlight, Action<IntroRinka, SamusState, bool, CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue>>> FlyForIntroRinkaFlight => field ??= new(new Dictionary<IntroRinkaFlight, Action<IntroRinka, SamusState, bool, CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue>>>
+    {
+        [IntroRinkaFlight.StrikesSamus] = static (rinka, samus, motherBrainExploding, sprite) =>
+        {
+            sprite.Position = Drifted(sprite.Position, rinka.Drift);
+
+            // The Rinka compares its striking edge against a point just left of Samus. Until that crossing,
+            // the actor survives unless Mother Brain has entered her exploding step.
+            if (sprite.ScreenPlace.X + IntroRinkaDefinitions.StrikingEdge < samus.Position.X.Whole - IntroRinkaDefinitions.SamusStruckReach)
+            {
+                if (motherBrainExploding)
+                    sprite.Delete();
+                return;
+            }
+
+            samus.RequestKnockback(IntroRinkaDefinitions.StrikeKnockbackUpdates, IntroRinkaDefinitions.StrikeKnockbackUpdates,
+                Samus.Movement.KnockbackHorizontalDirection.Right);
+            sprite.Delete();
+        },
+        [IntroRinkaFlight.MissesSamus] = static (rinka, samus, motherBrainExploding, sprite) =>
+        {
+            sprite.Position = Drifted(sprite.Position, rinka.Drift);
+            int y = sprite.ScreenPlace.Y;
+            if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
+                sprite.Delete();
+        },
+    });
 
     /// <summary>Moves a moving Rinka, publishes Samus knockback on the striking flight, or deletes it at its exit bounds.</summary>
     private static void Fly(
@@ -104,40 +119,12 @@ internal sealed class IntroRinkaSystem
         CinematicActor<IntroRinkaAnimation, CinematicSpritePose, IntroRinkaCue> sprite = rinka.Sprite;
         if (!rinka.IsMoving)
             return;
-        switch (rinka.Flight)
-        {
-            case IntroRinkaFlight.StrikesSamus:
-                sprite.Position = Drifted(sprite.Position, rinka.Drift);
-
-                // The Rinka compares its striking edge against a point just left of Samus. Until that crossing,
-                // the actor survives unless Mother Brain has entered her exploding step.
-                if (sprite.ScreenPlace.X + IntroRinkaDefinitions.StrikingEdge < samus.Position.X.Whole - IntroRinkaDefinitions.SamusStruckReach)
-                {
-                    if (motherBrainExploding)
-                        sprite.Delete();
-                    return;
-                }
-
-                samus.RequestKnockback(IntroRinkaDefinitions.StrikeKnockbackUpdates, IntroRinkaDefinitions.StrikeKnockbackUpdates,
-                    Samus.Movement.KnockbackHorizontalDirection.Right);
-                sprite.Delete();
-                return;
-
-            case IntroRinkaFlight.MissesSamus:
-                sprite.Position = Drifted(sprite.Position, rinka.Drift);
-                int y = sprite.ScreenPlace.Y;
-                if (y < IntroRinkaDefinitions.MissTopY || y >= IntroRinkaDefinitions.MissBottomY || motherBrainExploding)
-                    sprite.Delete();
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroRinkaFlight)} {rinka.Flight}.");
-        }
+        FlyForIntroRinkaFlight[rinka.Flight](rinka, samus, motherBrainExploding, sprite);
     }
 
     /// <summary>
     /// Where a Rinka at <paramref name="position"/> drifts to: sideways by <paramref name="sideways"/> and down by half a
-    /// pixel, so every second update the half pixels add up to one more whole pixel.
+    /// pixel, so on alternate updates the half pixels add up to one more whole pixel.
     /// </summary>
     private static FixedVector<ScreenPixels> Drifted(FixedVector<ScreenPixels> position, SignedSixteenSixteen sideways) =>
         new(position.X + sideways, position.Y + IntroRinkaDefinitions.DownwardDrift);

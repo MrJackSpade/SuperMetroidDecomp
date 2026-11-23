@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>Botwoon's fight: its opening delay, its spit volleys and cooldown, the floor he dies on and his head's trail.</summary>
-internal static class BotwoonFightDefinitions
+internal static partial class BotwoonFightDefinitions
 {
     /// <summary>The segments of his body, from the tail to the segment behind his head.</summary>
     internal const int BodySegments = 13;
@@ -10,14 +10,14 @@ internal static class BotwoonFightDefinitions
     internal const int OpeningDelay = 256;
 
     /// <summary>
-    /// The volley he spits from a hole once his spitting animation reaches its spit: five spits, fanned from two spreads one
-    /// way of his aim to two the other, after which his head cools down for 48 updates and he leaves the hole on the next.
+    /// The volley he spits from a hole once his spitting animation reaches its spit: its spits fanned evenly either side of
+    /// his aim, after which his head cools down and he leaves the hole on the next update.
     /// </summary>
     internal static BotwoonSpitVolley AimedVolley { get; } = new(Count: 5, FirstOffsetSteps: -32, CooldownUpdates: 48);
 
     /// <summary>
-    /// The volley he spits at once when he aims outside his hole spitting phase: three spits, fanned from one spread one way
-    /// of his aim to one the other, after which his head follows his movement again on the next update.
+    /// The volley he spits at once when he aims outside his hole spitting phase: its spits fanned evenly either side of his
+    /// aim, after which his head follows his movement again on the next update.
     /// </summary>
     internal static BotwoonSpitVolley ImmediateVolley { get; } = new(Count: 3, FirstOffsetSteps: -16, CooldownUpdates: 1);
 

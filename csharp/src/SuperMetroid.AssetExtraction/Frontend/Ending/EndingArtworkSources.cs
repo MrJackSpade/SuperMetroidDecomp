@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>Which cartridge sources the ending's Mode 7 scenes and explosion fragments import from (#1416: moved out of Core).</summary>
-internal static class EndingArtworkSources
+internal static partial class EndingArtworkSources
 {
     /// <summary>
     /// A floor scene's sources: escape A is decompressed by $8B:D4B4/D4D6, escape B by $8B:D775/D604 and the explosion
@@ -25,7 +25,7 @@ internal static class EndingArtworkSources
         EndingExplosionPicture.WideExplosion => EndingSourceDefinitions.Artwork.WideExplosionTilemap,
         EndingExplosionPicture.ConcentricExplosion => EndingSourceDefinitions.Artwork.ConcentricExplosionTilemap,
         EndingExplosionPicture.Eclipse => EndingSourceDefinitions.Artwork.EclipseTilemap,
-        EndingExplosionPicture.Blank => EndingSourceDefinitions.Artwork.BlankTilemap,
+        EndingExplosionPicture.BurstGlow => EndingSourceDefinitions.Artwork.BlankTilemap,
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 }

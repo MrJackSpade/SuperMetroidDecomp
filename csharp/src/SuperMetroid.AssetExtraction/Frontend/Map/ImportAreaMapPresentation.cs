@@ -27,8 +27,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// data, and the colours only the import pre-colours sheets and pictures from. The game reads none of them; its own read of
 /// the map presentation (<see cref="MapPresentationFiles.Load"/>) reads no import data.
 /// </summary>
-[ArchitectureReview("context-bag", "The import's characters and colours of the map presentation; every member is immutable artwork data the import composes and pre-colours pictures from, not a service.")]
-public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
+public sealed partial class ImportAreaMapPresentation : InstalledAreaMapPresentation
 {
     /// <summary>Takes the catalog the game binds and the characters, colours and documents only the import reads.</summary>
     internal ImportAreaMapPresentation(InstalledScreenContent game, ImportPresentationCharacters characters,
@@ -136,7 +135,7 @@ public sealed class ImportAreaMapPresentation : InstalledAreaMapPresentation
     public MapCharacterArtwork Characters { get; }
 
     /// <summary>The map and menu sprites; the game draws them from the map sprite sheet, which the import composes from these (#1463).</summary>
-    public MapSpriteCompositions Sprites { get; }
+    public MapSpriteArtwork Sprites { get; }
 
     /// <summary>The escape timer's characters, which the import composes the escape encounters' sheets from (#1513).</summary>
     public EscapeTimerCharacters EscapeTimerTiles { get; }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Hashes block appearances into a selected presentation's identity (#1469).</summary>
-internal static class SelectedPresentationHashAppearances
+internal static partial class SelectedPresentationHashAppearances
 {
     /// <summary>Appearance hashing for <see cref="SelectedPresentationHash"/>.</summary>
     extension(SelectedPresentationHash hash)
@@ -18,10 +18,10 @@ internal static class SelectedPresentationHashAppearances
             hash.Append(label, appearances.Length);
             foreach (RoomBlockAppearance appearance in appearances)
             {
-                if (appearance.ShowsBlock)
+                if (appearance.Shows == RoomBlockShown.Block)
                     hash.Append("block", appearance.Block);
                 else
-                    hash.AppendName("shows", appearance.ShowsNothing ? "nothing" : "beyond the room");
+                    hash.AppendName("shows", appearance.Shows == RoomBlockShown.Nothing ? "nothing" : "beyond the room");
                 hash.AppendName("mirroring", appearance.Mirroring.ToString());
             }
         }

@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
-/// <summary>One Puromi/Nuclear Waffle sweep geometry definition.</summary>
+/// <summary>One Nuclear Waffle sweep's shape.</summary>
 /// <param name="StartAngle">Angle each sweep restarts from.</param>
 /// <param name="EndAngle">Angle the links clamp to; the final damaging link reaching it ends the sweep.</param>
 /// <param name="SegmentSpacing">
@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 /// </param>
 /// <param name="RisingTurnThreshold">Rising joint-turn threshold.</param>
 /// <param name="FallingTurnThreshold">Falling joint-turn threshold.</param>
-internal readonly record struct NuclearWaffleSweepDefinition(
+internal readonly partial record struct NuclearWaffleSweepDefinition(
     NuclearWaffleSweepAngle StartAngle,
     NuclearWaffleSweepAngle EndAngle,
     int SegmentSpacing,

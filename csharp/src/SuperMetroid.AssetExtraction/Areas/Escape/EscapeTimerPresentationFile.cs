@@ -5,7 +5,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Reads the escape timer's installed layout document into the layout the game draws with (#1502).</summary>
-public static class EscapeTimerPresentationFile
+public static partial class EscapeTimerPresentationFile
 {
     /// <summary>Validates an authored timer layout.</summary>
     /// <param name="json">UTF-8 JSON read from the current position to the end; the caller retains ownership of the stream.</param>
@@ -18,8 +18,7 @@ public static class EscapeTimerPresentationFile
         try
         {
             document = JsonAssetDocument.Read<EscapeTimerPresentationDocument>(json,
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Escape timer presentation document is null.");
+                ArtworkJson.Options);
         }
         catch (JsonException error)
         {

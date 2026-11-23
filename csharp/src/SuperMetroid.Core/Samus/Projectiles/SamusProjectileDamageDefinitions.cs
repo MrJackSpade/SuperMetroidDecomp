@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile damage by kind, independent of the kinds' direction animations.</summary>
-internal static class SamusProjectileDamageDefinitions
+internal static partial class SamusProjectileDamageDefinitions
 {
     /// <summary>The damage a Shinespark echo starts with.</summary>
     internal const int ShinesparkEchoDamage = 4096;
@@ -34,52 +34,46 @@ internal static class SamusProjectileDamageDefinitions
         [SamusBeamCombination.PlasmaIceWave] = 300,
     };
 
-    /// <summary>The damage each projectile kind that is no beam shot starts with.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileKind, int> NonBeamDamage = new Dictionary<SamusProjectileKind, int>
-    {
-        [SamusProjectileKind.Missile] = 100,
-        [SamusProjectileKind.SuperMissile] = 300,
-        [SamusProjectileKind.SuperMissileLink] = 300,
-        [SamusProjectileKind.PowerBomb] = 200,
-        [SamusProjectileKind.Bomb] = 30,
-        [SamusProjectileKind.PlasmaSpecialAttack] = 300,
-        [SamusProjectileKind.WaveSpecialAttack] = 300,
-        [SamusProjectileKind.SpazerSpecialAttack] = 300,
-        [SamusProjectileKind.SpazerSpecialAttackTrail] = 300,
-        [SamusProjectileKind.ShinesparkEcho] = ShinesparkEchoDamage,
-    };
-
-    /// <summary>The beams each uncharged beam shot kind fires.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusBeamCombination> UnchargedBeams = new Dictionary<SamusProjectileKind, SamusBeamCombination>
-    {
-        [SamusProjectileKind.UnchargedPower] = SamusBeamCombination.Power,
-        [SamusProjectileKind.UnchargedSpazer] = SamusBeamCombination.Spazer,
-        [SamusProjectileKind.UnchargedSpazerIce] = SamusBeamCombination.SpazerIce,
-        [SamusProjectileKind.UnchargedSpazerIceWave] = SamusBeamCombination.SpazerIceWave,
-        [SamusProjectileKind.UnchargedPlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
-        [SamusProjectileKind.UnchargedIce] = SamusBeamCombination.Ice,
-        [SamusProjectileKind.UnchargedWave] = SamusBeamCombination.Wave,
-        [SamusProjectileKind.UnchargedPlasma] = SamusBeamCombination.Plasma,
-        [SamusProjectileKind.UnchargedIceWave] = SamusBeamCombination.IceWave,
-        [SamusProjectileKind.UnchargedSpazerWave] = SamusBeamCombination.SpazerWave,
-        [SamusProjectileKind.UnchargedPlasmaWave] = SamusBeamCombination.PlasmaWave,
-        [SamusProjectileKind.UnchargedPlasmaIce] = SamusBeamCombination.PlasmaIce,
-    };
-
-    /// <summary>The beams each charged beam shot kind fires.</summary>
-    internal static readonly IReadOnlyDictionary<SamusProjectileKind, SamusBeamCombination> ChargedBeams = new Dictionary<SamusProjectileKind, SamusBeamCombination>
-    {
-        [SamusProjectileKind.ChargedPower] = SamusBeamCombination.Power,
-        [SamusProjectileKind.ChargedSpazer] = SamusBeamCombination.Spazer,
-        [SamusProjectileKind.ChargedSpazerIce] = SamusBeamCombination.SpazerIce,
-        [SamusProjectileKind.ChargedSpazerIceWave] = SamusBeamCombination.SpazerIceWave,
-        [SamusProjectileKind.ChargedPlasmaIceWave] = SamusBeamCombination.PlasmaIceWave,
-        [SamusProjectileKind.ChargedIce] = SamusBeamCombination.Ice,
-        [SamusProjectileKind.ChargedPlasma] = SamusBeamCombination.Plasma,
-        [SamusProjectileKind.ChargedWave] = SamusBeamCombination.Wave,
-        [SamusProjectileKind.ChargedIceWave] = SamusBeamCombination.IceWave,
-        [SamusProjectileKind.ChargedSpazerWave] = SamusBeamCombination.SpazerWave,
-        [SamusProjectileKind.ChargedPlasmaIce] = SamusBeamCombination.PlasmaIce,
-        [SamusProjectileKind.ChargedPlasmaWave] = SamusBeamCombination.PlasmaWave,
-    };
+    /// <summary>
+    /// What each projectile kind starts its projectile with: an uncharged or charged beam shot its beams' damage, and every
+    /// other kind its own.
+    /// </summary>
+    internal static readonly IdentityTable<SamusProjectileKind, SamusProjectileStartingDamage> StartingDamage =
+        new(new Dictionary<SamusProjectileKind, SamusProjectileStartingDamage>
+        {
+            [SamusProjectileKind.UnchargedPower] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Power, Charged: false),
+            [SamusProjectileKind.UnchargedSpazer] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Spazer, Charged: false),
+            [SamusProjectileKind.UnchargedSpazerIce] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.SpazerIce, Charged: false),
+            [SamusProjectileKind.UnchargedSpazerIceWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.SpazerIceWave, Charged: false),
+            [SamusProjectileKind.UnchargedPlasmaIceWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.PlasmaIceWave, Charged: false),
+            [SamusProjectileKind.UnchargedIce] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Ice, Charged: false),
+            [SamusProjectileKind.UnchargedWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Wave, Charged: false),
+            [SamusProjectileKind.UnchargedPlasma] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Plasma, Charged: false),
+            [SamusProjectileKind.UnchargedIceWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.IceWave, Charged: false),
+            [SamusProjectileKind.UnchargedSpazerWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.SpazerWave, Charged: false),
+            [SamusProjectileKind.UnchargedPlasmaWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.PlasmaWave, Charged: false),
+            [SamusProjectileKind.UnchargedPlasmaIce] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.PlasmaIce, Charged: false),
+            [SamusProjectileKind.ChargedPower] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Power, Charged: true),
+            [SamusProjectileKind.ChargedSpazer] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Spazer, Charged: true),
+            [SamusProjectileKind.ChargedSpazerIce] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.SpazerIce, Charged: true),
+            [SamusProjectileKind.ChargedSpazerIceWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.SpazerIceWave, Charged: true),
+            [SamusProjectileKind.ChargedPlasmaIceWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.PlasmaIceWave, Charged: true),
+            [SamusProjectileKind.ChargedIce] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Ice, Charged: true),
+            [SamusProjectileKind.ChargedPlasma] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Plasma, Charged: true),
+            [SamusProjectileKind.ChargedWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.Wave, Charged: true),
+            [SamusProjectileKind.ChargedIceWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.IceWave, Charged: true),
+            [SamusProjectileKind.ChargedSpazerWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.SpazerWave, Charged: true),
+            [SamusProjectileKind.ChargedPlasmaIce] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.PlasmaIce, Charged: true),
+            [SamusProjectileKind.ChargedPlasmaWave] = new SamusProjectileStartingDamage.BeamShot(SamusBeamCombination.PlasmaWave, Charged: true),
+            [SamusProjectileKind.Missile] = new SamusProjectileStartingDamage.Own(100),
+            [SamusProjectileKind.SuperMissile] = new SamusProjectileStartingDamage.Own(300),
+            [SamusProjectileKind.SuperMissileLink] = new SamusProjectileStartingDamage.Own(300),
+            [SamusProjectileKind.PowerBomb] = new SamusProjectileStartingDamage.Own(200),
+            [SamusProjectileKind.Bomb] = new SamusProjectileStartingDamage.Own(30),
+            [SamusProjectileKind.PlasmaSpecialAttack] = new SamusProjectileStartingDamage.Own(300),
+            [SamusProjectileKind.WaveSpecialAttack] = new SamusProjectileStartingDamage.Own(300),
+            [SamusProjectileKind.SpazerSpecialAttack] = new SamusProjectileStartingDamage.Own(300),
+            [SamusProjectileKind.SpazerSpecialAttackTrail] = new SamusProjectileStartingDamage.Own(300),
+            [SamusProjectileKind.ShinesparkEcho] = new SamusProjectileStartingDamage.Own(ShinesparkEchoDamage),
+        });
 }

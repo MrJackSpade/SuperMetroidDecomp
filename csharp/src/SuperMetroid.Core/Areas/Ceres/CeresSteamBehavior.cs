@@ -16,8 +16,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </remarks>
 /// <param name="room">The room's services, whose random numbers stagger the vents.</param>
 /// <param name="collision">The common contact resolution.</param>
-[RoomLifetime]
-internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
+internal sealed partial class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
 {
     /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
     private readonly EnemyRoomBinding _room = room;
@@ -27,48 +26,51 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
     /// <summary>
     /// Plays a vent's typed animation in place of the shared enemy animation. Only a dormant vent's animation holds: it
     /// hides the vent on its first update and rests there. The vent stays hidden for its drawn wait and then goes on
-    /// where a rest ends (<see cref="CeresSteamAnimations.ActivationAfter"/>, #2480), appearing and showing its puff's
+    /// where a rest ends (<see cref="CeresSteamWay.Activation"/>, #2480), appearing and showing its puff's
     /// first picture on the wait's last update.
     /// </summary>
-    internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place)
+    internal static void AdvanceCeresSteamAnimation(RoomEnemyPlace place, CeresSteamEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        CeresSteamEnemyState state = place.RequireSpeciesState<CeresSteamEnemyState>();
         AnimationPlayback<CeresSteamSegment> playback = state.Playback;
-        EnemyAnimationPlayback.Play(place, CeresSteamAnimations.Segments, ref playback, cue => CarryOut(place, cue));
+        EnemyAnimationPlayback.PlayApplyingCues(place, state.Way.Segments, ref playback, (CeresSteamCueKind cue) => CarryOut(place, cue));
         if (place.AnimationClock.IsStopped)
         {
             place.AnimationClock.HoldFor(state.UpdatesToActivation);
-            playback = CeresSteamAnimations.ActivationAfter[playback.Animation.Phases[playback.Place.Phase].Segment];
+            playback = state.Way.Activation;
         }
         state.Playback = playback;
     }
 
-    /// <summary>Carries out one cue of a vent's animation; the play runs on after each.</summary>
-    private static AnimationContinuation<CeresSteamSegment>? CarryOut(RoomEnemyPlace place, CeresSteamCueKind cue)
+    /// <summary>What <see cref="CarryOut"/> does for each <see cref="CeresSteamCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<CeresSteamCueKind, Action<RoomEnemyPlace>> CarryOutForCeresSteamCueKind => field ??= new(new Dictionary<CeresSteamCueKind, Action<RoomEnemyPlace>>
     {
-        switch (cue)
+        [CeresSteamCueKind.Vanish] = static place =>
         {
-            case CeresSteamCueKind.Vanish:
-                place.Presence = place.Presence.With(EnemyPresence.Hidden);
-                place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
-                return null;
-            case CeresSteamCueKind.Appear:
-                place.Presence = place.Presence.Without(EnemyPresence.Hidden);
-                place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
-                return null;
-            default:
-                throw new InvalidOperationException($"Undefined Ceres steam cue {cue}.");
-        }
+            place.Presence = place.Presence.With(EnemyPresence.Hidden);
+            place.Contact = place.Contact.With(EnemyContact.IgnoresSamus);
+        },
+        [CeresSteamCueKind.Appear] = static place =>
+        {
+            place.Presence = place.Presence.Without(EnemyPresence.Hidden);
+            place.Contact = place.Contact.Without(EnemyContact.IgnoresSamus);
+        },
+    });
+
+    /// <summary>Carries out one cue of a vent's animation; the play runs on after each.</summary>
+    private static void CarryOut(RoomEnemyPlace place, CeresSteamCueKind cue)
+    {
+        CarryOutForCeresSteamCueKind[cue](place);
     }
 
     /// <summary>Initializes the Ceres steam, drawn where the motion <paramref name="motions"/> give its variant puts it.</summary>
     /// <exception cref="InvalidDataException">The room cannot place a vent of the variant's action.</exception>
-    internal void InitializeCeresSteam(RoomEnemyPlace place, CeresSteamVentMotions motions)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal CeresSteamEnemyState InitializeCeresSteam(CeresSteamSpawnSettings ceresSteamSpawnSettings, RoomEnemyPlace place, CeresSteamVentMotions motions)
     {
         CeresSteamInitialization initialization = CeresSteamInitializations.Initialization(
-            place.Spawn.Population.SpawnSettingsOf<CeresSteamSpawnSettings>().Variant);
+            ceresSteamSpawnSettings.Variant);
 
         // The vent animates, which shows and hides its plume, and collides by its frames' plume rectangles, which no
         // radius can describe.
@@ -78,32 +80,23 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
 
         // Each vent waits a random number of updates, at least one (CeresSteamDefinitions.ActivationDelay), before its
         // first plume, hidden by its dormant animation, so the vents puff out of step.
-        var state = new CeresSteamEnemyState(Ensure.NotNull(motions).MotionOf(initialization.Action))
+        var state = new CeresSteamEnemyState(initialization.Way, Ensure.NotNull(motions).MotionOf(initialization.Action))
         {
             UpdatesToActivation = _room.Random.Next(CeresSteamDefinitions.ActivationDelay) + 1,
-            Playback = new AnimationPlayback<CeresSteamSegment>(CeresSteamAnimations.StartingWith(initialization.Animation), AnimationPlace.StartOfAnimation),
+            Playback = new AnimationPlayback<CeresSteamSegment>(initialization.Way.StartingAt[CeresSteamSegment.Dormant], AnimationPlace.StartOfAnimation),
         };
-        place.SetSpeciesState(state);
-
+        return state;
     }
 
     /// <summary>Runs the Ceres steam's main AI: the vent's drawing follows its motion.</summary>
-    internal static void RunCeresSteamMainAi(RoomEnemyPlace place) =>
-        place.RequireSpeciesState<CeresSteamEnemyState>().Motion.Move(place);
+    internal static void RunCeresSteamMainAi(RoomEnemyPlace place, CeresSteamEnemyState ceresSteamEnemyState) =>
+        ceresSteamEnemyState.Motion.Move(place);
 
-    /// <summary>Handles contact only for the steam's authored extended hitbox reaction.</summary>
+    /// <summary>Handles the steam's touch, the one reaction its plumes' hitboxes and its definition name.</summary>
     internal void ReactToCeresSteamTouch(EnemyTouchContext context)
     {
-        // Every visible steam frame stores the steam's touch reaction in its authored hitbox.
-        // The last two dispersal frames have no plume and touch nothing. Steam touches Samus only where a frame's
-        // authored hitbox carries the touch reaction.
-        if (!context.UsesFrameHitboxes || context.HitboxTouch != CeresSteamReactions.Touch)
-        {
-            throw new InvalidDataException(
-                $"Ceres steam touches through its frames' hitboxes with {CeresSteamReactions.Touch}; " +
-                $"frame hitboxes={context.UsesFrameHitboxes}, touch={context.HitboxTouch?.ToString() ?? "(unnamed)"}, " +
-                $"frame={context.Place.Frame}.");
-        }
+        // Every visible steam frame's plume carries the steam's one touch reaction (CeresSteamCollisionDefinitions); the
+        // last two dispersal frames have no plume and touch nothing.
 
         // Definition damage is zero: contact still installs the common invincibility and knockback, while the steam's
         // definition takes no damage from any weapon or contact, so the Screw Attack or the Speed Booster cannot destroy it.
@@ -112,23 +105,20 @@ internal sealed class CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision c
 
     /// <summary>The reaction of the plume rectangle the frame shown has, when the probe overlaps it.</summary>
     /// <exception cref="InvalidDataException">The frame shown is not one of the steam's frames.</exception>
-    internal static bool? FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe, out EnemyReaction? reaction)
+    internal static EnemyHitboxContact FindHitboxReaction(RoomEnemyPlace enemy, EnemyHitboxProbe probe)
     {
-        reaction = null;
-
         // Only the frame's plume rectangle damages Samus, whatever its installed picture shows; a hidden plume has none.
         if (enemy.Frame is not { } frame || !CeresSteamCollisionDefinitions.Plumes.TryGetValue(frame, out EnemyHitboxRectangle? plume))
             throw new InvalidDataException($"Ceres steam frame {enemy.Frame} has no plume collision.");
         if (plume is not { } rectangle)
-            return false;
+            return EnemyHitboxContact.Missed;
 
         // The probe compares the edges by their signed distances, so an edge past the room's edge needs no wrapping.
         Position16<RoomPixels> vent = enemy.Position.Whole;
         if (!probe.Overlaps(vent.X + rectangle.Left, vent.Y + rectangle.Top, vent.X + rectangle.Right, vent.Y + rectangle.Bottom))
-            return false;
-        reaction = probe.SelectsShot
+            return EnemyHitboxContact.Missed;
+        return EnemyHitboxContact.Struck(probe.Contact == HitboxContactKind.Shot
             ? CeresSteamCollisionDefinitions.ShotReaction
-            : CeresSteamCollisionDefinitions.TouchReaction;
-        return true;
+            : CeresSteamCollisionDefinitions.TouchReaction);
     }
 }

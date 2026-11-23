@@ -27,10 +27,7 @@ internal static class SamusHudSelectionVerification
         const GameplayAction select = GameplayAction.ItemSelect;
         const GameplayAction cancel = GameplayAction.ItemCancel;
 
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-        {
-            Pose = SuperMetroid.Core.Samus.Poses.SamusPoseId.FacingRightNormalPose,
-        };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SuperMetroid.Core.Samus.Poses.SamusPoseId.FacingRightNormalPose);
         // The selection's stability is the arm cannon's, which its update counts after the frame's selection.
         samus.Artwork.ArmCannon = InstalledFixtures.SamusBody.ArmCannon.Gameplay;
         AssertTrue(!SelectionChanged(samus, select, select),
@@ -93,7 +90,7 @@ internal static class SamusHudSelectionVerification
             "new item-cancel edge deselects current item");
         AssertEqual(HudItem.Beam, samus.SelectedHudItem,
             "item-cancel returns to Nothing");
-        AssertEqual(HudItem.Beam, samus.AutoCancelledItem,
+        AssertEqual<HudItem?>(null, samus.AutoCancelledItem,
             "item-cancel clears auto-cancel index");
 
         // $90:C4C7 runs the Nothing handler for any new Y edge, so a cancel with nothing

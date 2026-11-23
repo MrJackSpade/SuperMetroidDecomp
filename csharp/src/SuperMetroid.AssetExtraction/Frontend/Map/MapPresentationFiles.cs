@@ -54,7 +54,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// import's read (<see cref="LoadForImport"/>) reads, from the component's import data directory
 /// (<see cref="ImportDataFiles"/>): the installation holds none of them.
 /// </summary>
-public static class MapPresentationFiles
+public static partial class MapPresentationFiles
 {
     /// <summary>
     /// The component's character and tile pages (#1636), which the extraction writes to its import-data directory and only
@@ -115,7 +115,7 @@ public static class MapPresentationFiles
     {
         // The manifest is import data (#1693): the game reads the documents it binds by name, and opens no manifest.
         using var installed = InstalledMapReader.Open(directory, importData: null);
-        return new InstalledAreaMapPresentation(new InstalledScreenContent(ReadGame(installed)));
+        return new InstalledAreaMapPresentation(ReadGame(installed));
     }
 
     /// <summary>
@@ -130,13 +130,13 @@ public static class MapPresentationFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(importData);
         using var installed = InstalledMapReader.Open(directory, importData);
-        InstalledScreenContentParts game = ReadGame(installed);
+        InstalledScreenContent game = ReadGame(installed);
         var characters = new ImportPresentationCharacters(
             new MapCharacterArtwork(
                 Page(MapTileAtlasFormat.FileName, "map tile atlas", s => MapTileCharacters.Read(s)),
                 Page(HudTileAtlasFormat.FileName, "HUD tile atlas", s => HudTileAtlasPng.Read(s)),
                 Page(PauseTileAtlasFormat.FileName, "pause artwork", s => MapTileCharacters.Read(s))),
-            Pages<MapSpriteCompositions>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
+            Pages<MapSpriteArtwork>([MapSpriteFormat.JsonFile, MapSpriteFormat.PngFile], "map sprites", s => MapSpriteArtwork.Read(s[0], s[1])),
             Page(EscapeTimerTileAtlasFormat.FileName, "escape timer artwork", s => EscapeTimerCharacters.Read(s)),
             Page(RoomFxBlockAnimationAtlasFile.FileName, "room-FX presentation", s => RoomFxBlockAnimationAtlasPng.Read(s)),
             Pages<WorldMapCharacters>([WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.BackgroundFile],
@@ -190,7 +190,7 @@ public static class MapPresentationFiles
                 Document(EndingTextDefinitions.ArtworkFileName, "ending text", s => EndingTextPresentation.Load(s))),
             Document(CreditsPresentationDefinitions.FileName, "staff credits", s => CreditsPresentation.Load(s)));
         installed.RequireAllManifestFilesRead();
-        return new ImportAreaMapPresentation(new InstalledScreenContent(game), characters, colours, documents);
+        return new ImportAreaMapPresentation(game, characters, colours, documents);
 
         // The import's colours and characters are not part of the presentation's identity: the game reads none of them,
         // and the sheets composed from them carry their own.
@@ -213,7 +213,7 @@ public static class MapPresentationFiles
     /// Reads what the game binds: the areas, the presentation resources and the scene colours, framing each into the
     /// presentation's identity in a fixed order.
     /// </summary>
-    private static InstalledScreenContentParts ReadGame(InstalledMapReader installed)
+    private static InstalledScreenContent ReadGame(InstalledMapReader installed)
     {
         Dictionary<AreaId, HashSet<int>> stationCells = installed.ReadStationCells();
         var areas = new Dictionary<AreaId, IAreaMapView>();
@@ -263,7 +263,7 @@ public static class MapPresentationFiles
         MotherBrainRainbowBeamColours motherBrainBeam = Resource(MotherBrainBeamColourFile.FileName, "Mother Brain beam colours", s => MotherBrainBeamColourFile.Read(s));
         InstalledPowerBombGlowColors powerBombGlowColors = Resource(PowerBombGlowColorFile.FileName, "Power Bomb glow colours", s => PowerBombGlowColorFile.Read(s));
         CeresRidleyGetawayBoostDelays ceresRidleyGetawayBoostDelays = Resource(CeresRidleyGetawayBoostDelayFormat.FileName, "Ceres Ridley getaway boost delays", s => CeresRidleyGetawayBoostDelayFiles.Read(s));
-        return new InstalledScreenContentParts { ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()),
+        return new InstalledScreenContent { ContentIdentity = Convert.ToHexString(identity.GetHashAndReset()),
             Maps = new AreaMapPresentation(areas, cycle, labels, stations, landmarks, saveMarkers, arrows), Backdrops = sceneColours.Menus, PauseSelectors = pauseSelectors, PauseReserveTanks = pauseReserveTanks, EscapeTimer = escapeTimer, GameplayHud = gameplayHud, GameOver = gameOver, GameOptions = gameOptions, FileSelect = fileSelect, EscapeTypewriter = escapeTypewriter, IntroNarration = introNarration, EndingText = endingText, TitleBackdrop = sceneColours.TitleBackdrop, TitleGradient = titleGradient, MotherBrainRainbowBeamColours = motherBrainBeam, CeresHaze = sceneColours.CeresHaze, PowerBombGlowColors = powerBombGlowColors, CeresRidleyGetawayBoostDelays = ceresRidleyGetawayBoostDelays };
 
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
@@ -316,25 +316,22 @@ public static class MapPresentationFiles
     /// character page (#1636) or a colour document only the import reads (#1637) from its import data, which only the
     /// import's read has, with the extraction manifest there (#1693), which lists every file the import's read reads.
     /// </summary>
-    private sealed class InstalledMapReader : IDisposable
+    private sealed partial class InstalledMapReader : IDisposable
     {
         /// <summary>Root of the installed map presentation files.</summary>
         private readonly string directory;
-        /// <summary>The component's import-data directory holding its pages and import colours, for the import's read; none for the game's.</summary>
-        private readonly string? importData;
-        /// <summary>The extraction manifest, which lists every file the import's read reads; none for the game's read.</summary>
-        private readonly AreaMapCatalogManifest? manifest;
+        /// <summary>Whose read this is: the game's, which reads no import data, or the import's, with its import data and manifest.</summary>
+        private readonly MapRead reading;
         /// <summary>Names actually read during this catalog load.</summary>
         private readonly HashSet<string> read = new(StringComparer.Ordinal);
         /// <summary>Buffers retained only for one load and returned to the shared pool on disposal.</summary>
         private readonly List<byte[]> rented = [];
 
         /// <summary>Starts a manifest-bound read session in the installed directory and, for the import, its import data.</summary>
-        private InstalledMapReader(string directory, string? importData, AreaMapCatalogManifest? manifest)
+        private InstalledMapReader(string directory, MapRead reading)
         {
             this.directory = directory;
-            this.importData = importData;
-            this.manifest = manifest;
+            this.reading = reading;
         }
 
         /// <summary>
@@ -345,18 +342,17 @@ public static class MapPresentationFiles
         public static InstalledMapReader Open(string directory, string? importData)
         {
             if (importData is null)
-                return new InstalledMapReader(directory, importData: null, manifest: null);
+                return new InstalledMapReader(directory, MapRead.Game.Instance);
             AreaMapCatalogManifest manifest;
             try
             {
                 manifest = JsonAssetDocument.Read<AreaMapCatalogManifest>(
-                    File.ReadAllBytes(Path.Combine(importData, AreaMapCatalogFormat.ManifestFile)), ArtworkJson.Options)
-                    ?? throw new InvalidDataException("Map catalog manifest is null.");
+                    File.ReadAllBytes(Path.Combine(importData, AreaMapCatalogFormat.ManifestFile)), ArtworkJson.Options);
             }
             catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {importData}.", error); }
             if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.All.Count + AreaMapCatalogFormat.SharedResourceCount)
                 throw new InvalidDataException($"Map catalog manifest must contain the supported version, seven maps and all {AreaMapCatalogFormat.SharedResourceCount} shared presentation resources.");
-            return new InstalledMapReader(directory, importData, manifest);
+            return new InstalledMapReader(directory, new MapRead.Import(importData, manifest));
         }
 
         /// <summary>The full path of a file, for diagnostics: an import-data file's in the import data, an installed document's in the directory.</summary>
@@ -368,12 +364,13 @@ public static class MapPresentationFiles
         /// </summary>
         /// <exception cref="InvalidOperationException">The file is import data and this read is the game's, which reads none.</exception>
         private string DirectoryOf(string file) => !ImportDataFiles.Contains(file) ? directory
-            : importData ?? throw new InvalidOperationException($"The game's read of the map presentation reads no import data, but {file} was asked for.");
+            : reading is MapRead.Import import ? import.ImportData
+            : throw new InvalidOperationException($"The game's read of the map presentation reads no import data, but {file} was asked for.");
 
         /// <summary>Rents a buffer and reads one listed file into it.</summary>
         public ArraySegment<byte> Read(string file)
         {
-            if (manifest is not null && !manifest.Sha256.ContainsKey(file))
+            if (reading is MapRead.Import import && !import.Manifest.Sha256.ContainsKey(file))
                 throw new InvalidDataException($"Map catalog manifest is missing {file}.");
             using var input = File.OpenRead(Path.Combine(DirectoryOf(file), file));
             int length = checked((int)input.Length);
@@ -418,11 +415,28 @@ public static class MapPresentationFiles
         /// <exception cref="InvalidOperationException">This read is the game's, which opens no manifest.</exception>
         public void RequireAllManifestFilesRead()
         {
-            AreaMapCatalogManifest listing = manifest
-                ?? throw new InvalidOperationException("The game's read of the map presentation opens no manifest.");
+            if (reading is not MapRead.Import import)
+                throw new InvalidOperationException("The game's read of the map presentation opens no manifest.");
+            AreaMapCatalogManifest listing = import.Manifest;
             string[] unread = listing.Sha256.Keys.Where(file => !read.Contains(file)).ToArray();
             if (unread.Length > 0)
                 throw new InvalidDataException($"Map catalog manifest lists files the catalog never reads: {string.Join(", ", unread)}.");
+        }
+
+        /// <summary>Whose read a session is.</summary>
+        private abstract partial record MapRead
+        {
+            /// <summary>The game's read, which reads the installed documents alone: no import data and no manifest (#1693).</summary>
+            internal sealed partial record Game : MapRead
+            {
+                /// <summary>The game's one read.</summary>
+                internal static Game Instance { get; } = new();
+            }
+
+            /// <summary>The import's read, of the component's import data, bound to its extraction manifest.</summary>
+            /// <param name="ImportData">The component's import-data directory holding its pages and import colours.</param>
+            /// <param name="Manifest">The extraction manifest, which lists every file the import's read reads.</param>
+            internal sealed partial record Import(string ImportData, AreaMapCatalogManifest Manifest) : MapRead;
         }
     }
 }

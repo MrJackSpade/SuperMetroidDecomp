@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The Ceres falling debris's typed animations (#641, #2424): each piece shows its one picture for good while the
 /// per-update movement moves it.
 /// </summary>
-internal static class CeresFallingDebrisAnimations
+internal static partial class CeresFallingDebrisAnimations
 {
     /// <summary>Both pieces' animations.</summary>
-    internal static AnimationSegments<P, F, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<P, AnimationBeat<F, NoAnimationCue>[]>
+    internal static UnpausedAnimationSegments<P, F, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<P, AnimationBeat<F, NoAnimationCue>.Unpaused[]>
     {
         [P.Light] =
         [
@@ -35,5 +35,5 @@ internal static class CeresFallingDebrisAnimations
     internal static Animation<P> StartingWith(P segment) => StartingAt[segment];
 
     /// <summary>Shows <paramref name="look"/> for good.</summary>
-    private static AnimationBeat<F, NoAnimationCue> Hold(F look) => new AnimationBeat<F, NoAnimationCue>.HeldFrame(look);
+    private static AnimationBeat<F, NoAnimationCue>.Unpaused Hold(F look) => new AnimationBeat<F, NoAnimationCue>.HeldFrame(look);
 }

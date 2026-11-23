@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>File-copy arrow placement, glow rotation and sheet frames; the arrows' compositions belong to the import pipeline (#1463).</summary>
-public static class FileCopyArrowDefinitions
+public static partial class FileCopyArrowDefinitions
 {
     /// <summary>The delay before the arrows' glow first moves on a colour.</summary>
     public const int InitialGlowDelay = 8;
@@ -12,7 +12,7 @@ public static class FileCopyArrowDefinitions
     /// again (#1512).
     /// </summary>
     public const int RotationSteps = 7;
-    /// <summary>All file-copy arrows use screen X = 20.</summary>
+    /// <summary>The screen X every file-copy arrow uses.</summary>
     internal const int OriginX = 20;
     /// <summary>The screen Y of a short arrow between slots A and B.</summary>
     internal const int UpperShortArrowY = 88;
@@ -26,6 +26,5 @@ public static class FileCopyArrowDefinitions
         [FileCopyArrowShape.ShortDown, FileCopyArrowShape.ShortUp, FileCopyArrowShape.LongDown, FileCopyArrowShape.LongUp];
 
     /// <summary>The sheet frame showing arrow shape <paramref name="shape"/>.</summary>
-    [InstalledKey]
     public static string FrameName(FileCopyArrowShape shape) => $"CopyArrow.{FileCopyArrowShapeKeys.Installed.Of(shape)}";
 }

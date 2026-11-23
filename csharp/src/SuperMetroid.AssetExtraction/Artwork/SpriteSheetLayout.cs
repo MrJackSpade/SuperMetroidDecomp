@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Spatial;
@@ -17,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// so two layouts with one identity paint the same sheet and the second need not be painted (#1490); the pictures are
 /// composed and packed only when the sheet's size or paint is first asked for.
 /// </summary>
-internal sealed class SpriteSheetLayout
+internal sealed partial class SpriteSheetLayout
 {
     /// <summary>Colours in one sprite palette row.</summary>
     private const int RowColours = 16;
@@ -28,10 +27,10 @@ internal sealed class SpriteSheetLayout
     /// <summary>The row of parts that do not choose their own.</summary>
     private readonly int palette;
 
-    /// <summary>The game's priority of parts that do not choose their own, from which each frame's depth is decided.</summary>
-    private readonly int priority;
+    /// <summary>The depth of parts that do not choose their own, from which each frame's depth is decided.</summary>
+    private readonly ActorDepth depth;
 
-    /// <summary>The distinct frame compositions in order.</summary>
+    /// <summary>The distinct frame compositions in order; frames painting alike share one.</summary>
     private readonly SheetFrameSource[] laid;
 
     /// <summary>Each frame of the sources, in order, with the laid frame composition it shows.</summary>
@@ -41,10 +40,10 @@ internal sealed class SpriteSheetLayout
     private readonly Lazy<LaidPictures> pictures;
 
     /// <summary>
-    /// For each row shade, the colour each ink its painted pixels hold shows under it, and whether the shade's draw takes
+    /// Each row shade with the colour each ink its painted pixels hold shows under it, and whether the shade's draw takes
     /// that ink's pixels from another row than their own (#1512).
     /// </summary>
-    private readonly Dictionary<int, RowShadedInk>[] rowShadeInks;
+    private readonly ShadedRowInks[] rowShadeInks;
 
     /// <summary>Whether each ink's row shading is recorded: it follows from the ink alone, so it is recorded once.</summary>
     private readonly bool[] rowShadedInks = new bool[8 * RowColours];
@@ -53,19 +52,19 @@ internal sealed class SpriteSheetLayout
     /// <param name="sources">Each frame's installed name, parts and characters, and the eight sprite palette rows as the
     /// family is drawn with them, sixteen colours each.</param>
     /// <param name="palette">The row of parts that do not choose their own.</param>
-    /// <param name="priority">The game's priority of parts that do not choose their own, from which each frame's depth is decided.</param>
-    internal SpriteSheetLayout(SpriteSheetSources sources, int palette, int priority)
+    /// <param name="depth">The depth of parts that do not choose their own, from which each frame's depth is decided.</param>
+    internal SpriteSheetLayout(SpriteSheetSources sources, int palette, ActorDepth depth)
     {
         this.sources = Ensure.NotNull(sources);
         this.palette = palette;
-        this.priority = priority;
-        rowShadeInks = [.. (sources.RowShades ?? []).Select(_ => new Dictionary<int, RowShadedInk>())];
+        this.depth = depth;
+        rowShadeInks = [.. (sources.RowShades ?? []).Select(shade => new ShadedRowInks(shade, []))];
         IReadOnlyList<SheetFrameSource> frames = sources.Frames;
         ReadOnlySpan<RgbColor> spriteColours = sources.SpriteColours;
         Ensure.LengthEqual(spriteColours, 8 * RowColours);
         // Each distinct frame image: frames whose parts paint the same pixels at the same places share one image, whichever
         // characters' copy they read them from.
-        var frameImageOf = new Dictionary<string, int>(StringComparer.Ordinal);
+        var frameImageOf = new Dictionary<string, SheetFrameSource>(StringComparer.Ordinal);
         var uniqueFrames = new List<SheetFrameSource>();
         frameImages = new NamedFrameImage[frames.Count];
         for (int index = 0; index < frames.Count; index++)
@@ -78,9 +77,9 @@ internal sealed class SpriteSheetLayout
                     throw new InvalidDataException($"Sheet frame {frame.Name} has a {part.Size.X}x{part.Size.Y} part, not an object size of its screen.");
             }
             string content = FrameContent(frame.Frame, frame.Palette ?? palette, frame.Characters);
-            if (!frameImageOf.TryGetValue(content, out int laidFrame))
+            if (!frameImageOf.TryGetValue(content, out SheetFrameSource? laidFrame))
             {
-                laidFrame = uniqueFrames.Count;
+                laidFrame = frame;
                 frameImageOf.Add(content, laidFrame);
                 uniqueFrames.Add(frame);
             }
@@ -101,28 +100,23 @@ internal sealed class SpriteSheetLayout
     /// <exception cref="InvalidDataException">The pictures do not fit in an artwork image.</exception>
     private LaidPictures LayOutPictures()
     {
-        var composed = new FramePicture[laid.Length];
-        var pictureOf = new int[laid.Length];
-        var pictureIndex = new Dictionary<string, int>(StringComparer.Ordinal);
-        var distinct = new List<FramePicture>();
-        for (int index = 0; index < laid.Length; index++)
+        var composed = new Dictionary<SheetFrameSource, FramePicture>(ReferenceEqualityComparer.Instance);
+        // A picture is told apart by its size and the ink of each of its pixels: frames alike there show alike under
+        // every colouring and shade, whatever origin each is drawn from.
+        var distinct = new Dictionary<string, FramePicture>(StringComparer.Ordinal);
+        foreach (SheetFrameSource frame in laid)
         {
-            composed[index] = Compose(index);
-            // A picture is told apart by its size and the ink of each of its pixels: frames alike there show alike under
-            // every colouring and shade, whatever origin each is drawn from.
-            string key = composed[index].Key;
-            if (!pictureIndex.TryGetValue(key, out int picture))
-            {
-                picture = distinct.Count;
-                pictureIndex.Add(key, picture);
-                distinct.Add(composed[index]);
-            }
-            pictureOf[index] = picture;
+            FramePicture picture = Compose(frame);
+            composed.Add(frame, picture);
+            distinct.TryAdd(picture.Key, picture);
         }
-        Extent16<ImagePixels>[] sizes = [.. distinct.Select(shown => shown.Bounds.Size)];
-        var corners = new Position16<ImagePixels>[sizes.Length];
-        Extent16<ImagePixels> packed = SheetPacking.Pack(sizes, corners, $"Sheet {sources.Frames[0].Name}'s {sources.Frames.Count} frames");
-        return new LaidPictures(packed, composed, pictureOf, [.. distinct], corners);
+        PackedSheet<FramePicture> packed = SheetPacking.Pack([.. distinct.Values], shown => shown.Bounds.Size,
+            $"Sheet {sources.Frames[0].Name}'s {sources.Frames.Count} frames");
+        Dictionary<string, PackedPicture<FramePicture>> placedByKey = packed.Pictures.ToDictionary(placed => placed.Picture.Key, StringComparer.Ordinal);
+        var byFrame = new Dictionary<SheetFrameSource, LaidComposition>(ReferenceEqualityComparer.Instance);
+        foreach ((SheetFrameSource frame, FramePicture picture) in composed)
+            byFrame.Add(frame, new LaidComposition(picture, placedByKey[picture.Key]));
+        return new LaidPictures(packed.Size, byFrame, packed.Pictures);
     }
 
     /// <summary>
@@ -139,19 +133,19 @@ internal sealed class SpriteSheetLayout
     internal SpriteSheetDocument Paint(SpriteSheetPlanes planes)
     {
         LaidPictures laidPictures = pictures.Value;
-        for (int picture = 0; picture < laidPictures.Distinct.Length; picture++)
-            PaintPicture(planes, laidPictures.Distinct[picture], laidPictures.Corners[picture]);
-        var frameDocuments = new SpriteSheetFrameDocument[laid.Length];
-        for (int index = 0; index < laid.Length; index++)
+        foreach (PackedPicture<FramePicture> placed in laidPictures.Distinct)
+            PaintPicture(planes, placed.Picture, placed.Corner);
+        var frameDocuments = new Dictionary<SheetFrameSource, SpriteSheetFrameDocument>(ReferenceEqualityComparer.Instance);
+        foreach ((SheetFrameSource frame, LaidComposition laidComposition) in laidPictures.ByFrame)
         {
-            FramePicture composed = laidPictures.Composed[index];
+            FramePicture composed = laidComposition.Composed;
             FrameBounds bound = composed.Bounds;
-            frameDocuments[index] = new SpriteSheetFrameDocument
+            frameDocuments[frame] = new SpriteSheetFrameDocument
             {
-                Corner = laidPictures.Corners[laidPictures.PictureOf[index]],
+                Corner = laidComposition.Placed.Corner,
                 Size = bound.Size,
                 Origin = new(checked((short)-bound.TopLeft.X), checked((short)-bound.TopLeft.Y)),
-                ColourGroups = composed.Groups.ManifestMembers,
+                ColourGroups = composed.Groups,
                 Depth = composed.Depth,
             };
         }
@@ -161,9 +155,9 @@ internal sealed class SpriteSheetLayout
         foreach (NamedFrameImage frame in frameImages)
             manifest.Add(frame.Name, frameDocuments[frame.Image]);
         RgbColor[] spriteColours = sources.SpriteColours;
-        ushort[] colours = new ushort[spriteColours.Length];
+        RgbColor[] colours = new RgbColor[spriteColours.Length];
         for (int ink = 0; ink < colours.Length; ink++)
-            colours[ink] = spriteColours[DrawnColourOf(ink)].ToWord();
+            colours[ink] = spriteColours[DrawnColourOf(ink)];
         return new SpriteSheetDocument
         {
             Palette = SpriteImageColours.Sprite, Colours = colours, PaletteBits = sources.PaletteBits,
@@ -174,29 +168,31 @@ internal sealed class SpriteSheetLayout
     }
 
     /// <summary>
-    /// The sprite colour ink <paramref name="ink"/> shows as the family draws it: the colour of the ink's own row with the
-    /// family's palette bits ORed in. A sheet's ink is its part's own row and colour (#1512), so parts whose rows the bits
-    /// fold together keep separate inks, which a draw selecting another row shows apart.
+    /// The sprite colour ink <paramref name="ink"/> shows as a draw ORing <paramref name="drawRow"/> into its parts shows it:
+    /// the colour of the ink's own row with that row ORed in, the family's palette bits as the family draws it. A sheet's ink
+    /// is its part's own row and colour (#1512), so parts whose rows the bits fold together keep separate inks, which a draw
+    /// selecting another row shows apart.
     /// </summary>
-    private int DrawnColourOf(int ink) => ((ink / RowColours) | sources.PaletteBits) * RowColours + ink % RowColours;
+    private static int DrawnColourOf(int ink, int drawRow) => ((ink / RowColours) | drawRow) * RowColours + ink % RowColours;
+
+    /// <summary>The sprite colour ink <paramref name="ink"/> shows as the family draws it, its palette bits ORed in.</summary>
+    private int DrawnColourOf(int ink) => DrawnColourOf(ink, sources.PaletteBits);
 
     /// <summary>
     /// <paramref name="shade"/>, which names the sprite colours it recolours, over the sheet's inks in rising order: each
-    /// ink drawn in one of those colours shows that colour's shade.
+    /// ink drawn in one of those colours shows that colour's shade, as the family draws it or as the row the shade's draws
+    /// select draws it (<see cref="SheetShade.DrawRow"/>).
     /// </summary>
     private SheetShade InkShade(SheetShade shade)
     {
-        var inks = new List<int>();
-        var shown = new List<RgbColor>();
+        var shown = new Dictionary<int, RgbColor>();
+        int drawRow = shade.DrawRow ?? sources.PaletteBits;
         for (int ink = 0; ink < sources.SpriteColours.Length; ink++)
         {
-            int index = Array.IndexOf(shade.Inks, DrawnColourOf(ink));
-            if (index < 0)
-                continue;
-            inks.Add(ink);
-            shown.Add(shade.Colours[index]);
+            if (shade.InkColours.TryGetValue(DrawnColourOf(ink, drawRow), out RgbColor colour))
+                shown.Add(ink, colour);
         }
-        return shade with { Inks = [.. inks], Colours = [.. shown] };
+        return SheetShade.Of(shade.Shade, shown) with { TakesColourMath = shade.TakesColourMath };
     }
 
     /// <summary>
@@ -205,15 +201,9 @@ internal sealed class SpriteSheetLayout
     /// shade laid before it over the ink's own row does not show through. An ink whose pixels the draw still takes from
     /// their own row is left out, as the draw shows whatever that row holds, the shades laid before it among them.
     /// </summary>
-    private IEnumerable<SheetShade> RowShades()
-    {
-        IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
-        for (int index = 0; index < shades.Count; index++)
-        {
-            KeyValuePair<int, RowShadedInk>[] moved = [.. rowShadeInks[index].Where(ink => ink.Value.Moves).OrderBy(ink => ink.Key)];
-            yield return new SheetShade(shades[index].Shade, [.. moved.Select(ink => ink.Key)], [.. moved.Select(ink => ink.Value.Colour)]);
-        }
-    }
+    private IEnumerable<SheetShade> RowShades() =>
+        rowShadeInks.Select(row => SheetShade.Of(row.Shade.Shade,
+            row.Inks.Where(ink => ink.Value.Moves).Select(ink => KeyValuePair.Create(ink.Key, ink.Value.Colour))));
 
     /// <summary>
     /// Records that ink <paramref name="ink"/>, a part's own row and colour, shows each row shade's colour, and whether the
@@ -224,14 +214,13 @@ internal sealed class SpriteSheetLayout
         if (rowShadedInks[ink])
             return;
         rowShadedInks[ink] = true;
-        IReadOnlyList<SheetRowShade> shades = sources.RowShades ?? [];
         int ownRow = ink / RowColours;
         int colour = ink % RowColours;
-        for (int index = 0; index < shades.Count; index++)
+        foreach (ShadedRowInks row in rowShadeInks)
         {
-            SheetRowShade shade = shades[index];
+            SheetRowShade shade = row.Shade;
             int shownRow = ownRow | shade.Row;
-            rowShadeInks[index][ink] = new RowShadedInk(shade.SpriteColours[shownRow * RowColours + colour],
+            row.Inks[ink] = new RowShadedInk(shade.SpriteColours[shownRow * RowColours + colour],
                 shownRow * RowColours + colour != DrawnColourOf(ink));
         }
     }
@@ -242,16 +231,15 @@ internal sealed class SpriteSheetLayout
     /// drawn whole at one depth, the one the game draws most of its shown pixels at (the front one of a tie), so a frame
     /// whose parts the game drew at different depths shows wholly at its main part's. A frame showing no pixel has none.
     /// </summary>
-    private FramePicture Compose(int index)
+    private FramePicture Compose(SheetFrameSource source)
     {
-        SheetFrameSource source = laid[index];
         FrameBounds bound = Bounds(source.Frame);
         int framePalette = source.Palette ?? palette;
         ImageColourGroups groups = ImageColourGroups.None;
         // Each shown pixel's ink, zero where no part shows one, in the frame's own rectangle.
-        var inks = new byte[bound.Size.X * bound.Size.Y];
-        // Each shown pixel's game priority, one up so that zero marks a pixel no part shows, in the frame's own rectangle.
-        var shownPriorities = new int[inks.Length];
+        var inks = new ComposedInk[bound.Size.X * bound.Size.Y];
+        // Each shown pixel's depth, none where no part shows one, in the frame's own rectangle.
+        var shownDepths = new ActorDepth?[inks.Length];
         // Back to front, so the first part ends in front.
         for (int partIndex = source.Frame.Parts.Length - 1; partIndex >= 0; partIndex--)
         {
@@ -270,16 +258,16 @@ internal sealed class SpriteSheetLayout
                         continue;
                     int at = (part.Offset.Y - bound.TopLeft.Y + row) * bound.Size.X + part.Offset.X - bound.TopLeft.X + column;
                     int ink = ownRow * RowColours + colour;
-                    inks[at] = checked((byte)ink);
-                    // Parts are laid back to front, so each pixel ends with the priority of the part in front.
-                    shownPriorities[at] = 1 + (part.Priority ?? priority);
+                    inks[at] = new ComposedInk(ownRow, colour);
+                    // Parts are laid back to front, so each pixel ends with the depth of the part in front.
+                    shownDepths[at] = part.Depth ?? depth;
                     // A part keeping its own row under a drawn row keeps its colours under every row shade.
                     if (part.Palette is null || !sources.PartsKeepOwnRows)
                         ShadeRows(ink);
                 }
             }
         }
-        return new FramePicture(bound, inks, groups, DepthOf(shownPriorities, source.Name));
+        return new FramePicture(bound, inks, groups, DepthOf(shownDepths));
     }
 
     /// <summary>
@@ -295,12 +283,12 @@ internal sealed class SpriteSheetLayout
         {
             for (int column = 0; column < size.X; column++)
             {
-                int ink = picture.Inks[row * size.X + column];
-                if (ink == 0)
+                ComposedInk ink = picture.Inks[row * size.X + column];
+                if (ink == ComposedInk.None)
                     continue;
                 int at = (corner.Y + row) * width + corner.X + column;
-                planes.Pixels[at] = spriteColours[DrawnColourOf(ink)].ToRgbaPixel();
-                planes.PaletteIndices[at] = checked((byte)ink);
+                planes.Pixels[at] = spriteColours[DrawnColourOf(ink.PlaceIn(SpriteImageColours.Sprite))].ToRgbaPixel();
+                planes.Inks[at] = ink;
             }
         }
     }
@@ -310,56 +298,73 @@ internal sealed class SpriteSheetLayout
     /// where none), the colour groups it is coloured from and the depth its draws sit at.
     /// </summary>
     /// <param name="Bounds">Its parts' cover relative to its origin.</param>
-    /// <param name="Inks">Each pixel's ink, row by row from the top, zero where no part shows one.</param>
+    /// <param name="Inks">Each pixel's ink, row by row from the top, <see cref="ComposedInk.None"/> where no part shows one.</param>
     /// <param name="Groups">The colour groups it is coloured from.</param>
     /// <param name="Depth">The depth its gameplay draws sit at; none for a frame showing no pixel.</param>
-    private sealed record FramePicture(FrameBounds Bounds, byte[] Inks, ImageColourGroups Groups, ActorDepth? Depth)
+    private sealed partial record FramePicture(FrameBounds Bounds, ComposedInk[] Inks, ImageColourGroups Groups, ActorDepth? Depth)
     {
         /// <summary>The picture spelled for telling pictures apart: its size and every pixel's ink.</summary>
-        internal string Key => $"{Bounds.Size.X.ToString(CultureInfo.InvariantCulture)}x{Bounds.Size.Y.ToString(CultureInfo.InvariantCulture)} {Convert.ToBase64String(Inks)}";
+        internal string Key => $"{Bounds.Size.X.ToString(CultureInfo.InvariantCulture)}x{Bounds.Size.Y.ToString(CultureInfo.InvariantCulture)} {string.Join(' ', Inks.Select(ink => $"{ink.Group.ToString(CultureInfo.InvariantCulture)}.{ink.Colour.ToString(CultureInfo.InvariantCulture)}"))}";
     }
 
     /// <summary>The laid compositions' pictures and where each distinct one is held on the sheet.</summary>
     /// <param name="Size">The sheet's width and height.</param>
-    /// <param name="Composed">Each laid composition's picture.</param>
-    /// <param name="PictureOf">The index among <paramref name="Distinct"/> of each laid composition's picture.</param>
-    /// <param name="Distinct">The distinct pictures in order.</param>
-    /// <param name="Corners">Each distinct picture's top-left corner on the sheet.</param>
-    private sealed record LaidPictures(Extent16<ImagePixels> Size, FramePicture[] Composed, int[] PictureOf, FramePicture[] Distinct,
-        Position16<ImagePixels>[] Corners);
+    /// <param name="ByFrame">Each laid composition's picture and the distinct picture's place it shows, by its frame.</param>
+    /// <param name="Distinct">The distinct pictures in order, each where it is held on the sheet.</param>
+    private sealed partial record LaidPictures(Extent16<ImagePixels> Size, Dictionary<SheetFrameSource, LaidComposition> ByFrame,
+        IReadOnlyList<PackedPicture<FramePicture>> Distinct);
 
-    /// <summary>The game's priorities, of which priorities zero and one draw behind the whole room.</summary>
-    private const int GamePriorities = 4;
+    /// <summary>One laid composition's picture and the distinct picture on the sheet it shows.</summary>
+    /// <param name="Composed">The composition's picture.</param>
+    /// <param name="Placed">The distinct picture that shows it, with its corner on the sheet.</param>
+    private sealed partial record LaidComposition(FramePicture Composed, PackedPicture<FramePicture> Placed);
+
+    /// <summary>One row shade with what each recorded ink shows under it.</summary>
+    /// <param name="Shade">The row shade.</param>
+    /// <param name="Inks">The colour each recorded ink shows under the shade, and whether its draw takes it from another row.</param>
+    private sealed partial record ShadedRowInks(SheetRowShade Shade, Dictionary<int, RowShadedInk> Inks);
 
     /// <summary>
-    /// The depth a frame whose shown pixels hold <paramref name="shownPriorities"/> (each priority one up, zero for none) is
-    /// drawn at (#1514): the priority most of its pixels show, the front one of a tie. The game's priorities zero and one both
-    /// draw behind the whole room, two between its back and front tiles, and three in front of it.
+    /// The depth a frame whose shown pixels hold <paramref name="shownDepths"/> (none for a pixel no part shows) is drawn
+    /// at (#1514): the place among the room's layers most of its pixels show, the front one of a tie. The two depths behind
+    /// the room are one place among the room's tiles, which only a turning floor splits (#2583): a frame lies behind the room
+    /// where most of its pixels lie at either, and then at whichever of the two more of them show, the one in front of the
+    /// floor on a tie.
     /// </summary>
-    /// <exception cref="InvalidDataException">A pixel holds a priority the game does not have.</exception>
-    private static ActorDepth? DepthOf(ReadOnlySpan<int> shownPriorities, string frame)
+    private static ActorDepth? DepthOf(ReadOnlySpan<ActorDepth?> shownDepths)
     {
-        Span<int> counts = stackalloc int[GamePriorities];
-        foreach (int shown in shownPriorities)
+        int behindFloor = 0, inFrontOfFloor = 0, behindFrontParts = 0, inFront = 0;
+        foreach (ActorDepth? shown in shownDepths)
         {
-            if (shown == 0)
-                continue;
-            if (shown > GamePriorities)
-                throw new InvalidDataException($"Sheet frame {frame} shows a pixel of priority {shown - 1}, which the game does not have.");
-            counts[shown - 1]++;
+            switch (shown)
+            {
+                case null:
+                    break;
+                case ActorDepth.BehindRoom:
+                    behindFloor++;
+                    break;
+                case ActorDepth.BehindRoomInFrontOfFloor:
+                    inFrontOfFloor++;
+                    break;
+                case ActorDepth.BehindFrontParts:
+                    behindFrontParts++;
+                    break;
+                case ActorDepth.InFront:
+                    inFront++;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(ActorDepth)} {shown}.");
+            }
         }
-        int main = -1;
-        for (int candidate = 0; candidate < GamePriorities; candidate++)
-        {
-            if (counts[candidate] > 0 && (main < 0 || counts[candidate] >= counts[main]))
-                main = candidate;
-        }
-        return main < 0 ? null : DepthOfPriority[main];
+        int behindRoom = behindFloor + inFrontOfFloor;
+        if (inFront > 0 && inFront >= behindFrontParts && inFront >= behindRoom)
+            return ActorDepth.InFront;
+        if (behindFrontParts > 0 && behindFrontParts >= behindRoom)
+            return ActorDepth.BehindFrontParts;
+        if (behindRoom > 0)
+            return inFrontOfFloor >= behindFloor ? ActorDepth.BehindRoomInFrontOfFloor : ActorDepth.BehindRoom;
+        return null;
     }
-
-    /// <summary>The depth each of the game's priorities draws at, from priority zero up.</summary>
-    private static readonly ActorDepth[] DepthOfPriority =
-        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontParts, ActorDepth.InFront];
 
     /// <summary>
     /// Hashes everything <see cref="Paint"/> reads into <see cref="Identity"/>. A part is hashed by the characters it
@@ -372,7 +377,7 @@ internal sealed class SpriteSheetLayout
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true))
         {
             writer.Write(palette);
-            writer.Write(priority);
+            writer.Write(ActorDepthKeys.Installed.Of(depth));
             writer.Write(sources.PaletteBits);
             writer.Write(sources.PartsKeepOwnRows);
             foreach (RgbColor colour in sources.SpriteColours)
@@ -383,10 +388,11 @@ internal sealed class SpriteSheetLayout
             foreach (SheetShade shade in shades)
             {
                 writer.Write(shade.Shade.Key);
-                writer.Write(shade.Inks.Length);
-                foreach (int ink in shade.Inks)
+                writer.Write(shade.DrawRow ?? -1);
+                writer.Write(shade.InkColours.Count);
+                foreach (int ink in shade.InkColours.Keys)
                     writer.Write(ink);
-                foreach (RgbColor colour in shade.Colours)
+                foreach (RgbColor colour in shade.InkColours.Values)
                     WriteColour(writer, colour);
             }
             IReadOnlyList<SheetRowShade> rowShades = sources.RowShades ?? [];
@@ -412,7 +418,7 @@ internal sealed class SpriteSheetLayout
             foreach (NamedFrameImage frame in frameImages)
             {
                 writer.Write(frame.Name);
-                writer.Write(frame.Image);
+                writer.Write(frame.Image.Name);
             }
             // The frames that show nothing are part of what the sheet installs (#1513).
             IReadOnlyList<string> blanks = sources.Blank ?? [];
@@ -448,7 +454,7 @@ internal sealed class SpriteSheetLayout
         return Convert.ToBase64String(stream.GetBuffer().AsSpan(0, checked((int)stream.Length)));
     }
 
-    /// <summary>Writes what painting reads of one part: its place, size, flip, row, priority and the characters it reads.</summary>
+    /// <summary>Writes what painting reads of one part: its place, size, flip, row, depth and the characters it reads.</summary>
     private static void WritePart(BinaryWriter writer, SpriteFramePart part, SpriteArtwork characters)
     {
         writer.Write(part.Offset.X);
@@ -458,8 +464,7 @@ internal sealed class SpriteSheetLayout
         writer.Write(part.Flip.ToString());
         writer.Write(part.Palette.HasValue);
         writer.Write(part.Palette.GetValueOrDefault());
-        writer.Write(part.Priority.HasValue);
-        writer.Write(part.Priority.GetValueOrDefault());
+        writer.Write(part.Depth is { } partDepth ? ActorDepthKeys.Installed.Of(partDepth) : string.Empty);
         // Each row of the part's characters is a run of consecutive characters in the artwork's grid.
         int rowBytes = part.Size.X / SpriteArtwork.CharacterPixels * SpriteArtwork.CharacterByteCount;
         for (int row = 0; row < part.Size.Y / SpriteArtwork.CharacterPixels; row++)
@@ -482,13 +487,13 @@ internal sealed class SpriteSheetLayout
         return new FrameBounds(new(checked((short)left), checked((short)top)), new(checked((ushort)(right - left)), checked((ushort)(bottom - top))));
     }
 
-    /// <summary>A frame of the sources and the laid frame image it shows.</summary>
+    /// <summary>A frame of the sources and the laid frame composition it shows.</summary>
     /// <param name="Name">The frame's installed name.</param>
-    /// <param name="Image">The index of its image among the laid frame images.</param>
-    private readonly record struct NamedFrameImage(string Name, int Image);
+    /// <param name="Image">The laid frame composition it shows, which frames painting alike share.</param>
+    private readonly partial record struct NamedFrameImage(string Name, SheetFrameSource Image);
 
     /// <summary>A frame's cover relative to its origin.</summary>
     /// <param name="TopLeft">The cover's top-left corner, from the origin.</param>
     /// <param name="Size">The cover's size.</param>
-    private readonly record struct FrameBounds(Offset16<ImagePixels> TopLeft, Extent16<ImagePixels> Size);
+    private readonly partial record struct FrameBounds(Offset16<ImagePixels> TopLeft, Extent16<ImagePixels> Size);
 }

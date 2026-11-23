@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <summary>
 /// How often Samus's shots leave trails and how long a shot keeps her from touching her own projectiles (#2111).
 /// </summary>
-internal static class ProjectileTimingDefinitions
+internal static partial class ProjectileTimingDefinitions
 {
     /// <summary>
     /// The updates before a trailing shot's first trail, and between its trails after that unless its flight sets its

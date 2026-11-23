@@ -8,5 +8,5 @@ internal static class AngularSpeedConstants
     /// rotation angle turns at.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
-    public static AngularSpeed FromFractionsOfStep(int fractionsOfStep) => new(fractionsOfStep);
+    public static AngularSpeed FromFractionsOfStep(int fractionsOfStep) => new global::SuperMetroid.Core.Spatial.AngularSpeed(fractionsOfStep);
 }

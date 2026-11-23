@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// The map's scroll arrows, each shown while the map can scroll its way, and the highlight cycle, advanced by menu updates
 /// only.
 /// </summary>
-public sealed class FileSelectMapAnimations
+public sealed partial class FileSelectMapAnimations
 {
     /// <summary>Each map-scroll arrow's anchor, picture and visibility, by the direction it scrolls.</summary>
     internal readonly Dictionary<MapScrollDirection, Arrow> arrows = [];
@@ -29,19 +29,19 @@ public sealed class FileSelectMapAnimations
         Ensure.NotNull(content);
         foreach (MapScrollDirection direction in MapScrollControls.Directions)
         {
-            Arrow replacement = new(content.Get(direction).Position, MapArrowSprites.Picture(direction));
+            Arrow replacement = new(content.Get(direction).Position, MapArrowDefinitions.ArrowPictures[direction]);
             if (arrows.GetValueOrDefault(direction) is { } previous)
                 replacement.Admit(previous.Visible);
             arrows[direction] = replacement;
         }
     }
 
-    /// <summary>Resetting the map's animations resets the highlight cycle but does not clear the arrow counters.</summary>
+    /// <summary>Restarts the highlight cycle and leaves the arrows as they are.</summary>
     public void ResetHighlight() => highlight.Reset();
     /// <summary>Replaces the installed highlight timing while retaining the menu-owned cycle state.</summary>
     internal void BindHighlight(MapHighlightCycle cycle) => highlight.Bind(cycle);
 
-    /// <summary>Advances the highlight cycle; returns the room-library sound request at the cycle's loop terminator.</summary>
+    /// <summary>Advances the highlight and returns whether its cycle starts again.</summary>
     /// <returns>True when the cycle wraps and the map's highlight-loop sound should be queued; this method does not enqueue audio itself.</returns>
     public bool StepHighlight() => highlight.Step();
 
@@ -58,7 +58,7 @@ public sealed class FileSelectMapAnimations
     }
 
     /// <summary>Appends the shown arrows' pictures to the sprite list in the map highlight shade, without changing which show.</summary>
-    /// <param name="entries">Destination sprite buffer owned by the menu frame being composed.</param>
+    /// <param name="entries">The screen's sprites, among which the arrows are drawn.</param>
     /// <param name="highlight">The shading of the highlight cycle's current frame on the screen that draws the arrows (#1512).</param>
     /// <param name="sheet">The installed map sprite sheet.</param>
     /// <param name="verticalOffset">Screen-pixel Y translation added to each bound arrow anchor; pause-map rendering supplies its banner offset here.</param>
@@ -75,7 +75,7 @@ public sealed class FileSelectMapAnimations
     }
 
     /// <summary>One map-scroll arrow: its installed anchor, its picture and whether it shows.</summary>
-    internal sealed class Arrow(Offset16<ScreenPixels> position, MapSpriteId picture)
+    internal sealed partial class Arrow(Offset16<ScreenPixels> position, MapSpriteId picture)
     {
         /// <summary>Installed screen anchor.</summary>
         public readonly Offset16<ScreenPixels> Position = position;

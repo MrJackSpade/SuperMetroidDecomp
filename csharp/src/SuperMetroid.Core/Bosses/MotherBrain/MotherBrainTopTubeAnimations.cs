@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's falling ceiling-tube animations (#641, #1600): each tube's one pose, held, the beat naming the installed
 /// <see cref="EnemyProjectileFrameId"/> it shows (#2249).
 /// </summary>
-internal static class MotherBrainTopTubeAnimations
+internal static partial class MotherBrainTopTubeAnimations
 {
     /// <summary>Every segment; each holds its own tube's picture.</summary>
-    internal static AnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments { get; } = new(
-        new Dictionary<MotherBrainTopTubeSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>[]>
+    internal static UnpausedAnimationSegments<MotherBrainTopTubeSegment, EnemyProjectileFrameId, NoAnimationCue> Segments { get; } = new(
+        new Dictionary<MotherBrainTopTubeSegment, AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Unpaused[]>
     {
         [P.TopRight] = [Show(EnemyProjectileFrameId.MotherBrainTopTubeTopRight)],
         [P.TopLeft] = [Show(EnemyProjectileFrameId.MotherBrainTopTubeTopLeft)],
@@ -25,6 +25,6 @@ internal static class MotherBrainTopTubeAnimations
         Enum.GetValues<P>().ToDictionary(tube => tube, tube => new Animation<P>([Segments.Whole(tube)], AnimationEnd.Holds));
 
     /// <summary>A still picture (#2250): <paramref name="frame"/>, held from the update it shows.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, NoAnimationCue> Show(EnemyProjectileFrameId frame) =>
+    private static AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.Unpaused Show(EnemyProjectileFrameId frame) =>
         new AnimationBeat<EnemyProjectileFrameId, NoAnimationCue>.HeldFrame(frame);
 }

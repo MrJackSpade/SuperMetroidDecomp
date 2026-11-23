@@ -10,9 +10,7 @@ namespace SuperMetroid.Core.World;
 /// outlive every room, the runtime's shared fade step count and Yard kick camera measure and the session's unauthored Speed
 /// Booster cadence, the loader hands on to every enemy system it builds.
 /// </summary>
-[ArchitectureReview("context-bag", "A constructor parameter object: the game builds it only for RoomEnemySystem's " +
-    "constructor, and every other method taking it forwards it to that same constructor.")]
-internal sealed class RoomEnemyCompatibility
+internal sealed partial class RoomEnemyCompatibility
 {
     /// <summary>The horizontal reach a power bomb's sweep continues with after the sweep kills an enemy.</summary>
     public required PowerBombRadiusAfterKill PowerBombRadius { get; init; }
@@ -30,7 +28,7 @@ internal sealed class RoomEnemyCompatibility
     public required PuyoCeilingTurnFromLastDraw PuyoCeilingTurn { get; init; }
 
     /// <summary>
-    /// The room's thirty-two effect-actor places, whose place a dud flash on Kraid's mouth takes bounds the rest of that
+    /// The room's effect-actor places, whose place a dud flash on Kraid's mouth takes bounds the rest of that
     /// collision pass; a new room starts with every place free.
     /// </summary>
     public required EffectActorPlaces EffectActorPlaces { get; init; }

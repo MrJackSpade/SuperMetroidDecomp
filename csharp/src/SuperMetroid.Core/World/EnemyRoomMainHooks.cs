@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.World;
 /// <param name="encounters">The encounters of the room's bosses, Crocomire's among them once his body sets up (#2194).</param>
 /// <param name="cameraDistance">The room camera's distance mode.</param>
 /// <param name="cameraFloor">The room camera's floor.</param>
-internal sealed class EnemyRoomMainHooks(RoomBossEncounters encounters, RoomCameraDistance cameraDistance, RoomCameraFloor cameraFloor) : IEnemyRoomMainHooks
+internal sealed partial class EnemyRoomMainHooks(RoomBossEncounters encounters, RoomCameraDistance cameraDistance, RoomCameraFloor cameraFloor) : IEnemyRoomMainHooks
 {
     /// <inheritdoc/>
     public CrocomireEnemyState? Crocomire => encounters.Crocomire;

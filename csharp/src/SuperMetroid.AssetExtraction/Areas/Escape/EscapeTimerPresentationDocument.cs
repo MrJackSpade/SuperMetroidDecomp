@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Authoring schema for the timer's palette, digit placement and eleven named sprite compositions; its dictionary and array contents remain caller-mutable.</summary>
-public sealed record EscapeTimerPresentationDocument
+public sealed partial record EscapeTimerPresentationDocument
 {
     /// <summary>Schema revision; loading requires <see cref="EscapeTimerLayoutDefinitions.Version"/>.</summary>
     public required int Version { get; init; }

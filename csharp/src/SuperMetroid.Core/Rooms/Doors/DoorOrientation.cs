@@ -4,15 +4,11 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// How a door is passed: the direction Samus travels through it and what closes behind her on arrival. The import
 /// pipeline decodes the door data's orientation into these two fields.
 /// </summary>
-public readonly record struct DoorOrientation
+public readonly partial record struct DoorOrientation
 {
     /// <summary>Creates an orientation from its fields.</summary>
     public DoorOrientation(DoorDirection direction, DoorClosingBehavior closing)
     {
-        if (!Enum.IsDefined(direction))
-            throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined door direction.");
-        if (!Enum.IsDefined(closing))
-            throw new ArgumentOutOfRangeException(nameof(closing), closing, "Undefined door closing behavior.");
         Direction = direction;
         Closing = closing;
     }

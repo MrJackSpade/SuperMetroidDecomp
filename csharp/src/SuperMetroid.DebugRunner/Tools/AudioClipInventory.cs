@@ -13,7 +13,7 @@ namespace SuperMetroid.DebugRunner.Tools;
 /// <summary>
 /// The #1305 audio clip inventory: every music track's loop structure, shipped-loop seam and
 /// tempo-phase period, the static sound-program scan for inherited state, and every sound effect's
-/// clips from the common upload (#2057), measured over the audio's import data, the extracted catalog (as
+/// clips in its render context (the common upload, #2057, or its room's music data set, #2603), measured over the audio's import data, the extracted catalog (as
 /// <c>assets audio-rom</c> writes it beside the clips, #1693), with the same analysis and renderers the
 /// installer's clip export uses. It writes <c>audio-clip-inventory.json</c> and <c>audio-clip-inventory.md</c>.
 /// </summary>
@@ -40,10 +40,10 @@ internal static class AudioClipInventory
             if (track.Shape == MusicTrackShape.NoPeriodFound)
                 return new MusicRow(key.Bank, key.Track, track.Shape, 0, null, null, null, "");
             short[] clip = MusicTrackRendering.RenderClip(catalog, track);
-            bool loops = track.Shape == MusicTrackShape.Loops;
+            bool loops = track.Period is MusicTrackPeriod.Loop;
             return new MusicRow(
                 key.Bank, key.Track, track.Shape, clip.Length / 2,
-                loops ? track.Arrivals[1] - track.Arrivals[0] : null,
+                track.Period is MusicTrackPeriod.Loop loop ? loop.SecondArrival - loop.FirstArrival : null,
                 loops ? AudioClipMeasurements.ShippedLoopSeam(catalog, track) : null,
                 loops ? AudioClipMeasurements.TempoPhasePeriod(catalog, track) : null,
                 Hash(clip));
@@ -52,34 +52,32 @@ internal static class AudioClipInventory
         SoundEffectStateScan[] scans = [.. catalog.SoundPrograms.Select(SoundEffectStateScan.Scan)];
         Dictionary<string, SoundEffectProgramScan> exportScans = catalog.SoundPrograms.ToDictionary(program => program.Id, SoundEffectProgramScan.Scan);
         IReadOnlyList<AudioClipExporter.SoundEffectKey> effectKeys = AudioClipExporter.AllSoundEffects(catalog);
-        SoundEffectRow[] effects = Timed(timings, "sound effects (clips from the common upload)", effectKeys.Count, index =>
+        SoundEffectRow[] effects = Timed(timings, "sound effects (clips in each sound's render context)", effectKeys.Count, index =>
         {
             AudioClipExporter.SoundEffectKey key = effectKeys[index];
             AudioSoundEffectMetadata effect = catalog.SoundLibraries
                 .Single(library => library.Library == SoundLibraryNumbers.Number(key.Library))
                 .Effects.Single(candidate => candidate.Command == key.Command);
-            AudioBank bank = AudioAssetCatalogDefinitions.Common.AudioSet;
-            string[] missing = [.. effect.ChannelPrograms
-                .SelectMany(program => exportScans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
-                .Distinct()];
+            AudioBank? context = AudioClipExporter.RenderContext(SoundEffectCommands.Decode(key.Library, key.Command));
+            string[] missing = AudioClipExporter.UnplayableInstruments(catalog, exportScans, effect, context);
             if (missing.Length != 0)
-                return new SoundEffectRow(null, key.Library, key.Command, null, [], [], missing);
+                return new SoundEffectRow(context, key.Library, key.Command, null, [], [], missing);
             if (effect.ChannelPrograms.Any(program => exportScans[program].RepeatsForever))
             {
                 IReadOnlyList<SoundEffectRendering.LoopingLayer> layers = SoundEffectRendering.RenderLoopingLayers(
-                    catalog, null, key.Library, key.Command, effect.ChannelPrograms.Count);
-                return new SoundEffectRow(null, key.Library, key.Command, null,
+                    catalog, context, key.Library, key.Command, effect.ChannelPrograms.Count);
+                return new SoundEffectRow(context, key.Library, key.Command, null,
                     [.. layers.Select(layer => layer.Clip.Length / 2L)], [.. layers.Select(layer => Hash(layer.Clip))], []);
             }
-            SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, null, key.Library, key.Command);
-            return new SoundEffectRow(null, key.Library, key.Command, shot.ActiveFrames,
+            SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, context, key.Library, key.Command);
+            return new SoundEffectRow(context, key.Library, key.Command, shot.ActiveFrames,
                 shot.Clip.Length == 0 ? [] : [shot.Clip.Length / 2L], shot.Clip.Length == 0 ? [] : [Hash(shot.Clip)], []);
         });
 
         var document = new InventoryDocument(music, scans, effects, timings);
         var options = IndentedFieldsJson;
         options.Converters.Add(new JsonStringEnumConverter());
-        File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(document, options));
+        File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(document, global::SuperMetroid.DebugRunner.DebugRunnerJson.Info<global::SuperMetroid.DebugRunner.Tools.AudioClipInventory.InventoryDocument>(options)));
         string summary = Summarize(catalog, document);
         File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.md"), summary);
         Console.WriteLine(summary);
@@ -151,7 +149,7 @@ internal static class AudioClipInventory
         SoundEffectRow[] unrenderable = [.. document.SoundEffects.Where(row => row.Missing.Count != 0)];
         text.AppendLine("## Sound effects");
         text.AppendLine();
-        text.AppendLine($"- {document.SoundEffects.Count} (bank context, effect) pairs: {rendered.Length} rendered, {unrenderable.Length} without a clip because the context does not upload a sample they key.");
+        text.AppendLine($"- {document.SoundEffects.Count} (bank context, effect) pairs: {rendered.Length} rendered, {unrenderable.Length} without a clip because the context cannot play an instrument they key.");
         text.AppendLine($"- Never-ending effects (per-channel looping layers): {rendered.Count(row => row.ActiveFrames is null)}; silent one-shots: {rendered.Count(row => row.ActiveFrames is not null && row.LayerFrames.Count == 0)}.");
         foreach (var group in unrenderable.GroupBy(row => row.Context))
         {
@@ -192,7 +190,7 @@ internal static class AudioClipInventory
     /// <param name="Seam">The shipped loop against the cartridge's next pass, or null when the track ends.</param>
     /// <param name="TempoPhasePeriod">Loop passes until the tempo phase recurs, or null when the track ends.</param>
     /// <param name="ClipHash">The clip's sample hash, or empty without a period.</param>
-    private sealed record MusicRow(
+    internal sealed record MusicRow(
         AudioBank Bank,
         int Track,
         MusicTrackShape Shape,
@@ -210,7 +208,7 @@ internal static class AudioClipInventory
     /// <param name="LayerFrames">Each clip layer's stereo frames.</param>
     /// <param name="LayerHashes">Each clip layer's sample hash.</param>
     /// <param name="Missing">Instruments whose samples the context lacks; empty when rendered.</param>
-    private sealed record SoundEffectRow(
+    internal sealed record SoundEffectRow(
         AudioBank? Context,
         SoundEffectLibrary Library,
         int Command,
@@ -224,14 +222,14 @@ internal static class AudioClipInventory
     /// <param name="Items">Items measured.</param>
     /// <param name="WallSeconds">Elapsed seconds with parallel items.</param>
     /// <param name="SummedSeconds">Sum of each item's elapsed seconds, approximating one core.</param>
-    private sealed record PhaseTiming(string Phase, int Items, double WallSeconds, double SummedSeconds);
+    internal sealed record PhaseTiming(string Phase, int Items, double WallSeconds, double SummedSeconds);
 
     /// <summary>The complete inventory written as JSON.</summary>
     /// <param name="Music">Every track's measurements.</param>
     /// <param name="Programs">Every sound program's inherited-state scan.</param>
     /// <param name="SoundEffects">Every effect in every bank context.</param>
     /// <param name="Timings">Phase timings.</param>
-    private sealed record InventoryDocument(
+    internal sealed record InventoryDocument(
         IReadOnlyList<MusicRow> Music,
         IReadOnlyList<SoundEffectStateScan> Programs,
         IReadOnlyList<SoundEffectRow> SoundEffects,

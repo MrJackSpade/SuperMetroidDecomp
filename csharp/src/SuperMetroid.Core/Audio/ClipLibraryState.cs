@@ -4,22 +4,16 @@ namespace SuperMetroid.Core.Audio;
 /// One sound library's clip playback (#1305): the sound it plays, from which frame, whether it
 /// still holds the library (before its logical end), and the library's priority and low-health mode.
 /// </summary>
-internal sealed class ClipLibraryState
+internal sealed partial class ClipLibraryState
 {
-    /// <summary>The playing sound, or null.</summary>
-    internal SoundEffectClipEntry? Sound { get; private set; }
-
-    /// <summary>Absolute frame of the sound's frame zero (the request check that accepted it).</summary>
-    internal long Start { get; private set; }
-
-    /// <summary>Whether the sound still holds the library: it has not reached its logical end.</summary>
-    internal bool Active { get; private set; }
+    /// <summary>The sound the library plays and whether it still holds the library, or null while it plays none (#2560).</summary>
+    internal ClipLibraryPlayback? Playback { get; private set; }
 
     /// <summary>Whether the library holds a high-priority sound, which admits only requests exempt from priority; otherwise any request replaces the sound.</summary>
-    internal bool HighPriority { get; private set; }
+    internal bool HighPriority { get; set; }
 
     /// <summary>Whether the room library is in low-health mode, which rejects every request except those exempt from it.</summary>
-    internal bool InLowHealthMode { get; private set; }
+    internal bool InLowHealthMode { get; set; }
 
     /// <summary>Whether the library's priority or low-health mode turns away a request under <paramref name="policy"/>.</summary>
     internal bool Rejects(SoundEffectClipPolicy policy) =>
@@ -32,33 +26,36 @@ internal sealed class ClipLibraryState
     /// </summary>
     internal void Play(SoundEffectClipEntry sound, long now, SoundEffectClipPolicy policy)
     {
-        if (Sound is not null && Active)
+        if (Playback is HoldingClipPlayback)
             HighPriority = false;
-        Sound = sound;
-        Start = now;
-        Active = true;
-        HighPriority = policy.Priority switch
-        {
-            SoundEffectPriorityEffect.Low => false,
-            SoundEffectPriorityEffect.High => true,
-            SoundEffectPriorityEffect.Unchanged => HighPriority,
-            _ => throw new InvalidDataException($"Unknown priority effect {policy.Priority}."),
-        };
-        InLowHealthMode = policy.LowHealthMode switch
-        {
-            LowHealthModeEffect.Unchanged => InLowHealthMode,
-            LowHealthModeEffect.Clear => false,
-            LowHealthModeEffect.Enter => true,
-            _ => throw new InvalidDataException($"Unknown low-health mode effect {policy.LowHealthMode}."),
-        };
+        Playback = new HoldingClipPlayback(sound, now);
+        HighPriority = PrioritySetBy[policy.Priority] ?? HighPriority;
+        InLowHealthMode = LowHealthModeSetBy[policy.LowHealthMode] ?? InLowHealthMode;
     }
+
+    /// <summary>The priority each priority effect gives the library, or null for one that keeps it.</summary>
+    private static IdentityTable<SoundEffectPriorityEffect, bool?> PrioritySetBy => field ??= new(new Dictionary<SoundEffectPriorityEffect, bool?>
+    {
+        [SoundEffectPriorityEffect.Low] = false,
+        [SoundEffectPriorityEffect.High] = true,
+        [SoundEffectPriorityEffect.Unchanged] = null,
+    });
+
+    /// <summary>The low-health mode each low-health effect gives the library, or null for one that keeps it.</summary>
+    private static IdentityTable<LowHealthModeEffect, bool?> LowHealthModeSetBy => field ??= new(new Dictionary<LowHealthModeEffect, bool?>
+    {
+        [LowHealthModeEffect.Unchanged] = null,
+        [LowHealthModeEffect.Clear] = false,
+        [LowHealthModeEffect.Enter] = true,
+    });
 
     /// <summary>Ends the sound at a request check after its logical end, releasing the library and its priority.</summary>
     internal void EndIfFinished(long now)
     {
-        if (Active && Sound?.ActiveFrames is long active && now - Start > active)
+        if (Playback is HoldingClipPlayback { Sound.Shape: OneShotSoundEffectClip { ActiveFrames: long active } } holding &&
+            now - holding.Start > active)
         {
-            Active = false;
+            Playback = new EndedClipPlayback(holding.Sound, holding.Start);
             HighPriority = false;
         }
     }

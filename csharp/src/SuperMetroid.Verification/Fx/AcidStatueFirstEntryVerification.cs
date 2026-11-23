@@ -31,7 +31,7 @@ internal static class AcidStatueFirstEntryVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.LowerNorfairChozoLoweredAcid);
         runtime.LoadCartridgeRoomForDebug(sourceRoom);
 
@@ -56,7 +56,7 @@ internal static class AcidStatueFirstEntryVerification
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
             camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
@@ -86,7 +86,7 @@ internal static class AcidStatueFirstEntryVerification
             if (snapshot is null)
                 continue;
             RgbaPixel[] pixels = DisplayRendering.Render(snapshot);
-            if (phase is DoorTransitionPhase.FinishDoorOpeningScroll or DoorTransitionPhase.FadeInDestinationRoom)
+            if (phase is DoorTransitionPhase.Running.FinishDoorOpeningScroll or DoorTransitionPhase.Running.FadeInDestinationRoom)
             {
                 sawDestinationFade = true;
                 AssertEqual(RoomFxType.Acid, (displayed ?? throw new InvalidOperationException("Verification requires displayed.")).Type,

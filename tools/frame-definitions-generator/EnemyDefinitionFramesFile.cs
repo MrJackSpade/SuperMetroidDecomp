@@ -7,7 +7,7 @@ internal static class EnemyDefinitionFramesFile
     public static GeneratedFile Create(string repository, CoreModel model, SpawnAnalysis analysis)
     {
         var lines = new List<string>();
-        lines.AddRange(CoreModel.Usings(model.ArchitectureReview, model.EnemyDefinitionId, model.EnemyFrameId));
+        lines.AddRange(CoreModel.Usings(model.EnemyDefinitionId, model.EnemyFrameId));
         lines.AddRange(
         [
             "",
@@ -17,13 +17,12 @@ internal static class EnemyDefinitionFramesFile
             "/// The frames each enemy definition can show (#1392): the frames its behaviour's code reaches, which its pre-coloured",
             $"/// sheets hold. Generated from the enemy behaviours by {GeneratedFile.GeneratorPath}; regenerate rather than edit.",
             "/// </summary>",
-            "[ArchitectureReview(\"large\", \"Generated data: the two thousand frames the enemy definitions show; it holds no logic, "
-                + "and splitting it by family would only scatter one table the sheet composer reads as a whole.\")]",
-            "internal static class EnemyDefinitionFrameDefinitions",
+            "internal static partial class EnemyDefinitionFrameDefinitions",
             "{",
         ]);
         var arrayOf = new Dictionary<string, string>(StringComparer.Ordinal);
         var names = new HashSet<string>(StringComparer.Ordinal);
+        var written = new Dictionary<string, string>(StringComparer.Ordinal);
         int frameCount = 0;
         foreach (BehaviourSpawns spawns in analysis.Behaviours)
         {
@@ -43,9 +42,15 @@ internal static class EnemyDefinitionFramesFile
                 lines.Add(groups.Count == 1
                     ? $"    /// <summary>The frames <c>{behaviour.Path}</c> shows.</summary>"
                     : $"    /// <summary>The frames <c>{behaviour.Path}</c> shows for {string.Join(", ", group.Select(d => $"<c>{d}</c>"))}.</summary>");
+                string members = string.Join(',', frames);
                 if (frames.Count == 0)
                 {
                     lines.Add($"    private static readonly EnemyFrameId[] {name} = [];");
+                }
+                else if (frames.Count > 1 && written.TryGetValue(members, out string? first))
+                {
+                    // #2557: another behaviour's array holds the same frames, so this one names it rather than listing them again.
+                    lines.Add($"    private static readonly EnemyFrameId[] {name} = {first};");
                 }
                 else
                 {
@@ -53,6 +58,7 @@ internal static class EnemyDefinitionFramesFile
                     lines.Add("    [");
                     lines.AddRange(frames.Select(frame => $"        EnemyFrameId.{frame},"));
                     lines.Add("    ];");
+                    written[members] = name;
                 }
                 lines.Add("");
                 foreach (string definition in group)

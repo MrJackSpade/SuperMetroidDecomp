@@ -51,11 +51,11 @@ internal static class InstalledSporesTests
     /// <summary>Checks the installed spores FX over freeze, scroll wrap, and animated transfers while guarding gameplay state.</summary>
     private static void CheckOwners(ImportAreaMapPresentation stock, List<DisplayPacket> packets)
     {
-        var mechanics = RoomFxBlockAnimationLoops.All.Single(
+        var mechanics = RoomFxBlockAnimationLoopsConstants.All.Single(
             value => value == BlockAnimation.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.PictureByteCount == 48 &&
             AnimatedTileVramDestinations.WordOf(mechanics) == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
-            mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
+            mechanics.Frames.Count == 3 && BlockAnimationLoopPasses.Of(mechanics).All(passes => passes == 10),
             "Compiled spores controls differ from pinned $87:82ED-$8302.");
         int records = 0, comparisons = 0;
         foreach (var definition in CoreAccess.AllRoomFxRecords().Where(record => record.Type == RoomFxType.Spores))
@@ -70,7 +70,7 @@ internal static class InstalledSporesTests
                 "A compiled spores record describes another blend.");
             // Since #1348 the room's BG3 plane shows the effect's page directly instead of a copy written into VRAM.
             // The plane names the effect's page (#1466); the installed sheet pictures its words.
-            Require(baseline.OverlayEffect == RoomFxType.Spores && baseline.EffectPlane.Effect == RoomFxType.Spores,
+            Require(baseline.Type == RoomFxType.Spores && baseline.IsRenderable && baseline.EffectPlane.Effect == RoomFxType.Spores,
                 "The spores room does not show the spores BG3 page.");
             int tick = 0;
             for (int frame = 0; frame < 1050; frame++)
@@ -116,12 +116,12 @@ internal static class InstalledSporesTests
                         FxOverlayFixtures.ArtworkOf(baseline.EffectPlane, stock.RoomFxPages,
                             new byte[SnesVram.ByteCount], new RgbColor[SnesCgram.ColorCount]));
                     var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(gameplay, spores, (OverlayBehindRoomBlend)spores.Blend);
-                    Require(!layer.RevealBlocks && layer.Blend.Blended == (BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop) &&
-                        layer.Blend.Operation == BlendOperation.Add && !layer.Blend.Halved &&
+                    Require(!layer.RevealBlocks && layer.Blend is EffectBehindRoomBlend { Effect: { Blended: BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop, Operation: BlendOperation.Add } } &&
+                        
                         layer.Window.IsClosed && layer.OverlayBehind is not null && !layer.BackgroundBehind,
                         "Spore capture does not brighten the background, the actors and the backdrop with the spores lying behind them.");
                     packets.Add(new(packets.Count + 1, new LayeredScene(
-                        FramePaint.FromNativeGameplay(new RgbColor[SnesCgram.ColorCount], []), [layer], 15)));
+                        FramePaint.FromNativeGameplay(new RgbColor[SnesCgram.ColorCount], []), [layer], DisplayBrightness.Full)));
                 }
                 comparisons++;
             }
@@ -151,13 +151,13 @@ internal static class InstalledSporesTests
         {
             int segmentSource = RoomFxBlockAnimationSources.Of(segment).Value;
             for (int index = 0; index < segment.ByteCount; index++)
-                Require(planar[segmentOffset + index] == SuperMetroid.AssetExtraction.Cartridge.SnesCartridgeImportExtensions.ReadCartridgeByte(rom, segmentSource + index),
+                Require(planar[segmentOffset + index] == rom.ReadCartridgeByte(segmentSource + index),
                     $"Installed sheet segment ${segmentSource:X6} differs from its native bytes at +{index}.");
             segmentOffset += segment.ByteCount;
         }
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
-        int sporesOffset = RoomFxBlockAnimationAtlasFormat.PreSporesTileCount * 16;
-        var controls = RoomFxBlockAnimationLoops.All.Single(
+        int sporesOffset = RoomFxBlockAnimationAtlasFormat.SporesFirstTile * 16;
+        var controls = RoomFxBlockAnimationLoopsConstants.All.Single(
             value => value == BlockAnimation.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
@@ -202,11 +202,11 @@ internal static class InstalledSporesTests
                 ScreenLayers.Sprites | ((enabled & 1) != 0 ? ScreenLayers.Foreground : 0) |
                     ((enabled & 2) != 0 ? ScreenLayers.Background : 0));
             ShownRoomEffectOverlay spores = FxOverlayFixtures.Overlay(
-                new(RoomFxType.Spores, RoomEffectOverlayLook.Atmosphere(RoomEffectBlendDefinitions.SporesBrightenBehind), Position16<OverlayPixels>.Zero, null),
+                new(RoomFxType.Spores, RoomEffectOverlayLook.Of(RoomFxType.Spores, RoomEffectBlendDefinitions.SporesBrightenBehind)!, Position16<OverlayPixels>.Zero, null),
                 FxOverlayFixtures.ArtworkFromVram(RoomFxType.Spores, vram.Bytes, colors, 0x4000));
             var layer = GameplayEffectCapture.CaptureEffectBlendingBehind(new(registers, RoomBackgroundsFixtures.Uniform(vram.Bytes, colors, new((ushort)(1 | (bg1High ? 0x2000 : 0))))),
                 spores, (OverlayBehindRoomBlend)spores.Blend);
-            var scene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, colors, oam, 1, 0), [layer], 15);
+            var scene = new LayeredScene(FramePaint.FromOamGameplay(vram.Bytes, colors, oam, 1, 0), [layer], DisplayBrightness.Full);
             RgbaPixel[] pixels = DisplayRendering.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only
             // post-process cannot distinguish excluded BG1/low OBJ from BG2 here.

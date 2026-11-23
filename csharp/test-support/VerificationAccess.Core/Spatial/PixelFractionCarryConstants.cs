@@ -8,5 +8,5 @@ internal static class PixelFractionCarryConstants
     public static PixelFractionCarry Of(SignedEightEight part) =>
         part.IsNegative || part.WholePixels != 0
             ? throw new ArgumentOutOfRangeException(nameof(part), part, "A carried part of a pixel lies from none up to one pixel.")
-            : new(part);
+            : new global::SuperMetroid.Core.Spatial.PixelFractionCarry(part);
 }

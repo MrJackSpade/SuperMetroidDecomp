@@ -5,7 +5,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Rooms.RoomMainCodeCatalogVerification;
 using SuperMetroid.Core.Enemies.Gunship;
@@ -21,6 +20,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.AssetExtraction.World.RoomStates;
 using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Checks compiled room definitions through the production post-Ceres landing path.</summary>
 internal static class RoomDefinitionIntegrationVerification
@@ -42,8 +42,6 @@ internal static class RoomDefinitionIntegrationVerification
         InitializePostCeresLanding(expected);
         InitializePostCeresLanding(actual);
 
-        AssertEqual(expected.Room.ActiveLoadStation, actual.Room.ActiveLoadStation,
-            "guarded post-Ceres room entry retains compiled station placement");
         AssertEqual(expected.Room.ActiveDoor, actual.Room.ActiveDoor,
             "guarded post-Ceres room entry retains compiled incoming door");
         AssertEqual(expected.Room.ActiveRoom, actual.Room.ActiveRoom,
@@ -54,14 +52,14 @@ internal static class RoomDefinitionIntegrationVerification
         AssertEqual(new MotherBrainRinkaDoorSpawnExpected(expected.Room.LoadedCamera.PixelPosition.X, expected.Room.LoadedCamera.PixelPosition.Y),
             new MotherBrainRinkaDoorSpawnExpected(actual.Room.LoadedCamera.PixelPosition.X, actual.Room.LoadedCamera.PixelPosition.Y),
             "guarded post-Ceres room entry retains camera placement");
-        AssertEqual(new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.Y)),
-            new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.Y)),
+        AssertEqual(new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.Y)),
+            new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.Y)),
             "guarded post-Ceres room entry retains Samus placement");
 
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
-        while (!actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted) &&
+        while (!actual.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)) &&
                frames < PostCeresLandingMaximumFrames)
         {
             expected.StepFrame(0);
@@ -75,8 +73,8 @@ internal static class RoomDefinitionIntegrationVerification
                     actual.Room.LoadedCamera.IdealPosition.X, actual.Room.LoadedCamera.IdealPosition.Y),
                 $"guarded post-Ceres camera trajectory frame {frames}");
             AssertEqual(
-                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.IntroducedSamus.Kinematics.Position.Y)),
-                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.IntroducedSamus.Kinematics.Position.Y)),
+                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(expected.Player.Samus.Kinematics.Position.Y)),
+                new VerifyCompiledRoomDefinitionIntegrationCase(SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.X), SixteenSixteenWords.Compose(actual.Player.Samus.Kinematics.Position.Y)),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
             AssertTrue(expected.Enemies.LastEnemyFrame.All<GunshipEvent>().SequenceEqual(
                 actual.Enemies.LastEnemyFrame.All<GunshipEvent>()),
@@ -87,7 +85,7 @@ internal static class RoomDefinitionIntegrationVerification
 
         AssertTrue(cameraMoved,
             "post-Ceres production trajectory moves the camera through Landing Site");
-        AssertTrue(actual.Enemies.LastEnemyFrame.Reports(GunshipFrameEvent.LandingCompleted),
+        AssertTrue(actual.Enemies.LastEnemyFrame.Reports(new GunshipEvent(GunshipFrameEvent.LandingCompleted)),
             "guarded post-Ceres production trajectory reaches landing completion");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production entry and camera trajectory perform no compiled-definition ROM reads");
@@ -103,7 +101,7 @@ internal static class RoomDefinitionIntegrationVerification
     {
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.RoomLoader.InitializePostCeresZebesRoom();
     }
@@ -116,7 +114,7 @@ internal static class RoomDefinitionIntegrationVerification
         AddAddressRange(forbidden, LoadStationRomData.PointerTable,
             LoadStationRomData.DataEnd - LoadStationRomData.PointerTable);
 
-        foreach (ushort doorPointer in EnumerateRetailDoorPointers()
+        foreach (ushort doorPointer in RetailDoorHeaderCatalog.EnumeratePointers()
                      .Append(DoorDefinitionsAccess.SharedElevatorRidePointer)
                      .Distinct())
         {

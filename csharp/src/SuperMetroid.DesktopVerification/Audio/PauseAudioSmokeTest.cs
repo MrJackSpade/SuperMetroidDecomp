@@ -21,12 +21,10 @@ public static class PauseAudioSmokeTest
     public static PauseAudioSmokeTestResult Run()
     {
         SaveSlotStore saves = SeedCrateriaSave();
-        var game = new SuperMetroidGame(
-            saves,
+        // The game draws the title and file screens from installed artwork and mixes the installed clips, as hosts build it.
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGameWithAudio(
+            saves, RepositoryInstallation.Installation.LoadAudioClips().Clips,
             new SuperMetroid.Core.Gameplay.GameplayAssists { SkipOpeningCinematic = true });
-        // A bare game draws the title and file screens from installed artwork, as the hosts bind it.
-        InstalledGameBindings.Create(RepositoryInstallation.Installation)(game);
-        game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips().Clips);
         var samples = new short[AudioSession.PcmSamplesPerFrame];
         FrontendFrame frame = default;
         int frames = 0;
@@ -101,9 +99,9 @@ public static class PauseAudioSmokeTest
             throw new InvalidDataException("Pause PCM audit did not exercise audio or pause states.");
         SoundEffectId[] expectedCancellations =
         [
-            SamusSound.Silence,
-            EnemySound.Silence,
-            RoomSound.Silence,
+            SamusSoundStop.Any,
+            EnemySoundStop.Any,
+            RoomSoundStop.Any,
         ];
         int cancellationCursor = 0;
         foreach (SoundEffectId start in pauseSoundStarts)

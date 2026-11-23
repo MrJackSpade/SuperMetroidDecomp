@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -22,11 +21,11 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         AssertEqual(4, SporeSpawnProjectileDefinitions.Emitters.Count, "Spore Spawn emitters");
         for (ushort index = 0; index < 4; index++)
         {
-            AssertEqual(0, SporeSpawnProjectileDefinitions.StalkSegments[index].X, $"Spore Spawn stalk X {index}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)),
-                CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].Y),
+            AssertEqual(0, SporeSpawnProjectileDefinitions.StalkSegments[index].SpawnOffset.X, $"Spore Spawn stalk X {index}");
+            AssertEqual(rom.ReadCartridgeWord((0x86dcb9 + index * 2)),
+                CoordinateAxis.Wrap(SporeSpawnProjectileDefinitions.StalkSegments[index].SpawnOffset.Y),
                 $"Spore Spawn stalk Y {index}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0x86dce6 + index * 2)),
                 SporeSpawnProjectileDefinitions.Emitters[index].Place.X,
                 $"Spore Spawn emitter X {index}");
             // The cartridge mirrors the drift of a spore released in the right half of its screen.
@@ -36,7 +35,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
         // A shot spore's drop rolls the table the cartridge's spore drop names through the header at $A0:DF7F, whose
         // drop-chance word lies 58 bytes in (#2244).
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(EnemyHeaderTables.DropChances(cartridge, cartridge.ReadCartridgeWord((RoomEnemyRomLayout.DefinitionBank | 0xdf7f) + 58)),
             SporeSpawnProjectileDefinitions.SporeDropChances, "a shot spore's drop chances are the cartridge's");
         // The cartridge keeps the drift as one byte stream, each step's X then its Y, and moves a spore down by its Y byte
@@ -52,9 +51,9 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
-        Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
-        Action<EnemyProjectile> move = SporeSpawnSporeBehavior.DriftSpore;
+        Action<RoomEnemyPlace, ushort> spawnStalk = (stalkBody, stalkIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk(stalkBody.BoundFor(EnemyDefinitionId.SporeSpawn), stalkBody, SporeSpawnProjectileDefinitions.StalkSegments[stalkIndex]);
+        Action<RoomEnemyPlace, ushort> spawnSpawner = (spawnerBody, spawnerIndex) => enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(spawnerBody.HeldOccupant(), spawnerBody, new SporeSpawnEnemyState(), SporeSpawnProjectileDefinitions.Emitters[spawnerIndex]);
+        Action<EnemyProjectile> move = enemies.SporeSpawnBehavior.Spore.DriftSpore;
         RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
         body.Position = body.Position.WithWhole(new(0x1234, 0x0200));
         for (ushort index = 0; index < 4; index++)
@@ -64,27 +63,26 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             spawnStalk(body, index);
             EnemyProjectile stalk = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
             AssertEqual(body.Position.X.Whole, stalk.Position.X.Whole, $"Spore Spawn production stalk X {index}");
-            AssertEqual(unchecked((ushort)(body.Position.Y.Whole + CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)))),
+            AssertEqual(unchecked((ushort)(body.Position.Y.Whole + rom.ReadCartridgeWord((0x86dcb9 + index * 2)))),
                 stalk.Position.Y.Whole, $"Spore Spawn production stalk Y {index}");
 
             foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles)
                 projectile.Delete();
             spawnSpawner(body, index);
             EnemyProjectile spawner = enemies.Projectiles.EnemyProjectiles.Single(p => p.IsActive);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dce6 + index * 2)), spawner.Position.X.Whole,
+            AssertEqual(rom.ReadCartridgeWord((0x86dce6 + index * 2)), spawner.Position.X.Whole,
                 $"Spore Spawn production emitter X {index}");
             AssertEqual((ushort)520, spawner.Position.Y.Whole,
                 $"Spore Spawn production emitter Y {index}");
         }
 
-        EnemyProjectile spore = enemies.Projectiles.ProjectileInPlace(0);
         for (int step = 0; step < 128; step++)
         for (int mirrored = 0; mirrored < 2; mirrored++)
         {
             int offset = step * 2;
-            spore.Kind = RoomEnemyProjectileKind.SporeSpawnSpore;
+            EnemyProjectile spore = FamilyProjectileStarts.Allocate(enemies, RoomEnemyProjectileKind.SporeSpawnSpore, SpriteGraphics.SharedIn(new SporeSpawnEnemyState().Colours.Sprites));
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
-            spore.State = new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) };
+            enemies.SporeSpawnBehavior.Spore.Drifts.Start(spore, new SporeSpawnSporeState(mirrored != 0 ? HorizontalDirection.Left : HorizontalDirection.Right) { PathStep = ListStep<Offset16<RoomPixels>>.At(SporeSpawnProjectileDefinitions.Drift, step) });
             int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
             int y = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);
@@ -92,8 +90,9 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 spore.Position.X.Whole, $"Spore Spawn production X {offset:X2}/{mirrored}");
             AssertEqual(unchecked((ushort)(0x0200 + y + y)), spore.Position.Y.Whole,
                 $"Spore Spawn production Y {offset:X2}/{mirrored}");
-            AssertEqual((step + 1) % 128, spore.StateOf<SporeSpawnSporeState>().PathStep.Place,
+            AssertEqual((step + 1) % 128, enemies.SporeSpawnBehavior.Spore.Drifts.Of(spore).PathStep.Place,
                 $"Spore Spawn production path step {offset:X2}/{mirrored}");
+            spore.Delete();
         }
 
         Console.WriteLine(

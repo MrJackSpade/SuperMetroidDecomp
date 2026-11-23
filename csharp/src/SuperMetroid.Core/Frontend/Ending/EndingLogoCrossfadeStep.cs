@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// One step of the assembled logo's colour crossfade (#2361): the logo shows each step's background and sprite colours in
 /// turn, then hands off to the percentage text after the last.
 /// </summary>
-public readonly record struct EndingLogoCrossfadeStep
+public readonly partial record struct EndingLogoCrossfadeStep
 {
     /// <summary>The step at <paramref name="step"/> of the crossfade.</summary>
     private EndingLogoCrossfadeStep(int step) => Step = step;

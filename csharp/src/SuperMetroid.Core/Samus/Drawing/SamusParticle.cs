@@ -5,9 +5,10 @@ namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>
 /// One of Samus's particles: what it shows, where, and its animation (#2388), played once through the shared animation
-/// player after any hidden wait.
+/// player after any hidden wait. A particle stands in one of two stages (#2554): waiting hidden, which shows nothing, or
+/// showing its animation, which always shows a picture.
 /// </summary>
-public sealed class SamusParticle
+public sealed partial class SamusParticle
 {
     /// <summary>Starts a particle at <paramref name="from"/> in its animation.</summary>
     /// <param name="kind">What it shows.</param>
@@ -28,21 +29,23 @@ public sealed class SamusParticle
         Position16<RoomPixels> position,
         Offset16<RoomPixels> drift)
     {
-        if ((start.StepUpdates > 0) == (start.HiddenUpdates > 0))
-            throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
+        Ensure.NotNull(start);
         Kind = kind;
         Animation<SamusParticleKind> animation = SamusParticleAnimations.Animations[kind];
-        Animation = AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.Starting(SamusParticleAnimations.Segments, animation);
-        if (start.StepUpdates > 0)
+        switch (start)
         {
-            Animation.ShowAt(animation, from, start.StepUpdates);
-        }
-        else
-        {
-            // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
-            if (from != AnimationPlace.StartOfAnimation)
-                throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
-            Hidden = UpdateCountdown.For(start.HiddenUpdates);
+            case SamusParticleStart.ShownAtOnce shown:
+                Stage = new SamusParticleStage.Showing(ShowingAnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.StartShowingAt(
+                    SamusParticleAnimations.Segments, animation, from, shown.StepUpdates));
+                break;
+            case SamusParticleStart.HiddenFirst hidden:
+                // Every producer starts a hidden particle on its first picture, which shows for its own updates once the wait ends.
+                if (from != AnimationPlace.StartOfAnimation)
+                    throw new ArgumentOutOfRangeException(nameof(from), from, "A hidden particle starts on its first picture.");
+                Stage = new SamusParticleStage.Waiting(UpdateCountdown.For(hidden.Updates), animation);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(start), start, "A particle either shows at once or starts hidden.");
         }
         Position = position;
         Drift = drift;
@@ -51,14 +54,8 @@ public sealed class SamusParticle
     /// <summary>What the particle shows.</summary>
     public SamusParticleKind Kind { get; }
 
-    /// <summary>The particle's animation: nothing shown while it waits hidden, then its pictures in turn.</summary>
-    internal AnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue> Animation { get; }
-
-    /// <summary>The picture it shows, or null while it waits hidden.</summary>
-    public SamusAtmosphereFrame? Shown => IsHidden ? null : Animation.Shown;
-
-    /// <summary>The wait before it shows, counting the update it first shows on; over once shown.</summary>
-    public UpdateCountdown Hidden { get; private set; } = UpdateCountdown.Ended();
+    /// <summary>Where the particle stands: waiting hidden, or showing its animation's pictures.</summary>
+    internal SamusParticleStage Stage { get; set; }
 
     /// <summary>
     /// Where it is, in whole room pixels: the camera is subtracted only when drawing, a diving splash follows the live water surface and lava spray and dust drift on each update they are shown.
@@ -68,11 +65,8 @@ public sealed class SamusParticle
     /// <summary>How far it moves on each update it is shown.</summary>
     public Offset16<RoomPixels> Drift { get; }
 
-    /// <summary>Whether it waits hidden.</summary>
-    public bool IsHidden => Hidden.IsRunning;
-
     /// <summary>Whether its animation has run out; a finished particle is no longer shown.</summary>
-    public bool IsFinished => Animation.HasStopped;
+    public bool IsFinished => Stage is SamusParticleStage.Showing { Animation.HasStopped: true };
 
     /// <summary>
     /// The updates a particle of <paramref name="kind"/> starting at <paramref name="from"/> as <paramref name="start"/>
@@ -100,9 +94,20 @@ public sealed class SamusParticle
     {
         if (IsFinished)
             throw new InvalidOperationException("A finished particle is not advanced.");
-        if (Hidden.IsRunning && !Hidden.Count())
-            return;
-        Animation.Step();
+        switch (Stage)
+        {
+            case SamusParticleStage.Waiting waiting:
+                if (!waiting.Wait.Count())
+                    return;
+                Stage = new SamusParticleStage.Showing(ShowingAnimationPlayer<SamusParticleKind, SamusAtmosphereFrame, NoAnimationCue>.StartShowing(
+                    SamusParticleAnimations.Segments, waiting.Animation));
+                break;
+            case SamusParticleStage.Showing showing:
+                showing.Animation.Step();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined particle stage {Stage}.");
+        }
         if (IsFinished)
             return;
         Position += Drift;

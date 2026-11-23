@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -35,7 +36,7 @@ internal static class GameOptionsLanguagePalettesVerification
                 int[] countOperands = enabled == 0
                     ? [0x82f0d3, 0x82f0e2, 0x82f0f1, 0x82f0ff]
                     : [0x82f114, 0x82f123, 0x82f132, 0x82f140];
-                byte[] page = presentation.CreatePageBytes(GameOptionsScreen.SpecialEnglish);
+                byte[] page = presentation.CreatePageBytes(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English));
                 presentation.ApplySpecialToggle(page, setting == 0
                     ? GameOptionsToggle.IconCancel
                     : GameOptionsToggle.Moonwalk, enabled != 0);
@@ -58,14 +59,11 @@ internal static class GameOptionsLanguagePalettesVerification
                 }
             }
         }
-        foreach (int setting in new[] { int.MinValue, -1, 2, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.ToggleLayout(setting),
-                $"invalid toggle layout {setting}");
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
 
     /// <summary>Reads native toggle geometry and palette operands for the layout comparison.</summary>
-    private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GameOptionsToggleGeometryRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks every tilemap word in four language regions for Japanese and English states.</summary>
     internal static void VerifyGameOptionsLanguagePalettes()
@@ -78,20 +76,18 @@ internal static class GameOptionsLanguagePalettesVerification
         GameOptionsSourcePresentation presentation = GameOptionsSourcePresentation.Load(new MemoryStream(extracted));
         InstalledScreenContent installed = RetailPresentationFixture();
         AssertEqual(4, GameOptionsPageDefinitions.LanguageRegions.RowCount, "native language highlight has four regions");
-        foreach (int index in new[] { int.MinValue, -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsPageCells.LanguagePaletteRegion(index),
-                $"unsupported language region {index}");
+        AssertEqual(GameOptionsPageDefinitions.LanguageRegions.RowCount, GameOptionsPageCells.LanguagePaletteRegions.Count, "one installed region per label row");
 
         // Set_Language_Text_Option_Highlight ($82:EDED) chooses palette zero for
         // the first pair with AltText=0 and the second pair with AltText=1.
         // Check every word, not just the first cell, on both runtime paths.
-        for (int language = 0; language < 2; language++)
+        foreach (TextLanguage language in Enum.GetValues<TextLanguage>())
         {
-            bool japanese = language != 0;
-            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), japaneseText: japanese, screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false);
+            bool japanese = language == TextLanguage.Japanese;
+            var menu = new GameOptionsMenuState(AudioQueues.Standalone(), language: language, screenContent: installed, spriteSheets: MenuSheetFixtures.For(installed), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false);
             ReadOnlySpan<byte> vram = menu.ShownPageBytes(RetailImportPresentationFixture());
             byte[] editablePage = presentation.CreatePageBytes(GameOptionsScreen.Primary);
-            presentation.ApplyLanguage(editablePage, japanese);
+            presentation.ApplyLanguage(editablePage, language);
 
             for (int regionIndex = 0; regionIndex < 4; regionIndex++)
             {
@@ -103,10 +99,10 @@ internal static class GameOptionsLanguagePalettesVerification
                 int originalOffset = ReadVerificationWord(bus, instruction + 1);
                 int originalCount = ReadVerificationWord(bus, instruction + 4);
                 int expected = ReadVerificationWord(bus, instruction + 7) >> 10;
-                GameOptionsLanguagePaletteRegion region = GameOptionsPageCells.LanguagePaletteRegion(regionIndex);
+                GameOptionsLanguagePaletteRegion region = GameOptionsPageCells.LanguagePaletteRegions[regionIndex];
                 AssertEqual(originalOffset, region.ByteOffset, "language region offset");
                 AssertEqual(originalCount, region.ByteCount, "language region byte count");
-                AssertEqual(expected == 0, region.HighlightWhenJapanese == japanese, "language selection polarity");
+                AssertEqual(expected == 0, region.Language == language, "language selection polarity");
                 for (int offset = originalOffset; offset < originalOffset + originalCount; offset += 2)
                 {
                     int runtimePalette = PaletteAt(vram, offset);
@@ -125,7 +121,7 @@ internal static class GameOptionsLanguagePalettesVerification
     }
 
     /// <summary>Reads native language-region operands for the tilemap palette comparison.</summary>
-    private static byte GameOptionsLanguagePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GameOptionsLanguagePalettesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Runs the options toggle geometry check.</summary>
     [VerificationCommand("--lookup-options-toggle-geometry")]

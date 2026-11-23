@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// and sound-effect starts the session's <see cref="SoundAcceptanceClock{TLibrary, TSound}"/> published. One owner must
 /// call it in update order.
 /// </summary>
-public sealed class ManagedSpcAudioBackend
+public sealed partial class ManagedSpcAudioBackend
 {
     /// <summary>Decoded cartridge uploads, instruments, music, sound programs, and sample banks.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
@@ -59,21 +59,30 @@ public sealed class ManagedSpcAudioBackend
                     LoadBank(AudioAssetCatalogDefinitions.BankOf(change.DataSet));
                     loadedDataSet = change.DataSet;
                     break;
+                case AudioEvent.InstallSharedSounds:
+                    RequireBeforeTicks(ticks, audioEvent);
+                    LoadBank(AudioAssetCatalogDefinitions.BankOf(null));
+                    loadedDataSet = null;
+                    break;
                 case AudioEvent.SelectMusicTrack selection:
                     RequireBeforeTicks(ticks, audioEvent);
-                    Player.WriteMusicPort(checked((byte)(selection.Track is MusicTrack track ? MusicTrackNumbers.Number(loadedDataSet, track) : 0)));
+                    Player.WriteMusicPort(checked((byte)MusicTrackNumbers.Number(loadedDataSet, selection.Track)));
+                    break;
+                case AudioEvent.StopMusic:
+                    RequireBeforeTicks(ticks, audioEvent);
+                    Player.WriteMusicPort(MusicTrackNumbers.Silence);
                     break;
                 case AudioEvent.ClockStep step:
                     if (ticks == schedule.Length)
                         throw new InvalidDataException($"An update holds more than {schedule.Length} driver ticks.");
-                    schedule[ticks++] = new SoundClockStep<SoundEffectLibrary, byte>(step.SampleOffset, step.Steps, step.ChecksRequests,
-                        step.ChecksRequests ? new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder, _ => default) : default);
+                    schedule[ticks++] = new SoundClockStep<SoundEffectLibrary, byte>(step.SampleOffset, step.Steps,
+                        step.ChecksRequests ? new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder, _ => default) : null);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
-                    if (ticks == 0 || !schedule[ticks - 1].ChecksRequests ||
+                    if (ticks == 0 || schedule[ticks - 1].Checks is not { } polled ||
                         schedule[ticks - 1].SampleOffset != startSoundEffect.SampleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its polling driver tick.");
-                    schedule[ticks - 1] = StartAt(schedule[ticks - 1], startSoundEffect.SoundEffect);
+                    schedule[ticks - 1] = StartAt(schedule[ticks - 1], polled, startSoundEffect.SoundEffect);
                     break;
                 default:
                     throw new InvalidDataException($"Unknown audio event {audioEvent}.");
@@ -87,7 +96,7 @@ public sealed class ManagedSpcAudioBackend
     {
         Player.Uploads.Upload(assets.GetUpload(bank).Span);
         Player.Uploads.ApplyInstrumentDefinitions(assets.GetInstrumentBank(bank));
-        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), assets.GetCompiledMusicBank(bank));
+        Player.Uploads.ApplyMusicDefinitions(assets.GetMusicBank(bank), AudioAssetCatalogDefinitions.Get(bank).DataSet, assets.GetCompiledMusicBank(bank));
         Player.Uploads.ApplySoundEffectDefinitions(assets.SoundEffectImage);
         Player.SetSampleBank(assets.GetSampleBank(bank));
     }
@@ -100,17 +109,18 @@ public sealed class ManagedSpcAudioBackend
     }
 
     /// <summary>Marks <paramref name="soundEffect"/>'s library as acting on a changed request at <paramref name="tick"/>'s poll.</summary>
-    private static SoundClockStep<SoundEffectLibrary, byte> StartAt(SoundClockStep<SoundEffectLibrary, byte> tick, SoundEffectId soundEffect)
+    private static SoundClockStep<SoundEffectLibrary, byte> StartAt(SoundClockStep<SoundEffectLibrary, byte> tick,
+        SoundRequestChecks<SoundEffectLibrary, byte> polled, SoundEffectId soundEffect)
     {
         // The emulated driver reads the request number the sound has in its library.
-        SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(checked((byte)SoundEffectCommands.Command(soundEffect)), Changed: true);
+        SoundRequestCheck<byte> start = new SoundRequestCheck<byte>(new RequestedSound<byte>(checked((byte)SoundEffectCommands.Command(soundEffect))), Changed: true);
         SoundEffectLibrary started = soundEffect.Library;
         if (!SoundEffectLibraries.InQueueOrder.Contains(started))
             throw new ArgumentOutOfRangeException(nameof(soundEffect), started, "The tick's checks hold no check for this library.");
         return tick with
         {
             Checks = new SoundRequestChecks<SoundEffectLibrary, byte>(SoundEffectLibraries.InQueueOrder,
-                library => library == started ? start : tick.Checks[library]),
+                library => library == started ? start : polled[library]),
         };
     }
 }

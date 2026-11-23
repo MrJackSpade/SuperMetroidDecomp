@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Rooms.RoomBackgroundLibraryParityVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -57,7 +58,7 @@ internal static void VerifyLibraryBackgroundSourceInventory()
         .Where(source => source.Command == LibraryBackgroundCommand.Decompress)
         .Select(source => source.SourceAddress).Distinct())
         RoomBackgroundTilemapFormat.ValidatePageCount(
-            RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source).Length);
+            RomDataReader.Decompress(bus, source).Length);
     VerifyKraidLibraryHudArtwork(bus, romTransfers);
     Console.WriteLine($"  Library BG inventory: {sources.Count} source operands, " +
         $"{listCount} source-bearing lists, {compressedCount} distinct compressed sources, " +
@@ -85,7 +86,7 @@ static void VerifyKraidLibraryHudArtwork(
     AssertEqual((ushort)HudTileAtlasFormat.CharacterByteCount, (transfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires transfer.TransferByteCount.")),
         "Kraid HUD upload contains characters without the normal clearing half");
 
-    byte[] planar = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.HudCharacters,
+    byte[] planar = RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Artwork.HudCharacters,
         HudTileAtlasFormat.CharacterByteCount);
     byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 2, MapTileAtlasFormat.TileColumns,
         out Extent16<ImagePixels> size);
@@ -104,7 +105,7 @@ static void VerifyKraidLibraryHudArtwork(
     SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, stockVram,
         transfer.ListPointer, activeDoorPointer: 0);
     SnesVram installedVram = Replay(LibraryBackgroundProgramDefinitions.Get(transfer.ListPointer),
-        new LibraryBackgroundArtwork { TilemapArt = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BackgroundTilemaps, HudArt = Compile(pixels) });
+        SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { TilemapArt = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BackgroundTilemaps, HudArt = Compile(pixels) });
     int destinationByte = (transfer.VramDestination ?? throw new InvalidOperationException("Verification requires transfer.VramDestination.")) * 2;
     for (int index = 0; index < planar.Length; index++)
         AssertEqual(stockVram.ReadByte(destinationByte + index),
@@ -170,7 +171,7 @@ internal static void VerifyLibraryBackgroundLoader()
     vram = new SnesVram();
     vram.ExecuteWordTransfer([0xffff], 0x4800, 1);
     ImportedLibraryBackgroundList clear = LibraryBackgroundProgramImporter.Read(bus, 0xe040);
-    LibraryBackgroundReplay.Execute(vram, clear.Name, clear.Instructions, activeDoor: FixtureRooms.UnmatchedDoor, artwork: new LibraryBackgroundArtwork());
+    LibraryBackgroundReplay.Execute(vram, clear.Name, clear.Instructions, picture: LibraryBackgroundPicture.Ordinary, artwork: SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork);
     AssertEqual(0x0338, vram.ReadWord(0x4800), "library background clear first word");
     AssertEqual(0x0338, vram.ReadWord(0x4fff), "library background clear final word");
 
@@ -185,7 +186,7 @@ internal static void VerifyLibraryBackgroundLoader()
 private static SnesVram Replay(LibraryBackgroundProgram program, LibraryBackgroundArtwork artwork)
 {
     var vram = new SnesVram();
-    LibraryBackgroundReplay.Execute(vram, program, FixtureRooms.UnmatchedDoor, artwork);
+    LibraryBackgroundReplay.Execute(vram, program, LibraryBackgroundPicture.Ordinary, artwork);
     return vram;
 }
 

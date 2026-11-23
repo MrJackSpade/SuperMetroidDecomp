@@ -1,18 +1,18 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's figure-eight and swoop limits; definition data, not mutable enemy speed.</summary>
-public static class PhantoonMotionDefinitions
+public static partial class PhantoonMotionDefinitions
 {
     /// <summary>The horizontal swoop velocity, about eight pixels an update leftward, below which the leftward pull stops.</summary>
     public static SignedEightEight SwoopNegativeXThreshold { get; } = SignedEightEight.FromPixelFraction(-2047, 256);
 
-    /// <summary>The horizontal swoop velocity, eight pixels an update, at which the rightward pull stops.</summary>
+    /// <summary>The horizontal swoop velocity at which the rightward pull stops.</summary>
     public static SignedEightEight SwoopPositiveXLimit { get; } = SignedEightEight.FromPixels(8);
 
-    /// <summary>The speed his figure-eight starts from along its path: one place an update.</summary>
+    /// <summary>The speed his figure-eight starts from along its path.</summary>
     public static PhantoonPathSpeed FigureEightStartSpeed { get; } = PhantoonPathSpeed.FromPlaces(1);
 
-    /// <summary>The vertical swoop velocity, six pixels an update, at which the downward pull stops.</summary>
+    /// <summary>The vertical swoop velocity at which the downward pull stops.</summary>
     public static SignedEightEight SwoopPositiveYLimit { get; } = SignedEightEight.FromPixels(6);
 
     /// <summary>The swoop's horizontal pull toward its target, each update.</summary>
@@ -40,13 +40,13 @@ public static class PhantoonMotionDefinitions
     public static PhantoonPathSpeed FastSpeedChange { get; } = PhantoonPathSpeed.FromPlaceFraction(1, 16);
     /// <summary>The whole speed, in path places per update, at which a forward figure-eight stops easing in and surges.</summary>
     public const int ForwardSlowCap = 2;
-    /// <summary>The whole speed at which a forward figure-eight stops surging and settles: seven places per update.</summary>
+    /// <summary>The whole speed, in places per update, at which a forward figure-eight stops surging and settles.</summary>
     public const int ForwardFastCap = 7;
     /// <summary>The whole speed a forward figure-eight settles down to before it eases in again.</summary>
     public const int ForwardMinimum = 0;
-    /// <summary>The whole speed at which a returning figure-eight stops easing in and surges: two places per update back.</summary>
+    /// <summary>The whole speed, in places per update back, at which a returning figure-eight stops easing in and surges.</summary>
     public const int ReverseSlowCap = -2;
-    /// <summary>The whole speed at which a returning figure-eight stops surging and settles: seven places per update back.</summary>
+    /// <summary>The whole speed, in places per update back, at which a returning figure-eight stops surging and settles.</summary>
     public const int ReverseFastCap = -7;
     /// <summary>The speed a forward figure-eight surges from once it has eased in: a place an update.</summary>
     public static PhantoonPathSpeed ForwardSurgeStart { get; } = PhantoonPathSpeed.FromPlaces(ForwardSlowCap - 1);

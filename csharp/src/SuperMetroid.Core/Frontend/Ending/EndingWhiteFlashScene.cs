@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
@@ -6,11 +9,31 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </summary>
 /// <param name="jump">The landed jump's actors, which keep running.</param>
 /// <param name="flash">The flash's white wash.</param>
-internal sealed class EndingWhiteFlashScene(EndingRewardJump jump, WhiteWash flash) : EndingScene
+internal sealed partial class EndingWhiteFlashScene(EndingRewardJump jump, WhiteWash flash) : EndingActorScene
 {
     /// <summary>The landed jump's actors.</summary>
     internal EndingRewardJump Jump { get; } = Ensure.NotNull(jump);
 
     /// <summary>The flash's white wash.</summary>
     internal WhiteWash Flash { get; } = Ensure.NotNull(flash);
+
+    /// <inheritdoc/>
+    internal override EndingCreditsPhase Phase => EndingCreditsPhase.PostCreditsWhiteFlash;
+
+    /// <inheritdoc/>
+    internal override bool Step(EndingCreditsState ending)
+    {
+        ending.StepWhiteFlash(this);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    internal override void DrawActors(EndingCreditsState ending, ScreenSprites sprites, Func<EndingSpriteLayer, bool> shows)
+    {
+        if (shows(EndingSpriteLayer.Actors))
+            EndingCreditsPresentation.DrawJump(ending, sprites, Jump);
+    }
+    /// <inheritdoc/>
+    internal override LayeredScene CaptureScreen(EndingCreditsState ending, FramePaint paint) =>
+        EndingCreditsPresentation.CaptureSharedScreen(ending, paint);
 }

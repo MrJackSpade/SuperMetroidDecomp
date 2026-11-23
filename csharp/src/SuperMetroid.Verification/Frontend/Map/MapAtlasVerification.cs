@@ -15,7 +15,7 @@ internal static class MapAtlasVerification
     internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus,
         InstalledScreenContent original)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount);
+        byte[] source = RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount);
         var vram = new SnesVram();
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(original).Characters.Map.LoadTo(new VramRegion(vram, PpuMemoryLayout.Vram).Slice(0 / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         for (int i = 0; i < source.Length; i++) AssertEqual(source[i], vram.ReadByte(i), "stock PNG recompiles exact map tile bytes");

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// every frame of every run an effect's animation plays, its loop returning only to one of them. The import pre-colours a
 /// shade for each; the ending names the shade family of each.
 /// </summary>
-internal static class ColourEffectShownFrames
+internal static partial class ColourEffectShownFrames
 {
     /// <summary>
     /// Every colour group and frame <paramref name="effects"/> can show, each once, ordered by group and effect in their
@@ -24,16 +24,9 @@ internal static class ColourEffectShownFrames
             ColourEffectColours colours = ColourEffectAnimations.Definition(effect).Colours;
             foreach (AnimationBeat<int, ColourEffectCue> beat in Steps(effect))
             {
-                switch (beat)
-                {
-                    case AnimationBeat<int, ColourEffectCue>.Frame frame:
-                        shown.Add(new ShownColourEffectFrame(colours, new ColourEffectFrame(effect, frame.Shown)));
-                        break;
-                    case AnimationBeat<int, ColourEffectCue>.Event:
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Colour effect {effect} has an undefined step {beat}.");
-                }
+                // A pause, an event or a marker shows no frame.
+                if (beat.ShownFrame is { } frame)
+                    shown.Add(new ShownColourEffectFrame(colours, new ColourEffectFrame(effect, frame)));
             }
         }
         return [.. shown
@@ -47,6 +40,6 @@ internal static class ColourEffectShownFrames
     /// once, in the order the animation first plays them, which numbers its frames from zero in the order it shows them.
     /// </summary>
     internal static IEnumerable<AnimationBeat<int, ColourEffectCue>> Steps(ColourEffectId effect) =>
-        ColourEffectAnimations.Definition(effect).Animation.Phases.Select(phase => phase.Segment).Distinct()
+        ColourEffectAnimations.Definition(effect).Frames.OwnSegments.Distinct()
             .SelectMany(segment => ColourEffectAnimations.Segments.Beats(segment));
 }

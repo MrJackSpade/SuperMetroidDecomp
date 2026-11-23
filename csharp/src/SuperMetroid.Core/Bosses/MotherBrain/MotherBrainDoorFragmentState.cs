@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>What a fragment of the collapsing door in Mother Brain's room keeps: how long it falls before it turns to dust.</summary>
-internal sealed class MotherBrainDoorFragmentState : EnemyProjectileState
+internal sealed partial class MotherBrainDoorFragmentState : EnemyProjectileState
 {
     /// <summary>Starts the fragment's life.</summary>
     internal MotherBrainDoorFragmentState() => Lifetime.LastFor(MotherBrainDeathDefinitions.DoorFragmentLifetimeUpdates);

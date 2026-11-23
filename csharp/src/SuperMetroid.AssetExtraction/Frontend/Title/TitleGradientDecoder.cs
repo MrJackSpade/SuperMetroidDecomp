@@ -5,15 +5,14 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>
 /// Import-time reading of the title's native direct-mode HDMA tables: the only reader of their header, repeat-count
 /// and colour-write bytes, which it decodes at their own widths and turns into the gradient's stops once (#1468).
 /// </summary>
-[EncodingOwner("title gradient direct-mode HDMA tables")]
-public static class TitleGradientDecoder
+public static partial class TitleGradientDecoder
 {
     /// <summary>
     /// Decodes the selected title gradient's fixed-color and control HDMA tables into its stops: one wherever a line's
@@ -34,9 +33,9 @@ public static class TitleGradientDecoder
         for (int line = 0; line < ScreenGeometry.ScreenHeightPixels; line++)
         {
             byte write = fixedWrites[line], component = (byte)(write & 31);
-            if ((write & 0x20) != 0) red = component; // cartridge-encoding: allow(Register) - COLDATA red-select bit
-            if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(Register) - COLDATA green-select bit
-            if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(Register) - COLDATA blue-select bit
+            if ((write & 0x20) != 0) red = component;
+            if ((write & 0x40) != 0) green = component;
+            if ((write & 0x80) != 0) blue = component;
             var colour = new FadeLevelColour(red, green, blue).ToColour();
             GradientBlend blend = Blend(control[line], line);
             if (stops.Count == 0 || stops[^1].Colour != colour || stops[^1].Blend != blend)
@@ -52,10 +51,10 @@ public static class TitleGradientDecoder
     /// <exception cref="InvalidDataException">The byte selects any other blend.</exception>
     private static GradientBlend Blend(byte control, int line)
     {
-        const int floor = 0x01; // cartridge-encoding: allow(Register) - CGADSUB BG1 enable bit
-        const int sprites = 0x10; // cartridge-encoding: allow(Register) - CGADSUB OBJ enable bit
-        const int backdrop = 0x20; // cartridge-encoding: allow(Register) - CGADSUB backdrop enable bit
-        const int subtract = 0x80; // cartridge-encoding: allow(Register) - CGADSUB subtract bit
+        const int floor = 0x01;
+        const int sprites = 0x10;
+        const int backdrop = 0x20;
+        const int subtract = 0x80;
         if (control == (subtract | backdrop | floor))
             return GradientBlend.DarkensFloorAndBackdrop;
         if (control == (backdrop | sprites | floor))

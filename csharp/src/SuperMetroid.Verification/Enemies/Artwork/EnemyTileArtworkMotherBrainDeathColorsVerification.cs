@@ -38,15 +38,15 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         {
             int source = MotherBrainSourceDefinitions.Death.BodyFadeColors(frame);
             AssertEqual(unchecked((ushort)source),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     BodyFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain body death-fade selector {frame}");
             for (int color = 0; color < MotherBrainDeathColorFormat.BodyColorCount; color++)
             {
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
                     native.BodyColor(frame, color),
                     $"installed Mother Brain body death frame {frame} color {color}");
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                         source + (MotherBrainDeathColorFormat.BodyColorCount + color) * 2),
                     native.LegColor(frame, color),
                     $"installed Mother Brain leg death frame {frame} color {color}");
@@ -56,11 +56,11 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         {
             int source = MotherBrainSourceDefinitions.Death.CorpseFadeColors(frame);
             AssertEqual(unchecked((ushort)source),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     CorpseFadeTable + frame * sizeof(ushort)),
                 $"native Mother Brain corpse death-fade selector {frame}");
             for (int color = 0; color < MotherBrainDeathColorFormat.CorpseColorCount; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source + color * 2),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom, source + color * 2),
                     native.CorpseColor(frame, color),
                     $"installed Mother Brain corpse death frame {frame} color {color}");
         }
@@ -68,8 +68,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         string file = Path.Combine(stockDirectory, MotherBrainDeathColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         MotherBrainDeathColorDocument visual =
-            JsonSerializer.Deserialize<MotherBrainDeathColorDocument>(stockJson,
-                CaseInsensitiveJson) ??
+            JsonSerializer.Deserialize<MotherBrainDeathColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainDeathColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Mother Brain death color JSON is null.");
         MotherBrainDeathColorCatalog colors = native;
 
@@ -124,7 +123,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Mother Brain death palettes avoid migrated RGB5/selector ROM reads");
 
-        visual.BodyFade[0][5] = visual.BodyFade[0][5] with { Blue = 32 };
+        visual.BodyFade[0].Body[5] = visual.BodyFade[0].Body[5] with { Blue = 32 };
         AssertThrows<InvalidDataException>(
             () => MotherBrainDeathColorFile.Read(new MemoryStream(MotherBrainDeathColorFile.Write(visual), writable: false)),
             "reading Mother Brain death colors rejects an RGB5 channel outside five-bit precision");

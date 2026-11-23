@@ -1,0 +1,29 @@
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+
+namespace SuperMetroid.AssetExtraction;
+
+/// <summary>
+/// The metadata SuperMetroid.AssetExtraction's JSON calls serialize through (#2602): a call's own options, bound to the source-generated
+/// <see cref="AssetExtractionJsonContext"/>, so the options keep their naming, converters and layout and no type is
+/// serialized by reflection. A type the context does not register fails as its metadata is asked for.
+/// </summary>
+internal static partial class AssetExtractionJson
+{
+    /// <summary>Each caller's options, bound to the context, made the first time each is used.</summary>
+    private static readonly ConditionalWeakTable<JsonSerializerOptions, JsonSerializerOptions> Bound = [];
+
+    /// <summary>The default options, bound to the context, for calls that pass none.</summary>
+    private static readonly JsonSerializerOptions Default = new() { TypeInfoResolver = AssetExtractionJsonContext.Default };
+
+    /// <summary>The metadata of <typeparamref name="T"/> under <paramref name="options"/>, or the default options when null.</summary>
+    /// <exception cref="NotSupportedException">The context does not register <typeparamref name="T"/>.</exception>
+    internal static JsonTypeInfo<T> Info<T>(JsonSerializerOptions? options = null) =>
+        (JsonTypeInfo<T>)BoundTo(options).GetTypeInfo(typeof(T));
+
+    /// <summary><paramref name="options"/>' copy bound to the context, or the default options when null.</summary>
+    private static JsonSerializerOptions BoundTo(JsonSerializerOptions? options) => options is null
+        ? Default
+        : Bound.GetValue(options, source => new JsonSerializerOptions(source) { TypeInfoResolver = AssetExtractionJsonContext.Default });
+}

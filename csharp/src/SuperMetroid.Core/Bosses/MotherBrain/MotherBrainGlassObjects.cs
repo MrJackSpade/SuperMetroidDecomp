@@ -7,8 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's glass: its setup, its shatter projectiles and the hit count it keeps after the glass is gone.</summary>
-[RoomLifetime]
-internal sealed class MotherBrainGlassObjects
+internal sealed partial class MotherBrainGlassObjects
 {
     /// <summary>The area's boss-defeat flags.</summary>
     private readonly IDefeatedBossesReader _bosses;
@@ -17,7 +16,7 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly RoomObjectSoundQueue _sounds;
 
-    /// <summary>Binds the glass animation's handling to the room's room-object places, event services, and sound queue.</summary>
+    /// <summary>Binds the glass animation's handling to the room's event services and sound queue.</summary>
     internal MotherBrainGlassObjects(IDefeatedBossesReader bosses, IStoryEvents events, RoomObjectSoundQueue sounds)
     {
         _bosses = bosses;
@@ -27,15 +26,17 @@ internal sealed class MotherBrainGlassObjects
     /// <summary>The place of the live glass room object, or null after deletion.</summary>
     private RoomObjectPlace? _motherBrainGlassPlace;
     /// <summary>Whether the current room loaded the glass room object before head damage can update it.</summary>
-    internal bool MotherBrainGlassWasLoaded { get; private set; }
+    internal bool MotherBrainGlassWasLoaded { get; set; }
 
-    /// <summary>Runs the glass setup against the place room population gave it.</summary>
-    internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place)
+    /// <summary>
+    /// Sets the glass up at its place in the room, throwing its shards among <paramref name="shards"/>: the room's enemy
+    /// projectiles, which the room's enemies built before its room objects are set up.
+    /// </summary>
+    internal void SetupMotherBrainGlass(RoomLevelData level, RoomObjectPlace place, IMotherBrainGlassShardSpawner shards)
     {
-        place.Become(new MotherBrainGlassObject(this));
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
-        level.SetCollision(place.Block, RoomCollisionType.SolidBlock);
-        level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
+        place.Become(new MotherBrainGlassObject(this, shards));
+        // The setup makes the glass's block solid and shootable and leaves its picture as it is (#2502).
+        level.SetCollisionAndBehavior(place.Block, RoomCollisionType.SolidBlock, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));
 
         _motherBrainGlassPlace = place;
         MotherBrainGlassWasLoaded = true;
@@ -48,14 +49,19 @@ internal sealed class MotherBrainGlassObjects
     /// </summary>
     public void CountHeadShotOnGlass()
     {
-        if (!MotherBrainGlassWasLoaded)
-        {
-            throw new InvalidOperationException(
-                "Mother Brain head damage requires Mother Brain's glass room object to be loaded.");
-        }
-
         if (TryGetMotherBrainGlass(out MotherBrainGlassObject? glass))
             glass.CountHeadShot();
+    }
+
+    /// <summary>
+    /// Confirms, as Mother Brain's body sets up, that her room set her glass up, which her head shots count on: the room's
+    /// objects are set up before its enemies, so her room's data is checked once, as she spawns.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Her room set up no glass.</exception>
+    public void ConfirmGlassLoaded()
+    {
+        if (!MotherBrainGlassWasLoaded)
+            throw new InvalidDataException("Mother Brain's room sets her glass up before she spawns; her head shots count on it.");
     }
 
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
@@ -66,9 +72,10 @@ internal sealed class MotherBrainGlassObjects
 
     /// <summary>
     /// Queues the shatter sound and throws a burst of shard projectiles from the glass's block into the step's
-    /// <paramref name="outcome"/>.
+    /// <paramref name="outcome"/>, each spawning among <paramref name="spawner"/>.
     /// </summary>
-    internal void ThrowShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards, RoomObjectStepOutcome outcome)
+    internal void ThrowShards(RoomObjectPlace place, IReadOnlyList<MotherBrainGlassShard> shards, RoomObjectStepOutcome outcome,
+        IMotherBrainGlassShardSpawner spawner)
     {
         Ensure.NotNull(place);
         Ensure.NotNull(shards);
@@ -77,7 +84,7 @@ internal sealed class MotherBrainGlassObjects
         // The shards spawn from the glass's block.
         Position16<RoomBlocks> glassBlock = place.Block;
         foreach (MotherBrainGlassShard shard in shards)
-            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock));
+            outcome.Threw(new MotherBrainGlassProjectileRequest(shard, glassBlock, spawner));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>
@@ -99,8 +106,8 @@ internal sealed class MotherBrainGlassObjects
         return false;
     }
 
-    /// <summary>Forgets the glass as it leaves the room, before its place is freed.</summary>
-    internal void OnObjectDeleted(RoomObjectPlace place)
+    /// <summary>Forgets the glass at <paramref name="place"/> as the glass leaves the room, before its place is freed.</summary>
+    internal void ForgetGlass(RoomObjectPlace place)
     {
         Ensure.NotNull(place);
         if (ReferenceEquals(place, _motherBrainGlassPlace))

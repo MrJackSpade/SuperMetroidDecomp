@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Consulted wherever a lookup steps from one block to another: a room object reaching its neighbour or moving its
+/// Consulted wherever a lookup steps from one block to another: a bomb's explosion cross, a room object reaching its neighbour or moving its
 /// origin, an enemy projectile's extension links and its block scans across a leading edge during the enemy projectile
 /// pass, and, within <see cref="BlockScanCycle"/>, the enemies' terrain movers and the vertical Wave scan. A rule with
 /// no state.
@@ -24,8 +24,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// steps add their offsets to the same place.
 /// </para>
 /// </remarks>
-[CompatibilityService("a step along a room's rows past a row's end continues on the next row, and one before a row's start on the row above")]
-public static class RoomReadingOrder
+public static partial class RoomReadingOrder
 {
     /// <summary>
     /// The block <paramref name="step"/> from <paramref name="block"/> in the room's reading order: the step's columns

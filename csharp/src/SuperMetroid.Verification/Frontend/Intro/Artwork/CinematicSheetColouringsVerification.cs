@@ -123,8 +123,6 @@ internal static class CinematicSheetColouringsVerification
         {
             foreach (CinematicSpritePose pose in CeresAnimations.Scenes.Segments.FramesOf(CeresAnimations.Scenes.StartingWith(actor.Program)))
             {
-                if (pose == CinematicSpritePose.Blank)
-                    continue;
                 if (!sets.TryGetValue(pose, out HashSet<int>? poseSets))
                 {
                     poseSets = [];

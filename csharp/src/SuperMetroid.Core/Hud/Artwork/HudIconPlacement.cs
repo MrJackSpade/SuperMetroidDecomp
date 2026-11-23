@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// Whether the template leaves the icon's place blank: the HUD draws an icon only over a blank place, and nothing but the
 /// template ever sits under an icon.
 /// </param>
-internal readonly record struct HudIconPlacement(Position16<ScreenPixels> Anchor, bool ShowsOverTemplate);
+internal readonly partial record struct HudIconPlacement(Position16<ScreenPixels> Anchor, bool ShowsOverTemplate);

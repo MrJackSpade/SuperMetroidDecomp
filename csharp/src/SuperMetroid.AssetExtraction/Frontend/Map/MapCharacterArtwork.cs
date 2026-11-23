@@ -10,4 +10,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="Map">The map screens' characters.</param>
 /// <param name="Hud">The HUD's characters.</param>
 /// <param name="Pause">The pause interface's characters.</param>
-public sealed record MapCharacterArtwork(MapTileCharacters Map, HudTileAtlas Hud, MapTileCharacters Pause);
+public sealed partial record MapCharacterArtwork(MapTileCharacters Map, HudTileAtlas Hud, MapTileCharacters Pause);

@@ -7,15 +7,15 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// How Lower Norfair Ridley's twelve death-breakup actors fly apart: their speeds, frames, order and lifetimes. The
 /// selected animations remain authored data.
 /// </summary>
-internal static class RidleyExplosionDefinitions
+internal static partial class RidleyExplosionDefinitions
 {
     /// <summary>
     /// The breakup setup draws a fragment's horizontal speed from one random value as the sum of two
     /// selections: this one, none up to three sixteenths of a pixel per frame, and <see cref="FragmentSpeedWholePixel"/>.
     /// </summary>
-    internal static readonly RandomSpeed FragmentSpeedFraction = new(new(4, 2), SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16));
+    internal static readonly RandomSpeed FragmentSpeedFraction = new(RidleyRandomRolls.FragmentSpeedSixteenths, SignedEightEight.Zero, SignedEightEight.FromPixelFraction(1, 16));
     /// <summary>The selection of a whole pixel per frame or none that a fragment's horizontal speed adds.</summary>
-    internal static readonly RandomSpeed FragmentSpeedWholePixel = new(new(8, 1), SignedEightEight.Zero, SignedEightEight.FromPixels(1));
+    internal static readonly RandomSpeed FragmentSpeedWholePixel = new(RandomSampleField.SecondOf(2), SignedEightEight.Zero, SignedEightEight.FromPixels(1));
     /// <summary>
     /// The breakup's spawn order: the tail from tip to base, then wings, legs, torso, head and claw. The places the
     /// pieces take and the draw order make this sequence observable.
@@ -66,9 +66,9 @@ internal static class RidleyExplosionDefinitions
         new Dictionary<RidleyExplosionPart, RidleyExplosionBodyPartDefinition>
         {
             [RidleyExplosionPart.Wings] = new(new(0, 0), EnemyFrameId.RidleyWingFacingLeftRaised, EnemyFrameId.RidleyWingFacingRightRaised),
-            [RidleyExplosionPart.Legs] = new(new(15, 22), EnemyFrameId.RidleyBreakupLegsLeft, EnemyFrameId.RidleyBreakupLegsRight),
-            [RidleyExplosionPart.OpenHeadAndNeck] = new(new(-3, -24), EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft, EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight),
-            [RidleyExplosionPart.Torso] = new(new(16, 0), EnemyFrameId.RidleyBreakupTorsoLeft, EnemyFrameId.RidleyBreakupTorsoRight),
+            [RidleyExplosionPart.Legs] = new(RidleyCollisionDefinitions.LeftLegsOrigin, EnemyFrameId.RidleyBreakupLegsLeft, EnemyFrameId.RidleyBreakupLegsRight),
+            [RidleyExplosionPart.OpenHeadAndNeck] = new(RidleyCollisionDefinitions.LeftHeadOrigin, EnemyFrameId.RidleyBreakupOpenHeadAndNeckLeft, EnemyFrameId.RidleyBreakupOpenHeadAndNeckRight),
+            [RidleyExplosionPart.Torso] = new(RidleyCollisionDefinitions.LeftTorsoOrigin, EnemyFrameId.RidleyBreakupTorsoLeft, EnemyFrameId.RidleyBreakupTorsoRight),
             [RidleyExplosionPart.Claw] = new(new(8, 7), EnemyFrameId.RidleyBreakupClawLeft, EnemyFrameId.RidleyBreakupClawRight),
         }.ToFrozenDictionary();
 

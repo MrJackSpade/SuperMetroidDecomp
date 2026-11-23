@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -7,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports full-body hurt/intro RGB5 artwork, not hurt-counter logic.</summary>
-public static class SamusHurtColorExtractor
+public static partial class SamusHurtColorExtractor
 {
     /// <summary>Exports Samus's full sixteen-color hurt-flash and cinematic-intro palette images from $9B:A380 and $9B:A3A0.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the two complete OBJ palette rows.</param>
@@ -29,18 +31,13 @@ public static class SamusHurtColorExtractor
     /// <summary>Decodes one complete sixteen-color native OBJ row into five-bit channel values.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address)
     {
-        byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] source = RomDataReader.ReadFixedBank(bus,
             address, SamusHurtColorFormat.ColorsPerPalette * sizeof(ushort));
         var colors = new PaletteRgb5[SamusHurtColorFormat.ColorsPerPalette];
         for (int index = 0; index < colors.Length; index++)
         {
             int word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
-            colors[index] = new PaletteRgb5
-            {
-                Red = word & 31,
-                Green = (word >> 5) & 31,
-                Blue = (word >> 10) & 31,
-            };
+            colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
         }
         return colors;
     }

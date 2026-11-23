@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.FallingSparks;
 
 /// <summary>The sideways drifts a falling spark can launch with.</summary>
-public static class FallingSparkLaunchDefinitions
+public static partial class FallingSparkLaunchDefinitions
 {
     /// <summary>
     /// The launch a spark takes, chosen from eight rolls of its random number (#2510): the seven authored sideways drifts
@@ -9,7 +9,7 @@ public static class FallingSparkLaunchDefinitions
     /// (<see cref="FallingSparkUnauthoredLaunch"/>).
     /// </summary>
     internal static readonly WeightedRandomChoice<FallingSparkLaunch> Launch = WeightedRandomChoice<FallingSparkLaunch>.InTurn(
-        new RandomSampleField(2, 3),
+        EnemyRandomRolls.FallingSparkLaunch,
         new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-9, 32)),
         new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-1, 4)),
         new FallingSparkLaunch.Authored(SignedSixteenSixteen.FromPixelFraction(-1, 8)),

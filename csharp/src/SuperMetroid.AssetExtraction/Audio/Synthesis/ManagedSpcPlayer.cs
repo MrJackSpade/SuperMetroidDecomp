@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
@@ -11,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// pan/FIR tables only through its typed APU-RAM views (#632); addresses, byte order and 16-bit
 /// wrapping are confined there.
 /// </summary>
-public sealed class ManagedSpcPlayer
+public sealed partial class ManagedSpcPlayer
 {
 
     /// <summary>Zeroes the driver work regions the native reset clears.</summary>
@@ -35,21 +36,12 @@ public sealed class ManagedSpcPlayer
         .Range(0, SpcDriverDefinitions.ChannelCount)
         .Select(index => new ManagedSpcMusicChannel { Index = unchecked((byte)index) })
         .ToArray();
-    /// <summary>Priority, mode and voice-allocation state for the three SFX libraries.</summary>
-    internal readonly ManagedSpcSoundLibrary[] soundLibraries = Enumerable
-        .Range(0, SoundEffectLibraries.Count)
-        .Select(_ => new ManagedSpcSoundLibrary())
-        .ToArray();
-    /// <summary>Per-library SFX instruction cursors and borrowed voice state.</summary>
-    internal readonly ManagedSpcSoundChannel[][] soundChannels =
-    [
-        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.LibraryOneChannelCount)
-            .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount)
-            .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-        Enumerable.Range(0, SpcDriverDefinitions.SoundEffects.OtherLibraryChannelCount)
-            .Select(_ => new ManagedSpcSoundChannel()).ToArray(),
-    ];
+    /// <summary>Each SFX library's priority, mode and voice-allocation state with its channels, keyed by the library.</summary>
+    internal readonly FrozenDictionary<SoundEffectLibrary, ManagedSpcSoundLibrary> soundLibraries = SoundLibraryNumbers.InNumberOrder
+        .ToFrozenDictionary(library => library, library => new ManagedSpcSoundLibrary
+        {
+            Channels = [.. Enumerable.Range(0, SpcSoundEffectTables.Allocation(library).ChannelCount).Select(_ => new ManagedSpcSoundChannel())],
+        });
 
     /// <summary>DSP renderer reading BRR and echo data from this driver's APU RAM.</summary>
     internal readonly ManagedSnesDsp dsp;
@@ -73,7 +65,7 @@ public sealed class ManagedSpcPlayer
         dsp = CreateDsp();
         Voices = new SpcVoices(ram, dsp);
         Music = new SpcMusicSequencer(ram, channels, Voices);
-        SoundLibraries = new SpcSoundLibraries(ram, channels, soundLibraries, soundChannels, dsp, Voices);
+        SoundLibraries = new SpcSoundLibraries(ram, channels, soundLibraries, dsp, Voices);
         Uploads = new SpcDefinitionUploads(ram, Music, Voices);
         InitializeDriver();
     }
@@ -142,7 +134,7 @@ public sealed class ManagedSpcPlayer
         Ensure.NotNull(state);
         SpcDriverSnapshot.AddBytes(state,
         [
-            Music.musicInputLatch, Music.musicPortToSnes, Music.affectedVolumeOrPitch, Voices.channelOnMask, Music.fastForward,
+            Music.musicInputLatch, Music.musicPortToSnes, SpcDriverSnapshot.DirtyByte(Music.affectedVolumeOrPitch), Voices.channelOnMask, Music.fastForward,
             Music.blockCount is 0 or > SpcDriverDefinitions.Music.RepeatReloadClassMinimum ? 0 : Music.blockCount,
             Voices.keyOn, Voices.keyOff, Voices.currentChannelBit, Voices.dspFlags, Voices.noiseEnable, Voices.echoEnable, Music.echoStoredTime, Music.echoDelay,
             Music.echoFeedback, Music.globalTransposition, includeTempoPhase ? Music.mainTempoAccumulator : 0,
@@ -155,11 +147,11 @@ public sealed class ManagedSpcPlayer
             Music.echoVolumeLeft, Music.echoVolumeRight, Music.echoVolumeFadeAddLeft, Music.echoVolumeFadeAddRight]);
         foreach (ManagedSpcMusicChannel channel in channels)
             channel.WriteState(state);
-        foreach (ManagedSpcSoundLibrary library in soundLibraries)
-            library.WriteState(state);
-        foreach (ManagedSpcSoundChannel[] libraryChannels in soundChannels)
+        foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
+            soundLibraries[library].WriteState(state);
+        foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
         {
-            foreach (ManagedSpcSoundChannel channel in libraryChannels)
+            foreach (ManagedSpcSoundChannel channel in soundLibraries[library].Channels)
                 channel.WriteState(state);
         }
     }
@@ -180,9 +172,9 @@ public sealed class ManagedSpcPlayer
             channels[index].Index = unchecked((byte)index);
         Music.SetupEchoDelay(SpcDriverDefinitions.Echo.InitialDelay);
         Voices.dspFlags = Voices.dspFlags | SpcDriverDefinitions.Echo.WriteDisable;
-        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60); // cartridge-encoding: allow(HardwareMagnitude) - cartridge reset master volume
-        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60); // cartridge-encoding: allow(HardwareMagnitude) - cartridge reset master volume
-        Voices.Dsp.Global.WriteSourceDirectory(0x6d); // cartridge-encoding: allow(HardwareAddress) - cartridge BRR directory page
+        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Left, 0x60);
+        Voices.Dsp.Global.WriteMasterVolume(DspStereoSide.Right, 0x60);
+        Voices.Dsp.Global.WriteSourceDirectory(0x6d);
         Music.tempo = SpcFixedPoint.WithWhole(Music.tempo, SpcDriverDefinitions.Music.InitialTempo);
         LoopPartOne();
     }
@@ -201,7 +193,7 @@ public sealed class ManagedSpcPlayer
         Voices.Dsp.Global.WriteNoiseEnable(new DspVoiceMask(Voices.noiseEnable));
         Voices.Dsp.Global.KeyOff(DspVoiceMask.None);
         Voices.Dsp.Global.KeyOn(new DspVoiceMask(Voices.keyOn));
-        if ((Music.echoStoredTime & 0x80) == 0) // cartridge-encoding: allow(BitMask) - signed SPC countdown bit
+        if ((Music.echoStoredTime & 0x80) == 0)
         {
             Voices.Dsp.Global.WriteFlags(DspFlags.FromDriverByte(Voices.dspFlags));
             if (Music.echoStoredTime == Music.echoDelay)
@@ -219,17 +211,17 @@ public sealed class ManagedSpcPlayer
     private void LoopPartTwo(SoundClockStep<SoundEffectLibrary, byte> tick)
     {
         int ticks = tick.Steps;
-        if (tick.ChecksRequests)
+        if (tick.Checks is { } checks)
         {
-            for (int library = 0; library < SoundEffectLibraries.Count; library++)
-                SoundLibraries.HandleSoundLibraryCommand(library, tick.Checks[SoundLibraryNumbers.FromDriverIndex(library)]);
+            foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
+                SoundLibraries.HandleSoundLibraryCommand(library, checks[library]);
             if (Music.echoStoredTime != Music.echoDelay)
                 Music.echoStoredTime = SpcDriverWrap.Byte(Music.echoStoredTime + 1);
         }
 
         int musicAccumulator = Music.mainTempoAccumulator + unchecked((byte)(ticks * SpcFixedPoint.Whole(Music.tempo)));
         Music.mainTempoAccumulator = unchecked((byte)musicAccumulator);
-        if (musicAccumulator >= 0x100) // cartridge-encoding: allow(HardwareMagnitude) - eight-bit timer carry
+        if (musicAccumulator >= 0x100)
         {
             int fastForwardIterations = 0;
             do
@@ -245,7 +237,7 @@ public sealed class ManagedSpcPlayer
             for (int index = 0, bit = 1; index < channels.Length; index++, bit <<= 1)
             {
                 Voices.currentChannelBit = unchecked((byte)bit);
-                if (channels[index].PatternOrderPointer > byte.MaxValue)
+                if (channels[index].IsPlaying)
                     Music.HandlePanAndSweep(channels[index]);
             }
             Voices.currentChannelBit = 0;

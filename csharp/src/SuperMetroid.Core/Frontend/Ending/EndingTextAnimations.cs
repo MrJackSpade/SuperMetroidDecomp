@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
 using B = SuperMetroid.Core.Frontend.Intro.CinematicBeats<SuperMetroid.Core.Frontend.Ending.EndingTextTyping, SuperMetroid.Core.Frontend.Ending.EndingSceneCue>;
 using D = SuperMetroid.Core.Frontend.Ending.EndingTypedTextDefinitions;
 using K = SuperMetroid.Core.Frontend.Ending.EndingSceneCue;
@@ -12,10 +11,10 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// The animations of the ending's typed texts (#1513, #2195, #2197): each types its text one letter a step, as a title
 /// card does, its frames the text typed so far, then publishes the cues that follow it and rests on the whole text.
 /// </summary>
-internal static class EndingTextAnimations
+internal static partial class EndingTextAnimations
 {
     /// <summary>The sprite family whose sheet pictures the typed texts' letters: the result text's.</summary>
-    internal const CinematicSpriteFamily Family = CinematicSpriteFamily.EndingCompletionText;
+    internal const EndingSpriteFamily Family = EndingSpriteFamily.EndingCompletionText;
 
     /// <summary>The typed texts' animations.</summary>
     internal static CinematicAnimations<EndingTypedText, EndingTextTyping, EndingSceneCue> Texts { get; } = Create();
@@ -41,22 +40,25 @@ internal static class EndingTextAnimations
             [T.ClearTime] =
             [
                 .. Typing(T.ClearTime),
-                B.Raise(K.SpawnHoursTens),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnHoursUnits),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnColon),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnMinutesTens),
-                B.Show(Whole(T.ClearTime), D.ClearTimeColumnUpdates),
-                B.Raise(K.SpawnMinutesUnits),
-                B.Show(Whole(T.ClearTime), D.ClearTimeShownUpdates),
+                .. ClearTimeColumnsSpawning(),
                 B.Raise(K.TransitionToCredits),
                 B.Hold(Whole(T.ClearTime)),
             ],
         };
         return new(segments, plays => segments.Keys.ToDictionary(text => text, text => plays.Through(text, AnimationEnd.Holds)));
     }
+
+    /// <summary>
+    /// CLEAR TIME spawning the clear time's columns one by one (<see cref="D.ClearTimeColumns"/>): each column's spawn, then the
+    /// whole of CLEAR TIME for <see cref="D.ClearTimeColumnUpdates"/>, after the last column for
+    /// <see cref="D.ClearTimeShownUpdates"/>, as the whole clear time shows.
+    /// </summary>
+    private static IEnumerable<AnimationBeat<EndingTextTyping, EndingSceneCue>> ClearTimeColumnsSpawning() =>
+        D.ClearTimeColumns.SelectMany((column, place) => new[]
+        {
+            B.Raise(column),
+            B.Show(Whole(T.ClearTime), place + 1 == D.ClearTimeColumns.Count ? D.ClearTimeShownUpdates : D.ClearTimeColumnUpdates),
+        });
 
     /// <summary><paramref name="text"/> typed in full.</summary>
     private static EndingTextTyping Whole(EndingTypedText text) => new(text, Letters(text));

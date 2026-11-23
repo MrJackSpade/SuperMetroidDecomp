@@ -13,28 +13,46 @@ internal static class KraidMouthReopenCountVerification
     /// <summary>Runs the count, rejection, clear and hurt flash checks.</summary>
     internal static void VerifyKraidMouthReopenCount()
     {
-        for (int pending = 0; pending <= 3; pending++)
+        for (int spent = 0; spent <= 3; spent++)
         {
-            var armed = new KraidEnemyState(new KraidParts()) { PendingMouthReopens = pending };
+            var armed = new KraidEnemyState(KraidPartsFixtures.Standalone());
             armed.ArmMouthReopens();
-            AssertEqual(3, armed.PendingMouthReopens, $"arming from {pending} pending reopens leaves three");
+            armed.MarkMouthReopen();
+            // Each closing of the marked mouth spends one pending reopen; the third spends the last and disarms them.
+            for (int reopen = 0; reopen < spent; reopen++)
+                _ = armed.SpendMouthReopenAsMouthCloses();
+            armed.ArmMouthReopens();
+            AssertEqual(3, armed.PendingMouthReopens, $"arming from {3 - spent} pending reopens leaves three");
         }
 
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         state.ArmMouthReopens();
-        for (int expected = 2; expected >= 0; expected--)
+        for (int expected = 2; expected >= 1; expected--)
         {
-            state.RemoveOneMouthReopen();
-            AssertEqual(expected, state.PendingMouthReopens, "each reopen continuation removes one pending reopen");
+            state.MarkMouthReopen();
+            AssertTrue(state.SpendMouthReopenAsMouthCloses(), "a marked mouth closing with reopens left waits to glow his eye again");
+            AssertEqual(expected, state.PendingMouthReopens, "each marked close spends one pending reopen");
         }
-        _ = AssertThrows<InvalidOperationException>(state.RemoveOneMouthReopen, "removing a reopen from none is rejected: no caller reaches it, so no wrap is kept (#1627)");
-        AssertEqual(0, state.PendingMouthReopens, "the rejected removal leaves the count at none");
+        state.MarkMouthReopen();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "the last marked close leaves no reopen pending");
+        AssertEqual(0, state.PendingMouthReopens, "spending the last reopen leaves none pending");
+        // A mark the last close kept would make the next armed close, with no mouth hit, spend a reopen.
+        state.ArmMouthReopens();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "spending the last reopen forgets the mouth's hits");
 
-        state.MouthReopenArmed = true;
-        state.MouthReopenMarked = true;
+        state.ArmMouthReopens();
+        state.MarkMouthReopen();
         state.ClearMouthReactions();
-        AssertTrue(!state.MouthReopenArmed && !state.MouthReopenMarked, "clearing the mouth clears every latch");
         AssertEqual(0, state.PendingMouthReopens, "clearing the mouth clears the pending reopen count with the latches");
+        state.ArmMouthReopens();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "clearing the mouth clears the reopen mark: the next armed close, with no mouth hit, spends nothing");
+
+        state.ArmMouthReopens();
+        state.MarkMouthReopen();
+        state.ClearMouthReactions();
+        state.MarkMouthReopen();
+        state.ArmMouthReopens();
+        AssertTrue(!state.SpendMouthReopenAsMouthCloses(), "clearing the mouth disarms its reopens: a mark after it marks nothing");
 
         VerifyKraidHurtFlash();
 
@@ -49,7 +67,7 @@ internal static class KraidMouthReopenCountVerification
     /// </summary>
     private static void VerifyKraidHurtFlash()
     {
-        var state = new KraidEnemyState(new KraidParts());
+        var state = new KraidEnemyState(KraidPartsFixtures.Standalone());
         AssertTrue(state.HurtFlash is { IsResting: true, Shown: KraidHurtFlashShade.BandColours }, "an encounter starts with no flash, showing his band's colours");
         AssertEqual<KraidHurtFlashShade?>(null, state.HurtFlash.StepToNewFrame(), "a flash at rest shows nothing new");
 

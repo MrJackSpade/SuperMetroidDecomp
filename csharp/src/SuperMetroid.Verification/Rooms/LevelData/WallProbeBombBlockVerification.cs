@@ -28,13 +28,12 @@ internal static class WallProbeBombBlockVerification
             for (int y = 1; y < 6; y++)
                 foreground[y * width + 4] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.BombableBlock);
             RoomLevelData level = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(pose);
             SamusKinematicsState state = samus.Kinematics;
             state.Position = state.Position.WithWholeX(58).WithFractionX(fraction).WithWholeY(48);
             state.Radius = new(5, 5);
 
-            BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(level, state, samus, samus.Pose, SignedSixteenSixteen.FromParts(8, 0),
-                RoomObjectFixtures.Unbound());
+            BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(new RoomTerrain(level, RoomObjectFixtures.Unbound()), state, samus, samus.Pose, SignedSixteenSixteen.FromParts(8, 0));
             string context = $"wall probe in pose ${(int)SamusPoseNumbers.Number(pose):X2}";
             AssertEqual(!breaks, result.Collided, $"{context} collision");
             AssertEqual(breaks ? fraction : (ushort)0xffff, state.Position.X.Fraction, $"{context} X fraction");
@@ -60,16 +59,12 @@ internal static class WallProbeBombBlockVerification
         RoomLevelData level = CreateRoom(new(width, height), foreground, new RoomBlockBehavior[foreground.Length]);
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
-            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-        {
-            Pose = SamusPoseId.ScrewAttackRightPose,
-        };
+            SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.ScrewAttackRightPose);
         SamusKinematicsState state = samus.Kinematics;
         state.Position = state.Position.WithWholeX(58).WithWholeY(48);
         state.Radius = new(5, 5);
 
-        SamusBlockCollision.ProbeWallHorizontal(level, state, samus, samus.Pose, SignedSixteenSixteen.FromParts(8, 0),
-            roomObjects);
+        SamusBlockCollision.ProbeWallHorizontal(new RoomTerrain(level, roomObjects), state, samus, samus.Pose, SignedSixteenSixteen.FromParts(8, 0));
         AssertTrue(roomObjects.Places.ActiveCount > 0, "the probe's broken bomb block starts its block reaction");
         for (int update = 0; update < 600 && roomObjects.Places.ActiveCount != 0; update++)
             roomObjects.Step(level, new RoomObjectFrameInputs { Scrolls = SuperMetroid.Core.Rooms.RoomObjects.RoomObjectFixtures.UnreadScrolls(), EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SuperMetroid.Core.Progression.SamusEquipmentFlags.None, PowerBombExplosionActive = false });

@@ -21,7 +21,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// its colours over the sets its frames are pictured in. The shooting scene's sheet holds the logo the scene ends on,
 /// composed from the logo's own characters: no sheet shows a page partly overwritten by the next scene's transfers.
 /// </summary>
-internal static class EndingSpriteSheetComposer
+internal static partial class EndingSpriteSheetComposer
 {
     /// <summary>The visible shooting-star pictures, each with a sheet frame of its own: the growing star's steps and the full star.</summary>
     private static IEnumerable<EndingShootingStarLook> StarSheetFrames => EndingShootingStarFrames.Visible;
@@ -42,7 +42,7 @@ internal static class EndingSpriteSheetComposer
         Ensure.NotNull(palettes);
         EndingPage page = Page(sheet);
         EndingSheetDraws draws = EndingSceneActors.Of(sheet);
-        var transferArtwork = new EndingTransferArtwork(objects, font, page.Reward);
+        var transferArtwork = new EndingTransferArtwork(objects, font);
         int objectSelection = EndingSheetObjectSelectionDefinitions.Of(sheet);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(objectSelection);
         SpriteArtwork characters = Characters(page.Transfers, transferArtwork, objectSelection);
@@ -64,7 +64,7 @@ internal static class EndingSpriteSheetComposer
                 string name = EndingShootingStarFrames.SheetFrameName(frame);
                 return new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name,
                     new SpriteFrame(name, [EndingShootingStarParts.Appearance(frame).ToFramePart(0, sizes)]), characters, stars),
-                    [EndingShootingStarDefinitions.Colouring]);
+                    EndingShootingStarDefinitions.Colouring, [EndingShootingStarDefinitions.Colouring]);
             }));
         }
         ColouringPictures<EndingSpriteColouring> pictures = ColouringPictures<EndingSpriteColouring>.Of(frames, EndingScreenInks.SpriteSet);
@@ -130,9 +130,9 @@ internal static class EndingSpriteSheetComposer
             string name = CinematicSpriteSheet.FrameName(family.Family, pose);
             EndingSpriteColouring[] colourings = [.. poses[pose]];
             frames.Add(new ColouredFrame<EndingSpriteColouring>(
-                new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings));
+                new SheetFrameSource(name, composition.ToFrame(name, 0, sizes), characters, EndingScreenInks.SpriteSet(colourings[0])), colourings[0], colourings));
         }
-        if (family.Family != EndingTextAnimations.Family)
+        if (family.Family != EndingSpriteSheets.Cinematic(EndingTextAnimations.Family))
             return;
         // Each typed text's letters, each the parts its step adds, drawn in every colouring the scene types the text in.
         foreach ((EndingTypedText text, List<EndingSpriteColouring> colourings) in draws.Texts)
@@ -149,13 +149,13 @@ internal static class EndingSpriteSheetComposer
                     continue;
                 }
                 frames.Add(new ColouredFrame<EndingSpriteColouring>(new SheetFrameSource(name, new SpriteFrame(name, [.. letters[letter]]), characters,
-                    EndingScreenInks.SpriteSet(colourings[0])), [.. colourings]));
+                    EndingScreenInks.SpriteSet(colourings[0])), colourings[0], [.. colourings]));
             }
         }
     }
 
     /// <summary>The names of the letter frames of every text the scene types in <paramref name="family"/>; none for another family.</summary>
-    private static IEnumerable<string> LetterNames(CinematicSpriteFamily family, EndingSheetDraws draws) => family == EndingTextAnimations.Family
+    private static IEnumerable<string> LetterNames(CinematicSpriteFamily family, EndingSheetDraws draws) => family == EndingSpriteSheets.Cinematic(EndingTextAnimations.Family)
         ? draws.Texts.SelectMany(text => EndingTextAnimations.Typings(text.Key).Select(EndingTypedTextDrawing.LetterFrameName))
         : [];
 
@@ -193,8 +193,8 @@ internal static class EndingSpriteSheetComposer
     /// <summary>The transfers that give the logo its characters: the post-credits art, then every post-shot part.</summary>
     private static IReadOnlyList<EndingTransfer> LogoTransfers =>
     [
-        new EndingTransfer(EndingTransferKind.CreditsCharacterArt),
-        .. Enumerable.Range(0, EndingPostShotUploadDefinitions.Count).Select(index => new EndingTransfer(EndingTransferKind.PostShotPart, index)),
+        new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt),
+        .. EndingPostShotUploads.InOrder.Select(part => new EndingPostShotPartTransfer(part)),
     ];
 
     /// <summary>The page ending sheet <paramref name="sheet"/> shows.</summary>
@@ -202,13 +202,13 @@ internal static class EndingSpriteSheetComposer
     {
         return sheet switch
         {
-            SpriteSheetId.EndingCloudSprites => new(EndingReward.Armored, [new EndingTransfer(EndingTransferKind.EscapeClouds)],
+            SpriteSheetId.EndingCloudSprites => new([new EndingSheetTransfer(EndingTransferKind.EscapeClouds)],
                 [CinematicSpriteFamily.EndingCloud], Logo: false, EscapeColours),
-            SpriteSheetId.EndingExplosionSprites => new(EndingReward.Armored,
+            SpriteSheetId.EndingExplosionSprites => new(
                 [
-                    new EndingTransfer(EndingTransferKind.ExplosionObjects),
-                    .. EndingObjectArtworkFormat.ExplosionPictures.Select(fragment => new EndingTransfer(EndingTransferKind.ExplosionMap, Fragment: fragment)),
-                    new EndingTransfer(EndingTransferKind.EndingFont),
+                    new EndingSheetTransfer(EndingTransferKind.ExplosionObjects),
+                    .. EndingObjectArtworkFormat.ExplosionPictures.Select(fragment => new EndingExplosionMapTransfer(fragment)),
+                    new EndingSheetTransfer(EndingTransferKind.EndingFont),
                 ],
                 [CinematicSpriteFamily.EndingExplosion, CinematicSpriteFamily.EndingCompletionText, CinematicSpriteFamily.EndingAnimalEscape], Logo: false,
                 palettes => SpritesOf(palettes, EndingPaletteId.Explosion)),
@@ -248,15 +248,16 @@ internal static class EndingSpriteSheetComposer
     }
 
     /// <summary>The post-credits reward page of an ending of <paramref name="reward"/>.</summary>
-    private static EndingPage Reward(EndingReward reward) => new(reward,
-        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], [CinematicSpriteFamily.EndingReward], Logo: false, PostCreditsColours);
+    private static EndingPage Reward(EndingReward reward) => new(
+        [new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt), new EndingRewardCharactersTransfer(reward)],
+        [CinematicSpriteFamily.EndingReward], Logo: false, PostCreditsColours);
 
     /// <summary>
     /// The shooting scene: the falling, landing and shooting Samus and the stars over the post-credits art, and the logo
-    /// the scene ends on over its own characters. The reward's characters lie outside this page, so any reward shows it.
+    /// the scene ends on over its own characters. The reward's characters lie outside this page, so it dresses none.
     /// </summary>
-    private static EndingPage Shooting => new(EndingReward.Armored,
-        [new EndingTransfer(EndingTransferKind.CreditsCharacterArt)], [CinematicSpriteFamily.EndingReward], Logo: true, PostCreditsColours);
+    private static EndingPage Shooting => new(
+        [new EndingSheetTransfer(EndingTransferKind.CreditsCharacterArt)], [CinematicSpriteFamily.EndingReward], Logo: true, PostCreditsColours);
 
     /// <summary>The escape scenes' sprite colours.</summary>
     private static RgbColor[] EscapeColours(EndingPaletteSet palettes) => SpritesOf(palettes, EndingPaletteId.Escape);
@@ -268,10 +269,10 @@ internal static class EndingSpriteSheetComposer
     private static RgbColor[] SpritesOf(EndingPaletteSet palettes, EndingPaletteId palette) => palettes[palette].Sprites.ToArray();
 
     /// <summary>
-    /// A scene of the ending: the reward the scene's transfers dress, those transfers in order, the families it shows over them, whether it also holds the logo over the logo's own characters, and the
-    /// sprite colours its scene loads.
+    /// A scene of the ending: its transfers in order, a reward page's loading its reward's characters, the families it shows
+    /// over them, whether it also holds the logo over the logo's own characters, and the sprite colours its scene loads.
     /// </summary>
-    private sealed record EndingPage(EndingReward Reward, IReadOnlyList<EndingTransfer> Transfers,
+    private sealed partial record EndingPage(IReadOnlyList<EndingTransfer> Transfers,
         IReadOnlyList<CinematicSpriteFamily> Families, bool Logo,
         Func<EndingPaletteSet, RgbColor[]> SpriteColours);
 }

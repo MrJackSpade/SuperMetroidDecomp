@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// The Samus projectiles' animations (#1301, #2347): each segment shows its frames for their durations or holds a still
 /// picture, and each animation plays whole segments, repeating its last or ending.
 /// </summary>
-internal static class SamusProjectileAnimations
+internal static partial class SamusProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<SamusProjectileSegment, SamusProjectileFrameId, NoAnimationCue> Segments { get; } = new(
@@ -1238,7 +1238,7 @@ internal static class SamusProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>> StartingAt { get; } = new Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>>
+    internal static Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>> StartingAt { get; } = new Dictionary<SamusProjectileSegment, Animation<SamusProjectileSegment>>
     {
         [P.PowerUp] = Repeating(P.PowerUp),
         [P.PowerUpRight] = Repeating(P.PowerUpRight),

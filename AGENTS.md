@@ -3,8 +3,8 @@
 ## Read the manifesto first
 
 - [docs/manifesto.md](docs/manifesto.md) is the reference for every design decision in
-  this repository: what the project is, where it is going, why the analyzers exist, why
-  their findings are never excused, and what a correct change looks like. Read it before
+  this repository: what the project is, where it is going, and what a correct change looks
+  like. Read it before
   changing code, and include its section 8 rules in every subagent prompt. Where a shorter
   rule here or in another document conflicts with it, the manifesto wins.
 
@@ -18,7 +18,9 @@
 - The C# port is legacy reference material: it documents what the game does. It is not a
   blueprint. The Godot project lives in its own directory with no references to the old
   code, reuses none of it, and does not copy its structure. The old code is not deleted.
-- None of the port's analyzers, audits or cleanup tooling apply to the Godot project.
+- The SNES port's (`csharp/`) code analysis and cleanup tooling were removed on 2026-11-22. The v0.9.0 bugs are
+  still fixed in `csharp/`; after that it is frozen as a reference. The Godot project (`godot/`, also C#) gets its
+  own code analysis and rules later, when the owner sets them.
 - For Godot work, parity means the same observable results from the same inputs, not the
   same internal order or state (manifesto, section 4). The parity wording below describes
   the C# port.
@@ -110,35 +112,6 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   recoverable-error report. It never means a focus-stealing dialog. Tests for expected
   failures must catch them inside the test harness rather than leaking them from the
   process.
-
-## Analyzer findings are addressed, never grandfathered
-
-- Analyzers exist to find bad code so it gets resolved. Every build error and every
-  analyzer finding must be ADDRESSED: fix the code, or put a justification on that one
-  site stating why it cannot be fixed or why it is a false positive that does not violate
-  the spirit of the rule (for example `SuppressMessage` with a real `Justification`, a
-  same-line `#pragma warning disable` reason, or the rule's own boundary attribute with
-  its reason).
-- NEVER grandfather existing code. Do not create or extend any mechanism that excuses
-  findings in bulk: per-file allowed counts, baseline files, "may only shrink" lists,
-  accepted-fingerprint files, allow-lists kept as hooks, tools that regenerate allowances,
-  assembly- or namespace-wide suppressions, placeholder justifications such as
-  `<Pending>`, or severity downgrades (`NoWarn`, `WarningsNotAsErrors`, lowering a rule
-  below error) to keep a build green.
-- A new or tightened rule ships at full severity. If it fires on existing code, those
-  sites are fixed or individually justified as part of the same work; the rule does not
-  ship with exemptions for them.
-- The size of the work is never a reason to stop, ask, or excuse findings. A fix that
-  touches a whole subsystem, every family or hundreds of sites is done, in committed
-  batches, like any other fix.
-- Owner decision (2026-11-11): a rule whose every finding an existing code fix resolves
-  without changing behaviour or needing a choice is enforced by the asynchronous cleanup
-  that runs after each local commit, not by the local build. Only those rules sit at
-  `none`, under the comment in `csharp/.editorconfig` that names the cleanup, so they cost
-  no build time. Every other rule stays a full-severity build error, and grandfathering
-  stays forbidden.
-- Dead code, stale inventories and stale architecture reviews never block a push; the
-  asynchronous cleanup fixes them ([tools/cleanup/README.md](tools/cleanup/README.md)).
 
 ## Recorded-movie acceptance scope
 
@@ -302,7 +275,7 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - While agents are running, the main session acts only as coordinator, not as a developer: it
   assigns and divides work, merges agent branches (`--no-ff`), builds, runs the focused
   verification, fixes integration breakage, commits, pushes and drains the Discord queue.
-- Every agent prompt includes the manifesto's section 8 rules and this section.
+- Every agent prompt includes the manifesto's section 6 rules and this section.
 - Before branching agents off for a ticket, merge that ticket's pre-existing WIP branches into main first, so
   agents start from all existing work.
 - No branch pile-up: when a ticket's work is complete, every branch it used (pre-existing WIP and agent branches)
@@ -321,11 +294,6 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - Commit and push every completed change as soon as it has passed its proportionate
   verification. Do not leave recoverable work only in the local working tree between
   handoffs.
-- Before every push, run `pwsh -File tools/cleanup/pull.ps1`: it merges the asynchronous
-  cleanup's `Cleanup:` commits (`--no-ff`, the developer's side winning conflicting lines, which
-  the next cleanup run regenerates) and prints the cleanup's status. The cleanup
-  runs after each push, in its own clone, and never needs waiting for
-  ([tools/cleanup/README.md](tools/cleanup/README.md)).
 - Keep commits logically sized and scoped. A focused fix and its regression test belong
   together. Prefer one commit per reported ticket, containing that ticket's production fix
   and regression test. Use a shared commit only when multiple tickets have the same root
@@ -374,8 +342,7 @@ constraint, not a side concern.
   a single pass. Never build after each unit or rebuild after each individual fix.
 - Build only the projects the change needs. The full solution builds in CI.
 - Build with `pwsh -File tools/build.ps1 [project or solution] [dotnet build arguments...]`, never `dotnet build`
-  directly. It builds once, keeps the full output in a log and prints the errors once; unused usings and the other
-  automatically fixed rules are not build errors, the asynchronous cleanup removes them after the push. The project's
+  directly. It builds once, keeps the full output in a log and prints the errors once. The project's
   Claude Code hook (`tools/require-build-script.py`) refuses a direct `dotnet build`.
 
 ### Run only the checks that cover the change

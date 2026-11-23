@@ -4,12 +4,16 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>Nuclear Waffle body's typed animation.</summary>
-internal sealed class NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<NuclearWaffleProjectileSegment, EnemyProjectileCommonCue>(NuclearWaffleProjectileAnimations.StartingWith(segment))
+internal sealed partial class NuclearWaffleProjectileAnimation
+    : EnemyProjectileFrameAnimation<NuclearWaffleProjectileSegment, EnemyProjectileCommonCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
+    /// <summary>Creates a <see cref="NuclearWaffleProjectileAnimation"/>.</summary>
+    /// <param name="segment">segment</param>
+    public NuclearWaffleProjectileAnimation(NuclearWaffleProjectileSegment segment)
+        : base(segment, NuclearWaffleProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<NuclearWaffleProjectileSegment>())
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<NuclearWaffleProjectileSegment, Animation<NuclearWaffleProjectileSegment>> StartingAt => NuclearWaffleProjectileAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<NuclearWaffleProjectileSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => NuclearWaffleProjectileAnimations.Segments;
 }

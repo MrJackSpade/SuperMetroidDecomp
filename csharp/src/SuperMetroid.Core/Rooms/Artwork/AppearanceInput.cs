@@ -7,13 +7,12 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// pictures it for every value they can take; the room reads the values gameplay published and names the picture by
 /// them, so nothing in the room knows which source artwork a picture was composed from.
 /// </summary>
-public abstract record AppearanceInput
+public abstract partial record AppearanceInput
 {
     /// <summary>
     /// How a picture's name spells the input. Each input spells it once, as it is made: composition and the room read it
     /// for every picture they name.
     /// </summary>
-    [InstalledKey]
     public abstract string Token { get; }
 
     /// <summary>The value the input takes in <paramref name="appearance"/>, as a picture's name spells it.</summary>

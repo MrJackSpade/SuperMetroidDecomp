@@ -4,12 +4,17 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Downward gate's typed animation.</summary>
-internal sealed class DownwardGateProjectileAnimation(DownwardGateProjectileSegment segment)
-    : EnemyProjectileFrameAnimation<DownwardGateProjectileSegment, DownwardGateProjectileCue>(DownwardGateProjectileAnimations.StartingWith(segment))
+internal sealed partial class DownwardGateProjectileAnimation
+    : EnemyProjectileFrameAnimation<DownwardGateProjectileSegment, DownwardGateProjectileCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
+    /// <summary>Creates a <see cref="DownwardGateProjectileAnimation"/>.</summary>
+    /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+    /// <param name="segment">Where the animation starts.</param>
+    public DownwardGateProjectileAnimation(IEnemyProjectileCues<DownwardGateProjectileCue> owner, DownwardGateProjectileSegment segment)
+        : base(segment, DownwardGateProjectileAnimations.StartingAt[segment], EnemyProjectileCueRunner<DownwardGateProjectileSegment, DownwardGateProjectileCue>.By(owner))
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DownwardGateProjectileSegment, Animation<DownwardGateProjectileSegment>> StartingAt => DownwardGateProjectileAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<DownwardGateProjectileSegment, EnemyProjectileFrameId, DownwardGateProjectileCue> Segments => DownwardGateProjectileAnimations.Segments;
 }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 /// <see cref="MamaTurtleMotionDefinitions.DamageBoxReach"/> and shrunk at the top and bottom by
 /// <see cref="MamaTurtleMotionDefinitions.DamageBoxInset"/>.
 /// </summary>
-internal static class MamaTurtleDamageBox
+internal static partial class MamaTurtleDamageBox
 {
     /// <summary>
     /// Whether Samus's body touches the box: sideways and at the box's top she touches it from the pixel she meets its

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 /// It is the frame for a screen that shows only a floor and sprites; gameplay with several layers,
 /// bands or blends is a layered scene.
 /// </summary>
-public sealed class FloorScene : DisplayScene
+public sealed partial class FloorScene : DisplayScene
 {
     /// <summary>The frame's backdrop, shading and sprite draws, retained by reference without another copy.</summary>
     public FramePaint Paint { get; }
@@ -19,14 +19,14 @@ public sealed class FloorScene : DisplayScene
     /// </summary>
     public ScreenGradientLayer? Gradient { get; }
 
-    /// <summary>Captures a 256-by-224 frame of floor and backdrop with the sprites in front and an optional gradient over them.</summary>
+    /// <summary>Captures a screen-sized frame of floor and backdrop with the sprites in front and an optional gradient over them.</summary>
     /// <param name="paint">The frame's backdrop, shading and sprite draws; retained rather than recaptured.</param>
     /// <param name="floor">The floor and how it appears on the screen, or null to show the backdrop behind the sprites.</param>
-    /// <param name="brightness">The frame's brightness, 0 (black) through 15, applied after the floor, the sprites and the gradient.</param>
+    /// <param name="brightness">The frame's brightness, from black (zero) to <see cref="DisplayBrightness.Full"/>, applied after the floor, the sprites and the gradient.</param>
     /// <param name="gradient">The gradient drawn over the floor, the backdrop and the sprites, or null for none.</param>
     /// <exception cref="ArgumentNullException"><paramref name="paint"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is out of range.</exception>
-    public FloorScene(FramePaint paint, PlacedFloor? floor, int brightness, ScreenGradientLayer? gradient = null)
+    public FloorScene(FramePaint paint, PlacedFloor? floor, DisplayBrightness brightness, ScreenGradientLayer? gradient = null)
         : base(brightness)
     {
         Paint = Ensure.NotNull(paint);
@@ -38,6 +38,6 @@ public sealed class FloorScene : DisplayScene
     public override void DrawWith<TDrawer>(TDrawer drawer) => drawer.DrawTurningFloor(this);
 
     /// <inheritdoc/>
-    internal override DisplayScene AtBrightness(int brightness) =>
+    internal override DisplayScene AtBrightness(DisplayBrightness brightness) =>
         brightness == Brightness ? this : new FloorScene(Paint, Floor, brightness, Gradient);
 }

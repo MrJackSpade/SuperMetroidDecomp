@@ -5,17 +5,21 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// <summary>
 /// Selects the post-shot transfers of the ending (<see cref="EndingPostShotUploadDefinitions"/>) in native order.
 /// </summary>
-internal static class EndingPostShotUploads
+internal static partial class EndingPostShotUploads
 {
-    /// <summary>Subtitle, four consecutive2048-byte logo chunks, then tilemap.
-    /// Source byte offsets advance by chunk length. Native8B:E45A..E489 independently confirms all six records for #1165.
-    /// The subtitle/map are semantic transfer cases, not interpolated chunk addresses.</summary>
-    public static EndingPostShotUploadDefinition Get(int index)
-    {
-        if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == 0) return new(SubtitleLength, 0, EndingPostShotUploadSource.Subtitle);
-        if (index == Count - 1) return new(LogoMapLength, 0, EndingPostShotUploadSource.LogoMap);
-        int offset = (index - 1) * LogoTileChunkLength;
-        return new(LogoTileChunkLength, offset, EndingPostShotUploadSource.LogoTiles);
-    }
+    /// <summary>The subtitle's characters.</summary>
+    internal static EndingPostShotUploadDefinition Subtitle { get; } = new(SubtitleLength, 0, EndingPostShotUploadSource.Subtitle);
+
+    /// <summary>
+    /// The logo's characters, in four consecutive chunks of equal length, each starting where the one before it ends.
+    /// </summary>
+    internal static IReadOnlyList<EndingPostShotUploadDefinition> LogoTileChunks { get; } =
+        [.. Enumerable.Range(0, Count - 2).Select(chunk => new EndingPostShotUploadDefinition(
+            LogoTileChunkLength, chunk * LogoTileChunkLength, EndingPostShotUploadSource.LogoTiles))];
+
+    /// <summary>The logo's tilemap.</summary>
+    internal static EndingPostShotUploadDefinition LogoMap { get; } = new(LogoMapLength, 0, EndingPostShotUploadSource.LogoMap);
+
+    /// <summary>The post-shot uploads in the order the ending makes them: the subtitle, the logo's chunks, then its tilemap.</summary>
+    public static IReadOnlyList<EndingPostShotUploadDefinition> InOrder { get; } = [Subtitle, .. LogoTileChunks, LogoMap];
 }

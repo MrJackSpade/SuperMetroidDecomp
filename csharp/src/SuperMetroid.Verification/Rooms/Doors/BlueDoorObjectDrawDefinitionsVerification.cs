@@ -28,11 +28,11 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
 
         RoomObjectDrawLists.DrawList[] lists =
             BlueDoorObjectDrawDefinitionsTooling.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        InstalledRoomObjectBlueDoorVisuals stock = InstalledRoomObjectBlueDoorVisuals.Stock();
-        ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.BlueDoor;
+        ushort leftFirstDraw = rom.ReadCartridgeWord((0x840000 | (DoorObjectNativeListAddresses.Blue(ColoredDoorOrientation.Left).Opening + 5)));
         AssertEqual("left-ajar", RoomObjectBlueDoorVisualFiles.VisualId(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)),
             "the left blue door opens on its first opening frame");
-        AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (leftFirstDraw + 2))).Appearance,
+        AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWord(0x840000 | (leftFirstDraw + 2))).Appearance,
             stock.Image(NativeObjectDraws.At<BlueDoorCaps.Draw>(leftFirstDraw)).At(Offset16<RoomBlocks>.Zero),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
@@ -42,7 +42,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
         {
             ushort openingList = DoorObjectNativeListAddresses.Blue(orientation).Opening;
-            ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
+            ushort firstDraw = rom.ReadCartridgeWord((0x840000 | (openingList + 5)));
             AssertTrue(RoomObjectBlueDoorVisualFiles.TryGet(NativeObjectDraws.At<BlueDoorCaps.Draw>(firstDraw), out var selected),
                 $"{orientation} opening program selects a compiled draw");
 
@@ -52,9 +52,8 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
             // A blue cap's closing turns into the grey door's frames too, so the fixture binds every installed picture (#1557).
             var roomObjects = RoomObjectFixtures.Unbound();
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(orientation));
-            AssertTrue(roomObjects.DoorObjects.TrySpawnBlueDoorOpening(level, level.BlockAt(origin), behavior,
-                SamusProjectileType.None),
-                $"{orientation} blue door allocates its native opening actor");
+            roomObjects.DoorObjects.SpawnBlueDoorOpening(level, level.BlockAt(origin), behavior,
+                BlockStrike.GrappleTouch.Instance);
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             roomObjects.Step(level);
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
@@ -93,8 +92,7 @@ internal static class BlueDoorObjectDrawDefinitionsVerification
                 DestinationScreen: new(0, 0),
                 SamusSpeed: DoorSamusSpeed.None,
                 Setup: DoorSetupDefinitions.None);
-            AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, closingDoor),
-                $"{orientation} places the blue cap closing behind Samus");
+            roomObjects.DoorObjects.SpawnDoorClosingObject(level, closingDoor);
             AssertTrue(roomObjects.PopulationPlaces.Single().Behaviour is BlueDoorCapObject { Phase: BlueDoorCapPhase.Closing } closer && closer.Orientation == orientation,
                 $"{orientation} closing cap faces the travel direction");
             for (int frame = 0; frame < 20 && roomObjects.Places.ActiveCount != 0; frame++)

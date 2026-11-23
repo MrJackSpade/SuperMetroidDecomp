@@ -4,8 +4,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>Where the cartridge stores the front-end tables the title and map extractors read.</summary>
-[EncodingOwner("cartridge addresses of the title and map front-end tables")]
-internal static class FrontendSourceDefinitions
+internal static partial class FrontendSourceDefinitions
 {
     /// <summary><c>$82:C80B</c>, bank-$82 save-point map-coordinate-list pointers per area.</summary>
     internal static readonly SnesAddress SavePointMapPointers = new(0x82, 0xc80b);

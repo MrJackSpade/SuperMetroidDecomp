@@ -5,13 +5,13 @@ using S = SuperMetroid.Core.Rooms.RoomObjects.NoobTubeShard;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Where the n00b tube's crack, glass shards and released-air bubbles appear and how they move.</summary>
-public static class NoobTubeDebrisDefinitions
+public static partial class NoobTubeDebrisDefinitions
 {
-    /// <summary>Where the tube cracks: 96 pixels right of and 48 below the top-left corner of the tube's block.</summary>
+    /// <summary>Where the tube cracks: right of and below the top-left corner of the tube's block.</summary>
     private static readonly Offset16<RoomPixels> CrackOffset = new(96, 48);
 
     /// <summary>The bubbles' initial vertical speed: five pixels upward per update.</summary>
-    public static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromPixels(-5);
+    internal static SignedEightEight BubbleInitialYVelocity { get; } = SignedEightEight.FromPixels(-5);
 
     /// <summary>The tube's crack, which spreads across the glass where the tube cracks.</summary>
     public static NoobTubePiece Crack { get; } =
@@ -60,7 +60,7 @@ public static class NoobTubeDebrisDefinitions
     /// <summary>
     /// The random choice of the angle a glass shard's or air bubble's swaying fall starts at, any of the turn's 256 steps.
     /// </summary>
-    internal static readonly RandomAngle FallingSwayStart = new(new(8, 8), RotationAngle.Zero, RotationAngle.FromStepFraction(1, 2));
+    internal static readonly RandomAngle FallingSwayStart = new(RandomSampleField.RangePart(256), RotationAngle.Zero, RotationAngle.FromStepFraction(1, 2));
 
     /// <summary>Shard <paramref name="shard"/>, <paramref name="fromCrack"/> from the crack, flying off at <paramref name="velocity"/>.</summary>
     private static NoobTubePiece Shard(Offset16<RoomPixels> fromCrack, PixelVelocity<RoomPixels> velocity, NoobTubeShard shard) =>

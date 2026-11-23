@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Rooms.TilemapJsonContractsVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 
@@ -31,9 +30,9 @@ internal static class KraidInstalledPresentationTailVerification
             return RoomBackgroundTilemapAtlas.Load(json, KraidWorkingMapDefinitions.SourceTilemapBytes);
         }
         RoomBackgroundTilemapAtlas upper = Map(0), lower = Map(SnesBgTilemapWord.PriorityMask);
-        var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<int, KraidHeadTilemapAtlas>(),
+        var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas>(),
             (new EnemyIdentityFixture().Build().Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires new EnemyIdentityFixture().Build().KraidBackground.")).RoomBackgroundTiles);
-        ushort[] working = KraidBodyFixtures.WorkingMap(new BossSourceArtwork { KraidBackground = art });
+        ushort[] working = KraidBodyFixtures.WorkingMap(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { KraidBackground = art });
         for (int word = 0; word < KraidWorkingMapDefinitions.WorkingMapCells; word++)
         {
             ReadOnlySpan<byte> source = word < KraidWorkingMapDefinitions.PageCells ? upper.Bytes.Span : lower.Bytes.Span;

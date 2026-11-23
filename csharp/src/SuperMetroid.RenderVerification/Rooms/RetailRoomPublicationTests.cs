@@ -38,7 +38,7 @@ internal static class RetailRoomPublicationTests
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             // Room-local setup, explicitly not an incoming door/elevator transition.
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.FrameBoundary.BeginAcceptedFrame(0);

@@ -6,7 +6,6 @@ using static SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Decodes the bank-$B4 item-drop and vulnerability tables an enemy header's words select.</summary>
-[EncodingOwner("cartridge enemy drop and vulnerability tables")]
 internal static class EnemyHeaderTables
 {
     /// <summary>The item-drop chances a header word selects, or null for a zero word, which drops nothing.</summary>
@@ -21,15 +20,19 @@ internal static class EnemyHeaderTables
         return new EnemyDropChances(Chance(0), Chance(1), Chance(2), Chance(3), Chance(4), Chance(5));
     }
 
+    /// <summary>What an enemy's death drops by the drop-chances word of its header: nothing for a zero word, else its chances.</summary>
+    /// <exception cref="InvalidDataException">The word is not zero or one of the authored tables.</exception>
+    internal static EnemyDrops Drops(IImportCartridgeSource cartridge, int word) =>
+        DropChances(cartridge, word) is { } chances ? EnemyDrops.Rolling(chances) : EnemyDrops.Nothing;
+
     /// <summary>
-    /// The vulnerabilities a header word selects, or null for a zero word, with which the enemy takes the standard
-    /// table's.
+    /// The vulnerabilities a header word selects: the standard table's for a zero word, else the table the word selects.
     /// </summary>
     /// <exception cref="InvalidDataException">The word is not one of the authored tables, or a byte is not a response.</exception>
-    internal static EnemyVulnerabilities? Vulnerability(IImportCartridgeSource cartridge, int word)
+    internal static EnemyVulnerabilities Vulnerability(IImportCartridgeSource cartridge, int word)
     {
         Ensure.NotNull(cartridge);
-        return word == 0 ? null : VulnerabilityAt(cartridge, word);
+        return word == 0 ? EnemyVulnerabilityDefinitions.Standard : VulnerabilityAt(cartridge, word);
     }
 
     /// <summary>The vulnerability table at <paramref name="word"/>, which may be the standard table's own word.</summary>
@@ -75,7 +78,7 @@ internal static class EnemyHeaderTables
         int multiplier = entry & ~PreventsLethalFreezeBit;
         if ((multiplier & ~MultiplierBits) != 0)
             throw new InvalidDataException($"Vulnerability byte ${entry:X2} at ${address:X6} has a multiplier past the low nibble.");
-        return new EnemyWeaponVulnerability(WeaponDamageFactor.FromStoredHalves(multiplier), (entry & PreventsLethalFreezeBit) != 0
+        return new global::SuperMetroid.Core.Enemies.EnemyWeaponVulnerability(WeaponDamageFactor.FromStoredHalves(multiplier), (entry & PreventsLethalFreezeBit) != 0
             ? EnemyIceResponse.DiesOnLethalHit
             : EnemyIceResponse.FreezesOnLethalHit);
     }

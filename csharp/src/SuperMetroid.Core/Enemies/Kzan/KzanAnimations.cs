@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// Kzan's idle pose as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class KzanAnimations
+internal static partial class KzanAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<KzanSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -21,7 +21,7 @@ internal static class KzanAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<KzanSegment, Animation<KzanSegment>> StartingAt { get; } = new Dictionary<KzanSegment, Animation<KzanSegment>>
+    internal static Dictionary<KzanSegment, Animation<KzanSegment>> StartingAt { get; } = new Dictionary<KzanSegment, Animation<KzanSegment>>
     {
         [P.Idle] = new([Segments.Whole(P.Idle)], AnimationEnd.Holds),
     };

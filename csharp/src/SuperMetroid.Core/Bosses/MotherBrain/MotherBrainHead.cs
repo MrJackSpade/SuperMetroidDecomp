@@ -12,8 +12,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Mother Brain's head and brain: their setup, neck, animations, cues and drawing.</summary>
-[RoomLifetime]
-internal sealed class MotherBrainHead
+internal sealed partial class MotherBrainHead
 {
     /// <summary>Provides room services, pictures, colour state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -46,12 +45,11 @@ internal sealed class MotherBrainHead
         _projectileAttacks = dependencies.ProjectileAttacks;
     }
 
-    /// <summary>Sets Mother Brain's head up when the room spawns it.</summary>
-    internal void InitializeMotherBrainHead(RoomEnemyPlace head)
+    /// <summary>Sets Mother Brain's head up when the room spawns it, joining <paramref name="state"/>, the encounter her body began.</summary>
+    /// <returns>The encounter, which the head holds from here (#2218).</returns>
+    internal static MotherBrainEnemyState InitializeMotherBrainHead(RoomEnemyPlace head, MotherBrainEnemyState state)
     {
-        // The head joins the encounter her body, listed right before it, began; it holds it from here (#2218).
-        MotherBrainEnemyState state = _places.ListedBefore(head, 1).RequireSpeciesState<MotherBrainEnemyState>();
-        head.SetSpeciesState(state);
+        Ensure.NotNull(state);
 
         head.Health = MotherBrainFightDefinitions.FirstPhaseHealth;
         // The head shows her brain's hit area from its next animation update on (#2220); the visible brain runs a
@@ -60,6 +58,7 @@ internal sealed class MotherBrainHead
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Presence = head.Presence.With(EnemyPresence.Hidden);
         MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.WholeHeadMouthClosed);
+        return state;
     }
 
     /// <summary>
@@ -81,26 +80,25 @@ internal sealed class MotherBrainHead
         place.AnimationClock.ShowForGood();
     }
 
-    /// <summary>Runs the head main/hurt entry and its brain action's choice of whether her brain and neck are drawn.</summary>
+    /// <summary>What <see cref="RunMotherBrainHeadMain"/> does for each <see cref="MotherBrainBrainAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<MotherBrainBrainAction, Action<RoomEnemyPlace, MotherBrainEnemyState, SamusState>> RunMotherBrainHeadMainForMotherBrainBrainAction => field ??= new(new Dictionary<MotherBrainBrainAction, Action<RoomEnemyPlace, MotherBrainEnemyState, SamusState>>
+    {
+        [MotherBrainBrainAction.ShowsBrainAlone] = static (head, state, samus) => state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainAlone,
+        [MotherBrainBrainAction.ShowsBrainOnNeck] = static (head, state, samus) =>
+        {
+            StepMotherBrainNeck(
+                state,
+                samus);
+            head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
+            state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
+        },
+    });
+
+    /// <summary>Chooses whether her brain and neck are drawn and places her head on her neck.</summary>
     internal static void RunMotherBrainHeadMain(RoomEnemyPlace head, MotherBrainEnemyState state, SamusState samus)
     {
         // Her brain's action decides whether her own draw shows her neck with her brain.
-        switch (state.BrainAction)
-        {
-            case MotherBrainBrainAction.ShowsBrainAlone:
-                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainAlone;
-                return;
-            case MotherBrainBrainAction.ShowsBrainOnNeck:
-                StepMotherBrainNeck(
-                    state,
-                    samus);
-                head.Position = head.Position.WithWhole(state.Neck.BrainAnchor.Position + MotherBrainNeckJointDefinitions.BrainAboveAnchor);
-                state.BrainActionDrawn = MotherBrainBrainAction.ShowsBrainOnNeck;
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Mother Brain has no behaviour for brain action {state.BrainAction}.");
-        }
+        RunMotherBrainHeadMainForMotherBrainBrainAction[state.BrainAction](head, state, samus);
     }
 
     /// <summary>
@@ -137,17 +135,15 @@ internal sealed class MotherBrainHead
                 head.Position.Whole + brainShake,
                 // Her brain's own draw bypasses ordinary enemy colour selection. The game
                 // still selects the shared white hurt colours on odd flash-timer frames.
-                MotherBrainCadenceDefinitions.HurtFlashWhite.IsSetIn(head.HurtFlash.UpdatesLeft) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
+                MotherBrainCadenceDefinitions.HurtFlashWhite.IsInSecondHalfAt(head.HurtFlash.UpdatesLeft) ? EnemyShades.HurtFlashLook : state.Colours.OwnShading),
             camera,
             ShownCorpseRows(state));
 
         if (!state.DrawNeck || state.Body.Presence.HasAny(EnemyPresence.Hidden))
             return;
 
-        // The neck draw emits the joint nearest the brain first and the body-side joint
-        // last. Equal-priority overlap therefore follows the same drawing precedence.
-        int shakeIndex = MotherBrainCadenceDefinitions.NeckShakeStep.Of(head.HurtFlash.UpdatesLeft);
-        Offset16<RoomPixels> neckShake = MotherBrainShakeDefinitions.Offsets[shakeIndex];
+        // The joints are drawn from the brain down to her body, so the joints nearer her brain lie over the others.
+        Offset16<RoomPixels> neckShake = MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.NeckShakeStep, head.HurtFlash.UpdatesLeft);
         foreach (MotherBrainNeckJoint joint in state.Neck.Joints.Reverse())
         {
             DrawMotherBrainWorldFrame(
@@ -202,7 +198,7 @@ internal sealed class MotherBrainHead
             return state.BrainShake.Offset;
 
         int paced = head.HurtFlash.IsRunning ? head.HurtFlash.UpdatesLeft : head.Shake.UpdatesLeft;
-        return MotherBrainShakeDefinitions.Offsets[MotherBrainCadenceDefinitions.BrainShakeStep.Of(paced)];
+        return MotherBrainShakeDefinitions.Offsets[MotherBrainCadenceDefinitions.BrainShakeStep.StepAt(paced)];
     }
 
     /// <summary>Moves neck segments toward the head and updates their attachment to Samus's position.</summary>
@@ -232,26 +228,17 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Plays her brain at her brain's draw (<see cref="MotherBrainBrainAnimation"/>) and returns the picture it shows, or
-    /// null when the brain is not live; its cues act on <paramref name="state"/> and read <paramref name="samus"/>. A
-    /// brain that shows a picture counts its own shake down at the same draw (#2469).
-    /// </summary>
-    /// <remarks>
-    /// Once her late fight has begun its own cues act on it (#2471): her attacks on the Baby count, aim at and cry at the
-    /// Baby it made.
-    /// </remarks>
-    internal EnemyFrameId? AdvanceMotherBrainBrain(MotherBrainEnemyState state, SamusState samus) =>
-        PlayMotherBrainBrain(state, samus)?.Frame;
-
-    /// <summary>
-    /// Plays her brain at her brain's draw as <see cref="AdvanceMotherBrainBrain"/> does, returning the picture it shows and
+    /// Plays her brain at her brain's draw, returning the picture it shows and
     /// whether her brain's shake, which a shown picture counts down, was still shaking; null when the brain is not live.
     /// </summary>
     private MotherBrainBrainPicture? PlayMotherBrainBrain(MotherBrainEnemyState state, SamusState samus)
     {
-        EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence is { } lateFight
-                ? ApplyLateFightHeadCue(lateFight, samus, cue)
-                : ApplyMotherBrainHeadCue(state, samus, cue)) is { } segment
+        EnemyFrameId? shown = state.Brain.AdvanceAtDraw(_frameContext.TimeIsFrozen, cue => (state.RainbowBeamSequence switch
+                {
+                    { Baby: { } baby } lateFight => ApplyBabyAttackHeadCue(lateFight, baby, samus, cue),
+                    { } lateFight => ApplyLateFightHeadCue(lateFight, samus, cue),
+                    null => ApplyMotherBrainHeadCue(state, samus, cue),
+                }) is { } segment
             ? new AnimationContinuation<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(segment), AnimationPlace.StartOfAnimation)
             : null);
         return shown is { } frame ? new MotherBrainBrainPicture(frame, state.BrainShake.Step()) : null;
@@ -260,20 +247,31 @@ internal sealed class MotherBrainHead
     /// <summary>A picture her brain's draw shows and whether her brain's shake counted one of its updates off for it.</summary>
     /// <param name="Frame">The picture.</param>
     /// <param name="Shook">Whether her brain's shake was still shaking when the picture counted an update off it.</param>
-    private readonly record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
+    private readonly partial record struct MotherBrainBrainPicture(EnemyFrameId Frame, bool Shook);
 
     /// <summary>
-    /// Carries out one event of a brain animation in her late fight: the cues of her attacks on the Baby act on
-    /// <paramref name="lateFight"/>, and every other cue as before it began.
+    /// Carries out one event of a brain animation in her late fight once the Baby has arrived: her attacks on the Baby aim
+    /// at <paramref name="baby"/>, and every other cue acts as in her late fight before it arrived.
+    /// </summary>
+    /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
+    private MotherBrainHeadSegment? ApplyBabyAttackHeadCue(MotherBrainRainbowBeamAttackSequence lateFight, BabyMetroidCutsceneState baby,
+        SamusState samus, MotherBrainHeadCue cue)
+    {
+        if (cue is not MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid })
+            return ApplyLateFightHeadCue(lateFight, samus, cue);
+        AimMotherBrainOnionRingsAt(lateFight.Encounter, baby.Position.Whole);
+        return null;
+    }
+
+    /// <summary>
+    /// Carries out one event of a brain animation in her late fight: the cues that count and cry her attacks on the Baby act
+    /// on <paramref name="lateFight"/>, and every other cue as before it began.
     /// </summary>
     /// <returns>The segment whose animation a random hold or drool event continues at; otherwise null.</returns>
     private MotherBrainHeadSegment? ApplyLateFightHeadCue(MotherBrainRainbowBeamAttackSequence lateFight, SamusState samus, MotherBrainHeadCue cue)
     {
         switch (cue)
         {
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid }:
-                AimMotherBrainOnionRingsAt(lateFight.Encounter, lateFight.Baby.Position.Whole);
-                return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.CountBabyMetroidAttack }:
                 lateFight.IncrementLiveBabyMetroidAttackCounter();
                 return null;
@@ -281,7 +279,7 @@ internal sealed class MotherBrainHead
                 lateFight.ResetLiveBabyMetroidAttackCounter();
                 return null;
             case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                // The attack cry step skips the attack cry once the attack counter reaches eleven.
+                // The attack cry step skips the attack cry once the attack counter reaches the silent attack.
                 if (lateFight.Revival.BabyMetroidAttackCounter != MotherBrainFightDefinitions.SilentBabyAttackCount)
                     _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, priority: SoundRequestPriority.Normal);
                 return null;
@@ -296,68 +294,107 @@ internal sealed class MotherBrainHead
     /// The brain animation advances in her brain's draw, after the enemy update has queued the frame's enemy
     /// sounds, so its sounds go straight to the enemy audio queue at their limits (#1391).
     /// </remarks>
-    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue)
-    {
-        switch (cue)
+    private MotherBrainHeadSegment? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState samus, MotherBrainHeadCue cue) =>
+        cue.Match(ApplyMotherBrainHeadCueCases, new ApplyMotherBrainHeadCueContext(state, samus, this));
+
+    /// <summary>What <see cref="ApplyMotherBrainHeadCue"/> does on each <see cref="MotherBrainHeadCue"/>, built once (#2553).</summary>
+    private static MotherBrainHeadCueCases<ApplyMotherBrainHeadCueContext, MotherBrainHeadSegment?> ApplyMotherBrainHeadCueCases { get; } = new(
+            PlaySound: static (playSound, context) =>
+            {
+                context.Owner._audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
+                return null;
+            },
+            SpawnBomb: static (bomb, context) =>
+            {
+                context.Owner.SpawnMotherBrainBomb(context.State, bomb.Afterburns);
+                return null;
+            },
+            Signal: static (signal, context) => context.Owner.HeadSignals[signal.Kind](context.State, context.Samus));
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="State">The state the cases read.</param>
+    /// <param name="Samus">The samus the cases read.</param>
+    /// <param name="Owner">The <see cref="MotherBrainHead"/> reacting.</param>
+    private readonly partial record struct ApplyMotherBrainHeadCueContext(MotherBrainEnemyState State, SamusState Samus, MotherBrainHead Owner);
+
+    /// <summary>
+    /// What each of her brain's signals does before her late fight, and the segment it continues at, or null to run on.
+    /// Only the animations of her attacks on the Baby, which her late fight starts, raise the Baby's cues
+    /// (ApplyLateFightHeadCue), so one raised before it fails.
+    /// </summary>
+    private IdentityTable<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>> HeadSignals => field ??=
+        new(new Dictionary<MotherBrainHeadCueKind, Func<MotherBrainEnemyState, SamusState, MotherBrainHeadSegment?>>
         {
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.ShakeBrain }:
+            [MotherBrainHeadCueKind.ShakeBrain] = static (state, _) =>
+            {
                 state.BrainShake.ShakeFor(MotherBrainFightDefinitions.BrainShakeUpdates);
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnDrool }:
+            },
+            [MotherBrainHeadCueKind.SpawnDrool] = (state, _) =>
+            {
                 SpawnMotherBrainDrool(state);
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnBigPurpleBreath }:
+            },
+            [MotherBrainHeadCueKind.SpawnBigPurpleBreath] = (state, _) =>
+            {
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
-            case MotherBrainHeadCue.PlaySound playSound:
-                _audio.QueueEnemySound(playSound.Effect, priority: SoundRequestPriority.Normal);
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.DisableNeckMovement }:
+            },
+            [MotherBrainHeadCueKind.DisableNeckMovement] = static (state, _) =>
+            {
                 state.NeckMovementEnabled = false;
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.EnableNeckMovement }:
+            },
+            [MotherBrainHeadCueKind.EnableNeckMovement] = static (state, _) =>
+            {
                 state.NeckMovementEnabled = true;
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtSamus }:
+            },
+            [MotherBrainHeadCueKind.AimOnionRingsAtSamus] = (state, samus) =>
             {
                 AimMotherBrainOnionRingsAt(state, samus.Position.Whole);
                 return null;
-            }
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnOnionRing }:
+            },
+            [MotherBrainHeadCueKind.SpawnOnionRing] = (state, _) =>
+            {
                 SpawnMotherBrainOnionRing(state, state.OnionRingsTargetAngle);
                 return null;
-            case MotherBrainHeadCue.SpawnBomb bomb:
-                SpawnMotherBrainBomb(state, bomb.Afterburns);
-                return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnLaser }:
+            },
+            [MotherBrainHeadCueKind.SpawnLaser] = (state, _) =>
+            {
                 SpawnMotherBrainMouthLaser(state);
                 return null;
-            // Only the animations of her attacks on the Baby, which her late fight starts, raise their cues
-            // (ApplyLateFightHeadCue).
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid or MotherBrainHeadCueKind.CountBabyMetroidAttack or
-                MotherBrainHeadCueKind.ResetBabyMetroidAttacks or MotherBrainHeadCueKind.QueueBabyMetroidAttackSound }:
-                throw new InvalidOperationException($"Mother Brain's brain raised {cue}, a cue of her late fight, before it began.");
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.PrepareRainbowBeamCharge }:
+            },
+            [MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.AimOnionRingsAtBabyMetroid),
+            [MotherBrainHeadCueKind.CountBabyMetroidAttack] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.CountBabyMetroidAttack),
+            [MotherBrainHeadCueKind.ResetBabyMetroidAttacks] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.ResetBabyMetroidAttacks),
+            [MotherBrainHeadCueKind.QueueBabyMetroidAttackSound] = static (_, _) => throw LateFightCueBeforeItBegan(MotherBrainHeadCueKind.QueueBabyMetroidAttackSound),
+            [MotherBrainHeadCueKind.PrepareRainbowBeamCharge] = (state, _) =>
+            {
                 state.SmallPurpleBreathGenerationEnabled = false;
                 _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, priority: SoundRequestPriority.Normal);
                 return null;
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle }:
+            },
+            [MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle] = (state, _) =>
+            {
                 SpawnMotherBrainRainbowChargingProjectile(state);
                 return null;
-            // The neutral hold holds the phase-two neutral pose again on fifteen samples in sixteen.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase2 }:
-                return MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null;
+            },
+            // The neutral hold holds the phase-two neutral pose again on most samples.
+            [MotherBrainHeadCueKind.MaybeHoldNeutralPhase2] = (_, _) =>
+                MotherBrainRandomDefinitions.NeutralPhase2Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase2Hold : null,
             // The hold's chance alone decides whether the phase-three pose holds again.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeHoldNeutralPhase3 }:
-                return MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null;
+            [MotherBrainHeadCueKind.MaybeHoldNeutralPhase3] = (_, _) =>
+                MotherBrainRandomDefinitions.NeutralPhase3Holds.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.NeutralPhase3Hold : null,
             // The drool hold returns its destination: only the burst's chance bursts into more drool; every other sample
             // keeps the one-frame loop.
-            case MotherBrainHeadCue.Signal { Kind: MotherBrainHeadCueKind.MaybeDroolAgain }:
-                return MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null;
-            default:
-                throw new InvalidOperationException($"Undefined Mother Brain head cue {cue}.");
-        }
-    }
+            [MotherBrainHeadCueKind.MaybeDroolAgain] = (_, _) =>
+                MotherBrainRandomDefinitions.DroolBursts.IsTakenBy(_room.Random.Read()) ? MotherBrainHeadSegment.DyingDroolBurst : null,
+        });
+
+    /// <summary>The failure of a cue of her late fight that her brain raised before it began.</summary>
+    private static InvalidOperationException LateFightCueBeforeItBegan(MotherBrainHeadCueKind kind) =>
+        new($"Mother Brain's brain raised {kind}, a cue of her late fight, before it began.");
 
     /// <summary>Fires the mouth laser, freezing the neck.</summary>
     private void SpawnMotherBrainMouthLaser(MotherBrainEnemyState state)
@@ -365,10 +402,13 @@ internal sealed class MotherBrainHead
         RoomEnemyPlace head = state.Head;
         state.NeckMovementEnabled = false;
 
-        // The laser leaves her mouth, right of and below her head, travelling right. It is the head's
-        // shot, so it deals Mother Brain's contact damage at her laser's speed.
+        // The laser leaves her mouth, right of and below her head, travelling right, at her laser's speed. Her brain fires
+        // it while it is drawn, after every enemy of the room has been drawn, and the laser takes the damage of the enemy
+        // drawn last. Only her phase-two fight fires it, when her body is the one enemy the room draws: her brain is drawn
+        // apart from the room's enemies, and her Rinkas are gone. So it deals her body's definition's damage, whatever an
+        // installation gives it.
         EnemyProjectile? laser = _roomActors.SpawnPirateLaser(
-            head,
+            state.BodyOccupant,
             head.Position.Whole + MotherBrainFightDefinitions.BeamOffset,
             direction: HorizontalDirection.Right);
         if (laser is not null)
@@ -376,9 +416,9 @@ internal sealed class MotherBrainHead
     }
 
     /// <summary>
-    /// Aims the onion rings at a target. Both target selectors subtract the same mouth offsets,
-    /// take the angle from those offsets, rotate by a half turn, and clamp the launch arc to
-    /// <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>; only the source coordinate differs.
+    /// Aims the onion rings from her mouth at a target: the angle from her mouth to the target, a quarter turn on,
+    /// clamped to <see cref="MotherBrainOnionRingDefinitions.LowestAim"/> through
+    /// <see cref="MotherBrainOnionRingDefinitions.HighestAim"/>.
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
         MotherBrainEnemyState state,
@@ -402,50 +442,39 @@ internal sealed class MotherBrainHead
         MotherBrainEnemyState state,
         int afterburnCount)
     {
-        EnemyProjectile? bomb = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? bomb = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainBomb, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading), new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Bomb));
         if (bomb is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            bomb,
-            RoomEnemyProjectileKind.MotherBrainBomb,
-            _projectileAttacks.Projectile,
-            graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
-        bomb.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Bomb));
         RoomEnemyPlace head = state.Head;
         bomb.Position = bomb.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BombOffset);
         bomb.Position = bomb.Position.WithoutFractions();
         bomb.Velocity = new(MotherBrainBombBounceDefinitions.LaunchSpeedX, MotherBrainBombBounceDefinitions.LaunchSpeedY);
-        bomb.State = new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
-        state.RecordBombSpawned();
+        var bombState = new MotherBrainBombState(state, MotherBrainBombBounceDefinitions.BounceSpeed, afterburnCount);
+        _projectileAttacks.Projectile.Bombs.Start(bomb, bombState);
+        state.RecordBombSpawned(bombState);
     }
 
     /// <summary>
-    /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the twelve
+    /// Runs the head's onion-ring step and the ring's setup. The ring takes its enemy-projectile place after the
     /// room turrets and all lingering drool have theirs, so no ring appears when every place is held.
     /// </summary>
     internal void SpawnMotherBrainOnionRing(
         MotherBrainEnemyState state,
         TrigonometryAngle angle)
     {
-        EnemyProjectile? ring = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? ring = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainOnionRing, _projectileAttacks.OnionRing, graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading), new MotherBrainEffectAnimation(_projectileAttacks.OnionRing, MotherBrainEffectSegment.OnionRing));
         if (ring is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            ring,
-            RoomEnemyProjectileKind.MotherBrainOnionRing,
-            _projectileAttacks.OnionRing,
-            graphics: SpriteGraphics.SharedIn(state.Colours.OwnShading));
-        ring.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.OnionRing));
-        ring.State = new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates);
+        _projectileAttacks.OnionRing.OnionRings.Start(ring, new MotherBrainOnionRingState(state, MotherBrainOnionRingDefinitions.MouthWaitUpdates));
         ring.Velocity = ring.Velocity.WithX(EnemyMath.SineSpeed(MotherBrainOnionRingDefinitions.Speed, angle));
         ring.Velocity = ring.Velocity.WithY(EnemyMath.SineSpeed(
             MotherBrainOnionRingDefinitions.Speed,
             angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
 
-        // The ring's setup pins it to the mouth in the same update, before the first of its eight delayed attachment
-        // frames.
+        // The ring's setup pins it to the mouth in the same update, before the first of its delayed attachment
+        // frames (MotherBrainOnionRingDefinitions.MouthWaitUpdates).
         MotherBrainProjectiles.PinMotherBrainOnionRingToMouth(ring, state);
     }
 
@@ -458,10 +487,6 @@ internal sealed class MotherBrainHead
         Offset16<RoomPixels> mouth = state.NextDroolMouthPoint.Entry;
         state.NextDroolMouthPoint = state.NextDroolMouthPoint.NextInCycle;
 
-        EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile();
-        if (drool is null)
-            return;
-
         // The game itself picks the drool by how fast her neck turns (#2471), and no phase stands behind that choice: her
         // phase-two laser's quick aim and steady fire, her fake death's landing, her third phase's bob and her late fight's
         // fast throws all drool the dying drool, her slow sways and rises the ordinary one. Only the neck's turn tells them apart, so it stays the
@@ -469,68 +494,55 @@ internal sealed class MotherBrainHead
         RoomEnemyProjectileKind kind = state.NeckTurnPerUpdate < MotherBrainNeckTurnDefinitions.DyingDrool
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, _projectileAttacks.Projectile, graphics: default);
-        drool.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.Drool));
-        drool.State = new MotherBrainDroolState(state, mouth);
+        EnemyProjectile? drool = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.Drool));
+        if (drool is null)
+            return;
+
+        _projectileAttacks.Projectile.Drools.Start(drool, new MotherBrainDroolState(state, mouth));
 
         // Spawning the drool attaches it to the head at once, so its position is already
         // right before the later projectile pass repeats the same attachment.
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.HoldMotherBrainDroolAtMouth(drool);
+        _projectileAttacks.Projectile.HoldMotherBrainDroolAtMouth(drool);
     }
 
     /// <summary>Runs the head's big purple breath step and the breath's setup.</summary>
-    private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state)
-    {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
-        if (breath is null)
-            return;
+    private void SpawnMotherBrainPurpleBreathBig(MotherBrainEnemyState state) =>
+        _ = SpawnMotherBrainPurpleBreath(state, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, MotherBrainEffectSegment.PurpleBreathBig);
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            breath,
-            RoomEnemyProjectileKind.MotherBrainPurpleBreathBig,
-            _projectileAttacks.Projectile,
-            graphics: default);
-        breath.State = new MotherBrainProjectileState(state);
-        breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathBig));
-        RoomEnemyPlace head = state.Head;
-        breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
-    }
-
-    /// <summary>Runs the small-breath spawn and the breath's setup.</summary>
+    /// <summary>Runs the small-breath spawn and the breath's setup; a small breath that spawns is her one small breath.</summary>
     private void SpawnMotherBrainPurpleBreathSmall(MotherBrainEnemyState state)
     {
-        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile();
-        if (breath is null)
-            return;
+        if (SpawnMotherBrainPurpleBreath(state, RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall, MotherBrainEffectSegment.PurpleBreathSmall))
+            state.SmallPurpleBreathActive = true;
+    }
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            breath,
-            RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
-            _projectileAttacks.Projectile,
-            graphics: default);
-        breath.State = new MotherBrainProjectileState(state);
-        breath.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.PurpleBreathSmall));
+    /// <summary>
+    /// Spawns a purple breath of <paramref name="kind"/> playing <paramref name="animation"/> at her mouth, the breath offset
+    /// from her head; it returns whether a projectile was free for it.
+    /// </summary>
+    private bool SpawnMotherBrainPurpleBreath(MotherBrainEnemyState state, RoomEnemyProjectileKind kind, MotherBrainEffectSegment animation)
+    {
+        EnemyProjectile? breath = _projectiles.AllocateEnemyProjectile(kind, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard,
+            new MotherBrainEffectAnimation(_projectileAttacks.Projectile, animation));
+        if (breath is null)
+            return false;
+
+        _projectileAttacks.Projectile.MotherBrains.Start(breath, new MotherBrainProjectileState(state));
         RoomEnemyPlace head = state.Head;
         breath.Position = breath.Position.WithWhole(head.Position.Whole + MotherBrainFightDefinitions.BreathOffset);
-        state.SmallPurpleBreathActive = true;
+        return true;
     }
 
     /// <summary>Spawns the rainbow beam's charge glow, pinned to her head in the update it spawns.</summary>
     internal void SpawnMotherBrainRainbowChargingProjectile(MotherBrainEnemyState state)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging, _projectileAttacks.Projectile, graphics: SpriteGraphics.SharedStandard, new MotherBrainEffectAnimation(_projectileAttacks.Projectile, MotherBrainEffectSegment.RainbowBeamCharging));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
-            _projectileAttacks.Projectile,
-            graphics: default);
-        projectile.State = new MotherBrainProjectileState(state);
-        projectile.StartAnimation(new MotherBrainEffectAnimation(MotherBrainEffectSegment.RainbowBeamCharging));
+        _projectileAttacks.Projectile.MotherBrains.Start(projectile, new MotherBrainProjectileState(state));
         projectile.Velocity = PixelVelocity<RoomPixels>.Zero;
         projectile.Position = projectile.Position.WithoutFractions();
-        MotherBrainProjectiles.MotherBrainProjectileBehavior.PinMotherBrainRainbowCharge(projectile);
+        _projectileAttacks.Projectile.PinMotherBrainRainbowCharge(projectile);
     }
 }

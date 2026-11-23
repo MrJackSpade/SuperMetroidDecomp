@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports complete Mother Brain death-fade RGB5 images.</summary>
-public static class MotherBrainDeathColorExtractor
+public static partial class MotherBrainDeathColorExtractor
 {
     /// <summary>Reads every Mother Brain body, leg, and corpse death-fade row, rejects high-bit colors, and serializes RGB5 data.</summary>
     /// <param name="bus">Supported-cartridge address space containing the death-fade tables.</param>
@@ -17,14 +17,15 @@ public static class MotherBrainDeathColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var body = new PaletteRgb5[MotherBrainDeathColorFile.BodyFadeFrameCount][];
-        var leg = new PaletteRgb5[body.Length][];
+        var body = new MotherBrainBodyColoursDocument[MotherBrainDeathColorFile.BodyFadeFrameCount];
         for (int frame = 0; frame < body.Length; frame++)
         {
             int source = MotherBrainSourceDefinitions.Death.BodyFadeColors(frame);
-            body[frame] = Read(source, MotherBrainDeathColorFormat.BodyColorCount);
-            leg[frame] = Read(source + MotherBrainDeathColorFormat.BodyColorCount *
-                sizeof(ushort), MotherBrainDeathColorFormat.BodyColorCount);
+            body[frame] = new MotherBrainBodyColoursDocument
+            {
+                Body = Read(source, MotherBrainDeathColorFormat.BodyColorCount),
+                BackLegs = Read(source + MotherBrainDeathColorFormat.BodyColorCount * sizeof(ushort), MotherBrainDeathColorFormat.BodyColorCount),
+            };
         }
         var corpse = new PaletteRgb5[MotherBrainDeathColorFile.CorpseFadeFrameCount][];
         for (int frame = 0; frame < corpse.Length; frame++)
@@ -34,7 +35,6 @@ public static class MotherBrainDeathColorExtractor
         {
             Version = MotherBrainDeathColorFormat.Version,
             BodyFade = body,
-            LegFade = leg,
             CorpseFade = corpse,
         });
 
@@ -44,16 +44,11 @@ public static class MotherBrainDeathColorExtractor
             for (int color = 0; color < count; color++)
             {
                 int address = source + color * sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Mother Brain death color ${address:X6} has an unrepresentable high bit.");
-                colors[color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

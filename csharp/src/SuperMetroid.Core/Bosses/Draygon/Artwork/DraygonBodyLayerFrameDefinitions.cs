@@ -2,8 +2,8 @@ using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Draygon.Artwork;
 
-/// <summary>The 34 poses Draygon draws on his body layer behind the sprites (#1466), left-facing then right-facing; his other poses are sprite compositions.</summary>
-internal static class DraygonBodyLayerFrameDefinitions
+/// <summary>The poses Draygon draws on his body layer behind the sprites (#1466), left-facing then right-facing; his other poses are sprite compositions.</summary>
+internal static partial class DraygonBodyLayerFrameDefinitions
 {
     /// <summary>The frames Draygon draws on his body layer, each a frame of his installed body sheet.</summary>
     internal static IReadOnlySet<EnemyFrameId> Frames { get; } = new HashSet<EnemyFrameId>

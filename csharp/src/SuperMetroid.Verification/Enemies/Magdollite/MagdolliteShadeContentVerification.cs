@@ -9,8 +9,7 @@ using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
-using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Enemies.Magdollite;
 
 /// <summary>
@@ -26,7 +25,7 @@ internal static class MagdolliteShadeContentVerification
         ISnesAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Magdollite));
-        int row = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Magdollite);
+        int row = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set)).RowOf(EnemyDefinitionId.Magdollite);
         // The sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
         SpriteImage image = EnemySheetFixtures.ComposedSheet(set, EnemyDefinitionId.Magdollite);
         int first = row * LoadedSetColours.RowColours;
@@ -36,7 +35,7 @@ internal static class MagdolliteShadeContentVerification
         for (int frame = 0; frame < MagdolliteGlowAnimations.Cycle.Count; frame++)
         {
             RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image,
-                PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[frame])).KeyColours(image));
+                PictureShading.Shaded(MagdolliteShades.Glow(MagdolliteGlowAnimations.Cycle[frame])).KeyColours(image, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
             for (int color = 0; color < LoadedSetColours.RowColours; color++)
             {
                 if (InstalledPictureColoursConstants.KeyComposedAs(image, first + color) is null)
@@ -46,7 +45,7 @@ internal static class MagdolliteShadeContentVerification
                 {
                     int source = EnemySpeciesSourceDefinitions.Magdollite.CycleColors +
                         (frame * EnemySpeciesSourceDefinitions.Magdollite.RowColors + color) * EnemySpeciesSourceDefinitions.ColorWordBytes;
-                    int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), source);
+                    int word = RomDataReader.ReadWordFixedBank(rom, source);
                     AssertEqual(new FadeLevelColour(word & 31, word >> 5 & 31, word >> 10 & 31).ToColour(), shown[first + color],
                         $"{set.Name} Magdollite glow frame {frame} colour {color} shows the cartridge's colour");
                 }

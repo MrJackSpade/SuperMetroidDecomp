@@ -22,7 +22,11 @@ namespace SuperMetroid.Verification.Frontend.Ending;
 /// <summary>Checks retained render packets across the escape, credits, and timed reward branches.</summary>
 internal static class EndingSnapshotTestsVerification
 {
-    /// <summary>Compares sampled packet pixels with the live ending while checking native palettes, OAM, phase timing, and later packet stability.</summary>
+    /// <summary>
+    /// Compares sampled packet pixels with the live ending while checking native palettes, OAM, phase timing, and later
+    /// packet stability; each reward branch plays through escape, explosion, clear time, credits and its reward to the
+    /// final hold, a frame rendered at each phase change.
+    /// </summary>
     internal static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
@@ -31,6 +35,8 @@ internal static class EndingSnapshotTestsVerification
         // reward branch.
         EndingPaletteSet installedPalettes = InstalledFixtures.EndingColours;
         IReadOnlyList<SheetShade> installedShades = EndingScreenShades.Screen(installedPalettes, InstalledFixtures.ImportMaps.RoomPaletteFx);
+        // The reward each branch's clear time selects: under three hours, three to ten, and ten or more.
+        var rewards = new Dictionary<ushort, EndingReward> { [2] = EndingReward.Suitless, [3] = EndingReward.Helmetless, [10] = EndingReward.Armored };
         foreach (ushort hours in new ushort[] { 2, 3, 10 })
         {
             var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
@@ -49,9 +55,19 @@ internal static class EndingSnapshotTestsVerification
             // captured and again after the next update (#1532).
             DisplayPacket? previousPacket = null;
             byte[] previousHeld = [];
+            EndingCreditsPhase previousPhase = legacy.Phase;
+            int phaseChanges = 0;
             for (int tick = 0; tick < 60000; tick++)
             {
                 legacy.Step(); captured.Step();
+                if (legacy.Phase != previousPhase)
+                {
+                    // Each phase change shows a whole frame (#2553: the ending-state check's render, made here).
+                    previousPhase = legacy.Phase;
+                    AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels,
+                        legacy.Render().Length, $"ending {previousPhase} frame size");
+                    phaseChanges++;
+                }
                 // The live ending's frame this update, captured once for every check of it: a capture does not advance the
                 // ending, which the capture-only control checks below (#1532).
                 LayeredScene? liveScene = null;
@@ -61,7 +77,7 @@ internal static class EndingSnapshotTestsVerification
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Phase);
                 if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Phase, tick);
-                if (legacy.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionCrossfade)
+                if ((legacy.Phase == EndingCreditsPhase.FadeInZebesExplosion || legacy.Phase == EndingCreditsPhase.ZebesExplosionCrossfade))
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
                     var explosion = Live();
@@ -85,7 +101,7 @@ internal static class EndingSnapshotTestsVerification
                             for (int i = 0; i < 16; i++)
                             {
                                 int remaining = level;
-                                AssertEqual(explosionBackgroundSource[i].FadeLevels.Map((_, channel) => channel * remaining / 32).ToColour(), background.Colours[i],
+                                AssertEqual(explosionBackgroundSource[i].FadeLevels.Map((_, channel) => channel * remaining / 32).ToColour(), background.Colours.ElementAt(i),
                                     "the import's explosion BG fade level scales the escape's far background");
                             }
                             foreach ((EndingFade fade, int start) in new[] { (EndingFade.ExplosionLava, 208), (EndingFade.ExplodingPlanet, 240) })
@@ -94,11 +110,11 @@ internal static class EndingSnapshotTestsVerification
                                 AssertTrue(sprite.Inks.SequenceEqual(Enumerable.Range(start, 16)), "an explosion OBJ fade level covers its colour group");
                                 for (int i = start; i < start + 16; i++)
                                 {
-                                    ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8cebe9 + i * 2);
+                                    ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8cebe9 + i * 2);
                                     ushort expectedColor = (ushort)(((source & 31) * level / 32)
                                         | (((source >> 5 & 31) * level / 32) << 5)
                                         | (((source >> 10 & 31) * level / 32) << 10));
-                                    AssertEqual(expectedColor, sprite.Colours[i - start].ToWord(), "the import's explosion OBJ fade level scales the cartridge's colours");
+                                    AssertEqual(expectedColor, sprite.Colours.ElementAt(i - start).ToWord(), "the import's explosion OBJ fade level scales the cartridge's colours");
                                 }
                             }
                         }
@@ -120,7 +136,7 @@ internal static class EndingSnapshotTestsVerification
                     RgbColor[] colors = [.. Enumerable.Repeat(RgbColor.Black, 32), .. waiting.Colours];
                     for (int i = 32; i < 48; i++)
                     {
-                        ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
+                        ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
                         int expectedColor = ((source & 31) * elapsed / 32)
                             | (((source >> 5 & 31) * elapsed / 32) << 5)
                             | (((source >> 10 & 31) * elapsed / 32) << 10);
@@ -133,10 +149,10 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var burst = Live();
                     var sub = burst.LayersOf<AddedPicturedPlaneLayer>().Single();
-                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.Blank)),
+                    AssertTrue(ShowsOnly(legacy, sub.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(EndingExplosionPicture.BurstGlow)),
                         "F2B7 selects burst BG2 map");
                     AssertTrue(ShowsOnly(legacy, (sub.GlowsOver ?? throw new InvalidOperationException("Verification requires sub.GlowsOver.")).Plane,
-                            SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(EndingExplosionPicture.WideExplosion)),
+                            SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(EndingExplosionPicture.WideExplosion)),
                         "the burst glows over the planet's map, not over the sky");
 
                     burstDisplayFrames++;
@@ -147,7 +163,7 @@ internal static class EndingSnapshotTestsVerification
                     var finale = Live();
                     var backgrounds = finale.LayersOf<PicturedPlaneLayer>();
                     AssertTrue(backgrounds.Length == 2 && backgrounds.Zip(new[] { EndingExplosionPicture.Eclipse, EndingExplosionPicture.ConcentricExplosion })
-                            .All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionMap(shown.Second))),
+                            .All(shown => ShowsOnly(legacy, shown.First.Plane, SpriteSheetId.EndingExplosionPictures, EndingPictureNames.ExplosionPicture(shown.Second))),
                         "the explosion finale shows its glow's map behind the planet's");
                     AssertTrue(finale.LayersOf<SpritesLayer>().All(layer => layer.Blend == SpriteBlend.Glows),
                         "the finale's debris only glows, never covering the planet");
@@ -239,7 +255,7 @@ internal static class EndingSnapshotTestsVerification
                     }
                 }
                 if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
-                    && legacy.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)
+                    && (legacy.Phase == EndingCreditsPhase.PostCreditsReward || legacy.Phase == EndingCreditsPhase.PostCreditsCopyright))
                 {
                     int elapsed = tick - rewardStart;
                     int activeElapsed = elapsed <= 64 ? elapsed : elapsed < 244 ? 64 : elapsed - 180;
@@ -252,11 +268,11 @@ internal static class EndingSnapshotTestsVerification
                         AssertTrue(legacy.screen.Colours.Shading.Shades.Contains(level.Shade), "the screen names the reward dissolve's fade level");
                         for (int i = start; i < start + 16; i++)
                         {
-                            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + i * 2);
+                            ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
                             ushort expectedColor = (ushort)(((source & 31) * factor / 32)
                                 | (((source >> 5 & 31) * factor / 32) << 5)
                                 | (((source >> 10 & 31) * factor / 32) << 10));
-                            AssertEqual(expectedColor, level.Colours[i - start].ToWord(), "native reward dissolve pauses and resumes around copyright");
+                            AssertEqual(expectedColor, level.Colours.ElementAt(i - start).ToWord(), "native reward dissolve pauses and resumes around copyright");
                         }
                     }
                 }
@@ -274,11 +290,11 @@ internal static class EndingSnapshotTestsVerification
                             EndingPictureNames.CopyrightPanel),
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
-                if (legacy.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
+                if ((legacy.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusic || legacy.Phase == EndingCreditsPhase.WaitForPlanetEscapeMusicQueue))
                 {
                     var flash = Live();
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
-                    AssertEqual(0x7fff, flash.Paint.Backdrop.ToWord(), "native explosion whiteout backdrop");
+                    AssertEqual(0x7fff, flash.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance).ToWord(), "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new RgbaPixel(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
@@ -294,7 +310,7 @@ internal static class EndingSnapshotTestsVerification
                             "reward reveal selects the waiting backdrop, not the producer panel");
                     }
                 }
-                if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
+                if ((legacy.Phase == EndingCreditsPhase.PlanetEscapeFast || legacy.Phase == EndingCreditsPhase.PlanetEscapeSlow || legacy.Phase == EndingCreditsPhase.PlanetEscapeAccelerating))
                 {
                     gunshipPalettes.Add(string.Join(',', legacy.screen.Colours.Shading.Shades
                         .Where(shade => shade.Effect == ColourEffectShades.Of(ColourEffectColours.GunshipEmergingFromExplosion, new ColourEffectFrame(ColourEffectId.GunshipEmergingFromZebesExplosion, 0)).Effect)));
@@ -306,7 +322,7 @@ internal static class EndingSnapshotTestsVerification
                     if (expectedWhite > 0)
                     {
                         AssertEqual(WhiteWash.Colour(expectedWhite), fixedColors[0].Colour, "native flyaway holds 192 calls then fades a step every eight");
-                        RgbColor white = fixedColors[0].Colour;
+                        ShownColour white = fixedColors[0].Colour;
                         AssertTrue(flight.LayersOf<SpritesLayer>().All(layer => layer.Tint == white), "the sprites and the sky share the flyaway's white");
                         AssertTrue(flight.Layers[0] is ScreenTintLayer && flight.Layers[1] is SpritesLayer
                             && flight.Layers[2] is TurningFloorLayer,
@@ -319,7 +335,7 @@ internal static class EndingSnapshotTestsVerification
                     AssertTrue(Live().SpriteParts().All(part => part.Part.Palette <= 2),
                         "explosion actors delete before operation text, leaving only text OBJ palettes");
                 }
-                if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
+                if (!EndingCreditsPhaseOrder.IsBefore(legacy.Phase, EndingCreditsPhase.ItemPercentage))
                 {
                     // E58A clears cinematic actors; the independent star field survives.
                     var stars = legacy.CreditsRoll.ShootingStars;
@@ -361,7 +377,7 @@ internal static class EndingSnapshotTestsVerification
                     IReadOnlyList<IReadOnlyList<ShownColourSource>> blankSources = SceneShownColours.SourcesByPlace(blank);
                     for (int color = 4; color < 256; color++)
                     {
-                        RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8ce7e9 + color * 2));
+                        RgbColor native = RgbColor.FromWord(RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + color * 2));
                         ShownColourSource[] wrong = [.. blankSources[color].Where(source => source.Colour != native)];
                         AssertTrue(wrong.Length == 0, $"native end-credits Intro4 palette colour {color} ({native}): " +
                             string.Join("; ", wrong.Select(source => $"{source.Picture} colour key {source.Key} under {source.Shading} shows {source.Colour}")));
@@ -399,6 +415,10 @@ internal static class EndingSnapshotTestsVerification
             AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
+            AssertTrue(phases.Contains(EndingCreditsPhase.OperationSuccessfulText), "ending executes the cartridge clear-time text chain");
+            AssertEqual(rewards[hours], legacy.Stage.EndingReward, $"the {hours}-hour clear time's reward");
+            if (hours == 2)
+                AssertTrue(phaseChanges >= 20, "ending renders each materially different cartridge phase");
             LayeredScene final = EndingCreditsPresentation.ComposeScene(legacy);
             LayeredScene retained = EndingCreditsPresentation.ComposeScene(captured);
             AssertTrue(ScenePixels.Same(final, retained), "ending final packet shows the legacy frame's pixels");

@@ -3,7 +3,7 @@ using static SuperMetroid.Core.Enemies.QuadraticSpeedCurveDefinitions;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The shared quadratic enemy speed curve: the authored speed at each of its marks.</summary>
-public static class QuadraticSpeedCurve
+public static partial class QuadraticSpeedCurve
 {
     /// <summary>The speed at mark <paramref name="mark"/>.</summary>
     /// <exception cref="InvalidDataException"><paramref name="mark"/> is not one of the authored marks.</exception>

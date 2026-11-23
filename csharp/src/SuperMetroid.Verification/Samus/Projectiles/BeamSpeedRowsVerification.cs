@@ -32,10 +32,10 @@ internal static class BeamSpeedRowsVerification
         {
             // Mechanics now use compiled native rows, not editable presentation data.
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(combination) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+                EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(combination) }.InPose(AimPose(direction));
             var projectiles = CreateProjectileFixture();
-            projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom()));
+            projectiles.StepFrame(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), CreateBombFixture(), new SharedGameState(new SharedRandom()));
             AssertTrue(projectiles.Shots[0].IsActive && projectiles.Shots.Skip(1).All(slot => !slot.IsActive),
                 "speed-row fixture allocates projectile");
             var shot = projectiles.Shots[0];
@@ -66,7 +66,7 @@ internal static class BeamSpeedRowsVerification
         }
         // Exercise the actual initializer to detect a dropped combination index.
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((records, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(records, launched, unauthored));
+            BeamFiring.InitializePowerBeamVelocity(records, launched.HeldShot(), unauthored));
         var stationary = new ProjectileLaunchInheritance();
         // Each firing direction's beam, missile and Super Missile accelerations are the words the motion routines read
         // for that direction: sixty words in all.
@@ -90,7 +90,9 @@ internal static class BeamSpeedRowsVerification
         for (ushort combination = 0; combination < 16; combination++)
         for (ushort direction = 0; direction < 10; direction++)
         {
-            var slot = new SamusProjectile(0) { Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination), Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+            var slot = new SamusProjectile(0);
+            slot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(combination));
+            slot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
             initialize(stationary, slot);
             int speed = unchecked((short)retail.ReadCartridgeWord((0x90c2d1 + combination * 4 +
                 (direction is 1 or 3 or 6 or 8 ? 2 : 0))));
@@ -103,8 +105,8 @@ internal static class BeamSpeedRowsVerification
         for (byte direction = 0; direction < 10; direction++)
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon), Missiles = 10, SuperMissiles = 10 };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+                SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon), Missiles = 10, SuperMissiles = 10 }.InPose(AimPose(direction));
             var projectiles = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             int vx = direction is 1 or 2 or 3 ? 0x100 : direction is 6 or 7 or 8 ? -0x100 : 0;
@@ -113,7 +115,7 @@ internal static class BeamSpeedRowsVerification
             for (int frame = 0; frame < 6; frame++)
             {
                 GameplayAction input = frame == 0 ? GameplayAction.Shoot : 0;
-                projectiles.StepFrame(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+                projectiles.StepFrame(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
                 if (frame == 0)
                 {
                     // Anchor the trajectory at the spawn origin: the fire-frame position less

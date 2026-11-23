@@ -52,7 +52,7 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads one cartridge byte only for comparison with compiled grapple connection entries.</summary>
-    private static byte GrappleConnectionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleConnectionDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks accepted grapple connections across authored movement, aim, vertical-speed, and anchor-owner states with compiled reads forbidden.</summary>
     private static void VerifyGrappleConnectionDispatch(CartridgeImportAddressSpace rom)
@@ -77,7 +77,8 @@ internal static class GrappleConnectionDefinitionsVerification
             int sourcePose = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).FirstOrDefault(pose =>
                 GrappleConnectionDispatchRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) == movement, -1);
             if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
-            metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
+            metadataPose = samus.Pose;
             samus.Position = samus.Position.WithWhole(new(512, 512));
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(vertical == 1 ? (ushort)1 : (ushort)0, vertical == 2 ? (ushort)1 : (ushort)0));
             var g = samus.Grapple;
@@ -108,7 +109,7 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads a retail dispatch or pose byte for comparison with production connection results.</summary>
-    private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleConnectionDispatchRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks eight native special-angle rows, exact 16-bit angle matches, wrapped body offsets, phase changes, and camera clamps.</summary>
     private static void VerifyGrappleSpecialConnections(CartridgeImportAddressSpace rom)
@@ -122,7 +123,7 @@ internal static class GrappleConnectionDefinitionsVerification
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
             return new GrappleConnectionDefinitions.SpecialConnection(RotationAngleConstants.FromRaw(checked(Word(address))), SamusPoseNumbering.FromNumber(Word(address + 2)),
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
-                SamusGrappleConnectionNative.Kinds.Decode(Word(address + 8), "grapple connection function"));
+                SamusGrappleConnectionNative.StopPhases.Decode(Word(address + 8), "grapple stop function"));
         }).ToArray();
         // The native records alternate an authored stop and its reflection; the typed list holds each stop then its reflection.
         AssertEqual(native.Length, GrappleConnections.SpecialConnections.Count, "Native special-angle record count");
@@ -136,7 +137,7 @@ internal static class GrappleConnectionDefinitionsVerification
         var g = samus.Grapple;
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
-            samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new(100, 200));
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose); samus.Position = samus.Position.WithWhole(new(100, 200));
             g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
             g.Angle = RotationAngleConstants.FromRaw((ushort)angle);
             int index = Array.FindLastIndex(native, row => row.Angle.RawValue == angle);
@@ -162,7 +163,7 @@ internal static class GrappleConnectionDefinitionsVerification
             AssertEqual(x, samus.Position.X.Whole, "Special body X");
             AssertEqual(y, samus.Position.Y.Whole, "Special body Y");
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
-            AssertEqual(row.Kind == GrappleConnectionKind.LockedInPlace ? GrapplePhase.ConnectedLocked : GrapplePhase.WallGrab, g.Phase, "Special next phase");
+            AssertEqual(row.Phase, g.Phase, "Special next phase");
             AssertEqual(0, g.WallJumpTimer.UpdatesLeft, "Special resets wall-jump timer");
             AssertEqual(Clamp(x, preSnap.X), (result.CameraPrevious ?? throw new InvalidOperationException("Verification requires result.CameraPrevious.")).X, "Special previous-camera X clamp");
             AssertEqual(Clamp(y, preSnap.Y), result.CameraPrevious.Value.Y, "Special previous-camera Y clamp");
@@ -176,7 +177,7 @@ internal static class GrappleConnectionDefinitionsVerification
     }
 
     /// <summary>Reads retail special-angle bytes only to construct the comparison records.</summary>
-    private static byte GrappleSpecialConnectionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleSpecialConnectionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>The first anchor coordinate the special stops are swept from: a screen inside the room's top and left edges.</summary>
     private const int SnapAnchorFirst = 256;
@@ -197,7 +198,7 @@ internal static class GrappleConnectionDefinitionsVerification
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
         var guard = NewGrappleConnectionReadGuard(rom);
         var empty = CreateRoom(new(64, 64), new RoomTerrainBlock[4096], new RoomBlockBehavior[4096]);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) }.InPose(SamusPoseId.FacingRightNormalPose);
         samus.BindBodyFixture(InstalledFixtures.SamusBody);
         samus.Artwork.GrappleFlarePlacement = SuperMetroid.AssetExtraction.Samus.ChargeFlarePlacementFile.LoadGrapple(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.GrappleFlarePlacementExtractor.Extract(rom)));
@@ -215,7 +216,7 @@ internal static class GrappleConnectionDefinitionsVerification
             bool banned = GrappleCancellationAndDropRomByte(rom, 0x9bb8b8 + movement) != 0;
             byte direction = GrappleCancellationAndDropRomByte(rom,
                 SamusSourceDefinitions.PoseDefinitions.Value + sourcePose * 8 + 3);
-            samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
             samus.Grapple.PoseChangeAutoFireTimer = UpdateCountdown.For(timer);
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -232,7 +233,7 @@ internal static class GrappleConnectionDefinitionsVerification
             int sourcePose = Enumerable.Range(0, 253).Where(SamusPoseNumbering.NamesPose).First(pose =>
                 GrappleCancellationAndDropRomByte(rom, SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 3) == direction &&
                 SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose));
-            samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY((ushort)radius);
             AssertEqual(GrappleCancellationAndDropRomByte(rom, (radius < 17 ? 0x9bc9c4 : 0x9bc9ba) + direction), drop(guard, samus), "Actual directional drop at every radius");
         }
@@ -241,7 +242,7 @@ internal static class GrappleConnectionDefinitionsVerification
             SamusPoseNumbering.FromNumber(pose) is not (SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose)))
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
-            samus.Pose = SamusPoseNumbering.FromNumber(sourcePose);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(sourcePose));
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(radius);
             bool left = SamusPoseMetadata.IsFacingLeft(SamusPoseNumbering.FromNumber(sourcePose));
             int expected = radius < 17 ? (left ? 0x28 : 0x27) : (left ? 2 : 1);
@@ -250,14 +251,14 @@ internal static class GrappleConnectionDefinitionsVerification
         foreach (bool left in new[] { false, true })
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
-            samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
+            samus.ChangePoseKeepingAnimation(left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose);
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(radius);
             AssertEqual(left ? 2 : 1, drop(NewSlopeHeightNoReadBus(), samus), "Swing-pose drop bypasses all metadata");
         }
     }
 
     /// <summary>Reads retail policy and pose metadata bytes used as the cancellation/drop oracle.</summary>
-    private static byte GrappleCancellationAndDropRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrappleCancellationAndDropRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Forbids runtime reads of the compiled firing-cancel, connection, special-angle, and drop-pose ranges in bank $9B.</summary>
     private static CartridgeReadGuard NewGrappleConnectionReadGuard(ISnesAddressSpace source) =>

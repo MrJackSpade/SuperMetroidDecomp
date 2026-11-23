@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The installed post-credits reward icon as the import pipeline reads it (#1409): the native $8000-byte reward-jump
 /// stream, one tilemap byte followed by one Mode 7 character byte per word, which the reward icon sheet composes from.
 /// </summary>
-public sealed class EndingRewardIconCharacters : EndingRewardIconArtwork
+public sealed partial class EndingRewardIconCharacters : EndingRewardIconArtwork
 {
     /// <summary>Retains the interleaved full-map and character transfer for reward landing.</summary>
     /// <param name="map">The row-ordered tile indices of the full 128x128 map.</param>
@@ -44,9 +44,4 @@ public sealed class EndingRewardIconCharacters : EndingRewardIconArtwork
         }
         return new EndingRewardIconCharacters(map, transfer);
     }
-
-    /// <summary>The characters <paramref name="icon"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The icon was not read from installed artwork.</exception>
-    public static EndingRewardIconCharacters Of(EndingRewardIconArtwork icon) => icon as EndingRewardIconCharacters
-        ?? throw new InvalidDataException("The reward icon was not read from installed artwork.");
 }

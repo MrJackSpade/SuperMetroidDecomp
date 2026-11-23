@@ -10,8 +10,7 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The Baby Metroid Ceres Ridley carries: its fall, its animation and its picture.</summary>
-[RoomLifetime]
-internal sealed class CeresRidleyBabyScene
+internal sealed partial class CeresRidleyBabyScene
 {
     /// <summary>Provides room randomness.</summary>
     private readonly EnemyRoomBinding _room;
@@ -34,47 +33,7 @@ internal sealed class CeresRidleyBabyScene
     /// <summary>Keeps the Baby at Ridley's arm anchor, falls independently, then follows the grasp point on retrieval.</summary>
     /// <param name="place">Ridley's body, which carries the Baby.</param>
     /// <param name="baby">The Baby.</param>
-    internal static void TickCeresBaby(RoomEnemyPlace place, CeresBaby baby)
-    {
-        switch (baby.Action)
-        {
-            case CeresBabyAction.CarriedInArms:
-                // Until the fake retreat, Ridley carries the Baby at his left-hand anchor, so it is where he holds it
-                // when he lets it fall.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyArmsAnchor);
-                return;
-
-            case CeresBabyAction.Drop:
-                baby.Position = baby.Position.WithFractionY(PixelFraction.None);
-                baby.VerticalVelocity = SignedEightEight.Zero;
-                baby.Action = CeresBabyAction.Dropped;
-                goto case CeresBabyAction.Dropped;
-
-            case CeresBabyAction.Dropped:
-                // The falling speed only grows from zero and the fall ends at the Baby's floor, so it stays a few pixels an
-                // update.
-                baby.VerticalVelocity += CeresRidleyArenaDefinitions.BabyFallGravity;
-                baby.Position = baby.Position.WithY(baby.Position.Y.MovedBy(baby.VerticalVelocity));
-                if (baby.Position.Y.Whole >= CeresRidleyArenaDefinitions.BabyFloorY)
-                {
-                    baby.Position = baby.Position.WithWholeY(CeresRidleyArenaDefinitions.BabyFloorY);
-                    baby.Action = CeresBabyAction.Idle;
-                }
-                return;
-
-            case CeresBabyAction.CarriedInFeet:
-                // Once the hand rectangles overlap, the Baby follows the grasp point for
-                // the real retreat and disappears with Ridley at the escape handoff.
-                baby.Position = baby.Position.WithWhole(place.Position.Whole + CeresRidleyArenaDefinitions.BabyFeetAnchor);
-                return;
-
-            case CeresBabyAction.Idle:
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(CeresBabyAction)} {baby.Action}.");
-        }
-    }
+    internal static void TickCeresBaby(RoomEnemyPlace place, CeresBaby baby) => baby.Action.Move(place, baby);
 
     /// <summary>
     /// Runs the Baby's animation at the enemy pass's end while Ridley's movement and animation are off (#2573). Until his
@@ -124,8 +83,12 @@ internal sealed class CeresRidleyBabyScene
     /// Ridley's movement and animation are off before his reveal, and in its place among them once his reveal has started
     /// his animation.
     /// </summary>
-    private static ActorLayering LayeringOf(CeresRidleyState ridley) =>
-        ridley.MovementAnimationEnabled ? ActorLayering.InDrawOrder : ActorLayering.InFrontOfActors;
+    private static ActorLayering LayeringOf(CeresRidleyState ridley) => ridley.Motion switch
+    {
+        RidleyMotion.Running => ActorLayering.InDrawOrder,
+        RidleyMotion.Still => ActorLayering.InFrontOfActors,
+        _ => throw new InvalidOperationException($"Undefined {nameof(RidleyMotion)} {ridley.Motion}."),
+    };
 
     /// <summary>
     /// Runs the Baby's typed cutscene animation one update on the Baby's own clock (#2228): the pose it shows holds for its
@@ -145,11 +108,28 @@ internal sealed class CeresRidleyBabyScene
                 ? new AnimationContinuation<CeresBabySegment>(CeresBabyAnimations.StartingWith(target), AnimationPlace.StartOfAnimation)
                 : null);
         baby.Playback = new AnimationPlayback<CeresBabySegment>(animation, place);
-        if (outcome is not AnimationShown<CeresBabySegment, CeresBabyPose>.Frame shown)
-            throw new InvalidOperationException($"The Ceres Baby's animation ended an update with {outcome}.");
-        baby.Clock.Show(shown.Duration);
-        baby.ShownPose = shown.Shown;
+        outcome.React(AdvanceCeresBabyAnimationReactions, new AdvanceCeresBabyAnimationContext(baby));
     }
+
+    /// <summary>What <see cref="AdvanceCeresBabyAnimation"/> does on each <see cref="AnimationShown{CeresBabySegment, CeresBabyPose}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<CeresBabySegment, CeresBabyPose, AdvanceCeresBabyAnimationContext> AdvanceCeresBabyAnimationReactions { get; } = new(
+        Frame: static (shown, context) =>
+        {
+            context.Baby.Clock.Show(shown.Duration);
+            context.Baby.ShownPose = shown.Shown;
+        },
+        HeldFrame: static (held, context) =>
+        {
+            context.Baby.ShownPose = held.Shown;
+            context.Baby.Clock.ShowForGood();
+        },
+        Paused: static (paused, context) => context.Baby.Clock.Pause(paused.Duration),
+        Held: static (_, context) => context.Baby.Clock.Stop(),
+        Ended: static (_, context) => context.Baby.Clock.Stop());
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Baby">The <c>baby</c> <see cref="AdvanceCeresBabyAnimation"/> works with.</param>
+    private readonly partial record struct AdvanceCeresBabyAnimationContext(CeresBaby Baby);
 
     /// <summary>The frame the Baby shows for <paramref name="pose"/>, or none before the Baby's first pose.</summary>
     private static EnemyFrameId? CeresBabyFrame(CeresBabyPose? pose) =>
@@ -162,24 +142,29 @@ internal sealed class CeresRidleyBabyScene
     internal const CeresBabySegment SilentAnimation = CeresBabySegment.IdleSquish;
 
     /// <summary>Carries out one cue of the Baby's animation, returning the segment whose animation its owner starts, or null to play on.</summary>
-    private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue)
-    {
-        switch (cue)
-        {
-            case CeresBabyCue.Cries:
+    private CeresBabySegment? ApplyCeresBabyCue(CeresRidleyState ridley, CeresBabyCue cue) =>
+        cue.Match(ApplyCeresBabyCueCases, new ApplyCeresBabyCueContext(ridley, this));
+
+    /// <summary>What <see cref="ApplyCeresBabyCue"/> does on each <see cref="CeresBabyCue"/>, built once (#2553).</summary>
+    private static CeresBabyCueCases<ApplyCeresBabyCueContext, CeresBabySegment?> ApplyCeresBabyCueCases { get; } = new(
+            ReactsToMotion: static (_, context) => !context.Ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null,
+            UpdateColors: static (updateColors, context) =>
+            {
+                context.Ridley.Colours.ShowBaby(updateColors.Shade);
+                return null;
+            },
+            Cries: static (_, context) =>
+            {
                 // While the Baby is falling it always cries and plays on. Otherwise the current random number, read without
                 // drawing a new one, makes it jump silently one time in two.
-                if (ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsTakenBy(_room.Random.Read()))
+                if (context.Ridley.Baby.VerticalVelocity.IsZero && RidleyRandomDefinitions.CeresBabySilentJump.IsTakenBy(context.Owner._room.Random.Read()))
                     return SilentAnimation;
-                _audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
+                context.Owner._audio.QueueEnemySound(RoomSound.CeresBabyMetroidCry, priority: SoundRequestPriority.Normal);
                 return null;
-            case CeresBabyCue.UpdateColors updateColors:
-                ridley.Colours.ShowBaby(updateColors.Shade);
-                return null;
-            case CeresBabyCue.ReactsToMotion:
-                return !ridley.Baby.VerticalVelocity.IsZero ? MovingAnimation : null;
-            default:
-                throw new InvalidOperationException($"Undefined Ceres Baby cue {cue}.");
-        }
-    }
+            });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Ridley">The ridley the cases read.</param>
+    /// <param name="Owner">The <see cref="CeresRidleyBabyScene"/> reacting.</param>
+    private readonly partial record struct ApplyCeresBabyCueContext(CeresRidleyState Ridley, CeresRidleyBabyScene Owner);
 }

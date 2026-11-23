@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable single-piece appearance keyed by native trail frame; no timing or movement fields.</summary>
-public sealed class InstalledProjectileTrails
+public sealed partial class InstalledProjectileTrails
 {
     /// <summary>The installed appearance of every trail frame (#1596).</summary>
     private readonly Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart> attributes;
@@ -23,7 +23,7 @@ public sealed class InstalledProjectileTrails
     };
     /// <summary>Resolves one trail frame to its selected single-piece appearance.</summary>
     /// <param name="frame">The trail frame: one of the ice sparkles', the wave trail's or the missile trail's.</param>
-    /// <returns>The character, palette, priority and mirroring.</returns>
+    /// <returns>The character, palette, depth and mirroring.</returns>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not a trail frame.</exception>
     public SpritePart Resolve(SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame) =>
         attributes.TryGetValue(frame, out SpritePart appearance) ? appearance : throw new InvalidDataException($"Missing trail frame {frame}.");
@@ -34,7 +34,7 @@ public sealed class InstalledProjectileTrails
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">
     /// JSON is malformed, contains duplicate/unknown properties, lacks the exact 42 native record keys or version 1, has
-    /// invalid tile, palette or priority values, or gives two records of one frame different appearances (#2348).
+    /// invalid tile or palette values, or gives two records of one frame different appearances (#2348).
     /// </exception>
     public static InstalledProjectileTrails Load(Stream json)
     {
@@ -43,27 +43,25 @@ public sealed class InstalledProjectileTrails
         {
             using var parsed = JsonDocument.Parse(json);
             ValidateUnique(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ProjectileTrailDocument>(Options)
+            document = parsed.RootElement.Deserialize<ProjectileTrailDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileTrailDocument>(Options))
                 ?? throw new InvalidDataException("Trail document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid trail JSON.", error); }
+        SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame[] shown = [.. ProjectileTrailSources.Records.Select(record => record.Value).Distinct()];
         if (document.Version != ProjectileTrailVisualDefinitions.Version || document.Frames is null ||
-            document.Frames.Count != ProjectileTrailVisualDefinitions.RecordCount)
-            throw new InvalidDataException("Trail document requires every native record and version 1.");
+            document.Frames.Count != shown.Length)
+            throw new InvalidDataException($"Trail document requires every trail frame and version {ProjectileTrailVisualDefinitions.Version}.");
         var attributes = new Dictionary<SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame, SpritePart>();
-        for (int index = 0; index < ProjectileTrailVisualDefinitions.RecordCount; index++)
+        foreach (SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrame frame in shown)
         {
-            var frame = ProjectileTrailSources.Records[index].Value;
-            string name = ProjectileTrailVisualDefinitions.RecordNames[index];
+            string name = SuperMetroid.Core.Samus.Projectiles.ProjectileTrailFrameKeys.Installed.Of(frame);
             if (!document.Frames.TryGetValue(name, out var p) || p is null ||
                 (uint)p.TileColumn >= ProjectileSpriteDefinitions.TileColumns || (uint)p.TileRow >= ProjectileSpriteDefinitions.TileRows ||
-                (uint)p.Palette > 7 || (uint)p.Priority > 3)
+                (uint)p.Palette > 7)
                 throw new InvalidDataException($"Missing or invalid trail appearance {name}.");
             SpritePart appearance = SpritePart.Single(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
-                p.Palette, p.Priority, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0));
-            // Every record of one frame shows that frame's one appearance (#2348).
-            if (!attributes.TryAdd(frame, appearance) && attributes[frame] != appearance)
-                throw new InvalidDataException($"Trail appearance {name} differs from another record of frame {frame}.");
+                p.Palette, p.Depth, (p.FlipX ? PictureFlip.Horizontal : 0) | (p.FlipY ? PictureFlip.Vertical : 0));
+            attributes.Add(frame, appearance);
         }
         return new(attributes);
     }
@@ -71,16 +69,9 @@ public sealed class InstalledProjectileTrails
     /// <param name="document">Authored frame dictionary read for serialization, not retained by the writer.</param>
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
     public static byte[] Write(ProjectileTrailDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
-    /// <summary>Recursively rejects repeated object keys before deserialization could replace a trail frame.</summary>
-    private static void ValidateUnique(JsonElement element)
-    {
-        if (element.ValueKind != JsonValueKind.Object) return;
-        var names = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var property in element.EnumerateObject())
-        {
-            if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate trail JSON property.");
-            ValidateUnique(property.Value);
-        }
-    }
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileTrailDocument>(Options));
+    /// <summary>Rejects repeated object keys before deserialization could replace a trail frame.</summary>
+    private static void ValidateUnique(JsonElement element) =>
+        JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
+            _ => new InvalidDataException("Duplicate trail JSON property."), DuplicatePropertyScope.OutsideArrays);
 }

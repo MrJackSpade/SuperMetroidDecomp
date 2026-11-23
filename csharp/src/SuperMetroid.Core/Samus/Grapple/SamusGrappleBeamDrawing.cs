@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>How the grapple beam draws: its flare, the connected beam's segments and its endpoint.</summary>
-public static class SamusGrappleBeamDrawing
+public static partial class SamusGrappleBeamDrawing
 {
     /// <summary>How Samus draws during <paramref name="phase"/>.</summary>
     /// <remarks>
@@ -20,7 +20,7 @@ public static class SamusGrappleBeamDrawing
         GrapplePhase.Inactive => SamusGrappleDrawing.Ordinary,
         GrapplePhase.Firing or GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked or GrapplePhase.WallGrab or
             GrapplePhase.WallGrabRelease => SamusGrappleDrawing.Beam,
-        GrapplePhase.CancelPending or GrapplePhase.ReleaseFromSwing or GrapplePhase.WallJumping or GrapplePhase.Dropped =>
+        GrapplePhase.CancelPending or GrapplePhase.CancelPendingFromConnectedPose or GrapplePhase.ReleaseFromSwing or GrapplePhase.WallJumping or GrapplePhase.Dropped =>
             SamusGrappleDrawing.Teardown,
         _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Undefined {nameof(GrapplePhase)}."),
     };
@@ -54,9 +54,7 @@ public static class SamusGrappleBeamDrawing
 
         // The grapple shows the main flare's pictures alone, the same for either facing. The flare is Samus's own, so it
         // shows the sheet of the beams she has equipped (#1586).
-        ProjectileSpriteId picture =
-            ChargeFlarePictures.Of(ChargeFlareComponent.MainFlare, facingLeft: false,
-                grapple.Flare.Picture ?? throw new InvalidOperationException("The grapple's flare plays only forward, so it always shows a picture."));
+        ProjectileSpriteId picture = ChargeFlarePictures.MainFlare(grapple.Flare.Picture);
         SpriteSheetFrame image = sheets.SheetOf(SamusBeamCombinations.Of(samus.EquippedBeams)).Frame(ProjectileSheetFrames.FlareFrame(
             picture));
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusGrappleFlare), image, place));
@@ -93,7 +91,7 @@ public static class SamusGrappleBeamDrawing
         if (DrawingFor(grapple.Phase) != SamusGrappleDrawing.Beam)
             return;
 
-        // Each six-draw interval moves the endpoint on to the next of its four pictures.
+        // Each of its beats moves the endpoint on to the next of its pictures.
         grapple.Endpoint.Step();
         SpriteSheet installed = Ensure.NotNull(sheet);
         GrappleRopeOrientation orientation =
@@ -101,7 +99,7 @@ public static class SamusGrappleBeamDrawing
 
         // The beam's draw moves the flare on a stage before it draws any rope. It happens even
         // at zero rope length; only the rope below is conditional. This is why a newly fired
-        // beam can animate its muzzle flare before its first eight-pixel body segment exists.
+        // beam can animate its muzzle flare before its first body segment exists.
         grapple.FlareStage = grapple.FlareStage switch
         {
             GrappleFlareStage.None => GrappleFlareStage.JustFired,
@@ -165,8 +163,8 @@ public static class SamusGrappleBeamDrawing
 /// <summary>Clears the flare's stage and its animation, for grapple cancellation and connection cleanup alike.</summary>
     internal static void ClearFlareAnimation(SamusGrappleState grapple)
     {
-        // Every grapple teardown clears these same shared charge/grapple
-        // values before restoring Samus's ordinary drawing and projectile shade.
+        // Every grapple teardown clears the grapple's flare before restoring Samus's ordinary drawing and projectile
+        // shade.
         grapple.FlareStage = GrappleFlareStage.None;
         grapple.Flare.Clear();
     }

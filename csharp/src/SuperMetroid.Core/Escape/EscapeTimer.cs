@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Escape;
 /// at the screen's centre, moves into its corner while counting, and reports expiry when the countdown reaches zero.
 /// </summary>
 /// <remarks>
-/// The countdown is held in centiseconds and removes one or two each update by the cadence that makes 128 updates take
-/// 2.13 seconds (<see cref="EscapeTimerCadence"/>). Counting below zero stops at zero. An expired countdown is only drawn
+/// The countdown is held in centiseconds and removes one or two each update by the timer's cadence
+/// (<see cref="EscapeTimerCadence"/>). Counting below zero stops at zero. An expired countdown is only drawn
 /// until the time-up stops it (#2499).
 /// </remarks>
-public sealed class EscapeTimer
+public sealed partial class EscapeTimer
 {
     /// <summary>The countdown a pending start installs.</summary>
     private int _pendingDuration;
@@ -29,10 +29,10 @@ public sealed class EscapeTimer
     /// Whether the timer is running and shown: from the initial delay its start enters, through its expiry, until a clear,
     /// the time-up's stop or a new request.
     /// </summary>
-    public bool IsActive => Phase is not (EscapeTimerPhase.Inactive or EscapeTimerPhase.Starting or EscapeTimerPhase.StoppedAtTimeUp);
+    public bool IsActive => !EscapeTimerPhaseDefinitions.Inactive.Contains(Phase);
 
     /// <summary>The countdown remaining, in centiseconds, 0 through <see cref="LongestTime"/>.</summary>
-    public int RemainingCentiseconds { get; private set; }
+    internal int RemainingCentiseconds { get; set; }
 
     /// <summary>The minutes, seconds and centiseconds the timer shows.</summary>
     public EscapeTimeReadout Readout => EscapeTimeReadout.Of(RemainingCentiseconds);
@@ -41,7 +41,7 @@ public sealed class EscapeTimer
     /// The timer's signed place on the screen, from the screen's top-left corner, its fractions kept as it slides into its
     /// corner.
     /// </summary>
-    public FixedVector<ScreenPixels> Position { get; private set; }
+    internal FixedVector<ScreenPixels> Position { get; set; }
 
     /// <summary>The whole-pixel screen place the timer's label and digits are drawn from.</summary>
     public Offset16<ScreenPixels> ScreenPlace => Position.Whole;
@@ -52,22 +52,26 @@ public sealed class EscapeTimer
     /// <summary>Requests the three-minute Mother Brain countdown; the timer's next update (<see cref="Process"/>) starts it.</summary>
     public void RequestMotherBrainStart() => RequestStart(MotherBrainDuration);
 
+    /// <summary>What each phase's update does, and whether the countdown ran out on it: an expired countdown is only drawn, and never counts, holds or expires again until an escape restarts it.</summary>
+    private static IdentityTable<EscapeTimerPhase, Func<EscapeTimer, int, bool>> PhaseUpdates => field ??= new(new Dictionary<EscapeTimerPhase, Func<EscapeTimer, int, bool>>
+    {
+        [EscapeTimerPhase.Inactive] = static (timer, frameCounter) => false,
+        [EscapeTimerPhase.StoppedAtTimeUp] = static (timer, frameCounter) => false,
+        [EscapeTimerPhase.Expired] = static (timer, frameCounter) => false,
+        [EscapeTimerPhase.Starting] = static (timer, frameCounter) => timer.Start(),
+        [EscapeTimerPhase.InitialDelay] = static (timer, frameCounter) => timer.ProcessInitialDelay(),
+        [EscapeTimerPhase.CountingAtCentre] = static (timer, frameCounter) => timer.ProcessCentreDelay(frameCounter),
+        [EscapeTimerPhase.MovingIntoPlace] = static (timer, frameCounter) => timer.ProcessMovement(frameCounter),
+        [EscapeTimerPhase.InPlace] = static (timer, frameCounter) => timer.CountDown(frameCounter),
+    });
+
     /// <summary>Runs one timer update and reports whether the countdown ran out on it.</summary>
     /// <param name="frameCounter">The game's frame counter, which selects this update's step of the countdown cadence.</param>
     /// <param name="holdAtOneSecond">Whether the countdown holds at one second instead of expiring, as an assist can ask; it runs normally until then.</param>
     public bool Process(int frameCounter, bool holdAtOneSecond)
     {
         // An expired countdown is only drawn: it never counts, holds or expires again until an escape restarts it.
-        bool expired = Phase switch
-        {
-            EscapeTimerPhase.Inactive or EscapeTimerPhase.StoppedAtTimeUp or EscapeTimerPhase.Expired => false,
-            EscapeTimerPhase.Starting => Start(),
-            EscapeTimerPhase.InitialDelay => ProcessInitialDelay(),
-            EscapeTimerPhase.CountingAtCentre => ProcessCentreDelay(frameCounter),
-            EscapeTimerPhase.MovingIntoPlace => ProcessMovement(frameCounter),
-            EscapeTimerPhase.InPlace => CountDown(frameCounter),
-            _ => throw new InvalidOperationException($"Undefined {nameof(EscapeTimerPhase)} {Phase}."),
-        };
+        bool expired = PhaseUpdates[Phase](this, frameCounter);
 
         // Apply the assist's floor before publishing expiration to the gameplay loop.
         // Startup delays and timer movement still run; inactive and expired timers keep their countdown.
@@ -87,7 +91,7 @@ public sealed class EscapeTimer
     /// <summary>Sets the remaining countdown, as starting the timer installs its duration.</summary>
     /// <param name="centiseconds">The remaining countdown, 0 through <see cref="LongestTime"/>.</param>
     /// <exception cref="ArgumentOutOfRangeException">The countdown is negative or longer than the timer shows.</exception>
-    private void SetRemaining(int centiseconds) =>
+    internal void SetRemaining(int centiseconds) =>
         RemainingCentiseconds = Ensure.BetweenInclusive(0, LongestTime, centiseconds);
 
     /// <summary>Stops the timer, empties its countdown and returns it to the screen's centre.</summary>

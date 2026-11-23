@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// cinematics' gunship, Ceres lights and planet text, and the ending's explosion, gunship and icon effects. A screen shades
 /// its pictures with the frames these groups last showed; which inks each group recolours is the import's.
 /// </summary>
-internal static class ColourEffectScreenColourDefinitions
+internal static partial class ColourEffectScreenColourDefinitions
 {
     /// <summary>The groups the title, cinematic and ending screens' pictures show.</summary>
     internal static ImmutableHashSet<ColourEffectColours> FrontendScreenGroups { get; } =

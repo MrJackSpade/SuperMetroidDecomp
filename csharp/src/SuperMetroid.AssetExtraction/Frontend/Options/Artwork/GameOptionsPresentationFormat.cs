@@ -6,10 +6,10 @@ using SuperMetroid.Core.Frontend.Options;
 namespace SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
 
 /// <summary>File identity, schema names and page geometry of the installed <c>options-menu.json</c>.</summary>
-public static class GameOptionsPresentationFormat
+public static partial class GameOptionsPresentationFormat
 {
     /// <summary>Supported options-menu presentation JSON schema version: 2 holds no hidden cursor anchor (#1775).</summary>
-    public const int Version = 2;
+    public const int Version = 3;
     /// <summary>Extracted JSON filename for options artwork, highlight regions, sprite compositions, and anchors.</summary>
     public const string FileName = "options-menu.json";
     /// <summary>Import-data filename of the extracted options document: its pages, labels, compositions and layout (#1638).</summary>
@@ -17,14 +17,7 @@ public static class GameOptionsPresentationFormat
     /// <summary>The JSON name of the common background page, separate from the foreground option pages.</summary>
     public const string BackgroundPageName = "Background";
     /// <summary>The foreground option pages in document order (#2567): primary, then English and Japanese controller and special pages.</summary>
-    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = Ensure.EveryMemberOnce<GameOptionsScreen>(
-    [
-        GameOptionsScreen.Primary,
-        GameOptionsScreen.ControllerEnglish,
-        GameOptionsScreen.ControllerJapanese,
-        GameOptionsScreen.SpecialEnglish,
-        GameOptionsScreen.SpecialJapanese,
-    ]);
+    public static IReadOnlyList<GameOptionsScreen> Tilemaps { get; } = GameOptionsScreen.All;
     /// <summary>The two special settings in document order (#2567), icon cancel then moonwalk.</summary>
     public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Ensure.EveryMemberOnce<GameOptionsToggle>(
     [

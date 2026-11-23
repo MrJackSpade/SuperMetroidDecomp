@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The ceiling tiles that fall in Ceres station's escape, light and dark: their spawn into the room's enemy projectiles,
 /// and their fall under gravity until each strikes the room, where it raises dust and sounds its fall.
 /// </summary>
-[RoomLifetime]
-internal sealed class CeresFallingTiles
+internal sealed partial class CeresFallingTiles
 {
     /// <summary>The room's enemy projectiles, which hold the tiles and the dust they raise.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -28,25 +27,25 @@ internal sealed class CeresFallingTiles
     /// The Ceres falling tiles, light and dark (#1760): each falls under gravity until it strikes the room, where it
     /// raises dust and sounds its fall.
     /// </summary>
-    internal SingleMotionProjectileBehavior Behavior => field ??= new(
-        context => Drop(context.Projectile, context.Level));
+    internal SingleMotionProjectileBehavior Behavior => field ??= new(Drop);
+
+    /// <summary>Moves a falling tile (<see cref="Behavior"/>).</summary>
+    private void Drop(EnemyProjectileMotionContext context) => Drop(context.Projectile, context.Level);
 
     /// <summary>
-    /// Spawns the falling tile the falling-debris room main requests at <paramref name="xPosition"/>. The X coordinate and
-    /// the tile's look, light or dark, come directly from the room's current random number; this setup owns only
-    /// projectile fields. The room main supplies the tile's animation, which shows its look, and the graphics it draws in.
-    /// A spawn that finds every place held spawns nothing.
+    /// Spawns the falling tile the falling-debris room main requests: the tile starts falling at
+    /// <paramref name="xPosition"/>, light or dark as the room's current random number chooses. The room main supplies
+    /// the tile's animation, which shows its look, and the graphics it draws in. A spawn that finds every place held
+    /// spawns nothing.
     /// </summary>
     internal void Spawn(int xPosition, EnemyProjectileAnimation animation, SpriteGraphics graphics)
     {
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CeresFallingDebris, Behavior, graphics, animation);
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.CeresFallingDebris, Behavior, graphics);
         projectile.Position = projectile.Position.WithWhole(new(xPosition, CeresFallingDebrisDefinitions.StartingY));
         projectile.Velocity = new(SignedEightEight.Zero, CeresFallingDebrisDefinitions.StartingFallSpeed);
-        projectile.StartAnimation(animation);
     }
 
     /// <summary>Drops a tile, accelerating, and raises dust and sounds its fall where it strikes the room.</summary>

@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed base room palettes.</summary>
-public sealed class RoomStaticPalettes
+public sealed partial class RoomStaticPalettes
 {
     /// <summary>Copied lookup by palette; the RoomStaticPalette instances are shared and immutable.</summary>
     internal readonly Dictionary<RoomPaletteSet, RoomStaticPalette> byRoomPaletteSet;

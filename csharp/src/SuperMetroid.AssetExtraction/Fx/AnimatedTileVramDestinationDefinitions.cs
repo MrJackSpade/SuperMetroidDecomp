@@ -8,8 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// The VRAM word each animated-tile object's frames are copied to (#1406): the cartridge's layout, which extraction alone
 /// needs, to picture each frame over the characters its animation paints and to declare those characters.
 /// </summary>
-[EncodingOwner("VRAM words of the animated-tile transfers")]
-internal static class AnimatedTileVramDestinationDefinitions
+internal static partial class AnimatedTileVramDestinationDefinitions
 {
     /// <summary>
     /// The VRAM word each object header copies every frame to: the horizontal spikes, Maridia's sand ceiling and falling

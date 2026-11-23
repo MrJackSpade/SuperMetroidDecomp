@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Areas.Escape;
 using SuperMetroid.AssetExtraction.Fx;
-using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Title;
@@ -20,9 +19,9 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// <param name="IntroFont">The opening narration's font, which the narration pictures are composed from (#1583).</param>
 /// <param name="EndingFont">The ending's font, which the credits, post-credits and explosion pictures are composed from (#1583).</param>
 /// <param name="TitleGraphics">The title's characters and compositions, which the title and title floor sheets are composed from (#1583).</param>
-internal sealed record ImportPresentationCharacters(
+internal sealed partial record ImportPresentationCharacters(
     MapCharacterArtwork Characters,
-    MapSpriteCompositions Sprites,
+    MapSpriteArtwork Sprites,
     EscapeTimerCharacters EscapeTimerTiles,
     RoomFxBlockAnimationAtlas BlockAnimationAtlas,
     WorldMapCharacters WorldCharacters,

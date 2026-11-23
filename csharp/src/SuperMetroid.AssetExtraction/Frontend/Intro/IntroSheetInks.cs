@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// sixteen plus its colour within the set, as the opening loads its palette; a background colour is the same ink on the
 /// scene and narration sheets, and a sprite colour the same ink on the intro sprite sheet's own-palette parts.
 /// </summary>
-internal static class IntroSheetInks
+internal static partial class IntroSheetInks
 {
     /// <summary>The colours of one set.</summary>
     internal const int SetColours = 16;

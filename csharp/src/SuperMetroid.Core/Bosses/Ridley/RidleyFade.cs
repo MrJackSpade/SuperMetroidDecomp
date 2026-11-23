@@ -5,15 +5,16 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// a time, as a fade, a reveal, a zoom's shades or a cycling alarm. Each image is a colouring of its own that the import
 /// supplies, not a blend of the run's ends, so a run is its images rather than a typed blend.
 /// </summary>
-public sealed class RidleyFade
+public sealed partial class RidleyFade
 {
     /// <summary>Defines a run.</summary>
     /// <param name="key">The name of its installed shades.</param>
     /// <param name="imageCount">The images it holds.</param>
-    internal RidleyFade([InstalledKey] string key, int imageCount)
+    internal RidleyFade(string key, int imageCount)
     {
         Key = Ensure.NotNull(key);
         Images = [.. Enumerable.Range(0, Ensure.BetweenInclusive(1, int.MaxValue, imageCount)).Select(step => new RidleyFadeImage(this, step))];
+        End = Images[^1];
     }
 
     /// <summary>The name of its installed shades.</summary>
@@ -21,6 +22,9 @@ public sealed class RidleyFade
 
     /// <summary>Its images, in their installed order.</summary>
     public IReadOnlyList<RidleyFadeImage> Images { get; }
+
+    /// <summary>The image the run ends on: a fade's full colours, which the encounter holds once the fade is over.</summary>
+    public RidleyFadeImage End { get; }
 
     /// <summary>
     /// The image a quantity selects by its place in the run, counting from zero (#2409): the getaway floor's shade for its

@@ -59,7 +59,7 @@ internal static class ScreenTilePicturesVerification
                     && (added.GlowsOver is null) == (math == AreaMapBackgroundGlow.WholeScreen),
                     $"{shownArea} world map shows its foreground and its background glowing over it ({math})");
             }
-            var room = new FileSelectRoomMapGraphics(explored, shownArea, screenContent: maps, sheets: sheets);
+            var room = new FileSelectRoomMapGraphics(explored, SuperMetroid.Verification.Harness.VerificationZebesAreas.Of(shownArea), screenContent: maps, sheets: sheets);
             LayeredScene roomScene = room.ComposeScene();
             // A cell whose picture the room-map sheet holds as showing nothing draws nothing (#1513); every other cell shows
             // its installed picture.
@@ -185,10 +185,10 @@ internal static class ScreenTilePicturesVerification
         var audio = AudioQueues.Standalone();
         EndingCreditsState ending = CreateRetailEndingFixture(audio, 10, 59);
         for (int tick = 0; ending.Phase != EndingCreditsPhase.SeeYouNextMission
-            && (afterCredits || ending.Phase < EndingCreditsPhase.Credits); tick++)
+            && (afterCredits || EndingCreditsPhaseOrder.IsBefore(ending.Phase, EndingCreditsPhase.Credits)); tick++)
         {
             // A phase is checked once, so its scene is only built until then, every few updates.
-            if (tick % PhaseSampleUpdates == 0 && (ending.Phase > EndingCreditsPhase.Credits) == afterCredits
+            if (tick % PhaseSampleUpdates == 0 && EndingCreditsPhaseOrder.IsBefore(EndingCreditsPhase.Credits, ending.Phase) == afterCredits
                 && !sampled.Contains($"{ending.Phase}"))
             {
                 LayeredScene scene = EndingCreditsPresentation.ComposeScene(ending);
@@ -226,7 +226,7 @@ internal static class ScreenTilePicturesVerification
                 RgbaPixel[] pictured = DisplayRendering.Render(new DisplayPacket(0, scene)).ToArray();
                 var shownTitle = title.ShownVram();
                 RgbaPixel[] characters = DisplayRendering.Render(new DisplayPacket(0, new FloorScene(scene.Paint,
-                    floor with { Map = FromCharacters(shownTitle, floor.Map) }, scene.Brightness, scene.Gradient))).ToArray();
+                    new PlacedFloor(floor.View, FromCharacters(shownTitle, floor.Map)), scene.Brightness, scene.Gradient))).ToArray();
                 AssertTrue(pictured.SequenceEqual(characters), $"title {title.Phase}: drawn from its pictures, the Mode 7 background matches its characters");
             }
             title.Step(0);
@@ -298,7 +298,7 @@ internal static class ScreenTilePicturesVerification
                 if (layer is TurningFloorLayer floor)
                 {
                     layers++;
-                    fromCharacters.Add(floor with { Floor = floors.Of(vram, floor.Floor) });
+                    fromCharacters.Add(new TurningFloorLayer(floor.Transform, floors.Of(vram, floor.Floor), floor.Blend));
                 }
                 else
                     fromCharacters.Add(layer);
@@ -379,7 +379,7 @@ internal static class ScreenTilePicturesVerification
             DisplayLayer whole = layer is PictureGridLayer windowed ? windowed with { Window = null } : layer;
             RgbaPixel[] pictured = RenderNamed(new LayeredScene(scene.Paint, [whole], DisplayBrightness.Full), named);
             RgbaPixel[] characters = VramTilemapImage.Draw(tilemap.Rows, tilemap.Size, vram, PauseVramLayout.MapCharacters.Offset,
-                TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, null, scene.Paint.Backdrop);
+                TileInkDepth.SixteenColours, pauseColours, tilemap.Scroll, null, scene.Paint.Backdrop.ShownWith(global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
             AssertSamePixels(pictured, characters, $"{named}: its pictures draw what VRAM's characters draw of the cartridge's tilemap");
         }
         AssertTrue(layers > 0, $"{name} draws pictured backgrounds");

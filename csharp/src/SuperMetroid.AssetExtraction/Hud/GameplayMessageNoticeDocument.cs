@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Defines the editable collection of gameplay-message notices.</summary>
-public sealed record GameplayMessageNoticeDocument
+public sealed partial record GameplayMessageNoticeDocument
 {
     /// <summary>Gets the presentation schema version.</summary>
     public required int Version { get; init; }

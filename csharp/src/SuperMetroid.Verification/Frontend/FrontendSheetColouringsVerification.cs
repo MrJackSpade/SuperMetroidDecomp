@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
@@ -148,7 +149,7 @@ internal static class FrontendSheetColouringsVerification
             TitleSequenceDefinitions.TextSequences.MetroidThree])
         {
             // Each card's text is drawn as the letters typed so far, each letter in the card's colouring (#1979).
-            foreach (TitleCardTyping typed in TitleCards.Typings(card.Phase))
+            foreach (TitleCardTyping typed in TitleCards.Typings(card.Card))
                 Add(sets, TitleSpriteDefinitions.LetterFrameName(typed), TitleSheetInks.SpriteSet(card.Colouring));
         }
         Add(sets, TitleSpriteDefinitions.FrameName(TitleSprite.SuperMetroidLogo), TitleSheetInks.SpriteSet(TitleSpriteColouring.Logo));
@@ -163,7 +164,7 @@ internal static class FrontendSheetColouringsVerification
         foreach ((MapSpriteId id, MapSpriteColouring[] colourings) in MapSpriteDraws)
         {
             foreach (MapSpriteColouring colouring in colourings)
-                Add(sets, MapSpriteNames.Name(id), MapSpriteColouringSets.SpriteSet(colouring));
+                Add(sets, MapSpriteDefinitions.Names[id], MapSpriteColouringSets.SpriteSet(colouring));
         }
         return sets;
     }
@@ -258,8 +259,7 @@ internal static class FrontendSheetColouringsVerification
         {
             if (beat is AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>.Event { Raised: EndingRewardJumpCue.Shoot })
                 landing = EndingSpriteColouring.ShootingSamus;
-            else if (beat is AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>.Frame shown
-                && shown.Shown != CinematicSpritePose.Blank)
+            else if (beat is AnimationBeat<CinematicSpritePose, EndingRewardJumpCue>.Frame shown)
                 Add(sets, CinematicSpriteSheet.FrameName(CinematicSpriteFamily.EndingReward, shown.Shown), EndingScreenInks.SpriteSet(landing));
         }
         foreach (EndingLogoActorDefinition actor in EndingLogoDefinitions.Actors)
@@ -273,8 +273,8 @@ internal static class FrontendSheetColouringsVerification
         {
             EndingRewardActorDefinition record = EndingRewardActors.Get(actor);
             EndingSpriteColouring colouring = record.Start.Colouring;
-            // A gesture actor plays the gesture's animations, a jump actor the jump's (#2197).
-            if (EndingRewardAnimations.Gesture.Starts.Contains(record.Animation))
+            // A gesture actor, which a reward's gesture cast lists, plays the gesture's animations, a jump actor the jump's (#2197).
+            if (EndingRewardDefinitions.Rewards.Values.Any(reward => reward.Gesture.Contains(actor)))
                 AddProgram(sets, CinematicSpriteFamily.EndingReward, EndingRewardAnimations.Gesture, record.Animation, colouring);
             else
                 AddProgram(sets, CinematicSpriteFamily.EndingReward, EndingRewardAnimations.Jump, record.Animation, colouring);
@@ -295,10 +295,7 @@ internal static class FrontendSheetColouringsVerification
         where TCue : notnull
     {
         foreach (CinematicSpritePose pose in animations.Segments.FramesOf(animations.StartingWith(program)))
-        {
-            if (pose != CinematicSpritePose.Blank)
-                Add(sets, CinematicSpriteSheet.FrameName(family, pose), EndingScreenInks.SpriteSet(colouring));
-        }
+            Add(sets, CinematicSpriteSheet.FrameName(family, pose), EndingScreenInks.SpriteSet(colouring));
     }
 
     /// <summary>Records that frame <paramref name="name"/> is drawn in sprite set <paramref name="set"/>.</summary>

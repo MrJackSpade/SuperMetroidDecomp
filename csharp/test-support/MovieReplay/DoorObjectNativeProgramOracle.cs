@@ -32,7 +32,7 @@ internal static class DoorObjectNativeProgramOracle
 
     /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
     internal static SoundEffectId QueuedLibrary3Sound(IImportCartridgeSource cartridge, int cursor) =>
-        SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2));
+        SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2));
 
     /// <summary>Every blue cap's lists equal its typed sequences; returns the images compared.</summary>
     internal static int CompareBlueCaps(IImportCartridgeSource cartridge)
@@ -183,7 +183,7 @@ internal static class DoorObjectNativeProgramOracle
 
             VerificationAssertions.AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, InstructionAt<RoomObjectInstruction>(cartridge, eye.Hit), $"{at} hit sounds");
             VerificationAssertions.AssertEqual(EyeDoorSequenceDefinitions.HitSound,
-                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, eye.Hit + 2)), $"{at} hit sound");
+                SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, eye.Hit + 2)), $"{at} hit sound");
             VerificationAssertions.AssertEqual(SoundRequestPriority.Normal, EyeDoorSequenceDefinitions.HitSoundPriority, $"{at} hit sound priority");
             cursor = Expect(cartridge, unchecked((ushort)(eye.Hit + QueueSoundLength)), RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} hit smokes");
             cursor = Expect(cartridge, cursor, RoomObjectInstruction.SpawnTwoEyeDoorSmoke, 2, $"{at} hit smokes again");
@@ -269,20 +269,20 @@ internal static class DoorObjectNativeProgramOracle
     private static ushort CompareSteps(IImportCartridgeSource cartridge, ushort cursor, Animation<DoorCapSegment> animation, DoorCapPaint paint,
         ColoredDoorOrientation facing, string at, ref int images)
     {
-        IReadOnlyList<AnimationBeat<DoorCapFrame, SoundEffectId>> beats = DoorCapSequenceDefinitions.Segments.PlayedBeats(animation);
+        IReadOnlyList<AnimationBeat<DoorCapShown, SoundEffectId>> beats = DoorCapSequenceDefinitions.Segments.PlayedBeats(animation);
         for (int index = 0; index < beats.Count; index++)
         {
             string where = $"{at} beat {index} at $84:{cursor:X4}";
             switch (beats[index])
             {
-                case AnimationBeat<DoorCapFrame, SoundEffectId>.Event sound:
+                case AnimationBeat<DoorCapShown, SoundEffectId>.Event sound:
                     VerificationAssertions.AssertEqual(RoomObjectInstruction.QueueSoundLibrary3Maximum6, InstructionAt<RoomObjectInstruction>(cartridge, cursor),
                         $"{where}: the native list sounds");
                     VerificationAssertions.AssertEqual(SoundRequestPriority.Normal, DoorCapSequenceDefinitions.SoundPriority, $"{where}: sound priority");
                     VerificationAssertions.AssertEqual(sound.Raised, QueuedLibrary3Sound(cartridge, cursor), $"{where}: sound");
                     cursor = unchecked((ushort)(cursor + QueueSoundLength));
                     break;
-                case AnimationBeat<DoorCapFrame, SoundEffectId>.Frame frame:
+                case AnimationBeat<DoorCapShown, SoundEffectId>.Frame frame:
                     cursor = CompareDraws(cartridge, cursor, RoomObjectDrawAddressCodec.Of(DoorCaps.Image(paint, facing, frame.Shown)), frame.Duration, where, ref images);
                     break;
                 default:

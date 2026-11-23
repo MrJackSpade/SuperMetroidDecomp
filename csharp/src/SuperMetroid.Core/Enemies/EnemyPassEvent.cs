@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Enemies;
 /// carries out after them (#2562). The enemies publish each as it happens, and the pass returns them, in that order, as
 /// its result (<see cref="EnemyPassEvents"/>).
 /// </summary>
-public abstract record EnemyPassEvent;
+public abstract partial record EnemyPassEvent;

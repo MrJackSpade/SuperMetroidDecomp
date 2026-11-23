@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -70,23 +69,23 @@ internal static class ClosedPresentationContractChecks
                     gameOver.DrawBaby(oam, sheet, SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame.Open, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);
                     gameOver.DrawBaby(oam, sheet, (SuperMetroid.Core.Frontend.GameOver.GameOverBabyFrame)99, SuperMetroid.Core.Frontend.GameOver.GameOverBabyColouring.Idle);
                     reserve.ApplyLabel(cells, dynamicIndex > 0 ? PauseReserveLabel.Auto : PauseReserveLabel.Manual);
-                    _ = arrow.Pulse(dynamicIndex);
+                    _ = arrow.Shades();
                     reserve.ApplyDigit(cells, 0, 10);
                     _ = beam.Colours(0);
                     _ = beam.Colours(SuperMetroid.Core.Progression.SamusBeamCombination.SpazerPlasma);
                     spores.ResolveSpore(0);
                     phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 15);
                     phantoon.ResolvePowerOn(SuperMetroid.AssetExtraction.Enemies.Artwork.WreckedShipPoweredPart.Lights, 16);
-                    statues.ResolveEye(3, 0);
-                    statues.ResolveEye(4, 0);
+                    statues.ResolveEye(SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid, 0);
+                    statues.ResolveEye((SuperMetroid.Core.Areas.Tourian.TourianStatue)99, 0);
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
                     chozo.ResolveTubeCracks(31);
                     chozo.ResolveTubeCracks(0);
-                    samusDeath.SuitedColor(2, 9, 15);
-                    samusDeath.SuitedColor(3, 9, 15);
-                    samusDeath.ExplosionPaletteIndex(8);
-                    samusDeath.ExplosionPaletteIndex(9);
+                    samusDeath.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Gravity, 9, 15);
+                    samusDeath.SuitedColor((SuperMetroid.Core.Samus.Colours.SamusSuit)99, 9, 15);
+                    samusDeath.WhiteoutColor(21);
+                    samusDeath.WhiteoutColor(22);
                     _ = levels.DoorBlocks(room, level);
                     _ = levels.DoorBlocks(room, new SuperMetroid.Core.Rooms.LevelData.RoomLevelId("NoSuchLevel"));
                 }
@@ -96,8 +95,8 @@ internal static class ClosedPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("ClosedProviderFixture", trees,
-            platforms.Append(typeof(GameplayHudPresentation).Assembly.Location)
-                .Append(typeof(SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseReserveUiPresentation).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core)
+                .Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "ClosedPresentationContractChecks");

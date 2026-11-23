@@ -20,31 +20,53 @@ internal static class SamusContentIdentityVerification
         SamusBodySheetFixtures.Register(CreateSamusIdentityCharacters());
 
     /// <summary>Builds a minimal Samus art catalog and its characters.</summary>
-    internal static SamusBodyCharacterArtwork CreateSamusIdentityCharacters()
-    {
-        int firstRecord = SamusBodySources.RecordCount -
-            (SamusBodySources.TopSetCount + SamusBodySources.BottomSetCount);
-        int[] topStarts = [.. Enumerable.Range(0, SamusBodySources.TopSetCount).Select(index => firstRecord + index)];
-        int[] bottomStarts = [.. Enumerable.Range(SamusBodySources.TopSetCount, SamusBodySources.BottomSetCount)
-            .Select(index => firstRecord + index)];
-        Dictionary<SamusPoseId, int> poses = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => 0);
-        var graphics = new int[SamusBodySources.PoseCount];
-        Dictionary<SamusPoseId, SamusBodyPosePlacement> placements = SamusBodyPlacementDecoding.Decode(graphics,
-            new int[SamusBodyPlacementSourceDefinitions.LandingByteCount], new int[SamusBodyPlacementSourceDefinitions.PostureByteCount],
-            new int[SamusBodyPlacementSourceDefinitions.DrainedByteCount]);
-        var frames = new SamusBodyFrameSelection[SamusBodySources.FrameCount];
-        SamusBodyTileTransfer[][] Half(int count) => Enumerable.Range(0, count)
-            .Select(_ => new[] { new SamusBodyTileTransfer(32, 0, new byte[RoomCharacterAtlasFormat.BytesPerTile]) }).ToArray();
+    internal static SamusBodyCharacterArtwork CreateSamusIdentityCharacters() =>
+        SamusBodyCharacterArtwork.Create(CreateSamusIdentityParts(0), new Dictionary<SamusBodyPicture, SamusBodyTileTransfer>
+        {
+            [IdentityTop] = new SamusBodyTileTransfer(32, 0, new byte[RoomCharacterAtlasFormat.BytesPerTile]),
+            [IdentityBottom] = new SamusBodyTileTransfer(32, 0, new byte[RoomCharacterAtlasFormat.BytesPerTile]),
+        });
 
-        Dictionary<SamusPoseId, int> topBases = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => 0);
-        Dictionary<SamusPoseId, int> bottomBases = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => 0);
-        SamusSpritemapId?[] entries = [.. Enumerable.Repeat<SamusSpritemapId?>(new SamusSpritemapId(0), SamusSpritemapSources.EntryCount)];
-        SamusSpritemapDefinition[] definitions =
-        [
-            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, 0), large: false, character: 0, palette: 0, priority: 0)]),
-            new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, priority: 0)]),
-        ];
-        var spritemaps = new SamusSpritemapSources(topBases, bottomBases, entries, definitions);
+    /// <summary>The minimal catalog's top half picture, which every frame selects.</summary>
+    private static SamusBodyPicture IdentityTop => new("identity top");
+
+    /// <summary>The minimal catalog's bottom half picture, which every frame selects.</summary>
+    private static SamusBodyPicture IdentityBottom => new("identity bottom");
+
+    /// <summary>
+    /// A minimal Samus body: every pose's art origin <paramref name="artOrigin"/>, and every picture frame the installed
+    /// analysis pictures placed at zero, selecting the same half pictures and showing the same composition in both halves;
+    /// the explosion and atmosphere show that composition too.
+    /// </summary>
+    internal static SamusBodyArtworkParts CreateSamusIdentityParts(int artOrigin)
+    {
+        var shown = InstalledFixtures.SamusShownFrameAnalysis.Installed();
+        var first = new SamusSpritemapId("identity 0");
+        var frames = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, pose =>
+        {
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(pose);
+            IEnumerable<SamusAnimationFrame> pictured = shown.PictureFrames.ContainsKey(pose) ? shown.Pictures(pose) : [];
+            return (IReadOnlyDictionary<int, SamusBodyDecodedFrame>)pictured.Select(frame => SamusAnimationLayout.Offset(animation, frame)).Distinct()
+                .ToDictionary(frame => frame, _ => new SamusBodyDecodedFrame(new SamusBodyFramePictures(IdentityTop, IdentityBottom), 0, first, first));
+        });
+        var halves = new Dictionary<SamusBodyHalfFrame, SamusSpritemapId?>();
+        foreach ((SamusPoseId pose, IReadOnlyDictionary<int, SamusBodyDecodedFrame> decoded) in frames)
+        {
+            foreach (int frame in decoded.Keys)
+            {
+                halves.Add(new SamusBodyHalfFrame(pose, SamusBodyHalf.Top, frame), first);
+                halves.Add(new SamusBodyHalfFrame(pose, SamusBodyHalf.Bottom, frame), first);
+            }
+        }
+        var definitions = new Dictionary<SamusSpritemapId, SamusSpritemapDefinition>
+        {
+            [first] = new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(0, 0), large: false, character: 0, palette: 0, depth: SuperMetroid.Core.Assets.ActorDepth.BehindRoom)]),
+            [new SamusSpritemapId("identity 1")] = new([SpritePart.Create(offset: Offset16<ScreenPixels>.Of(1, 0), large: false, character: 1, palette: 0, depth: SuperMetroid.Core.Assets.ActorDepth.BehindRoom)]),
+        };
+        var spritemaps = new SamusSpritemapSources(definitions, halves,
+            SamusDeathSheetComposer.Frames.ToDictionary(name => name, _ => (SamusSpritemapId?)first),
+            SamusAtmosphereSheetDefinitions.DivingSplash.Concat(SamusAtmosphereSheetDefinitions.Bubbles)
+                .ToDictionary(SamusAtmosphereSheetDefinitions.FrameName, _ => (SamusSpritemapId?)first));
         var one = new SpritePart[SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount];
         var shared = new SpritePart[one.Length];
         var atmosphere = new SamusAtmosphericSourceArtwork(one, shared);
@@ -54,19 +76,24 @@ internal static class SamusContentIdentityVerification
         ushort[][] suitless = Rows();
         var whiteout = new ushort[SamusShadeDefinitions.Death.WhiteoutShadeCount];
         var explosion = new ushort[SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount];
-        var deathPalettes = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(suitless), ToColors(whiteout), explosion);
+        var deathPalettes = new InstalledSamusDeathPalettes(SamusDeathPaletteFixtureKeys.Suits(ToColors(suited)), ToColors(suitless), ToColors(whiteout),
+            SamusDeathPaletteFixtureKeys.ExplosionSteps(explosion));
         var cannonDocument = new SamusArmCannonArtworkDocument
         {
             Version = SamusArmCannonArtworkFormat.Version,
             PoseDescriptors = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => 0),
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
-            CoverAppearances = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-                .Select(_ => SpriteVisualPart.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)).ToArray(),
-            CoverTiles = Enumerable.Range(0, SamusProjectileDirectionCodec.Count)
-                .Select(_ => new int[SamusArmCannonArtworkFormat.FramesPerDirection - 1]).ToArray(),
+            CoverAppearances = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
+                _ => SpriteVisualPiece.FromSpritePart(SpritePart.Single(0, 0, 0), SpriteArtwork.CharactersPerRow)),
+            CoverOrientations = SamusProjectileDirectionCodec.InAimOrder.ToDictionary(direction => direction,
+                _ => SamusArmCannonCoverOrientation.Vertical),
         };
         SamusArmCannonSourceArtwork cannon = InstalledSamusArmCannonArtworkTooling.Load(
             new MemoryStream(SamusArmCannonSourceArtwork.Write(cannonDocument)));
-        return SamusBodyCharacterArtwork.Create(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, Placements = placements, Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathPalettes.Steps, ArmCannon = cannon }, Half(topStarts.Length), Half(bottomStarts.Length));
+        return new SamusBodyArtworkParts
+        {
+            ArtOrigins = SamusPoseNumbers.RecordedPoses.ToDictionary(pose => pose, _ => artOrigin),
+            Frames = frames, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathSteps = deathPalettes.Steps, ArmCannon = cannon,
+        };
     }
 }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The installed key of each <see cref="SamusAnimationName"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusAnimationNameKeys
+internal static partial class SamusAnimationNameKeys
 {
     /// <summary>Each SamusAnimationName member's installed key.</summary>
     internal static InstalledKeys<SamusAnimationName> Installed { get; } = new(new Dictionary<SamusAnimationName, string>
@@ -91,12 +91,12 @@ internal static class SamusAnimationNameKeys
         [SamusAnimationName.TurningLeftToRightFallingAimDiagonalUp] = "TurningLeftToRightFallingAimDiagonalUp",
         [SamusAnimationName.TurningRightToLeftCrouchingAimDiagonalUp] = "TurningRightToLeftCrouchingAimDiagonalUp",
         [SamusAnimationName.TurningLeftToRightCrouchingAimDiagonalUp] = "TurningLeftToRightCrouchingAimDiagonalUp",
-        [SamusAnimationName.MoonwalkTurnJumpLeft] = "MoonwalkTurnJumpLeft",
-        [SamusAnimationName.MoonwalkTurnJumpRight] = "MoonwalkTurnJumpRight",
-        [SamusAnimationName.MoonwalkTurnJumpAimUpLeft] = "MoonwalkTurnJumpAimUpLeft",
-        [SamusAnimationName.MoonwalkTurnJumpAimUpRight] = "MoonwalkTurnJumpAimUpRight",
-        [SamusAnimationName.MoonwalkTurnJumpAimDownLeft] = "MoonwalkTurnJumpAimDownLeft",
-        [SamusAnimationName.MoonwalkTurnJumpAimDownRight] = "MoonwalkTurnJumpAimDownRight",
+        [SamusAnimationName.MoonwalkTurnToSpinJumpLeft] = "MoonwalkTurnJumpLeft",
+        [SamusAnimationName.MoonwalkTurnToSpinJumpRight] = "MoonwalkTurnJumpRight",
+        [SamusAnimationName.MoonwalkTurnToSpinJumpAimUpLeft] = "MoonwalkTurnJumpAimUpLeft",
+        [SamusAnimationName.MoonwalkTurnToSpinJumpAimUpRight] = "MoonwalkTurnJumpAimUpRight",
+        [SamusAnimationName.MoonwalkTurnToSpinJumpAimDownLeft] = "MoonwalkTurnJumpAimDownLeft",
+        [SamusAnimationName.MoonwalkTurnToSpinJumpAimDownRight] = "MoonwalkTurnJumpAimDownRight",
         [SamusAnimationName.DraygonGrabbingLeft] = "DraygonGrabbingLeft",
         [SamusAnimationName.CompactAirborneRight] = "CompactAirborneRight",
         [SamusAnimationName.CompactAirborneLeft] = "CompactAirborneLeft",
@@ -223,12 +223,12 @@ internal static class SamusAnimationNameKeys
         SamusAnimationName.TurningLeftToRightFallingAimDiagonalUp,
         SamusAnimationName.TurningRightToLeftCrouchingAimDiagonalUp,
         SamusAnimationName.TurningLeftToRightCrouchingAimDiagonalUp,
-        SamusAnimationName.MoonwalkTurnJumpLeft,
-        SamusAnimationName.MoonwalkTurnJumpRight,
-        SamusAnimationName.MoonwalkTurnJumpAimUpLeft,
-        SamusAnimationName.MoonwalkTurnJumpAimUpRight,
-        SamusAnimationName.MoonwalkTurnJumpAimDownLeft,
-        SamusAnimationName.MoonwalkTurnJumpAimDownRight,
+        SamusAnimationName.MoonwalkTurnToSpinJumpLeft,
+        SamusAnimationName.MoonwalkTurnToSpinJumpRight,
+        SamusAnimationName.MoonwalkTurnToSpinJumpAimUpLeft,
+        SamusAnimationName.MoonwalkTurnToSpinJumpAimUpRight,
+        SamusAnimationName.MoonwalkTurnToSpinJumpAimDownLeft,
+        SamusAnimationName.MoonwalkTurnToSpinJumpAimDownRight,
         SamusAnimationName.DraygonGrabbingLeft,
         SamusAnimationName.CompactAirborneRight,
         SamusAnimationName.CompactAirborneLeft,

@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>PNG indexed-image wire values and bounded asset limits; no cartridge addresses.</summary>
-internal static class IndexedPngFormat
+internal static partial class IndexedPngFormat
 {
     /// <summary>The eight-byte PNG signature, including its line-ending check bytes.</summary>
     internal static ReadOnlySpan<byte> Signature => [137, 80, 78, 71, 13, 10, 26, 10];

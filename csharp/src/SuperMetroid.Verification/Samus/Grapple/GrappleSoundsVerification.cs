@@ -20,27 +20,27 @@ internal static class GrappleSoundsVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new RoomTerrainBlock[256], new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.GrappleBlock), 256).ToArray(), new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusGrappleMovement.BeginFiring(samus, SuperMetroid.Core.Input.GameplayAction.None);
         AssertEqual(new SoundRequest(SamusSound.GrappleStart, SoundRequestPriority.WhenIdle),
             samus.LiquidPhysics.SoundRequests.Single(), "grapple firing starts native library-one sound five once");
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusGrappleMovement.StepFiringAndCommit(air, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+        SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "extending does not restart grapple sound");
-        SamusGrappleMovement.StepFiringAndCommit(anchors, samus, GameplayAction.Shoot, roomObjects: SamusRoomObjectFixtures.Uninstalled, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+        SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(anchors, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(new SoundRequest(SamusSound.Grappling, SoundRequestPriority.Normal),
             samus.LiquidPhysics.SoundRequests.Single(), "accepted connection replaces firing sound with attached sound");
         foreach (GrapplePhase phase in new[] { GrapplePhase.CancelPending, GrapplePhase.ReleaseFromSwing, GrapplePhase.Dropped })
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            samus.Pose = SamusPoseId.GrappleSwingRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.GrappleSwingRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Grapple.Phase = phase;
             if (phase == GrapplePhase.CancelPending)
                 SamusGrappleMovement.CompleteFiringCancellation(air, samus);
             else
-                SamusGrappleMovement.StepAndCommit(new SamusTerrain { Level = air, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+                SamusGrappleMovement.StepAndCommit(new RoomTerrain(air, SamusRoomObjectFixtures.Uninstalled), samus, 0, 0, frameCounter: 0, enemyCollision: GrappleEnemyFixtures.NoEnemy);
             AssertEqual(new SoundRequest(SamusSound.GrappleEnd, SoundRequestPriority.Essential),
                 samus.LiquidPhysics.SoundRequests.Single(), $"{phase} emits native grapple stop command once");
         }

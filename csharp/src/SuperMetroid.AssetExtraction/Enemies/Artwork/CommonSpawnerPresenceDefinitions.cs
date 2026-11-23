@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// generator names (<see cref="SpawnedObjectFrameDefinitions.Common"/>): the PLMs, room mains and setups that run it, and the enemies whose
 /// code calls it. A set's shared sheet holds a spawner's objects only when the set's rooms run it.
 /// </summary>
-internal static class CommonSpawnerPresenceDefinitions
+internal static partial class CommonSpawnerPresenceDefinitions
 {
     /// <summary>The eye doors, whose eyes fire, sweat and smoke.</summary>
     private static readonly RoomObjectKind[] EyeDoors =
@@ -91,7 +91,6 @@ internal static class CommonSpawnerPresenceDefinitions
         [CommonSpawner.EnemyCollision] = EveryEnemy,
         [CommonSpawner.EyeDoorBehavior] = new() { RoomObjects = EyeDoors },
         [CommonSpawner.FallingSparksBehavior] = new() { Enemies = [EnemyDefinitionId.Spark] },
-        [CommonSpawner.NoobTubeBehavior] = new() { RoomObjects = [RoomObjectKind.NoobTube], Shades = [CommonSpawnerShades.TubeCracks] },
         [CommonSpawner.OldTourianEscapeShaftWallBehavior] = new() { Setups = [RoomSetupBehavior.AutoDestroyWallDuringEscape] },
         [CommonSpawner.DownwardGateBehavior] = new() { RoomObjects = Gates },
         [CommonSpawner.SaveStationElectricity] = new() { RoomObjects = [RoomObjectKind.SaveStation] },

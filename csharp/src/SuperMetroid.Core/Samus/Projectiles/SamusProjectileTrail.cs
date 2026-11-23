@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// One trail a shot leaves behind it: a pair of sparkles, each running its own animation, shown in the pictures of the
 /// beams of the shot that left it. It lasts until both sparkles' animations have ended.
 /// </summary>
-public sealed class SamusProjectileTrail
+public sealed partial class SamusProjectileTrail
 {
     /// <summary>Starts a trail of two sparkles that have run no animation yet.</summary>
     /// <param name="picturedBeams">The beam combination whose pictures both sparkles show (#1586).</param>
@@ -32,7 +32,7 @@ public sealed class SamusProjectileTrail
     /// The place of the shot that left the trail, where it stood when it left it: both sparkles stand from it by their
     /// own <see cref="SamusProjectileTrailSide.Offset"/>.
     /// </summary>
-    public Position16<RoomPixels> Origin { get; }
+    internal Position16<RoomPixels> Origin { get; }
 
     /// <summary>Whether both sparkles' animations have ended, so the trail shows nothing more.</summary>
     internal bool IsFinished => Left.HasEnded && Right.HasEnded;

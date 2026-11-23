@@ -20,7 +20,7 @@ internal static class PauseEquipmentBaseAssetsVerification
     internal static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus,
         InstalledScreenContent original)
     {
-        byte[] nativeBase = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.EquipmentPage,
+        byte[] nativeBase = RomDataReader.ReadFixedBank(bus, PauseMenuSourceDefinitions.EquipmentPage,
             PauseEquipmentBaseDefinitions.Cells * sizeof(ushort));
         AssertTrue(BackgroundTileWordBytes.Tiles(nativeBase).SequenceEqual(InstalledFixtures.ImportOf(original).Pause.EquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match the native tiles");
@@ -31,8 +31,8 @@ internal static class PauseEquipmentBaseAssetsVerification
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
             ControllerButton input = frame == 0 ? ControllerButton.R : frame == toMap ? ControllerButton.L : 0;
-            native.Step(input, input, frameCycle: (byte)frame);
-            installed.Step(input, input, frameCycle: (byte)frame);
+            native.Step(input, input, frameCount: (byte)frame);
+            installed.Step(input, input, frameCount: (byte)frame);
             var shownNative = native.ShownVram(original);
             var shownInstalled = installed.ShownVram(original);
             AssertTrue(shownNative.SequenceEqual(shownInstalled),

@@ -6,7 +6,7 @@ using P = SuperMetroid.Core.Bosses.Ridley.RidleyBodySegment;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ridley's typed body animations (#641, #1600), shared by Ceres and Lower Norfair.</summary>
-internal static class RidleyAnimations
+internal static partial class RidleyAnimations
 {
     /// <summary>How long the standing pose lasts before the animation rests.</summary>
     private const int StandingDuration = 12;
@@ -70,36 +70,22 @@ internal static class RidleyAnimations
     /// The animation that starts at each segment: its segment played once, then a rest on its last frame; a fireballing segment
     /// runs on into its end, authored next, which rests.
     /// </summary>
-    internal static IReadOnlyDictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
+    internal static Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>> StartingAt { get; } = Segments.StartsEnding(new Dictionary<RidleyBodySegment, Animation<RidleyBodySegment>>
     {
-        [P.StandingFacingLeft] = PlaysOnceAndHolds(P.StandingFacingLeft),
-        [P.StandingFacingRight] = PlaysOnceAndHolds(P.StandingFacingRight),
-        [P.CeresLungeFacingLeft] = PlaysOnceAndHolds(P.CeresLungeFacingLeft),
-        [P.CeresLungeFacingRight] = PlaysOnceAndHolds(P.CeresLungeFacingRight),
-        [P.RetrieveBabyMetroidFacingLeft] = PlaysOnceAndHolds(P.RetrieveBabyMetroidFacingLeft),
-        [P.RetrieveBabyMetroidFacingRight] = PlaysOnceAndHolds(P.RetrieveBabyMetroidFacingRight),
-        [P.OpeningRoarFacingLeft] = PlaysOnceAndHolds(P.OpeningRoarFacingLeft),
-        [P.OpeningRoarFacingRight] = PlaysOnceAndHolds(P.OpeningRoarFacingRight),
-        [P.DeathRoarFacingLeft] = PlaysOnceAndHolds(P.DeathRoarFacingLeft),
-        [P.DeathRoarFacingRight] = PlaysOnceAndHolds(P.DeathRoarFacingRight),
-        [P.TurnFromLeftToRight] = PlaysOnceAndHolds(P.TurnFromLeftToRight),
-        [P.TurnFromRightToLeft] = PlaysOnceAndHolds(P.TurnFromRightToLeft),
         [P.FireballingFacingLeft] = new([Segments.Whole(P.FireballingFacingLeft), Segments.Whole(P.FireballingEndFacingLeft)], AnimationEnd.Holds),
-        [P.FireballingEndFacingLeft] = PlaysOnceAndHolds(P.FireballingEndFacingLeft),
         [P.FireballingFacingRight] = new([Segments.Whole(P.FireballingFacingRight), Segments.Whole(P.FireballingEndFacingRight)], AnimationEnd.Holds),
-        [P.FireballingEndFacingRight] = PlaysOnceAndHolds(P.FireballingEndFacingRight),
-        [P.TransitionToFlyingFacingLeft] = PlaysOnceAndHolds(P.TransitionToFlyingFacingLeft),
-        [P.TransitionToFlyingFacingRight] = PlaysOnceAndHolds(P.TransitionToFlyingFacingRight),
-    };
+    }, AnimationEnd.Holds,
+        P.StandingFacingLeft, P.StandingFacingRight, P.CeresLungeFacingLeft, P.CeresLungeFacingRight,
+        P.RetrieveBabyMetroidFacingLeft, P.RetrieveBabyMetroidFacingRight, P.OpeningRoarFacingLeft,
+        P.OpeningRoarFacingRight, P.DeathRoarFacingLeft, P.DeathRoarFacingRight, P.TurnFromLeftToRight,
+        P.TurnFromRightToLeft, P.FireballingEndFacingLeft, P.FireballingEndFacingRight, P.TransitionToFlyingFacingLeft,
+        P.TransitionToFlyingFacingRight);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<RidleyBodySegment> StartingWith(RidleyBodySegment segment) => StartingAt[segment];
 
-    /// <summary>The animation that plays <paramref name="segment"/> once and rests on its last frame.</summary>
-    private static Animation<RidleyBodySegment> PlaysOnceAndHolds(RidleyBodySegment segment) => new([Segments.Whole(segment)], AnimationEnd.Holds);
-
     /// <summary>The poses of one facing.</summary>
-    private readonly record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
+    private readonly partial record struct Side(F Standing, F MouthHalfOpen, F MouthOpen, F LegsHalfExtended, F LegsExtended)
     {
         /// <summary>The left-facing poses.</summary>
         internal static Side Left { get; } = new(F.RidleyBodyLeft, F.RidleyBodyLeftMouthHalfOpen, F.RidleyBodyLeftMouthOpen, F.RidleyBodyLeftLegsHalfExtended, F.RidleyBodyLeftLegsExtended);
@@ -177,8 +163,8 @@ internal static class RidleyAnimations
     ];
 
     /// <summary>
-    /// One roar and four fireballs (#2331): the first with its afterburn, each shot with the mouth open for its five
-    /// updates, the last for the burst's tail, before the mouth half closes.
+    /// One roar and its fireballs (#2331): the first with its afterburn, each shot with the mouth open for its shot's
+    /// hold, the last for the burst's tail, before the mouth half closes.
     /// </summary>
     private static AnimationBeat<F, RidleyBodyCue>[] Burst(Side side) =>
     [

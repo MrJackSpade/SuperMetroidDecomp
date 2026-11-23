@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// The Evir body's and arms' facing loops and its projectile's spit and regeneration animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="EvirCue"/> naming what it does.
 /// </summary>
-internal static class EvirAnimations
+internal static partial class EvirAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<EvirSegment, EnemyFrameId, EvirCue> Segments { get; } = new(
@@ -80,11 +80,11 @@ internal static class EvirAnimations
     private const int RegrowthSteps = 8;
 
     /// <summary>
-    /// The animation that starts at each segment an owner can start or restart at (#2275, #2369): the arms wave four times
+    /// The animation that starts at each segment an owner can start or restart at (#2275, #2369): the arms wave (<see cref="ArmWaves"/>)
     /// and rest folded, the spit is a still picture,
-    /// and a regenerating spit starts its own regrowth, sounds, regrows eight steps out from the mouth and is whole again.
+    /// and a regenerating spit starts its own regrowth, sounds, regrows its steps out from the mouth (<see cref="RegrowthSteps"/>) and is whole again.
     /// </summary>
-    internal static IReadOnlyDictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
+    internal static Dictionary<EvirSegment, Animation<EvirSegment>> StartingAt { get; } = new Dictionary<EvirSegment, Animation<EvirSegment>>
     {
         [P.BodyFacingLeft] = Animation<EvirSegment>.Looping([Segments.Whole(P.BodyFacingLeft)]),
         [P.ArmsFacingLeft] = Animation<EvirSegment>.Looping([Segments.Repeated(P.ArmsFacingLeft, ArmWaves), Segments.Whole(P.ArmsFoldedFacingLeft)]),

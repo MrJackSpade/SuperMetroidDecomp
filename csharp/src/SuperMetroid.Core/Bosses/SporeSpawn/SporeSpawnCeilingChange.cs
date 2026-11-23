@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// its live death the animated crumble, on the exact collision update.
 /// </summary>
 /// <param name="Mutation">The ceiling's change.</param>
-public sealed record SporeSpawnCeilingChange(SporeSpawnCeilingMutation Mutation) : EnemyPassEvent;
+public sealed partial record SporeSpawnCeilingChange(SporeSpawnCeilingMutation Mutation) : EnemyPassEvent;

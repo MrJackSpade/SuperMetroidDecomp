@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's wall cannons: the terrain they write and the hits that destroy them.</summary>
-internal static class DraygonCannonDefinitions
+internal static partial class DraygonCannonDefinitions
 {
     /// <summary>A live cannon's own block: shootable, with the behaviour that routes a shot to the cannon.</summary>
     internal static readonly DraygonCannonTerrain LiveCannon = new(RoomCollisionType.ShootableBlock, RoomBlockBehavior.Reacting(ShootableReaction.ResidentObjectTrigger));

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -81,7 +83,8 @@ internal static class RoomTerrainBlockAddressingVerification
                 Position16<RoomBlocks>? expected = reached >= 0 && reached < width * height ? BlockAtPlace(reached, width) : null;
                 Offset16<RoomBlocks> step = vertical ? Offset16<RoomBlocks>.Of(0, offset) : Offset16<RoomBlocks>.Of(offset, 0);
                 string context = $"a {(vertical ? "vertical" : "horizontal")} link of {offset} from {block} in a {width}x{height} room";
-                Position16<RoomBlocks>? stepped = room.Level.GridBlockStepped(block, step);
+                Position16<RoomBlocks>? stepped = room.Level.TryGridBlockStepped(block, step, out Position16<RoomBlocks> reachedBlock)
+                    ? reachedBlock : null;
                 if (stepped != expected)
                     AssertEqual(expected, stepped, context);
 
@@ -89,9 +92,10 @@ internal static class RoomTerrainBlockAddressingVerification
                     RoomTerrainBlock.Of(0, BlockMirroring.None, vertical ? RoomCollisionType.VerticalExtension : RoomCollisionType.HorizontalExtension),
                     RoomBlockBehavior.Extending(offset));
                 RoomCollisionBlock linked = room.Level.LinkedBlockOrEdgeSolid(extension);
+                // Outside the grid the link reads the edge-solid block where it named one (#2554), the block its step reached.
                 RoomCollisionBlock linkedExpected = expected is { } at
                     ? room.Level.GetCollisionBlock(at)
-                    : new RoomCollisionBlock(null, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
+                    : RoomCollisionBlock.OutsideRoom(reachedBlock, RoomTerrainBlocks.EdgeSolid, RoomBlockBehavior.None);
                 if (linked != linkedExpected)
                     AssertEqual(linkedExpected, linked, $"the grapple's read of {context}");
             }
@@ -190,20 +194,20 @@ internal static class RoomTerrainBlockAddressingVerification
         Console.WriteLine("Wave scan read blocks: every read starts in the block at its place along the room's rows.");
     }
 
-    /// <summary>Runs a one-block shot's horizontal or vertical scan over <paramref name="block"/> and reports whether it stopped.</summary>
+    /// <summary>
+    /// Moves a one-block shot over <paramref name="block"/> horizontally or vertically, by a speed too small to leave the
+    /// pixel it stands on, and reports whether its leading edge's scan stopped it.
+    /// </summary>
     private static bool ScanShot(RoomLevelData level, Position16<RoomBlocks> block, bool vertical)
     {
-        var shot = new SamusProjectile(0)
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8)),
-            Radius = new(1, 1),
-            Velocity = vertical
-                ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1))
-                : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)),
-        };
+        var shot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false));
+        shot.HeldShot().Position = FixedPosition<RoomPixels>.FromWhole(new(block.X * 16 + 8, block.Y * 16 + 8));
+        shot.HeldShot().Radius = new(1, 1);
+        shot.HeldShot().Velocity = vertical ? new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1)) : new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
+        SamusProjectileOccupant held = shot.HeldShot();
         return vertical
-            ? ProjectileTerrainCollision.ScanVerticalShotReactions(level, shot, roomObjects: SamusRoomObjectFixtures.Uninstalled)
-            : ProjectileTerrainCollision.ScanHorizontalShotReactions(level, shot, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            ? ProjectileTerrainCollision.MoveVertically(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), held)
+            : ProjectileTerrainCollision.MoveHorizontally(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), held);
     }
 
     /// <summary>The block a level-data place addresses: the place's remainder by the width is its column, its quotient its row.</summary>

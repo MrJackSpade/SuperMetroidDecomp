@@ -90,7 +90,7 @@ internal static class ShotBlockObjectProgramsVerification
         {
             AssertTrue(RoomObjectShotBlockProgramDefinitions.TryReadMechanicsWord(address, out ushort value),
                 $"shot-block control word ${address:X4} is compiled");
-            ushort sourceWord = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
+            ushort sourceWord = rom.ReadCartridgeWordFixedBank(0x840000 | address);
             AssertEqual(sourceWord, value,
                 $"shot-block control word ${address:X4} matches pinned cartridge");
             forbidden.Add(0x840000 | address);
@@ -137,7 +137,7 @@ internal static class ShotBlockObjectProgramsVerification
                 AssertEqual(run.Direction == RoomObjectRunDirection.Vertical,
                     layout == BlockArrangement.Vertical, "shot-block arrangement's direction");
                 int blockIndex = 0;
-                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                AssertRunHeader(rom.ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} direction/count");
                 forbidden.Add(0x840000 | cursor++);
                 forbidden.Add(0x840000 | cursor++);
@@ -145,7 +145,7 @@ internal static class ShotBlockObjectProgramsVerification
                 foreach (RoomCollisionType collision in run.Collisions.Span)
                 {
                     AssertEqual(collision, blocks.CollisionAt(run.CellAt(blockIndex++)), "shot-block block shape and exported collision agree");
-                    AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                    AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                         collision,
                         $"shot-block draw list ${RoomObjectDrawAddressCodec.Of(list.Draw):X4} collision decoded from the level word at ${cursor:X4}");
                     forbidden.Add(0x840000 | cursor++);
@@ -325,7 +325,7 @@ internal static class ShotBlockObjectProgramsVerification
             native.Add(pointer, runs.ToArray());
         }
         LookupEscapeGateStockFrame[] frames = [.. pointers.Select(pointer => new LookupEscapeGateStockFrame(pointer, ShotId(pointer)))];
-        InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.ShotBlock;
         AssertPicturedAsNative(rom, stock.Images, RoomObjectShotBlockVisualFiles.Family, frames, native.Values.Sum(runs => runs.Sum(run => run.Length)));
         AssertImportAndRejections(rom, stock.Images, RoomObjectShotBlockVisualFiles.Family, RepositoryInstallation.Installation.RoomObjectShotBlockVisualDirectory);
     }
@@ -344,7 +344,7 @@ internal static class ShotBlockObjectProgramsVerification
     private static void VerifyShotBlockVisualSeparation(
 )
     {
-        InstalledRoomObjectShotBlockVisuals stock = InstalledRoomObjectShotBlockVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.ShotBlock;
         AssertEqual(RoomBlockAppearance.Of(0x053),
             stock.Image(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock)).At(Offset16<RoomBlocks>.Zero),
             "stock visual catalog retains the native first break frame");
@@ -355,11 +355,11 @@ internal static class ShotBlockObjectProgramsVerification
         words[block] = RoomTerrainBlock.Of(0x321, BlockMirroring.None, RoomCollisionType.ShootableBlock);
 
         ShotBlockObjectProgramsRenderResult Render(
-            InstalledRoomObjectShotBlockVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, width), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectShotBlockVisuals = visuals });
-            AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(block), 0, SamusProjectileType.None, true),
+            AssertTrue(roomObjects.TrySpawnProjectileShotBlock(level, level.BlockAt(block), 0, BlockStrike.GrappleTouch.Instance, true),
                 "visual-only test allocates the production shot-block PLM");
             roomObjects.Step(level);
             return new ShotBlockObjectProgramsRenderResult(level.GetCollisionBlockByIndex(block).Terrain,
@@ -410,7 +410,7 @@ internal static class ShotBlockObjectProgramsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(words, new RoomBlockBehavior[words.Length], new RoomBlockAppearance[words.Length]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         AssertTrue(roomObjects.TrySpawnProjectileShotBlock(
-                level, level.BlockAt(blockIndex), behavior, SamusProjectileType.None, solidBlock: true),
+                level, level.BlockAt(blockIndex), behavior, BlockStrike.GrappleTouch.Instance, solidBlock: true),
             $"shot-block BTS {behavior} allocates its native PLM program");
         return new ShotBlockFixture(level, roomObjects);
     }

@@ -9,9 +9,9 @@ namespace SuperMetroid.Core.Enemies.MorphBallEye;
 /// <param name="Phase">The beam's lifetime phase.</param>
 /// <param name="Origin">The eye's position in whole room pixels, where the cone starts.</param>
 /// <param name="Angle">The eye's aim, measured clockwise from up.</param>
-/// <param name="AngularWidth">The cone's half-width in whole steps, none through four.</param>
+/// <param name="AngularWidth">The cone's half-width in whole steps, from none up to <see cref="MorphBallEyeBeamDefinitions.FullHalfWidth"/>.</param>
 /// <param name="Color">The colour the beam adds inside its cone.</param>
-public readonly record struct MorphBallEyeBeamCone(
+public readonly partial record struct MorphBallEyeBeamCone(
     MorphBallEyeBeamPhase Phase,
     Position16<RoomPixels> Origin,
     RotationAngle Angle,

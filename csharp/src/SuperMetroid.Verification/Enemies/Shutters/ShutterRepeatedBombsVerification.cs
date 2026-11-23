@@ -26,12 +26,12 @@ internal static class ShutterRepeatedBombsVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             var platform = runtime.Enemies.Places.InUpdateOrder[slotIndex];
             samus.Control.Unlock();
-            samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
             samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
@@ -39,7 +39,7 @@ internal static class ShutterRepeatedBombsVerification
             runtime.StepFrame(0);
             for (int frame = 0; frame < 320; frame++)
             {
-                ControllerButton input = frame < 220 && frame % interval == 0 ? runtime.Options.ControllerBindings.Shoot : 0;
+                ControllerButton input = frame < 220 && frame % interval == 0 ? runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot] : 0;
                 if (frame == unmorphAt) input |= ControllerButton.Up;
                 runtime.StepFrame(input);
                 int gap = platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;

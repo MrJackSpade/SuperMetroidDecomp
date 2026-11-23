@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 /// <summary>
 /// The installed Ceres Ridley, shared Norfair Ridley health, and private Baby draw colors, every family kept as installed.
 /// </summary>
-public sealed class CeresRidleyColorCatalog
+public sealed partial class CeresRidleyColorCatalog
 {
     /// <summary>The installed start colours: the door's, the container's and the Baby's.</summary>
     private readonly InstalledColourRows start;
@@ -18,7 +18,7 @@ public sealed class CeresRidleyColorCatalog
     /// <summary>The installed body-fade shades.</summary>
     private readonly InstalledColourRows bodyFade;
     /// <summary>The installed health bands.</summary>
-    private readonly InstalledColourRows health;
+    private readonly InstalledKeyedColourRows<RidleyHealthShade> health;
     /// <summary>The installed alarm steps.</summary>
     private readonly InstalledColourRows alarm;
     /// <summary>The installed retreat background colours.</summary>
@@ -37,7 +37,7 @@ public sealed class CeresRidleyColorCatalog
     /// <param name="retreat">The retreat's background and shared colours.</param>
     /// <param name="baby">Each Baby shade's colours.</param>
     /// <exception cref="InvalidDataException">A family is missing a row, a shade or a colour.</exception>
-    internal CeresRidleyColorCatalog(RgbColor[] start, RgbColor[][] eyeFade, RgbColor[][] bodyFade, RgbColor[][] health,
+    internal CeresRidleyColorCatalog(RgbColor[] start, RgbColor[][] eyeFade, RgbColor[][] bodyFade, IReadOnlyDictionary<RidleyHealthShade, RgbColor[]> health,
         RgbColor[][] alarm, CeresRidleyRetreatColours retreat, CeresBabyShadeColours baby)
     {
         this.start = new InstalledColourRows(start, CeresRidleyColorFormat.StartColorCount, "Ceres Ridley start");
@@ -45,7 +45,7 @@ public sealed class CeresRidleyColorCatalog
             CeresRidleyColorFormat.EyeFadeColorCount, "Ceres Ridley eye fade");
         this.bodyFade = new InstalledColourRows(bodyFade, RidleyShadeDefinitions.BodyFadeShadeCount,
             CeresRidleyColorFormat.BodyFadeColorCount, "Ceres Ridley body fade");
-        this.health = new InstalledColourRows(health, CeresRidleyColorFormat.HealthBandCount,
+        this.health = new InstalledKeyedColourRows<RidleyHealthShade>(health, RidleyHealthShadeDefinitions.LeastHurtFirst,
             CeresRidleyColorFormat.HealthColorCount, "Ceres Ridley health");
         this.alarm = new InstalledColourRows(alarm, CeresRidleyColorFormat.AlarmStepCount,
             CeresRidleyColorFormat.AlarmColorCount, "Ceres Ridley alarm");
@@ -73,7 +73,8 @@ public sealed class CeresRidleyColorCatalog
     internal RgbColor ResolveBodyFade(int shade, int color) => bodyFade.Colour(shade, color);
 
     /// <summary>One installed colour of a health band.</summary>
-    internal RgbColor ResolveHealth(int band, int color) => health.Colour(band, color);
+    internal RgbColor ResolveHealth(RidleyHealthShade band, int color) =>
+        health.Colour(band, color);
 
     /// <summary>One installed colour of an alarm step.</summary>
     internal RgbColor ResolveAlarm(int step, int color) => alarm.Colour(step, color);

@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 
 namespace SuperMetroid.AssetExtraction.Artwork;
@@ -7,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Reads the OBJ characters a memory image holds through OBSEL's name base and name-select displacement (#1358), as the
 /// page a screen's sprite entries draw from when its characters come from its own transfers rather than one artwork sheet.
 /// </summary>
-internal static class ObjCharacterImage
+internal static partial class ObjCharacterImage
 {
     /// <summary>The ninth OBJ character-name bit, selecting the second name table.</summary>
     internal const int NameSelectBit = 1 << 8;
@@ -29,16 +28,13 @@ internal static class ObjCharacterImage
     /// <summary>Resolves a nine-bit OBJ character name through OBSEL into byte VRAM.</summary>
     /// <param name="tileNumber">The name, 0 through 511.</param>
     /// <param name="obsel">The OBSEL value.</param>
-    public static int ResolveTileByteAddress(int tileNumber, int obsel)
+    internal static int ResolveTileByteAddress(int tileNumber, int obsel)
     {
         if ((uint)tileNumber >= 2 * NameTableCharacters)
             throw new ArgumentOutOfRangeException(nameof(tileNumber));
-        Ensure.BetweenInclusive(0, byte.MaxValue, obsel);
-        // OBSEL bits 0-2 choose the base in $2000-word ($4000-byte) units. A set ninth
-        // tile bit selects the second name table, whose programmable displacement is
-        // ((bits 3-4) + 1) * $1000 words. Each 4-bpp 8x8 tile occupies 16 VRAM words.
-        int baseWord = (obsel & 7) << 13;
-        int nameSelectWordOffset = (((obsel >> 3) & 3) + 1) << 12;
+        // A set ninth tile bit selects the second name table, displaced past the first by the selection's displacement.
+        // Each 4-bpp 8x8 tile occupies 16 VRAM words.
+        (int baseWord, int nameSelectWordOffset) = ObjectSelectionCodec.CharacterPlacement(obsel);
         int tileWord = baseWord + unchecked((byte)tileNumber) * 16;
         if ((tileNumber & NameSelectBit) != 0)
             tileWord += nameSelectWordOffset;

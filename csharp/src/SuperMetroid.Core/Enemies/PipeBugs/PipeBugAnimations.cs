@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 /// The Zeb, Zebbo, Gamet and Geega Pipe Bugs' rising, shooting, flying and arcing loops (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class PipeBugAnimations
+internal static partial class PipeBugAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<PipeBugSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -153,25 +153,11 @@ internal static class PipeBugAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<PipeBugSegment, Animation<PipeBugSegment>> StartingAt { get; } = new Dictionary<PipeBugSegment, Animation<PipeBugSegment>>
-    {
-        [P.ZebRisingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebRisingLeft)]),
-        [P.ZebShootingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebShootingLeft)]),
-        [P.ZebRisingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebRisingRight)]),
-        [P.ZebShootingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebShootingRight)]),
-        [P.ZebboRisingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebboRisingLeft)]),
-        [P.ZebboShootingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebboShootingLeft)]),
-        [P.ZebboRisingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebboRisingRight)]),
-        [P.ZebboShootingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.ZebboShootingRight)]),
-        [P.GametRisingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GametRisingLeft)]),
-        [P.GametFlyingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GametFlyingLeft)]),
-        [P.GametRisingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GametRisingRight)]),
-        [P.GametFlyingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GametFlyingRight)]),
-        [P.GeegaFlyingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GeegaFlyingLeft)]),
-        [P.GeegaArcingLeft] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GeegaArcingLeft)]),
-        [P.GeegaFlyingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GeegaFlyingRight)]),
-        [P.GeegaArcingRight] = Animation<PipeBugSegment>.Looping([Segments.Whole(P.GeegaArcingRight)]),
-    };
+    internal static Dictionary<PipeBugSegment, Animation<PipeBugSegment>> StartingAt { get; } = Segments.EachLooping(
+        P.ZebRisingLeft, P.ZebShootingLeft, P.ZebRisingRight, P.ZebShootingRight, P.ZebboRisingLeft,
+        P.ZebboShootingLeft, P.ZebboRisingRight, P.ZebboShootingRight, P.GametRisingLeft, P.GametFlyingLeft,
+        P.GametRisingRight, P.GametFlyingRight, P.GeegaFlyingLeft, P.GeegaArcingLeft, P.GeegaFlyingRight,
+        P.GeegaArcingRight);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PipeBugSegment> StartingWith(PipeBugSegment segment) => StartingAt[segment];

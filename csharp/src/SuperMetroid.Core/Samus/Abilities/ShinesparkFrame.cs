@@ -4,12 +4,10 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>What one shinespark step reads from the frame: clocks, projectiles, whether Samus cannot die and the previous checkpoint (#633).</summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-public sealed record ShinesparkFrame
+public sealed partial record ShinesparkFrame
 {
     /// <summary>
-    /// The frame counter, 0 through 65535 as the frame clock wraps it; only its parity is read, selecting the
-    /// vertical block-probe traversal order.
+    /// The update count, whose oddness picks the direction of the vertical block scan.
     /// </summary>
     public required int FrameCounter { get; init; }
 

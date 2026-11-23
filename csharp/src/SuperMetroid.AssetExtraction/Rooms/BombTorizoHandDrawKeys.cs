@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The published artwork name of each Bomb Torizo hand draw (<see cref="BombTorizoHandDraw"/>, #1994, #2548): the name the installed
 /// room-object visual file keys its picture by, written out so renaming a member never changes it.
 /// </summary>
-internal static class BombTorizoHandDrawKeys
+internal static partial class BombTorizoHandDrawKeys
 {
     /// <summary>Each BombTorizoHandDraw member's installed key.</summary>
     internal static InstalledKeys<BombTorizoHandDraw> Installed { get; } = new(new Dictionary<BombTorizoHandDraw, string>

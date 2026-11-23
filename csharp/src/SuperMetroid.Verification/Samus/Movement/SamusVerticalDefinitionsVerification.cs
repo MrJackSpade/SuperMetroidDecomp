@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus;
@@ -27,15 +26,18 @@ internal static class SamusVerticalDefinitionsVerification
             bool gravity = (equipment & 2) != 0;
             bool boost = (equipment & 4) != 0;
             samus.EquippedItems = ((high ? SamusEquipmentFlags.HiJumpBoots : 0) | (gravity ? SamusEquipmentFlags.GravitySuit : 0) | (boost ? SamusEquipmentFlags.SpeedBooster : 0));
-            samus.LiquidPhysics.WaterSurfaceY = environment is 1 or 3 ? 0 : null;
-            samus.LiquidPhysics.LavaAcidSurfaceY = environment == 2 ? 0 : null;
-            PrivateState.Set(samus.LiquidPhysics, nameof(SamusLiquidPhysicsState.IgnoresWaterSurface), environment == 3);
+            samus.LiquidPhysics.Surface = environment switch
+            {
+                1 or 3 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.Water(0, IgnoredUntilEnabled: environment == 3),
+                2 => new global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.LavaOrAcid(0),
+                _ => global::SuperMetroid.Core.Samus.Movement.SamusLiquidSurface.None,
+            };
             int medium = launch == 2 || gravity || environment == 3 ? 0 : environment;
             int address = launch == 2 ? 0x909eb9 : launch == 1
                 ? high ? 0x909edd : 0x909ed1
                 : high ? 0x909ec5 : 0x909eb9;
-            ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + medium * 2));
-            ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6 + medium * 2));
+            ushort whole = rom.ReadCartridgeWord((address + medium * 2));
+            ushort fraction = rom.ReadCartridgeWord((address + 6 + medium * 2));
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen((ushort)raw, (ushort)raw);
@@ -45,8 +47,8 @@ internal static class SamusVerticalDefinitionsVerification
                 else SamusAerialMovement.InitializeJump(samus);
                 AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.VerticalVelocity.Speed.Whole, "Native independent whole launch addition");
                 AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native fractional overflow does not carry");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration.Whole, "Native gravity whole word");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), samus.Kinematics.YAcceleration.Fraction, "Native gravity fractional word");
+                AssertEqual(rom.ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration.Whole, "Native gravity whole word");
+                AssertEqual(rom.ReadCartridgeWord((0x909ea1 + medium * 2)), samus.Kinematics.YAcceleration.Fraction, "Native gravity fractional word");
                 AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.VerticalVelocity.Direction, "Launch remains upward");
                 cases++;
             }

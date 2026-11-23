@@ -10,8 +10,54 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Where the cartridge stores each Samus projectile and charge-flare composition: its bank-$93 layout of composition
 /// groups, extraction's knowledge, which the game never reads.
 /// </summary>
-internal static class ProjectileSpriteLocations
+internal static partial class ProjectileSpriteLocations
 {
+    /// <summary>
+    /// The bank-$93 projectile composition groups in storage order, each with where its records lie: from the group's start,
+    /// past the records of the sizes before each, and past the records no timed record selects that some groups hold.
+    /// </summary>
+    private static IReadOnlyList<ProjectileSpriteRecordGroup<ushort>> Groups { get; } =
+    [
+        new(ProjectileSpriteDefinitions.PowerShots, place => (ushort)(PowerStart + place * RecordBytes(1))),
+        new(ProjectileSpriteDefinitions.PlasmaShots, place => (ushort)(PlasmaStart + place / 2 * (RecordBytes(4) + RecordBytes(6)) + place % 2 * RecordBytes(4))),
+        new(ProjectileSpriteDefinitions.MissileExplosions, MissileExplosionPointer),
+        new(ProjectileSpriteDefinitions.BombExplosions, place => (ushort)(BombExplosionStart + place * RecordBytes(4))),
+        new(ProjectileSpriteDefinitions.SuperMissileExplosions, SuperMissileExplosionPointer),
+        new(ProjectileSpriteDefinitions.PowerBombs, place => (ushort)(PowerBombStart + place * RecordBytes(1))),
+        new(ProjectileSpriteDefinitions.BeamExplosions, BeamExplosionPointer),
+        new(ProjectileSpriteDefinitions.Bombs, place => (ushort)(BombStart + place * RecordBytes(1))),
+        new(ProjectileSpriteDefinitions.Missiles, place => MissilePointer(MissileStart, place)),
+        new(ProjectileSpriteDefinitions.SuperMissiles, place => MissilePointer(SuperMissileStart, place)),
+        new(ProjectileSpriteDefinitions.WaveShots, place => (ushort)(WaveStart + place * RecordBytes(1))),
+        new(ProjectileSpriteDefinitions.ChargedWaveShots, place => ChargedWavePointer(ChargedWaveStart, place)),
+        new(ProjectileSpriteDefinitions.ChargedIceWaveShots, place => ChargedWavePointer(ChargedIceWaveStart, place)),
+        new(ProjectileSpriteDefinitions.PlasmaWaveShots, PlasmaWavePointer),
+        new(ProjectileSpriteDefinitions.SpazerShots, SpazerPointer),
+        new(ProjectileSpriteDefinitions.ChargedSpazerShots, ChargedSpazerPointer),
+        new(ProjectileSpriteDefinitions.ChargedPowerShots, place => (ushort)(ChargedPowerStart + place * RecordBytes(4))),
+        new(ProjectileSpriteDefinitions.ChargedIceShots, place => (ushort)(ChargedIceStart + place * RecordBytes(4))),
+        new(ProjectileSpriteDefinitions.IceShots, place => (ushort)(IceStart + place * RecordBytes(1))),
+        new(ProjectileSpriteDefinitions.SpazerStartups, SpazerStartupPointer),
+        new(ProjectileSpriteDefinitions.PlasmaStartups, PlasmaStartupPointer),
+    ];
+
+    /// <summary>
+    /// The bank-$93 charge-flare composition groups: the four main flares, one-part records one after another, then the
+    /// right and the left sparks, each twelve three-part records, slow then fast.
+    /// </summary>
+    private static IReadOnlyList<ProjectileSpriteRecordGroup<ushort>> FlareGroups { get; } =
+    [
+        new([.. ChargeFlareSpriteDefinitions.All.Where(flare => flare.Group == ProjectileSpriteGroup.FlareMain)],
+            place => (ushort)(FirstMainFlare + place * RecordBytes(1))),
+        new([.. ChargeFlareSpriteDefinitions.All.Where(flare => flare.Group is ProjectileSpriteGroup.FlareSlowSparksRight or ProjectileSpriteGroup.FlareFastSparksRight)],
+            place => (ushort)(FirstRightSpark + place * RecordBytes(3))),
+        new([.. ChargeFlareSpriteDefinitions.All.Where(flare => flare.Group is ProjectileSpriteGroup.FlareSlowSparksLeft or ProjectileSpriteGroup.FlareFastSparksLeft)],
+            place => (ushort)(FirstLeftSpark + place * RecordBytes(3))),
+    ];
+
+    /// <summary>The burst Samus's hit shows at an enemy it hurts (#1713): four four-part records, one after another from the first.</summary>
+    private static ProjectileSpriteRecordGroup<SnesAddress> HitBurstGroup { get; } =
+        new(HitBurstSpriteDefinitions.All, place => SamusSourceDefinitions.HitBurstSpritemaps.AddWithinBank(place * RecordBytes(4)));
 
     /// <summary>
     /// The composition each frame draws, by frame: every timed record that shows a frame stores the same composition (#2274),
@@ -21,57 +67,61 @@ internal static class ProjectileSpriteLocations
     /// A record selects a bank-$93 address that holds no projectile composition, or two records that show one frame store
     /// different compositions.
     /// </exception>
+    /// <returns>The frames that draw a composition, each with it; a frame whose records select the empty record draws none and is left out.</returns>
     internal static Dictionary<SamusProjectileFrameId, ProjectileSpriteId> RecordSprites(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         SamusProjectileListLayout lists = SamusProjectileListEntries.Read(cartridge);
         Dictionary<int, ProjectileSpriteId> stored = StoredProjectiles().ToDictionary(entry => entry.Key, entry => entry.Value);
-        ProjectileSpriteId SpriteAt(SamusProjectileFrameId frame, int record)
+        int AddressAt(int record) => RomDataReader.ReadWordFixedBank(cartridge,
+            SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(record + 2)));
+        string Selection(SamusProjectileFrameId frame, int record)
         {
-            int address = RomDataReader.ReadWordFixedBank(cartridge,
-                SamusSourceDefinitions.ProjectileDataBank.Value | unchecked((ushort)(record + 2)));
+            int address = AddressAt(record);
+            if (address == NothingStart)
+                return EmptySelection;
             return stored.TryGetValue(address, out ProjectileSpriteId sprite)
-                ? sprite
+                ? sprite.Name
                 : throw new InvalidDataException($"Timed projectile record {frame} at $93:{record:X4} selects ${address:X4}, which is no projectile composition.");
         }
-        return SamusProjectileFrameOrder.Frames.ToDictionary(frame => frame, frame =>
+        var pictured = new Dictionary<SamusProjectileFrameId, ProjectileSpriteId>();
+        foreach (SamusProjectileFrameId frame in SamusProjectileFrameOrder.Frames)
         {
-            ProjectileSpriteId sprite = SpriteAt(frame, lists.RecordPosition(frame));
+            string selected = Selection(frame, lists.RecordPosition(frame));
             foreach (int record in lists.RecordPositions(frame))
             {
-                ProjectileSpriteId other = SpriteAt(frame, record);
-                if (other != sprite)
-                    throw new InvalidDataException($"Timed projectile records showing {frame} store compositions {sprite.Name} and {other.Name}.");
+                string other = Selection(frame, record);
+                if (other != selected)
+                    throw new InvalidDataException($"Timed projectile records showing {frame} store compositions {selected} and {other}.");
             }
-            return sprite;
-        });
+            if (selected != EmptySelection)
+                pictured.Add(frame, stored[AddressAt(lists.RecordPosition(frame))]);
+        }
+        return pictured;
     }
+
+    /// <summary>How a record selecting the empty record, which draws nothing, is named in a mismatch.</summary>
+    private const string EmptySelection = "the empty record";
 
     /// <summary>The bank-$93 address of each projectile composition: the first record that stores it.</summary>
     internal static Dictionary<ProjectileSpriteId, ushort> Projectiles() =>
-        ProjectileSpriteDefinitions.Stored.Select((id, place) => KeyValuePair.Create(id, PointerAt(place)))
-            .DistinctBy(entry => entry.Key).ToDictionary();
+        Groups.SelectMany(group => group.Records()).DistinctBy(record => record.Value)
+            .ToDictionary(record => record.Value, record => record.Key);
 
     /// <summary>
     /// Every bank-$93 projectile composition record, in storage order, with the composition it holds: a record that stores a
     /// composition again, byte for byte, holds that composition (#2295).
     /// </summary>
     internal static IEnumerable<KeyValuePair<int, ProjectileSpriteId>> StoredProjectiles() =>
-        ProjectileSpriteDefinitions.Stored.Select((id, place) => KeyValuePair.Create((int)PointerAt(place), id));
+        Groups.SelectMany(group => group.Records()).Select(record => KeyValuePair.Create((int)record.Key, record.Value));
 
-    /// <summary>The bank-$93 address of each charge-flare composition: four main flares, then two runs of twelve seventeen-byte sparks.</summary>
+    /// <summary>The bank-$93 address of each charge-flare composition.</summary>
     internal static Dictionary<ProjectileSpriteId, ushort> Flares() =>
-        ChargeFlareSpriteDefinitions.All.Select((id, place) => KeyValuePair.Create(id, place < 4
-            ? (ushort)(FirstMainFlare + place * 7)
-            : (ushort)((place - 4 < 12 ? FirstRightSpark : FirstLeftSpark) + (place - 4) % 12 * 17))).ToDictionary();
+        FlareGroups.SelectMany(group => group.Records()).ToDictionary(record => record.Value, record => record.Key);
 
-    /// <summary>
-    /// Where each composition of the burst Samus's hit shows at an enemy it hurts lies (#1713): four four-part records, one
-    /// after another from the first.
-    /// </summary>
+    /// <summary>Where each composition of the burst Samus's hit shows at an enemy it hurts lies (#1713).</summary>
     internal static Dictionary<ProjectileSpriteId, SnesAddress> HitBursts() =>
-        HitBurstSpriteDefinitions.All.Select((id, place) => KeyValuePair.Create(id,
-            SamusSourceDefinitions.HitBurstSpritemaps.AddWithinBank(place * RecordBytes(4)))).ToDictionary();
+        HitBurstGroup.Records().ToDictionary(record => record.Value, record => record.Key);
 
     /// <summary>Native bank93 compositions serialize a two-byte part count then five bytes per OAM part.</summary>
     private static int RecordBytes(int parts) => sizeof(ushort) + 5 * parts;
@@ -84,54 +134,7 @@ internal static class ProjectileSpriteLocations
     /// <summary>Maps a compass pose to its missile-group composition after preceding variable-size records.</summary>
     private static ushort MissilePointer(int start, int pose) => (ushort)(start +
         pose / 2 * (RecordBytes(2) + RecordBytes(3)) + pose % 2 * RecordBytes(2));
-    /// <summary>Calculates the sorted bank-$93 composition pointer at one stored record's index from native group layouts.</summary>
-    internal static ushort PointerAt(int index)
-    {
-        if ((uint)index >= ProjectileSpriteDefinitions.Stored.Count) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index < 1) return (ushort)(NothingStart + index * RecordBytes(0));
-        index -= 1;
-        if (index < 8) return (ushort)(PowerStart + index * RecordBytes(1));
-        index -= 8;
-        if (index < 4) return (ushort)(PlasmaStart + index / 2 * (RecordBytes(4) + RecordBytes(6)) + index % 2 * RecordBytes(4));
-        index -= 4;
-        if (index < 6) return MissileExplosionPointer(index);
-        index -= 6;
-        if (index < 5) return (ushort)(BombExplosionStart + index * RecordBytes(4));
-        index -= 5;
-        if (index < 6) return SuperMissileExplosionPointer(index);
-        index -= 6;
-        if (index < 3) return (ushort)(PowerBombStart + index * RecordBytes(1));
-        index -= 3;
-        if (index < 6) return BeamExplosionPointer(index);
-        index -= 6;
-        if (index < 4) return (ushort)(BombStart + index * RecordBytes(1));
-        index -= 4;
-        if (index < 8) return MissilePointer(MissileStart, index);
-        index -= 8;
-        if (index < 8) return MissilePointer(SuperMissileStart, index);
-        index -= 8;
-        if (index < 33) return (ushort)(WaveStart + index * RecordBytes(1));
-        index -= 33;
-        if (index < 34) return ChargedWavePointer(ChargedWaveStart, index);
-        index -= 34;
-        if (index < 34) return ChargedWavePointer(ChargedIceWaveStart, index);
-        index -= 34;
-        if (index < 60) return PlasmaWavePointer(index);
-        index -= 60;
-        if (index < 47) return SpazerPointer(index);
-        index -= 47;
-        if (index < 72) return ChargedSpazerPointer(index);
-        index -= 72;
-        if (index < 16) return (ushort)(ChargedPowerStart + index * RecordBytes(4));
-        index -= 16;
-        if (index < 4) return (ushort)(ChargedIceStart + index * RecordBytes(4));
-        index -= 4;
-        if (index < 4) return (ushort)(IceStart + index * RecordBytes(1));
-        index -= 4;
-        if (index < 22) return SpazerStartupPointer(index);
-        index -= 22;
-        return PlasmaStartupPointer(index);
-    }
+
     /// <summary>Skips unselected four-part layouts while indexing charged Wave's paired-lobe records.</summary>
     private static ushort ChargedWavePointer(int start, int index)
     {

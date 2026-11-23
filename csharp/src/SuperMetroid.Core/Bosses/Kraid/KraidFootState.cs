@@ -1,14 +1,14 @@
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Kraid's foot's own state beside what every part holds: the phase it runs and its second-phase thinking.</summary>
-[ArchitectureReview("back-reference", "A part of Kraid's encounter (#2218): the encounter owns this part's state for the room and the part reads the encounter it joined at setup, so the two share one lifetime.")]
-public sealed class KraidFootState : KraidAnimatedPartState
+public sealed partial class KraidFootState : KraidAnimatedPartState
 {
     /// <summary>Makes the foot of <paramref name="kraid"/>'s encounter.</summary>
     /// <param name="kraid">The encounter the foot is part of.</param>
-    /// <param name="reference">Kraid's reference to the foot, which it joins as it sets up.</param>
-    internal KraidFootState(KraidEnemyState kraid, KraidPartReference reference)
-        : base(kraid, reference, KraidPartSegment.FootInitial)
+    /// <param name="place">The place of the foot, which his body found as his room lists it.</param>
+    internal KraidFootState(KraidEnemyState kraid, RoomEnemyPlace place)
+        : base(kraid, place, KraidPartSegment.FootInitial)
     {
     }
 
@@ -21,8 +21,6 @@ public sealed class KraidFootState : KraidAnimatedPartState
     /// </summary>
     public BossCountdown ThinkWait { get; } = new();
 
-    /// <summary>The way the second-phase foot walks the body toward its target (#2165).</summary>
-    public HorizontalDirection WalkDirection { get; internal set; }
 
     /// <summary>
     /// Whether the foot shows its walk's last frame (#1886, #2301), as the walk marks it: a forward walk or lunge has

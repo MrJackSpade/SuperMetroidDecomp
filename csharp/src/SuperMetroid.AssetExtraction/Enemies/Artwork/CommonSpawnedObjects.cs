@@ -15,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// The Ceres elevator arrival's poses whose pictures it shows (#2425), the arrival's pad and platform being actors of
 /// their own rather than projectiles; none for any other spawner.
 /// </param>
-internal sealed record CommonSpawnedObjects(CommonSpawner Spawner, SpawnedObjects Objects, IReadOnlyList<CeresElevatorArrivalPose>? ElevatorArrivalPoses = null)
+internal sealed partial record CommonSpawnedObjects(CommonSpawner Spawner, SpawnedObjects Objects, IReadOnlyList<CeresElevatorArrivalPose>? ElevatorArrivalPoses = null)
 {
     /// <summary>The Ceres elevator arrival's poses whose pictures the spawner shows, none for any spawner but the arrival.</summary>
     internal IReadOnlyList<CeresElevatorArrivalPose> ArrivalPoses => ElevatorArrivalPoses ?? [];

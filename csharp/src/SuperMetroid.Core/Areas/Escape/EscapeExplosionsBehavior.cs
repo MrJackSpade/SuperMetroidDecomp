@@ -6,8 +6,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Areas.Escape;
 
 /// <summary>The Zebes escape's explosions: each goes off as an effect actor and, when its draw names one, plays its sound.</summary>
-[RoomLifetime]
-internal sealed class EscapeExplosionsBehavior
+internal sealed partial class EscapeExplosionsBehavior
 {
     /// <summary>Shared queue that applies enemy sound limits to each explosion sound.</summary>
     private readonly EnemyAudioQueue _audio;

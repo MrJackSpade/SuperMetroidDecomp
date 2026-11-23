@@ -1,12 +1,8 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
-using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Spatial;
@@ -14,22 +10,8 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>The installed content identities of the room objects' visual catalogs, which only the import pipeline and its diagnostics compare (#1502).</summary>
-internal static class RoomObjectContentIdentity
+internal static partial class RoomObjectContentIdentity
 {
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBlueDoorVisuals"/>.</summary>
-    extension(InstalledRoomObjectBlueDoorVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectBlueDoorVisuals), visuals.Images, RoomObjectBlueDoorVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectRevealAndWallVisuals"/>.</summary>
-    extension(InstalledRoomObjectRevealAndWallVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectRevealAndWallVisuals), visuals.Images, RoomObjectRevealAndWallVisualFiles.Family);
-    }
-
     /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSetupBlocks"/>.</summary>
     extension(InstalledRoomObjectSetupBlocks blocks)
     {
@@ -46,123 +28,11 @@ internal static class RoomObjectContentIdentity
         });
     }
 
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBotwoonWallVisuals"/>.</summary>
-    extension(InstalledRoomObjectBotwoonWallVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectBotwoonWallVisuals), visuals.Images, RoomObjectBotwoonWallVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectCollectibleVisuals"/>.</summary>
-    extension(InstalledRoomObjectCollectibleVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectCollectibleVisuals), visuals.Images, RoomObjectCollectibleVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectColoredDoorVisuals"/>.</summary>
-    extension(InstalledRoomObjectColoredDoorVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectColoredDoorVisuals), visuals.Images, RoomObjectColoredDoorVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectDownwardGateVisuals"/>.</summary>
-    extension(InstalledRoomObjectDownwardGateVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectDownwardGateVisuals), visuals.Images, RoomObjectDownwardGateVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectEyeDoorVisuals"/>.</summary>
-    extension(InstalledRoomObjectEyeDoorVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectEyeDoorVisuals), visuals.Images, RoomObjectEyeDoorVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectGrappleBlockVisuals"/>.</summary>
-    extension(InstalledRoomObjectGrappleBlockVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectGrappleBlockVisuals), visuals.Images, RoomObjectGrappleBlockVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectGreyDoorVisuals"/>.</summary>
-    extension(InstalledRoomObjectGreyDoorVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectGreyDoorVisuals), visuals.Images, RoomObjectGreyDoorVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectNoobTubeVisuals"/>.</summary>
-    extension(InstalledRoomObjectNoobTubeVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectNoobTubeVisuals), visuals.Images, RoomObjectNoobTubeVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSamusEaterVisuals"/>.</summary>
-    extension(InstalledRoomObjectSamusEaterVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectSamusEaterVisuals), visuals.Images, RoomObjectSamusEaterVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectShotBlockVisuals"/>.</summary>
-    extension(InstalledRoomObjectShotBlockVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectShotBlockVisuals), visuals.Images, RoomObjectShotBlockVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectStationVisuals"/>.</summary>
-    extension(InstalledRoomObjectStationVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectStationVisuals), visuals.Images, RoomObjectStationVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectKraidVisuals"/>.</summary>
-    extension(InstalledRoomObjectKraidVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectKraidVisuals), visuals.Images, RoomObjectKraidVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectLinkedRestoreVisuals"/>.</summary>
-    extension(InstalledRoomObjectLinkedRestoreVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectLinkedRestoreVisuals), visuals.Images, RoomObjectLinkedRestoreVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectMaridiaElevatubeVisuals"/>.</summary>
-    extension(InstalledRoomObjectMaridiaElevatubeVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectMaridiaElevatubeVisuals), visuals.Images, RoomObjectMaridiaElevatubeVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSpeedBoosterVisuals"/>.</summary>
-    extension(InstalledRoomObjectSpeedBoosterVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectSpeedBoosterVisuals), visuals.Images, RoomObjectSpeedBoosterVisualFiles.Family);
-    }
-
     /// <summary>The installed content identity of a <see cref="RoomObjectTourianAccessVisuals"/>.</summary>
     extension(RoomObjectTourianAccessVisuals visuals)
     {
         /// <summary>Hashes every frame's picture, in published-name order.</summary>
         public string ContentIdentity => FrameImagesIdentity("RoomObjectTourianAccessVisualCatalog", visuals.Images, RoomObjectTourianAccessVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectCrocomireVisuals"/>.</summary>
-    extension(InstalledRoomObjectCrocomireVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectCrocomireVisuals), visuals.Images, RoomObjectCrocomireVisualFiles.Family);
     }
 
     /// <summary>The installed content identity of a <see cref="InstalledDraygonCannonFrames"/>.</summary>
@@ -179,13 +49,6 @@ internal static class RoomObjectContentIdentity
         public string ContentIdentity => FrameImagesIdentity(nameof(InstalledPhantoonDoorFrames), visuals.Images, RoomObjectPhantoonDoorVisualFiles.Family);
     }
 
-    /// <summary>The installed content identity of a <see cref="InstalledEscapeGateFrames"/>.</summary>
-    extension(InstalledEscapeGateFrames visuals)
-    {
-        /// <summary>Hashes every gate frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledEscapeGateFrames), visuals.Images, RoomObjectEscapeGateVisualFiles.Family);
-    }
-
     /// <summary>The installed content identity of a <see cref="InstalledMotherBrainFakeDeathFrames"/>.</summary>
     extension(InstalledMotherBrainFakeDeathFrames visuals)
     {
@@ -198,6 +61,17 @@ internal static class RoomObjectContentIdentity
     {
         /// <summary>Hashes every glass frame's picture, in published-name order.</summary>
         public string ContentIdentity => FrameImagesIdentity(nameof(InstalledMotherBrainGlassFrames), visuals.Images, RoomObjectMotherBrainGlassVisualFiles.Family);
+    }
+
+    /// <summary>The installed content identity of an <see cref="InstalledRoomObjectPictures"/> (#2557).</summary>
+    extension(InstalledRoomObjectPictures pictures)
+    {
+        /// <summary>
+        /// Hashes every frame's picture of the family <paramref name="family"/> lists, in published-name order, under the
+        /// family's installed directory, <paramref name="directory"/>.
+        /// </summary>
+        public string ContentIdentity(string directory, RoomObjectFrameFamily<RoomObjectDraw> family) =>
+            FrameImagesIdentity(directory, pictures.Images, family);
     }
 
     /// <summary>
@@ -224,31 +98,4 @@ internal static class RoomObjectContentIdentity
             }
         });
 
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectSporeSpawnCeilingVisuals"/>.</summary>
-    extension(InstalledRoomObjectSporeSpawnCeilingVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectSporeSpawnCeilingVisuals), visuals.Images, RoomObjectSporeSpawnCeilingVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectBombTorizoHandVisuals"/>.</summary>
-    extension(InstalledRoomObjectBombTorizoHandVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectBombTorizoHandVisuals), visuals.Images, RoomObjectBombTorizoHandVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectChozoStatueVisuals"/>.</summary>
-    extension(InstalledRoomObjectChozoStatueVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectChozoStatueVisuals), visuals.Images, RoomObjectChozoStatueVisualFiles.Family);
-    }
-
-    /// <summary>The installed content identity of a <see cref="InstalledRoomObjectElevatorPlatformVisuals"/>.</summary>
-    extension(InstalledRoomObjectElevatorPlatformVisuals visuals)
-    {
-        /// <summary>Hashes every frame's picture, in published-name order.</summary>
-        public string ContentIdentity => FrameImagesIdentity(nameof(InstalledRoomObjectElevatorPlatformVisuals), visuals.Images, RoomObjectElevatorPlatformVisualFiles.Family);
-    }
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// sprite colours in the cartridge's colour order, every colour kept as installed. The import pre-colours the Ceres
 /// scenes' pictures from these colours; the game keeps only their backdrop.
 /// </summary>
-public sealed class CeresFlightPalette
+public sealed partial class CeresFlightPalette
 {
     /// <summary>Every colour of the approach: its background colours, then its sprite colours.</summary>
     internal const int ColourCount = 2 * OwnerColours;

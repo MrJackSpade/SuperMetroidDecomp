@@ -9,14 +9,14 @@ namespace SuperMetroid.Core.Rendering;
 /// The message box's text as the overlay shows it (#1392, #1555): the pre-coloured picture of the message it shows, placed
 /// in screen pixels centred across the screen and on the window, shown only on the reveal window's screen lines.
 /// </summary>
-public sealed record MessageBoxLayer : DisplayLayer
+public sealed partial record MessageBoxLayer : DisplayLayer
 {
     /// <summary>Checks the picture fits the screen and the fully open window, and the reveal radius.</summary>
     /// <param name="picture">The picture of the message.</param>
-    /// <param name="radiusPixels">The centered reveal half-height in pixels, from zero through 24.</param>
+    /// <param name="radiusPixels">The centered reveal half-height in pixels, from none up to the fully open window's.</param>
     /// <exception cref="ArgumentException">The picture is empty, wider than the screen or taller than the open window.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The radius is out of range.</exception>
-    public MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
+    internal MessageBoxLayer(SpriteSheetFrame picture, int radiusPixels)
     {
         Ensure.NotNull(picture);
         if (picture.Size.X == 0 || picture.Size.Y == 0 || picture.Size.X > ScreenGeometry.ScreenWidthPixels
@@ -31,7 +31,7 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <summary>The picture of the message.</summary>
     public SpriteSheetFrame Picture { get; }
 
-    /// <summary>The current centered reveal half-height in pixels, from zero through 24.</summary>
+    /// <summary>The current centered reveal half-height in pixels, from none up to the fully open window's.</summary>
     public int RadiusPixels { get; }
 
     /// <summary>The screen pixel the picture's top-left corner lies on: the picture centred across the screen and on the window.</summary>
@@ -62,6 +62,6 @@ public sealed record MessageBoxLayer : DisplayLayer
     /// <param name="radiusPixels">The reveal half-height in pixels.</param>
     /// <param name="sheet">The room's message box images.</param>
     /// <exception cref="InvalidDataException">The sheet pictures no such form.</exception>
-    public static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
+    internal static MessageBoxLayer Of(ShownMessage shown, int radiusPixels, MessageBoxSheet sheet) =>
         new(Ensure.NotNull(sheet).Picture(shown), radiusPixels);
 }

@@ -3,9 +3,9 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>
-/// Ordinary sprite layouts selected by Mother Brain's brain draw. These identities name artwork, not encounter timing.
+/// The frames Mother Brain's head and neck show. These identities name artwork, not encounter timing.
 /// </summary>
-internal static class MotherBrainVisualDefinitions
+internal static partial class MotherBrainVisualDefinitions
 {
 
     /// <summary>

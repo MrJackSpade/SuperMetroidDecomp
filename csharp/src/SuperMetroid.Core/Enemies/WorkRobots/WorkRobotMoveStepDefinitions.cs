@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// The steps the Work Robot's walk cues take (#2151): each moves the robot four pixels, faces it, and names the walk a
+/// The steps the Work Robot's walk cues take (#2151): each moves the robot a step, faces it, and names the walk a
 /// wall turns it into and, for a step that watches for ledges, the fall a ledge turns it into.
 /// </summary>
-internal static class WorkRobotMoveStepDefinitions
+internal static partial class WorkRobotMoveStepDefinitions
 {
     /// <summary>The pixels one step moves the robot.</summary>
     private const int StepPixels = 4;

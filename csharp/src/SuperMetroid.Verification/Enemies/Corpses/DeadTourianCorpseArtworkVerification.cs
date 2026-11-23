@@ -53,7 +53,7 @@ internal static class DeadTourianCorpseArtworkVerification
             }
         }
 
-        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossSourceArtwork(), new AreaSourceArtwork());
+        var missing = new ImportEnemyArtwork(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
 
@@ -142,7 +142,7 @@ internal static class DeadTourianCorpseArtworkVerification
     }
 
     /// <summary>Reads a retail corpse-sheet byte for the independent staging oracle.</summary>
-    private static byte ReadNativeDeadTourianCorpseSheetByte(ISnesAddressSpace rom, int sheetOffset) =>
+    private static byte ReadNativeDeadTourianCorpseSheetByte(CartridgeImportAddressSpace rom, int sheetOffset) =>
         rom.ReadCartridgeByte(0xb7c000 + sheetOffset);
 
     /// <summary>The Sidehopper corpse of population parameter <paramref name="parameter"/> as the character rot oracle stages it from installed art.</summary>

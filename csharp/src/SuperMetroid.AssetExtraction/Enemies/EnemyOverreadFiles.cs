@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Extracts what enemies read past their authored data, decoded from the player's cartridge into each read's domain
 /// result (#1500), and loads it as the enemy overread services.
 /// </summary>
-public static class EnemyOverreadFiles
+public static partial class EnemyOverreadFiles
 {
     /// <summary>
     /// Decodes every enemy over-read and writes the results as JSON. No manifest is written (#1693): the document names its
@@ -23,10 +23,10 @@ public static class EnemyOverreadFiles
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         Directory.CreateDirectory(directory);
         EnemyOverreadDocument document = EnemyOverreadDecoding.Decode(cartridge);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, EnemyOverreadFormat.JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyOverreadDocument>(EnemyOverreadFormat.JsonOptions));
         File.WriteAllBytes(Path.Combine(directory, EnemyOverreadFormat.FileName), bytes);
     }
 
@@ -51,17 +51,13 @@ public static class EnemyOverreadFiles
         Ensure.NotNull(document);
         if (document.Version != EnemyOverreadFormat.Version)
             throw new InvalidDataException("Enemy overread file has an unsupported version.");
-        IReadOnlyList<bool> apexGrowth = Require(document.MagdolliteApexGrowthByPlace, nameof(document.MagdolliteApexGrowthByPlace));
+        IReadOnlyList<bool> apexGrowth = document.MagdolliteApexGrowthByPlace;
         if (apexGrowth.Count != EnemyPlaceOrder.Capacity)
             throw new InvalidDataException(
                 $"Enemy overread file holds Magdollite apex growth for {apexGrowth.Count} places, not {EnemyPlaceOrder.Capacity}.");
-        EnemyOverreadDocument.Drift drift = Require(document.FallingSparkUnauthoredLaunch, nameof(document.FallingSparkUnauthoredLaunch));
+        EnemyOverreadDocument.Drift drift = document.FallingSparkUnauthoredLaunch;
         return new EnemyOverreadServices(
             new MagdolliteApexGrowth([.. apexGrowth]),
             new FallingSparkUnauthoredLaunch(SignedSixteenSixteen.FromPixels(drift.Pixels)));
     }
-
-    /// <summary>Requires a document member.</summary>
-    private static T Require<T>(T? value, string name) where T : class =>
-        value ?? throw new InvalidDataException($"Enemy overread file has no {name}.");
 }

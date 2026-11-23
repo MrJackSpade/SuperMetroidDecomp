@@ -37,7 +37,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// shootable reaction the behaviour at that block index selects, at that block.
 /// </para>
 /// </remarks>
-internal static class StraddledShotReactions
+internal static partial class StraddledShotReactions
 {
     /// <summary>The largest radius a shot's animation can give it: the radius is one byte.</summary>
     private const int LargestRadius = 255;
@@ -94,7 +94,7 @@ internal static class StraddledShotReactions
                     if (read.Block + 1 >= blocks)
                         throw new InvalidDataException($"A Wave shot's straddled read at block {read.Block} runs past the {blocks}-block level.");
                     RoomCollisionType collision = straddled.Straddling(level.Foreground[read.Block], level.Foreground[read.Block + 1]).Collision;
-                    if (collision is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
+                    if (RoomCollisionTypes.ReactsToShots(collision))
                         reactions.Add(new(collision, level.Behaviors[read.Block]));
                 }
             }

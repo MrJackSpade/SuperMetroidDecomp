@@ -12,7 +12,6 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses.Crocomire;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>Checks editable Crocomire bridge and invisible-wall draw art through stock extraction and production PLMs.</summary>
 internal static class CrocomireArenaVisualsVerification
@@ -30,7 +29,7 @@ internal static class CrocomireArenaVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectCrocomireVisualFilesConstants.ValidateStock(
                 installation.RoomObjectCrocomireVisualDirectory);
-            InstalledRoomObjectCrocomireVisuals stock =
+            InstalledRoomObjectPictures stock =
                 installation.LoadRoomObjectCrocomireVisuals();
             VerifyCrocomireStockMapping(rom, stock);
             VerifyCrocomireVisualDraw(CrocomireArenaMutation.ClearBridge,
@@ -51,14 +50,13 @@ internal static class CrocomireArenaVisualsVerification
     /// <summary>Runs one arena mutation and checks its collision word, immediate BG1 update, and ROM-free visual source.</summary>
     private static void VerifyCrocomireVisualDraw(CrocomireArenaMutation mutation,
         Offset16<RoomBlocks> blockOffset, RoomTerrainBlock physical, RoomBlockAppearance visual,
-        InstalledRoomObjectCrocomireVisuals visuals)
+        InstalledRoomObjectPictures visuals)
     {
         const int width = 32;
         RoomTerrainBlock[] terrain = Enumerable.Repeat(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.SolidBlock), width * 16).ToArray();
         RoomLevelData level = CreateRoom(new(width, 16), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound(RoomObjectFixtures.Installed with { RoomObjectCrocomireVisuals = visuals });
-        AssertTrue(roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
-            $"Crocomire visual mutation {mutation} allocates");
+        roomObjects.BossRoomMutations.CrocomireArena.Spawn(level, new(new(5, 3), mutation));
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         Position16<RoomBlocks> block = new Position16<RoomBlocks>(5, 3) + blockOffset;

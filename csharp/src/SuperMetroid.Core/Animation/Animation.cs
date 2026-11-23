@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Animation;
 
 /// <summary>An actor's animation (#1600): its phases in the order they play, and how it ends.</summary>
 /// <typeparam name="TSegment">The segment identity the phases play.</typeparam>
-internal sealed record Animation<TSegment>
+internal sealed partial record Animation<TSegment>
     where TSegment : struct
 {
     /// <summary>
@@ -50,11 +50,5 @@ internal sealed record Animation<TSegment>
             throw new InvalidOperationException($"{playing.Length} phases play {segment}, not one.");
         return new(playing[0], Phases[playing[0]].BeatCount);
     }
-
-    /// <summary>The phase a looping animation's cycle starts at: the phase it loops from.</summary>
-    /// <exception cref="InvalidOperationException">The animation does not loop, so it has no cycle.</exception>
-    internal int CyclePhase => End is AnimationEnd.Loop loop
-        ? loop.Phase
-        : throw new InvalidOperationException($"An animation that ends with {End} has no cycle.");
 
 }

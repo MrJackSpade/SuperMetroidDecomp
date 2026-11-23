@@ -1,9 +1,7 @@
-using SuperMetroid.Core.Samus.Poses;
-
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Shared constants used by shinespark.</summary>
-public static class ShinesparkDefinitions
+public static partial class ShinesparkDefinitions
 {
     /// <summary>The shinespark end check's minimum energy to sustain a shinespark.</summary>
     public const int MinimumSustainingEnergy = 30;
@@ -40,17 +38,6 @@ public static class ShinesparkDefinitions
     /// <see cref="CrashRadiusStep"/> pixels beyond it.
     /// </summary>
     public const int CrashOrbitStartRadius = 12;
-
-    /// <summary>The spark each directional shinespark pose launches: horizontal, vertical or diagonal, facing either way.</summary>
-    public static readonly IReadOnlyDictionary<SamusPoseId, ShinesparkPhase> LaunchPhases = new Dictionary<SamusPoseId, ShinesparkPhase>
-    {
-        [SamusPoseId.ShinesparkHorizontalRightPose] = ShinesparkPhase.Horizontal,
-        [SamusPoseId.ShinesparkHorizontalLeftPose] = ShinesparkPhase.Horizontal,
-        [SamusPoseId.ShinesparkVerticalRightPose] = ShinesparkPhase.Vertical,
-        [SamusPoseId.ShinesparkVerticalLeftPose] = ShinesparkPhase.Vertical,
-        [SamusPoseId.ShinesparkDiagonalRightPose] = ShinesparkPhase.Diagonal,
-        [SamusPoseId.ShinesparkDiagonalLeftPose] = ShinesparkPhase.Diagonal,
-    };
 
     /// <summary>How far the crash's orbiting copies turn on each orbiting update: four steps.</summary>
     public static readonly RotationAngle CrashOrbitTurn = RotationAngle.FromSteps(4);

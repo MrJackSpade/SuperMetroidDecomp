@@ -7,7 +7,8 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.Artwork;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Compatibility;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
@@ -17,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// backdrop from the first colour of the screen's own colours when it extracts them; the game reads these colours and no
 /// palette document, as every picture it draws is pre-coloured.
 /// </summary>
-public static class SceneColourFiles
+public static partial class SceneColourFiles
 {
     /// <summary>The installed document's file name.</summary>
     public const string FileName = "scene-colours.json";
@@ -29,16 +30,16 @@ public static class SceneColourFiles
     public const int Version = 3;
 
     /// <summary>The stock tint the Ceres haze fades in to while Ceres Ridley lives.</summary>
-    public static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
+    internal static RgbColor StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
 
     /// <summary>The stock tint the Ceres haze fades in to once Ceres Ridley is dead.</summary>
-    public static RgbColor StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
+    internal static RgbColor StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
 
     /// <summary>
     /// The stock tint the Ceres haze of <paramref name="color"/> fades in to: its channel at the last amplitude the fade
     /// writes before it stops. The import records it in the scene colours; the game reads only the installed tint (#1596).
     /// </summary>
-    public static RgbColor StockCeresHaze(CeresHazeColor color)
+    internal static RgbColor StockCeresHaze(CeresHazeColor color)
     {
         const int finalAmplitude = CeresHazeDefinitions.FadeSteps - 1;
         return color switch
@@ -65,7 +66,7 @@ public static class SceneColourFiles
             WorldMapBackdrops = ZebesAreas().ToDictionary(area => AreaIdKeys.Installed.Of(area), area => InstalledColourText.Format(backdrops.World(area))),
             CeresHazeWhileRidleyLives = InstalledColourText.Format(StockCeresHazeBlue),
             CeresHazeAfterRidleyDies = InstalledColourText.Format(StockCeresHazeRed),
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.SceneColourDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads the installed scene colours.</summary>

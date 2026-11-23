@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="Projectiles">Samus's beams and missiles, which hold the charge and its flare.</param>
 /// <param name="Colours">Samus's colours, which show her suit's shade once the charge is spent.</param>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-internal readonly record struct PseudoScrewCharge(SamusProjectileSystem Projectiles, SamusColours Colours)
+internal readonly partial record struct PseudoScrewCharge(SamusProjectileSystem Projectiles, SamusColours Colours)
 {
     /// <summary>
     /// Spends the charge, as a Pseudo Screw contact does before it reads the enemy's vulnerability: even an immune enemy

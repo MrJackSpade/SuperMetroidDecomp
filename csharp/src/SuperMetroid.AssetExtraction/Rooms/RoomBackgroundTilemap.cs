@@ -10,7 +10,7 @@ public enum RoomBackgroundTilemap
     NorfairSmallPatternBrownPurpleBright = 1,
 
     /// <summary>Norfair's small pattern brown purple (variant 0) background tilemap: <c>Background_Norfair_9_A_SmallPatternBrownPurple_0</c>.</summary>
-    NorfairSmallPatternBrownPurple0,
+    NorfairSmallPatternBrownPurple,
 
     /// <summary>Norfair's vertical pattern brick background tilemap: <c>Background_Norfair_9_VerticalPatternBrick</c>.</summary>
     NorfairVerticalPatternBrick,
@@ -61,13 +61,13 @@ public enum RoomBackgroundTilemap
     BrinstarSpheresPattern,
 
     /// <summary>Brinstar's small pattern variety (variant 0) background tilemap: <c>Background_Brinstar_6_SmallPattern_Variety_0</c>.</summary>
-    BrinstarSmallPatternVariety0,
+    BrinstarSmallPatternVariety,
 
     /// <summary>Brinstar's dark pattern background tilemap: <c>Background_Brinstar_6_DarkPattern</c>.</summary>
     BrinstarDarkPattern,
 
     /// <summary>Brinstar's wide vertical tower brick (variant 0) background tilemap: <c>Background_Brinstar_7_WideVerticalTower_Brick_0</c>.</summary>
-    BrinstarWideVerticalTowerBrick0,
+    BrinstarWideVerticalTowerBrick,
 
     /// <summary>Brinstar's vertical tower background tilemap: <c>Background_Brinstar_7_VerticalTower</c>.</summary>
     BrinstarVerticalTower,
@@ -76,7 +76,7 @@ public enum RoomBackgroundTilemap
     BrinstarNarrowVerticalTowerBrick,
 
     /// <summary>Brinstar's vertical brick (variant 0) background tilemap: <c>Background_Brinstar_7_VerticalBrick_0</c>.</summary>
-    BrinstarVerticalBrick0,
+    BrinstarVerticalBrick,
 
     /// <summary>Brinstar's mechanical room spike floor background tilemap: <c>Background_Brinstar_7_MechanicalRoom_SpikeFloor</c>.</summary>
     BrinstarMechanicalRoomSpikeFloor,
@@ -85,10 +85,10 @@ public enum RoomBackgroundTilemap
     BrinstarMechanicalRoom,
 
     /// <summary>Brinstar's narrow vertical tower brick vines (variant 0) background tilemap: <c>Background_Brinstar_7_NarrowVerticalTower_Brick_Vines_0</c>.</summary>
-    BrinstarNarrowVerticalTowerBrickVines0,
+    BrinstarNarrowVerticalTowerBrickVines,
 
     /// <summary>Brinstar's narrow vertical tower brick grey (variant 0) background tilemap: <c>Background_Brinstar_8_NarrowVerticalTower_Brick_Grey_0</c>.</summary>
-    BrinstarNarrowVerticalTowerBrickGrey0,
+    BrinstarNarrowVerticalTowerBrickGrey,
 
     /// <summary>Brinstar's blue grid blocks background tilemap: <c>Background_Brinstar_7_BlueGridBlocks</c>.</summary>
     BrinstarBlueGridBlocks,
@@ -97,7 +97,7 @@ public enum RoomBackgroundTilemap
     BrinstarKraidUpper,
 
     /// <summary>Brinstar's kraid lower (variant 0) background tilemap: <c>Background_Brinstar_1A_Kraid_Lower_0</c>.</summary>
-    BrinstarKraidLower0,
+    BrinstarKraidLower,
 
     /// <summary>Crateria's vertical pattern rocks background tilemap: <c>Background_Crateria_0_VerticalPatternRocks</c>.</summary>
     CrateriaVerticalPatternRocks,
@@ -127,7 +127,7 @@ public enum RoomBackgroundTilemap
     CrateriaBrickRoom,
 
     /// <summary>The Wrecked Ship's entrance hall (variant 0) background tilemap: <c>Background_WreckedShip_4_5_EntranceHall_0</c>.</summary>
-    WreckedShipEntranceHall0,
+    WreckedShipEntranceHall,
 
     /// <summary>The Wrecked Ship's columns tubes background tilemap: <c>Background_WreckedShip_4_5_Columns_Tubes</c>.</summary>
     WreckedShipColumnsTubes,

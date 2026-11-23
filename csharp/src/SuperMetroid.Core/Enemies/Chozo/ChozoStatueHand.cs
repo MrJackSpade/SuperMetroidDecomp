@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// <param name="FingersCurling">Its fingers curling.</param>
 /// <param name="FingersCurled">Its fingers curled.</param>
 /// <param name="FingersClenched">Its fingers clenched.</param>
-internal sealed record ChozoStatueHand(
+internal sealed partial record ChozoStatueHand(
     HorizontalDirection Carries, F HandsCupped, F HandReaching, F HandOutstretched, F HandOpen, F HandOpenEyeGlowing,
     F FingersCurling, F FingersCurled, F FingersClenched)
 {

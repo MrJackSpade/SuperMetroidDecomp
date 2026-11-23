@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// pickup with its message, fanfare and inventory, and each collectible's picture where it lies. Each item is a typed
 /// room object (<see cref="CollectibleObject"/>) that holds and advances its own state.
 /// </summary>
-[RoomLifetime]
-internal sealed class CollectibleObjects
+internal sealed partial class CollectibleObjects
 {
 
     /// <summary>The room's system and event state.</summary>
@@ -55,27 +54,26 @@ internal sealed class CollectibleObjects
     /// Whether its message's close starts the room's lava rising (#2562): the Speed Booster in its Chozo orb, whose pickup
     /// leaves the lava's motion to the message's close. The last item collected before the close decides.
     /// </param>
-    private readonly record struct AwaitingPickup(RoomObjectPlace Place, CollectibleObject Item, bool RaisesLava);
+    private readonly partial record struct AwaitingPickup(RoomObjectPlace Place, CollectibleObject Item, bool RaisesLava);
 
     /// <summary>Whether the room objects' step is waiting for its synchronous pickup message.</summary>
     internal bool HasPendingCollectibleMessage => _awaitingMessage.Count != 0;
 
     /// <summary>
-    /// The pickup message has closed: each item awaiting it finishes its pickup within the same room-object update, an item
-    /// showing its empty block before it leaves, a shot block's item leaving its block empty. They finish from the last
-    /// place back, the order the room's searches for a collectible run in.
+    /// A message box has closed: the first item awaiting its message, whose box the step opened first (#2553), finishes its
+    /// pickup within the same room-object update, an item showing its empty block before it leaves, a shot block's item
+    /// leaving its block empty. A later item's box opens next and its item finishes when that box closes, as each item's
+    /// box returns into its own room object's update. A box no item opened finds none awaiting and finishes none.
     /// </summary>
     internal void CompleteCollectibleMessage(RoomLevelData level)
     {
-        for (int index = _awaitingMessage.Count - 1; index >= 0; index--)
-        {
-            AwaitingPickup awaiting = _awaitingMessage[index];
-            awaiting.Item.ResumeAfterMessage(_drawing, level, awaiting.Place);
-        }
-        bool raisesLava = _awaitingMessage.Count != 0 && _awaitingMessage[^1].RaisesLava;
-        _awaitingMessage.Clear();
+        if (_awaitingMessage.Count == 0)
+            return;
+        AwaitingPickup awaiting = _awaitingMessage[0];
+        _awaitingMessage.RemoveAt(0);
+        awaiting.Item.ResumeAfterMessage(_drawing, level, awaiting.Place);
         // The Speed Booster's pickup starts the lava rising once its message has closed.
-        if (raisesLava)
+        if (awaiting.RaisesLava)
             _roomFx.SetLiquidSpeed(SpeedBoosterPickupDefinitions.LavaRiseVelocity);
     }
 
@@ -89,8 +87,8 @@ internal sealed class CollectibleObjects
 
     /// <summary>
     /// Publishes Samus contact with a visible item block. The item's touch setup
-    /// finds the item room object sharing this block and arms its trigger timer;
-    /// acquisition remains owned by the following room-object step.
+    /// finds the item room object sharing this block and moves it to its touched phase,
+    /// which the following room-object step collects.
     /// </summary>
     public bool TryNotifyCollectibleTouch(Position16<RoomBlocks> block)
     {
@@ -119,7 +117,7 @@ internal sealed class CollectibleObjects
     /// Triggers the Chozo orb or concealed item block at <paramref name="block"/> that a shot, bomb or grapple reached:
     /// whatever reached it, the item responds with the same trigger.
     /// </summary>
-    public bool TryNotifyCollectibleProjectileHit(
+    public void NotifyCollectibleProjectileHit(
         Position16<RoomBlocks> block)
     {
         foreach (RoomObjectPlace place in _places.FromLastPlace)
@@ -131,12 +129,11 @@ internal sealed class CollectibleObjects
                     CollectiblePhase.ShotBlock or CollectiblePhase.ShotBlockShot or
                     CollectiblePhase.CollectedShotBlock or CollectiblePhase.CollectedShotBlockShot))
             {
-                return false;
+                return;
             }
             item.Trigger();
-            return true;
+            return;
         }
-        return false;
     }
 
     /// <summary>
@@ -155,13 +152,15 @@ internal sealed class CollectibleObjects
         (InWorldCollectibleKind kind, CollectiblePresentation presentation) = item;
         RoomCollisionBlock original = level.GetCollisionBlock(place.Block);
         bool collected = system.HasCollectedItem(placed.Location);
-        CollectibleBlockPairs.Pair? blockPair = CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture ? _blockPairs.Take() : null;
+        CollectibleTerrain terrain = CollectibleDefinitions.Items[kind].Picture == CollectiblePictureSource.OwnPicture
+            ? CollectibleTerrain.OwnPicture(_blockPairs.Take())
+            : CollectibleTerrain.TankBlocks;
 
         RoomTerrainBlock setup = original.Terrain.WithCollision(
             presentation == CollectiblePresentation.ShotBlock ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air);
-        // The setup rewrites only the block's type and parameter, so it keeps its picture and what it shows (#2502).
-        level.SetCollision(place.Block, setup.Collision);
-        level.SetBehavior(place.Block, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
+        // The setup changes how the block collides and reacts, and the block keeps its picture and what it shows
+        // (#2502).
+        level.SetCollisionAndBehavior(place.Block, setup.Collision, RoomBlockBehavior.Reacting(ShootableReaction.CollectibleTrigger));
 
         CollectiblePhase phase = collected
             ? presentation == CollectiblePresentation.ShotBlock
@@ -176,7 +175,7 @@ internal sealed class CollectibleObjects
                 CollectiblePresentation.ShotBlock => CollectiblePhase.ShotBlock,
                 _ => throw new ArgumentOutOfRangeException(nameof(presentation)),
             };
-        place.Become(new CollectibleObject(kind, presentation, blockPair, phase, placed.Location, setup));
+        place.Become(new CollectibleObject(kind, presentation, terrain, phase, placed.Location, setup));
     }
 
     /// <summary>
@@ -195,7 +194,7 @@ internal sealed class CollectibleObjects
         CollectibleDefinition definition = CollectibleDefinitions.Items[item.Kind];
         definition.Grant.Apply(samus);
 
-        outcome.Collected(new CollectiblePickupEvent(item.Kind, definition.Message, definition.Consequence));
+        outcome.Collected(new CollectiblePickupEvent(definition.Message, definition.Consequence));
         // The item's cue starts the fanfare as it runs, before its message box opens.
         _sounds.QueuePermanentItemFanfare();
 
@@ -203,6 +202,6 @@ internal sealed class CollectibleObjects
         // finishes its pickup once the message closes.
         item.AwaitMessage();
         _awaitingMessage.Add(new AwaitingPickup(place, item,
-            RaisesLava: item.Kind == InWorldCollectibleKind.SpeedBooster && item.Presentation == CollectiblePresentation.ChozoOrb));
+            RaisesLava: definition.LavaRisingPlacements.Contains(item.Presentation)));
     }
 }

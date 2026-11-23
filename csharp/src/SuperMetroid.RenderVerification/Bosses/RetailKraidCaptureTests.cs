@@ -32,12 +32,12 @@ internal static class RetailKraidCaptureTests
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         // The first sample is captured before any update: latch the loaded room for display first.
         runtime.FrameBoundary.BeginAcceptedFrame(0);
@@ -47,19 +47,20 @@ internal static class RetailKraidCaptureTests
         Enum BodyPhase()
         {
             KraidBodyState state = body.SpeciesState<KraidPartState>() as KraidBodyState ?? throw new InvalidOperationException("Kraid's body has no body state.");
-            return state.Stage switch
+            // His sunk body runs the phases that hide it and fade the room back in.
+            return state.Run switch
             {
-                KraidBodyStage.Rising => state.RisePhase,
-                KraidBodyStage.Fighting => state.FightPhase,
-                KraidBodyStage.Growing => state.GrowthPhase,
-                KraidBodyStage.Dying => state.DeathPhase,
-                _ => throw new InvalidOperationException($"Undefined {nameof(KraidBodyStage)} {state.Stage}."),
+                KraidStageRun.Rising rising => rising.Phase,
+                KraidStageRun.Fighting fight => fight.Phase,
+                KraidStageRun.Growing growth => growth.Phase,
+                KraidStageRun.Dying dying => dying.Phase,
+                KraidStageRun.Sunk sunk => sunk.Phase,
+                _ => throw new InvalidOperationException($"Undefined Kraid body stage {state.Run.GetType().Name}."),
             };
         }
-        // The death has played out once the background fade hands the body to the finished phase.
+        // The death has played out once the background fade hands the sunk body to the finished phase.
         static bool DeathFinished(KraidEnemyState kraid) =>
-            kraid.BodyState.Stage == KraidBodyStage.Dying &&
-            kraid.BodyState.DeathPhase is KraidDeathPhase.Finished;
+            kraid.BodyState.Run is KraidStageRun.Sunk { Phase: KraidSunkPhase.Finished };
         var phases = new HashSet<Enum>();
         int samples = 0;
         bool completed = false, ownedBackground = false;
@@ -143,9 +144,9 @@ internal static class RetailKraidCaptureTests
             if (DeathFinished(boss)) break;
             runtime.StepFrame(0);
         }
-        if (!DeathFinished(boss) || !deathPhases.Contains(KraidDeathPhase.WaitBeforeFadeIn) ||
+        if (!DeathFinished(boss) || !deathPhases.Contains(KraidSunkPhase.WaitBeforeFadeIn) ||
             !deathPhases.Contains(KraidDeathPhase.Sink) ||
-            !deathPhases.Contains(KraidDeathPhase.FadeInBackground))
+            !deathPhases.Contains(KraidSunkPhase.FadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, the wait before the fade-in or the background fade.");
         RequireBlankBg2(runtime, $"{device.Kind}: defeated Kraid");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, wait, fade and blank BG2 verified.");
@@ -173,7 +174,7 @@ internal static class RetailKraidCaptureTests
         var gameplay = (GameplaySceneLayer)scene.Layers[0];
         if (gameplay.BossBody is null)
             throw new InvalidOperationException($"{context}: BG2 shows the room's own background where Kraid's tilemap was expected.");
-        var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.LatchedOrdinaryRoom.Bosses.Body
+        var shown = new SortedSet<ushort>(BossBodyWords.Of(runtime.Display.LatchedOrdinaryRoom.Bosses?.Body
             ?? throw new InvalidOperationException($"{context}: BG2 shows a boss body Kraid has not latched."), BossBodyOwner.Kraid,
             InstalledFixtures.BossArtwork));
         if (shown.Any(word => word != KraidWorkingMapDefinitions.BlankTile.PackedWord))
@@ -207,16 +208,17 @@ internal static class RetailKraidCaptureTests
             boss.DisplayedHeadFrame?.InvulnerableShape ?? throw new InvalidOperationException("Kraid shows no inner mouth shape to strike."));
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
-        shot.Damage = 100; shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
-        shot.Radius = new(2, 2);
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), 100);
+        shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole + left + 2)), unchecked((ushort)(body.Position.Y.Whole + (top + bottom) / 2))));
+        shot.HeldShot().Radius = new(2, 2);
         // Any live missile program marks the slot active; this staged shot only enters collision, not animation.
-        shot.Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.MissileRight);
+        shot.HeldShot().Animation = SamusProjectilePlayback.Start(SamusProjectileSegment.MissileRight);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
         shots.Pool.ShotCount.Restore(1);
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
-        if (runtime.Enemies.ResolveKraidProjectileHits(shots, InstalledFixtures.CreateBombSystem()) == 0)
+        runtime.Enemies.ResolveKraidProjectileHits(shots, InstalledFixtures.CreateBombSystem());
+        if (!shot.IsSpent)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");
     }
 }

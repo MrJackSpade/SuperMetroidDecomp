@@ -23,22 +23,20 @@ internal static class PolypRockBehaviorVerification
     /// </summary>
     internal static void VerifyPolypRockBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, PolypRockNativeListAddresses.Extent, "Polyp-rock");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var source = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-        };
-        enemies.PolypBehavior.SpawnPolypRock(source, QuadraticSpeedCurvePlace.FromMarks(16), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-256));
+        RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        source.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
+        enemies.PolypBehavior.SpawnPolypRock(source.BoundFor(EnemyDefinitionId.Polyp), source, QuadraticSpeedCurvePlace.FromMarks(16), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-256));
         EnemyProjectile rock = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.Kind == RoomEnemyProjectileKind.PolypRock);
         AssertTrue(rock.Animation is PolypRockAnimation { PlayingSegment: PolypRockSegment.LavaRock }, "a spawned rock starts its typed program");
         (bool deleted, _) = NativeEnemyProjectileParity.Compare(cartridge, enemies, rock,
             NativeEnemyProjectileProgramOracle.EntryOf(PolypRockNativeListAddresses.Entries, PolypRockSegment.LavaRock), 5, "Polyp rock");
         AssertTrue(!deleted, "the rock holds its frame and sleeps");
         rock.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
-        enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+        enemies.Projectiles.AdvanceEnemyProjectileAnimations(rock, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
         AssertTrue(!rock.IsActive, "the shared shot list still deletes the rock");
         AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)EnemyInstructionBank.Bank86, EnemyProjectileProgramFrameSources.Operand(EnemyProjectileFrameId.PolypRock), out ushort selected),
             "the rock's frame has a selector");

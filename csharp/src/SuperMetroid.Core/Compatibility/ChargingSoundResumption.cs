@@ -11,11 +11,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// Shoot is held, and firing a beam clears it.
 /// Lifetime: Samus's.
 /// </remarks>
-[CompatibilityService("the charging beam's sound resumes at the post-draw check after the one that ended its interruption")]
-public sealed class ChargingSoundResumption
+public sealed partial class ChargingSoundResumption
 {
     /// <summary>Whether the resumption is armed for the next post-draw check.</summary>
-    public bool IsArmed { get; private set; }
+    internal bool IsArmed { get; set; }
 
     /// <summary>A spin's end or the hurt flash's recovery arms the resumption for the next post-draw check.</summary>
     internal void Arm() => IsArmed = true;

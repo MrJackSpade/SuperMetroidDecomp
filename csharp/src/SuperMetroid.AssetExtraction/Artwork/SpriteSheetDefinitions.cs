@@ -4,7 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Each installed sprite sheet's file name.</summary>
-public static class SpriteSheetDefinitions
+public static partial class SpriteSheetDefinitions
 {
     /// <summary>Every installed sprite sheet in the order the installation composes and lists them (#2567).</summary>
     private static readonly IReadOnlyList<SpriteSheetId> SheetOrder = Ensure.EveryMemberOnce<SpriteSheetId>(

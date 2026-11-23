@@ -67,7 +67,7 @@ internal static class MusicBeatTimingVerification
                 state.SwitchClipSet(song.AudioSet);
                 old.Stop();
             }
-            state.SongChange.Hold(new SongChange(song.Track));
+            state.SongChange.Hold(new SongChange.Play(song.Track));
             old.Request(song, tempos);
             long until = long.MaxValue;
             while (now < until)

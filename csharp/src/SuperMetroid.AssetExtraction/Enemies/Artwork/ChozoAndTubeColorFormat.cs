@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 
 /// <summary>Installed filename and supported schema revision for the three bounded editable tube/statue color images.</summary>
-public static class ChozoAndTubeColorFormat
+public static partial class ChozoAndTubeColorFormat
 {
     /// <summary>Installed editable JSON filename for the tube-crack, Wrecked Ship Chozo, and Lower Norfair Chozo palette images.</summary>
     public const string FileName = "chozo-and-tube-colors.json";

@@ -8,4 +8,4 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Top">Top edge relative to the component origin, in room pixels.</param>
 /// <param name="Right">Right edge relative to the component origin, in room pixels.</param>
 /// <param name="Bottom">Bottom edge relative to the component origin, in room pixels.</param>
-internal readonly record struct EnemyHitboxRectangle(int Left, int Top, int Right, int Bottom);
+internal readonly partial record struct EnemyHitboxRectangle(int Left, int Top, int Right, int Bottom);

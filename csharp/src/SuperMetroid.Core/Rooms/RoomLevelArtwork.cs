@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 /// Replaceable initial appearances of one room level's foreground and background blocks. Terrain, collision and
 /// behaviours stay in the room's installed level and are not part of the artwork.
 /// </summary>
-public sealed class RoomLevelArtwork
+public sealed partial class RoomLevelArtwork
 {
     /// <summary>What each foreground block initially shows, independent of its terrain.</summary>
     private readonly RoomBlockAppearance[] foreground;

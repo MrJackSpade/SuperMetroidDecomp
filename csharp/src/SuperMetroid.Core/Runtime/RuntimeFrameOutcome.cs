@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Runtime;
 /// sends Samus to the reserves' refill or her death.
 /// </param>
 /// <param name="OutOfHealth">Where the update's out-of-health check sends Samus.</param>
-public readonly record struct RuntimeFrameOutcome(GameplayUpdateTransition Transition, SamusOutOfHealthRoute OutOfHealth)
+public readonly partial record struct RuntimeFrameOutcome(GameplayUpdateTransition Transition, SamusOutOfHealthRoute OutOfHealth)
 {
     /// <summary>
     /// Whether the update started the time-up: the escape countdown ran out during it, whitening the target colours and
@@ -22,7 +22,7 @@ public readonly record struct RuntimeFrameOutcome(GameplayUpdateTransition Trans
     /// own the update, as after the AUTO reserves' refill took an update from it (#2518). Every other transition the
     /// update started gives way to it.
     /// </summary>
-    public bool StartsTimeUp => Transition == GameplayUpdateTransition.TimeUp;
+    public bool StartsTimeUp => Transition is GameplayUpdateTransition.TimeUp;
 
     /// <summary>
     /// The save the update's closing message box completed, at a save station or the gunship, which the game-state loop

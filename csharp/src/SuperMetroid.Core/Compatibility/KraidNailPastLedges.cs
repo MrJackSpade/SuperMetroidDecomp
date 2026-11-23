@@ -15,40 +15,37 @@ namespace SuperMetroid.Core.Compatibility;
 /// cartridge and compares it with this service. Nails thrown upward fly through the upper screen of Kraid's room, more
 /// than 128 pixels above his body, so the record is read in play.
 /// </remarks>
-[CompatibilityService("a fingernail higher than Kraid's four contour ledges is pushed back at the record that follows them")]
-public sealed class KraidNailPastLedges
+public sealed partial class KraidNailPastLedges
 {
-    /// <summary>The offset from Kraid's body a nail past the ledges is pushed back at, as a wrapped room coordinate.</summary>
-    private readonly int _leftOffset;
 
-    /// <summary>The bound a nail past the ledges must lie below to be pushed at that offset, as a wrapped room coordinate.</summary>
-    private readonly int _bound;
+    /// <summary>
+    /// How far above Kraid's body a nail can fly: terrain reflects a nail inside Kraid's room, two screens tall, and his
+    /// body stays in the same room, so a nail lies fewer than this many pixels above it.
+    /// </summary>
+    private const int NailReachAboveBody = 512;
 
-    /// <summary>Keeps the decoded record that follows the ledges.</summary>
+    /// <summary>
+    /// Keeps the decoded record that follows the ledges, whose bound lies above every height a nail reaches, so a nail
+    /// past the ledges is always pushed back at its offset: the walk never reads the record after it.
+    /// </summary>
     /// <param name="leftOffset">The offset from Kraid's body's X, -32768 through 32767.</param>
     /// <param name="bound">The bound on the nail's height relative to the body, -32768 through 32767.</param>
     /// <exception cref="ArgumentOutOfRangeException">A value lies outside -32768 through 32767.</exception>
+    /// <exception cref="InvalidDataException">The bound lies within a nail's reach above Kraid's body.</exception>
     public KraidNailPastLedges(int leftOffset, int bound)
     {
-        _leftOffset = CoordinateAxis.Wrap(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, leftOffset));
-        _bound = CoordinateAxis.Wrap(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, bound));
+        LeftOffset = CoordinateAxis.Wrap(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, leftOffset));
+        int wrappedBound = CoordinateAxis.Wrap(Ensure.BetweenInclusive(short.MinValue, short.MaxValue, bound));
+        if (CoordinateAxis.Difference(wrappedBound, -NailReachAboveBody) > 0)
+        {
+            throw new InvalidDataException(
+                $"The contour record after Kraid's ledges bounds nails at {bound}, within the {NailReachAboveBody} pixels a nail reaches above his body.");
+        }
     }
 
     /// <summary>
-    /// The offset from Kraid's body's X at which a nail <paramref name="relativeY"/> pixels below the body, higher than
-    /// every ledge, is pushed back, as a wrapped room coordinate.
+    /// The offset from Kraid's body's X at which a nail higher than every ledge is pushed back, as a wrapped room
+    /// coordinate: every such nail lies below the record's bound.
     /// </summary>
-    /// <param name="relativeY">The nail's Y minus the body's Y, as a wrapped room coordinate.</param>
-    /// <exception cref="ArgumentOutOfRangeException">The nail lies at or above the record's bound.</exception>
-    public int LeftOffset(int relativeY)
-    {
-        if (CoordinateAxis.Difference(_bound, relativeY) < 0)
-            return _leftOffset;
-
-        // Rejected, not read: past this bound the walk would read one more record. A nail never gets there. Terrain
-        // reflects a nail inside Kraid's room, two screens tall, and Kraid's body stays in the same room, so a nail lies
-        // fewer than 512 pixels above the body, and the decoded bound lies more than 20000 pixels above it.
-        throw new ArgumentOutOfRangeException(nameof(relativeY), relativeY,
-            "A Kraid fingernail lies beyond the contour record that follows the ledges, which no nail in Kraid's room can reach.");
-    }
+    public int LeftOffset { get; }
 }

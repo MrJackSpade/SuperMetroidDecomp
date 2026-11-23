@@ -32,7 +32,7 @@ internal static class Layer3PlaneVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         GameplayHudArtwork artwork = runtime.InstalledHudArtwork;
@@ -46,7 +46,7 @@ internal static class Layer3PlaneVerification
         // A HUD change reaches the next NMI's plane; the published one keeps its rows. Lost energy redraws the energy
         // count with digits the HUD's artwork shows, so the NMI can picture them (#1392).
         ushort[] before = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Health = samus.Health == 42 ? 37 : 42;
         runtime.Hud.UpdateGameplayCounters(samus, runtime.AudioRequests, timeIsFrozen: false);
         ushort[] after = runtime.Hud.TileWords(runtime.InstalledHudArtwork);
@@ -65,7 +65,8 @@ internal static class Layer3PlaneVerification
         RoomEffectDefinition record = RoomFxDefinitions.AllRecords.First(candidate =>
             candidate.Type == RoomFxType.Water && candidate.DoorPointer == 0) with { LiquidStartLevel = 0x0080 };
         RoomFxOverlayState water = RoomFxOverlayState.ForDefinition(record, 0);
-        AssertEqual<RoomFxType?>(RoomFxType.Water, water.OverlayEffect, "the water room shows the water page");
+        AssertEqual(RoomFxType.Water, water.Type, "the water room loads the water effect");
+        AssertTrue(water.IsRenderable, "the water room shows its effect on the overlay");
 
         // The plane names the water page (#1466); the installed pages spell the words the cartridge writes for it.
         FxOverlayPlane shownPlane = water.EffectPlane;

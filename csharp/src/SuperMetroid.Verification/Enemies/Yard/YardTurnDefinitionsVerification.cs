@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.TestSupport.MovieReplay;
 using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -37,13 +36,13 @@ internal static class YardTurnDefinitionsVerification
         {
             YardCrawlStep definition =
                 YardTurns.ForCrawl(movement, suppressed);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address)), definition.Lookahead.X,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), definition.Lookahead.X,
                 $"Yard turn {movement}/{suppressed} lookahead X");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), definition.Lookahead.Y,
                 $"Yard turn {movement}/{suppressed} lookahead Y");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
+            AssertEqual(rom.ReadCartridgeWord((address + 4)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceEnds),
                 $"Yard turn {movement}/{suppressed} outside list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
+            AssertEqual(rom.ReadCartridgeWord((address + 6)), NativeEnemyAnimationOracle.EntryOf(YardNativeListAddresses.Entries, definition.WhenSurfaceMet),
                 $"Yard turn {movement}/{suppressed} inside list");
         }
 
@@ -99,15 +98,17 @@ internal static class YardTurnDefinitionsVerification
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
             place.Position = place.Position.WithWhole(new(0x0200, 0x0200));
             place.Radius = new(8, 8);
-            var state = new YardEnemyState(YardMovement.HoldingStill)
+            var state = new YardEnemyState
             {
                 // A hiding animation is never a turn's result, so the assertion sees the turn's own choice.
                 Playback = new(YardAnimations.StartingWith(YardSegment.HidingOnFloorMovingLeft), AnimationPlace.StartOfAnimation),
-                Movement = YardMovement.Crawling,
+                Motion = YardMotion.Crawling,
                 Crawl = movement,
-                TurnSuppressionPassesLeft = UpdateCountdown.For(suppressed ? YardMotionDefinitions.TurnSuppressionPasses : 0),
                 CrawlingVelocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256)),
             };
+            // A landing suppresses turns for a whole run of passes, as production starts them; otherwise none are suppressed.
+            if (suppressed)
+                state.SuppressTurns();
 
             run(place, state, level);
 

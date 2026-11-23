@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The physical definitions of Mother Brain's eight escape-door fragments.</summary>
-internal static class MotherBrainDoorFragmentDefinitions
+internal static partial class MotherBrainDoorFragmentDefinitions
 {
     /// <summary>
     /// The eight fragments the exploding escape door throws, in the order they spawn: each starts on the door's centre

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
@@ -6,7 +7,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
-using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -42,7 +42,6 @@ internal static class MotherBrainRoomColorsVerification
 
         RoomEnemySystem enemies = CreateEnemy();
         MotherBrainEnemyState state = StagedState(enemies);
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
         state.RoomFlash = MotherBrainRoomFlashAnimations.Starting();
         for (int frame = 0; frame < 48; frame++)
         {
@@ -55,50 +54,45 @@ internal static class MotherBrainRoomColorsVerification
         MotherBrainFakeDeath.StopMotherBrainRoomFlash(state);
         AssertEqual(MotherBrainShades.FinalRoom, state.Colours.RoomShading.Shades[^1], "stopping the flash shows the steady grey room");
         AssertTrue(state.RoomFlash is null, "stopping the flash stops it playing");
-        enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
         AssertEqual(MotherBrainShades.PhaseTwo, state.Colours.OwnShading.Shades[^1], "the ascent loads the phase-two attack and rear-leg colours");
         Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(state));
 
         MotherBrainRoomColorDocument document =
-            JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(
-                File.ReadAllBytes(Path.Combine(stock, MotherBrainRoomColorFormat.FileName)),
-                ArtworkJson.Options)
+            JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(File.ReadAllBytes(Path.Combine(stock, MotherBrainRoomColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Extracted Mother Brain room colors are null.");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 Flash = document.Flash.Take(13).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated Mother Brain room-flash list");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated Mother Brain room-flash list");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 PhaseTwoAttack = document.PhaseTwoAttack.Take(14).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated phase-two attack colors");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated phase-two attack colors");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 InitialGlassShard = (document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard.")).Take(14).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated room-entry glass colors");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated room-entry glass colors");
         AssertThrows<InvalidDataException>(() => MotherBrainRoomColorFile.Read(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document with
             {
                 RecoveryLights = (document.RecoveryLights ?? throw new InvalidOperationException("Verification requires document.RecoveryLights.")).Take(6).ToArray(),
-            }, ArtworkJson.Options))), "reject truncated room-light recovery sequence");
+            }, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)))), "reject truncated room-light recovery sequence");
         Console.WriteLine("Mother Brain room colors: entry, 14 flash frames, final grey, phase-two and seven recovery-light shades match the cartridge's colours and the production paths that lay them; strict validation passes.");
     }
 
-    /// <summary>Checks the seven recovery-light images the Baby's cutscene lays, and that another fade's image is refused.</summary>
+    /// <summary>Checks the seven recovery-light images the Baby's cutscene lays over her room.</summary>
     private static void VerifyMotherBrainRecoveryLights(MotherBrainEnemyState state)
     {
         foreach (MotherBrainFadeImage lights in MotherBrainFadeDefinitions.RecoveryLights.Images)
         {
-            state.Colours.ShowLightsRecovering(lights);
+            state.Colours.ShowFade(lights);
             AssertEqual(MotherBrainShades.Fade(lights), state.Colours.RoomShading.Shades[^1],
                 $"Mother Brain recovery-light image {lights.Step} is laid over her room");
         }
-        AssertThrows<ArgumentException>(
-            () => state.Colours.ShowLightsRecovering(MotherBrainFadeDefinitions.BabyFade.Images[0]),
-            "an image of another fade is refused as the room lights' recovery");
     }
 
     /// <summary>Asserts that two lists of the import's shades hold the same shades with the same colours.</summary>
@@ -115,18 +109,15 @@ internal static class MotherBrainRoomColorsVerification
         SheetShade a = first.Single(candidate => candidate.Shade == shade);
         SheetShade b = second.Single(candidate => candidate.Shade == shade);
         AssertTrue(a.Inks.SequenceEqual(b.Inks), $"shade {shade.Key} recolours the same inks");
-        return a.Colours.Zip(b.Colours).Count(pair => pair.First != pair.Second);
+        return a.InkColours.Count(entry => b.InkColours[entry.Key] != entry.Value);
     }
 
     /// <summary>
-    /// Mother Brain's state in <paramref name="enemies"/>' first slot, with the body her room's entry attaches, not shown
-    /// until her phase-two transition reveals it (#1515).
+    /// Mother Brain placed in <paramref name="enemies"/> as her room's population places her, her glass set up first: the
+    /// encounter her body's setup began, with the body it attaches, not shown until her phase-two transition reveals it (#1515).
     /// </summary>
-    private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies)
-    {
-        enemies.Presentation.AttachBossBody(BossBodyPartsConstants.Hidden(BossBodyOwner.MotherBrain));
-        return new(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-    }
+    private static MotherBrainEnemyState StagedState(RoomEnemySystem enemies) =>
+        MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
 
     /// <summary>A fresh Mother Brain enemy system over the installed body sheets.</summary>
     private static RoomEnemySystem CreateEnemy()

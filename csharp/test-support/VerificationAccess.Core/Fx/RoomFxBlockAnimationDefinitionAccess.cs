@@ -17,7 +17,7 @@ internal static class RoomFxBlockAnimationDefinitionAccess
         BlockAnimation.Spores => 0x82ed,
         BlockAnimation.WreckedShipTreadmillRightwards => AnimatedTileAnimationScriptPointers.WreckedShipTreadmillRightwardsLoop,
         BlockAnimation.WreckedShipTreadmillLeftwards => AnimatedTileAnimationScriptPointers.WreckedShipTreadmillLeftwardsLoop,
-        BlockAnimation.None or BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
+        BlockAnimation.TourianStatuePhantoon or BlockAnimation.TourianStatueRidley
             or BlockAnimation.TourianStatueKraid or BlockAnimation.TourianStatueDraygon
             => throw new InvalidDataException($"Block animation {animation} has no frame loop."),
         _ => throw new InvalidDataException($"Undefined block animation {animation}."),
@@ -58,7 +58,7 @@ internal static class RoomFxBlockAnimationDefinitionAccess
                     if (pointer != self.FrameInstructionPointer(index))
                         continue;
 
-                    value = checked((ushort)self.Frames[index].Duration);
+                    value = checked((ushort)BlockAnimationLoopPasses.Of(self)[index]);
                     return true;
                 }
 

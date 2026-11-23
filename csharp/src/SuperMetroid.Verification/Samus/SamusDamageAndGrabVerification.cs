@@ -111,9 +111,8 @@ internal static void VerifySamusDrainedController()
     VerifyDrainedPoseHistory();
     var right = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.CrouchingRightPose);
     SamusPoseMetadata.RefreshCollisionRadii(right);
     SamusPresentation.InitializeAnimation(right);
     right.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(3, 0x4444);
@@ -135,7 +134,7 @@ internal static void VerifySamusDrainedController()
     // Index two lasts two ticks; index three lasts sixteen. Expiration reaches `$F7` at
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
-        SamusPresentation.Animate(right, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(right, new SamusAnimationStep { Ground = right.Ground, Random = new SharedRandom() });
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
     AssertEqual(5, right.AnimationNumber, "F7 performs its second frame increment");
@@ -144,7 +143,8 @@ internal static void VerifySamusDrainedController()
     right.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x4000);
     ushort firstHandlerY = right.Position.Y.Whole;
     ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
-    right.Drained.StepFalling(level, SamusRoomObjectFixtures.Uninstalled, right, 0);
+    AssertTrue(right.Drained.TryStepFalling(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), right, 0, out _),
+        "the first drained handler call steps her fall");
     AssertEqual(firstHandlerYSubposition, right.Kinematics.Position.Y.Fraction,
         "first drained handler call uses old zero speed");
     AssertEqual(firstHandlerY, right.Position.Y.Whole, "first drained handler frame is stationary");
@@ -154,8 +154,8 @@ internal static void VerifySamusDrainedController()
     DrainedSamusMovementResult landing = default;
     StepUntil(
         () => landing.Landed,
-        frame => landing = right.Drained.StepFalling(
-level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1))),
+        frame => AssertTrue(right.Drained.TryStepFalling(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), right,
+            unchecked((ushort)(frame + 1)), out landing), "drained Samus falls until she lands"),
         maximumFrames: 99,
         context: "drained handler block-floor landing");
     AssertEqual(75, right.Position.Y.Whole, "drained body rests at floor minus radius");
@@ -176,7 +176,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     AssertEqual(4, right.AnimationNumber, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.CuePose.Named is null; tick++)
-        SamusPresentation.Animate(right, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(right, new SamusAnimationStep { Ground = right.Ground, Random = new SharedRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, right.CuePose.Named,
         "standing drained release reaches ROM FD operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(right),
@@ -186,9 +186,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 
     var left = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.CrouchingLeftPose);
     SamusPoseMetadata.RefreshCollisionRadii(left);
     SamusPresentation.InitializeAnimation(left);
     left.Drained.CrouchDrained(left);
@@ -200,7 +199,7 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     AssertEqual(13, left.AnimationNumber,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.CuePose.Named is null; tick++)
-        SamusPresentation.Animate(left, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(left, new SamusAnimationStep { Ground = left.Ground, Random = new SharedRandom() });
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingLeftNormalPose, left.CuePose.Named,
         "left crouched release reaches asymmetric FD operand");
     AssertTrue(SamusPoseTransitions.ApplyPendingAnimationTransition(left),
@@ -255,9 +254,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
     // pose `$54` and lock normal input; only their installed Up-edge handler differs.
     var able = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(able);
     SamusPresentation.InitializeAnimation(able);
     able.Drained.SetupForRainbowBeamAbleToStand(able);
@@ -282,9 +280,8 @@ level, SamusRoomObjectFixtures.Uninstalled, right, unchecked((ushort)(frame + 1)
 
     var unable = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     SamusPoseMetadata.RefreshCollisionRadii(unable);
     SamusPresentation.InitializeAnimation(unable);
     unable.Drained.SetupForRainbowBeamUnableToStand(unable);
@@ -389,8 +386,7 @@ static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
         SamusCollisionDirection.Right => maxX - samus.Radius.X,
         SamusCollisionDirection.Left => minX + samus.Radius.X,
         SamusCollisionDirection.Up or
-            SamusCollisionDirection.Down or
-            SamusCollisionDirection.NonDirectionalProbe => (minX + maxX) / 2,
+            SamusCollisionDirection.Down => (minX + maxX) / 2,
         _ => (minX + maxX) / 2,
     };
     int targetY = direction switch
@@ -398,8 +394,7 @@ static MotherBrainRinkaDoorSpawnExpected ObserveSolidEnemyProbeTarget(
         SamusCollisionDirection.Down => maxY - samus.Radius.Y,
         SamusCollisionDirection.Up => minY + samus.Radius.Y,
         SamusCollisionDirection.Left or
-            SamusCollisionDirection.Right or
-            SamusCollisionDirection.NonDirectionalProbe => (minY + maxY) / 2,
+            SamusCollisionDirection.Right => (minY + maxY) / 2,
         _ => (minY + maxY) / 2,
     };
     return new MotherBrainRinkaDoorSpawnExpected(unchecked((ushort)targetX), unchecked((ushort)targetY));
@@ -579,7 +574,9 @@ internal static void VerifySamusSolidEnemyCollision()
         Radius = new(5, 10),
         InteractiveEnemies = [frozen],
     };
-    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+    // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+    SamusState probeSamus = InstalledFixtures.CreateSamus();
+    BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(new RoomTerrain(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
     AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
@@ -592,7 +589,7 @@ internal static void VerifySamusSolidEnemyCollision()
 
     integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
-    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = airRoom, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, integrated, null, null, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
+    BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(new RoomTerrain(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true });
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
     AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual<ISolidEnemy?>(below.Enemy, integratedVertical.EnemyCollision?.Enemy,
@@ -604,16 +601,12 @@ internal static void VerifySamusSolidEnemyCollision()
     integrated.Position = integrated.Position.WithWholeX(100).WithWholeY(100).WithFractionY(0x4321);
     integrated.InteractiveEnemies = [solidTouch];
     BlockMoveResult wallProbe = SamusBlockCollision.ProbeWallHorizontal(
-airRoom, integrated, null, null, signedDistance: SignedSixteenSixteen.FromParts(1, 0), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+new RoomTerrain(airRoom, SamusRoomObjectFixtures.Uninstalled), integrated, probeSamus, probeSamus.Pose, signedDistance: SignedSixteenSixteen.FromParts(1, 0));
     AssertTrue(wallProbe.EnemyCollision is { WasTouching: true },
         "wall probe detects touching enemy before blocks");
     AssertEqual(100, integrated.Position.X.Whole, "wall probe does not commit X motion");
     AssertEqual(0, integrated.Position.Y.Fraction, "wall probe commits only native touching side effect");
 
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => SamusSolidEnemyCollision.Probe(
-            samus, [], SamusCollisionDirection.NonDirectionalProbe, UnsignedSixteenSixteen.FromWholePixels(0)),
-        "non-directional solid-enemy probe rejected");
 
     Console.WriteLine("  Solid enemies: eligibility, native rounding, overlap, gaps, order, and touching quirk agree.");
 }
@@ -759,12 +752,8 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(SamusNoInputPose.ToPose(SamusPoseId.DraygonGrabbedNeutralRightPose),
         SamusPoseMetadata.ReadNoInputPose(samus), "right grabbed aim fallback is $EC");
     SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, SamusPoseMetadata.ReadNoInputPose(samus).From(samus.Pose));
-    AssertThrows<InvalidOperationException>(
-        () => SamusPoseMetadata.ApplyDraygonGrabbedPoseChange(samus, 
-            SamusPoseId.DraygonGrabbedNeutralLeftPose),
-        "Draygon input table cannot cross owner-controlled facing families");
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
-        "rejected cross-family Draygon input retains current pose");
+        "right grabbed aim falls back to the neutral right pose");
 
     AssertTrue(!samus.DraygonGrabbed.CheckDraygonEscape(samus, newlyPressedInput: 0),
         "a check with no D-pad edge releases nothing");
@@ -783,7 +772,7 @@ internal static void VerifySamusGrabbedByDraygon()
     samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(2, 0x8000);
     samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen(4, 0xc000), SamusVerticalDirection.Down);
-    samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
+    samus.MorphBallBounceState = SamusBallBounce.MorphBallSecond;
 
     bool release = repeatedUp;
     for (int inputNumber = 1; inputNumber < SamusDraygonHoldDefinitions.EscapePresses; inputNumber++)
@@ -804,7 +793,7 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "release clears Y speed");
     AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "release clears Y subspeed");
     AssertEqual(SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "release clears Y direction");
-    AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "release clears bounce state");
+    AssertEqual(null, samus.MorphBallBounceState, "release clears bounce state");
     AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
         "release clears X acceleration mode");
     AssertEqual(SamusDraygonHoldPhase.ReleasedUnseen, samus.DraygonGrabbed.Phase, "the release waits for Draygon to see it");

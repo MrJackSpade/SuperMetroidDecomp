@@ -9,9 +9,14 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="Start">Where the tube starts falling.</param>
 /// <param name="Clears">The room mutation clearing the tube's place, and the block it is spawned at.</param>
 /// <param name="WaitAfterUpdates">The updates the collapse waits after the clear before the next tube falls.</param>
-internal sealed record MotherBrainTopTubeDrop(
+internal sealed partial record MotherBrainTopTubeDrop(
     RoomEnemyProjectileKind Kind,
     MotherBrainTopTubeSegment Segment,
     Position16<RoomPixels> Start,
     RoomObjectSpawnRequest<MotherBrainRoomMutation> Clears,
-    int WaitAfterUpdates) : MotherBrainTubeDrop(Clears, WaitAfterUpdates);
+    int WaitAfterUpdates) : MotherBrainFollowedTubeDrop(Clears, WaitAfterUpdates)
+{
+    /// <inheritdoc/>
+    internal override void React<TContext>(MotherBrainTubeDropReactions<TContext> reactions, TContext context) =>
+        Ensure.NotNull(reactions).Top(this, context);
+}

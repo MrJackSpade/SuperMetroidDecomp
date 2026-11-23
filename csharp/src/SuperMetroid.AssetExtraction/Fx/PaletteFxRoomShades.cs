@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using SuperMetroid.Core.Progression;
@@ -15,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// import's: each group starts at one ink of a room picture and runs to the end of that ink's colour group, as
 /// <c>PaletteFXObject_Handler</c> writes a record's colours from the object's colour pointer, skipping those it skips.
 /// </summary>
-internal static class PaletteFxRoomShades
+internal static partial class PaletteFxRoomShades
 {
     /// <summary>The colours of one of a room picture's colour groups.</summary>
     private const int GroupInks = 16;
@@ -48,11 +49,24 @@ internal static class PaletteFxRoomShades
         [ColourEffectColours.ParlorEscapeSky] = 87,
     }.ToImmutableDictionary();
 
-    /// <summary>The objects Tourian's statue room spawns as each boss's statue greys out, which no FX record names.</summary>
-    private static readonly ImmutableArray<ColourEffectId> StatueGreyOuts =
+    /// <summary>
+    /// The colour objects code spawns in rooms, outside any FX record, each placed by the room setup or the enemy whose code
+    /// spawns it (#2630, #2638): the statue room's unlocking animations spawn the bosses' statue grey-outs (the room is
+    /// Crateria's, so they follow the setup, not an area), and Mother Brain's body starts the escape's red flashes in her
+    /// room as her third phase's death ends. Every other colour object a room shows is named by its FX records.
+    /// </summary>
+    private static readonly ImmutableArray<CodeSpawnedColourEffects> CodeSpawned =
     [
-        ColourEffectId.GreyOutTourianStatueDraygon, ColourEffectId.GreyOutTourianStatueKraid,
-        ColourEffectId.GreyOutTourianStatueRidley, ColourEffectId.GreyOutTourianStatuePhantoon,
+        new(RoomSetupBehavior.RunStatueUnlockingAnimations, null,
+        [
+            ColourEffectId.GreyOutTourianStatueDraygon, ColourEffectId.GreyOutTourianStatueKraid,
+            ColourEffectId.GreyOutTourianStatueRidley, ColourEffectId.GreyOutTourianStatuePhantoon,
+        ]),
+        new(null, EnemyDefinitionId.MotherBrainBody,
+        [
+            ColourEffectId.TourianShutterRedFlashing, ColourEffectId.TourianBackgroundRedFlashing,
+            ColourEffectId.TourianGeneralLevelRedFlashing, ColourEffectId.TourianRedFlashingArkanoidBlocksAndRedOrbs,
+        ]),
     ];
 
     /// <summary>
@@ -60,8 +74,8 @@ internal static class PaletteFxRoomShades
     /// from <paramref name="colours"/>.
     /// </summary>
     /// <param name="rooms">The rooms whose pictures are shaded, each with the state it loads.</param>
-    /// <param name="colours">The records' installed colours.</param>
-    /// <exception cref="InvalidDataException">A record has no installed colour, or writes past its group's colours.</exception>
+    /// <param name="colours">The import's palette-effect colours of the records.</param>
+    /// <exception cref="InvalidDataException">A record has no colour in the import's palette-effect colours, or writes past its group's colours.</exception>
     internal static IReadOnlyList<SheetShade> Of(IEnumerable<SelectedRoom> rooms, IPaletteFxColorSource colours)
     {
         Ensure.NotNull(rooms);
@@ -71,8 +85,8 @@ internal static class PaletteFxRoomShades
         {
             foreach (RoomEffectDefinition record in room.State.Fx?.Effects ?? [])
                 objects.UnionWith(record.ColourEffects);
-            if (room.Area == AreaId.Tourian)
-                objects.UnionWith(StatueGreyOuts);
+            foreach (CodeSpawnedColourEffects spawned in CodeSpawned.Where(spawned => spawned.RunsIn(room.State)))
+                objects.UnionWith(spawned.Effects);
         }
         return [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => FirstInks.ContainsKey(entry.Colours))
             .Select(entry => Shade(entry.Colours, entry.Frame, colours))];
@@ -84,7 +98,7 @@ internal static class PaletteFxRoomShades
         : throw new InvalidDataException($"Palette-FX colours {group} recolour no room picture.");
 
     /// <summary>The shade of the room's <paramref name="group"/> showing <paramref name="frame"/>, coloured from <paramref name="colours"/>.</summary>
-    /// <exception cref="InvalidDataException">A colour is not installed, or the frame's record writes past its group's colours.</exception>
+    /// <exception cref="InvalidDataException">A colour is missing from the import's palette-effect colours, or the frame's record writes past its group's colours.</exception>
     internal static SheetShade Shade(ColourEffectColours group, ColourEffectFrame frame, IPaletteFxColorSource colours)
     {
         int first = FirstInk(group);

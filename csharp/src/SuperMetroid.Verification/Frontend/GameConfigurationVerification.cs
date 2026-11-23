@@ -1,5 +1,3 @@
-using System.Reflection;
-using SuperMetroid.Core;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Diagnostics.Configuration;
 namespace SuperMetroid.Verification.Frontend;
@@ -33,9 +31,9 @@ internal static void VerifyGameConfigurationIni()
         .Select(key => key == "Enabled" ? nameof(HostOptions.AudioEnabled) : key)
         .OrderBy(key => key, StringComparer.Ordinal).ToArray();
     // The file documents the game's options beside the host's own settings; the host record carries the game's as one member.
-    string[] optionProperties = MetadataShape.Properties(typeof(SuperMetroidGameOptions), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public)
-        .Concat(MetadataShape.Properties(typeof(HostOptions), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public))
-        .Select(property => property.Name).Where(name => name != nameof(HostOptions.Game))
+    // Each record's compiler-written ToString names every option it holds, the game's inside the host's (#2602).
+    string[] optionProperties = System.Text.RegularExpressions.Regex.Matches(new HostOptions().ToString(), @"(\w+) = ")
+        .Select(match => match.Groups[1].Value).Where(name => name != nameof(HostOptions.Game))
         .OrderBy(key => key, StringComparer.Ordinal).ToArray();
     AssertEqual(string.Join(',', optionProperties), string.Join(',', documentedKeys),
         "shipped INI explicitly documents every supported option exactly once");

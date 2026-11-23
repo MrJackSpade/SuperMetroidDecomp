@@ -36,7 +36,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         {
             InstructionMechanicsWord definition =
                 TourianStatueProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Tourian statue projectile mechanics word $86:{definition.Address:X4}");
         }
@@ -46,9 +46,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var executedOperands = new HashSet<ushort>();
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            TourianStatueProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
+            TourianStatueProjectileNativeListAddresses.Family.NativePointers(rom);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: InstalledFixtures.BossArtwork,
-            statueRoom: new FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
         enemies.VerificationServices().NextRandom = () => 4;
         _ = EnemySystemFixtures.StatueScene(enemies);
         TourianUnlockBehavior unlock = EnemySystemFixtures.UnlockEffects(enemies);
@@ -95,7 +95,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         particle.Position = particle.Position.WithWholeY(216);
         particle.Velocity = particle.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(512));
         unlock.Effects.RunMotion(new EnemyProjectileMotionContext(particle, RoomLevelData.CollisionOnly(new(1, 1), [RoomCollisionType.Air]),
-            RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, ShortCounter: 0, FrameCounter: 0,
+            RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, ShortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, FrameCounter: 0,
             InstalledFixtures.CreateBombSystem()));
         EnemyProjectile splash = Single(RoomEnemyProjectileKind.TourianStatueSplash);
         Run(splash, 4);
@@ -113,9 +113,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         EnemyProjectile baseDecoration = SpawnStatue(
             RoomEnemyProjectileKind.TourianStatueBaseDecoration);
         Run(baseDecoration, 2);
-        AssertEqual<Enum?>(
-            TourianStatueDecorationMotion.FollowingReveal,
-            baseDecoration.Motion,
+        AssertTrue(baseDecoration.MovesBy(TourianStatueDecorationMotion.FollowingReveal),
             "base decoration installs its delayed position callback");
         AssertEqual((ushort)0xb866, NativePointer(baseDecoration),
             "base decoration reaches its stable loop");
@@ -169,9 +167,9 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             if (!enemies.Projectiles.EnemyProjectiles.Any(projectile => projectile.IsActive && projectile.Kind == kind))
             {
                 RoomEnemyPlace placement = enemies.Places.InUpdateOrder[0];
+                placement.Bind(EnemyDefinitionId.TourianStatue, placement.KeptDefinition);
                 placement.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, 0);
-                placement.Bind(EnemyDefinitionId.TourianStatue, placement.Definition);
-                EnemySystemFixtures.InitializeStatuePlacement(placement);
+                _ = enemies.LoadAuthoredPopulation();
             }
             return enemies.Projectiles.EnemyProjectiles.First(projectile => projectile.IsActive && projectile.Kind == kind);
         }
@@ -181,7 +179,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             for (int frame = 0; frame < frames; frame++)
             {
                 projectile.FrameHold = WrappingCountdown.Start(1);
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
                 // The shown frame's operand sits just before the instruction the native pointer stands on.
                 VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
                     projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);

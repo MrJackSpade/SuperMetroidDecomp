@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -21,12 +20,11 @@ internal static class BoostFloorAuditVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.DoubleChamber);
-        var level = runtime.Room.LoadedLevelData;
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.VariaSuit);
         samus.Position = samus.Position.WithWhole(new(80, 420));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -36,7 +34,7 @@ internal static class BoostFloorAuditVerification
         bool accelerated = false;
         for (int frame = 0; frame < 240; frame++)
         {
-            runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Dash));
+            runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]));
             accelerated |= samus.HorizontalSpeed.ExtraRunSpeed.Whole >= 4;
             if (samus.Position.X.Whole is >= 352 and < 416)
             {
@@ -52,14 +50,14 @@ internal static class BoostFloorAuditVerification
         var kinematics = samus.Kinematics;
         kinematics.Position = kinematics.Position.WithWholeX(375).WithWholeY(451).WithFractionY(0);
         kinematics.PositionAdjustedBySlope = false;
-        var floor = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true, IncludeSolidEnemies = false });
+        var floor = SamusBlockCollision.MoveVertical(runtime.Room.LoadedScope.SamusTerrain, kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = true, IncludeSolidEnemies = false });
         AssertTrue(floor.Collided && kinematics.PositionAdjustedBySlope, "downward square-floor contact sets native support latch");
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(7) });
+        SamusBlockCollision.MoveHorizontal(runtime.Room.LoadedScope.SamusTerrain, kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(7) });
         AssertTrue(kinematics.PositionAdjustedBySlope, "horizontal alignment preserves prior square-floor support");
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(0), ScanLeftToRight = false, IncludeSolidEnemies = false });
+        SamusBlockCollision.MoveVertical(runtime.Room.LoadedScope.SamusTerrain, kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(0), ScanLeftToRight = false, IncludeSolidEnemies = false });
         AssertTrue(kinematics.PositionAdjustedBySlope, "zero vertical movement preserves native support latch");
         kinematics.Position = kinematics.Position.WithWholeY(400);
-        SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false, IncludeSolidEnemies = false });
+        SamusBlockCollision.MoveVertical(runtime.Room.LoadedScope.SamusTerrain, kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1), ScanLeftToRight = false, IncludeSolidEnemies = false });
         AssertTrue(!kinematics.PositionAdjustedBySlope, "nonzero unobstructed terrain entry clears support latch");
         Console.WriteLine("  Boosted floor: retail half-height traversal, real wall endpoint and native slope-support latch lifetime agree.");
     }

@@ -16,14 +16,14 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="kind">The item or tank.</param>
 /// <param name="presentation">How the item lies: exposed, in a Chozo orb or in a shot block.</param>
-/// <param name="blockPair">The terrain block pair an item that shows its own picture draws into; null for a tank.</param>
+/// <param name="terrain">The terrain the item writes its looks into: a tank's own blocks, or the block pair an item that shows its own picture took.</param>
 /// <param name="phase">The phase the item's setup leaves it in.</param>
 /// <param name="location">Where the item lies in the game's item record, as its placement named it.</param>
 /// <param name="savedTerrain">The block the item's setup left at its place, which a shot block's return restores.</param>
-internal sealed class CollectibleObject(
+internal sealed partial class CollectibleObject(
     InWorldCollectibleKind kind,
     CollectiblePresentation presentation,
-    CollectibleBlockPairs.Pair? blockPair,
+    CollectibleTerrain terrain,
     CollectiblePhase phase,
     ItemLocation location,
     RoomTerrainBlock savedTerrain) : RoomObjectBehaviour
@@ -42,10 +42,10 @@ internal sealed class CollectibleObject(
     /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>
     public CollectiblePresentation Presentation { get; } = presentation;
     /// <summary>
-    /// The terrain block pair an item that shows its own picture writes its frames into (<see cref="CollectibleBlockPairs"/>);
-    /// null for a tank, whose frames are its kind's own blocks.
+    /// The terrain the item writes its looks into (#2558): a tank's own blocks, or the block pair an item that shows its own
+    /// picture took (<see cref="CollectibleBlockPairs"/>).
     /// </summary>
-    public CollectibleBlockPairs.Pair? BlockPair { get; } = blockPair;
+    internal CollectibleTerrain Terrain { get; } = Ensure.NotNull(terrain);
     /// <summary>Current reveal, visible, message, empty, or respawn phase.</summary>
     public CollectiblePhase Phase { get; private set; } = phase;
     /// <summary>
@@ -55,6 +55,93 @@ internal sealed class CollectibleObject(
     private readonly AnimationPlayer<CollectibleSequence, CollectibleImage, CollectiblePhase> _shown =
         AnimationPlayer<CollectibleSequence, CollectibleImage, CollectiblePhase>.Starting(CollectibleSequenceAnimations.Segments,
             phase == CollectiblePhase.ChozoOrb ? CollectibleSequenceAnimations.OrbPulsing : CollectibleSequenceAnimations.Exposed);
+    /// <summary>What <c>Update</c> does for each <see cref="CollectiblePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<CollectiblePhase, Action<RoomObjectPlace, RoomObjectStepContext>> UpdateForCollectiblePhase => field ??= new(new Dictionary<CollectiblePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [CollectiblePhase.AwaitingMessage] = (place, context) => { },
+        [CollectiblePhase.ResumeAfterMessage] = (place, context) => FinishPickup(context.RoomObjects.Drawing, context.Level, place),
+        [CollectiblePhase.EmptyAwaitingDelete] = (place, context) =>
+        {
+            // The empty item ends by leaving the room.
+            if (ShowsOn(place, context))
+                place.Delete();
+        },
+        [CollectiblePhase.CollectedEmpty] = (place, context) =>
+        {
+            context.Draw(place, RoomObjectCollectibleDrawDefinitions.Empty);
+            place.Delete();
+        },
+        [CollectiblePhase.VisibleTouched] = (place, context) => context.RoomObjects.CollectibleObjects.Acquire(this, place, context.Outcome),
+        [CollectiblePhase.ShotBlockVisibleTouched] = (place, context) => context.RoomObjects.CollectibleObjects.Acquire(this, place, context.Outcome),
+        [CollectiblePhase.Visible] = (place, context) => _ = ShowsOn(place, context),
+        [CollectiblePhase.ShotBlockVisible] = (place, context) => _ = ShowsOn(place, context),
+        [CollectiblePhase.ChozoOrb] = (place, context) => _ = ShowsOn(place, context),
+        [CollectiblePhase.ChozoOrbShot] = (place, context) =>
+        {
+            // Breaking the shell persists nothing: an orb broken on an earlier visit is whole again.
+            Phase = CollectiblePhase.ChozoOrbBurst;
+            Show(CollectibleSequenceAnimations.OrbBurst, place, context);
+        },
+        [CollectiblePhase.ChozoOrbBurst] = (place, context) =>
+        {
+            // Nothing reaches a bursting orb, so the item it exposes waits for a touch.
+            if (!ShowsOn(place, context))
+                return;
+            Phase = CollectiblePhase.Visible;
+            Show(CollectibleSequenceAnimations.Exposed, place, context);
+        },
+        [CollectiblePhase.ShotBlock] = (place, context) => { },
+        [CollectiblePhase.CollectedShotBlock] = (place, context) => { },
+        [CollectiblePhase.ShotBlockShot] = (place, context) => UpdateForCollectiblePhaseShotBlockShot(place, context),
+        [CollectiblePhase.CollectedShotBlockShot] = (place, context) => UpdateForCollectiblePhaseShotBlockShot(place, context),
+        [CollectiblePhase.CollectedShotBlockReveal] = (place, context) =>
+        {
+            if (!ShowsOn(place, context))
+                return;
+            Phase = CollectiblePhase.CollectedShotBlockEmpty;
+            Show(CollectibleSequenceAnimations.CollectedShotBlockEmpty, place, context);
+        },
+        [CollectiblePhase.ShotBlockReveal] = (place, context) =>
+        {
+            // Nothing reaches a crumbling block, so the item it reveals waits for a touch.
+            if (!ShowsOn(place, context))
+                return;
+            Phase = CollectiblePhase.ShotBlockVisible;
+            Show(CollectibleSequenceAnimations.Revealed, place, context);
+        },
+        [CollectiblePhase.ShotBlockReconceal] = (place, context) =>
+        {
+            if (!ShowsOn(place, context))
+                return;
+            // The shot block shows whole as its saved block returns over it on the same update.
+            context.Draw(place, RoomObjectCollectibleDrawDefinitions.ShotBlockIntact);
+            context.DrawSavedTerrain(place, SavedTerrain);
+            Phase = CollectiblePhase.ShotBlock;
+        },
+        [CollectiblePhase.CollectedShotBlockEmpty] = (place, context) =>
+        {
+            if (!ShowsOn(place, context))
+                return;
+            Phase = CollectiblePhase.CollectedShotBlockRespawn;
+            Show(CollectibleSequenceAnimations.ShotBlockRespawn, place, context);
+        },
+        [CollectiblePhase.CollectedShotBlockRespawn] = (place, context) =>
+        {
+            if (!ShowsOn(place, context))
+                return;
+            context.DrawSavedTerrain(place, SavedTerrain);
+            Phase = CollectiblePhase.CollectedShotBlock;
+        },
+    });
+
+    /// <summary>What <see cref="UpdateForCollectiblePhase"/> does for <see cref="CollectiblePhase.ShotBlockShot"/>, <see cref="CollectiblePhase.CollectedShotBlockShot"/>.</summary>
+    private void UpdateForCollectiblePhaseShotBlockShot(RoomObjectPlace place, RoomObjectStepContext context)
+    {
+        Phase = Phase == CollectiblePhase.CollectedShotBlockShot ? CollectiblePhase.CollectedShotBlockReveal : CollectiblePhase.ShotBlockReveal;
+        Show(CollectibleSequenceAnimations.ShotBlockReveal, place, context);
+        context.QueueSound(EnemySound.BlockCrumble, SoundRequestPriority.Normal);
+    }
+
     /// <inheritdoc/>
     internal override void Update(RoomObjectPlace place, RoomObjectStepContext context)
     {
@@ -62,103 +149,7 @@ internal sealed class CollectibleObject(
         // Collision runs before the room-object update. The item trigger its setup wrote, for touch and shot, therefore
         // pre-empts the image the item shows on this same update; otherwise touching an item could leave Samus embedded
         // in its solid block for up to four extra updates.
-        switch (Phase)
-        {
-            case CollectiblePhase.AwaitingMessage:
-                return;
-
-            case CollectiblePhase.ResumeAfterMessage:
-                FinishPickup(context.RoomObjects.Drawing, context.Level, place);
-                return;
-
-            case CollectiblePhase.EmptyAwaitingDelete:
-                // The empty item ends by leaving the room.
-                if (ShowsOn(place, context))
-                    place.Delete();
-                return;
-
-            case CollectiblePhase.CollectedEmpty:
-                context.Draw(place, RoomObjectCollectibleDrawDefinitions.Empty);
-                place.Delete();
-                return;
-
-            case CollectiblePhase.VisibleTouched:
-            case CollectiblePhase.ShotBlockVisibleTouched:
-                context.RoomObjects.CollectibleObjects.Acquire(this, place, context.Outcome);
-                return;
-
-            case CollectiblePhase.Visible:
-            case CollectiblePhase.ShotBlockVisible:
-            case CollectiblePhase.ChozoOrb:
-                _ = ShowsOn(place, context);
-                return;
-
-            case CollectiblePhase.ChozoOrbShot:
-                // Breaking the shell persists nothing: an orb broken on an earlier visit is whole again.
-                Phase = CollectiblePhase.ChozoOrbBurst;
-                Show(CollectibleSequenceAnimations.OrbBurst, place, context);
-                return;
-
-            case CollectiblePhase.ChozoOrbBurst:
-                // Nothing reaches a bursting orb, so the item it exposes waits for a touch.
-                if (!ShowsOn(place, context))
-                    return;
-                Phase = CollectiblePhase.Visible;
-                Show(CollectibleSequenceAnimations.Exposed, place, context);
-                return;
-
-            case CollectiblePhase.ShotBlock:
-            case CollectiblePhase.CollectedShotBlock:
-                return;
-
-            case CollectiblePhase.ShotBlockShot:
-            case CollectiblePhase.CollectedShotBlockShot:
-                Phase = Phase == CollectiblePhase.CollectedShotBlockShot ? CollectiblePhase.CollectedShotBlockReveal : CollectiblePhase.ShotBlockReveal;
-                Show(CollectibleSequenceAnimations.ShotBlockReveal, place, context);
-                context.QueueSound(EnemySound.BlockCrumble, SoundRequestPriority.Normal);
-                return;
-
-            case CollectiblePhase.CollectedShotBlockReveal:
-                if (!ShowsOn(place, context))
-                    return;
-                Phase = CollectiblePhase.CollectedShotBlockEmpty;
-                Show(CollectibleSequenceAnimations.CollectedShotBlockEmpty, place, context);
-                return;
-
-            case CollectiblePhase.ShotBlockReveal:
-                // Nothing reaches a crumbling block, so the item it reveals waits for a touch.
-                if (!ShowsOn(place, context))
-                    return;
-                Phase = CollectiblePhase.ShotBlockVisible;
-                Show(CollectibleSequenceAnimations.Revealed, place, context);
-                return;
-
-            case CollectiblePhase.ShotBlockReconceal:
-                if (!ShowsOn(place, context))
-                    return;
-                // The shot block shows whole as its saved block returns over it on the same update.
-                context.Draw(place, RoomObjectCollectibleDrawDefinitions.ShotBlockIntact);
-                context.DrawSavedTerrain(place, SavedTerrain);
-                Phase = CollectiblePhase.ShotBlock;
-                return;
-
-            case CollectiblePhase.CollectedShotBlockEmpty:
-                if (!ShowsOn(place, context))
-                    return;
-                Phase = CollectiblePhase.CollectedShotBlockRespawn;
-                Show(CollectibleSequenceAnimations.ShotBlockRespawn, place, context);
-                return;
-
-            case CollectiblePhase.CollectedShotBlockRespawn:
-                if (!ShowsOn(place, context))
-                    return;
-                context.DrawSavedTerrain(place, SavedTerrain);
-                Phase = CollectiblePhase.CollectedShotBlock;
-                return;
-
-            default:
-                throw new InvalidDataException($"Collectible {Kind} reached unsupported phase {Phase}.");
-        }
+        UpdateForCollectiblePhase[Phase](place, context);
     }
 
     /// <summary>
@@ -197,7 +188,7 @@ internal sealed class CollectibleObject(
 
     /// <summary>
     /// The pickup message has closed: the item shows its empty block for one update and then leaves, or a shot block's
-    /// item leaves its block empty for twenty-two eight-update intervals before it respawns.
+    /// item leaves its block empty for <see cref="CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates"/> before it respawns.
     /// </summary>
     private void FinishPickup(IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
@@ -237,8 +228,7 @@ internal sealed class CollectibleObject(
     /// <summary>Starts <paramref name="animation"/> and draws its first image, which shows on this update.</summary>
     private void Show(Animation<CollectibleSequence> animation, IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
-        _shown.Show(animation);
-        Draw(_shown.Showing, drawing, level, place);
+        Draw(_shown.Show(animation), drawing, level, place);
     }
 
     /// <summary>
@@ -247,13 +237,18 @@ internal sealed class CollectibleObject(
     /// </summary>
     private void Draw(CollectibleImage image, IRoomObjectDrawing drawing, RoomLevelData level, RoomObjectPlace place)
     {
-        if (image.Look is not { } look)
+        switch (image.What)
         {
-            (image.Draw ?? throw new InvalidOperationException("A collectible image draws nothing.")).Draw(level, place.Block, drawing);
-            return;
+            case CollectibleImage.DrawnImage drawn:
+                drawn.Draw.Draw(level, place.Block, drawing);
+                return;
+            case CollectibleImage.VisibleLook { Look: var look }:
+                Terrain.VisibleFrame(Kind, look).Draw(level, place.Block, drawing);
+                if (Terrain.ShowsOwnPicture)
+                    level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined collectible image {image.What}.");
         }
-        CollectibleObjectDraws.VisibleFrame(Kind, look, BlockPair).Draw(level, place.Block, drawing);
-        if (BlockPair is not null)
-            level.ShowCollectible(place.Block, new CollectiblePicture(Kind, look));
     }
 }

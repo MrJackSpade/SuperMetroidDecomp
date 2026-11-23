@@ -18,10 +18,9 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TBeams">A beam combination.</typeparam>
 /// <typeparam name="TSound">A firing sound.</typeparam>
-[CompatibilityService("a Spazer and Plasma beam fires with the sounds that follow the beam sound lists")]
-public sealed class UnauthoredBeamSounds<TBeams, TSound>
+public sealed partial class UnauthoredBeamSounds<TBeams, TSound>
     where TBeams : notnull
-    where TSound : struct
+    where TSound : notnull
 {
     /// <summary>The sound each combination's uncharged shot fires with, or none.</summary>
     private readonly IReadOnlyDictionary<TBeams, TSound?> _uncharged;

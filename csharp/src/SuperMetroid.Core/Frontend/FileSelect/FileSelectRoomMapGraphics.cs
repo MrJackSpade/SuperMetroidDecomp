@@ -10,9 +10,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Room-select map and its frame.</summary>
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
-public sealed class FileSelectRoomMapGraphics
+public sealed partial class FileSelectRoomMapGraphics
 {
-    /// <summary>The room map's menu screen: its artwork, pictures, colours and sprite entries.</summary>
+    /// <summary>The room map's menu screen: its artwork, pictures, colours and sprites.</summary>
     internal readonly MenuScreen screen;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     internal readonly FileSelectMapIcons icons;
@@ -22,26 +22,25 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>The installed room-map pictures the map's cells and the frame draw from (#1467).</summary>
     private SpriteSheet roomPictures;
     /// <summary>How the room map shows the area's cells (#1466, #1467).</summary>
-    internal ShownAreaMap AreaMap { get; private set; }
+    internal ShownAreaMap AreaMap { get; set; }
     /// <summary>Persistent downloaded-map and explored-cell state held by the icon owner.</summary>
     internal SharedGameState MapSystem => icons.MapSystem;
 
     /// <summary>Installs one area's revealed map and fixed frame into a separate menu display owner, without choosing a load station or advancing menu timing.</summary>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
-    /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
+    /// <param name="zebes">One of the six Zebes map areas; Ceres has no room map on the saved-game map.</param>
     /// <param name="screenContent">The installed screen content, whose area maps supply the stations and landmarks.</param>
     /// <param name="sheets">The installed sprite sheets: the map sprites and the background pictures.</param>
-    public FileSelectRoomMapGraphics(SharedGameState system, AreaId area, InstalledScreenContent screenContent,
+    public FileSelectRoomMapGraphics(SharedGameState system, ZebesArea zebes, InstalledScreenContent screenContent,
         InstalledSpriteSheets sheets)
     {
+        AreaId area = AreaIds.Area(zebes);
         Ensure.NotNull(system);
         Ensure.NotNull(screenContent);
         InstalledSpriteSheets installed = Ensure.NotNull(sheets);
         mapSheet = installed.Get(SpriteSheetId.MapSprites);
         roomPictures = installed.Get(SpriteSheetId.RoomMapPictures);
         icons = new FileSelectMapIcons(system, area, screenContent.Maps.Stations, screenContent.Maps.Landmarks, mapSheet);
-        if (!AreaIds.IsZebes(area))
-            throw new ArgumentOutOfRangeException(nameof(area), area, "Ceres has no room map on the saved-game map.");
         screen = new MenuScreen(screenContent.Backdrops.Menus, installed);
         AreaMap = AreaMapProjection.Project(screenContent.Get(area), system);
     }

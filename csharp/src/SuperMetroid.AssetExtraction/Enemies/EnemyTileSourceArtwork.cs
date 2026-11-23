@@ -13,19 +13,19 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// sheets from, and the identity of the whole selected presentation. The runtime receives none of it: gameplay is given
 /// only every installed frame's display (<see cref="FrameDisplays"/>) and the composed sheets.
 /// </summary>
-public sealed class EnemyTileSourceArtwork
+public sealed partial class EnemyTileSourceArtwork
 {
     /// <summary>Each enemy's installed characters, by definition.</summary>
     internal readonly Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets;
 
     /// <summary>Each enemy's installed palette, by definition.</summary>
-    private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
+    internal readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
 
     /// <summary>The characters of the artwork graphics sets load for no enemy (#1686).</summary>
-    private readonly Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas> unplacedSheets;
+    internal readonly Dictionary<UnplacedEnemyArtwork, RoomCharacterAtlas> unplacedSheets;
 
     /// <summary>The colours of the artwork graphics sets load for no enemy (#1686).</summary>
-    private readonly Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> unplacedPalettes;
+    internal readonly Dictionary<UnplacedEnemyArtwork, EnemyPaletteSheet> unplacedPalettes;
 
     /// <summary>Copies installed artwork, rejecting a sheet without its palette.</summary>
     internal EnemyTileSourceArtwork(EnemyTileArtworkParts parts)
@@ -40,9 +40,9 @@ public sealed class EnemyTileSourceArtwork
         ChozoAndTubeColors = parts.ChozoAndTubeColors;
         DachoraColors = parts.DachoraColors;
         AuxiliaryColors = parts.AuxiliaryColors;
-        _spritemaps = parts.Spritemaps;
-        _extendedFrames = parts.ExtendedFrames;
-        BindFrameDisplays();
+        Spritemaps = parts.Spritemaps;
+        ExtendedFrames = parts.ExtendedFrames;
+        FrameDisplays = InstalledEnemyFrameDisplays.Of(Spritemaps, ExtendedFrames).Displays();
         GunshipLiftoff = parts.GunshipLiftoff;
         ProjectileSpritemaps = parts.ProjectileSpritemaps;
     }
@@ -57,71 +57,40 @@ public sealed class EnemyTileSourceArtwork
         : throw new InvalidDataException($"Enemy {enemy} has no installed palette.");
 
     /// <summary>Four editable Magdollite glow frames.</summary>
-    public MagdollitePaletteCycle? MagdollitePaletteCycle { get; }
+    public MagdollitePaletteCycle MagdollitePaletteCycle { get; }
 
     /// <summary>Six editable Work Robot glow records.</summary>
-    public WorkRobotPaletteCycle? WorkRobotPaletteCycle { get; }
+    public WorkRobotPaletteCycle WorkRobotPaletteCycle { get; }
 
     /// <summary>Editable Chozo statue and n00b-tube crack colours.</summary>
-    public ChozoAndTubeColorCatalog? ChozoAndTubeColors { get; }
+    public ChozoAndTubeColorCatalog ChozoAndTubeColors { get; }
 
     /// <summary>Editable Dachora normal, speed and shine colours.</summary>
-    public DachoraColorCatalog? DachoraColors { get; }
+    public DachoraColorCatalog DachoraColors { get; }
 
     /// <summary>Editable face-block glow, dead Sidehopper drain and Golden Torizo health colours.</summary>
-    public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; }
+    public EnemyAuxiliaryColorCatalog AuxiliaryColors { get; }
 
     /// <summary>Finds the installed tile sheet of <paramref name="enemy"/>.</summary>
     internal bool TryGetSheet(EnemyDefinitionId enemy, [NotNullWhen(true)] out RoomCharacterAtlas? sheet) =>
         sheets.TryGetValue(enemy, out sheet);
 
-    /// <summary>The installed ordinary enemy compositions.</summary>
-    private EnemySpritemapCatalog? _spritemaps;
+    /// <summary>Installed visual-only OAM frames.</summary>
+    public EnemySpritemapCatalog Spritemaps { get; }
 
-    /// <summary>The installed extended frame compositions.</summary>
-    private EnemyExtendedFrameCatalog? _extendedFrames;
-
-    /// <summary>Installed visual-only OAM frames; null for constructed legacy fixtures. Replacing them rebuilds <see cref="FrameDisplays"/>.</summary>
-    public EnemySpritemapCatalog? Spritemaps
-    {
-        get => _spritemaps;
-        internal set
-        {
-            _spritemaps = value;
-            BindFrameDisplays();
-        }
-    }
+    /// <summary>Installed extended frame compositions the sheet composer composes the frames' whole pictures from.</summary>
+    public EnemyExtendedFrameCatalog ExtendedFrames { get; }
 
     /// <summary>
-    /// Installed extended frame compositions the sheet composer composes the frames' whole pictures from. Replacing them
-    /// rebuilds <see cref="FrameDisplays"/>.
+    /// Every installed enemy frame as gameplay draws it, built from both enemy frame documents.
     /// </summary>
-    public EnemyExtendedFrameCatalog? ExtendedFrames
-    {
-        get => _extendedFrames;
-        internal set
-        {
-            _extendedFrames = value;
-            BindFrameDisplays();
-        }
-    }
+    public SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays FrameDisplays { get; }
 
-    /// <summary>
-    /// Every installed enemy frame as gameplay draws it, built from both enemy frame documents; null for constructed
-    /// fixtures that install only one of them.
-    /// </summary>
-    public SuperMetroid.Core.Enemies.Artwork.EnemyFrameDisplays? FrameDisplays { get; private set; }
+    /// <summary>Five editable gunship takeoff character uploads.</summary>
+    public GunshipLiftoffArtworkCatalog GunshipLiftoff { get; }
 
-    /// <summary>Builds <see cref="FrameDisplays"/> from the two installed enemy frame documents, none while either is missing.</summary>
-    private void BindFrameDisplays() =>
-        FrameDisplays = _spritemaps is { } spritemaps && _extendedFrames is { } extended
-            ? InstalledEnemyFrameDisplays.Of(spritemaps, extended).Displays() : null;
-
-    /// <summary>Five editable gunship takeoff character uploads; null for constructed fixtures.</summary>
-    public GunshipLiftoffArtworkCatalog? GunshipLiftoff { get; }
-
-    /// <summary>Installed bank-$8D projectile compositions; null for constructed fixtures.</summary>
-    public EnemyProjectileSpritemapCatalog? ProjectileSpritemaps { get; }
+    /// <summary>Installed bank-$8D projectile compositions.</summary>
+    public EnemyProjectileSpritemapCatalog ProjectileSpritemaps { get; }
 
     /// <summary>The installed tiles of <paramref name="enemy"/>, as its room's graphics set shows them (#1406).</summary>
     /// <exception cref="InvalidDataException">The installed artwork holds no tile set for the enemy.</exception>

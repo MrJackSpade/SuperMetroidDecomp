@@ -1,12 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Finds an enemy drop's pickup animation.</summary>
-internal static class EnemyPickups
+internal static partial class EnemyPickups
 {
     /// <summary>The drop animation of <paramref name="kind"/>.</summary>
-    /// <exception cref="InvalidDataException"><paramref name="kind"/> has no pickup animation.</exception>
-    internal static EnemyPickupAnimationDefinition Animation(EnemyPickupKind kind) =>
-        EnemyPickupDefinitions.Animations.TryGetValue(kind, out EnemyPickupAnimationDefinition animation)
-            ? animation
-            : throw new InvalidDataException($"Enemy pickup kind {kind} has no pickup animation.");
+    internal static EnemyPickupAnimationDefinition Animation(EnemyPickupKind kind) => EnemyPickupDefinitions.Animations[kind];
 }

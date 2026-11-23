@@ -28,7 +28,7 @@ internal static class GrappleConnectionSpeedBoostVerification
         })
         {
             SamusState samus = InstalledFixtures.CreateSamus();
-            samus.Pose = running;
+            samus.ChangePoseKeepingAnimation(running);
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.HorizontalSpeed.HasRunningMomentum = true;
@@ -53,9 +53,9 @@ internal static class GrappleConnectionSpeedBoostVerification
                 $"{running}: the connection clears the boost counter");
             AssertTrue(!samus.HorizontalSpeed.IsActivelySpeedBoosting, $"{running}: Samus no longer boosts once connected");
             AssertEqual(SpeedEchoPhase.Departing, samus.HorizontalSpeed.SpeedEchoPhase, $"{running}: the speed echoes depart");
-            AssertEqual(echoVelocity, samus.HorizontalSpeed.FirstSpeedEchoHorizontalSpeed,
+            AssertEqual(echoVelocity, samus.HorizontalSpeed.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.First].DepartureSpeed,
                 $"{running}: the first echo leaves the way the connected pose faces");
-            AssertEqual(echoVelocity, samus.HorizontalSpeed.SecondSpeedEchoHorizontalSpeed,
+            AssertEqual(echoVelocity, samus.HorizontalSpeed.SpeedEchoes[SuperMetroid.Core.Samus.Movement.SpeedEcho.Second].DepartureSpeed,
                 $"{running}: the second echo leaves the way the connected pose faces");
             AssertEqual(default(UnsignedSixteenSixteen), samus.HorizontalSpeed.BaseSpeed, $"{running}: the connection clears the base speed");
             AssertEqual(default(UnsignedSixteenSixteen), samus.HorizontalSpeed.ExtraRunSpeed,

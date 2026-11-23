@@ -28,7 +28,7 @@ internal static class ProjectileSoundRoutingVerification
                 ushort expected = ReadProjectileWord(retail, table + selector * 2);
                 AssertEqual(
                     SoundEffectCommands.DecodeOptional(SoundEffectLibrary.Samus, expected),
-                    SamusProjectileSoundRouting.Resolve(charged, SamusBeamCombinationTableOrder.FromTableIndex(selector)),
+                    SamusProjectileSoundRouting.Resolve(charged, SamusBeamCombinationTableOrderConstants.FromTableIndex(selector)),
                     $"{(charged ? "charged" : "uncharged")} beam sound selector {selector:X}");
                 observations++;
             }
@@ -39,7 +39,7 @@ internal static class ProjectileSoundRoutingVerification
         foreach (int invalid in new[] { -1, 16, 17, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(
-                () => SamusProjectileSoundRouting.Resolve(false, SamusBeamCombinationTableOrder.FromTableIndex(invalid)),
+                () => SamusProjectileSoundRouting.Resolve(false, SamusBeamCombinationTableOrderConstants.FromTableIndex(invalid)),
                 $"projectile sound selector {invalid} fails outside four-bit domain");
         }
 

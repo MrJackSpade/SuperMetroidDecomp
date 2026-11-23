@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
@@ -44,8 +45,8 @@ internal static class CollectiblePicturesVerification
     {
         var pairs = new CollectibleBlockPairs();
         CollectibleBlockPairs.Pair[] taken = [.. Enumerable.Range(0, Items.Length).Select(_ => pairs.Take())];
-        AssertTrue(taken.SequenceEqual([CollectibleBlockPairs.Pair.First, CollectibleBlockPairs.Pair.Second,
-                CollectibleBlockPairs.Pair.Third, CollectibleBlockPairs.Pair.Fourth, CollectibleBlockPairs.Pair.First]),
+        AssertTrue(taken.SequenceEqual([CollectibleBlockPairs.Pair.Solid, CollectibleBlockPairs.Pair.FirstDoor,
+                CollectibleBlockPairs.Pair.SecondDoor, CollectibleBlockPairs.Pair.ThirdDoor, CollectibleBlockPairs.Pair.Solid]),
             "collectibles take the four block pairs in turn, the fifth taking the first again");
 
         var bus = new TestAddressSpace();
@@ -71,8 +72,7 @@ internal static class CollectiblePicturesVerification
         roomObjects.Step(level);
         for (int item = 0; item < Items.Length; item++)
         {
-            AssertTrue(roomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(new Position16<RoomBlocks>((ushort)(item + 1), 1)),
-                $"{Items[item].Kind}'s orb accepts a projectile");
+            roomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(new Position16<RoomBlocks>((ushort)(item + 1), 1));
         }
         StepUntil(
             () => roomObjects.CollectiblePhases.All(phase => phase == CollectiblePhase.Visible),
@@ -83,7 +83,7 @@ internal static class CollectiblePicturesVerification
         {
             int blockIndex = size.RowMajorIndex(new Position16<RoomBlocks>((ushort)(item + 1), 1));
             RoomBlockAppearance written = level.GetCollisionBlockByIndex(blockIndex).Terrain.Appearance;
-            AssertTrue(written.IsCollectiblePairBlock && written.PairBlock.Pair == taken[item],
+            AssertTrue(written.Shows == RoomBlockShown.CollectiblePairBlock && written.PairBlock.Pair == taken[item],
                 $"{Items[item].Kind} writes a block of the block pair it took into the terrain, not {written}");
             AssertEqual(RoomCellPicture.Of(new CollectiblePicture(Items[item].Kind, written.PairBlock.Look)),
                 level.ForegroundPlane.Cells.Cells[blockIndex].Picture,

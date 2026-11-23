@@ -1,4 +1,3 @@
-using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
@@ -10,6 +9,7 @@ using SuperMetroid.TestSupport.FrameRendering;
 namespace SuperMetroid.Verification.Rendering;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks the Power Bomb's blast oval: its authored radii and aspect against the cartridge, its capture and its drawing.</summary>
 internal static class PowerBombShapeVerification
@@ -63,13 +63,13 @@ internal static class PowerBombShapeVerification
         var explosion = new SamusPowerBombExplosionState();
         explosion.Spawn(new(100, 120));
         int cases = 0;
-        foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite, PowerBombExplosionPhase.ExplosionYellow })
+        foreach (var phase in new PowerBombExplosionPhase[] { new PowerBombExplosionPhase.Running.PreExplosionWhite(), new PowerBombExplosionPhase.Running.ExplosionYellow() })
         {
-            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedPhase), phase);
+            explosion.Blast.RenderedPhase = phase;
             for (int radius = 0; radius < 256; radius++)
             {
-                PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedPreExplosionRadius), PowerBombRadius.FromPixels(radius, 123));
-                PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedExplosionRadius), PowerBombRadius.FromPixels(radius, 234));
+                explosion.Blast.RenderedPreExplosionRadius = PowerBombRadius.FromPixels(radius, 123);
+                explosion.Blast.RenderedExplosionRadius = PowerBombRadius.FromPixels(radius, 234);
                 ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                     ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
                 int tall = radius * 3 / 4;
@@ -85,9 +85,9 @@ internal static class PowerBombShapeVerification
         foreach (short centerY in new short[] { -16, 128, 240 })
         {
             explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
-            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedPhase), PowerBombExplosionPhase.ExplosionYellow);
-            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.RenderedExplosionRadius), PowerBombRadius.FromWholePixels(radius));
-            PrivateState.Set(explosion.Blast, nameof(PowerBombBlastTimeline.GlowColor), explosion.Blast.GlowColor.FadeLevels.WithRed(31).ToColour());
+            explosion.Blast.RenderedPhase = new PowerBombExplosionPhase.Running.ExplosionYellow();
+            explosion.Blast.RenderedExplosionRadius = PowerBombRadius.FromWholePixels(radius);
+            explosion.Blast.GlowColor = explosion.Blast.GlowColor.FadeLevels.WithRed(31).ToColour();
             ColourAddWindowLayer layer = GameplayEffectCapture.CapturePowerBombGlow(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0))
                 ?? throw new InvalidOperationException("An active Power Bomb captures its window.");
             RgbaPixel[] drawn = DisplayRendering.Render(new LayeredScene(FramePaint.FromNative(new RgbColor[SnesCgram.ColorCount], []),

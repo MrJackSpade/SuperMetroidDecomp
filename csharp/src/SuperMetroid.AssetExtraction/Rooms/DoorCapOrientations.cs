@@ -3,14 +3,11 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Decodes and names the orientation of a door-cap draw list.</summary>
-internal static class DoorCapOrientations
+internal static partial class DoorCapOrientations
 {
-    /// <summary>The orientations in the order the door caps' draw tables list them.</summary>
-    private static readonly ColoredDoorOrientation[] TableOrder =
+    /// <summary>The orientations in the order the door caps' draw tables list them, which the caps' editable visuals follow.</summary>
+    internal static IReadOnlyList<ColoredDoorOrientation> InTableOrder { get; } =
         [ColoredDoorOrientation.Left, ColoredDoorOrientation.Right, ColoredDoorOrientation.Up, ColoredDoorOrientation.Down];
-
-    /// <summary>The orientation at a position in a cap draw-list table.</summary>
-    internal static ColoredDoorOrientation FromTableIndex(int index) => TableOrder[index];
 
     /// <summary>The orientation's word in a cap's editable visual identity.</summary>
     internal static string VisualName(ColoredDoorOrientation orientation) => orientation switch

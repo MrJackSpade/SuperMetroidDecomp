@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// One round of Phantoon's vulnerability (#1933): how long his eye stays closed before it opens, the damage he has taken
 /// while it is open, and whether his hurt flash has painted him white.
 /// </summary>
-public sealed class PhantoonRoundState
+public sealed partial class PhantoonRoundState
 {
     /// <summary>
     /// The round's wait before his eye opens (#2538): the round's pattern starts it for one of

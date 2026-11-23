@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The state of one Puyo.</summary>
-public sealed class PuyoEnemyState
+public sealed partial class PuyoEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal PuyoEnemyState(PuyoAction action) => Action = action;
@@ -34,7 +34,7 @@ public sealed class PuyoEnemyState
     /// </summary>
     public PuyoHopType CurrentHop { get; internal set; }
 
-    /// <summary>The mark selected for the next hop.</summary>
+    /// <summary>The hop selected for the next launch.</summary>
     public PuyoHopType HopType { get; internal set; }
 
     /// <summary>The direction of the current hop.</summary>
@@ -52,33 +52,34 @@ public sealed class PuyoEnemyState
     /// <summary>One-half point of the initial vertical speed-curve place.</summary>
     public QuadraticSpeedCurvePlace InitialYSpeedCurvePlaceHalf { get; internal set; }
 
+    /// <summary>What <see cref="StepAirbornePlace"/> does for a Puyo falling and one rising.</summary>
+    private IdentityTable<VerticalDirection, Action<QuadraticSpeedCurvePlace>> StepAirbornePlaceByHeading => field ??= new(new Dictionary<VerticalDirection, Action<QuadraticSpeedCurvePlace>>
+    {
+        [VerticalDirection.Down] = delta =>
+        {
+            YSpeedCurvePlace += delta;
+            if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.WholeMarks))
+                YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+        },
+        [VerticalDirection.Up] = delta =>
+        {
+            YSpeedCurvePlace -= delta;
+            if (!YSpeedCurvePlace.IsNegative)
+                return;
+            Action = PuyoAction.Falling;
+            YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
+        },
+    });
+
     /// <summary>
     /// One airborne update's change to the speed-curve place: rising lowers it by <paramref name="delta"/>, and a rise
     /// past the curve's start is the hop's apex, where it falls from the start; falling raises it, and an overlong fall
     /// starts again from rest (<see cref="PuyoFallRestart"/>).
     /// </summary>
     /// <param name="delta">The hop's step along the curve, at most three whole marks.</param>
-    /// <exception cref="InvalidOperationException">The Puyo is grounded.</exception>
-    internal void StepAirbornePlace(QuadraticSpeedCurvePlace delta)
+    /// <param name="heading">The way the airborne Puyo moves: up while it rises, down while it falls.</param>
+    internal void StepAirbornePlace(QuadraticSpeedCurvePlace delta, VerticalDirection heading)
     {
-        switch (Action)
-        {
-            case PuyoAction.Falling:
-                YSpeedCurvePlace += delta;
-                if (PuyoFallRestart.StartsOver(YSpeedCurvePlace.WholeMarks))
-                    YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-                return;
-            case PuyoAction.Rising:
-                YSpeedCurvePlace -= delta;
-                if (!YSpeedCurvePlace.IsNegative)
-                    return;
-                Action = PuyoAction.Falling;
-                YSpeedCurvePlace = QuadraticSpeedCurvePlace.Start;
-                return;
-            case PuyoAction.Grounded:
-                throw new InvalidOperationException("A grounded Puyo has no airborne place to step.");
-            default:
-                throw new InvalidDataException($"Undefined {nameof(PuyoAction)} {Action}.");
-        }
+        StepAirbornePlaceByHeading[heading](delta);
     }
 }

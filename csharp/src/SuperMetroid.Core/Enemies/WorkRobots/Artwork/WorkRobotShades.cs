@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 /// through, which the cycle's steps showing that place share (#2393). The import colours each from the installed Work Robot
 /// glow colours.
 /// </summary>
-internal static class WorkRobotShades
+internal static partial class WorkRobotShades
 {
     /// <summary>
     /// The installed name of each glow place's shade (#2511), written out so renaming a place's identity never changes a name
@@ -28,5 +28,5 @@ internal static class WorkRobotShades
     /// his health band (#2297).
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The place has no installed name.</exception>
-    internal static PictureShade Glow(WorkRobotGlowPlace place) => new(Ensure.Listed(GlowKeys, place), 0);
+    internal static PictureShade Glow(WorkRobotGlowPlace place) => new(GlowKeys[place], 0);
 }

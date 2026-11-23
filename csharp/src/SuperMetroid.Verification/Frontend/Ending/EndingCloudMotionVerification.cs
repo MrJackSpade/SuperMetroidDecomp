@@ -32,18 +32,19 @@ internal static class EndingCloudMotionVerification
             var sprite = new CinematicActor<EndingSceneAnimation, CinematicSpritePose, EndingSceneCue>(new(200, 200), EndingShades.Drawn(EndingSpriteColouring.Clouds), EndingSceneAnimations.Pictures,
                 EndingSceneAnimation.TopCloudPattern);
             var wrapper = new EndingPictureSprite(sprite, role);
-            EndingCloudDrift drift = AssertIs<EndingCloudDrift>(wrapper.Motion, $"{role} drifts as a cloud");
+            // The cloud moves as the ending steps it: it waits for the zoom's threshold, the update that crosses it starts
+            // the drift without moving, and from the next it drifts even once the zoom falls back past the threshold, which
+            // would not start it.
             var scene = new CloudScene { FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 95 : 176) };
-            drift.Step(sprite, scene);
-            AssertTrue(!drift.Drifting, "cloud waits for native zoom threshold");
+            wrapper.StepMotion(scene);
+            AssertTrue(sprite.ScreenPlace.X == 200 && sprite.ScreenPlace.Y == 200, $"{role} waits for native zoom threshold");
             scene.FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 96 : 175);
-            drift.Step(sprite, scene);
-            AssertTrue(drift.Drifting, "cloud switches pre-instruction at threshold");
-            AssertEqual(200, (int)sprite.ScreenPlace.Y, "activation does not run the movement callback early");
+            wrapper.StepMotion(scene);
+            AssertTrue(sprite.ScreenPlace.X == 200 && sprite.ScreenPlace.Y == 200, "activation does not run the movement callback early");
             scene.FloorZoom = FloorZoomConstants.FromTwoHundredFiftySixths(side ? 0 : 200);
             for (int frame = 1; frame <= 12; frame++)
             {
-                drift.Step(sprite, scene);
+                wrapper.StepMotion(scene);
                 int direction = negative ? -1 : 1;
                 AssertEqual(200 + (side ? direction * frame : 0), (int)sprite.ScreenPlace.X, "native cloud horizontal trajectory");
                 AssertEqual(200 + direction * frame * (side ? 2 : 1), (int)sprite.ScreenPlace.Y, "native cloud vertical trajectory persists after threshold reversal");

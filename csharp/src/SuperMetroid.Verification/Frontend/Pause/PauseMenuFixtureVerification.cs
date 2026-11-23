@@ -31,12 +31,9 @@ internal static class PauseMenuFixtureVerification
         ImportAreaMapPresentation stock = RetailImportPresentationFixture();
         InstalledScreenContent game = stock.Game;
         byte[] Read(int address, int count) => RomDataReader.ReadFixedBank(
-            CartridgeImportSource.Require(bus), address, count);
-        T ImportDocument<T>(string name) => JsonSerializer.Deserialize<T>(
-            File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), name)),
-            ArtworkJson.Options) ?? throw new InvalidDataException(name);
-        MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options));
+            bus, address, count);
+        T ImportDocument<T>(string name) => JsonSerializer.Deserialize<T>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), name)), global::SuperMetroid.Verification.VerificationJson.Info<T>(ArtworkJson.Options)) ?? throw new InvalidDataException(name);
+        MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<T>(ArtworkJson.Options)));
 
         // The pause colours come from the constructed ROM, as the import reads them; the other screens' are stock's.
         var pauseColors = new SnesCgram();
@@ -53,13 +50,12 @@ internal static class PauseMenuFixtureVerification
         Read(MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
 
         var singlePart = new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
-            TileColumn = 0, TileRow = 0, Size = 8, Priority = 0, Palette = null,
+            TileColumn = 0, TileRow = 0, Size = 8, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindRoom, Palette = null,
             FlipX = false, FlipY = false };
         // The map sprites' compositions are import data (#1638): the cartridge-derived extraction's.
         var sprites = JsonSerializer.Deserialize<MapSpriteDocument>(File.ReadAllBytes(Path.Combine(
             SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(
-                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)),
-            ArtworkJson.Options) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
+                SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.MapDirectoryName), MapSpriteFormat.JsonFile)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapSpriteDocument>(ArtworkJson.Options)) ?? throw new InvalidDataException(MapSpriteFormat.JsonFile);
         foreach (string name in new[] { "Indicator.Small", "Indicator.Middle", "Indicator.Large" })
             sprites.Frames[name] = [singlePart];
         using var spriteJson = Json(sprites);
@@ -79,7 +75,7 @@ internal static class PauseMenuFixtureVerification
         using var reserveJson = Json(reserveTanks);
         PauseReserveTankSourcePresentation constructedTanks = PauseReserveTankSourcePresentation.Load(reserveJson);
         // Every part comes from the stock catalog's same-named property unless the fixture constructs it above.
-        var parts = new InstalledScreenContentParts
+        var parts = new InstalledScreenContent
         {
             ContentIdentity = "constructed-pause-interaction-fixture",
             Maps = new AreaMapPresentation(areas, game.Maps.HighlightCycle, game.Maps.Labels, game.Maps.Stations, game.Maps.Landmarks,
@@ -103,10 +99,10 @@ internal static class PauseMenuFixtureVerification
             CeresRidleyGetawayBoostDelays = game.CeresRidleyGetawayBoostDelays,
         };
         // The screens and the HUD are pictured from the constructed ROM's characters (#1466).
-        return InstalledFixtures.Record(new ImportAreaMapPresentation(new InstalledScreenContent(parts),
+        return InstalledFixtures.Record(new ImportAreaMapPresentation(parts,
             new ImportPresentationCharacters(new MapCharacterArtwork(
-                new MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
-                new MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
+                new global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters(Read(MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount)), new HudTileAtlas(hud),
+                new global::SuperMetroid.AssetExtraction.Frontend.Map.MapTileCharacters(Read(MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount))),
                 MapSpriteArtwork.Read(spriteJson, spritePng), stock.EscapeTimerTiles, stock.BlockAnimationAtlas, stock.WorldCharacters,
                 stock.IntroFont, stock.EndingFont, stock.TitleGraphics),
             new ImportPresentationColours(stock.SamusColours, stock.TitlePalette,

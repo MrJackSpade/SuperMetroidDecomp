@@ -24,7 +24,7 @@ internal static class BossHealthBandsVerification
         {
             int row = 0;
             GoldenTorizoHealthBand band = GoldenTorizoHealthBand.Of(health);
-            while (GoldenTorizoHealthBandDefinitions.LowestFirst[row] != band)
+            while (GoldenTorizoHealthBandDefinitions.HighestFirst[^(row + 1)] != band)
                 row++;
             AssertEqual(Math.Min(health / 2048, 7), row, $"Golden Torizo at {health} health shows health row {row}");
         }

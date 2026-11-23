@@ -31,7 +31,7 @@ internal static class MotherBrainAnimationsVerification
     /// <summary>Every typed slot and brain program equals its native list, and the runners keep the native cadence.</summary>
     internal static void VerifyMotherBrainAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int body = CompareBody(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         int head = CompareHead(cartridge).Values.Sum(list => list.BeatAddresses.Length);
         CompareBaby(cartridge);
@@ -60,16 +60,23 @@ internal static class MotherBrainAnimationsVerification
         AssertEqual(RoomFlashGoto.Target, cartridge.ReadCartridgeWord(RoomFlashLoop + 2), "the room flash loops to its first frame");
     }
 
-    /// <summary>Creates Mother Brain's body and head in a fresh enemy system.</summary>
-    private static NewMotherBrainResult NewMotherBrain()
+    /// <summary>Creates Mother Brain's body and head in a fresh enemy system of the installation's services and artwork.</summary>
+    private static NewMotherBrainResult NewMotherBrain() => NewMotherBrain(EnemySessionFixtures.WithInstalledServices());
+
+    /// <summary>
+    /// Creates Mother Brain's body and head in a fresh enemy system drawing from the installed sheets alone, which her
+    /// brain's draws (<see cref="MotherBrainBrainDraws"/>) draw from, building her head's sheet and no other (#2606).
+    /// </summary>
+    private static NewMotherBrainResult NewMotherBrainOverInstalledSheets() => NewMotherBrain(MotherBrainBrainDraws.Session());
+
+    /// <summary>
+    /// Places Mother Brain's body and head in a fresh enemy system of <paramref name="session"/> as her room's population
+    /// places them, her glass set up first; the encounter is the one her body's setup began.
+    /// </summary>
+    private static NewMotherBrainResult NewMotherBrain(EnemySession session)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
-        RoomEnemyPlace bodyPlace = enemies.Places.InUpdateOrder[0];
-        bodyPlace.Bind(EnemyDefinitionId.MotherBrainBody, bodyPlace.Definition);
-        RoomEnemyPlace headPlace = enemies.Places.InUpdateOrder[1];
-        headPlace.Bind(EnemyDefinitionId.MotherBrainHead, headPlace.Definition);
-        var state = new MotherBrainEnemyState(bodyPlace, headPlace, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-        enemies.MotherBrainEncounter.BeginAsSetUp(state);
+        var enemies = EnemySystemFixtures.New(session, RoomEnemyCompatibilityFixtures.ForNewRoom(), services: new VerificationRoomEnemyServices(null));
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
         return new NewMotherBrainResult(enemies, state);
     }
 
@@ -82,35 +89,35 @@ internal static class MotherBrainAnimationsVerification
     {
         foreach (MotherBrainHeadSegment program in new[] { MotherBrainHeadSegment.NeutralPhase2, MotherBrainHeadSegment.Laser, MotherBrainHeadSegment.Corpse })
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, program);
             var frames = MotherBrainAnimations.HeadSegments.Beats(program).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().ToArray();
-            AssertEqual<EnemyFrameId?>(frames[0].Shown, state.Brain.ShownFrame, $"{program} shows its first frame from its start");
+            // Its start counts as its first frame's first update, so its draws hold that frame with no new frame shown.
             for (int draw = 1; draw < frames[0].Duration; draw++)
             {
-                AssertEqual((EnemyFrameId?)frames[0].Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
+                AssertEqual((EnemyFrameId?)frames[0].Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"{program} shows its first frame on draw {draw}");
                 AssertTrue(!state.Brain.Clock.ShowsNewFrame, $"{program} holds its first frame on draw {draw}");
             }
             for (int draw = 0; draw < 2; draw++)
             {
-                AssertEqual((EnemyFrameId?)frames[1].Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
+                AssertEqual((EnemyFrameId?)frames[1].Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"{program} shows its second frame on its draw {draw}");
                 AssertEqual(draw == 0, state.Brain.Clock.ShowsNewFrame, $"{program} moves on to its second frame on its draw {draw} alone");
             }
         }
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.StretchingPhase2);
             var opening = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.StretchingPhase2).OfType<AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame>().First();
-            AssertEqual<EnemyFrameId?>(null, state.Brain.ShownFrame, "a stretch, which opens with a cue, shows nothing before its first draw");
+            // A stretch opens with a cue, which plays at its first draw: that draw shows its first frame as a new frame.
             for (int draw = 0; draw < opening.Duration; draw++)
             {
-                AssertEqual((EnemyFrameId?)opening.Shown, enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
+                AssertEqual((EnemyFrameId?)opening.Shown, enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus()),
                     $"the stretch shows its first frame on draw {draw}");
                 AssertEqual(draw == 0, state.Brain.Clock.ShowsNewFrame, $"the stretch's first frame is shown on its first draw alone, draw {draw}");
             }
-            enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+            enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             AssertTrue(state.Brain.Clock.ShowsNewFrame, "the stretch moves on past its first frame once its updates have passed");
         }
     }
@@ -121,32 +128,39 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     private static void VerifyBrainRandomHolds()
     {
+        var hold = MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.NeutralPhase2Hold);
         foreach ((ushort random, bool holds) in new[] { new VerifyBrainRandomHoldsCase(61439, true), new VerifyBrainRandomHoldsCase(61440, false) })
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
             enemies.VerificationServices().ReadRandom = () => random;
             MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.NeutralPhase2Hold);
+            EnemyFrameId? shown = null;
             for (int draw = 0; draw <= 8; draw++)
-                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+                shown = enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
             // Holding restarts the hold's animation and shows its first frame; leaving shows the hold's last frame before its goto.
-            AssertEqual(new AnimationPlayback<MotherBrainHeadSegment>(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.NeutralPhase2Hold),
-                    new AnimationPlace(0, holds ? 1 : 3)),
-                state.Brain.Playback, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
+            var expected = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)hold[holds ? 0 : 2];
+            AssertEqual((EnemyFrameId?)expected.Shown, shown, $"random {random} {(holds ? "holds" : "leaves")} the phase-two neutral pose");
         }
         foreach ((ushort random, bool bursts) in new[] { new VerifyBrainRandomHoldsCase(4063, false), new VerifyBrainRandomHoldsCase(4064, true) })
         {
-            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-            enemies.VerificationServices().ReadRandom = () => random;
-            // The dying drool's loop shows its first frame, which the burst's last drool has just moved on to.
+            (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
+            var reads = new List<ushort>();
+            enemies.VerificationServices().ReadRandom = () =>
+            {
+                reads.Add(random);
+                return random;
+            };
+            // Her dying drool plays through its bursts, which draw no random number, into its loop, whose frame's end asks the
+            // random number whether to burst again: the first draw that asks it is that frame's last.
             var loopFrame = (AnimationBeat<EnemyFrameId, MotherBrainHeadCue>.Frame)MotherBrainAnimations.HeadSegments.Beats(MotherBrainHeadSegment.DyingDroolLoop)[0];
-            state.Brain.Playback = new(MotherBrainAnimations.HeadStartingWith(MotherBrainHeadSegment.DyingDrool), new AnimationPlace(2, 1));
-            state.Brain.ShownFrame = loopFrame.Shown;
-            state.Brain.Clock.Show(loopFrame.Duration);
+            MotherBrainEncounterAccess.SetMotherBrainBrainAnimation(state, MotherBrainHeadSegment.DyingDrool);
+            for (int draw = 0; draw < 100 && reads.Count == 0; draw++)
+                enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+            AssertEqual(1, reads.Count, "the dying drool reaches its loop, which asks whether to burst again");
+            // A burst shows its frame for as long as the loop's and asks nothing; the loop asks again at its frame's end.
             for (int draw = 0; draw < loopFrame.Duration; draw++)
-                enemies.MotherBrainBehavior.Head.AdvanceMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
-            AnimationPlayback<MotherBrainHeadSegment> drooling = state.Brain.Playback ?? throw new InvalidOperationException("Verification requires a brain playback.");
-            AssertEqual(bursts ? MotherBrainHeadSegment.DyingDroolBurst : MotherBrainHeadSegment.DyingDroolLoop, drooling.Animation.Phases[drooling.Place.Phase].Segment,
-                $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
+                enemies.DrawMotherBrainBrain(state, samus: RoomEnemyFrameFixtures.StandaloneSamus());
+            AssertEqual(bursts ? 1 : 2, reads.Count, $"random {random} {(bursts ? "bursts into more drool" : "keeps the drool loop")}");
         }
     }
 
@@ -156,7 +170,7 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     private static void VerifyBodyMoves()
     {
-        (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
+        (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrainOverInstalledSheets();
         state.BodyPlacement = MotherBrainBodyPlacement.FollowsBody;
         state.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(64, 112));
         Position16<RoomPixels> origin = state.Body.Position.Whole;
@@ -190,23 +204,25 @@ internal static class MotherBrainAnimationsVerification
     /// </summary>
     internal static void VerifyMotherBrainProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int compared = 0;
         foreach ((MotherBrainGlassSegment program, ushort entry) in GlassEntries)
-            compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainGlassShard, new MotherBrainGlassAnimation(program), entry, 64, $"glass {program}");
+            compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainGlassShard,
+                enemies => new MotherBrainGlassAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, program), entry, 64, $"glass {program}");
         foreach ((MotherBrainTurretDirection direction, ushort turretPose, ushort bulletPose, int selectorEntry) in TurretEntries)
         {
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurret,
-                new MotherBrainTurretAnimation(MotherBrainTurretPose.Turret(direction)),
+                enemies => new MotherBrainTurretAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile, MotherBrainTurretPose.Turret(direction)),
                 turretPose, 4, $"turret {direction}", timesItsFrames: false);
             compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-                new MotherBrainTurretAnimation(MotherBrainTurretPose.Bullet(direction)),
+                enemies => new MotherBrainTurretAnimation(enemies.MotherBrainBehavior.Projectiles.TurretBullet, MotherBrainTurretPose.Bullet(direction)),
                 bulletPose, 4, $"bullet {direction}", timesItsFrames: false);
             // The bullet list's direction selector jumps to this pose; the typed bullet starts it directly.
             AssertEqual(bulletPose, cartridge.ReadCartridgeWord(selectorEntry),
                 $"the bullet selector's {direction} entry");
         }
-        compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet, new MotherBrainTurretAnimation(MotherBrainTurretPose.BulletImpact),
+        compared += CompareProjectile(cartridge, RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
+            enemies => new MotherBrainTurretAnimation(enemies.MotherBrainBehavior.Projectiles.TurretBullet, MotherBrainTurretPose.BulletImpact),
             BulletImpact, 64, "bullet impact");
         compared += CompareHandBeam(cartridge);
         Console.WriteLine($"  Mother Brain projectile programs: {compared} updates of glass, turret, bullet and hand-beam frames match bank $86.");
@@ -216,18 +232,17 @@ internal static class MotherBrainAnimationsVerification
     /// Runs <paramref name="animation"/> on a projectile of <paramref name="kind"/> beside its native list; returns the
     /// updates compared. A still pose, which holds its frame for good (#2318), times nothing, so its timer is not compared.
     /// </summary>
-    private static int CompareProjectile(IImportCartridgeSource cartridge, RoomEnemyProjectileKind kind, EnemyProjectileAnimation animation,
+    private static int CompareProjectile(IImportCartridgeSource cartridge, RoomEnemyProjectileKind kind, Func<RoomEnemySystem, EnemyProjectileAnimation> animation,
         ushort entry, int updates, string name, bool timesItsFrames = true)
     {
         (RoomEnemySystem enemies, _) = NewMotherBrain();
-        EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(enemies, projectile, kind, MotherBrainTurretDefinitions.Graphics);
-        projectile.StartAnimation(animation);
+        EnemyProjectile projectile = FamilyProjectileStarts.Spawn(enemies, kind, MotherBrainTurretDefinitions.Graphics);
+        projectile.StartAnimation(animation(enemies));
         var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
         int update = 0;
         for (; update < updates && !native.Deleted; update++)
         {
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             native.Step(cartridge);
             string at = $"{name} update {update}";
             AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
@@ -239,7 +254,7 @@ internal static class MotherBrainAnimationsVerification
             if (native.PaletteCleared)
                 AssertEqual(SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard, projectile.ShownGraphics, $"{at}: the frame after the cleared graphics word draws from the room's sheet in its standard colours");
             if (native.FrameBehaviorCleared)
-                AssertEqual<Enum?>(null, projectile.Motion, $"{at}: pre-instruction cleared");
+                AssertTrue(projectile.HoldsStill, $"{at}: pre-instruction cleared");
         }
         return update;
     }
@@ -256,18 +271,17 @@ internal static class MotherBrainAnimationsVerification
         enemies.VerificationServices().ReadRandom = () => 0;
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         state.HandBeamNextVelocity = new(new SignedEightEight(256), new SignedEightEight(0));
-        EnemyProjectile beam = enemies.Projectiles.ProjectileInPlace(17);
-        FamilyProjectileStarts.Initialize(enemies, beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
+        EnemyProjectile beam = FamilyProjectileStarts.Spawn(enemies, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, default);
         // The charging beam holds the encounter that spawned it, as its spawn gives it (#2218).
-        beam.State = new MotherBrainProjectileState(state);
-        beam.StartAnimation(new MotherBrainHandBeamAnimation());
+        enemies.MotherBrainBehavior.Projectiles.Projectile.MotherBrains.Start(beam, new MotherBrainProjectileState(state));
+        beam.StartAnimation(new MotherBrainHandBeamAnimation(enemies.MotherBrainBehavior.Projectiles.Projectile));
         var native = new NativeEnemyProjectileListReader(HandBeamProgram, beam.FrameHold.RawValue);
         int spawns = 0;
         int update = 0;
         for (; update < 64 && !native.Deleted; update++)
         {
             FixedPosition<RoomPixels> aim = state.HandBeamNextPosition;
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(beam, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             native.Step(cartridge);
             string at = $"hand beam update {update}";
             bool spawned = native.Calls.Count > 0;

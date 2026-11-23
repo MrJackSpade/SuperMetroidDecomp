@@ -12,15 +12,15 @@ internal static class BeamTileCatalogAccess
         internal static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files,
             InstalledBeamPalettes? palettes = null, HyperBeamFxColours? hyperBeamFxColors = null)
         {
-            var sheets = new BeamTileAtlas[BeamTileAtlasDefinitions.ArtworkCount];
-            for (int i = 0; i < sheets.Length; i++)
+            var sheets = new Dictionary<global::SuperMetroid.Core.Progression.SamusBeamCombination, BeamTileAtlas>();
+            foreach (global::SuperMetroid.Core.Progression.SamusBeamCombination selection in BeamTileAtlasDefinitions.Pictured)
             {
-                string name = BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i));
+                string name = BeamTileAtlasDefinitions.FileName(selection);
                 if (!files.TryGetValue(name, out var png) || png is null)
                     throw new InvalidDataException($"Missing beam artwork {name}.");
-                sheets[i] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), BeamTileAtlasDefinitions.SelectionAt(i));
+                sheets[selection] = BeamTileAtlas.Load(new MemoryStream(png, writable: false), selection);
             }
-            return new BeamTileCatalog(sheets, palettes, hyperBeamFxColors);
+            return new global::SuperMetroid.AssetExtraction.Samus.BeamTileCatalog(sheets, palettes, hyperBeamFxColors);
         }
     }
     /// <summary>Exposes <see cref="BeamTileCatalog"/> state that only verification reads.</summary>
@@ -34,7 +34,7 @@ internal static class BeamTileCatalogAccess
                 data = default;
                 return false;
             }
-            data = self.Resolve(BeamTileCatalog.AssetFor(BeamTileAtlasDefinitionsConstants.LegacySelectionFor((BeamTileSource)sourceAddress)));
+            data = self.Resolve(BeamTileAtlasDefinitionsConstants.LegacySelectionFor((BeamTileSource)sourceAddress));
             return true;
         }
     }

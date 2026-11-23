@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Editable equipment-page base art, independent of live inventory and reserve patches, kept as installed (#1615): all
 /// 1024 cells.
 /// </summary>
-public sealed class PauseEquipmentBasePresentation
+public sealed partial class PauseEquipmentBasePresentation
 {
     /// <summary>The installed page's every cell, in row-major order.</summary>
     private readonly BackgroundTile[] tilemap;
@@ -25,8 +25,7 @@ public sealed class PauseEquipmentBasePresentation
     public static PauseEquipmentBasePresentation Load(Stream json)
     {
         PauseEquipmentBaseDocument document;
-        try { document = JsonAssetDocument.Read<PauseEquipmentBaseDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause equipment base document is null."); }
+        try { document = JsonAssetDocument.Read<PauseEquipmentBaseDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment base JSON.", error); }
         if (document.Version != PauseEquipmentBaseDefinitions.Version || document.Cells is null ||
             document.Cells.Length != PauseEquipmentBaseDefinitions.Cells)
@@ -39,7 +38,7 @@ public sealed class PauseEquipmentBasePresentation
     /// <param name="document">The complete 32-by-32 tile-reference document to serialize.</param>
     public static void Write(Stream output, PauseEquipmentBaseDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentBaseDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

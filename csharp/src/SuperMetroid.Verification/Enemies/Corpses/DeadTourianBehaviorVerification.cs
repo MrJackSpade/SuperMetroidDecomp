@@ -20,11 +20,9 @@ internal static class DeadTourianBehaviorVerification
     internal static void VerifyDeadSidehopperBehavior()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-        RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
-        corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
-        corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
-        corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
-        enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
+        // The Baby Metroid's victim, set up as its room's population sets it up (#2554).
+        RoomEnemyPlace corpse = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.CorpseSidehopper,
+            new DeadSidehopperSpawnSettings(DeadSidehopperLayout.BabyMetroidVictim)))[0];
         AssertEqual(new AnimationPlayback<DeadTourianSegment>(DeadTourianAnimations.StartingWith(DeadTourianSegment.SidehopperIdle), AnimationPlace.StartOfAnimation),
             corpse.RequireSpeciesState<DeadSidehopperEnemyState>().Playback, "real dead Sidehopper initializer starts the alive-idle pose");
 
@@ -63,17 +61,15 @@ internal static class DeadTourianBehaviorVerification
         void Confirm(int cameraX, bool wakes)
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            RoomEnemyPlace corpse = enemies.Places.InUpdateOrder[0];
-            corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
-            corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition));
-            corpse.SetSpawnParameter1(EnemyDefinitionId.CorpseSidehopper, 0);
-            enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
+            // The Baby Metroid's victim, set up as its room's population sets it up (#2554).
+            RoomEnemyPlace corpse = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.CorpseSidehopper,
+                new DeadSidehopperSpawnSettings(DeadSidehopperLayout.BabyMetroidVictim)))[0];
             DeadSidehopperEnemyState state = corpse.RequireSpeciesState<DeadSidehopperEnemyState>();
             AssertEqual(DeadSidehopperAction.AliveWaitForCamera, state.Action, "the Shitroid victim starts waiting for the camera");
 
-            EnemyPowerBombStage reaction = enemies.DeadSidehopperBehavior.DeadSidehopperPowerBombReaction.ReplacesCommon
-                ?? throw new InvalidOperationException("The dead Sidehopper's Power Bomb reaction replaces the common damage.");
-            reaction(new EnemyPowerBombContext(corpse, Samus: RoomEnemyFrameFixtures.StandaloneSamus(), level, new(cameraX, 0)));
+            // The corpse's Power Bomb reaction, which replaces the common damage, runs the species' Power Bomb response.
+            enemies.DeadSidehopperBehavior.ResolveDeadSidehopperPowerBomb(
+                new EnemyPowerBombContext(corpse.HeldOccupant(), Samus: RoomEnemyFrameFixtures.StandaloneSamus(), level, new(cameraX, 0)), state);
             AssertEqual(wakes, state.Action != DeadSidehopperAction.AliveWaitForCamera,
                 $"a Power Bomb with the camera at column {cameraX} {(wakes ? "wakes" : "leaves waiting")} the victim");
         }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Animation;
 /// <typeparam name="TSegment">The segment identity.</typeparam>
 /// <param name="Animation">The animation playing.</param>
 /// <param name="Place">Where it stands.</param>
-internal readonly record struct AnimationPlayback<TSegment>(Animation<TSegment> Animation, AnimationPlace Place)
+internal readonly partial record struct AnimationPlayback<TSegment>(Animation<TSegment> Animation, AnimationPlace Place)
     where TSegment : struct
 {
     /// <summary>The segment the playing phase plays; before the first play, the first phase's (#1886).</summary>
@@ -56,13 +56,15 @@ internal readonly record struct AnimationPlayback<TSegment>(Animation<TSegment> 
     private AnimationPlace NextBeat()
     {
         int beats = Animation.Phases[Place.Phase].BeatCount;
-        if (Place.Beat < beats)
-            return AnimationPlace.StartOf(Place.Phase) with { Beat = Math.Max(Place.Beat, 0) };
+        if (Place.HasNotEntered)
+            return AnimationPlace.StartOf(Place.Phase);
+        if (!Place.IsHolding && Place.Beat < beats)
+            return new AnimationPlace(Place.Phase, Place.Beat);
         if (Place.Phase + 1 < Animation.Phases.Count)
             return AnimationPlace.StartOf(Place.Phase + 1);
-        return Animation.End is AnimationEnd.Loop loop && Place.Beat == beats
+        return Animation.End is AnimationEnd.Loop loop && !Place.IsHolding
             ? AnimationPlace.StartOf(loop.Phase)
-            : AnimationPlace.StartOf(Place.Phase) with { Beat = beats - 1 };
+            : new AnimationPlace(Place.Phase, beats - 1);
     }
 
     /// <summary>The beats <paramref name="animation"/>'s phases play once through, each phase played once.</summary>

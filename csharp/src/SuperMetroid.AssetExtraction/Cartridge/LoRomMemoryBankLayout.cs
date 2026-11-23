@@ -3,8 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Cartridge;
 
 /// <summary>Full WRAM banks and LoROM lower-window SRAM bank ranges.</summary>
-[EncodingOwner("LoROM work-RAM and save-RAM bank numbers")]
-internal static class LoRomMemoryBankLayout
+internal static partial class LoRomMemoryBankLayout
 {
     /// <summary>First full WRAM bank, $7E.</summary>
     internal const byte FirstWorkRamBank = 0x7e;

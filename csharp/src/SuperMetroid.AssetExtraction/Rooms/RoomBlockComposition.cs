@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// set makes may begin or end, so one artwork shows over each whole run in every room. A collectible is pictured as its
 /// kind alone (#1538), over no block's characters.
 /// </summary>
-internal sealed class RoomBlockComposition
+internal sealed partial class RoomBlockComposition
 {
     /// <summary>Keeps the tiles of every block and the characters each reads.</summary>
     private RoomBlockComposition(BackgroundTile[] tiles, RoomBlockCharacters characters)
@@ -55,12 +55,12 @@ internal sealed class RoomBlockComposition
 
     /// <summary>
     /// The upload region holding the character from <paramref name="first"/>: the run between two consecutive upload
-    /// bounds it lies in, named by its first bound, or minus one outside every bound.
+    /// bounds it lies in, named by its first bound, or null before every bound, where no upload reaches.
     /// </summary>
-    internal static int Region(int[] bounds, int first)
+    internal static int? Region(int[] bounds, int first)
     {
         int index = Array.BinarySearch(bounds, first);
-        return index >= 0 ? bounds[index] : ~index == 0 ? -1 : bounds[~index - 1];
+        return index >= 0 ? bounds[index] : ~index == 0 ? null : bounds[~index - 1];
     }
 
     /// <summary>
@@ -95,9 +95,10 @@ internal sealed class RoomBlockComposition
             blocks[block] = Runs(tiles.Skip(block * RoomMetatileFormat.TilesPerBlock).Take(RoomMetatileFormat.TilesPerBlock).Select(tile => tile.Tile));
         return new RoomBlockComposition(tiles, new RoomBlockCharacters(set, blocks));
 
-        // The characters' runs, split at the upload bounds.
+        // The characters' runs, split at the upload bounds, those before every bound first.
         RoomBlockCharacterRun[] Runs(IEnumerable<int> characters) =>
-            [.. characters.Distinct().GroupBy(character => Region(bounds, character)).OrderBy(region => region.Key)
+            [.. characters.Distinct().GroupBy(character => Region(bounds, character))
+                .OrderBy(region => region.Key is not null).ThenBy(region => region.Key)
                 .Select(region => new RoomBlockCharacterRun(region.Min(), region.Max() - region.Min() + 1))];
     }
 }

@@ -63,7 +63,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         for (int index = firstWord; index < expectedWords.Length; index++)
         {
             AssertTrue(assigned[index], $"Crocomire rumble source word {index} ownership");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index * 2)), expectedWords[index],
+            AssertEqual(rom.ReadCartridgeWord((sourceAddress + index * 2)), expectedWords[index],
                 $"Crocomire rumble source word {index}");
         }
 
@@ -74,25 +74,23 @@ internal static class CrocomireRumbleDefinitionsVerification
         var guarded = NewCrocomireRumbleReadGuard(rom);
         CrocomireColorCatalog colors = CrocomireColorFile.Read(
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: new BossSourceArtwork { CrocomireColors = colors });
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledFrames(EnemyTileSourceArtwork.FromArtworkForVerification(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EnemyArtworkParts with { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireColors = colors });
         // The cartridge's code starts the rumble with ten repeats at one pixel an update: the first oscillation's.
         AssertEqual(10, CrocomireRumbleDefinitions.Oscillations[0].Repeats, "Crocomire rumble starts with the code's repeats");
         AssertEqual(1, CrocomireRumbleDefinitions.Oscillations[0].Speed, "Crocomire rumble starts at the code's speed");
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        var state = new CrocomireEnemyState(body)
-        {
-            DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>(),
-            RumbleOscillation = 0,
-            RumbleTowardExtreme = false,
-        };
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
+        // His body and tongue as his room's population sets them up; the encounter is the one his body's setup built, here
+        // rumbling the hidden wall from its first oscillation.
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, Position16<RoomPixels>.Zero);
+        state.RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations);
+        state.RumbleTowardExtreme = false;
+        state.DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>();
         CrocomireDeathState death = state.Death;
         death.RumbleYOffset = 0;
         death.RumbleRepeatsLeft = UpdateCountdown.For(CrocomireRumbleDefinitions.Oscillations[0].Repeats);
 
         // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
         // comparisons read back as words.
-        ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(state.RumbleOscillation, state.RumbleTowardExtreme));
+        ushort referenceIndex = checked((ushort)CrocomireNativeWords.RumbleCursor(OscillationPlace(state), state.RumbleTowardExtreme));
         ushort referenceY = unchecked((ushort)death.RumbleYOffset);
         ushort referenceCooldown = 10;
         ushort referenceDelta = 1;
@@ -114,7 +112,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             // melt is over by then and nothing reads either again, so production keeps neither the marker nor the place.
             if (state.DeathStage.Entry is CrocomireDeathStage.RumbleHiddenWall)
             {
-                AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(state.RumbleOscillation, state.RumbleTowardExtreme),
+                AssertEqual(referenceIndex, CrocomireNativeWords.RumbleCursor(OscillationPlace(state), state.RumbleTowardExtreme),
                     $"Crocomire rumble frame {frames} target");
                 AssertEqual(referenceY, unchecked((ushort)death.RumbleYOffset),
                     $"Crocomire rumble frame {frames} Y offset");
@@ -125,7 +123,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             {
                 AssertEqual(referenceCooldown, death.RumbleRepeatsLeft.UpdatesLeft,
                     $"Crocomire rumble frame {frames} repeats left");
-                AssertEqual(referenceDelta, CrocomireRumbleDefinitions.Oscillations[state.RumbleOscillation].Speed,
+                AssertEqual(referenceDelta, (state.RumbleOscillation ?? throw new InvalidOperationException("The rumble has finished.")).Entry.Speed,
                     $"Crocomire rumble frame {frames} speed");
             }
             AssertEqual(referenceDeathIndex, CrocomireNativeWords.DeathStages.Word(state.DeathStage),
@@ -138,10 +136,10 @@ internal static class CrocomireRumbleDefinitionsVerification
 
         // The termination loads the wall spikes' colours, which the import pre-colours his sprites in (#1512).
         AssertTrue(state.Colours.ShowsWallSpikes, "Crocomire rumble termination shows the wall spikes' colours");
-        SheetShade spikes = BossSheetShades.OwnRow(new BossSourceArtwork { CrocomireColors = colors }, EnemyDefinitionId.Crocomire, 0)
+        SheetShade spikes = BossSheetShades.OwnRow(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireColors = colors }, EnemyDefinitionId.Crocomire, 0)
             .Single(shade => shade.Shade == CrocomireShades.WallSpikes);
         for (int color = 0; color < CrocomireColorDefinitions.WallSpikesCount; color++)
-            AssertEqual(colors.ResolveWallSpikes(color), spikes.Colours[color],
+            AssertEqual(colors.ResolveWallSpikes(color), spikes.Colours.ElementAt(color),
                 $"Crocomire rumble termination applies installed wall-spike color {color}");
 
         Console.WriteLine(
@@ -159,7 +157,7 @@ internal static class CrocomireRumbleDefinitionsVerification
     {
         const int sourceAddress = 0xa498ca;
 
-        ushort target = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
+        ushort target = rom.ReadCartridgeWord((sourceAddress + index));
         if (target == 0x8080)
         {
             yOffset = 0x8080;
@@ -180,9 +178,9 @@ internal static class CrocomireRumbleDefinitionsVerification
                 }
 
                 index += 2;
-                cooldown = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
+                cooldown = rom.ReadCartridgeWord((sourceAddress + index));
                 index += 2;
-                delta = CartridgeImportSource.Require(rom).ReadCartridgeWord((sourceAddress + index));
+                delta = rom.ReadCartridgeWord((sourceAddress + index));
             }
 
             index += 2;
@@ -210,4 +208,8 @@ internal static class CrocomireRumbleDefinitionsVerification
         Suite(nameof(VerifyCrocomireRumbleDefinitions), () => VerifyCrocomireRumbleDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         return 0;
     }
+
+    /// <summary>The place of the oscillation under way, or the oscillations' count once the last has finished, as the native cursor counts it.</summary>
+    private static int OscillationPlace(CrocomireEnemyState state) =>
+        state.RumbleOscillation is { } step ? step.Place : CrocomireRumbleDefinitions.Oscillations.Length;
 }

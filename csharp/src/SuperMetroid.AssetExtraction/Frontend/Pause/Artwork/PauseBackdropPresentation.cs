@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 /// Complete authored pause backdrops, including area lettering, kept as installed (#1615): every area's 1024 cells and
 /// the button page's 512 cells.
 /// </summary>
-public sealed class PauseBackdropPresentation
+public sealed partial class PauseBackdropPresentation
 {
     /// <summary>Every area's installed backdrop.</summary>
     private readonly IReadOnlyDictionary<AreaId, BackgroundTile[]> areas;
@@ -20,16 +20,16 @@ public sealed class PauseBackdropPresentation
     { this.areas = areas; this.buttons = buttons; }
 
     /// <summary>Materializes the selected 32-by-16 button/foreground image without caching or modifying the presentation.</summary>
-    /// <returns>A new caller-owned array of 512 tiles in row-major order; the live pause menu may change its buttons' colour variants.</returns>
+    /// <returns>A new caller-owned array of 512 tiles in row-major order, which the import pictures the button page from.</returns>
     public BackgroundTile[] CreateButtonTilemap() => (BackgroundTile[])buttons.Clone();
 
-    /// <summary>Writes the selected area's complete 32-by-32 backdrop, including its authored area lettering, into the pause BG2 tilemap.</summary>
-    /// <param name="destination">The pause BG2 tilemap; tiles outside the 32-by-32 image remain unchanged.</param>
+    /// <summary>Copies the selected area's complete 32-by-32 backdrop cells, including its authored area lettering, into the import's page buffer for picturing.</summary>
+    /// <param name="destination">The import's page buffer; tiles outside the 32-by-32 image remain unchanged.</param>
     /// <param name="area">Retail area whose installed backdrop is selected; the native Ceres label is COLONY.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="area"/> is not a retail area.</exception>
     public void LoadTo(Span<BackgroundTile> destination, AreaId area)
     {
-        var selected = areas[AreaIds.Require(area)];
+        var selected = areas[area];
         Ensure.BetweenInclusive(PauseBackdropDefinitions.Cells, int.MaxValue, destination.Length);
         selected.AsSpan().CopyTo(destination);
     }
@@ -42,8 +42,7 @@ public sealed class PauseBackdropPresentation
     public static PauseBackdropPresentation Load(Stream json)
     {
         PauseBackdropDocument document;
-        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Pause backdrop document is null."); }
+        try { document = JsonAssetDocument.Read<PauseBackdropDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause backdrop JSON.", error); }
         if (document.Version != PauseBackdropDefinitions.Version || document.Areas is null || document.Areas.Count != AreaIds.All.Count)
             throw new InvalidDataException("Pause backdrops require version 1 and all seven named areas.");
@@ -63,7 +62,7 @@ public sealed class PauseBackdropPresentation
     /// Builds the presentation from compiled tilemaps (one 1024-cell page per area, plus the 512-cell button page), keeping
     /// every tile.
     /// </summary>
-    internal static PauseBackdropPresentation FromTilemaps(IReadOnlyDictionary<AreaId, BackgroundTile[]> areaTilemaps, BackgroundTile[] buttonTilemap)
+    internal static PauseBackdropPresentation FromTilemaps(Dictionary<AreaId, BackgroundTile[]> areaTilemaps, BackgroundTile[] buttonTilemap)
     {
         Ensure.NotNull(areaTilemaps);
         Ensure.NotNull(buttonTilemap);
@@ -87,7 +86,7 @@ public sealed class PauseBackdropPresentation
     /// <param name="document">Editable page collections read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, PauseBackdropDocument document)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseBackdropDocument>(ArtworkJson.Options));
         output.Write(json);
     }
 }

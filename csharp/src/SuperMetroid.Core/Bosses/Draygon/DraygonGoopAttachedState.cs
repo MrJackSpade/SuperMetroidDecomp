@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>What a blob of Draygon's goop stuck to Samus keeps: where in the stack on her it sits, and how long it stays.</summary>
 /// <param name="stackPosition">How many blobs, this one included, were stuck to Samus when it stuck; it sets how far down her it sits.</param>
-internal sealed class DraygonGoopAttachedState(int stackPosition) : EnemyProjectileState
+internal sealed partial class DraygonGoopAttachedState(int stackPosition) : EnemyProjectileState
 {
-    /// <summary>How many blobs, this one included, were stuck to Samus when it stuck; each sits four pixels below the last.</summary>
+    /// <summary>How many blobs, this one included, were stuck to Samus when it stuck; each sits <see cref="DraygonArenaDefinitions.GoopStackSpacing"/> below the last.</summary>
     internal int StackPosition { get; } = Ensure.AtLeastZero(stackPosition);
 
     /// <summary>

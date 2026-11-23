@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Six named visual selections made by the five Ceres flight instruction streams. The vortex stream alternates
 /// two drawings; the other streams each select one drawing. Catalog order and published asset names remain stable.</summary>
-public static class CeresFlightSpriteDefinitions
+public static partial class CeresFlightSpriteDefinitions
 {
     /// <summary>The stars, large asteroid, station under attack, small asteroid and the two vortex drawings.</summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
@@ -14,7 +14,7 @@ public static class CeresFlightSpriteDefinitions
         new("large-asteroid", CinematicSpritePose.LargeAsteroid, 19),
         new("station-under-attack", CinematicSpritePose.StationUnderAttack, 41),
         new("small-asteroid", CinematicSpritePose.SmallAsteroid, 16),
-        new("vortex-first", CinematicSpritePose.VortexFirst, 36),
-        new("vortex-second", CinematicSpritePose.VortexSecond, 33),
+        new("vortex-bright-sparks", CinematicSpritePose.VortexBrightSparks, 36),
+        new("vortex-faint-sparks", CinematicSpritePose.VortexFaintSparks, 33),
     ];
 }

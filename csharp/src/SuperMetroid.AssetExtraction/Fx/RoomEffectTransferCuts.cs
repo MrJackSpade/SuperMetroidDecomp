@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// to its end, and its body, one such run; an atmosphere as the transfer below its first row, which repeats down. Rows are
 /// <see cref="RoomFxLayer3TilemapFormat.WidthInTiles"/> words each.
 /// </summary>
-internal static class RoomEffectTransferCuts
+internal static partial class RoomEffectTransferCuts
 {
     /// <summary>Words in one row of the transfer.</summary>
     private const int RowWords = RoomFxLayer3TilemapFormat.WidthInTiles;

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// from, each later step moves one more of its parts, and once it completes it shows its goal. A fade started on a counter
 /// another fade advanced completes sooner and shows its goal from the step it completes on.
 /// </summary>
-internal sealed class GradualFadeSteps
+internal sealed partial class GradualFadeSteps
 {
     /// <summary>The shared step counter this fade reads and advances.</summary>
     private readonly SharedFadeStepCount counter;
@@ -60,14 +60,14 @@ internal sealed class GradualFadeSteps
     }
 
     /// <summary>What the steps taken show of a colour fading toward <paramref name="goal"/>.</summary>
-    internal ColourFade Toward(RgbColor goal) => new(goal, GradualFadeDirection.Toward, Shown.Moved, Shown.Length);
+    internal ColourFade Toward(RgbColor goal) => new(goal, GradualFadeDirection.Toward, new FadeLevel(Shown.Moved, Shown.Length));
 
     /// <summary>What the steps taken show of a colour fading in from <paramref name="start"/>.</summary>
-    internal ColourFade From(RgbColor start) => new(start, GradualFadeDirection.From, Shown.Moved, Shown.Length);
+    internal ColourFade From(RgbColor start) => new(start, GradualFadeDirection.From, new FadeLevel(Shown.Moved, Shown.Length));
 
     /// <summary>
     /// The fade from <paramref name="from"/> to <paramref name="to"/> a picture shows as far as the steps taken (#2289): the
     /// HUD's and the escape timer's door shades, which keep their lit colours.
     /// </summary>
-    internal PictureShadeFade Between(PictureShading from, PictureShading to) => new(from, to, Shown.Moved, Shown.Length);
+    internal PictureShadeFade Between(PictureShading from, PictureShading to) => new(from, to, new FadeLevel(Shown.Moved, Shown.Length));
 }

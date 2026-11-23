@@ -6,8 +6,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The import's layout of one Crocomire melt image (#1638): the cartridge's tile placements, import data only the import
 /// composes his body sheet's melt pictures from; mechanics are not configurable.
 /// </summary>
-[SpatialComponents("External format: the melting tilemap JSON stores its declared grid dimensions as width/height integers.")]
-public sealed record CrocomireMeltingTilemapDocument
+public sealed partial record CrocomireMeltingTilemapDocument
 {
     /// <summary>Visual tile-layout revision; loading requires <see cref="CrocomireMeltingArtworkFormat.TilemapVersion"/>.</summary>
     public required int Version { get; init; }

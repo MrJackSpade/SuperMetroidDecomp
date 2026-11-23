@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 /// <typeparam name="TSegment">The family's segment identity.</typeparam>
 /// <typeparam name="TEvent">The family's events.</typeparam>
-internal abstract class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyProjectileTypedAnimation<TSegment, EnemyProjectileFrameId, TEvent>
+internal abstract partial class EnemyProjectileFrameAnimation<TSegment, TEvent> : EnemyProjectileTypedAnimation<TSegment, EnemyProjectileFrameId, TEvent>
     where TSegment : struct
     where TEvent : notnull
 {
-    /// <summary>Starts <paramref name="animation"/> before its first play.</summary>
-    private protected EnemyProjectileFrameAnimation(Animation<TSegment> animation)
-        : base(animation)
+    /// <summary>Starts <paramref name="animation"/> before its first play, its events carried out by <paramref name="cues"/>.</summary>
+    private protected EnemyProjectileFrameAnimation(TSegment startsAt, Animation<TSegment> animation, EnemyProjectileCueRunner<TSegment, TEvent> cues)
+        : base(startsAt, animation, cues)
     {
     }
 

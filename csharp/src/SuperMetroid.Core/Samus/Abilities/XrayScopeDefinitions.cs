@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// The room state's X-ray reveal choice remains room-authored data. This catalog owns the shared
 /// visor shades, animation angle bands and cone widths used by every room.
 /// </remarks>
-public static class XrayScopeDefinitions
+public static partial class XrayScopeDefinitions
 {
 
     /// <summary>
     /// Angle bands selecting which of the X-ray pose's five aims (<see cref="Aims"/>) the standing and crouching scope shows:
     /// a right-facing scope turns from up to down as its angle grows, a left-facing one as it shrinks.
     /// </summary>
-    public static class AnimationAngles
+    public static partial class AnimationAngles
     {
         /// <summary>The angle from which a right-facing scope aims raised rather than up.</summary>
         public static RotationAngle RightRaisedFrom { get; } = RotationAngle.FromSteps(25);
@@ -35,7 +35,7 @@ public static class XrayScopeDefinitions
     }
 
     /// <summary>How long the X-ray pose's pictures the scope sets directly show for, in updates.</summary>
-    public static class Holds
+    public static partial class Holds
     {
         /// <summary>The activation picture, set as the scope takes Samus's pose.</summary>
         public const int Activation = 63;
@@ -45,7 +45,7 @@ public static class XrayScopeDefinitions
     }
 
     /// <summary>The X-ray pose's five aims, from up to down: the frames of its animation the scope's angle selects.</summary>
-    internal static class Aims
+    internal static partial class Aims
     {
         /// <summary>The scope aimed up.</summary>
         internal static SamusAnimationFrame Up { get; } = new(SamusAnimationSegmentName.Main, 0);
@@ -59,8 +59,32 @@ public static class XrayScopeDefinitions
         internal static SamusAnimationFrame Down { get; } = new(SamusAnimationSegmentName.Main, 4);
     }
 
+    /// <summary>
+    /// The aims a scope facing each way shows across its angles (#2557): a right-facing scope turns from up to down as its
+    /// angle grows past each of <see cref="AnimationAngles"/>' right-facing angles, a left-facing one from down to up.
+    /// </summary>
+    internal static IReadOnlyDictionary<SamusFacingDirection, XrayAimBands> AimBands { get; } = new Dictionary<SamusFacingDirection, XrayAimBands>
+    {
+        [SamusFacingDirection.Right] = new(
+            [
+                new(AnimationAngles.RightRaisedFrom, Aims.Up),
+                new(AnimationAngles.RightLevelFrom, Aims.Raised),
+                new(AnimationAngles.RightLoweredFrom, Aims.Level),
+                new(AnimationAngles.RightDownFrom, Aims.Lowered),
+            ],
+            AtAndPast: Aims.Down),
+        [SamusFacingDirection.Left] = new(
+            [
+                new(AnimationAngles.LeftDownBelow, Aims.Down),
+                new(AnimationAngles.LeftLoweredBelow, Aims.Lowered),
+                new(AnimationAngles.LeftLevelBelow, Aims.Level),
+                new(AnimationAngles.LeftRaisedBelow, Aims.Raised),
+            ],
+            AtAndPast: Aims.Up),
+    };
+
     /// <summary>How the X-ray scope's cone widens.</summary>
-    public static class Cone
+    public static partial class Cone
     {
         /// <summary>The widening speed's growth each widening update: a thirty-second of a step.</summary>
         public static readonly RotationAngle WideningStep = RotationAngle.FromStepFraction(1, 32);

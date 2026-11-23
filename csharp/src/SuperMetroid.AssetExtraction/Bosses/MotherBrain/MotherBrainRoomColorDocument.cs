@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Editable Mother Brain room-color schema; every supplied entry is a nonnull RGB5 color with channels 0..31, and nested arrays remain caller-mutable until compilation.</summary>
-public sealed record MotherBrainRoomColorDocument
+public sealed partial record MotherBrainRoomColorDocument
 {
     /// <summary>Schema revision; the reader accepts only <see cref="SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork.MotherBrainRoomColorFormat.Version"/>.</summary>
     public required int Version { get; init; }
@@ -16,9 +16,9 @@ public sealed record MotherBrainRoomColorDocument
     /// <summary>Fifteen nontransparent rear-leg colors sourced natively from $A9:9494 and installed at CGRAM 177..191 before phase two, replacing the room-entry glass palette.</summary>
     public required PaletteRgb5[] PhaseTwoRearLeg { get; init; }
     /// <summary>Fifteen glass-shard colors from $A9:9514 for CGRAM 177..191.</summary>
-    public PaletteRgb5[]? InitialGlassShard { get; init; }
+    public required PaletteRgb5[] InitialGlassShard { get; init; }
     /// <summary>Fifteen tube-projectile colors from $A9:94F4 for CGRAM 241..255.</summary>
-    public PaletteRgb5[]? InitialTubeProjectile { get; init; }
+    public required PaletteRgb5[] InitialTubeProjectile { get; init; }
     /// <summary>Seven ordered 28-color images: fourteen for CGRAM 49..62 followed by fourteen for 81..94.</summary>
-    public PaletteRgb5[][]? RecoveryLights { get; init; }
+    public required PaletteRgb5[][] RecoveryLights { get; init; }
 }

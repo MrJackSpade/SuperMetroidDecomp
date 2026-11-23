@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork;
 /// The menu tiles file select's slot fields and prompts are written with (#1467): only the import reads them; it pictures
 /// each patch, digit, slot letter and energy tank once, and the game places those pictures.
 /// </summary>
-public static class FileSelectFieldTileDefinitions
+public static partial class FileSelectFieldTileDefinitions
 {
     /// <summary>The blank menu tile.</summary>
     internal static BackgroundTile BlankTile { get; } = new(15, 0, highPriority: false);

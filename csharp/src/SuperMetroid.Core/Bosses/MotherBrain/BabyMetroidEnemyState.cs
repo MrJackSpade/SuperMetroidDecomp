@@ -5,7 +5,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid's own state: its animation, motion, colours and what it does next.</summary>
-public sealed class BabyMetroidEnemyState
+public sealed partial class BabyMetroidEnemyState
 {
     /// <summary>The Baby Metroid's animation and where it stands (#641, #1600).</summary>
     internal AnimationPlayback<BabyMetroidSegment> Playback { get; set; }
@@ -31,11 +31,11 @@ public sealed class BabyMetroidEnemyState
     /// (<see cref="BabyMetroidMembraneAnimations"/>). It starts on its first phase, which it leaves on its first update, so
     /// the first phase it shows is its second.
     /// </summary>
-    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; set; } =
+    internal AnimationPlayer<BabyMetroidMembranePace, BabyMetroidMembranePulse, BabyMetroidMembraneCue> Membrane { get; } =
         BabyMetroidMembraneAnimations.StandingOn(BabyMetroidMembranePace.Calm, BabyMetroidMembranePulse.First, 1);
 
     /// <summary>The pace of the membrane's pulse: calm, or quick while it feeds.</summary>
-    public BabyMetroidMembranePace MembranePace { get; internal set; }
+    public BabyMetroidMembranePace MembranePace => Membrane.Playback.PlayingSegment;
 
     /// <summary>
     /// Sets the membrane's pulse to <paramref name="pace"/>: the phase showing keeps the updates it has left, and the phases
@@ -43,13 +43,12 @@ public sealed class BabyMetroidEnemyState
     /// </summary>
     internal void PaceMembrane(BabyMetroidMembranePace pace)
     {
-        MembranePace = pace;
         Membrane.GoOnIn(BabyMetroidMembraneAnimations.At(pace));
     }
 
     /// <summary>
-    /// The wait of the current action that counts past zero: the entrance delay, the rises after feeding and after
-    /// draining Samus, the pause after draining her, the flights beside her and the hold before her release (#2253).
+    /// The current action's wait: the entrance delay, the rises after feeding and after draining Samus, the pause after
+    /// draining her, the flights beside her and the hold before her release (#2253).
     /// </summary>
     public BossCountdown StateTimer { get; } = new();
 
@@ -84,7 +83,9 @@ public sealed class BabyMetroidEnemyState
 
     /// <summary>
     /// Whether Samus's touch, shots and power bombs reach the Baby Metroid's private reactions: set while
-    /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on.
+    /// it hovers near Samus or follows her after a release, cleared while it is dormant or latched on. It is a fact of the
+    /// Baby's history, not of its action alone (#2560): a Baby dormant after it followed Samus out still reacts, one dormant
+    /// before its entrance does not, so no one action names it.
     /// </summary>
     public bool ReactsToSamus { get; internal set; }
 }

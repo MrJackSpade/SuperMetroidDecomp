@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// sheets compose them over. Both are kept as installed (#1615): every named composition holds its installed parts and
 /// the character page holds the installed atlas's pixels whole.
 /// </summary>
-public sealed class MapSpriteArtwork : MapSpriteCompositions
+public sealed partial class MapSpriteArtwork : MapSpriteCompositions
 {
     /// <summary>Every named map marker, elevator, indicator, label and title composition, as installed.</summary>
     private readonly Dictionary<MapSpriteId, SpriteComposition> frames;
@@ -33,7 +33,7 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
     /// <summary>A named map marker, elevator, label, or indicator as a whole frame over the menu OBJ page (#1392).</summary>
     internal SpriteFrame Frame(MapSpriteId id)
     {
-        string name = MapSpriteNames.Name(id);
+        string name = MapSpriteDefinitions.Names[id];
         return Ensure.Listed(frames, id).ToFrame(name, 0);
     }
 
@@ -54,15 +54,14 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
     private static Dictionary<MapSpriteId, SpriteComposition> Compile(Stream json)
     {
         MapSpriteDocument document;
-        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map sprite document is null."); }
+        try { document = JsonAssetDocument.Read<MapSpriteDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map sprite JSON.", error); }
         if (document.Version != MapSpriteFormat.Version || document.Frames is null || document.Frames.Count != MapSpriteFormat.FrameCount)
             throw new InvalidDataException("Map sprite content requires version 1 and all 26 named frames.");
         var frames = new Dictionary<MapSpriteId, SpriteComposition>();
         foreach (MapSpriteId id in MapSpriteFormat.FrameOrder)
         {
-            string name = MapSpriteNames.Name(id);
+            string name = MapSpriteDefinitions.Names[id];
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null || parts.Length > MapSpriteFormat.MaximumParts)
                 throw new InvalidDataException($"Map sprite {name} requires an ordered array of at most 128 parts.");
             frames.Add(id, MenuSpriteCompiler.Compile(parts, name));
@@ -72,13 +71,8 @@ public sealed class MapSpriteArtwork : MapSpriteCompositions
 
     /// <summary>Enumerates the named map sprite roles in the installed document's order.</summary>
     public static IEnumerable<MapSpriteFrameName> FrameNames =>
-        MapSpriteFormat.FrameOrder.Select(id => new MapSpriteFrameName(id, MapSpriteNames.Name(id)));
+        MapSpriteFormat.FrameOrder.Select(id => new MapSpriteFrameName(id, MapSpriteDefinitions.Names[id]));
 
     /// <summary>The map sprite sheet's frames, one per named role.</summary>
     public static IEnumerable<string> SheetFrames => FrameNames.Select(frame => frame.Name);
-
-    /// <summary>The artwork <paramref name="catalog"/> was read with.</summary>
-    /// <exception cref="InvalidDataException">The catalog was not read from installed artwork.</exception>
-    public static MapSpriteArtwork Of(MapSpriteCompositions catalog) => catalog as MapSpriteArtwork
-        ?? throw new InvalidDataException("The map sprites were not read from installed artwork.");
 }

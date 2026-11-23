@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Assets;
 
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
@@ -19,25 +18,29 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rendering;
 
 /// <summary>Checks first-entry Moat water pixels through both reciprocal doors and pause history.</summary>
 internal static class MoatFirstEntryVerification
 {
-    /// <summary>Stages each reciprocal doorway (#370) and compares transition and first-gameplay pixels with and without pause.</summary>
+    /// <summary>
+    /// Stages each reciprocal doorway (#370) and compares transition and first-gameplay pixels with and without pause. Each
+    /// published frame is kept and compared with <see cref="ScenePixels.Same(LayeredScene, LayeredScene)"/>, which draws
+    /// the two frames only when their descriptions differ.
+    /// </summary>
     internal static void VerifyMoatFirstEntry()
     {
 
-        var unpausedFrames = new Dictionary<UnpausedFrame, RgbaPixel[]>();
-        var unpausedTransitionFrames = new Dictionary<UnpausedFrame, RgbaPixel[]>();
+        var unpausedFrames = new Dictionary<UnpausedFrame, LayeredScene>();
+        var unpausedTransitionFrames = new Dictionary<UnpausedFrame, LayeredScene>();
         foreach (ushort source in new ushort[] { 0x948c, 0x93fe })
         foreach (bool pauseBeforeEntry in new[] { false, true })
         {
-                // Each history starts with fresh mutable WRAM as well as fresh owners.
-                _ = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-                var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
+            // Each history starts with fresh owners.
+            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(source));
             var level = runtime.Room.LoadedLevelData;
             int doorX = -1, doorY = -1;
@@ -54,7 +57,7 @@ internal static class MoatFirstEntryVerification
             AssertTrue(doorX >= 0, "retail neighbor has a reciprocal Moat door");
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Get(source),
                 camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.PoseId = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
@@ -91,10 +94,9 @@ internal static class MoatFirstEntryVerification
                 // SuperMetroidGame publishes gameplay immediately after this same
                 // transition step. Capture the IRQ scroll and palette fade too,
                 // not just the already-completed destination used by older probes.
-                var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-                var pixels = DisplayRendering.Render(snapshot);
-                if (!pauseBeforeEntry) unpausedTransitionFrames[new UnpausedFrame(source, frame)] = pixels;
-                else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[new UnpausedFrame(source, frame)]),
+                LayeredScene snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+                if (!pauseBeforeEntry) unpausedTransitionFrames[new UnpausedFrame(source, frame)] = snapshot;
+                else AssertTrue(ScenePixels.Same(snapshot, unpausedTransitionFrames[new UnpausedFrame(source, frame)]),
                     $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
 
                 transitionFrames++;
@@ -104,10 +106,9 @@ internal static class MoatFirstEntryVerification
             for (int frame = 0; frame < 4; frame++)
             {
                 runtime.StepFrame(0);
-                var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-                var pixels = DisplayRendering.Render(snapshot);
-                if (!pauseBeforeEntry) unpausedFrames[new UnpausedFrame(source, frame)] = pixels;
-                else AssertTrue(pixels.SequenceEqual(unpausedFrames[new UnpausedFrame(source, frame)]),
+                LayeredScene snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
+                if (!pauseBeforeEntry) unpausedFrames[new UnpausedFrame(source, frame)] = snapshot;
+                else AssertTrue(ScenePixels.Same(snapshot, unpausedFrames[new UnpausedFrame(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");
 
             }

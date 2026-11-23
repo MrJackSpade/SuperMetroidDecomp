@@ -9,8 +9,8 @@ internal static class EndingObjectSourceArtworkAccess
     /// <summary>Exposes <see cref="EndingObjectSourceArtwork"/> state that only verification reads.</summary>
     extension(EndingObjectSourceArtwork self)
     {
-        /// <summary>The four explosion maps in their installed fragments' order.</summary>
-        public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => self.fragments;
+        /// <summary>The four explosion maps in the installation's order of their pictures.</summary>
+        public IReadOnlyList<RoomBackgroundTilemapAtlas> Fragments => [.. EndingObjectArtworkFormat.ExplosionPictures.Select(self.Fragment)];
         /// <summary>
         /// Identity of every selected ending/credits map and the compositions its sheets are composed from; the characters are
         /// import data the installation never holds (#1636).
@@ -18,7 +18,7 @@ internal static class EndingObjectSourceArtworkAccess
         public string ContentIdentity => SelectedPresentationHash.Create("EndingObjectArtworkCatalog-v2", content =>
         {
             content.AppendTiles("waiting-map", self.WaitingTilemap.Tiles.Span);
-            content.AppendTiles("post-credits-fragment-b", self.PostCreditsFragmentB.Tiles.Span);
+            content.AppendTiles("post-credits-fragment-b", self.TransformationMap.Tiles.Span);
             content.AppendTiles("logo-map", self.PostShotLogoMap.Tiles.Span);
             content.Append("fragment-count", self.Fragments.Count);
             foreach (RoomBackgroundTilemapAtlas fragment in self.Fragments)

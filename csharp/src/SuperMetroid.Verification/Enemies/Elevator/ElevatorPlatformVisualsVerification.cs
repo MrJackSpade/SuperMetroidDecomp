@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Enemies.Elevator.LookupElevatorPlatformStockVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -22,9 +23,9 @@ internal static class ElevatorPlatformVisualsVerification
     /// <summary>Checks the real PLM draws its stock physical block and streams its native tile.</summary>
     internal static void VerifyElevatorPlatformVisuals()
     {
-        InstalledRoomObjectElevatorPlatformVisuals stock =
-            InstalledRoomObjectElevatorPlatformVisuals.Stock();
-        RenderResult Render(InstalledRoomObjectElevatorPlatformVisuals visuals)
+        InstalledRoomObjectPictures stock =
+            RoomObjectPicturesStock.ElevatorPlatform;
+        RenderResult Render(InstalledRoomObjectPictures visuals)
         {
             const ushort population = 0x9400;
             var bus = new TestAddressSpace();

@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <param name="stationLayout">The installed station positions for explored map tiles.</param>
 /// <param name="landmarkLayout">The installed boss, gunship and elevator landmark positions.</param>
 /// <param name="mapSheet">The installed map sprite sheet every icon draws from.</param>
-public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapStationPositions stationLayout,
+public sealed partial class FileSelectMapIcons(SharedGameState system, AreaId area, MapStationPositions stationLayout,
     MapLandmarkPositions landmarkLayout, SpriteSheet mapSheet)
 {
     /// <summary>The installed map sprite sheet, rebound when a frontend save state is restored.</summary>
@@ -40,7 +40,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapS
         foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area))
         {
             Position16<MapPixels> point = layout.Get(marker.Id);
-            if (defeated.HasFlag(marker.Boss))
+            if (defeated.HasFlag(AreaBossDefinitions.Bosses[marker.Boss].RecordedAs))
             {
                 Draw(MapSpriteId.MarkerDefeatedBoss, point, MapSpriteColouring.Markers);
                 Draw(MapSpriteId.MarkerBoss, point, MapSpriteColouring.DefeatedBossMarker);
@@ -76,7 +76,7 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapS
     /// <summary>Draws what follows the marker: the gunship in Crateria, the arrows, and the elevator labels once the area's map is downloaded; never the debug-only save icons the game's debug mode adds.</summary>
     public void DrawAfterMarker(ScreenSprites entries, Offset16<MapPixels> scroll, Action? drawArrows = null)
     {
-        if (area == AreaId.Crateria)
+        if (MapLandmarks.ShowsGunship(area))
         {
             var point = landmarks.Get(MapLandmarkDefinitions.Gunship);
             Add(entries, MapSpriteId.MarkerGunship, point, scroll, MapSpriteColouring.Markers);
@@ -88,9 +88,10 @@ public sealed class FileSelectMapIcons(SharedGameState system, AreaId area, MapS
     /// <summary>Destination lettering is visible only after downloading this area's map.</summary>
     public void DrawElevatorLabels(ScreenSprites entries, Offset16<MapPixels> scroll)
     {
-        if (!system.HasAreaMap(area)) return;
+        // Ceres has no elevators to label.
+        if (!AreaIds.IsZebes(area, out ZebesArea zebes) || !system.HasAreaMap(area)) return;
         var elevatorLayout = landmarks;
-        foreach (var label in MapLandmarks.Elevators(area))
+        foreach (var label in MapLandmarks.Elevators(zebes))
         {
             Add(entries, MapLandmarks.ElevatorPicture(label.Destination),
                 elevatorLayout.Get(label.Id), scroll, MapSpriteColouring.Labels);

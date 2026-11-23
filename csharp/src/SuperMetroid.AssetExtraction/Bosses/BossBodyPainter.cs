@@ -17,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// <param name="owner">The boss.</param>
 /// <param name="room">What the boss's room shows at its characters.</param>
 /// <param name="colours">The room's standard palette.</param>
-internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters room, RgbColor[] colours)
+internal sealed partial class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters room, RgbColor[] colours)
 {
     /// <summary>The bytes of every artwork a cell can show, by identity.</summary>
     private readonly Dictionary<BgArtworkIdentity, ReadOnlyMemory<byte>> bytes = Ensure.NotNull(room).Loaded
@@ -57,15 +57,13 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
         }
         // A frame whose every cell's character inks only colour zero shows nothing: it has no picture, and the part showing
         // it is not drawn (#1513, #1540).
-        bool shows = ShowsAnything(frame);
-        string? picture = shows ? AddPicture(frame) : null;
-        BossBodyDepth? depth = shows ? DepthOf(frame) : null;
+        ComposedBossBodyPicture? shown = ShowsAnything(frame) ? new(AddPicture(frame), DepthOf(frame)) : null;
         // A frame lying away from its cells on the body's area carries that shift in where its picture lies (#1802, #1949),
         // and where the area lay against the boss places the picture against the boss (#2031).
         Position16<BackgroundPixels> corner = CornerOf(frame.Cells) + frame.PictureShift;
         Offset16<RoomPixels> area = BossBodySourceDefinitions.AreaFromBoss[owner];
         var anchor = Offset16<RoomPixels>.Of(corner.X + area.X, corner.Y + area.Y);
-        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, picture, anchor, depth) { Dissolve = frame.Dissolve }))
+        if (!frames.TryAdd(frame.Name, new ComposedBossBodyFrame(frame.Name, shown, anchor) { Dissolve = frame.Dissolve }))
             throw new InvalidDataException($"{owner}'s body sheet repeats frame {frame.Name}.");
     }
 
@@ -156,7 +154,7 @@ internal sealed class BossBodyPainter(BossBodyOwner owner, BossRoomCharacters ro
                 Corner = corners[place],
                 Size = new Extent16<ImagePixels>(picture.Columns * RoomTileCanvas.CharacterPixels, picture.Rows * RoomTileCanvas.CharacterPixels),
                 Origin = default,
-                ColourGroups = coloured[place].ManifestMembers,
+                ColourGroups = coloured[place],
             });
         }
         return new ComposedBossBodySheet(owner, canvas.ToRoomSheet(colours, documents), frames);

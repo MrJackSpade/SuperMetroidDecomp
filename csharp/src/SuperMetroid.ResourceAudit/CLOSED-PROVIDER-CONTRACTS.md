@@ -844,18 +844,20 @@ Both run under `--self-check` and `--room-picture-contract-check`.
 ## Room-object frame pictures - twenty-six additional original boundaries
 
 #1557 replaced the index-based room-object picture contracts with frame pictures keyed by the frame's draw, and the
-drawing's twenty-six `Installed*Visuals.Image` lookups in `RoomObjectBlockDrawing` were left with no adapter. Each of
-the twenty-three families now has a reviewed rule (`RoomObjectFrameClosedContractDefinitions`, #1732), named for its
-family (`room-object-blue-door-complete-frames`, ...), covering its `Image`. No lookup was excused.
+drawing's twenty-six `Installed*Visuals.Image` lookups in `RoomObjectBlockDrawing` were left with no adapter. Every
+family now has a reviewed rule (`RoomObjectFrameClosedContractDefinitions`, #1732). The families whose provider only holds
+its draws' pictures share the one provider, `InstalledRoomObjectPictures`, and its one rule,
+`room-object-family-complete-frames`, which reviews every one of their loaders and descriptors (#2557); the families with
+a provider of their own keep a rule named for the family. No lookup was excused.
 
 A family's provider holds the pictures `RoomObjectFrameImageFiles.Load` read for it, and only its loader
 (`RoomObject*VisualFiles.Load`) builds one. The loader's family enumerates every frame the family's descriptor
 describes (`BlueDoorCaps`, `ShotBlockObjectDraws`, the four reveal-and-wall descriptors, ...), and `Load` requires a
 picture of each of those frames and rejects any other frame, cell or block. `Image` rejects a draw its descriptor
 does not describe, and the drawing calls it only on the branch that descriptor accepts, so every frame the drawing
-names has an installed picture. Two families show one frame under a second identity: a closed blue cap shows its
-facing's first opening frame, and an eye door's mirrored clear shows the shared clear mirrored; both read the installed
-frame. A collectible's block pair is drawn as terrain before its `Image` branch and has no picture of its own. The rule
+names has an installed picture. Two families show one frame under a second identity: a closed blue cap drawn solid shows
+its facing's closed cap, and an eye door's mirrored clear shows the shared clear mirrored; each family's loader adds that
+identity's picture, read from the installed frame, when it loads the family. A collectible's block pair is drawn as terrain before its `Image` branch and has no picture of its own. The rule
 reviews each provider, its loader, its descriptor sources and the shared frame-picture, draw and loader sources; the
 providers are loader-built, so a construction outside the reviewed sources revokes the family's rule. The draw is
 always computed: no constant draw reaches a lookup.

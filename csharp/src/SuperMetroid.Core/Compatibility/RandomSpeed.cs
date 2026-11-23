@@ -14,8 +14,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Field">The part of the sample the choice reads.</param>
 /// <param name="Slowest">The speed the field's zero chooses.</param>
 /// <param name="Step">How much faster each next value of the field chooses.</param>
-[CompatibilityService("which speed each random number chooses, exactly as the game's speed draws read it")]
-public readonly record struct RandomSpeed(RandomSampleField Field, SignedEightEight Slowest, SignedEightEight Step)
+public readonly partial record struct RandomSpeed(RandomSampleField Field, SignedEightEight Slowest, SignedEightEight Step)
 {
     /// <summary>The speed <paramref name="sample"/> chooses: the slowest, raised by a step for each value of its field.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>

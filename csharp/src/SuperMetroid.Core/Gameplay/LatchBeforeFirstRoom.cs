@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// as gameplay last placed them.
 /// </summary>
 /// <param name="Hud">The HUD's images this frame boundary latched.</param>
-public sealed record LatchBeforeFirstRoom(ShownHud Hud) : GameplayDisplayLatch(Hud)
+public sealed partial record LatchBeforeFirstRoom(ShownHud Hud) : GameplayDisplayLatch(Hud)
 {
     /// <summary>The latch in effect before any frame boundary: no room, and no HUD image placed.</summary>
     public static LatchBeforeFirstRoom NothingLatched { get; } = new(ShownHud.Nothing);

@@ -3,8 +3,11 @@ using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
-/// <summary>File identity and schema names of the installed <c>game-over.json</c>.</summary>
-public static class GameOverPresentationFormat
+/// <summary>
+/// File names of the installed game-over layout (<see cref="FileName"/>) and of the import-data artwork document
+/// (<see cref="ArtworkFileName"/>), and the artwork document's sprite and palette names.
+/// </summary>
+public static partial class GameOverPresentationFormat
 {
     /// <summary>Supported game-over presentation JSON schema version.</summary>
     public const int Version = 1;
@@ -23,8 +26,7 @@ public static class GameOverPresentationFormat
     ];
 
     /// <summary>Required idle and crying Baby color phases in schema order.</summary>
-    private static readonly string[] paletteNames =
-        ["Baby.Idle", "Baby.ClosedCry", "Baby.MiddleCry", "Baby.OpenCry"];
+    private static readonly string[] paletteNames = [.. GameOverBabyPaletteNames.InSchemaOrder];
 
     /// <summary>Read-only view of the required composition identities: three Baby frames, egg, then the missile's pictures.</summary>
     public static ReadOnlySpan<string> SpriteNames => spriteNames;

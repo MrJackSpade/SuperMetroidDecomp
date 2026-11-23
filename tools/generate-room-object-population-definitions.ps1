@@ -68,16 +68,16 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             if ($word -ne $fixedArgumentWords[$name]) { throw ('{0} argument {1:X4} differs from its fixed word.' -f $name, $word) }
             return 'null'
         }
-        if ($name -match '^(Chozo|Exposed|ShotBlock)') { return 'new CollectedItemArgument(@@ITEM:{0}@@)' -f $word }
+        if ($name -match '^(Chozo|Exposed|ShotBlock)') { return 'new CollectibleIdentity(@@ITEM:{0}@@)' -f $word }
         if ($name -match '^(GreyDoor|BombTorizoGreyDoor)') {
             $persistence = if (($word -band 0x8000) -eq 0) { 'Persistent' } else { 'Transient' }
             $condition = ($word -shr 10) -band 0x1f
             if ($condition -ge $greyDoorConditions.Count) { throw ('Grey door {0} argument {1:X4} selects no condition.' -f $name, $word) }
-            return 'new GreyDoorArgument(GreyDoorCondition.{0}, new LockedDoorArgument(@@DOOR:{1}@@, DoorOpeningPersistence.{2}))' -f $greyDoorConditions[$condition], ($word -band 0x3ff), $persistence
+            return 'new GreyDoorOpening(GreyDoorCondition.{0}, new DoorLock(@@DOOR:{1}@@, DoorOpeningPersistence.{2}))' -f $greyDoorConditions[$condition], ($word -band 0x3ff), $persistence
         }
         if ($name -match '^((Red|Green|Yellow)Door|EyeDoor)') {
             if (($word -band 0x8000) -ne 0) { throw ('Door {0} argument {1:X4} never persists.' -f $name, $word) }
-            return 'new LockedDoorArgument(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
+            return 'new DoorLock(@@DOOR:{0}@@, DoorOpeningPersistence.Persistent)' -f $word
         }
         # A refill station's word numbers it in room data, but neither its setup nor its refill reads the number (#1623):
         # the station is placed without an argument.
@@ -89,11 +89,11 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             $entry = $word -shr 1
             if ($name -eq 'DownwardGateShotBlock') {
                 if ($entry -ge $gateTriggerColors.Count * $gateTriggerSides.Count) { throw ('{0} argument {1:X4} selects no trigger.' -f $name, $word) }
-                return 'new GateTriggerArgument(new DownwardGateTrigger(DownwardGateTriggerColor.{0}, HorizontalDirection.{1}))' -f $gateTriggerColors[$entry -shr 1], $gateTriggerSides[$entry -band 1]
+                return 'new GateShotTrigger(new DownwardGateTrigger(DownwardGateTriggerColor.{0}, HorizontalDirection.{1}))' -f $gateTriggerColors[$entry -shr 1], $gateTriggerSides[$entry -band 1]
             }
             if ($entry -ge $metroidRoomEvents.Count) { throw ('{0} argument {1:X4} selects no entry.' -f $name, $word) }
             if ($null -eq $metroidRoomEvents[$entry]) { return '@@HELDPLACE@@' }
-            return 'new MetroidRoomArgument(StoryEvent.{0})' -f $metroidRoomEvents[$entry]
+            return 'new WatchedMetroidRoom(StoryEvent.{0})' -f $metroidRoomEvents[$entry]
         }
         throw ('Room-object kind {0} has no decoded room argument for {1:X4}.' -f $name, $word)
     }
@@ -124,7 +124,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $statePhrases = @{}
     $roomPhrases = @{}
     foreach ($stateFile in Get-ChildItem (Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/World/RoomStates') -Filter '*RoomStateDefinitions.cs') {
-        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\("\3"[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
+        foreach ($match in [regex]::Matches([IO.File]::ReadAllText($stateFile.FullName), '/// <summary>The ([^<]+?)''s ([^<]+)\.</summary>\s*public static RoomStateSettings (\w+) \{ get; \} =\s*new\("\w+"[^;]*?RoomObjectPopulationDefinitions\.(\w+)')) {
             $statePopulations[$match.Groups[3].Value] = $match.Groups[4].Value
             $statePhrases[$match.Groups[3].Value] = [pscustomobject]@{ Room = 'the ' + $match.Groups[1].Value; State = $match.Groups[2].Value }
         }
@@ -173,7 +173,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     }
     function Get-Capitalised([string] $text) { return $text.Substring(0, 1).ToUpperInvariant() + $text.Substring(1) }
     $roomScreens = @{}
-    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs')), 'public static RoomDefinition (\w+) \{ get; \} = new\("\1", AreaId\.\w+, new\(\d+, \d+\), new\((\d+), (\d+)\)')) {
+    foreach ($match in [regex]::Matches([IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomDefinitions.cs')), 'public static RoomDefinition (\w+) \{ get; \} = (?:\w+\()?new\("\1", AreaId\.\w+, new\(\d+, \d+\), new\((\d+), (\d+)\)')) {
         $roomScreens[$match.Groups[1].Value] = [pscustomobject]@{ Width = [int]$match.Groups[2].Value; Height = [int]$match.Groups[3].Value }
     }
     if ($roomScreens.Count -ne 261) { throw "Expected 261 retail room sizes, found $($roomScreens.Count)." }
@@ -196,21 +196,21 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $lines.Add('internal static class RoomObjectPopulationDefinitions')
     $lines.Add('{')
     # Each placed kind's family setup (#2383), carrying what the kind places (#2481): the coloured, grey and eye doors,
-    # the items, the map and refill stations and the scroll extensions are the kinds verification's kind-variant tables
-    # list, each with the door, item, station access rule or extension it places; the scroll trigger and each other kind
-    # are named for it. A setup carries every argument its family requires (#2483), so a placement of a family that
-    # requires one and gives none is refused.
+    # the items, the map and refill stations and the scroll extensions are the kinds Core's table of kinds by setup lists,
+    # each with the door, item, station access rule or extension it places; the scroll trigger and each other kind are
+    # named for it. A setup carries every argument its family requires (#2483), so a placement of a family that requires
+    # one and gives none is refused. A placement names its object once, by its setup, whose kind follows from it (#2557).
     $familySetups = @{}
     $familyVariants = @{}
-    $variantSource = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/test-support/VerificationAccess.Core/Rooms/RoomObjects/RoomObjectKindVariants.cs'))
+    $variantSource = [IO.File]::ReadAllText((Join-Path $repoRoot 'csharp/src/SuperMetroid.Core/Rooms/RoomObjects/RoomObjectKindDefinitions.cs'))
     function Add-FamilyKinds([string] $table, [string] $setup) {
         $start = $variantSource.IndexOf(" $table ")
-        if ($start -lt 0) { throw "RoomObjectKindVariants declares no $table table." }
-        $end = $variantSource.IndexOf('};', $start)
-        foreach ($match in [regex]::Matches($variantSource.Substring($start, $end - $start), '(?m)^\s*\[RoomObjectKind\.(\w+)\] = (.+),\r?$')) {
-            if ($familySetups.ContainsKey($match.Groups[1].Value)) { throw "Room-object kind $($match.Groups[1].Value) is listed by two families." }
-            $familySetups[$match.Groups[1].Value] = $setup
-            $familyVariants[$match.Groups[1].Value] = $match.Groups[2].Value
+        if ($start -lt 0) { throw "RoomObjectKindDefinitions declares no $table table." }
+        $end = $variantSource.IndexOf('}.ToFrozenDictionary();', $start)
+        foreach ($match in [regex]::Matches($variantSource.Substring($start, $end - $start), '(?m)^\s*\[(.+)\] = RoomObjectKind\.(\w+),\r?$')) {
+            if ($familySetups.ContainsKey($match.Groups[2].Value)) { throw "Room-object kind $($match.Groups[2].Value) is listed by two families." }
+            $familySetups[$match.Groups[2].Value] = $setup
+            $familyVariants[$match.Groups[2].Value] = $match.Groups[1].Value -replace '^new \w+\(', 'new('
         }
     }
     Add-FamilyKinds 'ColoredDoors' 'ColoredDoorSetup'
@@ -220,11 +220,13 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     Add-FamilyKinds 'EyeDoorParts' 'EyeDoorPartSetup'
     Add-FamilyKinds 'AccessStations' 'AccessStationSetup'
     Add-FamilyKinds 'ScrollExtensions' 'ScrollExtensionSetup'
-    $draygonCannonSetups = @{
-        DraygonCannonFacingRight = 'DraygonCannonOrientation.Right, DraygonCannonStart.Whole'
-        DraygonCannonFacingRightDestroyed = 'DraygonCannonOrientation.Right, DraygonCannonStart.Destroyed'
-        DraygonCannonFacingLeft = 'DraygonCannonOrientation.Left, DraygonCannonStart.Whole'
+    $draygonCannonSetups = @{}
+    $cannonStart = $variantSource.IndexOf(' DraygonCannons ')
+    if ($cannonStart -lt 0) { throw 'RoomObjectKindDefinitions declares no DraygonCannons table.' }
+    foreach ($match in [regex]::Matches($variantSource.Substring($cannonStart, $variantSource.IndexOf('}.ToFrozenDictionary();', $cannonStart) - $cannonStart), '(?m)^\s*\[new DraygonCannonVariant\((.+)\)\] = RoomObjectKind\.(\w+),\r?$')) {
+        $draygonCannonSetups[$match.Groups[2].Value] = $match.Groups[1].Value
     }
+    if ($draygonCannonSetups.Count -ne 3) { throw "Expected three Draygon cannon kinds, found $($draygonCannonSetups.Count)." }
     function Format-PlacementSetup([string] $name, [string] $argumentText, [string] $scrollProgram) {
         if ($name -eq 'ScrollTrigger') { return 'new ScrollTriggerSetup({0})' -f $scrollProgram }
         # A Draygon cannon's placement carries the wall cannon it controls, the wall it faces out from and whether it starts
@@ -350,7 +352,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                     if ($areas.Count -ne 1) { throw "Save station population $name is loaded by no single area." }
                     $stationKey = '{0}:{1}' -f $areas[0], $Matches[1]
                     if (-not $stationsByAreaNumber.ContainsKey($stationKey)) { throw "Save station population $name names no load station $stationKey." }
-                    $argumentText = 'new SaveStationArgument(LoadStationDefinitions.{0})' -f $stationsByAreaNumber[$stationKey]
+                    $argumentText = 'new SaveStationPlace(LoadStationDefinitions.{0})' -f $stationsByAreaNumber[$stationKey]
                 }
                 foreach ($token in [regex]::Matches($argumentText, '@@(DOOR|ITEM):(\d+)@@')) {
                     $placements = if ($token.Groups[1].Value -eq 'DOOR') { $doorPlacements } else { $itemPlacements }
@@ -378,8 +380,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 }
             }
             $setupText = Format-PlacementSetup $placedKind $argumentText $scrollProgram
-            $placementLines.Add([pscustomobject]@{ Kind = $placedKind; X = $blockX; Y = $blockY
-                Line = ('        new(RoomObjectKind.{0}, new({1}, {2}), {3}{4}),' -f $placedKind, $blockX, $blockY, $setupText, $site) })
+            $placementLines.Add([pscustomobject]@{ Kind = $placedKind; X = $blockX; Y = $blockY; Program = $scrollProgram
+                Line = ('        new(new({0}, {1}), {2}{3}),' -f $blockX, $blockY, $setupText, $site) })
             $offset += 6
         }
         # A scroll extension continues the trigger or extension its step back leads to (#2572); one whose step back leads to
@@ -390,16 +392,48 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             if ($placed.Kind -ceq 'ScrollTrigger' -or $placed.Kind.EndsWith('ScrollExtension')) { [void] $scrollChain.Add(('{0},{1}' -f $placed.X, $placed.Y)) }
         }
         $stepsBack = @{ RightwardsScrollExtension = @(-1, 0); LeftwardsScrollExtension = @(1, 0); DownwardsScrollExtension = @(0, -1); UpwardsScrollExtension = @(0, 1) }
+        # Each trigger is placed once with the reach its extensions give it (#2557): the run of blocks the extensions
+        # continue it through, each straight stretch one run of its extension. An extension's setup only writes its own
+        # block and frees its place at once, so placing the trigger's extensions straight after it, rather than where the
+        # cartridge lists them, takes no place another object would take and changes nothing the game reads. Every
+        # retail reach is one unbranched path from its trigger.
+        $extensionsByBlock = @{}
         foreach ($placed in $placementLines) {
             if ($stepsBack.ContainsKey($placed.Kind)) {
                 $back = $stepsBack[$placed.Kind]
-                if (-not $scrollChain.Contains(('{0},{1}' -f ($placed.X + $back[0]), ($placed.Y + $back[1])))) {
+                $from = '{0},{1}' -f ($placed.X + $back[0]), ($placed.Y + $back[1])
+                if (-not $scrollChain.Contains($from)) {
                     $orphanExtensions++
                     continue
                 }
+                if ($extensionsByBlock.ContainsKey($from)) { throw "Population $name branches the reach of its scroll trigger at ($from)." }
+                $extensionsByBlock[$from] = $placed
             }
-            $lines.Add($placed.Line)
         }
+        $reached = 0
+        foreach ($placed in $placementLines) {
+            if ($stepsBack.ContainsKey($placed.Kind)) { continue }
+            if ($placed.Kind -cne 'ScrollTrigger') {
+                $lines.Add($placed.Line)
+                continue
+            }
+            $runs = [Collections.Generic.List[object]]::new()
+            $at = '{0},{1}' -f $placed.X, $placed.Y
+            while ($extensionsByBlock.ContainsKey($at)) {
+                $extension = $extensionsByBlock[$at]
+                if ($runs.Count -gt 0 -and $runs[$runs.Count - 1].Kind -ceq $extension.Kind) { $runs[$runs.Count - 1].Blocks++ }
+                else { $runs.Add([pscustomobject]@{ Kind = $extension.Kind; Blocks = 1 }) }
+                $reached++
+                $at = '{0},{1}' -f $extension.X, $extension.Y
+            }
+            if ($runs.Count -eq 0) {
+                $lines.Add($placed.Line)
+                continue
+            }
+            [string[]] $reach = @($runs | ForEach-Object { 'new ScrollReachRun({0}, {1})' -f $familyVariants[$_.Kind], $_.Blocks })
+            $lines.Add(('        .. ScrollTriggerPlacements.Reaching(new({0}, {1}), {2}, {3}),' -f $placed.X, $placed.Y, $placed.Program, ($reach -join ', ')))
+        }
+        if ($reached -ne $extensionsByBlock.Count) { throw "Population $name places scroll extensions that no trigger's reach covers." }
         $recordTotal += $count
         if ($count -eq 0) { $lines[$summaryIndex] = $lines[$summaryIndex] -replace '\.</summary>$', ': none.</summary>' }
         $lines.Add('    ]);')
@@ -429,7 +463,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         [pscustomobject]@{ State = 1; Verb = 'Opens'; Suffix = 'TopAligned'; Phrase = 'opens {0} with the camera aligned to the screen''s top' }
     )
     $scrollChanges = @{}
-    $scrollChangeNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $scrollChangeContents = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     $scrollByteTotal = 0
     $scrollPairTotal = 0
     foreach ($pointer in $orderedScrollPrograms) {
@@ -478,7 +512,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
                 State = [int]$bytes[$pair + 1]
             })
         }
-        $changeName = $room
+        $changeContent = $room
         $phrases = [Collections.Generic.List[string]]::new()
         foreach ($effect in $scrollEffects) {
             $affectedWrites = @($writes | Where-Object State -EQ $effect.State | Sort-Object Cell)
@@ -486,11 +520,19 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             [string[]] $affected = @($affectedWrites | ForEach-Object { '{0}x{1}{2}' -f $_.Column, $_.Row, $(if ($_.BelowTheRoom) { 'BelowTheRoom' } else { '' }) })
             [string[]] $described = @($affectedWrites | ForEach-Object { '{0}x{1}{2}' -f $_.Column, $_.Row, $(if ($_.BelowTheRoom) { ' below the room' } else { '' }) })
             $noun = if ($affected.Count -eq 1) { 'Screen' } else { 'Screens' }
-            $changeName += '{0}{1}{2}{3}' -f $effect.Verb, $noun, ($affected -join 'And'), $effect.Suffix
+            $changeContent += '{0}{1}{2}{3}' -f $effect.Verb, $noun, ($affected -join 'And'), $effect.Suffix
             $phrases.Add(($effect.Phrase -f ('{0} {1}' -f $noun.ToLowerInvariant(), ($described -join ' and '))))
         }
-        if (-not $scrollChangeNames.Add($changeName)) { throw "Two scroll programs of the $room room make the same change $changeName." }
-        $scrollChanges[$pointer] = [pscustomobject]@{ Name = $changeName; Room = $room; Writes = $writes; Summary = ($phrases -join '; ') }
+        if (-not $scrollChangeContents.Add($changeContent)) { throw "Two scroll programs of the $room room make the same change." }
+        $scrollChanges[$pointer] = [pscustomobject]@{ Name = $null; Room = $room; Pointer = $pointer; Writes = $writes; Summary = ($phrases -join '; ') }
+    }
+    # A scroll change is an identity of its room (#2574): named for the room, numbered in storage order when the room has
+    # more than one; its writes are stated once, in the change's definition, never again in its name.
+    foreach ($roomChanges in @($scrollChanges.Values | Group-Object Room)) {
+        [object[]] $ordered = @($roomChanges.Group | Sort-Object Pointer)
+        for ($index = 0; $index -lt $ordered.Count; $index++) {
+            $ordered[$index].Name = if ($ordered.Count -eq 1) { $roomChanges.Name } else { '{0}{1}' -f $roomChanges.Name, ($index + 1) }
+        }
     }
     if ($scrollByteTotal -ne 743 -or $scrollPairTotal -ne 285) {
         throw "Expected 743 scroll-program bytes/285 pairs, found $scrollByteTotal/$scrollPairTotal."
@@ -593,7 +635,7 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $lines[$index] = [regex]::Replace($lines[$index], '@@(DOOR|ITEM|SCROLL):(\d+)@@', $evaluator)
     }
 
-    function New-PlacementCatalog([string] $typeName, [string] $catalogName, [string[]] $summary, $memberSummaries, [string] $allSummary, [string] $numberedReason, $names) {
+    function New-PlacementCatalog([string] $typeName, [string] $catalogName, [string[]] $summary, $memberSummaries, [string] $allSummary, $names) {
         $catalog = [Collections.Generic.List[string]]::new()
         $catalog.Add('// <auto-generated/>')
         $catalog.Add('#nullable enable')
@@ -602,7 +644,6 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         $catalog.Add('/// <summary>')
         foreach ($line in $summary) { $catalog.Add('/// ' + $line) }
         $catalog.Add('/// </summary>')
-        $catalog.Add(('[NumberedIdentities("{0}")]' -f $numberedReason))
         $catalog.Add(('public static class {0}' -f $catalogName))
         $catalog.Add('{')
         foreach ($number in @($names.Keys | Sort-Object)) {
@@ -623,12 +664,12 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
         'room that places it, whichever of its states does, and its cap and, where two would share that name, the grey door''s',
         'condition, its block or, for the Climb''s escape, the state that places it; an eye door''s three parts are one door.',
         'Regenerate with tools/generate-room-object-population-definitions.ps1.'
-    ) $doorSummaries 'Every door, in the order saves list them.' 'Each door named with its block is one distinct door of its room, told apart by where it stands; nothing indexes them.' $doorNames
+    ) $doorSummaries 'Every door, in the order saves list them.' $doorNames
     $itemCatalog = New-PlacementCatalog 'ItemLocation' 'ItemLocationDefinitions' @(
         'Every item location of the game''s room populations, named for the room that places it, whichever of its states does,',
         'and its item and, where two would share that name, its block. Regenerate with',
         'tools/generate-room-object-population-definitions.ps1.'
-    ) $itemSummaries 'Every item location, in the order saves list them.' 'Each item location named with its block is one distinct location of its room, told apart by where it stands; nothing indexes them.' $itemNames
+    ) $itemSummaries 'Every item location, in the order saves list them.' $itemNames
     $numberLines = [Collections.Generic.List[string]]::new()
     $numberLines.Add('// <auto-generated/>')
     $numberLines.Add('#nullable enable')
@@ -689,9 +730,9 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
     $identityLines.Add('namespace SuperMetroid.Core.Rooms.RoomObjects;')
     $identityLines.Add('')
     $identityLines.Add('/// <summary>')
-    $identityLines.Add('/// A scroll change, named for its room and what it does to the room''s screens: the screens it closes to the')
-    $identityLines.Add('/// camera, opens, and opens with the camera aligned to the screen''s top, each as its column and row in the room. Regenerate')
-    $identityLines.Add('/// with tools/generate-room-object-population-definitions.ps1.')
+    $identityLines.Add('/// A scroll change: one of its room''s, named for the room and numbered in storage order where the room has more than')
+    $identityLines.Add('/// one (#2574). What it does to the room''s screens is its definition''s (RoomObjectScrollChangeDefinitions.Changes).')
+    $identityLines.Add('/// Regenerate with tools/generate-room-object-population-definitions.ps1.')
     $identityLines.Add('/// </summary>')
     $identityLines.Add('internal enum RoomScrollChange')
     $identityLines.Add('{')
@@ -715,7 +756,8 @@ public static class RoomObjectPopulationGenerationProcessPolicy {
             'new(new({0}, {1}), RoomScrollState.{2})' -f $_.Column, $_.Row, $stateName
         })
         $scrollLines.Add(('            [RoomScrollChange.{0}] = [{1}],' -f $change.Name, ($writes -join ', ')))
-        $identityLines.Add(('    /// <summary>In the {0} room, {1}.</summary>' -f $change.Room, $change.Summary))
+        if (-not $roomPhrases.ContainsKey($change.Room)) { throw "Scroll change $($change.Name)'s room $($change.Room) has no state summary naming it." }
+        $identityLines.Add(('    /// <summary>In {0}, {1}.</summary>' -f $roomPhrases[$change.Room], $change.Summary))
         $identityLines.Add(('    {0},' -f $change.Name))
         $identityLines.Add('')
         $nativeLines.Add(('            [RoomScrollChange.{0}] = 0x{1:x4},' -f $change.Name, $pointer))

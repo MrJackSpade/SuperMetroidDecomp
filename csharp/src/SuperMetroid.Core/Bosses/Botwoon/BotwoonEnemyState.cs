@@ -6,11 +6,10 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>
-/// Botwoon's state beyond what his head shares with every enemy, including its thirteen body segments, which are not
+/// Botwoon's state beyond what his head shares with every enemy, including its body segments, which are not
 /// ordinary enemies and so are kept here rather than spawned as enemies.
 /// </summary>
-[ArchitectureReview("context-bag", "Botwoon's fight state: every member is a wait, stage, band, path or segment of his own fight that he owns for the room (his spit cooldown, pre-fall and explosion waits, speed stage and health band, #2266, #2267), not a service carried through.")]
-public sealed class BotwoonEnemyState
+public sealed partial class BotwoonEnemyState
 {
     /// <summary>
     /// The fight's phase, owning initial waiting, traversal/spitting, and synchronized death progression; the fight
@@ -19,8 +18,8 @@ public sealed class BotwoonEnemyState
     public BotwoonPhase Phase { get; internal set; } = BotwoonPhase.InitialDelay;
 
     /// <summary>
-    /// The independent movement behaviour, choosing direct hole movement or an authored path; he starts moving toward
-    /// his target hole.
+    /// The independent movement behaviour, choosing direct hole movement or an authored path, which holds the walk he
+    /// chose; he starts moving toward his target hole.
     /// </summary>
     public BotwoonMovement Movement { get; internal set; } = BotwoonMovement.MoveTowardHole;
 
@@ -30,7 +29,7 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public BotwoonHeadAction HeadAction { get; internal set; } = BotwoonHeadAction.AnimateFromMovement;
 
-    /// <summary>The trail ring's next place, 0 through 255 (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
+    /// <summary>The trail ring's next place (<see cref="BotwoonTrailRing"/>); each moving update writes the head's position there and moves on one place.</summary>
     public int RingIndex { get; internal set; }
     /// <summary>
     /// His wait in his hole before his first traversal (#2538): his setup starts it for
@@ -48,8 +47,8 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public BossCountdown PreFallWait { get; } = new();
     /// <summary>
-    /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on three quarters of a mark,
-    /// and the whole marks choose the fall speed. The head reaches the floor before the curve ends, well below mark 95.
+    /// Head-fall place along the quadratic speed curve: each still-airborne update moves it on by the head's fall step,
+    /// and the whole marks choose the fall speed. The head reaches the floor well before the curve ends.
     /// </summary>
     public QuadraticSpeedCurvePlace FallPlace { get; internal set; }
     /// <summary>
@@ -58,12 +57,12 @@ public sealed class BotwoonEnemyState
     /// </summary>
     public UpdateCountdown WallSequence { get; internal set; } = UpdateCountdown.Ended();
     /// <summary>
-    /// The wait for the next large wall explosion (#2267): from the wall sequence's update 64 one bursts at once, then one
+    /// The wait for the next large wall explosion (#2267): from <see cref="BotwoonDeathDefinitions.WallExplosionsBegin"/> one bursts at once, then one
     /// every <see cref="BotwoonDeathDefinitions.LargeExplosionInterval"/>.
     /// </summary>
     public BossCountdown LargeExplosionWait { get; } = new();
     /// <summary>
-    /// The wait for the next pair of small wall explosions (#2267): from the wall sequence's update 64 a pair bursts at
+    /// The wait for the next pair of small wall explosions (#2267): from <see cref="BotwoonDeathDefinitions.WallExplosionsBegin"/> a pair bursts at
     /// once, then a pair every <see cref="BotwoonDeathDefinitions.SmallExplosionInterval"/>.
     /// </summary>
     public BossCountdown SmallExplosionWait { get; } = new();
@@ -78,15 +77,6 @@ public sealed class BotwoonEnemyState
     public RotationAngle MovementAngle { get; internal set; }
     /// <summary>The direction his spits fly: the bearing from his head to Samus, to which a volley's other spits add their spread.</summary>
     public RotationAngle SpitAngle { get; internal set; }
-    /// <summary>The authored path being walked; none before his first walk.</summary>
-    internal BotwoonPathDefinition? Path { get; set; }
-    /// <summary>
-    /// The next step of <see cref="Path"/> to take. A forward walk ends when it passes the last step and a backward
-    /// walk when it passes the first, so it ranges from one before the first step to one after the last.
-    /// </summary>
-    public int PathStep { get; internal set; }
-    /// <summary>Which way <see cref="Path"/> is walked: a backward walk takes the steps in reverse order, each reversed.</summary>
-    public BotwoonPathTraversal PathTraversal { get; internal set; }
     /// <summary>The head animation the AI last installed and where it stands; reinstalling the same animation does not restart it.</summary>
     internal AnimationPlayback<BotwoonHeadAnimationSegment> HeadPlayback { get; set; } =
         new(BotwoonAnimations.HeadStartingWith(BotwoonHeadAnimationSegment.Hidden), AnimationPlace.StartOfAnimation);
@@ -110,29 +100,29 @@ public sealed class BotwoonEnemyState
     public bool HoleLatch { get; internal set; }
     /// <summary>Set until his first crossing: it sends him on a walk without drawing his next action at random.</summary>
     public bool InitialAction { get; internal set; }
-    /// <summary>Set by the fatal hit: he keeps on his walk until his tail has next crossed out of the wall, and then dies.</summary>
-    public bool FatallyHit { get; internal set; }
+    /// <summary>
+    /// How far his death has gone (#2560): alive; fatally hit, keeping on his walk until his tail has next crossed out of the
+    /// wall; or dying, each body segment having stopped following his head to start its own delay before it falls.
+    /// </summary>
+    public BotwoonDeathProgress Death { get; internal set; }
     /// <summary>Set when his tail crosses the place his head crossed at while the head is outside the wall, letting a fatal hit's death begin.</summary>
     public bool ExitTransitionComplete { get; internal set; }
-    /// <summary>Set as his death begins: each of his thirteen body segments then stops following his head and starts its own delay before it falls.</summary>
-    public bool BodyDeathStarted { get; internal set; }
     /// <summary>Landing signal from the tail segment, releasing the head's wait-for-body phase into wall crumbling and specialized drops.</summary>
     public bool LastBodySegmentLanded { get; internal set; }
     /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null means no crossing remains pending.</summary>
     public int? SavedHoleRingIndex { get; internal set; }
 
-    /// <summary>Starts Botwoon's state with his <paramref name="body"/>, which his setup spawns.</summary>
-    /// <param name="body">
-    /// His body segments from the tail to the segment behind the head (#2178): all
-    /// <see cref="BotwoonFightDefinitions.BodySegments"/> of them, or none for a Botwoon already defeated, who spawns no body.
-    /// </param>
-    internal BotwoonEnemyState(IReadOnlyList<BotwoonSegmentState> body) => Body = Ensure.NotNull(body);
-
     /// <summary>
-    /// His body segments, from the tail (zero) to the segment behind the head: each segment's projectile, its phase and
-    /// whether it travels inside the wall are its own (<see cref="BotwoonSegmentState"/>).
+    /// His body segments, from the tail (zero) to the segment behind the head (#2178): each segment's projectile, its phase
+    /// and whether it travels inside the wall are its own (<see cref="BotwoonSegmentState"/>). He starts with none; his
+    /// setup spawns all <see cref="BotwoonFightDefinitions.BodySegments"/> of them, each holding this state, unless he is
+    /// already defeated, when he spawns no body (#2554).
     /// </summary>
-    internal IReadOnlyList<BotwoonSegmentState> Body { get; }
+    internal IReadOnlyList<BotwoonSegmentState> Body { get; private set; } = [];
+
+    /// <summary>Holds the <paramref name="body"/> his setup spawned.</summary>
+    /// <param name="body">His body segments from the tail to the segment behind the head.</param>
+    internal void HoldBody(IReadOnlyList<BotwoonSegmentState> body) => Body = Ensure.NotNull(body);
 
     /// <summary>The head's last moving positions, one for each of the trail ring's places (<see cref="BotwoonTrailRing"/>), all at the room's origin as he spawns.</summary>
     internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[BotwoonTrailRing.Places];

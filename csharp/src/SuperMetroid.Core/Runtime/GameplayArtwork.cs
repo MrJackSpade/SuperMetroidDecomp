@@ -15,12 +15,12 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>
-/// The installed catalogs a gameplay runtime is built over and binds (#2049): every one is required, since the host installs
-/// its artwork before gameplay builds anything that draws (<see cref="Frontend.GameArtwork.Gameplay"/>). The runtime never
+/// The installed catalogs a gameplay runtime is built over and binds (#2049): every one is required, since the host
+/// puts its artwork in place before gameplay builds anything that draws (<see cref="Frontend.GameArtwork.Gameplay"/>).
+/// The runtime never
 /// sees the frontend's cinematic and ending catalogs.
 /// </summary>
-[ArchitectureReview("context-bag", "The installed artwork set a gameplay runtime is built over, as one value; every member is an immutable artwork catalog, not a service.")]
-internal sealed record GameplayArtwork
+internal sealed partial record GameplayArtwork
 {
     /// <summary>The installed content of the screens, scenes and HUD (#2203): the area maps, the menus, the title, the opening and ending text and the scenes' colours.</summary>
     public required IGameplayPresentationContent ScreenContent { get; init; }
@@ -77,7 +77,7 @@ internal sealed record GameplayArtwork
     public required EnemyOverreadServices EnemyOverreads { get; init; }
 
     /// <summary>Where the beam's charge flare is drawn from Samus in each pose.</summary>
-    public required ChargeFlarePlacements ChargeFlarePlacement { get; init; }
+    public required BeamFlarePlacements ChargeFlarePlacement { get; init; }
 
     /// <summary>The grapple flare's standing and running offsets.</summary>
     public required ChargeFlarePlacements GrappleFlarePlacement { get; init; }

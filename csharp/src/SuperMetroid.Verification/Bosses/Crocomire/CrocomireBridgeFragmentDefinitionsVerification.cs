@@ -18,7 +18,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
         // The cartridge table holds one X word per fragment, in launch order.
         for (int fragment = 0; fragment < CrocomireBridgeFragmentDefinitions.FragmentCount; fragment++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + fragment * sizeof(ushort));
+            ushort expected = rom.ReadCartridgeWord(sourceAddress + fragment * sizeof(ushort));
             AssertEqual(expected, CrocomireBridgeFragmentDefinitions.XPosition(fragment),
                 $"Crocomire bridge fragment {fragment}");
         }
@@ -30,7 +30,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             "Crocomire bridge fragment past the last");
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0]);
+        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.Crocomire), enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1]);
         CrocomireDeathState death = state.Death;
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         enemies.VerificationServices().ReadRandom = () => 0x1234;
@@ -39,7 +39,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
         for (ushort fragment = 0; fragment < 11; fragment++)
         {
             spawn();
-            EnemyProjectile projectile = enemies.Projectiles.ProjectileInPlace(17 - fragment);
+            EnemyProjectile projectile = enemies.Projectiles.SpawnedInPlace(17 - fragment);
             AssertEqual(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, projectile.Kind,
                 $"Crocomire bridge fragment {fragment} kind");
             AssertEqual(CrocomireBridgeFragmentDefinitions.XPosition(fragment),

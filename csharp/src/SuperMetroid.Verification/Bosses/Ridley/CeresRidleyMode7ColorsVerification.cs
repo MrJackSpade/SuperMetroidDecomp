@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -42,22 +43,20 @@ internal static class CeresRidleyMode7ColorsVerification
         }
 
         CeresRidleyMode7ColorDocument document =
-            JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(
-                File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyFloorColorFormat.FileName)),
-                ArtworkJson.Options)
+            JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, CeresRidleyFloorColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyMode7ColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Ceres Mode-7 colors are null.");
         var enemies = SuperMetroid.Verification.Harness.EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(),
             SuperMetroid.Core.World.RoomEnemyCompatibilityFixtures.ForNewRoom());
 
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         // The station's escape shows the floor's zoom (#2228); Ceres Ridley's own colours lay nothing here.
-        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero);
+        var ridley = new CeresRidleyState(Position16<RoomPixels>.Zero, RoomWarningFixtures.Ceres());
         CeresEscape escape = enemies.CeresEscape;
         Action<FloorZoom> select = escape.ShowFloorZoom;
         var visited = new HashSet<int>();
-        for (int index = 0; index < CeresRidleyGetawayCurve.Duration; index++)
+        for (int index = 0; index < CeresRidleyGetawayCurve.Steps.Count; index++)
         {
-            FloorZoom zoom = CeresRidleyGetawayCurve.ZoomAt(index);
+            FloorZoom zoom = CeresRidleyGetawayCurve.Steps[index].Zoom;
             int row = LittleEndianBytes.HighByte(zoom.TwoHundredFiftySixths);
             visited.Add(row);
             select(zoom);
@@ -91,5 +90,5 @@ internal static class CeresRidleyMode7ColorsVerification
 
     /// <summary>Reads one native zoom color for the extracted-palette comparison.</summary>
     private static ushort ReadNativeCeresRidleyMode7Color(ISnesAddressSpace rom, int address) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+        RomDataReader.ReadWordFixedBank(rom, address);
 }

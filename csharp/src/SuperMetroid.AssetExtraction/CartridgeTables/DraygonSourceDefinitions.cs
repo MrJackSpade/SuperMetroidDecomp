@@ -6,8 +6,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Draygon tables extraction reads (#1413): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed Draygon colour document.
 /// </summary>
-[EncodingOwner("cartridge addresses of Draygon's colour tables")]
-internal static class DraygonSourceDefinitions
+internal static partial class DraygonSourceDefinitions
 {
     /// <summary>
     /// $A5:A217, the body initializer $A5:8687's 25 colours: <c>Palette_Draygon_Sprite1</c> continuing into
@@ -26,4 +25,8 @@ internal static class DraygonSourceDefinitions
 
     /// <summary>$A5:96AF, <c>DraygonHealthBasedPaletteTable</c>: eight consecutive four-colour rows.</summary>
     internal const int HealthBandColors = 0xa596af;
+
+    /// <summary>The health bands in the order <see cref="HealthBandColors"/> holds their rows: highest first.</summary>
+    internal static IReadOnlyList<SuperMetroid.Core.Bosses.Draygon.DraygonHealthBand> HealthTableOrder =>
+        SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst;
 }

@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.World;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -38,8 +37,8 @@ internal static class RoomObjectTypeAndBehaviorWritesVerification
         RoomBlockCell[] shown = Shown(level, blocks);
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
 
-        AssertTrue(roomObjects.BossRoomMutations.MotherBrainRoom.TrySpawn(level,
-            new MotherBrainMutationRequest(origin, MotherBrainRoomMutation.EscapeDoor)), "the escape door's room change takes a place");
+        roomObjects.BossRoomMutations.MotherBrainRoom.Spawn(level,
+            new MotherBrainMutationRequest(origin, MotherBrainRoomMutation.EscapeDoor));
         AssertEqual(Solid.WithCollision(RoomCollisionType.DoorBlock), level.GetCollisionBlock(origin).Terrain,
             "the escape door's block becomes a door block keeping its terrain's picture");
         AssertEqual(TourianDoorDefinitions.MotherBrainToTourianEscape1, level.DoorExitAt(level.GetCollisionBlock(origin)).Door,

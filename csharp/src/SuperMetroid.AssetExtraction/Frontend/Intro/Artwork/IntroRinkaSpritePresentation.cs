@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
-public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroRinkaSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Three compiled OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -18,16 +18,13 @@ public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroRinkaSpritePresentation), frames);
-
     /// <summary>Retains the validated frame lookup produced by the JSON compiler.</summary>
     private IntroRinkaSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Validates and compiles all three named intro Rinka frames into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
-    /// <returns>Artwork keyed by the original bank-$8C frame identities, unaffected by subsequent edits to authoring arrays.</returns>
+    /// <returns>Artwork whose compositions are keyed by the poses that show them, unaffected by subsequent edits to authoring arrays.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed, contains duplicate properties, has an unsupported version or frame set, or contains invalid OAM visual fields.</exception>
     public static IntroRinkaSpritePresentation Load(Stream json)
@@ -57,8 +54,7 @@ public sealed class IntroRinkaSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroRinkaSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroRinkaSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

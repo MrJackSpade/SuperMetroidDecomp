@@ -26,7 +26,7 @@ internal static class ScrollBoundaryCameraAccess
         private void ApplyDebugStimulusX(ushort pixelDistance, ushort target)
         {
             self.Speed = self.Speed.WithX(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.X.Fraction));
-            PrivateState.Set(self, nameof(ScrollBoundaryCamera.IdealPosition), self.IdealPosition.WithX(target));
+            self.IdealPosition = self.IdealPosition.WithX(target);
             self.Position = self.Position.WithX(self.Position.X.WithWhole(target));
         }
 
@@ -34,7 +34,7 @@ internal static class ScrollBoundaryCameraAccess
         private void ApplyDebugStimulusY(ushort pixelDistance, ushort target)
         {
             self.Speed = self.Speed.WithY(SignedSixteenSixteen.FromParts(unchecked((short)pixelDistance), self.Speed.Y.Fraction));
-            PrivateState.Set(self, nameof(ScrollBoundaryCamera.IdealPosition), self.IdealPosition.WithY(target));
+            self.IdealPosition = self.IdealPosition.WithY(target);
             self.Position = self.Position.WithY(self.Position.Y.WithWhole(target));
         }
 

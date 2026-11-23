@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Enemies;
 using System.Buffers.Binary;
+using System.Collections.Immutable;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.BossBodies;
@@ -18,18 +19,27 @@ internal static class BossBodyCanvasFixtures
     {
         enemies.BossArtworkBinding.BodySheets = sheets;
         var body = new BossBodyParts(owner);
-        enemies.Presentation.AttachBossBody(body);
+        enemies.Presentation.AttachBossBody(UnplacedBossBody.Showing(body));
         return body;
     }
 
     /// <summary>
-    /// Binds <paramref name="sheets"/> to <paramref name="enemies"/> and gives Crocomire the body his initialization
-    /// attaches, showing nothing; his death state is his encounter's own.
+    /// Attaches the body that <paramref name="part"/>'s boss attaches at its initialization, before any of its parts shows a
+    /// frame, with no part showing anything on it yet. A place that is no part a boss draws on its body, as any ordinary
+    /// enemy or Draygon's tail, attaches none. Its boss's body sheets are those already bound to <paramref name="enemies"/>.
     /// </summary>
-    internal static void AttachCrocomire(RoomEnemySystem enemies, BossBodySheets sheets)
+    internal static void AttachBodyOfPart(RoomEnemySystem enemies, RoomEnemyPlace part)
     {
-        enemies.BossArtworkBinding.BodySheets = sheets;
-        enemies.Presentation.AttachBossBody(new BossBodyParts(BossBodyOwner.Crocomire));
+        if (part.Entity is not IBossBodyFrames)
+            return;
+        foreach ((BossBodyOwner owner, ImmutableArray<EnemyDefinitionId> parts) in BossBodyPartDefinitions.DrawOrders)
+        {
+            if (parts.Any(part.Holds))
+            {
+                enemies.Presentation.AttachBossBody(UnplacedBossBody.Showing(new BossBodyParts(owner)));
+                return;
+            }
+        }
     }
 
     /// <summary>Whether <paramref name="first"/> and <paramref name="second"/> show the same frames, shown above the same row.</summary>

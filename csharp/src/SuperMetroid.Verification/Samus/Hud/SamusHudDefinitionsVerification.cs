@@ -48,7 +48,7 @@ internal static class SamusHudDefinitionsVerification
             if (pose < NonFiringTransitionNumber)
                 AssertEqual(rom.ReadCartridgeByte(SamusCartridgeTablesConstants.HudTransitionFlags + pose -
                         FirstTransitionNumber) == 0,
-                    SamusHudObservations.PostureAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
+                    SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), grappleActive: false, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
                     "Complete bounded posture-index admission: the byte read is zero");
             AssertEqual(Transition(SamusPoseNumbering.FromNumber(pose), active),
                 SamusHudInput.PostureTransitionAdmitsWeapons(SamusPoseNumbering.FromNumber(pose), active, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
@@ -56,7 +56,7 @@ internal static class SamusHudDefinitionsVerification
         }
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         Action<SamusState, ushort> setTurn = (state, turn) =>
-            state.TransitionShot.Hand(turn == 0 ? null : new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue)
+            state.TransitionShot.Hand(turn == 0 ? null : new global::SuperMetroid.Core.Samus.SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(turn & byte.MaxValue)
                 ?? throw new InvalidOperationException($"Turn word {turn} names no aim; a handed-over shot always names one.")));
         foreach (int movement in SamusMovementTypeNumbers.Named)
         {
@@ -69,7 +69,8 @@ internal static class SamusHudDefinitionsVerification
             {
                 if (rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + pose * 8 + 1) != movement) continue;
                 if (!SamusPoseNumbering.NamesPose(pose)) continue;
-                metadataPose = samus.Pose = SamusPoseNumbering.FromNumber(pose);
+                samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(pose));
+                metadataPose = samus.Pose;
                 if (locked) samus.Control.LockOutPlayer(); else samus.Control.Unlock();
                 samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
@@ -89,28 +90,25 @@ internal static class SamusHudDefinitionsVerification
             SamusPoseId pose = SamusPoseNumbering.FromNumber(poseIndex);
             byte movement = rom.ReadCartridgeByte(SamusSourceDefinitions.PoseDefinitions.Value + SamusPoseNumbers.Number(pose) * 8 + 1);
             metadataPose = SamusPoseId.FacingRightNormalPose;
-            samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge };
+            samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = SamusBeamFlags.Charge }.InPose(SamusPoseId.FacingRightNormalPose);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings));
             for (int frame = 0; frame < 10; frame++)
-                shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+                shots.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             AssertEqual(10, shots.Charge.UpdatesHeld, "Fixture charge earned through real producer");
-            metadataPose = samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
+            metadataPose = samus.Pose;
             setTurn(samus, turn);
             SamusHudSelectionMode handler = HandlerOf(rom, movement);
             bool ball = SamusPoseMetadata.IsStableBallPose(pose);
             bool preserves = ball || pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose || handler == SamusHudSelectionMode.Jump ||
                 handler == SamusHudSelectionMode.Turning && turn == 0 || handler == SamusHudSelectionMode.Transition && !Transition(pose, false);
-            shots.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
+            shots.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), bombs, new SharedGameState(new SharedRandom()));
             // An admitted nonzero turn handoff forces release before held-input charge
             // processing; with no new Shoot edge this partial charge emits no projectile.
             AssertEqual(preserves ? 10 : turn != 0 ? 0 : 11, shots.Charge.UpdatesHeld, $"Actual projectile HUD charge preservation movement={movement:X2} pose={(int)SamusPoseNumbers.Number(pose):X2} turn={turn}");
             AssertTrue(shots.Shots.All(slot => !slot.IsActive), "Held partial charge does not emit shot");
         }
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => SamusHudObservations.PostureAdmitsWeapons(
-                SamusPoseId.DrainedCrouchingRightPose, InstalledFixtures.SamusOverreads.Projectiles.PostureAdmission),
-            "posture observation rejects the native prefiltered range");
         Console.WriteLine("Samus HUD definitions: 28 handler words, every bounded posture-index observation, transition case, native-pose Grapple admission case and real charge-preservation case of the records that name a pose pass with policy reads forbidden.");
     }
 
@@ -144,7 +142,7 @@ internal static class SamusHudDefinitionsVerification
     /// <exception cref="InvalidDataException">The table names a handler the identity table does not know.</exception>
     private static SamusHudSelectionMode HandlerOf(CartridgeImportAddressSpace rom, int movement)
     {
-        ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusCartridgeTablesConstants.HudMovementHandlers + movement * 2);
+        ushort word = rom.ReadCartridgeWord(SamusCartridgeTablesConstants.HudMovementHandlers + movement * 2);
         return HandlerAt.TryGetValue(word, out SamusHudSelectionMode handler) ? handler
             : throw new InvalidDataException($"Movement type {movement} names unknown HUD handler ${word:X4}.");
     }

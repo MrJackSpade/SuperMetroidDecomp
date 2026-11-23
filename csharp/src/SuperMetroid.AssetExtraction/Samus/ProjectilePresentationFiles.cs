@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// flare, trail and grapple compositions, whose parts are the original's packed sprite placements (#1638), into the
 /// component's import data, which only the import reads.
 /// </summary>
-public static class ProjectilePresentationFiles
+public static partial class ProjectilePresentationFiles
 {
     /// <summary>
     /// Writes into the installer's unpublished staging directory after ROM validation: the documents into
@@ -96,9 +96,9 @@ public static class ProjectilePresentationFiles
         InstalledBeamPalettes beamPalettes = Read(BeamPaletteFile.FileName).Compile(BeamPaletteFile.Read);
         HyperBeamFxColours hyperBeamFxColors = Read(HyperBeamFxColorFormat.FileName).Compile(stream => HyperBeamFxColorFile.Read(stream).ToColours());
         return new ImportProjectileArtwork(presentation,
-            BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
-                .Select(index => Read(BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index)))
-                    .Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
+            BeamTileCatalog.FromAtlases(BeamTileAtlasDefinitions.Pictured.ToDictionary(selection => selection,
+                selection => Read(BeamTileAtlasDefinitions.FileName(selection))
+                    .Compile(stream => BeamTileAtlas.Load(stream, selection))),
                 beamPalettes, hyperBeamFxColors),
             beamPalettes,
             hyperBeamFxColors,
@@ -112,7 +112,7 @@ public static class ProjectilePresentationFiles
     }
 
     /// <summary>Retains a file's identity through codec admission without hiding the original failure.</summary>
-    private sealed record ProjectileFile(string Path, byte[] Bytes)
+    private sealed partial record ProjectileFile(string Path, byte[] Bytes)
     {
         /// <summary>Decodes the installed bytes while adding their file path to malformed-asset diagnostics.</summary>
         internal T Compile<T>(Func<Stream, T> compile)
@@ -139,7 +139,7 @@ public static class ProjectilePresentationFiles
         return Hash(System.Text.Encoding.ASCII.GetBytes(Hash(files.FlarePlacement.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
     }
     /// <summary>The installed projectile presentation documents whose contents form the presentation identity (#633, #1636).</summary>
-    private sealed record ProjectilePresentationSourceFiles
+    private sealed partial record ProjectilePresentationSourceFiles
     {
         /// <summary>Charge-flare placement data relative to Samus's pose.</summary>
         public required ProjectileFile FlarePlacement { get; init; }

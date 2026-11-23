@@ -38,7 +38,7 @@ internal static class SamusHurtColorsVerification
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
             {
                 int wordAddress = address + index * sizeof(ushort);
-                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(wordAddress);
+                ushort native = rom.ReadCartridgeWord(wordAddress);
                 AssertEqual(native, catalog.Resolve(variant, index),
                     $"native {variant} color {index}");
             }
@@ -102,9 +102,7 @@ internal static class SamusHurtColorsVerification
     /// <summary>Checks that the hurt colour codec rejects out-of-range colours.</summary>
     internal static void VerifySamusHurtColorsRejectMalformedDocuments(string stock)
     {
-        SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(
-            File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFile.FileName)),
-            ArtworkJson.Options)
+        SamusHurtColorDocument document = JsonSerializer.Deserialize<SamusHurtColorDocument>(File.ReadAllBytes(Path.Combine(stock, SamusHurtColorFile.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusHurtColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock Samus hurt color document is null.");
         AssertThrows<InvalidDataException>(() => SamusHurtColorFile.Read(new MemoryStream(SamusHurtColorFile.Write(document with
         {
@@ -121,7 +119,7 @@ internal static class SamusHurtColorsVerification
 
     /// <summary>Reads one cartridge BGR555 word for a source-palette comparison.</summary>
     private static ushort ReadNativeHurtCycleColor(ISnesAddressSpace rom, int paletteAddress, int index) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), paletteAddress + index * sizeof(ushort));
+        RomDataReader.ReadWordFixedBank(rom, paletteAddress + index * sizeof(ushort));
 
     /// <summary>Runs the Samus hurt palette comparison from the command dispatcher.</summary>
     [VerificationCommand("--samus-hurt-colors")]

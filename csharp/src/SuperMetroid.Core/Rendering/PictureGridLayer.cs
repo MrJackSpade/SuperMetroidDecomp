@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Grid">The grid.</param>
 /// <param name="Scroll">The grid pixel shown at the screen's top-left corner: screen pixel (x, y) shows grid pixel (x + X, y + Y).</param>
-public sealed record PictureGridLayer(PictureGrid Grid, Offset16<PlanePixels> Scroll) : DisplayLayer
+public sealed partial record PictureGridLayer(PictureGrid Grid, Offset16<PlanePixels> Scroll) : DisplayLayer
 {
     /// <summary>The grid.</summary>
     public PictureGrid Grid

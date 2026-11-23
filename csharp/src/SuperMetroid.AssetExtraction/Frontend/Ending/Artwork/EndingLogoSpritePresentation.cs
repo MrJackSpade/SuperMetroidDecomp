@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the eight final assembling-logo frames.</summary>
-public sealed class EndingLogoSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingLogoSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled compositions indexed by the poses that show them.</summary>
     internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -57,8 +57,7 @@ public sealed class EndingLogoSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, EndingLogoSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

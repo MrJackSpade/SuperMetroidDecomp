@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// Samus on, where his parts sit on his body, his small form's lunge, his growth, his lints' and fingernails' paths, his
 /// hurt flash, and his sinking death's sound, shake and drops.
 /// </summary>
-internal static class KraidArenaDefinitions
+internal static partial class KraidArenaDefinitions
 {
     /// <summary>
     /// The first pixel of the room's second screen: Samus is held left of it while Kraid rises, and a fingernail waiting
@@ -27,10 +27,10 @@ internal static class KraidArenaDefinitions
     /// <summary>The updates his head holds its first pose as he waits to rise.</summary>
     internal const int RiseHeadDelayUpdates = 64;
 
-    /// <summary>The updates of the rise's first rocks, thrown up every sixteenth update.</summary>
+    /// <summary>The updates of the rise's first rocks, thrown up at their slow cadence.</summary>
     internal const int RiseSlowRocksUpdates = 120;
 
-    /// <summary>The updates of the rise's faster rocks, thrown up every eighth update, before his body rises.</summary>
+    /// <summary>The updates of the rise's faster rocks, thrown up at their faster cadence, before his body rises.</summary>
     internal const int RiseFastRocksUpdates = 96;
 
     /// <summary>The updates the room shakes from the start of the rise's rocks.</summary>
@@ -39,7 +39,7 @@ internal static class KraidArenaDefinitions
     /// <summary>The height Kraid's rising body rises above before his first phase starts.</summary>
     internal const int RisenY = 457;
 
-    /// <summary>How far Kraid's body rises each update while it raises itself: half a pixel upward.</summary>
+    /// <summary>How far Kraid's body rises each update while it raises itself.</summary>
     internal static readonly SignedSixteenSixteen RisingBodyLift = SignedSixteenSixteen.FromPixelFraction(-1, 2);
 
     /// <summary>The height the rocks thrown up during the rise start from.</summary>
@@ -68,14 +68,20 @@ internal static class KraidArenaDefinitions
     }.ToFrozenDictionary();
 
     /// <summary>
-    /// How far left of the body's line each lint emerges: the top lint on it, the middle and bottom lints sixteen pixels
-    /// further left.
+    /// How far left of the body's line each lint emerges: the top lint on it, the middle and bottom lints further left.
     /// </summary>
-    internal static readonly FrozenDictionary<KraidLintPart, int> LintXOffsets = new Dictionary<KraidLintPart, int>
+    internal static readonly FrozenDictionary<KraidLintPart, KraidLintEmergence> LintEmergences = new Dictionary<KraidLintPart, KraidLintEmergence>
     {
-        [KraidLintPart.Top] = 0,
-        [KraidLintPart.Middle] = -16,
-        [KraidLintPart.Bottom] = -16,
+        [KraidLintPart.Top] = KraidLintEmergence.OnBodyLine,
+        [KraidLintPart.Middle] = KraidLintEmergence.LeftOfBodyLine,
+        [KraidLintPart.Bottom] = KraidLintEmergence.LeftOfBodyLine,
+    }.ToFrozenDictionary();
+
+    /// <summary>How far left of the body's line, in pixels, a lint emerging each way lies (#2560).</summary>
+    internal static readonly FrozenDictionary<KraidLintEmergence, int> LintEmergenceXOffsets = new Dictionary<KraidLintEmergence, int>
+    {
+        [KraidLintEmergence.OnBodyLine] = 0,
+        [KraidLintEmergence.LeftOfBodyLine] = -16,
     }.ToFrozenDictionary();
 
     /// <summary>Where Kraid's arm hangs from his body.</summary>
@@ -190,10 +196,10 @@ internal static class KraidArenaDefinitions
     /// <summary>The height his ceiling rocks start falling from.</summary>
     internal const int CeilingRockY = 312;
 
-    /// <summary>Where his spit rock leaves his body: sixteen pixels right of it and ninety-six up.</summary>
+    /// <summary>Where his spit rock leaves his body: right of it and high up, at his mouth.</summary>
     internal static readonly Offset16<RoomPixels> SpitRockOffset = new(16, -96);
 
-    /// <summary>The speed his spit rock rises at as it leaves his mouth: four pixels an update.</summary>
+    /// <summary>The speed his spit rock rises at as it leaves his mouth.</summary>
     internal static readonly SignedEightEight SpitRockRise = SignedEightEight.FromPixels(-4);
 
     /// <summary>The updates of one step of his thinking delay.</summary>

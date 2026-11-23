@@ -36,8 +36,7 @@ internal static class CorpseRotDrawingVerification
         foreach (EnemyDefinitionId enemy in new[] { EnemyDefinitionId.CorpseZoomer, EnemyDefinitionId.CorpseRipper, EnemyDefinitionId.CorpseSkree })
         {
             DeadTourianCorpseSpecies species = DeadTourianBehavior.SpeciesOf(enemy);
-            foreach (int rowCount in Enumerable.Range(0, DeadTourianCorpses.VariantCount(species))
-                .Select(variant => DeadTourianCorpses.For(species, variant).RowCount).Distinct())
+            foreach (int rowCount in DeadTourianCorpses.Variants(species).Select(corpse => corpse.RowCount).Distinct())
                 compared += VerifyDeadMonster(sheets, enemy, rowCount);
         }
         compared += VerifyDeadTorizo(sheets);
@@ -83,7 +82,7 @@ internal static class CorpseRotDrawingVerification
     {
         RoomEnemyGraphicsSetDefinition set = SetDrawing(sheets, EnemyDefinitionId.CorpseTorizo);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), DeadTorizoPhase.Rotting);
+        var state = new DeadTorizoEnemyState(new CorpseRotSchedule(DeadTorizoCorpseDefinitions.RowCount), CorpsePhase.Rotting);
         var authored = new AuthoredRot(DeadTorizoCorpseDefinitions.RowCount);
         string body = EnemySheetDefinitions.FrameName(EnemyFrameId.DeadTorizoStanding);
         string hook = EnemySheetDefinitions.EncounterFrameName(DeadTorizoArtworkDefinitions.SandHeapFrame);
@@ -149,8 +148,8 @@ internal static class CorpseRotDrawingVerification
     private static void VerifyCorpsesOfOneKindRotApart()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        var rotting = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision);
-        var intact = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision);
+        var rotting = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision, SidehopperCorpseLayout.PlacedDead);
+        var intact = new DeadSidehopperEnemyState(new CorpseRotSchedule(DeadSidehopperCorpseDefinitions.RowCount), DeadSidehopperAction.WaitForSamusCollision, SidehopperCorpseLayout.PlacedDead);
         while (rotting.Rot.Step(rotting.Rows.MoveRow, _ => { }))
         {
         }
@@ -205,9 +204,9 @@ internal static class CorpseRotDrawingVerification
     private static void AssertShaderDrawsAsMapped(ImageSpriteDraw draw, CorpseRotPicture rot, string context)
     {
         RgbaPixel[] plain = SuperMetroid.TestSupport.FrameRendering.DisplayRendering.Render(
-            new LayeredScene(new FramePaint(RgbColor.Black, [draw with { CorpseRot = null }]), [], FullBrightness));
+            new LayeredScene(new FramePaint(RgbColor.Black, [draw with { CorpseRot = null }]), [], DisplayBrightness.Black.Brighter(FullBrightness)));
         RgbaPixel[] rotted = SuperMetroid.TestSupport.FrameRendering.DisplayRendering.Render(
-            new LayeredScene(new FramePaint(RgbColor.Black, [draw]), [], FullBrightness));
+            new LayeredScene(new FramePaint(RgbColor.Black, [draw]), [], DisplayBrightness.Black.Brighter(FullBrightness)));
         RgbaPixel backdrop = plain[0];
         Extent16<ImagePixels> size = draw.Image.Size;
         for (int y = 0; y < size.Y; y++)

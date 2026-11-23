@@ -72,8 +72,8 @@ internal static class XrayRevealVerification
                             ReadNativeXrayRevealWord(bus, shapePointer + 4))),
                     XrayRevealShape.CopyTall =>
                         new(shape, XrayRevealVisualBlocks.Tall(
-                            ReadNativeXrayRevealWord(bus, shapePointer + 2),
-                            ReadNativeXrayRevealWord(bus, shapePointer + 4))),
+                            SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(ReadNativeXrayRevealWord(bus, shapePointer + 2)),
+                            SuperMetroid.Core.Rooms.Backgrounds.RoomCellPicture.OfBlock(ReadNativeXrayRevealWord(bus, shapePointer + 4)))),
                     XrayRevealShape.CopySquare =>
                         new(shape, XrayRevealVisualBlocks.Square(
                             ReadNativeXrayRevealWord(bus, shapePointer + 2),
@@ -92,6 +92,6 @@ internal static class XrayRevealVerification
         if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException(
                 $"Native X-ray reveal table crossed bank $91 at ${pointer:X}.");
-        return CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(XrayRevealTableWords.Bank | pointer);
+        return bus.ReadCartridgeWordFixedBank(XrayRevealTableWords.Bank | pointer);
     }
 }

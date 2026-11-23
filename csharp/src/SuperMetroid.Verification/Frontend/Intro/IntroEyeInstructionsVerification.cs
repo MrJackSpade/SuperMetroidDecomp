@@ -26,7 +26,7 @@ internal static class IntroEyeInstructionsVerification
         var narration = IntroNarrationFile.Read(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
         var objects = new IntroNarrationActors(new IntroNarrationText(),
-            new IntroJapaneseSubtitles(enabled: false), AudioQueues.Standalone(), narrationPresentation: narration);
+            new IntroJapaneseSubtitles(SuperMetroid.Core.Progression.TextLanguage.English), AudioQueues.Standalone(), narrationPresentation: narration);
 
         var native = new NativeEyeReader(rom, IntroEyeAnimationDefinitionsConstants.StartPointer);
         Compare(objects, native, BlinkingUpdates, "blinking");
@@ -111,5 +111,5 @@ internal static class IntroEyeInstructionsVerification
 
     /// <summary>Reads one cartridge word solely for the verification oracle.</summary>
     private static int IntroEyeListWord(ISnesAddressSpace rom, int address) =>
-        CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+        rom.ReadCartridgeWord(address);
 }

@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads and writes an enemy's colour document, import data only the import pre-colours the enemy's sheet from (#1637).</summary>
-public static class EnemyPaletteSheetFile
+public static partial class EnemyPaletteSheetFile
 {
     /// <summary>The colours of the cartridge's enemy palette the import decodes: a complete four-bit OBJ palette, colour zero included.</summary>
     public const int ColorCount = 16;
@@ -36,7 +36,7 @@ public static class EnemyPaletteSheetFile
     /// <param name="document">Version-one document containing sixteen valid RGB5 colors.</param>
     /// <returns>Enemy-palette JSON bytes.</returns>
     public static byte[] Write(EnemyPaletteSheetDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyPaletteSheetDocument>(Options));
 
     /// <summary>Requires case-insensitive known property names and writes indented camel-case JSON.</summary>
     private static readonly JsonSerializerOptions Options = new()

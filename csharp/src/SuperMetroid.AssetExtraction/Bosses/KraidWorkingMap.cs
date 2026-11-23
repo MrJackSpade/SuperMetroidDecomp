@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// Kraid's body as the cartridge assembles it from his two installed body tilemaps (#1352, #1466), which his body sheet's
 /// upper and lower pages picture.
 /// </summary>
-internal static class KraidWorkingMap
+internal static partial class KraidWorkingMap
 {
     /// <summary>
     /// The working map <c>$A7:AAC6</c> builds: the body's upper page over its lower page, as every body upload copies them.

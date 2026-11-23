@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Colours;
 
@@ -9,45 +8,37 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Beam charge state: the charge count and the Hyper Beam's flare, the charge sampled before the charge input, the
 /// charged-shot glow, the charge pulse and each flare component's animation.
 /// </summary>
-internal sealed class BeamChargeState
+internal sealed partial class BeamChargeState
 {
     /// <summary>
     /// Clears the charge, its count and the Hyper Beam's flare alike, as a Varia or Gravity Suit's pickup does (#1577)
     /// and every shot, special attack and cancellation that ends a charge does.
     /// </summary>
-    internal void ClearCount()
-    {
-        charge.Restart(BeamChargeDefinitions.SpecialAttackCounter);
-        HyperBeamFlare = false;
-    }
+    internal void ClearCount() => Level = BeamChargeLevel.None;
 
     /// <summary>
     /// The updates Samus has held the charge: <see cref="BeamChargeDefinitions.FullyChargedCounter"/> arms a charged shot and
     /// <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> is the special-attack clamp, past which the
-    /// charge advances no further. Zero while the Hyper Beam's flare shows (<see cref="HyperBeamFlare"/>).
+    /// charge advances no further. Zero while the Hyper Beam's flare shows.
     /// </summary>
-    public int UpdatesHeld => charge.Age;
-
-    /// <summary>
-    /// The charge, lasting <see cref="BeamChargeDefinitions.SpecialAttackCounter"/> and counted once each update Samus
-    /// holds it until it is over: its age is <see cref="UpdatesHeld"/>, whose named stages arm the charged shot, start
-    /// the charging sound and show the flare's components.
-    /// </summary>
-    private readonly UpdateCountdown charge = UpdateCountdown.Lasting(BeamChargeDefinitions.SpecialAttackCounter);
+    public int UpdatesHeld => Level.UpdatesHeld;
 
     /// <summary>Counts one update of the charge held.</summary>
-    /// <exception cref="InvalidOperationException">The charge has already reached the special-attack clamp.</exception>
-    internal void CountChargeUpdate() => charge.Count();
+    /// <exception cref="InvalidOperationException">
+    /// The charge has already reached the special-attack clamp, or the Hyper Beam's flare shows, which counts nothing.
+    /// </exception>
+    internal void CountChargeUpdate() => Level = Level is BeamChargeLevel.CountedCharge { Updates: var updates } &&
+        updates < BeamChargeDefinitions.SpecialAttackCounter
+        ? BeamChargeLevel.Charged(updates + 1)
+        : throw new InvalidOperationException($"A {Level} charge counts no further update.");
 
     /// <summary>
-    /// Whether the Hyper Beam's flare shows (#1682): a Hyper Beam shot starts it in place of the charge, and it ends when
-    /// the flare's fast sparks show their last frame or anything clears the charge. While it shows, the charge reads as
-    /// past every threshold (<see cref="Level"/>).
+    /// The charge as its tests read it now (#2560): the updates Samus has held it, counted once each update she holds it
+    /// up to <see cref="BeamChargeDefinitions.SpecialAttackCounter"/>, whose named stages arm the charged shot, start the
+    /// charging sound and show the flare's components; or the Hyper Beam's flare (#1682), which a Hyper Beam shot starts in
+    /// place of the charge and which ends when the flare's fast sparks show their last frame or anything clears the charge.
     /// </summary>
-    public bool HyperBeamFlare { get; private set; }
-
-    /// <summary>The charge as its tests read it now.</summary>
-    public BeamChargeLevel Level => HyperBeamFlare ? BeamChargeLevel.HyperBeam : BeamChargeLevel.Charged(UpdatesHeld);
+    public BeamChargeLevel Level { get; internal set; } = BeamChargeLevel.None;
 
     /// <summary>Whether any charge is held: a counted charge or the Hyper Beam's flare.</summary>
     internal bool IsCharging => Level.IsCharging;
@@ -57,7 +48,7 @@ internal sealed class BeamChargeState
     internal bool HasCharged(int updates) => Level.HasCharged(updates);
 
     /// <summary>The charge sampled before the current charge-input update.</summary>
-    public BeamChargeLevel PreviousCharge { get; internal set; }
+    public BeamChargeLevel PreviousCharge { get; internal set; } = BeamChargeLevel.None;
 
     /// <summary>The glow Samus's suit shows after a charged shot, or null while it shows none.</summary>
     public ChargedShotGlow? ChargedShotGlow { get; internal set; }
@@ -67,53 +58,73 @@ internal sealed class BeamChargeState
     /// shades alike (<see cref="SamusGlowAnimationDefinitions.ChargePulses"/>), so a change of suit or of charge kind goes
     /// on from the same place in the other pulse.
     /// </summary>
-    internal AnimationPlace ChargePulse { get; private set; } = AnimationPlace.StartOfAnimation;
+    internal AnimationPlace ChargePulse { get; set; } = AnimationPlace.StartOfAnimation;
 
     /// <summary>
-    /// Plays the charge pulse on by one update for <paramref name="kind"/> in <paramref name="suit"/> and returns the
-    /// shade it shows; after its last shade it starts again.
+    /// Plays the charge pulse on by one update for <paramref name="kind"/> in <paramref name="suit"/> and shows the shade it
+    /// shows on <paramref name="colours"/>' suit; after its last shade it starts again.
     /// </summary>
-    internal PictureShade PlayChargePulse(SamusChargeKind kind, SamusSuit suit)
+    internal void PlayChargePulse(SamusChargeKind kind, SamusSuit suit, SamusColours colours)
     {
         AnimationPlace place = ChargePulse;
-        PictureShade shown = SamusGlowPlay.NextShade(SamusGlowAnimationDefinitions.ChargePulses[kind][suit], ref place).Shown;
+        SamusGlowPlay.ShowNextShade(SamusGlowSegment.In(SamusGlowAnimationDefinitions.ChargePulses[kind], suit), ref place, colours);
         ChargePulse = place;
-        return shown;
     }
 
     /// <summary>Restarts the charge pulse, so its next update shows its first shade.</summary>
     internal void RestartChargePulse() => ChargePulse = AnimationPlace.StartOfAnimation;
 
-    /// <summary>Each flare component's animation: the picture it shows and the wait it holds it for.</summary>
-    private readonly Dictionary<ChargeFlareComponent, ChargeFlareComponentState> _flare =
-        Enum.GetValues<ChargeFlareComponent>().ToDictionary(component => component, component => new ChargeFlareComponentState(component));
+    /// <summary>Each flare component's ordinary animation: the picture it shows and the wait it holds it for.</summary>
+    private IdentityTable<ChargeFlareComponent, IChargeFlarePlay> Flares { get; } = new(ChargeFlarePlays.Of);
 
-    /// <summary>Flare <paramref name="component"/>'s animation.</summary>
-    internal ChargeFlareComponentState Flare(ChargeFlareComponent component) =>
-        _flare.TryGetValue(component, out ChargeFlareComponentState? flare)
-            ? flare
-            : throw new ArgumentOutOfRangeException(nameof(component), component, $"Undefined {nameof(ChargeFlareComponent)}.");
+    /// <summary>
+    /// The Hyper Beam's backward count of each component's pictures (#2553), or none while the ordinary flare plays: a
+    /// Hyper Beam shot starts it from the last pictures, the first backward update with the Hyper Beam takes the ordinary
+    /// flare over where it stands, and a restart or a clear of the flare ends it.
+    /// </summary>
+    private IdentityTable<ChargeFlareComponent, IHyperBeamFlareCount>? HyperBeamCount { get; set; }
+
+    /// <summary>
+    /// The composition flare <paramref name="component"/> shows for Samus's facing: the Hyper Beam's count's while it counts,
+    /// none once it has stepped back past the component's first picture, and the ordinary flare's otherwise.
+    /// </summary>
+    internal ProjectileSpriteId? FlareComposition(ChargeFlareComponent component, HorizontalDirection facing) =>
+        HyperBeamCount is { } count ? count[component].Composition(facing) : Flares[component].Composition(facing);
+
+    /// <summary>Plays flare <paramref name="component"/>'s ordinary animation one update on.</summary>
+    internal void PlayFlareForward(ChargeFlareComponent component) => Flares[component].PlayForward();
+
+    /// <summary>
+    /// Counts the Hyper Beam's flare of <paramref name="component"/> one update back, the count taking the ordinary flare
+    /// over where it stands on its first update.
+    /// </summary>
+    /// <returns>Whether the update reached the component's first picture.</returns>
+    internal bool PlayHyperBeamFlareBackward(ChargeFlareComponent component)
+    {
+        HyperBeamCount ??= new(each => Flares[each].CountBackwardFromHere());
+        return HyperBeamCount[component].PlayBackward();
+    }
 
     /// <summary>The ordinary charge flare's first update: every component starts its animation at its first picture.</summary>
     internal void StartChargeFlare()
     {
-        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            Flare(component).Start();
+        HyperBeamCount = null;
+        foreach (IChargeFlarePlay flare in Flares.Values)
+            flare.Start();
     }
 
     /// <summary>The Hyper Beam's shot: every component shows its last picture, to count its pictures backward from there.</summary>
     internal void StartHyperBeamFlare()
     {
-        charge.Restart(BeamChargeDefinitions.SpecialAttackCounter);
-        HyperBeamFlare = true;
-        foreach (ChargeFlareComponent component in Enum.GetValues<ChargeFlareComponent>())
-            Flare(component).StartBackward();
+        Level = BeamChargeLevel.HyperBeam;
+        HyperBeamCount = new(component => Flares[component].CountBackwardFromLast());
     }
 
-    /// <summary>Clears every flare component to its first picture with no wait.</summary>
+    /// <summary>Clears every flare component to its first picture with no wait, ending any Hyper Beam count.</summary>
     internal void ClearFlare()
     {
-        foreach (ChargeFlareComponentState flare in _flare.Values)
+        HyperBeamCount = null;
+        foreach (IChargeFlarePlay flare in Flares.Values)
             flare.Clear();
     }
 

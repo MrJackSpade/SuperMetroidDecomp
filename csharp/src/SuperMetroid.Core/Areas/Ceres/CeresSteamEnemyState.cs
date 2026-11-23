@@ -3,17 +3,24 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The state of one Ceres steam vent.</summary>
-internal sealed class CeresSteamEnemyState
+internal sealed partial class CeresSteamEnemyState
 {
-    /// <summary>Starts the state with the vent's <paramref name="motion"/>.</summary>
-    internal CeresSteamEnemyState(CeresSteamMotion motion) => Motion = Ensure.NotNull(motion);
+    /// <summary>Starts the state with the <paramref name="way"/> the vent blows and its <paramref name="motion"/>.</summary>
+    internal CeresSteamEnemyState(CeresSteamWay way, CeresSteamMotion motion)
+    {
+        Way = Ensure.NotNull(way);
+        Motion = Ensure.NotNull(motion);
+    }
+
+    /// <summary>The way the vent blows, whose pictures its animation shows.</summary>
+    internal CeresSteamWay Way { get; }
 
     /// <summary>Where the vent is drawn: where it stands, or turned with the elevator shaft it stands in.</summary>
     public CeresSteamMotion Motion { get; }
 
     /// <summary>
     /// The updates the vent stays hidden after its dormant animation hides it, before its first plume, the one it appears
-    /// on included: 1 through 32, drawn as it initializes. Its owner holds its animation that long (#2480).
+    /// on included, drawn as it initializes. Its owner holds its animation that long (#2480).
     /// </summary>
     public int UpdatesToActivation { get; internal set; }
 

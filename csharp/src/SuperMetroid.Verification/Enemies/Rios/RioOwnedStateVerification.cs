@@ -14,20 +14,12 @@ internal static class RioOwnedStateVerification
     internal static void VerifyRioOwnedState()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
-        GerutaBehavior.InitializeGeruta(parent);
-        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.SetSpawnParameter1(EnemyDefinitionId.Geruta, EnemyParameterMasks.FollowerBit);
-        follower.Bind(EnemyDefinitionId.Geruta, follower.Definition);
-        enemies.GerutaBehavior.InitializeGerutaFollower(follower);
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)), PopulationPlacementAccess.Entry(EnemyDefinitionId.Geruta, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Follower)));
+        RoomEnemyPlace parent = places[0];
+        RoomEnemyPlace follower = places[1];
         // The placement builds the part's own entity (#2164): the parent a Rio, the follower its flames.
-        AssertTrue(parent.EntityState<GerutaEntity, GerutaEnemyState>() is not null &&
-            parent.SpeciesState<GerutaFollowerState>() is null &&
-            follower.EntityState<GerutaFollowerEntity, GerutaFollowerState>() is not null &&
-            follower.SpeciesState<GerutaEnemyState>() is null,
-            "parameter one's sign bit selects the follower, which keeps only its own follower state");
+        AssertTrue(parent.Entity is GerutaEntity && follower.Entity is GerutaFollowerEntity,
+            "parameter one's sign bit selects the follower, which is built as a follower");
         Console.WriteLine("Rio owned state: the follower selection matches.");
     }
 

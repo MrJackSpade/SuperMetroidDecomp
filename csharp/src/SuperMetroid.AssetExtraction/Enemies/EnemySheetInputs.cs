@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -17,9 +18,14 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <param name="StandardObjects">The standard OBJ characters a room load uploads first.</param>
 /// <param name="Palettes">The starting and common sprite colours a room load copies.</param>
 /// <param name="EscapeTimer">The escape timer's characters, which escapes upload.</param>
-internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
-    ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerCharacters EscapeTimer)
-    : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
+/// <param name="SetMembers">
+/// The members each graphics set loads, by set (#1527), which the set's sheets compose from: the retail catalogue for an
+/// installation's sets.
+/// </param>
+internal sealed partial record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSourceArtwork Bosses, AreaSourceArtwork Areas,
+    ReadOnlyMemory<byte> StandardObjects, GameplayBasePalette Palettes, EscapeTimerCharacters EscapeTimer,
+    IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers)
+    : IInstalledEncounterArtwork
 {
     /// <summary>Loads the stock artwork from installed content.</summary>
     internal static EnemySheetInputs Load(string content)
@@ -35,34 +41,23 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
             installed.Areas,
             StandardObjectArtworkFiles.LoadForImport(ImportDataDirectory.Of(standardObjects)).Characters,
             GameplayBasePaletteFiles.LoadForImport(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.GameplayBasePaletteDirectoryName))),
-            LoadEscapeTimer(Path.Combine(ImportDataDirectory.Of(maps), EscapeTimerTileAtlasFormat.FileName)))
+            LoadEscapeTimer(Path.Combine(ImportDataDirectory.Of(maps), EscapeTimerTileAtlasFormat.FileName)),
+            RoomEnemyGraphicsSetLists.Members)
         {
             BeamPalettes = LoadBeamPalettes(Path.Combine(ImportDataDirectory.Of(Path.Combine(content, GameInstallationLayout.ProjectileDirectoryName)), BeamPaletteFile.FileName)),
             Maps = MapPresentationFiles.LoadForImport(maps, ImportDataDirectory.Of(maps)),
         };
     }
 
-    /// <summary>
-    /// The palette row each graphics set's records load their members' colours into, by set (#1512): the retail
-    /// catalogue for the installation's sets; a fixture composing a set of its own names that set's rows, as its records'
-    /// placement words name them.
-    /// </summary>
-    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, int[]> SetPaletteRows { get; init; } = EnemyGraphicsSetPaletteRowDefinitions.Rows;
 
-    /// <summary>
-    /// The members each graphics set loads, by set (#1527): the retail catalogue for the installation's sets; a
-    /// fixture composing a set of its own names that set's members.
-    /// </summary>
-    internal IReadOnlyDictionary<RoomEnemyGraphicsSetDefinition, RoomEnemyGraphicsSetMembers> SetMembers { get; init; } = RoomEnemyGraphicsSetLists.Members;
-
-    /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512); null for fixtures that draw no frozen enemy.</summary>
-    internal InstalledBeamPalettes? BeamPalettes { get; init; }
+    /// <summary>The beam colours, which a frozen enemy's shade is coloured from (#1512).</summary>
+    internal required InstalledBeamPalettes BeamPalettes { get; init; }
 
     /// <summary>
     /// The installed map presentation, which holds the colours the Ceres Ridley and Mother Brain encounters load over
-    /// their sprites (#1512); null for fixtures that draw neither encounter.
+    /// their sprites (#1512).
     /// </summary>
-    internal ImportAreaMapPresentation? Maps { get; init; }
+    internal required ImportAreaMapPresentation Maps { get; init; }
 
     /// <summary>The beam colours the import extracted at <paramref name="path"/> (#1637).</summary>
     private static InstalledBeamPalettes LoadBeamPalettes(string path)
@@ -88,9 +83,11 @@ internal sealed record EnemySheetInputs(EnemyTileSourceArtwork Enemies, BossSour
     AreaSourceArtwork IInstalledAreaSpriteCharacterArtwork.AreaTiles => Areas;
 
     /// <inheritdoc/>
-    /// <exception cref="InvalidDataException">The enemy artwork holds no gunship takeoff pictures.</exception>
+    RoomFxBlockAnimationAtlas IInstalledAnimatedTileArtwork.AnimatedTiles => Maps.BlockAnimationAtlas;
+
+    /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException">No catalogued upload names the asset.</exception>
     ReadOnlyMemory<byte> IInstalledArtworkContent.Resolve(InstalledArtworkId asset) =>
-        asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles ? EscapeTimerTilePageTransfers.Resolve(EscapeTimer, asset)
-            : (Enemies.GunshipLiftoff ?? throw new InvalidDataException("Enemy sheets require the installed gunship takeoff pictures.")).Resolve(asset);
+        EscapeTimerTilePages.TryPageOf(asset, out EscapeTimerTilePage page) ? EscapeTimerTilePageTransfers.Resolve(EscapeTimer, page)
+            : Enemies.GunshipLiftoff.Resolve(asset);
 }

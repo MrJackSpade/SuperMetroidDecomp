@@ -19,7 +19,7 @@ internal static class KraidBodyContourVerification
         // Enter the body-contour branch at its exact Y threshold. The surrounding
         // mouth/body dispatch is covered by the encounter collision fixtures.
         var bounds = KraidPassBounds.Placed(left: 0, top: 0, bottom: unchecked((ushort)(shot.Position.Y.Whole - shot.Radius.Y - 1)));
-        return KraidCombat.OverlapsKraidBody(ref bounds, body, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false));
+        return KraidCombat.OverlapsKraidBody(ref bounds, body, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.HeldShot().Type, shot.HeldShot().Damage, IsPlacedBomb: false));
     };
 
     /// <summary>
@@ -33,19 +33,21 @@ internal static class KraidBodyContourVerification
         var overlaps = CreateKraidBodyContourProbe();
         var body = enemies.Places.InUpdateOrder[0];
         var shot = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake()).Shots[0];
+        // The tested shot holds its place as an uncharged Power beam, the type the cleared slot word reads as.
+        shot.OccupyAsFired(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
         const int roomHeightLimit = SuperMetroid.Core.Rooms.Scrolling.RoomScrollGrid.KeptCellCount * 256;
         for (int y = -roomHeightLimit; y <= roomHeightLimit; y++)
         {
             short expected = NativeKraidBodyLeftEdge(rom, (short)y);
             body.Position = body.Position.WithWholeY(roomHeightLimit);
-            shot.Position = shot.Position.WithWholeY((ushort)(roomHeightLimit + y));
+            shot.HeldShot().Position = shot.Position.WithWholeY((ushort)(roomHeightLimit + y));
             foreach (ushort bodyX in new ushort[] { 256, 32768, 65520 })
             foreach (ushort radius in new ushort[] { 0, 4, 16 })
             for (int delta = -1; delta <= 1; delta++)
             {
                 body.Position = body.Position.WithWholeX(bodyX);
-                shot.Radius = shot.Radius.WithX(radius);
-                shot.Position = shot.Position.WithWholeX(unchecked((ushort)(bodyX + expected - radius + delta)));
+                shot.HeldShot().Radius = shot.Radius.WithX(radius);
+                shot.HeldShot().Position = shot.Position.WithWholeX(unchecked((ushort)(bodyX + expected - radius + delta)));
                 bool reference = unchecked((short)(bodyX + expected -
                     unchecked((ushort)(shot.Position.X.Whole + radius)))) < 0;
                 AssertEqual(reference, overlaps(body, shot), "Actual contour collision edge, translation and strict inequality");

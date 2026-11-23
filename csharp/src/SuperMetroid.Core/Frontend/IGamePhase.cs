@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
@@ -27,6 +26,6 @@ internal interface IGamePhase
     /// </summary>
     bool IsWaitingOutDisplayFrame { get; }
 
-    /// <summary>Runs one update of the sequence.</summary>
-    void Step(ControllerButton controllerInput);
+    /// <summary>What the sequence's current step runs on: nothing of gameplay, the session's runtime, or its loaded room.</summary>
+    PhaseGameplayNeed Need { get; }
 }

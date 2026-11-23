@@ -13,18 +13,19 @@ internal static class KiHunterAcidSpitCueRules
     {
         [NativeEnemyProjectileInstruction.Delete] = NativeCueCommand<KiHunterAcidSpitCue>.Exactly(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.Delete)),
         [NativeEnemyProjectileInstruction.ClearFrameBehavior] = NativeCueCommand<KiHunterAcidSpitCue>.Exactly(new KiHunterAcidSpitCue.Signal(KiHunterAcidSpitCueKind.StopMoving)),
-        // Setting a launch routine is the cue that launches the acid the way that routine moves it (#2338): the routine of the
-        // cue's way.
+        // Setting a launch routine is the cue that launches the acid (#2338): either way's routine stands for the launching
+        // motion the cue starts, and the way it flies is the one its Ki-Hunter spat it, which its state keeps (#2553), so the
+        // cue carries none.
         [NativeEnemyProjectileInstruction.FrameBehaviorInY] = new(2, (operands, cue, at) =>
         {
             ushort routine = LittleEndianBytes.Word(operands[0], operands[1]);
             switch (cue)
             {
-                case KiHunterAcidSpitCue.Launch launch:
-                    VerificationAssertions.AssertEqual(EnemyProjectileMotionAccess.KiHunterAcidLaunch(launch.Direction), routine, $"{at}: pre-instruction");
+                case KiHunterAcidSpitCue.Launch:
+                    VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor(routine, KiHunterAcidMotion.Launching), $"{at}: pre-instruction");
                     break;
                 case KiHunterAcidSpitCue.Signal:
-                    VerificationAssertions.AssertEqual<Enum?>(null, EnemyProjectileMotionAccess.FromWord(routine), $"{at}: pre-instruction");
+                    VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsForHoldingStill(routine), $"{at}: pre-instruction");
                     break;
                 default:
                     throw new InvalidOperationException($"{at}: undefined {nameof(KiHunterAcidSpitCue)} {cue}.");

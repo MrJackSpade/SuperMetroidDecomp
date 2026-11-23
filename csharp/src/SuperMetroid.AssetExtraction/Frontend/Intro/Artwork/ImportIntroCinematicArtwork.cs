@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// and the ending flyaway's sheets in. The game reads none of them; its own read of the opening
 /// (<see cref="IntroCinematicArtworkFiles.LoadCinematic"/>) reads no character page, layout or map and leaves the colour documents unread.
 /// </summary>
-public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
+public sealed partial class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
 {
     /// <summary>Takes the opening's installed documents, its characters and layouts and the colours only the import reads.</summary>
     /// <param name="parts">The opening's installed scene artwork.</param>
@@ -72,7 +72,7 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
     private const int PageCells = 32 * 32;
 
     /// <summary>The opening's and the Ceres destruction scene's sprite compositions, which their sheets are composed from.</summary>
-    public IntroCinematicSprites Sprites { get; }
+    internal IntroCinematicSprites Sprites { get; }
 
     /// <summary>The compositions of <paramref name="family"/>: the Ceres approach's are the flight's, the others the opening's.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The family is not an opening or Ceres family.</exception>
@@ -94,15 +94,6 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
         _ => throw new ArgumentOutOfRangeException(nameof(family), family, "Undefined cinematic family."),
     };
 
-    /// <summary>Identity of the installed documents and of the Mode 7 maps and compositions the opening's sheets are composed from.</summary>
-    public override string ContentIdentity => SelectedPresentationHash.Create("IntroCinematicImportArtwork-v2", content =>
-    {
-        content.Append("documents", Convert.FromHexString(base.ContentIdentity));
-        content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
-        content.Append("ceres-flight-sprites", Convert.FromHexString(FlightCharacters.Sprites.ContentIdentity));
-        content.Append("ceres-maps", CeresDestructionMaps.Views.Span);
-    });
-
     /// <summary>The four ordered 32x32 scene pages' tiles.</summary>
     public ReadOnlyMemory<BackgroundTile> BackgroundPages => backgroundPages;
     /// <summary>The four scene pages, one after another.</summary>
@@ -120,7 +111,7 @@ public sealed class ImportIntroCinematicArtwork : IntroCinematicSourceArtwork
     /// <summary>Four Samus-portrait eye rectangles, without their blink timing.</summary>
     public IntroEyeTilemapPresentation EyeFrames { get; }
     /// <summary>The Zebes reveal's tilemap, which the planet's picture is composed from with the reveal's characters.</summary>
-    public RoomBackgroundTilemapAtlas ZebesRevealMap { get; }
+    internal RoomBackgroundTilemapAtlas ZebesRevealMap { get; }
     /// <summary>The destruction's Mode 7 maps, which the Ceres floor's shots are composed from.</summary>
     public CeresDestructionMaps CeresDestructionMaps { get; }
 

@@ -5,8 +5,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// one update holds, and how often the clock steps and checks the requests.
 /// </summary>
 /// <remarks>Evidence: the sound program's 500-Hz timer and its request read (<c>$1621</c>).</remarks>
-[CompatibilityService("the fixed timing of the clock on which the sound libraries accept requests")]
-public static class SoundClockTiming
+public static partial class SoundClockTiming
 {
     /// <summary>The sound clock's samples in one 60-Hz update: 32,040 / 60.</summary>
     public const int SamplesPerUpdate = 534;

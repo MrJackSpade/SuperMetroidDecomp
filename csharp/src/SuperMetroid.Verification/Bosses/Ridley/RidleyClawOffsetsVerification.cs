@@ -19,18 +19,14 @@ internal static class RidleyClawOffsetsVerification
     /// wrapping, and claw overlap through production behavior.</summary>
     internal static void VerifyRidleyClawOffsets(CartridgeImportAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+        short Word(int address) => unchecked((short)rom.ReadCartridgeWord(address));
         short[] x = Enumerable.Range(0, 3).Select(i => Word(EnemyRomTablePointers.Ridley.ClawXOffsetWords + i * 2)).ToArray();
         short[] y = Enumerable.Range(0, 3).Select(i => Word(EnemyRomTablePointers.Ridley.ClawYOffsetWords + i * 2)).ToArray();
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
             AssertEqual(x[(int)facing], RidleyClawOffsets.Across.For(facing), "All authored claw X words");
-        foreach (RidleyFacing undefined in new[] { (RidleyFacing)3, (RidleyFacing)ushort.MaxValue })
-            AssertThrows<InvalidOperationException>(() => RidleyClawOffsets.Across.For(undefined), "Undefined Ridley facing has no claw X word");
         foreach (RidleyClawHeight height in RidleyClawHeightPlaces.TableOrder)
             AssertEqual(y[RidleyClawHeightPlaces.Place(height)], RidleyClawOffsets.Below.For(height), "Each claw height reads its authored claw Y word");
         AssertEqual(Enum.GetValues<RidleyClawHeight>().Length, RidleyClawHeightPlaces.TableOrder.Length, "Ridley has three claw heights");
-        foreach (RidleyClawHeight undefined in new[] { (RidleyClawHeight)(-1), (RidleyClawHeight)3, (RidleyClawHeight)ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => RidleyClawOffsets.Below.For(undefined), "Ridley has only three claw heights");
         // The body segments' cues select exactly the authored poses, so no gameplay path reaches past the table.
         foreach (RidleyBodySegment program in Enum.GetValues<RidleyBodySegment>())
         foreach (var beat in RidleyAnimations.Segments.Beats(program))

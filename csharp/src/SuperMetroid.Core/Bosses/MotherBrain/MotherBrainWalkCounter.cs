@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// phase-three sequence all read and write. The encounter's setup creates it, and a sequence attached to the encounter is
 /// built over it.
 /// </summary>
-public sealed class MotherBrainWalkCounter
+public sealed partial class MotherBrainWalkCounter
 {
     /// <summary>The credit the counter holds.</summary>
     public MotherBrainWalkCredit Credit { get; internal set; }

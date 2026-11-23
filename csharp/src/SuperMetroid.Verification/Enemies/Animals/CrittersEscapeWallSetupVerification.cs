@@ -34,7 +34,7 @@ internal static class CrittersEscapeWallSetupVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
 
         RoomLevelData beforeEscape = LoadBombTorizoRoomThroughItsDoor(runtime);
         AssertTrue(!ReferenceEquals(CrateriaRoomStateDefinitions.BombTorizoWhenZebesTimebombSet, runtime.Room.LoadedRoom.State),
@@ -86,7 +86,7 @@ internal static class CrittersEscapeWallSetupVerification
         while (roomObjects.Places.Spawn() is { } held)
             held.Become(new EscapeRoomHeldPlaceObject());
 
-        AssertTrue(!roomObjects.EscapeAnimals.TrySpawnCrittersEscapeWall(level, WallBlocks[0]), "a full room loses the wall's spawn");
+        roomObjects.EscapeAnimals.SpawnCrittersEscapeWall(level, WallBlocks[0]);
         foreach (Position16<RoomBlocks> block in WallBlocks)
         {
             AssertEqual(solid, level.GetCollisionBlock(block).Terrain, $"in a full room wall block {block} stays solid");
@@ -113,7 +113,7 @@ internal static class CrittersEscapeWallSetupVerification
             "the fixture's wall blocks show a picture other than their terrain's");
         RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
 
-        AssertTrue(roomObjects.EscapeAnimals.TrySpawnCrittersEscapeWall(level, WallBlocks[0]), "a room with a place free takes the wall's spawn");
+        roomObjects.EscapeAnimals.SpawnCrittersEscapeWall(level, WallBlocks[0]);
         AssertEqual(solid.WithCollision(EscapeAnimalWallDefinitions.OriginCollisionType), level.GetCollisionBlock(WallBlocks[0]).Terrain,
             "the wall's origin becomes a shootable block keeping its terrain's picture");
         AssertEqual(EscapeAnimalWallDefinitions.ReactionBehavior, level.GetCollisionBlock(WallBlocks[0]).Behavior,

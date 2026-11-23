@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's corpse rotting away after her final death: her corpse's own rot schedule and the corpse's own rows as
 /// the rot has left them, which her corpse's frame is drawn whole through (#1539).
 /// </summary>
-public sealed class MotherBrainCorpseRottingState
+public sealed partial class MotherBrainCorpseRottingState
 {
     /// <summary>The corpse's visible pixel rows, each of which the rot schedule drops.</summary>
-    public const int RowCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;
+    internal const int RowCount = MotherBrainCorpseArtworkDefinitions.PixelRowCount;
 
     /// <summary>The corpse's own rot schedule, from before its first rot update.</summary>
     internal CorpseRotSchedule Schedule { get; } = new(RowCount);
@@ -40,8 +40,7 @@ public sealed class MotherBrainCorpseRottingState
                     Position: brainPosition + MotherBrainLateFightDefinitions.CorpseDustFromBrain +
                         new Offset16<RoomPixels>(randomNumberSeed.Read(MotherBrainRandomDefinitions.CorpseDustOffset), 0),
                     Animation: DustExplosionAnimation.CorpseDustCloud,
-                    SoundEffectQueued: MotherBrainCadenceDefinitions.CorpseDustSoundEveryEighthEnemyPass.IsDue(enemyPassCount),
-                    SoundEffect: EnemySound.LiquidDamage));
+                    Sound: MotherBrainCadenceDefinitions.CorpseDustSound.IsDue(enemyPassCount) ? EnemySound.LiquidDamage : null));
             });
 
         return new MotherBrainCorpseRottingStepResult(StillRotting: stillRotting, DustRequests: dustRequests);

@@ -3,7 +3,6 @@ using K = SuperMetroid.Core.Bosses.Torizo.TorizoCueKind;
 using A = SuperMetroid.Core.Bosses.Torizo.TorizoAnimation;
 using S = SuperMetroid.Core.Bosses.Torizo.TorizoBodySegment;
 using L = SuperMetroid.Core.Bosses.Torizo.TorizoArtworkLook;
-using P = SuperMetroid.Core.Bosses.Torizo.TorizoPostureDefinitions;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoAnimationSteps;
 using static SuperMetroid.Core.Bosses.Torizo.TorizoSide;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -14,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The encounter segments both Torizos share: the gut and face blow-ups, the death, the stun, the Bomb Torizo's wake and the
 /// seated eyes and standing colour fade both wakes play. Both statues sit facing left.
 /// </summary>
-internal static class TorizoEncounterAnimations
+internal static partial class TorizoEncounterAnimations
 {
     /// <summary>Each segment's steps, in the order it plays them.</summary>
     internal static Dictionary<TorizoBodySegment, AnimationBeat<EnemyFrameId, TorizoCue>[]> Segments { get; } = new()
@@ -82,15 +81,7 @@ internal static class TorizoEncounterAnimations
         [S.BombTorizoAwakening] =
         [
             Cue(new TorizoCue.SetPhase(Phase: TorizoPhase.Falling)),
-            Show(Left.Seated, 48),
-            ShowArtwork(L.EyesDark),
-            Show(Left.Seated, 32),
-            ShowArtwork(L.EyesGlowingFaintly),
-            Show(Left.Seated, 16),
-            ShowArtwork(L.EyesGlowingBrightly),
-            Show(Left.Seated, 8),
-            ShowArtwork(L.EyesGlowingFully),
-            Show(Left.Seated, 32),
+            .. SeatedEyesLightingUp,
         ],
         [S.SeatedEyesLightingAgain] =
         [
@@ -105,18 +96,7 @@ internal static class TorizoEncounterAnimations
         ],
         [S.BombTorizoStandingUp] =
         [
-            Show(Left.Seated, 48),
-            StandUp(Left, P.SeatedToRising),
-            Show(Left.RisingFromSeat, 16),
-            StandUp(Left, P.RisingToCrouched),
-            Show(Left.Crouched, 8),
-            StandUp(Left, P.CrouchedToHalfRisen),
-            Show(Left.HalfRisen, 8),
-            StandUp(Left, P.HalfRisenToNearlyUpright),
-            Show(Left.NearlyUpright, 8),
-            StandUp(Left, P.NearlyUprightToStepping),
-            Show(Left.UprightStepping, 8),
-            StandUp(Left, P.SteppingToWideStance),
+            .. StandingUp(Left, 48, 16, 8, 8, 8, 8),
             Cue(new TorizoCue.Signal(K.FadeToNormalColors)),
         ],
         [S.StandingColourFade] =

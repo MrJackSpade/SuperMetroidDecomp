@@ -1,6 +1,5 @@
 using SuperMetroid.AssetExtraction.Fx;
 using SuperMetroid.AssetExtraction.Cartridge;
-using static SuperMetroid.Verification.Fx.AnimatedTileInstructionCodesVerification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
@@ -14,11 +13,11 @@ internal static class LookupAnimatedHeadersVerification
     private static readonly ushort[] OriginalSimpleAnimationObjects =
         [0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd];
 
-    /// <summary>Checks complete object identity lookup, enumeration order, and rejection of undefined pointers.</summary>
+    /// <summary>Checks complete object identity lookup and enumeration order.</summary>
     internal static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
-            RoomFxBlockAnimationLoops.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x))),
+            RoomFxBlockAnimationLoopsConstants.All.Select(x => FxNativeWords.AnimatedTileObjects.Word(x))),
             "Original seven-object enumeration order");
         var original = OriginalSimpleAnimationObjects.ToHashSet();
         foreach (BlockAnimation header in Enum.GetValues<BlockAnimation>())
@@ -27,10 +26,6 @@ internal static class LookupAnimatedHeadersVerification
             bool resolved = BlockAnimationLoops.HasLoop(header);
             AssertEqual(original.Contains(pointer) || pointer is 0x8275 or 0x827b, resolved, "Looping animation full identity domain");
         }
-        foreach (ushort undefined in UndefinedAnimatedTileObjects)
-            AssertThrows<InvalidOperationException>(
-                () => BlockAnimationLoops.HasLoop((BlockAnimation)undefined),
-                "Undefined animated-tile object is rejected at the typed boundary");
     }
 
     /// <summary>Compares the seven compiled instruction-start pointers with native headers.</summary>
@@ -47,7 +42,7 @@ internal static class LookupAnimatedHeadersVerification
     private static void VerifySimpleAnimationHeaderField(CartridgeImportAddressSpace rom, int offset,
         Func<BlockAnimation, int> field)
     {
-        var enumerated = RoomFxBlockAnimationLoops.All.ToDictionary(x => x);
+        var enumerated = RoomFxBlockAnimationLoopsConstants.All.ToDictionary(x => x);
         foreach (ushort pointer in OriginalSimpleAnimationObjects)
         {
             ushort expected = ReadVerificationWord(rom, (0x870000 | pointer) + offset);

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -6,7 +8,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Decodes the native map highlight sequence into each frame's hold and highlight colour, not an executable palette program or palette rows (#1637).</summary>
-internal static class MapPaletteCycleExtractor
+internal static partial class MapPaletteCycleExtractor
 {
     /// <summary>Reads timed map-highlight frames until the native $FF duration terminator and writes the bounded editable
     /// cycle document, each frame's look as the colour its highlight shows.</summary>
@@ -27,9 +29,9 @@ internal static class MapPaletteCycleExtractor
                 break;
             PaletteRgb5[] highlight = [.. MapPaletteCycleFormat.HighlightInks.Select(ink =>
             {
-                int word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                int word = RomDataReader.ReadWordFixedBank(bus,
                     MapSourceDefinitions.Animation.PaletteColors + (frame * MapPaletteCycleFormat.ColorCount + ink) * sizeof(ushort));
-                return new PaletteRgb5 { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
+                return PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             })];
             if (highlight.Distinct().Count() != 1)
                 throw new InvalidDataException($"Map highlight frame {frame}'s highlight colours differ.");

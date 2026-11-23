@@ -1,13 +1,12 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomObjectFramePhase"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record RoomObjectFramePhaseDependencies
+internal sealed partial record RoomObjectFramePhaseDependencies
 {
     /// <summary>The player's gameplay actions as the frame boundary latched them.</summary>
     public required GameplayActionInput PlayerActions { get; init; }
@@ -29,7 +28,4 @@ internal sealed record RoomObjectFramePhaseDependencies
 
     /// <summary>Samus, whom the room objects touch, and whether the X-ray scope holds the room objects still.</summary>
     public required SamusFrameState Player { get; init; }
-
-    /// <summary>The suit transformation, which keeps a second suit from replacing one already running.</summary>
-    public required SamusSuitPickupState SuitPickup { get; init; }
 }

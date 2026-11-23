@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The installed enemy display bindings (#1638): for each named frame an enemy shows, the frame displayed for it.</summary>
-internal sealed record EnemyFrameDisplayDocument
+internal sealed partial record EnemyFrameDisplayDocument
 {
     /// <summary>Document revision; loading requires <see cref="EnemyFrameDisplayFiles.Revision"/>.</summary>
     public required int Version { get; init; }

@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// </summary>
 /// <param name="Directory">The family's directory, directly under the content directory the store is written to.</param>
 /// <param name="Sheets">The family's sheets, each under its installed name.</param>
-internal sealed record InstalledSheetFamily(string Directory, IReadOnlyList<NamedInstalledSheet> Sheets)
+internal sealed partial record InstalledSheetFamily(string Directory, IReadOnlyList<NamedInstalledSheet> Sheets)
 {
     /// <summary>
     /// The family of <paramref name="sheets"/>, each converted as the installation holds it (#1633); the sheets convert in
@@ -25,7 +25,7 @@ internal sealed record InstalledSheetFamily(string Directory, IReadOnlyList<Name
         {
             ComposedSpriteSheet sheet = Ensure.NotNull(sheets[index].Sheet);
             installed[index] = new NamedInstalledSheet(sheets[index].Name,
-                InstalledSheetConversion.Install(sheet.Manifest, sheet.Size, sheet.Pixels, sheet.PaletteIndices) with { ShownWhole = sheet.ShownWhole });
+                InstalledSheetConversion.Install(sheet.Manifest, sheet.Size, sheet.Pixels, sheet.Inks) with { ShownWhole = sheet.ShownWhole });
         });
         return new InstalledSheetFamily(directory, installed);
     }

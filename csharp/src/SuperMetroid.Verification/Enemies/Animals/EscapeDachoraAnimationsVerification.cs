@@ -62,7 +62,7 @@ internal static class EscapeDachoraAnimationsVerification
     /// </summary>
     internal static void VerifyEscapeDachoraAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var branches = new List<(ushort Target, AnimationContinuation<EscapeDachoraSegment> Then, string At)>();
         int beats = NativeEnemyAnimationOracle.CompareAll(cartridge, Bank, Entries,
             EscapeDachoraAnimations.Segments, EscapeDachoraAnimationsConstants.StartingAt, EscapeDachoraFrameToolingDefinitions.Spritemap,
@@ -75,7 +75,7 @@ internal static class EscapeDachoraAnimationsVerification
         {
             AssertEqual(target, NativeEnemyAnimationOracle.PointerOf(lists, Entries, EscapeDachoraAnimationsConstants.StartingAt,
                 new AnimationPlayback<EscapeDachoraSegment>(then.Animation, then.Place), counted), $"{at}: the branch continues where its native target points");
-            bool countsDown = then.Place.Beat != AnimationPlace.NotEntered
+            bool countsDown = !then.Place.HasNotEntered && !then.Place.IsHolding
                 && then.Animation.Phases[then.Place.Phase] is { IsRepeated: true } phase && then.Place.Beat == phase.BeatCount;
             AssertEqual(countsDown, then.CountsOn, $"{at}: a branch into a lap's count-down counts on the plays left, and only it does");
         }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>How fast rain, spores and fog drift across the screen each frame (#1415).</summary>
-public static class AtmosphereDriftDefinitions
+public static partial class AtmosphereDriftDefinitions
 {
     /// <summary>Rain falls six pixels a frame.</summary>
     public static SignedEightEight RainFallSpeed { get; } = SignedEightEight.FromPixels(6);
@@ -20,7 +20,7 @@ public static class AtmosphereDriftDefinitions
     /// wind left, a strong wind right, a gentle wind left and a gentle wind right in turn; the rest of the number is ignored.
     /// </summary>
     internal static WeightedRandomChoice<RainWind> RainWindDraw { get; } = WeightedRandomChoice<RainWind>.InTurn(
-        new RandomSampleField(2, 2), RainWind.StrongLeft, RainWind.StrongRight, RainWind.GentleLeft, RainWind.GentleRight);
+        RainWindRandomRoll.Wind, RainWind.StrongLeft, RainWind.StrongRight, RainWind.GentleLeft, RainWind.GentleRight);
 
 
     /// <summary>How fast a strong wind blows the rain sideways, either way: six pixels a frame.</summary>

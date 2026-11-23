@@ -8,13 +8,12 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Extracts the six safe English narration pages from native bank-$8C scripts.</summary>
-[EncodingOwner("cartridge intro narration script words")]
-public static class IntroNarrationExtractor
+public static partial class IntroNarrationExtractor
 {
     /// <summary>Decodes all six English opening narration pages from checked bank-$8C character scripts into editable text lines.</summary>
     /// <param name="bus">Cartridge source for the page instruction streams and their single-tile glyph payloads.</param>
     /// <returns>A new UTF-8 JSON buffer with page-name-keyed line arrays, native tile-row positions, and decoded text in row order.</returns>
-    /// <remarks>Verifies begin/end/delete commands, marker records, five-update character delays, contiguous columns, and the final-page caret/hold sequence. Those script mechanics remain compiled rather than becoming editable JSON fields.</remarks>
+    /// <remarks>Verifies begin/end/delete commands, marker records, character delays of <see cref="IntroNarrationDefinitions.CharacterDelayFrames"/>, contiguous columns, and the final-page caret/hold sequence. Those script mechanics remain compiled rather than becoming editable JSON fields.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A script opcode, marker, timing, glyph payload, coordinate sequence, or bounded termination differs from the supported format.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
@@ -48,14 +47,15 @@ public static class IntroNarrationExtractor
         cursor = Add(cursor, 6);
 
         var rows = new SortedDictionary<int, StringBuilder>();
-        int previousRow = -1;
+        // The row of the last tile placed, none before the first.
+        int? previousRow = null;
         int previousColumn = 0;
         for (int record = 0; record < IntroNarrationScriptDefinitions.MaximumRecords; record++)
         {
             int word = ReadWord(bus, cursor);
             if ((word & IntroNarrationScriptDefinitions.InstructionCommandBit) != 0)
             {
-                if (page.Id == IntroNarrationPageId.CeresUnderAttack &&
+                if (page.EndsWithBlinkingCaret &&
                     word == IntroNarrationScriptDefinitions.SetCaretBlinkingOpcode)
                 {
                     cursor = Add(cursor, 2);
@@ -152,13 +152,13 @@ public static class IntroNarrationExtractor
     }
 
     /// <summary>Reads one script byte from the fixed narration bank.</summary>
-    private static byte ReadByte(ISnesAddressSpace bus, int pointer) =>
+    private static byte ReadByte(IImportCartridgeSource bus, int pointer) =>
         bus.ReadCartridgeByte((int)SnesAddress.InBank(
             IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Reads a little-endian narration word with bank-local address wrapping.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)SnesAddress.InBank(IntroNarrationScriptDefinitions.ScriptBank, pointer));
+        bus.ReadCartridgeWordFixedBank((int)SnesAddress.InBank(IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Advances a script pointer with native 16-bit bank-local wrapping.</summary>
     private static int Add(int pointer, int bytes) =>

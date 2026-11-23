@@ -11,7 +11,7 @@ internal enum EyeDoorProjectileMotion
     /// </summary>
     ShotFlying,
 
-    /// <summary>Drops an eye-door sweat drop, its fall speeding up by three sixty-fourths of a pixel an update each update, and splashes
+    /// <summary>Drops an eye-door sweat drop, its fall speeding up by <see cref="EyeDoorEffectDefinitions.SweatGravity"/> each update, and splashes
     /// on the floor.</summary>
     SweatFalling,
 }

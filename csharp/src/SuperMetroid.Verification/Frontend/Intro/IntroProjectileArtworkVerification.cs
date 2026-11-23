@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -19,23 +18,24 @@ internal static class IntroProjectileArtworkVerification
     /// </summary>
     internal static void VerifyIntroProjectileArtwork(ushort sprite)
     {
-        var intro = CreateRetailIntroFixture();
-        intro.SetupFirstIllustratedPage();
-        intro.SetupMotherBrainFlashback();
+        var audio = AudioQueues.Standalone();
+        var intro = CreateRetailIntroFixture(audio);
+        // The intro runs as the game runs it to the Mother Brain flashback's setup, whose scene draws the shots (#2554).
+        _ = intro.StepToMotherBrainFlashback(audio);
         var projectiles = intro.flashbackProjectiles;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.Session.Show(intro);
         game.Session.Enter(SuperMetroidGameState.IntroCinematic);
         game.BindArtwork(game.Artwork with { SpriteSheets = InstalledFixtures.SpriteSheets });
-        SamusColouredDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
-            scene.PrepareMotherBrainSprites().Draws.OfType<SamusColouredDraw>().Single(draw => draw.Source.Kind == kind);
+        ImageSpriteDraw Shown(IntroCinematicState scene, SpriteSourceKind kind) =>
+            scene.ComposeScene().SpriteDraws.Single(draw => draw.Source.Kind == kind);
         SpriteSheet sheet = InstalledFixtures.SpriteSheets.Get(SpriteSheetId.IntroProjectiles);
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
         {
             projectiles.Reset();
             var shot = projectiles.Shots[0];
-            shot.Type = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family); shot.Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = sprite;
-            shot.Position = shot.Position.WithWhole(new(100, 100));
+            shot.OccupyAsFired(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(family)); shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active(); shot.SpritemapPointer = sprite;
+            shot.HeldShot().Position = shot.Position.WithWhole(new(100, 100));
             AssertEqual(sheet.Frame(ProjectileSheetFrames.ProjectileFrame(ProjectileSpriteNative.Projectile(sprite))),
                 Shown(intro, SpriteSourceKind.SamusProjectile).Image, $"Intro family ${family:X} shows its frame of the intro's projectile sheet");
         }

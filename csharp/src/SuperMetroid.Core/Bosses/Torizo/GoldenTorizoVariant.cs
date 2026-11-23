@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// walks on from a landing by the choice's walk, and its appearance grants Samus its loadout while the player holds its
 /// secret chord.
 /// </summary>
-internal sealed class GoldenTorizoVariant()
+internal sealed partial class GoldenTorizoVariant()
     : TorizoVariant(TorizoInitializationDefinitions.Golden, TorizoWalkerDefinitions.GoldenTorizo, TorizoDeathDefinitions.GoldenTorizoArena,
         EncounterArtwork.GoldenTorizo, TorizoLookKind.GoldenInitial,
-        GoldenTorizoCodeDefinitions.Code)
+        GoldenTorizoCodeDefinitions.Code, TorizoDecisionDefinitions.GoldenFirstAttackMissiles)
 {
     /// <summary>Golden Torizo walks on by the choice's walk.</summary>
     /// <param name="alternate">The choice's walk.</param>

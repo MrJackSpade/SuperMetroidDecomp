@@ -7,8 +7,7 @@ using SuperMetroid.Core.Enemies.EffectActors;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's death: drifting to its burial point, the Evirs and sinking below the room.</summary>
-[RoomLifetime]
-internal sealed class DraygonDeath
+internal sealed partial class DraygonDeath
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -38,12 +37,12 @@ internal sealed class DraygonDeath
     internal void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
-        if (DraygonCadenceDefinitions.DyingFoamEverySixteenthUpdate.IsDue(body.FrameCounter))
+        if (DraygonCadenceDefinitions.DyingFoam.IsDue(body.FrameCounter))
         {
             _effectActors.SpawnRoomEffectActor(
                 body.Position.Whole + DraygonParts.TowardFacing(DraygonArenaDefinitions.MouthFacingRight, state.Facing),
                 RoomEffectActorKind.DraygonFoam,
-                graphics: default);
+                graphics: SpriteGraphics.SharedStandard);
         }
 
         DraygonMovement.MoveDraygonAtAngle(body, BurialDriftAngle(body.Position.Whole), DraygonArenaDefinitions.BurialDriftSpeed);
@@ -56,7 +55,7 @@ internal sealed class DraygonDeath
         }
 
         SpawnDraygonDeathEvirs(state);
-        state.Phase = DraygonPhase.DyingWaitForEvirs;
+        state.Step = DraygonPhaseSteps.DyingWaitForEvirs();
         _parts.RequestDraygonMusic(MusicRequest.SelectTrack(MusicTrack.Elevator));
         state.BurialWait.LastFor(DraygonArenaDefinitions.BurialWaitUpdates);
         state.BodyPart.StartAnimation(DraygonSegment.Rest);
@@ -67,7 +66,7 @@ internal sealed class DraygonDeath
         state.EyePart.StartAnimation(state.Facing == HorizontalDirection.Right
                 ? DraygonSegment.EyeFacingRightDead
                 : DraygonSegment.EyeFacingLeftDead);
-        state.EyeTracking.Action = DraygonEyeAction.Inert;
+        state.EyeTracking.TrackingFacing = null;
     }
 
     /// <summary>
@@ -84,7 +83,7 @@ internal sealed class DraygonDeath
         SpawnDyingDraygonSmoke(frameCounter);
         if (state.BurialWait.StepRunsOut())
         {
-            state.Phase = DraygonPhase.DyingFinish;
+            state.Step = DraygonPhaseSteps.DyingFinish();
             return;
         }
 
@@ -107,7 +106,7 @@ internal sealed class DraygonDeath
 
         state.BodyPart.StartAnimation(DraygonSegment.Delete);
 
-        // The death drops use Draygon's body definition for sixteen independent drops over the
+        // The death drops use Draygon's body definition for his independent death drops over the
         // lower half of the arena. The drops spawn before the body is deleted.
         _deathsAndDrops.SpawnEnemyDropScatter(
             EnemyDefinitionId.DraygonBody,
@@ -120,23 +119,20 @@ internal sealed class DraygonDeath
         // The body and the eye are deleted (#2298).
         DeleteDraygonPart(body);
         DeleteDraygonPart(state.Eye);
-        if (!state.BossDefeatPersisted)
-        {
-            _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
-            state.BossDefeatPersisted = true;
-        }
+        // The sink runs once: this update deletes his body, whose step runs it.
+        _room.Services.Bosses.SetDefeated(DefeatedBosses.AreaBoss);
         _effectActors.EndAll();
     }
 
-    /// <summary>Consumes room RNG and spawns smoke at the dying body every eighth frame.</summary>
+    /// <summary>Consumes room RNG and spawns smoke at the dying body at its smoke cadence.</summary>
     private void SpawnDyingDraygonSmoke(int frameCounter)
     {
-        if (!DraygonCadenceDefinitions.DyingSmokeEveryEighthUpdate.IsDue(frameCounter))
+        if (!DraygonCadenceDefinitions.DyingSmoke.IsDue(frameCounter))
             return;
 
         int random = _room.Random.Generate();
         Position16<RoomPixels> smoke = DraygonArenaDefinitions.DeathSmokeOrigin + new Offset16<RoomPixels>(DraygonRandomDefinitions.DeathSmokeX.Of(random), DraygonRandomDefinitions.DeathSmokeY.Of(random));
-        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: default);
+        _effectActors.SpawnRoomEffectActor(smoke, RoomEffectActorKind.BigDustCloud, graphics: SpriteGraphics.SharedStandard);
     }
 
     /// <summary>Ends every room effect actor and spawns six burial Evirs, each carrying the definition that moves it.</summary>
@@ -171,21 +167,13 @@ internal sealed class DraygonDeath
     internal static FixedVector<RoomPixels> BurialDrift(DraygonBurialEvirDefinition evir) =>
         -EnemyMath.VelocityAlong(evir.Heading, 1);
 
-    /// <summary>Drifts the six burial Evirs, in the order they spawned, by their definitions' headings.</summary>
+    /// <summary>
+    /// Drifts the six burial Evirs, in the order they spawned, by their definitions' headings: each Evir the burial spawned,
+    /// as the burial holds it.
+    /// </summary>
     internal static void MoveDraygonDeathEvirs(DraygonEnemyState state)
     {
         foreach (DraygonBurialEvir evir in Ensure.NotNull(state).BurialEvirs)
-        {
-            RoomEffectActor sprite = evir.Sprite;
-            if (!sprite.IsActive || sprite.Kind is not (
-                    RoomEffectActorKind.EvirFacingLeft or
-                    RoomEffectActorKind.EvirFacingRight))
-            {
-                throw new InvalidDataException(
-                    $"Draygon burial movement expected the burial Evir that started at {evir.Definition.Start} to be live.");
-            }
-
-            sprite.Position = sprite.Position.Advance(BurialDrift(evir.Definition));
-        }
+            evir.Sprite.Position = evir.Sprite.Position.Advance(BurialDrift(evir.Definition));
     }
 }

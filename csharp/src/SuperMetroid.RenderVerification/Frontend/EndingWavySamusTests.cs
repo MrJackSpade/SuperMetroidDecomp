@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
@@ -23,16 +24,16 @@ internal static class EndingWavySamusTests
         var installed = RepositoryInstallation.Installation;
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var maps = installed.LoadMaps();
-        var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, JapaneseText = false, CrittersEscaped = false }, maps.EndingText,
+        var scene = new EndingCreditsState(AudioQueues.Standalone(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0, Inventory = default, Language = TextLanguage.English, CrittersEscaped = false }, maps.EndingText,
             installed.LoadEndingBackdrops(), SuperMetroid.TestSupport.RepositoryInstallation.Verification.EndingSheetFixtures.WithEnding(
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects));
         scene.InstalledArtwork.ShowCreditsColours();
         scene.CreditsRoll.SetupPostCreditsBlank();
         // The ending stands on the backdrop fade's last update.
-        var lastFadeUpdate = UpdateCountdown.Lasting(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps);
-        PrivateState.Set(lastFadeUpdate, nameof(UpdateCountdown.Age), EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - 1);
-        PrivateState.Set(scene, nameof(EndingCreditsState.Phase), EndingCreditsPhase.PostCreditsShootingStars);
-        PrivateState.Set(scene, nameof(EndingCreditsState.PhaseHold), lastFadeUpdate);
+        var lastFadeUpdate = UpdateCountdownAccess.AtAge(EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps,
+            EndingSequenceDefinitions.Timing.WaitingBackdropFadeSteps - 1);
+        scene.ShowCastPhase(EndingCreditsPhase.PostCreditsShootingStars);
+        scene.PhaseHold = lastFadeUpdate;
         scene.Stage.Fade.Show(DisplayBrightness.Full);
         Require(!EndingCreditsPresentation.ComposeScene(scene).LayersOf<AddedPicturedPlaneLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();

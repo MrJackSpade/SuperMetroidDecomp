@@ -3,11 +3,10 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Native SPC instruction-list sets selected by one-based sound commands.</summary>
-[EncodingOwner("audio RAM addresses of the sound driver's sound-effect instruction lists")]
-internal static class SpcSoundStreamDefinitions
+internal static partial class SpcSoundStreamDefinitions
 {
     /// <summary>SPC library 1 instruction-list identities.</summary>
-    internal static class Library1
+    internal static partial class Library1
     {
         /// <summary>SPC $2B71, sound1AnimationScripts_sound1; ROM pointer entry $CF96F5. Power bomb explosion</summary>
         internal const ushort Sound01PowerBombExplosion = 0x2b71;
@@ -144,7 +143,7 @@ internal static class SpcSoundStreamDefinitions
     }
 
     /// <summary>SPC library 2 instruction-list identities.</summary>
-    internal static class Library2
+    internal static partial class Library2
     {
         /// <summary>SPC $3AB1, sound2AnimationScripts_sound1; ROM pointer entry $CFA5BB. Collected small health drop</summary>
         internal const ushort Sound01CollectedSmallHealthDrop = 0x3ab1;
@@ -186,7 +185,7 @@ internal static class SpcSoundStreamDefinitions
         internal const ushort Sound13PlaysAtRandomInHeatedRooms = 0x3be7;
         /// <summary>SPC $3C08, sound2AnimationScripts_sound14; ROM pointer entry $CFA5E1. Plays at random in heated rooms</summary>
         internal const ushort Sound14PlaysAtRandomInHeatedRooms = 0x3c08;
-        /// <summary>SPC $3C33, sound2AnimationScripts_sound15; ROM pointer entry $CFA5E3. Maridia elevatube</summary>
+        /// <summary>SPC $3C33, sound2AnimationScripts_sound15; ROM pointer entry $CFA5E3. Maridia elevatube: one zero-volume note, a stop (#2580)</summary>
         internal const ushort Sound15MaridiaElevatube = 0x3c33;
         /// <summary>SPC $3C3B, sound2AnimationScripts_sound16; ROM pointer entry $CFA5E5. Unnamed sound command; original instruction-list identity.</summary>
         internal const ushort Sound16 = 0x3c3b;
@@ -403,7 +402,7 @@ internal static class SpcSoundStreamDefinitions
     }
 
     /// <summary>SPC library 3 instruction-list identities.</summary>
-    internal static class Library3
+    internal static partial class Library3
     {
         /// <summary>SPC $4EED, sound3AnimationScripts_sound1; ROM pointer entry $CFBA97. Silence</summary>
         internal const ushort Sound01Silence = 0x4eed;
@@ -474,15 +473,15 @@ internal static class SpcSoundStreamDefinitions
         /// <summary>SPC $5208, sound3AnimationScripts_sound22; ROM pointer entry $CFBAD9. Unnamed sound command; original instruction-list identity.</summary>
         internal const ushort Sound22 = 0x5208;
         /// <summary>SPC $5229, sound3AnimationScripts_sound23; ROM pointer entry $CFBADB. Baby metroid cry 1</summary>
-        internal const ushort Sound23BabyMetroidCry1 = 0x5229;
+        internal const ushort Sound23BabyMetroidHighCry = 0x5229;
         /// <summary>SPC $5231, sound3AnimationScripts_sound24; ROM pointer entry $CFBADD. Baby metroid cry - Ceres</summary>
         internal const ushort Sound24BabyMetroidCryCeres = 0x5231;
         /// <summary>SPC $5239, sound3AnimationScripts_sound25; ROM pointer entry $CFBADF. Silence (clear speed booster / elevator sound)</summary>
         internal const ushort Sound25SilenceClearSpeedBoosterElevatorSound = 0x5239;
         /// <summary>SPC $5241, sound3AnimationScripts_sound26; ROM pointer entry $CFBAE1. Baby metroid cry 2</summary>
-        internal const ushort Sound26BabyMetroidCry2 = 0x5241;
+        internal const ushort Sound26BabyMetroidHitchedCry = 0x5241;
         /// <summary>SPC $524E, sound3AnimationScripts_sound27; ROM pointer entry $CFBAE3. Baby metroid cry 3</summary>
-        internal const ushort Sound27BabyMetroidCry3 = 0x524e;
+        internal const ushort Sound27BabyMetroidLowCry = 0x524e;
         /// <summary>SPC $5256, sound3AnimationScripts_sound28; ROM pointer entry $CFBAE5. Unnamed sound command; original instruction-list identity.</summary>
         internal const ushort Sound28 = 0x5256;
         /// <summary>SPC $5277, sound3AnimationScripts_sound29; ROM pointer entry $CFBAE7. Phantoon related</summary>

@@ -16,8 +16,7 @@ namespace SuperMetroid.TestSupport.VerificationOracles;
 /// <param name="timer">The escape-timer atlas whose pages are served as typed assets, or null for none.</param>
 internal sealed class EnemyTileTransfers(ImportEnemyArtwork installed,
     SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerCharacters? timer = null)
-    : IInstalledArtworkContent, IInstalledArtworkTransferSource, IInstalledSpriteCharacterArtwork,
-        IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
+    : IInstalledEncounterArtwork, IInstalledArtworkTransferSource
 {
     /// <inheritdoc/>
     public EnemyTileSourceArtwork EnemyTiles => installed.Enemies;
@@ -28,9 +27,15 @@ internal sealed class EnemyTileTransfers(ImportEnemyArtwork installed,
     /// <inheritdoc/>
     public AreaSourceArtwork AreaTiles => installed.Areas;
 
+    /// <summary>The installation's room-FX atlas, whose Tourian statue eye pictures the sprite statues' looks copy (#2625).</summary>
+    public SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationAtlas AnimatedTiles => SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportMaps.BlockAnimationAtlas;
+
     /// <summary>Resolves an escape-timer page from the supplied atlas; enemy tile fixtures queue no other asset.</summary>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
-        timer is null ? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.") : EscapeTimerTilePageTransfers.Resolve(timer, asset);
+        timer is null ? throw new InvalidOperationException($"Enemy tile fixtures queue no asset {asset}.") : EscapeTimerTilePageTransfers.Resolve(timer,
+            EscapeTimerTilePages.TryPageOf(asset, out EscapeTimerTilePage page)
+                ? page
+                : throw new ArgumentOutOfRangeException(nameof(asset), asset, "Enemy tile fixtures queue only the escape timer's pages."));
 
     /// <summary>Resolves a native Ceres or Torizo transfer, in the runtime artwork's order; enemy tiles are named by identity (#1412).</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)

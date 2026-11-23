@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Enemy definitions used by actors the game creates as it runs but not selected by any room's enemy population or the
 /// enemy artwork rooms load. They hold the same immutable gameplay fields as ordinary room definitions.
 /// </summary>
-internal static class RoomEnemyAuxiliaryDefinitionCatalog
+internal static partial class RoomEnemyAuxiliaryDefinitionCatalog
 {
     /// <summary>The Baby Metroid of Mother Brain's cutscene.</summary>
     internal static readonly RoomEnemyDefinition BabyMetroidCutscene = new(
@@ -19,13 +19,14 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: null,
+        PowerBombReaction: EnemyReaction.CommonPowerBomb,
+        Touch: SpeciesOwnReactions.BabyMetroidCutsceneTouch,
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Scanned,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
-        DropChances: new EnemyDropChances(0, 0, 0, 255, 0, 0),
-        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+        Drops: EnemyDrops.Rolling(new EnemyDropChances(smallEnergy: 0, bigEnergy: 0, missile: 0, nothing: 255, superMissile: 0, powerBomb: 0)),
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard,
+        Stacking: EnemyStacking.InFrontOfSamus);
 
     /// <summary>The falling tubes of Mother Brain's cutscene.</summary>
     internal static readonly RoomEnemyDefinition MotherBrainTubes = new(
@@ -38,35 +39,20 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
         GrappleResponse: GrappleEnemyReaction.Cancel,
         HurtResponse: EnemyHurtResponse.Inert,
         DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
+        PowerBombReaction: EnemyReaction.CommonPowerBomb,
         Touch: EnemyReaction.Ignore,
         Shot: EnemyReaction.Ignore,
         TouchHitboxScan: EnemyHitboxScan.Withheld,
         ShotHitboxScan: EnemyHitboxScan.Withheld,
-        DropChances: null,
-        Vulnerability: EnemyVulnerabilityDefinitions.Standard);
+        Drops: EnemyDrops.Nothing,
+        Vulnerability: EnemyVulnerabilityDefinitions.Standard,
+        Stacking: EnemyStacking.BehindSamus);
 
     /// <summary>
     /// A wall of Ceres Ridley's getaway chamber, which his getaway places (#1989), with the same fields as every Ceres door
     /// and wall.
     /// </summary>
-    internal static readonly RoomEnemyDefinition CeresGetawayChamberWall = new(
-        Health: 40,
-        Damage: 15,
-        Radius: new(8, 32),
-        HurtFlashFrames: 4,
-        HurtSoundEffect: EnemySound.RidleyRoar,
-        Boss: null,
-        GrappleResponse: GrappleEnemyReaction.Cancel,
-        HurtResponse: EnemyHurtResponse.Inert,
-        DeathExplosion: EnemyDeathExplosion.Small,
-        PowerBombReaction: null,
-        Touch: EnemyReaction.Ignore,
-        Shot: EnemyReaction.Ignore,
-        TouchHitboxScan: EnemyHitboxScan.Scanned,
-        ShotHitboxScan: EnemyHitboxScan.Scanned,
-        DropChances: null,
-        Vulnerability: null);
+    internal static readonly RoomEnemyDefinition CeresGetawayChamberWall = RoomEnemyDefinitionCatalog.CeresDoorAndWall;
 
     /// <summary>The cutscene actors' and getaway chamber walls' definitions, by identity.</summary>
     internal static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =

@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>The four installed sheets whose pages Mother Brain's encounter shows its sprites, and their page counts (#1527).</summary>
-public static class MotherBrainSpecialSpriteSheetDefinitions
+public static partial class MotherBrainSpecialSpriteSheetDefinitions
 {
     /// <summary>Eight phase-two leg pages.</summary>
     public static readonly MotherBrainSpecialSpriteSheetDefinition Legs = new("mother-brain-leg-tiles.png", 8);

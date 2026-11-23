@@ -6,9 +6,15 @@ namespace SuperMetroid.Core.Audio;
 /// (#1725), each sound library's sound, priority and low-health mode, and the clips still fading out. Positions are
 /// absolute clip frames since the session's first update. Presentation only: no gameplay update reads it.
 /// </summary>
-/// <param name="initialBeat">How long the music's beat lasts before any song has played: the clip set's <see cref="ClipAudioLibrary.InitialBeat"/>.</param>
-public sealed class ClipPlaybackState(BeatLength initialBeat)
+public sealed partial class ClipPlaybackState
 {
+    /// <summary>Creates a <see cref="ClipPlaybackState"/>.</summary>
+    /// <param name="initialBeat">How long the music's beat lasts before any song has played: the clip set's <see cref="ClipAudioLibrary.InitialBeat"/>.</param>
+    public ClipPlaybackState(BeatLength initialBeat)
+    {
+        this.Beat = new(initialBeat);
+    }
+
     /// <summary>Each sound library's clip playback, kept by its library (#1755).</summary>
     internal readonly Dictionary<SoundEffectLibrary, ClipLibraryState> Libraries =
         SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new ClipLibraryState());
@@ -19,8 +25,11 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     /// <summary>Clip frames played so far.</summary>
     internal long Sample { get; private set; }
 
-    /// <summary>The clip set loaded last, named by its music data set, or null while only the shared sounds are loaded.</summary>
-    internal MusicDataSet? ClipSet { get; private set; }
+    /// <summary>
+    /// The clip set the songs are asked of, named by its music data set: the one loaded last, and from power-on until the
+    /// first set loads <see cref="AudioQueueDefinitions.PowerOnDataSet"/>.
+    /// </summary>
+    internal MusicDataSet ClipSet { get; private set; } = AudioQueueDefinitions.PowerOnDataSet;
 
     /// <summary>The song playing, or null when stopped or after a song ended.</summary>
     internal MusicClipEntry? Song { get; private set; }
@@ -35,17 +44,23 @@ public sealed class ClipPlaybackState(BeatLength initialBeat)
     internal SongChangeAtBeat<SongChange> SongChange { get; } = new();
 
     /// <summary>The music's beat: how much of it has played, and how long it lasts while no song plays.</summary>
-    internal MusicBeat Beat { get; } = new(initialBeat);
+    internal MusicBeat Beat { get; }
 
     /// <summary>Records that playback has reached absolute frame <paramref name="sample"/>.</summary>
     internal void RenderedTo(long sample) => Sample = sample;
 
     /// <summary>Switching to <paramref name="clipSet"/>'s clips stops the song and drops the waiting song change.</summary>
-    internal void SwitchClipSet(MusicDataSet? clipSet)
+    internal void SwitchClipSet(MusicDataSet clipSet)
+    {
+        StopMusic();
+        ClipSet = clipSet;
+    }
+
+    /// <summary>Installing the shared sounds stops the song and drops the waiting song change; the songs asked for next are of the set loaded next.</summary>
+    internal void StopMusic()
     {
         StopSong();
         SongChange.Forget();
-        ClipSet = clipSet;
     }
 
     /// <summary>The song played to its end: the music keeps the song's last beat length and no song plays.</summary>

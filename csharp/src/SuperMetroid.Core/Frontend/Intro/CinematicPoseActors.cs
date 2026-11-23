@@ -4,7 +4,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Drawing the cinematic actors whose family shows pictures (#1392, #2197).</summary>
-internal static class CinematicPoseActors
+internal static partial class CinematicPoseActors
 {
     /// <summary>
     /// Draws <paramref name="actor"/>'s current picture from <paramref name="installedArt"/> at its screen place, wherever
@@ -17,7 +17,7 @@ internal static class CinematicPoseActors
         where TCue : notnull
     {
         Ensure.NotNull(installedArt);
-        if (Ensure.NotNull(actor).Drawing() is not { } drawing || drawing.Shown == CinematicSpritePose.Blank)
+        if (Ensure.NotNull(actor).Drawing() is not { } drawing)
             return;
         installedArt.Draw(drawing.Shown, screenSprites, drawing.Place, drawing.Colouring);
     }

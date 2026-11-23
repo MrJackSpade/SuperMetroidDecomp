@@ -2,528 +2,528 @@
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
-/// A scroll change, named for its room and what it does to the room's screens: the screens it closes to the
-/// camera, opens, and opens with the camera aligned to the screen's top, each as its column and row in the room. Regenerate
-/// with tools/generate-room-object-population-definitions.ps1.
+/// A scroll change: one of its room's, named for the room and numbered in storage order where the room has more than
+/// one (#2574). What it does to the room's screens is its definition's (RoomObjectScrollChangeDefinitions.Changes).
+/// Regenerate with tools/generate-room-object-population-definitions.ps1.
 /// </summary>
 internal enum RoomScrollChange
 {
-    /// <summary>In the LandingSite room, opens screen 1x2 with the camera aligned to the screen's top.</summary>
-    LandingSiteOpensScreen1x2TopAligned,
+    /// <summary>In the Landing Site room, opens screen 1x2 with the camera aligned to the screen's top.</summary>
+    LandingSite,
 
     /// <summary>In the Parlor room, opens screen 3x1.</summary>
-    ParlorOpensScreen3x1,
+    Parlor1,
 
     /// <summary>In the Parlor room, closes screen 3x1.</summary>
-    ParlorClosesScreen3x1,
+    Parlor2,
 
     /// <summary>In the Parlor room, closes screens 0x0 and 2x0; opens screen 1x1.</summary>
-    ParlorClosesScreens0x0And2x0OpensScreen1x1,
+    Parlor3,
 
     /// <summary>In the Parlor room, closes screen 1x1.</summary>
-    ParlorClosesScreen1x1,
+    Parlor4,
 
     /// <summary>In the Parlor room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    ParlorOpensScreen0x0TopAligned,
+    Parlor5,
 
     /// <summary>In the Parlor room, opens screen 2x0 with the camera aligned to the screen's top.</summary>
-    ParlorOpensScreen2x0TopAligned,
+    Parlor6,
 
     /// <summary>In the Parlor room, opens screen 4x0 with the camera aligned to the screen's top.</summary>
-    ParlorOpensScreen4x0TopAligned,
+    Parlor7,
 
     /// <summary>In the Parlor room, closes screen 4x0.</summary>
-    ParlorClosesScreen4x0,
+    Parlor8,
 
     /// <summary>In the Parlor room, closes screen 4x0; opens screen 3x1.</summary>
-    ParlorClosesScreen4x0OpensScreen3x1,
+    Parlor9,
 
-    /// <summary>In the CrateriaKihunter room, opens screens 1x0 and 1x1.</summary>
-    CrateriaKihunterOpensScreens1x0And1x1,
+    /// <summary>In the Crateria Kihunter room, opens screens 1x0 and 1x1.</summary>
+    CrateriaKihunter1,
 
-    /// <summary>In the CrateriaKihunter room, closes screen 1x1; opens screen 1x0 with the camera aligned to the screen's top.</summary>
-    CrateriaKihunterClosesScreen1x1OpensScreen1x0TopAligned,
+    /// <summary>In the Crateria Kihunter room, closes screen 1x1; opens screen 1x0 with the camera aligned to the screen's top.</summary>
+    CrateriaKihunter2,
 
-    /// <summary>In the ForgottenHighwayElevator room, opens screen 0x0.</summary>
-    ForgottenHighwayElevatorOpensScreen0x0,
+    /// <summary>In the Forgotten Highway Elevator room, opens screen 0x0.</summary>
+    ForgottenHighwayElevator,
 
-    /// <summary>In the RedBrinstarElevator room, opens screen 0x0.</summary>
-    RedBrinstarElevatorOpensScreen0x0,
+    /// <summary>In the Red Brinstar Elevator room, opens screen 0x0.</summary>
+    RedBrinstarElevator,
 
-    /// <summary>In the GauntletEnergyTank room, opens screen 4x0 with the camera aligned to the screen's top.</summary>
-    GauntletEnergyTankOpensScreen4x0TopAligned,
+    /// <summary>In the Gauntlet Energy Tank room, opens screen 4x0 with the camera aligned to the screen's top.</summary>
+    GauntletEnergyTank,
 
     /// <summary>In the Climb room, opens screen 2x0 with the camera aligned to the screen's top.</summary>
-    ClimbOpensScreen2x0TopAligned,
+    Climb1,
 
     /// <summary>In the Climb room, closes screen 2x0.</summary>
-    ClimbClosesScreen2x0,
+    Climb2,
 
     /// <summary>In the Climb room, opens screen 2x7 with the camera aligned to the screen's top.</summary>
-    ClimbOpensScreen2x7TopAligned,
+    Climb3,
 
     /// <summary>In the Climb room, closes screen 2x7.</summary>
-    ClimbClosesScreen2x7,
+    Climb4,
 
     /// <summary>In the Climb room, opens screen 0x8 with the camera aligned to the screen's top.</summary>
-    ClimbOpensScreen0x8TopAligned,
+    Climb5,
 
     /// <summary>In the Climb room, closes screen 0x8.</summary>
-    ClimbClosesScreen0x8,
+    Climb6,
 
     /// <summary>In the Climb room, opens screen 1x8 with the camera aligned to the screen's top.</summary>
-    ClimbOpensScreen1x8TopAligned,
+    Climb7,
 
     /// <summary>In the Climb room, closes screen 1x8.</summary>
-    ClimbClosesScreen1x8,
+    Climb8,
 
     /// <summary>In the Pit room, opens screens 0x0 and 0x1.</summary>
-    PitOpensScreens0x0And0x1,
+    Pit1,
 
     /// <summary>In the Pit room, closes screen 0x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    PitClosesScreen0x1OpensScreen0x0TopAligned,
+    Pit2,
 
-    /// <summary>In the ElevatorToBlueBrinstar room, opens screen 0x0.</summary>
-    ElevatorToBlueBrinstarOpensScreen0x0,
+    /// <summary>In the Elevator To Blue Brinstar room, opens screen 0x0.</summary>
+    ElevatorToBlueBrinstar,
 
-    /// <summary>In the GreenBrinstarElevator room, opens screen 0x0.</summary>
-    GreenBrinstarElevatorOpensScreen0x0,
+    /// <summary>In the Green Brinstar Elevator room, opens screen 0x0.</summary>
+    GreenBrinstarElevator,
 
-    /// <summary>In the GreenPiratesShaft room, opens screen 0x3.</summary>
-    GreenPiratesShaftOpensScreen0x3,
+    /// <summary>In the Green Pirates Shaft room, opens screen 0x3.</summary>
+    GreenPiratesShaft1,
 
-    /// <summary>In the GreenPiratesShaft room, closes screen 0x3.</summary>
-    GreenPiratesShaftClosesScreen0x3,
+    /// <summary>In the Green Pirates Shaft room, closes screen 0x3.</summary>
+    GreenPiratesShaft2,
 
-    /// <summary>In the GreenBrinstarMainShaft room, closes screen 1x7; opens screen 0x7.</summary>
-    GreenBrinstarMainShaftClosesScreen1x7OpensScreen0x7,
+    /// <summary>In the Green Brinstar Main Shaft room, closes screen 1x7; opens screen 0x7.</summary>
+    GreenBrinstarMainShaft1,
 
-    /// <summary>In the GreenBrinstarMainShaft room, closes screen 0x7; opens screens 1x7 and 1x10 with the camera aligned to the screen's top.</summary>
-    GreenBrinstarMainShaftClosesScreen0x7OpensScreens1x7And1x10TopAligned,
+    /// <summary>In the Green Brinstar Main Shaft room, closes screen 0x7; opens screens 1x7 and 1x10 with the camera aligned to the screen's top.</summary>
+    GreenBrinstarMainShaft2,
 
-    /// <summary>In the GreenBrinstarMainShaft room, closes screens 1x7 and 1x10; opens screens 0x6 and 0x7.</summary>
-    GreenBrinstarMainShaftClosesScreens1x7And1x10OpensScreens0x6And0x7,
+    /// <summary>In the Green Brinstar Main Shaft room, closes screens 1x7 and 1x10; opens screens 0x6 and 0x7.</summary>
+    GreenBrinstarMainShaft3,
 
-    /// <summary>In the SporeSpawnSuper room, opens screens 1x0 and 1x1.</summary>
-    SporeSpawnSuperOpensScreens1x0And1x1,
+    /// <summary>In the Spore Spawn Super room, opens screens 1x0 and 1x1.</summary>
+    SporeSpawnSuper,
 
-    /// <summary>In the EarlySupers room, opens screens 0x0 and 1x0 and 2x0.</summary>
-    EarlySupersOpensScreens0x0And1x0And2x0,
+    /// <summary>In the Early Supers room, opens screens 0x0 and 1x0 and 2x0.</summary>
+    EarlySupers1,
 
-    /// <summary>In the EarlySupers room, closes screens 0x0 and 1x0 and 2x0.</summary>
-    EarlySupersClosesScreens0x0And1x0And2x0,
+    /// <summary>In the Early Supers room, closes screens 0x0 and 1x0 and 2x0.</summary>
+    EarlySupers2,
 
-    /// <summary>In the BrinstarReserveTank room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
-    BrinstarReserveTankOpensScreen1x0TopAligned,
+    /// <summary>In the Brinstar Reserve Tank room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
+    BrinstarReserveTank,
 
     /// <summary>In the Dachora room, opens screen 4x1.</summary>
-    DachoraOpensScreen4x1,
+    Dachora1,
 
     /// <summary>In the Dachora room, closes screen 4x1; opens screen 4x0 with the camera aligned to the screen's top.</summary>
-    DachoraClosesScreen4x1OpensScreen4x0TopAligned,
+    Dachora2,
 
-    /// <summary>In the BigPink room, opens screens 2x6 and 2x7 and 3x7.</summary>
-    BigPinkOpensScreens2x6And2x7And3x7,
+    /// <summary>In the Big Pink room, opens screens 2x6 and 2x7 and 3x7.</summary>
+    BigPink1,
 
-    /// <summary>In the BigPink room, opens screen 1x7.</summary>
-    BigPinkOpensScreen1x7,
+    /// <summary>In the Big Pink room, opens screen 1x7.</summary>
+    BigPink2,
 
-    /// <summary>In the BigPink room, closes screen 4x5.</summary>
-    BigPinkClosesScreen4x5,
+    /// <summary>In the Big Pink room, closes screen 4x5.</summary>
+    BigPink3,
 
-    /// <summary>In the BigPink room, opens screens 3x5 and 4x5 with the camera aligned to the screen's top.</summary>
-    BigPinkOpensScreens3x5And4x5TopAligned,
+    /// <summary>In the Big Pink room, opens screens 3x5 and 4x5 with the camera aligned to the screen's top.</summary>
+    BigPink4,
 
-    /// <summary>In the BigPink room, opens screen 1x0.</summary>
-    BigPinkOpensScreen1x0,
+    /// <summary>In the Big Pink room, opens screen 1x0.</summary>
+    BigPink5,
 
-    /// <summary>In the BigPink room, closes screen 1x0.</summary>
-    BigPinkClosesScreen1x0,
+    /// <summary>In the Big Pink room, closes screen 1x0.</summary>
+    BigPink6,
 
-    /// <summary>In the PinkBrinstarPowerBombs room, closes screen 1x0; opens screen 0x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
-    PinkBrinstarPowerBombsClosesScreen1x0OpensScreen0x0OpensScreens0x1And1x1TopAligned,
+    /// <summary>In the Pink Brinstar Power Bombs room, closes screen 1x0; opens screen 0x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
+    PinkBrinstarPowerBombs1,
 
-    /// <summary>In the PinkBrinstarPowerBombs room, closes screens 0x1 and 1x1; opens screens 0x0 and 1x0 with the camera aligned to the screen's top.</summary>
-    PinkBrinstarPowerBombsClosesScreens0x1And1x1OpensScreens0x0And1x0TopAligned,
+    /// <summary>In the Pink Brinstar Power Bombs room, closes screens 0x1 and 1x1; opens screens 0x0 and 1x0 with the camera aligned to the screen's top.</summary>
+    PinkBrinstarPowerBombs2,
 
-    /// <summary>In the MorphBall room, opens screen 2x2 with the camera aligned to the screen's top.</summary>
-    MorphBallOpensScreen2x2TopAligned,
+    /// <summary>In the Morph Ball room, opens screen 2x2 with the camera aligned to the screen's top.</summary>
+    MorphBall1,
 
-    /// <summary>In the MorphBall room, closes screen 2x2.</summary>
-    MorphBallClosesScreen2x2,
+    /// <summary>In the Morph Ball room, closes screen 2x2.</summary>
+    MorphBall2,
 
-    /// <summary>In the MorphBall room, opens screen 5x1.</summary>
-    MorphBallOpensScreen5x1,
+    /// <summary>In the Morph Ball room, opens screen 5x1.</summary>
+    MorphBall3,
 
-    /// <summary>In the MorphBall room, closes screen 5x1.</summary>
-    MorphBallClosesScreen5x1,
+    /// <summary>In the Morph Ball room, closes screen 5x1.</summary>
+    MorphBall4,
 
-    /// <summary>In the ConstructionZone room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    ConstructionZoneOpensScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the Construction Zone room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    ConstructionZone,
 
-    /// <summary>In the BlueBrinstarEnergyTank room, opens screen 2x1.</summary>
-    BlueBrinstarEnergyTankOpensScreen2x1,
+    /// <summary>In the Blue Brinstar Energy Tank room, opens screen 2x1.</summary>
+    BlueBrinstarEnergyTank,
 
-    /// <summary>In the EtecoonEnergyTank room, opens screen 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
-    EtecoonEnergyTankOpensScreen1x0OpensScreens0x1And1x1TopAligned,
+    /// <summary>In the Etecoon Energy Tank room, opens screen 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
+    EtecoonEnergyTank,
 
-    /// <summary>In the WaterwayEnergyTank room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    WaterwayEnergyTankOpensScreen0x0TopAligned,
+    /// <summary>In the Waterway Energy Tank room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    WaterwayEnergyTank,
 
-    /// <summary>In the RedTower room, opens screens 0x6 and 0x7.</summary>
-    RedTowerOpensScreens0x6And0x7,
+    /// <summary>In the Red Tower room, opens screens 0x6 and 0x7.</summary>
+    RedTower,
 
     /// <summary>In the Caterpillar room, opens screens 0x5 and 0x6.</summary>
-    CaterpillarOpensScreens0x5And0x6,
+    Caterpillar1,
 
     /// <summary>In the Caterpillar room, opens screen 0x3; opens screen 1x3 with the camera aligned to the screen's top.</summary>
-    CaterpillarOpensScreen0x3OpensScreen1x3TopAligned,
+    Caterpillar2,
 
     /// <summary>In the Caterpillar room, closes screen 1x3.</summary>
-    CaterpillarClosesScreen1x3,
+    Caterpillar3,
 
-    /// <summary>In the BetaPowerBomb room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    BetaPowerBombOpensScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the Beta Power Bomb room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    BetaPowerBomb,
 
-    /// <summary>In the AlphaPowerBomb room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    AlphaPowerBombOpensScreen0x0TopAligned,
+    /// <summary>In the Alpha Power Bomb room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    AlphaPowerBomb,
 
-    /// <summary>In the BelowSpazer room, opens screens 0x0 and 1x0.</summary>
-    BelowSpazerOpensScreens0x0And1x0,
+    /// <summary>In the Below Spazer room, opens screens 0x0 and 1x0.</summary>
+    BelowSpazer1,
 
-    /// <summary>In the BelowSpazer room, closes screens 0x0 and 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
-    BelowSpazerClosesScreens0x0And1x0OpensScreens0x1And1x1TopAligned,
+    /// <summary>In the Below Spazer room, closes screens 0x0 and 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
+    BelowSpazer2,
 
-    /// <summary>In the WarehouseZeela room, closes screen 1x1; opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    WarehouseZeelaClosesScreen1x1OpensScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the Warehouse Zeela room, closes screen 1x1; opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    WarehouseZeela1,
 
-    /// <summary>In the WarehouseZeela room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    WarehouseZeelaOpensScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the Warehouse Zeela room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    WarehouseZeela2,
 
-    /// <summary>In the WarehouseZeela room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
-    WarehouseZeelaOpensScreen1x1TopAligned,
+    /// <summary>In the Warehouse Zeela room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
+    WarehouseZeela3,
 
-    /// <summary>In the WarehouseKihunter room, closes screen 1x1; opens screen 1x0 with the camera aligned to the screen's top.</summary>
-    WarehouseKihunterClosesScreen1x1OpensScreen1x0TopAligned,
+    /// <summary>In the Warehouse Kihunter room, closes screen 1x1; opens screen 1x0 with the camera aligned to the screen's top.</summary>
+    WarehouseKihunter1,
 
-    /// <summary>In the WarehouseKihunter room, opens screen 1x0; opens screen 1x1 with the camera aligned to the screen's top.</summary>
-    WarehouseKihunterOpensScreen1x0OpensScreen1x1TopAligned,
+    /// <summary>In the Warehouse Kihunter room, opens screen 1x0; opens screen 1x1 with the camera aligned to the screen's top.</summary>
+    WarehouseKihunter2,
 
-    /// <summary>In the WarehouseKihunter room, closes screen 1x1.</summary>
-    WarehouseKihunterClosesScreen1x1,
+    /// <summary>In the Warehouse Kihunter room, closes screen 1x1.</summary>
+    WarehouseKihunter3,
 
-    /// <summary>In the WarehouseKihunter room, closes screen 1x1; opens screen 3x0 with the camera aligned to the screen's top.</summary>
-    WarehouseKihunterClosesScreen1x1OpensScreen3x0TopAligned,
+    /// <summary>In the Warehouse Kihunter room, closes screen 1x1; opens screen 3x0 with the camera aligned to the screen's top.</summary>
+    WarehouseKihunter4,
 
-    /// <summary>In the KraidEyeDoor room, opens screen 0x0.</summary>
-    KraidEyeDoorOpensScreen0x0,
+    /// <summary>In the Kraid Eye Door room, opens screen 0x0.</summary>
+    KraidEyeDoor,
 
-    /// <summary>In the WarehouseEntrance room, opens screen 0x0.</summary>
-    WarehouseEntranceOpensScreen0x0,
+    /// <summary>In the Warehouse Entrance room, opens screen 0x0.</summary>
+    WarehouseEntrance1,
 
-    /// <summary>In the WarehouseEntrance room, opens screen 1x0.</summary>
-    WarehouseEntranceOpensScreen1x0,
+    /// <summary>In the Warehouse Entrance room, opens screen 1x0.</summary>
+    WarehouseEntrance2,
 
-    /// <summary>In the WarehouseEntrance room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    WarehouseEntranceOpensScreen0x0TopAligned,
+    /// <summary>In the Warehouse Entrance room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    WarehouseEntrance3,
 
-    /// <summary>In the WarehouseEntrance room, closes screen 0x0.</summary>
-    WarehouseEntranceClosesScreen0x0,
+    /// <summary>In the Warehouse Entrance room, closes screen 0x0.</summary>
+    WarehouseEntrance4,
 
-    /// <summary>In the IceBeamGate room, opens screen 3x2; opens screen 3x3 with the camera aligned to the screen's top.</summary>
-    IceBeamGateOpensScreen3x2OpensScreen3x3TopAligned,
+    /// <summary>In the Ice Beam Gate room, opens screen 3x2; opens screen 3x3 with the camera aligned to the screen's top.</summary>
+    IceBeamGate,
 
-    /// <summary>In the IceBeamSnake room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
-    IceBeamSnakeOpensScreen1x1TopAligned,
+    /// <summary>In the Ice Beam Snake room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
+    IceBeamSnake1,
 
-    /// <summary>In the IceBeamSnake room, closes screen 1x1.</summary>
-    IceBeamSnakeClosesScreen1x1,
+    /// <summary>In the Ice Beam Snake room, closes screen 1x1.</summary>
+    IceBeamSnake2,
 
-    /// <summary>In the IceBeamSnake room, opens screen 0x1.</summary>
-    IceBeamSnakeOpensScreen0x1,
+    /// <summary>In the Ice Beam Snake room, opens screen 0x1.</summary>
+    IceBeamSnake3,
 
-    /// <summary>In the IceBeamSnake room, closes screen 0x1.</summary>
-    IceBeamSnakeClosesScreen0x1,
+    /// <summary>In the Ice Beam Snake room, closes screen 0x1.</summary>
+    IceBeamSnake4,
 
-    /// <summary>In the CrocomireSpeedway room, opens screens 12x1 and 11x2 and 12x2.</summary>
-    CrocomireSpeedwayOpensScreens12x1And11x2And12x2,
+    /// <summary>In the Crocomire Speedway room, opens screens 12x1 and 11x2 and 12x2.</summary>
+    CrocomireSpeedway1,
 
-    /// <summary>In the CrocomireSpeedway room, opens screen 11x2.</summary>
-    CrocomireSpeedwayOpensScreen11x2,
+    /// <summary>In the Crocomire Speedway room, opens screen 11x2.</summary>
+    CrocomireSpeedway2,
 
-    /// <summary>In the CrocomireSpeedway room, closes screen 11x2.</summary>
-    CrocomireSpeedwayClosesScreen11x2,
+    /// <summary>In the Crocomire Speedway room, closes screen 11x2.</summary>
+    CrocomireSpeedway3,
 
-    /// <summary>In the HiJumpEnergyTank room, opens screens 0x0 and 0x1.</summary>
-    HiJumpEnergyTankOpensScreens0x0And0x1,
+    /// <summary>In the Hi Jump Energy Tank room, opens screens 0x0 and 0x1.</summary>
+    HiJumpEnergyTank1,
 
-    /// <summary>In the HiJumpEnergyTank room, opens screens 0x0 and 0x1 and 1x1.</summary>
-    HiJumpEnergyTankOpensScreens0x0And0x1And1x1,
+    /// <summary>In the Hi Jump Energy Tank room, opens screens 0x0 and 0x1 and 1x1.</summary>
+    HiJumpEnergyTank2,
 
-    /// <summary>In the HiJumpEnergyTank room, closes screen 1x1.</summary>
-    HiJumpEnergyTankClosesScreen1x1,
+    /// <summary>In the Hi Jump Energy Tank room, closes screen 1x1.</summary>
+    HiJumpEnergyTank3,
 
-    /// <summary>In the HiJumpEnergyTank room, opens screen 1x1.</summary>
-    HiJumpEnergyTankOpensScreen1x1,
+    /// <summary>In the Hi Jump Energy Tank room, opens screen 1x1.</summary>
+    HiJumpEnergyTank4,
 
-    /// <summary>In the GreenBubblesMissiles room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    GreenBubblesMissilesOpensScreen0x0TopAligned,
+    /// <summary>In the Green Bubbles Missiles room, opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    GreenBubblesMissiles,
 
-    /// <summary>In the SingleChamber room, closes screen 1x0.</summary>
-    SingleChamberClosesScreen1x0,
+    /// <summary>In the Single Chamber room, closes screen 1x0.</summary>
+    SingleChamber1,
 
-    /// <summary>In the SingleChamber room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
-    SingleChamberOpensScreen1x0TopAligned,
+    /// <summary>In the Single Chamber room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
+    SingleChamber2,
 
     /// <summary>In the Volcano room, opens screens 0x2 and 1x2 with the camera aligned to the screen's top.</summary>
-    VolcanoOpensScreens0x2And1x2TopAligned,
+    Volcano1,
 
     /// <summary>In the Volcano room, opens screen 2x2 with the camera aligned to the screen's top.</summary>
-    VolcanoOpensScreen2x2TopAligned,
+    Volcano2,
 
     /// <summary>In the Volcano room, closes screen 2x2.</summary>
-    VolcanoClosesScreen2x2,
+    Volcano3,
 
     /// <summary>In the Volcano room, closes screen 1x2.</summary>
-    VolcanoClosesScreen1x2,
+    Volcano4,
 
-    /// <summary>In the KronicBoost room, opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    KronicBoostOpensScreen0x1TopAligned,
+    /// <summary>In the Kronic Boost room, opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    KronicBoost1,
 
-    /// <summary>In the KronicBoost room, closes screen 0x1; opens screen 1x1.</summary>
-    KronicBoostClosesScreen0x1OpensScreen1x1,
+    /// <summary>In the Kronic Boost room, closes screen 0x1; opens screen 1x1.</summary>
+    KronicBoost2,
 
-    /// <summary>In the KronicBoost room, closes screen 1x1.</summary>
-    KronicBoostClosesScreen1x1,
+    /// <summary>In the Kronic Boost room, closes screen 1x1.</summary>
+    KronicBoost3,
 
-    /// <summary>In the PurpleShaft room, opens screens 0x0 and 0x1.</summary>
-    PurpleShaftOpensScreens0x0And0x1,
+    /// <summary>In the Purple Shaft room, opens screens 0x0 and 0x1.</summary>
+    PurpleShaft,
 
-    /// <summary>In the LowerNorfairElevator room, opens screen 0x0.</summary>
-    LowerNorfairElevatorOpensScreen0x0,
+    /// <summary>In the Lower Norfair Elevator room, opens screen 0x0.</summary>
+    LowerNorfairElevator,
 
-    /// <summary>In the BatCave room, opens screens 0x0 and 0x1.</summary>
-    BatCaveOpensScreens0x0And0x1,
+    /// <summary>In the Bat Cave room, opens screens 0x0 and 0x1.</summary>
+    BatCave1,
 
-    /// <summary>In the BatCave room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    BatCaveOpensScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the Bat Cave room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    BatCave2,
 
-    /// <summary>In the BatCave room, closes screen 0x0.</summary>
-    BatCaveClosesScreen0x0,
+    /// <summary>In the Bat Cave room, closes screen 0x0.</summary>
+    BatCave3,
 
-    /// <summary>In the AcidStatue room, opens screens 0x1 and 1x1 and 0x2 and 1x2.</summary>
-    AcidStatueOpensScreens0x1And1x1And0x2And1x2,
+    /// <summary>In the Acid Statue room, opens screens 0x1 and 1x1 and 0x2 and 1x2.</summary>
+    AcidStatue1,
 
-    /// <summary>In the AcidStatue room, closes screen 1x1; opens screens 0x2 and 1x2 and 2x2 with the camera aligned to the screen's top.</summary>
-    AcidStatueClosesScreen1x1OpensScreens0x2And1x2And2x2TopAligned,
+    /// <summary>In the Acid Statue room, closes screen 1x1; opens screens 0x2 and 1x2 and 2x2 with the camera aligned to the screen's top.</summary>
+    AcidStatue2,
 
-    /// <summary>In the MainHall room, opens screen 4x1.</summary>
-    MainHallOpensScreen4x1,
+    /// <summary>In the Main Hall room, opens screen 4x1.</summary>
+    MainHall1,
 
-    /// <summary>In the MainHall room, closes screen 4x1.</summary>
-    MainHallClosesScreen4x1,
+    /// <summary>In the Main Hall room, closes screen 4x1.</summary>
+    MainHall2,
 
-    /// <summary>In the GoldenTorizo room, opens screens 0x0 and 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
-    GoldenTorizoOpensScreens0x0And1x0OpensScreens0x1And1x1TopAligned,
+    /// <summary>In the Golden Torizo room, opens screens 0x0 and 1x0; opens screens 0x1 and 1x1 with the camera aligned to the screen's top.</summary>
+    GoldenTorizo,
 
-    /// <summary>In the FastPillarsSetup room, opens screen 0x1.</summary>
-    FastPillarsSetupOpensScreen0x1,
+    /// <summary>In the Fast Pillars Setup room, opens screen 0x1.</summary>
+    FastPillarsSetup1,
 
-    /// <summary>In the FastPillarsSetup room, opens screen 0x1; opens screen 0x2 with the camera aligned to the screen's top.</summary>
-    FastPillarsSetupOpensScreen0x1OpensScreen0x2TopAligned,
+    /// <summary>In the Fast Pillars Setup room, opens screen 0x1; opens screen 0x2 with the camera aligned to the screen's top.</summary>
+    FastPillarsSetup2,
 
-    /// <summary>In the MickeyMouse room, opens screen 2x1 with the camera aligned to the screen's top.</summary>
-    MickeyMouseOpensScreen2x1TopAligned,
+    /// <summary>In the Mickey Mouse room, opens screen 2x1 with the camera aligned to the screen's top.</summary>
+    MickeyMouse1,
 
-    /// <summary>In the MickeyMouse room, closes screen 2x1.</summary>
-    MickeyMouseClosesScreen2x1,
+    /// <summary>In the Mickey Mouse room, closes screen 2x1.</summary>
+    MickeyMouse2,
 
-    /// <summary>In the MickeyMouse room, opens screen 3x1 with the camera aligned to the screen's top.</summary>
-    MickeyMouseOpensScreen3x1TopAligned,
+    /// <summary>In the Mickey Mouse room, opens screen 3x1 with the camera aligned to the screen's top.</summary>
+    MickeyMouse3,
 
-    /// <summary>In the MickeyMouse room, closes screen 3x1.</summary>
-    MickeyMouseClosesScreen3x1,
+    /// <summary>In the Mickey Mouse room, closes screen 3x1.</summary>
+    MickeyMouse4,
 
-    /// <summary>In the MickeyMouse room, opens screen 2x3 with the camera aligned to the screen's top.</summary>
-    MickeyMouseOpensScreen2x3TopAligned,
+    /// <summary>In the Mickey Mouse room, opens screen 2x3 with the camera aligned to the screen's top.</summary>
+    MickeyMouse5,
 
-    /// <summary>In the MickeyMouse room, closes screen 2x3.</summary>
-    MickeyMouseClosesScreen2x3,
+    /// <summary>In the Mickey Mouse room, closes screen 2x3.</summary>
+    MickeyMouse6,
 
-    /// <summary>In the WorstRoomInTheGame room, opens screens 0x0 and 0x1.</summary>
-    WorstRoomInTheGameOpensScreens0x0And0x1,
+    /// <summary>In the Worst Room In The Game room, opens screens 0x0 and 0x1.</summary>
+    WorstRoomInTheGame,
 
-    /// <summary>In the LowerNorfairSpringBallMaze room, closes screen 1x1; opens screens 1x0 and 2x0 with the camera aligned to the screen's top.</summary>
-    LowerNorfairSpringBallMazeClosesScreen1x1OpensScreens1x0And2x0TopAligned,
+    /// <summary>In the Lower Norfair Spring Ball Maze room, closes screen 1x1; opens screens 1x0 and 2x0 with the camera aligned to the screen's top.</summary>
+    LowerNorfairSpringBallMaze1,
 
-    /// <summary>In the LowerNorfairSpringBallMaze room, closes screens 1x0 and 2x0; opens screen 1x1 with the camera aligned to the screen's top.</summary>
-    LowerNorfairSpringBallMazeClosesScreens1x0And2x0OpensScreen1x1TopAligned,
+    /// <summary>In the Lower Norfair Spring Ball Maze room, closes screens 1x0 and 2x0; opens screen 1x1 with the camera aligned to the screen's top.</summary>
+    LowerNorfairSpringBallMaze2,
 
-    /// <summary>In the LowerNorfairSpringBallMaze room, opens screen 4x0; opens screen 3x0 with the camera aligned to the screen's top.</summary>
-    LowerNorfairSpringBallMazeOpensScreen4x0OpensScreen3x0TopAligned,
+    /// <summary>In the Lower Norfair Spring Ball Maze room, opens screen 4x0; opens screen 3x0 with the camera aligned to the screen's top.</summary>
+    LowerNorfairSpringBallMaze3,
 
-    /// <summary>In the RedKihunterShaft room, opens screens 1x3 and 1x4.</summary>
-    RedKihunterShaftOpensScreens1x3And1x4,
+    /// <summary>In the Red Kihunter Shaft room, opens screens 1x3 and 1x4.</summary>
+    RedKihunterShaft1,
 
-    /// <summary>In the RedKihunterShaft room, closes screens 1x3 and 1x4.</summary>
-    RedKihunterShaftClosesScreens1x3And1x4,
+    /// <summary>In the Red Kihunter Shaft room, closes screens 1x3 and 1x4.</summary>
+    RedKihunterShaft2,
 
-    /// <summary>In the RedKihunterShaft room, opens screens 0x0 and 0x1.</summary>
-    RedKihunterShaftOpensScreens0x0And0x1,
+    /// <summary>In the Red Kihunter Shaft room, opens screens 0x0 and 0x1.</summary>
+    RedKihunterShaft3,
 
-    /// <summary>In the RedKihunterShaft room, opens screen 0x0.</summary>
-    RedKihunterShaftOpensScreen0x0,
+    /// <summary>In the Red Kihunter Shaft room, opens screen 0x0.</summary>
+    RedKihunterShaft4,
 
     /// <summary>In the Wasteland room, opens screen 1x1.</summary>
-    WastelandOpensScreen1x1,
+    Wasteland1,
 
     /// <summary>In the Wasteland room, closes screen 1x1; opens screen 1x0 with the camera aligned to the screen's top.</summary>
-    WastelandClosesScreen1x1OpensScreen1x0TopAligned,
+    Wasteland2,
 
     /// <summary>In the Wasteland room, opens screen 4x0 with the camera aligned to the screen's top.</summary>
-    WastelandOpensScreen4x0TopAligned,
+    Wasteland3,
 
     /// <summary>In the Wasteland room, opens screens 0x0 and 1x0 with the camera aligned to the screen's top.</summary>
-    WastelandOpensScreens0x0And1x0TopAligned,
+    Wasteland4,
 
     /// <summary>In the Wasteland room, closes screen 4x0.</summary>
-    WastelandClosesScreen4x0,
+    Wasteland5,
 
     /// <summary>In the Wasteland room, closes screen 0x0.</summary>
-    WastelandClosesScreen0x0,
+    Wasteland6,
 
     /// <summary>In the Wasteland room, closes screen 1x0.</summary>
-    WastelandClosesScreen1x0,
+    Wasteland7,
 
-    /// <summary>In the ThreeMusketeers room, closes screen 1x2.</summary>
-    ThreeMusketeersClosesScreen1x2,
+    /// <summary>In the Three Musketeers room, closes screen 1x2.</summary>
+    ThreeMusketeers1,
 
-    /// <summary>In the ThreeMusketeers room, opens screens 0x2 and 1x2 with the camera aligned to the screen's top.</summary>
-    ThreeMusketeersOpensScreens0x2And1x2TopAligned,
+    /// <summary>In the Three Musketeers room, opens screens 0x2 and 1x2 with the camera aligned to the screen's top.</summary>
+    ThreeMusketeers2,
 
-    /// <summary>In the ThreeMusketeers room, closes screen 0x2.</summary>
-    ThreeMusketeersClosesScreen0x2,
+    /// <summary>In the Three Musketeers room, closes screen 0x2.</summary>
+    ThreeMusketeers3,
 
-    /// <summary>In the LowerNorfairFireflea room, opens screen 2x3 with the camera aligned to the screen's top.</summary>
-    LowerNorfairFirefleaOpensScreen2x3TopAligned,
+    /// <summary>In the Lower Norfair Fireflea room, opens screen 2x3 with the camera aligned to the screen's top.</summary>
+    LowerNorfairFireflea1,
 
-    /// <summary>In the LowerNorfairFireflea room, opens screens 2x3 and 1x4 and 2x4.</summary>
-    LowerNorfairFirefleaOpensScreens2x3And1x4And2x4,
+    /// <summary>In the Lower Norfair Fireflea room, opens screens 2x3 and 1x4 and 2x4.</summary>
+    LowerNorfairFireflea2,
 
-    /// <summary>In the LowerNorfairFireflea room, closes screen 1x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    LowerNorfairFirefleaClosesScreen1x1OpensScreen0x0TopAligned,
+    /// <summary>In the Lower Norfair Fireflea room, closes screen 1x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    LowerNorfairFireflea3,
 
-    /// <summary>In the LowerNorfairFireflea room, opens screens 1x0 and 1x1.</summary>
-    LowerNorfairFirefleaOpensScreens1x0And1x1,
+    /// <summary>In the Lower Norfair Fireflea room, opens screens 1x0 and 1x1.</summary>
+    LowerNorfairFireflea4,
 
-    /// <summary>In the BowlingAlley room, opens screens 2x2 and 3x2 with the camera aligned to the screen's top.</summary>
-    BowlingAlleyOpensScreens2x2And3x2TopAligned,
+    /// <summary>In the Bowling Alley room, opens screens 2x2 and 3x2 with the camera aligned to the screen's top.</summary>
+    BowlingAlley1,
 
-    /// <summary>In the BowlingAlley room, closes screen 4x0; opens screens 5x0 and 5x1; opens screens 4x2 and 5x2 with the camera aligned to the screen's top.</summary>
-    BowlingAlleyClosesScreen4x0OpensScreens5x0And5x1OpensScreens4x2And5x2TopAligned,
+    /// <summary>In the Bowling Alley room, closes screen 4x0; opens screens 5x0 and 5x1; opens screens 4x2 and 5x2 with the camera aligned to the screen's top.</summary>
+    BowlingAlley2,
 
-    /// <summary>In the WreckedShipMainShaft room, opens screen 3x5 with the camera aligned to the screen's top.</summary>
-    WreckedShipMainShaftOpensScreen3x5TopAligned,
+    /// <summary>In the Wrecked Ship Main Shaft room, opens screen 3x5 with the camera aligned to the screen's top.</summary>
+    WreckedShipMainShaft1,
 
-    /// <summary>In the WreckedShipMainShaft room, opens screen 5x6 with the camera aligned to the screen's top.</summary>
-    WreckedShipMainShaftOpensScreen5x6TopAligned,
+    /// <summary>In the Wrecked Ship Main Shaft room, opens screen 5x6 with the camera aligned to the screen's top.</summary>
+    WreckedShipMainShaft2,
 
-    /// <summary>In the WreckedShipMainShaft room, closes screen 3x5.</summary>
-    WreckedShipMainShaftClosesScreen3x5,
+    /// <summary>In the Wrecked Ship Main Shaft room, closes screen 3x5.</summary>
+    WreckedShipMainShaft3,
 
-    /// <summary>In the WreckedShipMainShaft room, closes screen 5x6.</summary>
-    WreckedShipMainShaftClosesScreen5x6,
+    /// <summary>In the Wrecked Ship Main Shaft room, closes screen 5x6.</summary>
+    WreckedShipMainShaft4,
 
-    /// <summary>In the WreckedShipMainShaft room, opens screens 4x6 and 4x7.</summary>
-    WreckedShipMainShaftOpensScreens4x6And4x7,
+    /// <summary>In the Wrecked Ship Main Shaft room, opens screens 4x6 and 4x7.</summary>
+    WreckedShipMainShaft5,
 
-    /// <summary>In the ElectricDeath room, opens screen 0x0.</summary>
-    ElectricDeathOpensScreen0x0,
+    /// <summary>In the Electric Death room, opens screen 0x0.</summary>
+    ElectricDeath,
 
     /// <summary>In the Basement room, opens screens 3x0 and 4x0 with the camera aligned to the screen's top.</summary>
-    BasementOpensScreens3x0And4x0TopAligned,
+    Basement1,
 
     /// <summary>In the Basement room, closes screen 3x0.</summary>
-    BasementClosesScreen3x0,
+    Basement2,
 
-    /// <summary>In the WreckedShipEastSuper room, opens screen 3x0 with the camera aligned to the screen's top.</summary>
-    WreckedShipEastSuperOpensScreen3x0TopAligned,
+    /// <summary>In the Wrecked Ship East Super room, opens screen 3x0 with the camera aligned to the screen's top.</summary>
+    WreckedShipEastSuper,
 
-    /// <summary>In the GlassTunnel room, opens screen 0x0.</summary>
-    GlassTunnelOpensScreen0x0,
+    /// <summary>In the Glass Tunnel room, opens screen 0x0.</summary>
+    GlassTunnel1,
 
-    /// <summary>In the GlassTunnel room, opens screens 0x1 and 0x2.</summary>
-    GlassTunnelOpensScreens0x1And0x2,
+    /// <summary>In the Glass Tunnel room, opens screens 0x1 and 0x2.</summary>
+    GlassTunnel2,
 
-    /// <summary>In the EastTunnel room, closes screens 1x0 and 0x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
-    EastTunnelClosesScreens1x0And0x1OpensScreen0x0TopAligned,
+    /// <summary>In the East Tunnel room, closes screens 1x0 and 0x1; opens screen 0x0 with the camera aligned to the screen's top.</summary>
+    EastTunnel1,
 
-    /// <summary>In the EastTunnel room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    EastTunnelOpensScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the East Tunnel room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    EastTunnel2,
 
-    /// <summary>In the EastTunnel room, closes screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    EastTunnelClosesScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the East Tunnel room, closes screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    EastTunnel3,
 
-    /// <summary>In the EastTunnel room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
-    EastTunnelOpensScreen1x0TopAligned,
+    /// <summary>In the East Tunnel room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
+    EastTunnel4,
 
-    /// <summary>In the MainStreet room, closes screen 1x3; opens screen 1x2 with the camera aligned to the screen's top.</summary>
-    MainStreetClosesScreen1x3OpensScreen1x2TopAligned,
+    /// <summary>In the Main Street room, closes screen 1x3; opens screen 1x2 with the camera aligned to the screen's top.</summary>
+    MainStreet,
 
-    /// <summary>In the FishTank room, opens screen 2x2.</summary>
-    FishTankOpensScreen2x2,
+    /// <summary>In the Fish Tank room, opens screen 2x2.</summary>
+    FishTank,
 
-    /// <summary>In the RedFish room, opens screen 2x0.</summary>
-    RedFishOpensScreen2x0,
+    /// <summary>In the Red Fish room, opens screen 2x0.</summary>
+    RedFish1,
 
-    /// <summary>In the RedFish room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
-    RedFishOpensScreen1x0TopAligned,
+    /// <summary>In the Red Fish room, opens screen 1x0 with the camera aligned to the screen's top.</summary>
+    RedFish2,
 
-    /// <summary>In the WateringHole room, opens screen 0x2 with the camera aligned to the screen's top.</summary>
-    WateringHoleOpensScreen0x2TopAligned,
+    /// <summary>In the Watering Hole room, opens screen 0x2 with the camera aligned to the screen's top.</summary>
+    WateringHole,
 
-    /// <summary>In the NorthwestMaridiaBug room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
-    NorthwestMaridiaBugOpensScreen1x1TopAligned,
+    /// <summary>In the Northwest Maridia Bug room, opens screen 1x1 with the camera aligned to the screen's top.</summary>
+    NorthwestMaridiaBug,
 
-    /// <summary>In the CrabShaft room, opens screen 0x2; opens screen 0x3 with the camera aligned to the screen's top.</summary>
-    CrabShaftOpensScreen0x2OpensScreen0x3TopAligned,
+    /// <summary>In the Crab Shaft room, opens screen 0x2; opens screen 0x3 with the camera aligned to the screen's top.</summary>
+    CrabShaft,
 
-    /// <summary>In the PseudoPlasmaSpark room, opens screen 2x2.</summary>
-    PseudoPlasmaSparkOpensScreen2x2,
+    /// <summary>In the Pseudo Plasma Spark room, opens screen 2x2.</summary>
+    PseudoPlasmaSpark1,
 
-    /// <summary>In the PseudoPlasmaSpark room, closes screen 2x2.</summary>
-    PseudoPlasmaSparkClosesScreen2x2,
+    /// <summary>In the Pseudo Plasma Spark room, closes screen 2x2.</summary>
+    PseudoPlasmaSpark2,
 
-    /// <summary>In the CrabHole room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    CrabHoleOpensScreen0x0OpensScreen0x1TopAligned,
+    /// <summary>In the Crab Hole room, opens screen 0x0; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    CrabHole,
 
     /// <summary>In the Oasis room, opens screens 0x0 and 0x1.</summary>
-    OasisOpensScreens0x0And0x1,
+    Oasis,
 
     /// <summary>In the Pants room, closes screens 1x1 and 1x2 and 1x3; opens screens 0x1 and 0x2; opens screen 0x3 with the camera aligned to the screen's top.</summary>
-    PantsClosesScreens1x1And1x2And1x3OpensScreens0x1And0x2OpensScreen0x3TopAligned,
+    Pants1,
 
     /// <summary>In the Pants room, closes screens 0x1 and 0x2 and 0x3; opens screen 1x1; opens screen 1x2 with the camera aligned to the screen's top.</summary>
-    PantsClosesScreens0x1And0x2And0x3OpensScreen1x1OpensScreen1x2TopAligned,
+    Pants2,
 
     /// <summary>In the Pants room, opens screen 1x2; opens screen 1x3 with the camera aligned to the screen's top.</summary>
-    PantsOpensScreen1x2OpensScreen1x3TopAligned,
+    Pants3,
 
-    /// <summary>In the EastPants room, opens screen 0x1.</summary>
-    EastPantsOpensScreen0x1,
+    /// <summary>In the East Pants room, opens screen 0x1.</summary>
+    EastPants1,
 
-    /// <summary>In the EastPants room, opens screen 0x1; opens screen 0x2 with the camera aligned to the screen's top.</summary>
-    EastPantsOpensScreen0x1OpensScreen0x2TopAligned,
+    /// <summary>In the East Pants room, opens screen 0x1; opens screen 0x2 with the camera aligned to the screen's top.</summary>
+    EastPants2,
 
-    /// <summary>In the ThePrecious room, opens screens 0x0 and 0x1.</summary>
-    ThePreciousOpensScreens0x0And0x1,
+    /// <summary>In the Precious room, opens screens 0x0 and 0x1.</summary>
+    ThePrecious,
 
-    /// <summary>In the HalfieClimb room, closes screen 0x1; opens screen 1x2 with the camera aligned to the screen's top.</summary>
-    HalfieClimbClosesScreen0x1OpensScreen1x2TopAligned,
+    /// <summary>In the Halfie Climb room, closes screen 0x1; opens screen 1x2 with the camera aligned to the screen's top.</summary>
+    HalfieClimb1,
 
-    /// <summary>In the HalfieClimb room, closes screen 1x2; opens screen 0x1 with the camera aligned to the screen's top.</summary>
-    HalfieClimbClosesScreen1x2OpensScreen0x1TopAligned,
+    /// <summary>In the Halfie Climb room, closes screen 1x2; opens screen 0x1 with the camera aligned to the screen's top.</summary>
+    HalfieClimb2,
 
-    /// <summary>In the HalfieClimb room, opens screen 0x2 with the camera aligned to the screen's top.</summary>
-    HalfieClimbOpensScreen0x2TopAligned,
+    /// <summary>In the Halfie Climb room, opens screen 0x2 with the camera aligned to the screen's top.</summary>
+    HalfieClimb3,
 }

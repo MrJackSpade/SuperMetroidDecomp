@@ -9,14 +9,13 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// the Baby Metroid. The import pipeline's private knowledge of the cartridge, decoded once into the installed colour
 /// documents and definitions.
 /// </summary>
-[EncodingOwner("cartridge addresses of the Tourian encounter's tables")]
-internal static class MotherBrainSourceDefinitions
+internal static partial class MotherBrainSourceDefinitions
 {
     /// <summary>The bytes of one RGB5 colour word.</summary>
     internal const int ColorWordBytes = sizeof(ushort);
 
     /// <summary>The cutscene Baby Metroid's colour images.</summary>
-    internal static class BabyMetroid
+    internal static partial class BabyMetroid
     {
         /// <summary>$A9:94D4, colours 1..15 of the Baby's initial image.</summary>
         internal const int InitialColors = 0xa994d4;
@@ -25,15 +24,16 @@ internal static class MotherBrainSourceDefinitions
         internal const int FirstFadeColors = 0xade90c;
 
         /// <summary>
-        /// The source of displayed fade image <paramref name="paletteIndex"/> (one-based, 1..6), from $AD:E90C through
-        /// $AD:E998 in fourteen-colour strides; the last image is entirely black.
+        /// The source of the fade's step <paramref name="step"/> (zero-based, 0..5), from $AD:E90C through $AD:E998 in
+        /// fourteen-colour strides; the last image is entirely black. The cartridge selects these images from one, its
+        /// image zero unused.
         /// </summary>
-        internal static int FadeColors(int paletteIndex) =>
-            FirstFadeColors + (paletteIndex - 1) * BabyMetroidCutsceneColorFormat.FadeColorCount * ColorWordBytes;
+        internal static int FadeColors(int step) =>
+            FirstFadeColors + step * BabyMetroidCutsceneColorFormat.FadeColorCount * ColorWordBytes;
     }
 
     /// <summary>Mother Brain's bank-$AD colour images and the pointer tables that order them.</summary>
-    internal static class Palettes
+    internal static partial class Palettes
     {
         /// <summary>The bank every Mother Brain palette pointer table's bank-local pointers resolve in.</summary>
         internal const int PaletteBank = 0xad0000;
@@ -61,10 +61,17 @@ internal static class MotherBrainSourceDefinitions
 
         /// <summary>$AD:E742, the four health-band rear-leg image pointers.</summary>
         internal const int HealthRearLegPointerTable = 0xade742;
+
+        /// <summary>
+        /// The health bands in the order <see cref="HealthBodyPointerTable"/> and <see cref="HealthRearLegPointerTable"/> point
+        /// at their images: highest first.
+        /// </summary>
+        internal static IReadOnlyList<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHealthBand> HealthTableOrder =>
+            SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHealthBandDefinitions.HighestFirst;
     }
 
     /// <summary>Mother Brain's room, attack, room-entry and room-light colour images.</summary>
-    internal static class RoomColors
+    internal static partial class RoomColors
     {
         /// <summary>The bank of the room-flash list at $A9:D046 and the bank-local palette pointers it names.</summary>
         internal const int FlashBank = 0xa90000;
@@ -92,7 +99,7 @@ internal static class MotherBrainSourceDefinitions
     }
 
     /// <summary>Mother Brain's death and escape colour images.</summary>
-    internal static class Death
+    internal static partial class Death
     {
         /// <summary>$AD:EA0A, the first of sixteen consecutive body-and-leg fade images, each fourteen body then fourteen leg colours.</summary>
         internal const int FirstBodyFadeColors = 0xadea0a;
@@ -111,7 +118,7 @@ internal static class MotherBrainSourceDefinitions
     }
 
     /// <summary>The rainbow beam's colour cycle.</summary>
-    internal static class Beam
+    internal static partial class Beam
     {
         /// <summary>$88:E833, the beam's colour cycle, ending in a signed terminator.</summary>
         internal const int ColorTable = 0x88e833;
@@ -124,14 +131,14 @@ internal static class MotherBrainSourceDefinitions
     }
 
     /// <summary>Mother Brain's corpse characters.</summary>
-    internal static class Corpse
+    internal static partial class Corpse
     {
         /// <summary>$B7:CE00, the tile-aligned source of the corpse sheet, containing the right-hand corpse frame.</summary>
         internal const int Characters = 0xb7ce00;
     }
 
     /// <summary>The sheets whose pages Mother Brain's encounter shows its sprites.</summary>
-    internal static class SpecialSprites
+    internal static partial class SpecialSprites
     {
         /// <summary>
         /// Where each sheet's characters begin: $B7:9000 (legs, eight pages), $B1:8800 (Baby Metroid, four), $B7:A000
@@ -149,14 +156,14 @@ internal static class MotherBrainSourceDefinitions
     }
 
     /// <summary>The Zebetites' colour pulse.</summary>
-    internal static class Zebetite
+    internal static partial class Zebetite
     {
         /// <summary>$A6:FD87..$A6:FDA6, the eight consecutive two-colour pulse images.</summary>
         internal const int PulseColors = 0xa6fd87;
     }
 
     /// <summary>The Baby Metroid's bank-$A9 colour images.</summary>
-    internal static class BabyMetroidEnemy
+    internal static partial class BabyMetroidEnemy
     {
         /// <summary>$A9:F6D1..$A9:F710, the eight consecutive four-colour innard-pulse rows.</summary>
         internal const int NormalCycle = 0xa9f6d1;

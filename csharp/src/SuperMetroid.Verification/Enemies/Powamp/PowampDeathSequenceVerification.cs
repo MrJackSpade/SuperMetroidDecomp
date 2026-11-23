@@ -24,22 +24,23 @@ internal static class PowampDeathSequenceVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MtEverest);
-        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.Powamp &&
-            place.SpawnSettings<PowampSpawnSettings>().Part == PowampPart.Body);
-        var state = body.RequireSpeciesState<PowampBodyState>();
+        RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.Powamp) &&
+            place.HeldOccupant().SpawnSettings<PowampSpawnSettings>() is PowampBodySpawnSettings);
+        // The body's setup, run on the body the room placed, builds the state its main AI runs on.
+        PowampBodyState state = PowampBehavior.InitializePowampBody(body);
 
         body.Health = 0;
         state.Action = PowampAction.DeathSequence;
         state.ActionTimer = UpdateCountdown.For(1);
-        runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LoadedLevelData, runtime.Player.IntroducedSamus);
+        runtime.Enemies.PowampBehavior.RunPowampMain(body.HeldOccupant(), body, state, runtime.Enemies.PowampBehavior.PlacedBalloon(body), runtime.Room.LoadedLevelData, runtime.Player.Samus);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         AssertEqual(8, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.PowampSpike), "the eight spikes fire");
         AssertEqual(1, projectiles.Count(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "EnemyDeath spawns the death explosion in the same frame");
-        AssertEqual(EnemyDefinitionId.None, body.DefinitionId, "EnemyDeath clears the body slot at once");
+        AssertTrue(body.Occupant is null, "EnemyDeath clears the body slot at once");
         Console.WriteLine("  Powamp death sequence: the countdown ends in EnemyDeath with spikes and an explosion.");
     }
 

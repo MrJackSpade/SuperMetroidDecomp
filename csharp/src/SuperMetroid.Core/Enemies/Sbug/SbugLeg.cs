@@ -7,4 +7,4 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// <param name="XVelocity">The horizontal displacement in pixels per AI update.</param>
 /// <param name="YVelocity">The vertical displacement in pixels per AI update.</param>
 /// <param name="Facing">The facing whose loop the leg shows.</param>
-internal readonly record struct SbugLeg(SignedSixteenSixteen XVelocity, SignedSixteenSixteen YVelocity, CompassDirection Facing);
+internal readonly partial record struct SbugLeg(SignedSixteenSixteen XVelocity, SignedSixteenSixteen YVelocity, CompassDirection Facing);

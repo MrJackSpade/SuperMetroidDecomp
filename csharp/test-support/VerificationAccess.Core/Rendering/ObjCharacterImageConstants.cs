@@ -16,7 +16,7 @@ internal static class ObjCharacterImageConstants
 
     /// <summary>The depth among a gameplay room's layers each record priority draws at, from priority zero up (#1514).</summary>
     private static readonly ActorDepth[] DepthOfPriority =
-        [ActorDepth.BehindRoom, ActorDepth.BehindRoom, ActorDepth.BehindFrontParts, ActorDepth.InFront];
+        [ActorDepth.BehindRoom, ActorDepth.BehindRoomInFrontOfFloor, ActorDepth.BehindFrontParts, ActorDepth.InFront];
 
     /// <summary>Images pictured from OAM so far, which keeps each one's name its own.</summary>
     private static int pictured;
@@ -127,7 +127,7 @@ internal static class ObjCharacterImageConstants
         // A record is drawn whole at the depth its priority places it among a gameplay room's layers (#1514), blending as the
         // import decides from its colours (#1633).
         SpriteSheetFrame frame = ComposedPictures.InstallWhole($"frontend OAM record {index} ({Interlocked.Increment(ref pictured)})",
-            new(size.X, size.Y), pixels, indices, SpriteImageColours.Sprite, standard) with { Depth = DepthOfPriority[corner.Priority] };
+            new(size.X, size.Y), pixels, ComposedPictures.InksAt(indices.Select(place => (int)place), SpriteImageColours.Sprite), SpriteImageColours.Sprite, standard) with { Depth = DepthOfPriority[corner.Priority] };
         SpriteImage image = frame.Sheet;
         // The picture stands for the record's cells, as a composed sheet frame stands for its composition.
         SuperMetroid.TestSupport.RepositoryInstallation.Verification.SheetFrameSources.Register(frame,
@@ -173,7 +173,7 @@ internal static class ObjCharacterImageConstants
                         new Offset16<ScreenPixels>(checked((short)(objectX + shownColumn * SpriteArtwork.CharacterPixels)),
                             checked((short)(objectY + shownRow * SpriteArtwork.CharacterPixels))),
                         new Extent16<ScreenPixels>(SpriteArtwork.CharacterPixels, SpriteArtwork.CharacterPixels),
-                        name, flip, entry.Palette, entry.Priority));
+                        name, flip, entry.Palette, SnesObjAttributeWord.Create(0, 0, entry.Priority).Depth));
                 }
             }
         }

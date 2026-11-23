@@ -51,7 +51,7 @@ internal static class SuperMetroidGameAccess
                 throw new InvalidOperationException(
                     "A prepared runtime must be built over its game's random-number word; pass the game's word to the runtime fixture.");
             self.Session.audio.Reset();
-            PrivateState.SetField(self.Session, "runtime", runtime);
+            self.Session.Runtime = runtime;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ internal static class SuperMetroidGameAccess
                 throw new InvalidOperationException($"Main gameplay can be entered only from a fresh dispatcher; this one is in {self.GameState}.");
             RoomStateSettings roomState = runtime.Room.LoadedRoom.State;
             self.AdoptRuntime(runtime);
-            self.Session.LastAudioRoomState = roomState;
+            self.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(roomState);
             self.Session.Enter(SuperMetroidGameState.MainGameplay);
         }
 

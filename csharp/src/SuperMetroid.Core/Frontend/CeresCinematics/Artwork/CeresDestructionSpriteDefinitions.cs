@@ -3,7 +3,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>The poses of the Ceres destruction's backdrops and bounded blast frames.</summary>
-public static class CeresDestructionSpriteDefinitions
+public static partial class CeresDestructionSpriteDefinitions
 {
     /// <summary>
     /// The 24 poses the destruction family shows: the seven backdrops, six small blasts, four large blasts, six station

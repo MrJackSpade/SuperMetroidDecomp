@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Converts authored sprite pieces into whole-frame parts, sized by their screen's sprite sizes. A part's character is
 /// its sheet character minus the bound artwork's first character, so artwork holds only the characters its frames use.
 /// </summary>
-public static class SpritePartFrames
+public static partial class SpritePartFrames
 {
     /// <summary>The standard sprite sizes: the 8x8 and 16x16 sprites gameplay and the menus draw.</summary>
     public static ScreenObjectSizes StandardSizes { get; } = new(new(8, 8), new(16, 16));
@@ -43,12 +43,13 @@ public static class SpritePartFrames
         return SmallObjectFrame(centred, firstCharacter);
     }
 
-    /// <summary>The shared frame of one small piece at its own offset; a piece off the origin names its offset.</summary>
+    /// <summary>
+    /// The shared frame of one small piece at its own offset, keyed by the piece itself (#2556): every sheet frame that shows
+    /// it names it for what it shows, so its own name only says what kind of frame it is.
+    /// </summary>
     private static SpriteFrame SmallObjectFrame(SpritePart alone, int firstCharacter)
     {
         return SmallObjects.GetOrAdd(new SmallObjectKey(alone, firstCharacter), key => new SpriteFrame(
-            $"Piece.{key.Part.Character:X3}.{key.Part.Palette}.{key.Part.Priority}.{(key.Part.FlipsHorizontally ? "h" : "")}{(key.Part.FlipsVertically ? "v" : "")}"
-                + (key.Part.Offset == Offset16<ScreenPixels>.Zero ? "" : $".{key.Part.Offset.X}.{key.Part.Offset.Y}"),
-            [Part(key.Part, key.FirstCharacter)]));
+            "Single piece", [Part(key.Part, key.FirstCharacter)]));
     }
 }

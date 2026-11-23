@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
@@ -8,11 +7,10 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// cleared hand, the block shape each draws, from <see cref="ChozoStatueObjectDrawDefinitions"/>, and the installed
 /// picture (#1557) each shows.
 /// </summary>
-internal static class ChozoStatueDraws
+internal static partial class ChozoStatueDraws
 {
     /// <summary>The statues' frames, pictured by the installed Chozo statue frames.</summary>
     internal static RoomObjectDrawFamily<ChozoStatueDraw> Family { get; } =
-        RoomObjectDrawFamily<ChozoStatueDraw>.Pictured<InstalledRoomObjectChozoStatueVisuals>("Chozo statue",
-            frame => RoomObjectDrawFamily<ChozoStatueDraw>.Defined(ChozoStatueObjectDrawDefinitions.Shapes, frame),
-            (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<ChozoStatueDraw>("Chozo statue",
+            frame => RoomObjectDrawFamily<ChozoStatueDraw>.Defined(ChozoStatueObjectDrawDefinitions.Shapes, frame));
 }

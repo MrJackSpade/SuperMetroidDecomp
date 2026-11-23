@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The Continue-or-title menu after death.</summary>
 /// <param name="session">The frontend session the menu runs against.</param>
-internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhase
+internal sealed partial class GameOverMenuGamePhase(FrontendSession session) : IFrontendPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.GameOverMenu;
@@ -31,7 +31,7 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhas
             session.Artwork.ScreenContent, session.Artwork.SpriteSheets, continueLoadsCeresArrival: session.saves.ReadSlot(session.SelectedSaveSlot)?.StartupRoute ==
                 SaveStartupRoute.CeresElevatorArrival));
         gameOver.Step(controllerInput);
-        session.display.PublishMenu(gameOver);
+        session.display.Publish(gameOver);
         if (gameOver.Outcome == GameOverMenuOutcome.CeresArrival)
         {
             // Starting a game publishes the Ceres load and reloads the save slot in the same update;
@@ -47,14 +47,14 @@ internal sealed class GameOverMenuGamePhase(FrontendSession session) : IGamePhas
             // The game-over menu's continue enters the area map after the fully black
             // frame. Keep that boundary separate from save reload.
             session.Close<GameOverMenuState>();
-            session.Enter(FileSelectStep.AreaMap);
+            session.EnterFileSelect(FileSelectGameSequence.Stage.PreparingMap.Instance);
             session.display.PublishBlack();
         }
         else if (gameOver.Outcome == GameOverMenuOutcome.Title)
         {
             // The game-over menu's exit step soft-resets only after its fade reaches black.
             session.Close<GameOverMenuState>();
-            session.Enter(TitleStep.Starting);
+            session.EnterTitle(TitleGameSequence.Stage.Starting.Instance);
             session.display.PublishBlack();
         }
     }

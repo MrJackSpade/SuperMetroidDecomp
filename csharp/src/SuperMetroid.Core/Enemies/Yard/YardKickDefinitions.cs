@@ -1,15 +1,14 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Yard vertical launch speeds indexed by the player's whole horizontal displacement.</summary>
-public static class YardKickDefinitions
+public static partial class YardKickDefinitions
 {
     /// <summary>The highest whole speed that selects its own launch; faster speeds share the last.</summary>
     internal const int FastestKickSpeed = 15;
 
     /// <summary>
-    /// The upward launch each whole horizontal speed selects, in sixteenths of a pixel per frame. The game authors
-    /// each launch as a whole pixel count, three at rest and one more every third speed, with a fraction of zero, five
-    /// eighths or one quarter of a pixel added toward zero; these are the resulting signed launches.
+    /// How high each whole horizontal speed kicks the shell: three pixels an update upward at rest, rising by a pixel
+    /// every third speed, with a fraction of a pixel added toward rest.
     /// </summary>
     internal static readonly SignedSixteenSixteen[] Kicks =
     [

@@ -42,7 +42,7 @@ internal static class CeresHazeVerification
         foreach (bool dead in new[] { false, true })
         foreach (bool immediate in new[] { false, true })
         {
-            var haze = new CeresHazeState(dead, immediate);
+            var haze = new CeresHazeState(dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, immediate);
             AssertEqual(immediate ? 15 : 0, haze.Strength.FadeSteps, "Load projects initial/completed fade state");
             if (!immediate)
             {
@@ -71,7 +71,7 @@ internal static class CeresHazeVerification
             haze.StepWhileRoomFadesIn();
             AssertEqual(1, haze.Strength.FadeSteps, "Zero counter retains final table without restarting");
             AssertEqual(dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, haze.Tint, "Selected channel is room-owned throughout the trace");
-            haze = new CeresHazeState(!dead, immediate);
+            haze = new CeresHazeState(!dead ? CeresHazeTint.AfterRidleyDies : CeresHazeTint.WhileRidleyLives, immediate);
             AssertTrue(haze.Tint == (dead ? CeresHazeTint.WhileRidleyLives : CeresHazeTint.AfterRidleyDies), "Reload replaces the channel");
         }
     }
@@ -88,20 +88,20 @@ internal static class CeresHazeVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         AssertTrue(runtime.Room.LoadedScope.CeresHaze is { Tint: CeresHazeTint.WhileRidleyLives }, "Ridley room spawns blue haze");
         runtime.System.RecordBossesDefeated(runtime.Room.LoadedRoom.Area, DefeatedBosses.AreaBoss);
         for (int frame = 0; frame < 30; frame++) runtime.CeresHaze.Step();
         AssertTrue(runtime.CeresHaze.Tint == CeresHazeTint.WhileRidleyLives, "defeat cannot replace the current room's HDMA channel");
-        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.CeresRidley][0]), runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.CeresRidley][0]), runtime.Player.Samus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
         transition.Begin(runtime);
         bool sawDestinationFade = false;
         for (int frame = 0; transition.IsActive && frame < 600; frame++)
         {
-            bool fadingIn = transition.Phase == DoorTransitionPhase.FadeInDestinationRoom;
+            bool fadingIn = transition.Phase is DoorTransitionPhase.Running.FadeInDestinationRoom;
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             if (runtime.Room.LoadedRoom.Definition == RoomDefinitions.CeresRidley)
                 AssertTrue(runtime.CeresHaze.Tint == CeresHazeTint.WhileRidleyLives, "source room remains blue through actual door fade");

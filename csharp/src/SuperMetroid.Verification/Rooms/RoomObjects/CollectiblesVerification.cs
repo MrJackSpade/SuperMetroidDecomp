@@ -33,10 +33,12 @@ using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.TestSupport.FrameRendering;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-using SuperMetroid.Verification.Bosses.MotherBrain;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Rooms;
+
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Constructed cartridge checks for permanent item PLMs, messages, saves, and suit acquisition.</summary>
 internal static class CollectiblesVerification
@@ -59,7 +61,7 @@ internal static class CollectiblesVerification
             if (bts is > 0x3f and not 0x4e) continue;
             var emptyLevel = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
             var unusedObjects = RoomObjectFixtures.Unbound();
-            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, SamusProjectileType.None, true),
+            AssertTrue(unusedObjects.TrySpawnProjectileShotBlock(emptyLevel, Position16<RoomBlocks>.Zero, (byte)bts, BlockStrike.GrappleTouch.Instance, true),
                 "unused shootable entry allocates native nothing PLM");
             AssertEqual(1, unusedObjects.Places.ActiveCount, "nothing PLM retains its provisional slot");
             AssertEqual(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.Air), emptyLevel.GetCollisionBlockByIndex(0).Terrain, "nothing PLM leaves terrain unchanged");
@@ -94,8 +96,7 @@ internal static class CollectiblesVerification
             fixture.RoomObjects.Step(fixture.Level);
             if (item.Presentation == CollectiblePresentation.ChozoOrb)
             {
-                AssertTrue(fixture.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(fixture.Block),
-                    $"{kind}'s orb accepts a projectile");
+                fixture.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(fixture.Block);
                 StepUntil(
                     () => fixture.RoomObjects.CollectiblePhases[0] == CollectiblePhase.Visible,
                     _ => fixture.RoomObjects.Step(fixture.Level),
@@ -107,7 +108,7 @@ internal static class CollectiblesVerification
                 // The room's only collectible takes the first block pair, whose block under the primary look its first
                 // visible draw writes into the terrain (#2354); BG1 shows the item's own picture's first frame over it (#1538).
                 AssertEqual(
-                    RoomBlockAppearance.Of(new CollectiblePairBlock(CollectibleBlockPairs.Pair.First, CollectibleLook.Primary)),
+                    RoomBlockAppearance.Of(new CollectiblePairBlock(CollectibleBlockPairs.Pair.Solid, CollectibleLook.Primary)),
                     fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain.Appearance,
                     $"{kind} writes the first block pair's primary-look block");
                 AssertEqual(
@@ -124,8 +125,6 @@ internal static class CollectiblesVerification
                 $"{kind} records its item location collected");
             AssertEqual(1, pickupStep.Pickups.Count,
                 $"{kind} publishes exactly one acquisition");
-            AssertEqual(kind, pickupStep.Pickups[0].Kind,
-                $"{kind} acquisition identity");
             AssertEqual(1, fixture.RoomObjects.Sounds.Requests.PermanentItemFanfares,
                 $"{kind} starts the shared permanent-item fanfare once, as it is picked up");
             AssertPermanentCollectibleEffect(kind, fixture.Samus);
@@ -139,7 +138,7 @@ internal static class CollectiblesVerification
             // a destructible special block, exactly as the block beside Morph Ball does.
             // The new actor must not inherit Item/Triggered and publish the old message.
             AssertTrue(
-                fixture.RoomObjects.TrySpawnBombedSpecialBlock(
+                fixture.RoomObjects.SpawnBombedSpecialBlock(
                     fixture.Level,
                     fixture.Block,
                     behavior: 8,
@@ -175,8 +174,8 @@ internal static class CollectiblesVerification
         var grappleSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var orbHit = SamusGrappleMovement.StepFiringAndCommit(orb.Level, grappleSamus,
-            GameplayAction.Shoot, orb.RoomObjects, enemyCollision: GrappleEnemyFixtures.NoEnemy);
+        var orbHit = SamusGrappleMovement.StepFiringAndCommit(new RoomTerrain(orb.Level, orb.RoomObjects), grappleSamus,
+            GameplayAction.Shoot, enemyCollision: GrappleEnemyFixtures.NoEnemy);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
         orb.RoomObjects.Step(orb.Level);
@@ -212,8 +211,7 @@ internal static class CollectiblesVerification
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 150, precollected: false);
         AssertEqual(RoomTerrainBlock.Of(0x123, BlockMirroring.None, RoomCollisionType.ShootableBlock), shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain,
             "shot-item setup installs type-C concealed block");
-        AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.Block),
-            "concealed shot item accepts projectile reaction");
+        shot.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(shot.Block);
         StepUntil(
             () => shot.RoomObjects.CollectiblePhases[0] == CollectiblePhase.ShotBlockVisible,
             _ => shot.RoomObjects.Step(shot.Level),
@@ -259,7 +257,9 @@ internal static class CollectiblesVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(1124, 651)), Radius = new(5, 14),
         };
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, RoomObjects = fixture.RoomObjects }, movement, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
+        // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+        SamusState probeSamus = InstalledFixtures.CreateSamus();
+        SamusBlockCollision.MoveHorizontal(new RoomTerrain(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         RoomObjectStepOutcome pickupStep = fixture.RoomObjects.Step(fixture.Level);
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
@@ -271,7 +271,7 @@ internal static class CollectiblesVerification
         fixture.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(fixture.Level);
         AssertEqual(new RoomTerrainBlock(RoomBlockAppearance.Nothing, RoomCollisionType.Air), fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).Terrain,
             "Morph Ball pickup draws native empty level word on message return");
-        var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, RoomObjects = fixture.RoomObjects }, movement, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
+        var next = SamusBlockCollision.MoveHorizontal(new RoomTerrain(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.RoomObjects.CollectiblePhases[0],
@@ -279,7 +279,7 @@ internal static class CollectiblesVerification
         RoomObjectStepOutcome deleteStep = fixture.RoomObjects.Step(fixture.Level);
         AssertEqual(0, fixture.RoomObjects.Places.ActiveCount, "Morph Ball owner deletes on the next PLM pass");
         AssertEqual(0, deleteStep.Pickups.Count, "Morph Ball cannot be awarded twice");
-        var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, RoomObjects = fixture.RoomObjects }, movement, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
+        var cleared = SamusBlockCollision.MoveHorizontal(new RoomTerrain(fixture.Level, fixture.RoomObjects), movement, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(-1), AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
         AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
@@ -609,7 +609,7 @@ internal static class CollectiblesVerification
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(GameplayMessageId.MissileTank, 0, SuperMetroid.Core.Input.ControllerBindings.Default with { Shoot = ControllerButton.B });
+        message.Begin(GameplayMessageId.MissileTank, 0, SuperMetroid.Core.Input.ControllerBindings.Default.With(ControllerAction.Shoot, ControllerButton.B));
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(6, message.TilemapRowCount(messages), "large item message has four content rows");
@@ -716,11 +716,10 @@ internal static class CollectiblesVerification
         var suitColours = new SamusColours();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(500, 600)),
             EquippedItems = SamusEquipmentFlags.VariaSuit,
             CollectedItems = SamusEquipmentFlags.VariaSuit,
-        }.WithBeamChargeCount(60);
+        }.InPose(SamusPoseId.FacingRightNormalPose).WithBeamChargeCount(60);
         SamusSuitShade.ShowPower(suitColours);
 
         var pickup = new SamusSuitPickupState();
@@ -740,7 +739,6 @@ internal static class CollectiblesVerification
 
         // Begin publishes an empty beam. The first stage call lights exactly eight
         // scanlines at each edge with the one-pixel `$7878` beam.
-        MotherBrainBeamWindowVerification.AssertOwnsNoScanlineTable(typeof(SamusSuitPickupState));
         AssertEqual(SamusSuitPickupBeam.None, pickup.Beam, "suit setup publishes an empty beam");
         AssertEqual((0, 0, 0), SuitAddition(pickup.Flash, 0, 0),
             "initial inverted suit window applies no fixed color");

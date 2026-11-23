@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 /// each of its four surfaces, and the Viola's one crawl on every surface (#2061). Each frame shows a
 /// <see cref="EnemyFrameId"/> and no beat raises a cue: the surface a crawler shows sets its crawl.
 /// </summary>
-internal static class CrawlerAnimations
+internal static partial class CrawlerAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<CrawlerSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -131,22 +131,10 @@ internal static class CrawlerAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = new Dictionary<CrawlerSegment, Animation<CrawlerSegment>>
-    {
-        [P.SciserOnLeftWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnLeftWall)]),
-        [P.SciserOnRightWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnRightWall)]),
-        [P.SciserOnCeiling] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnCeiling)]),
-        [P.SciserOnFloor] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SciserOnFloor)]),
-        [P.ZeroOnLeftWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnLeftWall)]),
-        [P.ZeroOnRightWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnRightWall)]),
-        [P.ZeroOnCeiling] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnCeiling)]),
-        [P.ZeroOnFloor] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ZeroOnFloor)]),
-        [P.ViolaIdle] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.ViolaIdle)]),
-        [P.SpinyCrawlerOnLeftWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnLeftWall)]),
-        [P.SpinyCrawlerOnRightWall] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnRightWall)]),
-        [P.SpinyCrawlerOnCeiling] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnCeiling)]),
-        [P.SpinyCrawlerOnFloor] = Animation<CrawlerSegment>.Looping([Segments.Whole(P.SpinyCrawlerOnFloor)]),
-    };
+    internal static Dictionary<CrawlerSegment, Animation<CrawlerSegment>> StartingAt { get; } = Segments.EachLooping(
+        P.SciserOnLeftWall, P.SciserOnRightWall, P.SciserOnCeiling, P.SciserOnFloor, P.ZeroOnLeftWall,
+        P.ZeroOnRightWall, P.ZeroOnCeiling, P.ZeroOnFloor, P.ViolaIdle, P.SpinyCrawlerOnLeftWall,
+        P.SpinyCrawlerOnRightWall, P.SpinyCrawlerOnCeiling, P.SpinyCrawlerOnFloor);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<CrawlerSegment> StartingWith(CrawlerSegment segment) => StartingAt[segment];

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// #1512, #1513): what an enemy hands the objects it spawns so they draw its objects' pictures in its colours. The
 /// default value is <see cref="SharedStandard"/>: the room's shared sheet in the pictures' standard colours.
 /// </summary>
-public readonly record struct SpriteGraphics
+public readonly partial record struct SpriteGraphics
 {
     /// <summary>The shading given, or null for the standard colours.</summary>
     private readonly PictureShading? shading;
@@ -38,11 +38,13 @@ public readonly record struct SpriteGraphics
     internal static SpriteGraphics SharedIn(PictureShading shading) => new(SpawnedObjectOwner.Shared, shading);
 
     /// <summary>
-    /// What <paramref name="spawner"/> hands the objects it spawns: its own spawned-object sheet, in the shading it shows
-    /// its pictures in now.
+    /// What <paramref name="spawner"/> hands the objects it spawns: its own spawned-object sheet, in
+    /// <paramref name="shading"/>, the shading it shows its pictures in now.
     /// </summary>
-    internal static SpriteGraphics SpawnedBy(RoomEnemyPlace spawner) =>
-        new(SpawnedObjectOwner.Of(Ensure.NotNull(spawner).DefinitionId), spawner.Shading);
+    /// <param name="spawner">The enemy spawning the objects, whose identity names the sheet.</param>
+    /// <param name="shading">The shading the spawner shows its pictures in now.</param>
+    internal static SpriteGraphics SpawnedBy(RoomEnemyOccupant spawner, PictureShading shading) =>
+        new(SpawnedObjectOwner.Of(Ensure.NotNull(spawner).DefinitionId), shading);
 
     /// <summary>The same sheet under <paramref name="shading"/>.</summary>
     internal SpriteGraphics In(PictureShading shading) => this with { Shading = shading };

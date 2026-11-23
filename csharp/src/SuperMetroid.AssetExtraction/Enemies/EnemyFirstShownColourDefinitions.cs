@@ -21,8 +21,11 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// rows they write, so a frame that shows before any later shade does not show the zero colours its header palette or
 /// the room load leaves there.
 /// </summary>
-internal static class EnemyFirstShownColourDefinitions
+internal static partial class EnemyFirstShownColourDefinitions
 {
+    /// <summary>Norfair Ridley's first shades, which his breakup's fragments first show in too.</summary>
+    private static PictureShade[] NorfairRidleyFirstShades { get; } = RidleyFirstShades(RidleyShades.NorfairStart, RidleyShades.NorfairHidden);
+
     /// <summary>
     /// The shades laid before each such enemy's frames first show, in laying order. The Baby's cutscene initialization
     /// lays its arrival colours before its first frame. Both Ridleys' initializations load the door's, container's and Baby's
@@ -44,27 +47,9 @@ internal static class EnemyFirstShownColourDefinitions
         [EnemyDefinitionId.BabyMetroidCutscene] = [MotherBrainShades.BabyArrives],
         [EnemyDefinitionId.BabyMetroid] = [TourianCorpseShades.BabyMetroidTargets],
         [EnemyDefinitionId.CorpseSidehopper] = [TourianCorpseShades.BabyMetroidTargets],
-        [EnemyDefinitionId.RidleyCeres] =
-        [
-            RidleyShades.CeresStart,
-            RidleyShades.CeresHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
-            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
-        ],
-        [EnemyDefinitionId.Ridley] =
-        [
-            RidleyShades.NorfairStart,
-            RidleyShades.NorfairHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
-            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
-        ],
-        [EnemyDefinitionId.RidleyBreakupPiece] =
-        [
-            RidleyShades.NorfairStart,
-            RidleyShades.NorfairHidden,
-            RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.Images[^1]),
-            RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.Images[^1]),
-        ],
+        [EnemyDefinitionId.RidleyCeres] = RidleyFirstShades(RidleyShades.CeresStart, RidleyShades.CeresHidden),
+        [EnemyDefinitionId.Ridley] = NorfairRidleyFirstShades,
+        [EnemyDefinitionId.RidleyBreakupPiece] = NorfairRidleyFirstShades,
         [EnemyDefinitionId.TourianStatue] = [TourianStatueShades.Entrance],
         [EnemyDefinitionId.BombTorizo] = [TorizoShades.Shared, TorizoShades.Body(new TorizoLook(TorizoLookKind.BombStatue))],
         [EnemyDefinitionId.GoldenTorizo] = [TorizoShades.Shared, TorizoShades.Body(new TorizoLook(TorizoLookKind.GoldenInitial))],
@@ -85,4 +70,15 @@ internal static class EnemyFirstShownColourDefinitions
         [new ChozoStatueSpawnSettings(Site: ChozoStatueSite.WreckedShip)] = [ChozoAndTubeShades.WreckedShipStatue],
         [new ChozoStatueSpawnSettings(Site: ChozoStatueSite.LowerNorfair)] = [ChozoAndTubeShades.LowerNorfairStatue],
     };
+
+    /// <summary>
+    /// Ridley's first shades in an encounter: its start and hidden shades, then the eye fade's last image and the body fade's.
+    /// </summary>
+    private static PictureShade[] RidleyFirstShades(PictureShade start, PictureShade hidden) =>
+    [
+        start,
+        hidden,
+        RidleyShades.Fade(RidleyFadeDefinitions.EyeFade.End),
+        RidleyShades.Fade(RidleyFadeDefinitions.BodyFade.End),
+    ];
 }

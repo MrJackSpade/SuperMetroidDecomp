@@ -12,7 +12,6 @@ namespace SuperMetroid.Verification.Enemies;
 /// tools. The RNG generator is required; each other service is installed explicitly, and an AI routine
 /// that reaches an uninstalled one fails at that exact dependency instead of reading a false default.
 /// </summary>
-[ArchitectureReview("context-bag", "A verification host's implementation of the room enemy services contract, which is a set of service capabilities by definition; each capability is installed explicitly or fails at the dependency.")]
 internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
 {
     /// <summary>Only RNG generation is mandatory; reading or seeding its current word needs explicit delegates.</summary>
@@ -62,6 +61,9 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         /// <summary>Advances the host-supplied RNG generator exactly once.</summary>
         public int Generate() => generate();
 
+        /// <summary>Advances the host-supplied RNG generator exactly once, its value unread.</summary>
+        public void Advance() => _ = generate();
+
         /// <summary>Reads a configured seed source or fails at the missing RNG dependency.</summary>
         int IEnemyRandomNumbers.Read() => (Read ?? throw Unavailable.Missing("read the current random-number word"))();
 
@@ -98,8 +100,6 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public void SetDefeated(DefeatedBosses bosses) => throw Missing($"set the area {bosses} flag");
         /// <summary>Fails when AI asks after the statue's hand without an installed room-object service.</summary>
         public bool BombTorizoHandRemains => throw Missing("ask whether the statue's hand still stands");
-        /// <summary>Fails when AI reads a screen's scroll state without an installed room-scroll service.</summary>
-        public RoomScrollState Read(Position16<RoomScreens> screen) => throw Missing("read a screen's scroll state");
         /// <summary>Fails when AI changes a screen's scroll state without an installed room-scroll service.</summary>
         public void Write(Position16<RoomScreens> screen, RoomScrollState state) => throw Missing("write a screen's scroll state");
         /// <summary>Fails when AI enables Samus's controls without an installed lock service.</summary>
@@ -108,5 +108,7 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public void DisableControls() => throw Missing("disable Samus's controls");
         /// <summary>Fails when Mother Brain glass setup lacks its room-effects service.</summary>
         public void CountHeadShotOnGlass() => throw Missing("count a head shot on Mother Brain's glass");
+        /// <summary>Fails when Mother Brain's body confirms her glass without its room-effects service.</summary>
+        public void ConfirmGlassLoaded() => throw Missing("confirm Mother Brain's glass loaded");
     }
 }

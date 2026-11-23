@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// Stock identities for installed enemy compositions. These are visual frame selections,
 /// not editable instruction timers, AI callbacks, collision or hitbox definitions.
 /// </summary>
-internal static class EnemySpritemapDefinitions
+internal static partial class EnemySpritemapDefinitions
 {
     /// <summary>Installed document containing editable enemy composition frames and bindings.</summary>
     internal const string FileName = "enemy-compositions.json";

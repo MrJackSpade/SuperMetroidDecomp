@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// The names of the frame's pictures that show nothing (#1513): every character the frame reads is blank in them, so they
 /// are on no sheet and the frame draws nothing while it shows them.
 /// </param>
-internal sealed record FramePictures(string Name, IReadOnlyList<SheetFrameSource> Sources, IReadOnlyList<FrameLookChange> Changes,
+internal sealed partial record FramePictures(string Name, IReadOnlyList<SheetFrameSource> Sources, IReadOnlyList<FrameLookChange> Changes,
     IReadOnlyList<string> Blank)
 {
     /// <summary>

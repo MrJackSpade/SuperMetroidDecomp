@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Where Crocomire's arena raises and clears its invisible walls and bridge, and where his dead skeleton lies (#2182).</summary>
-internal static class CrocomireArenaDefinitions
+internal static partial class CrocomireArenaDefinitions
 {
     /// <summary>The invisible wall at the fight's left, cleared as his skeleton breaks through the spike wall.</summary>
     internal static readonly Position16<RoomBlocks> FightWallBlock = new(32, 3);

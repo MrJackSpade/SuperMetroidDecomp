@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json.Nodes;
@@ -31,7 +32,7 @@ internal static class RoomBackgroundTilemapsVerification
         var compiled = new Dictionary<RoomBackgroundTilemap, RoomBackgroundTilemapAtlas>();
         foreach ((RoomBackgroundTilemap tilemap, int source) in RoomBackgroundSourceDefinitions.Tilemaps)
         {
-            byte[] native = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), source);
+            byte[] native = RomDataReader.Decompress(bus, source);
             RoomBackgroundTilemapAtlas atlas = RoomBackgroundTilemapAtlas.Load(
                 new MemoryStream(files[RoomBackgroundTilemapArtworkFiles.FileName(tilemap)],
                     writable: false), native.Length);
@@ -48,7 +49,7 @@ internal static class RoomBackgroundTilemapsVerification
         var nativeVram = new SnesVram();
         var selectedVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
-        LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), activeDoor: FixtureRooms.UnmatchedDoor, artwork: new LibraryBackgroundArtwork { TilemapArt = catalog });
+        LibraryBackgroundReplay.Execute(selectedVram, LibraryBackgroundProgramDefinitions.Get(ceresList), picture: LibraryBackgroundPicture.Ordinary, artwork: SuperMetroid.TestSupport.RepositoryInstallation.Verification.BossBodySheetFixtures.LibraryArtwork with { TilemapArt = catalog });
         AssertTrue(nativeVram.ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
@@ -56,7 +57,7 @@ internal static class RoomBackgroundTilemapsVerification
             ?? throw new InvalidDataException("Ceres background JSON is empty.");
         malformed.Required("pages").Required(0).Required("cells").Required(0)["palette"] = RoomBackgroundTilemapFormat.PaletteCount;
         AssertThrows<InvalidDataException>(() => RoomBackgroundTilemapAtlas.Load(
-                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed)),
+                new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed, global::SuperMetroid.Verification.VerificationJson.Info<global::System.Text.Json.Nodes.JsonNode>())),
                 compiled[ceresTilemap].Bytes.Length),
             "background tilemap rejects an invalid palette selector");
         Console.WriteLine($"  Room background tilemaps: {files.Count} compressed retail sources " +

@@ -6,12 +6,11 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// The name each enemy projectile frame has in the installed spawned-object sheets (#2370), which gives its installed
 /// sheet key (<see cref="EnemyProjectileFrameSheetKeys"/>).
 /// </summary>
-internal static class EnemyProjectileFrameNameDefinitions
+internal static partial class EnemyProjectileFrameNameDefinitions
 {
     /// <summary>Each projectile frame's document name.</summary>
     internal static FrozenDictionary<EnemyProjectileFrameId, string> Names { get; } = new Dictionary<EnemyProjectileFrameId, string>
     {
-        [EnemyProjectileFrameId.Blank] = "blank",
         [EnemyProjectileFrameId.SkreeDebris] = "skree_debris",
         [EnemyProjectileFrameId.MetareeDebris] = "metaree_debris",
         [EnemyProjectileFrameId.DraygonGoopSpiky] = "draygon_goop_spiky",
@@ -169,7 +168,6 @@ internal static class EnemyProjectileFrameNameDefinitions
         [EnemyProjectileFrameId.TorizoExplosionFlareRingCored] = "torizo_explosion_flare_ring_cored",
         [EnemyProjectileFrameId.TorizoExplosionFlareRing] = "torizo_explosion_flare_ring",
         [EnemyProjectileFrameId.TorizoExplosionFlareRingFading] = "torizo_explosion_flare_ring_fading",
-        [EnemyProjectileFrameId.TorizoDeathExplosionSpark] = "torizo_death_explosion_spark",
         [EnemyProjectileFrameId.TorizoExplosionFireballSmall] = "torizo_explosion_fireball_small",
         [EnemyProjectileFrameId.TorizoExplosionFireballLarge] = "torizo_explosion_fireball_large",
         [EnemyProjectileFrameId.TorizoExplosionFlamingRing] = "torizo_explosion_flaming_ring",
@@ -724,14 +722,7 @@ internal static class EnemyProjectileFrameNameDefinitions
         [EnemyProjectileFrameId.DownwardGateTwoBlocksTall] = "downward_gate_two_blocks_tall",
         [EnemyProjectileFrameId.DownwardGateThreeBlocksTall] = "downward_gate_three_blocks_tall",
         [EnemyProjectileFrameId.DownwardGateFourBlocksTall] = "downward_gate_four_blocks_tall",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepBeginning] = "save_station_electricity_sweep_beginning",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepDescending] = "save_station_electricity_sweep_descending",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepLowering] = "save_station_electricity_sweep_lowering",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepNearingHalfway] = "save_station_electricity_sweep_nearing_halfway",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepPassingHalfway] = "save_station_electricity_sweep_passing_halfway",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepPastHalfway] = "save_station_electricity_sweep_past_halfway",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepNearingEnd] = "save_station_electricity_sweep_nearing_end",
-        [EnemyProjectileFrameId.SaveStationElectricitySweepEnding] = "save_station_electricity_sweep_ending",
+        [EnemyProjectileFrameId.SaveStationElectricityBand] = "save_station_electricity_band",
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple0] = "botwoon_body_up_left_ripple_0",
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple90] = "botwoon_body_up_left_ripple_90",
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple180] = "botwoon_body_up_left_ripple_180",

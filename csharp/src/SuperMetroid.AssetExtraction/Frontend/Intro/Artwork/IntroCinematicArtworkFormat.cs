@@ -1,9 +1,10 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>File identities and physical 4-bpp transfer lengths for the opening scene.</summary>
-public static class IntroCinematicArtworkFormat
+public static partial class IntroCinematicArtworkFormat
 {
     /// <summary>Opening bundle's source-identity and file-hash manifest resource, <c>intro-artwork.json</c>.</summary>
     public const string ManifestFileName = "intro-artwork.json";
@@ -32,10 +33,22 @@ public static class IntroCinematicArtworkFormat
     };
     /// <summary>$0800 transfer bytes per 32x32 BG page: 1024 little-endian, two-byte tile-reference words.</summary>
     public const int BackgroundPageByteCount = 1024 * sizeof(ushort);
-    /// <summary>Formats the installed JSON resource name for one ordered background page without validating its index.</summary>
-    /// <param name="index">Zero-based page index, normally 0 through 3.</param>
-    /// <returns>The resource name <c>intro-background-page-{index}.json</c>.</returns>
-    public static string BackgroundPageFileName(int index) => $"intro-background-page-{index}.json";
+    /// <summary>The scene pages in the order the opening's transfer holds them.</summary>
+    internal static IReadOnlyList<IntroScenePage> ScenePagesInTransferOrder { get; } =
+        [.. BackgroundPageOf.OrderBy(entry => entry.Value).Select(entry => entry.Key)];
+
+    /// <summary>The installed JSON resource of each scene page, named for the scene it shows (#2556).</summary>
+    private static readonly IReadOnlyDictionary<IntroScenePage, string> BackgroundPageFileNames = new Dictionary<IntroScenePage, string>
+    {
+        [IntroScenePage.MotherBrainRoom] = "intro-background-mother-brain-room.json",
+        [IntroScenePage.BabyDiscoveryRoom] = "intro-background-baby-discovery-room.json",
+        [IntroScenePage.ScientistDelivery] = "intro-background-scientist-delivery.json",
+        [IntroScenePage.ScientistExamination] = "intro-background-scientist-examination.json",
+    };
+
+    /// <summary>The installed JSON resource name of <paramref name="page"/>'s background.</summary>
+    /// <exception cref="ArgumentException">The page is not a scene page.</exception>
+    internal static string BackgroundPageFileName(IntroScenePage page) => Ensure.Listed(BackgroundPageFileNames, page);
     /// <summary>$8000 bytes of 4-bpp BG data: 1024 eight-by-eight characters uploaded at VRAM byte $0000.</summary>
     public const int BackgroundByteCount = 1024 * 32;
     /// <summary>$2000 bytes of fixed-bank 4-bpp intro OBJ data: 256 characters uploaded at VRAM byte $C000.</summary>

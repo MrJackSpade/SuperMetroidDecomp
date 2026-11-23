@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// enough it turns saved progression on and off (<see cref="SpaceTimeProgressionOverwrite{TCursor, TOverwrite}"/>), and it
 /// never moves.
 /// </summary>
-internal sealed class SpacetimeShotOverwrite : SamusShotBehavior
+internal sealed partial class SpacetimeShotOverwrite : SamusShotBehavior
 {
     /// <inheritdoc/>
     internal override void Run(SamusShotUpdate update) =>
-        update.Shots.Combos.RunSpaceTimeProgressionOverwrite(update.Progression, update.Shot);
+        update.Shots.Combos.RunSpaceTimeProgressionOverwrite(update.Progression, update.Held);
 }

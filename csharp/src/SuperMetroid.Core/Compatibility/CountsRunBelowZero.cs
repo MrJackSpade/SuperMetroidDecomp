@@ -19,8 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// (<c>VerifyTypedNativeWords</c>) covers both ends of the range and the decrement of zero and of the smallest count,
 /// and the Crystal Flash check (<c>VerifySamusCrystalFlash</c>) drains ammunition.
 /// </remarks>
-[CompatibilityService("Samus's counts run below zero, taking one from the smallest gives the largest, and the HUD shows a count below zero by the digits of the wrapping count it stands for")]
-public static class CountsRunBelowZero
+public static partial class CountsRunBelowZero
 {
     /// <summary>The largest count: the largest wrapping count that does not read as below zero.</summary>
     public const int MaximumValue = WrappingCounter.LargestCount / 2;

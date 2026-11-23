@@ -4,22 +4,23 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The post-credits shooting stars, independent of the explosion's stars.</summary>
-internal sealed class EndingShootingStars
+internal sealed partial class EndingShootingStars
 {
     /// <summary>Each authored star's flight, each holding its own definition (#2541), retained across scene updates.</summary>
-    internal readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
+    internal readonly EndingShootingStar[] stars;
 
-    /// <summary>Seeds each star at the common origin and arms any authored start delay.</summary>
+    /// <summary>Seeds each authored star at the common origin and arms any authored start delay.</summary>
     internal EndingShootingStars()
     {
-        ReadOnlySpan<EndingShootingStarDefinition> definitions = EndingShootingStarDefinitions.Stars;
-        for (int index = 0; index < stars.Length; index++)
+        var seeded = new List<EndingShootingStar>();
+        foreach (EndingShootingStarDefinition definition in EndingShootingStarDefinitions.Stars)
         {
-            EndingShootingStarDefinition definition = definitions[index];
-            stars[index] = Started(definition);
-            if (definition.Delay == 0) continue;
-            stars[index].Delay = UpdateCountdown.Lasting(definition.Delay);
+            EndingShootingStar star = Started(definition);
+            if (definition.Delay != 0)
+                star.Delay = UpdateCountdown.Lasting(definition.Delay);
+            seeded.Add(star);
         }
+        stars = [.. seeded];
     }
 
     /// <summary>Advances delayed or active stars, accelerates later pictures, and resets those leaving the visible bounds.</summary>
@@ -41,7 +42,7 @@ internal sealed class EndingShootingStars
             }
             else
             {
-                int multiplier = star.Look is EndingShootingStarLook.LeadIn or EndingShootingStarLook.FaintSpeck ? 1 : 2;
+                int multiplier = EndingShootingStarDefinitions.SteadyLooks.Contains(star.Look) ? 1 : 2;
                 star.Velocity += star.Definition.Acceleration * multiplier;
                 star.Position += star.Velocity.ToDisplacement();
             }
@@ -69,7 +70,7 @@ internal sealed class EndingShootingStars
     }
 
     /// <summary>The pace <paramref name="definition"/>'s star flies at.</summary>
-    private static EndingShootingStarPace Pace(EndingShootingStarDefinition definition) => new(definition.Period);
+    private static EndingShootingStarPace Pace(EndingShootingStarDefinition definition) => definition.Pace;
 
     /// <summary>The star <paramref name="definition"/> authors at the shared origin, undelayed, at the start of its lead-in.</summary>
     private static EndingShootingStar Started(EndingShootingStarDefinition definition) => new()
@@ -77,7 +78,7 @@ internal sealed class EndingShootingStars
         Definition = definition,
         Position = FixedVector<ScreenPixels>.FromWholePixels(
             Offset16<ScreenPixels>.Of(EndingShootingStarDefinitions.Origin, EndingShootingStarDefinitions.Origin)),
-        Flight = AnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue>.StartShowing(
+        Flight = ShowingAnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue>.StartShowing(
             EndingShootingStarAnimations.Segments, EndingShootingStarAnimations.Flight(Pace(definition)), EndingShootingStarDefinitions.LeadInDuration),
     };
 }

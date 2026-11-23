@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
@@ -5,17 +7,8 @@ namespace SuperMetroid.AssetExtraction.Frontend.FileSelect;
 /// <summary>
 /// Places the file-select cursors: the main and copy/clear selection rows and each save slot's helmet.
 /// </summary>
-internal static class FileSelectCursorPositions
+internal static partial class FileSelectCursorPositions
 {
-    /// <summary>The save slots, A-C, each file-select page lists.</summary>
-    internal const int SaveSlotCount = 3;
-
-    /// <summary>Slots A-C followed by Copy, Clear and Exit.</summary>
-    internal const int MainSelectionCount = 6;
-
-    /// <summary>Slots A-C followed by Exit.</summary>
-    internal const int DataSelectionCount = 4;
-
     /// <summary>The main-page cursor's X, the same for every choice.</summary>
     internal const int MainCursorX = 14;
 
@@ -31,41 +24,39 @@ internal static class FileSelectCursorPositions
     /// <summary>Where the copy/clear confirmation's cursor stands beside No.</summary>
     internal static Offset16<ScreenPixels> ConfirmationNoAnchor { get; } = new(94, 208);
 
-    /// <summary>Calculates the main-page cursor Y for choices 0..5.</summary>
+    /// <summary>Calculates the main-page cursor Y beside <paramref name="row"/>.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: save rows start at48 with five-tile spacing;
-    /// Copy/Clear/Exit start at163 with three-tile spacing. These two role groups
-    /// follow the menu's text layout. Bounds are checked before arithmetic and preserve
-    /// ArgumentOutOfRangeException. X is the separate <see cref="MainCursorX"/>.
+    /// The save rows lie five tiles apart from the first slot's row down; Copy, Clear and Exit lie three tiles apart
+    /// below them, following the menu's text layout (<see cref="FileSelectItemRows.MainWithData"/>). A row not on the page
+    /// throws <see cref="ArgumentOutOfRangeException"/>. X is the separate <see cref="MainCursorX"/>.
     /// </remarks>
-    public static int MainSelectionY(int selection)
+    public static int MainSelectionY(FileSelectItem row)
     {
-        if ((uint)selection >= MainSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return selection < SaveSlotCount ? 48 + 40 * selection
-            : 163 + 24 * (selection - SaveSlotCount);
+        if (!FileSelectItemRows.MainWithData.Contains(row)) throw new ArgumentOutOfRangeException(nameof(row), row, "Not a main-page row.");
+        int rowsAbove = FileSelectItemRows.MainWithData.PlaceOf(row);
+        return rowsAbove < SaveSlots.All.Count ? 48 + 40 * rowsAbove
+            : 163 + 24 * (rowsAbove - SaveSlots.All.Count);
     }
 
-    /// <summary>Calculates copy/clear cursor Y, choices0..3.</summary>
+    /// <summary>Calculates the copy/clear cursor Y for the save slots and Exit.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: the three save choices start at72 with four-tile
-    /// spacing. Exit shares the main-page Exit Y. Both original tables and the extractor's
-    /// former duplicate are one logical mapping; unsupported indices remain rejected.
+    /// The save choices lie four tiles apart from the first slot's row down; Exit shares the main page's Exit row.
+    /// A choice outside the page throws <see cref="ArgumentOutOfRangeException"/>.
     /// </remarks>
-    public static int DataSelectionY(int selection)
+    public static int DataSelectionY(FileSelectItem row)
     {
-        if ((uint)selection >= DataSelectionCount) throw new ArgumentOutOfRangeException(nameof(selection));
-        return selection < SaveSlotCount ? 72 + 32 * selection
-            : MainSelectionY(MainSelectionCount - 1);
+        if (!FileSelectItemRows.Data.Contains(row)) throw new ArgumentOutOfRangeException(nameof(row), row, "Not a copy or clear page row.");
+        return row == FileSelectItem.Exit ? MainSelectionY(FileSelectItem.Exit)
+            : 72 + 32 * FileSelectItemRows.Data.PlaceOf(row);
     }
 
     /// <summary>Save-slot helmet Y.</summary>
     /// <remarks>
-    /// Independently reviewed for #1165: slots0..2 use the main slot cursor anchor minus
-    /// one pixel, giving the same five-tile spacing. Reject unsupported slot indices.
+    /// Each slot's helmet lies one pixel above the main page's cursor row for that slot, so the helmets share the rows'
+    /// five-tile spacing. A slot outside the page throws <see cref="ArgumentOutOfRangeException"/>.
     /// </remarks>
-    public static int HelmetY(int slot)
-    {
-        if ((uint)slot >= SaveSlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
-        return MainSelectionY(slot) - 1;
-    }
+    public static int HelmetY(SaveSlot slot) => MainSelectionY(FileSelectItemRows.ForSaveSlot(slot)) - 1;
+
+    /// <summary>The save slots, in the order the installed helmet anchors list them.</summary>
+    internal static IReadOnlyList<SaveSlot> Slots { get; } = [SaveSlot.A, SaveSlot.B, SaveSlot.C];
 }

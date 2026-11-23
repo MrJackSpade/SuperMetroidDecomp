@@ -24,32 +24,32 @@ internal static class LeadingPartPlacement
         Ensure.NotNull(place);
         // An ordinary Ceres door faces the way its placement says, and a getaway chamber wall stands on its side (#1989).
         if (definition == EnemyDefinitionId.CeresDoor)
-            place.SetSpawnSettings(new CeresDoorSpawnSettings(HorizontalDirection.Right));
+            place.BindPlaced(definition, new CeresDoorSpawnSettings(HorizontalDirection.Right));
         if (definition == EnemyDefinitionId.CeresGetawayChamberWall)
-            place.SetSpawnSettings(new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Left));
+            place.BindPlaced(definition, new CeresGetawayChamberWallSpawnSettings(HorizontalDirection.Left));
         // An Evir placement names whether it is the body or the arms (#2146); the body owns the Evir's members.
         if (definition == EnemyDefinitionId.Evir)
-            place.SetSpawnSettings(new EvirSpawnSettings(EvirBodyPart.Body, SignedSixteenSixteen.FromSixteenthsOfPixel(0), 0));
+            place.BindPlaced(definition, new EvirSpawnSettings(EvirBodyPart.Body, SignedSixteenSixteen.FromSixteenthsOfPixel(0), 0));
         // A Powamp placement names whether it is the body or the balloon (#2163); the body owns the Powamp's members.
         if (definition == EnemyDefinitionId.Powamp)
-            place.SetSpawnSettings(new PowampSpawnSettings(PowampPart.Body, GrappleTravelDistance: 0, PowampContact.Accepts));
+            place.BindPlaced(definition, new PowampBodySpawnSettings(PowampContact.Accepts));
         // A Morph Ball eye placement names the eye or its beam mount, and a Rio's or a lava jumper's whether it leads or
         // follows (#2164); the eye and the leading part carry the species' members.
         if (definition == EnemyDefinitionId.MorphBallEye)
-            place.SetSpawnSettings(new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
+            place.BindPlaced(definition, new MorphBallEyeBodySpawnSettings(HorizontalDirection.Right));
         if (definition is EnemyDefinitionId.Geruta or EnemyDefinitionId.Holtz or EnemyDefinitionId.Squeept)
-            place.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
+            place.BindPlaced(definition, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
         // A Dragon placement names whether it is the body or the wing (#2175); the body carries the species' members.
         if (definition == EnemyDefinitionId.Dragon)
-            place.SetSpawnSettings(new DragonSpawnSettings(DragonPart.Body));
+            place.BindPlaced(definition, new DragonSpawnSettings(DragonPart.Body));
         // A Dachora placement names the runner or one of its speed-boost echoes (#2283); the runner carries the species' members.
         if (definition == EnemyDefinitionId.Dachora)
-            place.SetSpawnSettings(new DachoraSpawnSettings(HorizontalDirection.Right, DachoraRole.Runner));
+            place.BindPlaced(definition, new DachoraSpawnSettings(HorizontalDirection.Right, DachoraRole.Runner));
         // A Hibashi placement names the flame or its collision part (#2342); the flame carries the species' members.
         if (definition == EnemyDefinitionId.Hibashi)
-            place.SetSpawnSettings(new HibashiSpawnSettings(InactiveTime: 0, HibashiPart.Flame));
+            place.BindPlaced(definition, new HibashiFlameSpawnSettings(InactiveTime: 0));
         // A Magdollite placement names its head, rising body or tracking overlay; the head carries the species' members.
         if (definition == EnemyDefinitionId.Magdollite)
-            place.SetSpawnSettings(new MagdolliteHeadSpawnSettings(SignedSixteenSixteen.Zero, Range: 0));
+            place.BindPlaced(definition, new MagdolliteHeadSpawnSettings(SignedSixteenSixteen.Zero, Range: 0));
     }
 }

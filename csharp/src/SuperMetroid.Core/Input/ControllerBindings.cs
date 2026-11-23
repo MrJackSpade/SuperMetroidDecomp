@@ -3,23 +3,17 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Input;
 
 /// <summary>
-/// The seven configurable action bindings, kept in
-/// every save slot. Directional input and Start are fixed controls rather than actions,
-/// so they deliberately do not appear in this type.
+/// The seven configurable action bindings, kept in every save slot: the button bound to each action, keyed by the action
+/// (#2565). Directional input and Start are fixed controls rather than actions, so they deliberately do not appear in this
+/// type.
 /// </summary>
 /// <remarks>
 /// Gameplay tests <see cref="GameplayAction"/>s. <see cref="ToActions"/> is the single equivalent of the game loading
 /// these configurable bindings before each comparison: it reads the buttons as actions once per accepted update, so no
-/// gameplay behaviour owns a binding table or names a button.
+/// gameplay behaviour owns a binding table or names a button. A binding set binds every action from its construction, so no
+/// value of it binds nothing.
 /// </remarks>
-public readonly record struct ControllerBindings(
-    ControllerButton Shoot,
-    ControllerButton Jump,
-    ControllerButton Dash,
-    ControllerButton ItemSelect,
-    ControllerButton ItemCancel,
-    ControllerButton AimUp,
-    ControllerButton AimDown)
+public sealed partial class ControllerBindings : IEquatable<ControllerBindings>
 {
     /// <summary>Every configurable action, in the order the bindings are checked and listed (#2567).</summary>
     private static readonly ControllerAction[] Actions = [.. Ensure.EveryMemberOnce<ControllerAction>(
@@ -33,22 +27,35 @@ public readonly record struct ControllerBindings(
         ControllerAction.AimDown,
     ])];
 
+    /// <summary>The button bound to each action, keyed by the action.</summary>
+    private readonly ImmutableDictionary<ControllerAction, ControllerButton> buttons;
+
+    /// <summary>Binds each action to the button <paramref name="buttons"/> holds for it.</summary>
+    /// <param name="buttons">The button bound to each of the seven actions, keyed by the action.</param>
+    /// <exception cref="ArgumentException"><paramref name="buttons"/> does not bind exactly each of the seven actions.</exception>
+    public ControllerBindings(IReadOnlyDictionary<ControllerAction, ControllerButton> buttons)
+    {
+        Ensure.NotNull(buttons);
+        if (buttons.Count != Actions.Length || Actions.Any(action => !buttons.ContainsKey(action)))
+            throw new ArgumentException("Controller bindings bind each of the seven actions exactly once.", nameof(buttons));
+        this.buttons = buttons.ToImmutableDictionary();
+    }
+
     /// <summary>The literal bindings a new save file installs.</summary>
     /// <remarks>
-    /// The new-save bindings are
-    /// Shoot=X, Jump=A, Dash=B,
-    /// ItemSelect=Select, ItemCancel=Y, AimUp=R, and
-    /// AimDown=L. These are named action-to-button cases, read through the constructor and the
-    /// <see cref="ControllerAction"/> indexer.
+    /// The new-save bindings are Shoot=X, Jump=A, Dash=B, ItemSelect=Select, ItemCancel=Y, AimUp=R, and AimDown=L, read
+    /// through the <see cref="ControllerAction"/> indexer.
     /// </remarks>
-    public static ControllerBindings Default => new(
-        Shoot: ControllerButton.X,
-        Jump: ControllerButton.A,
-        Dash: ControllerButton.B,
-        ItemSelect: ControllerButton.Select,
-        ItemCancel: ControllerButton.Y,
-        AimUp: ControllerButton.R,
-        AimDown: ControllerButton.L);
+    public static ControllerBindings Default => new(new Dictionary<ControllerAction, ControllerButton>
+    {
+        [ControllerAction.Shoot] = ControllerButton.X,
+        [ControllerAction.Jump] = ControllerButton.A,
+        [ControllerAction.Dash] = ControllerButton.B,
+        [ControllerAction.ItemSelect] = ControllerButton.Select,
+        [ControllerAction.ItemCancel] = ControllerButton.Y,
+        [ControllerAction.AimUp] = ControllerButton.R,
+        [ControllerAction.AimDown] = ControllerButton.L,
+    });
 
     /// <summary>
     /// The physical buttons the options menu admits when it sets a binding, in the order of the options menu's button
@@ -73,21 +80,13 @@ public readonly record struct ControllerBindings(
     /// Whether <paramref name="button"/> is one of the <see cref="AssignableButtons"/>; false for every other button set,
     /// including combinations of valid buttons, directions, Start, and none.
     /// </summary>
-    public static bool IsAssignable(ControllerButton button) => AssignableButtons.Contains(button);
+    private static bool IsAssignable(ControllerButton button) => AssignableButtons.Contains(button);
 
     /// <summary>Returns the button bound to one action.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
-    public ControllerButton this[ControllerAction action] => action switch
-    {
-        ControllerAction.Shoot => Shoot,
-        ControllerAction.Jump => Jump,
-        ControllerAction.Dash => Dash,
-        ControllerAction.ItemSelect => ItemSelect,
-        ControllerAction.ItemCancel => ItemCancel,
-        ControllerAction.AimUp => AimUp,
-        ControllerAction.AimDown => AimDown,
-        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
-    };
+    public ControllerButton this[ControllerAction action] => buttons.TryGetValue(action, out ControllerButton button)
+        ? button
+        : throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action.");
 
     /// <summary>
     /// Reproduces the options screen's permutation swap. Assigning a physical button to one
@@ -104,6 +103,9 @@ public readonly record struct ControllerBindings(
     /// </exception>
     public ControllerBindings AssignAndSwap(ControllerAction action, ControllerButton physicalButton)
     {
+        // Bindings with one action rebound and the other six kept.
+        static ControllerBindings Rebound(ControllerBindings bindings, ControllerAction rebound, ControllerButton value) =>
+            new(bindings.buttons.SetItem(rebound, value));
         ControllerButton displaced = this[action];
         if (!IsAssignable(physicalButton))
         {
@@ -113,11 +115,11 @@ public readonly record struct ControllerBindings(
 
         if (displaced == physicalButton)
             return this;
-        ControllerBindings result = WithAction(action, physicalButton);
+        ControllerBindings result = Rebound(this, action, physicalButton);
         foreach (ControllerAction other in Actions)
         {
             if (other != action && this[other] == physicalButton)
-                return result.WithAction(other, displaced);
+                return Rebound(result, other, displaced);
         }
 
         throw new InvalidOperationException(
@@ -145,7 +147,7 @@ public readonly record struct ControllerBindings(
     }
 
     /// <summary>True when all seven bindings are single, distinct assignable buttons.</summary>
-    public bool IsUniquePermutation
+    internal bool IsUniquePermutation
     {
         get
         {
@@ -174,28 +176,31 @@ public readonly record struct ControllerBindings(
         if (!IsUniquePermutation)
         {
             throw new InvalidDataException(
-                "Controller bindings are not a unique permutation of the seven assignable " +
-                $"buttons: shoot={Shoot}, jump={Jump}, dash={Dash}, " +
-                $"select={ItemSelect}, cancel={ItemCancel}, " +
-                $"aim-up={AimUp}, aim-down={AimDown}.");
+                $"Controller bindings are not a unique permutation of the seven assignable buttons: {this}.");
         }
 
         return this;
     }
 
-    /// <summary>Replaces one action's button while retaining the other six bindings.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
-    private ControllerBindings WithAction(ControllerAction action, ControllerButton value) => action switch
+
+    /// <summary>Whether both bind every action to the same button.</summary>
+    public bool Equals(ControllerBindings? other) =>
+        other is not null && Actions.All(action => buttons[action] == other.buttons[action]);
+
+    /// <inheritdoc/>
+    public override bool Equals(object? obj) => obj is ControllerBindings other && Equals(other);
+
+    /// <summary>Hashes the button each action is bound to.</summary>
+    public override int GetHashCode()
     {
-        ControllerAction.Shoot => this with { Shoot = value },
-        ControllerAction.Jump => this with { Jump = value },
-        ControllerAction.Dash => this with { Dash = value },
-        ControllerAction.ItemSelect => this with { ItemSelect = value },
-        ControllerAction.ItemCancel => this with { ItemCancel = value },
-        ControllerAction.AimUp => this with { AimUp = value },
-        ControllerAction.AimDown => this with { AimDown = value },
-        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
-    };
+        var hash = new HashCode();
+        foreach (ControllerAction action in Actions)
+            hash.Add(buttons[action]);
+        return hash.ToHashCode();
+    }
+
+    /// <summary>Names each action's button, for diagnostics.</summary>
+    public override string ToString() => string.Join(", ", Actions.Select(action => $"{action}={buttons[action]}"));
 
     /// <summary>The fixed control <paramref name="action"/> when <paramref name="button"/> is held, otherwise none.</summary>
     private static GameplayAction FixedControl(ControllerButton held, ControllerButton button, GameplayAction action) =>

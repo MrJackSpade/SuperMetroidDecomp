@@ -8,9 +8,7 @@ namespace SuperMetroid.Core.Spatial;
 /// is computed for a whole position; <see cref="CoordinateAxis"/> states it for one axis.
 /// </remarks>
 /// <typeparam name="TSpace">The coordinate space; positions in different spaces never convert implicitly.</typeparam>
-[SpatialComponents("Spatial value type: owns its X and Y words.")]
-[EncodingOwner("sixteen-bit wrapping coordinate")]
-public readonly record struct Position16<TSpace>
+public readonly partial record struct Position16<TSpace>
     where TSpace : ISpatialSpace
 {
     /// <summary>The position at two coordinates that must already lie in 0 through 65535.</summary>
@@ -23,11 +21,9 @@ public readonly record struct Position16<TSpace>
     }
 
     /// <summary>The horizontal coordinate, 0 through 65535.</summary>
-    [IntegerQuantity("horizontal coordinate")]
     public ushort X { get; init; }
 
     /// <summary>The vertical coordinate, 0 through 65535.</summary>
-    [IntegerQuantity("vertical coordinate")]
     public ushort Y { get; init; }
 
     /// <summary>The origin.</summary>

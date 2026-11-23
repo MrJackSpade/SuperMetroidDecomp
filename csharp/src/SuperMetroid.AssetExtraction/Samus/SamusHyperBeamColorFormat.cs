@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Assets;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Installed-resource identity and row geometry for the full-body Hyper Beam RGB5 cycle.</summary>
-public static class SamusHyperBeamColorFormat
+public static partial class SamusHyperBeamColorFormat
 {
     /// <summary>JSON resource filename containing the ten editable full-body Hyper Beam palettes.</summary>
     public const string FileName = "samus-hyper-beam-colors.json";

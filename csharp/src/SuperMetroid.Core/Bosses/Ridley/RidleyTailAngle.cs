@@ -6,13 +6,14 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// the link; the whole count orders the swing limits and whip targets across the turn boundary, so a whip target a
 /// whole turn round still lies beyond a limit that points the same way, and a link swings the whole turn to reach it.
 /// </summary>
-public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
+public readonly partial record struct RidleyTailAngle : IComparable<RidleyTailAngle>
 {
     /// <summary>Holds the angle in steps from straight down.</summary>
     private RidleyTailAngle(int stepsFromStraightDown) => StepsFromStraightDown = stepsFromStraightDown;
 
-    /// <summary>The angle in 256ths of a turn from straight down, counterclockwise positive, counted without wrapping.</summary>
-    public int StepsFromStraightDown { get; }
+    /// <summary>The angle in steps of the turn from straight down, counterclockwise positive, counted without
+    /// wrapping.</summary>
+    internal int StepsFromStraightDown { get; }
 
     /// <summary>The link pointing straight down from its anchor.</summary>
     public static RidleyTailAngle StraightDown => default;
@@ -23,7 +24,7 @@ public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
     /// </summary>
     public TrigonometryAngle Direction => TrigonometryAngle.Wrapped(StepsFromStraightDown);
 
-    /// <summary>The angle turned <paramref name="steps"/> 256ths of a turn counterclockwise.</summary>
+    /// <summary>The angle turned <paramref name="steps"/> steps of the turn counterclockwise.</summary>
     public RidleyTailAngle TurnedCounterclockwise(int steps) => new(StepsFromStraightDown + steps);
 
     /// <summary>The angle turned counterclockwise by the turn <paramref name="direction"/> makes from zero.</summary>
@@ -33,7 +34,7 @@ public readonly record struct RidleyTailAngle : IComparable<RidleyTailAngle>
     /// <summary>The angle turned <paramref name="turn"/> counterclockwise.</summary>
     public RidleyTailAngle TurnedCounterclockwise(RidleyTailTurn turn) => TurnedCounterclockwise(turn.Steps);
 
-    /// <summary>The angle turned <paramref name="steps"/> 256ths of a turn clockwise.</summary>
+    /// <summary>The angle turned <paramref name="steps"/> steps of the turn clockwise.</summary>
     public RidleyTailAngle TurnedClockwise(int steps) => new(StepsFromStraightDown - steps);
 
     /// <summary>The angle turned <paramref name="turn"/> clockwise.</summary>

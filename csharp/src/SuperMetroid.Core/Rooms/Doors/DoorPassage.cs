@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <remarks>
 /// The passage outlives the rooms it joins: it holds through the destination's load, and no enemy's setup reads it.
 /// </remarks>
-internal sealed class DoorPassage
+internal sealed partial class DoorPassage
 {
     /// <summary>
     /// Whether Samus is passing through a door: set when the door transition starts, cleared on the last step of the

@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Phantoon's health, fade-out, and ship-power RGB5 targets.</summary>
-public static class PhantoonColorExtractor
+public static partial class PhantoonColorExtractor
 {
     /// <summary>Reads all Phantoon health bands, fade-out colors, and ship-power targets, rejects high-bit colors, and serializes their RGB5 components.</summary>
     /// <param name="bus">Supported-cartridge address space containing the complete Phantoon color tables.</param>
@@ -18,19 +18,19 @@ public static class PhantoonColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var bands = new PaletteRgb5[PhantoonColorDefinitions.HealthBandCount][];
-        for (int band = 0; band < bands.Length; band++)
-            bands[band] = Read(PhantoonSourceDefinitions.HealthBandColors +
-                band * PhantoonColorFormat.HealthBandColorCount * sizeof(ushort),
-                PhantoonColorFormat.HealthBandColorCount);
         return PhantoonColorFile.Write(new PhantoonColorDocument
         {
             Version = PhantoonColorFormat.Version,
-            HealthBands = bands,
+            HealthBands = PhantoonHealthBandDefinitions.HighestFirst.ToDictionary(band => band.Key,
+                band => Read(PhantoonSourceDefinitions.HealthBandColors +
+                    PhantoonSourceDefinitions.HealthBandPalettes[band] * PhantoonColorFormat.HealthBandColorCount * sizeof(ushort),
+                    PhantoonColorFormat.HealthBandColorCount), StringComparer.Ordinal),
             FadeOut = Read(PhantoonSourceDefinitions.FadeOutColors,
                 PhantoonColorFormat.FadeOutCount),
-            PowerOn = Read(PhantoonSourceDefinitions.PowerOnColors,
-                PhantoonSourceDefinitions.PowerOnColourCount),
+            PowerOn = PhantoonColorFormat.PoweredPartKeys.ToDictionary(part => part.Value,
+                part => Read(PhantoonSourceDefinitions.PowerOnColors +
+                    PhantoonSourceDefinitions.PowerOnGroups[part.Key] * PhantoonColorFormat.PoweredPartColourCount * sizeof(ushort),
+                    PhantoonColorFormat.PoweredPartColourCount), StringComparer.Ordinal),
         });
 
         PaletteRgb5[] Read(int source, int count)
@@ -39,16 +39,11 @@ public static class PhantoonColorExtractor
             for (int color = 0; color < count; color++)
             {
                 int address = source + color * sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Phantoon color ${address:X6} has an unrepresentable high bit.");
-                colors[color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

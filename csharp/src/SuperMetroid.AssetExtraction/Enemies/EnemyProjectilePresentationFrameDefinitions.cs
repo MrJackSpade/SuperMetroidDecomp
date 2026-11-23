@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Where each frame is stored in the cartridge is the import's knowledge (AssetExtraction's
 /// <c>EnemyProjectileProgramFrameDefinitions</c>).
 /// </summary>
-internal static class EnemyProjectilePresentationFrameDefinitions
+internal static partial class EnemyProjectilePresentationFrameDefinitions
 {
 
     /// <summary>
@@ -535,7 +535,6 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("torizo_explosion_flare_ring_cored"),
         new("torizo_explosion_flare_ring"),
         new("torizo_explosion_flare_ring_fading"),
-        new("torizo_death_explosion_spark"),
         new("torizo_explosion_fireball_small"),
         new("torizo_explosion_fireball_large"),
         new("torizo_explosion_flaming_ring"),
@@ -727,14 +726,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         new("fune_namihe_fireball_right_dissolving"),
         new("magdollite_lava_left"),
         new("magdollite_lava_right"),
-        new("save_station_electricity_sweep_beginning"),
-        new("save_station_electricity_sweep_descending"),
-        new("save_station_electricity_sweep_lowering"),
-        new("save_station_electricity_sweep_nearing_halfway"),
-        new("save_station_electricity_sweep_passing_halfway"),
-        new("save_station_electricity_sweep_past_halfway"),
-        new("save_station_electricity_sweep_nearing_end"),
-        new("save_station_electricity_sweep_ending"),
+        new("save_station_electricity_band"),
         new("falling_spark_upright"),
         new("falling_spark_diagonal"),
         new("falling_spark_upright_small"),

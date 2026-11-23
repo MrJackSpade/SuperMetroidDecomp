@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>The names the game-over screen's pieces are pictured under.</summary>
-public static class GameOverPresentationDefinitions
+public static partial class GameOverPresentationDefinitions
 {
     /// <summary>Schema sprite identity of the egg composition, drawn at the Baby anchor.</summary>
     public const string EggFrame = "Egg";
@@ -9,11 +9,11 @@ public static class GameOverPresentationDefinitions
     public const string PageFrame = "GameOver.Page";
 
     /// <summary>Maps a Baby animation frame to its authored sprite composition identity.</summary>
-    internal static readonly IReadOnlyDictionary<GameOverBabyFrame, string> BabyFrameNames =
-        new Dictionary<GameOverBabyFrame, string>
+    internal static readonly IdentityTable<GameOverBabyFrame, string> BabyFrameNames =
+        new(new Dictionary<GameOverBabyFrame, string>
         {
             [GameOverBabyFrame.Closed] = "Baby.Closed",
             [GameOverBabyFrame.Middle] = "Baby.Middle",
             [GameOverBabyFrame.Open] = "Baby.Open",
-        };
+        });
 }

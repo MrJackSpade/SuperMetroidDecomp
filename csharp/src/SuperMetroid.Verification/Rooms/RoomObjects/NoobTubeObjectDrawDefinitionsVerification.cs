@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupNoobTubeStockVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupTubeDrawsVerification;
@@ -32,7 +33,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
         RoomObjectDrawLists.DrawList upperRows = lists.Single(draw => RoomObjectNoobTubeVisualFiles.VisualId(draw.Draw) == "upper-rows-open");
         AssertEqual(0x9991, RoomObjectDrawAddressCodec.Of(upperRows.Draw), "the tube's opened upper rows are the draw the cartridge stores at $9991");
         AssertEqual(InstalledFramePictureAssertions.NativePicture(rom, 0x9991, out _)[upperRows.Runs.Span[2].Start],
-            InstalledRoomObjectNoobTubeVisuals.Stock().Image(NativeObjectDraws.At<NoobTubeDraw>(0x9991)).At(upperRows.Runs.Span[2].Start),
+            RoomObjectPicturesStock.NoobTube.Image(NativeObjectDraws.At<NoobTubeDraw>(0x9991)).At(upperRows.Runs.Span[2].Start),
             "stock n00b-tube catalog retains the native row tile");
         AssertEqual(5, lists.Length,
             "the n00b tube shows five distinct physical draw lists");
@@ -71,7 +72,7 @@ internal static class NoobTubeObjectDrawDefinitionsVerification
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Maridia), RoomObjectPopulationImporter.Read(guarded, 0x9400), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } });
         roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<NoobTubeDraw>(RoomObjectDrawAddressCodec.Of(selected.Draw)));
 
-        RoomObjectFrameImage picture = InstalledRoomObjectNoobTubeVisuals.Stock().Image(selected.Draw);
+        RoomObjectFrameImage picture = RoomObjectPicturesStock.NoobTube.Image(selected.Draw);
         var expected = new Dictionary<int, RoomTerrainBlock>();
         foreach (RoomObjectDrawLists.Run run in selected.Runs.Span)
         {

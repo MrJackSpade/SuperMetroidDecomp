@@ -3,13 +3,11 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
-using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies;
@@ -36,7 +34,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         /// where the cartridge writes its transparent sprites.
         /// </summary>
         internal bool FrameShowsNothing(RoomEnemyPlace place) =>
-            place.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(place.DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
+            place.Frame is { } frame && Enemies.Presentation.Artwork.Enemy(place.HeldOccupant().DefinitionId).Sheet.ShowsNothing(EnemySheetDefinitions.FrameName(frame));
         /// <summary>Enemy runtime fed by this fixture's room, RNG, and artwork.</summary>
         internal RoomEnemySystem Enemies { get; }
         /// <summary>The Boyon placed in the first enemy slot.</summary>
@@ -71,8 +69,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().IsAreaTorizoDefeated = () => BossBitCalls != 0;
             Enemies.VerificationServices().SetAreaTorizoDefeated = () => BossBitCalls++;
 
-            Actor.Bind(EnemyDefinitionId.Boyon, Actor.Definition);
-            Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.DefinitionId));
+            Actor.Bind(EnemyDefinitionId.Boyon, Actor.KeptDefinition);
+            Actor.Bind(Actor.HeldOccupant().DefinitionId, RoomEnemyDefinitionLookup.Get(Actor.HeldOccupant().DefinitionId));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
@@ -89,14 +87,14 @@ internal static class EnemyAnimationIsolationFixtureVerification
             // fixture inputs, not authored animation/gameplay tuning.
             Actor.SetSpawnParameter1(EnemyDefinitionId.Boyon, (3 << 8) | 2);
             Actor.SetSpawnParameter2(EnemyDefinitionId.Boyon, Actor.Position.Y.Whole);
-            new Action<RoomEnemyPlace>(BoyonBehavior.InitializeBoyon)(Actor);
+            new Action<RoomEnemyPlace>(fixturePlace => BoyonBehavior.InitializeBoyon(fixturePlace))(Actor);
         }
 
         /// <summary>Advances enemy projectiles before the enemy frame using the same frame counter.</summary>
         internal void Step(int frame)
         {
             Enemies.StepEnemyProjectiles(Level, Samus, frameCounterByte: unchecked((byte)frame));
-            Enemies.StepStandaloneFrame(Enemies.StandaloneFrame(Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, ShortCounter = unchecked((byte)frame) });
+            Enemies.StepStandaloneFrame(Enemies.StandaloneFrame(Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = Samus, ShortCounter = new SuperMetroid.Core.Compatibility.ShortFrameCount(unchecked((byte)frame)) });
         }
 
         /// <summary>Captures a complete enemy and projectile OAM draw for artwork comparison.</summary>
@@ -113,7 +111,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal void DrawInto(SpriteFrameBuffer frame)
         {
             Enemies.Drawing.Advance(new(0, 0));
-            Enemies.Drawing.Draw(frame, new(0, 0), Samus);
+            Enemies.Drawing.Draw(Enemies.Drawing.Advance(new(0, 0)), frame, new(0, 0), Samus);
             Enemies.EffectActors.DrawRoomEffectActors(frame, Position16<RoomPixels>.Zero, EnemyFormatDrawAccess.HitBurstSheets);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.InFrontOfSamus, timeIsFrozen: false);
             Enemies.Projectiles.DrawEnemyProjectilesAt(frame, Position16<RoomPixels>.Zero, EnemyProjectileDepth.BehindSamus, timeIsFrozen: false);
@@ -127,21 +125,9 @@ internal static class EnemyAnimationIsolationFixtureVerification
     }
 
     /// <summary>
-    /// Compares public scalar state, including instruction identities, timers, positions, and health.
-    /// Reference owners and editable catalogs differ by design; collections are compared separately.
+    /// Compares two fixtures' states through their whole debugger-state graphs (#2602): instruction identities, timers,
+    /// positions, health and every other value the compiler writes for the state, both naming the installed content by path.
     /// </summary>
-    internal static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class
-    {
-        foreach (PropertyInfo property in AnimationValueProperties<T>.All)
-            AssertEqual(property.GetValue(baseline), property.GetValue(edited), context + " " + typeof(T).Name + "." + property.Name);
-    }
-
-    /// <summary>Selects scalar properties that can be compared without traversing fixture-owned references.</summary>
-    internal static class AnimationValueProperties<T> where T : class
-    {
-        /// <summary>Public non-indexer value and string properties of the state type.</summary>
-        internal static readonly PropertyInfo[] All = MetadataShape.Properties(typeof(T), BindingFlags.Instance | BindingFlags.Public)
-            .Where(property => property.GetIndexParameters().Length == 0 &&
-                (property.PropertyType.IsValueType && !property.PropertyType.IsByRefLike || property.PropertyType == typeof(string))).ToArray();
-    }
+    internal static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class =>
+        AssertTrue(GraphDigestVerification.SameGraph(baseline, edited), context + " " + typeof(T).Name + " state");
 }

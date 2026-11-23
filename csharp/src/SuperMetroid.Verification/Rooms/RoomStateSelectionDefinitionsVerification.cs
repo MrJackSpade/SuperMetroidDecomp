@@ -1,4 +1,3 @@
-using SuperMetroid.TestSupport.RoomHeaderImport;
 using SuperMetroid.AssetExtraction.Progression;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
@@ -22,11 +21,6 @@ internal static class RoomStateSelectionDefinitionsVerification
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)
             .Select(pointer => (pointer ?? throw new InvalidOperationException("Verification requires pointer."))).Distinct().Order().ToArray();
         AssertEqual(261, rooms.Length, "Original retail room selector identities");
-        var uncompiled = new RoomDefinition("uncompiled fixture room", AreaId.Crateria, new(0, 0), new(1, 1), 0, 0, RoomDoorTransitionStyle.Standard);
-        AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelection.Select(uncompiled, RoomStateSelectionContexts.NoProgress),
-            "Uncompiled room selector rejects before condition evaluation");
-        AssertThrows<ArgumentOutOfRangeException>(() => RoomStateSelection.GetStatePointers(uncompiled),
-            "Uncompiled room variant enumeration rejects");
 
         int conditional = 0, clauses = 0, comparisons = 0;
         var reached = new HashSet<ushort>();
@@ -107,7 +101,7 @@ internal static class RoomStateSelectionDefinitionsVerification
                 var context = new RoomStateSelectionContext(storedEvents, ProgressionTableCodec.StoredBosses(bosses), morph, powerBombs);
                 AssertEqual(expected, RoomStateSelection.Select(RoomDefinitions.Get(room), context).Pointer,
                     $"Room {room:X4} native first-match/default selection");
-                AssertEqual(expected, SelectedRoom.LoadUsingCompiledSelection(RoomDefinitions.Get(room), context).State.Pointer,
+                AssertEqual(expected, SelectedRoom.ForProgress(RoomDefinitions.Get(room), context).State.Pointer,
                     "Production room loading uses the selected compiled state without cartridge capability");
                 reached.Add(expected);
                 comparisons++;

@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Frontend.Ending.Artwork.EndingRewardIconA
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend.Ending;
-using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.FrameRendering;
@@ -30,7 +29,7 @@ internal static class EndingMode7ArtworkVerification
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             byte[] nativePacked = RomDataReader.Decompress(nativeBus, packedSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
-            EndingFloorSceneArtwork compiledScene = stock[id];
+            EndingFloorSceneCharacters compiledScene = stock[id];
             AssertTrue(compiledScene.Characters.Span.SequenceEqual(nativeCharacters.AsSpan(0,
                     EndingFloorArtworkFormat.CharacterByteCount)),
                 $"installed ending {id} PNG preserves every high-lane character byte");

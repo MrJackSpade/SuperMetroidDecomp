@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// The eleven Spore Spawn frames and their fixed gameplay hitboxes (#2241, #2234): each head list named for the pose it fits, and
 /// each frame listed against its head and its inner point.
 /// </summary>
-internal static class SporeSpawnCollisionDefinitions
+internal static partial class SporeSpawnCollisionDefinitions
 {
     /// <summary>Spore Spawn's contact reaction, on the active shell and vulnerable point.</summary>
     internal static readonly EnemyReaction Touch = SporeSpawnReactions.Touch;
@@ -64,8 +64,8 @@ internal static class SporeSpawnCollisionDefinitions
 
     /// <summary>
     /// Each Spore Spawn frame's components: the husk and the shut head hold one head; each opening frame holds the head its
-    /// parting fits and its inner point, which rejects shots on the 24-pixel, the 48-pixel and the last fully open frame and
-    /// takes them on the rest; the fully open frames hold the 48-pixel head. All component offsets are zero.
+    /// parting fits and its inner point, which rejects shots on the parting and open frames and takes them on the rest;
+    /// the fully open frames hold the 48-pixel head. All component offsets are zero.
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, EnemyCollisionComponent[]> FrameComponents = new()
     {

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// pogo, carry and death turn on, how near his claws must come to grab Samus, the pogo's bounce and his death's drops.
 /// The targets that depend on the way he faces are <see cref="RidleyMovementTargets"/>'.
 /// </summary>
-internal static class NorfairRidleyArenaDefinitions
+internal static partial class NorfairRidleyArenaDefinitions
 {
     /// <summary>Where Ridley is placed, below his arena's visible floor.</summary>
     internal static readonly Position16<RoomPixels> Spawn = new(96, 394);
@@ -57,9 +57,9 @@ internal static class NorfairRidleyArenaDefinitions
     /// <summary>Where a pogo bounce's dust rises, below the tail's tip.</summary>
     internal static readonly Offset16<RoomPixels> PogoDustBelowTip = new(0, 12);
 
-    /// <summary>The medium vertical earthquake a pogo bounce shakes the foreground and background with.</summary>
+    /// <summary>The medium vertical earthquake a pogo bounce shakes the whole view with.</summary>
     internal static readonly EarthquakeShake PogoBounceQuake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.ForegroundAndBackground);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocksAndScenery);
 
     /// <summary>The updates a pogo bounce's earthquake lasts.</summary>
     internal const int PogoBounceQuakeUpdates = 4;

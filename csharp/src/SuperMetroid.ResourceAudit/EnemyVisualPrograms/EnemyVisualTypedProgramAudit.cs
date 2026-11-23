@@ -149,10 +149,10 @@ internal static class EnemyVisualTypedProgramAudit
             report.Require(ResourceDomains.EnemyDisplay, nameof(BotwoonVisualDefinitions),
                 ResourceIndex.Address(frame.Bank, frame.Pointer), botwoonSource, exports);
         }
-        // His body segments' and spit's beats name their installed projectile frames (#2036); a hidden segment shows the
-        // blank frame, which draws nothing and is installed nowhere (#2431).
+        // His body segments' and spit's beats name their installed projectile frames (#2036); a hidden segment's beat hides
+        // it, showing no frame (#2431, #2558).
         const string botwoonProjectileSource = "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonAnimations.cs";
-        EnemyProjectileFrameId[] botwoonProjectileFrames = [.. BotwoonAnimations.ProjectileFrames.Where(frame => frame != EnemyProjectileFrameId.Blank)];
+        EnemyProjectileFrameId[] botwoonProjectileFrames = [.. BotwoonAnimations.ProjectileFrames];
         foreach (EnemyProjectileFrameId frame in botwoonProjectileFrames)
         {
             ProjectileDefinitionAudit.RequireFrame(EnemyProjectileProgramFrameSources.Operand(frame),
@@ -271,7 +271,9 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(SkulteraAnimations), "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraAnimations.cs");
         RequireSegmentFrames(BoyonAnimations.Segments, BoyonFrameToolingDefinitions.Spritemap, BoyonFrameToolingDefinitions.Bank,
             nameof(BoyonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Boyon/BoyonAnimations.cs");
-        RequireSegmentFrames(PowampAnimations.Segments, PowampFrameToolingDefinitions.Spritemap, PowampFrameToolingDefinitions.Bank,
+        RequireSegmentFrames(PowampAnimations.BodySegments, PowampFrameToolingDefinitions.Spritemap, PowampFrameToolingDefinitions.Bank,
+            nameof(PowampAnimations), "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampAnimations.cs");
+        RequireSegmentFrames(PowampAnimations.BalloonSegments, PowampFrameToolingDefinitions.BalloonSpritemap, PowampFrameToolingDefinitions.Bank,
             nameof(PowampAnimations), "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampAnimations.cs");
         RequireSegmentFrames(SparkAnimations.Segments, SparkFrameToolingDefinitions.Spritemap, SparkFrameToolingDefinitions.Bank,
             nameof(SparkAnimations), "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkAnimations.cs");
@@ -321,8 +323,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(YardAnimations), "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs");
         RequireSegmentFrames(KiHunterAnimations.Segments, KiHunterFrameToolingDefinitions.Spritemap, KiHunterFrameToolingDefinitions.Bank,
             nameof(KiHunterAnimations), "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs");
-        RequireSegmentFrames(MagdolliteAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
-            nameof(MagdolliteAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteAnimations.cs");
+        RequireSegmentFrames(MagdolliteHeadAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
+            nameof(MagdolliteHeadAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteHeadAnimations.cs");
+        RequireSegmentFrames(MagdolliteBodyAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
+            nameof(MagdolliteBodyAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteBodyAnimations.cs");
+        RequireSegmentFrames(MagdolliteOverlayAnimations.Segments, MagdolliteFrameToolingDefinitions.Spritemap, MagdolliteFrameToolingDefinitions.Bank,
+            nameof(MagdolliteOverlayAnimations), "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteOverlayAnimations.cs");
         RequireSegmentFrames(MamaTurtleAnimations.Segments, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,
             nameof(MamaTurtleAnimations), "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs");
         RequireSegmentFrames(BabyTurtleAnimations.Segments, MamaTurtleFrameToolingDefinitions.Spritemap, MamaTurtleFrameToolingDefinitions.Bank,

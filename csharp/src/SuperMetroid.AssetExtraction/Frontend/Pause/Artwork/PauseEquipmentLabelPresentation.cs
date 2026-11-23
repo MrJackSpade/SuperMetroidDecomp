@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable label artwork and placement for the pause equipment page, kept as installed (#1615).</summary>
-public sealed class PauseEquipmentLabelPresentation
+public sealed partial class PauseEquipmentLabelPresentation
 {
     /// <summary>Each label's installed placement and tiles.</summary>
     private readonly Dictionary<PauseEquipmentLabelId, CompiledLabel> labels;
@@ -31,7 +31,7 @@ public sealed class PauseEquipmentLabelPresentation
     internal IEnumerable<int> PageCells(PauseEquipmentLabelId label)
     {
         CompiledLabel compiled = labels[label];
-        return Enumerable.Range(compiled.PageCell, label == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelArtworkDefinitions.BeamWords : compiled.CellCount);
+        return Enumerable.Range(compiled.PageCell, PauseEquipmentLabelKeys.WordCount(PauseEquipmentLabelDefinitions.Labels[label].ShownWidth));
     }
 
     /// <summary>Clears uncollected strips, recolors collected but unequipped strips, and replaces ordinary beam labels with Hyper when active.</summary>
@@ -77,8 +77,7 @@ public sealed class PauseEquipmentLabelPresentation
         PauseEquipmentLabelDocument document;
         try
         {
-            document = JsonAssetDocument.Read<PauseEquipmentLabelDocument>(source, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Pause equipment label document is null.");
+            document = JsonAssetDocument.Read<PauseEquipmentLabelDocument>(source, ArtworkJson.Options);
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid pause equipment label JSON.", error); }
 
@@ -99,15 +98,15 @@ public sealed class PauseEquipmentLabelPresentation
             string key = PauseEquipmentLabelKeys.Name(id);
             PauseEquipmentLabel label = document.Labels[key] ??
                 throw new InvalidDataException($"Pause equipment label {key} is null.");
-            int words = PauseEquipmentLabels.IsOrdinaryBeam(id)
-                ? PauseEquipmentLabelArtworkDefinitions.BeamWords : PauseEquipmentLabelArtworkDefinitions.EquipmentWords;
+            PauseEquipmentLabelDefinition definition = PauseEquipmentLabelDefinitions.Labels[id];
+            int words = PauseEquipmentLabelKeys.WordCount(definition.StoredWidth);
             if (label.Cells is null || label.Cells.Length != words ||
                 (uint)label.Column >= PauseEquipmentLabelArtworkDefinitions.TilemapColumns ||
                 (uint)label.Row >= PauseEquipmentLabelArtworkDefinitions.TilemapRows ||
-                label.Column + (id == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelArtworkDefinitions.BeamWords : words) > PauseEquipmentLabelArtworkDefinitions.TilemapColumns)
+                label.Column + PauseEquipmentLabelKeys.WordCount(definition.ShownWidth) > PauseEquipmentLabelArtworkDefinitions.TilemapColumns)
                 throw new InvalidDataException($"Pause equipment label {key} has invalid cells or placement.");
             int destinationCell = label.Row * PauseEquipmentLabelArtworkDefinitions.TilemapColumns + label.Column;
-            if (id != PauseEquipmentLabelId.Hyper)
+            if (!definition.BorrowsPageCells)
             {
                 for (int cell = destinationCell; cell < destinationCell + words; cell++)
                 {
@@ -127,7 +126,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <param name="document">Label artwork and placement to serialize; the writer does not retain the document.</param>
     public static void Write(Stream output, PauseEquipmentLabelDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Pause.Artwork.PauseEquipmentLabelDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 
@@ -153,7 +152,7 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>One label's installed placement and tiles.</summary>
     /// <param name="pageCell">The equipment-page cell the label's first tile shows in.</param>
     /// <param name="tiles">The label's installed tiles, first to last.</param>
-    private sealed class CompiledLabel(int pageCell, BackgroundTile[] tiles)
+    private sealed partial class CompiledLabel(int pageCell, BackgroundTile[] tiles)
     {
         /// <summary>The installed equipment-page cell of the label's first tile.</summary>
         internal int PageCell => pageCell;

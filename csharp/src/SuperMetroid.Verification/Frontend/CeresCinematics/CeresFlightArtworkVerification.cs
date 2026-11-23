@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Text.Json;
@@ -41,7 +42,7 @@ internal static class CeresFlightArtworkVerification
         AssertTrue(stock.FloorMaps.Span.SequenceEqual(nativeMaps.AsSpan(0,
                 CeresFlightArtworkFileFormat.MapCellCount)),
             "extracted front/rear Ceres maps preserve every consumed native byte");
-        byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+        byte[] nativePalette = RomDataReader.ReadFixedBank(bus,
             CeresCinematicSourceDefinitions.FlightPalette, CgramPalettes.ByteCount);
         // The installed colours in the cartridge's colour order, compared with the native palette colour by colour.
         byte[] installedWords = ScreenColourWords.Words(intro.FlightPalette.BackgroundColours.AsSpan(),
@@ -61,8 +62,8 @@ internal static class CeresFlightArtworkVerification
         using var referenceActors = new MemoryStream(referenceFiles[CeresFlightActorLayoutFormat.FileName]);
         CeresFlightCharacters reference = CeresFlightCharacters.Read(referenceCharacters, referenceObjects, referenceMaps, referenceSprites,
             CeresFlightSourceArtwork.Read(CeresFlightPaletteFile.Read(referencePalette).Backdrop, referenceActors));
-        var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(reference), japaneseText: false);
-        var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(stock), japaneseText: false);
+        var native = new IntroCeresFlightState(AudioQueues.Standalone(), reference.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(reference), language: TextLanguage.English);
+        var installed = new IntroCeresFlightState(AudioQueues.Standalone(), stock.BoundCatalog, sheets: CinematicSheetFixtures.WithFlight(stock), language: TextLanguage.English);
         var phases = new HashSet<IntroCeresFlightPhase>();
         for (int tick = 0; tick < 4000 && !native.Finished; tick++)
         {
@@ -104,8 +105,7 @@ internal static class CeresFlightArtworkVerification
         string name = CeresFlightActorLayoutFormat.FileName;
         string stockPath = Path.Combine(installation.IntroCinematicDirectory, name);
         CeresFlightActorLayoutDocument document =
-            JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(
-                File.ReadAllBytes(stockPath), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<CeresFlightActorLayoutDocument>(File.ReadAllBytes(stockPath), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresFlightActorLayoutDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock Ceres flight actor layout is empty.");
         for (int index = 0; index < document.Actors.Length; index++)
         {
@@ -113,11 +113,11 @@ internal static class CeresFlightArtworkVerification
             AssertEqual(source.Role, document.Actors[index].Role,
                 $"Ceres flight actor {index} retains its role");
             // The installed positions are signed (#1627): an operand of 65504 places the actor 32 pixels left of the origin.
-            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.FirstOperand)),
                 document.Actors[index].X,
                 $"Ceres flight actor {index} X is the cartridge operand as a signed position");
-            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(CoordinateAxis.AsSigned(RomDataReader.ReadWordFixedBank(bus,
                     CeresCinematicSourceDefinitions.PlacementBank | source.SecondOperand)),
                 document.Actors[index].Y,
                 $"Ceres flight actor {index} Y is the cartridge operand as a signed position");

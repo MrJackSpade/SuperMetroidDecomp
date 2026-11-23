@@ -11,7 +11,6 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// is known for checks that compare the game's state with the cartridge's. The game never reads these words; tools that
 /// write them use Tooling's <c>SamusProjectileWordEncoder</c>.
 /// </summary>
-[EncodingOwner("Samus projectile type, direction and missile variable words, as checks decode them")]
 internal static class SamusProjectileWordCodec
 {
     /// <summary>The beam combination bits of a type word.</summary>
@@ -52,14 +51,22 @@ internal static class SamusProjectileWordCodec
         SamusProjectileFamily.MissileExplosion,
     ];
 
-    /// <summary>The projectile a type word records; zero is <see cref="SamusProjectileType.None"/>.</summary>
+    /// <summary>The type word the cartridge clears a slot no projectile holds to, which is also an uncharged Power beam's.</summary>
+    private const int ClearedSlotTypeWord = 0;
+
+    /// <summary>
+    /// Whether a recorded slot's type word is the cleared word (#2558), which an empty slot and an uncharged Power beam both
+    /// hold, so a slot's occupancy is never read from its type word alone.
+    /// </summary>
+    /// <param name="word">A projectile type word.</param>
+    public static bool IsClearedWord(int word) => word == ClearedSlotTypeWord;
+
+    /// <summary>The projectile a type word reads as; the cleared word reads as an uncharged Power beam.</summary>
     /// <param name="word">A projectile type word.</param>
     /// <returns>The projectile. A placed bomb's "reacted to terrain" bit and an uncharged beam's Charge equipment bit are not part of it.</returns>
     /// <exception cref="InvalidDataException">The word's family row names no family, or its echo bits name no echo.</exception>
     public static SamusProjectileType DecodeType(int word)
     {
-        if (word == 0)
-            return SamusProjectileType.None;
         int row = (word >> FamilyShift) & FamilyRowMask;
         SamusProjectileFamily family = (row < FamilyRows.Length ? FamilyRows[row] : null)
             ?? throw new InvalidDataException($"Projectile type word ${word:X4} names no family.");
@@ -70,7 +77,7 @@ internal static class SamusProjectileWordCodec
         if ((word & EchoBit) != 0)
         {
             // Only two beam combinations name an echo; every other one is malformed data.
-            SamusBeamCombination echoCombination = SamusBeamCombinationTableOrder.FromTableIndex(beamBits);
+            SamusBeamCombination echoCombination = SamusBeamCombinationTableOrderConstants.FromTableIndex(beamBits);
             SamusBeamEcho echo = echoCombination == SamusBeamCombination.Spazer ? SamusBeamEcho.SpazerComboTrail
                 : echoCombination == SamusBeamCombination.PlasmaWave ? SamusBeamEcho.ShinesparkEcho
                 : throw new InvalidDataException($"Projectile type word ${word:X4} names no echo ({echoCombination}).");
@@ -78,7 +85,7 @@ internal static class SamusProjectileWordCodec
         }
         else
         {
-            beam = SamusProjectileType.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beamBits), (word & ChargedBit) != 0);
+            beam = SamusProjectileType.Beam(SamusBeamCombinationTableOrderConstants.FromTableIndex(beamBits), (word & ChargedBit) != 0);
         }
         return beam.AsFamily(family);
     }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <param name="RestDistance">The link's rest length from the link before it.</param>
 /// <param name="LongestDistance">The longest the link stretches while whipping, stabbing or bouncing.</param>
 /// <param name="InitialAngle">The angle the link starts at.</param>
-internal readonly record struct RidleyTailLinkDefinition(
+internal readonly partial record struct RidleyTailLinkDefinition(
     SignedEightEight RestDistance,
     SignedEightEight LongestDistance,
     RidleyTailAngle InitialAngle);

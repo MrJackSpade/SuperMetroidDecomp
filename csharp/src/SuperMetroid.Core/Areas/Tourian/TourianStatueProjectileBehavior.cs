@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// their animations that act on the projectile alone; the unlock's own kinds also handle the release's cues.
 /// </summary>
 /// <typeparam name="TMotion">The kinds' motions (#1843).</typeparam>
-internal abstract class TourianStatueProjectileBehavior<TMotion>
+internal abstract partial class TourianStatueProjectileBehavior<TMotion>
     : EnemyProjectileMotionBehavior<TMotion>, IEnemyProjectileCues<TourianStatueProjectileCue>
     where TMotion : struct, Enum
 {

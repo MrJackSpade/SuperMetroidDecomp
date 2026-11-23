@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="Block">The access block Samus ran into, where the arm is drawn.</param>
 /// <param name="Access">The station and the side Samus used it from.</param>
-internal readonly record struct StationAccessUse(Position16<RoomBlocks> Block, StationAccess Access);
+internal readonly partial record struct StationAccessUse(Position16<RoomBlocks> Block, StationAccess Access);

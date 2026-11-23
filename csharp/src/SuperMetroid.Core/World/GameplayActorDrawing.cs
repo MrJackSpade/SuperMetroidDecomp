@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -18,7 +19,7 @@ namespace SuperMetroid.Core.World;
 /// Draws the gameplay actors each frame (Samus, arm cannon, projectiles, grapple, enemies) and publishes what
 /// that drawing did.
 /// </summary>
-internal sealed class GameplayActorDrawing
+internal sealed partial class GameplayActorDrawing
 {
     /// <summary>Supplies installed frames, projectile compositions, and suit colours artwork.</summary>
     private readonly RuntimeArtwork _artwork;
@@ -30,7 +31,8 @@ internal sealed class GameplayActorDrawing
     private readonly GameplayDisplayState _display;
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Provides frame-counter cadence for blinking and drawing branches.</summary>
+    /// <summary>The update count that paces Samus's blinking and the alternate-update drawing of the elevator and the
+    /// crash's echoes.</summary>
     private readonly FrameClock _clock;
 
     /// <summary>Receives Samus's whole-frame draws in the same order as the sprites around them.</summary>
@@ -75,7 +77,8 @@ internal sealed class GameplayActorDrawing
         {
             // The Ceres elevator is drawn in front of Samus, as both its definitions are. Projectiles in front of
             // Samus are drawn here, before Samus.
-            room.CeresElevatorArrival?.Draw(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
+            foreach (IActorInFrontOfSamus actor in room.ActorsInFrontOfSamus)
+                actor.DrawInFrontOfSamus(_sprites, room.Enemies.Presentation, room.Camera.PixelPosition);
             // A hit burst among the effect actors is one of Samus's weapon effects: it shows the sheet of the beams she
             // has equipped as it is drawn, as her charge flare does (#1713).
             room.Enemies.Projectiles.DrawEnemyProjectilesInFrontOfSamus(
@@ -85,78 +88,13 @@ internal sealed class GameplayActorDrawing
                 _freeze.TimeIsFrozen);
         }
 
-        if (colourEffects == SamusColourEffects.Advance)
-        {
-            // Samus's colours update during gameplay, just before she is drawn, so the picture drawn after this step
-            // shows every colour it sets: the full-boost glow out of liquid and the normal suit a cancelled move asks for.
-            // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
-            // Its one-shot suit restore also stands for the suit shade
-            // shown at once when the drained Samus falls and when her rainbow stops.
-            // A cancelled move or a new pose asks for the normal suit during movement, before this colour step. That
-            // shade shows first, so the charge and drained colourings of the same update show over it.
-            if (!deathOwnsSamus)
-                samus.HorizontalSpeed.ShowDueSuitShade(
-                    _player.Colours, samus.EquippedItems);
-            bool drainedOwnsSamusColours = !deathOwnsSamus &&
-                samus.Drained.UpdateColouring(_player.Colours, samus.EquippedItems);
-            bool chargeGlowRestoredSuitShade = false;
-            if (!deathOwnsSamus && !drainedOwnsSamusColours)
-            {
-                // The colour update always runs charge/post-shot handling before running the
-                // selected special Samus colouring. Ordinary charged shots paint all of Samus's visible colours
-                // white for three updates and restore the suit on the fourth; Hyper shots
-                // step ten complete shades on alternating updates before restore.
-                // A restored suit from the beam-charge colour step bypasses the entire special
-                // colour step on glow expiry. In particular, stored shine must not tick
-                // or overwrite the restored suit on this frame.
-                chargeGlowRestoredSuitShade = room.Projectiles.UpdateBeamChargeGlow(
-                    _player.Colours,
-                    samus,
-                    room.FxOverlay.VisorAnimation);
+        // The enemies standing in front of Samus are drawn here, ahead of her (#2618); the enemy draw pass prepares them only
+        // after her drawing, so their draws are inserted at this place then.
+        SpriteDrawPlace enemiesInFrontOfSamus = _sprites.NextPlace();
 
-                if (!chargeGlowRestoredSuitShade)
-                    samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(samus), AnimationOnSpinStart = samus.AnimationIsOn(SamusAnimationFrames.ScrewAttackSpinStart), AnimationPastScrewAttackSpin = samus.AnimationHasReached(SamusAnimationFrames.ScrewAttackWallJumpReady), AnimationBeforeWallJumpSpin = !samus.AnimationHasReached(SamusAnimationFrames.WallJumpOrdinarySpinStart), EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = samus.LiquidPhysics.IsBottomBoundarySubmerged(samus) });
-            }
-            // The shinespark colouring runs at the same point of the colour step. It
-            // executes only when charge handling did not restore the suit.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
-                samus.Shinespark.UpdateColouring(
-                    _player.Colours,
-                    samus.EquippedItems);
-            }
-            // The Crystal Flash colouring owns the colours of Samus's shots and bombs during Crystal
-            // Flash. It is mutually exclusive with the shinespark and X-ray colouring but
-            // intentionally runs at the same point of the colour step.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
-                samus.CrystalFlash.UpdateColouring(
-                    _player.Colours,
-                    samus);
-            }
-            // The X-ray colouring changes only one of the visor's colours while active; its teardown
-            // restores the complete Power/Varia/Gravity suit colours once.
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !chargeGlowRestoredSuitShade)
-            {
-                samus.Xray.UpdateColouring(
-                    _player.Colours,
-                    samus.EquippedItems);
-            }
-            // The Metroid-drain colour step runs after every charge and special-colouring family. A Metroid
-            // holding Samus makes her alternate between the boost glow and the normal suit, and the ordinary hurt
-            // flash does not run, just as it does not under the drained or rainbow colouring.
-            bool metroidOwnsSamusColours = !deathOwnsSamus &&
-                !drainedOwnsSamusColours &&
-                SamusMetroidAttachmentFlash.Update(_player.Colours, samus);
-            if (!deathOwnsSamus && !drainedOwnsSamusColours && !metroidOwnsSamusColours)
-            {
-                SamusHurtFlash.Update(
-                    _player.Colours,
-                    samus,
-                    _playerActions.Current);
-            }
-
-        }
+        // The death sequence owns her colours while it owns her; otherwise the colour step runs.
+        if (colourEffects == SamusColourEffects.Advance && !deathOwnsSamus)
+            AdvanceSamusColours(room, samus);
 
         if (deathOwnsSamus)
         {
@@ -183,7 +121,7 @@ internal sealed class GameplayActorDrawing
                 room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive && SamusPoseMetadata.IsForwardFacingPose(samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
-                if (SamusCadenceDefinitions.ElevatorRideDrawnEverySecondUpdate.IsDue(_clock.Counter))
+                if (SamusCadenceDefinitions.ElevatorRideDrawn.IsDue(_clock.Counter))
                 {
                     // The elevator ride draws the body without the ordinary invincibility
                     // flicker, so this path cannot flicker twice.
@@ -196,12 +134,10 @@ internal sealed class GameplayActorDrawing
             else if (samus.Shinespark.Phase is
                      ShinesparkPhase.Crash or ShinesparkPhase.CrashHold)
             {
-                // The shinespark crash's drawing takes over at the instant an active
-                // shinespark crashes. Unlike the default drawing, it intentionally
-                // omits charging flare/audio, atmosphere, both arm-cannon priority
-                // paths, ordinary departing speed echoes, and grapple graphics. It
-                // draws the live body first, then the crash's second echo before its
-                // first on odd frames. The projectiles and trails below are still drawn after it.
+                // The shinespark crash's drawing takes over the instant an active shinespark crashes: it shows no
+                // charging flare or sound, atmosphere, arm cannon, departing speed echoes or grapple. It draws the body
+                // first, then the crash's second echo before its first on odd updates. The projectiles and trails below
+                // are still drawn after it.
                 samus.Presentation.Draw(samus, 
                     _sprites,
                     room.Camera.PixelPosition,
@@ -333,9 +269,8 @@ internal sealed class GameplayActorDrawing
             // The demo's input is never replaced with auto-jump.
             if (_attractSession.IsAttractDemo) samus.InputSnapshot.AutoJump.Reinstate();
 
-            // The charge-sound latch follows the drawing of Samus and her projectiles. A hurt flash's sound-recovery update
-            // may have armed this latch above; consuming it here preserves both the
-            // same-frame charging sound and ordering after projectile drawing.
+            // The charging sound starts after Samus and her shots are drawn, on the update the hurt flash's recovery
+            // allows it.
             SamusPostDrawAudio.Step(
                 samus,
                 _player.PreviousMovementTypeForXray,
@@ -344,9 +279,13 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // The enemies draw after Samus and her projectiles, each at its frame's depth.
-            room.Enemies.Drawing.Advance(room.Camera.PixelPosition);
-            room.Enemies.Drawing.Draw(_sprites, room.Camera.PixelPosition, samus);
+            // The enemies' draw pass runs after Samus and her projectiles. Those standing in front of her are shown at the place
+            // taken before her drawing, the rest after her, each at its frame's depth (#2618).
+            IReadOnlyList<EnemyDrawList.PreparedEnemyDraw> prepared = room.Enemies.Drawing.Advance(room.Camera.PixelPosition);
+            var inFront = new SpriteFrameBuffer();
+            room.Enemies.Drawing.DrawInFrontOfSamus(prepared, inFront, room.Camera.PixelPosition);
+            _sprites.InsertAt(enemiesInFrontOfSamus, inFront);
+            room.Enemies.Drawing.DrawBehindSamus(prepared, _sprites, room.Camera.PixelPosition, samus);
         }
 
         if (!deathOwnsSamus && !samus.Xray.AreEnemyProjectilesSuspended)
@@ -358,11 +297,57 @@ internal sealed class GameplayActorDrawing
 
         if (!deathOwnsSamus)
         {
-            // Once Ceres Ridley's animation starts, his Baby's animation runs after the actors' drawing steps.
-            room.Enemies.Ceres.StepCeresBabyAfterActors();
-            // The Baby and the door of Ridley's room, while it shows its overlay, each show once, at their own place.
-            room.Enemies.Ceres.PublishCeresBaby(_sprites, room.Camera.PixelPosition);
-            room.Enemies.Ceres.PublishRidleyRoomDoorOverlay(_sprites, room.Camera.PixelPosition);
+            // An encounter's scene whose animation runs after the actors' drawing steps (Ceres Ridley's Baby, once his
+            // animation starts) steps now, then shows its pictures once, each at its own place (#2573).
+            foreach (IEnemyPassScene scene in room.Enemies.PassScenes)
+            {
+                scene.StepAfterActors();
+                scene.Publish(_sprites, room.Camera.PixelPosition);
+            }
         }
+    }
+
+    /// <summary>
+    /// Runs Samus's colour step for an update the death sequence does not own (#2560). Its families run in the game's order,
+    /// and each that takes her colours ends the families after it: the drained or rainbow colouring takes them all, a charge
+    /// glow restoring her suit takes the Speed Booster glow, the shinespark's, Crystal Flash's and X-ray's colourings, and a
+    /// Metroid holding her takes the hurt flash.
+    /// </summary>
+    private void AdvanceSamusColours(RoomScope room, SamusState samus)
+    {
+        // Samus's colours update during gameplay, just before she is drawn, so the picture drawn after this step
+        // shows every colour it sets: the full-boost glow out of liquid and the normal suit a cancelled move asks for.
+        // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
+        // Its one-shot suit restore also stands for the suit shade
+        // shown at once when the drained Samus falls and when her rainbow stops.
+        // A cancelled move or a new pose asks for the normal suit during movement, before this colour step. That
+        // shade shows first, so the charge and drained colourings of the same update show over it.
+        samus.HorizontalSpeed.ShowDueSuitShade(_player.Colours, samus.EquippedItems);
+        // The drained or rainbow colouring comes first in the colour update, and nothing else in it runs after it.
+        if (samus.Drained.UpdateColouring(_player.Colours, samus.EquippedItems))
+            return;
+        // The colour update always runs charge/post-shot handling before running the selected special Samus colouring.
+        // Ordinary charged shots paint all of Samus's visible colours white for the flash's updates and restore the suit on
+        // the next; Hyper shots step through their complete shades before restore. A restored suit from the beam-charge
+        // colour step bypasses the entire special colour step on glow expiry. In particular, stored shine must not tick or
+        // overwrite the restored suit on this frame.
+        if (!room.Projectiles.UpdateBeamChargeGlow(_player.Colours, samus, room.FxOverlay.VisorAnimation))
+        {
+            samus.HorizontalSpeed.UpdateSpeedBoosterGlow(_player.Colours, new SpeedBoosterGlowFrame { MovementType = SamusPoseMetadata.ReadMovementType(samus), SpinPlace = SpeedBoosterGlowFrame.SpinPlaceOf(samus, SamusPoseMetadata.ReadMovementType(samus)), EquippedItems = samus.EquippedItems, SuppressActiveSpeedBoosterGlow = samus.SpecialColouring.Holder != SamusSpecialColouringKind.None, BottomBoundarySubmerged = samus.LiquidPhysics.IsBottomBoundarySubmerged(samus) });
+            // The shinespark colouring runs at the same point of the colour step.
+            samus.Shinespark.UpdateColouring(_player.Colours, samus.EquippedItems);
+            // The Crystal Flash colouring owns the colours of Samus's shots and bombs during Crystal Flash. It is mutually
+            // exclusive with the shinespark and X-ray colouring but intentionally runs at the same point of the colour step.
+            samus.CrystalFlash.UpdateColouring(_player.Colours, samus);
+            // The X-ray colouring changes only one of the visor's colours while active; its teardown restores the complete
+            // Power/Varia/Gravity suit colours once.
+            samus.Xray.UpdateColouring(_player.Colours, samus.EquippedItems);
+        }
+        // The Metroid-drain colour step runs after every charge and special-colouring family. A Metroid holding Samus makes
+        // her alternate between the boost glow and the normal suit, and the ordinary hurt flash does not run, just as it
+        // does not under the drained or rainbow colouring.
+        if (SamusMetroidAttachmentFlash.Update(_player.Colours, samus))
+            return;
+        SamusHurtFlash.Update(_player.Colours, samus, _playerActions.Current);
     }
 }

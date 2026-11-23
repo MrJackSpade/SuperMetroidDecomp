@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// by the sine's size, drop the 256ths and restore the sine's sign; the Baby Metroid's wrong-way entrance and the
 /// Mother Brain and Ridley recorded movies replay those products.
 /// </remarks>
-[CompatibilityService("a backward speed resolved along an angle is taken as a forward speed 256 pixels an update faster, scaled by the sine and wrapped back into a speed")]
-public static class SpeedAlongAngle
+public static partial class SpeedAlongAngle
 {
     /// <summary>The steps of a speed's 256ths across its whole range, which a backward speed is taken from.</summary>
     private const int SpeedSteps = 1 << 16;

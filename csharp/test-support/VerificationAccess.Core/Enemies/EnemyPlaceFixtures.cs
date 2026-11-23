@@ -18,7 +18,22 @@ internal static class EnemyPlaceFixtures
     /// A registry with no species and no enemy system, for a slot a check never binds: binding any definition fails,
     /// since no species owns it, and any shared reaction the slot is asked for fails loudly.
     /// </summary>
-    internal static EnemySpeciesRegistry Registry { get; } = new(
-        new EnemyCommonParticipation(() => throw new InvalidOperationException(
-            "A standalone fixture slot has no enemy system to share reactions with.")), []);
+    internal static EnemySpeciesRegistry Registry { get; } = RegistryOf();
+
+    /// <summary>
+    /// A registry for fixture places, owning the definitions <paramref name="factories"/> place, built as a room's registry
+    /// is built (<see cref="EnemySpeciesRegistry.ForRoom"/>) for a room whose scenery lets no other species be built.
+    /// </summary>
+    /// <param name="factories">The species' factories.</param>
+    internal static EnemySpeciesRegistry RegistryOf(params IEnemyEntityFactory[] factories)
+    {
+        var owned = new EnemySpeciesRegistrar();
+        foreach (IEnemyEntityFactory factory in factories)
+            owned.Add(factory);
+        EnemyDefinitionId[] unbuilt = [.. RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
+            .Where(definition => !owned.Owners.ContainsKey(definition))];
+        return EnemySpeciesRegistry.ForRoom(
+            new EnemyCommonParticipation(() => throw new InvalidOperationException("A standalone fixture slot has no enemy system to share reactions with.")),
+            factories, unbuilt, new EnemyPartOffers());
+    }
 }

@@ -9,7 +9,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>Strict deterministic conversion between named JSON saves and the owned save store.</summary>
-public static class GameSaveJsonCodec
+public static partial class GameSaveJsonCodec
 {
     /// <summary>Known equipment flags accepted by the named save schema.</summary>
     private static readonly SamusEquipmentFlags AllEquipmentFlags =
@@ -21,23 +21,36 @@ public static class GameSaveJsonCodec
     private static readonly DefeatedBosses AllDefeatableBosses =
         Enum.GetValues<DefeatedBosses>().Aggregate((left, right) => left | right);
 
+    /// <summary>
+    /// The save's Japanese-text field for each text language (#2560): the one map between a slot's language and the true or
+    /// false field saves have always kept for it, read in both directions.
+    /// </summary>
+    private static readonly IdentityTable<TextLanguage, bool> SavedJapaneseText = new(new Dictionary<TextLanguage, bool>
+    {
+        [TextLanguage.English] = false,
+        [TextLanguage.Japanese] = true,
+    });
+
+    /// <summary>The text language each value of a save's Japanese-text field names: <see cref="SavedJapaneseText"/> read back.</summary>
+    private static readonly FrozenDictionary<bool, TextLanguage> SavedLanguages =
+        SavedJapaneseText.ToFrozenDictionary(entry => entry.Value, entry => entry.Key);
+
     /// <summary>Captures all meaningful persistent state without a duplicate raw save-memory image.</summary>
     public static GameSaveJsonDocument Capture(SaveSlotStore saves)
     {
         Ensure.NotNull(saves);
-        var slots = new GameSaveSlotJsonDocument?[SaveSlots.All.Count];
-        for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
+        var slots = new Dictionary<string, GameSaveSlotJsonDocument>(StringComparer.Ordinal);
+        foreach (SaveSlot slot in SaveSlots.All)
         {
-            SuperMetroidSaveSlot? slot = saves.ReadSlot(SlotAt(slotIndex));
-            slots[slotIndex] = slot is null ? null : CaptureSlot(slot);
+            if (saves.ReadSlot(slot) is { } saved)
+                slots.Add(GameSaveJsonFormat.SlotKey(slot), CaptureSlot(saved));
         }
 
         return new GameSaveJsonDocument
         {
-            SelectedSlot = SlotNumber(saves.ReadSelectedSlot()),
+            SelectedSlot = GameSaveJsonFormat.SlotKey(saves.ReadSelectedSlot()),
             Slots = slots,
-            GameCompleted = saves.History == SaveFileHistory.GameCompleted,
-            PowerOnFoundNoValidSave = saves.History == SaveFileHistory.PowerOnFoundNoValidSave,
+            History = saves.History,
         };
     }
 
@@ -45,7 +58,7 @@ public static class GameSaveJsonCodec
     public static string Serialize(GameSaveJsonDocument document)
     {
         Validate(document);
-        return JsonSerializer.Serialize(document, CreateOptions()) + Environment.NewLine;
+        return JsonSerializer.Serialize(document, SaveJson.Info<global::SuperMetroid.Core.Saves.GameSaveJsonDocument>(CreateOptions())) + Environment.NewLine;
     }
 
     /// <summary>Parses one strict schema and reports malformed properties with JSON paths.</summary>
@@ -55,9 +68,7 @@ public static class GameSaveJsonCodec
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
         try
         {
-            GameSaveJsonDocument document = JsonSerializer.Deserialize<GameSaveJsonDocument>(
-                json,
-                CreateOptions()) ?? throw new InvalidDataException(
+            GameSaveJsonDocument document = JsonSerializer.Deserialize<GameSaveJsonDocument>(json, SaveJson.Info<global::SuperMetroid.Core.Saves.GameSaveJsonDocument>(CreateOptions())) ?? throw new InvalidDataException(
                     $"Game save '{sourceName}' contains JSON null instead of an object.");
             Validate(document);
             return document;
@@ -87,60 +98,50 @@ public static class GameSaveJsonCodec
         Ensure.NotNull(maps);
         Validate(document);
         var saves = new SaveSlotStore(maps);
-        for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
-        {
-            if (document.Slots[slotIndex] is { } slot)
-                saves.SaveSlot(SlotAt(slotIndex), ToSnapshot(slot));
-        }
-        saves.SelectSlot(SlotAt(document.SelectedSlot));
-        saves.RestoreHistory(document.GameCompleted ? SaveFileHistory.GameCompleted
-            : document.PowerOnFoundNoValidSave ? SaveFileHistory.PowerOnFoundNoValidSave
-            : SaveFileHistory.None);
+        foreach ((string key, GameSaveSlotJsonDocument slot) in document.Slots)
+            saves.SaveSlot(GameSaveJsonFormat.SlotNamed(key), ToSnapshot(slot, key));
+        saves.SelectSlot(GameSaveJsonFormat.SlotNamed(document.SelectedSlot));
+        saves.RestoreHistory(document.History);
         return saves;
     }
 
     /// <summary>Projects one save slot into named resources, flags, events, and explored map cells.</summary>
     private static GameSaveSlotJsonDocument CaptureSlot(SuperMetroidSaveSlot slot) => new()
     {
-        Slot = SlotNumber(slot.Slot),
         Checkpoint = slot.Checkpoint.Name,
-        Resources = new SaveResourcesJsonDocument(
-            slot.Health,
-            slot.MaxHealth,
-            slot.Missiles,
-            slot.MaxMissiles,
-            slot.SuperMissiles,
-            slot.MaxSuperMissiles,
-            slot.PowerBombs,
-            slot.MaxPowerBombs,
-            slot.ReserveEnergy,
-            slot.MaxReserveEnergy),
+        Resources = ResourcesOf(slot.Inventory),
         Inventory = new SaveInventoryJsonDocument(
-            slot.CollectedItems,
-            slot.EquippedItems,
-            slot.CollectedBeams,
-            slot.EquippedBeams),
+            slot.Inventory.CollectedItems,
+            slot.Inventory.EquippedItems,
+            slot.Inventory.CollectedBeams,
+            slot.Inventory.EquippedBeams),
         GameTime = new SaveGameTimeJsonDocument(
             slot.GameTime.Hours,
             slot.GameTime.Minutes,
             slot.GameTime.Seconds,
             slot.GameTime.Frames),
-        Controller = new SaveControllerJsonDocument(
-            slot.ControllerBindings.Shoot,
-            slot.ControllerBindings.Jump,
-            slot.ControllerBindings.Dash,
-            slot.ControllerBindings.ItemSelect,
-            slot.ControllerBindings.ItemCancel,
-            slot.ControllerBindings.AimUp,
-            slot.ControllerBindings.AimDown),
-        ReserveMode = slot.ReserveMode,
+        Controller = ControllerDocument(slot.ControllerBindings),
+        ReserveMode = slot.Inventory.ReserveMode,
         HudItem = slot.HudItem,
         MoonwalkEnabled = slot.MoonwalkEnabled,
         IconCancelEnabled = slot.IconCancelEnabled,
-        JapaneseText = slot.JapaneseText,
+        JapaneseText = SavedJapaneseText[slot.Language],
         StartupRoute = slot.StartupRoute,
         Progression = CaptureProgression(slot.Progression),
     };
+
+    /// <summary>The save file's resources document of <paramref name="inventory"/>: its energy, ammunition and reserve with their capacities.</summary>
+    private static SaveResourcesJsonDocument ResourcesOf(SamusInventory inventory) => new(
+        inventory.Health,
+        inventory.MaxHealth,
+        inventory.Missiles,
+        inventory.MaxMissiles,
+        inventory.SuperMissiles,
+        inventory.MaxSuperMissiles,
+        inventory.PowerBombs,
+        inventory.MaxPowerBombs,
+        inventory.ReserveEnergy,
+        inventory.MaxReserveEnergy);
 
     /// <summary>Lists each set of <paramref name="progress"/> by its identities.</summary>
     private static SaveProgressionJsonDocument CaptureProgression(PersistentProgress progress) => new()
@@ -156,44 +157,60 @@ public static class GameSaveJsonCodec
             [.. progress.ExploredCells(area).Select(MapCoordinateJsonDocument.FromCell)]))],
     };
 
-    /// <summary>Reconstructs the save snapshot from one validated named slot.</summary>
-    private static SuperMetroidSaveSnapshot ToSnapshot(GameSaveSlotJsonDocument slot)
+    /// <summary>The save's record of the button each action is bound to, by the action's name.</summary>
+    private static SaveControllerJsonDocument ControllerDocument(ControllerBindings bindings) => new(
+        Shoot: bindings[ControllerAction.Shoot],
+        Jump: bindings[ControllerAction.Jump],
+        Dash: bindings[ControllerAction.Dash],
+        ItemSelect: bindings[ControllerAction.ItemSelect],
+        ItemCancel: bindings[ControllerAction.ItemCancel],
+        AimUp: bindings[ControllerAction.AimUp],
+        AimDown: bindings[ControllerAction.AimDown]);
+
+    /// <summary>The bindings a save's controller record names, each action's button read by the action's name.</summary>
+    /// <exception cref="InvalidDataException">The bindings are not a unique permutation of the assignable buttons.</exception>
+    private static ControllerBindings Bindings(SaveControllerJsonDocument controller) => new ControllerBindings(new Dictionary<ControllerAction, ControllerButton>
     {
-        ValidateSlot(slot, slot.Slot);
-        ControllerBindings bindings = new(
-            slot.Controller.Shoot,
-            slot.Controller.Jump,
-            slot.Controller.Dash,
-            slot.Controller.ItemSelect,
-            slot.Controller.ItemCancel,
-            slot.Controller.AimUp,
-            slot.Controller.AimDown);
-        bindings.RequireUniquePermutation();
+        [ControllerAction.Shoot] = controller.Shoot,
+        [ControllerAction.Jump] = controller.Jump,
+        [ControllerAction.Dash] = controller.Dash,
+        [ControllerAction.ItemSelect] = controller.ItemSelect,
+        [ControllerAction.ItemCancel] = controller.ItemCancel,
+        [ControllerAction.AimUp] = controller.AimUp,
+        [ControllerAction.AimDown] = controller.AimDown,
+    }).RequireUniquePermutation();
+
+    /// <summary>Reconstructs the save snapshot from one validated named slot, named <paramref name="key"/>.</summary>
+    private static SuperMetroidSaveSnapshot ToSnapshot(GameSaveSlotJsonDocument slot, string key)
+    {
+        ValidateSlot(slot, key);
+        ControllerBindings bindings = Bindings(slot.Controller);
         return new SuperMetroidSaveSnapshot
         {
             ControllerBindings = bindings,
             MoonwalkEnabled = slot.MoonwalkEnabled,
             IconCancelEnabled = slot.IconCancelEnabled,
-            JapaneseText = slot.JapaneseText,
+            Language = SavedLanguages[slot.JapaneseText],
             StartupRoute = slot.StartupRoute,
-            EquippedItems = slot.Inventory.EquippedItems,
-            CollectedItems = slot.Inventory.CollectedItems,
-            EquippedBeams = slot.Inventory.EquippedBeams,
-            CollectedBeams = slot.Inventory.CollectedBeams,
-            ReserveMode = slot.ReserveMode,
-            Health = slot.Resources.Health,
-            MaxHealth = slot.Resources.MaxHealth,
-            Missiles = slot.Resources.Missiles,
-            MaxMissiles = slot.Resources.MaxMissiles,
-            SuperMissiles = slot.Resources.SuperMissiles,
-            MaxSuperMissiles = slot.Resources.MaxSuperMissiles,
-            PowerBombs = slot.Resources.PowerBombs,
-            MaxPowerBombs = slot.Resources.MaxPowerBombs,
+            Inventory = new SamusInventory(
+                slot.Inventory.EquippedItems,
+                slot.Inventory.CollectedItems,
+                slot.Inventory.EquippedBeams,
+                slot.Inventory.CollectedBeams,
+                slot.ReserveMode,
+                slot.Resources.Health,
+                slot.Resources.MaxHealth,
+                slot.Resources.Missiles,
+                slot.Resources.MaxMissiles,
+                slot.Resources.SuperMissiles,
+                slot.Resources.MaxSuperMissiles,
+                slot.Resources.PowerBombs,
+                slot.Resources.MaxPowerBombs,
+                slot.Resources.MaxReserveEnergy,
+                slot.Resources.ReserveEnergy),
             HudItem = slot.HudItem,
-            MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
-            ReserveEnergy = slot.Resources.ReserveEnergy,
             GameTime = new GameClockReading(slot.GameTime.Frames, slot.GameTime.Seconds, slot.GameTime.Minutes, slot.GameTime.Hours),
-            Checkpoint = Checkpoint(slot.Checkpoint, $"slots[{slot.Slot}].checkpoint"),
+            Checkpoint = Checkpoint(slot.Checkpoint, $"slots.{key}.checkpoint"),
             Progress = DecodeProgression(slot.Progression, "progression"),
         };
     }
@@ -204,18 +221,7 @@ public static class GameSaveJsonCodec
         LoadStationDefinitions.All.SingleOrDefault(station => string.Equals(station.Name, checkpoint, StringComparison.Ordinal))
             ?? throw new InvalidDataException($"{property} '{checkpoint}' names no load station");
 
-    /// <summary>The slot a JSON save numbers <paramref name="number"/>: its place in the file select's list, from zero.</summary>
-    private static SaveSlot SlotAt(int number) => SaveSlots.All[number];
-
-    /// <summary>The number a JSON save gives <paramref name="slot"/>: its place in the file select's list, from zero.</summary>
-    private static int SlotNumber(SaveSlot slot)
-    {
-        for (int number = 0; number < SaveSlots.All.Count; number++)
-            if (SaveSlots.All[number] == slot) return number;
-        throw new ArgumentOutOfRangeException(nameof(slot), slot, "Undefined save slot.");
-    }
-
-    /// <summary>Requires a supported schema, valid selected slot, and exactly the game's slot count.</summary>
+    /// <summary>Requires a supported schema, a selected slot and saved slots that each name a slot of the game.</summary>
     private static void Validate(GameSaveJsonDocument document)
     {
         Ensure.NotNull(document);
@@ -225,35 +231,21 @@ public static class GameSaveJsonCodec
                 $"schemaVersion {document.SchemaVersion} is unsupported; expected " +
                 $"{GameSaveJsonFormat.SchemaVersion}");
         }
-        if ((uint)document.SelectedSlot >= SaveSlots.All.Count)
-            throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
-        if (document.Slots is null || document.Slots.Length != SaveSlots.All.Count)
-            throw new InvalidDataException("slots must contain exactly three entries");
-        if (document.GameCompleted && document.PowerOnFoundNoValidSave)
-            throw new InvalidDataException("gameCompleted and powerOnFoundNoValidSave cannot both hold");
-
-        for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
+        _ = GameSaveJsonFormat.SlotNamed(document.SelectedSlot);
+        foreach ((string key, GameSaveSlotJsonDocument slot) in document.Slots)
         {
-            if (document.Slots[slotIndex] is { } slot)
-                ValidateSlot(slot, slotIndex);
+            _ = GameSaveJsonFormat.SlotNamed(key);
+            ValidateSlot(slot, key);
         }
     }
 
-    /// <summary>Checks one slot's identity, resource ranges, equipment flags, and map/event domains.</summary>
-    private static void ValidateSlot(GameSaveSlotJsonDocument slot, int expectedSlot)
+    /// <summary>Checks one slot's resource ranges, equipment flags, and map/event domains.</summary>
+    private static void ValidateSlot(GameSaveSlotJsonDocument slot, string expectedSlot)
     {
-        if (slot.Slot != expectedSlot)
-            throw new InvalidDataException($"slots[{expectedSlot}].slot must equal {expectedSlot}");
         if (slot.Checkpoint is null || slot.Resources is null || slot.Inventory is null ||
             slot.GameTime is null || slot.Controller is null || slot.Progression is null)
-            throw new InvalidDataException($"slots[{expectedSlot}] is missing a required domain object");
-        _ = Checkpoint(slot.Checkpoint, $"slots[{expectedSlot}].checkpoint");
-        if (!Enum.IsDefined(slot.ReserveMode))
-            throw new InvalidDataException($"slots[{expectedSlot}].reserveMode names no reserve-tank mode");
-        if (!Enum.IsDefined(slot.HudItem))
-            throw new InvalidDataException($"slots[{expectedSlot}].hudItem names no HUD item");
-        if (!Enum.IsDefined(slot.StartupRoute))
-            throw new InvalidDataException($"slots[{expectedSlot}].startupRoute names no startup route");
+            throw new InvalidDataException($"slots.{expectedSlot} is missing a required domain object");
+        _ = Checkpoint(slot.Checkpoint, $"slots.{expectedSlot}.checkpoint");
         SaveResourcesJsonDocument resources = slot.Resources;
         foreach ((int value, string property) in new SaveFieldCheck[]
                  {
@@ -265,42 +257,35 @@ public static class GameSaveJsonCodec
                  })
             RequireRange(value, CountsRunBelowZero.MinimumValue, CountsRunBelowZero.MaximumValue, expectedSlot, $"resources.{property}");
         if (slot.Resources.Health > slot.Resources.MaxHealth)
-            throw new InvalidDataException($"slots[{expectedSlot}].resources.health exceeds maxHealth");
+            throw new InvalidDataException($"slots.{expectedSlot}.resources.health exceeds maxHealth");
         if (slot.Resources.Missiles > slot.Resources.MaxMissiles ||
             slot.Resources.SuperMissiles > slot.Resources.MaxSuperMissiles ||
             slot.Resources.PowerBombs > slot.Resources.MaxPowerBombs ||
             slot.Resources.ReserveEnergy > slot.Resources.MaxReserveEnergy)
         {
             throw new InvalidDataException(
-                $"slots[{expectedSlot}].resources contains a current value above its maximum");
+                $"slots.{expectedSlot}.resources contains a current value above its maximum");
         }
         if (!GameClockReading.IsReading(slot.GameTime.Frames, slot.GameTime.Seconds, slot.GameTime.Minutes, slot.GameTime.Hours))
-            throw new InvalidDataException($"slots[{expectedSlot}].gameTime is not a reading of the game clock");
+            throw new InvalidDataException($"slots.{expectedSlot}.gameTime is not a reading of the game clock");
         if ((slot.Inventory.CollectedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
             (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != SamusEquipmentFlags.None ||
             (slot.Inventory.CollectedBeams & ~AllBeamFlags) != SamusBeamFlags.None ||
             (slot.Inventory.EquippedBeams & ~AllBeamFlags) != SamusBeamFlags.None)
-            throw new InvalidDataException($"slots[{expectedSlot}].inventory names an item or beam the game does not have");
+            throw new InvalidDataException($"slots.{expectedSlot}.inventory names an item or beam the game does not have");
         if ((slot.Inventory.EquippedItems & ~slot.Inventory.CollectedItems) != SamusEquipmentFlags.None ||
             (slot.Inventory.EquippedBeams & ~slot.Inventory.CollectedBeams) != SamusBeamFlags.None)
-            throw new InvalidDataException($"slots[{expectedSlot}].inventory equips an uncollected upgrade");
-        new ControllerBindings(
-            slot.Controller.Shoot,
-            slot.Controller.Jump,
-            slot.Controller.Dash,
-            slot.Controller.ItemSelect,
-            slot.Controller.ItemCancel,
-            slot.Controller.AimUp,
-            slot.Controller.AimDown).RequireUniquePermutation();
+            throw new InvalidDataException($"slots.{expectedSlot}.inventory equips an uncollected upgrade");
+        _ = Bindings(slot.Controller);
 
-        _ = DecodeProgression(slot.Progression, $"slots[{expectedSlot}].progression");
+        _ = DecodeProgression(slot.Progression, $"slots.{expectedSlot}.progression");
     }
 
     /// <summary>Rejects a numeric slot field outside <c>[<paramref name="minimum"/>, <paramref name="maximum"/>]</c>.</summary>
-    private static void RequireRange(int value, int minimum, int maximum, int expectedSlot, string property)
+    private static void RequireRange(int value, int minimum, int maximum, string expectedSlot, string property)
     {
         if (value < minimum || value > maximum)
-            throw new InvalidDataException($"slots[{expectedSlot}].{property} {value} is outside [{minimum}, {maximum}]");
+            throw new InvalidDataException($"slots.{expectedSlot}.{property} {value} is outside [{minimum}, {maximum}]");
     }
 
     /// <summary>
@@ -319,6 +304,7 @@ public static class GameSaveJsonCodec
         options.Converters.Add(new SaveKeyJsonConverter<HudItem>(HudItemKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<SaveStartupRoute>(SaveStartupRouteKeys.Installed));
         options.Converters.Add(new SaveKeyJsonConverter<AreaId>(AreaIdKeys.Installed));
+        options.Converters.Add(new SaveKeyJsonConverter<SaveFileHistory>(SaveFileHistoryKeys.Installed));
         options.Converters.Add(new SaveFlagsJsonConverter<ControllerButton>(ControllerButtonKeys.Installed, ControllerButtonKeys.ListedOrder, (left, right) => left | right));
         options.Converters.Add(new SaveFlagsJsonConverter<SamusEquipmentFlags>(SamusEquipmentFlagsKeys.Installed, SamusEquipmentFlagsKeys.ListedOrder, (left, right) => left | right));
         options.Converters.Add(new SaveFlagsJsonConverter<SamusBeamFlags>(SamusBeamFlagsKeys.Installed, SamusBeamFlagsKeys.ListedOrder, (left, right) => left | right));
@@ -345,34 +331,36 @@ public static class GameSaveJsonCodec
         progress.ZebetitesDestroyed = progression.ZebetitesDestroyed;
         DecodeNamed(progression.CollectedItems, ItemLocationDefinitions.All, location => location.Name, progress.CollectedItems, $"{property}.collectedItems");
         DecodeNamed(progression.OpenedDoors, LockedDoorDefinitions.All, door => door.Name, progress.OpenedDoors, $"{property}.openedDoors");
-        foreach (AreaId area in DecodeAreaOrder(progression.DefeatedBosses.Select(entry => entry?.Area), $"{property}.defeatedBosses"))
+        RequireAreaOrder(progression.DefeatedBosses.Select(entry => entry?.Area), $"{property}.defeatedBosses");
+        foreach (SaveAreaBossesJsonDocument entry in progression.DefeatedBosses)
         {
-            DefeatedBosses bosses = progression.DefeatedBosses[ListPosition(area)].Bosses;
-            if ((bosses & ~AllDefeatableBosses) != DefeatedBosses.None)
-                throw new InvalidDataException($"{property}.defeatedBosses names an unknown boss in {area}");
-            progress.SetDefeatedBosses(area, bosses);
+            if ((entry.Bosses & ~AllDefeatableBosses) != DefeatedBosses.None)
+                throw new InvalidDataException($"{property}.defeatedBosses names an unknown boss in {entry.Area}");
+            progress.SetDefeatedBosses(entry.Area, entry.Bosses);
         }
         DecodeNamed(progression.UsedStations, LoadStationDefinitions.Usable, station => station.Name, progress.UsedStations, $"{property}.usedStations");
-        int previousMap = -1;
+        int? previousMap = null;
         foreach (AreaId area in progression.AcquiredMaps)
         {
             int index = ListPosition(area);
-            if (index <= previousMap)
+            if (previousMap is int previous && index <= previous)
                 throw new InvalidDataException($"{property}.acquiredMaps must be in area order without duplicates");
             progress.SetAreaMap(area, acquired: true);
             previousMap = index;
         }
-        foreach (AreaId area in DecodeAreaOrder(progression.ExploredAreas.Select(entry => entry?.Area), $"{property}.exploredAreas"))
+        RequireAreaOrder(progression.ExploredAreas.Select(entry => entry?.Area), $"{property}.exploredAreas");
+        foreach (ExploredAreaJsonDocument entry in progression.ExploredAreas)
         {
-            MapCoordinateJsonDocument[] tiles = progression.ExploredAreas[ListPosition(area)].Tiles ??
+            AreaId area = entry.Area;
+            MapCoordinateJsonDocument[] tiles = entry.Tiles ??
                 throw new InvalidDataException($"{property}.exploredAreas of {area} requires tiles");
-            int previousIndex = -1;
+            int? previousIndex = null;
             foreach (MapCoordinateJsonDocument tile in tiles)
             {
                 if (tile is null || !AreaMapSize.Extent.Contains(tile.Cell))
                     throw new InvalidDataException($"{property}.exploredAreas of {area} contains an invalid tile");
                 int logicalIndex = AreaMapSize.Extent.RowMajorIndex(tile.Cell);
-                if (logicalIndex <= previousIndex)
+                if (previousIndex is int previousCell && logicalIndex <= previousCell)
                     throw new InvalidDataException($"{property}.exploredAreas of {area} must be row-major and unique");
                 progress.SetExplored(area, tile.Cell, explored: true);
                 previousIndex = logicalIndex;
@@ -391,19 +379,18 @@ public static class GameSaveJsonCodec
         throw new InvalidDataException($"The save names {area}, which is no area.");
     }
 
-    /// <summary>Requires one entry per area, in area order, and returns the areas.</summary>
-    private static List<AreaId> DecodeAreaOrder(IEnumerable<AreaId?> areas, string property)
+    /// <summary>Requires one entry per area, each naming its area, in area order.</summary>
+    private static void RequireAreaOrder(IEnumerable<AreaId?> areas, string property)
     {
-        var listed = new List<AreaId>();
+        int listed = 0;
         foreach (AreaId? entry in areas)
         {
-            if (entry is not { } area || ListPosition(area) != listed.Count)
-                throw new InvalidDataException($"{property}[{listed.Count}] is missing or out of area order");
-            listed.Add(area);
+            if (entry is not { } area || ListPosition(area) != listed)
+                throw new InvalidDataException($"{property}[{listed}] is missing or out of area order");
+            listed++;
         }
-        if (listed.Count != SavedAreas.Count)
+        if (listed != SavedAreas.Count)
             throw new InvalidDataException($"{property} must contain {SavedAreas.Count} areas");
-        return listed;
     }
 
     /// <summary>The order a save lists the story events that have happened in, which lists every event once (#2543).</summary>
@@ -430,6 +417,17 @@ public static class GameSaveJsonCodec
         }
     }
 
+    /// <summary>Whether <paramref name="kind"/> lists a member named <paramref name="name"/>, and its place there.</summary>
+    private static bool TryFindNamed<T>(IReadOnlyList<T> kind, Func<T, string> nameOf, string name, out int place)
+    {
+        for (place = 0; place < kind.Count; place++)
+        {
+            if (string.Equals(nameOf(kind[place]), name, StringComparison.Ordinal))
+                return true;
+        }
+        return false;
+    }
+
     /// <summary>
     /// Records the members of <paramref name="kind"/> that <paramref name="names"/> lists as happened, in whatever order it
     /// lists them (#2543), so reordering the kind's listing never stops a save loading; rejects an unknown name and a
@@ -441,13 +439,7 @@ public static class GameSaveJsonCodec
         for (int index = 0; index < names.Length; index++)
         {
             string name = names[index] ?? throw new InvalidDataException($"{property}[{index}] is null");
-            int place = -1;
-            for (int candidate = 0; candidate < kind.Count; candidate++)
-            {
-                if (string.Equals(nameOf(kind[candidate]), name, StringComparison.Ordinal))
-                    place = candidate;
-            }
-            if (place < 0)
+            if (!TryFindNamed(kind, nameOf, name, out int place))
                 throw new InvalidDataException($"{property}[{index}] '{name}' names nothing the game places");
             if (happened.Contains(kind[place]))
                 throw new InvalidDataException($"{property}[{index}] '{name}' lists a name listed before it");

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -17,10 +16,10 @@ namespace SuperMetroid.Core.Samus;
 /// This object places her at the claw's offset and keeps her pose family, her escape presses, her release pose,
 /// the speeds her release clears and the movement type's side effect.
 /// </remarks>
-public sealed class SamusDraygonGrabbedState
+public sealed partial class SamusDraygonGrabbedState
 {
     /// <summary>Where Samus is in Draygon's hold: free, held, held while another owner moves her, or released unseen.</summary>
-    public SamusDraygonHoldPhase Phase { get; private set; }
+    internal SamusDraygonHoldPhase Phase { get; set; }
 
     /// <summary>
     /// True while Draygon holds Samus: from the grab until her release, the escape check runs after each of her
@@ -42,7 +41,7 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>The count of escape presses, which Crystal Flash's ammunition drain and the suit pickup's stage share.</summary>
-    private readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
+    internal readonly SharedEscapeAndDrainCount<SamusSuitPickupStage> escapePresses;
 
     /// <summary>Creates a Draygon-held owner whose escape presses count on Samus's shared escape and drain count.</summary>
     /// <param name="escapePresses">Samus's shared escape and drain count.</param>
@@ -61,17 +60,16 @@ public sealed class SamusDraygonGrabbedState
     {
         Ensure.NotNull(samus);
 
-        samus.Pose = draygonFacing == HorizontalDirection.Right
+        samus.ChangePose(draygonFacing == HorizontalDirection.Right
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
-            : SamusPoseId.DraygonGrabbedNeutralLeftPose;
+            : SamusPoseId.DraygonGrabbedNeutralLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
 
         Phase = SamusDraygonHoldPhase.Held;
         escapePresses.ClearEscapePresses();
         // The grab takes Samus's movement and keeps her still, but leaves the Flash shade and its shared
         // shine timer alive. A later release must not resume Flash draining.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.DraygonHold);
+        SamusMovementHandOver.ToDraygonHold(samus);
         PreviousDirectionsPressed = GameplayAction.None;
         // Forced grab owns its history shift; no ordinary input transition is consumed.
         samus.CommitPoseHistory();
@@ -82,9 +80,10 @@ public sealed class SamusDraygonGrabbedState
 
     /// <summary>
     /// Places Samus where Draygon carries her, after enemy AI has updated the
-    /// boss body. Facing left places Samus eight pixels left; facing right places her eight
-    /// pixels right; both place her 40 pixels below the body center. Draygon also places a
-    /// Samus who has just escaped: the carry that places her reports her escape, which he sees once.
+    /// boss body. Facing left places Samus to his left and facing right to his right, by
+    /// <see cref="SamusDraygonHoldDefinitions.HeldAhead"/>; both place her below the body center by
+    /// <see cref="SamusDraygonHoldDefinitions.HeldBelow"/>. Draygon keeps placing her until he sees her release
+    /// (<see cref="SamusDraygonHoldPhase.ReleasedUnseen"/>).
     /// </summary>
     /// <returns>Whether she had broken free since his last carry, which this carry has him see.</returns>
     public bool CarryTo(
@@ -126,8 +125,8 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the escape check after Samus's movement: counts a newly pressed pattern of directions only when it is nonzero
-    /// and different from the last counted pattern, and releases her once the count reaches its target.
+    /// Runs the escape check after Samus's movement: a press counts when at least one direction is newly pressed and it
+    /// differs from the last counted press, and Samus is released once the count reaches its target.
     /// </summary>
     /// <returns>Whether the check released her.</returns>
     public bool CheckDraygonEscape(
@@ -157,7 +156,7 @@ public sealed class SamusDraygonGrabbedState
     /// Releases Samus as she breaks free: the release Draygon has not yet seen, which his next carry of her reports
     /// (<see cref="CarryTo"/>).
     /// </summary>
-    public void Release(SamusState samus)
+    internal void Release(SamusState samus)
     {
         LetGo(samus);
         Phase = SamusDraygonHoldPhase.ReleasedUnseen;
@@ -174,23 +173,21 @@ public sealed class SamusDraygonGrabbedState
     }
 
     /// <summary>
-    /// Runs the release. The release keeps extra run speed exactly as the game does,
-    /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
+    /// Runs the release: it keeps her extra run speed but clears her base X speed, all vertical velocity, her bounce
+    /// and her acceleration mode.
     /// </summary>
     private static void LetGo(SamusState samus)
     {
         Ensure.NotNull(samus);
 
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        samus.Pose = facingLeft
+        samus.ChangePoseRestartingIfChanged(facingLeft
             ? SamusPoseId.FacingLeftNormalPose
-            : SamusPoseId.FacingRightNormalPose;
+            : SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (samus.Pose != samus.PoseHistory.PreviousPose)
-            SamusPresentation.InitializeAnimation(samus);
         // Death calls this even when Samus was never grabbed. Returning her movement to her
         // pose interrupts a spark without resetting its independent boost/shade.
-        SamusMovementHandOver.BackToPose(samus, SamusMovementOwner.DraygonHold);
+        SamusMovementHandOver.FromDraygonHold(samus);
 
         // Release clears pending input transitions, so commit here rather than
         // relying on the normal pose step to observe the standing pose.
@@ -198,7 +195,7 @@ public sealed class SamusDraygonGrabbedState
 
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.Still;
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
     }
 

@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Mutable JSON authoring data for projectile OAM appearance, separate from timed instruction records, damage, hitboxes, and motion.</summary>
-public sealed record ProjectileSpriteDocument
+public sealed partial record ProjectileSpriteDocument
 {
     /// <summary>Gets the schema revision, which must equal <see cref="ProjectileSpriteDefinitions.Version"/> when loaded.</summary>
     public required int Version { get; init; }

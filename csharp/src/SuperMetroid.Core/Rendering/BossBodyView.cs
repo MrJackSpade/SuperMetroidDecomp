@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Body">The body's parts' pictures, placed where they lie against the body's placement.</param>
 /// <param name="Scroll">The body pixel the screen's top-left corner shows, a signed position.</param>
-public sealed record BossBodyView(ShownBossBody Body, Offset16<BackgroundPixels> Scroll)
+public sealed partial record BossBodyView(ShownBossBody Body, Offset16<BackgroundPixels> Scroll)
 {
     /// <summary>How the body's lines move sideways, line by line, or null where every line shows <see cref="Scroll"/>.</summary>
     public LineScroll? Horizontal { get; init; }
@@ -18,5 +18,5 @@ public sealed record BossBodyView(ShownBossBody Body, Offset16<BackgroundPixels>
     public LineScroll? Vertical { get; init; }
 
     /// <summary>How the body is pixelated: none, or Phantoon's blocks as he appears and fades.</summary>
-    public BackgroundPixelation Pixelation { get; init; }
+    public BackgroundPixelation Pixelation { get; init; } = BackgroundPixelation.Unpixelated;
 }

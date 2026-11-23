@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies;
 /// common damage at the game's positions; a reaction sets only the stages it has. The species' entity decides which
 /// contacts use it (<see cref="IEnemyBombReaction.CommonBombDamageReaction"/>).
 /// </summary>
-internal sealed class EnemyBombReaction
+internal sealed partial class EnemyBombReaction
 {
     /// <summary>Whether the private reaction returns before common damage (the bomb stays marked).</summary>
     internal Func<EnemyBombContext, bool>? Rejects { get; init; }
@@ -17,17 +17,20 @@ internal sealed class EnemyBombReaction
     /// Whether a bomb that hurts an enemy that is not frozen shows the enemy-hit burst at it, after the damage and before
     /// the death (<see cref="EnemyCollision"/>), as the shot reaction the bomb runs does for a beam.
     /// </summary>
-    internal Func<EnemyBombContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
+    internal Func<EnemyBombHitContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction whose every hurting bomb shows the burst.</summary>
-    internal static Func<EnemyBombContext, bool> AlwaysShowsHitBurst { get; } = static _ => true;
+    internal static bool AlwaysShowsHitBurst(EnemyBombHitContext context) => true;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
-    internal static Func<EnemyBombContext, bool> NeverShowsHitBurst { get; } = static _ => false;
+    internal static bool NeverShowsHitBurst(EnemyBombHitContext context) => false;
+
+    /// <summary>The plain common bomb damage: no stage of a species' own, the hit burst shown and the generic death run.</summary>
+    internal static EnemyBombReaction PlainCommon { get; } = new();
 
     /// <summary>Runs immediately before common damage.</summary>
-    internal Action<EnemyBombContext>? BeforeCommon { get; init; }
+    internal Action<EnemyBombHitContext>? BeforeCommon { get; init; }
 
     /// <summary>What the species does after the common damage.</summary>
-    internal Action<EnemyBombContext>? AfterCommon { get; init; }
+    internal Action<EnemyBombHitContext>? AfterCommon { get; init; }
 }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Platforms;
 
 /// <summary>
-/// The Tripper's and the suspensor platform's vertically moving and still platform loops (#641): one segment per animation a spawn, branch or resumed rest enters, in authored order.
+/// The Tripper's and the suspensor platform's vertically moving and still platform loops (#641).
 /// Their steps are <see cref="PlatformAnimations"/>.
 /// </summary>
 internal enum PlatformSegment
@@ -14,11 +14,11 @@ internal enum PlatformSegment
     SuspensorPlatformHeadingRight,
     /// <summary>The Tripper turning to face left as it moves, then hovering facing left.</summary>
     TripperMovingLeft,
-    /// <summary>The Tripper hovering facing left, its jet flickering short then long, played twice a loop (#2276, #2439).</summary>
+    /// <summary>The Tripper hovering facing left, its jet flickering short then long, played over each loop (<see cref="PlatformAnimations.HoverFlickers"/>, #2276, #2439).</summary>
     TripperHoveringLeft,
     /// <summary>The Tripper turning to face right as it moves, then hovering facing right.</summary>
     TripperMovingRight,
-    /// <summary>The Tripper hovering facing right, its jet flickering short then long, played twice a loop (#2276, #2439).</summary>
+    /// <summary>The Tripper hovering facing right, its jet flickering short then long, played over each loop (<see cref="PlatformAnimations.HoverFlickers"/>, #2276, #2439).</summary>
     TripperHoveringRight,
     /// <summary>The Tripper facing left as it keeps moving, then thrusting facing left.</summary>
     TripperStillMovingLeft,

@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable egg-fragment and slime OAM art, without physical motion rules.</summary>
-public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Compiled shell and slime OAM compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -18,16 +18,13 @@ public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroEggEffectSpritePresentation), frames);
-
     /// <summary>Retains the validated eleven-frame set after authoring arrays have been copied.</summary>
     private IntroEggEffectSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Validates and compiles all eleven named egg-effect frames from editable JSON into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; the caller retains ownership and it is left open.</param>
-    /// <returns>Installed artwork keyed by the original bank-$8C frame identities; later document edits cannot change its compiled parts.</returns>
+    /// <returns>Installed artwork, its compositions keyed by the poses that show them; later document edits cannot change its compiled parts.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed, contains duplicate properties, has an unsupported version or frame set, or has invalid OAM visual fields.</exception>
     public static IntroEggEffectSpritePresentation Load(Stream json)
@@ -60,8 +57,7 @@ public sealed class IntroEggEffectSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, IntroEggEffectSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroEggEffectSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

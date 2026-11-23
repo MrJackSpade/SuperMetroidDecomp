@@ -171,7 +171,6 @@ internal static class RoomFxRomDataVerification
     private static void VerifyRoomLayer3FxTypes()
     {
         var bus = new TestAddressSpace();
-        var state = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         const ushort record = 0x9400;
         SeedSyntheticRoomFxWord(bus, record, RoomFxRomDataRecordToolingConstants.DoorPointerOffset, 0);
         SeedSyntheticRoomFxByte(bus, record,
@@ -187,7 +186,7 @@ internal static class RoomFxRomDataVerification
         foreach (RoomFxType type in nonFxOverlayTypes)
         {
             SeedSyntheticRoomFxByte(bus, record, RoomFxRomDataRecordTooling.TypeOffset, RoomFxRecordEncoding.TypeByte(type));
-            state = LoadSyntheticRoomFx(bus, record);
+            RoomFxOverlayState state = LoadSyntheticRoomFx(bus, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertTrue(state.Blend is null, $"{type} describes no effect blend");
             AssertTrue(!state.IsRenderable, $"{type} does not impersonate rain/fog BG3");

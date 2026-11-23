@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// mouth beneath it; Draygon's eye and his dying arms show on his body, and his tail shows nothing there; Crocomire's body
 /// shows his body frames and melt images, and Mother Brain's her poses. Kraid draws his own body and head.
 /// </summary>
-internal static class BossBodyPartDefinitions
+internal static partial class BossBodyPartDefinitions
 {
     /// <summary>Each boss's parts, in draw order.</summary>
     internal static IReadOnlyDictionary<BossBodyOwner, ImmutableArray<EnemyDefinitionId>> DrawOrders { get; } =

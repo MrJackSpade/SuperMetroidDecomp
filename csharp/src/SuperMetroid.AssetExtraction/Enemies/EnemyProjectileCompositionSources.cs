@@ -8,12 +8,11 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Where each enemy-projectile composition frame, and each picture of the Ceres elevator arrival, is stored
 /// (<see cref="EnemyProjectileCompositionDefinitions"/>).
 /// </summary>
-internal static class EnemyProjectileCompositionSources
+internal static partial class EnemyProjectileCompositionSources
 {
     /// <summary>The bank-$8D spritemap composition frame <paramref name="frame"/> is stored at.</summary>
-    internal static ushort Spritemap(EnemyProjectileFrameId frame) => frame == EnemyProjectileFrameId.Blank
-        ? EnemyProjectileCompositionDefinitions.BlankSpritemap
-        : EnemyProjectileCompositionDefinitions.Spritemaps.ContainsKey(frame)
+    internal static ushort Spritemap(EnemyProjectileFrameId frame) =>
+        EnemyProjectileCompositionDefinitions.Spritemaps.ContainsKey(frame)
             ? EnemyProjectileCompositionDefinitions.Spritemaps[frame]
             : throw new ArgumentOutOfRangeException(nameof(frame), frame, "This projectile frame is not a bank-$8D composition.");
 

@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Extracts all three bank-$AA Chozo/tube target sprite-palette pairs.</summary>
-public static class ChozoAndTubeColorExtractor
+public static partial class ChozoAndTubeColorExtractor
 {
     /// <summary>Reads the tube-crack, Wrecked Ship, and Lower Norfair native target palettes, rejects high-bit colors, and serializes their RGB5 components.</summary>
     /// <param name="bus">Supported-cartridge address space containing the three bank-$AA palette pairs.</param>
@@ -31,16 +31,11 @@ public static class ChozoAndTubeColorExtractor
             for (int color = 0; color < colors.Length; color++)
             {
                 int address = source + color * EnemySpeciesSourceDefinitions.ColorWordBytes;
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Chozo/tube color ${address:X6} has an unrepresentable high bit.");
-                colors[color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

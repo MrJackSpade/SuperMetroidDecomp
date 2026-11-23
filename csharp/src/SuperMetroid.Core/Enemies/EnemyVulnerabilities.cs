@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </param>
 /// <param name="Ordnance">Missiles and bombs.</param>
 /// <param name="Contact">Samus's attacking contact.</param>
-public sealed record EnemyVulnerabilities(
+public sealed partial record EnemyVulnerabilities(
     EnemyBeamFamilyVulnerability Power,
     EnemyBeamFamilyVulnerability Spazer,
     EnemyBeamFamilyVulnerability Plasma,
@@ -19,9 +19,8 @@ public sealed record EnemyVulnerabilities(
     EnemyOrdnanceVulnerability Ordnance,
     EnemyContactVulnerability Contact)
 {
-    /// <summary>How <paramref name="definition"/>'s enemy takes every weapon's hits: its own vulnerabilities, or the standard ones.</summary>
-    public static EnemyVulnerabilities Of(RoomEnemyDefinition definition) =>
-        definition.Vulnerability ?? EnemyVulnerabilityDefinitions.Standard;
+    /// <summary>How <paramref name="definition"/>'s enemy takes every weapon's hits: the vulnerabilities its definition names.</summary>
+    public static EnemyVulnerabilities Of(RoomEnemyDefinition definition) => definition.Vulnerability;
 
     /// <summary>How the enemy takes the beam combination <paramref name="combination"/>.</summary>
     /// <remarks>
@@ -43,15 +42,19 @@ public sealed record EnemyVulnerabilities(
         SamusBeamCombination.PlasmaIce => Plasma.Ice,
         SamusBeamCombination.PlasmaIceWave => Plasma.IceWave,
         SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or SamusBeamCombination.SpazerPlasmaIce or
-            SamusBeamCombination.SpazerPlasmaIceWave => UnauthoredBeamVulnerability.Response(
-                combination, UnauthoredCombinations, [Ordnance.Missile, Ordnance.SuperMissile, Ordnance.Bomb, Ordnance.PowerBomb]),
+            SamusBeamCombination.SpazerPlasmaIceWave => UnauthoredBeamVulnerability.Response(combination, UnauthoredResponses),
         _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
     };
 
-    /// <summary>The four combinations that pair Spazer with Plasma, in the order they count.</summary>
-    private static readonly SamusBeamCombination[] UnauthoredCombinations =
-    [
-        SamusBeamCombination.SpazerPlasma, SamusBeamCombination.SpazerPlasmaWave, SamusBeamCombination.SpazerPlasmaIce,
-        SamusBeamCombination.SpazerPlasmaIceWave,
-    ];
+    /// <summary>
+    /// The ordnance response each of the four combinations that pair Spazer with Plasma reads, in the order they count:
+    /// the missile, Super Missile, bomb and Power Bomb responses.
+    /// </summary>
+    private Dictionary<SamusBeamCombination, EnemyWeaponVulnerability> UnauthoredResponses => new()
+    {
+        [SamusBeamCombination.SpazerPlasma] = Ordnance.Missile,
+        [SamusBeamCombination.SpazerPlasmaWave] = Ordnance.SuperMissile,
+        [SamusBeamCombination.SpazerPlasmaIce] = Ordnance.Bomb,
+        [SamusBeamCombination.SpazerPlasmaIceWave] = Ordnance.PowerBomb,
+    };
 }

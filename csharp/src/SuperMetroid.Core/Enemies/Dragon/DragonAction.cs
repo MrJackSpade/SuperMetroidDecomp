@@ -17,13 +17,13 @@ public enum DragonAction
 
     /// <summary>
     /// The attack animation has finished, as its last cue says, and rests on its last pose: the next update spits a
-    /// fireball, then starts over or, after the third, waits to sink.
+    /// fireball, then starts over or, after its last (<see cref="DragonTimingDefinitions.ShotsPerAttack"/>), waits to sink.
     /// </summary>
     AttackFinished,
 
     /// <summary>
     /// Has spat a fireball with shots left: the next update starts the attack animation over, even though it still plays
-    /// it, which spaces the three fireballs by a whole attack animation (#2145).
+    /// it, which spaces the fireballs by a whole attack animation (#2145).
     /// </summary>
     RestartingAttack,
 

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms.Xray;
 namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
 /// <summary>Installed tank and room-specific X-ray presentation, independent of room object state.</summary>
-public sealed class InstalledXrayOverlays
+public sealed partial class InstalledXrayOverlays
 {
     /// <summary>The installed block the X-ray reveal shows for each tank kind.</summary>
     /// <remarks>
@@ -16,12 +16,10 @@ public sealed class InstalledXrayOverlays
     private readonly Dictionary<InWorldCollectibleKind, RoomBlockAppearance> tankBlocks;
     /// <summary>Installed room-specific X-ray block lists keyed by overlay.</summary>
     /// <remarks>
-    /// Of all the game's room states only Bomb Torizo's selects a special X-ray overlay. It reveals three
-    /// blocks, block 82 at column fifteen, rows ten through twelve, and no fourth.
-    /// reveals.json may change coordinates and blocks while retaining the
-    /// overlay and block count, so the apparent Y sequence is not an
-    /// algorithm for all valid installations. Retain the bounded lists
-    /// and reject missing or duplicate overlays.
+    /// Of all the game's room states only Bomb Torizo's selects a special X-ray overlay. It reveals the three
+    /// blocks where the animals break out of the wall, and no fourth.
+    /// Each overlay reveals the blocks its installation lists, wherever they lie; loading rejects a missing or
+    /// duplicate overlay.
     /// </remarks>
     internal readonly Dictionary<XrayRoomOverlayDefinition, XrayRoomOverlayVisual[]> rooms;
 

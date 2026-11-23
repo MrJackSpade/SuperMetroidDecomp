@@ -6,6 +6,9 @@ internal enum SpecialAirCollisionOutcome
     /// <summary>The movement passes through the block as through air.</summary>
     PassesThrough,
 
+    /// <summary>The movement passes into the block and Samus lands on the quicksand's surface (#2560).</summary>
+    LandsOnSurface,
+
     /// <summary>The block stops the movement.</summary>
     Blocks,
 }

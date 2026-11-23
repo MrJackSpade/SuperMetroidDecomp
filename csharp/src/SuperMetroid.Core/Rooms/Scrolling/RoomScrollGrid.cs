@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// traversable, and those open with the camera aligned to the screen's top align the camera vertically differently. Scroll
 /// triggers, doors, enemies and scripted events change cells during play.
 /// </remarks>
-public sealed class RoomScrollGrid
+public sealed partial class RoomScrollGrid
 {
     /// <summary>How many scroll cells the game keeps: no room has more screens.</summary>
     public const int KeptCellCount = 50;
@@ -34,7 +34,7 @@ public sealed class RoomScrollGrid
     public Extent16<RoomScreens> Size { get; }
 
     /// <summary>Gets the number of the room's screens.</summary>
-    public int ScreenCount => Size.Area;
+    internal int ScreenCount => Size.Area;
 
     /// <summary>
     /// The session's scroll cells, cleared as power-on leaves them, with a check past them reading
@@ -60,16 +60,29 @@ public sealed class RoomScrollGrid
     {
         Ensure.NotNull(scroll);
         Ensure.NotNull(pastScreens);
-        if (scroll.ImplicitBottomRow is { } bottomRow)
-            return CreateImplicit(cells, size, bottomRow);
+        return scroll switch
+        {
+            RoomScrollDefinition.ImplicitLayout implicitLayout => CreateImplicit(cells, size, implicitLayout.BottomRow),
+            RoomScrollDefinition.ExplicitLayout explicitLayout => CreateExplicit(cells, explicitLayout, size, pastScreens),
+            _ => throw new ArgumentException($"Undefined scroll layout {scroll}.", nameof(scroll)),
+        };
+    }
 
+    /// <summary>
+    /// Loads the explicit table <paramref name="scroll"/> into <paramref name="cells"/>: its screens, followed by the cells its
+    /// load writes past them (<paramref name="pastScreens"/>).
+    /// </summary>
+    private static RoomScrollGrid CreateExplicit(
+        ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
+        RoomScrollDefinition.ExplicitLayout scroll,
+        Extent16<RoomScreens> size,
+        ScrollCellsPastRoomScreens<RoomScrollState> pastScreens)
+    {
         var grid = new RoomScrollGrid(cells, size);
         if (scroll.Cells.Count != grid.ScreenCount)
             throw new ArgumentException(
                 $"The scroll layout {scroll.Name} holds {scroll.Cells.Count} screens for a room of {grid.ScreenCount}.", nameof(scroll));
         RoomScrollState[] loaded = [.. scroll.Cells, .. pastScreens.After(scroll.Name)];
-        foreach (RoomScrollState state in loaded)
-            Validate(state, nameof(scroll));
         cells.LoadAll(loaded);
         return grid;
     }
@@ -82,12 +95,11 @@ public sealed class RoomScrollGrid
     /// Only the room's width x height cells are written; every kept cell past them keeps what the previous room left
     /// there, and the camera reads them at the room's edges.
     /// </remarks>
-    public static RoomScrollGrid CreateImplicit(
+    internal static RoomScrollGrid CreateImplicit(
         ScrollCellsKeptAcrossRooms<RoomScrollState, AreaId> cells,
         Extent16<RoomScreens> size,
         RoomScrollState lastRowState)
     {
-        Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(cells, size);
         for (int index = 0; index < grid.ScreenCount; index++)
             cells.Write(index, size.CellAtRowMajorIndex(index).Y == size.Y - 1 ? lastRowState : RoomScrollState.Open);
@@ -140,7 +152,6 @@ public sealed class RoomScrollGrid
     {
         if (screen.X >= Size.X)
             throw new ArgumentOutOfRangeException(nameof(screen), screen, "The screen's column lies outside the room.");
-        Validate(state, nameof(state));
         KeptCells.Write(Size.RowMajorIndex(screen), state);
     }
 
@@ -150,19 +161,7 @@ public sealed class RoomScrollGrid
     {
         if (screen.X >= Size.X || screen.Y >= Size.Y)
             throw new ArgumentOutOfRangeException(nameof(screen));
-        Validate(state, nameof(state));
         KeptCells.Write(Size.RowMajorIndex(screen), state);
     }
 
-    /// <summary>Rejects a value that is not one of the three scroll states.</summary>
-    private static void Validate(RoomScrollState state, string parameterName)
-    {
-        if (!Enum.IsDefined(state))
-        {
-            throw new ArgumentOutOfRangeException(
-                parameterName,
-                state,
-                "Known room scroll states are closed, open, and open with the camera aligned to the screen's top.");
-        }
-    }
 }

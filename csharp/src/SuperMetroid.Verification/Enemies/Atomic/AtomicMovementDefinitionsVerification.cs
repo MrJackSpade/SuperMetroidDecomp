@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.MovieReplay;
-using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Atomic;
@@ -18,7 +17,7 @@ internal static class AtomicMovementDefinitionsVerification
     private static void VerifyAtomicInitialProgramSelection(CartridgeImportAddressSpace rom)
     {
         for (ushort selector = 0; selector < 4; selector++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa80000 | ((ushort)(0xe380 + 2 * selector))),
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0xa80000 | ((ushort)(0xe380 + 2 * selector))),
                 NativeEnemyAnimationOracle.EntryOf(AtomicNativeListAddresses.Entries, DecodedSpin(selector)),
                 "Atomic native direction program");
         foreach (ushort selector in new ushort[] { 4, 5, 0x7fff, 0xffff })
@@ -35,22 +34,21 @@ internal static class AtomicMovementDefinitionsVerification
     {
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
 
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Atomic, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-
         for (ushort selector = 0; selector < 4; selector++)
         {
+            // Each selector's Atomic is placed in a room of its own, whose population load sets it up.
+            var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.Atomic, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.SetSpawnParameter1(EnemyDefinitionId.Atomic, selector);
             place.SetSpawnParameter2(EnemyDefinitionId.Atomic, (ushort)(selector * 7));
-            AtomicBehavior.InitializeAtomic(place);
-            AtomicEnemyState state = enemies.AtomicStates[0] ?? throw new InvalidOperationException("Verification requires enemies.AtomicStates[0].");
+            // The Atomic is set up as the population load sets it up.
+            _ = enemies.LoadAuthoredPopulation();
+            // The spinning loop the Atomic shows below is the animation its initializer started.
             AtomicSegment program = DecodedSpin(selector);
-            AssertEqual(new AnimationPlayback<AtomicSegment>(AtomicAnimations.StartingWith(program), AnimationPlace.StartOfAnimation), state.Playback,
-                $"Atomic initializer animation {selector}");
 
-            AssertEqual(EnemyLinearSpeedTable.Speed(selector * 7), place.SpawnSettings<AtomicSpawnSettings>().Speed, $"Atomic speed {selector}");
+            AssertEqual(EnemyLinearSpeedTable.Speed(selector * 7), place.HeldOccupant().SpawnSettings<AtomicSpawnSettings>().Speed, $"Atomic speed {selector}");
 
             place.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Segments, program, AtomicFrameToolingDefinitions.Spritemap),

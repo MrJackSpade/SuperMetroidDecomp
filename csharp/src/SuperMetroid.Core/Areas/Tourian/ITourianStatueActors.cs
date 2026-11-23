@@ -12,6 +12,9 @@ internal interface ITourianStatueActors
     /// <summary>Spawns the glow of a statue's <paramref name="eye"/>.</summary>
     void SpawnEyeGlow(TourianStatueEye eye);
 
+    /// <summary>Shows <paramref name="picture"/>, the eye picture its animation shows, on sprite statue <paramref name="statue"/> (#2625).</summary>
+    void ShowSpriteStatuePicture(TourianSpriteStatue statue, SuperMetroid.Core.Fx.Artwork.TourianStatueBlockPicture picture);
+
     /// <summary>Spawns a statue's released soul at its <paramref name="eye"/>.</summary>
     void SpawnSoul(TourianStatueEye eye);
 
@@ -19,9 +22,10 @@ internal interface ITourianStatueActors
     void SpawnDescentDust();
 
     /// <summary>
-    /// Shows a released statue's look, its blacked-out eyes or its grey, as the shade the import pre-coloured it in (#1512).
+    /// Shows a released statue's look, its blacked-out eyes or its grey, as the shade the import pre-coloured it in (#1512):
+    /// over the room's pictures for a statue <paramref name="drawnInRoomBackground"/>, otherwise over the scene's sprites.
     /// </summary>
-    void ShowStatueLook(PictureShade look);
+    void ShowStatueLook(PictureShade look, bool drawnInRoomBackground);
 
     /// <summary>
     /// The entrance statue's sprite statue <paramref name="sprite"/>, the Ridley or Phantoon statue, which that statue's

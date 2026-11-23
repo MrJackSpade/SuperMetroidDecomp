@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Assets;
 /// pixels of one colour recolour differently, the sheet's recolour-region map tells them apart. Where a picture blends in
 /// some pixels and not others when drawn as a sprite, the sheet's blend map says which.
 /// </summary>
-public sealed class SpriteImage
+public sealed partial class SpriteImage
 {
     /// <summary>
     /// The pixels and the maps, decoded when first read: an installation's stock images are checked when it opens, so
@@ -120,7 +120,7 @@ public sealed class SpriteImage
     /// <summary>
     /// The image's distinct colour keys: each colour its visible pixels hold with its recolour region, in the order its pixels
     /// first show them, then the backdrop's where no visible pixel holds it. Clear pixels hold no key. A shading shows one
-    /// colour for each (<see cref="PictureShading.KeyColours(SpriteImage)"/>).
+    /// colour for each (<see cref="PictureShading.KeyColours(SpriteImage, IColourBlend)"/>).
     /// </summary>
     public ImmutableArray<ColourKey> ColourKeys => content.Value.Keys;
 
@@ -134,14 +134,21 @@ public sealed class SpriteImage
         return KeyAt(decoded.Source, pixel);
     }
 
-    /// <summary>The place of <paramref name="key"/> among <see cref="ColourKeys"/>, or null where the image holds no pixel of it.</summary>
-    public int? PlaceOf(ColourKey key) => content.Value.Places.TryGetValue(key, out int place) ? place : null;
+    /// <summary>Finds the place of <paramref name="key"/> among <see cref="ColourKeys"/>: false where the image holds no pixel of it.</summary>
+    public bool TryGetPlace(ColourKey key, out int place) => content.Value.Places.TryGetValue(key, out place);
 
     /// <summary>
     /// The colour the image's scene shows where nothing is drawn, as the key its shades recolour it by, for a room tileset's
     /// picture; null for every other image.
     /// </summary>
     public ColourKey? Backdrop { get; }
+
+    /// <summary>Finds the backdrop a room tileset's picture names, which every other image lacks.</summary>
+    public bool TryGetBackdrop(out ColourKey backdrop)
+    {
+        backdrop = Backdrop.GetValueOrDefault();
+        return Backdrop.HasValue;
+    }
 
     /// <summary>The shades the import pre-coloured the image in besides its own colours (#1512).</summary>
     public ImmutableDictionary<PictureShade, PictureRecolouring> Shades { get; }
@@ -158,5 +165,5 @@ public sealed class SpriteImage
     /// <param name="Source">The decoded pixels and maps.</param>
     /// <param name="Keys">The distinct colour keys in first-shown order.</param>
     /// <param name="Places">Each key's place among the keys.</param>
-    private sealed record DecodedImage(SpriteImagePixels Source, ImmutableArray<ColourKey> Keys, Dictionary<ColourKey, int> Places);
+    private sealed partial record DecodedImage(SpriteImagePixels Source, ImmutableArray<ColourKey> Keys, Dictionary<ColourKey, int> Places);
 }

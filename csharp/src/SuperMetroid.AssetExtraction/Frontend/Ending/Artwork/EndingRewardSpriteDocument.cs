@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Defines the complete named post-credits Samus sprite set.</summary>
-public sealed record EndingRewardSpriteDocument
+public sealed partial record EndingRewardSpriteDocument
 {
     /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }

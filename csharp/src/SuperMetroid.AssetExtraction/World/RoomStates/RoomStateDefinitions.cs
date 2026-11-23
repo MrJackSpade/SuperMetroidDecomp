@@ -7,8 +7,7 @@ namespace SuperMetroid.AssetExtraction.World.RoomStates;
 /// The initialization settings of each of the 322 retail room states, named for their rooms.
 /// Each field keeps the value range of its room-state header field.
 /// </summary>
-[NumberedIdentities("Each numbered state is a state of a room whose own name carries the number (Grapple Tutorial Room 1-3, Metroid Room 1-4, Tourian Escape Room 1-4); no caller indexes them.")]
-public static class RoomStateDefinitions
+public static partial class RoomStateDefinitions
 {
 
     /// <summary>Every retail room state, in authored order.</summary>

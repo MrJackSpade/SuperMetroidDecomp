@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Extracts Spore Spawn's initial, health, and death RGB5 images.</summary>
-public static class SporeSpawnColorExtractor
+public static partial class SporeSpawnColorExtractor
 {
     /// <summary>Exports the independent spore palette, four health-dependent body images, and separate sprite/level/background death-color sequences.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$A5 color bands beginning at $E359, $E379, $E3F9, $E4F9, and $E5D9 respectively.</param>
@@ -25,8 +25,8 @@ public static class SporeSpawnColorExtractor
         {
             Version = SporeSpawnColorFormat.Version,
             Spores = Read(SporeSpawnSourceDefinitions.SporeColors),
-            Health = ReadFrames(SporeSpawnSourceDefinitions.HealthColors,
-                SporeSpawnColorFormat.HealthFrameCount),
+            Health = Rgb5Rows.KeyedInTableOrder(SporeSpawnSourceDefinitions.HealthTableOrder, band => band.Key,
+                row => Read(SporeSpawnSourceDefinitions.HealthColors + row * SporeSpawnSourceDefinitions.ImageBytes)),
             DeathSprite = ReadFrames(SporeSpawnSourceDefinitions.DeathSpriteColors,
                 SporeSpawnColorFormat.DeathSpriteFrameCount),
             DeathLevel = ReadFrames(SporeSpawnSourceDefinitions.DeathLevelColors,
@@ -49,16 +49,11 @@ public static class SporeSpawnColorExtractor
             for (int color = 0; color < colors.Length; color++)
             {
                 int address = source + color * SporeSpawnSourceDefinitions.ColorWordBytes;
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Spore Spawn color ${address:X6} has an unrepresentable high bit.");
-                colors[color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

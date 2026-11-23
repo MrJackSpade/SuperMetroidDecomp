@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Cacatac;
@@ -26,17 +25,17 @@ internal static class CacatacBehaviorVerification
             CacatacSegment idle = onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdle;
             CacatacSegment loop = onFloor ? CacatacSegment.OnFloorIdle : CacatacSegment.OnCeilingIdlePoses;
             (RoomEnemySystem enemies, RoomEnemyPlace place, CacatacEnemyState state) = Create(onFloor);
-            AssertEqual(new AnimationPlayback<CacatacSegment>(CacatacAnimations.StartingWith(idle), AnimationPlace.StartOfAnimation), state.Playback, $"Cacatac {orientation} starts idling");
             state.Action = CacatacAction.Stopped;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Segments, loop, CacatacFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Segments, loop)), $"Cacatac {orientation} idle loop");
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Segments, loop),
+                    () => enemies.CacatacBehavior.AdvanceCacatacTypedAnimation(place.HeldOccupant(), place, state)), $"Cacatac {orientation} idle loop");
             AssertEqual(CacatacAction.Patrolling, state.Action, $"Cacatac {orientation} idle restores patrol");
             AssertEqual(HorizontalDirection.Left, state.PatrolDirection, $"Cacatac {orientation} idle patrols the way it was placed");
 
             (enemies, place, state) = Create(onFloor);
             state.Action = CacatacAction.Stopped;
             CacatacBehavior.SetCacatacAnimation(place, state, onFloor ? CacatacSegment.OnFloorAttack : CacatacSegment.OnCeilingAttack);
-            EnemyInstructionRunner.ShownFrames(place, 53);
+            EnemyInstructionRunner.ShownFrames(place, 53, () => enemies.CacatacBehavior.AdvanceCacatacTypedAnimation(place.HeldOccupant(), place, state));
             AssertEqual(loop, state.Playback.Animation.Phases[state.Playback.Place.Phase].Segment, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacAction.Patrolling, state.Action, $"Cacatac {orientation} attack resumes patrol");
             AssertEqual(HorizontalDirection.Left, state.PatrolDirection, $"Cacatac {orientation} attack resumes its leftward patrol");
@@ -67,32 +66,31 @@ internal static class CacatacBehaviorVerification
         // A random word that keeps the three-in-256 attack gate closed, so every update is a patrol step.
         enemies.VerificationServices().NextRandom = () => 100;
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
+        place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
         place.Position = FixedPosition<RoomPixels>.FromWhole(new(40, 112));
         place.SetSpawnWords(EnemyDefinitionId.Cacatac, words => words);
-        CacatacBehavior.InitializeCacatac(place);
-        CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
+        CacatacEnemyState state = CacatacBehavior.InitializeCacatac(place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>(), place);
         AssertEqual(24, state.LeftPatrolX, "Cacatac left limit is one block left of spawn");
         AssertEqual(56, state.RightPatrolX, "Cacatac right limit is one block right of spawn");
 
         // The Cacatac walks at its spawn settings' speed, which it reads where it moves (#2476).
-        place.SetSpawnSettings(place.SpawnSettings<CacatacSpawnSettings>() with { Speed = oneAndAHalfPixels });
+        place.SetSpawnSettings(place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>() with { Speed = oneAndAHalfPixels });
         place.Position = place.Position.WithFractionX(checked(halfPixel));
-        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        enemies.CacatacBehavior.RunCacatacMainAi(place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>(), place, state);
         AssertEqual(new FixedCoordinate(39, 0), place.Position.X, "Cacatac leftward step borrows its fraction");
         AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac keeps walking left while right of its left limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac keeps its leftward patrol");
 
         // One pixel right of the left limit: the step lands half a pixel past it and turns.
         place.Position = place.Position.WithWholeX(state.LeftPatrolX + 1);
-        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        enemies.CacatacBehavior.RunCacatacMainAi(place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>(), place, state);
         AssertEqual(new FixedCoordinate(state.LeftPatrolX - 1, checked(halfPixel)), place.Position.X,
             "Cacatac steps past its left limit");
         AssertEqual(HorizontalDirection.Right, state.PatrolDirection, "Cacatac turns right once past its left limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols right after the turn");
 
         place.Position = place.Position.WithX(new FixedCoordinate(54, checked(halfPixel)));
-        enemies.CacatacBehavior.RunCacatacMainAi(place, Frame());
+        enemies.CacatacBehavior.RunCacatacMainAi(place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>(), place, state);
         AssertEqual(new FixedCoordinate(56, 0), place.Position.X, "Cacatac rightward step carries its fraction into the whole X");
         AssertEqual(HorizontalDirection.Left, state.PatrolDirection, "Cacatac turns left on reaching its right limit");
         AssertEqual(CacatacAction.Patrolling, state.Action, "Cacatac patrols left after the turn");
@@ -100,7 +98,7 @@ internal static class CacatacBehaviorVerification
 
         static ClockedEnemyAiFrame Frame() => new(
             RoomEnemyFrameFixtures.Standalone(RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) },
-            new FrameCounters(0));
+            new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
     }
 
     /// <summary>A Cacatac initialized upright or inverted.</summary>
@@ -108,11 +106,11 @@ internal static class CacatacBehaviorVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Cacatac, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Cacatac, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Cacatac, onFloor ? CacatacNativeValues.OnFloorParameter : (ushort)0);
-        CacatacBehavior.InitializeCacatac(place);
-        return new CacatacBehaviorCreateResult(enemies, place, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
+        // The Cacatac's setup builds the state its main AI and its animation, which the checks play, run on.
+        return new CacatacBehaviorCreateResult(enemies, place, CacatacBehavior.InitializeCacatac(place.HeldOccupant().SpawnSettings<CacatacSpawnSettings>(), place));
     }
 
     /// <summary>Runs the Cacatac behavior check and its program oracle against the local retail cartridge.</summary>

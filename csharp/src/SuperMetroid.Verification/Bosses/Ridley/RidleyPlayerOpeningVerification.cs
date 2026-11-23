@@ -53,14 +53,14 @@ internal static class RidleyPlayerOpeningVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Ridley, camera: new Position16<RoomPixels>(0, 0));
         // The recorded random word drives Ridley's room, so its enemies are rebuilt with case services over the room's own.
         var enemies = runtime.ReloadRoomEnemiesForVerification(loaded => new VerificationRoomEnemyServices(loaded));
-        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.IntroducedSamus;
+        var body = enemies.Places.InUpdateOrder[0]; var state = enemies.NorfairRidley(); var samus = runtime.Player.Samus;
         var seed = Read(375);
         // Ridley's body plays typed animations (#1287, #1600); the recording's native pointer selects the matching playback.
-        var pointers = new RidleyBodyNativeInstructionPointers(CartridgeImportSource.Require(bus));
+        var pointers = new RidleyBodyNativeInstructionPointers(bus);
         (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).Flight.BodyPlayback = pointers.BodyPlaybackAt(W(seed, 0xf92), state.Flight.FacingDirection);
         body.AnimationClock.HoldFor(W(seed, 0xf94));
         body.FrameCounter = W(seed, 0xfa4);
@@ -73,7 +73,7 @@ internal static class RidleyPlayerOpeningVerification
         {
             var expected = Read(frame);
             samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
-            samus.Pose = SamusPoseNumbering.FromNumber(W(expected, 0xa1c)); SamusPoseMetadata.RefreshCollisionRadii(samus);
+            samus.ChangePoseKeepingAnimation(SamusPoseNumbering.FromNumber(W(expected, 0xa1c))); SamusPoseMetadata.RefreshCollisionRadii(samus);
             random = W(expected, 0x5e5);
             enemies.StepStandaloneFrame(enemies.StandaloneFrame(runtime.Room.LoadedLevelData) with { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, ControllerInput = GameplayActionWordCodec.FromJoypadWord(W(expected, 0x8b), "native Ridley opening held input"), SamusProjectiles = runtime.Projectiles, SamusBombs = runtime.BombProjectiles });
             // The AI function is an identity; the native table's routine word for it lines up with the recorded word.

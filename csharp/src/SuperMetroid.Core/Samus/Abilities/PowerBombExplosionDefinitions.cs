@@ -3,11 +3,11 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>Power Bomb/Crystal Flash blast radii, the ovals its last stages show, and phase boundaries and durations.</summary>
-public static class PowerBombExplosionDefinitions
+public static partial class PowerBombExplosionDefinitions
 {
-    /// <summary>Initial radius: four pixels.</summary>
+    /// <summary>The explosion's initial radius.</summary>
     public static readonly PowerBombRadius InitialRadius = PowerBombRadius.FromWholePixels(4);
-    /// <summary>Initial pre-explosion radial speed: forty-eight pixels per update.</summary>
+    /// <summary>The initial pre-explosion radial speed.</summary>
     public static readonly PowerBombRadius InitialPreExplosionSpeed = PowerBombRadius.FromWholePixels(48);
     /// <summary>The pre-explosion flash's slowing: its speed drops by half a pixel an update each update it grows.</summary>
     public static readonly PowerBombRadius PreExplosionSlowing = PowerBombRadius.FromPixelFraction(1, 2);
@@ -39,7 +39,7 @@ public static class PowerBombExplosionDefinitions
     public static readonly PowerBombRadius PreExplosionWhiteLimit = PowerBombRadius.FromWholePixels(146);
     /// <summary>Radius at which the yellow explosion switches to the white explosion's ovals.</summary>
     public static readonly PowerBombRadius ExplosionYellowLimit = PowerBombRadius.FromWholePixels(134);
-    /// <summary>Crystal Flash's shorter explosion radius limit: thirty-two pixels.</summary>
+    /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
     public static readonly PowerBombRadius CrystalFlashRadiusLimit = PowerBombRadius.FromWholePixels(32);
     /// <summary>
     /// The updates Crystal Flash's afterglow fades for after an explosion that stopped in the first glow band; each further

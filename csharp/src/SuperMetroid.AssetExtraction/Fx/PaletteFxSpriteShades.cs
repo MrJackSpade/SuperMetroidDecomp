@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// statues' grey-out, the escape's shutter flash and the landed gunship's glow (#1733). Each record an object's program shows is pre-coloured over the row
 /// from the group's first colour, as the handler wrote it there; the enemy that shows the group lays the record's shade.
 /// </summary>
-internal static class PaletteFxSpriteShades
+internal static partial class PaletteFxSpriteShades
 {
     /// <summary>Colours in one sprite row.</summary>
     private const int RowColours = 16;
@@ -30,7 +30,8 @@ internal static class PaletteFxSpriteShades
     /// row whose first ink is <paramref name="rowFirstInk"/>, coloured from <paramref name="colours"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">
-    /// The group recolours no sprite row, the program shows another group, a colour is not installed, or a record writes
+    /// The group recolours no sprite row, the program shows another group, a colour is missing from the import's
+    /// palette-effect colours, or a record writes
     /// past the row.
     /// </exception>
     internal static IEnumerable<SheetShade> Of(ColourEffectId effect, ColourEffectColours group, int rowFirstInk, IPaletteFxColorSource colours)

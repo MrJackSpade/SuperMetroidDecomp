@@ -4,4 +4,4 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="WaitBeforeUpdates">
 /// The mouth-scheduler updates waited before the flame, the last being the update the mouth spits it on.
 /// </param>
-public sealed record PhantoonCasualFlame(int WaitBeforeUpdates);
+public sealed partial record PhantoonCasualFlame(int WaitBeforeUpdates);

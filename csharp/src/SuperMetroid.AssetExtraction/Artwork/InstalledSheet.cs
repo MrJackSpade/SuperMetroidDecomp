@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// </summary>
 /// <param name="Manifest">The installed manifest: the image's size, the frames, the shades by colour key and the backdrop's key.</param>
 /// <param name="Pixels">The installed pixels, with the recolour-region map and the blend map where the sheet needs them.</param>
-internal sealed record InstalledSheet(InstalledSheetDocument Manifest, SpriteImagePixels Pixels)
+internal sealed partial record InstalledSheet(InstalledSheetDocument Manifest, SpriteImagePixels Pixels)
 {
     /// <summary>The sheet's pixels and maps with its size.</summary>
     internal InstalledImagePlanes Image => new(Pixels, Manifest.Size);

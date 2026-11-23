@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// swing direction, in direction order; the installation chooses which picture each direction shows.
 /// </summary>
 /// <param name="DrawnFor">The swing direction the picture shows Samus hanging in.</param>
-public readonly record struct GrappleSwingPicture(GrappleSwingDirection DrawnFor)
+public readonly partial record struct GrappleSwingPicture(GrappleSwingDirection DrawnFor)
 {
     /// <summary>
     /// The frame of the swing pose's animation that holds this picture: one frame for each direction, in direction order.

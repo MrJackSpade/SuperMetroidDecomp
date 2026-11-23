@@ -9,8 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// bounding callbacks and the record shapes <see cref="IntroNarrationExtractor"/> checks.
 /// Extraction-only data; the simulation never reads it.
 /// </summary>
-[EncodingOwner("bank-$8C opening narration script records")]
-internal static class IntroNarrationScriptDefinitions
+internal static partial class IntroNarrationScriptDefinitions
 {
     /// <summary>Bank containing the intro background-object streams and glyph records.</summary>
     internal const byte ScriptBank = 0x8c;
@@ -47,6 +46,6 @@ internal static class IntroNarrationScriptDefinitions
         new(IntroNarrationPageId.DeliveryToCeres, 0xcb45, 0xb074, 0xb08c),
         new(IntroNarrationPageId.ScientistsFindings, 0xce33, 0xb0b3, 0xb0cb),
         new(IntroNarrationPageId.DistressSignal, 0xd15d, 0xb19b, 0xb1b3),
-        new(IntroNarrationPageId.CeresUnderAttack, 0xd511, 0xb228, 0xb240),
+        new(IntroNarrationPageId.CeresUnderAttack, 0xd511, 0xb228, 0xb240, EndsWithBlinkingCaret: true),
     ];
 }

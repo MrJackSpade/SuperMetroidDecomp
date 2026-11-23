@@ -19,8 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// keep the frame and its updates together as one number and count down and add to that number as a whole.
 /// </para>
 /// </remarks>
-[CompatibilityService("a Dachora glow's frame and its updates count as one number: counting from a cleared cycle borrows from the frame, and a step's updates carry into it")]
-public readonly record struct DachoraGlowCycle
+public readonly partial record struct DachoraGlowCycle
 {
     /// <summary>The updates one frame of the count is worth.</summary>
     private const int UpdatesPerFrame = 256;
@@ -39,7 +38,6 @@ public readonly record struct DachoraGlowCycle
     public int Frame => count / UpdatesPerFrame;
 
     /// <summary>The updates left before the cycle shows <see cref="Frame"/>.</summary>
-    [IntegerQuantity("updates left before the glow cycle shows its next frame")]
     public int UpdatesLeft => count % UpdatesPerFrame;
 
     /// <summary>The cycle after counting one update off it, borrowing from the frame when no updates are left.</summary>

@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// phase of the earthquake's frame count, as authored, how the door's own earthquake chooses its strength and how its
 /// destruction's explosions choose their animation.
 /// </summary>
-internal static class CeresDoorQuakeDefinitions
+internal static partial class CeresDoorQuakeDefinitions
 {
     /// <summary>
     /// The door's earthquake strength, read from the current random number without drawing (#1619): one roll in 32
     /// starts the stronger quake; the rest the light one.
     /// </summary>
-    internal static readonly RandomChance StrongQuake = RandomChance.Lowest(128, new RandomSampleField(0, 12));
+    internal static readonly RandomChance StrongQuake = RandomChance.Lowest(128, RandomSampleField.OneOf(4096));
 
     /// <summary>The updates the station's strong escape quake shakes before a door chooses the next.</summary>
     internal const int StrongQuakeFrames = 4;
@@ -20,10 +20,10 @@ internal static class CeresDoorQuakeDefinitions
     internal const int LightQuakeFrames = 2;
 
     /// <summary>
-    /// The animation of each explosion of the elevator door's destruction (#1619): the lowest 16384 of the 65536 samples, a
-    /// quarter, burst as smoke; the rest as small explosions.
+    /// The animation of each explosion of the elevator door's destruction (#1619): one explosion in four bursts as
+    /// smoke, the rest as small explosions.
     /// </summary>
-    internal static readonly RandomChance RumbleExplosion = RandomChance.Lowest(16384, RandomSampleField.Whole);
+    internal static readonly RandomChance RumbleExplosion = RandomChance.Lowest(1, RandomSampleField.RangePart(4));
 
     /// <summary>The door's horizontal offset in pixels, rightward positive, for each earthquake phase in order.</summary>
     internal static readonly int[] PhaseOffsets = [0, -4, -1, 3];

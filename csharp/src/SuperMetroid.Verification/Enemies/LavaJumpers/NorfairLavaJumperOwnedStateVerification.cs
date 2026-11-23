@@ -20,26 +20,22 @@ internal static class NorfairLavaJumperOwnedStateVerification
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.VerificationServices().NextRandom = () => 0;
-        RoomEnemyPlace parent = enemies.Places.InUpdateOrder[0];
-        parent.SetSpawnSettings(new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader));
-        parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
-        parent.Health = 10;
-        SqueeptBehavior.InitializeSqueept(parent);
-        RoomEnemyPlace follower = enemies.Places.InUpdateOrder[1];
-        follower.SetSpawnParameter1(EnemyDefinitionId.Squeept, EnemyParameterMasks.FollowerBit);
-        follower.Bind(EnemyDefinitionId.Squeept, follower.Definition);
-        enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower);
+        IReadOnlyList<RoomEnemyPlace> places = enemies.LoadPopulation(
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Leader)),
+            PopulationPlacementAccess.Entry(EnemyDefinitionId.Squeept, new EnemyFollowerSpawnSettings(EnemyFollowerRole.Follower)));
+        RoomEnemyPlace parent = places[0];
+        RoomEnemyPlace follower = places[1];
         SqueeptState parentState = enemies.SqueeptStates[0] ?? throw new InvalidOperationException("The parent has no state.");
-        AssertTrue(enemies.NorfairLavaJumperFollowerStates[0] is null && enemies.NorfairLavaJumperFollowerStates[1] is not null,
-            "parameter one's sign bit selects the follower");
         AssertTrue(parent.Entity is SqueeptEntity && follower.Entity is NorfairLavaJumperFollowerEntity,
-            "the placement builds each part's own entity (#2164): the jumper and its follower");
+            "parameter one's sign bit selects the follower: the placement builds each part's own entity (#2164)");
+        // The follower's setup builds the state its main AI runs on, which follows its parent's rise and fall.
+        NorfairLavaJumperFollowerState followerState = enemies.SqueeptBehavior.InitializeNorfairLavaJumperFollower(follower, parent.EntityOf<SqueeptEntity>().State, parent);
 
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(-512);
-        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower);
+        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, followerState);
         AssertTrue(!follower.Presence.HasAny(EnemyPresence.Hidden), "the follower shows while its parent rises");
         parentState.YVelocity = SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256);
-        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower);
+        enemies.SqueeptBehavior.RunNorfairLavaJumperFollowerMain(follower, followerState);
         AssertTrue(follower.Presence.HasAny(EnemyPresence.Hidden), "the follower hides while its parent falls");
         Console.WriteLine("Norfair lava jumper owned state: gravity carrying the velocity through zero and the follower's parent velocity read match.");
     }

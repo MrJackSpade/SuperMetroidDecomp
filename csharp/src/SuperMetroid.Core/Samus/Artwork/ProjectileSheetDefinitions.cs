@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// combination with pictures of its own, whose pictures and beam colours differ, and one for the intro's flashbacks,
 /// and the names of the frames each holds.
 /// </summary>
-public static class ProjectileSheetDefinitions
+public static partial class ProjectileSheetDefinitions
 {
     /// <summary>
     /// The trail poses every projectile sheet holds, in the sheet's order (#2567): the Ice sparkle's, the Wave ring's, then
@@ -37,7 +37,7 @@ public static class ProjectileSheetDefinitions
     /// fires a charged Power or a charged Ice-Wave shot, and their projectiles show that combination's sheet, which holds
     /// everything they fire or place.
     /// </summary>
-    public static readonly IReadOnlyDictionary<SamusBeamCombination, SpriteSheetId> Sheets = new Dictionary<SamusBeamCombination, SpriteSheetId>
+    public static readonly IdentityTable<SamusBeamCombination, SpriteSheetId> Sheets = new(new Dictionary<SamusBeamCombination, SpriteSheetId>
     {
         [SamusBeamCombination.Power] = SpriteSheetId.ProjectilesPower,
         [SamusBeamCombination.Wave] = SpriteSheetId.ProjectilesWave,
@@ -55,5 +55,5 @@ public static class ProjectileSheetDefinitions
         [SamusBeamCombination.SpazerPlasmaWave] = SpriteSheetId.ProjectilesSpazerPlasmaWave,
         [SamusBeamCombination.SpazerPlasmaIce] = SpriteSheetId.ProjectilesSpazerPlasmaIce,
         [SamusBeamCombination.SpazerPlasmaIceWave] = SpriteSheetId.ProjectilesIceWave,
-    };
+    });
 }

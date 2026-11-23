@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -22,10 +21,10 @@ internal static class WreckedShipGhostShadeContentVerification
     {
         // Colour zero of the ghost's own colours is (0, 0, 14): materialized, then brightened 17 times, its blue is full;
         // the next brightening carries blue out of the colour, leaving it at zero, as the word addition does.
-        WreckedShipGhostFade fade = WreckedShipGhostFade.Dark.Materializing(WreckedShipGhostAppearance.Colours);
+        WreckedShipGhostFade fade = WreckedShipGhostFade.Dark.Materializing(WreckedShipGhostFade.GhostColours);
         for (WreckedShipGhostFadeStep moved = fade.SteppedTowardTarget(); moved.Changes != 0; moved = fade.SteppedTowardTarget())
             fade = moved.Next;
-        AssertEqual(WreckedShipGhostAppearance.Colours[0], fade.Shown[0], "the materialized ghost shows its own colour zero");
+        AssertEqual(WreckedShipGhostFade.GhostColours[0], fade.Shown[0], "the materialized ghost shows its own colour zero");
         for (int step = 0; step < 17; step++)
             fade = fade.Brightened().Next;
         AssertEqual(new RgbColor(140, 140, 255), fade.Shown[0], "seventeen brightenings fill colour zero's blue");
@@ -35,7 +34,7 @@ internal static class WreckedShipGhostShadeContentVerification
 
         RoomEnemyGraphicsSetDefinition set = RoomEnemyGraphicsSetLists.DrawnUnder.First(candidate =>
             RoomEnemyGraphicsSetLists.MembersOf(candidate).Records.ToArray().Any(record => record.DefinitionId == EnemyDefinitionId.Coven));
-        int first = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set), EnemyGraphicsSetPaletteRowDefinitions.Rows).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
+        int first = new GraphicsSetRows(RoomEnemyGraphicsSetLists.MembersOf(set)).RowOf(EnemyDefinitionId.Coven) * LoadedSetColours.RowColours;
         // The sheet composed in-process, which knows the palette index each pixel was composed as (#1633).
         SpriteImage image = EnemySheetFixtures.ComposedSheet(set, EnemyDefinitionId.Coven);
         IReadOnlyList<ShadeColours> steps = EnemySheetShades.GhostFadeSteps();
@@ -44,7 +43,7 @@ internal static class WreckedShipGhostShadeContentVerification
         {
             // The sheet's colours laid out by the palette index each was composed as (#1544): a colour of the row none of
             // its pixels shows is not one of its colours, and nothing shows it.
-            RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image, PictureShading.Shaded(shade).KeyColours(image));
+            RgbColor[] shown = InstalledPictureColoursConstants.ByComposedIndex(image, PictureShading.Shaded(shade).KeyColours(image, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance));
             for (int color = 0; color < WreckedShipGhostFade.ColourCount; color++)
             {
                 if (InstalledPictureColoursConstants.KeyComposedAs(image, first + color) is not null)

@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Samus.Hud;
 /// the charge and restoring the suit's colours unless the Grapple Beam is selected while a grapple is active. This holds even when the selection lands back on the
 /// same item, such as a cancel with nothing selected.
 /// </param>
-public readonly record struct HudSelectionOutcome(bool ItemSelectionTookEffect);
+public readonly partial record struct HudSelectionOutcome(bool ItemSelectionTookEffect);

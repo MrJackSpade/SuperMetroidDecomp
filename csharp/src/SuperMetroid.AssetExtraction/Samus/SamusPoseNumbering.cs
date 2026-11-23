@@ -10,8 +10,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// names none, and neither does a number past the records, which reads adjacent code no path gives Samus (#2457). This
 /// is the one place a number becomes its pose; <see cref="SamusPoseNumbers"/> turns a pose back into its number.
 /// </summary>
-[EncodingOwner("pose numbers of the cartridge's Samus pose tables")]
-internal static class SamusPoseNumbering
+internal static partial class SamusPoseNumbering
 {
     /// <summary>The number of records in the cartridge's pose tables, including the records of poses no path reaches.</summary>
     internal const int RecordCount = 253;
@@ -30,8 +29,9 @@ internal static class SamusPoseNumbering
     /// </exception>
     internal static SamusPoseId FromNumber(int number) =>
         (uint)number <= byte.MaxValue
-            ? (number < SamusPoseNumberDefinitions.ByNumber.Length ? SamusPoseNumberDefinitions.ByNumber[number] : null) ??
-                throw new ArgumentOutOfRangeException(nameof(number), number, "A number no gameplay path gives Samus names no pose.")
+            ? number < SamusPoseNumberDefinitions.ByNumber.Length && SamusPoseNumberDefinitions.ByNumber[number] is SamusPoseId pose
+                ? pose
+                : throw new ArgumentOutOfRangeException(nameof(number), number, "A number no gameplay path gives Samus names no pose.")
             : throw new ArgumentOutOfRangeException(nameof(number), number, "A pose number is one byte.");
 
     /// <summary>

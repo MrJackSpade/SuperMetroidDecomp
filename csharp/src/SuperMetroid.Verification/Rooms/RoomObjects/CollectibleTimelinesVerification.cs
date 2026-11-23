@@ -26,8 +26,8 @@ internal static class CollectibleTimelinesVerification
     {
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
-        InstalledRoomObjectCollectibleVisuals collectibles = InstalledRoomObjectCollectibleVisuals.Stock();
-        InstalledRoomObjectShotBlockVisuals shotBlocks = InstalledRoomObjectShotBlockVisuals.Stock();
+        InstalledRoomObjectPictures collectibles = RoomObjectPicturesStock.Collectible;
+        InstalledRoomObjectPictures shotBlocks = RoomObjectPicturesStock.ShotBlock;
         RoomBlockAppearance Collectible(CollectibleDraw draw) => collectibles.Image(CollectibleObjectDraws.Family.Of(draw)).At(Offset16<RoomBlocks>.Zero);
         RoomBlockAppearance Breakup(BlockBreakupStage stage) =>
             shotBlocks.Image(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, stage)).At(Offset16<RoomBlocks>.Zero);
@@ -36,7 +36,7 @@ internal static class CollectibleTimelinesVerification
         // first look.
         CollectibleFixture orb = LoadCollectible(bus, header: RoomObjectNativeWords.Word(RoomObjectKind.ChozoBombs), roomArgument: 79, precollected: false);
         orb.RoomObjects.Step(orb.Level);
-        AssertTrue(orb.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(orb.Block), "the orb accepts the shot");
+        orb.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(orb.Block);
         var burst = new List<RoomBlockAppearance>();
         burst.AddRange(Enumerable.Repeat(Collectible(CollectibleDraw.Empty), CollectibleTimingDefinitions.OrbBurstImageUpdates));
         burst.AddRange(Enumerable.Repeat(Collectible(CollectibleDraw.ChozoOrbBurst), CollectibleTimingDefinitions.OrbBurstImageUpdates));
@@ -51,7 +51,7 @@ internal static class CollectibleTimelinesVerification
         // updates each, twenty-two times; its block forms again from dust, four updates each, and returns whole.
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 150, precollected: false);
         RoomTerrainBlock concealed = shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).Terrain;
-        AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.Block), "the shot block accepts the shot");
+        shot.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(shot.Block);
         var reveal = new List<RoomBlockAppearance>();
         foreach (CollectibleDraw draw in new[] { CollectibleDraw.ShotBlockIntact, CollectibleDraw.ShotBlockCracking, CollectibleDraw.ShotBlockDust })
             reveal.AddRange(Enumerable.Repeat(Collectible(draw), CollectibleTimingDefinitions.RevealImageUpdates));
@@ -69,7 +69,7 @@ internal static class CollectibleTimelinesVerification
 
         // A collected item's block stays empty for its time, then grows back from dust to rock, four updates each, and
         // returns as it was.
-        AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleProjectileHit(shot.Block), "the hidden item accepts another shot");
+        shot.RoomObjects.CollectibleObjects.NotifyCollectibleProjectileHit(shot.Block);
         StepFrames(RevealUpdates + 1, _ => shot.RoomObjects.Step(shot.Level));
         AssertTrue(shot.RoomObjects.CollectibleObjects.TryNotifyCollectibleTouch(shot.Block), "the revealed item accepts Samus's touch");
         shot.RoomObjects.Step(shot.Level);

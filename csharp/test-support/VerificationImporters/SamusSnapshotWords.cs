@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -40,7 +41,7 @@ internal static class SamusSnapshotWords
             return null;
         int tag = word & ~byte.MaxValue;
         return tag is NormalJumpShotTag or MoonwalkTurnShotTag
-            ? new SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(word & byte.MaxValue)
+            ? new global::SuperMetroid.Core.Samus.SamusTransitionShot(SuperMetroid.Core.Samus.Poses.SamusPoseRecordDecoding.DirectionOfAimByte(word & byte.MaxValue)
                 ?? throw new InvalidDataException($"Transition shot word ${word:X4} names no aim."))
             : throw new InvalidDataException($"Transition shot word ${word:X4} carries no native initializer's tag.");
     }
@@ -60,25 +61,25 @@ internal static class SamusSnapshotWords
     internal const ushort SpringBallBounceFamily = 6 << 8;
 
     /// <summary>Decodes <c>$0B20</c>: the rebound count in the low byte, with the Spring Ball family's high byte or none.</summary>
-    internal static SamusBallBounceState DecodeBallBounce(ushort word) => word switch
+    internal static SamusBallBounce? DecodeBallBounce(ushort word) => word switch
     {
-        0 => SamusBallBounceState.None,
-        1 => SamusBallBounceState.FirstRebound,
-        2 => SamusBallBounceState.SecondRebound,
-        SpringBallBounceFamily + 1 => SamusBallBounceState.SpringBallFirstRebound,
-        SpringBallBounceFamily + 2 => SamusBallBounceState.SpringBallSecondRebound,
+        0 => null,
+        1 => SamusBallBounce.MorphBallFirst,
+        2 => SamusBallBounce.MorphBallSecond,
+        SpringBallBounceFamily + 1 => SamusBallBounce.SpringBallFirst,
+        SpringBallBounceFamily + 2 => SamusBallBounce.SpringBallSecond,
         _ => throw new InvalidDataException($"Ball bounce word ${word:X4} is not a native bounce state."),
     };
 
     /// <summary>Encodes a bounce state as the word native code writes.</summary>
-    internal static int EncodeBallBounce(SamusBallBounceState state) => state switch
+    internal static int EncodeBallBounce(SamusBallBounce? state) => state switch
     {
-        SamusBallBounceState.None => 0,
-        SamusBallBounceState.FirstRebound => 1,
-        SamusBallBounceState.SecondRebound => 2,
-        SamusBallBounceState.SpringBallFirstRebound => SpringBallBounceFamily + 1,
-        SamusBallBounceState.SpringBallSecondRebound => SpringBallBounceFamily + 2,
-        _ => throw new InvalidOperationException($"Undefined {nameof(SamusBallBounceState)} {state}."),
+        null => 0,
+        { Ball: SamusBouncingBall.MorphBall, Rebound: SamusBallRebound.First } => 1,
+        { Ball: SamusBouncingBall.MorphBall, Rebound: SamusBallRebound.Second } => 2,
+        { Ball: SamusBouncingBall.SpringBall, Rebound: SamusBallRebound.First } => SpringBallBounceFamily + 1,
+        { Ball: SamusBouncingBall.SpringBall, Rebound: SamusBallRebound.Second } => SpringBallBounceFamily + 2,
+        _ => throw new InvalidOperationException($"Undefined ball bounce {state}."),
     };
 
     /// <summary>
@@ -130,7 +131,7 @@ internal static class SamusSnapshotWords
     private static ChargedShotGlow PlayedUpdates(ChargedShotGlow glow, int updates)
     {
         for (int update = 0; update < updates; update++)
-            _ = glow.PlayUpdate();
+            _ = glow.PlayUpdate(out _);
         return glow;
     }
 
@@ -138,11 +139,12 @@ internal static class SamusSnapshotWords
     /// <exception cref="InvalidDataException">The glow stands nowhere its start plays through.</exception>
     private static int UpdatesPlayed(ChargedShotGlow start, ChargedShotGlow glow)
     {
-        for (int updates = 0; !start.HasEnded; updates++)
+        bool ended = false;
+        for (int updates = 0; !ended; updates++)
         {
             if (start.Play.Playback == glow.Play.Playback && start.Play.UpdatesLeft == glow.Play.UpdatesLeft)
                 return updates;
-            _ = start.PlayUpdate();
+            _ = start.PlayUpdate(out ended);
         }
         throw new InvalidDataException($"The {glow.Kind} glow stands nowhere its start plays through.");
     }

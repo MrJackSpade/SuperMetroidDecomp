@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// A head pose Botwoon's head shows (#2400): the hidden head's empty frame, which faces no way, or his mouth closed or open
 /// facing a way. Only the poses its factories make exist.
 /// </summary>
-internal readonly record struct BotwoonHeadFrame
+internal readonly partial record struct BotwoonHeadFrame
 {
     /// <summary>The pose <paramref name="pose"/> facing <paramref name="facing"/>, or no way for the hidden head.</summary>
     private BotwoonHeadFrame(BotwoonHeadPose pose, CompassDirection? facing)

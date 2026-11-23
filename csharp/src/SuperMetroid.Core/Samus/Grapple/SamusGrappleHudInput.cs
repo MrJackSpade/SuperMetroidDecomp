@@ -4,7 +4,7 @@ using SuperMetroid.Core.Samus.Hud;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>Whether a movement type admits the selected, inactive Grapple.</summary>
-internal static class SamusGrappleHudInput
+internal static partial class SamusGrappleHudInput
 {
     /// <summary>Admits a selected Grapple input only for movement types that can fire it in the current pose transition.</summary>
     public static bool IsSelectedAndAdmitted(SamusState samus, PostureAdmissionBeyondTransitions<SamusPoseId> postureAdmission)

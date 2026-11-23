@@ -183,7 +183,7 @@ internal static class EnemyTerrainBlockAddressingVerification
             foreach (int column in columns)
             foreach (Axis edge in new[] { Axis.Horizontal, Axis.Vertical })
             {
-                var scan = new EnemyProjectileBlockScan(Position16<RoomBlocks>.Of(column, row), edge, ExtraBlocks: 0);
+                var scan = new global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan(Position16<RoomBlocks>.Of(column, row), edge, 0);
                 int first = (row & 0xff) * width + column;
                 foreach (int step in steps)
                 {
@@ -209,8 +209,8 @@ internal static class EnemyTerrainBlockAddressingVerification
                 int startLine = ((spanStart + shift) & 0xffff) >> 4;
                 int extraBlocks = (((spanEnd + shift) & 0xffff) - (((spanStart + shift) & 0xffff) & 0xfff0) & 0xffff) >> 4;
                 var first = edge == Axis.Vertical ? Position16<RoomBlocks>.Of(startLine, edgeLine) : Position16<RoomBlocks>.Of(edgeLine, startLine);
-                if (scan != new EnemyProjectileBlockScan(first, edge, extraBlocks))
-                    AssertEqual(new EnemyProjectileBlockScan(first, edge, extraBlocks), scan,
+                if (scan != new global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan(first, edge, extraBlocks))
+                    AssertEqual(new global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBlockScan(first, edge, extraBlocks), scan,
                         $"the {edge} scan across edge pixel {edgePixel} over pixels {spanStart + shift}..{spanEnd + shift}");
             }
         }
@@ -273,10 +273,10 @@ internal static class EnemyTerrainBlockAddressingVerification
     /// collision. The eye door's collision reads only the blocks, so the projectile the move carries is any one.
     /// </summary>
     private static bool EyeDoorScanStops(RoomLevelData level, int fixedPixel, int spanStart, int spanEnd, Axis edge) =>
-        EyeDoorEffectCollision.Rule.Stops(
+        EyeDoorEffectCollision.Rule.Reaction(
             level,
-            new EnemyProjectileScannedMove(ScannedProjectile, EnemyProjectileBlockScan.Across(fixedPixel, spanStart, spanEnd, edge), MovingNegative: false, LeadingEdge: fixedPixel),
-            out _);
+            new EnemyProjectileScannedMove(ScannedProjectile, EnemyProjectileBlockScan.Across(fixedPixel, spanStart, spanEnd, edge), MovingNegative: false, LeadingEdge: fixedPixel))
+            != EnemyProjectileBlockReaction.Passes;
 
     /// <summary>The first rows the scan checks compare: four cycles of 256.</summary>
     private const int ScannedFirstRows = 1024;
@@ -316,7 +316,7 @@ internal static class EnemyTerrainBlockAddressingVerification
     }
 
     /// <summary>The projectile the scan row check moves, placed afresh for each move.</summary>
-    private static readonly EnemyProjectile ScannedProjectile = new(0, default);
+    private static readonly EnemyProjectile ScannedProjectile = new(0, default, RoomEnemyProjectileKind.EyeDoorSmoke, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
 
     /// <summary>
     /// A room for the scan row checks: air, walls, spike and grapple blocks and extension links leading up to a row's
@@ -445,7 +445,7 @@ internal static class EnemyTerrainBlockAddressingVerification
             [.. Enumerable.Repeat(RoomBlockAppearance.Of(0), size.Area)]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         var mover = new EnemyTerrain(roomObjects.BreakableTerrain);
-        var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+        var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(84, 24)),
             Radius = new(4, 4),

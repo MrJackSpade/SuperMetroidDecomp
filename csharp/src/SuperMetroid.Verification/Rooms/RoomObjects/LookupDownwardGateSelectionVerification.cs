@@ -42,7 +42,7 @@ internal static class LookupDownwardGateSelectionVerification
             if (field == 0)
             {
                 // The trigger's native list draws its shot block once and ends, as its typed change does (#1554).
-                NativeTerrainChanges.Compare(CartridgeImportSource.Require(rom), DownwardGateTriggerDefinitions.Triggers[trigger].Change, native,
+                NativeTerrainChanges.Compare(rom, DownwardGateTriggerDefinitions.Triggers[trigger].Change, native,
                     NativeTerrainChanges.NoSteps, $"Downward gate argument {raw}", out bool began);
                 AssertTrue(!began, $"Downward gate argument {raw} trigger opens nothing");
                 continue;

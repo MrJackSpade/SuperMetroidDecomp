@@ -31,16 +31,16 @@ internal static class PhantoonBodyPublicationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Phantoon);
         PhantoonEnemyState state = runtime.Enemies.BossEncounters.Phantoon
             ?? throw new InvalidOperationException("Phantoon's room loads Phantoon.");
         RoomEnemyPlace body = runtime.Enemies.Places.InUpdateOrder[0];
 
         // The body frame draws on his body layer from his installed body sheet (#1466).
-        EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
-        SuperMetroid.Core.PrivateState.Set(body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
-        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(body, frame);
+        EnemyFrameId frame = EnemyFrameId.PhantoonBody;
+        body.AnimationClock.ShowsNewFrame = true;
+        EnemyAnimationPlayer.DrawBossBodyFrame(body, body.HeldOccupant(), frame);
         // The retail runtime draws Phantoon's body from the installation's body sheet, composed from these frames.
         BossSourceArtwork bosses = InstalledFixtures.BossArtwork;
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
@@ -68,9 +68,9 @@ internal static class PhantoonBodyPublicationVerification
         AssertEqual(new PhantoonWave(new UnsignedSixteenSixteen(12, 0), state.BodyWave.Phase.ToTrigonometryAngle(), PhantoonWaveDefinitions.ShortPeriod),
             fadingIn.Wave, "the wavy fade-in publishes the wave's amplitude, phase's angle and its mode's period");
         // His body, which the wave ripples, is placed at his position (#2031).
-        AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, runtime.Display.LatchedOrdinaryRoom.Bosses.Placement,
+        AssertEqual<Position16<RoomPixels>?>(state.Body.Position.Whole, runtime.Display.LatchedOrdinaryRoom.Bosses?.Placement,
             "his body is placed at his position");
-        BossBodyLayer image = runtime.Display.LatchedOrdinaryRoom.Bosses.Body
+        BossBodyLayer image = runtime.Display.LatchedOrdinaryRoom.Bosses?.Body
             ?? throw new InvalidOperationException("Phantoon publishes his body layer.");
         AssertTrue(BossBodyWords.Of(image, BossBodyOwner.Phantoon, bosses).AsSpan().SequenceEqual(expected),
             "the published layer shows the drawn body frame over the cleared layer");
@@ -78,13 +78,13 @@ internal static class PhantoonBodyPublicationVerification
         AssertTrue(BossBodyDisplay.ShowsLatchedBody(drawn, runtime), "the capture draws the body image on BG2");
 
         // Swooping fade-out: the wave channel is deleted, the body stays.
-        state.Wave.Length = null;
+        state.Wave.End();
         state.BodyWave.Step(state);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         PhantoonDisplaySnapshot fadingOut = runtime.Display.LatchedOrdinaryRoom.Phantoon
             ?? throw new InvalidOperationException("Phantoon publishes his display.");
         AssertTrue(fadingOut.Wave is null, "a deleted wave publishes nothing");
-        AssertTrue(ReferenceEquals(image, runtime.Display.LatchedOrdinaryRoom.Bosses.Body), "an unchanged body layer publishes again unchanged");
+        AssertTrue(ReferenceEquals(image, runtime.Display.LatchedOrdinaryRoom.Bosses?.Body), "an unchanged body layer publishes again unchanged");
         Console.WriteLine("  Phantoon body: the body image and wave publish through the wavy fade-in and the swooping fade-out.");
     }
 

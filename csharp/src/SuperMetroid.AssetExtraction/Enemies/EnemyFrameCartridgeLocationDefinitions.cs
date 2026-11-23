@@ -8,9 +8,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// Where the cartridge stores each installed enemy frame (#1402): the extraction pipeline's private knowledge, which
 /// the game never reads. Ordinary and extended compositions share the table; every frame lives in one enemy bank.
 /// </summary>
-[ArchitectureReview("large", "One data entry for each of the two thousand installed enemy frames; it holds no logic, and splitting it by family would only scatter one table the extractor reads as a whole.")]
-[EncodingOwner("cartridge addresses of the installed enemy frame records")]
-internal static class EnemyFrameCartridgeLocationDefinitions
+internal static partial class EnemyFrameCartridgeLocationDefinitions
 {
     /// <summary>The bank and bank-local word of each installed frame's record.</summary>
     internal static IReadOnlyDictionary<EnemyFrameId, SnesAddress> Locations { get; } = new Dictionary<EnemyFrameId, SnesAddress>
@@ -1660,9 +1658,7 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [EnemyFrameId.MotherBrainBodyArmDrawnBack] = new(0xa9, 0xa3ce),
         [EnemyFrameId.MotherBrainBodyArmFlungOut] = new(0xa9, 0xa418),
         [EnemyFrameId.MotherBrainBodyArmReturning] = new(0xa9, 0xa462),
-        [EnemyFrameId.PhantoonInvulnerableBody] = new(0xa7, 0xdedd),
-        [EnemyFrameId.PhantoonFullHitboxBody] = new(0xa7, 0xdee7),
-        [EnemyFrameId.PhantoonEyeHitboxBody] = new(0xa7, 0xdef1),
+        [EnemyFrameId.PhantoonBody] = new(0xa7, 0xdedd),
         [EnemyFrameId.PhantoonEyeClosed] = new(0xa7, 0xdefb),
         [EnemyFrameId.PhantoonEyeHalfOpen] = new(0xa7, 0xdf0f),
         [EnemyFrameId.PhantoonEyeballCentered] = new(0xa7, 0xdf19),
@@ -1769,6 +1765,8 @@ internal static class EnemyFrameCartridgeLocationDefinitions
     {
         [new(0xa5, 0xa343)] = EnemyFrameId.DraygonBodyFacingLeftJawShut,
         [new(0xa5, 0xa66b)] = EnemyFrameId.DraygonBodyFacingRightJawShut,
+        [new(0xa7, 0xdee7)] = EnemyFrameId.PhantoonBody,
+        [new(0xa7, 0xdef1)] = EnemyFrameId.PhantoonBody,
         [new(0xa7, 0xdf05)] = EnemyFrameId.PhantoonEyeClosed,
         [new(0xa7, 0xdf23)] = EnemyFrameId.PhantoonEyeballCentered,
         [new(0xa7, 0x90fd)] = EnemyFrameId.KraidArmRaisedClawClosed,
@@ -1867,6 +1865,6 @@ internal static class EnemyFrameCartridgeLocationDefinitions
         [new(0xa9, 0xee3c)] = EnemyFrameId.LargeSidehopperLegsBent,
         [new(0xa9, 0xee61)] = EnemyFrameId.LargeSidehopperLegsCrouched,
         [new(0xa9, 0xee86)] = EnemyFrameId.LargeSidehopperLegsStraight,
-        [new(0xb4, 0xbda6)] = EnemyFrameId.Empty,
+        [new(0xb4, 0xbda6)] = EnemyFrameId.PointAtOrigin,
     };
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// The equipment page's controls (#1772): each named with its column, its installed selector anchor and, for an upgrade,
 /// the upgrade it toggles and its label; and each column as the ordered list the cursor moves along.
 /// </summary>
-internal static class PauseEquipmentControls
+internal static partial class PauseEquipmentControls
 {
     /// <summary>The AUTO/MANUAL mode switch: where the cursor starts while Samus has reserve capacity, and returns after a manual refill.</summary>
     internal static readonly PauseReserveControl ReserveMode = new("Reserve.Mode");
@@ -75,6 +75,15 @@ internal static class PauseEquipmentControls
     internal static readonly ImmutableArray<PauseUpgradeControl> Upgrades = [.. Beams, .. Suits, .. Boots];
     /// <summary>Every control the cursor can rest on: the reserve column, then the upgrades in page order.</summary>
     internal static readonly ImmutableArray<PauseEquipmentControl> All = [.. Reserves, .. Upgrades];
+
+    /// <summary>The columns Hyper Beam closes: while it is enabled no search selects any of their controls.</summary>
+    internal static readonly PauseEquipmentCategory[] HyperBeamClosedColumns = [PauseEquipmentCategory.Beams];
+
+    /// <summary>
+    /// The columns whose last control a downward search never reaches: the search checks for the column's last control
+    /// only after an unsuccessful probe, so the control is selected only by entering it directly.
+    /// </summary>
+    internal static readonly PauseEquipmentCategory[] DirectOnlyLastControlColumns = [PauseEquipmentCategory.Suits];
 
     /// <summary>Right from the beams without Up held searches the suit column from here, past the two suits.</summary>
     internal static readonly PauseUpgradeControl BeamsRightSuitEntry = MorphBall;

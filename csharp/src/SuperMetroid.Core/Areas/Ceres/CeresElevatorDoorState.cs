@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The state of the elevator room's blocked door (#1953).</summary>
-internal sealed class CeresElevatorDoorState
+internal sealed partial class CeresElevatorDoorState
 {
     /// <summary>Where the door stands in its destruction.</summary>
     public CeresElevatorDoorPhase Phase { get; internal set; }
 
     /// <summary>
-    /// The door's destruction rumble (#2281): 49 updates when it starts, and the update that ends it ends the destruction,
+    /// The door's destruction rumble (#2281): <see cref="CeresElevatorDoorEntity.RumbleDuration"/> when it starts, and the update that ends it ends the destruction,
     /// which never counts it again.
     /// </summary>
     public UpdateCountdown Rumble { get; internal set; } = UpdateCountdown.Ended();

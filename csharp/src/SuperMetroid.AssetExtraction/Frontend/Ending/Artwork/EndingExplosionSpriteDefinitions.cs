@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The compositions the eight ending explosion actors show.</summary>
-public static class EndingExplosionSpriteDefinitions
+public static partial class EndingExplosionSpriteDefinitions
 {
     /// <summary>
     /// The ten four-part planet records (four damage, four flash and two lava frames), then the large glowing planet, the

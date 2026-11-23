@@ -7,7 +7,7 @@ using P = SuperMetroid.Core.Bosses.Phantoon.PhantoonPartSegment;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's typed body, eye, tentacle and mouth animations (#641, #1600), each beat naming the installed frame it shows (#1885).</summary>
-internal static class PhantoonAnimations
+internal static partial class PhantoonAnimations
 {
     /// <summary>The eyelid's dwell on each of its two moving poses.</summary>
     private const int EyelidFrameDuration = 10;
@@ -20,9 +20,7 @@ internal static class PhantoonAnimations
     internal static AnimationSegments<PhantoonPartSegment, EnemyFrameId, PhantoonPartCue> Segments { get; } = new(
         new Dictionary<PhantoonPartSegment, AnimationBeat<EnemyFrameId, PhantoonPartCue>[]>
     {
-        [P.InvulnerableBody] = Still(F.PhantoonInvulnerableBody),
-        [P.FullHitboxBody] = Still(F.PhantoonFullHitboxBody),
-        [P.EyeHitboxBody] = Still(F.PhantoonEyeHitboxBody),
+        [P.Body] = Still(F.PhantoonBody),
         [P.EyeOpen] =
         [
             Show(F.PhantoonEyeClosed, EyelidFrameDuration),
@@ -77,34 +75,19 @@ internal static class PhantoonAnimations
     /// the closing eye closes and holds closed, the tentacles sway for good, and the flame-spitting mouth runs on into its
     /// initial pose and holds it.
     /// </summary>
-    internal static IReadOnlyDictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
+    internal static Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>> StartingAt { get; } = Segments.Starts(Segments.StartsEnding(new Dictionary<PhantoonPartSegment, Animation<PhantoonPartSegment>>
     {
-        [P.InvulnerableBody] = Held(P.InvulnerableBody),
-        [P.FullHitboxBody] = Held(P.FullHitboxBody),
-        [P.EyeHitboxBody] = Held(P.EyeHitboxBody),
-        [P.EyeOpen] = Held(P.EyeOpen),
-        [P.EyeClosed] = Held(P.EyeClosed),
         [P.EyeCloseAndPickNewPattern] = HeldAfter(P.EyeCloseAndPickNewPattern, P.EyeClosed),
         [P.EyeClose] = HeldAfter(P.EyeClose, P.EyeClosed),
-        [P.EyeballCentered] = Held(P.EyeballCentered),
-        [P.EyeLookingUp] = Held(P.EyeLookingUp),
-        [P.EyeLookingUpRight] = Held(P.EyeLookingUpRight),
-        [P.EyeLookingRight] = Held(P.EyeLookingRight),
-        [P.EyeLookingDownRight] = Held(P.EyeLookingDownRight),
-        [P.EyeLookingDown] = Held(P.EyeLookingDown),
-        [P.EyeLookingDownLeft] = Held(P.EyeLookingDownLeft),
-        [P.EyeLookingLeft] = Held(P.EyeLookingLeft),
-        [P.EyeLookingUpLeft] = Held(P.EyeLookingUpLeft),
-        [P.Tentacles] = Animation<PhantoonPartSegment>.Looping([Segments.Whole(P.Tentacles)]),
         [P.MouthSpawnFlame] = HeldAfter(P.MouthSpawnFlame, P.MouthInitial),
-        [P.MouthInitial] = Held(P.MouthInitial),
-    };
+    }, AnimationEnd.Holds,
+        P.Body, P.EyeOpen, P.EyeClosed, P.EyeballCentered,
+        P.EyeLookingUp, P.EyeLookingUpRight, P.EyeLookingRight, P.EyeLookingDownRight, P.EyeLookingDown,
+        P.EyeLookingDownLeft, P.EyeLookingLeft, P.EyeLookingUpLeft, P.MouthInitial),
+        P.Tentacles);
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PhantoonPartSegment> StartingWith(PhantoonPartSegment segment) => StartingAt[segment];
-
-    /// <summary>Plays <paramref name="segment"/> once and holds its last frame.</summary>
-    private static Animation<PhantoonPartSegment> Held(PhantoonPartSegment segment) => new([Segments.Whole(segment)], AnimationEnd.Holds);
 
     /// <summary>Plays <paramref name="first"/>, then <paramref name="then"/>, and holds the last frame.</summary>
     private static Animation<PhantoonPartSegment> HeldAfter(PhantoonPartSegment first, PhantoonPartSegment then) =>

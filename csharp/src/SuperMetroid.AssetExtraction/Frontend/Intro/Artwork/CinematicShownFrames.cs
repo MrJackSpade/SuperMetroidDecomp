@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// </summary>
 /// <param name="Family">The family the compositions belong to.</param>
 /// <param name="Frames">Each shown composition, by the pose that shows it.</param>
-internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> Frames)
+internal sealed partial record CinematicShownFrames(CinematicSpriteFamily Family, IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> Frames)
     : ICinematicSpriteFrames
 {
     /// <summary>
@@ -28,10 +28,7 @@ internal sealed record CinematicShownFrames(CinematicSpriteFamily Family, IReadO
         foreach (TAnimation program in Ensure.NotNull(programs))
         {
             foreach (CinematicSpritePose pose in animations.Segments.FramesOf(animations.StartingWith(program)))
-            {
-                if (pose != CinematicSpritePose.Blank)
-                    shown.Add(pose);
-            }
+                shown.Add(pose);
         }
         return shown;
     }

@@ -16,8 +16,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// Where the cartridge stores each PLM draw (#1402): the import pipeline's private knowledge, used to read and verify
 /// a draw's level words when its artwork is extracted. Core identifies draws only semantically.
 /// </summary>
-[EncodingOwner("bank-$84 addresses of the PLM draws")]
-internal static class RoomObjectDrawSourceDefinitions
+internal static partial class RoomObjectDrawSourceDefinitions
 {
     /// <summary>Bank $84, where every PLM draw is stored.</summary>
     private const byte Bank = 0x84;
@@ -59,14 +58,14 @@ internal static class RoomObjectDrawSourceDefinitions
         [new ContactCrumbleRestoreDraw(BlockArrangement.Square)] = new(Bank, 0xa4b1),
     };
 
-    /// <summary>The address of each <see cref="CrocomireArenaDraw"/>.</summary>
-    internal static IReadOnlyDictionary<CrocomireArenaDraw, SnesAddress> CrocomireArena { get; } = new Dictionary<CrocomireArenaDraw, SnesAddress>
+    /// <summary>The address of each <see cref="CrocomireArenaMutation"/>.</summary>
+    internal static IReadOnlyDictionary<CrocomireArenaMutation, SnesAddress> CrocomireArena { get; } = new Dictionary<CrocomireArenaMutation, SnesAddress>
     {
-        [CrocomireArenaDraw.ClearBridge] = new(Bank, 0x9b5b),
-        [CrocomireArenaDraw.CrumbleBridgeBlock] = new(Bank, 0x9b73),
-        [CrocomireArenaDraw.ClearBridgeBlock] = new(Bank, 0x9b79),
-        [CrocomireArenaDraw.ClearInvisibleWall] = new(Bank, 0x9b7f),
-        [CrocomireArenaDraw.CreateInvisibleWall] = new(Bank, 0x9bbb),
+        [CrocomireArenaMutation.ClearBridge] = new(Bank, 0x9b5b),
+        [CrocomireArenaMutation.CrumbleBridgeBlock] = new(Bank, 0x9b73),
+        [CrocomireArenaMutation.ClearBridgeBlock] = new(Bank, 0x9b79),
+        [CrocomireArenaMutation.ClearInvisibleWall] = new(Bank, 0x9b7f),
+        [CrocomireArenaMutation.CreateInvisibleWall] = new(Bank, 0x9bbb),
     };
 
     /// <summary>The address of each <see cref="DownwardGateDraw"/>.</summary>
@@ -309,14 +308,14 @@ internal static class RoomObjectDrawSourceDefinitions
         [CollectibleDraw.SuperMissileTankBright] = new(Bank, 0xa2fd),
         [CollectibleDraw.PowerBombTankBright] = new(Bank, 0xa303),
         [CollectibleDraw.PowerBombTankDim] = new(Bank, 0xa309),
-        [CollectibleDraw.FirstBlockPairPrimaryLook] = new(Bank, 0xa30f),
-        [CollectibleDraw.FirstBlockPairAlternateLook] = new(Bank, 0xa315),
-        [CollectibleDraw.SecondBlockPairPrimaryLook] = new(Bank, 0xa31b),
-        [CollectibleDraw.SecondBlockPairAlternateLook] = new(Bank, 0xa321),
-        [CollectibleDraw.ThirdBlockPairPrimaryLook] = new(Bank, 0xa327),
-        [CollectibleDraw.ThirdBlockPairAlternateLook] = new(Bank, 0xa32d),
-        [CollectibleDraw.FourthBlockPairPrimaryLook] = new(Bank, 0xa333),
-        [CollectibleDraw.FourthBlockPairAlternateLook] = new(Bank, 0xa339),
+        [CollectibleDraw.SolidPairPrimaryLook] = new(Bank, 0xa30f),
+        [CollectibleDraw.SolidPairAlternateLook] = new(Bank, 0xa315),
+        [CollectibleDraw.FirstDoorPairPrimaryLook] = new(Bank, 0xa31b),
+        [CollectibleDraw.FirstDoorPairAlternateLook] = new(Bank, 0xa321),
+        [CollectibleDraw.SecondDoorPairPrimaryLook] = new(Bank, 0xa327),
+        [CollectibleDraw.SecondDoorPairAlternateLook] = new(Bank, 0xa32d),
+        [CollectibleDraw.ThirdDoorPairPrimaryLook] = new(Bank, 0xa333),
+        [CollectibleDraw.ThirdDoorPairAlternateLook] = new(Bank, 0xa339),
         [CollectibleDraw.ShotBlockIntact] = new(Bank, 0xa3dd),
         [CollectibleDraw.ShotBlockCracking] = new(Bank, 0xa3e3),
         [CollectibleDraw.ShotBlockDust] = new(Bank, 0xa3e9),

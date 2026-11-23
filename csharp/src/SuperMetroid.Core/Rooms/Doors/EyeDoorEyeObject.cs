@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -6,17 +5,17 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>
 /// An eye door's eye (#1554). On its first update
 /// the eye looks at its door: one opened for good moves up a block and turns into its closed blue cap
-/// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus every four updates; once she is near
+/// (<see cref="BlueDoorCapObject"/>). Otherwise it stays closed, looking for Samus each time its closed image ends; once she is near
 /// (<see cref="EyeDoorSequenceDefinitions.WakeReach"/>) it opens, takes missiles from then on, and watches her, firing its
 /// shots, blinking while she stands right in front of it and closing again once she has left. A pending shot is
 /// consumed before the eye's images count down: a missile counts a hit (a Super Missile reaches the threshold at once),
 /// and any other shot makes the dud sound. A hit short of the threshold sounds, smokes and makes the eye flinch; the hit
 /// that reaches it records the door opened for good, stops the shots, smokes, moves the eye up a block onto its blue cap,
-/// flashes it ten times and turns it into the cap.
+/// flashes it (<see cref="EyeDoorSequenceDefinitions.OpeningFlashes"/>) and turns it into the cap.
 /// </summary>
 /// <param name="orientation">The eye door's facing.</param>
 /// <param name="door">The door the eye's placement named, which its attacks keep to burst once it opens.</param>
-internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments), IShootableRoomObject
+internal sealed partial class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoor door) : SequencedRoomObject<EyeDoorSegment, EyeDoorObjectFrame, EyeDoorAction>(EyeDoorSequenceDefinitions.Segments), IShootableRoomObject
 {
     /// <summary>The eye door's facing.</summary>
     internal EyeDoorOrientation Orientation { get; } = orientation;
@@ -31,10 +30,10 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// The hits counted toward the threshold. It only counts up, by one a hit or straight to the threshold on a Super
     /// Missile, and the eye is destroyed once it reaches the threshold.
     /// </summary>
-    internal int HitCounter { get; private set; }
+    internal int HitCounter { get; set; }
 
     /// <summary>Whether a shot at the eye's block reaches it: from its opening until the hit that destroys it.</summary>
-    internal bool TakesShots { get; private set; }
+    internal bool TakesShots { get; set; }
 
     /// <summary>
     /// The shot at the eye's block it has yet to take (#2484, #2562). A shot that arrives before the eye takes shots waits for
@@ -56,17 +55,20 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
             base.Update(place, context);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// What a pending shot does to the eye while it takes shots: a missile or Super Missile hits it, a Super Missile
+    /// destroying it at once, and any other shot is rejected with its sound. Returns whether the eye was hit.
+    /// </summary>
     private bool React(RoomObjectPlace place, RoomObjectStepContext context)
     {
         if (!TakesShots || _strike.Take() is not { Family: var family })
             return false;
-        if (family is not (SamusProjectileFamily.SuperMissile or SamusProjectileFamily.Missile))
+        if (!EyeDoorShotDefinitions.Hits.TryGetValue(family, out EyeDoorHit hit))
         {
             context.RoomObjects.EyeDoors.QueueRejectedShotSound();
             return false;
         }
-        Hit(place, context, destroysAtOnce: family == SamusProjectileFamily.SuperMissile);
+        Hit(place, context, hit);
         return true;
     }
 
@@ -74,60 +76,49 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     private protected override void Show(EyeDoorObjectFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, EyeDoorDraws.Of(Orientation, frame));
 
-    /// <inheritdoc/>
-    private protected override void Raise(EyeDoorAction raised, RoomObjectPlace place, RoomObjectStepContext context)
+    /// <summary>What <c>Raise</c> does for each <see cref="EyeDoorAction"/> member, each member's own arm.</summary>
+    private IdentityTable<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>> RaiseForEyeDoorAction => field ??= new(new Dictionary<EyeDoorAction, Action<RoomObjectPlace, RoomObjectStepContext>>
     {
-        EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
-        switch (raised)
+        [EyeDoorAction.Shoot] = (place, context) => context.RoomObjects.EyeDoors.Shoot(place, Orientation, Door.Placed.Door),
+        [EyeDoorAction.SpawnTwoSmoke] = (place, context) => context.RoomObjects.EyeDoors.SpawnTwoSmoke(place, Orientation),
+        [EyeDoorAction.SpawnSweat] = (place, context) => context.RoomObjects.EyeDoors.SpawnSweat(place, Orientation),
+    });
+
+    /// <inheritdoc/>
+    private protected override Action<EyeDoorAction, RoomObjectPlace, RoomObjectStepContext> Raiser =>
+        (raised, place, context) => RaiseForEyeDoorAction[raised](place, context);
+
+    /// <summary>What <see cref="SequenceEnded"/> does for each <see cref="EyeDoorEyePhase"/> member, each member's own arm.</summary>
+    private IdentityTable<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>> SequenceEndedForEyeDoorEyePhase => field ??= new(new Dictionary<EyeDoorEyePhase, Action<RoomObjectPlace, RoomObjectStepContext>>
+    {
+        [EyeDoorEyePhase.Placed] = (place, context) => Look(place, context),
+        [EyeDoorEyePhase.Closed] = (place, context) =>
         {
-            case EyeDoorAction.Shoot:
-                eyes.Shoot(place, Orientation, Door.Placed.Door);
+            if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
+                Open(place, context);
+            else
+                Play(EyeDoorSequenceDefinitions.Closed, place, context);
+        },
+        [EyeDoorEyePhase.Watching] = (place, context) =>
+        {
+            if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
+            {
+                Watch(place, context);
                 return;
-            case EyeDoorAction.SpawnTwoSmoke:
-                eyes.SpawnTwoSmoke(place, Orientation);
-                return;
-            case EyeDoorAction.SpawnSweat:
-                eyes.SpawnSweat(place, Orientation);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorAction)} {raised}.");
-        }
-    }
+            }
+            Phase = EyeDoorEyePhase.Closed;
+            Play(EyeDoorSequenceDefinitions.Closed, place, context);
+        },
+        [EyeDoorEyePhase.Opening] = (place, context) => Watch(place, context),
+        [EyeDoorEyePhase.Blinking] = (place, context) => Watch(place, context),
+        [EyeDoorEyePhase.Flinching] = (place, context) => Watch(place, context),
+        [EyeDoorEyePhase.Destroyed] = (place, context) => BlueDoorCapObject.TakeOver(place, context, CapFacing, Door),
+    });
 
     /// <inheritdoc/>
     private protected override void SequenceEnded(RoomObjectPlace place, RoomObjectStepContext context)
     {
-        switch (Phase)
-        {
-            case EyeDoorEyePhase.Placed:
-                Look(place, context);
-                return;
-            case EyeDoorEyePhase.Closed:
-                if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
-                    Open(place, context);
-                else
-                    Play(EyeDoorSequenceDefinitions.Closed, place, context);
-                return;
-            case EyeDoorEyePhase.Watching:
-                if (IsSamusNear(place, context, EyeDoorSequenceDefinitions.WakeReach))
-                {
-                    Watch(place, context);
-                    return;
-                }
-                Phase = EyeDoorEyePhase.Closed;
-                Play(EyeDoorSequenceDefinitions.Closed, place, context);
-                return;
-            case EyeDoorEyePhase.Opening:
-            case EyeDoorEyePhase.Blinking:
-            case EyeDoorEyePhase.Flinching:
-                Watch(place, context);
-                return;
-            case EyeDoorEyePhase.Destroyed:
-                BlueDoorCapObject.TakeOver(place, context, CapFacing, Door);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EyeDoorEyePhase)} {Phase}.");
-        }
+        SequenceEndedForEyeDoorEyePhase[Phase](place, context);
     }
 
     /// <summary>
@@ -171,13 +162,18 @@ internal sealed class EyeDoorEyeObject(EyeDoorOrientation orientation, PlacedDoo
     /// A missile hit: it sounds and smokes, then counts; short of the threshold the eye flinches, and at it the eye is
     /// destroyed.
     /// </summary>
-    private void Hit(RoomObjectPlace place, RoomObjectStepContext context, bool destroysAtOnce)
+    private void Hit(RoomObjectPlace place, RoomObjectStepContext context, EyeDoorHit hit)
     {
         EyeDoorObjects eyes = context.RoomObjects.EyeDoors;
         context.QueueSound(EyeDoorSequenceDefinitions.HitSound, EyeDoorSequenceDefinitions.HitSoundPriority);
         eyes.SpawnTwoSmoke(place, Orientation);
         eyes.SpawnTwoSmoke(place, Orientation);
-        HitCounter = destroysAtOnce ? EyeDoorSequenceDefinitions.HitThreshold : HitCounter + 1;
+        HitCounter = hit switch
+        {
+            EyeDoorHit.DestroysAtOnce => EyeDoorSequenceDefinitions.HitThreshold,
+            EyeDoorHit.Counts => HitCounter + 1,
+            _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorHit)} {hit}."),
+        };
         if (HitCounter < EyeDoorSequenceDefinitions.HitThreshold)
         {
             Phase = EyeDoorEyePhase.Flinching;

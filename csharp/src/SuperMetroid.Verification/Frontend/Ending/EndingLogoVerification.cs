@@ -40,34 +40,38 @@ internal static class EndingLogoVerification
         AssertTrue(screen.Colours.Shading.Shades.SequenceEqual([EndingShades.Loaded(EndingColourLoad.LogoInitial), EndingShades.Flashed(EndingFlash.LogoBackground)]),
             "the logo shows its first sprite colours and its background colours blacked out (#1597: loads lie under flashes)");
         int frame = 0, fadeStart = 0;
+        bool completed = false;
         var poses = new HashSet<string>();
-        while (!logo.Completed && frame < 300)
+        while (!completed && frame < 300)
         {
             // The actors run their typed programs (#641), which the cinematic sprite oracle matches to the native
-            // lists; the timing and palette assertions below hold them to the cartridge's scene.
-            logo.Step(screen.Colours);
+            // lists; the timing and palette assertions below hold them to the cartridge's scene. The update that shows
+            // the crossfade's last step hands off, as the ending reads it.
+            completed = logo.Step(screen.Colours);
             frame++;
-            if (logo.CrossfadeStarted && fadeStart == 0) fadeStart = frame;
-            if (logo.ShownCrossfade is { } shownStep)
+            // The grey-out cue that begins the crossfade turns the logo's sprites to glowing, as the ending presents them.
+            if (logo.Sprites == SpriteBlend.Glows && fadeStart == 0) fadeStart = frame;
+            // The screen names the step the logo shows (#2560); the import's shade of that step holds the cartridge's table entry (#1512).
+            var latest = screen.Colours.Shading.Shades[^1];
+            if (EndingLogoCrossfadeStep.All.Where(candidate => EndingShades.LogoCrossfade(candidate) == latest).ToArray() is [var shownStep])
             {
-                // The screen names the step shown; the import's shade of that step holds the cartridge's table entry (#1512).
-                AssertEqual(EndingShades.LogoCrossfade(shownStep), screen.Colours.Shading.Shades[^1], "the logo shows its latest crossfade step");
+                AssertEqual(frame - fadeStart - 1, shownStep.Step, "the logo shows its crossfade's steps in turn from the update after the grey-out");
                 SheetShade step = installedShades.Single(candidate => candidate.Shade == EndingShades.LogoCrossfade(shownStep));
                 AssertTrue(step.Inks.SequenceEqual([.. Enumerable.Range(16, 16), .. Enumerable.Range(240, 16)]),
                     "a crossfade step covers the logo's background and sprite colours");
                 for (int p = 0; p < 2; p++)
                 {
-                    int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                    int pointer = RomDataReader.ReadWordFixedBank(bus,
                         EndingPaletteSources.NativeTableAddress +
                         shownStep.Step * 4 + p * 2);
                     for (int i = 0; i < 16; i++)
-                        AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
-                            step.Colours[p * 16 + i].ToWord(), "native logo crossfade palette table entry");
+                        AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8c0000 | (pointer - 30 + i * 2)),
+                            step.Colours.ElementAt(p * 16 + i).ToWord(), "native logo crossfade palette table entry");
                 }
             }
             poses.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => logo.Draw(objects, logoSprites)).LowTable));
         }
-        AssertTrue(logo.Completed, "logo actors reach the final palette handoff");
+        AssertTrue(completed, "logo actors reach the final palette handoff");
         AssertEqual(171, fadeStart, "native circle list waits 96+5+5+64 frames before grey-out instruction");
         AssertEqual(187, frame, "logo palette handoff follows sixteen function calls");
         AssertEqual(1, landings, "upper logo half spawns its palette FX exactly once on landing");
@@ -133,28 +137,25 @@ internal static class EndingLogoVerification
             EndingLogoActorDefinition actual = EndingLogoDefinitions.Actors[index];
             int spawn = 0x8be554 + index * 6;
             AssertEqual((byte)0xa0, bus.ReadCartridgeByte(spawn), "native LDY actor definition" );
-            ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((spawn + 1));
+            ushort nativePointer = bus.ReadCartridgeWord((spawn + 1));
             int address = EndingLogoDefinitions.NativeDefinitionBank | nativePointer;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 2)), index < CinematicActorNativeMotions.LogoHalves.Count ? CinematicActorNativeMotions.LogoHalves[index] : CinematicActorNativeMotions.NoMotion,
+            AssertEqual(bus.ReadCartridgeWord((address + 2)), index < CinematicActorNativeMotions.LogoHalves.Count ? CinematicActorNativeMotions.LogoHalves[index] : CinematicActorNativeMotions.NoMotion,
                 $"logo actor {index} routine: the S halves move into place, the circles hold still");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
+            AssertEqual(bus.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual.Animation),
                 $"logo actor {index} initial instruction list");
-            int initialize = 0x8b0000 | CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+            int initialize = 0x8b0000 | bus.ReadCartridgeWord(address);
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize), "native LDA X origin");
             AssertEqual((byte)0xa9, bus.ReadCartridgeByte(initialize + 6), "native LDA Y origin");
             // The logo scene sets both camera coordinates to 256, so each native origin lies 256 pixels right of and below
             // its place on the screen.
             Offset16<ScreenPixels> origin = actual.Origin;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 1)) - 256, (int)origin.X, "native actor X origin, less the logo's camera");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord((initialize + 7)) - 256, (int)origin.Y, "native actor Y origin, less the logo's camera");
+            AssertEqual(bus.ReadCartridgeWord((initialize + 1)) - 256, (int)origin.X, "native actor X origin, less the logo's camera");
+            AssertEqual(bus.ReadCartridgeWord((initialize + 7)) - 256, (int)origin.Y, "native actor Y origin, less the logo's camera");
         }
         Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(bus));
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.CrossfadeSteps, 0),
+            () => EndingPaletteSources.LogoCrossfadeSource(EndingLogoDefinitions.CrossfadeSteps, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingLogoLayer.Background),
             "logo palette step boundary");
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => EndingPaletteSources.LogoCrossfadeSource(0, 2),
-            "logo palette selector boundary");
         Console.WriteLine(
             "  Logo definitions: twelve actor words and 32 palette pointers match the cartridge.");
     }

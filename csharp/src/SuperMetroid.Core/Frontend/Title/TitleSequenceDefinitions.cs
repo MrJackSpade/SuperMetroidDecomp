@@ -6,12 +6,12 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 namespace SuperMetroid.Core.Frontend.Title;
 
 /// <summary>The title sequence's definitions: its console lights, music, cards, floor scenes, sprite placement, installed graphics extents and timing.</summary>
-public static class TitleSequenceDefinitions
+public static partial class TitleSequenceDefinitions
 {
     /// <summary>The console lights title setup and the skip path start.</summary>
-    public static class ConsoleColourEffects
+    public static partial class ConsoleColourEffects
     {
-        /// <summary>The Baby Metroid tube's slow ten-update light.</summary>
+        /// <summary>The Baby Metroid tube's slow light.</summary>
         public const ColourEffectId SlowLights = ColourEffectId.TitleScreenBabyMetroidTubeLight;
 
         /// <summary>The flickering displays' alternating colours.</summary>
@@ -19,7 +19,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The colour effects that fade the logo and the copyright in from black as each first shows (#1714).</summary>
-    public static class Fades
+    public static partial class Fades
     {
         /// <summary>The logo's fade, started on the update the final zoom completes and the logo first shows.</summary>
         public const ColourEffectId Logo = ColourEffectId.FadeInSuperMetroidTitleLogo;
@@ -29,7 +29,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The tracks the normal and skip paths select.</summary>
-    public static class Music
+    public static partial class Music
     {
         /// <summary>The title music's song for the normal opening sequence.</summary>
         public const MusicTrack OpeningTrack = MusicTrack.TitleOpening;
@@ -37,36 +37,39 @@ public static class TitleSequenceDefinitions
         public const MusicTrack ImmediateTitleTrack = MusicTrack.TitleScreen;
     }
 
-    /// <summary>The four title cards: where each draws and in which colouring.</summary>
-    public static class TextSequences
+    /// <summary>The four title cards: each draws at the cards' one origin in the text colouring.</summary>
+    public static partial class TextSequences
     {
+        /// <summary>Where every card draws, in screen pixels.</summary>
+        private static readonly Offset16<ScreenPixels> CardOrigin = new(129, 112);
         /// <summary>The year card.</summary>
-        public static readonly TitleTextSequenceDefinition Year =
-            new(TitleSequencePhase.YearText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition Year = Card(TitleSequencePhase.YearText, TitleCardDefinitions.Year);
         /// <summary>The Nintendo card.</summary>
-        public static readonly TitleTextSequenceDefinition Nintendo =
-            new(TitleSequencePhase.NintendoText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition Nintendo = Card(TitleSequencePhase.NintendoText, TitleCardDefinitions.Nintendo);
         /// <summary>The Presents card.</summary>
-        public static readonly TitleTextSequenceDefinition Presents =
-            new(TitleSequencePhase.PresentsText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition Presents = Card(TitleSequencePhase.PresentsText, TitleCardDefinitions.Presents);
         /// <summary>The Metroid 3 card.</summary>
-        public static readonly TitleTextSequenceDefinition MetroidThree =
-            new(TitleSequencePhase.MetroidThreeText, new(129, 112), TitleSpriteColouring.Text);
+        public static readonly TitleTextSequenceDefinition MetroidThree = Card(TitleSequencePhase.MetroidThreeText, TitleCardDefinitions.MetroidThree);
+        /// <summary>The four cards, in the order the title shows them.</summary>
+        public static readonly IReadOnlyList<TitleTextSequenceDefinition> All = [Year, Nintendo, Presents, MetroidThree];
+
+        /// <summary><paramref name="phase"/> typing <paramref name="card"/>, drawn at the cards' origin in the text colouring.</summary>
+        private static TitleTextSequenceDefinition Card(TitleSequencePhase phase, TitleCardDefinition card) => new(phase, card, CardOrigin, TitleSpriteColouring.Text);
     }
 
     /// <summary>The floor scenes' starting transforms, motion and completion thresholds.</summary>
-    public static class Scenes
+    public static partial class Scenes
     {
-        /// <summary>The lower pan: zoom 72/256 at background offset (315, 225).</summary>
+        /// <summary>The lower pan, zoomed in on the lower part of the background.</summary>
         public static readonly TitleFloorSceneDefinition LowerPan =
             new(TitleSequencePhase.LowerPan, FloorZoom.FromFloorPixelsPerScreenPixel(9, 32), new(315, 225));
-        /// <summary>The upper pan: zoom 96/256 at background offset (44, -155).</summary>
+        /// <summary>The upper pan, over the upper part of the background.</summary>
         public static readonly TitleFloorSceneDefinition UpperPan =
             new(TitleSequencePhase.UpperPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(44, -155));
-        /// <summary>The downward pan: zoom 96/256 at background offset (-177, -160).</summary>
+        /// <summary>The downward pan, down across the background.</summary>
         public static readonly TitleFloorSceneDefinition DownwardPan =
             new(TitleSequencePhase.DownwardPan, FloorZoom.FromFloorPixelsPerScreenPixel(3, 8), new(-177, -160));
-        /// <summary>The final zoom: zoom 67/256 with no background offset.</summary>
+        /// <summary>The final zoom, with no background offset.</summary>
         public static readonly TitleFloorSceneDefinition FinalZoom =
             new(TitleSequencePhase.FinalZoom, FloorZoom.FromFloorPixelsPerScreenPixel(67, 256), new(0, 0));
         /// <summary>The pan speed, 1.5 pixels per update; the lower and upper pans go left, the downward pan down.</summary>
@@ -77,13 +80,11 @@ public static class TitleSequenceDefinitions
         public const int UpperPanEndX = -176;
         /// <summary>The downward pan's Y threshold, 163 pixels; reaching it starts the Metroid 3 card.</summary>
         public const int DownwardPanEndY = 163;
-        /// <summary>The final zoom's step every second update.</summary>
-        public static FloorZoomStep FinalZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 256);
         /// <summary>
-        /// The updates of the final zoom on which the zoom grows one step (#1619): every second update of the phase's own
-        /// count, on its even place, from the first.
+        /// The updates of the final zoom on which the zoom grows one step (#1619), counted on the phase's own count at the
+        /// period's even place, from the first.
         /// </summary>
-        public static readonly UpdateCadence FinalZoomStepEverySecondUpdate = new(2, 0);
+        public static readonly UpdateCadence FinalZoomCadence = new(2, 0);
         /// <summary>The floor scenes' rotation: none; the scenes pan and zoom only.</summary>
         public static RotationAngle Rotation => RotationAngle.Zero;
         /// <summary>The floor point the floor scenes zoom about.</summary>
@@ -91,7 +92,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>Where the logo and copyright draw and in which colourings.</summary>
-    public static class Sprites
+    public static partial class Sprites
     {
         /// <summary>The title logo's origin in screen pixels.</summary>
         public static Offset16<ScreenPixels> LogoOrigin => new(128, 48);
@@ -115,7 +116,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>The title's animated artwork.</summary>
-    public static class Graphics
+    public static partial class Graphics
     {
         /// <summary>The poses the Baby Metroid lying on the floor pulses through, one each animation frame, in turn.</summary>
         public static IReadOnlyList<TitleBabyPose> BabyAnimation { get; } =
@@ -123,7 +124,7 @@ public static class TitleSequenceDefinitions
     }
 
     /// <summary>Holds, fades and the buttons that skip.</summary>
-    public static class Timing
+    public static partial class Timing
     {
         /// <summary>Brightness change per update for the skip's fade-out and the title's fade-in.</summary>
         public const int SkipFadeBrightnessStep = 2;
@@ -133,7 +134,7 @@ public static class TitleSequenceDefinitions
         public const int CopyrightHoldFrames = 32;
         /// <summary>The idle title screen's timeout in updates; expiring selects the demo before a confirmation that update.</summary>
         public const int TitleScreenIdleTimeoutFrames = 900;
-        /// <summary>Updates each step of the fade leaving the idle title screen takes: one level every second update.</summary>
+        /// <summary>Updates each step of the fade leaving the idle title screen takes.</summary>
         public const int TitleFadeUpdatesPerStep = 2;
         /// <summary>Updates the Baby Metroid holds each pose of its animation.</summary>
         public const int BabyFrameDuration = 10;

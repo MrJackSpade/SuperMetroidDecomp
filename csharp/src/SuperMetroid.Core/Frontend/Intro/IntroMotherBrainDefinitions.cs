@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Fixed actor and explosion-layout definitions for the intro Mother Brain scene.</summary>
-internal static class IntroMotherBrainDefinitions
+internal static partial class IntroMotherBrainDefinitions
 {
     /// <summary>The intro Mother Brain's first animation.</summary>
     public static CinematicActorDefinition<IntroMotherBrainAnimation> MotherBrain =>
@@ -30,7 +30,7 @@ internal static class IntroMotherBrainDefinitions
     /// <summary>How far her room shakes up and down from its scroll while she explodes, in pixels.</summary>
     public const int RoomShakePixels = 4;
 
-    /// <summary>Mother Brain starts at the cinematic origin (56,111).</summary>
+    /// <summary>Where Mother Brain starts in the cinematic.</summary>
     public static Offset16<ScreenPixels> MotherBrainOrigin => new(56, 111);
 
     /// <summary>The small explosion right of Mother Brain's origin, the first to burst.</summary>

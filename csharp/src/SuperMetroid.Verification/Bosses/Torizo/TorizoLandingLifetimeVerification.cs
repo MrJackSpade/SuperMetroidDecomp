@@ -17,29 +17,29 @@ internal static class TorizoLandingLifetimeVerification
     /// <summary>Advances landing and audio for 40 frames, requiring exactly 32 displaced frames.</summary>
     internal static int VerifyTorizoLandingLifetime()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BombTorizo);
-        var body=runtime.Enemies.Places.InUpdateOrder.First(e=>e.DefinitionId==EnemyDefinitionId.BombTorizo);
+        var body=runtime.Enemies.Places.InUpdateOrder.First(e=>e.Holds(EnemyDefinitionId.BombTorizo));
         var state= body.RequireSpeciesState<TorizoEnemyState>();
         state.Phase=TorizoPhase.Active;state.Motion=TorizoBodyMotion.Leaping;state.Landing=TorizoAnimation.FacingLeftLanding;
         state.Velocity=new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(1024));state.JumpAcceleration=SignedEightEight.FromTwoHundredFiftySixthsOfPixel(40);
-        body.Health=body.Definition.Health;state.Posture=TorizoPosture.Initial;state.CaughtSuperMissile=state.Stunned=state.FaceBlownUp=state.GutBlownUp=false;
+        body.Health=body.Definition.Health;state.Posture=TorizoPosture.Initial;state.CaughtSuperMissile=state.Stunned=false;state.Breakage=TorizoBreakage.Intact;
         body.Contact = EnemyContact.None;
         body.Processing = EnemyProcessing.Animates;
-        body.Presence = EnemyPresence.None;state.BodyPlayback=new AnimationPlayback<TorizoBodySegment>(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling), AnimationPlace.Before(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling).CyclePhase));body.AnimationClock.HoldFor(5);
+        body.Presence = EnemyPresence.None;state.BodyPlayback=new AnimationPlayback<TorizoBodySegment>(TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling), AnimationPlace.Before(((AnimationEnd.Loop)TorizoAnimations.StartingWith(TorizoAnimation.FacingLeftFalling).End).Phase));body.AnimationClock.HoldFor(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var terrain=new RoomTerrainBlock[256];for(int i=12*16;i<13*16;i++)terrain[i]=RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
         // A flat floor across row 12 of the room's own blocks, which its block sheet pictures.
         var scope = runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.");
         var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(terrain, new RoomBlockBehavior[256], new RoomBlockAppearance[256]), RoomLevelData.NothingBeyondGrid(), []);
         runtime.Room.Adopt(scope with { LevelData = level });
-        var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
+        var samus=runtime.Player.Samus;samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Health=samus.MaxHealth=999;
         SamusPoseMetadata.RefreshCollisionRadii(samus);SamusPresentation.InitializeAnimation(samus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(240, (ushort)(192-samus.Kinematics.Radius.Y)));samus.Control.Unlock();

@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Samus.Movement;
@@ -29,7 +30,7 @@ internal static class SquareSlopeDefinitionsVerification
     private const byte NativeSolidBit = 0x80;
 
     /// <summary>The quadrant a native table's byte describes: bit zero the right half, bit one the bottom half.</summary>
-    private static SquareSlopeQuadrant NativeQuadrant(int index) => new(SquareSlopeQuadrant.ColumnFor((index & 1) != 0), SquareSlopeQuadrant.RowFor((index & 2) != 0));
+    private static SquareSlopeQuadrant NativeQuadrant(int index) => new global::SuperMetroid.Core.Samus.Movement.SquareSlopeQuadrant(SquareSlopeQuadrant.ColumnOfHalf(index & 1), SquareSlopeQuadrant.RowOfHalf((index >> 1) & 1));
 
     /// <summary>Whether the shape and quadrant the native index names are solid.</summary>
     private static bool SolidAtNativeIndex(int index) => SquareSlopes.IsSolid(NativeShapeOrder[index / 4], NativeQuadrant(index));
@@ -47,15 +48,15 @@ internal static class SquareSlopeDefinitionsVerification
         {
             var behavior = RoomBlockBehaviorCodec.Decode(shape);
             if (shape < NativeShapeOrder.Length)
-                AssertEqual(NativeShapeOrder[shape], SquareSlopes.ShapeOf(behavior), $"square slope shape {shape}");
+                AssertEqual((SquareSlopeShape?)NativeShapeOrder[shape], behavior.Slope.Shape.SquareQuarters, $"square slope shape {shape}");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => SquareSlopes.ShapeOf(behavior),
-                    $"non-square slope shape {shape} has no square quadrants");
+                AssertTrue(behavior.Slope.Shape.SquareQuarters is null, $"non-square slope shape {shape} has no square quadrants");
         }
 
-        var missile = new Func<RoomCollisionBlock, SamusProjectile, bool>(ProjectileMotion.MissileSlopePointReaction);
-        var bus = NewSlopeHeightNoReadBus();
+        var missile = new Func<RoomCollisionBlock, SamusProjectileOccupant, bool>(ProjectileMotion.MissileSlopePointReaction);
+        _ = NewSlopeHeightNoReadBus();
         var projectile = new SamusProjectile(0);
+        SamusProjectileOccupant held = projectile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileKind.Missile));
         int cases = 0;
         for (int raw = 0; raw < 256; raw++)
         {
@@ -69,8 +70,8 @@ internal static class SquareSlopeDefinitionsVerification
                 int column = (raw & 64) != 0 ? 15 - x : x;
                 int row = (raw & 128) != 0 ? 15 - y : y;
                 bool expected = native[shape * 4 + row / 8 * 2 + column / 8] != 0;
-                projectile.Position = projectile.Position.WithWhole(new(x, y));
-                AssertEqual(expected, missile(block, projectile), "Actual missile square quadrant");
+                projectile.HeldShot().Position = projectile.Position.WithWhole(new(x, y));
+                AssertEqual(expected, missile(block, held), "Actual missile square quadrant");
                 cases++;
             }
         }

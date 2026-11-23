@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed boss, elevator and gunship landmark anchors.</summary>
-public static class MapLandmarkFile
+public static partial class MapLandmarkFile
 {
     /// <summary>Enumerates every published boss, elevator, and gunship landmark identity the document must hold.</summary>
     /// <returns>All landmark IDs in area order, each area's boss markers before its elevator labels.</returns>
@@ -16,8 +16,8 @@ public static class MapLandmarkFile
         foreach (AreaId area in AreaIds.All)
         {
             foreach (MapBossMarker marker in MapLandmarks.BossMarkers(area)) yield return marker.Id;
-            if (area != AreaId.Ceres)
-                foreach (var label in MapLandmarks.Elevators(area)) yield return label.Id;
+            if (AreaIds.IsZebes(area, out ZebesArea zebes))
+                foreach (var label in MapLandmarks.Elevators(zebes)) yield return label.Id;
         }
         yield return MapLandmarkDefinitions.Gunship;
     }
@@ -29,8 +29,7 @@ public static class MapLandmarkFile
     public static MapLandmarkPositions Read(Stream json)
     {
         MapLandmarkDocument document;
-        try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map landmark layout is null."); }
+        try { document = JsonAssetDocument.Read<MapLandmarkDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map landmark layout JSON.", error); }
         var ids = Ids().ToArray();
         if (document.Version != MapLandmarkFormat.Version || document.Markers is null || document.Markers.Count != ids.Length)
@@ -46,7 +45,7 @@ public static class MapLandmarkFile
     /// <param name="document">Landmark layout to serialize.</param>
     public static void Write(Stream json, MapLandmarkDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapLandmarkDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

@@ -24,11 +24,10 @@ internal static class DoorEntryShotBindingVerification
     /// </summary>
     internal static void VerifyDoorEntryShotBinding()
     {
-        ControllerBindings lowc = ControllerBindings.Default with
-        {
-            Shoot = ControllerButton.Y, ItemSelect = ControllerButton.X, ItemCancel = ControllerButton.Select,
-            AimUp = ControllerButton.L, AimDown = ControllerButton.R,
-        };
+        ControllerBindings lowc = ControllerBindings.Default
+            .With(ControllerAction.Shoot, ControllerButton.Y).With(ControllerAction.ItemSelect, ControllerButton.X)
+            .With(ControllerAction.ItemCancel, ControllerButton.Select)
+            .With(ControllerAction.AimUp, ControllerButton.L).With(ControllerAction.AimDown, ControllerButton.R);
         foreach ((ControllerButton held, bool cancels) in new[] { new VerifyDoorEntryShotBindingCase(ControllerButton.X, true), new VerifyDoorEntryShotBindingCase(ControllerButton.Y, false) })
         {
             var random = new SharedRandom();
@@ -36,12 +35,12 @@ internal static class DoorEntryShotBindingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.Options.ControllerBindings = lowc;
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.LockOutPlayer();
             game.AdoptRuntime(runtime);
-            game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+            game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
             game.Session.Enter(SuperMetroidGameState.MainGameplay);
 
             var level = runtime.Room.LoadedLevelData;
@@ -57,16 +56,17 @@ internal static class DoorEntryShotBindingVerification
             AssertTrue(selected, "the Ceres start room has an exit");
             var audio = game.AudioForVerification;
             SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
-            game.Session.Enter(DoorTransitionStep.EnteringDoor);
+            // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+            game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
             game.Step(held);
 
-            AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
+            AssertEqual(new DoorTransitionPhase.Running.WaitForSoundQueues(), game.DoorTransitionPhaseForVerification,
                 "the entry frame begins the door sound wait");
             IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
             AssertEqual(cancels, queued.Count != 0,
                 $"physical {held} with shot bound to Y {(cancels ? "queues" : "does not queue")} the library-one cancel");
             if (cancels)
-                AssertEqual<SoundEffectId>(SamusSound.Silence, queued[0],
+                AssertEqual<SoundEffectId>(SamusSoundStop.Any, queued[0],
                     "the queued library-one request is the cancel");
         }
         Console.WriteLine("Door entry shot binding: the library-one cancel follows the shot binding, not physical X.");

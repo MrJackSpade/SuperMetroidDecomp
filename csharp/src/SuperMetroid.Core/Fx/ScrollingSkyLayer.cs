@@ -10,13 +10,13 @@ namespace SuperMetroid.Core.Fx;
 /// <param name="CameraRow">The room row at the camera; a camera above the room's top is at a negative row.</param>
 /// <param name="Bands">The sky's bands from the top of the room down, each beginning at or below the end of the one before.</param>
 /// <param name="ShowsDrift">False on a frozen frame, which shows every band unshifted.</param>
-public sealed record ScrollingSkyLayer(int CameraRow, ImmutableArray<ShownSkyBand> Bands, bool ShowsDrift)
+public sealed partial record ScrollingSkyLayer(int CameraRow, ImmutableArray<ShownSkyBand> Bands, bool ShowsDrift)
 {
     /// <summary>The sky's bands from the top of the room down.</summary>
     /// <exception cref="ArgumentException">A band begins above the end of the one before it.</exception>
     public ImmutableArray<ShownSkyBand> Bands
     {
-        get;
+        internal get;
         init => field = RequireTopDown(value);
     } = RequireTopDown(Bands);
 
@@ -48,7 +48,6 @@ public sealed record ScrollingSkyLayer(int CameraRow, ImmutableArray<ShownSkyBan
     /// <exception cref="ArgumentException">The bands overlap or are out of order.</exception>
     private static ImmutableArray<ShownSkyBand> RequireTopDown(ImmutableArray<ShownSkyBand> bands)
     {
-        if (bands.IsDefault) return [];
         for (int index = 1; index < bands.Length; index++)
             if (bands[index].FirstRow < bands[index - 1].EndRow)
                 throw new ArgumentException("Each sky band begins at or below the end of the one before it.", nameof(bands));

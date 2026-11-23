@@ -8,8 +8,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>A validated <see cref="IRoomEnemyLoad"/>; required capabilities are non-null at construction.</summary>
-[RoomScopeBoundary("A per-call input, built for one call and never kept.")]
-public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
+public sealed partial record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
     /// <summary>Creates a load of <paramref name="population"/> into the room whose load <paramref name="appearance"/> shows over.</summary>
     public RoomEnemyLoadRequest(RoomEnemyPopulationDefinition population, RoomAppearance appearance)
@@ -40,5 +39,8 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public required GunshipLoadScenario GunshipScenario { get; init; }
 
     /// <inheritdoc />
-    public required bool DeferLoaderTimeCameraReads { get; init; }
+    public bool DeferLoaderTimeCameraReads => ViewportLoadMode == RoomViewportLoadMode.KeepSourceScreenWhileScrollingIn;
+
+    /// <summary>How the room's load shows its viewport (#2560).</summary>
+    public required RoomViewportLoadMode ViewportLoadMode { get; init; }
 }

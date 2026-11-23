@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>How the ninja, walking and wall Space Pirates move, sense Samus and fire (#2156).</summary>
-internal static class SpacePirateMotionDefinitions
+internal static partial class SpacePirateMotionDefinitions
 {
     /// <summary>A slow wall Space Pirate's jump: two steps an update, landing at steps 190 and 66 of the turn (#2182).</summary>
-    internal static WallSpacePirateJump SlowWallJump { get; } = new(RotationAngle.FromSteps(190), RotationAngle.FromSteps(66), 2);
+    internal static WallSpacePirateJump SlowWallJump { get; } = new(RotationAngle.FromSteps(190), RotationAngle.FromSteps(66), RotationAngle.FromSteps(2));
 
     /// <summary>A fast wall Space Pirate's jump: four steps an update, landing at steps 192 and 64 of the turn (#2182).</summary>
-    internal static WallSpacePirateJump FastWallJump { get; } = new(RotationAngle.FromSteps(192), RotationAngle.FromSteps(64), 4);
+    internal static WallSpacePirateJump FastWallJump { get; } = new(RotationAngle.FromSteps(192), RotationAngle.FromSteps(64), RotationAngle.FromSteps(4));
 
     /// <summary>
     /// How far into a block a wall Space Pirate standing against a wall must be, in pixels, for it to snap to the next
@@ -27,7 +27,8 @@ internal static class SpacePirateMotionDefinitions
     /// <summary>How close horizontally Samus comes, in pixels, for an idle ninja to activate.</summary>
     internal const int NinjaActivationDistance = 128;
 
-    /// <summary>How close on both axes, in pixels and exclusive, the highest occupied projectile comes before a ninja reacts.</summary>
+    /// <summary>How close on both axes, in pixels and exclusive, the shot the flinch tests
+    /// (<see cref="PirateFlinchFromHighestShot"/>) comes before a ninja reacts.</summary>
     internal const int NinjaFlinchDistance = 32;
 
     /// <summary>How close to the posts' midpoint, in pixels and exclusive, Samus comes before a ninja may spin jump or divekick.</summary>

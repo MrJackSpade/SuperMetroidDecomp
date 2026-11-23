@@ -4,12 +4,16 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Skree;
 
 /// <summary>Skree/Metaree particle's typed animation.</summary>
-internal sealed class SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment segment)
-    : EnemyProjectileFrameAnimation<SkreeMetareeParticleSegment, EnemyProjectileCommonCue>(SkreeMetareeParticleAnimations.StartingWith(segment))
+internal sealed partial class SkreeMetareeParticleAnimation
+    : EnemyProjectileFrameAnimation<SkreeMetareeParticleSegment, EnemyProjectileCommonCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;
+    /// <summary>Creates a <see cref="SkreeMetareeParticleAnimation"/>.</summary>
+    /// <param name="segment">segment</param>
+    public SkreeMetareeParticleAnimation(SkreeMetareeParticleSegment segment)
+        : base(segment, SkreeMetareeParticleAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<SkreeMetareeParticleSegment>())
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<SkreeMetareeParticleSegment, Animation<SkreeMetareeParticleSegment>> StartingAt => SkreeMetareeParticleAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<SkreeMetareeParticleSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => SkreeMetareeParticleAnimations.Segments;
 }

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// The import stages nothing in work memory, so this space maps no work RAM: a read the cartridge window does not
 /// serve fails at its caller rather than returning bytes nothing wrote (#1688).
 /// </remarks>
-public sealed class CartridgeImportAddressSpace : ISnesAddressSpace,
+public sealed partial class CartridgeImportAddressSpace : ISnesAddressSpace,
     IImportCartridgeSource, IRestoredSharedContent
 {
     /// <summary>Size in bytes of the unheadered retail Super Metroid ROM image: 3 MiB.</summary>
@@ -47,7 +47,7 @@ public sealed class CartridgeImportAddressSpace : ISnesAddressSpace,
     {
         int bank = SnesAddressMath.BankNumber(cpuAddress);
         if ((uint)cpuAddress > CartridgeFormatDefinitions.HighestCpuAddress || bank is >= LoRomMemoryBankLayout.FirstWorkRamBank and <= LoRomMemoryBankLayout.LastWorkRamBank ||
-            (cpuAddress & 0x8000) == 0) // cartridge-encoding: allow(Mapping) - LoROM upper-window bit
+            (cpuAddress & 0x8000) == 0)
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
                 "Cartridge reads require an upper-window LoROM address outside WRAM banks.");
 
@@ -63,12 +63,12 @@ public sealed class CartridgeImportAddressSpace : ISnesAddressSpace,
     /// <returns>The offset formed from 32 KiB banks, with the bank's mirror bit removed.</returns>
     /// <remarks>This arithmetic mapping does not check WRAM bank identity or whether an image contains the resulting offset.</remarks>
     /// <exception cref="ArgumentOutOfRangeException">The address is not 24-bit or selects the lower bank window.</exception>
-    public static int ToRomOffset(int address)
+    internal static int ToRomOffset(int address)
     {
-        if ((uint)address > CartridgeFormatDefinitions.HighestCpuAddress || (address & 0x8000) == 0) // cartridge-encoding: allow(Mapping) - LoROM upper-window bit
+        if ((uint)address > CartridgeFormatDefinitions.HighestCpuAddress || (address & 0x8000) == 0)
             throw new ArgumentOutOfRangeException(nameof(address), address,
                 "Address is outside the upper LoROM window.");
         int bank = SnesAddressMath.BankNumber(address);
-        return ((bank << 15) | (address & 0x7fff)) & 0x3f_ffff; // cartridge-encoding: allow(Mapping) - LoROM bank and window offset to a 4 MiB image offset
+        return ((bank << 15) | (address & 0x7fff)) & 0x3f_ffff;
     }
 }

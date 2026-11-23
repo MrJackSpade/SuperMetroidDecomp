@@ -6,11 +6,9 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -52,9 +50,10 @@ internal static class RoomBlockInventoryVerification
     {
         TilesetDefinition holding = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
         TilesetDefinition lacking = RoomTilesets.Get(RoomGraphicsSet.RedCrateria);
-        InventoriedRoomState holder = State(holding, AreaId.Crateria, new(RoomCollisionType.BombableBlock, RoomBlockBehavior.Reacting(BombableReaction.RespawningBreak1x1)),
-            RoomObjectKind.MotherBrainGlass);
-        InventoriedRoomState other = State(lacking, AreaId.Crateria, new(RoomCollisionType.BombableBlock, RoomBlockBehavior.Reacting(BombableReaction.Nothing)));
+        var bombBlock = new RoomTerrainReaction(RoomCollisionType.BombableBlock, RoomBlockBehavior.Reacting(BombableReaction.RespawningBreak1x1));
+        InventoriedRoomState holder = State(RoomGraphicsSet.UpperCrateria, AreaId.Crateria, bombBlock, RoomObjectPopulationDefinitions.MotherBrain);
+        InventoriedRoomState other = State(RoomGraphicsSet.RedCrateria, AreaId.Crateria,
+            new(RoomCollisionType.BombableBlock, RoomBlockBehavior.Reacting(BombableReaction.Nothing)), InventoriedRoomStateFixtures.NoObjects);
         RoomBlockWriter[] writers =
         [
             new(new HashSet<int> { BombWrittenBlock }, state => state.HoldsBombBlocks),
@@ -70,13 +69,14 @@ internal static class RoomBlockInventoryVerification
         AssertTrue(!held.Contains(UnplacedBlock) && !lacked.Contains(UnplacedBlock),
             $"block {UnplacedBlock:X3}, which no room places and nothing writes, is not inventoried");
 
-        InventoriedRoomState ceres = holder with { Area = AreaId.Ceres };
+        InventoriedRoomState ceres = State(RoomGraphicsSet.UpperCrateria, AreaId.Ceres, bombBlock, RoomObjectPopulationDefinitions.MotherBrain);
         AssertTrue(RoomBlockInventory.Of([ceres], writers).Shown(holding).SetEquals([PlacedBlock]),
             "a Ceres room's inventory holds only what its level places, as nothing writes blocks there");
 
         // The elevator shaft's screen is its turning floor alone, so a state running its room main shows none of the blocks
         // its level places (#1647), though its tileset is still inventoried.
-        InventoriedRoomState shaft = ceres with { MainBehavior = RoomMainBehavior.CeresElevatorShaft, TurningFloor = RoomTurningFloor.ElevatorShaft };
+        InventoriedRoomState shaft = State(RoomGraphicsSet.UpperCrateria, AreaId.Ceres, bombBlock, RoomObjectPopulationDefinitions.MotherBrain,
+            RoomMainBehavior.CeresElevatorShaft, RoomTurningFloor.ElevatorShaft);
         AssertTrue(RoomBlockInventory.Of([shaft], writers).Shown(holding).Count == 0,
             "a state showing the elevator shaft's floor shows none of its level's blocks");
         Console.WriteLine("Room block inventory: a writer's blocks count for the room states whose installed data holds its start, and for no other.");
@@ -90,11 +90,13 @@ internal static class RoomBlockInventoryVerification
     /// </summary>
     internal static void VerifySpecialAirAndCrumbleStartsByReaction()
     {
-        TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
+        const RoomGraphicsSet tileset = RoomGraphicsSet.UpperCrateria;
         for (int entry = 0; entry < 6; entry++)
         {
-            InventoriedRoomState area = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x80 | entry)));
-            InventoriedRoomState common = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(entry)));
+            InventoriedRoomState area = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x80 | entry)),
+                InventoriedRoomStateFixtures.NoObjects);
+            InventoriedRoomState common = State(tileset, AreaId.Brinstar, new(RoomCollisionType.SpecialAir, RoomBlockBehaviorCodec.Decode(entry)),
+                InventoriedRoomStateFixtures.NoObjects);
             AssertEqual(entry < 2, area.HoldsSamusEaterPlants, $"Brinstar special-air area reaction {entry} holds a plant exactly when it is a plant");
             AssertEqual(entry >= 2, area.HoldsSpeedBoosterBlocks, $"Brinstar special-air area reaction {entry} holds a Speed Booster block exactly when it is one");
             AssertTrue(!common.HoldsSamusEaterPlants && !common.HoldsSpeedBoosterBlocks,
@@ -102,27 +104,37 @@ internal static class RoomBlockInventoryVerification
         }
         for (int value = 0; value < RoomBlockBehaviorCodec.ByteCount; value++)
         {
-            AssertEqual(value < 8, State(tileset, AreaId.Crateria, new(RoomCollisionType.SpecialBlock, RoomBlockBehaviorCodec.Decode(value))).HoldsCrumbleBlocks,
+            AssertEqual(value < 8, State(tileset, AreaId.Crateria, new(RoomCollisionType.SpecialBlock, RoomBlockBehaviorCodec.Decode(value)),
+                    InventoriedRoomStateFixtures.NoObjects).HoldsCrumbleBlocks,
                 $"a special block with BTS {value:X2} holds a crumble block exactly when it is one of the first eight common reactions");
         }
         Console.WriteLine("Room block inventory: special-air area reactions alone start the area's plants and Speed Booster blocks; the first eight common special-block reactions start the crumble blocks.");
     }
 
-    /// <summary>A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of <paramref name="terrain"/>, placing <paramref name="headers"/>.</summary>
-    private static InventoriedRoomState State(TilesetDefinition tileset, AreaId area, RoomTerrainReaction terrain, params RoomObjectKind[] headers) =>
-        new(tileset, area, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction> { terrain }, new HashSet<RoomTerrainReaction>(),
-            headers.ToHashSet(), Array.Empty<RoomObjectPlacementSetup>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None, RoomTurningFloor.None,
-            new HashSet<DoorDefinition>(), null);
+    /// <summary>
+    /// A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of
+    /// <paramref name="terrain"/>, placing <paramref name="objects"/>, running no room main and showing no turning floor.
+    /// </summary>
+    private static InventoriedRoomState State(RoomGraphicsSet tileset, AreaId area, RoomTerrainReaction terrain, RoomObjectPopulation objects) =>
+        State(tileset, area, terrain, objects, RoomMainBehavior.None, RoomTurningFloor.None);
+
+    /// <summary>
+    /// A Zebes or Ceres room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/>, its terrain one block of
+    /// <paramref name="terrain"/>, placing <paramref name="objects"/>, running <paramref name="main"/> and showing
+    /// <paramref name="floor"/>.
+    /// </summary>
+    private static InventoriedRoomState State(RoomGraphicsSet tileset, AreaId area, RoomTerrainReaction terrain, RoomObjectPopulation objects,
+        RoomMainBehavior main, RoomTurningFloor floor) =>
+        InventoriedRoomStateFixtures.State(tileset, area, PlacedBlock, [terrain], new HashSet<RoomTerrainReaction>(), objects, main, floor);
 
     /// <summary>
     /// A Brinstar room state of <paramref name="tileset"/> placing <see cref="PlacedBlock"/> and holding nothing else that
     /// starts a writer, its terrain's blocks and its Wave shots' straddled reads selecting <paramref name="straddledShots"/>
     /// alone, as Kraid's room, which places no shot block and is two screens wide, holds none.
     /// </summary>
-    private static InventoriedRoomState Quiet(TilesetDefinition tileset, params RoomTerrainReaction[] straddledShots) =>
-        new(tileset, AreaId.Brinstar, new HashSet<int> { PlacedBlock }, new HashSet<RoomTerrainReaction>(), straddledShots.ToHashSet(),
-            new HashSet<RoomObjectKind>(), Array.Empty<RoomObjectPlacementSetup>(), new HashSet<EnemyDefinitionId>(), RoomSetupBehavior.None, RoomMainBehavior.None,
-            RoomTurningFloor.None, new HashSet<DoorDefinition>(), null);
+    private static InventoriedRoomState Quiet(RoomGraphicsSet tileset, params RoomTerrainReaction[] straddledShots) =>
+        InventoriedRoomStateFixtures.State(tileset, AreaId.Brinstar, PlacedBlock, [], straddledShots.ToHashSet(), InventoriedRoomStateFixtures.NoObjects,
+            RoomMainBehavior.None, RoomTurningFloor.None);
 
     /// <summary>
     /// The installation's real writers, from its installed room-object catalogs and X-ray reveal (#1650): a room state
@@ -138,24 +150,24 @@ internal static class RoomBlockInventoryVerification
         IReadOnlyList<RoomBlockWriter> writers = RoomBlockWriters.Of(catalogs,
             XrayRevealVisualFiles.Load(Path.Combine(content, GameInstallationLayout.XrayRevealVisualDirectoryName)));
         var family = new HashSet<int>(catalogs.ShotBlock.Images.All.Values.SelectMany(image => image.Cells.Values)
-            .Where(shown => shown.ShowsBlock).Select(shown => shown.Block))
+            .Where(shown => shown.Shows == RoomBlockShown.Block).Select(shown => shown.Block))
         {
             catalogs.SetupBlocks.Shown(RoomObjectSetupBlock.ShotBlockParent).Block,
         };
         TilesetDefinition tileset = RoomTilesets.Get(RoomGraphicsSet.UpperCrateria);
 
-        IReadOnlySet<int> quiet = RoomBlockInventory.Of([Quiet(tileset)], writers).Shown(tileset);
+        IReadOnlySet<int> quiet = RoomBlockInventory.Of([Quiet(RoomGraphicsSet.UpperCrateria)], writers).Shown(tileset);
         AssertTrue(quiet.SetEquals([PlacedBlock]),
             $"a room state holding no writer's start shows only the block it places, none of the shot-block family, not {Blocks(quiet)}");
 
         IReadOnlySet<int> straddling = RoomBlockInventory.Of(
-            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x1)))],
+            [Quiet(RoomGraphicsSet.UpperCrateria, new RoomTerrainReaction(RoomCollisionType.ShootableAir, RoomBlockBehavior.Reacting(ShootableReaction.RespawningBreak1x1)))],
             writers).Shown(tileset);
         AssertTrue(family.IsSubsetOf(straddling),
             $"a straddled read setting off a respawning shot block pictures the whole shot-block family {Blocks(family)}, not {Blocks(straddling)}");
 
         IReadOnlySet<int> rejected = RoomBlockInventory.Of(
-            [Quiet(tileset, new RoomTerrainReaction(RoomCollisionType.ShootableAir, RoomBlockBehavior.Reacting(ShootableReaction.RespawningSuperMissileBlock)))],
+            [Quiet(RoomGraphicsSet.UpperCrateria, new RoomTerrainReaction(RoomCollisionType.ShootableAir, RoomBlockBehavior.Reacting(ShootableReaction.RespawningSuperMissileBlock)))],
             writers).Shown(tileset);
         AssertTrue(!rejected.Overlaps(family),
             $"a straddled read of a Super Missile block, which rejects a beam, pictures none of the shot-block family, not {Blocks(rejected)}");
@@ -214,7 +226,7 @@ internal static class RoomBlockInventoryVerification
         terrain[index] = first;
         terrain[index + 1] = second;
         behaviors[index] = reaction;
-        return new InstalledRoomLevel(size, [.. terrain], [.. behaviors], [.. new RoomBlockAppearance[size.Area]], [], 0);
+        return new InstalledRoomLevel(size, [.. terrain], [.. behaviors], [.. new RoomBlockAppearance[size.Area]], new LevelDataPastGrid<RoomTerrainBlock>([], 0));
     }
 
     /// <summary>Names <paramref name="reactions"/> for a failure message.</summary>

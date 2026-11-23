@@ -14,7 +14,7 @@ internal enum MotherBrainProjectileMotion
     /// <summary>Raises dust once, then drops a ceiling tube, accelerating.</summary>
     TubeFalling,
 
-    /// <summary>Keeps drool hanging from Mother Brain's mouth for its first five poses.</summary>
+    /// <summary>Keeps drool hanging from Mother Brain's mouth while its animation shows it hanging.</summary>
     DroolHanging,
 
     /// <summary>Drops released drool, accelerating, until it reaches the arena floor.</summary>

@@ -12,57 +12,42 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// Types four, six, and seven share the same retail list. Type two has a null retail
 /// pointer and deliberately remains on the mutable-address-space path.
 /// </remarks>
-public sealed class SamusAtmosphericSourceArtwork
+public sealed partial class SamusAtmosphericSourceArtwork
 {
     /// <summary>Holds both installed four-frame appearance lists whole, without retaining caller arrays.</summary>
-    /// <param name="typeOne">Four type-one footstep appearances in animation-frame order, corresponding to $90:8C0F.</param>
-    /// <param name="sharedTypeFour">Four shared lava/dust appearances for types 4, 6, and 7, corresponding to $90:8C17.</param>
+    /// <param name="footstepSplash">Four type-one footstep appearances in animation-frame order, corresponding to $90:8C0F.</param>
+    /// <param name="lavaAndDust">Four shared lava/dust appearances for types 4, 6, and 7, corresponding to $90:8C17.</param>
     /// <exception cref="ArgumentNullException">Either input array is null.</exception>
     /// <exception cref="InvalidDataException">Either list does not contain exactly four appearances.</exception>
-    public SamusAtmosphericSourceArtwork(SpritePart[] typeOne, SpritePart[] sharedTypeFour)
+    public SamusAtmosphericSourceArtwork(SpritePart[] footstepSplash, SpritePart[] lavaAndDust)
     {
-        Ensure.NotNull(typeOne);
-        Ensure.NotNull(sharedTypeFour);
-        if (typeOne.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount ||
-            sharedTypeFour.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
+        Ensure.NotNull(footstepSplash);
+        Ensure.NotNull(lavaAndDust);
+        if (footstepSplash.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount ||
+            lavaAndDust.Length != SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
             throw new InvalidDataException("Samus atmospheric small-OBJ lists must each contain four frames.");
-        TypeOne = [.. typeOne];
-        SharedTypeFour = [.. sharedTypeFour];
+        FootstepSplash = [.. footstepSplash];
+        LavaAndDust = [.. lavaAndDust];
     }
 
-    /// <summary>SHA-256 of both selected atmospheric appearance lists.</summary>
-    /// <remarks>
-    /// The hash keeps the name of the runtime catalog that once held these lists, so an unchanged installation keeps its
-    /// identity.
-    /// </remarks>
-    public string ContentIdentity => SelectedPresentationHash.Create("InstalledSamusAtmosphericArtwork.v2", content =>
-    {
-        content.Append("type one", TypeOne.Count);
-        foreach (SpritePart part in TypeOne)
-            part.AppendIdentity(content);
-        content.Append("shared type four", SharedTypeFour.Count);
-        foreach (SpritePart part in SharedTypeFour)
-            part.AppendIdentity(content);
-    });
-
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttributes_1_Footstep ($90:8C0F), indexed by frame 0..3.</summary>
-    public IReadOnlyList<SpritePart> TypeOne { get; }
+    private IReadOnlyList<SpritePart> FootstepSplash { get; }
     /// <summary>Immutable four-frame view of AtmosphericGraphics_SpriteTileNumberAttribute_4_6_7_LavaDust ($90:8C17), shared by types 4, 6, and 7.</summary>
-    public IReadOnlyList<SpritePart> SharedTypeFour { get; }
+    private IReadOnlyList<SpritePart> LavaAndDust { get; }
 
-    /// <summary>Resolves one single-piece appearance: character, palette, priority and mirroring.</summary>
-    /// <param name="type">Native atmospheric type: 1 for footsteps, or 4, 6, or 7 for shared lava/dust. Type 2's mirrored-WRAM words and spritemap-based effects are not catalog entries.</param>
-    /// <param name="frame">Animation-frame index 0..3; does not select an animation duration.</param>
+    /// <summary>Resolves one single-piece appearance: character, palette, depth and mirroring.</summary>
+    /// <param name="pictures">The effect's pictures.</param>
+    /// <param name="frame">The frame of the effect's four, from 0; it does not select an animation duration.</param>
     /// <param name="attributes">Selected appearance on success; the default piece on failure.</param>
-    /// <returns>True for a supported type and frame; false otherwise without reading cartridge or mutable memory.</returns>
-    public bool TryResolve(int type, int frame, out SpritePart attributes)
+    /// <returns>True for a frame the effect has; false otherwise.</returns>
+    internal bool TryResolve(SamusAtmosphericPictures pictures, int frame, out SpritePart attributes)
     {
-        if (type is not (1 or 4 or 6 or 7) || frame < 0 || frame >= SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
+        if (frame is < 0 or >= SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount)
         {
             attributes = default;
             return false;
         }
-        attributes = (type == 1 ? TypeOne : SharedTypeFour)[frame];
+        attributes = (pictures == SamusAtmosphericPictures.FootstepSplash ? FootstepSplash : LavaAndDust)[frame];
         return true;
     }
 }

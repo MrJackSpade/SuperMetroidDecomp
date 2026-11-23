@@ -9,14 +9,14 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Etecoon species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class EtecoonBehavior : IEnemySpecies, IEnemySpawnFactory<EtecoonSpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Etecoon];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new EtecoonEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EtecoonSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new EtecoonEntity(this, occupant, place, common, settings));
 
     /// <summary>Probes the floor, walls, and ceiling throughout the teaching route.</summary>
     private readonly EnemyTerrain _terrain;
@@ -43,18 +43,44 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Position.X.Whole >= EtecoonRouteDefinitions.AudibleFromSamusX;
 
     /// <summary>Initializes the Etecoon.</summary>
-    internal static void InitializeEtecoon(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static EtecoonEnemyState InitializeEtecoon(EtecoonSpawnSettings etecoonSpawnSettings, RoomEnemyPlace place)
     {
-        // The placement must name the route, which the Etecoon reads where it takes it (#2531).
-        _ = place.SpawnSettings<EtecoonSpawnSettings>();
-        var state = new EtecoonEnemyState(EtecoonAction.Dormant);
-        place.SetSpeciesState(state);
+        // The placement names the route, which the Etecoon keeps for when it takes it (#2531).
+        var state = new EtecoonEnemyState(EtecoonAction.Dormant, etecoonSpawnSettings.Route);
 
         // The setup makes the Etecoon animate, whether or not its placement does.
         place.Processing = place.Processing.With(EnemyProcessing.Animates);
-        place.Frame = EnemyFrameId.Empty;
+        place.Frame = EnemyFrameId.PointAtOrigin;
         state.Playback = EnemyAnimationPlayback.Start(place, EtecoonAnimations.StartingWith(EtecoonSegment.StartingCrouch));
+        return state;
     }
+
+    /// <summary>What <see cref="RunEtecoonMain"/> does for each <see cref="EtecoonAction"/> member, each member's own arm.</summary>
+    private IdentityTable<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>> RunEtecoonMainForEtecoonAction => field ??= new(new Dictionary<EtecoonAction, Action<RoomEnemyPlace, EtecoonEnemyState, SamusState, RoomLevelData>>
+    {
+        [EtecoonAction.Dormant] = (place, state, samus, level) => RunEtecoonDormant(place, state, samus),
+        [EtecoonAction.Flexing] = (place, state, samus, level) => RunEtecoonFlexing(place, state),
+        [EtecoonAction.PreJumpCountdown] = (place, state, samus, level) => RunEtecoonPreJumpCountdown(place, state, samus),
+        [EtecoonAction.InitialJump] = (place, state, samus, level) => RunEtecoonInitialJump(place, state, samus, level),
+        [EtecoonAction.FaceSamusPause] = (place, state, samus, level) => RunEtecoonFaceSamusPause(place, state),
+        [EtecoonAction.RunLeftToWall] = (place, state, samus, level) => RunEtecoonLeftToWall(place, state, level),
+        [EtecoonAction.RunRightToWall] = (place, state, samus, level) => RunEtecoonRightToWall(place, state, level),
+        [EtecoonAction.Airborne] = (place, state, samus, level) => RunEtecoonAirborne(place, state, samus, level),
+        [EtecoonAction.WallPause] = (place, state, samus, level) => RunEtecoonWallPause(place, state),
+        [EtecoonAction.RouteAfterLanding] = (place, state, samus, level) => RunEtecoonRouteAfterLanding(place, state),
+        [EtecoonAction.MoveLeftToTeachingStart] = (place, state, samus, level) => RunEtecoonMoveLeftToTeachingStart(place, state, level),
+        [EtecoonAction.MoveRightToTeachingStart] = (place, state, samus, level) => RunEtecoonMoveRightToTeachingStart(place, state, level),
+        [EtecoonAction.RunRightToLongJump] = (place, state, samus, level) => RunEtecoonRightToLongJump(place, state, level),
+        [EtecoonAction.LongJump] = (place, state, samus, level) => RunEtecoonLongJump(place, state, samus, level),
+        [EtecoonAction.RunRightAfterLongJump] = (place, state, samus, level) => RunEtecoonRightAfterLongJump(place, state, level),
+        [EtecoonAction.LongJumpLanding] = (place, state, samus, level) => RunEtecoonLongJumpLanding(place, state, samus, level),
+        [EtecoonAction.TeachingJump] = (place, state, samus, level) => RunEtecoonTeachingJump(place, state, samus, level),
+        [EtecoonAction.IdleBetweenTeachingJumps] = (place, state, samus, level) => RunEtecoonIdleBetweenTeachingJumps(place, state, samus),
+        [EtecoonAction.WaitForSamusBeforeLongRun] = (place, state, samus, level) => RunEtecoonWaitForSamusBeforeLongRun(place, state, samus),
+        [EtecoonAction.RunRightToReturnJump] = (place, state, samus, level) => RunEtecoonRightToReturnJump(place, state, level),
+        [EtecoonAction.ReturnJump] = (place, state, samus, level) => RunEtecoonReturnJump(place, state, samus, level),
+    });
 
     /// <summary>Runs an Etecoon for one update and its actions.</summary>
     private void RunEtecoonMain(
@@ -63,82 +89,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level)
     {
-        // An earthquake suspends the Etecoon for 128 updates; its route is kept.
+        // An earthquake suspends the Etecoon for its quake pause; its route is kept.
         if (state.QuakePauseFrames.IsRunning)
         {
             state.QuakePauseFrames.Count();
             return;
         }
 
-        switch (state.Action)
-        {
-            case EtecoonAction.Dormant:
-                RunEtecoonDormant(place, state, samus);
-                break;
-            case EtecoonAction.Flexing:
-                RunEtecoonFlexing(place, state);
-                break;
-            case EtecoonAction.PreJumpCountdown:
-                RunEtecoonPreJumpCountdown(place, state, samus);
-                break;
-            case EtecoonAction.InitialJump:
-                RunEtecoonInitialJump(place, state, samus, level);
-                break;
-            case EtecoonAction.FaceSamusPause:
-                RunEtecoonFaceSamusPause(place, state);
-                break;
-            case EtecoonAction.RunLeftToWall:
-                RunEtecoonLeftToWall(place, state, level);
-                break;
-            case EtecoonAction.RunRightToWall:
-                RunEtecoonRightToWall(place, state, level);
-                break;
-            case EtecoonAction.Airborne:
-                RunEtecoonAirborne(place, state, samus, level);
-                break;
-            case EtecoonAction.WallPause:
-                RunEtecoonWallPause(place, state);
-                break;
-            case EtecoonAction.RouteAfterLanding:
-                RunEtecoonRouteAfterLanding(place, state);
-                break;
-            case EtecoonAction.MoveLeftToTeachingStart:
-                RunEtecoonMoveLeftToTeachingStart(place, state, level);
-                break;
-            case EtecoonAction.MoveRightToTeachingStart:
-                RunEtecoonMoveRightToTeachingStart(place, state, level);
-                break;
-            case EtecoonAction.RunRightToLongJump:
-                RunEtecoonRightToLongJump(place, state, level);
-                break;
-            case EtecoonAction.LongJump:
-                RunEtecoonLongJump(place, state, samus, level);
-                break;
-            case EtecoonAction.RunRightAfterLongJump:
-                RunEtecoonRightAfterLongJump(place, state, level);
-                break;
-            case EtecoonAction.LongJumpLanding:
-                RunEtecoonLongJumpLanding(place, state, samus, level);
-                break;
-            case EtecoonAction.TeachingJump:
-                RunEtecoonTeachingJump(place, state, samus, level);
-                break;
-            case EtecoonAction.IdleBetweenTeachingJumps:
-                RunEtecoonIdleBetweenTeachingJumps(place, state, samus);
-                break;
-            case EtecoonAction.WaitForSamusBeforeLongRun:
-                RunEtecoonWaitForSamusBeforeLongRun(place, state, samus);
-                break;
-            case EtecoonAction.RunRightToReturnJump:
-                RunEtecoonRightToReturnJump(place, state, level);
-                break;
-            case EtecoonAction.ReturnJump:
-                RunEtecoonReturnJump(place, state, samus, level);
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Etecoon has no behaviour for action {state.Action}.");
-        }
+        RunEtecoonMainForEtecoonAction[state.Action](place, state, samus, level);
     }
 
     /// <summary>Wakes the dormant Etecoon once Samus comes level with it, starting its flex.</summary>
@@ -154,7 +112,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EtecoonIsWithinY(place, samus, EtecoonRouteDefinitions.ActivationYDistance))
             return;
 
-        if (place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.RunLeftToTeachingStart)
+        if (EtecoonRouteDefinitions.Routes[state.Route].CriesOnWaking)
             _audio.QueueEnemySound(EnemySoundEffectDefinitions.EtecoonWakeSound, priority: SoundRequestPriority.Essential);
         state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
         place.AnimationClock.StepOnNextUpdate();
@@ -176,7 +134,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
     }
 
-    /// <summary>Expires the wake pause, installs the first jump speed, and gates its sound by Samus's X.</summary>
+    /// <summary>Waits out the hop crouch, then starts the hop: its first jump speed, and its sound gated by Samus's X.</summary>
     private void RunEtecoonPreJumpCountdown(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -272,7 +230,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Head(side: HorizontalDirection.Right);
     }
 
-    /// <summary>Runs right until the 32-pixel solid lookahead arms the airborne wall-jump state.</summary>
+    /// <summary>Runs right until the solid lookahead arms the airborne wall-jump state.</summary>
     private void RunEtecoonRightToWall(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -353,6 +311,32 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
     }
 
+    /// <summary>What <see cref="RunEtecoonRouteAfterLanding"/> does for each <see cref="EtecoonRoute"/> member, each member's own arm.</summary>
+    private static IdentityTable<EtecoonRoute, Action<EtecoonEnemyState>> RunEtecoonRouteAfterLandingForEtecoonRoute => field ??= new(new Dictionary<EtecoonRoute, Action<EtecoonEnemyState>>
+    {
+        [EtecoonRoute.RunLeftToTeachingStart] = static state =>
+        {
+            state.Action = EtecoonAction.MoveLeftToTeachingStart;
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningLeft), AnimationPlace.StartOfAnimation);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.LeftRunSpeed);
+        },
+        [EtecoonRoute.RunRightToTeachingStart] = static state =>
+        {
+            state.Action = EtecoonAction.MoveRightToTeachingStart;
+            state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
+        },
+        [EtecoonRoute.TeachAtOnce] = static state =>
+        {
+            state.Action = EtecoonAction.TeachingJump;
+            // The landing hop faced away from the heading; the teaching hop continues it.
+            state.Playback = new(EtecoonAnimations.StartingWith(state.Heading == HorizontalDirection.Right
+                ? EtecoonSegment.ContinueHoppingFacingLeft
+                : EtecoonSegment.ContinueHoppingFacingRight), AnimationPlace.StartOfAnimation);
+            SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
+        },
+    });
+
     /// <summary>Takes the authored post-landing route.</summary>
     private static void RunEtecoonRouteAfterLanding(
         RoomEnemyPlace place,
@@ -362,30 +346,8 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         SetEtecoonVerticalVelocity(state, EtecoonMotionDefinitions.HopSpeed);
-        EtecoonRoute route = place.SpawnSettings<EtecoonSpawnSettings>().Route;
-        switch (route)
-        {
-            case EtecoonRoute.RunLeftToTeachingStart:
-                state.Action = EtecoonAction.MoveLeftToTeachingStart;
-                state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningLeft), AnimationPlace.StartOfAnimation);
-                SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.LeftRunSpeed);
-                break;
-            case EtecoonRoute.RunRightToTeachingStart:
-                state.Action = EtecoonAction.MoveRightToTeachingStart;
-                state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.RunningRight), AnimationPlace.StartOfAnimation);
-                SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
-                break;
-            case EtecoonRoute.TeachAtOnce:
-                state.Action = EtecoonAction.TeachingJump;
-                // The landing hop faced away from the heading; the teaching hop continues it.
-                state.Playback = new(EtecoonAnimations.StartingWith(state.Heading == HorizontalDirection.Right
-                    ? EtecoonSegment.ContinueHoppingFacingLeft
-                    : EtecoonSegment.ContinueHoppingFacingRight), AnimationPlace.StartOfAnimation);
-                SetEtecoonHorizontalVelocity(state, EtecoonMotionDefinitions.RightRunSpeed);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EtecoonRoute)} {route}.");
-        }
+        EtecoonRoute route = state.Route;
+        RunEtecoonRouteAfterLandingForEtecoonRoute[route](state);
         place.AnimationClock.StepOnNextUpdate();
     }
 
@@ -419,7 +381,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
     }
 
-    /// <summary>Runs to X=600 and launches the stronger rightward demonstration jump.</summary>
+    /// <summary>Runs to <see cref="EtecoonRouteDefinitions.RunStartX"/> and launches the stronger rightward demonstration jump.</summary>
     private void RunEtecoonRightToLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -434,7 +396,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         StartEtecoonAnimation(place, state, EtecoonSegment.JumpingRight);
     }
 
-    /// <summary>Advances the long jump on both axes and returns to running art at X=680.</summary>
+    /// <summary>Advances the long jump on both axes and returns to running art at <see cref="EtecoonRouteDefinitions.LongJumpMidpointX"/>.</summary>
     private void RunEtecoonLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -450,7 +412,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Action = EtecoonAction.RunRightAfterLongJump;
     }
 
-    /// <summary>Continues the long route to X=840 before installing its landing hop.</summary>
+    /// <summary>Continues the long route to <see cref="EtecoonRouteDefinitions.LongJumpEndX"/> before installing its landing hop.</summary>
     private void RunEtecoonRightAfterLongJump(
         RoomEnemyPlace place,
         EtecoonEnemyState state,
@@ -496,7 +458,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.ActionTimer = UpdateCountdown.For(EtecoonTimingDefinitions.HopCrouch);
             StartEtecoonAnimation(place, state, EtecoonSegment.HoppingFacingLeft);
-            state.Action = place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.TeachAtOnce &&
+            state.Action = EtecoonRouteDefinitions.Routes[state.Route].TakesLongRun &&
                 place.Position.X.Whole < EtecoonRouteDefinitions.LongRunMaximumX
                     ? EtecoonAction.WaitForSamusBeforeLongRun
                     : EtecoonAction.IdleBetweenTeachingJumps;
@@ -527,7 +489,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             // The count empties before the teach-at-once route is tested, so that route hops lesson after lesson.
             state.TeachingHops = 0;
         }
-        if (lessonContinues || place.SpawnSettings<EtecoonSpawnSettings>().Route == EtecoonRoute.TeachAtOnce)
+        if (lessonContinues || EtecoonRouteDefinitions.Routes[state.Route].RepeatsLessons)
         {
             state.Action = EtecoonAction.TeachingJump;
             state.Playback = new(EtecoonAnimations.StartingWith(EtecoonSegment.ContinueHoppingFacingLeft), AnimationPlace.StartOfAnimation);
@@ -690,14 +652,13 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Etecoon's typed animation.</summary>
-    internal static void AdvanceEtecoonTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, EtecoonAnimations.Segments,
-            static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Etecoon animation raised {cue}."));
+    internal static void AdvanceEtecoonTypedAnimation(RoomEnemyPlace place, EtecoonEnemyState etecoonEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, etecoonEnemyState, EtecoonAnimations.Segments,
+            static (EtecoonEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
 
     /// <summary>Runs Etecoon's main AI.</summary>
-    internal void RunEtecoonMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunEtecoonMainAi(RoomEnemyPlace place, EtecoonEnemyState etecoonEnemyState, IEnemyAiFrame frame)
     {
-        RunEtecoonMain(place, place.RequireSpeciesState<EtecoonEnemyState>(), frame.Samus, frame.Level);
+        RunEtecoonMain(place, etecoonEnemyState, frame.Samus, frame.Level);
     }
 }

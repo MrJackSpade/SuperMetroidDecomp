@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// Loading checks the index's format, contained paths and every file's size; <see cref="InstalledClipFiles"/> checks
 /// each clip's encoding and rate as it reads it.
 /// </summary>
-public static class InstalledAudioClips
+public static partial class InstalledAudioClips
 {
     /// <summary>The clip index's file name in the audio root.</summary>
     public const string ManifestFileName = "audio-clips.json";
@@ -39,6 +39,8 @@ public static class InstalledAudioClips
     public static JsonSerializerOptions ManifestOptions { get; } = new(JsonOptions)
     {
         Converters = { new SoundEffectIdJsonConverter() },
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
     };
 
     /// <summary>
@@ -56,7 +58,7 @@ public static class InstalledAudioClips
         if (!File.Exists(manifestPath))
             throw new FileNotFoundException($"Audio clip manifest was not found at '{manifestPath}'.", manifestPath);
         byte[] manifestBytes = File.ReadAllBytes(manifestPath);
-        AudioClipManifest manifest = JsonSerializer.Deserialize<AudioClipManifest>(manifestBytes, ManifestOptions)
+        AudioClipManifest manifest = JsonSerializer.Deserialize<AudioClipManifest>(manifestBytes, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.AudioClipManifest>(ManifestOptions))
             ?? throw new InvalidDataException($"Audio clip manifest '{manifestPath}' deserialized to null.");
         if (manifest.FormatVersion != AudioClipManifest.CurrentFormatVersion)
         {
@@ -65,8 +67,8 @@ public static class InstalledAudioClips
         }
         foreach (MusicClipEntry entry in manifest.Music)
             InstalledClipFiles.ValidateFileSize(root, entry.Clip);
-        foreach (InstalledSoundEffectLayer layer in manifest.SoundEffects.SelectMany(entry => entry.Layers))
-            InstalledClipFiles.ValidateFileSize(root, layer.Clip);
+        foreach (AudioClipFile clip in manifest.SoundEffects.SelectMany(entry => entry.Shape.Clips()))
+            InstalledClipFiles.ValidateFileSize(root, clip);
         return new InstalledClipAudioLibrary(
             manifest,
             Convert.ToHexString(SHA256.HashData(manifestBytes)),

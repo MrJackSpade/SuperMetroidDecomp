@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// the axis the direction points to. Angle zero points right and a quarter turn on points up. A speed laid along the
 /// direction moves along the axis at this share of itself, the fraction finer than the share's precision dropped.
 /// </summary>
-internal readonly record struct FineUnitComponent
+internal readonly partial record struct FineUnitComponent
 {
     /// <summary>
     /// The component the half-wave at <paramref name="axisAngle"/> gives (#2569): its share of the whole

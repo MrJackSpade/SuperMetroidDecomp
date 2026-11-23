@@ -39,7 +39,8 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             state.Playback = new(EtecoonAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Segments, program, EtecoonFrameToolingDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Segments, program)),
+                EnemyInstructionRunner.ShownFrames(place, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Segments, program),
+                    () => EtecoonBehavior.AdvanceEtecoonTypedAnimation(place, state)),
                 $"Etecoon {program} loop");
         }
 
@@ -48,14 +49,14 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place, EtecoonEnemyState state) = NewEtecoon();
             state.Playback = new(EtecoonAnimations.Flexing, AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            _ = EnemyInstructionRunner.ShownFrames(place, 4 * 6 * 8 + 2 * 32);
+            _ = EnemyInstructionRunner.ShownFrames(place, 4 * 6 * 8 + 2 * 32, () => EtecoonBehavior.AdvanceEtecoonTypedAnimation(place, state));
             AnimationPlayback<EtecoonSegment> held = state.Playback;
-            _ = EnemyInstructionRunner.ShownFrames(place, 8);
+            _ = EnemyInstructionRunner.ShownFrames(place, 8, () => EtecoonBehavior.AdvanceEtecoonTypedAnimation(place, state));
             // The flex's last pose plays out, then the animation holds in its last phase for good.
             AssertEqual(new AnimationPlayback<EtecoonSegment>(held.Animation,
                     AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount)),
                 state.Playback, "Etecoon flex ends asleep");
-            _ = EnemyInstructionRunner.ShownFrames(place, 8);
+            _ = EnemyInstructionRunner.ShownFrames(place, 8, () => EtecoonBehavior.AdvanceEtecoonTypedAnimation(place, state));
             AssertEqual(AnimationPlace.HoldingIn(held.Animation.Phases.Count - 1, held.Animation.Phases[^1].BeatCount), state.Playback.Place,
                 "Etecoon flex stays asleep");
             AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonSegment.FlexEnd).Last(), place.SpritemapPointer, "Etecoon flex ends on its last pose");
@@ -74,11 +75,11 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Etecoon, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Etecoon, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnWords(EnemyDefinitionId.Etecoon, words => words);
-        EtecoonBehavior.InitializeEtecoon(place);
-        return new NewEtecoonResult(enemies, place, enemies.EtecoonStates[0] ?? throw new InvalidOperationException("The Etecoon has no state."));
+        // The Etecoon's setup builds the state its animation, which the check plays, runs on.
+        return new NewEtecoonResult(enemies, place, EtecoonBehavior.InitializeEtecoon(place.HeldOccupant().SpawnSettings<EtecoonSpawnSettings>(), place));
     }
 
     /// <summary>Runs the Etecoon animation verification.</summary>

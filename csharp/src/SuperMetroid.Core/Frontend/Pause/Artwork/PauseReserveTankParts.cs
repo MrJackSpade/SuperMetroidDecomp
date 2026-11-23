@@ -5,11 +5,10 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 /// <summary>
 /// Draws the pause screen's reserve tanks (<see cref="PauseReserveTankDefinitions"/>): each tank's anchor, frame and fill level.
 /// </summary>
-public static class PauseReserveTankParts
+public static partial class PauseReserveTankParts
 {
     /// <summary>The pause sheet's frame for the reserve-strip frame <paramref name="frame"/>.</summary>
-    [InstalledKey]
-    public static string SheetFrameName([InstalledKey] string frame) => $"ReserveTank.{frame}";
+    public static string SheetFrameName(string frame) => $"ReserveTank.{frame}";
     /// <summary>Full tank, trailing cap, empty tank and seven fill levels.</summary>
     /// <returns>Ten stable frame-name/picture pairs in full, end-cap, empty, then Fill1..Fill7 order; Samus's reserve energy selects the frame.</returns>
     public static IEnumerable<PauseReserveTankFrame> Frames() => PauseReserveTankDefinitions.Frames;

@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
@@ -24,13 +23,13 @@ internal static class SamusLiquidLinesVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation,
             new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(),
-            new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork())
-        {
-            Pose = SamusPoseId.SpinJumpRightPose,
-        };
+            new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.SpinJumpRightPose);
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(SpinRadius);
         int poseRadius = SamusPoseMetadata.ReadPoseYRadius(samus.Pose);
         int cases = 0;
+        // Each surface's water and lava rooms, loaded once.
+        Dictionary<int, SuperMetroid.Core.Fx.RoomFxOverlayState> water = Surfaces.ToDictionary(surface => surface, surface => SuperMetroid.Core.Fx.RoomEffectFixtures.Water(surface));
+        Dictionary<int, SuperMetroid.Core.Fx.RoomFxOverlayState> lava = Surfaces.ToDictionary(surface => surface, surface => SuperMetroid.Core.Fx.RoomEffectFixtures.Lava(surface));
         for (int centre = 0; centre <= 300; centre++)
         {
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(64, centre));
@@ -38,12 +37,12 @@ internal static class SamusLiquidLinesVerification
             int wrappedBottom = CoordinateAxis.Wrap(centre + poseRadius - 1);
             foreach (int surface in Surfaces)
             {
-                samus.LiquidPhysics.ConfigureWater(surface, ignoresSurface: false, RoomFxType.Water);
+                samus.LiquidPhysics.ConfigureFor(water[surface]);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedTop) < 0, samus.LiquidPhysics.IsTopBoundarySubmerged(samus),
                     $"top under water at line {surface}", centre);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedBottom) < 0 ? SamusLiquidMedium.Water : SamusLiquidMedium.Air,
                     samus.LiquidPhysics.DetermineMovementMedium(samus), $"movement in water at line {surface}", centre);
-                samus.LiquidPhysics.ConfigureLavaAcid(surface);
+                samus.LiquidPhysics.ConfigureFor(lava[surface]);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedTop) < 0, samus.LiquidPhysics.IsTopBoundarySubmerged(samus),
                     $"top under lava at line {surface}", centre);
                 AssertSameAt(CoordinateAxis.Difference(surface, wrappedBottom) < 0 ? SamusLiquidMedium.LavaOrAcid : SamusLiquidMedium.Air,

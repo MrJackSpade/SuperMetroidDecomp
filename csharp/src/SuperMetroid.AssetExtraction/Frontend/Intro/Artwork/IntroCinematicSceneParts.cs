@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 /// colours (#1544), its characters, layouts and sprite compositions (<see cref="IntroCinematicCharacters"/>,
 /// <see cref="IntroCinematicLayouts"/>, <see cref="IntroCinematicSprites"/>, #1638).
 /// </summary>
-public sealed record IntroCinematicSceneParts
+public sealed partial record IntroCinematicSceneParts
 {
     /// <summary>The colour the opening shows where nothing is drawn, at full brightness.</summary>
     public required RgbColor Backdrop { get; init; }

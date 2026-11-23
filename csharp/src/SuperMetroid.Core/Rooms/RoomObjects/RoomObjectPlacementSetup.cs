@@ -5,13 +5,22 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// placement gives it, decoded at import. Each family's setup is its own type, so a placement cannot carry an argument its
 /// family does not read, nor lack one its family requires; the population loader hands it the room's family setups.
 /// </summary>
-internal abstract record RoomObjectPlacementSetup
+internal abstract partial record RoomObjectPlacementSetup
 {
     /// <summary>Only the family setups below derive from this.</summary>
     private protected RoomObjectPlacementSetup()
     {
     }
 
+    /// <summary>The kind of room object the setup places, which follows from what the setup carries (#2557).</summary>
+    internal abstract RoomObjectKind Kind { get; }
+
     /// <summary>Runs this setup through <paramref name="setups"/>.</summary>
     internal abstract void SetUp(IRoomObjectFamilySetups setups);
+
+    /// <summary>
+    /// Whether a placement of this setup may stand off the room's grid (#2572): only a coloured door, whose place is all the
+    /// room observes of it.
+    /// </summary>
+    internal virtual bool StandsOffTheRoom => false;
 }

@@ -12,9 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// both values after every stage call of a Varia transformation.
 /// </remarks>
 /// <typeparam name="TStage">A suit pickup stage.</typeparam>
-[CompatibilityService("the suit pickup leaves its stage's place in the stage order where the shinespark's acceleration and the shared escape and drain count read it")]
-[EncodingOwner("the suit pickup stage's place in the stage order, which the values it overwrites hold")]
-public sealed class SuitPickupStageOrder<TStage>
+public sealed partial class SuitPickupStageOrder<TStage>
     where TStage : notnull
 {
     /// <summary>The stages in the order they run.</summary>

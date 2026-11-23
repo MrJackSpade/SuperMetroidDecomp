@@ -37,7 +37,7 @@ internal static class BackgroundTransferPresentationContractChecks
                     blends.Inks((RoomEffectTint)200);
                     blends.Inks((RoomEffectTint)255);
                     blends.Inks(RoomEffectTint.Fog);
-                    ending.Fragment(EndingExplosionPicture.Blank);
+                    ending.Fragment(EndingExplosionPicture.BurstGlow);
                     ending.Fragment((EndingExplosionPicture)4);
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFirstTiles);
                     ship.Resolve(InstalledArtworkId.GunshipLiftoffFifthTiles);
@@ -48,7 +48,7 @@ internal static class BackgroundTransferPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("BackgroundTransferProviderFixture", sources,
-            platforms.Append(typeof(SuperMetroid.Core.Assets.RgbColor).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

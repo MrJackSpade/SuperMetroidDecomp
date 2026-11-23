@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -16,7 +17,7 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// naming every variant of each enemy and of each owner's spawned objects and the variants each population draws, which
 /// names the sheets (#1693). A player edits a sheet's installed files in place.
 /// </summary>
-public static class EnemySheetFiles
+public static partial class EnemySheetFiles
 {
     /// <summary>
     /// The manifest revision this build reads: 26 no longer records where a variant composed a picture held once from, as
@@ -58,7 +59,7 @@ public static class EnemySheetFiles
         EnemySheetComposition composition = EnemySheetComposer.Compose(EnemySheetInputs.Load(content));
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, ManifestFileName),
-            JsonSerializer.SerializeToUtf8Bytes(composition.Manifest, JsonOptions));
+            JsonSerializer.SerializeToUtf8Bytes(composition.Manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemySheetManifestDocument>(JsonOptions)));
         return new InstalledSheetFamily(directory,
             [.. composition.Sheets.Select(sheet => new NamedInstalledSheet(sheet.Key, sheet.Value))]);
     }
@@ -73,7 +74,7 @@ public static class EnemySheetFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, ManifestFileName);
-        EnemySheetManifestDocument manifest = JsonSerializer.Deserialize<EnemySheetManifestDocument>(File.ReadAllBytes(manifestPath), JsonOptions)
+        EnemySheetManifestDocument manifest = JsonSerializer.Deserialize<EnemySheetManifestDocument>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemySheetManifestDocument>(JsonOptions))
             ?? throw new InvalidDataException($"Enemy sheet manifest {manifestPath} is empty.");
         if (manifest.Version != ManifestVersion)
             throw new InvalidDataException($"Enemy sheet manifest {manifestPath} has revision {manifest.Version}, not {ManifestVersion}.");
@@ -96,8 +97,10 @@ public static class EnemySheetFiles
             EnemyDefinitionId enemy = Enemy(entry.Enemy, $"variant {name}");
             SpriteSheet sheet = loaded[entry.Sheet];
             Dictionary<string, FrameLookChange[]> frameChanges = LookChanges(entry.LookChanges, name);
-            HashSet<string> pictures = [.. bindings.Value.FrameNames(enemy).SelectMany(frame => PictureNames(frame, frameChanges))];
-            // The sheet holds each of the frames' finished pictures, or names it among those that show nothing (#1538).
+            HashSet<string> pictures = [.. bindings.Value.FrameNames(enemy).SelectMany(frame => PictureNames(frame, frameChanges)),
+                .. MotherBrainBodyVisualDefinitions.SecondPictureNamesOf(enemy)];
+            // The sheet holds each of the frames' finished pictures and their second pictures (#2633), or names it among those
+            // that show nothing (#1538).
             if (!sheet.HoldsExactly(pictures))
                 throw new InvalidDataException($"Enemy sheet {entry.Sheet} of variant {name} does not hold exactly the pictures of the frames {enemy} shows.");
             variants.Add(name, new EnemyArtworkVariant<SpriteSheet>(name, sheet, Encounters(frameChanges), CorpsePictures(entry.CorpsePictures, name, pictures)));

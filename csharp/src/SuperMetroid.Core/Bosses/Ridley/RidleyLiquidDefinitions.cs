@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// The acid motion Lower Norfair Ridley drives (#1413): it rises to the battle height when his reveal completes and
 /// drains when his death roar ends.
 /// </summary>
-internal static class RidleyLiquidDefinitions
+internal static partial class RidleyLiquidDefinitions
 {
     /// <summary>The acid's battle height when Ridley's reveal completes, in world pixels.</summary>
     public const int BattleHeight = 440;

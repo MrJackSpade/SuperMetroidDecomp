@@ -25,8 +25,8 @@ internal static class ActorColourContentIdentity
                 content.AppendColors("statueColors", colours[..TourianStatueColorFormat.StatueColorCount]);
                 for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++) colours[color] = palettes.greyColors.Read(color);
                 content.AppendColors("greyColors", colours[..TourianStatueColorDefinitions.GreyColorCount]);
-                content.AppendColorFrames("eyeColors", Enumerable.Range(0, TourianStatueColorDefinitions.EyeGlowCount).Select(glow =>
-                    Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => palettes.ResolveEye(glow, color)).ToArray()).ToArray());
+                content.AppendColorFrames("eyeColors", SuperMetroid.AssetExtraction.CartridgeTables.EnemySourceDefinitions.TourianStatueEyeRowOrder.Select(statue =>
+                    Enumerable.Range(0, TourianStatueColorDefinitions.EyeColorCount).Select(color => palettes.ResolveEye(statue, color)).ToArray()).ToArray());
             });
     }
 
@@ -66,8 +66,9 @@ internal static class ActorColourContentIdentity
                 Span<RgbColor> frameColours = stackalloc RgbColor[WorkRobotPaletteDefinitions.ColorCount];
                 for (int frame = 0; frame < WorkRobotGlowAnimations.Cycle.Count; frame++)
                 {
+                    RgbColor[] shown = cycle.GlowColours(WorkRobotGlowAnimations.Cycle[frame]);
                     for (int color = 0; color < frameColours.Length; color++)
-                        frameColours[color] = cycle.Resolve(frame, color);
+                        frameColours[color] = shown[color];
                     content.AppendColors("row", frameColours);
                 }
             });

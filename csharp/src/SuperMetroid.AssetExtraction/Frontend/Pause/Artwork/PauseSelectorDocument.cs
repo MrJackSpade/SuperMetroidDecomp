@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Defines editable pause equipment-selector placement and animation.</summary>
-public sealed record PauseSelectorDocument
+public sealed partial record PauseSelectorDocument
 {
     /// <summary>Gets the document schema revision.</summary>
     public required int Version { get; init; }

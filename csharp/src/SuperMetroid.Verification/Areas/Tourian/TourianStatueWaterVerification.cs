@@ -22,20 +22,20 @@ internal static class TourianStatueWaterVerification
     /// <summary>Drives the retail room through water motion, freeze, and independent statue descent.</summary>
     internal static int VerifyTourianStatueWater()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
         AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomFxOverlay.Type, "Actual four-statues room owns special FX 26");
         AssertEqual((ushort)0xb0, runtime.RoomFxOverlay.NamedBaseY.Whole, "Retail statues water begins at Y=B0");
         AssertEqual(true, runtime.RoomFxOverlay.IsRenderable, "Statue special FX must supply its water plane");
-        var samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        var samus = runtime.Player.Samus;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(64, 120));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -66,7 +66,7 @@ internal static class TourianStatueWaterVerification
         AssertTrue(GameplayEffectCapture.BuildWaterBackgroundHorizontalScrolls(displayed, Offset16<BackgroundPixels>.Zero) is null,
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         runtime.TourianStatues.Room.Descent = SignedSixteenSixteen.FromWholePixels(64);
-        runtime.TourianStatues.LatchDisplay();
+        ((SuperMetroid.Core.Enemies.IDisplayLatch)runtime.TourianStatues).LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = runtime.PublishDisplayFrame().OrdinaryBase.Room;
         // The view shows the background row below the descent's camera row at the screen's top (#1514): with the camera at
@@ -88,7 +88,7 @@ internal static class TourianStatueWaterVerification
         AssertEqual(0xb1, samus.LiquidPhysics.WaterSurfaceY, "The moved water surface reaches live Samus physics");
         AssertEqual<EarthquakeShake?>(null, runtime.RoomFxOverlay.SustainedEarthquake,
             "Water motion does not invoke the lava/acid earthquake branch");
-        AssertEqual(0, runtime.AudioRequests.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
+        AssertEqual(0, runtime.AudioRequests.SoundsQueued.Count, "Water motion does not invoke lava/acid sound feedback");
         runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true });
         AssertEqual(0xb1, runtime.RoomFxOverlay.NamedSurface, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");

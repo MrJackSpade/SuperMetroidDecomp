@@ -18,11 +18,9 @@ internal static class GeneratedBossBg2CatalogsVerification
     {
         SpritemapFrameDefinition[] expected =
         [
-        new(0xdedd, "body_invulnerable"),
-        new(0xdee7, "body_full_hitbox"),
-        new(0xdef1, "body_eye_hitbox_only"),
+        new(0xdedd, "body"),
         new(0xdefb, "eye_closed"),
-        new(0xdf0f, "eye_open_1"),
+        new(0xdf0f, "eye_half_open"),
         new(0xdf19, "eyeball_center"),
         new(0xdf2d, "eyeball_up"),
         new(0xdf37, "eyeball_down"),
@@ -32,12 +30,12 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xdf5f, "eyeball_down_right"),
         new(0xdf69, "eyeball_up_left"),
         new(0xdf73, "eyeball_up_right"),
-        new(0xdfb3, "tentacles_0"),
-        new(0xdfc5, "tentacles_1"),
-        new(0xdfd7, "tentacles_2"),
-        new(0xdfe9, "mouth_0"),
-        new(0xdff3, "mouth_1"),
-        new(0xdffd, "mouth_2"),
+        new(0xdfb3, "tentacles_narrow"),
+        new(0xdfc5, "tentacles_spreading"),
+        new(0xdfd7, "tentacles_spread"),
+        new(0xdfe9, "mouth_open"),
+        new(0xdff3, "mouth_half_open"),
+        new(0xdffd, "mouth_narrow"),
 
         ];
         byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected, PhantoonBg2FrameDefinitions.Frames, frame => frame.Name, new Bg2CatalogAccess { IsFrame = PhantoonBodyLayerFrameDefinitions.Frames.Contains, Extract = () => PhantoonBg2FrameFiles.Extract(rom) });
@@ -106,7 +104,7 @@ internal static class GeneratedBossBg2CatalogsVerification
         {
             AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, nameBefore1465(frames[index])), $"{family} published identity and its name before #1465");
             int root = ((int)new SnesAddress(bank, expected[index].Pointer));
-            int components = family == "Phantoon" && index is >= 14 and < 17 ? 2 : 1;
+            int components = family == "Phantoon" && index is >= 12 and < 15 ? 2 : 1;
             AssertEqual((ushort)components, Word(root), $"{family} native count determines stride");
             for (int component = 0; component < components; component++)
             {
@@ -129,5 +127,5 @@ internal static class GeneratedBossBg2CatalogsVerification
         RoomEnemyPlaceFrameAccess.TryFrameAt(bank, pointer) ?? throw new InvalidOperationException($"No installed frame at ${bank:X2}:{pointer:X4}.");
 
     /// <summary>Reads native frame words while comparing generated BG2 catalogs.</summary>
-    private static byte GeneratedBg2CatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GeneratedBg2CatalogRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

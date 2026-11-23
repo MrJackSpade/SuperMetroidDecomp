@@ -10,14 +10,14 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <see cref="EndingTypewriterDefinitions.PercentageHoldFrames"/>, then its completion, resting on the whole text. The
 /// text's characters are installed, so its typing is built for the text it types.
 /// </summary>
-internal static class EndingTypewriterAnimations
+internal static partial class EndingTypewriterAnimations
 {
-    /// <summary>The typing of <paramref name="sequence"/>, which has <paramref name="characters"/> installed characters.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="characters"/> is negative.</exception>
-    internal static AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> Segments(EndingTextSequence sequence, int characters) =>
+    /// <summary>The typing of <paramref name="sequence"/>, whose installed characters are <paramref name="characters"/>.</summary>
+    internal static AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> Segments(EndingTextSequence sequence,
+        IReadOnlyCollection<EndingTextCharacter> characters) =>
         new(new Dictionary<EndingTextSequence, AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>[]>
         {
-            [sequence] = Typed(sequence, Ensure.AtLeastZero(characters)),
+            [sequence] = Typed(sequence, Ensure.NotNull(characters).Count),
         }, [sequence]);
 
     /// <summary>The animation that types <paramref name="sequence"/> once and rests on what it typed.</summary>
@@ -37,7 +37,7 @@ internal static class EndingTypewriterAnimations
         };
         beats.AddRange(Enumerable.Range(1, characters).Select(typed =>
             new AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>.Frame(new(typed), EndingTypewriterDefinitions.CharacterDelayFrames)));
-        if (sequence == EndingTextSequence.ItemPercentage)
+        if (EndingTextSequenceDefinitions.HoldingPercentage.Contains(sequence))
         {
             beats.Add(new AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>.Event(EndingTypewriterCue.ShowPercentage));
             beats.Add(new AnimationBeat<EndingTypewriterTyping, EndingTypewriterCue>.Pause(EndingTypewriterDefinitions.PercentageHoldFrames));

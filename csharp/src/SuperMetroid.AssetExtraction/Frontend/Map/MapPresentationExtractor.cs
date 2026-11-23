@@ -30,7 +30,7 @@ using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Writes stock maps into fresh installation staging.</summary>
-public static class MapPresentationExtractor
+public static partial class MapPresentationExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -82,23 +82,23 @@ public static class MapPresentationExtractor
                 file.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
-        byte[] revealBytes = JsonSerializer.SerializeToUtf8Bytes(stationCells, IndentedJson);
+        byte[] revealBytes = JsonSerializer.SerializeToUtf8Bytes(stationCells, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::System.Collections.Generic.Dictionary<string, int[]>>(IndentedJson));
         using (var file = new FileStream(PathOf(AreaMapCatalogFormat.StationRevealFile), FileMode.CreateNew, FileAccess.Write))
             file.Write(revealBytes);
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
         byte[] tilePixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount),
+            RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Artwork.MapCharacters, MapTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> atlasSize);
         using var atlas = new MemoryStream();
-        // Palette indexes are tile content; runtime CGRAM supplies the selected map
-        // palette. This neutral preview palette is not an imported gameplay palette.
+        // The atlas's colour numbers are import data: the import pre-colours the map sheets from them under each
+        // screen's colours. This neutral preview palette is not an imported gameplay palette.
         IndexedPng.Write(atlas, atlasSize, tilePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
         byte[] atlasBytes = atlas.ToArray();
         using (var file = new FileStream(PathOf(MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount),
+            RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Artwork.PauseInterfaceCharacters, PauseTileAtlasFormat.ByteCount),
             4, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> pauseSize);
         using var pauseAtlas = new MemoryStream();
         IndexedPng.Write(pauseAtlas, pauseSize, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
@@ -107,7 +107,7 @@ public static class MapPresentationExtractor
             file.Write(pauseBytes);
         hashes.Add(PauseTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(pauseBytes)));
         byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount),
+            RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.Artwork.HudCharacters, HudTileAtlasFormat.CharacterByteCount),
             2, MapTileAtlasFormat.TileColumns, out Extent16<ImagePixels> hudSize);
         using var hudAtlas = new MemoryStream();
         IndexedPng.Write(hudAtlas, hudSize, hudPixels, SnesGraphics.DiagnosticPalette(4));
@@ -126,8 +126,8 @@ public static class MapPresentationExtractor
         foreach (AreaId area in AreaIds.Zebes)
         {
             int address = MapSourceDefinitions.FileSelectMap.LabelPositions + AreaNumberCodec.Encode(area) * 4;
-            labelPoints.Add(AreaIdKeys.Installed.Of(area), new(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + 2)));
+            labelPoints.Add(AreaIdKeys.Installed.Of(area), new(RomDataReader.ReadWordFixedBank(bus, address),
+                RomDataReader.ReadWordFixedBank(bus, address + 2)));
         }
         using var labels = new MemoryStream();
         WorldMapLabelFile.Write(labels, new() { Version = WorldMapLabelFormat.Version, Areas = labelPoints });
@@ -391,6 +391,6 @@ public static class MapPresentationExtractor
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {
             Version = AreaMapCatalogFormat.Version, SourceCartridgeSha256 = sourceCartridgeSha256, Sha256 = hashes
-        }, CamelCaseIndentedJson);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.AreaMapCatalogManifest>(CamelCaseIndentedJson));
     }
 }

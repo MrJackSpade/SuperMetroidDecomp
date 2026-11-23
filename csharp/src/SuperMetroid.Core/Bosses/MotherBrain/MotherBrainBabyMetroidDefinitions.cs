@@ -3,7 +3,7 @@ using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Spawn and music identities for Mother Brain's cutscene Baby Metroid.</summary>
-internal static class MotherBrainBabyMetroidDefinitions
+internal static partial class MotherBrainBabyMetroidDefinitions
 {
     /// <summary>The Samus theme, played once its data set has loaded.</summary>
     internal const MusicTrack SamusThemeMusicTrack = MusicTrack.SamusTheme;
@@ -14,7 +14,7 @@ internal static class MotherBrainBabyMetroidDefinitions
     /// own animation.
     /// </summary>
     internal static readonly RoomEnemyPlacement SpawnPopulation =
-        new(EnemyDefinitionId.BabyMetroidCutscene, new(384, 64),
+        new(EnemyDefinitionId.BabyMetroidCutscene, EnemyPlacing.At(new(384, 64)),
             EnemyContact.None, EnemyProcessing.Animates | EnemyProcessing.OffScreen, EnemyPresence.None,
             CollidesByFrameHitboxes: false, EnemySpawnSettings.None);
 }

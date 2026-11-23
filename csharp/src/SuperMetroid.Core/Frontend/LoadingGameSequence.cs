@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// screen holds for the load's waits.
 /// </summary>
 /// <param name="session">The frontend session the sequence runs against.</param>
-internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
+internal sealed partial class LoadingGameSequence(FrontendSession session) : IFrontendPhase, IRuntimePhase, IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State => SuperMetroidGameState.LoadingGame;
@@ -19,54 +20,72 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
     /// <inheritdoc/>
     public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
-    /// <inheritdoc/>
-    public string Name => session.LoadingRoute switch
+    /// <summary>The diagnostic name of each load route, read from the session it runs against.</summary>
+    private static IdentityTable<GameDataLoadRoute, Func<FrontendSession, string>> Names => field ??= new(new Dictionary<GameDataLoadRoute, Func<FrontendSession, string>>
     {
-        GameDataLoadRoute.SelectedGame => session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
-        GameDataLoadRoute.SavedCheckpoint => $"Loading saved checkpoint ({session.GameLoading.Wait.UpdatesLeft} updates)",
-        GameDataLoadRoute.ZebesLanding => $"Loading Landing Site ({session.GameLoading.Wait.UpdatesLeft} updates)",
-        _ => throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}."),
-    };
+        [GameDataLoadRoute.SelectedGame] = static running => running.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
+        [GameDataLoadRoute.SavedCheckpoint] = static running => $"Loading saved checkpoint ({running.GameLoading.Wait.UpdatesLeft} updates)",
+        [GameDataLoadRoute.ZebesLanding] = static running => $"Loading Landing Site ({running.GameLoading.Wait.UpdatesLeft} updates)",
+    });
+
+    /// <inheritdoc/>
+    public string Name => Names[session.LoadingRoute](session);
 
     /// <inheritdoc/>
     public bool IsWaitingOutDisplayFrame => session.ResumesGameLoadingWait;
 
+    /// <summary>What <c>Step</c> does for each <see cref="GameDataLoadRoute"/> member, each member's own arm.</summary>
+    private IdentityTable<GameDataLoadRoute, Action<ControllerButton>> StepForGameDataLoadRoute => field ??= new(new Dictionary<GameDataLoadRoute, Action<ControllerButton>>
+    {
+        [GameDataLoadRoute.SelectedGame] = controllerInput =>
+        {
+            // The whole load happens in one update, then the black screen holds for its waits.
+            bool usesCeresArrival = session.SetupSelectedGame();
+            BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits, usesCeresArrival
+                ? GameLoadingCompletion.CeresArrivalFadeIn
+                : GameLoadingCompletion.MainGameplay);
+        },
+        [GameDataLoadRoute.SavedCheckpoint] = controllerInput =>
+        {
+            // A save continued from the file-select map: the ordinary load brings in the
+            // game in one update, then holds for the same waits as a new game.
+            if (session.SetupSelectedGame())
+                throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
+            BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
+                GameLoadingCompletion.GameplayFadeIn);
+        },
+        // The Zebes landing runs in the runtime Ceres left (Step with the runtime), never without one.
+        [GameDataLoadRoute.ZebesLanding] = controllerInput => throw new InvalidOperationException(
+            $"The {GameDataLoadRoute.ZebesLanding} load runs in the runtime Ceres left."),
+    });
+
+    /// <inheritdoc/>
+    public PhaseGameplayNeed Need => session.ResumesGameLoadingWait ? PhaseGameplayNeed.LoadedRoom
+        : session.LoadingRoute == GameDataLoadRoute.ZebesLanding ? PhaseGameplayNeed.Runtime
+        : PhaseGameplayNeed.Nothing;
+
+    /// <inheritdoc/>
+    /// <remarks>The load's waits hold the room it loaded.</remarks>
+    public void Step(ControllerButton controllerInput, LoadedGameplay live) => StepGameLoadingWait(controllerInput, live);
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// The Zebes landing, followed by its waits. The update's own frame counts in the gameplay owner kept from Ceres, in the
+    /// runtime Ceres left.
+    /// </remarks>
+    public void Step(ControllerButton controllerInput, SuperMetroidRuntime runtime)
+    {
+        Ensure.NotNull(runtime);
+        runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        runtime.RoomLoader.InitializePostCeresZebesRoom();
+        BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
+            GameLoadingCompletion.GameplayFadeIn);
+    }
+
     /// <inheritdoc/>
     public void Step(ControllerButton controllerInput)
     {
-        if (session.ResumesGameLoadingWait)
-        {
-            StepGameLoadingWait(controllerInput);
-            return;
-        }
-        switch (session.LoadingRoute)
-        {
-            case GameDataLoadRoute.SelectedGame:
-                // The whole load happens in one update, then the black screen holds for its waits.
-                bool usesCeresArrival = session.SetupSelectedGame();
-                BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits, usesCeresArrival
-                    ? GameLoadingCompletion.CeresArrivalFadeIn
-                    : GameLoadingCompletion.MainGameplay);
-                break;
-            case GameDataLoadRoute.SavedCheckpoint:
-                // A save continued from the file-select map: the ordinary load brings in the
-                // game in one update, then holds for the same waits as a new game.
-                if (session.SetupSelectedGame())
-                    throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
-                BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
-                    GameLoadingCompletion.GameplayFadeIn);
-                break;
-            case GameDataLoadRoute.ZebesLanding:
-                // The Zebes landing, followed by its waits. The update's
-                // own frame counts in the gameplay owner kept from Ceres.
-                session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-                session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
-                BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
-                    GameLoadingCompletion.GameplayFadeIn);
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(GameDataLoadRoute)} {session.LoadingRoute}.");
-        }
+        StepForGameDataLoadRoute[session.LoadingRoute](controllerInput);
     }
 
     /// <summary>
@@ -79,34 +98,38 @@ internal sealed class LoadingGameSequence(FrontendSession session) : IGamePhase
         session.display.PublishBlack();
     }
 
+    /// <summary>What <see cref="StepGameLoadingWait"/> does for each <see cref="GameLoadingCompletion"/> member, each member's own arm.</summary>
+    private IdentityTable<GameLoadingCompletion, Action<LoadedGameplay>> StepGameLoadingWaitForGameLoadingCompletion => field ??= new(new Dictionary<GameLoadingCompletion, Action<LoadedGameplay>>
+    {
+        [GameLoadingCompletion.CeresArrivalFadeIn] = live =>
+        {
+            session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
+            session.display.PublishBlack();
+        },
+        [GameLoadingCompletion.GameplayFadeIn] = live =>
+        {
+            session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
+            session.display.PublishBlack();
+        },
+        [GameLoadingCompletion.MainGameplay] = live =>
+        {
+            session.Enter(session.Phases.MainGameplay);
+            session.display.PublishGameplay(live);
+        },
+    });
+
     /// <summary>
     /// One loading wait: the controller is read and the display
     /// updated; nothing else runs. The last wait enters what the load completes into.
     /// </summary>
-    private void StepGameLoadingWait(ControllerButton controllerInput)
+    private void StepGameLoadingWait(ControllerButton controllerInput, LoadedGameplay live)
     {
-        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        live.Runtime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         if (!session.GameLoading.CountWait())
         {
             session.display.PublishBlack();
             return;
         }
-        switch (session.GameLoading.Completion)
-        {
-            case GameLoadingCompletion.CeresArrivalFadeIn:
-                session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
-                session.display.PublishBlack();
-                break;
-            case GameLoadingCompletion.GameplayFadeIn:
-                session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
-                session.display.PublishBlack();
-                break;
-            case GameLoadingCompletion.MainGameplay:
-                session.Enter(SuperMetroidGameState.MainGameplay);
-                session.display.PublishGameplay(session.GameplayRuntime);
-                break;
-            default:
-                throw new InvalidDataException($"Invalid game-loading completion {session.GameLoading.Completion}.");
-        }
+        StepGameLoadingWaitForGameLoadingCompletion[session.GameLoading.Completion](live);
     }
 }

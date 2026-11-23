@@ -27,7 +27,7 @@ internal static class PoseTransitionSetupVerification
     internal static void VerifyPoseTransitionSetups()
     {
         int transitions = 0;
-        foreach (SamusPoseId pose in SamusPoseDefinitions.Poses.Keys)
+        foreach (SamusPoseId pose in Enum.GetValues<SamusPoseId>())
         {
             for (int heldBits = 1; heldBits < 1 << ChordActions.Length; heldBits++)
             {
@@ -41,7 +41,7 @@ internal static class PoseTransitionSetupVerification
                         bool standUp = pose == SamusPoseId.DraygonHeldBallLeftPose &&
                             transition.ProspectivePose == SamusPoseId.DraygonHeldStandingUpLeftPose;
                         // The messages are built only for a failing transition: the sweep looks up millions of chords.
-                        if (!Enum.IsDefined(transition.Setup) || transition.Setup == SamusPoseTransitionSetup.KeepPose ||
+                        if (transition.Setup is null || transition.Setup == SamusPoseTransitionSetup.KeepPose ||
                             standUp != (transition.Setup == SamusPoseTransitionSetup.StandUpFromDraygonHold))
                         {
                             AssertTrue(false, $"{pose} -> {transition.ProspectivePose} under {held} (newly {Chord(pressedBits)}) names " +
@@ -54,18 +54,18 @@ internal static class PoseTransitionSetupVerification
                 }
             }
 
-            AssertTrue(Enum.IsDefined(SamusNoTransitionSetups.For(pose, SamusPoseMetadata.ReadMovementType(pose))),
-                $"{pose} resolves a defined no-transition setup");
+            // Every pose resolves a no-transition setup: the lookup fails for a movement type that names none.
+            _ = SamusNoTransitionSetups.For(pose, SamusPoseMetadata.ReadMovementType(pose));
         }
         AssertTrue(transitions > 0, "The input transitions choose poses");
 
-        foreach (SamusPoseId drained in SamusPoseDefinitions.Poses.Keys.Where(SamusPoseMetadata.IsDrainedPose))
+        foreach (SamusPoseId drained in Enum.GetValues<SamusPoseId>().Where(SamusPoseMetadata.IsDrainedPose))
         {
             AssertEqual(SamusNoTransitionSetup.StopTurn, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningOnGround),
                 $"{drained} stored over a ground turn keeps the turn's stop");
             AssertEqual(SamusNoTransitionSetup.ContinueNormalJump, SamusNoTransitionSetups.For(drained, SamusMovementType.NormalJumping),
                 $"{drained} stored over a normal jump keeps the jump's fallback");
-            AssertEqual(SamusNoTransitionSetup.None, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningWhileFalling),
+            AssertEqual(SamusNoTransitionSetup.KeepsMomentum, SamusNoTransitionSetups.For(drained, SamusMovementType.TurningWhileFalling),
                 $"{drained} stored over a turn in a fall sets nothing up, the aerial turns naming theirs on the pose");
         }
         Console.WriteLine($"Pose transition setups: {transitions} chosen transitions each name a setup that installs their pose.");

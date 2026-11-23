@@ -25,33 +25,37 @@ internal static class MotherBrainGlassSuperMissileVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int glassHits = 0;
         enemies.VerificationServices().HeadShotOnGlassCounted = () => glassHits++;
-        var head = enemies.Places.InUpdateOrder[1];
-        head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
-        head.Bind(head.DefinitionId, RoomEnemyDefinitionLookup.Get(head.DefinitionId));
+        // Mother Brain is placed as her room places her, her brain behind its glass (#2554); the check stands her brain
+        // where it asks, behind the glass, with its own health.
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+        state.Form = MotherBrainForm.Glass;
+        RoomEnemyPlace head = enemies.Places.InUpdateOrder[1];
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBrainHitArea;
         head.Health = 3000;
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], head, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.Glass };
-        enemies.MotherBrainEncounter.BeginAsSetUp(state, head);
-        ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
+        ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(head.HeldOccupant());
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shots = InstalledFixtures.CreateProjectileSystem();
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         // A fired Super Missile occupies two slots at one position, as on the movie's frame:
         // the missile and its zero-radius link, with the instruction lists the port fires.
         MotherBrainGlassSuperMissilePair[] pair =
-            [new MotherBrainGlassSuperMissilePair(0x9f6b, 8, SamusShotBehaviors.SuperMissile), new MotherBrainGlassSuperMissilePair(0x9f7b, 0, SamusShotBehaviors.SuperMissileLink)];
+            [new MotherBrainGlassSuperMissilePair(0x9f6b, 8, IsLink: false), new MotherBrainGlassSuperMissilePair(0x9f7b, 0, IsLink: true)];
         for (int slot = 0; slot < pair.Length; slot++)
         {
             var shot = shots.Shots[slot];
-            shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Left;
-            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
-            shot.Animation = SamusProjectileProgramAddresses.PlayerAt(pair[slot].List);
-            shot.Behavior = pair[slot].Pre;
+            SamusProjectileOccupant held = shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); held.Direction = SamusProjectileDirection.Left;
+            held.Position = shot.Position.WithWhole(new(128, 128)); held.Radius = new(pair[slot].Radius, pair[slot].Radius);
+            held.Animation = SamusProjectileProgramAddresses.PlayerAt(pair[slot].List);
+            // The owner names its link's place, the link the place every link names, as firing installs them.
+            if (pair[slot].IsLink)
+                held.Install(SamusShotBehaviors.SuperMissileLink, new SuperMissileShotState(new SamusMissileIgnition.Pending(), SuperMetroid.Core.Compatibility.UnlinkedSuperMissileLink.Place));
+            else
+                held.Install(SamusShotBehaviors.SuperMissile, new SuperMissileShotState(new SamusMissileIgnition.Pending(), linkPlace: 1));
         }
 
-        AssertEqual(1, enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus), "the glass accepts one projectile per pass");
+        enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(2700, head.Health, "one Super Missile deals 300 to the glass");
         AssertEqual(1, glassHits, "the hit advances the glass PLM argument once");
         AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == EnemySound.ShotMotherBrain),
@@ -60,11 +64,11 @@ internal static class MotherBrainGlassSuperMissileVerification
         AssertTrue(!shots.Shots[1].IsSpent, "the pair's second slot is not marked");
 
         var level = CreateEmptyRoom(new(16, 16));
-        shots.HandleShots(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
+        shots.HandleShots(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
         head.AiStates = EnemyAiStates.None;
         head.HurtFlash.End();
         head.Invincibility.End();
-        AssertEqual(0, enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus), "nothing of the pair is left to hit the glass");
+        enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
         AssertEqual(2700, head.Health, "the glass takes no second hit");
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");
     }

@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// Dead Torizo's stationary corpse pose as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class DeadTorizoAnimations
+internal static partial class DeadTorizoAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<DeadTorizoSegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -18,7 +18,7 @@ internal static class DeadTorizoAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>> StartingAt { get; } = new Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>>
+    internal static Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>> StartingAt { get; } = new Dictionary<DeadTorizoSegment, Animation<DeadTorizoSegment>>
     {
         [P.Stationary] = new([Segments.Whole(P.Stationary)], AnimationEnd.Holds),
     };

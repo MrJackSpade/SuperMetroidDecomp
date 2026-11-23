@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// The dust a dead monster raises as each of its corpse's pixel rows falls out of it (dead Sidehoppers and Tourian
 /// corpses), and the dust sound the family requests. Each corpse rots its own rows; this only raises their dust.
 /// </summary>
-[RoomLifetime]
-internal sealed class CorpseRowDust
+internal sealed partial class CorpseRowDust
 {
     /// <summary>Receives the family's dust sound, queued as the family makes it.</summary>
     private readonly EnemyAudioQueue _audio;
@@ -18,19 +17,19 @@ internal sealed class CorpseRowDust
 
     /// <summary>
     /// Spawns the dust cloud a finished corpse row raises, spread by <paramref name="random"/> across the corpse, and
-    /// queues the dust sound on every eighth enemy frame.
+    /// queues the dust sound at its cadence (<see cref="CorpseCadenceDefinitions.DustSound"/>).
     /// </summary>
     internal void Spawn(RoomEnemyPlace place, int random, EnemyProjectileEngine projectiles, int enemyPassCount)
     {
         projectiles.SpawnDustOrExplosion(
             place.Position.Whole + CorpseDustDefinitions.CloudOrigin + new Offset16<RoomPixels>(CorpseDustSpread(random), 0),
             DustExplosionAnimation.CorpseDustCloud);
-        if (CorpseCadenceDefinitions.DustSoundEveryEighthEnemyPass.IsDue(enemyPassCount))
+        if (CorpseCadenceDefinitions.DustSound.IsDue(enemyPassCount))
             _audio.QueueEnemySound(EnemySound.LiquidDamage, priority: SoundRequestPriority.Low);
     }
 
     /// <summary>How far right of its leftmost place <paramref name="random"/> spreads a corpse row's dust cloud.</summary>
     private static int CorpseDustSpread(int random) =>
-        (CorpseDustDefinitions.SpreadFineSteps.Of(random) * CorpseDustDefinitions.SpreadFineStep) +
-        (CorpseDustDefinitions.SpreadCoarseSteps.Of(random) * CorpseDustDefinitions.SpreadCoarseStep);
+        (EnemyRandomRolls.CorpseDustFineSpread.Of(random) * CorpseDustDefinitions.SpreadFineStep) +
+        (EnemyRandomRolls.CorpseDustCoarseSpread.Of(random) * CorpseDustDefinitions.SpreadCoarseStep);
 }

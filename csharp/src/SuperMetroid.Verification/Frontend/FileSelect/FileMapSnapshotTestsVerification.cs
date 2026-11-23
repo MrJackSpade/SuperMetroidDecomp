@@ -106,9 +106,9 @@ internal static class FileMapSnapshotTestsVerification
         var red = FramePaint.FromNative(ToColors(palette), []);
         palette[0] = 31 << 10;
         var blue = FramePaint.FromNative(ToColors(palette), []);
-        var child = new LayeredScene(blue, new DisplayLayer[] { new SpritesLayer([]) }, 15);
+        var child = new LayeredScene(blue, new DisplayLayer[] { new SpritesLayer([]) }, DisplayBrightness.Full);
         var window = new InsetSceneLayer(child, 127, 111, 130, 113);
-        var parent = new LayeredScene(red, new DisplayLayer[] { window }, 15);
+        var parent = new LayeredScene(red, new DisplayLayer[] { window }, DisplayBrightness.Full);
         var packet = new DisplayPacket(0, parent);
         RgbaPixel[] pixels = DisplayRendering.Render(packet);
         for (int y = 0; y < 224; y++)

@@ -21,7 +21,13 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// The setup the pose update runs when her input chooses no new pose and her pose names none
 /// (<see cref="SamusNoTransitionSetups"/>).
 /// </param>
-internal sealed record SamusMovementTypeDefinition(
+/// <param name="PoseMovement">
+/// The movement the type runs for the pose that owns Samus's movement, or none for the types whose own movers own it
+/// (the Grapple, the compact airborne poses and the special movement).
+/// </param>
+/// <param name="SilencesItemSelection">Whether selecting an item in the movement plays no item-selection sound.</param>
+/// <param name="SpinSoundEndsOnDeath">Whether dying in the movement ends its looping spin sound.</param>
+internal sealed partial record SamusMovementTypeDefinition(
     SamusMomentumResponse NoTransitionResponse,
     SamusBombJumpSetup BombJump,
     XrayPosture Xray,
@@ -29,4 +35,7 @@ internal sealed record SamusMovementTypeDefinition(
     GrappleFiringResponse GrappleFiring,
     SamusHudSelectionMode HudSelection,
     SamusKnockbackResponse Knockback,
-    SamusNoTransitionSetup NoTransitionSetup = SamusNoTransitionSetup.None);
+    SamusNoTransitionSetup NoTransitionSetup,
+    SamusPoseMovement PoseMovement,
+    bool SilencesItemSelection = false,
+    bool SpinSoundEndsOnDeath = false);

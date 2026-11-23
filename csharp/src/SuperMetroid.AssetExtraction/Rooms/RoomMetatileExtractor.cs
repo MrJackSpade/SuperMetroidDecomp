@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Exports CRE and distinct area block tables as visual composition, never collision.</summary>
-public static class RoomMetatileExtractor
+public static partial class RoomMetatileExtractor
 {
     /// <summary>Imports shared CRE and distinct room graphics-set metatile tables as visual block compositions.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying the compressed native block-definition tables.</param>
@@ -19,7 +19,7 @@ public static class RoomMetatileExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
-        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(bus);
         Add(RoomMetatileFormat.CreFileName,
             RoomTilesetSourceDefinitions.CreBlocks);
         foreach (TilesetDefinition tileset in RoomTilesets.All)
@@ -32,7 +32,7 @@ public static class RoomMetatileExtractor
 
         void Add(string name, SnesAddress source)
         {
-            byte[] native = RomDataReader.Decompress(CartridgeImportSource.Require(bus), source);
+            byte[] native = RomDataReader.Decompress(bus, source);
             int count = RoomMetatileFormat.ValidateBlockCount(native.Length);
             var blocks = new RoomMetatileDefinition[count];
             for (int index = 0; index < count; index++)

@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>
-/// How far, and which way, an angle turns each update (#2042): whole steps (256ths of a turn) with a 256th-of-a-step
-/// fraction, positive toward increasing angles and negative toward decreasing ones. Unlike a <see cref="RotationAngle"/>
+/// How far, and which way, an angle turns each update (#2042): whole steps of the turn with a fraction of a step,
+/// positive toward increasing angles and negative toward decreasing ones. Unlike a <see cref="RotationAngle"/>
 /// it does not wrap at a full turn, so a speed toward decreasing angles reads as negative steps: its whole steps round
 /// toward decreasing angles, as an enemy that steps its angle by a speed's whole steps reads them, with the fraction
 /// carrying beneath them from update to update. Its fraction is a rotation angle's, so a speed turns a rotation angle
 /// exactly. The same measure serves the change a turning speed takes each update.
 /// </summary>
-public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.Numerics.IUnaryNegationOperators<AngularSpeed, AngularSpeed>
+public readonly partial record struct AngularSpeed : IComparable<AngularSpeed>, System.Numerics.IUnaryNegationOperators<AngularSpeed, AngularSpeed>
 {
     /// <summary>Number of fractions in one step.</summary>
     private const int FractionsPerStep = 256;
@@ -16,13 +16,13 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.N
     /// <summary>The most whole steps a speed turns an update either way: half a turn.</summary>
     private const int MostWholeSteps = RotationAngle.StepsPerTurn / 2;
 
-    /// <summary>The speed of <paramref name="fractionsOfStep"/> 256ths of a step an update, within half a turn either way.</summary>
+    /// <summary>The speed of <paramref name="fractionsOfStep"/> fractions of a step an update, within half a turn
+    /// either way.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
     internal AngularSpeed(int fractionsOfStep) =>
         FractionsOfStep = Ensure.BetweenInclusive(-MostWholeSteps * FractionsPerStep, MostWholeSteps * FractionsPerStep - 1, fractionsOfStep);
 
-    /// <summary>The speed in 256ths of a step an update, -32768 through 32767: negative toward decreasing angles.</summary>
-    [IntegerQuantity("signed angular speed in 256ths of a step an update")]
+    /// <summary>The speed in fractions of a step an update: negative toward decreasing angles.</summary>
     public int FractionsOfStep { get; }
 
     /// <summary>No turning at all.</summary>
@@ -34,8 +34,8 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.N
         new(Ensure.BetweenInclusive(-MostWholeSteps, MostWholeSteps - 1, steps) * FractionsPerStep);
 
     /// <summary>
-    /// A speed of <paramref name="fractionsOfStep"/> 256ths of a step an update, -32768 through 32767: the precision a
-    /// rotation angle turns at.
+    /// A speed of <paramref name="fractionsOfStep"/> fractions of a step an update: the precision a rotation angle
+    /// turns at.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The speed turns half a turn or more an update.</exception>
     public static AngularSpeed FromFractionsOfStep(int fractionsOfStep) => new(fractionsOfStep);
@@ -62,7 +62,6 @@ public readonly record struct AngularSpeed : IComparable<AngularSpeed>, System.N
     /// The speed's whole steps, rounded toward decreasing angles: a speed of a fraction of a step toward decreasing
     /// angles reads minus one step, as an angle stepped by whole steps turns.
     /// </summary>
-    [IntegerQuantity("signed whole steps an angle turns an update")]
     public int WholeSteps
     {
         get

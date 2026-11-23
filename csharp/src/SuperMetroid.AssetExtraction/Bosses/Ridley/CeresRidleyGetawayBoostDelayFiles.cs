@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using static SuperMetroid.AssetExtraction.CartridgeTables.CeresSourceDefinitions.FloorAnimation;
 
@@ -17,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Bosses.Ridley;
 /// first word all end before that place, so a capsule-only frame leaves the delays as they were and each wing frame's
 /// delays depend on that frame alone.
 /// </summary>
-public static class CeresRidleyGetawayBoostDelayFiles
+public static partial class CeresRidleyGetawayBoostDelayFiles
 {
     /// <summary>The value a list's control byte holds after its last descriptor.</summary>
     private const int ListEnd = 0;
@@ -32,7 +33,7 @@ public static class CeresRidleyGetawayBoostDelayFiles
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         foreach (SnesAddress capsule in CapsuleFrames)
             RequireRuns(cartridge, capsule, CapsuleRunCount);
         int capsuleBytes = CapsuleRunCount * DescriptorBytes;
@@ -44,12 +45,12 @@ public static class CeresRidleyGetawayBoostDelayFiles
         return Write(new CeresRidleyGetawayBoostDelayDocument
         {
             Version = CeresRidleyGetawayBoostDelayFormat.Version,
-            WingFrames = [.. WingFrames.Select(wing =>
+            WingFrames = WingFrames.ToDictionary(wing => CeresFloorActorPictureKeys.Installed.Of(wing.Key), wing =>
             {
-                RequireRuns(cartridge, wing, WingRunCount);
+                RequireRuns(cartridge, wing.Value, WingRunCount);
                 return Enumerable.Range(0, UnauthoredBoostCadence.FrameCount)
-                    .Select(frame => (int)cartridge.ReadCartridgeByte((int)wing.AddWithinBank(wingStart + frame))).ToArray();
-            })],
+                    .Select(frame => (int)cartridge.ReadCartridgeByte((int)wing.Value.AddWithinBank(wingStart + frame))).ToArray();
+            }, StringComparer.Ordinal),
         });
     }
 
@@ -64,26 +65,27 @@ public static class CeresRidleyGetawayBoostDelayFiles
             JsonAssetDocument.Read<CeresRidleyGetawayBoostDelayDocument>(json, ArtworkJson.Options, "Ceres Ridley getaway boost delay");
         if (document.Version != CeresRidleyGetawayBoostDelayFormat.Version)
             throw new InvalidDataException($"Ceres Ridley getaway boost delays require version {CeresRidleyGetawayBoostDelayFormat.Version}.");
-        int[][] wings = Validated(Frames(document.WingFrames));
-        // The document holds the wing frames in the order the getaway's floor update lists them: raised, then lowered.
-        return new CeresRidleyGetawayBoostDelays(leftByWingsRaised: wings[0], leftByWingsLowered: wings[1]);
+        Dictionary<CeresFloorActorPicture, IReadOnlyList<int>> wings = Validated(document.WingFrames);
+        return new CeresRidleyGetawayBoostDelays(wings[CeresFloorActorPicture.WingsRaised], wings[CeresFloorActorPicture.WingsLowered]);
     }
 
     /// <summary>
-    /// Validates the installed delays: two wing frames of <see cref="UnauthoredBoostCadence.FrameCount"/> delays, each
-    /// 0 through <see cref="UnauthoredBoostCadence.LongestDelay"/> ticks.
+    /// Validates the installed delays: each wing frame's <see cref="UnauthoredBoostCadence.FrameCount"/> delays, each 0
+    /// through <see cref="UnauthoredBoostCadence.LongestDelay"/> ticks.
     /// </summary>
-    /// <param name="wings">Each wing frame's delays, by frame then running frame.</param>
-    /// <returns>A copy of the delays.</returns>
+    /// <param name="wings">Each wing frame's delays by running frame, keyed by the frame's name.</param>
+    /// <returns>A copy of the delays, keyed by wing frame.</returns>
     /// <exception cref="InvalidDataException">A frame or delay is missing, extra or out of range.</exception>
-    private static int[][] Validated(int[][] wings)
+    private static Dictionary<CeresFloorActorPicture, IReadOnlyList<int>> Validated(Dictionary<string, int[]> wings)
     {
-        if (wings.Length != CeresRidleyGetawayBoostDelayFormat.WingFrameCount)
-            throw new InvalidDataException($"Ceres Ridley's getaway needs {CeresRidleyGetawayBoostDelayFormat.WingFrameCount} wing frames' delays; found {wings.Length}.");
-        var copy = new int[CeresRidleyGetawayBoostDelayFormat.WingFrameCount][];
-        for (int frame = 0; frame < CeresRidleyGetawayBoostDelayFormat.WingFrameCount; frame++)
+        if (wings.Count != WingFrames.Count)
+            throw new InvalidDataException($"Ceres Ridley's getaway needs {WingFrames.Count} wing frames' delays; found {wings.Count}.");
+        var copy = new Dictionary<CeresFloorActorPicture, IReadOnlyList<int>>();
+        foreach (CeresFloorActorPicture frame in WingFrames.Keys)
         {
-            int[] delays = wings[frame] ?? throw new InvalidDataException($"Ceres Ridley wing frame {frame} has no delays.");
+            int[] delays = wings.TryGetValue(CeresFloorActorPictureKeys.Installed.Of(frame), out int[]? held) && held is not null
+                ? held
+                : throw new InvalidDataException($"Ceres Ridley wing frame {frame} has no delays.");
             if (delays.Length != UnauthoredBoostCadence.FrameCount)
                 throw new InvalidDataException($"Ceres Ridley wing frame {frame} needs {UnauthoredBoostCadence.FrameCount} delays; found {delays.Length}.");
             foreach (int delay in delays)
@@ -96,16 +98,11 @@ public static class CeresRidleyGetawayBoostDelayFiles
         return copy;
     }
 
-    /// <summary>The document's wing frames, which a malformed document can leave out.</summary>
-    /// <exception cref="InvalidDataException">The document names no wing frames.</exception>
-    private static int[][] Frames(int[][]? frames) =>
-        frames ?? throw new InvalidDataException("Ceres Ridley getaway boost delays name no wing frames.");
-
     /// <summary>Serializes the document as UTF-8 JSON.</summary>
     /// <param name="document">The complete delay document.</param>
     /// <returns>JSON bytes, without writing a file.</returns>
     public static byte[] Write(CeresRidleyGetawayBoostDelayDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.Ridley.CeresRidleyGetawayBoostDelayDocument>(ArtworkJson.Options));
 
     /// <summary>
     /// Where in the floor update queue the unauthored cadence's first delay lies: its stream word names a bank-$91 place

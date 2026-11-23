@@ -6,12 +6,11 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="Speed">The speed toward increasing coordinates, rightward or downward, in pixels per frame.</param>
 /// <remarks>
-/// Several jump and orbit calculations read a mark's speed at a coarser precision: <see cref="CoarseToward"/> is the
-/// speed toward a direction to a 256th of a pixel, its finer fraction dropped. Those calculations (Beetom's and the hoppers' climbs,
-/// <see cref="QuadraticCurveClimb"/>, Puyo's hop estimate, and Ki-Hunter wing orbits) choose their place along the curve by summing coarse speeds,
-/// so the coarse value is the authored rule they follow, not an approximation of the full speed.
+/// Several jump and orbit calculations choose their place along the curve by summing a mark's coarse speed
+/// (<see cref="CoarseRise"/>), the speed kept to a 256th of a pixel: Beetom's and the hoppers'
+/// climbs, <see cref="QuadraticCurveClimb"/>, Puyo's hop estimate, and Ki-Hunter wing orbits.
 /// </remarks>
-public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
+public readonly partial record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
 {
     /// <summary>The speed toward increasing coordinates: rightward or downward.</summary>
     internal SignedSixteenSixteen Positive => Speed;
@@ -28,15 +27,8 @@ public readonly record struct QuadraticCurveSpeed(SignedSixteenSixteen Speed)
     internal SignedSixteenSixteen Toward(HorizontalDirection direction) => Speed.Toward(direction);
 
     /// <summary>
-    /// The coarse speed toward <paramref name="direction"/>: the speed taken toward it, then its fraction finer than a 256th
-    /// of a pixel dropped toward decreasing coordinates, so an upward speed reads a 256th faster than a downward one
-    /// wherever it has such a fraction.
-    /// </summary>
-    internal SignedSixteenSixteen CoarseToward(VerticalDirection direction) => Toward(direction).RoundedDownToTwoFiftySixths();
-
-    /// <summary>
     /// How far the coarse speed toward increasing coordinates carries a mover in one update (#2537): the speed with its
-    /// finest fraction dropped, as <see cref="CoarseToward"/> drops it. A climb's search sums it for each place it passes
+    /// finest fraction dropped toward decreasing coordinates. A climb's search sums it for each place it passes
     /// (<see cref="QuadraticCurveClimb"/>, the Puyo's hop).
     /// </summary>
     internal SignedSixteenSixteen CoarseRise => Speed.RoundedDownToTwoFiftySixths();

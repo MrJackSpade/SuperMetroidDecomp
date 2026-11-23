@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// with the new count, and the shot's aiming routine indexes the nine-word gradient table with the count; the volley
 /// check decodes the word after the table from the cartridge and compares it with this service.
 /// </remarks>
-[CompatibilityService("Crocomire's last spit shot is aimed by the gradient read past the volley's nine")]
-public sealed class CrocomireLastShotGradient
+public sealed partial class CrocomireLastShotGradient
 {
     /// <summary>Keeps the decoded gradient.</summary>
     /// <param name="gradient">The aim's vertical component, paired with 64 pixels to the left, -32768 through 32767.</param>

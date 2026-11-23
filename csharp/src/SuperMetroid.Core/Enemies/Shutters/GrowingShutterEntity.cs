@@ -5,20 +5,39 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 /// reaction where its definition leaves shots to it.
 /// </summary>
 /// <param name="species">The Shutters species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the shutter occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : ShuttersEntity(species, place, common)
+/// <param name="settings">What the shutter's population entry tells its species.</param>
+/// <param name="state">What the enemy's setup built (#2554).</param>
+internal sealed partial class GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, GrowingShutterSpawnSettings settings, GrowingShutterEnemyState state)
+    : ShuttersEntity(species, occupant, place, common)
 {
-    /// <inheritdoc/>
-    public override void Initialize() => ShuttersBehavior.InitializeGrowingShutter(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The Shutters species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the shutter occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="settings">What the shutter's population entry tells its species.</param>
+    internal GrowingShutterEntity(ShuttersBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        GrowingShutterSpawnSettings settings)
+        : this(species, occupant, place, common, settings, ShuttersBehavior.InitializeGrowingShutter(settings, place))
+    {
+    }
+
+    /// <summary>What the shutter's population entry tells its species, which its factory checked as it built the enemy.</summary>
+    internal GrowingShutterSpawnSettings Settings { get; } = settings;
+
+    /// <summary>The shutter's state, which its setup builds as the enemy is built (#2554).</summary>
+    private readonly GrowingShutterEnemyState state = state;
 
     /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Place, frame);
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunShutterGrowingMainAi(Settings, Place, state, frame);
 
     /// <inheritdoc/>
-    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, context);
-
-    /// <summary>The destroyable shutter's shot reaction where the definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.DestroyableShutterShotReaction : base.ShotReaction;
+    public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => ShuttersBehavior.AdvanceShutterGrowingTypedAnimation(Place, state);
 }

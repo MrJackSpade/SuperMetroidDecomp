@@ -8,16 +8,16 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// into a circular BG2 tilemap (<c>$88:AFA3</c>); each visible row holds the row its sky's chunk shows at that
 /// position, so the sky is drawn from the rows directly and nothing is streamed.
 /// </summary>
-public sealed class SkyTilemap
+public sealed partial class SkyTilemap
 {
     /// <summary>Tile columns in a row; the sky repeats every 256 pixels across.</summary>
     public const int Columns = 32;
 
-    /// <summary>Rows over the 2048-pixel span the chunk positions cover before they repeat.</summary>
-    public const int Rows = 256;
+    /// <summary>Rows in one chunk: the rows of one tilemap page.</summary>
+    internal const int RowsPerChunk = RoomSkyTilemapFormat.RowsPerPage;
 
-    /// <summary>Rows in one chunk: the 32 rows of one tilemap page.</summary>
-    internal const int RowsPerChunk = 32;
+    /// <summary>Rows over the 2048-pixel span the chunk positions cover before they repeat: every chunk's rows.</summary>
+    internal const int Rows = ScrollingSkyChunks.ChunkCount * RowsPerChunk;
 
     /// <summary>The tiles of every row, row-major.</summary>
     private readonly BackgroundTile[] tiles = new BackgroundTile[Rows * Columns];

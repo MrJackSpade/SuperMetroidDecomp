@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// picture on the installed enemy sheets, and the frame displayed for each frame an enemy shows. Each pictured frame is one
 /// whole picture; hitboxes stay the game's.
 /// </summary>
-public sealed class EnemyFrameDisplays
+public sealed partial class EnemyFrameDisplays
 {
     /// <summary>Every installed frame.</summary>
     private readonly HashSet<EnemyFrameId> _frames;

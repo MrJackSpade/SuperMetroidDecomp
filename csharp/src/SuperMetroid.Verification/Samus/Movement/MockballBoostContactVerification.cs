@@ -26,10 +26,16 @@ internal static class MockballBoostContactVerification
         {
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
                 EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
-            };
-            var fixture = CreateEnemyDropFixture(samus, [1]);
+            }.InPose(pose);
+            // The enemy Samus meets is set up as its room's population sets it up (#2554), so its entity answers her touch:
+            // a stand-in whose definition gives it the ordinary touch.
+            var fixture = CreateEnemyDropFixture(samus, [1], population: [PopulationPlacementAccess.Entry(EnemyPlaceFixtures.StandIn)],
+                authored: new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
+                {
+                    [EnemyPlaceFixtures.StandIn] = EnemyDefinitionFixtures.Blank with { Touch = EnemyReaction.OrdinaryTouch },
+                });
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             RoomTerrainBlock[] blocks = new RoomTerrainBlock[32 * 8];
             for (int x = 0; x < 32; x++) blocks[4 * 32 + x] = RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock);
@@ -39,36 +45,31 @@ internal static class MockballBoostContactVerification
             speed.ExtraRunSpeed = speed.ExtraRunSpeed.WithWhole(7);
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
             var enemy = fixture.System.Places.InUpdateOrder[0];
-            enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
-            {
-                Touch = EnemyReaction.OrdinaryTouch,
-            });
             enemy.Radius = new(8, 8);
             enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight; // Contact admits only an enemy showing a frame.
             for (int frame = 0; frame < 3; frame++)
             {
                 speed.BodyAttack = SamusBodyAttack.None; // Runtime beta clears before movement.
-                SamusMorphBallMovement.StepGrounded(floor, samus, (ushort)frame, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+                SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), new RoomTerrain(floor, SamusRoomObjectFixtures.Uninstalled), samus, (ushort)frame);
                 enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
                 enemy.Health = 1000;
                 samus.InvincibilityTimer = WrappingCountdown.Start(1); // Non-attacking control cannot hurt Samus.
                 fixture.System.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
-                fixture.System.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, floor, enemy, Position16<RoomPixels>.Zero);
+                fixture.System.Collision.ResolveOrdinarySamusContact(samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, floor, enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
                 AssertEqual(500, enemy.Health, $"pose {(int)SamusPoseNumbers.Number(pose):X2} mockball frame {frame} inflicts native 500 boost damage");
                 AssertEqual(SamusBodyAttack.SpeedBooster, speed.BodyAttack, "moving ball republishes Speed Booster contact attack");
                 AssertEqual(7, speed.ExtraRunSpeed.Whole, "moving ball retains boost momentum");
             }
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
             speed.BodyAttack = SamusBodyAttack.None;
-            SamusMorphBallMovement.StepGrounded(floor, samus, 4, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), new RoomTerrain(floor, SamusRoomObjectFixtures.Uninstalled), samus, 4);
             AssertEqual(SamusBodyAttack.None, speed.BodyAttack, "sub-threshold boost does not grant a ball contact attack");
             speed.SpeedBoostCounter = new SamusSpeedBoostCounter(4, 1);
             speed.BodyAttack = SamusBodyAttack.None;
-            samus.Pose = pose == SamusPoseId.MorphBallMovingRightPose
-                ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose;
+            samus.ChangePoseKeepingAnimation(pose == SamusPoseId.MorphBallMovingRightPose
+                ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose);
             speed.AccelerationMode = SamusAccelerationMode.Accelerating;
-            SamusMorphBallMovement.StepGrounded(floor, samus, 5, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+            SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(samus), new RoomTerrain(floor, SamusRoomObjectFixtures.Uninstalled), samus, 5);
             AssertEqual(SamusBodyAttack.None, speed.BodyAttack, "stationary ball does not run the moving-ball boost publication");
             AssertEqual(new SamusSpeedBoostCounter(0, 0), speed.SpeedBoostCounter, "stopping retains native boost cancellation");
         }

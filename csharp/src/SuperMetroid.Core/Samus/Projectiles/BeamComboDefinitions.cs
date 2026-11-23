@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The special beam attacks' sizes, speeds, turns, lifetimes and sounds.</summary>
-public static class BeamComboDefinitions
+public static partial class BeamComboDefinitions
 {
     /// <summary>The Plasma special beam attack's expansion/contraction step in pixels.</summary>
     public const int PlasmaRadiusStep = 4;
@@ -58,19 +58,19 @@ public static class BeamComboDefinitions
     public static readonly SignedEightEight WaveSpeedLimit = SignedEightEight.FromPixels(8);
     /// <summary>The Wave special beam attack's per-update acceleration: a quarter of a pixel per update.</summary>
     public static readonly SignedEightEight WaveAcceleration = SignedEightEight.FromPixelFraction(1, 4);
-    /// <summary>The sound of a Wave particle's removal.</summary>
-    public static readonly SoundEffectId WaveRemovalSound = SamusSound.WaveSpecialAttackEnd;
+    /// <summary>The stop of the Wave special beam attack's sound as one of its particles is removed.</summary>
+    public static readonly SoundEffectId WaveRemovalStop = SamusSoundStop.WaveSpecialAttack;
     /// <summary>The Wave special beam attack: the sound of the oscillator's pulse.</summary>
     public static readonly SoundEffectId WavePulseSound = SamusSound.WaveSpecialAttack;
 
     /// <summary>The sound each special beam attack starts with.</summary>
-    internal static readonly IReadOnlyDictionary<SamusComboKind, SoundEffectId> ActivationSounds = new Dictionary<SamusComboKind, SoundEffectId>
+    internal static readonly IdentityTable<SamusComboKind, SoundEffectId> ActivationSounds = new(new Dictionary<SamusComboKind, SoundEffectId>
     {
         [SamusComboKind.Wave] = SamusSound.WaveSpecialAttack,
         [SamusComboKind.Ice] = SamusSound.IceSpecialAttack,
         [SamusComboKind.Spazer] = SamusSound.SpazerSpecialAttack,
         [SamusComboKind.Plasma] = SamusSound.PlasmaSpecialAttack,
-    };
+    });
 
     /// <summary>How far above Samus the Spazer special attack's particles centre their flight once they stop circling her.</summary>
     public const int SpazerFlightCentreHeight = 114;

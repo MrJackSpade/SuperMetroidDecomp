@@ -39,8 +39,9 @@ internal static class NoobTubeProjectileCueRules
                 VerificationAssertions.AssertEqual(kind, cue.Kind, $"{at}: cue");
             else
                 // Setting a routine is the cue that starts the motion that routine stands for.
-                VerificationAssertions.AssertEqual<Enum?>(StartedMotion.TryGetValue(cue.Kind, out NoobTubePieceMotion started) ? started : null,
-                    EnemyProjectileMotionAccess.FromWord(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
+                VerificationAssertions.AssertTrue(StartedMotion.TryGetValue(cue.Kind, out NoobTubePieceMotion started)
+                    ? EnemyProjectileMotionAccess.StandsFor(LittleEndianBytes.Word(operands[0], operands[1]), started)
+                    : EnemyProjectileMotionAccess.StandsForHoldingStill(LittleEndianBytes.Word(operands[0], operands[1])), $"{at}: pre-instruction");
         },
         cue => cue.Kind == NoobTubeProjectileCueKind.Delete,
         word => (NativeEnemyProjectileInstruction)word is NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker or NativeEnemyProjectileInstruction.NoobTubeShardFlicker);

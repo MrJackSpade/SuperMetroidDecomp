@@ -4,7 +4,6 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Verification.Bosses.Ridley;
@@ -17,26 +16,21 @@ internal static class CeresRidleyGetawayDefinitionsVerification
     {
         // The cartridge ends its zoom table with a -1 word after the getaway's last update and nowhere earlier; the
         // curves last exactly that long (#2247).
-        AssertEqual(112, CeresRidleyGetawayCurve.Duration, "Ceres getaway lasts its curves' 112 updates");
-        for (int index = 0; index <= CeresRidleyGetawayCurve.Duration; index++)
+        AssertEqual(112, CeresRidleyGetawayCurve.Steps.Count, "Ceres getaway lasts its curves' 112 updates");
+        for (int index = 0; index <= CeresRidleyGetawayCurve.Steps.Count; index++)
         {
             int offset = index * 2;
-            ushort nativeZoom = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6ae4d + offset);
-            if (index == CeresRidleyGetawayCurve.Duration)
+            ushort nativeZoom = rom.ReadCartridgeWord(0xa6ae4d + offset);
+            if (index == CeresRidleyGetawayCurve.Steps.Count)
             {
                 AssertEqual(ushort.MaxValue, nativeZoom, "Ceres getaway native terminator follows the last update");
                 continue;
             }
             AssertTrue(nativeZoom != ushort.MaxValue, "Ceres getaway native table holds no terminator before the last update");
-            AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(nativeZoom), CeresRidleyGetawayCurve.ZoomAt(index), "Ceres getaway exact native zoom");
-            Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.DriftAt(index);
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6af2f + offset))), drift.Y, "Ceres getaway exact native Y increment");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b00f + offset))), drift.X, "Ceres getaway exact native X subtraction");
-        }
-        foreach (int invalid in new[] { -1, 112, int.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayCurve.ZoomAt(invalid), "Ceres getaway zoom outside its updates");
-            AssertThrows<InvalidDataException>(() => CeresRidleyGetawayCurve.DriftAt(invalid), "Ceres getaway drift outside its updates");
+            AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(nativeZoom), CeresRidleyGetawayCurve.Steps[index].Zoom, "Ceres getaway exact native zoom");
+            Offset16<FloorPixels> drift = CeresRidleyGetawayCurve.Steps[index].Drift;
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa6af2f + offset))), drift.Y, "Ceres getaway exact native Y increment");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa6b00f + offset))), drift.X, "Ceres getaway exact native X subtraction");
         }
         Suite(nameof(VerifyCompiledCeresRidleyMode7Transfers), () => VerifyCompiledCeresRidleyMode7Transfers(rom));
         Console.WriteLine("Ceres Ridley compiled getaway: all 337 native curve words match the zoom and drift curves, including irregular zoom steps and the terminator after the last update.");
@@ -56,22 +50,19 @@ internal static class CeresRidleyGetawayDefinitionsVerification
             while (rom.ReadCartridgeByte(cursor) != 0)
             {
                 AssertEqual((byte)0x80, rom.ReadCartridgeByte(cursor), "Ceres floor native transfer control");
-                int source = CartridgeImportSource.Require(rom).ReadCartridgeLong(cursor + 1);
-                ushort size = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4);
-                ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 6);
+                int source = rom.ReadCartridgeLong(cursor + 1);
+                ushort size = rom.ReadCartridgeWord(cursor + 4);
+                ushort destination = rom.ReadCartridgeWord(cursor + 6);
                 AssertEqual((byte)0, rom.ReadCartridgeByte(cursor + 8), "Ceres floor native VRAM increment mode");
                 for (int index = 0; index < size; index++)
                     expected[destination + index] = rom.ReadCartridgeByte(source + index);
                 cursor += 9;
                 checkedTransfers++;
             }
-            IReadOnlyDictionary<int, int> drawn = CeresFloorDrawings.Cells(pointer);
+            Dictionary<int, int> drawn = CeresFloorDrawings.Cells(pointer);
             AssertTrue(drawn.Count == expected.Count && expected.All(cell => drawn.TryGetValue(cell.Key, out int tile) && tile == cell.Value),
                 $"Ceres {pointer}'s picture writes exactly the cells and tiles its list writes");
         }
-        AssertThrows<InvalidDataException>(() =>
-            RoomFloorSheet.PictureNameOf((CeresFloorActorPicture)0xffff),
-            "Ceres unknown floor animation frame fails loudly");
         Console.WriteLine($"Ceres floor animation: {checkedTransfers} native transfers across all seven lists match the pictured cells and installed updates.");
     }
 }

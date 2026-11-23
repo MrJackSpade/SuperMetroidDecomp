@@ -9,6 +9,6 @@ public enum CameraDistanceMode
     NormalTracking,
     /// <summary>Boss tracking, selected by Kraid and Crocomire.</summary>
     BossTracking,
-    /// <summary>Samus 32 pixels from the right edge; Crocomire selects this target mode.</summary>
+    /// <summary>Samus at the right edge's inset (<see cref="HorizontalCameraTargetDefinitions.RightEdgeInset"/>); Crocomire selects this target mode.</summary>
     RightEdge,
 }

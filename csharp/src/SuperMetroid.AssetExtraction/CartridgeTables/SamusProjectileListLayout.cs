@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// still picture, whose records are all the segment's one held beat (#2347): the place before its first record is the
 /// segment's start, and every later place is the held picture's.
 /// </summary>
-internal sealed class SamusProjectileListLayout
+internal sealed partial class SamusProjectileListLayout
 {
     /// <summary>Bytes in one timed record: its timer, spritemap, radii and animation frame.</summary>
     internal const int TimedRecordByteCount = 8;
@@ -39,7 +39,7 @@ internal sealed class SamusProjectileListLayout
     /// <param name="Entry">The list's first instruction pointer.</param>
     /// <param name="PrecedingWord">The word just before the list, which a trail spawned at the list's start reads as its animation frame.</param>
     /// <param name="RecordCount">The timed records the list stores before its goto or delete, or before the next list starts.</param>
-    internal readonly record struct ListPosition(int Entry, int PrecedingWord, int RecordCount);
+    internal readonly partial record struct ListPosition(int Entry, int PrecedingWord, int RecordCount);
 
     /// <summary>Lays every segment's places out from its list position.</summary>
     /// <param name="positions">Every segment's list entry and preceding word.</param>

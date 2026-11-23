@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Chooses how a crawling Yard's step goes on at the end of its surface or against another.</summary>
-internal static class YardTurns
+internal static partial class YardTurns
 {
     /// <summary>
     /// The step of a crawl <paramref name="crawl"/>: its turn, or, while the Yard's turns are suppressed
@@ -14,9 +14,7 @@ internal static class YardTurns
     {
         if (turnsSuppressed && YardTurnDefinitions.SuppressedCrawls.TryGetValue(crawl, out YardSuppressedCrawl suppressed))
             return new(Offset16<RoomPixels>.Zero, suppressed.WhenSurfaceEnds, suppressed.WhenSurfaceMet);
-        return YardTurnDefinitions.Turns.TryGetValue(crawl, out YardTurnDefinition turn)
-            ? new(turn.Lookahead, turn.OutsideTurnAnimation, turn.InsideTurnAnimation)
-            : throw new InvalidDataException(
-                $"Yard crawl {crawl} has no turn definition.");
+        YardTurnDefinition turn = YardTurnDefinitions.Turns[crawl];
+        return new(turn.Lookahead, turn.OutsideTurnAnimation, turn.InsideTurnAnimation);
     }
 }

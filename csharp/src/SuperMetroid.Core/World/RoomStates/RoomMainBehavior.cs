@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// room, with the state that main keeps, and the room runs it once an update; <see cref="None"/> composes nothing. Only
 /// the import oracle relates each to the original game.
 /// </summary>
-public abstract class RoomMainBehavior
+public abstract partial class RoomMainBehavior
 {
     /// <summary>Names the behaviour.</summary>
     /// <param name="name">The behaviour's name, as the room states author it.</param>
@@ -19,16 +19,15 @@ public abstract class RoomMainBehavior
     public string Name { get; }
 
     /// <summary>Has the room <paramref name="scope"/> builds compose this main, with the state it keeps.</summary>
-    /// <param name="scope">The room being loaded: its door, its state and the working value the previous room's main left.</param>
+    /// <param name="scope">The room being loaded: its door, its state and what the previous room's main left the room
+    /// mains to share.</param>
     internal abstract void Compose(RoomScopeConstruction scope);
 
     /// <inheritdoc/>
     public override string ToString() => Name;
 
     /// <summary>
-    /// No room-specific main behaviour runs: the state names no main, one that returns at once and leaves the working
-    /// value the room mains share (<see cref="RoomMainHandOvers"/>) untouched (#1787), or Ridley's room's, whose only work nothing
-    /// reads (#2287).
+    /// These rooms run no room-specific behaviour each update (#1787, #2287).
     /// </summary>
     public static RoomMainBehavior None { get; } = new NoRoomMain();
 
@@ -66,9 +65,9 @@ public abstract class RoomMainBehavior
         new EscapeRoomMain(nameof(ShakeScreenLightHorizontalAndMediumDiagonal), EscapeExplosionSite.Indoors,
             ZebesEscapeDefinitions.LightShakingTurnsMediumDiagonal);
 
-    /// <summary>Sets off a random explosion every fourth gameplay update.</summary>
-    public static RoomMainBehavior RandomExplosionEveryFourthUpdate { get; } =
-        new EscapeRoomMain(nameof(RandomExplosionEveryFourthUpdate), EscapeExplosionSite.Indoors, null);
+    /// <summary>Sets off the escape's random indoor explosions at their cadence.</summary>
+    public static RoomMainBehavior RandomEscapeExplosions { get; } =
+        new EscapeRoomMain(nameof(RandomEscapeExplosions), EscapeExplosionSite.Indoors, null);
 
     /// <summary>Alternates medium horizontal and strong diagonal shaking.</summary>
     public static RoomMainBehavior ShakeScreenMediumHorizontalAndStrongDiagonal { get; } =
@@ -82,7 +81,7 @@ public abstract class RoomMainBehavior
     public static RoomMainBehavior DachoraShaftCamera { get; } = new DachoraShaftCameraRoomMain();
 
     /// <summary>The main that runs nothing: the room composes no main.</summary>
-    private sealed class NoRoomMain() : RoomMainBehavior(nameof(None))
+    private sealed partial class NoRoomMain() : RoomMainBehavior(nameof(None))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) { }
@@ -92,23 +91,57 @@ public abstract class RoomMainBehavior
     /// A main that scrolls a sky behind the room, and for the escape's Landing Site also sets off its outdoor explosions.
     /// The sky's bands drift only where the room's effect or its setup spawns them.
     /// </summary>
-    private sealed class ScrollingSkyRoomMain(string name, ScrollingSky sky, EscapeExplosionSite? explosions)
-        : RoomMainBehavior(name)
+    private sealed partial class ScrollingSkyRoomMain
+        : RoomMainBehavior
     {
+        /// <summary>sky</summary>
+        private readonly ScrollingSky sky;
+
+        /// <summary>explosions</summary>
+        private readonly EscapeExplosionSite? explosions;
+
+        /// <summary>Creates a <see cref="ScrollingSkyRoomMain"/>.</summary>
+        /// <param name="name">name</param>
+        /// <param name="sky">sky</param>
+        /// <param name="explosions">explosions</param>
+        public ScrollingSkyRoomMain(string name, ScrollingSky sky, EscapeExplosionSite? explosions)
+            : base(name)
+        {
+            this.sky = sky;
+            this.explosions = explosions;
+        }
+
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeSkyMain(sky, explosions);
     }
 
     /// <summary>An escape room's main: its explosions, and for two rooms its shaking turning diagonal now and then.</summary>
-    private sealed class EscapeRoomMain(string name, EscapeExplosionSite site, EscapeDiagonalShaking? diagonal)
-        : RoomMainBehavior(name)
+    private sealed partial class EscapeRoomMain
+        : RoomMainBehavior
     {
+        /// <summary>site</summary>
+        private readonly EscapeExplosionSite site;
+
+        /// <summary>diagonal</summary>
+        private readonly EscapeDiagonalShaking? diagonal;
+
+        /// <summary>Creates an <see cref="EscapeRoomMain"/>.</summary>
+        /// <param name="name">name</param>
+        /// <param name="site">site</param>
+        /// <param name="diagonal">diagonal</param>
+        public EscapeRoomMain(string name, EscapeExplosionSite site, EscapeDiagonalShaking? diagonal)
+            : base(name)
+        {
+            this.site = site;
+            this.diagonal = diagonal;
+        }
+
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeEscapeMain(site, diagonal);
     }
 
     /// <summary>The Maridia elevatube's ride, which the tube's doors start.</summary>
-    private sealed class MaridiaElevatubeRoomMain() : RoomMainBehavior(nameof(MaridiaElevatube))
+    private sealed partial class MaridiaElevatubeRoomMain() : RoomMainBehavior(nameof(MaridiaElevatube))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeElevatubeMain();
@@ -118,7 +151,7 @@ public abstract class RoomMainBehavior
     /// The Ceres elevator shaft's turn and its elevator, composed only when the room is entered through the elevator
     /// door, whose room event starts the turn (#2485); entered otherwise the shaft never turns.
     /// </summary>
-    private sealed class CeresElevatorShaftRoomMain() : RoomMainBehavior(nameof(CeresElevatorShaft))
+    private sealed partial class CeresElevatorShaftRoomMain() : RoomMainBehavior(nameof(CeresElevatorShaft))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope)
@@ -129,7 +162,7 @@ public abstract class RoomMainBehavior
     }
 
     /// <summary>The Ceres pre-elevator hall's falling debris, counting down from what the previous room's main left.</summary>
-    private sealed class CeresFallingDebrisRoomMain() : RoomMainBehavior(nameof(SpawnCeresPreElevatorHallFallingDebris))
+    private sealed partial class CeresFallingDebrisRoomMain() : RoomMainBehavior(nameof(SpawnCeresPreElevatorHallFallingDebris))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeFallingDebrisMain();
@@ -139,7 +172,7 @@ public abstract class RoomMainBehavior
     /// Ceres Ridley's getaway, which his encounter runs over the arena's turning floor, composed only in the state that
     /// shows the floor; the arena after his escape shows none, and there he never flies the getaway.
     /// </summary>
-    private sealed class CeresRidleyGetawayRoomMain() : RoomMainBehavior(nameof(CeresRidleyGetaway))
+    private sealed partial class CeresRidleyGetawayRoomMain() : RoomMainBehavior(nameof(CeresRidleyGetaway))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope)
@@ -153,7 +186,7 @@ public abstract class RoomMainBehavior
     /// The Crocomire room's rumble while his death uncovers the hidden wall, composed with the room's Crocomire once the
     /// room's enemies have set him up (#2486): both of the room's states place him, his corpse in the room after his defeat.
     /// </summary>
-    private sealed class CrocomireRoomShakingRoomMain() : RoomMainBehavior(nameof(CrocomireRoomShaking)), IRoomMainOverRoomEnemies
+    private sealed partial class CrocomireRoomShakingRoomMain() : RoomMainBehavior(nameof(CrocomireRoomShaking)), IRoomMainOverRoomEnemies
     {
         /// <inheritdoc/>
         /// <remarks>The rumble acts on Crocomire, whom the room's enemies set up later in the load.</remarks>
@@ -161,13 +194,21 @@ public abstract class RoomMainBehavior
 
         /// <inheritdoc/>
         /// <exception cref="InvalidDataException">The room's enemies set up no Crocomire.</exception>
-        public void ComposeOverRoomEnemies(RoomScopeConstruction scope, RoomEnemySystem enemies) =>
-            Ensure.NotNull(scope).ComposeCrocomireRumbleMain(Ensure.NotNull(enemies).RoomMainHooks.Crocomire ??
-                throw new InvalidDataException("The Crocomire room's enemies set up no Crocomire."));
+        public void ComposeOverRoomEnemies(RoomScopeConstruction scope, RoomEnemySystem enemies)
+        {
+            Ensure.NotNull(scope);
+            // The room's load checks once that its enemies set Crocomire up, as both of its states place him.
+            if (Ensure.NotNull(enemies).RoomMainHooks.Crocomire is { } crocomire)
+            {
+                scope.ComposeCrocomireRumbleMain(crocomire);
+                return;
+            }
+            throw new InvalidDataException("The Crocomire room's enemies set up no Crocomire.");
+        }
     }
 
     /// <summary>The Dachora room's camera, moved toward its shaft while the shaft stands open.</summary>
-    private sealed class DachoraShaftCameraRoomMain() : RoomMainBehavior(nameof(DachoraShaftCamera))
+    private sealed partial class DachoraShaftCameraRoomMain() : RoomMainBehavior(nameof(DachoraShaftCamera))
     {
         /// <inheritdoc/>
         internal override void Compose(RoomScopeConstruction scope) => Ensure.NotNull(scope).ComposeDachoraShaftCameraMain();

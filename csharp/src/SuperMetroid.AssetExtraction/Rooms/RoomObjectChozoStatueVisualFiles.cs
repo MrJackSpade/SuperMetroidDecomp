@@ -1,16 +1,34 @@
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Rooms.RoomObjects;
-using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the three Chozo statue terrain frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectChozoStatueVisualFiles
+public static partial class RoomObjectChozoStatueVisualFiles
 {
+    /// <summary>
+    /// The strips both slope-access frames are written as: the ledge, the fill five rows below it, and the step below the
+    /// fill's sixth block, one row at a time.
+    /// </summary>
+    private static readonly RoomObjectShapeRun[] SlopeAccessStrips =
+    [
+        RoomObjectShapeRun.Row(new(0, 0), 14), RoomObjectShapeRun.Row(new(0, 5), 9), RoomObjectShapeRun.Row(new(5, 6), 2),
+        RoomObjectShapeRun.Row(new(5, 7), 1), RoomObjectShapeRun.Row(new(5, 8), 1),
+    ];
+
+    /// <summary>Each statue frame's strips, where each starts and how many blocks long: the cleared hand is written as its one block.</summary>
+    private static readonly Dictionary<ChozoStatueDraw, RoomObjectShapeRun[]> Strips =
+        new Dictionary<ChozoStatueDraw, RoomObjectShapeRun[]>
+        {
+            [ChozoStatueDraw.ClearSlopeAccess] = SlopeAccessStrips,
+            [ChozoStatueDraw.BlockSlopeAccess] = SlopeAccessStrips,
+            [ChozoStatueDraw.LowerNorfairClearedHand] = [RoomObjectShapeRun.Row(new(0, 0), 1)],
+        };
+
     /// <summary>JSON filename for the cleared Chozo hand and Wrecked Ship slope-access appearances.</summary>
-    public const string VisualFileName = "chozo-statues.json";
+    internal const string VisualFileName = "chozo-statues.json";
 
     /// <summary>The Chozo statue as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -26,7 +44,7 @@ public static class RoomObjectChozoStatueVisualFiles
     /// <summary>Loads the installed Chozo statue pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectChozoStatueVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
@@ -44,11 +62,15 @@ public static class RoomObjectChozoStatueVisualFiles
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the Chozo statue draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Chozo statue draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a Chozo statue draw.");
 
     /// <summary>
     /// The draw list of a statue frame as the cartridge writes it: its horizontal strips in write order, each cell
@@ -62,18 +84,8 @@ public static class RoomObjectChozoStatueVisualFiles
             list = default;
             return false;
         }
-        RoomBlockShape shape = described;
-        // The cleared hand is written as its one block. Both slope-access frames are written as the ledge, the fill five
-        // rows below it, and the step below the fill's sixth block, one row at a time.
-        Offset16<RoomBlocks>[] handStarts = [new(0, 0)];
-        int[] handCounts = [1];
-        Offset16<RoomBlocks>[] accessStarts = [new(0, 0), new(0, 5), new(5, 6), new(5, 7), new(5, 8)];
-        int[] accessCounts = [14, 9, 2, 1, 1];
-        bool hand = RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue") == ChozoStatueDraw.LowerNorfairClearedHand;
-        Offset16<RoomBlocks>[] starts = hand ? handStarts : accessStarts;
-        int[] counts = hand ? handCounts : accessCounts;
-        list = RoomObjectDrawListExport.Strips(request, starts.Length, run => counts[run],
-            (run, cell) => shape.CollisionAt(starts[run] + new Offset16<RoomBlocks>(cell, 0)), run => starts[run]);
+        list = RoomObjectDrawListExport.Runs(request, described,
+            Ensure.Listed(Strips, RoomObjectDrawIdentity.FrameOf<ChozoStatueDraw>(request, "Chozo statue")));
         return true;
     }
 

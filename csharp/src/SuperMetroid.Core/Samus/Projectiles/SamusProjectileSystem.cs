@@ -18,8 +18,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// Samus's ordinary shots in their places (see <see cref="SamusShotPool"/> for the place order).
 /// </summary>
 /// <remarks>Firing, damage and animation, and terrain movement each keep their own seam.</remarks>
-[RoomLifetime]
-public sealed class SamusProjectileSystem
+public sealed partial class SamusProjectileSystem
 {
     /// <summary>Tracks held charge, flare components, and charge glow state across room transitions.</summary>
     internal BeamChargeState Charge { get; }
@@ -127,9 +126,6 @@ public sealed class SamusProjectileSystem
     /// <summary>Each shot place's projectile, in place order: the live one, or the last one that ended there.</summary>
     public IReadOnlyList<SamusProjectile> Shots => Pool.Shots;
 
-    /// <summary>The last input-phase result, whose queued sounds the frontend routes after the frame.</summary>
-    public SamusProjectileFrameResult LastFrameResult { get; private set; }
-
     /// <summary>
     /// Shows the equipped beams' colours: the beams show the shade of the combination they select (#1512). No pictures
     /// change: each projectile shows the sheet of the beams it is pictured with (#1586), and the installed sheets are
@@ -139,38 +135,19 @@ public sealed class SamusProjectileSystem
         ShowBeamShade(colours, SamusBeamCombinations.Of(equippedBeams));
 
     /// <summary>
-    /// Shows a beam combination's shade as the beams' colours: a combination's, the glitched Chainsaw beam's, which
-    /// is Plasma and Wave's (#1736), or the Spacetime beam's (#1512).
+    /// Shows a beam combination's shade as the beams' colours: every combination the pause screen can equip, the glitched
+    /// Spazer-with-Plasma ones among them, shows one (<see cref="SamusShades.Beam"/>).
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">The combination has no shade the game can show.</exception>
-    public static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection)
-    {
-        Ensure.NotNull(colours);
-        switch (selection)
-        {
-            case ChainsawBeamGraphicsDefinitions.Selection:
-            case SpacetimeBeamGraphicsDefinitions.Selection:
-            case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
-                SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
-                SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
-                SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave:
-                colours.ShowBeams(SamusShades.Beam(selection));
-                break;
-            case SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaIceWave:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam combination has no beam shade.");
-            default:
-                throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
-        }
-    }
+    internal static void ShowBeamShade(SamusColours colours, SamusBeamCombination selection) =>
+        Ensure.NotNull(colours).ShowBeams(SamusShades.Beam(selection));
 
     /// <summary>
     /// Runs the beam charge colours on
     /// Samus's suit shade.
     /// </summary>
     /// <remarks>
-    /// This belongs to Samus's suit colouring, not charge-flare drawing. It changes
-    /// Samus's colours, which the next displayed frame shows, so the same colours
-    /// are written at this phase.
+    /// This belongs to Samus's suit colouring, not charge-flare drawing: the charge colours are written at this phase of
+    /// the update, and the next displayed frame shows them.
     /// The runtime shows the special Speed Booster, Screw Attack, Shinespark, Crystal Flash and X-ray colouring afterward,
     /// except on the update the glow ends and restores the suit: that update shows no special colouring.
     /// </remarks>
@@ -192,17 +169,17 @@ public sealed class SamusProjectileSystem
         if (Charge.ChargedShotGlow is not { } glow)
         {
             // The charge glow admits the continuously cycling charge glow only while
-            // grapple is inactive and the charge, a count that never passes its 120-update clamp or the Hyper Beam's
-            // flare, has reached 60.
+            // grapple is inactive and the charge, a count that never passes its clamp or the Hyper Beam's
+            // flare, has reached a full charge (BeamChargeDefinitions.FullyChargedCounter).
             bool chargeGlowActive =
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 Charge.HasCharged(BeamChargeDefinitions.FullyChargedCounter);
             if (chargeGlowActive)
             {
                 bool pseudoScrew = samus.HorizontalSpeed.BodyAttack == SamusBodyAttack.PseudoScrew;
-                colours.ShowSuit(Charge.PlayChargePulse(
+                Charge.PlayChargePulse(
                     pseudoScrew ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam,
-                    samus.EquippedItems.ShownSuit()));
+                    samus.EquippedItems.ShownSuit(), colours);
                 return false;
             }
 
@@ -218,10 +195,10 @@ public sealed class SamusProjectileSystem
         }
 
         // A charged shot's glow plays its sequence, painting each shade as it shows it: an ordinary shot's flash paints the
-        // yellow glow on each of its three updates; the Hyper Beam shot's glow shows each frame for two updates.
+        // yellow glow on each of its updates; the Hyper Beam shot's glow shows each frame for its hold.
         // On the update after its last shade the glow ends and the suit's own shade returns.
-        PictureShade? shown = glow.PlayUpdate();
-        if (glow.HasEnded)
+        PictureShade? shown = glow.PlayUpdate(out bool ended);
+        if (ended)
         {
             Charge.ChargedShotGlow = null;
             SamusSuitShade.Show(colours, samus.EquippedItems);
@@ -246,17 +223,16 @@ public sealed class SamusProjectileSystem
     /// a successful shot just as the game does.
     /// </param>
     /// <param name="progression">The progression a Spacetime shot's overwrite turns on and off.</param>
-    internal SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem samusBombs, SharedGameState progression)
+    internal void StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> cameraPosition, SamusBombProjectileSystem samusBombs, SharedGameState progression)
     {
         FireFromHud(terrain, samus, buttons, samusBombs, projectileProducerEnabled: true);
         HandleShots(terrain, samus, cameraPosition, samusBombs, progression);
-        return LastFrameResult;
     }
 
     /// <summary>
     /// Runs the power-beam HUD producer, the beam and missile share of Samus's HUD item step, which the game runs before it
     /// handles any projectile: the producer fires and queues its firing sound as it fires (#1620), so the sound is tested
-    /// against the power bomb as it stood before the update's bombs ran. The pass's result reports the firing sound.
+    /// against the power bomb as it stood before the update's bombs ran.
     /// </summary>
     /// <param name="terrain">The room terrain the shots collide with and react to.</param>
     /// <param name="samus">Mutable player owner supplying pose, equipment, charge, and HUD selection.</param>
@@ -269,8 +245,7 @@ public sealed class SamusProjectileSystem
         Ensure.NotNull(samus);
         Ensure.NotNull(samusBombs);
 
-        SoundEffectId? queuedSound = null;
-        SoundRequestPriority? queuedSoundPriority = null;
+        BeamFiringResult? queuedSound = null;
 
         // Her standing form's producer is selected by the live HUD item. The beam and Power Bombs
         // share the beam producer; Missiles and Super Missiles reach the missile producer. Ball poses still
@@ -305,34 +280,26 @@ public sealed class SamusProjectileSystem
                 (buttons.ControllerInput & GameplayAction.Dash) == GameplayAction.None;
             if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
-                (queuedSound, queuedSoundPriority) = Firing.HandleBeamInput(
-                    terrain.Level,
+                queuedSound = Firing.HandleBeamInput(
+                    terrain,
                     samus,
                     buttons.ControllerInput,
                     // Uncharged firing tests both current and prior new-input latches.
                     buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
-                    samusBombs,
-                    terrain.RoomObjects);
+                    samusBombs);
             }
             else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
-                queuedSound = Firing.TryFireMissile(
+                queuedSound = BeamFiringResult.Of(Firing.TryFireMissile(
                     samus,
                     buttons.ControllerNewInput,
                     buttons.ControllerPreviousNewInput,
-                    samusBombs)?.Sound;
-                if (queuedSound is not null)
-                    queuedSoundPriority = SoundRequestPriority.Normal;
+                    samusBombs)?.Sound, SoundRequestPriority.Normal);
             }
         }
         // Firing queues its sound as it fires, before any projectile moves.
         if (queuedSound is { } firingSound)
-        {
-            AudioRequests.QueueSound(firingSound,
-                queuedSoundPriority ?? throw new InvalidDataException("A projectile sound was queued without its priority."));
-        }
-
-        LastFrameResult = new SamusProjectileFrameResult(queuedSound, queuedSoundPriority);
+            AudioRequests.QueueSound(firingSound.Sound, firingSound.Priority);
     }
 
     /// <summary>
@@ -362,12 +329,16 @@ public sealed class SamusProjectileSystem
             if (shot.Playback is null)
                 continue;
 
-            shot.Behavior?.Run(new SamusShotUpdate(shot, this, terrain, samus, cameraPosition, samusBombs, progression));
+            // A projectile is given its behaviour only once it holds its place (SamusProjectile.Install).
+            if (shot.Behavior is { } behavior && shot.Occupant is { } held)
+                behavior.Run(new SamusShotUpdate(held, this, terrain, samus, cameraPosition, samusBombs, progression));
 
             // Killing a projectile replaces rather than clears a live beam. Consequently the
-            // explosion's first frame is selected in this same projectile pass.
-            if (shot.Playback is not null)
-                _ = Animation.AdvanceProjectileAnimation(shot);
+            // explosion's first frame is selected in this same projectile pass, in the animation the behaviour left. A
+            // behaviour that deleted its projectile leaves none: the game still steps its cleared place's animation, whose
+            // cleared wait runs on past its end, so it shows nothing more.
+            if (shot.Occupant is { Animation: { } animation } playing)
+                Animation.AdvanceProjectileAnimation(playing, animation);
         }
     }
 
@@ -390,7 +361,7 @@ public sealed class SamusProjectileSystem
             ChargeFlareComponents hyper = ChargeFlareComponents.HyperBeamFlare;
             foreach (ChargeFlareComponent component in hyper.DrawOrder)
             {
-                if (Charge.Flare(component).PlayBackward() && component == ChargeFlareComponent.FastSparks)
+                if (Charge.PlayHyperBeamFlareBackward(component) && component == ChargeFlareComponent.FastSparks)
                     Charge.ClearCount();
             }
             // Every component is shown, the fast spark first, even on the frame that ends the flare.
@@ -442,7 +413,8 @@ public sealed class SamusProjectileSystem
         foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
             if (!shot.IsActive ||
-                shot.Type.Family.IsBombOrExplosion)
+                shot.Occupant is not { } held ||
+                held.Type.Family.IsBombOrExplosion)
                 continue;
 
             // Unlike a bomb or an explosion, a live shot is drawn wherever it lies, offscreen included; the display clips it.
@@ -483,11 +455,11 @@ public sealed class SamusProjectileSystem
 
         foreach (SamusProjectile shot in Pool.InUpdateOrder)
         {
-            SamusProjectileFamily family = shot.Type.Family;
-            if (!shot.IsActive || family is not (
+            if (!shot.IsActive || shot.Occupant is not { } held || held.Type.Family is not (
                     SamusProjectileFamily.BeamExplosion or
                     SamusProjectileFamily.MissileExplosion))
                 continue;
+            _ = held.Type.Family;
 
             ProjectileAnimation.DrawShot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile),
                 shot, cameraPosition, artwork);
@@ -519,7 +491,6 @@ public sealed class SamusProjectileSystem
         Trails.Clear();
         Pool.ShotCount.Clear();
         Firing.InteractionImmunity = UpdateCountdown.Ended();
-        LastFrameResult = default;
     }
 
 }

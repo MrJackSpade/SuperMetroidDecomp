@@ -5,8 +5,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Reads native 64-byte bank-$A0 enemy headers during cartridge import.</summary>
-[EncodingOwner("cartridge enemy header words")]
-public static class RoomEnemyDefinitionImporter
+public static partial class RoomEnemyDefinitionImporter
 {
 
     /// <summary>The tile set the bank-$A0 header at <paramref name="headerPointer"/> names.</summary>
@@ -15,7 +14,7 @@ public static class RoomEnemyDefinitionImporter
     internal static EnemyHeaderTileSet TileSetAt(ISnesAddressSpace bus, int headerPointer)
     {
         Ensure.NotNull(bus);
-        int tileSize = ReadWord(CartridgeImportSource.Require(bus), headerPointer, 0);
+        int tileSize = ReadWord(bus, headerPointer, 0);
         return new EnemyHeaderTileSet(tileSize & EnemySourceDefinitions.EnemyHeaderTileByteCountBits);
     }
 
@@ -25,7 +24,7 @@ public static class RoomEnemyDefinitionImporter
     internal static int TileDataSourceAt(ISnesAddressSpace bus, int headerPointer)
     {
         Ensure.NotNull(bus);
-        return RomDataReader.ReadLongFixedBank(CartridgeImportSource.Require(bus), HeaderAddress(headerPointer, TileDataOffset));
+        return RomDataReader.ReadLongFixedBank(bus, HeaderAddress(headerPointer, TileDataOffset));
     }
 
     /// <summary>Header offset of the 24-bit tile data source.</summary>
@@ -37,7 +36,7 @@ public static class RoomEnemyDefinitionImporter
     internal static int PaletteAddressAt(ISnesAddressSpace bus, int headerPointer)
     {
         Ensure.NotNull(bus);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         return (int)new SnesAddress(ReadByte(cartridge, headerPointer, BankOffset), ReadWord(cartridge, headerPointer, PaletteOffset));
     }
 

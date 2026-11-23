@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// </summary>
 /// <param name="Item">The item the placement places and its presentation.</param>
 /// <param name="Collected">The item location the placement places.</param>
-internal sealed record CollectibleSetup(PermanentCollectibleObject Item, CollectibleIdentity Collected) : RoomObjectPlacementSetup
+internal sealed partial record CollectibleSetup(PermanentCollectibleObject Item, CollectibleIdentity Collected) : RoomObjectPlacementSetup
 {
+    /// <inheritdoc/>
+    internal override RoomObjectKind Kind => RoomObjectKindDefinitions.Items[Item];
+
     /// <inheritdoc/>
     internal override void SetUp(IRoomObjectFamilySetups setups) => setups.SetUpCollectible(Item, Collected);
 }

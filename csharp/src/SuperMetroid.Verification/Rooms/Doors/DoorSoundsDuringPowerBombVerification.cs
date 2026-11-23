@@ -31,13 +31,16 @@ internal static class DoorSoundsDuringPowerBombVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
         game.Step(0);
+        // A real power bomb, laid and set off through gameplay, explodes as Samus enters the door.
+        PowerBombDetonation.ExplodeThroughGameplay(runtime, buttons => game.Step(buttons));
+        runtime.Player.Samus.Control.LockOutPlayer();
 
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
@@ -46,24 +49,26 @@ internal static class DoorSoundsDuringPowerBombVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            runtime.MeetDoorBlock(block, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+            runtime.MeetDoorBlock(block, runtime.Player.Samus.Pose.ForRoomCollision());
             selected = true;
         }
         AssertTrue(selected, "Landing Site has an exit");
 
-        runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.ForceActive(true);
+        AssertTrue(runtime.Room.LoadedScope.BombProjectiles.PowerBombExplosion.IsActive, "the power bomb is still exploding as Samus enters the door");
         var audio = game.AudioForVerification;
+
         SoundRequestsMark library1 = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Samus);
         SoundRequestsMark library2 = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
-        game.Session.Enter(DoorTransitionStep.EnteringDoor);
+        // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+        game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
         game.Step(0);
 
-        AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
+        AssertEqual(new DoorTransitionPhase.Running.WaitForSoundQueues(), game.DoorTransitionPhaseForVerification,
             "the entry frame begins the door sound wait");
         AssertEqual(0, audio.SoundsQueuedSinceForVerification(library1).Count, "library one's cancel is dropped");
         AssertEqual(0, audio.SoundsQueuedSinceForVerification(library2).Count, "library two's $71 is dropped");
         game.Step(0);
-        AssertEqual(DoorTransitionPhase.FadeOutSourceRoom, game.DoorTransitionPhaseForVerification,
+        AssertEqual(new DoorTransitionPhase.Running.FadeOutSourceRoom(), game.DoorTransitionPhaseForVerification,
             "$E29E finds the rings empty on its first check");
         Console.WriteLine("  Door sounds during a power bomb: the cancels are dropped and the wait ends at once.");
     }

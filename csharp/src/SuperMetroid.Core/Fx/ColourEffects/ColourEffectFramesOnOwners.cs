@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// Samus's suit's, the escape's shutters' and each glowing enemy's. The room's and a screen's pictures take their shades
 /// from the effects' frames directly, so none of theirs is kept here.
 /// </summary>
-internal sealed class ColourEffectFramesOnOwners
+internal sealed partial class ColourEffectFramesOnOwners
 {
     /// <summary>The frames Samus's suit groups showed, in order.</summary>
     internal List<ShownColourEffectFrame> Suit { get; } = [];

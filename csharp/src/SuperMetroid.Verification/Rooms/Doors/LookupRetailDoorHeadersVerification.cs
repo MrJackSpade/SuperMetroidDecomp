@@ -1,10 +1,11 @@
-using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
+using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 
@@ -19,7 +20,7 @@ internal static class LookupRetailDoorHeadersVerification
     /// <summary>Runs the full set of focused retail door-header field comparisons.</summary>
     internal static void VerifyRetailDoorHeaders(CartridgeImportAddressSpace rom)
     {
-        Suite(nameof(VerifyDoorHeaderIdentities), () => VerifyDoorHeaderIdentities());
+        Suite(nameof(VerifyDoorHeaderIdentities), () => VerifyDoorHeaderIdentities(rom));
         Suite(nameof(VerifyDoorHeaderDestinationRoomPointer), () => VerifyDoorHeaderDestinationRoomPointer(rom));
         Suite(nameof(VerifyDoorHeaderOrientation), () => VerifyDoorHeaderOrientation(rom));
         Suite(nameof(VerifyDoorHeaderObjectX), () => VerifyDoorHeaderObjectX(rom));
@@ -48,22 +49,50 @@ internal static class LookupRetailDoorHeadersVerification
         AssertEqual(SignedEightEight.Zero, DoorSamusSpeed.None.Step(DoorDirection.Left), "no push");
     }
 
-    /// <summary>Accepts exactly the 596 physical door headers of the game and rejects pseudo-doors and interior bytes.</summary>
-    private static void VerifyDoorHeaderIdentities()
+    /// <summary>
+    /// Accepts exactly the 594 door headers the game holds, each a physical record of one of the two bank-$83 door blocks,
+    /// and rejects pseudo-doors and interior bytes. Each header selects the door stored there; a door the cartridge stored
+    /// twice (two of the Fast Pillars Setup room's door blocks lead through one door, #2574) is selected by both of its
+    /// records, which hold the same bytes, and names the first.
+    /// </summary>
+    private static void VerifyDoorHeaderIdentities(CartridgeImportAddressSpace rom)
     {
-        // Original physical record regions are independently documented in bank83. The
-        // 88FC and A18A elevator pseudo-doors are door-list entries, not headers.
-        var original = EnumerateRetailDoorPointers().ToHashSet();
-        AssertEqual(596, original.Count, "Original physical header domain");
+        // The 88FC and A18A elevator pseudo-doors are door-list entries, not headers.
+        var original = RetailDoorHeaderCatalog.EnumeratePointers().ToHashSet();
+        AssertEqual(594, original.Count, "Held door header domain");
+        foreach (ushort pointer in original)
+        {
+            int start = pointer >= DoorHeaderRomDataConstants.PostFxBlockStart
+                ? DoorHeaderRomDataConstants.PostFxBlockStart
+                : DoorHeaderRomDataConstants.PreFxBlockStart;
+            int end = pointer >= DoorHeaderRomDataConstants.PostFxBlockStart
+                ? DoorHeaderRomDataConstants.PostFxBlockEnd
+                : DoorHeaderRomDataConstants.PreFxBlockEnd;
+            AssertTrue(pointer >= start && pointer <= end && (pointer - start) % DoorHeaderRomDataConstants.RecordByteCount == 0,
+                $"Held door {pointer:X4} is a physical record of a bank-$83 door block");
+        }
+        var storedTwice = new List<ushort>();
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             ushort pointer = (ushort)value;
             if (original.Contains(pointer))
-                AssertEqual(pointer, DoorDefinitions.Get(pointer).Pointer, "Selected door identity");
+            {
+                ushort stored = DoorDefinitions.Get(pointer).Pointer;
+                if (stored != pointer)
+                {
+                    AssertTrue(stored < pointer && original.Contains(stored), $"Door {pointer:X4} names an earlier record of its door");
+                    for (int offset = 0; offset < DoorHeaderRomDataConstants.RecordByteCount; offset++)
+                        AssertEqual(rom.ReadCartridgeByte((0x830000 | stored) + offset), rom.ReadCartridgeByte((0x830000 | pointer) + offset),
+                            $"Door {pointer:X4} stores the record of the door it names at {stored:X4}, byte {offset}");
+                    storedTwice.Add(pointer);
+                }
+                AssertEqual(stored, DoorDefinitions.Get(stored).Pointer, "Selected door identity");
+            }
             else
                 AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Get(pointer),
                     $"Non-door identity {pointer:X4}, including interiors and FX data, rejects");
         }
+        AssertSequenceEqual(new ushort[] { 0x98fa }, storedTwice, "The one door record the cartridge stores twice");
     }
 
     /// <summary>Matches each door's two-byte destination room pointer at record offset zero.</summary>
@@ -73,9 +102,9 @@ internal static class LookupRetailDoorHeadersVerification
     private static void VerifyDoorHeaderOrientation(CartridgeImportAddressSpace rom) =>
         VerifyDoorHeaderField(rom, 3, 1, raw => DoorRecordCodec.DecodeOrientation(checked((byte)raw)), header => header.Orientation);
     /// <summary>Matches the door PLM's horizontal block coordinate at offset four.</summary>
-    private static void VerifyDoorHeaderObjectX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.RoomObjectBlock.X);
+    private static void VerifyDoorHeaderObjectX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 4, 1, raw => raw, header => header.RoomObjectBlock?.X ?? 0);
     /// <summary>Matches the door PLM's vertical block coordinate at offset five.</summary>
-    private static void VerifyDoorHeaderObjectY(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.RoomObjectBlock.Y);
+    private static void VerifyDoorHeaderObjectY(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 5, 1, raw => raw, header => header.RoomObjectBlock?.Y ?? 0);
     /// <summary>Matches the destination screen's horizontal coordinate at offset six.</summary>
     private static void VerifyDoorHeaderDestinationScreenX(CartridgeImportAddressSpace rom) => VerifyDoorHeaderField<int>(rom, 6, 1, raw => raw, header => header.DestinationScreen.X);
     /// <summary>Matches the destination screen's vertical coordinate at offset seven.</summary>
@@ -92,7 +121,7 @@ internal static class LookupRetailDoorHeadersVerification
     {
         VerifyDoorHeaderField(rom, 10, 2,
             raw => DoorIdentityWords.SetupRoutines.Decode(checked((ushort)raw), "door setup routine"), header => header.Setup);
-        foreach (ushort pointer in EnumerateRetailDoorPointers())
+        foreach (ushort pointer in RetailDoorHeaderCatalog.EnumeratePointers())
         {
             DoorDefinition door = DoorDefinitions.Get(pointer);
             AssertEqual(door.Setup == DoorSetupDefinitions.CeresElevatorShowsTurningFloor,
@@ -105,7 +134,7 @@ internal static class LookupRetailDoorHeadersVerification
     private static void VerifyDoorHeaderField<T>(CartridgeImportAddressSpace rom, int offset, int width,
         Func<int, T> decode, Func<DoorDefinition, T> field)
     {
-        foreach (ushort pointer in EnumerateRetailDoorPointers())
+        foreach (ushort pointer in RetailDoorHeaderCatalog.EnumeratePointers())
         {
             int address = (0x830000 | pointer) + offset;
             int raw = DoorHeaderFieldRomByte(rom, address);
@@ -116,5 +145,5 @@ internal static class LookupRetailDoorHeadersVerification
     }
 
     /// <summary>Reads one original door-header byte for field-level comparison.</summary>
-    private static byte DoorHeaderFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte DoorHeaderFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

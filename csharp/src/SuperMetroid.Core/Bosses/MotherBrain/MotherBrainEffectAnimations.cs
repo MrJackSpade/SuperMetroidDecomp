@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Mother Brain's onion-ring, bomb, rainbow-charge, drool, escape-door, purple-breath and subtitle animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="MotherBrainEffectCue"/> with the values it acts on.
 /// </summary>
-internal static class MotherBrainEffectAnimations
+internal static partial class MotherBrainEffectAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(
-        new Dictionary<MotherBrainEffectSegment, AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>[]>
+    internal static UnpausedAnimationSegments<MotherBrainEffectSegment, EnemyProjectileFrameId, MotherBrainEffectCue> Segments { get; } = new(
+        new Dictionary<MotherBrainEffectSegment, AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Unpaused[]>
     {
         [P.OnionRing] =
         [
@@ -127,27 +127,20 @@ internal static class MotherBrainEffectAnimations
         ],
     });
 
-    /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> StartingAt { get; } = new Dictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>>
-    {
-        [P.OnionRing] = new([Segments.Whole(P.OnionRing)], AnimationEnd.Holds),
-        [P.OnionRingHit] = new([Segments.Whole(P.OnionRingHit)], AnimationEnd.Holds),
-        [P.Bomb] = Animation<MotherBrainEffectSegment>.Looping([Segments.Whole(P.Bomb)]),
-        [P.RainbowBeamCharging] = new([Segments.Whole(P.RainbowBeamCharging)], AnimationEnd.Holds),
-        [P.Drool] = new([Segments.Whole(P.Drool)], AnimationEnd.Holds),
-        [P.DroolHitFloor] = new([Segments.Whole(P.DroolHitFloor)], AnimationEnd.Holds),
-        [P.EscapeDoorParticle] = Animation<MotherBrainEffectSegment>.Looping([Segments.Whole(P.EscapeDoorParticle)]),
-        [P.PurpleBreathBig] = new([Segments.Whole(P.PurpleBreathBig)], AnimationEnd.Holds),
-        [P.PurpleBreathSmall] = new([Segments.Whole(P.PurpleBreathSmall)], AnimationEnd.Holds),
-        [P.EscapeSubtitle] = new([Segments.Whole(P.EscapeSubtitle)], AnimationEnd.Holds),
-    };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<MotherBrainEffectSegment> StartingWith(MotherBrainEffectSegment segment) => StartingAt[segment];
+    /// <summary>
+    /// The animation that starts at each segment an owner can start or restart at (#2557): each effect that plays once holds its
+    /// last picture, and the bomb and the escape door's particles loop.
+    /// </summary>
+    internal static IReadOnlyDictionary<MotherBrainEffectSegment, Animation<MotherBrainEffectSegment>> StartingAt { get; } =
+        new[] { P.OnionRing, P.OnionRingHit, P.RainbowBeamCharging, P.Drool, P.DroolHitFloor, P.PurpleBreathBig, P.PurpleBreathSmall, P.EscapeSubtitle }
+            .Select(segment => KeyValuePair.Create(segment, new Animation<MotherBrainEffectSegment>([Segments.Whole(segment)], AnimationEnd.Holds)))
+            .Concat(new[] { P.Bomb, P.EscapeDoorParticle }
+                .Select(segment => KeyValuePair.Create(segment, Animation<MotherBrainEffectSegment>.Looping([Segments.Whole(segment)]))))
+            .ToDictionary();
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue> Cue(MotherBrainEffectCue cue) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Unpaused Cue(MotherBrainEffectCue cue) => new AnimationBeat<EnemyProjectileFrameId, MotherBrainEffectCue>.Event(cue);
 }

@@ -9,19 +9,13 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// the pictures use. A picture painted for one sheet and laid on this one is drawn as it was, because the colouring agrees
 /// with its own sheet's over those groups.
 /// </summary>
-internal sealed class PictureSheetLayout
+internal sealed partial class PictureSheetLayout
 {
-    /// <summary>The pictures in order, each with the frame names that show it.</summary>
-    private readonly NamedSheetPicture[] pictures;
+    /// <summary>The pictures in order, each with the frame names that show it and the rectangle it is laid in.</summary>
+    private readonly LaidSheetPicture[] pictures;
 
-    /// <summary>Each distinct rectangle the pictures paint, in the order a picture first paints it.</summary>
-    private readonly SheetPicture[] laid;
-
-    /// <summary>Each picture's rectangle, by its place among <see cref="laid"/>.</summary>
-    private readonly int[] rectangles;
-
-    /// <summary>Each rectangle's top-left corner on the sheet.</summary>
-    private readonly Position16<ImagePixels>[] corners;
+    /// <summary>Each distinct rectangle the pictures paint, in the order a picture first paints it, where it lies on the sheet.</summary>
+    private readonly IReadOnlyList<PackedPicture<SheetPicture>> laid;
 
     /// <summary>The colouring the sheet installs.</summary>
     private readonly SheetPictureColouring colouring;
@@ -50,26 +44,16 @@ internal sealed class PictureSheetLayout
             if (ImageColourGroup.Every.Any(group => picture.Picture.Rows.Contains(group) && !colouring.Groups.Contains(group)))
                 throw new InvalidDataException($"Sheet {sheet}'s colouring leaves out a colour group frame {picture.Names[0]} uses.");
         }
-        this.pictures = pictures;
         // Pictures painting the same rectangle are laid once there, each frame keeping its own origin, colour groups and
         // depth (#1513).
-        var rectangleOf = new Dictionary<string, int>(StringComparer.Ordinal);
-        var distinct = new List<SheetPicture>();
-        rectangles = new int[pictures.Length];
-        for (int index = 0; index < pictures.Length; index++)
-        {
-            SheetPicture picture = pictures[index].Picture;
-            if (!rectangleOf.TryGetValue(picture.Pixels, out int rectangle))
-            {
-                rectangle = distinct.Count;
-                rectangleOf.Add(picture.Pixels, rectangle);
-                distinct.Add(picture);
-            }
-            rectangles[index] = rectangle;
-        }
-        laid = [.. distinct];
-        corners = new Position16<ImagePixels>[laid.Length];
-        Size = SheetPacking.Pack([.. laid.Select(picture => picture.Size)], corners, $"Sheet {sheet}'s {laid.Length} pictures");
+        var distinct = new Dictionary<string, SheetPicture>(StringComparer.Ordinal);
+        foreach (NamedSheetPicture picture in pictures)
+            distinct.TryAdd(picture.Picture.Pixels, picture.Picture);
+        PackedSheet<SheetPicture> packed = SheetPacking.Pack([.. distinct.Values], picture => picture.Size, $"Sheet {sheet}'s {distinct.Count} pictures");
+        Dictionary<string, PackedPicture<SheetPicture>> rectangleOf = packed.Pictures.ToDictionary(placed => placed.Picture.Pixels, StringComparer.Ordinal);
+        this.pictures = [.. pictures.Select(picture => new LaidSheetPicture(picture, rectangleOf[picture.Picture.Pixels]))];
+        laid = packed.Pictures;
+        Size = packed.Size;
     }
 
     /// <summary>The sheet's width and height.</summary>
@@ -81,19 +65,24 @@ internal sealed class PictureSheetLayout
     /// </summary>
     internal SpriteSheetDocument Paint(SpriteSheetPlanes planes)
     {
-        for (int rectangle = 0; rectangle < laid.Length; rectangle++)
-            laid[rectangle].Paint(planes, corners[rectangle]);
+        foreach (PackedPicture<SheetPicture> rectangle in laid)
+            rectangle.Picture.Paint(planes, rectangle.Corner);
         var frames = new Dictionary<string, SpriteSheetFrameDocument>(StringComparer.Ordinal);
-        for (int index = 0; index < pictures.Length; index++)
+        foreach (LaidSheetPicture picture in pictures)
         {
-            SpriteSheetFrameDocument document = pictures[index].Picture.Document(corners[rectangles[index]]);
-            foreach (string name in pictures[index].Names)
+            SpriteSheetFrameDocument document = picture.Named.Picture.Document(picture.Rectangle.Corner);
+            foreach (string name in picture.Named.Names)
                 frames.Add(name, document);
         }
         return new SpriteSheetDocument
         {
-            Palette = SpriteImageColours.Sprite, Colours = colouring.ColourWords(), PaletteBits = colouring.PaletteBits,
+            Palette = SpriteImageColours.Sprite, Colours = colouring.Colours(), PaletteBits = colouring.PaletteBits,
             Frames = frames, Shades = colouring.ShadeDocuments(),
         };
     }
+
+    /// <summary>One of the sheet's pictures with the rectangle it is laid in, which pictures painting alike share.</summary>
+    /// <param name="Named">The picture with the frame names that show it.</param>
+    /// <param name="Rectangle">The rectangle its pixels are painted in.</param>
+    private sealed partial record LaidSheetPicture(NamedSheetPicture Named, PackedPicture<SheetPicture> Rectangle);
 }

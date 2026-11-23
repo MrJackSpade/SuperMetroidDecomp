@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// #1549), for the native-snapshot import and the checks that compare enemy slots with native memory. The states'
 /// values are arbitrary: each one's word bit is named here, and every conversion walks this table bit by bit.
 /// </summary>
-[EncodingOwner("enemy AI-state word")]
 internal static class EnemyAiStatesWordCodec
 {
     /// <summary>Each state's bit in the AI-handler word.</summary>

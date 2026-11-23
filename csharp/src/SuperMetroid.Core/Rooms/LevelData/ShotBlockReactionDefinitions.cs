@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>The shootable reactions the shot-block response handles, and what it does with each.</summary>
-public static class ShotBlockReactionDefinitions
+public static partial class ShotBlockReactionDefinitions
 {
     /// <summary>
     /// What the shot-block response does with each shootable reaction it handles: the respawning and permanent breaks of every size,

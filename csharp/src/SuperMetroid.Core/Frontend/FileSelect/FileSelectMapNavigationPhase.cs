@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
-/// <summary>Exclusive navigation phases; these names are not the game's own phases.</summary>
+/// <summary>The steps of moving between the area map and the room map.</summary>
 public enum FileSelectMapNavigationPhase
 {
     /// <summary>Accepts area-map confirm or cancel edges.</summary>
@@ -19,6 +19,4 @@ public enum FileSelectMapNavigationPhase
     OptionsRequested,
     /// <summary>Requests loading the selected save file.</summary>
     LoadRequested,
-    /// <summary>Represents the frontend-owned transition into an area map.</summary>
-    EnteringArea,
 }

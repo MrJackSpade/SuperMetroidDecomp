@@ -15,7 +15,7 @@ internal static class EndingFontAtlasAccess
             if (planar.Length != EndingFontAtlasFormat.ByteCount)
                 throw new InvalidDataException(
                     $"Ending font contains {planar.Length} planar bytes; expected {EndingFontAtlasFormat.ByteCount}.");
-            return new EndingFontCharacters(planar.ToArray());
+            return new global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontCharacters(planar.ToArray());
         }
     }
 }

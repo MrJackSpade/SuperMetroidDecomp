@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// characters the import pictures the HUD's images, the pause HUD plane and the BG3 sheets from. The game never reads
 /// them.
 /// </summary>
-public sealed class HudTileAtlas
+public sealed partial class HudTileAtlas
 {
     /// <summary>Contiguous HUD characters followed by the zero-filled half that clears BG2's words.</summary>
     private readonly byte[] bytes;

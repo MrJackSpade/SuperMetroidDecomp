@@ -60,7 +60,7 @@ internal static class PaletteFxNativeProgramOracle
             ? [.. Enum.GetValues<ColourEffectHeatSuit>().Select(suit => new PaletteFxTypedAnimation(ColourEffectHeatAnimations.Pulse(suit),
                 ColourEffectHeatAnimations.Shimmer(suit),
                 PaletteFxNativeListAddresses.Entry(ColourEffectHeatAnimations.Pulse(suit))))]
-            : [new PaletteFxTypedAnimation(effect, definition.Animation, PaletteFxNativeListAddresses.Entry(effect))];
+            : [new PaletteFxTypedAnimation(effect, ColourEffectAnimations.Definition(effect).Frames.Played, PaletteFxNativeListAddresses.Entry(effect))];
     }
 
     /// <summary>
@@ -248,7 +248,7 @@ internal static class PaletteFxNativeProgramOracle
                         $"{at}: record address in {place.Effect}");
                 }
                 addresses.Add(cursor);
-                cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(record), at);
+                cursor = CompareLayout(cursor, SuperMetroid.AssetExtraction.Fx.PaletteFx.PaletteFxRecords.Layout(record), at);
                 continue;
             }
             PaletteFxInstruction instruction = (PaletteFxInstruction)word;
@@ -302,7 +302,7 @@ internal static class PaletteFxNativeProgramOracle
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:
-                    AssertEvent(beat, new ColourEffectCue.QueueSound(Sound: SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operandByte)), at);
+                    AssertEvent(beat, new ColourEffectCue.QueueSound(Sound: SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, operandByte)), at);
                     addresses.Add(cursor);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;

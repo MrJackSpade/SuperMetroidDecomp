@@ -5,44 +5,64 @@ namespace SuperMetroid.Core.Fx.ColourEffects;
 /// names the condition (<see cref="ColourEffectDefinition"/>); the effect watches it from the update after it shows its
 /// first frame until it ends.
 /// </summary>
-public abstract record ColourEffectCondition
+public abstract partial record ColourEffectCondition
 {
     /// <summary>Closes the hierarchy to the conditions declared here.</summary>
     private ColourEffectCondition()
     {
     }
 
+    /// <summary>Carries out the reaction <paramref name="reactions"/> has to this colour effect condition, through the case it is.</summary>
+    /// <param name="reactions">What its owner does on each case.</param>
+    /// <typeparam name="TContext">What the case's reaction reads besides the case.</typeparam>
+    /// <param name="context">What the case's reaction reads besides the case, handed to it so the cases are built once.</param>
+    internal abstract void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context);
+
+
     /// <summary>
     /// The effect watches nothing (#2544): the condition of an effect whose definition names none, and of every effect before
     /// it shows its first frame.
     /// </summary>
-    public sealed record WatchesNothing : ColourEffectCondition
+    public sealed partial record WatchesNothing : ColourEffectCondition
     {
+        /// <inheritdoc/>
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).WatchesNothing(this, context);
+
         /// <summary>The one condition.</summary>
         public static WatchesNothing Instance { get; } = new();
     }
 
     /// <summary>
-    /// While Samus stands higher in the room than <see cref="Height"/>, the effect restarts its cycle, the phase its
-    /// animation loops from, on every update, so it shows the cycle's first frame each update instead of its flashes: the
-    /// Crateria lightning stays calm while Samus is high on the surface.
+    /// While Samus stands higher in the room than <see cref="Height"/>, the effect restarts its animation on every update, so
+    /// it shows its first frame, the calm the lightning loops from, each update instead of its flashes: the Crateria
+    /// lightning stays calm while Samus is high on the surface.
     /// </summary>
     /// <param name="Height">The room height, in whole pixels, Samus must be above.</param>
-    public sealed record RestartsWhileSamusIsHigh(int Height) : ColourEffectCondition;
+    public sealed partial record RestartsWhileSamusIsHigh(int Height) : ColourEffectCondition
+    {
+        /// <inheritdoc/>
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).RestartsWhileSamusIsHigh(this, context);
+    }
 
     /// <summary>
     /// The effect ends on the first update the Torizo whose belly it lights (<see cref="ILitTorizo"/>), the Torizo whose
     /// fight start started it, has no health left.
     /// </summary>
-    public sealed record EndsWhenTorizoDies : ColourEffectCondition
+    public sealed partial record EndsWhenTorizoDies : ColourEffectCondition
     {
+        /// <inheritdoc/>
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EndsWhenTorizoDies(this, context);
+
         /// <summary>The one condition.</summary>
         public static EndsWhenTorizoDies Instance { get; } = new();
     }
 
     /// <summary>The effect ends on the first update the area's mini-boss is recorded dead: Spore Spawn's spores.</summary>
-    public sealed record EndsWhenAreaMiniBossDies : ColourEffectCondition
+    public sealed partial record EndsWhenAreaMiniBossDies : ColourEffectCondition
     {
+        /// <inheritdoc/>
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).EndsWhenAreaMiniBossDies(this, context);
+
         /// <summary>The one condition.</summary>
         public static EndsWhenAreaMiniBossDies Instance { get; } = new();
     }
@@ -51,8 +71,11 @@ public abstract record ColourEffectCondition
     /// Samus's heat shimmer: each update the heat burns a Samus without a heat-protecting suit, and the shimmer restarts
     /// on the heat phase the Norfair glow published when it changed.
     /// </summary>
-    public sealed record BurnsSamusInHeat : ColourEffectCondition
+    public sealed partial record BurnsSamusInHeat : ColourEffectCondition
     {
+        /// <inheritdoc/>
+        internal override void React<TContext>(ColourEffectConditionReactions<TContext> reactions, TContext context) => Ensure.NotNull(reactions).BurnsSamusInHeat(this, context);
+
         /// <summary>The one condition.</summary>
         public static BurnsSamusInHeat Instance { get; } = new();
     }

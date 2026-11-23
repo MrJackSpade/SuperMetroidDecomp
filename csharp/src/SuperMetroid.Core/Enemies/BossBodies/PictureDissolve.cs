@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// pixel no step erases. The dissolve shows in bands, each band showing the steps taken when it was last shown, so at any
 /// moment the picture hides each pixel whose band has shown the steps that erase it. Crocomire's melt images dissolve so.
 /// </summary>
-public sealed class PictureDissolve
+public sealed partial class PictureDissolve
 {
     /// <summary>The dissolve of a picture of <paramref name="size"/>: <paramref name="pixels"/>, in reading order.</summary>
     /// <exception cref="ArgumentException">

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -8,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Extracts only BGR555 payloads selected by the compiled room-flash program.</summary>
-internal static class MotherBrainRoomColorExtractor
+internal static partial class MotherBrainRoomColorExtractor
 {
     /// <summary>Locates the palette operand of room-flash frame <paramref name="index"/> in the cartridge's flash list.</summary>
     internal static ushort FlashPaletteOperandAddress(int index) =>
@@ -27,7 +29,7 @@ internal static class MotherBrainRoomColorExtractor
         {
             int pointerAddress = MotherBrainSourceDefinitions.RoomColors.FlashBank |
                 FlashPaletteOperandAddress(index);
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAddress);
+            int pointer = bus.ReadCartridgeWord(pointerAddress);
             if (pointer == 0)
                 throw new InvalidDataException($"Mother Brain room-flash row {index} has no palette pointer.");
             flash[index] = ReadColors(MotherBrainSourceDefinitions.RoomColors.FlashBank | pointer,
@@ -61,13 +63,8 @@ internal static class MotherBrainRoomColorExtractor
             var colors = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
-                int word = CartridgeImportSource.Require(bus).ReadCartridgeWord((source + index * sizeof(ushort)));
-                colors[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                int word = bus.ReadCartridgeWord((source + index * sizeof(ushort)));
+                colors[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return colors;
         }

@@ -29,8 +29,8 @@ internal static class BossShadeColours
     {
         ArgumentNullException.ThrowIfNull(colours);
         SheetShade found = made.Single(candidate => candidate.Shade == shade);
-        for (int index = 0; index < found.Inks.Length; index++)
-            colours[offset + found.Inks[index]] = found.Colours[index].ToWord();
+        foreach ((int ink, RgbColor colour) in found.InkColours)
+            colours[offset + ink] = colour.ToWord();
         return colours;
     }
 

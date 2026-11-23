@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// by role (#1768); the installation is their only source (#1596). Their animations, movement and drift round the drift loop are
 /// the game's own.
 /// </summary>
-public sealed class CeresDestructionActorPlacements
+public sealed partial class CeresDestructionActorPlacements
 {
     /// <summary>The installed placements, by role.</summary>
     internal readonly Dictionary<CeresDestructionActorRole, CeresDestructionActorPlacement> placements;

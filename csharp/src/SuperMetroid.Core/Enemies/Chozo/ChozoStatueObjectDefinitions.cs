@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The authored draws and timing of the terrain changes the two Chozo statues' room objects make.</summary>
-internal static class ChozoStatueObjectDefinitions
+internal static partial class ChozoStatueObjectDefinitions
 {
     /// <summary>What the Lower Norfair hand draws once the acid is lowered.</summary>
     internal static RoomObjectDraw LoweredHand => ChozoStatueDraws.Family.Of(ChozoStatueDraw.LowerNorfairClearedHand);
@@ -20,11 +20,5 @@ internal static class ChozoStatueObjectDefinitions
         TerrainChange.DrawnOnce(ChozoStatueDraws.Family.Of(ChozoStatueDraw.BlockSlopeAccess));
 
     /// <summary>The Lower Norfair plug crumbling: a one-block breakup whose last image, the cleared block, shows for one update.</summary>
-    internal static TerrainChange CrumblePlug { get; } = new(1,
-    [
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Rock), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Pieces), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Dust), ScriptedTerrainChangeDefinitions.BreakupFrameDuration),
-        new(ShotBlockObjectDraws.Breakup(BlockArrangement.Single, BlockBreakupStage.Gone), 1),
-    ]);
+    internal static TerrainChange CrumblePlug { get; } = ScriptedTerrainChangeDefinitions.SingleBlockBreakup(sound: null, SoundRequestPriority.Normal);
 }

@@ -16,10 +16,10 @@ namespace SuperMetroid.AssetExtraction.Installation;
 /// (#2031), which names the sheets (#1693), and the dissolve map of each picture a dissolve erases, apart from the pictures
 /// (<see cref="BossBodyDissolveMapFile"/>, #2478). A player edits a sheet's installed files in place.
 /// </summary>
-public static class BossBodySheetFiles
+public static partial class BossBodySheetFiles
 {
     /// <summary>The manifest naming each boss's frames.</summary>
-    public const string ManifestFileName = "boss-bodies.json";
+    internal const string ManifestFileName = "boss-bodies.json";
 
     /// <summary>
     /// The manifest's schema revision: 6 names each frame's one whole picture, where it lies on the body's area and the
@@ -55,10 +55,10 @@ public static class BossBodySheetFiles
         Ensure.NotNull(sheets);
         Directory.CreateDirectory(directory);
         var dissolves = new List<KeyValuePair<string, PictureDissolve>>();
-        var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => BossBodyOwnerKeys.Installed.Of(sheet.Owner), sheet => (SheetDocument?)new SheetDocument(
-            sheet.Frames.ToDictionary(frame => frame.Key, frame => (FrameDocument?)Document(sheet.Owner, frame.Key, frame.Value, dissolves), StringComparer.Ordinal)),
+        var manifest = new Manifest(ManifestVersion, sheets.ToDictionary(sheet => BossBodyOwnerKeys.Installed.Of(sheet.Owner), sheet => new SheetDocument(
+            sheet.Frames.ToDictionary(frame => frame.Key, frame => Document(sheet.Owner, frame.Key, frame.Value, dissolves), StringComparer.Ordinal)),
             StringComparer.Ordinal));
-        File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, JsonOptions));
+        File.WriteAllBytes(Path.Combine(directory, ManifestFileName), JsonSerializer.SerializeToUtf8Bytes(manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.Manifest>(JsonOptions)));
         string content = ContentOf(directory);
         Directory.CreateDirectory(Path.Combine(content, GameInstallationLayout.DissolveMapDirectoryName));
         File.WriteAllBytes(BossBodyDissolveMapFile.PathIn(content), BossBodyDissolveMapFile.Encode(dissolves));
@@ -76,9 +76,9 @@ public static class BossBodySheetFiles
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         string manifestPath = Path.Combine(directory, ManifestFileName);
-        Manifest manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), JsonOptions)
+        Manifest manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Installation.BossBodySheetFiles.Manifest>(JsonOptions))
             ?? throw new InvalidDataException($"Boss body manifest {manifestPath} is empty.");
-        if (manifest.Version != ManifestVersion || manifest.Sheets is null)
+        if (manifest.Version != ManifestVersion)
             throw new InvalidDataException($"Boss body manifest {manifestPath} is not revision {ManifestVersion}.");
         SpriteSheetStore store = SpriteSheetStore.Open(directory);
         string dissolveMapsPath = BossBodyDissolveMapFile.PathIn(ContentOf(directory));
@@ -87,11 +87,10 @@ public static class BossBodySheetFiles
         {
             BossBodyOwner owner = BossBodyOwnerKeys.Installed.TryParse(entry.Key, out BossBodyOwner parsed) ? parsed
                 : throw new InvalidDataException($"Boss body manifest {manifestPath} names unknown boss {entry.Key}.");
-            SheetDocument document = entry.Value ?? throw new InvalidDataException($"Boss body manifest {manifestPath} has no sheet for {owner}.");
+            SheetDocument document = entry.Value;
             SpriteSheet sheet = store.Read(BossBodySheetComposer.SheetNameOf(owner));
             return new BossBodySheet(owner, sheet,
-                (document.Frames ?? throw new InvalidDataException($"Boss body manifest {manifestPath} lists no frames for {owner}."))
-                    .Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath, dissolves)));
+                document.Frames.Select(frame => Frame(sheet, frame.Key, frame.Value, manifestPath, dissolves)));
         })];
     }
 
@@ -117,7 +116,7 @@ public static class BossBodySheetFiles
             tag = $"{BossBodyOwnerKeys.Installed.Of(owner)} {key}";
             dissolves.Add(KeyValuePair.Create(tag, dissolve));
         }
-        return new(frame.Picture, frame.Anchor, frame.Depth, tag);
+        return new(frame.Shown?.Picture, frame.Anchor, frame.Shown?.Depth, tag);
     }
 
     /// <summary>
@@ -129,7 +128,7 @@ public static class BossBodySheetFiles
     /// The entry is missing, places its picture nowhere, names a picture without a defined depth, a depth without a picture,
     /// or a dissolve map <paramref name="dissolves"/> does not hold.
     /// </exception>
-    private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument? document, string manifestPath,
+    private static BossBodyFrame Frame(SpriteSheet sheet, string name, FrameDocument document, string manifestPath,
         Dictionary<string, PictureDissolve> dissolves)
     {
         if (document is not { Anchor: { } anchor })
@@ -139,27 +138,28 @@ public static class BossBodySheetFiles
         PictureDissolve? dissolve = document.Dissolve is null ? null
             : dissolves.TryGetValue(document.Dissolve, out PictureDissolve? map) ? map
             : throw new InvalidDataException($"Boss body manifest {manifestPath} frame {name} names dissolve map {document.Dissolve}, which the dissolve maps do not hold.");
-        return new BossBodyFrame(name, document.Picture is null ? null : sheet.Frame(document.Picture), anchor, document.Depth, dissolve);
+        SuperMetroid.Core.Enemies.BossBodies.BossBodyPicture? shown = document is { Picture: { } picture, Depth: { } shownDepth } ? new(sheet.Frame(picture), shownDepth) : null;
+        return new BossBodyFrame(name, shown, anchor, dissolve);
     }
 
     /// <summary>The manifest: each boss's sheet, by boss.</summary>
     /// <param name="Version">The schema revision.</param>
     /// <param name="Sheets">Each boss's frames, by boss name.</param>
-    private sealed record Manifest(int Version, Dictionary<string, SheetDocument?> Sheets);
+    internal sealed partial record Manifest(int Version, Dictionary<string, SheetDocument> Sheets);
 
     /// <summary>One boss's frames.</summary>
     /// <param name="Frames">Each frame, by frame name.</param>
-    private sealed record SheetDocument(Dictionary<string, FrameDocument?>? Frames);
+    internal sealed partial record SheetDocument(Dictionary<string, FrameDocument> Frames);
 
     /// <summary>One frame: its whole picture, where it lies and the depth it is drawn at.</summary>
     /// <param name="Picture">The sheet frame of its picture, or null for a frame that paints nothing.</param>
     /// <param name="Anchor">Where its picture's top-left corner lies from its boss's position (#2031).</param>
     /// <param name="Depth">The depth its picture is drawn at, by name (#1634), or null for a frame that paints nothing.</param>
     /// <param name="Dissolve">The tag of the dissolve map its picture dissolves by (#2478), or null for a frame no dissolve erases.</param>
-    private sealed record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
+    internal sealed partial record FrameDocument(string? Picture, Offset16<RoomPixels>? Anchor,
         [property: JsonConverter(typeof(BossBodyDepthJsonConverter))]
         [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] BossBodyDepth? Depth,
-        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)][InstalledKey] string? Dissolve = null);
+        [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Dissolve = null);
 
     /// <summary>Stable camel-case manifest fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -167,5 +167,8 @@ public static class BossBodySheetFiles
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
+        RespectRequiredConstructorParameters = true,
     };
 }

@@ -2,9 +2,27 @@ using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
-/// <summary>Where a Rinka spawns (#1472, #2256).</summary>
-/// <param name="SharedSpawnPoint">
-/// The spawn point of Mother Brain's room a room-wide Rinka starts at, one of the points those Rinkas share; the import
-/// resolves it from the point whose centre the Rinka is placed at. Null for a Rinka that spawns at its own placement.
-/// </param>
-internal sealed record RinkaSpawnSettings(RinkaSpawnPoint? SharedSpawnPoint) : EnemySpawnSettings;
+/// <summary>
+/// Where a Rinka spawns (#1472, #2256): an ordinary Rinka at its own placement, or one of Mother Brain's room-wide Rinkas
+/// at the spawn points they share, starting at one of them.
+/// </summary>
+internal abstract partial record RinkaSpawnSettings : EnemySpawnSettings
+{
+    /// <summary>Only the nested cases derive.</summary>
+    private RinkaSpawnSettings()
+    {
+    }
+
+    /// <summary>An ordinary Rinka, which spawns and respawns at its own placement.</summary>
+    internal static RinkaSpawnSettings AtOwnPlacement { get; } = new OwnPlacement();
+
+    /// <summary>
+    /// One of Mother Brain's room-wide Rinkas, which share the room's spawn points and start at <paramref name="Start"/>;
+    /// the import resolves it from the point whose centre the Rinka is placed at.
+    /// </summary>
+    /// <param name="Start">The spawn point the Rinka starts at.</param>
+    internal sealed partial record SharingPoints(RinkaSpawnPoint Start) : RinkaSpawnSettings;
+
+    /// <summary>An ordinary Rinka, which spawns and respawns at its own placement.</summary>
+    private sealed partial record OwnPlacement : RinkaSpawnSettings;
+}

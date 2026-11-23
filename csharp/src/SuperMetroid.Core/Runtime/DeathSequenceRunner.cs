@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>
 /// Samus's death sequence: the post-music-wait start, the fatal frame, and each death-sequence frame.
 /// </summary>
-internal sealed class DeathSequenceRunner
+internal sealed partial class DeathSequenceRunner
 {
     /// <summary>Supplies the active Samus turning-floor transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
@@ -65,15 +65,13 @@ internal sealed class DeathSequenceRunner
     /// The selected pose or explosion frame becomes visible through the ordinary frame
     /// boundary, while every gameplay actor remains stopped.
     /// </summary>
-    public SamusDeathSequenceStepResult StepDeathSequenceFrame(ControllerButton controllerInput, RoomScope room, SamusState samus)
+    public SamusDeathSequenceStepResult StepDeathSequenceFrame(ControllerButton controllerInput, RoomScope room, SamusState samus, SamusDeathSequencePhase.Begun dying)
     {
-        if (!samus.DeathSequence.IsActive)
-            throw new InvalidOperationException("The death sequence is not active.");
-
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
         SamusDeathSequenceStepResult step = samus.DeathSequence.Step(
             samus,
+            dying,
             _player.Colours,
             samus.Artwork.Body.DeathSteps);
         samus.DeathSequence.Draw(step.Draws, samus, _sprites, room.Camera.PixelPosition, _display.ActiveTurningFloor);

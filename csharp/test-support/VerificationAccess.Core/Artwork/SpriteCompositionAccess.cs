@@ -9,7 +9,6 @@ internal static class SpriteCompositionAccess
     extension(SpriteComposition self)
     {
         /// <summary>Number of parts drawn in composition order.</summary>
-        [IntegerQuantity("number of sprite parts in the composition")]
         internal int PartCount => self.parts.Count;
         /// <summary>Selects one part by its drawing ordinal.</summary>
         internal CompiledSpritePart Part(int index) => self.parts[index];

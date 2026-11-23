@@ -4,12 +4,16 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>Fune/Namihe fireball's typed animation.</summary>
-internal sealed class FuneNamiheFireballAnimation(FuneNamiheFireballSegment segment)
-    : EnemyProjectileFrameAnimation<FuneNamiheFireballSegment, EnemyProjectileCommonCue>(FuneNamiheFireballAnimations.StartingWith(segment))
+internal sealed partial class FuneNamiheFireballAnimation
+    : EnemyProjectileFrameAnimation<FuneNamiheFireballSegment, EnemyProjectileCommonCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;
+    /// <summary>Creates a <see cref="FuneNamiheFireballAnimation"/>.</summary>
+    /// <param name="segment">segment</param>
+    public FuneNamiheFireballAnimation(FuneNamiheFireballSegment segment)
+        : base(segment, FuneNamiheFireballAnimations.StartingAt[segment], EnemyProjectileCueRunners.Common<FuneNamiheFireballSegment>())
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<FuneNamiheFireballSegment, Animation<FuneNamiheFireballSegment>> StartingAt => FuneNamiheFireballAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<FuneNamiheFireballSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => FuneNamiheFireballAnimations.Segments;
 }

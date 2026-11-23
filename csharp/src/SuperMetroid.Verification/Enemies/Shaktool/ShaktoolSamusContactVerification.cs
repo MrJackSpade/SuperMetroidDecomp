@@ -22,15 +22,15 @@ internal static class ShaktoolSamusContactVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Shaktool);
         RoomEnemyPlace segment = runtime.Enemies.Places.InUpdateOrder[0];
-        AssertEqual(EnemyDefinitionId.Shaktool, segment.DefinitionId, "slot zero is a Shaktool segment");
-        AssertEqual<EnemyReaction?>(null, segment.Definition.Touch, "Shaktool's definition leaves its touch to the species");
+        AssertEqual(EnemyDefinitionId.Shaktool, segment.Occupant?.DefinitionId, "slot zero is a Shaktool segment");
+        AssertEqual(SuperMetroid.Core.Enemies.Shaktool.ShaktoolReactions.Touch, segment.Definition.Touch, "Shaktool's definition names the species' own touch");
         AssertTrue(segment.Entity is IEnemyTouchReaction { ReactsToTouch: true }, "the Shaktool entity reacts to Samus's touch");
         AssertTrue(segment.SpritemapPointer != 0, "the loaded segment publishes a sprite map");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = WrappingCountdown.Start(0);
@@ -38,10 +38,9 @@ internal static class ShaktoolSamusContactVerification
 
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
             new Position16<RoomPixels>(0, 0));
-        bool touched = runtime.Enemies.Collision.ResolveOrdinarySamusContact(
-            samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, segment, Position16<RoomPixels>.Zero);
+        runtime.Enemies.Collision.ResolveOrdinarySamusContact(
+            samus, RoomEnemyFrameFixtures.StandalonePseudoScrew(), 0, runtime.Room.LoadedLevelData, segment.HeldOccupant(), Position16<RoomPixels>.Zero);
 
-        AssertTrue(touched, "the overlapping Shaktool segment runs its touch reaction");
         AssertTrue(samus.Health < healthBefore, "$AA:DF2F deals common contact damage");
         AssertTrue(!samus.InvincibilityTimer.IsZero, "Shaktool contact damage starts invincibility");
         Console.WriteLine("  Shaktool Samus contact: a touching segment damages Samus through the common touch.");

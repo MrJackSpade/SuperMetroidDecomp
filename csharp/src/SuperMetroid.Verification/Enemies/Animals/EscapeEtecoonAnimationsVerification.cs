@@ -12,7 +12,7 @@ internal static class EscapeEtecoonAnimationsVerification
     /// <summary>Every segment matches its native list, and every animation its lists' control flow.</summary>
     internal static void VerifyEscapeEtecoonAnimations(CartridgeImportAddressSpace rom)
     {
-        int beats = NativeEnemyAnimationOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries,
+        int beats = NativeEnemyAnimationOracle.CompareAll(rom, Bank, Entries,
             EscapeEtecoonAnimations.Segments, EscapeEtecoonAnimations.StartingAt, EscapeEtecoonFrameToolingDefinitions.Spritemap,
             new NativeEnemyCueRules<EscapeEtecoonCue>(
                 word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,

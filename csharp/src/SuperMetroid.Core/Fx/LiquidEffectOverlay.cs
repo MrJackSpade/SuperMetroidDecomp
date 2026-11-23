@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Fx;
 /// A liquid on the effect overlay (#1706, #2505): lava's, acid's or water's surface strip and body, shown below the
 /// liquid's surface, scrolling across, water's rippling with its surface wave.
 /// </summary>
-public sealed record LiquidEffectOverlay : ShownRoomEffectOverlay
+public sealed partial record LiquidEffectOverlay : ShownRoomEffectOverlay
 {
     /// <summary>Keeps the liquid's artwork, where it lies, its wave and its blend.</summary>
     /// <param name="artwork">The surface strip and the body.</param>
@@ -61,6 +61,7 @@ public sealed record LiquidEffectOverlay : ShownRoomEffectOverlay
     public static LiquidEffectOverlay Of(RoomFxOverlayRenderSnapshot fx, LiquidArtwork artwork) =>
         new(artwork, fx.Blend, fx.Scroll.X,
             RoomFxTypes.UsesWater(fx.Type) ? fx.WaterOverlayWavePhase : null,
+            // A tide can carry the surface above the room's top, to a negative room line, which shows no surface.
             fx.Surface is >= 0 ? fx.WaterSurfaceScreenY : null,
             fx.LiquidSurfaceLine);
 

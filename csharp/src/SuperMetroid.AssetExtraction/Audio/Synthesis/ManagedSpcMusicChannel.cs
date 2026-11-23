@@ -1,10 +1,16 @@
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Per-music-voice state from Super Metroid's SPC driver work RAM.</summary>
-internal sealed class ManagedSpcMusicChannel
+internal sealed partial class ManagedSpcMusicChannel
 {
     /// <summary>Current byte cursor in this voice's SPC pattern instruction stream.</summary>
     internal int PatternOrderPointer;
+
+    /// <summary>
+    /// Whether the voice plays a pattern: the driver keeps a playing voice's cursor in its sequence data, past the driver's
+    /// first page, and an idle voice's within that page.
+    /// </summary>
+    internal bool IsPlaying => PatternOrderPointer > byte.MaxValue;
     /// <summary>Hardware voice index used when selecting the channel's DSP registers.</summary>
     internal int Index;
     /// <summary>Remaining duration of the current note before reading another pattern command.</summary>
@@ -49,8 +55,8 @@ internal sealed class ManagedSpcMusicChannel
     internal int PitchEnvelopeTicks;
     /// <summary>Delay before a note-on pitch envelope starts sliding.</summary>
     internal int PitchEnvelopeDelay;
-    /// <summary>Selects whether the envelope approaches or departs from the note pitch.</summary>
-    internal int PitchEnvelopeDirection;
+    /// <summary>Whether the envelope approaches or departs from the note pitch (#2560).</summary>
+    internal PitchEnvelopeDirection PitchEnvelopeDirection;
     /// <summary>Semitone offset applied by a note-on pitch envelope.</summary>
     internal int PitchEnvelopeSlide;
     /// <summary>Current phase of the vibrato oscillator.</summary>
@@ -97,13 +103,13 @@ internal sealed class ManagedSpcMusicChannel
     internal int PitchTarget;
     /// <summary>Fractional pitch byte restored when a slide reaches its target.</summary>
     internal int FineTune;
-    /// <summary>Pattern effect that suppresses normal key-off handling for this voice.</summary>
-    internal int CutKey;
+    /// <summary>The pattern's cut-key setting, which suppresses this voice's notes while it holds (#2560).</summary>
+    internal SpcMusicCutKey CutKey;
 
     /// <summary>Appends every field of this music voice, in declaration order, to a driver-state snapshot (#1305).</summary>
     internal void WriteState(List<byte> state)
     {
-        SpcDriverSnapshot.AddBytes(state, [Index, NoteTicksLeft, NoteKeyOffTicksLeft, SubroutineLoops, VolumeFadeTicks, PanTicks, PitchSlideLength, PitchSlideDelayLeft, VibratoHoldCount, VibratoDepth, TremoloHoldCount, TremoloDepth, VibratoChangeCount, NoteLength, NoteGateOffFixedPoint, ChannelVolumeMaster, InstrumentId, PitchEnvelopeTicks, PitchEnvelopeDelay, PitchEnvelopeDirection, PitchEnvelopeSlide, VibratoCount, VibratoRate, VibratoDelayTicks, VibratoFadeTicks, VibratoFadeAddPerTick, VibratoDepthTarget, TremoloCount, TremoloRate, TremoloDelayTicks, ChannelTransposition, VolumeFadeTarget, FinalVolume, PanTarget, PanFlags, PitchTarget, FineTune, CutKey]);
+        SpcDriverSnapshot.AddBytes(state, [Index, NoteTicksLeft, NoteKeyOffTicksLeft, SubroutineLoops, VolumeFadeTicks, PanTicks, PitchSlideLength, PitchSlideDelayLeft, VibratoHoldCount, VibratoDepth, TremoloHoldCount, TremoloDepth, VibratoChangeCount, NoteLength, NoteGateOffFixedPoint, ChannelVolumeMaster, InstrumentId, PitchEnvelopeTicks, PitchEnvelopeDelay, SpcDriverSnapshot.Byte(PitchEnvelopeDirection), PitchEnvelopeSlide, VibratoCount, VibratoRate, VibratoDelayTicks, VibratoFadeTicks, VibratoFadeAddPerTick, VibratoDepthTarget, TremoloCount, TremoloRate, TremoloDelayTicks, ChannelTransposition, VolumeFadeTarget, FinalVolume, PanTarget, PanFlags, PitchTarget, FineTune, CutKey.DriverByte]);
         SpcDriverSnapshot.AddWords(state, [PatternOrderPointer, InstrumentPitchBase, SavedPatternPointer, PatternStartPointer, ChannelVolume, VolumeFadeAddPerTick, PanValue, PanAddPerTick, Pitch, PitchAddPerTick]);
     }
 }

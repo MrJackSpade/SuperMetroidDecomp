@@ -1,11 +1,11 @@
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// One ordered strip of characters in the installed room-FX artwork atlas (#1415): a picture of an animated-tile
+/// One ordered strip of characters in the import's room-FX character atlas (#1415): a picture of an animated-tile
 /// object, or the shared Tourian statue strip. Each kind is its own record; extraction maps each to where the source
 /// stores it.
 /// </summary>
-public abstract record RoomFxAtlasSegment
+public abstract partial record RoomFxAtlasSegment
 {
     /// <summary>Only the nested kinds derive.</summary>
     private RoomFxAtlasSegment()
@@ -18,7 +18,7 @@ public abstract record RoomFxAtlasSegment
     /// <summary>One complete picture of an animated-tile object, resolved directly by its identity.</summary>
     /// <param name="Picture">The picture the segment holds.</param>
     /// <param name="Bytes">The picture's bytes.</param>
-    public sealed record Image(AnimatedTileImage Picture, int Bytes) : RoomFxAtlasSegment
+    public sealed partial record Image(AnimatedTileImage Picture, int Bytes) : RoomFxAtlasSegment
     {
         /// <inheritdoc/>
         public override int ByteCount => Bytes;
@@ -28,7 +28,7 @@ public abstract record RoomFxAtlasSegment
     /// The shared Tourian statue strip, whose overlapping picture windows
     /// <see cref="TourianStatueTileStripDefinitions"/> places.
     /// </summary>
-    public sealed record TourianStatueStrip : RoomFxAtlasSegment
+    public sealed partial record TourianStatueStrip : RoomFxAtlasSegment
     {
         /// <inheritdoc/>
         public override int ByteCount => RoomFxBlockAnimationLoops.TourianStatueStripByteCount;

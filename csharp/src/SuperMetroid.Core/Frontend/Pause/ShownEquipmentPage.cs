@@ -13,8 +13,8 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <param name="Wireframe">The Samus wireframe the page shows.</param>
 /// <param name="Reserve">The reserve labels and digits, or none while Samus has no reserve capacity and the template shows.</param>
 /// <param name="Arrow">How the reserve arrow's pictures are coloured.</param>
-internal sealed record ShownEquipmentPage(ImmutableArray<ShownEquipmentLabel> Labels, bool HyperBeam,
-    PauseWireframeKind Wireframe, ShownReserveDisplay? Reserve, ShownReserveArrow Arrow)
+internal sealed partial record ShownEquipmentPage(ImmutableArray<ShownEquipmentLabel> Labels, bool HyperBeam,
+    PauseWireframe Wireframe, ShownReserveDisplay? Reserve, ShownReserveArrow Arrow)
 {
     /// <summary>
     /// The page <paramref name="inventory"/> shows: every label in its item's state, the wireframe of the equipped suit and
@@ -24,6 +24,6 @@ internal sealed record ShownEquipmentPage(ImmutableArray<ShownEquipmentLabel> La
     {
         ImmutableArray<ShownEquipmentLabel> labels = [.. PauseEquipmentControls.Upgrades.Select(control =>
             new ShownEquipmentLabel(control.Label, inventory.StateOf(control.Upgrade)))];
-        return new(labels, inventory.HyperBeam, PauseEquipmentRules.WireframeKind(inventory.EquippedItems), reserve, arrow);
+        return new(labels, inventory.HyperBeam, PauseEquipmentRules.Wireframe(inventory.EquippedItems), reserve, arrow);
     }
 }

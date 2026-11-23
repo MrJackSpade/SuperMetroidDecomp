@@ -4,18 +4,26 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
 
 /// <summary>The shape of the Tourian statue's installed colours (#1415).</summary>
-public static class TourianStatueColorDefinitions
+public static partial class TourianStatueColorDefinitions
 {
-    /// <summary>The four boss-specific eye glows the statues step through, ordered Phantoon, Ridley, Draygon, Kraid.</summary>
-    public const int EyeGlowCount = 4;
 
-    /// <summary>Each boss statue's eye glow and its row in the installed eye colours (#1747, #2482).</summary>
-    public static IReadOnlyList<KeyValuePair<PictureShade, int>> EyeGlowRows { get; } =
+    /// <summary>Each boss statue's eye glow shade, keyed by the statue it belongs to (#1747, #2482, #2565).</summary>
+    public static IReadOnlyDictionary<SuperMetroid.Core.Areas.Tourian.TourianStatue, PictureShade> EyeGlows { get; } =
+        new Dictionary<SuperMetroid.Core.Areas.Tourian.TourianStatue, PictureShade>
+        {
+            [SuperMetroid.Core.Areas.Tourian.TourianStatue.Phantoon] = TourianStatueShades.PhantoonEyeGlow,
+            [SuperMetroid.Core.Areas.Tourian.TourianStatue.Ridley] = TourianStatueShades.RidleyEyeGlow,
+            [SuperMetroid.Core.Areas.Tourian.TourianStatue.Draygon] = TourianStatueShades.DraygonEyeGlow,
+            [SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid] = TourianStatueShades.KraidEyeGlow,
+        };
+
+    /// <summary>The order the statue sheets list the boss statues' eye-glow shades in (#2567).</summary>
+    public static IReadOnlyList<SuperMetroid.Core.Areas.Tourian.TourianStatue> EyeGlowOrder { get; } =
     [
-        new(TourianStatueShades.PhantoonEyeGlow, 0),
-        new(TourianStatueShades.RidleyEyeGlow, 1),
-        new(TourianStatueShades.DraygonEyeGlow, 2),
-        new(TourianStatueShades.KraidEyeGlow, 3),
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Phantoon,
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Ridley,
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Draygon,
+        SuperMetroid.Core.Areas.Tourian.TourianStatue.Kraid,
     ];
 
     /// <summary>The colours of one eye glow.</summary>

@@ -7,8 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The bridge giving way under Crocomire: its fragments, the sink into the acid, the rise and the final sink.</summary>
-[RoomLifetime]
-internal sealed class CrocomireBridgeCollapse
+internal sealed partial class CrocomireBridgeCollapse
 {
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -111,11 +110,11 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>
-    /// Hides his body from the room row two hundred and eighty-eight pixels below the top of Crocomire's view down while he
+    /// Hides his body from the room row <see cref="CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth"/> below the top of Crocomire's view down while he
     /// sinks (#1515, #2031): this is what makes his body disappear into the acid as it slides down past the view's bottom.
     /// </summary>
-    private void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
-        _bodyLayer.HideCrocomireBodyBelow(state, camera.Y + CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth);
+    private static void HideCrocomireSunkenBody(CrocomireEnemyState state, Position16<RoomPixels> camera) =>
+        CrocomireBodyLayer.HideCrocomireBodyBelow(state, camera.Y + CrocomireBridgeCollapseDefinitions.SinkHiddenRowDepth);
 
     /// <summary>
     /// Runs his body for one update of a sink into the acid as <paramref name="body"/> (#2193): the acid smokes about him
@@ -197,7 +196,7 @@ internal sealed class CrocomireBridgeCollapse
     }
 
     /// <summary>Crocomire's sinking fall to a fraction of a pixel, with the camera his main update runs with.</summary>
-    internal void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
+    internal static void RunCrocomireSink(CrocomireEnemyState state, Position16<RoomPixels> camera)
     {
         CrocomireBodyLayer.LevelCrocomireMeltDistortion(state);
         state.StepBack.Forget();
@@ -264,41 +263,38 @@ internal sealed class CrocomireBridgeCollapse
     {
         // Each melt row lies a row's height above the next; the top row alone shows once he has sunk.
         int y = state.Body.Position.Y.Whole;
-        int rowsAboveAcid = y >= CrocomireMeltingDefinitions.TopRowAboveAcidY
-            ? 1
+        CrocomireMeltRows rowsAboveAcid = y >= CrocomireMeltingDefinitions.TopRowAboveAcidY
+            ? CrocomireMeltRows.TopRow
             : y >= CrocomireMeltingDefinitions.TopTwoRowsAboveAcidY
-                ? 2
+                ? CrocomireMeltRows.TopTwoRows
                 : y >= CrocomireMeltingDefinitions.TopThreeRowsAboveAcidY
-                    ? 3
-                    : 4;
-        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, MeltAnimation(illustration, rowsAboveAcid));
+                    ? CrocomireMeltRows.TopThreeRows
+                    : CrocomireMeltRows.TopFourRows;
+        CrocomireEncounterAccess.StartCrocomireBodyAnimation(state, MeltAnimations[illustration][rowsAboveAcid]);
     }
 
-    /// <summary>The body animation showing <paramref name="illustration"/>'s top <paramref name="rowsAboveAcid"/> rows.</summary>
-    private static CrocomireBodyAnimation MeltAnimation(CrocomireMeltingIllustration illustration, int rowsAboveAcid) =>
-        illustration switch
+    /// <summary>
+    /// The body animation showing each melting illustration's rows above the acid (#2553): his first illustration's
+    /// flesh, then his second's bare skull, each by the rows of it that stand above the acid.
+    /// </summary>
+    private static IdentityTable<CrocomireMeltingIllustration, IdentityTable<CrocomireMeltRows, CrocomireBodyAnimation>> MeltAnimations { get; } = new(
+        new Dictionary<CrocomireMeltingIllustration, IdentityTable<CrocomireMeltRows, CrocomireBodyAnimation>>
         {
-            CrocomireMeltingIllustration.Flesh => rowsAboveAcid switch
+            [CrocomireMeltingIllustration.Flesh] = new(new Dictionary<CrocomireMeltRows, CrocomireBodyAnimation>
             {
-                1 => CrocomireBodyAnimation.MeltingFleshTopRow,
-                2 => CrocomireBodyAnimation.MeltingFleshTopTwoRows,
-                3 => CrocomireBodyAnimation.MeltingFleshTopThreeRows,
-                4 => CrocomireBodyAnimation.MeltingFleshTopFourRows,
-                _ => throw new ArgumentOutOfRangeException(nameof(rowsAboveAcid), rowsAboveAcid,
-                    "Crocomire's first melting animations show one to four rows above the acid."),
-            },
-            CrocomireMeltingIllustration.BareSkull => rowsAboveAcid switch
+                [CrocomireMeltRows.TopRow] = CrocomireBodyAnimation.MeltingFleshTopRow,
+                [CrocomireMeltRows.TopTwoRows] = CrocomireBodyAnimation.MeltingFleshTopTwoRows,
+                [CrocomireMeltRows.TopThreeRows] = CrocomireBodyAnimation.MeltingFleshTopThreeRows,
+                [CrocomireMeltRows.TopFourRows] = CrocomireBodyAnimation.MeltingFleshTopFourRows,
+            }),
+            [CrocomireMeltingIllustration.BareSkull] = new(new Dictionary<CrocomireMeltRows, CrocomireBodyAnimation>
             {
-                1 => CrocomireBodyAnimation.MeltingBareSkullTopRow,
-                2 => CrocomireBodyAnimation.MeltingBareSkullTopTwoRows,
-                3 => CrocomireBodyAnimation.MeltingBareSkullTopThreeRows,
-                4 => CrocomireBodyAnimation.MeltingBareSkullTopFourRows,
-                _ => throw new ArgumentOutOfRangeException(nameof(rowsAboveAcid), rowsAboveAcid,
-                    "Crocomire's second melting animations show one to four rows above the acid."),
-            },
-            _ => throw new ArgumentOutOfRangeException(nameof(illustration), illustration,
-                "Crocomire melts through his first and second illustrations only."),
-        };
+                [CrocomireMeltRows.TopRow] = CrocomireBodyAnimation.MeltingBareSkullTopRow,
+                [CrocomireMeltRows.TopTwoRows] = CrocomireBodyAnimation.MeltingBareSkullTopTwoRows,
+                [CrocomireMeltRows.TopThreeRows] = CrocomireBodyAnimation.MeltingBareSkullTopThreeRows,
+                [CrocomireMeltRows.TopFourRows] = CrocomireBodyAnimation.MeltingBareSkullTopFourRows,
+            }),
+        });
 
     /// <summary>
     /// Runs one update of his last sink, showing his bare skull's melting picture; once he rests at the acid's floor his
@@ -328,24 +324,17 @@ internal sealed class CrocomireBridgeCollapse
         if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;
 
-        // The fragment counts as launched even when no projectile place is free. Its colours are the wall's, set below.
+        // The fragment counts as launched even when no projectile place is free.
         death.BridgeFragmentsSpawned = fragment + 1;
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        // The fragments draw in the wall colours Crocomire's encounter installs.
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, _combat.Debris, SpriteGraphics.SharedIn(CrocomireColours.WallShading), new CrocomireProjectileAnimation(_combat.Debris, CrocomireProjectileSegment.BridgeFragment));
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
-            _combat.Debris,
-            graphics: default);
-        projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileSegment.BridgeFragment));
         projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(CrocomireBridgeFragmentDefinitions.Y).WithoutFractions();
         projectile.Velocity = projectile.Velocity.WithX(SignedEightEight.Zero);
         // The fragment's fall speed reads the room's random number without drawing a new one.
         projectile.Velocity = projectile.Velocity.WithY(CrocomireRandomDefinitions.BridgeFragmentFallSpeed.Of(_room.Random.Read()));
-        // The fragments draw in the wall colours Crocomire's encounter installs.
-        projectile.Graphics = SpriteGraphics.SharedIn(CrocomireColours.WallShading);
     }
 }

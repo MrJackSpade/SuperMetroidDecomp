@@ -34,7 +34,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         {
             InstructionMechanicsWord definition =
                 SpacePirateProjectileInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Space Pirate projectile mechanics word $86:{definition.Address:X4}");
         }
@@ -44,10 +44,10 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         var executedOperands = new HashSet<ushort>();
         var guard = NewSpacePirateProjectileInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            SpacePirateProjectileNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
+            SpacePirateProjectileNativeListAddresses.Family.NativePointers(rom);
 
         foreach ((bool movingRight, ushort program, ushort loop,
-                  Enum movement, ushort expectedX) in new[]
+                  SingleMotion movement, ushort expectedX) in new[]
                  {
                      new VerifySpacePirateProjectileInstructionProgramDefinitionsCase(false,
                          SpacePirateProjectileInstructionProgramDefinitions.LaserLeft,
@@ -65,18 +65,18 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             source.SetSpawnParameter1(EnemyDefinitionId.PirateGreyWalking, 0);
-            EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<RoomPixels>(128, 96), movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
+            EnemyProjectile laser = enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source.HeldOccupant(), new Position16<RoomPixels>(128, 96), movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, PirateLaserSpeed.Fast) ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.SpawnPirateMotherBrainLaser(source, new Position16<R....");
             AssertEqual(program, NativePointer(laser),
                 "real Pirate/Mother Brain laser producer selects its facing program");
-            AssertEqual<Enum?>(null, laser.Motion,
+            AssertTrue(laser.HoldsStill,
                 "laser initializer keeps muzzle frames stationary");
             RunForcedTicks(enemies, laser, 3);
             AssertEqual((ushort)128, laser.Position.X.Whole,
                 "three laser muzzle frames remain stationary");
             RunForcedTick(enemies, laser);
-            AssertEqual<Enum?>(movement, laser.Motion,
+            AssertTrue(laser.MovesBy(movement),
                 "laser program installs its facing movement callback");
-            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, laser.StateOf<PirateLaserState>().Direction,
+            AssertEqual(movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, enemies.WalkingSpacePirateBehavior.Laser.Lasers.Of(laser).Direction,
                 "the laser flies the way its producer chose");
             AssertEqual(expectedX, laser.Position.X.Whole,
                 "laser callback executes immediately on installation");
@@ -85,7 +85,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 "laser completes its authored frames and loops");
         }
 
-        foreach ((ushort direction, ushort program, ushort loop, Enum movement) in new[]
+        foreach ((ushort direction, ushort program, ushort loop, SingleMotion movement) in new[]
                  {
                      new SpacePirateProjectileInstructionProgramDefinitionsVerifySpacePirateProjectileInstructionProgramDefinitionsCase(0,
                          SpacePirateProjectileInstructionProgramToolingDefinitions.ClawLeft,
@@ -100,15 +100,15 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemySystem enemies = NewSystem();
             RoomEnemyPlace source = enemies.Places.InUpdateOrder[0];
             source.Position = source.Position.WithWhole(new(128, 96));
-            enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
+            enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source.BoundFor(EnemyDefinitionId.PirateGoldNinja), source, direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
             EnemyProjectile claw = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
             AssertEqual(program, NativePointer(claw),
                 "real Ninja Pirate claw producer selects its facing program");
             RunForcedTick(enemies, claw);
-            AssertEqual<Enum?>(movement, claw.Motion,
+            AssertTrue(claw.MovesBy(movement),
                 "claw program installs its facing movement callback");
-            AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, claw.StateOf<NinjaPirateClawState>().Thrown,
+            AssertEqual(direction != 0 ? HorizontalDirection.Right : HorizontalDirection.Left, enemies.NinjaSpacePirateBehavior.Claw.Claws.Of(claw).Thrown,
                 "the claw flies along the throw its producer chose");
             RunForcedTicks(enemies, claw, 8);
             AssertEqual(unchecked((ushort)(loop + 4)), NativePointer(claw),
@@ -119,7 +119,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
 
         RoomEnemySystem deleteSystem = NewSystem();
         RoomEnemyPlace deleteSource = deleteSystem.Places.InUpdateOrder[0];
-        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
+        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource.BoundFor(EnemyDefinitionId.PirateGoldNinja), deleteSource, HorizontalDirection.Left, Offset16<RoomPixels>.Zero);
         EnemyProjectile deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
         deleting.StartAnimation(EnemyProjectileDeleteAnimation.Instance);
@@ -164,7 +164,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             EnemyProjectile projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             // The shown frame's operand sits just before the instruction the native pointer stands on.
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
                 projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);

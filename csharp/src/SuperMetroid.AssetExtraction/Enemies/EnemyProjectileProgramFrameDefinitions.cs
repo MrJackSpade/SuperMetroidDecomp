@@ -9,8 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// bank-$8D spritemap pointer the frame draws, sorted by operand. The import reads each frame's spritemap through its
 /// operand once, and the installed artwork file keys the frame by its name.
 /// </summary>
-[EncodingOwner("bank-$86 instruction-list operands of the enemy-projectile program frames")]
-internal static class EnemyProjectileProgramFrameDefinitions
+internal static partial class EnemyProjectileProgramFrameDefinitions
 {
     /// <summary>
     /// The bank-$86 operand of every installed program frame. Two frames share one: the waiting Kago bug plays the list
@@ -174,7 +173,6 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.TorizoExplosionFlareRingCored] = 0xa3ea,
         [EnemyProjectileFrameId.TorizoExplosionFlareRing] = 0xa3ee,
         [EnemyProjectileFrameId.TorizoExplosionFlareRingFading] = 0xa3f2,
-        [EnemyProjectileFrameId.TorizoDeathExplosionSpark] = 0xa415,
         [EnemyProjectileFrameId.TorizoExplosionFireballSmall] = 0xa419,
         [EnemyProjectileFrameId.TorizoExplosionFireballLarge] = 0xa41d,
         [EnemyProjectileFrameId.TorizoExplosionFlamingRing] = 0xa421,
@@ -728,14 +726,7 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [EnemyProjectileFrameId.DownwardGateTwoBlocksTall] = 0xe54c,
         [EnemyProjectileFrameId.DownwardGateThreeBlocksTall] = 0xe552,
         [EnemyProjectileFrameId.DownwardGateFourBlocksTall] = 0xe558,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepBeginning] = 0xe689,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepDescending] = 0xe68d,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepLowering] = 0xe691,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepNearingHalfway] = 0xe695,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepPassingHalfway] = 0xe699,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepPastHalfway] = 0xe69d,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepNearingEnd] = 0xe6a1,
-        [EnemyProjectileFrameId.SaveStationElectricitySweepEnding] = 0xe6a5,
+        [EnemyProjectileFrameId.SaveStationElectricityBand] = 0xe699,
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple0] = 0xe811,
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple90] = 0xe815,
         [EnemyProjectileFrameId.BotwoonBodyUpLeftRipple180] = 0xe819,
@@ -837,8 +828,8 @@ internal static class EnemyProjectileProgramFrameDefinitions
     /// the work robot's flare, the Chozo's dust and the Tourian statue's base show poses their lists showed before from
     /// operands of their own, some drawing the same picture from a copy of its spritemap (#2273). The operands of Phantoon's
     /// flames' blinks, the Torizos' drool delays, Golden Torizo's eye beam floor impact, the Tourian statues' eye glow,
-    /// Botwoon's hidden segments, the enemy deaths' waits and the falling sparks' blinks draw nothing and show the blank
-    /// frame (#2431). The import composes each frame once from <see cref="Operands"/>; tools reading native lists find its
+    /// Botwoon's hidden segments, the enemy deaths' waits and the falling sparks' blinks draw nothing, as
+    /// <see cref="DrawNothing"/> lists (#2431). The import composes each frame once from <see cref="Operands"/>; tools reading native lists find its
     /// frame here.
     /// </summary>
     internal static readonly FrozenDictionary<ushort, EnemyProjectileFrameId> AlsoStoredAt = new Dictionary<ushort, EnemyProjectileFrameId>
@@ -969,6 +960,7 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0x9614] = EnemyProjectileFrameId.RidleyFireballFireCloudSpreading,
         [0x9618] = EnemyProjectileFrameId.RidleyFireballFireCloudBreaking,
         [0x961c] = EnemyProjectileFrameId.RidleyFireballFireCloudEmbers,
+        [0xa415] = EnemyProjectileFrameId.TorizoExplosionSpark,
         [0xa484] = EnemyProjectileFrameId.TorizoDroolDrop,
         [0xa4d0] = EnemyProjectileFrameId.BombTorizoStatueMossClump,
         [0xa4e1] = EnemyProjectileFrameId.BombTorizoStatueRubbleLitRight,
@@ -1004,21 +996,48 @@ internal static class EnemyProjectileProgramFrameDefinitions
         [0xdc16] = EnemyProjectileFrameId.SporeSpawnSpawnerOpening,
         [0xdc1a] = EnemyProjectileFrameId.SporeSpawnSpawnerClosed,
         [0xdc3c] = EnemyProjectileFrameId.SporeSpawnSporeBurstSpark,
-        [0x97be] = EnemyProjectileFrameId.Blank,
-        [0x97ce] = EnemyProjectileFrameId.Blank,
-        [0x97de] = EnemyProjectileFrameId.Blank,
-        [0xa46c] = EnemyProjectileFrameId.Blank,
-        [0xa470] = EnemyProjectileFrameId.Blank,
-        [0xb3e9] = EnemyProjectileFrameId.Blank,
-        [0xb7d9] = EnemyProjectileFrameId.Blank,
-        [0xe8f5] = EnemyProjectileFrameId.Blank,
-        [0xeca5] = EnemyProjectileFrameId.Blank,
-        [0xecb9] = EnemyProjectileFrameId.Blank,
-        [0xecd7] = EnemyProjectileFrameId.Blank,
-        [0xf369] = EnemyProjectileFrameId.Blank,
-        [0xf371] = EnemyProjectileFrameId.Blank,
-        [0xf379] = EnemyProjectileFrameId.Blank,
-        [0xf381] = EnemyProjectileFrameId.Blank,
-        [0xf389] = EnemyProjectileFrameId.Blank,
     }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The bank-$86 operands that show an installed program frame's picture moved off the projectile's place (#2557): the
+    /// save-station electricity's sweep stores its band's spritemap once for each place it is drawn at, 8 pixels apart, and
+    /// the place level with the electricity is the band's own operand in <see cref="Operands"/>. The import composes the
+    /// band once; tools reading native lists find the frame and its placement here.
+    /// </summary>
+    internal static readonly FrozenDictionary<ushort, EnemyProjectilePlacedFrame> PlacedAt = new Dictionary<ushort, EnemyProjectilePlacedFrame>
+    {
+        [0xe689] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -32)),
+        [0xe68d] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -24)),
+        [0xe691] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -16)),
+        [0xe695] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, -8)),
+        [0xe69d] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 8)),
+        [0xe6a1] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 16)),
+        [0xe6a5] = new(EnemyProjectileFrameId.SaveStationElectricityBand, new(0, 24)),
+    }.ToFrozenDictionary();
+
+    /// <summary>
+    /// The bank-$86 operands that draw nothing (#2431, #2558): Phantoon's flames' blinks, the Torizos' drool delays,
+    /// Golden Torizo's eye beam floor impact, the Tourian statues' eye glow, Botwoon's hidden segments, the enemy deaths'
+    /// waits and the falling sparks' blinks. A projectile showing one holds no shown frame, which the typed animations
+    /// play as a hidden beat.
+    /// </summary>
+    internal static readonly FrozenSet<ushort> DrawNothing = new HashSet<ushort>
+    {
+        0x97be,
+        0x97ce,
+        0x97de,
+        0xa46c,
+        0xa470,
+        0xb3e9,
+        0xb7d9,
+        0xe8f5,
+        0xeca5,
+        0xecb9,
+        0xecd7,
+        0xf369,
+        0xf371,
+        0xf379,
+        0xf381,
+        0xf389,
+    }.ToFrozenSet();
 }

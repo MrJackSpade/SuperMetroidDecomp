@@ -50,9 +50,7 @@ internal static class RetailRuntimeFixtureVerification
     internal static LoadedRoomAssets LoadFixtureRoomAssets(SelectedRoom room,
         RoomLevelArtworks? visualLayouts = null,
         InstalledRoomLevelStreams? levelStreams = null) =>
-        LoadedRoomAssets.Load(RoomScrollGrid.PowerOnCells(), room, InstalledFixtures.RoomAssets with
+        LoadedRoomAssets.Load(RoomScrollGrid.PowerOnCells(), room, (((InstalledFixtures.RoomAssets with
         {
-            VisualLayouts = visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts,
-            LevelStreams = levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams,
-        });
+            }) with { VisualLayouts = visualLayouts ?? InstalledFixtures.RoomAssets.VisualLayouts }) with { LevelStreams = levelStreams ?? InstalledFixtures.RoomAssets.LevelStreams }));
 }

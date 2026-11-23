@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// How the import builds and reads an ending colour resource (#1464, #1512): the logo crossfade's colours by step and
 /// layer, and a whole screen's or a run's colours, which it pre-colours the ending's sheets in.
 /// </summary>
-internal static class EndingPaletteReading
+internal static partial class EndingPaletteReading
 {
     /// <summary>Building the logo crossfade's resource.</summary>
     extension(EndingPalette)
@@ -46,13 +46,9 @@ internal static class EndingPaletteReading
                 throw new InvalidOperationException("Only the logo crossfade is read by step and layer.");
             Ensure.BetweenInclusive(0, EndingLogoDefinitions.CrossfadeSteps - 1, step);
             Ensure.BetweenInclusive(0, EndingPalette.CrossfadeLayerColours - 1, colour);
-            int place = layer switch
-            {
-                EndingLogoLayer.Background => 0,
-                EndingLogoLayer.Sprites => 1,
-                _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined logo layer."),
-            };
-            return palette.colours[(step * 2 + place) * EndingPalette.CrossfadeLayerColours + colour];
+            if (!Enum.IsDefined(layer))
+                throw new ArgumentOutOfRangeException(nameof(layer), layer, "Undefined logo layer.");
+            return palette.colours[EndingLogoCrossfadeImage.Position(step, layer, colour)];
         }
     }
 }

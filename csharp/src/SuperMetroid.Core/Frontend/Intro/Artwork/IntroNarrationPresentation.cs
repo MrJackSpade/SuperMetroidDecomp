@@ -6,19 +6,18 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// Editable UTF-8 lines and bounded glyph placement for the six English opening-narration pages.
 /// Typewriter timing, audio cadence, caret behavior, input waits and scene transitions are the game's own.
 /// </summary>
-public sealed class IntroNarrationPresentation
+public sealed partial class IntroNarrationPresentation
 {
-    /// <summary>The six opening text pages, keyed by page in typewriter order.</summary>
-    private readonly Dictionary<IntroNarrationPageId, NarrationPage> pages;
+    /// <summary>The six opening text pages, keyed by page in typewriter order, every page checked present as they are kept.</summary>
+    private readonly IdentityTable<IntroNarrationPageId, NarrationPage> pages;
 
     /// <summary>Retains the six pages the import validated.</summary>
-    internal IntroNarrationPresentation(Dictionary<IntroNarrationPageId, NarrationPage> pages) => this.pages = pages;
+    /// <exception cref="ArgumentException">A page is missing.</exception>
+    internal IntroNarrationPresentation(Dictionary<IntroNarrationPageId, NarrationPage> pages) => this.pages = new(pages);
 
     /// <summary>Ordered editable lines for one of the six narration pages.</summary>
-    public IReadOnlyList<IntroNarrationLine> GetLines(IntroNarrationPageId page) =>
-        pages.TryGetValue(page, out NarrationPage? lines)
-            ? lines
-            : throw new ArgumentOutOfRangeException(nameof(page), page, "The narration catalog does not contain this page.");
+    internal NarrationPage GetLines(IntroNarrationPageId page) => pages[page];
+
     /// <summary>Builds a narration page's ordered typewriter character placements.</summary>
     public IntroNarrationCharacter[] Compile(IntroNarrationPageId page)
     {
@@ -36,7 +35,7 @@ public sealed class IntroNarrationPresentation
     }
 
     /// <summary>One page's installed lines, in ascending text-row order.</summary>
-    internal sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
+    internal sealed partial class NarrationPage : IReadOnlyList<IntroNarrationLine>
     {
         /// <summary>The page's installed lines.</summary>
         private readonly IntroNarrationLine[] lines;

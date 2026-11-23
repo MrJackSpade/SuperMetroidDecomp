@@ -8,12 +8,8 @@ namespace SuperMetroid.Core.Rendering;
 /// How the floor blends (#2505): not at all, subtracting the frontmost sprite from the floor, or adding the floor's colour,
 /// unhalved, over the floor and the blending sprites while the backdrop and the sprites that do not blend are unchanged.
 /// </param>
-public sealed record TurningFloorLayer(FloorView Transform, AffineFloor Floor, FloorColorBlend Blend = FloorColorBlend.None) : DisplayLayer
+public sealed partial record TurningFloorLayer(FloorView Transform, AffineFloor Floor, FloorColorBlend Blend = FloorColorBlend.None) : DisplayLayer
 {
     /// <summary>The floor's map and pictures.</summary>
-    public AffineFloor Floor
-    {
-        get;
-        init => field = Ensure.NotNull(value);
-    } = Ensure.NotNull(Floor);
+    public AffineFloor Floor { get; } = Ensure.NotNull(Floor);
 }

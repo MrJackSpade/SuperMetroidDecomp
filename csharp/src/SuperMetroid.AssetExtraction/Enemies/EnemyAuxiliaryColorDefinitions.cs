@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>The auxiliary colour families' bounded dimensions, which the import reads and writes (#1502); runtime AI owns cadence and frame selection.</summary>
-internal static class EnemyAuxiliaryColorDefinitions
+internal static partial class EnemyAuxiliaryColorDefinitions
 {
     /// <summary>Blue Brinstar face-block four-color cycle, eight frames.</summary>
     internal static readonly EnemyAuxiliaryPaletteDefinition FaceBlock = new(EnemyAuxiliaryPalette.FaceBlock, 8, 4);

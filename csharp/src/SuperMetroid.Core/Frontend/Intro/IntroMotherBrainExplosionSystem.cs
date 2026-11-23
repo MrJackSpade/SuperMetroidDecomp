@@ -8,28 +8,31 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// The eight cinematic actors spawned by Mother Brain's fourth intro missile hit.
 /// </summary>
 /// <remarks>
-/// The large and small explosions: each explosion's authored placement sets where it stands and delays its first frame, and each runs its own
-/// typed animation (#641). Every object keeps its own timer and animation, which is what creates the staggered blast
-/// pattern.
+/// The large and small explosions: each explosion's authored placement sets where it stands and delays its first frame,
+/// and each keeps its own delay and animation (#641), which staggers the blast.
 /// </remarks>
-internal sealed class IntroMotherBrainExplosionSystem
+internal sealed partial class IntroMotherBrainExplosionSystem
 {
     /// <summary>Three small and five big actors retained in spawn and drawing order.</summary>
     internal readonly List<ExplosionActor> actors = [];
 
-    /// <summary>
-    /// Spawns the eight explosions of the fourth hit on Mother Brain, in the order they appear.
-    /// </summary>
-    public void SpawnFourthHitExplosions()
+    /// <summary>Keeps the explosions the fourth hit spawned.</summary>
+    private IntroMotherBrainExplosionSystem()
     {
-        if (actors.Count != 0)
-            throw new InvalidOperationException("The intro Mother Brain explosions were already spawned.");
+    }
 
+    /// <summary>
+    /// Spawns the eight explosions of the fourth hit on Mother Brain, in the order they appear, as the system that runs them.
+    /// </summary>
+    public static IntroMotherBrainExplosionSystem SpawnFourthHitExplosions()
+    {
+        var system = new IntroMotherBrainExplosionSystem();
         // The three small explosions spawn first and the five big ones second, each at its own placement.
         foreach (IntroMotherBrainExplosionPlacement placement in IntroMotherBrainDefinitions.SmallExplosions)
-            actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.SmallExplosionActor.Animation));
+            system.actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.SmallExplosionActor.Animation));
         foreach (IntroMotherBrainExplosionPlacement placement in IntroMotherBrainDefinitions.BigExplosions)
-            actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.BigExplosionActor.Animation));
+            system.actors.Add(ExplosionActor.Create(placement, IntroMotherBrainDefinitions.BigExplosionActor.Animation));
+        return system;
     }
 
     /// <summary>Advances every explosion; page two's crossfade reaching its final update (#1980) ends them.</summary>
@@ -47,7 +50,7 @@ internal sealed class IntroMotherBrainExplosionSystem
         foreach (ExplosionActor actor in actors)
         {
             // The blank pose draws nothing.
-            if (!actor.IsActive || actor.Pose is not { } pose || pose == CinematicSpritePose.Blank)
+            if (!actor.IsActive || actor.Pose is not { } pose)
                 continue;
 
             installedArt.Draw(pose, screenSprites, actor.Position, IntroShades.Drawn(IntroSpriteColouring.Explosions));
@@ -55,7 +58,7 @@ internal sealed class IntroMotherBrainExplosionSystem
     }
 
     /// <summary>One cinematic actor's delayed animation and visible frame.</summary>
-    internal sealed class ExplosionActor
+    internal sealed partial class ExplosionActor
     {
         /// <summary>The cinematic actor running the explosion's animation.</summary>
         private readonly CinematicActor<IntroMotherBrainExplosionAnimation, CinematicSpritePose, NoAnimationCue> sprite;

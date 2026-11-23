@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Reflection;
 using System.Text;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
@@ -14,8 +13,30 @@ using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.TestSupport.CatalogInventories;
 
 /// <summary>Reads the retail room-FX headers and renders the generated Core catalog that holds them.</summary>
-internal static class RoomFxRecordCatalogSource
+internal static partial class RoomFxRecordCatalogSource
 {
+    /// <summary>Each catalog selection's member name in <see cref="RoomFxDefinitions"/>, which names it in the generated catalog.</summary>
+    private static readonly Dictionary<RoomFxSelection, string> SelectionNames = SelectionMembers()
+        .ToDictionary(member => member.Value, member => member.Name);
+
+    /// <summary>The area door catalogs, each naming the doors of its area's rooms; a door none names is the shared catalog's.</summary>
+    private static readonly Dictionary<string, string[]> DoorClasses = DoorMembers()
+        .GroupBy(member => member.Name, StringComparer.Ordinal)
+        .ToDictionary(group => group.Key, group => group.Select(member => member.Owner).ToArray(), StringComparer.Ordinal);
+
+    /// <summary>The selections <see cref="RoomFxDefinitions"/> names.</summary>
+    [NamedMembers(typeof(RoomFxDefinitions))]
+    private static partial (RoomFxSelection Value, string Owner, string Name)[] SelectionMembers();
+
+    /// <summary>The doors each area's door catalog names.</summary>
+    [NamedMembers(typeof(BrinstarDoorDefinitions), typeof(CeresDoorDefinitions), typeof(CrateriaDoorDefinitions),
+        typeof(MaridiaDoorDefinitions), typeof(NorfairDoorDefinitions), typeof(TourianDoorDefinitions), typeof(WreckedShipDoorDefinitions))]
+    private static partial (DoorDefinition Value, string Owner, string Name)[] DoorMembers();
+
+    /// <summary>The blends <see cref="RoomEffectBlendDefinitions"/> names.</summary>
+    [NamedMembers(typeof(RoomEffectBlendDefinitions))]
+    private static partial (RoomEffectBlend Value, string Owner, string Name)[] BlendMembers();
+
     /// <summary>The checked-in generated catalog the renderer's output must equal.</summary>
     internal static readonly string GeneratedPath = Path.GetFullPath(Path.Combine(
         "csharp", "src", "SuperMetroid.Core", "Fx", "RoomFxDefinitions.cs"));
@@ -89,7 +110,7 @@ internal static class RoomFxRecordCatalogSource
 
     /// <summary>The door word of the record at <paramref name="pointer"/>: a door's pointer, zero for a default, or the terminator.</summary>
     private static ushort DoorWord(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), RoomFxRomDataBanksTooling.RoomDefinitions | pointer);
+        RomDataReader.ReadWordFixedBank(bus, RoomFxRomDataBanksTooling.RoomDefinitions | pointer);
 
     /// <summary>Reads the record at <paramref name="pointer"/>, in a room of <paramref name="area"/>, into <paramref name="records"/>.</summary>
     private static void Capture(ISnesAddressSpace bus, SortedDictionary<ushort, RoomEffectDefinition> records, ushort pointer,
@@ -97,7 +118,7 @@ internal static class RoomFxRecordCatalogSource
     {
         int source = RoomFxRomDataBanksTooling.RoomDefinitions | pointer;
         RoomEffectDefinition record = RoomFxRecordCodec.Decode(area,
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), source, RoomFxToolingRomData.Record.ByteCount),
+            RomDataReader.ReadFixedBank(bus, source, RoomFxToolingRomData.Record.ByteCount),
             $"room-FX record $83:{pointer:X4}");
         if (records.TryGetValue(pointer, out RoomEffectDefinition? existing))
         {
@@ -116,14 +137,11 @@ internal static class RoomFxRecordCatalogSource
     /// <summary>The door-definition class that names <paramref name="name"/>: its area's, or the shared one for doors no area names.</summary>
     private static string DeclaringDoorClass(string name)
     {
-        Type[] areas = [.. typeof(DoorDefinitions).Assembly.GetTypes().Where(type =>
-            type.Namespace == typeof(DoorDefinitions).Namespace && type != typeof(DoorDefinitions) &&
-            type.Name.EndsWith(nameof(DoorDefinitions), StringComparison.Ordinal) &&
-            type.GetProperty(name, BindingFlags.Public | BindingFlags.Static) is not null)];
+        string[] areas = DoorClasses.GetValueOrDefault(name) ?? [];
         return areas.Length switch
         {
             0 => nameof(DoorDefinitions),
-            1 => areas[0].Name,
+            1 => areas[0],
             _ => throw new InvalidOperationException($"Door {name} is named by {areas.Length} area classes."),
         };
     }
@@ -136,8 +154,7 @@ internal static class RoomFxRecordCatalogSource
     {
         if (blend is null)
             return "null";
-        PropertyInfo[] members = [.. typeof(RoomEffectBlendDefinitions).GetProperties(BindingFlags.Public | BindingFlags.Static)
-            .Where(property => ReferenceEquals(property.GetValue(null), blend))];
+        (RoomEffectBlend Value, string Owner, string Name)[] members = [.. BlendMembers().Where(member => ReferenceEquals(member.Value, blend))];
         return members.Length == 1 ? $"{nameof(RoomEffectBlendDefinitions)}.{members[0].Name}"
             : throw new InvalidDataException($"Blend {blend} is not one {nameof(RoomEffectBlendDefinitions)} member.");
     }
@@ -267,7 +284,8 @@ internal static class RoomFxRecordCatalogSource
         string surface = $", the liquid level starting at line {start.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
         if (effect.LiquidTargetLevel is not int target)
             return surface;
-        return surface + (effect.LiquidLevelSpeed.IsNegative ? " and rising to line " : " and falling to line ") +
+        // Levels are lines from the room's top, so a target above the start is a rise.
+        return surface + (target < start ? " and rising to line " : target > start ? " and falling to line " : " and holding at line ") +
             target.ToString(System.Globalization.CultureInfo.InvariantCulture);
     }
 
@@ -305,15 +323,27 @@ internal static class RoomFxRecordCatalogSource
         source.AppendLine("/// The room states' effect selections, each holding its door effects in the game's order and its default effect, and the effects");
         source.AppendLine("/// Mother Brain's fight applies by itself; regenerate with --generate-room-effects.");
         source.AppendLine("/// </summary>");
-        source.AppendLine("public static class RoomFxDefinitions");
+        source.AppendLine("public static partial class RoomFxDefinitions");
         source.AppendLine("{");
         bool first = true;
+        // A selection the cartridge stores under two headers (the quicksand shafts') is one member, written where its first
+        // header stands; the later header must hold the same records.
+        var written = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach ((ushort header, ushort[] pointers) in capture.Lists)
         {
+            string name = SelectionNames[RoomFxSources.Fx(header)];
+            string rendered = string.Join(" ", pointers.Select(pointer => capture.Doors.TryGetValue(pointer, out DoorDefinition? door)
+                ? $"{RenderDoor(door)} {RenderRecord(capture.Records[pointer])}" : RenderRecord(capture.Records[pointer])));
+            if (written.TryGetValue(name, out string? earlier))
+            {
+                if (!string.Equals(earlier, rendered, StringComparison.Ordinal))
+                    throw new InvalidDataException($"Room FX headers of {name} hold different records.");
+                continue;
+            }
+            written.Add(name, rendered);
             if (!first)
                 source.AppendLine();
             first = false;
-            string name = RoomFxSources.Fx(header).Name;
             ushort[] doorRecords = [.. pointers.TakeWhile(capture.Doors.ContainsKey)];
             ushort[] rest = [.. pointers.Skip(doorRecords.Length)];
             if ((rest.Length > 0 && MotherBrainRecordNames.ContainsKey(rest[0])) ||
@@ -321,10 +351,10 @@ internal static class RoomFxRecordCatalogSource
                 throw new InvalidDataException($"Room FX header {name} lists a record after its default that Mother Brain's fight does not apply.");
             source.AppendLine($"    /// <summary>{SelectionSummary(rest.Length == 0 ? null : capture.Records[rest[0]], doorRecords.Length)}</summary>");
             if (doorRecords.Length == 0)
-                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(nameof({name}), [],");
+                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new([],");
             else
             {
-                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(nameof({name}),");
+                source.AppendLine($"    public static RoomFxSelection {name} {{ get; }} = new(");
                 source.AppendLine("    [");
                 foreach (ushort pointer in doorRecords)
                     source.AppendLine($"        new({RenderDoor(capture.Doors[pointer])}, {RenderRecord(capture.Records[pointer])}),");

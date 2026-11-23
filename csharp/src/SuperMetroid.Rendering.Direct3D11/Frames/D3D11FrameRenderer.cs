@@ -15,6 +15,8 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hud;
 
+using SuperMetroid.Core.Compatibility;
+
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 
 /// <summary>Integer compute composition from owned display inputs.</summary>
@@ -65,6 +67,12 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly ID3D11UnorderedAccessView objectView;
     /// <summary>The sprite quads' target view of the sprite layer.</summary>
     private readonly ID3D11RenderTargetView spriteTarget;
+    /// <summary>The translucent sprite layer (#2642): per pixel, the frontmost translucent draw's colour and depth.</summary>
+    private readonly ID3D11Texture2D translucentLayer;
+    /// <summary>The tile shader's view of the translucent sprite layer.</summary>
+    private readonly ID3D11UnorderedAccessView translucentView;
+    /// <summary>The sprite pass's target for the translucent sprite layer.</summary>
+    private readonly ID3D11RenderTargetView translucentTarget;
     /// <summary>Places each sprite draw's quad.</summary>
     private readonly ID3D11VertexShader spriteVertexShader;
     /// <summary>Draws each sprite draw's image into the sprite layer.</summary>
@@ -107,7 +115,19 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <exception cref="ArgumentNullException"><paramref name="owner"/> is null.</exception>
     /// <exception cref="InvalidOperationException">Construction is attempted off the device's owner thread.</exception>
     public D3D11FrameRenderer(D3D11RenderDevice owner)
-        : this(owner, name => typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)) { }
+        : this(owner, OpenShaderFile) { }
+
+    /// <summary>
+    /// Opens the compiled shader <paramref name="name"/> (<c>SuperMetroid.Shaders.X.cso</c>) from the <c>Shaders</c> folder the
+    /// build copies beside the assembly (#2602), or null when the build left it out.
+    /// </summary>
+    internal static FileStream? OpenShaderFile(string name)
+    {
+        const string prefix = "SuperMetroid.Shaders.";
+        string path = Path.Combine(AppContext.BaseDirectory, "Shaders",
+            name.StartsWith(prefix, StringComparison.Ordinal) ? name[prefix.Length..] : name);
+        return File.Exists(path) ? File.OpenRead(path) : null;
+    }
 
     /// <summary>Resource-lookup seam for strict missing-shader startup verification.</summary>
     internal D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
@@ -134,6 +154,10 @@ public sealed class D3D11FrameRenderer : IDisposable
                 ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.RenderTarget)));
             objectView = Own(owner.Device.CreateUnorderedAccessView(spriteLayer));
             spriteTarget = Own(owner.Device.CreateRenderTargetView(spriteLayer));
+            translucentLayer = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
+                ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.RenderTarget)));
+            translucentView = Own(owner.Device.CreateUnorderedAccessView(translucentLayer));
+            translucentTarget = Own(owner.Device.CreateRenderTargetView(translucentLayer));
             spriteVertexShader = Own(owner.Device.CreateVertexShader(LoadShaderBytes(D3D11ShaderLayout.SpriteVertexResourceName)));
             spritePixelShader = Own(owner.Device.CreatePixelShader(LoadShaderBytes(D3D11ShaderLayout.SpritePixelResourceName)));
             spriteRasterizer = Own(owner.Device.CreateRasterizerState(new RasterizerDescription(CullMode.None, FillMode.Solid)));
@@ -176,7 +200,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         RgbaPixel color = scene.Colour;
         uint[] data = ClearUploadConstants();
         data[0] = D3D11ConstantPacking.Bytes(color.R, color.G, color.B, color.A);
-        data[1] = (uint)scene.Brightness;
+        data[1] = (uint)scene.Brightness.StepsAboveBlack;
         data[2] = packet.Size.X; data[3] = packet.Size.Y;
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(shader);
@@ -214,7 +238,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.PSSetConstantBuffer(0, null);
         owner.Context.CSSetConstantBuffer(0, null);
         owner.Context.CSSetShaderResource(0, null);
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         DisposeResources();
         disposed = true;
     }
@@ -302,7 +326,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[2] = viewport.Size.X; data[3] = viewport.Size.Y;
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetUnorderedAccessView(0, null);
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         owner.Context.OMSetRenderTargets(target);
         owner.Context.RSSetViewport(0, 0, client.X, client.Y);
         owner.Context.IASetInputLayout(null);
@@ -334,8 +358,9 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[3] = unchecked((ushort)r.ForegroundScroll.X);
         data[4] = unchecked((ushort)r.ForegroundScroll.Y);
         data[8] = layer.RevealBlocks ? 1u : 0u;
-        data[9] = BlendWord(layer.Blend);
-        FadeLevelColour blendColour = ShaderLevels(layer.Blend.Colour);
+        ShaderBlend blend = ShaderBlendOf(layer);
+        data[9] = BlendWord(blend);
+        FadeLevelColour blendColour = ShaderLevels(blend.Colour);
         data[10] = (uint)blendColour.Red; data[11] = (uint)blendColour.Green; data[12] = (uint)blendColour.Blue;
         // The foreground is always the room's; the background stage draws a boss's body, or else what the room publishes for
         // its background (#1403, #2573).
@@ -407,9 +432,36 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>Xray.hlsli's bit for a blend subtracting what it combines.</summary>
     private const uint BlendSubtracts = 128;
 
+    /// <summary>
+    /// What the shader's blend changes and how, and the colour it combines with where nothing lies behind, for the effect
+    /// <paramref name="layer"/> shows.
+    /// </summary>
+    /// <param name="Blended">What the blend changes where it is frontmost.</param>
+    /// <param name="Operation">Whether the blend adds or subtracts what it combines with.</param>
+    /// <param name="Halved">Whether the combined colour is halved where something lies behind.</param>
+    /// <param name="Colour">The colour combined with where nothing lies behind.</param>
+    private readonly record struct ShaderBlend(BlendedLayers Blended, Core.Assets.BlendOperation Operation, bool Halved, RgbColor Colour);
+
+    /// <summary>The shader's blend drawing the effect <paramref name="layer"/> shows.</summary>
+    /// <exception cref="InvalidOperationException">The effect is not one the backend draws.</exception>
+    private static ShaderBlend ShaderBlendOf(GameplayBlendLayer layer) => layer.Blend switch
+    {
+        FirefleaDarknessBlend darkness => new(BlendedLayers.Background | BlendedLayers.Backdrop, Core.Assets.BlendOperation.Subtract,
+            false, darkness.Shade),
+        PhantoonTranslucenceBlend => new(BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            Core.Assets.BlendOperation.Add, false, RgbColor.Black),
+        EffectBehindRoomBlend behind => new(behind.Effect.Blended, behind.Effect.Operation, false, RgbColor.Black),
+        XrayDimmingBlend dimming => new(
+            dimming.Mode.KeepsBackgrounds ? BlendedLayers.Foreground | BlendedLayers.Backdrop
+                : BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
+            dimming.Mode.KeepsDarkness || dimming.RoomDarkens ? Core.Assets.BlendOperation.Subtract : Core.Assets.BlendOperation.Add,
+            !dimming.Mode.KeepsDarkness && layer.OverlayBehind is not null, dimming.Tint),
+        _ => throw new InvalidOperationException($"Undefined gameplay blend {layer.Blend}."),
+    };
+
     /// <summary>The bits Xray.hlsli tests for what a blend changes and how.</summary>
     /// <exception cref="InvalidOperationException">The blend's operation is not defined.</exception>
-    private static uint BlendWord(GameplayBlend blend) =>
+    private static uint BlendWord(ShaderBlend blend) =>
         ((blend.Blended & BlendedLayers.Foreground) != 0 ? BlendsForeground : 0)
         | ((blend.Blended & BlendedLayers.Background) != 0 ? BlendsBackground : 0)
         | ((blend.Blended & BlendedLayers.Actors) != 0 ? BlendsActors : 0)
@@ -435,13 +487,30 @@ public sealed class D3D11FrameRenderer : IDisposable
     internal static uint DepthWord(ActorDepth depth) => depth switch
     {
         ActorDepth.BehindRoom => 0,
-        ActorDepth.BehindFrontParts => 1,
-        ActorDepth.InFront => 2,
+        ActorDepth.BehindRoomInFrontOfFloor => 1,
+        ActorDepth.BehindFrontParts => 2,
+        ActorDepth.InFront => 3,
         _ => throw new InvalidOperationException($"Undefined actor depth {depth}."),
     };
 
-    /// <summary>The <see cref="D3D11TileDispatch.DrawnDepth"/> of a pass inserting the sprites at <paramref name="depth"/>.</summary>
-    private static uint Inserting(ActorDepth depth) => DepthWord(depth) + 1;
+    /// <summary>
+    /// The <see cref="D3D11TileDispatch.DrawnDepth"/> of a pass inserting the sprites at <paramref name="depths"/>: a bit for
+    /// each depth's word, as Tiles.hlsl's sprite insertion tests it.
+    /// </summary>
+    private static uint Inserting(ReadOnlySpan<ActorDepth> depths)
+    {
+        uint inserted = 0;
+        foreach (ActorDepth depth in depths)
+            inserted |= 1u << (int)DepthWord(depth);
+        return inserted;
+    }
+
+    /// <summary>The depths in front of a turning floor (#2583): every depth but the one behind the floor.</summary>
+    private static readonly ActorDepth[] InFrontOfFloor =
+        [ActorDepth.BehindRoomInFrontOfFloor, ActorDepth.BehindFrontParts, ActorDepth.InFront];
+
+    /// <summary>The depth behind a turning floor (#2583).</summary>
+    private static readonly ActorDepth[] BehindFloor = [ActorDepth.BehindRoom];
 
     /// <summary>
     /// The <see cref="D3D11TileDispatch.DrawnDepth"/> of a room layer pass drawing its back or its front tiles: the part of its
@@ -466,8 +535,8 @@ public sealed class D3D11FrameRenderer : IDisposable
 
     /// <summary>
     /// Composes a room with a perspective floor below the HUD's lines (#1514): the room's scenery behind everything (#1545),
-    /// the floor with the actors over it, and on the band below it the background's layers and the actors in
-    /// <see cref="GameplaySceneLayer.Order"/>. The HUD is its own layer (#1466).
+    /// the actors behind the floor, the floor, the actors in front of it (#2583), and on the band below it the background's
+    /// layers and the actors in <see cref="GameplaySceneLayer.Order"/>. The HUD is its own layer (#1466).
     /// </summary>
     private void DispatchFloorRoom(TurningRoomLayer layer)
     {
@@ -482,8 +551,16 @@ public sealed class D3D11FrameRenderer : IDisposable
                 Table = roomLevels.PlaneTable(scenery.Plane), Scroll = PlaneScroll(scenery.Scroll), RoomSource = D3D11RoomSource.PicturedPlane,
                 FirstScanline = (uint)layer.HudLines,
             });
+        // The actors behind the floor show only through its clear pixels; every other depth lies in front of it (#2583).
+        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch
+        {
+            DrawnDepth = Inserting(BehindFloor), FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart,
+        });
         DispatchFloor(layer.Transform, layer.HudLines, floorStart);
-        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch { FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart });
+        DispatchTile(D3D11TileOperation.InsertSprites, new D3D11TileDispatch
+        {
+            DrawnDepth = Inserting(InFrontOfFloor), FirstScanline = (uint)layer.HudLines, EndScanline = (uint)floorStart,
+        });
         if (layer.LowerBand is not { } band)
             return;
         // Only the band below the floor shows the background; transparent pixels keep the backdrop. The band shows no
@@ -520,13 +597,16 @@ public sealed class D3D11FrameRenderer : IDisposable
     private static ShownRoomWarning? WarningAt(RoomBackgrounds? rooms, RoomWarningDepth depth) =>
         rooms?.Warning is { } warning && warning.Depth == depth ? warning : null;
 
-    /// <summary>The depth of the actors a gameplay actor layer shows.</summary>
+    /// <summary>
+    /// The depths of the actors a gameplay actor layer shows: the actors behind the room are those at both depths behind it,
+    /// which lie together where no turning floor shows (#2583).
+    /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="layer"/> shows no actors.</exception>
-    private static ActorDepth ActorsAt(GameplayLayer layer) => layer switch
+    private static ReadOnlySpan<ActorDepth> ActorsAt(GameplayLayer layer) => layer switch
     {
-        GameplayLayer.ActorsBehindRoom => ActorDepth.BehindRoom,
-        GameplayLayer.ActorsBehindFrontParts => ActorDepth.BehindFrontParts,
-        GameplayLayer.ActorsInFront => ActorDepth.InFront,
+        GameplayLayer.ActorsBehindRoom => ActorsBehindRoom,
+        GameplayLayer.ActorsBehindFrontParts => ActorsBehindFrontParts,
+        GameplayLayer.ActorsInFront => ActorsInFront,
         GameplayLayer.BackgroundBackPart or GameplayLayer.ForegroundBackPart or GameplayLayer.BackgroundFrontPart
             or GameplayLayer.ForegroundFrontPart or GameplayLayer.BossBodyBehindActors or GameplayLayer.BossBodyInFrontOfActors
             => throw new InvalidOperationException($"Gameplay layer {layer} shows no actors."),
@@ -583,12 +663,12 @@ public sealed class D3D11FrameRenderer : IDisposable
     /// <summary>
     /// What the backend's background stage draws for <paramref name="layer"/> (#2573): a boss's body, its own layer, with its
     /// scroll, distortion and pixelation, where the room's background, which shows nothing behind it, would show; otherwise
-    /// the room's background with the view's scroll and the background's line scrolls.
+    /// the room's background, unpixelated, with the view's scroll and the background's line scrolls.
     /// </summary>
     private static BackgroundStage StageOf(GameplaySceneLayer layer) => layer.BossBody is { } body
         ? new((uint)D3D11RoomSource.BossBody | D3D11RoomSources.WrittenOverBackgroundOf(layer.Rooms), body.Scroll, body.Horizontal, body.Vertical, body.Pixelation)
         : new(D3D11RoomSources.BackgroundSourceOf(layer.Rooms), layer.View.BackgroundScroll, layer.BackgroundLineScrolls.Horizontal,
-            layer.BackgroundLineScrolls.Vertical, layer.View.BackgroundPixelation);
+            layer.BackgroundLineScrolls.Vertical, BackgroundPixelation.Unpixelated);
 
     /// <summary>What the background stage draws: its source word, its scroll, its line scrolls and its pixelation.</summary>
     /// <param name="Source">The Tiles.hlsl source word.</param>
@@ -790,8 +870,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         roomLevels.Collect(levels, images.Needed);
         images.Hold(images.Needed);
         // Every draw the frame shows, the paint's then each sprite layer's, packed once; each sprite layer draws its own
-        // run of them (#1514). The paint's draws are packed by depth, the actors in front first and each depth's in emission
-        // order, so the sprite layer keeps the frontmost actor among the layers at each pixel.
+        // run of them (#1514). The paint's draws are packed in emission order, frontmost first, so the sprite layer keeps the
+        // frontmost actor at each pixel, which then stands at its own depth among the room's layers (#2620).
         bool composesGameplay = !scene.Layers.IsEmpty && scene.Layers[0] is GameplaySceneLayer or GameplayBlendLayer or TurningRoomLayer;
         PackOrder(scene, composesGameplay);
         spriteDraws.Pack(CollectionsMarshal.AsSpan(packedDraws), CollectionsMarshal.AsSpan(packedDepths), images);
@@ -814,7 +894,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShaderResource(4, images.View);
         owner.Context.CSSetShaderResource(5, floorImage.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
-        owner.Context.CSSetUnorderedAccessView(1, objectView);
+        BindSpriteLayers();
         shownSprites = null;
         ShowSprites(allSprites);
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
@@ -869,7 +949,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                             _ => throw new InvalidOperationException($"Undefined sprite blend {sprites.Blend}."),
                         },
                         Green = sprites.Tint is not null ? 1u : 0u,
-                        Blue = sprites.Tint is { } tint ? PackedShaderLevels(tint) : 0,
+                        Blue = sprites.Tint is { } tint ? PackedShaderLevels(tint.ShownWith(D3D11ColourBlend.Instance)) : 0,
                     });
                     break;
                 case PictureGridLayer grid:
@@ -899,7 +979,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                     });
                     break;
                 case ScreenTintLayer add:
-                    FadeLevelColour addedLevels = ShaderLevels(add.Colour);
+                    FadeLevelColour addedLevels = ShaderLevels(add.Colour.ShownWith(D3D11ColourBlend.Instance));
                     DispatchTile(D3D11TileOperation.AddColour, new D3D11TileDispatch { Red = (uint)addedLevels.Red, Green = (uint)addedLevels.Green, Blue = (uint)addedLevels.Blue });
                     break;
                 case ScreenGradientLayer gradient:
@@ -910,7 +990,21 @@ public sealed class D3D11FrameRenderer : IDisposable
             }
         }
         // The frame's one brightness dims the composed scene once.
-        DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)packet.Brightness });
+        DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)packet.Brightness.StepsAboveBlack });
+    }
+
+    /// <summary>Binds the opaque and translucent sprite layers for the tile shader (#2642).</summary>
+    private void BindSpriteLayers()
+    {
+        owner.Context.CSSetUnorderedAccessView(1, objectView);
+        owner.Context.CSSetUnorderedAccessView(2, translucentView);
+    }
+
+    /// <summary>Unbinds both sprite layers from the tile shader, so the sprite pass or the display can use them.</summary>
+    private void UnbindSpriteLayers()
+    {
+        owner.Context.CSSetUnorderedAccessView(1, null);
+        owner.Context.CSSetUnorderedAccessView(2, null);
     }
 
     /// <summary>Draws <paramref name="run"/> into the sprite layer unless it holds that run already (#1514).</summary>
@@ -923,22 +1017,38 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Draws the sprite layer (#1408, #1514): clears it to no sprite, then draws each quad of <paramref name="run"/>'s draws
-    /// back to front, so each pixel keeps the frontmost draw's opaque pixel. The run's first draw and count go to the
-    /// vertex shader in the constant buffer. Leaves the composition's bindings as it found them.
+    /// Draws the sprite layers (#1408, #1514, #2642): clears both to no sprite, then draws each quad of
+    /// <paramref name="run"/>'s draws back to front, the opaque draws into the sprite layer and the translucent ones into the
+    /// translucent layer, so each pixel of each keeps its frontmost draw's opaque pixel. Leaves the composition's bindings as
+    /// it found them.
     /// </summary>
-    private unsafe void DrawSpriteLayer(SpriteRun run)
+    private void DrawSpriteLayer(SpriteRun run)
     {
         const uint noSprite = 255;
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         owner.Context.ClearUnorderedAccessView(objectView, new Int4(0, (int)noSprite, 0, 0));
+        owner.Context.ClearUnorderedAccessView(translucentView, new Int4(0, (int)noSprite, 0, 0));
         if (run.Count != 0)
         {
+            DrawSpriteRun(run, spriteTarget, translucent: false);
+            DrawSpriteRun(run, translucentTarget, translucent: true);
+        }
+        BindSpriteLayers();
+    }
+
+    /// <summary>
+    /// Draws <paramref name="run"/>'s opaque or <paramref name="translucent"/> draws into <paramref name="target"/>: the run's
+    /// first draw, its count and which draws it keeps go to the shaders in the constant buffer.
+    /// </summary>
+    private unsafe void DrawSpriteRun(SpriteRun run, ID3D11RenderTargetView target, bool translucent)
+    {
+        {
             var data = ClearUploadConstants();
-            data[0] = (uint)run.First; data[1] = (uint)run.Count;
+            data[0] = (uint)run.First; data[1] = (uint)run.Count; data[2] = translucent ? 1u : 0u;
             fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
             owner.Context.VSSetConstantBuffer(0, constants);
-            owner.Context.OMSetRenderTargets(spriteTarget);
+            owner.Context.PSSetConstantBuffer(0, constants);
+            owner.Context.OMSetRenderTargets(target);
             owner.Context.RSSetViewport(0, 0, ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels);
             owner.Context.RSSetState(spriteRasterizer);
             owner.Context.IASetInputLayout(null);
@@ -950,13 +1060,13 @@ public sealed class D3D11FrameRenderer : IDisposable
             owner.Context.PSSetShaderResource(4, images.View);
             owner.Context.DrawInstanced(4, (uint)run.Count, 0, 0);
             owner.Context.VSSetConstantBuffer(0, null);
+            owner.Context.PSSetConstantBuffer(0, null);
             owner.Context.VSUnsetShaderResource(1);
             owner.Context.PSUnsetShaderResource(1);
             owner.Context.PSUnsetShaderResource(4);
             owner.Context.RSSetState(null);
             owner.Context.OMSetRenderTargets(Array.Empty<ID3D11RenderTargetView>());
         }
-        owner.Context.CSSetUnorderedAccessView(1, objectView);
     }
 
     /// <summary>Packs one tile operation's full constant buffer and dispatches the native screen grid.</summary>
@@ -983,8 +1093,15 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>The actor depths from the front back: the order the paint's draws are packed in (#1514).</summary>
-    private static readonly ActorDepth[] FrontToBack = [ActorDepth.InFront, ActorDepth.BehindFrontParts, ActorDepth.BehindRoom];
+    /// <summary>The depths <see cref="GameplayLayer.ActorsBehindRoom"/> shows: both behind the room (#2583).</summary>
+    private static readonly ActorDepth[] ActorsBehindRoom = [ActorDepth.BehindRoomInFrontOfFloor, ActorDepth.BehindRoom];
+
+    /// <summary>The depth <see cref="GameplayLayer.ActorsBehindFrontParts"/> shows.</summary>
+    private static readonly ActorDepth[] ActorsBehindFrontParts = [ActorDepth.BehindFrontParts];
+
+    /// <summary>The depth <see cref="GameplayLayer.ActorsInFront"/> shows.</summary>
+    private static readonly ActorDepth[] ActorsInFront = [ActorDepth.InFront];
+
 
     /// <summary>The frame's draws in the order they are packed, reused from frame to frame.</summary>
     private readonly List<ImageSpriteDraw> packedDraws = [];
@@ -993,9 +1110,11 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly List<ActorDepth> packedDepths = [];
 
     /// <summary>
-    /// Lays out <paramref name="scene"/>'s draws and their depths in the order they are packed (#1514): the paint's draws
-    /// grouped by depth from the front back, each depth's in emission order, then every sprite layer's as the scene lists
-    /// them, in front, since a sprite layer is drawn whole at its place among the scene's layers. The draws a whole-gameplay
+    /// Lays out <paramref name="scene"/>'s draws and their depths in the order they are packed (#1514): the paint's draws in
+    /// emission order, frontmost first, then every sprite layer's as the scene lists them, in front, since a sprite layer is
+    /// drawn whole at its place among the scene's layers. Where actors overlap, the one emitted first shows, at its own depth
+    /// among the room's layers, as the game draws them (#2620): an actor standing behind another never covers it for having
+    /// a depth further forward. The draws a whole-gameplay
     /// layer composes sit at their frames' depths; a frontend screen's paint draws, which only a turning floor's glow
     /// composes, sit at their frames' depths where their frames have one and in front of the floor otherwise.
     /// </summary>
@@ -1006,16 +1125,10 @@ public sealed class D3D11FrameRenderer : IDisposable
         packedDepths.Clear();
         ReadOnlySpan<ImageSpriteDraw> draws = scene.SpriteDraws.AsSpan();
         int paintDraws = scene.Paint.SpriteDraws.Length;
-        foreach (ActorDepth depth in FrontToBack)
+        foreach (ImageSpriteDraw image in draws[..paintDraws])
         {
-            foreach (ImageSpriteDraw image in draws[..paintDraws])
-            {
-                ActorDepth shown = composesGameplay ? DepthOf(image) : image.Depth ?? ActorDepth.InFront;
-                if (shown != depth)
-                    continue;
-                packedDraws.Add(image);
-                packedDepths.Add(shown);
-            }
+            packedDraws.Add(image);
+            packedDepths.Add(composesGameplay ? DepthOf(image) : image.Depth ?? ActorDepth.InFront);
         }
         foreach (ImageSpriteDraw draw in draws[paintDraws..])
         {
@@ -1165,7 +1278,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var childPacket = new DisplayPacket(packet.FrameNumber, window.Scene);
         childRenderer.DrawLayers(childPacket, window.Scene);
         owner.Context.CSSetUnorderedAccessView(0, null);
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         owner.Context.CopySubresourceRegion(output, 0, (uint)window.Left, (uint)window.Top, 0,
             childRenderer.output, 0, new Box(window.Left, window.Top, 0, window.Right, window.Bottom, 1));
         // The immediate context is shared but every scene's resources are separate.
@@ -1178,6 +1291,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShaderResource(4, images.View);
         owner.Context.CSSetShaderResource(5, floorImage.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
-        owner.Context.CSSetUnorderedAccessView(1, objectView);
+        BindSpriteLayers();
     }
 }

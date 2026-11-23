@@ -1,5 +1,3 @@
-using System.Collections.Frozen;
-
 namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 
 /// <summary>
@@ -8,19 +6,15 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// composes with these, and Crocomire draws them by them. Each name is the installed sheet's own key, written out, so
 /// renaming an illustration's identity never changes a key on disk.
 /// </summary>
-internal static class CrocomireMeltingFrameNames
+internal static partial class CrocomireMeltingFrameNames
 {
     /// <summary>Each melt image's installed body sheet frame.</summary>
-    private static readonly FrozenDictionary<CrocomireMeltingIllustration, string> Keys =
-        new Dictionary<CrocomireMeltingIllustration, string>
+    private static readonly IdentityTable<CrocomireMeltingIllustration, string> Keys = new(new Dictionary<CrocomireMeltingIllustration, string>
         {
             [CrocomireMeltingIllustration.Flesh] = "MeltingFlesh",
             [CrocomireMeltingIllustration.BareSkull] = "MeltingBareSkull",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>The body sheet frame of melt image <paramref name="illustration"/> before its dissolve erases any column.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="illustration"/> is no melt image.</exception>
-    internal static string Of(CrocomireMeltingIllustration illustration) => Keys.TryGetValue(illustration, out string? key)
-        ? key
-        : throw new ArgumentOutOfRangeException(nameof(illustration), illustration, $"Undefined {nameof(CrocomireMeltingIllustration)}.");
+    internal static string Of(CrocomireMeltingIllustration illustration) => Keys[illustration];
 }

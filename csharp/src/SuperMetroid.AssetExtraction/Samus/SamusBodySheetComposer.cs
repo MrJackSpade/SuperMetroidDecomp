@@ -21,13 +21,13 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// it inks (<see cref="SamusBodyColouringDefinitions"/>); the other suits, like palette effects, draw through the sheet's
 /// shades.
 /// </summary>
-internal static class SamusBodySheetComposer
+internal static partial class SamusBodySheetComposer
 {
     /// <summary>
     /// <c>$90:868D</c>: the chest cover is standard sprite character $21 in Samus's palette row, in front of every
     /// background.
     /// </summary>
-    private static readonly SpritePart ChestCoverAppearance = SpritePart.Single(character: 33, palette: 4, priority: 3);
+    private static readonly SpritePart ChestCoverAppearance = SpritePart.Single(character: 33, palette: 4, depth: ActorDepth.InFront);
 
     /// <summary>
     /// What the body sheet composes: the picture of every body the game can show that shows anything, and as frames that
@@ -51,11 +51,11 @@ internal static class SamusBodySheetComposer
             SpriteFrame frame = picture.Frame;
             SpriteArtwork read = characters.BodyArtwork(picture.Key.TopPicture, picture.Key.BottomPicture);
             // A part naming characters past the body's, the chest cover among them, reads the standard OBJ sheet there.
-            if (frame.LastCharacter >= read.CharacterCount)
+            if (frame.LastCharacter is int last && last >= read.CharacterCount)
             {
                 if (!overlaid.TryGetValue(read, out SpriteArtwork? onStandardObjects))
                 {
-                    onStandardObjects = SpriteArtwork.Overlay(new SpriteArtworkId(SpriteArtworkKind.SamusBodyOnStandardObjects, read.Id.Variant),
+                    onStandardObjects = SpriteArtwork.Overlay(read.Id.InKind(SpriteArtworkKind.SamusBodyOnStandardObjects),
                         inputs.StandardObjects, read, 0);
                     overlaid.Add(read, onStandardObjects);
                 }
@@ -102,10 +102,10 @@ internal static class SamusBodySheetComposer
             {
                 SheetShade shade = shades.FirstOrDefault(candidate => candidate.Shade == name)
                     ?? throw new InvalidDataException($"Samus's sheets have no shade {name.Effect} {name.Step} to colour body frame {frame.Name} in.");
-                for (int index = 0; index < shade.Inks.Length; index++)
+                foreach ((int ink, RgbColor colour) in shade.InkColours)
                 {
-                    if (rows.Contains(shade.Inks[index] / SamusSheetInks.GroupColours))
-                        left[shade.Inks[index]] = shade.Colours[index];
+                    if (rows.Contains(ink / SamusSheetInks.GroupColours))
+                        left[ink] = colour;
                 }
             }
             foreach (KeyValuePair<int, RgbColor> ink in left)
@@ -197,12 +197,12 @@ internal static class SamusBodySheetComposer
     /// <summary>One pose and picture frame the sheet names, and the picture it shows, or none for one that shows nothing.</summary>
     /// <param name="Name">The body's name on the sheet.</param>
     /// <param name="Picture">The picture the body shows, or null when it has no composition and no chest cover.</param>
-    private sealed record SheetBody(string Name, SheetPicture? Picture);
+    private sealed partial record SheetBody(string Name, SheetPicture? Picture);
 
     /// <summary>One distinct whole picture the sheet holds, and the colouring the poses showing it are always drawn in.</summary>
     /// <param name="key">What the picture is composed of.</param>
     /// <param name="frame">The picture as one whole frame.</param>
-    private sealed class SheetPicture(SamusBodyPictureKey key, SpriteFrame frame)
+    private sealed partial class SheetPicture(SamusBodyPictureKey key, SpriteFrame frame)
     {
         /// <summary>What the picture is composed of.</summary>
         internal SamusBodyPictureKey Key { get; } = key;

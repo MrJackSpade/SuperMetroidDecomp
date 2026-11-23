@@ -5,19 +5,19 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// has revived. She is in the highest band whose <see cref="MinimumHealth"/> her health reaches, and in
 /// <see cref="MotherBrainHealthBandDefinitions.NearlyDead"/> below them all.
 /// </summary>
-public sealed class MotherBrainHealthBand
+public sealed partial class MotherBrainHealthBand
 {
     /// <summary>Defines a band.</summary>
-    /// <param name="minimumHealth">The least health in the band, or null for the lowest band.</param>
+    /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal MotherBrainHealthBand(int? minimumHealth, [InstalledKey] string key)
+    internal MotherBrainHealthBand(int minimumHealth, string key)
     {
         MinimumHealth = minimumHealth;
         Key = key;
     }
 
-    /// <summary>The least health in the band, or null for the lowest band, which holds all the health below the others.</summary>
-    public int? MinimumHealth { get; }
+    /// <summary>The least health in the band: zero for the lowest band, which holds all the health below the others.</summary>
+    public int MinimumHealth { get; }
 
     /// <summary>The band's name in its shade's name.</summary>
     public string Key { get; }
@@ -27,7 +27,7 @@ public sealed class MotherBrainHealthBand
     /// selects the band every time without checking the encounter's phase.
     /// </summary>
     public static MotherBrainHealthBand Of(int health) =>
-        MotherBrainHealthBandDefinitions.HighestFirst.First(band => band.MinimumHealth is not { } least || health >= least);
+        MotherBrainHealthBandDefinitions.HighestFirst.First(band => health >= band.MinimumHealth);
 
     /// <inheritdoc/>
     public override string ToString() => Key;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -24,10 +25,23 @@ internal static class BeamImpactSoundVerification
     /// </summary>
     internal static void VerifyBeamImpactSound()
     {
+        // At normal priority the impact's sound joins its library's queue behind five requests made earlier in its update
+        // and is turned away behind six.
+        AssertTrue(ShootWall(competing: 5), "behind five waiting library-two requests the frame a beam hits the wall queues library-two $0C");
+        AssertTrue(!ShootWall(competing: 6), "behind six waiting library-two requests the normal-priority impact sound is turned away");
+        Console.WriteLine("  Beam impact sound: a wall hit requests library-two $0C at normal priority.");
+    }
+
+    /// <summary>
+    /// Fires a beam at a wall, each update of its flight made behind <paramref name="competing"/> waiting library-two
+    /// requests, and returns whether the queue admitted the impact sound on the update the beam became an explosion.
+    /// </summary>
+    private static bool ShootWall(int competing)
+    {
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         RoomLevelData level = runtime.Room.LoadedLevelData;
         // A floored corridor ending in a solid column at block 44, inside the settled view.
@@ -39,9 +53,9 @@ internal static class BeamImpactSoundVerification
                 y >= 32 || x == 44 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(512, 490));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -50,19 +64,17 @@ internal static class BeamImpactSoundVerification
             runtime.StepFrame(0);
 
         runtime.StepFrame(ControllerButton.X);
-        AssertTrue(!runtime.Projectiles.Shots[0].Type.IsNone, "the shot is live");
+        AssertTrue(runtime.Projectiles.Shots[0].IsOccupied, "the shot is live");
         for (int frame = 0; frame < 120; frame++)
         {
-            bool exploding = runtime.Projectiles.Shots[0].Type.IsFamily(SamusProjectileFamily.BeamExplosion);
+            bool exploding = runtime.Projectiles.Shots[0].HeldShot().Type.IsFamily(SamusProjectileFamily.BeamExplosion);
+            // The runtime steps without the game's audio dispatch: empty the session's queues as a dispatch that played
+            // every sound leaves them, then make the update's competing requests.
+            runtime.AudioRequests.QueuesReached.Reset();
+            runtime.AudioRequests.FillQueueAhead(EnemySound.Beacon, competing);
             runtime.StepFrame(0);
-            if (!exploding && runtime.Projectiles.Shots[0].Type.IsFamily(SamusProjectileFamily.BeamExplosion))
-            {
-                AssertTrue(runtime.AudioRequests.SoundRequests.Contains(
-                        new SoundRequest(EnemySound.BeamImpact, SoundRequestPriority.Normal)),
-                    "the frame a beam hits the wall requests library-two $0C at normal priority");
-                Console.WriteLine("  Beam impact sound: a wall hit requests library-two $0C at normal priority.");
-                return;
-            }
+            if (!exploding && runtime.Projectiles.Shots[0].HeldShot().Type.IsFamily(SamusProjectileFamily.BeamExplosion))
+                return runtime.AudioRequests.SoundsQueued.Contains(EnemySound.BeamImpact);
         }
         throw new InvalidOperationException("The beam never reached the wall at block 44.");
     }

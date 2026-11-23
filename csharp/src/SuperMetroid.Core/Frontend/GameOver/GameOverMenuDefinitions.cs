@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>The game-over menu's fade, music, sound and Baby timing.</summary>
-public static class GameOverMenuDefinitions
+public static partial class GameOverMenuDefinitions
 {
     /// <summary>
     /// How crowded the sound queue may be for the menu's sounds to join it: the silence it opens with, the selection
@@ -16,11 +16,11 @@ public static class GameOverMenuDefinitions
     public const int AcceptedAnswerHoldDuration = 180;
 
     /// <summary>The cry queued after the first cry group's first frame.</summary>
-    public static readonly SoundEffectId FirstCry = RoomSound.BabyMetroidCry1;
+    public static readonly SoundEffectId HighCry = RoomSound.BabyMetroidHighCry;
 
     /// <summary>The cry queued after the second cry group's first frame.</summary>
-    public static readonly SoundEffectId SecondCry = RoomSound.BabyMetroidCry2;
+    public static readonly SoundEffectId HitchedCry = RoomSound.BabyMetroidHitchedCry;
 
     /// <summary>The cry queued after the third cry group's first frame.</summary>
-    public static readonly SoundEffectId ThirdCry = RoomSound.BabyMetroidCry3;
+    public static readonly SoundEffectId LowCry = RoomSound.BabyMetroidLowCry;
 }

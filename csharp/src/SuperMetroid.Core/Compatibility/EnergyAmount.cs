@@ -12,9 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// with a carry from the fraction into the whole; the periodic damage and suit damage checks compare every amount with
 /// that arithmetic.
 /// </remarks>
-[EncodingOwner("periodic damage energy amount: whole energy and a sixteen-bit fraction of one energy")]
-[CompatibilityService("periodic damage counts Samus's energy in whole energy and a fraction of one, which fractions together passing a whole energy add to")]
-public readonly record struct EnergyAmount
+public readonly partial record struct EnergyAmount
 {
     /// <summary>Keeps the amount at the precision periodic damage counts it, whole energy above its fraction.</summary>
     private EnergyAmount(UnsignedSixteenSixteen amount) => _amount = amount;
@@ -36,7 +34,6 @@ public readonly record struct EnergyAmount
         new(UnsignedSixteenSixteen.FromPixelFraction(numerator, denominator));
 
     /// <summary>The amount's whole energy, its fraction of an energy dropped.</summary>
-    [IntegerQuantity("whole energy of a periodic damage amount")]
     public int WholeEnergy => _amount.Whole;
 
     /// <summary>The amount's fraction of an energy, in the parts <see cref="PeriodicDamageEnergyFraction"/> counts.</summary>

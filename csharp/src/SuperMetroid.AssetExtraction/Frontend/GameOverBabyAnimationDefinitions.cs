@@ -12,65 +12,43 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// Native $82:BC27..BD96 holds sixty six-byte frame records in play order. The first cry step of each group is
 /// followed by a two-byte sound callback, and the final record by the $FFFF restart marker at $BD95.
 /// </remarks>
-[EncodingOwner("cartridge record words of the game-over Baby program")]
-internal static class GameOverBabyAnimationDefinitions
+internal static partial class GameOverBabyAnimationDefinitions
 {
     /// <summary>First native frame record at <c>$82:BC27</c>, where extraction begins its walk of the stream.</summary>
     public const ushort FirstPointer = 0xbc27;
 
-    /// <summary>Native menu-spritemap identity used only for extraction parity.</summary>
+    /// <summary>Each frame's native menu-spritemap identity, used only for extraction parity.</summary>
     /// <remarks>
-    /// Issues #625 and #971: for semantic frame f=0..2 (Closed, Middle,
-    /// Open), native spritemap ID is $65+f. A pinned NTSC J/U v1.0 ROM walk of
-    /// the complete $82:BC27..BD95 Baby instruction stream found 60 positive
-    /// frame records, using IDs $65/$66/$67 exactly 15/30/15 times, with three
-    /// separate cry words. Menu spritemap pointer-table entries $82:C633,
-    /// C635, and C637 resolve to $82:CFF6, CFFD, and D004 as bank_82.asm says.
-    /// The enum domain is only these three frames; unknown values fail.
+    /// The Closed, Middle and Open frames draw the menu spritemaps that follow one another in the menu spritemap table,
+    /// in that order. The table holds only these three frames.
     /// </remarks>
-    public static ushort NativeSpritemap(GameOverBabyFrame frame) => frame switch
+    internal static readonly NativeWordIdentities<GameOverBabyFrame> Spritemaps = new(new Dictionary<GameOverBabyFrame, ushort>
     {
-        GameOverBabyFrame.Closed => 0x65,
-        GameOverBabyFrame.Middle => 0x66,
-        GameOverBabyFrame.Open => 0x67,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
-    };
-
-    /// <summary>Native bank-$82 palette pointer used only for extraction parity.</summary>
-    /// <remarks>
-    /// Issues #625 and #972: for semantic palette phase p=0..3 (Idle,
-    /// ClosedCry, MiddleCry, OpenCry), native source is $82:BD97+$20*p.
-    /// Each contiguous block has 16 little-endian color words; four blocks
-    /// occupy $82:BD97..BE16. A pinned NTSC J/U v1.0 ROM walk of all 60
-    /// positive Baby frame records found phase counts 36, 6, 12, and 6,
-    /// with no pointer outside these four sources. bank_82.asm names the same
-    /// blocks. Unknown semantic phases fail rather than extrapolate.
-    /// </remarks>
-    public static ushort NativePalettePointer(GameOverBabyColouring palette) => palette switch
-    {
-        GameOverBabyColouring.Idle => 0xbd97,
-        GameOverBabyColouring.ClosedCry => 0xbdb7,
-        GameOverBabyColouring.MiddleCry => 0xbdd7,
-        GameOverBabyColouring.OpenCry => 0xbdf7,
-        _ => throw new ArgumentOutOfRangeException(nameof(palette)),
-    };
-
-    /// <summary>
-    /// The bank-$82 cry callback each cry marker names (#1416: the Core enum that held these words is deleted):
-    /// <c>Instruction_Queue_BabyMetroid_Cry1_SoundEffect</c> to <c>Cry3</c> at $82:BC0C, BC15 and BC1E, which queue
-    /// library-three sounds $23, $26 and $27.
-    /// </summary>
-    /// <remarks>Issues #625 and #970: their effect IDs and stream references were checked against pinned NTSC J/U v1.0
-    /// ROM.</remarks>
-    internal static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
-    {
-        [GameOverBabySound.FirstCry] = 0xbc0c,
-        [GameOverBabySound.SecondCry] = 0xbc15,
-        [GameOverBabySound.ThirdCry] = 0xbc1e,
+        [GameOverBabyFrame.Closed] = 0x65,
+        [GameOverBabyFrame.Middle] = 0x66,
+        [GameOverBabyFrame.Open] = 0x67,
     });
 
-    /// <summary>Native bank-$82 sound callback identity used only for extraction parity.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="sound"/> queues no cry.</exception>
-    public static ushort NativeSoundOpcode(GameOverBabySound sound) => CryCallbacks.Word(sound);
+    /// <summary>Each colouring's native bank-$82 palette pointer, used only for extraction parity.</summary>
+    /// <remarks>
+    /// The Idle, ClosedCry, MiddleCry and OpenCry colourings lie in consecutive blocks of sixteen colours, in that order.
+    /// The table holds only these four sources.
+    /// </remarks>
+    internal static readonly NativeWordIdentities<GameOverBabyColouring> PalettePointers = new(new Dictionary<GameOverBabyColouring, ushort>
+    {
+        [GameOverBabyColouring.Idle] = 0xbd97,
+        [GameOverBabyColouring.ClosedCry] = 0xbdb7,
+        [GameOverBabyColouring.MiddleCry] = 0xbdd7,
+        [GameOverBabyColouring.OpenCry] = 0xbdf7,
+    });
 
+    /// <summary>
+    /// The cry callback word each cry marker names: the first, second and third cry each queue their own sound.
+    /// </summary>
+    internal static readonly NativeWordIdentities<GameOverBabySound> CryCallbacks = new(new Dictionary<GameOverBabySound, ushort>
+    {
+        [GameOverBabySound.HighCry] = 0xbc0c,
+        [GameOverBabySound.HitchedCry] = 0xbc15,
+        [GameOverBabySound.LowCry] = 0xbc1e,
+    });
 }

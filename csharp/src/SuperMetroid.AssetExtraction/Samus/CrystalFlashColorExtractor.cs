@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -7,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts Crystal Flash display colors; native duration words are not editable.</summary>
-public static class CrystalFlashColorExtractor
+public static partial class CrystalFlashColorExtractor
 {
     /// <summary>The bytes of one body record: its colour pointer and its timer word.</summary>
     private const int BodyRecordBytes = 4;
@@ -24,7 +26,7 @@ public static class CrystalFlashColorExtractor
         var body = new PaletteRgb5[CrystalFlashColorFormat.BodyFrameCount][];
         for (int frame = 0; frame < body.Length; frame++)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.CrystalFlashBodyRecords.Value +
                 frame * BodyRecordBytes);
             body[frame] = ReadColors(pointer, CrystalFlashColorFormat.BodyColorCount);
@@ -32,7 +34,7 @@ public static class CrystalFlashColorExtractor
         var bubble = new PaletteRgb5[CrystalFlashColorFormat.BubbleFrameCount][];
         for (int frame = 0; frame < bubble.Length; frame++)
         {
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.BubblePointers.Value + frame * sizeof(ushort));
             bubble[frame] = ReadColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
         }
@@ -45,18 +47,13 @@ public static class CrystalFlashColorExtractor
 
         PaletteRgb5[] ReadColors(int pointer, int count)
         {
-            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] source = RomDataReader.ReadFixedBank(bus,
                 SamusSourceDefinitions.PaletteBank.Value | pointer, count * sizeof(ushort));
             var result = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
                 int word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
-                result[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                result[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return result;
         }

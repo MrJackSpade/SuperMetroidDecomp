@@ -4,47 +4,31 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>What each of Samus's sheets composes from the installed stock artwork (#1392).</summary>
-internal static class SamusSheetSources
+internal static partial class SamusSheetSources
 {
+    /// <summary>
+    /// Each of Samus's sheets, bound to the composer that builds it from her stock artwork: Grapple, her body, its
+    /// overlays, her atmosphere and death, and every projectile sheet <see cref="ProjectileSheetComposer"/> composes.
+    /// </summary>
+    internal static IReadOnlyDictionary<SpriteSheetId, Func<SamusSheetInputs, SpriteSheetSources>> Sheets { get; } = Bind();
+
     /// <summary>What one of Samus's sheets composes.</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The sheet is not one of Samus's.</exception>
-    internal static SpriteSheetSources For(SamusSheetInputs inputs, SpriteSheetId sheet) => sheet switch
+    /// <exception cref="KeyNotFoundException">The sheet is not one of Samus's.</exception>
+    internal static SpriteSheetSources For(SamusSheetInputs inputs, SpriteSheetId sheet) => Sheets[sheet](inputs);
+
+    /// <summary>Binds each of Samus's sheets to its composer.</summary>
+    private static Dictionary<SpriteSheetId, Func<SamusSheetInputs, SpriteSheetSources>> Bind()
     {
-        SpriteSheetId.EscapeTimer => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The escape timer is not one of Samus's sheets."),
-        SpriteSheetId.PauseHud => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The pause HUD composes from the HUD's images, not sprite parts."),
-        SpriteSheetId.MenuPictures or SpriteSheetId.RoomMapPictures or SpriteSheetId.PausePictures => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "The menus' pictures compose from their pages, not sprite parts."),
-        SpriteSheetId.Grapple => GrappleSheetComposer.Sources(inputs),
-        SpriteSheetId.SamusBody => SamusBodySheetComposer.Sources(inputs),
-        SpriteSheetId.SamusOverlays => SamusOverlaySheetComposer.Sources(inputs),
-        SpriteSheetId.SamusAtmosphere => SamusAtmosphereSheetComposer.Sources(inputs),
-        SpriteSheetId.SamusDeath => SamusDeathSheetComposer.Sources(inputs),
-        SpriteSheetId.GameOver or SpriteSheetId.FileSelect or SpriteSheetId.GameOptions or
-            SpriteSheetId.MapSprites or SpriteSheetId.PauseSprites or SpriteSheetId.Title or
-            SpriteSheetId.IntroSprites or SpriteSheetId.CeresFlightSprites or
-            SpriteSheetId.CeresDestructionSprites or SpriteSheetId.ZebesRevealSprites or
-            SpriteSheetId.EndingCloudSprites or SpriteSheetId.EndingExplosionSprites or
-            SpriteSheetId.EndingSuitedRewardSprites or SpriteSheetId.EndingSuitlessRewardSprites or
-            SpriteSheetId.EndingShootingSprites or SpriteSheetId.IntroProjectiles or SpriteSheetId.ProjectilesPower or
-            SpriteSheetId.ProjectilesWave or SpriteSheetId.ProjectilesIce or SpriteSheetId.ProjectilesIceWave or
-            SpriteSheetId.ProjectilesSpazer or SpriteSheetId.ProjectilesSpazerWave or
-            SpriteSheetId.ProjectilesSpazerIce or SpriteSheetId.ProjectilesSpazerIceWave or
-            SpriteSheetId.ProjectilesPlasma or SpriteSheetId.ProjectilesPlasmaWave or
-            SpriteSheetId.ProjectilesPlasmaIce or SpriteSheetId.ProjectilesPlasmaIceWave or
-            SpriteSheetId.ProjectilesSpazerPlasmaWave or SpriteSheetId.ProjectilesSpazerPlasmaIce or
-            SpriteSheetId.AreaMapForegroundCrateria or SpriteSheetId.AreaMapForegroundBrinstar or
-            SpriteSheetId.AreaMapForegroundNorfair or SpriteSheetId.AreaMapForegroundWreckedShip or
-            SpriteSheetId.AreaMapForegroundMaridia or SpriteSheetId.AreaMapForegroundTourian or
-            SpriteSheetId.AreaMapBackgroundCrateria or SpriteSheetId.AreaMapBackgroundBrinstar or
-            SpriteSheetId.AreaMapBackgroundNorfair or SpriteSheetId.AreaMapBackgroundWreckedShip or
-            SpriteSheetId.AreaMapBackgroundMaridia or SpriteSheetId.AreaMapBackgroundTourian or
-            SpriteSheetId.IntroScenePictures or SpriteSheetId.IntroNarrationPictures or SpriteSheetId.CeresCinematicPictures or
-            SpriteSheetId.EndingCreditsRows or SpriteSheetId.EndingPostCreditsPictures or
-            SpriteSheetId.EndingWavySamusPicture or SpriteSheetId.EndingExplosionPictures or
-            SpriteSheetId.TitleFloor or SpriteSheetId.CeresFloor or
-            SpriteSheetId.EndingSideCloudEscapeFloor or SpriteSheetId.EndingTopAndBottomCloudEscapeFloor or
-            SpriteSheetId.EndingPlanetExplosionFloor or SpriteSheetId.EndingFlyawayFloor or
-            SpriteSheetId.EndingRewardIconFloor =>
-            ProjectileSheetComposer.Sources(inputs, sheet),
-        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined sprite sheet."),
-    };
+        var sheets = new Dictionary<SpriteSheetId, Func<SamusSheetInputs, SpriteSheetSources>>
+        {
+            [SpriteSheetId.Grapple] = GrappleSheetComposer.Sources,
+            [SpriteSheetId.SamusBody] = SamusBodySheetComposer.Sources,
+            [SpriteSheetId.SamusOverlays] = SamusOverlaySheetComposer.Sources,
+            [SpriteSheetId.SamusAtmosphere] = SamusAtmosphereSheetComposer.Sources,
+            [SpriteSheetId.SamusDeath] = SamusDeathSheetComposer.Sources,
+        };
+        foreach (SpriteSheetId projectiles in ProjectileSheetComposer.Sheets)
+            sheets.Add(projectiles, inputs => ProjectileSheetComposer.Sources(inputs, projectiles));
+        return sheets;
+    }
 }

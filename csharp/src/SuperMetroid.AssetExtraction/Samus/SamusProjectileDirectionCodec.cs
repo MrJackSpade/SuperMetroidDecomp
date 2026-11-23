@@ -12,8 +12,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// with the standing beam flare's turning placements. This is the one place a direction becomes its index or an index
 /// its direction.
 /// </summary>
-[EncodingOwner("projectile aim index")]
-internal static class SamusProjectileDirectionCodec
+internal static partial class SamusProjectileDirectionCodec
 {
     /// <summary>The number of directions the aim index names.</summary>
     internal const int Count = 10;

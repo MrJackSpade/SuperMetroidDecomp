@@ -5,10 +5,10 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the five breakable Grapple-block frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectGrappleBlockVisualFiles
+public static partial class RoomObjectGrappleBlockVisualFiles
 {
     /// <summary>Family-relative installed JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
-    public const string VisualFileName = "grapple-blocks.json";
+    internal const string VisualFileName = "grapple-blocks.json";
 
     /// <summary>The Grapple block's frames in their authored order (#2567): intact, its rock, pieces and dust, then blank air.</summary>
     private static readonly IReadOnlyList<GrappleBlockDraw> FrameOrder = Ensure.EveryMemberOnce<GrappleBlockDraw>(
@@ -33,7 +33,7 @@ public static class RoomObjectGrappleBlockVisualFiles
     /// <summary>Loads the installed Grapple-block pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectGrappleBlockVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The published artwork identity of a Grapple-block draw.</summary>

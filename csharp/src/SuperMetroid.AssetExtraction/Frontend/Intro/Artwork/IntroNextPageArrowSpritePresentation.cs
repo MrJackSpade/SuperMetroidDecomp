@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable OAM compositions of the Japanese text's next-page arrow (#1655), independent of its cadence and position.</summary>
-public sealed class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated arrow compositions keyed by the pose that shows them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -17,9 +17,6 @@ public sealed class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrame
 
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
-
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroNextPageArrowSpritePresentation), frames);
 
     /// <summary>Retains the three validated frames after JSON compilation.</summary>
     private IntroNextPageArrowSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
@@ -54,7 +51,7 @@ public sealed class IntroNextPageArrowSpritePresentation : ICinematicSpriteFrame
     public static void Write(Stream json, IntroNextPageArrowSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroNextPageArrowSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

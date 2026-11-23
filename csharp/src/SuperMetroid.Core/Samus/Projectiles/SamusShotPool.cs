@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Samus's shot pool: the places her ordinary projectiles take and the shot count.</summary>
@@ -6,18 +8,12 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// projectile holds; the projectile update and drawing run in update order, from the highest place down, and enemy
 /// collision from the lowest up. With every place held a beam takes the last place over the shot holding it
 /// (<see cref="PlaceForBeam"/>). Gameplay names some places: a special attack's particles replace the shots in the first
-/// four (<see cref="SpecialAttackReplacesFirstShots"/>), each playing its part (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two (<see cref="FirstEchoPlace"/>, <see cref="SecondEchoPlace"/>); an unlinked Super Missile names
+/// four (<see cref="SpecialAttackReplacesFirstShots"/>), each playing its part (<see cref="SpecialAttackParticleDefinitions"/>); the crash echoes take the last two (<see cref="ShinesparkCrashEchoPlaces"/>); an unlinked Super Missile names
 /// the first (<see cref="UnlinkedSuperMissileLink"/>); and some enemies react to the first place's projectile or to the
 /// highest one.
 /// </remarks>
-internal sealed class SamusShotPool
+internal sealed partial class SamusShotPool
 {
-    /// <summary>The place a shinespark crash's first echo takes: the one before the last.</summary>
-    internal const int FirstEchoPlace = SamusProjectileSystem.PlaceCount - 2;
-
-    /// <summary>The place a shinespark crash's second echo takes: the last.</summary>
-    internal const int SecondEchoPlace = SamusProjectileSystem.PlaceCount - 1;
-
     /// <summary>Each place's projectile, live or the last one that ended there; occupancy does not replace <see cref="ShotCount"/>.</summary>
     private readonly SamusProjectile[] _places =
         Enumerable.Range(0, SamusProjectileSystem.PlaceCount).Select(place => new SamusProjectile(place)).ToArray();
@@ -59,49 +55,61 @@ internal sealed class SamusShotPool
     internal int PlaceForBeam() => BeamFiredOverLastShot.Place(FindFreePlace(), _places.Length);
 
     /// <summary>
-    /// Creates the new beam of <paramref name="place"/> as <see cref="Occupy"/> does, ending the shot there, and gives
-    /// it the Power Bomb fuse that shot leaves: none from a free place (<see cref="BeamFiredOverLastShot"/>).
+    /// Creates the new beam of <paramref name="type"/> dealing <paramref name="damage"/> in <paramref name="place"/> as
+    /// <see cref="Occupy"/> does, ending the shot there, and gives it the Power Bomb fuse that shot leaves: none from a
+    /// free place (<see cref="BeamFiredOverLastShot"/>).
     /// </summary>
     /// <param name="place">The zero-based shot place, which <see cref="PlaceForBeam"/> chose.</param>
-    /// <returns>The new beam, holding no damage until its setup gives it some.</returns>
-    internal SamusProjectile OccupyWithBeam(int place)
+    /// <param name="type">What the beam is.</param>
+    /// <param name="damage">The damage the beam deals, one or more.</param>
+    /// <returns>The new beam.</returns>
+    internal SamusProjectileOccupant OccupyWithBeam(int place, SamusProjectileType type, int damage)
     {
         int fuse = BeamFiredOverLastShot.FuseLeftBy(_places[place].AsReplacedByBeam);
-        SamusProjectile beam = Occupy(place);
+        SamusProjectileOccupant beam = Occupy(place, type, damage);
         beam.BeamFuse = UpdateCountdown.For(fuse);
         return beam;
     }
 
     /// <summary>
-    /// Creates the new projectile of <paramref name="place"/>, ending the one there. It starts at the room's origin with
-    /// the horizontal fraction of a pixel the place hands on: the replaced projectile's when it still held the place,
-    /// otherwise what the place kept (<see cref="LeftBeamStartFromLastShot"/>).
+    /// Creates the new projectile of <paramref name="type"/> dealing <paramref name="damage"/> in <paramref name="place"/>,
+    /// ending the one there. It starts at the room's origin with the horizontal fraction of a pixel the place hands on: the
+    /// replaced projectile's when it still held the place, otherwise what the place kept (<see cref="LeftBeamStartFromLastShot"/>).
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
-    /// <returns>The new projectile, holding no damage until its setup gives it some.</returns>
-    internal SamusProjectile Occupy(int place)
+    /// <param name="type">What the projectile is.</param>
+    /// <param name="damage">The damage the projectile deals, one or more.</param>
+    /// <returns>The new projectile.</returns>
+    internal SamusProjectileOccupant Occupy(int place, SamusProjectileType type, int damage)
     {
-        SamusProjectile replaced = _places[place];
         PixelFraction kept = LeftBeamStart.Start(place);
-        PixelFraction fraction = replaced.IsOccupied ? replaced.Position.X.FractionOfPixel : kept;
-        SamusProjectile projectile = OccupyAtRest(place);
-        projectile.Position = projectile.Position.WithFractionX(fraction);
-        return projectile;
+        PixelFraction fraction = _places[place].Occupant is { } replaced ? replaced.Position.X.FractionOfPixel : kept;
+        return OccupyAtRest(place, type, damage, FixedPosition<RoomPixels>.Zero.WithFractionX(fraction));
     }
 
     /// <summary>
-    /// Creates the new projectile of <paramref name="place"/> at rest at the room's origin, ending the one there; the
-    /// place keeps no fraction of a pixel for it. The Super Missile's link starts so.
+    /// Creates the new projectile of <paramref name="type"/> dealing <paramref name="damage"/> in <paramref name="place"/>
+    /// at rest at the room's origin, ending the one there; the place keeps no fraction of a pixel for it. The Super
+    /// Missile's link starts so.
     /// </summary>
     /// <param name="place">The zero-based shot place.</param>
-    /// <returns>The new projectile, holding no damage until its setup gives it some.</returns>
-    internal SamusProjectile OccupyAtRest(int place)
+    /// <param name="type">What the projectile is.</param>
+    /// <param name="damage">The damage the projectile deals, one or more.</param>
+    /// <returns>The new projectile.</returns>
+    internal SamusProjectileOccupant OccupyAtRest(int place, SamusProjectileType type, int damage) =>
+        OccupyAtRest(place, type, damage, FixedPosition<RoomPixels>.Zero);
+
+    /// <summary>
+    /// Creates the new projectile of <paramref name="type"/> dealing <paramref name="damage"/> in <paramref name="place"/>
+    /// at <paramref name="position"/>, ending the one there; the place keeps no fraction of a pixel after it.
+    /// </summary>
+    private SamusProjectileOccupant OccupyAtRest(int place, SamusProjectileType type, int damage, FixedPosition<RoomPixels> position)
     {
         _ = LeftBeamStart.Start(place);
         _places[place].End();
         var projectile = new SamusProjectile(place);
         _places[place] = projectile;
-        return projectile;
+        return projectile.Occupy(type, damage, position);
     }
 
     /// <summary>
@@ -112,8 +120,8 @@ internal sealed class SamusShotPool
     {
         foreach (SamusProjectile projectile in _places)
         {
-            if (projectile.IsOccupied)
-                LeftBeamStart.Keep(projectile.Place, projectile.Position.X.FractionOfPixel);
+            if (projectile.Occupant is { } held)
+                LeftBeamStart.Keep(projectile.Place, held.Position.X.FractionOfPixel);
             projectile.End();
         }
     }

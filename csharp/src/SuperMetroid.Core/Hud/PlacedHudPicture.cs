@@ -9,4 +9,4 @@ namespace SuperMetroid.Core.Hud;
 /// The shading a frontend screen shows the picture in (#1512), or null for gameplay's HUD, which shows its frame's HUD
 /// shading; a backend refuses a frontend HUD picture that names none.
 /// </param>
-public readonly record struct PlacedHudPicture(SpriteSheetFrame Picture, Position16<ScreenPixels> Corner, PictureShading? Shading = null);
+public readonly partial record struct PlacedHudPicture(SpriteSheetFrame Picture, Position16<ScreenPixels> Corner, PictureShading? Shading = null);

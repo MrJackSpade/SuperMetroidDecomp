@@ -3,7 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>Names the shade of each tint a room effect selects (#1512, #1898).</summary>
-public static class RoomEffectTintShading
+public static partial class RoomEffectTintShading
 {
     /// <summary>The shade the effect overlay's and the HUD's pictures show under <paramref name="tint"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The tint is undefined.</exception>

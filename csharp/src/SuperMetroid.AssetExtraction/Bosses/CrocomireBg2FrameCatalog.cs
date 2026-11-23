@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable BG2 writes for Crocomire's mixed fight-body frames.</summary>
-public sealed class CrocomireBg2FrameCatalog
+public sealed partial class CrocomireBg2FrameCatalog
 {
 
     /// <summary>The frames' writes, compiled and indexed by native extended-frame roots.</summary>

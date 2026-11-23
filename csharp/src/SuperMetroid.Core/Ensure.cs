@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Core;
 
 /// <summary>Reusable validation of the values Core is given. Every operation returns the validated value.</summary>
-public static class Ensure
+public static partial class Ensure
 {
     /// <summary>Requires a non-null reference and reports the checked value's expression.</summary>
     public static T NotNull<T>(
@@ -23,6 +23,14 @@ public static class Ensure
             throw new ArgumentException($"Length must equal {expected}.", parameterName);
         return value;
     }
+
+    /// <summary>Requires a non-null array that holds at least one element.</summary>
+    public static T[] NotEmpty<T>(
+        [NotNull] T[]? value,
+        [CallerArgumentExpression(nameof(value))] string? parameterName = null) =>
+        NotNull(value, parameterName).Length > 0
+            ? value
+            : throw new ArgumentException("Value must hold at least one element.", parameterName);
 
     /// <summary>Requires a value of at least zero.</summary>
     public static int AtLeastZero(int value,

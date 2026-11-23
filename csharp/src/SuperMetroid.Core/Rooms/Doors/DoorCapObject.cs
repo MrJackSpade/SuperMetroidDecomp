@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 /// <param name="orientation">The cap's facing.</param>
 /// <param name="paint">The paint its closed images show.</param>
-internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCapPaint paint)
-    : SequencedRoomObject<DoorCapSegment, DoorCapFrame, SoundEffectId>(DoorCapSequenceDefinitions.Segments), IDoorBehindSamus
+internal abstract partial class DoorCapObject(ColoredDoorOrientation orientation, DoorCapPaint paint)
+    : SequencedRoomObject<DoorCapSegment, DoorCapShown, SoundEffectId>(DoorCapSequenceDefinitions.Segments), IDoorBehindSamus
 {
     /// <inheritdoc/>
     public abstract bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood);
@@ -26,10 +26,10 @@ internal abstract class DoorCapObject(ColoredDoorOrientation orientation, DoorCa
     internal DoorCapPaint Paint { get; } = paint;
 
     /// <inheritdoc/>
-    private protected sealed override void Show(DoorCapFrame frame, RoomObjectPlace place, RoomObjectStepContext context) =>
+    private protected sealed override void Show(DoorCapShown frame, RoomObjectPlace place, RoomObjectStepContext context) =>
         context.Draw(place, DoorCaps.Image(Paint, Orientation, frame));
 
     /// <inheritdoc/>
-    private protected sealed override void Raise(SoundEffectId raised, RoomObjectPlace place, RoomObjectStepContext context) =>
-        context.QueueSound(raised, DoorCapSequenceDefinitions.SoundPriority);
+    private protected sealed override Action<SoundEffectId, RoomObjectPlace, RoomObjectStepContext> Raiser =>
+        static (raised, _, context) => context.QueueSound(raised, DoorCapSequenceDefinitions.SoundPriority);
 }

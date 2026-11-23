@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 
@@ -12,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// or atmosphere), the sheets of the HUD's pictures (#1731), each tileset's message boxes, and the turning floor of each
 /// tileset whose rooms show one (#1467, #1649).
 /// </summary>
-public sealed class InstalledRoomArtwork
+public sealed partial class InstalledRoomArtwork
 {
     /// <summary>
     /// Keeps the sheets, each under its own tileset, the background images, each under its own name, and the written
@@ -109,12 +108,12 @@ public sealed class InstalledRoomArtwork
         HudPictures.TryGetValue(tileset, out HudPictureSheet? pictures) ? pictures : throw new InvalidDataException($"No HUD picture sheet is installed for {tileset}.");
 
     /// <summary>
-    /// The image of library background <paramref name="background"/> in a room of <paramref name="tileset"/>: the picture
-    /// <paramref name="door"/> shows when it is one of the background's picture doors, otherwise, for no door, the ordinary one.
+    /// The image of library background <paramref name="background"/>'s picture <paramref name="picture"/> in a room of
+    /// <paramref name="tileset"/>.
     /// </summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>
-    public RoomBackgroundImage Background(LibraryBackground background, DoorDefinition? door, TilesetDefinition tileset) =>
-        Named(RoomBackgroundImage.NameOf(background, door, tileset));
+    public RoomBackgroundImage Background(LibraryBackground background, LibraryBackgroundPicture picture, TilesetDefinition tileset) =>
+        Named(RoomBackgroundImage.NameOf(background, picture, tileset));
 
     /// <summary>The image of scrolling sky <paramref name="sky"/>'s rows in a room of <paramref name="tileset"/>.</summary>
     /// <exception cref="InvalidDataException">No such image is installed.</exception>

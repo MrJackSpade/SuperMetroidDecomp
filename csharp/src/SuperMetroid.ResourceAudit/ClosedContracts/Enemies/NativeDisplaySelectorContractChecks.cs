@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -22,7 +21,7 @@ internal static class NativeDisplaySelectorContractChecks
             class SelectorConsumer {
                 void Inspect(EnemyFrameDisplays frames, EnemyFrameId frame) {
                     frames.GetDisplayFrame(frame);
-                    frames.GetDisplayFrame(EnemyFrameId.Empty);
+                    frames.GetDisplayFrame(EnemyFrameId.PointAtOrigin);
                     frames.GetDisplayFrame(EnemyFrameId.KraidFootPlanted);
                     frames.TryGetDisplay(frame, out _);
                 }
@@ -31,7 +30,7 @@ internal static class NativeDisplaySelectorContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("NativeDisplaySelectorFixture", sources,
-            platforms.Append(typeof(EnemyFrameDisplays).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

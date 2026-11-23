@@ -29,14 +29,12 @@ internal static class TourianAccessObjectDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[blockCount], new RoomBlockBehavior[blockCount], new RoomBlockAppearance[blockCount]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
 
-            AssertTrue(
-                roomObjects.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
-                $"Tourian access {(clear ? "clear" : "crumble")} actor allocates");
+            roomObjects.Tourian.SpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
             AssertEqual(1, roomObjects.Places.ActiveCount, "Tourian access spawn occupies one PLM slot");
             RoomObjectPlaceSnapshot place = roomObjects.PopulationPlaces.Single();
             AssertEqual(0, place.UpdatePosition, "Tourian access takes the first free slot in processing order");
             AssertEqual(new Position16<RoomBlocks>(6, 12), place.Block, "Tourian access fixed block coordinate");
-            AssertTrue(place.Behaviour is TerrainChangeObject { Change: var change } && change == expected,
+            AssertTrue(place.Behaviour is TerrainChangeObject started && started.Starts(expected),
                 "Tourian access starts its terrain change");
             AssertEqual(1, expected.FirstFrameDelay, "Tourian access draws on its first update");
         }
@@ -53,8 +51,8 @@ internal static class TourianAccessObjectDefinitionsVerification
         TourianAccessObjectDefinitionsCase[] cases = [new TourianAccessObjectDefinitionsCase(false,0x88dc9f), new TourianAccessObjectDefinitionsCase(true,0x88db99)];
         foreach (var item in cases)
         {
-            ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord(item.SpawnOperand);
-            ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (header + 2));
+            ushort header = rom.ReadCartridgeWord(item.SpawnOperand);
+            ushort list = rom.ReadCartridgeWord(0x840000 | (header + 2));
             AssertEqual(item.Clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble,
                 RoomObjectNativeListAddresses.TourianAccessEntries.Single(entry => entry.Entry == list).Program,
                 $"Tourian native spawn clear={item.Clear} starts its floor's list");

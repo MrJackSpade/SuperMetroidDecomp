@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Compatibility;
 /// A scroll check past the scroll cells reads the stored maps in the order the game keeps them: area by area, each area
 /// as runs of eight neighbouring cells of a row, the 32 rows of the left half of the map first and then the right half,
 /// four runs to a row. A run with no explored cell reads as a closed screen, a run whose only explored cell is its last
-/// (rightmost) one reads as a screen open with the camera aligned to its top, and any other run reads as an open screen
-/// (a closed, a top-aligned and an open screen alike). The stored map after the seventh
+/// (rightmost) one reads as a screen open with the camera aligned to its top, and any other run reads as an open screen.
+/// The stored map after the seventh
 /// area's is never stored and reads as unexplored.
 /// </para>
 /// </summary>
@@ -25,15 +25,14 @@ namespace SuperMetroid.Core.Compatibility;
 /// Evidence: the camera's scroll steps (<c>$80:A802</c>, <c>$80:A823</c>, <c>$80:A903</c>) index the scroll cells at
 /// <c>$7E:CD20</c> with a row times the room width plus a column, and the eight stored maps (<c>$7E:CD52..D551</c>)
 /// follow the fifty cells; the maps are written only by the store and load routines (<c>$80:858C</c>, <c>$80:85C6</c>,
-/// the door transition's <c>$82:DF99</c>/<c>$82:DFB6</c> for doors whose elevator properties carry <c>$40</c>), the
+/// the door transition's <c>$82:DF99</c>/<c>$82:DFB6</c> for doors that exchange maps), the
 /// save (<c>$81:8000</c>), the file load (<c>$81:82E4</c>), the new or cleared file (<c>$81:B3B9</c>) and the demo load
 /// (<c>$82:8679</c>); boot and soft reset clear all work memory (<c>$80:8482</c>). The map bits are laid out most
 /// significant bit first by <c>$90:A8A6</c>. The 100% movie reads past the cells at update 101214. The stored-map check
 /// compares this service's answers with that byte layout for constructed explorations.
 /// </remarks>
 /// <typeparam name="TArea">An area of the game.</typeparam>
-[CompatibilityService("a camera scroll check past the room's scroll cells reads the explored maps the game last stored")]
-public sealed class StoredExploredMaps<TArea>
+public sealed partial class StoredExploredMaps<TArea>
     where TArea : struct, Enum
 {
     /// <summary>The camera's reading of a run of eight cells of a stored map.</summary>
@@ -77,8 +76,8 @@ public sealed class StoredExploredMaps<TArea>
     /// <summary>The areas whose maps are stored, in the order the game keeps them.</summary>
     private readonly IReadOnlyList<TArea> _storedOrder;
 
-    /// <summary>Each area's stored map, in the order the game keeps them: whether each cell, row by row, is explored.</summary>
-    private readonly bool[][] _stored;
+    /// <summary>Each area's stored map, by area: whether each cell, row by row, is explored.</summary>
+    private readonly Dictionary<TArea, bool[]> _stored;
 
     /// <summary>The live map: whether each cell, row by row, is explored.</summary>
     private bool[] _live = new bool[MapCells];
@@ -92,7 +91,7 @@ public sealed class StoredExploredMaps<TArea>
         if (storedOrder.Count > KeptMapCount || storedOrder.Distinct().Count() != storedOrder.Count)
             throw new ArgumentException("The game keeps at most eight stored maps, one per area.", nameof(storedOrder));
         _storedOrder = storedOrder;
-        _stored = [.. storedOrder.Select(_ => new bool[MapCells])];
+        _stored = storedOrder.ToDictionary(area => area, _ => new bool[MapCells]);
     }
 
     /// <summary>Marks <paramref name="cell"/> explored on the live map.</summary>
@@ -102,11 +101,11 @@ public sealed class StoredExploredMaps<TArea>
 
     /// <summary>Stores the live map as <paramref name="area"/>'s map.</summary>
     /// <param name="area">The area the game stores the live map for.</param>
-    public void StoreLiveMap(TArea area) => _stored[IndexOf(area)] = [.. _live];
+    public void StoreLiveMap(TArea area) => _stored[Stored(area)] = [.. _live];
 
     /// <summary>Loads the live map from <paramref name="area"/>'s stored map.</summary>
     /// <param name="area">The area whose stored map becomes the live map.</param>
-    public void LoadLiveMap(TArea area) => _live = [.. _stored[IndexOf(area)]];
+    public void LoadLiveMap(TArea area) => _live = [.. _stored[Stored(area)]];
 
     /// <summary>Replaces <paramref name="area"/>'s stored map with <paramref name="explored"/>, as loading a file does.</summary>
     /// <param name="area">The area.</param>
@@ -117,12 +116,12 @@ public sealed class StoredExploredMaps<TArea>
         var map = new bool[MapCells];
         foreach (Position16<MapTiles> cell in Ensure.NotNull(explored))
             map[CellNumber(cell)] = true;
-        _stored[IndexOf(area)] = map;
+        _stored[Stored(area)] = map;
     }
 
     /// <summary>Clears <paramref name="area"/>'s stored map.</summary>
     /// <param name="area">The area.</param>
-    public void ClearStoredMap(TArea area) => Array.Clear(_stored[IndexOf(area)]);
+    public void ClearStoredMap(TArea area) => Array.Clear(_stored[Stored(area)]);
 
     /// <summary>Clears the live map.</summary>
     public void ClearLiveMap() => Array.Clear(_live);
@@ -150,7 +149,8 @@ public sealed class StoredExploredMaps<TArea>
         int run = cellsPast % RunsPerMap;
         int firstX = run / RunsPerHalf * HalfWidth + run % RunsPerHalfRow * RunCells;
         int y = run % RunsPerHalf / RunsPerHalfRow;
-        bool[] stored = _stored[map];
+        // The scroll check reads the stored maps in the order the game keeps them.
+        bool[] stored = _stored[_storedOrder[map]];
         int explored = 0;
         for (int x = firstX; x < firstX + RunCells; x++)
         {
@@ -171,15 +171,8 @@ public sealed class StoredExploredMaps<TArea>
             ? cell.Y * Width + cell.X
             : throw new ArgumentOutOfRangeException(nameof(cell), cell, "A map cell lies within the 64-by-32 map.");
 
-    /// <summary>The place of <paramref name="area"/>'s stored map.</summary>
+    /// <summary><paramref name="area"/>, when the game stores a map for it.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The game stores no map for the area.</exception>
-    private int IndexOf(TArea area)
-    {
-        for (int index = 0; index < _storedOrder.Count; index++)
-        {
-            if (EqualityComparer<TArea>.Default.Equals(_storedOrder[index], area))
-                return index;
-        }
-        throw new ArgumentOutOfRangeException(nameof(area), area, "The game stores no explored map for this area.");
-    }
+    private TArea Stored(TArea area) =>
+        _stored.ContainsKey(area) ? area : throw new ArgumentOutOfRangeException(nameof(area), area, "The game stores no explored map for this area.");
 }

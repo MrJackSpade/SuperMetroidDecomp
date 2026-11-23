@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// cinematic runs them. They request no music, so they reach no music queue; the cinematic's music is its own.
 /// </summary>
 /// <param name="queues">The frontend's sound and music queues.</param>
-internal sealed class CinematicSoundQueues(AudioQueues queues) : IGameplaySoundQueue
+internal sealed partial class CinematicSoundQueues(AudioQueues queues) : IGameplaySoundQueue
 {
     /// <summary>The frontend's queues.</summary>
     private readonly AudioQueues queues = Ensure.NotNull(queues);

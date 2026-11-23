@@ -74,11 +74,14 @@ internal static class RoomLiquidDecisionsVerification
             GameplayEffectCapture.BuildLavaAcidBackgroundVerticalScrolls(snapshot, 0) is not null,
             $"{context} vertical heat haze");
 
-        int scale = Bit(RoomFxNativeSources.SmallTideOption) ? LiquidTideDefinitions.SmallTidePeakPixels
-            : Bit(RoomFxNativeSources.LargeTideOption) ? LiquidTideDefinitions.LargeTidePeakPixels
+        int scale = Bit(RoomFxNativeSources.SmallTideOption) ? LiquidTideDefinitions.Motions[LiquidTide.Small].PeakPixels
+            : Bit(RoomFxNativeSources.LargeTideOption) ? LiquidTideDefinitions.Motions[LiquidTide.Large].PeakPixels
             : 0;
-        // A new effect's tide stands at its phase zero.
-        fx.StepTideForCheck();
+        // A new effect's tide stands at its phase zero. The liquid's first motion pass after its load only begins its motion;
+        // the second steps the tide from there.
+        var system = new SuperMetroid.Core.Progression.SharedGameState(new SuperMetroid.Core.Compatibility.SharedRandom());
+        fx.AdvanceLiquidMotion(system, timeIsFrozen: false);
+        fx.AdvanceLiquidMotion(system, timeIsFrozen: false);
         int sample = Trigonometry.SignedSine((RotationAngle.Zero - RotationAngle.QuarterTurn).ToTrigonometryAngle());
         AssertEqual(SignedSixteenSixteen.FromTwoHundredFiftySixthsOfPixel(sample * scale), fx.TideOffset, $"{context} tide reach");
     }

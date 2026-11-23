@@ -8,7 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed selected-save marker drawing anchors.</summary>
-public static class MapSaveMarkerFile
+public static partial class MapSaveMarkerFile
 {
     /// <summary>Enumerates the complete stable save/elevator marker identity set the document must hold, independent of player discovery.</summary>
     /// <returns>Lazy marker keys, each a marked station's name, area by area.</returns>
@@ -21,8 +21,7 @@ public static class MapSaveMarkerFile
     public static MapSaveMarkerPositions Read(Stream json)
     {
         MapSaveMarkerDocument document;
-        try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Save marker layout is null."); }
+        try { document = JsonAssetDocument.Read<MapSaveMarkerDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid save marker layout JSON.", error); }
         if (document.Version != MapSaveMarkerFormat.Version || document.Markers is null ||
             document.Markers.Count != Ids().Count())
@@ -42,7 +41,7 @@ public static class MapSaveMarkerFile
     /// <param name="document">Complete editable marker layout to serialize.</param>
     public static void Write(Stream json, MapSaveMarkerDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapSaveMarkerDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Editable RGB5 schema for Kraid's room, initial target, body health, sprite health, and death-arm palette sources.</summary>
-public sealed record KraidColorDocument
+public sealed partial record KraidColorDocument
 {
     /// <summary>Schema revision; loading requires version one from <see cref="KraidColorFormat.Version"/>.</summary>
     public required int Version { get; init; }

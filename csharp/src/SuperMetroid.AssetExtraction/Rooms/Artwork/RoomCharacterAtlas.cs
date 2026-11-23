@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Rooms.Artwork;
 /// palette and metatile definitions assign the visible colors and placement. Its characters remain bytes here because
 /// the OBJ character sources, the standard OBJ page and the Ceres Mode 7 map still read them.
 /// </summary>
-public sealed class RoomCharacterAtlas
+public sealed partial class RoomCharacterAtlas
 {
     /// <summary>Owned planar 4-bpp transfer bytes for the authored room characters.</summary>
     internal readonly byte[] planar;

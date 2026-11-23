@@ -10,7 +10,7 @@ internal static class RoomMainBehaviorConstants
         RoomMainBehavior.ScrollingSkyLandWithEscapeExplosions, RoomMainBehavior.ShakeScreenWithRandomExplosions,
         RoomMainBehavior.MaridiaElevatube, RoomMainBehavior.CeresElevatorShaft,
         RoomMainBehavior.SpawnCeresPreElevatorHallFallingDebris, RoomMainBehavior.CeresRidleyGetaway,
-        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal, RoomMainBehavior.RandomExplosionEveryFourthUpdate,
+        RoomMainBehavior.ShakeScreenLightHorizontalAndMediumDiagonal, RoomMainBehavior.RandomEscapeExplosions,
         RoomMainBehavior.ShakeScreenMediumHorizontalAndStrongDiagonal, RoomMainBehavior.CrocomireRoomShaking,
         RoomMainBehavior.DachoraShaftCamera,
     ];

@@ -1,7 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
@@ -14,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// word's collision against the collision the game gives it; the installed file holds what each shows, which the player
 /// edits in place. The game reads the pictures as installed: there is no compiled copy and no override.
 /// </summary>
-public static class RoomObjectSetupBlockFiles
+public static partial class RoomObjectSetupBlockFiles
 {
     /// <summary>The installed JSON filename of the setup-block pictures.</summary>
     public const string VisualFileName = "setup-blocks.json";
@@ -65,10 +64,10 @@ public static class RoomObjectSetupBlockFiles
         foreach (RoomObjectSetupBlock block in EntryOrder)
         {
             RoomBlockAppearance shown = Picture(bus, block);
-            entries.Add(new BlockEntry(Id(block), shown.ShowsNothing ? null : shown.Block, shown.Mirroring));
+            entries.Add(new BlockEntry(Id(block), shown.Shows == RoomBlockShown.Nothing ? null : shown.Block, shown.Mirroring));
         }
         Directory.CreateDirectory(directory);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, entries.ToArray()), JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new BlockDocument(FormatVersion, entries.ToArray()), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectSetupBlockFiles.BlockDocument>(JsonOptions));
         using var output = new FileStream(Path.Combine(directory, VisualFileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }
@@ -115,19 +114,12 @@ public static class RoomObjectSetupBlockFiles
     /// collision; every other setup combines the block it substitutes with the struck block's collision, so its word
     /// carries none of its own.
     /// </summary>
-    private static RoomCollisionType WordCollision(RoomObjectSetupBlock block) => block switch
-    {
-        RoomObjectSetupBlock.TreadmillIdle => WreckedShipTreadmillBlockDefinitions.IdleCollision,
-        RoomObjectSetupBlock.TreadmillRunning => WreckedShipTreadmillBlockDefinitions.RunningCollision,
-        RoomObjectSetupBlock.BombBlockParent or RoomObjectSetupBlock.CrumbleBlockParent or RoomObjectSetupBlock.SpeedBoosterBlockParent
-            or RoomObjectSetupBlock.ShotBlockParent or RoomObjectSetupBlock.PowerBombBlockParent
-            or RoomObjectSetupBlock.SuperMissileBlockParent or RoomObjectSetupBlock.CritterWallStruck => RoomCollisionType.Air,
-        _ => throw new ArgumentOutOfRangeException(nameof(block), block, "Undefined room-object setup block."),
-    };
+    private static RoomCollisionType WordCollision(RoomObjectSetupBlock block) =>
+        Ensure.Listed(RoomObjectSetupBlockDefinitions.Blocks, block).WordCollision;
 
     /// <summary>Whether the game shows <paramref name="block"/> with the struck block's own mirroring, so its picture names a block only.</summary>
     private static bool KeepsStruckMirroring(RoomObjectSetupBlock block) =>
-        block is RoomObjectSetupBlock.CrumbleBlockParent or RoomObjectSetupBlock.SpeedBoosterBlockParent;
+        Ensure.Listed(RoomObjectSetupBlockDefinitions.Blocks, block).KeepsStruckMirroring;
 
     /// <summary>
     /// Reads every level word that holds <paramref name="block"/>, checks each carries the collision the game gives it
@@ -136,22 +128,25 @@ public static class RoomObjectSetupBlockFiles
     /// <exception cref="InvalidDataException">A word collides differently, the words disagree, or the block is mirrored where it may not be.</exception>
     private static RoomBlockAppearance Picture(ISnesAddressSpace bus, RoomObjectSetupBlock block)
     {
-        if (!RoomObjectSetupBlockSourceDefinitions.Words.TryGetValue(block, out IReadOnlyList<SnesAddress>? words) || words.Count == 0)
-            throw new InvalidOperationException($"Room-object setup block {block} has no level word.");
-        RoomBlockAppearance? shown = null;
-        foreach (SnesAddress address in words)
+        // Every setup block has at least one level word: the first decides the picture, and the rest must agree with it.
+        IReadOnlyList<SnesAddress> words = RoomObjectSetupBlockSourceDefinitions.Words[block];
+        RoomBlockAppearance picture = Shown(words[0]);
+        foreach (SnesAddress address in words.Skip(1))
         {
-            RoomTerrainBlock written = RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)address));
-            if (written.Collision != WordCollision(block))
-                throw new InvalidDataException($"Room-object setup block {block} collides differently at {address}.");
-            if (shown is { } first && first != written.Appearance)
+            if (Shown(address) != picture)
                 throw new InvalidDataException($"Room-object setup block {block} shows a different block at {address}.");
-            shown = written.Appearance;
         }
-        RoomBlockAppearance picture = shown ?? throw new InvalidOperationException($"Room-object setup block {block} has no level word.");
         if (KeepsStruckMirroring(block) && picture.Mirroring != BlockMirroring.None)
             throw new InvalidDataException($"Room-object setup block {block} is mirrored, but keeps the struck block's mirroring.");
         return picture;
+
+        RoomBlockAppearance Shown(SnesAddress address)
+        {
+            RoomTerrainBlock written = RoomLevelWordCodec.Decode(bus.ReadCartridgeWordFixedBank((int)address));
+            if (written.Collision != WordCollision(block))
+                throw new InvalidDataException($"Room-object setup block {block} collides differently at {address}.");
+            return written.Appearance;
+        }
     }
 
     /// <summary>Builds the pictures from an installed document, checking it names every setup block once.</summary>
@@ -191,7 +186,7 @@ public static class RoomObjectSetupBlockFiles
     {
         try
         {
-            return JsonSerializer.Deserialize<BlockDocument>(File.ReadAllBytes(path), JsonOptions)
+            return JsonSerializer.Deserialize<BlockDocument>(File.ReadAllBytes(path), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectSetupBlockFiles.BlockDocument>(JsonOptions))
                 ?? throw new InvalidDataException($"Room-object setup-block pictures {path} are empty.");
         }
         catch (JsonException error)
@@ -201,11 +196,11 @@ public static class RoomObjectSetupBlockFiles
     }
 
     /// <summary>The installed document: its format and every setup block's picture.</summary>
-    private sealed record BlockDocument(int Version, BlockEntry[] Blocks);
+    internal sealed partial record BlockDocument(int Version, BlockEntry[] Blocks);
 
     /// <summary>
     /// One setup block's picture: its published name, the block it shows, or null where it shows nothing, and how it is
     /// mirrored.
     /// </summary>
-    private sealed record BlockEntry(string Id, int? Block, BlockMirroring Mirroring);
+    internal sealed partial record BlockEntry(string Id, int? Block, BlockMirroring Mirroring);
 }

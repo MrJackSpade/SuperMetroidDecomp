@@ -7,17 +7,20 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
-/// Reads and writes a sound in the clip index by its installed key, its library's name and the sound's own key as
+/// Reads and writes a sound or stop in the clip index by its installed key, its library's name and the sound's own key as
 /// <see cref="SoundEffectId.Key"/> spells them (for example <c>SamusSound.UnchargedPowerBeam</c>), so the index keys each
 /// sound by the game's identity rather than the library's request number (#1693, #2520).
 /// </summary>
-internal sealed class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
+internal sealed partial class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
 {
-    /// <summary>Every sound of every library by its name.</summary>
+    /// <summary>Every sound and every stop (#2580) of every library by its name.</summary>
     private static readonly FrozenDictionary<string, SoundEffectId> SoundsByName =
         Enum.GetValues<SamusSound>().Select(sound => (SoundEffectId)sound)
             .Concat(Enum.GetValues<EnemySound>().Select(sound => (SoundEffectId)sound))
             .Concat(Enum.GetValues<RoomSound>().Select(sound => (SoundEffectId)sound))
+            .Concat(Enum.GetValues<SamusSoundStop>().Select(stop => (SoundEffectId)stop))
+            .Concat(Enum.GetValues<EnemySoundStop>().Select(stop => (SoundEffectId)stop))
+            .Concat(Enum.GetValues<RoomSoundStop>().Select(stop => (SoundEffectId)stop))
             .ToFrozenDictionary(sound => sound.Key, StringComparer.Ordinal);
 
     /// <inheritdoc />
@@ -27,7 +30,7 @@ internal sealed class SoundEffectIdJsonConverter : JsonConverter<SoundEffectId>
         if (reader.TokenType != JsonTokenType.String)
             throw new InvalidDataException($"A clip index sound is a {reader.TokenType}, not a sound's name.");
         string name = reader.GetString() ?? throw new InvalidDataException("A clip index sound has no name.");
-        return SoundsByName.TryGetValue(name, out SoundEffectId sound)
+        return SoundsByName.TryGetValue(name, out SoundEffectId? sound)
             ? sound
             : throw new InvalidDataException($"The clip index names '{name}', which is no sound.");
     }

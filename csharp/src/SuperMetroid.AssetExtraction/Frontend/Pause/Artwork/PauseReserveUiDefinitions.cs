@@ -5,7 +5,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable reserve-label, digit and arrow presentation sources and dimensions; the arrow's pulse length is <see cref="PauseReserveArrowDefinitions"/>.</summary>
-public static class PauseReserveUiDefinitions
+public static partial class PauseReserveUiDefinitions
 {
     /// <summary>Supported reserve UI document schema revision.</summary>
     public const int Version = 1;
@@ -24,15 +24,17 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:8F70: the zero digit's tile, glyph 4 in palette two; digits zero through nine are consecutive.</summary>
     public static BackgroundTile DigitZeroTile { get; } = new(4, 2, FlipHorizontally: false, FlipVertically: false, HighPriority: false);
     /// <summary>$82:ADE4/$ADF6 solid-arrow color six.</summary>
-    public static PaletteRgb5 SolidColor6 { get; } = new() { Red = 22, Green = 10, Blue = 0 };
+    public static PaletteRgb5 SolidShade { get; } = new() { Red = 22, Green = 10, Blue = 0 };
     /// <summary>$82:ADDD/$ADEF solid-arrow color eleven.</summary>
-    public static PaletteRgb5 SolidColor11 { get; } = new() { Red = 30, Green = 28, Blue = 0 };
+    public static PaletteRgb5 SolidLight { get; } = new() { Red = 30, Green = 28, Blue = 0 };
     /// <summary>BG palette selectors used by enabled and disabled reserve arrows.</summary>
     public const int EnabledPalette = 6, DisabledPalette = 7;
     /// <summary>First vertical arrow cell, number of vertical arrows, and row stride in cells.</summary>
     public const int VerticalStartCell = 258 / 2, VerticalCount = 8, RowStrideCells = 64 / 2;
     /// <summary>First horizontal arrow cell and number of adjacent horizontal arrows.</summary>
     public const int HorizontalStartCell = 770 / 2, HorizontalCount = 2;
+    /// <summary>The cells the arrow draws in: its vertical run and its horizontal run.</summary>
+    public const int ArrowCellCount = VerticalCount + HorizontalCount;
 
     /// <summary>Every reserve label, in document order (#2567): the mode heading, the reserve tank, manual, auto.</summary>
     public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Ensure.EveryMemberOnce<PauseReserveLabel>(

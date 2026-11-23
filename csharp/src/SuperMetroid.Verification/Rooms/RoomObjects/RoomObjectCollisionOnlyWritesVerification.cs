@@ -14,7 +14,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
 
@@ -55,9 +54,9 @@ internal static class RoomObjectCollisionOnlyWritesVerification
                 new GreyDoorVariant(ColoredDoorOrientation.Left, GreyDoorClosing.AtOnce), new GreyDoorOpening(GreyDoorCondition.Never, door));
         });
         kept.Check("the blue door's opening", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().DoorObjects.TrySpawnBlueDoorOpening(level, block,
+            RoomObjectFixtures.Unbound().DoorObjects.SpawnBlueDoorOpening(level, block,
                 RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)),
-                SamusProjectileType.None), "the blue door's opening takes a place"));
+                BlockStrike.GrappleTouch.Instance));
         kept.Check("the passable block's setup", Terrain(RoomCollisionType.SpecialAir), [block], level =>
             DoorObjects.SetupPassableBlock(level, PlaceAt(RoomObjectFixtures.Unbound(), block)));
         kept.AssertEveryCaseKept();
@@ -84,19 +83,18 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         kept.Check("Mother Brain's glass", Solid, [glass], level =>
         {
             RoomObjectSystem roomObjects = RoomObjectFixtures.Unbound();
-            roomObjects.MotherBrainGlass.SetupMotherBrainGlass(level, PlaceAt(roomObjects, glass));
+            RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.SetupMotherBrainGlass(level, PlaceAt(roomObjects, glass),
+                RoomObjectFixtures.UnspawnedThrows.GlassShards);
         });
         var wall = new Position16<RoomBlocks>(8, 2);
         kept.Check("the Shitroid's wall", Solid, [.. Enumerable.Range(0, 10).Select(row => wall + new Offset16<RoomBlocks>(0, row))],
-            level => AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.BabyMetroidWall.TrySpawn(level, new(wall, BabyMetroidWallMutation.Clear)),
-                "the Shitroid's wall takes a place"));
+            level =>
+            RoomObjectFixtures.Unbound().BossRoomMutations.BabyMetroidWall.Spawn(level, new(wall, BabyMetroidWallMutation.Clear)));
         var kraid = new Position16<RoomBlocks>(5, 5);
         kept.Check("Kraid's ceiling clearing", Terrain(RoomCollisionType.SpecialBlock), [kraid], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.KraidRoom.TrySpawn(level, new(kraid, KraidRoomMutation.ClearCeiling)),
-                "Kraid's ceiling clearing takes a place"));
+            RoomObjectFixtures.Unbound().BossRoomMutations.KraidRoom.Spawn(level, new(kraid, KraidRoomMutation.ClearCeiling)));
         kept.Check("Phantoon's door", Terrain(RoomCollisionType.SpecialBlock), [PhantoonDoorChangeDefinitions.Block], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().BossRoomMutations.PhantoonDoor.TrySpawn(level, PhantoonDoorChange.FightDoor),
-                "Phantoon's door takes a place"));
+            RoomObjectFixtures.Unbound().BossRoomMutations.PhantoonDoor.Spawn(level, PhantoonDoorChange.FightDoor));
         kept.AssertEveryCaseKept();
     }
 
@@ -114,16 +112,19 @@ internal static class RoomObjectCollisionOnlyWritesVerification
             level.SetBehavior(hand, ChozoStatueRoomDefinitions.WreckedShipHandBehavior);
             var system = new SharedGameState(new SharedRandom());
             system.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
-            int activations = 0;
             RoomObjectSystem roomObjects = RoomObjectFixtures.Bound(new RoomObjectRoom(level, system, AreaId.WreckedShip),
-                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects { ChozoStatueHandActivated = _ => activations++ } },
+                RoomObjectServiceFixtures.Uninstalled with { Enemies = new FixtureObjectEnemyEffects() },
                 RoomObjectFixtures.Unbound());
+            // The statue's spawned hand makes the block the hand, which wakes the statue that carries it.
+            ChozoStatueHandTrigger statueHand = SuperMetroid.Verification.Enemies.Chozo.ChozoStatueHandFixtures.Placed(ChozoStatueSite.WreckedShip, out ChozoStatueState statue);
+            roomObjects.ChozoStatue.SpawnChozoStatueHand(level, new(hand, ChozoStatueHandObject.WreckedShip), statueHand);
             roomObjects.ChozoStatue.NotifyChozoStatueHandCollision(level, hand, samus, SamusPoseId.MorphBallGroundRightPose, movingDown: true);
-            AssertEqual(1, activations, "the morphed Samus landing on the hand wakes the statue");
+            AssertEqual(ChozoStatuePhase.HandTriggered, statue.Phase.AfterWaitStarts,
+                "the morphed Samus landing on the hand wakes the statue: the start of its wait starts its activation");
         });
         kept.Check("the Wrecked Ship hand's setup", Solid, [hand], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().ChozoStatue.TrySpawnChozoStatueObject(level, new(hand, ChozoStatueRoomObject.WreckedShipHand)),
-                "the Wrecked Ship hand takes a place"));
+            RoomObjectFixtures.Unbound().ChozoStatue.SpawnChozoStatueHand(level, new(hand, ChozoStatueHandObject.WreckedShip),
+                SuperMetroid.Verification.Enemies.Chozo.ChozoStatueHandFixtures.Placed(ChozoStatueSite.WreckedShip)));
         Position16<RoomBlocks>[] slopes = [ChozoStatueRoomDefinitions.FirstSlopeBlock, ChozoStatueRoomDefinitions.FirstSlopeBlock + new Offset16<RoomBlocks>(1, 0)];
         kept.Check("the Wrecked Ship spikes' turn into slopes", Solid, slopes, ChozoStatueObjects.TransformSpikesToSlopes);
         kept.Check("the Wrecked Ship slopes' return to spikes", Solid, slopes, ChozoStatueObjects.RevertSlopesToSpikes);
@@ -139,12 +140,12 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         var kept = new KeptPictures();
         var block = new Position16<RoomBlocks>(4, 4);
         kept.Check("an enemy's break of a breakable block", Solid, [block], level =>
-            AssertTrue(RoomObjectFixtures.Unbound().BreakableTerrain.TrySpawnEnemyBreakableBlock(level, block), "the break takes a place"));
+            RoomObjectFixtures.Unbound().BreakableTerrain.SpawnEnemyBreakableBlock(level, block));
         kept.Check("a permanent shot block's break", Terrain(RoomCollisionType.ShootableBlock), [block], level =>
         {
             RoomBlockBehavior behavior = RoomBlockBehavior.Reacting(ShootableReaction.PermanentBreak1x1);
             level.SetBehavior(block, behavior);
-            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, behavior, SamusProjectileType.None,
+            AssertTrue(RoomObjectFixtures.Unbound().BlockReactions.TrySpawnProjectileShotBlock(level, block, ShotBlockReactions.ShotBlocks[behavior.Shootable], BlockStrike.GrappleTouch.Instance,
                 solidBlock: true), "the break takes a place");
         });
         var plant = new Position16<RoomBlocks>(1, 1);
@@ -211,12 +212,12 @@ internal static class RoomObjectCollisionOnlyWritesVerification
         var kept = new KeptPictures();
         var block = new Position16<RoomBlocks>(3, 3);
         kept.Check("a scroll trigger's setup", Solid, [block], level =>
-            ScrollObjects.SetupScrollTrigger(level, PlaceAt(RoomObjectFixtures.Unbound(), block), RoomScrollChange.LandingSiteOpensScreen1x2TopAligned));
+            ScrollObjects.SetupScrollTrigger(level, PlaceAt(RoomObjectFixtures.Unbound(), block), RoomScrollChange.LandingSite));
         kept.Check("a scroll trigger's rest", Solid, [block], level =>
-            new ScrollTriggerObject(RoomScrollChange.LandingSiteOpensScreen1x2TopAligned).Rest(level, block));
+            new ScrollTriggerObject(RoomScrollChange.LandingSite).Rest(level, block));
         kept.Check("a scroll extension's setup", Solid, [block], level =>
             ScrollObjects.SetupScrollExtension(level, PlaceAt(RoomObjectFixtures.Unbound(), block),
-                new ScrollExtension(RoomCollisionType.HorizontalExtension, -1)));
+                new ScrollExtension(ScrollExtensionDirection.Left)));
         kept.AssertEveryCaseKept();
     }
 

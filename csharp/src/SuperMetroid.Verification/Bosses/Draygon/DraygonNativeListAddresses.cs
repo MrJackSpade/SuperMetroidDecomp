@@ -101,10 +101,10 @@ internal static class DraygonNativeListAddresses
         [0x9f7c] = 0, [0x9fae] = 0,
     };
 
-    /// <summary>The body phases callbacks name, by native routine address.</summary>
-    private static readonly Dictionary<ushort, DraygonPhase> BodyPhases = new()
+    /// <summary>The cue each body phase a callback names becomes, by native routine address: only releasing Samus.</summary>
+    private static readonly Dictionary<ushort, DraygonCue> BodyPhaseCues = new()
     {
-        [0x9128] = DraygonPhase.ReleaseSamus,
+        [0x9128] = DraygonCue.ReleaseSamus.Instance,
     };
 
     /// <summary>The operand words a native callback takes.</summary>
@@ -138,15 +138,15 @@ internal static class DraygonNativeListAddresses
         0x9736 => new DraygonCue.TrackWithEye(DraygonNativeWords.TrackingFacing(operands[0], "Draygon eye function")),
         // The cartridge scrolls the body's layer by its operands, which shifts the picture the opposite way.
         0x9e0a => new DraygonCue.ShiftBodyPicture(new(-unchecked((short)operands[0]), -unchecked((short)operands[1]))),
-        0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0])),
-        0x9f6e => new DraygonCue.QueueSound(SoundEffectCommands.Decode(SoundEffectLibrary.Room, operands[0])),
+        0x9f60 => new DraygonCue.QueueSound(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, operands[0])),
+        0x9f6e => new DraygonCue.QueueSound(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, operands[0])),
         0x973f => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigDustCloud),
         0x9752 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.SmallExplosion),
         0x9765 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.BigExplosion),
         0x9778 => new DraygonCue.SpawnDyingEffect(RoomEffectActorKind.DraygonBreathBubbles),
         0x98d3 => DraygonCue.ParalyseTailAndArms.Instance,
         0x98ef => DraygonCue.SetBodyIntangible.Instance,
-        0x9f57 => new DraygonCue.SetBodyPhase(BodyPhases[operands[0]]),
+        0x9f57 => BodyPhaseCues[operands[0]],
         0x9b9a => DraygonCue.TailWhipHit.Instance,
         0x9f7c => new DraygonCue.SpawnGoop(HorizontalDirection.Left),
         0x9fae => new DraygonCue.SpawnGoop(HorizontalDirection.Right),

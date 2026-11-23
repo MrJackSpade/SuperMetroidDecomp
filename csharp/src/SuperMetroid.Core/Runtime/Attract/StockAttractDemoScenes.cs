@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// The demonstrations' order, where each starts, what Samus holds and where each recording ends are the title's choices;
 /// where she stands follows from her staging pose, and her ammunition and energy from the tanks each scene gives her.
 /// </remarks>
-public static class StockAttractDemoScenes
+public static partial class StockAttractDemoScenes
 {
     /// <summary>The abilities the Speed Booster's and later demonstrations build on.</summary>
     private const SamusEquipmentFlags Mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
@@ -34,7 +34,7 @@ public static class StockAttractDemoScenes
         SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma;
 
     /// <summary>The set the title plays first after power-on or a soft reset.</summary>
-    public static AttractDemoSet FirstSet { get; } = new(nameof(FirstSet),
+    private static AttractDemoSet FirstSet { get; } = new(nameof(FirstSet),
     [
         new(
             Room: RoomDefinitions.LandingSite,
@@ -319,7 +319,7 @@ public static class StockAttractDemoScenes
     ]);
 
     /// <summary>The advanced techniques the title plays after <see cref="ThirdSet"/> once a save records a completed game.</summary>
-    public static AttractDemoSet CompletionSet { get; } = new(nameof(CompletionSet),
+    internal static AttractDemoSet CompletionSet { get; } = new(nameof(CompletionSet),
     [
         new(
             Room: RoomDefinitions.LandingSite,
@@ -399,10 +399,10 @@ public static class StockAttractDemoScenes
     ]);
 
     /// <summary>The sets the title cycles through, in order, while no save records a completed game.</summary>
-    public static IReadOnlyList<AttractDemoSet> OrdinaryPlaylist { get; } = [FirstSet, SecondSet, ThirdSet];
+    internal static IReadOnlyList<AttractDemoSet> OrdinaryPlaylist { get; } = [FirstSet, SecondSet, ThirdSet];
 
     /// <summary>The sets the title cycles through, in order, once a save records a completed game.</summary>
-    public static IReadOnlyList<AttractDemoSet> CompletedGamePlaylist { get; } = [FirstSet, SecondSet, ThirdSet, CompletionSet];
+    internal static IReadOnlyList<AttractDemoSet> CompletedGamePlaylist { get; } = [FirstSet, SecondSet, ThirdSet, CompletionSet];
 
     /// <summary>The playlist the title cycles through: the completion set joins it only when the game was completed.</summary>
     public static IReadOnlyList<AttractDemoSet> Playlist(bool completionSetUnlocked) =>

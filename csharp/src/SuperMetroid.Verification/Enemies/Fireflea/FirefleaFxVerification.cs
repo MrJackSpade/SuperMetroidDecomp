@@ -16,7 +16,8 @@ namespace SuperMetroid.Verification.Enemies.Fireflea;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Compatibility;
 
 /// <summary>Checks Fireflea shade flashing, darkness, frozen-time behavior, and X-Ray composition.</summary>
 internal static class FirefleaFxVerification
@@ -68,7 +69,7 @@ internal static class FirefleaFxVerification
             state = Darkness(fx);
             for (int frame = 1; frame <= 78; frame++)
             {
-                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(step) });
+                fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new global::SuperMetroid.Core.Fx.FirefleaDarkness(step) });
                 int index = step < 5 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 // The native shade's bits above the level name the colour channels each write sets, all to the level.
                 int shade = LittleEndianBytes.HighByte((ushort)(darkness[step] + flash[index])) & FadeLevelColour.FullLevel;
@@ -76,7 +77,7 @@ internal static class FirefleaFxVerification
                 AssertEqual(step, state.Darkness.FirefleasKilled, "the enemies' count of Firefleas killed reaches the Fireflea FX state");
             }
             RgbColor retained = state.Tint;
-            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, FirefleaDarkness = new FirefleaDarkness(step) });
+            fx.Step(new ArtworkFrameSelections(), new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, FirefleaDarkness = new global::SuperMetroid.Core.Fx.FirefleaDarkness(step) });
             AssertEqual(retained, state.Tint, "frozen death level retains its exact shade");
         }
         // A room without the effect has no Fireflea darkness and shows no Fireflea shade; the darkness lives with its room.
@@ -99,7 +100,7 @@ internal static class FirefleaFxVerification
         AssertEqual(12, looks.Length, "Fireflea flash looks");
         for (int i = 0; i < looks.Length; i++)
         {
-            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
+            ushort word = rom.ReadCartridgeWord((FirefleaFxDefinitions.FlashReferenceAddress + 2 * i));
             AssertEqual(LittleEndianBytes.HighByte(word), looks[i].Level, $"Original Fireflea flash {i}");
             AssertEqual((byte)0, LittleEndianBytes.LowByte(word), $"Original Fireflea flash {i} carries nothing");
         }
@@ -116,11 +117,11 @@ internal static class FirefleaFxVerification
     {
         AssertEqual(6, FirefleaFxDefinitions.DarknessLevels.Length, "Fireflea darkness steps");
         for (int step = 0; step < FirefleaFxDefinitions.DarknessLevels.Length; step++)
-            AssertEqual(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + step * 2))) & FadeLevelColour.FullLevel,
-                new FirefleaDarkness(step).Level, $"Original Fireflea darkness of step {step}");
-        AssertEqual(new FirefleaDarkness(5), new FirefleaDarkness(5).Deeper, "a death past the fifth keeps the deepest darkness");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(6), "Darkness upper bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FirefleaDarkness(-1), "Darkness negative step");
+            AssertEqual(LittleEndianBytes.HighByte(rom.ReadCartridgeWord((FirefleaFxDefinitions.DarknessReferenceAddress + step * 2))) & FadeLevelColour.FullLevel,
+                new global::SuperMetroid.Core.Fx.FirefleaDarkness(step).Level, $"Original Fireflea darkness of step {step}");
+        AssertEqual(new global::SuperMetroid.Core.Fx.FirefleaDarkness(5), new global::SuperMetroid.Core.Fx.FirefleaDarkness(5).Deeper, "a death past the fifth keeps the deepest darkness");
+        AssertThrows<ArgumentOutOfRangeException>(() => new global::SuperMetroid.Core.Fx.FirefleaDarkness(6), "Darkness upper bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => new global::SuperMetroid.Core.Fx.FirefleaDarkness(-1), "Darkness negative step");
     }
 
     /// <summary>The Fireflea darkness <paramref name="fx"/>'s room effect started, which the check requires.</summary>
@@ -134,18 +135,18 @@ internal static class FirefleaFxVerification
         var unfrozen = new FirefleaFxState();
         for (int frame = 0; frame < 10; frame++)
         {
-            fireflea.Step(frozen: false, new FirefleaDarkness(0));
-            unfrozen.Step(frozen: false, new FirefleaDarkness(0));
+            fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(0));
+            unfrozen.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(0));
         }
         FirefleaFlashShade look = fireflea.Flash;
-        fireflea.Step(frozen: true, new FirefleaDarkness(1));
+        fireflea.Step(frozen: true, new global::SuperMetroid.Core.Fx.FirefleaDarkness(1));
         AssertEqual(look, fireflea.Flash, "frozen Fireflea holds its flash look");
         AssertEqual(1, fireflea.Darkness.FirefleasKilled, "frozen Fireflea still publishes the enemies' darkness");
         // The frozen update counts nothing off the flash (#2488): it goes on exactly as a flash never frozen.
         for (int frame = 0; frame < 2 * FirefleaFxDefinitions.FlashDuration; frame++)
         {
-            fireflea.Step(frozen: false, new FirefleaDarkness(0));
-            unfrozen.Step(frozen: false, new FirefleaDarkness(0));
+            fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(0));
+            unfrozen.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(0));
             AssertEqual(unfrozen.Flash, fireflea.Flash, $"frozen Fireflea holds its flash timer, unfrozen update {frame} after it");
         }
     }
@@ -159,10 +160,10 @@ internal static class FirefleaFxVerification
         {
             for (int step = 1; step < FirefleaFxDefinitions.FlashDuration; step++)
             {
-                fireflea.Step(frozen: false, new FirefleaDarkness(0));
+                fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(0));
                 AssertEqual(new FirefleaFlashShade(look), fireflea.Flash, $"look {look} still shows {step} updates in");
             }
-            fireflea.Step(frozen: false, new FirefleaDarkness(0));
+            fireflea.Step(frozen: false, new global::SuperMetroid.Core.Fx.FirefleaDarkness(0));
             AssertEqual(new FirefleaFlashShade(look + 1), fireflea.Flash, $"look {look}'s count reaching zero shows the flash's next look");
         }
     }
@@ -173,18 +174,18 @@ internal static class FirefleaFxVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.GreenBrinstarFirefleas); // Green Brinstar Firefleas, retail room/FX population.
         AssertEqual(RoomFxType.Fireflea, runtime.RoomFxOverlay.Type, "retail fixture selects Fireflea FX");
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
-        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(3) });
+        runtime.RoomFxOverlay.Step(runtime.Room.LoadedScope.ArtworkFrames, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new global::SuperMetroid.Core.Fx.FirefleaDarkness(3) });
         int shade = Darkness(runtime.RoomFxOverlay).Tint.FadeLevels.Red;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The darkness and its shade reach the screen at the accepted frame (#1307).
@@ -193,30 +194,28 @@ internal static class FirefleaFxVerification
         AssertTrue(ordinaryDarkness.Layers[0] is GameplayBlendLayer,
             "normal Fireflea display retains source identity for darkness subtraction");
         var darkLayer = (GameplayBlendLayer)ordinaryDarkness.Layers[0];
-        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, darkLayer.Blend.Blended,
-            "normal Fireflea darkens the background and the backdrop, not the foreground or Samus");
-        AssertEqual(BlendOperation.Subtract, darkLayer.Blend.Operation, "normal Fireflea darkness subtracts its shade");
+        AssertTrue(darkLayer.Blend is FirefleaDarknessBlend,
+            "normal Fireflea shows its darkness, which darkens the background and the backdrop, not the foreground or Samus");
         AssertTrue(darkLayer.Window.IsClosed,
             "ordinary Fireflea darkness has no X-ray exemption window");
         AssertTrue(!darkLayer.RevealBlocks && darkLayer.OverlayBehind is null && !darkLayer.BackgroundBehind,
             "ordinary Fireflea keeps both room maps and subtracts its shade, with nothing lying behind");
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "Fireflea display fixture activates X-ray");
-        for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
+        for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(packet.Layers[0] is GameplayBlendLayer, "Fireflea capture uses source-aware X-ray compositor");
         var layer = (GameplayBlendLayer)packet.Layers[0];
         AssertTrue(!layer.RevealBlocks && layer.OverlayBehind is null && !layer.BackgroundBehind,
             "Fireflea preserves room maps and subtracts its shade, with nothing lying behind");
-        AssertEqual(BlendedLayers.Foreground | BlendedLayers.Background | BlendedLayers.Actors | BlendedLayers.Backdrop,
-            layer.Blend.Blended, "Fireflea X-ray darkens both backgrounds, the actors and the backdrop");
-        AssertTrue(layer.Blend.Operation == BlendOperation.Subtract && !layer.Blend.Halved, "Fireflea X-ray subtracts its shade whole");
-        AssertEqual(new FadeLevelColour(shade, shade, shade).ToColour(), layer.Blend.Colour,
+        AssertTrue(layer.Blend is XrayDimmingBlend { Mode.KeepsDarkness: true },
+            "Fireflea X-ray keeps the darkness, darkening the whole room with its shade whole");
+        AssertEqual(new FadeLevelColour(shade, shade, shade).ToColour(), ((XrayDimmingBlend)layer.Blend).Tint,
             "Fireflea's grey shade survives 90 frozen runtime frames");
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "Fireflea X-ray teardown releases gameplay");
         var restored = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
-        AssertEqual(BlendedLayers.Background | BlendedLayers.Backdrop, ((GameplayBlendLayer)restored.Layers[0]).Blend.Blended,
-            "Fireflea teardown restores room subtraction rather than unblended rendering");
+        AssertTrue(((GameplayBlendLayer)restored.Layers[0]).Blend is FirefleaDarknessBlend,
+            "Fireflea teardown restores the room's darkness rather than unblended rendering");
     }
 
     /// <summary>Dispatches the focused Fireflea FX verification command.</summary>

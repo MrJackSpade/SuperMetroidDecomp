@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// non-square slopes, solid-ahead probes, and the spike/enemy-breakable block reaction that spawns its room object
 /// among the room's room objects.
 /// </summary>
-[RoomLifetime]
-internal sealed class EnemyTerrain
+internal sealed partial class EnemyTerrain
 {
     /// <summary>The room's room objects that show its enemy-breakable blocks breaking, which the room's enemies break into.</summary>
     private readonly EnemyBreakableTerrainObjects _breakableTerrain;
@@ -86,7 +85,7 @@ internal sealed class EnemyTerrain
                     BlockScanCycle.BlockDownRows(firstBlock, level.Size.X, scanIndex),
                     targetEdge,
                     SpanBlock(scanIndex, lastBlock),
-                    slopes == NonSquareSlopes.Walls))
+                    slopes))
             {
                 collided = true;
                 break;
@@ -99,8 +98,7 @@ internal sealed class EnemyTerrain
             return false;
         }
 
-        // Both directions compare against the pre-move position before accepting the aligned
-        // center. That prevents a large corrupt displacement from snapping through a wall.
+        // The enemy is aligned against the block only when that does not move it past where it started.
         if (movingLeft)
         {
             int aligned = TerrainScanEdges.Edge(RoomGridConversions.BlockEnd(targetEdge) + place.Radius.X + 1);
@@ -283,73 +281,84 @@ internal sealed class EnemyTerrain
         Position16<RoomBlocks> startBlock,
         int targetEdge,
         EnemyTerrainSpanBlock spanBlock,
-        bool treatNonSquareSlopesAsWalls)
+        NonSquareSlopes slopes)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
-        return block.CollisionType switch
-        {
-            RoomCollisionType.Air or
-            RoomCollisionType.SpikeAir or
-            RoomCollisionType.SpecialAir or
-            RoomCollisionType.ShootableAir or
-            RoomCollisionType.UnrevealedAir or
-            RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
-                treatNonSquareSlopesAsWalls,
-            RoomCollisionType.Slope => SquareHorizontalSlopeIsSolid(
-                place,
-                targetEdge,
-                block.Behavior,
-                spanBlock),
-            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
-                false, // A zero-offset extension resolves to air.
-            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock => true,
-            _ => throw new InvalidDataException(
-                $"Enemy horizontal collision type {block.CollisionType} is invalid."),
-        };
+        return block.Kind.Read(new ProbeReader(this, level, reached,
+            () => block.Behavior.Slope.Shape.SquareQuarters is { } square
+                ? SquareHorizontalSlopeIsSolid(place, targetEdge, block.Behavior, square, spanBlock)
+                : slopes == NonSquareSlopes.Walls));
     }
 
     /// <summary>Classifies the next vertical block and may align the enemy against a non-square slope.</summary>
     private bool EnemyVerticalProbeIsSolid(RoomLevelData level, IEnemyTerrainBody place, Position16<RoomBlocks> startBlock, EnemyVerticalProbe probe)
     {
         RoomCollisionBlock block = ResolveEnemyMoverBlock(level, startBlock, out Position16<RoomBlocks> reached);
-        return block.CollisionType switch
-        {
-            RoomCollisionType.Air or
-            RoomCollisionType.SpikeAir or
-            RoomCollisionType.SpecialAir or
-            RoomCollisionType.ShootableAir or
-            RoomCollisionType.UnrevealedAir or
-            RoomCollisionType.BombableAir => false,
-            RoomCollisionType.Slope when block.Behavior.Slope.IsNonSquare =>
-                NonSquareVerticalSlopeIsSolid(
-                    place,
-                    reached,
-                    block.Behavior,
-                    probe.TargetCenter.Y,
-                    probe.MovingUp),
-            RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
-                place,
-                probe.TargetEdge.Y,
-                block.Behavior,
-                probe.SpanBlock),
-            RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
-            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, reached, block),
-            RoomCollisionType.SolidBlock or
-            RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or
-            RoomCollisionType.GrappleBlock or
-            RoomCollisionType.BombableBlock => true,
-            _ => throw new InvalidDataException(
-                $"Enemy vertical collision type {block.CollisionType} is invalid."),
-        };
+        return block.Kind.Read(new ProbeReader(this, level, reached,
+            () => block.Behavior.Slope.Shape.SquareQuarters is { } square
+                ? SquareVerticalSlopeIsSolid(place, probe.TargetEdge.Y, block.Behavior, square, probe.SpanBlock)
+                : NonSquareVerticalSlopeIsSolid(place, reached, block.Behavior, probe.TargetCenter.Y, probe.MovingUp)));
+    }
+
+    /// <summary>
+    /// Whether the block an enemy's probe reaches stops it (#2554): air of every kind lets it pass, as does an extension
+    /// whose zero link resolves it to air; solid kinds stop it; a spike block stops it unless the enemy breaks it; a slope
+    /// answers as the probe's own slope test does.
+    /// </summary>
+    /// <param name="terrain">The enemy terrain, which breaks an enemy-breakable spike block.</param>
+    /// <param name="level">The room's terrain.</param>
+    /// <param name="reached">The block the probe's extension links lead to, where a reaction to it takes place.</param>
+    /// <param name="slope">The probe's own test of a slope block.</param>
+    private sealed partial class ProbeReader(EnemyTerrain terrain, RoomLevelData level, Position16<RoomBlocks> reached,
+        Func<bool> slope) : IRoomBlockReader<bool>
+    {
+        /// <inheritdoc/>
+        public bool Air() => false;
+
+        /// <inheritdoc/>
+        public bool Slope() => slope();
+
+        /// <inheritdoc/>
+        public bool UnrevealedAir() => false;
+
+        /// <inheritdoc/>
+        public bool SolidBlock() => true;
+
+        /// <inheritdoc/>
+        public bool DoorBlock() => true;
+
+        /// <inheritdoc/>
+        public bool SpikeAir(SpikeReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool SpikeBlock(SpikeReaction reaction) => terrain.ReactToEnemySpikeBlock(level, reached, reaction);
+
+        /// <inheritdoc/>
+        public bool SpecialAir(SpecialAirReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool SpecialBlock(SpecialBlockReaction reaction) => true;
+
+        /// <inheritdoc/>
+        public bool ShootableAir(ShootableReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool ShootableBlock(ShootableReaction reaction) => true;
+
+        /// <inheritdoc/>
+        public bool BombableAir(BombableReaction reaction) => false;
+
+        /// <inheritdoc/>
+        public bool BombableBlock(BombableReaction reaction) => true;
+
+        /// <inheritdoc/>
+        public bool GrappleBlock(GrappleReaction reaction) => true;
+
+        /// <summary>A zero-offset extension resolves to air.</summary>
+        public bool HorizontalExtension() => false;
+
+        /// <summary>A zero-offset extension resolves to air.</summary>
+        public bool VerticalExtension() => false;
     }
 
     /// <summary>
@@ -411,8 +420,7 @@ internal sealed class EnemyTerrain
     /// <summary>
     /// Resolves signed extension links exactly as the step repeats them: each link leads on in the room's reading
     /// order (<see cref="RoomReadingOrder"/>), so a horizontal link past a row's end continues on the next row.
-    /// A guard converts corrupt cyclic room data into a useful exception instead of a runaway
-    /// recursion failure; valid chains always terminate well before the room allocation size.
+    /// A chain that loops fails loudly; a valid chain ends within the room's blocks.
     /// </summary>
     /// <returns>The block the chain ends on, or null when the start or a link lies outside the room's grid.</returns>
     internal static RoomCollisionBlock? ResolveEnemyCollisionBlock(
@@ -434,15 +442,15 @@ internal sealed class EnemyTerrain
             $"Enemy collision extension chain from block ({start.X},{start.Y}) is cyclic.");
     }
 
-    /// <summary>Tests the target half-block quadrant and the enemy's vertical span against a square slope.</summary>
+    /// <summary>Tests the target half-block quadrant and the enemy's vertical span against a square slope of <paramref name="shape"/>.</summary>
     private static bool SquareHorizontalSlopeIsSolid(
         IEnemyTerrainBody place,
         int targetEdge,
         RoomBlockBehavior behavior,
+        SquareSlopeShape shape,
         EnemyTerrainSpanBlock spanBlock)
     {
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)), SquareSlopeRowHalf.Top);
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeQuadrant.ColumnFor(targetEdge), SquareSlopeRowHalf.Top);
         // The span's last block meets only its top half when the enemy's bottom ends there; its first block only its bottom
         // half when the enemy's top starts there.
         if (spanBlock == EnemyTerrainSpanBlock.Last)
@@ -461,15 +469,15 @@ internal sealed class EnemyTerrain
         return SquareSlopes.IsSolid(shape, quadrant.OtherRow);
     }
 
-    /// <summary>Tests the target half-block quadrant and the enemy's horizontal span against a square slope.</summary>
+    /// <summary>Tests the target half-block quadrant and the enemy's horizontal span against a square slope of <paramref name="shape"/>.</summary>
     private static bool SquareVerticalSlopeIsSolid(
         IEnemyTerrainBody place,
         int targetEdge,
         RoomBlockBehavior behavior,
+        SquareSlopeShape shape,
         EnemyTerrainSpanBlock spanBlock)
     {
-        SquareSlopeShape shape = SquareSlopes.ShapeOf(behavior);
-        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(RoomGridConversions.InSecondHalfOfBlock(targetEdge)));
+        SquareSlopeQuadrant quadrant = SquareSlopeQuadrant.Showing(behavior, SquareSlopeColumnHalf.Left, SquareSlopeQuadrant.RowFor(targetEdge));
         // The span's last block meets only its left half when the enemy's right side ends there; its first block only its
         // right half when the enemy's left side starts there.
         if (spanBlock == EnemyTerrainSpanBlock.Last)
@@ -610,11 +618,11 @@ internal sealed class EnemyTerrain
     /// </summary>
     /// <param name="level">The room's terrain.</param>
     /// <param name="position">The spike block the enemy's lookup reached.</param>
-    /// <param name="block">The spike block's terrain and behaviour.</param>
-    internal bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, RoomCollisionBlock block)
+    /// <param name="spike">The reaction the spike block carries.</param>
+    internal bool ReactToEnemySpikeBlock(RoomLevelData level, Position16<RoomBlocks> position, SpikeReaction spike)
     {
-        if (!EnemyBreakableTerrain.IsEnemyBreakable(block.Behavior)) return true;
-        _breakableTerrain.TrySpawnEnemyBreakableBlock(level, position);
+        if (!EnemyBreakableTerrain.IsEnemyBreakable(spike)) return true;
+        _breakableTerrain.SpawnEnemyBreakableBlock(level, position);
         return false; // The enemy passes through even when the room was too full to break the block.
     }
 }

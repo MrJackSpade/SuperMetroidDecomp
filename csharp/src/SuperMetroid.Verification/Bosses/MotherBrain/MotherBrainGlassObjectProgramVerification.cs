@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Verification.Rooms.RoomObjects;
@@ -51,10 +52,10 @@ internal static class MotherBrainGlassObjectProgramVerification
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
         roomObjects.Step(level);
-        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage.Place: 0, HitCountArmed: true },
+        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, HitCountArmed: true } armed && armed.Stage == MotherBrainGlassStageDefinitions.First,
             "intact glass first draw holds at the first stage's hit threshold");
         RoomObjectStepOutcome holding = roomObjects.Step(level);
-        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding, Stage.Place: 0 },
+        AssertTrue(roomObjects.LiveMotherBrainGlass is { Phase: MotherBrainGlassPhase.Holding } holdingGlass && holdingGlass.Stage == MotherBrainGlassStageDefinitions.First,
             "zero head hits hold the first glass stage");
         AssertTrue(!eventSet && holding.ThrownProjectiles.Count == 0,
             "unhit glass emits neither event nor shards");
@@ -63,7 +64,7 @@ internal static class MotherBrainGlassObjectProgramVerification
         // pass. Advance it through the final $12 threshold, then let each
         // one-frame draw and each authored burst execute in production order.
         for (int shot = 0; shot < 18; shot++)
-            roomObjects.MotherBrainGlass.CountHeadShotOnGlass();
+            RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.CountHeadShotOnGlass();
         int emitted = 0;
         for (int frame = 0; frame < 128 && roomObjects.LiveMotherBrainGlass is not null; frame++)
         {

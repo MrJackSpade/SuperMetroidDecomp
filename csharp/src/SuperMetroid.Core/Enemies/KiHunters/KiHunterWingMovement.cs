@@ -6,8 +6,8 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 /// </summary>
 public enum KiHunterWingMovement
 {
-    /// <summary>Advances a radius-48 orbit without collision, switching arcs when the angle crosses three quarters of a turn.</summary>
+    /// <summary>Advances the detached wings' orbit (<see cref="KiHunterMotionDefinitions.DetachedWingRadius"/>) without collision, switching arcs when the angle crosses three quarters of a turn.</summary>
     Orbit,
-    /// <summary>Advances the opposite radius-48 arc with vertical collision, deleting the wing on impact or switching back across three quarters of a turn.</summary>
+    /// <summary>Advances the opposite arc of the same radius with vertical collision, deleting the wing on impact or switching back across three quarters of a turn.</summary>
     FallingCollisionArc,
 }

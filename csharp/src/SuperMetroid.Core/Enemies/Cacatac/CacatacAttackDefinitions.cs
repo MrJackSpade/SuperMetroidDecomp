@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>The random roll that starts a Cacatac's spike attack.</summary>
-internal static class CacatacAttackDefinitions
+internal static partial class CacatacAttackDefinitions
 {
     /// <summary>
-    /// The random field a patrolling Cacatac's attack roll starts from: the sample's lowest 256-value field, 0 through 255. The roll adds
-    /// the enemy's frame counter and continues past the field's last value from zero.
+    /// The random field a patrolling Cacatac's attack roll starts from. The roll adds the enemy's update count, so the
+    /// updates it attacks on move on as the count advances.
     /// </summary>
-    internal static readonly RandomSampleField AttackRoll = new(0, 8);
+    internal static readonly RandomSampleField AttackRoll = RandomSampleField.OneOf(256);
 
     /// <summary>
     /// The chance a patrolling Cacatac stops to fire its spikes on an update (#1619): the lowest three of the 256 values its

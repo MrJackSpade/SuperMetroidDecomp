@@ -56,20 +56,34 @@ internal static class LibraryBackgroundProgramImporter
                 case LibraryBackgroundCommand.Transfer:
                 case LibraryBackgroundCommand.TransferForKraid:
                 case LibraryBackgroundCommand.TransferForDoor:
-                    instructions.Add(new(command, LibraryBackgroundOperandDecoding.TransferredSource(Long(cursor)),
-                        LibraryBackgroundOperandDecoding.TransferDestination(Word((ushort)(cursor + 3))),
-                        Word((ushort)(cursor + 5)), door == 0 ? null : DoorHeaderSources.Door(door)));
+                {
+                    LibraryBackgroundSource read = LibraryBackgroundOperandDecoding.TransferredSource(Long(cursor));
+                    LibraryBackgroundDestination written = LibraryBackgroundOperandDecoding.TransferDestination(Word((ushort)(cursor + 3)));
+                    int count = Word((ushort)(cursor + 5));
+                    if (command == LibraryBackgroundCommand.Transfer)
+                        instructions.Add(new LibraryBackgroundInstruction.Transfer(read, written, count));
+                    else if (command == LibraryBackgroundCommand.TransferForKraid)
+                        instructions.Add(new LibraryBackgroundInstruction.TransferForKraid(read, written, count));
+                    else
+                        instructions.Add(new LibraryBackgroundInstruction.TransferForDoor(DoorHeaderSources.Door(door), read, written, count));
                     cursor = (ushort)(cursor + 7);
                     break;
+                }
                 case LibraryBackgroundCommand.Decompress:
-                    instructions.Add(new(command, LibraryBackgroundOperandDecoding.DecompressedSource(Long(cursor)),
-                        LibraryBackgroundOperandDecoding.DecompressionDestination(Word((ushort)(cursor + 3))), 0, null));
+                    if (!LibraryBackgroundOperandDecoding.StagesInTilemapStaging(Word((ushort)(cursor + 3))))
+                        throw new InvalidDataException($"Import background decompression at $8F:{commandPointer:X4} stages outside the tilemap staging.");
+                    instructions.Add(new LibraryBackgroundInstruction.Decompress(
+                        LibraryBackgroundOperandDecoding.DecompressedSource(Long(cursor))));
                     cursor = (ushort)(cursor + 5);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
+                    instructions.Add(new LibraryBackgroundInstruction.ClearFxTilemap());
+                    break;
                 case LibraryBackgroundCommand.ClearBg2:
+                    instructions.Add(new LibraryBackgroundInstruction.ClearBg2());
+                    break;
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    instructions.Add(new(command, LibraryBackgroundSource.None, LibraryBackgroundDestination.None, 0, null));
+                    instructions.Add(new LibraryBackgroundInstruction.ClearBg2ForKraid());
                     break;
                 default:
                     throw new InvalidDataException($"Unknown import background command {command} at $8F:{commandPointer:X4}.");
@@ -107,7 +121,7 @@ internal static class LibraryBackgroundProgramImporter
                     vram.ExecuteQueuedAssetWrite(bytes, LibraryBackgroundOperands.DestinationWord(instruction.Destination));
                     break;
                 case LibraryBackgroundCommand.Decompress:
-                    byte[] expanded = RomDataReader.Decompress(CartridgeImportSource.Require(source), LibraryBackgroundOperandDecoding.Address(instruction.Source));
+                    byte[] expanded = RomDataReader.Decompress(source, LibraryBackgroundOperandDecoding.Address(instruction.Source));
                     if (LibraryBackgroundOperandDecoding.TilemapStagingOffset + expanded.Length > LibraryBackgroundListConstants.BankByteCount)
                         throw new InvalidDataException("Imported background decompression crosses bank $7E.");
                     for (int i = 0; i < expanded.Length; i++)
@@ -161,7 +175,7 @@ internal static class LibraryBackgroundProgramImporter
         private readonly byte[] _bytes = new byte[2 * SnesBusLayoutConstants2.BankBytes];
 
         /// <summary>The cartridge source this staging sits beside.</summary>
-        private readonly IImportCartridgeSource _cartridge = CartridgeImportSource.Require(cartridge);
+        private readonly IImportCartridgeSource _cartridge = cartridge;
 
         /// <inheritdoc />
         public byte ReadCartridgeByte(int cpuAddress) => _cartridge.ReadCartridgeByte(cpuAddress);

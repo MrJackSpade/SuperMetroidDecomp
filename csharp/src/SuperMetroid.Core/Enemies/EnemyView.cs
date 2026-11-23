@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies;
 /// enemy counts as on screen by it. A point's place is measured from the camera across the wrapping room space, so a
 /// point far enough above or left of the camera reads as outside.
 /// </summary>
-internal static class EnemyView
+internal static partial class EnemyView
 {
     /// <summary>The view's width and height in pixels: the screen's.</summary>
     internal const int Extent = 256;

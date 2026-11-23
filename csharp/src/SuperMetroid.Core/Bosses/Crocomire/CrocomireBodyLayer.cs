@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Animation;
@@ -8,8 +7,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body: what it shows, the rows of it the acid hides, the melt's stretch of it, the tongue placed with it and the acid smoke drawn with it.</summary>
-[RoomLifetime]
-internal sealed class CrocomireBodyLayer
+internal sealed partial class CrocomireBodyLayer
 {
     /// <summary>Allocates arena debris and cinematic effect actors.</summary>
     private readonly RoomEffectActors _effectActors;
@@ -51,34 +49,33 @@ internal sealed class CrocomireBodyLayer
     /// His body shows <paramref name="frame"/> from now on in place of whatever it showed (#1355, #1515, #1540), as a melt
     /// image replaces it: his body is the one part he draws on it.
     /// </summary>
-    internal void ShowCrocomireBodyFrame(BossBodyFrame frame) =>
-        _presentation.RequireBossBody().Show(EnemyDefinitionId.Crocomire, frame);
+    internal static void ShowCrocomireBodyFrame(CrocomireEnemyState state, BossBodyFrame frame) =>
+        state.BodyParts.Show(EnemyDefinitionId.Crocomire, frame);
 
     /// <summary>His body shows nothing from now on, until a frame is shown on it again (#1515).</summary>
-    internal void ClearCrocomireBody() => _presentation.RequireBossBody().Clear();
+    internal static void ClearCrocomireBody(CrocomireEnemyState state) => state.BodyParts.Clear();
 
     /// <summary>
     /// Hides his body from room row <paramref name="roomRow"/> down, until a frame is shown on it again (#1515, #2031): his
     /// body's picture shows only above that row, reckoned from where he lies.
     /// </summary>
-    internal void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
-        _presentation.RequireBossBody().ShowAbove(roomRow - state.Body.Position.Y.Whole);
+    internal static void HideCrocomireBodyBelow(CrocomireEnemyState state, int roomRow) =>
+        state.BodyParts.ShowAbove(roomRow - state.Body.Position.Y.Whole);
 
     /// <summary>Levels the melt's stretch: every line shows his body as it lies now (#1468, #1802, #2031).</summary>
     internal static void LevelCrocomireMeltDistortion(CrocomireEnemyState state) =>
         state.Death.MeltDistortion = CrocomireMeltDistortion.Level(state.Body.Position.Y.Whole);
 
     /// <summary>
-    /// Places the tongue at the body: a normal second enemy, it lies at its body-relative X offset, and every placement of
-    /// his body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
+    /// Places the tongue at the body: his tongue part lies at its offset beside his body, and every placement of his
+    /// body during the fight and his death moves it there, even while the body's bulk shows as his body's pictures.
     /// The tongue's picture is drawn where the tongue lies until his steps move his body later in the update (#2031).
     /// </summary>
     internal static void PlaceCrocomireTongue(CrocomireEnemyState state)
     {
         RoomEnemyPlace body = state.Body;
         RoomEnemyPlace tongue = state.Tongue;
-        int offset = tongue.RequireSpeciesState<CrocomireTongueState>().BodyXOffset;
-        tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + offset, body.Position.Y.Whole));
+        tongue.Position = tongue.Position.WithWhole(new(body.Position.X.Whole + CrocomireFightDefinitions.TongueBodyXOffset, body.Position.Y.Whole));
         tongue.DrawOffset = Offset16<RoomPixels>.Zero;
     }
 
@@ -98,14 +95,11 @@ internal sealed class CrocomireBodyLayer
         int xOffset = CrocomireRandomDefinitions.AcidSmokeXOffset.Of(random);
         if (!CrocomireRandomDefinitions.AcidSmokeRisesOnRight.IsTakenBy(random))
             xOffset = -(xOffset + CrocomireRandomDefinitions.AcidSmokeLeftExtraPixels);
-        // Crocomire's room always has its acid surface, which its tide only moves; a surface above the room's top is none.
-        RoomFxOverlayState roomFx = _roomFx.FxOverlay;
-        int acidY = roomFx.Type is RoomFxType.Lava or RoomFxType.Acid && roomFx.Surface is int surface and >= 0
-            ? surface
-            : throw new InvalidOperationException("Crocomire's acid smoke rises from his room's acid surface.");
+        // The smoke rises from the room's lava/acid line, which in his room is its acid's surface as its tide moves it.
+        int acidY = _roomFx.FxOverlay.LavaAcidLine;
         _effectActors.SpawnRoomEffectActor(
-            new(state.Body.Position.X.Whole + xOffset, acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random)),
+            OffRoomPlaces.Placed(new Offset16<RoomPixels>(state.Body.Position.X.Whole + xOffset, acidY + CrocomireBridgeCollapseDefinitions.AcidSmokeDepth - CrocomireRandomDefinitions.AcidSmokeRise.Of(random))),
             RoomEffectActorKind.BigDustCloud,
-            graphics: default);
+            graphics: SpriteGraphics.SharedStandard);
     }
 }

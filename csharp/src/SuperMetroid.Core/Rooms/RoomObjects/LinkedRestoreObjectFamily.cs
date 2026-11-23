@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// restoration shows is its installed picture (#1557); what it changes is its block shape (#1862), which its draw's
 /// arrangement selects (#2484). Each kind's restorations are drawn by their own draw family (#2034).
 /// </summary>
-internal static class LinkedRestoreObjectFamily
+internal static partial class LinkedRestoreObjectFamily
 {
     /// <summary>How a bomb-block restoration's parent collides.</summary>
     private const RoomCollisionType BombBlockParent = RoomCollisionType.BombableBlock;
@@ -25,13 +25,13 @@ internal static class LinkedRestoreObjectFamily
 
     /// <summary>The bomb blocks' restorations, pictured by the installed linked restorations.</summary>
     internal static RoomObjectDrawFamily<BombBlockRestoreDraw> BombBlockDraws { get; } =
-        RoomObjectDrawFamily<BombBlockRestoreDraw>.Pictured<InstalledRoomObjectLinkedRestoreVisuals>("linked restoration",
-            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<BombBlockRestoreDraw>("linked restoration",
+            frame => frame.Blocks);
 
     /// <summary>The contact crumble blocks' restorations, pictured by the installed linked restorations.</summary>
     internal static RoomObjectDrawFamily<ContactCrumbleRestoreDraw> ContactCrumbleDraws { get; } =
-        RoomObjectDrawFamily<ContactCrumbleRestoreDraw>.Pictured<InstalledRoomObjectLinkedRestoreVisuals>("linked restoration",
-            frame => frame.Blocks, (visuals, draw) => visuals.Image(draw));
+        new RoomObjectDrawFamily<ContactCrumbleRestoreDraw>("linked restoration",
+            frame => frame.Blocks);
 
     /// <summary>
     /// The blocks a restoration of each arrangement but a single block rebuilds: the top-left block carries

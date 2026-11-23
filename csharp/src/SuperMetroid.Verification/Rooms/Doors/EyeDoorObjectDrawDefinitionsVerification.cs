@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorObjectsVerification;
@@ -74,7 +75,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
         var guarded = NewEyeDoorDrawGuard(bus, lists);
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), AreaId.Brinstar), RoomObjectPopulationImporter.Read(guarded, 0x9000), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Enemies = new FixtureObjectEnemyEffects { EyeDoorProjectile = _ => { }, EyeDoorAttack = _ => { } } });
         roomObjects.Step(level);
-        InstalledRoomObjectEyeDoorVisuals pictures = InstalledRoomObjectEyeDoorVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.EyeDoor;
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
         for (int component = 0; component < pointers.Length; component++)
         {
@@ -180,7 +181,7 @@ internal static class EyeDoorObjectDrawDefinitionsVerification
     }
 
     /// <summary>Reads one retail bank-$84 program byte for the fixture oracle.</summary>
-    private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte EyeDoorRetailProgramPathRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks the extracted stock visuals and that a malformed installed visual file fails loudly where it is read.</summary>
     private static void VerifyEyeDoorVisualInstallation(CartridgeImportAddressSpace rom)

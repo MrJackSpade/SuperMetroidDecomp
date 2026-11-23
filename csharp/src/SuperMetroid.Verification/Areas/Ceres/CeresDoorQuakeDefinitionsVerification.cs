@@ -5,7 +5,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -28,7 +27,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
 
         for (ushort phase = 0; phase < 4; phase++)
         {
-            short expected = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + phase * 2));
+            short expected = unchecked((short)rom.ReadCartridgeWord(sourceAddress + phase * 2));
             AssertEqual(expected, CeresDoorQuake.XOffset(phase),
                 $"Ceres private door quake phase {phase}");
         }
@@ -36,7 +35,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
             AssertEqual(
-                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + timer % 4 * 2)),
+                unchecked((short)rom.ReadCartridgeWord(sourceAddress + timer % 4 * 2)),
                 CeresDoorQuake.XOffset((ushort)timer),
                 $"Ceres private door quake timer ${timer:X4}");
         }
@@ -48,15 +47,20 @@ internal static class CeresDoorQuakeDefinitionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(SpawnedObjectFixtures.InstalledTilesWith(installed)),
             RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
         enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
-        enemies.Places.InUpdateOrder[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.Places.InUpdateOrder[0].Definition);
-        enemies.HoldCeresRidley(enemies.Places.InUpdateOrder[0], new CeresRidleyState(Position16<RoomPixels>.Zero));
-        RoomEnemyPlace door = enemies.Places.InUpdateOrder[1];
-        door.BindCeresDoorOrWall(EnemyDefinitionId.CeresRidleyRoomDoor, EnemySpawnSettings.None);
-        enemies.CeresDoorBehavior.AttachRidleyRoomDoor(door);
-        door.SetSpeciesState(new CeresRidleyRoomDoorState { Look = CeresRidleyRoomDoorLook.Overlay });
-        door.Position = door.Position.WithWhole(new(100, 80));
+        // The door of Ridley's room as its room's population places it, animating, and sets it up, which attaches it to the
+        // room's doors.
+        RoomEnemyPlace door = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.CeresRidleyRoomDoor, new Position16<RoomPixels>(100, 80))
+            with { Processing = EnemyProcessing.Animates })[0];
         // The door's overlay shows from his room's sheets.
         SpawnedObjectFixtures.LoadSetDrawing(enemies, EnemyDefinitionId.RidleyCeres);
+        // The door's own animation opens it and then shows its overlay over the closed door, which stays while Ridley lives.
+        var open = RoomEnemyFrameFixtures.OpenRoom(new(64, 64));
+        int passes = 0;
+        while (OverlaySprites(enemies) == 0)
+        {
+            AssertTrue(passes++ < 64, "the door of Ridley's room comes to show its overlay");
+            enemies.StepStandaloneFrame(enemies.StandaloneFrame(open));
+        }
         short[] expectedOffsets = [0, -4, -1, 3];
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
@@ -99,6 +103,16 @@ internal static class CeresDoorQuakeDefinitionsVerification
             .Forbid(address => address is >= 0xa6a321 and < 0xa6a329 ||
                     (blockOverlay && address is >= 0xa6a329 and < 0xa6a353),
                 address => $"Ceres private door draw attempted migrated source read ${address:X6}.");
+
+    /// <summary>The sprites the room's doors draw for the overlay of the door of Ridley's room, with the camera at the room's origin.</summary>
+    private static int OverlaySprites(RoomEnemySystem enemies)
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        oam.AppendDrawn(frame => enemies.CeresDoorBehavior.PublishRidleyRoomDoorOverlay(frame, new(0, 0)));
+        oam.FinalizeFrame();
+        return oam.LastFinalizedSpriteCount;
+    }
 
     /// <summary>Runs the Ceres door quake and private-overlay artwork check.</summary>
     [VerificationCommand("--ceres-door-artwork")]

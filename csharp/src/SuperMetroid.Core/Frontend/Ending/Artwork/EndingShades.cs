@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// each flash and each logo crossfade step, over every ending picture and floor, and each of those authored for an actor
 /// (#1544) under the colouring it draws in, over its pictures. Which inks each recolours, and to what, is the import's.
 /// </summary>
-public static class EndingShades
+public static partial class EndingShades
 {
     /// <summary>The levels every faded group moves through: a group at level L shows its colours scaled by L over this.</summary>
     public const int FadeLevels = EndingExplosionFadeDefinitions.Steps;
@@ -17,8 +17,8 @@ public static class EndingShades
     /// The installed name of each colour load's shade (#2511), written out so renaming a load's identity never changes a name
     /// on disk.
     /// </summary>
-    private static readonly FrozenDictionary<EndingColourLoad, string> LoadKeys =
-        new Dictionary<EndingColourLoad, string>
+    private static readonly IdentityTable<EndingColourLoad, string> LoadKeys =
+        new(new Dictionary<EndingColourLoad, string>
         {
             [EndingColourLoad.Escape] = "EndingEscape",
             [EndingColourLoad.Explosion] = "EndingExplosion",
@@ -28,14 +28,14 @@ public static class EndingShades
             [EndingColourLoad.PostCredits] = "EndingPostCredits",
             [EndingColourLoad.RestoredShot] = "EndingRestoredShot",
             [EndingColourLoad.LogoInitial] = "EndingLogoInitial",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>
     /// The installed name of each faded group's shades (#2511), written out so renaming a group's identity never changes a
     /// name on disk.
     /// </summary>
-    private static readonly FrozenDictionary<EndingFade, string> FadeKeys =
-        new Dictionary<EndingFade, string>
+    private static readonly IdentityTable<EndingFade, string> FadeKeys =
+        new(new Dictionary<EndingFade, string>
         {
             [EndingFade.ExplosionBackground] = "EndingFadeExplosionBackground",
             [EndingFade.ExplosionLava] = "EndingFadeExplosionLava",
@@ -45,21 +45,21 @@ public static class EndingShades
             [EndingFade.SuitedSamus] = "EndingFadeSuitedSamus",
             [EndingFade.Shot] = "EndingFadeShot",
             [EndingFade.ShootingSamus] = "EndingFadeShootingSamus",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>
     /// The installed name of each flash's shade (#2511), written out so renaming a flash's identity never changes a name on
     /// disk.
     /// </summary>
-    private static readonly FrozenDictionary<EndingFlash, string> FlashKeys =
-        new Dictionary<EndingFlash, string>
+    private static readonly IdentityTable<EndingFlash, string> FlashKeys =
+        new(new Dictionary<EndingFlash, string>
         {
             [EndingFlash.PlanetGlow] = "EndingFlashPlanetGlow",
             [EndingFlash.SilhouetteBackdrop] = "EndingFlashSilhouetteBackdrop",
             [EndingFlash.ExplosionWhiteout] = "EndingFlashExplosionWhiteout",
             [EndingFlash.WhiteoutCleared] = "EndingFlashWhiteoutCleared",
             [EndingFlash.LogoBackground] = "EndingFlashLogoBackground",
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>
     /// The installed name of each actor colouring's drawn shade (#2511), written out so renaming a colouring's identity never
@@ -86,22 +86,22 @@ public static class EndingShades
 
     /// <summary>The colours <paramref name="load"/> shows over those it replaces.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The load has no installed name.</exception>
-    public static PictureShade Loaded(EndingColourLoad load) => new(Ensure.Listed(LoadKeys, load), 0);
+    public static PictureShade Loaded(EndingColourLoad load) => new(LoadKeys[load], 0);
 
     /// <summary>The colours of <paramref name="colours"/> at fade <paramref name="level"/> of <see cref="FadeLevels"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The group has no installed name.</exception>
-    public static PictureShade Faded(EndingFade colours, int level) => new(Ensure.Listed(FadeKeys, colours), level);
+    public static PictureShade Faded(EndingFade colours, int level) => new(FadeKeys[colours], level);
 
     /// <summary>The colours <paramref name="flash"/> covers, in its solid colour.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The flash has no installed name.</exception>
-    public static PictureShade Flashed(EndingFlash flash) => new(Ensure.Listed(FlashKeys, flash), 0);
+    public static PictureShade Flashed(EndingFlash flash) => new(FlashKeys[flash], 0);
 
     /// <summary>The logo's background and sprite colours at crossfade <paramref name="step"/>.</summary>
     public static PictureShade LogoCrossfade(EndingLogoCrossfadeStep step) => new("EndingLogoCrossfade", step.Step);
 
     /// <summary>An actor's recolourable parts drawn in <paramref name="colouring"/>, in the sheet's own colours.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The colouring has no installed name.</exception>
-    public static PictureShade Drawn(EndingSpriteColouring colouring) => new(Ensure.Listed(DrawnKeys, colouring), 0);
+    public static PictureShade Drawn(EndingSpriteColouring colouring) => new(DrawnKeys[colouring], 0);
 
     /// <summary>
     /// What a screen shade <paramref name="shown"/> authored for the actors drawn in <paramref name="drawn"/> gives their

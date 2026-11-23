@@ -11,11 +11,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="randomStep">The random generator's step before the sequence runs.</param>
 /// <param name="step">One update of the sequence.</param>
 /// <param name="name">The current status.</param>
-internal sealed class GamePhase(
+internal sealed partial class GamePhase(
     SuperMetroidGameState state,
     PhaseRandomStep randomStep,
-    Action<ControllerButton> step,
-    Func<string> name) : IGamePhase
+    Action<ControllerButton, LoadedGameplay> step,
+    Func<string> name) : IGameplayPhase
 {
     /// <inheritdoc/>
     public SuperMetroidGameState State { get; } = state;
@@ -33,5 +33,5 @@ internal sealed class GamePhase(
     public bool IsWaitingOutDisplayFrame => false;
 
     /// <inheritdoc/>
-    public void Step(ControllerButton controllerInput) => step(controllerInput);
+    public void Step(ControllerButton controllerInput, LoadedGameplay live) => step(controllerInput, live);
 }

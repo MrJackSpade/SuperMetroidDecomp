@@ -16,7 +16,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// none. A holder may have composed a picture's colours from other rows or palette bits than those it is painted as, since
 /// one look says only what a draw shows; the draw shows the same picture either way.
 /// </summary>
-internal static class SpawnedObjectSheetSharing
+internal static partial class SpawnedObjectSheetSharing
 {
     /// <summary>The installed sheets <paramref name="layouts"/>, each a distinct laid-out spawned-object sheet, share out to.</summary>
     /// <exception cref="InvalidDataException">A sheet's pictures cannot be cut out, or a sheet does not fit on one image.</exception>
@@ -51,15 +51,16 @@ internal static class SpawnedObjectSheetSharing
         }
         // Each common picture joins the first common sheet whose colouring agrees with its own, or starts the next.
         var common = new List<PictureSheetPlan>();
+        var commonSheetOf = new Dictionary<HeldPicture, PictureSheetPlan>(ReferenceEqualityComparer.Instance);
         foreach (HeldPicture picture in pictures.Where(picture => picture.IsCommon))
         {
-            int sheet = common.FindIndex(plan => plan.TryTake(picture));
-            if (sheet < 0)
+            PictureSheetPlan? sheet = common.FirstOrDefault(plan => plan.TryTake(picture));
+            if (sheet is null)
             {
-                sheet = common.Count;
-                common.Add(new PictureSheetPlan(picture, $"Spawned-Common {sheet}"));
+                sheet = new PictureSheetPlan(picture, $"Spawned-Common {common.Count}");
+                common.Add(sheet);
             }
-            picture.CommonSheet = sheet;
+            commonSheetOf.Add(picture, sheet);
         }
         // Each sheet keeps the pictures no other sheet holds, in its own colouring.
         var own = new PictureSheetPlan?[painted.Length];
@@ -88,13 +89,13 @@ internal static class SpawnedObjectSheetSharing
         {
             shares[sheet] = new SpawnedSheetShare(own[sheet] is { } plan ? installedOf[plan] : null,
                 held[sheet].Where(frame => frame.Value.IsCommon)
-                    .ToDictionary(frame => frame.Key, frame => frame.Value.CommonSheet, StringComparer.Ordinal));
+                    .ToDictionary(frame => frame.Key, frame => installedOf[commonSheetOf[frame.Value]], StringComparer.Ordinal));
         }
-        return new SharedSpawnedSheets([.. common.Select(plan => installedOf[plan])], shares);
+        return new SharedSpawnedSheets(shares);
     }
 
     /// <summary>One distinct picture the spawned-object sheets hold, and which of them hold it under which frame names.</summary>
-    private sealed class HeldPicture
+    private sealed partial class HeldPicture
     {
         /// <summary>The sheets holding the picture, by their place among the layouts.</summary>
         private readonly HashSet<int> holders = [];
@@ -131,9 +132,6 @@ internal static class SpawnedObjectSheetSharing
         /// <summary>Whether two or more sheets hold the picture, so it is held once on a common sheet.</summary>
         internal bool IsCommon => holders.Count > 1;
 
-        /// <summary>The common sheet the picture is held on, by its place among the common sheets.</summary>
-        internal int CommonSheet { get; set; } = -1;
-
         /// <summary>
         /// Records that sheet <paramref name="sheet"/>, coloured as <paramref name="colouring"/>, shows the picture as frame
         /// <paramref name="name"/>, where it looks as <paramref name="shownAs"/>: the same as the picture, though perhaps
@@ -150,7 +148,7 @@ internal static class SpawnedObjectSheetSharing
     }
 
     /// <summary>The pictures one installed sheet will hold, in order, and the colouring they agree on.</summary>
-    private sealed class PictureSheetPlan
+    private sealed partial class PictureSheetPlan
     {
         /// <summary>The pictures, in order.</summary>
         private readonly List<HeldPicture> pictures = [];

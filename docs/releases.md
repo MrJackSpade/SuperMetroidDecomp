@@ -20,8 +20,8 @@ See `csharp/ROM-SETUP.md` for the editable file location and precedence.
 INI qualification: `python -m unittest discover -s tests -p test_release.py`
 checks missing templates, altered defaults, private INIs, and archive contents.
 `SuperMetroid.DesktopVerification --configuration-package-audit PATH/TO/SuperMetroid.Game.dll`
-loads the published host's actual configuration class using isolated temporary
-data directories. It checks shipped/default parity, first-use template edits,
+runs the host's actual configuration loader against the published package's
+templates using isolated temporary data directories. It checks shipped/default parity, first-use template edits,
 active-file edits, update preservation, invalid-template rejection, and embedded
 fallback without showing a GUI or touching player data. The release workflow runs
 this check before packaging and passes the same Version property to the verifier

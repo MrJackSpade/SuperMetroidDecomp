@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Progression;
 /// generator and the earthquake rumble's power-on delay.
 /// Lifetime: the session.
 /// </summary>
-public sealed class SharedGameState
+public sealed partial class SharedGameState
 {
     /// <summary>
     /// The startup route the next save keeps. Ordinary gameplay saves the main game; the Spacetime Beam can overwrite it
@@ -48,9 +48,8 @@ public sealed class SharedGameState
     public PowerOnEarthquakeSoundDelay EarthquakeSoundDelay { get; }
 
     /// <summary>Restores the saved startup route from one save slot or a checkpoint.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="route"/> is not a defined route.</exception>
     public void LoadSavedStartupRoute(SaveStartupRoute route) =>
-        SavedStartupRoute = Enum.IsDefined(route) ? route : throw new ArgumentOutOfRangeException(nameof(route), route, "Undefined startup route.");
+        SavedStartupRoute = route;
 
     /// <summary>
     /// Applies the Spacetime Beam's progression overwrite (#1318, #1330, #1474, #1475): every story event, boss, item, door,
@@ -71,8 +70,9 @@ public sealed class SharedGameState
     /// <summary>The current shared RNG state as a sample, 0 through 65535, without advancing it.</summary>
     public int RandomNumber => Random.Read();
 
-    /// <summary>Stores the shared RNG state with its two halves exchanged, as the lava and acid FX does.</summary>
-    internal void SwapRandomHalves() => Random.SwapHalves();
+    /// <summary>Stirs the shared random number, as the lava and acid waves do
+    /// (<see cref="SharedRandom.StirForLiquidWave"/>).</summary>
+    internal void StirRandomForLiquidWave() => Random.StirForLiquidWave();
 
     /// <summary>
     /// Draws the shared random sequence's next value (<see cref="SharedRandom.Generate"/>); every later draw follows on

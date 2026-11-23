@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// fall or rise carries Samus by the move it makes that update (#2473), and landing sets the rise wait before it counts
 /// down.
 /// </summary>
-public sealed class KzanEnemyState
+public sealed partial class KzanEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal KzanEnemyState(KzanAction action) => Action = action;
@@ -36,11 +36,11 @@ public sealed class KzanEnemyState
     public int FallingTargetY { get; internal set; }
 
     /// <summary>
-    /// The speed, in pixels per update, the fall moves at. It starts at the spawn settings' fall speed, grows by one
-    /// sixteenth of a pixel per falling update and is capped at four pixels per update.
+    /// The speed, in pixels per update, the fall moves at. It starts at the spawn settings' fall speed, grows by
+    /// <see cref="KzanMotionDefinitions.FallAcceleration"/> each falling update and is capped at <see cref="KzanMotionDefinitions.FastestFall"/>.
     /// </summary>
     public SignedSixteenSixteen FallingSpeed { get; internal set; }
 
-    /// <summary>Post-landing wait in actor updates; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
+    /// <summary>Post-landing wait in actor updates; loaded with <see cref="KzanMotionDefinitions.RiseWait"/> on landing and decremented to zero before upward motion begins.</summary>
     public UpdateCountdown RiseWaitTimer { get; internal set; } = UpdateCountdown.Ended();
 }

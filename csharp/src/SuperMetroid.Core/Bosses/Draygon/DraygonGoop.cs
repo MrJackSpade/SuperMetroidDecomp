@@ -5,8 +5,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's goop passes; <see cref="DraygonShots"/> owns the goop and turret shots as projectiles.</summary>
-[RoomLifetime]
-internal sealed class DraygonGoop
+internal sealed partial class DraygonGoop
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -28,7 +27,8 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        DraygonPhaseStep exit)
     {
         // Only the rightward setup fires a wall turret; the leftward setup omits it.
         // That asymmetry changes the random seed and is therefore material.
@@ -39,7 +39,7 @@ internal sealed class DraygonGoop
         body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? OffRoomPlaces.Place(DraygonArenaDefinitions.OffscreenLeftX) : state.RightSideResetX, DraygonArenaDefinitions.SwimLineY));
         state.SwoopVelocity = DraygonSwoopDefinitions.GoopApproachSpeed.Toward(direction);
         state.GoopYOscillationAngle = RotationAngle.Zero;
-        state.Phase = DraygonPhase.GoopApproach;
+        state.Step = DraygonPhaseSteps.GoopApproach(exit);
         state.BodyPart.StartAnimation(direction == HorizontalDirection.Right
                 ? DraygonSegment.BodyFacingRightReset
                 : DraygonSegment.BodyFacingLeftReset);
@@ -50,13 +50,14 @@ internal sealed class DraygonGoop
     internal void ApproachSamusForDraygonGoop(
         DraygonEnemyState state,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        DraygonPhaseStep exit)
     {
         _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         if (DistanceAcrossRoomEdge.Between(state.Body.Position.X.Whole, samus.Position.X.Whole) < DraygonArenaDefinitions.GoopTailRange)
         {
-            state.Phase = DraygonPhase.GoopTail;
+            state.Step = DraygonPhaseSteps.GoopTail(exit);
             state.GoopShotsLeft.LastFor(DraygonArenaDefinitions.GoopsPerPass);
             return;
         }
@@ -68,14 +69,15 @@ internal sealed class DraygonGoop
         DraygonEnemyState state,
         HorizontalDirection direction,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        DraygonPhaseStep exit)
     {
         // The right-facing shot runs the turret's step; the left-facing one does not.
         if (direction == HorizontalDirection.Right)
             _turrets.ObserveDraygonTurretCadence(samus, frameCounter);
         if (samus.SlowdownLevel != 0)
         {
-            state.Phase = DraygonPhase.TryGrabSamus;
+            state.Step = DraygonPhaseSteps.TryGrabSamus();
             return;
         }
 
@@ -83,7 +85,7 @@ internal sealed class DraygonGoop
         {
             if (state.GoopShotsLeft.StepRunsOut())
             {
-                FinishDraygonGoopFiring(state, direction);
+                FinishDraygonGoopFiring(state, direction, exit);
                 return;
             }
             state.BodyPart.StartAnimation(direction == HorizontalDirection.Right
@@ -92,54 +94,59 @@ internal sealed class DraygonGoop
         }
 
         MoveDraygonAlongGoopPath(state);
-        int x = state.Body.Position.X.Whole;
-        bool crossedExit = direction == HorizontalDirection.Right
-            ? !OffRoomPlaces.LiesBeforeRoom(x) && x >= DraygonArenaDefinitions.RightSideResetDistance
-            : OffRoomPlaces.LiesBeforeRoom(x) && DistanceAcrossRoomEdge.LiesBefore(x, DraygonArenaDefinitions.OffscreenLeftX);
-        if (crossedExit)
-            FinishDraygonGoopFiring(state, direction);
+        if (HasLeftArena(state, direction))
+            FinishDraygonGoopFiring(state, direction, exit);
     }
 
-    /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
-    private static void FinishDraygonGoopFiring(DraygonEnemyState state, HorizontalDirection direction)
+    /// <summary>
+    /// Whether his goop pass travelling <paramref name="direction"/> has left the arena (#2557): rightward, past the right
+    /// side's reset distance; leftward, before the room and past the off-screen left edge.
+    /// </summary>
+    private static bool HasLeftArena(DraygonEnemyState state, HorizontalDirection direction)
+    {
+        int x = state.Body.Position.X.Whole;
+        return direction == HorizontalDirection.Right
+            ? !OffRoomPlaces.LiesBeforeRoom(x) && x >= DraygonArenaDefinitions.RightSideResetDistance
+            : OffRoomPlaces.LiesBeforeRoom(x) && DistanceAcrossRoomEdge.LiesBefore(x, DraygonArenaDefinitions.OffscreenLeftX);
+    }
+
+    /// <summary>Ends the goop firing: his arms go idle and he starts his recovery pass.</summary>
+    private static void FinishDraygonGoopFiring(DraygonEnemyState state, HorizontalDirection direction, DraygonPhaseStep exit)
     {
         state.ArmsPart.StartAnimation(direction == HorizontalDirection.Right
                 ? DraygonSegment.ArmsFacingRightIdle
                 : DraygonSegment.ArmsFacingLeftIdle);
-        state.Phase = DraygonPhase.GoopRecovery;
+        state.Step = DraygonPhaseSteps.GoopRecovery(exit);
     }
 
     /// <summary>Runs the final off-screen movement.</summary>
     internal void ExitDraygonGoopPass(
         DraygonEnemyState state,
         HorizontalDirection direction,
-        SamusState samus)
+        SamusState samus,
+        DraygonPhaseStep exit)
     {
         _movement.SpawnPeriodicDraygonBreathBubble(state);
         // Only the leftward recovery rechecks whether Samus became gooped after firing.
         if (direction != HorizontalDirection.Right && samus.SlowdownLevel != 0)
         {
-            state.Phase = DraygonPhase.TryGrabSamus;
+            state.Step = DraygonPhaseSteps.TryGrabSamus();
             return;
         }
 
         MoveDraygonAlongGoopPath(state);
-        int x = state.Body.Position.X.Whole;
-        bool offScreen = direction == HorizontalDirection.Right
-            ? !OffRoomPlaces.LiesBeforeRoom(x) && x >= DraygonArenaDefinitions.RightSideResetDistance
-            : OffRoomPlaces.LiesBeforeRoom(x) && DistanceAcrossRoomEdge.LiesBefore(x, DraygonArenaDefinitions.OffscreenLeftX);
-        if (!offScreen)
+        if (!HasLeftArena(state, direction))
             return;
 
         if (direction == HorizontalDirection.Right)
         {
-            state.Phase = DraygonPhase.SwoopSetup;
+            state.Step = exit;
             state.PassDirection = HorizontalDirection.Left;
             state.Body.Position = state.Body.Position.WithWholeX(DraygonArenaDefinitions.RightSwoopSetupX);
         }
         else
         {
-            state.Phase = DraygonPhase.SwoopSetup;
+            state.Step = exit;
             state.PassDirection = HorizontalDirection.Right;
             state.Body.Position = OffRoomPlaces.WithWholeX(state.Body.Position, DraygonArenaDefinitions.OffscreenLeftX);
         }

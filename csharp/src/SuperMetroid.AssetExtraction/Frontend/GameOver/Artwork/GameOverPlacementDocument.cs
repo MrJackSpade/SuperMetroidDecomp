@@ -3,7 +3,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 
 /// <summary>The installed game-over layout document (#1638): the Baby's and the cursor's anchors and the cursor's frame duration.</summary>
-public sealed record GameOverPlacementDocument
+public sealed partial record GameOverPlacementDocument
 {
     /// <summary>Layout revision; must equal <see cref="GameOverLayoutFile.Version"/>.</summary>
     public required int Version { get; init; }

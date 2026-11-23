@@ -26,10 +26,10 @@ internal static class LookupQuakeSoundSuppressionVerification
         AssertEqual(6, nativeRooms.Count, "Six distinct native suppressed rooms");
         foreach (RoomDefinition room in RetailRooms.All)
             AssertEqual(nativeRooms.Contains(RoomDefinitions.PointerOf(room)),
-                RoomEarthquakeDefinitions.SoundSuppressedRooms.Contains(room),
+                room.QuakesAreSilent,
                 "Quake suppression complete room domain");
 
-        var state = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var state = global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
         foreach (RoomDefinition? room in nativeRooms.Select(pointer => RoomDefinitions.Get(pointer)).Append(null))
@@ -49,5 +49,5 @@ internal static class LookupQuakeSoundSuppressionVerification
     }
 
     /// <summary>Reads a cartridge opcode or operand for the quake-suppression comparison chain.</summary>
-    private static byte QuakeSoundSuppressionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte QuakeSoundSuppressionRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

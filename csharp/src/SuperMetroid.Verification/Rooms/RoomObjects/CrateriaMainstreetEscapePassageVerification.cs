@@ -20,7 +20,7 @@ internal static class CrateriaMainstreetEscapePassageVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
             if (crittersEscaped)
                 runtime.System.SetEvent(StoryEvent.CrittersEscaped);

@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// sine table with only the radius's low byte, so a radius of 256 reads as zero; a vertical crash's echo ending in a
 /// tall room stays on the screen past 248 pixels.
 /// </remarks>
-[CompatibilityService("a shinespark crash's released echo is placed at its radius taken within 256 pixels, so an echo still on the screen at 256 pixels returns to Samus and its height feeds the next crash's orbit")]
-public static class ShinesparkEchoReturn
+public static partial class ShinesparkEchoReturn
 {
     /// <summary>The radii an echo is placed at before it comes back to Samus.</summary>
     private const int PlacementRadii = 256;

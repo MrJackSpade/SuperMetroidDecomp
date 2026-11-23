@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// reads them from the installed display bindings (<see cref="EnemyFrameDisplayFiles"/>) while the import's compositions
 /// stay import data.
 /// </summary>
-internal sealed class InstalledEnemyFrameDisplays
+internal sealed partial class InstalledEnemyFrameDisplays
 {
     /// <summary>The ordinary frames.</summary>
     private static readonly Lazy<HashSet<EnemyFrameId>> OrdinaryFrames = new(() => [.. EnemySpritemapDefinitions.Frames.Select(frame => frame.Frame)]);
@@ -86,7 +86,7 @@ internal sealed class InstalledEnemyFrameDisplays
         if (ordinary.TryGetValue(frame, out EnemyFrameId selected) && OrdinaryFrames.Value.Contains(selected))
             return true;
         EnemyFrameId? displayed = extended.TryGetValue(frame, out selected) && ExtendedFrames.Value.ContainsKey(selected) ? selected
-            : frame != EnemyFrameId.Empty && ExtendedFrames.Value.ContainsKey(frame) ? frame : null;
+            : !CommonEnemyEmptyFrames.IsEmpty(frame) && ExtendedFrames.Value.ContainsKey(frame) ? frame : null;
         return displayed is { } stored && !EnemyExtendedFrameBounds.IsBg2Only(ExtendedFrames.Value[stored]);
     }
 

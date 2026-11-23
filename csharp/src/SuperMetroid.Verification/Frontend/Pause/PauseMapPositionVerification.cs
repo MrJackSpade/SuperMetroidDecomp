@@ -23,7 +23,7 @@ internal static class PauseMapPositionVerification
     internal static void VerifyPauseMapPosition()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        var cart = CartridgeImportSource.Require(bus);
+        var cart = bus;
         // The marker's $0E00 attribute selects the last object palette, whose fifteen inks the pause screen loads from $B6:F000.
         const int markerPalette = 240;
         RgbColor[] markerColors = [.. Enumerable.Range(markerPalette + 1, 15).Select(color => RgbColor.FromWord(checked(Read(0xb6f000 + color * 2))))];
@@ -47,7 +47,7 @@ internal static class PauseMapPositionVerification
                 }
                 nativeTimer--;
                 int id = new[] { 0x5f, 0x60, 0x61, 0x60 }[nativeFrame];
-                pause.AdvanceAnimations(0, PauseAnimationPhase.Stable);
+                pause.AdvanceAnimations(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero, PauseAnimationPhase.Stable);
                 // The frame as published; whether a repaint shows the same pixels is answered from the two frames'
                 // descriptions, drawing them only when those differ (#1532, #1757).
                 LayeredScene shown = pause.ComposeScene();

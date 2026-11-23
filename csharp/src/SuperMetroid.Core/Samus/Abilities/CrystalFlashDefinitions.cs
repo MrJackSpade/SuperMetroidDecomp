@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Samus.Abilities;
 
 /// <summary>What a Crystal Flash asks of Samus and what it gives her back.</summary>
-internal static class CrystalFlashDefinitions
+internal static partial class CrystalFlashDefinitions
 {
     /// <summary>Samus's energy must be below this for the flash to start.</summary>
     public const int AdmittingEnergyBelow = 51;
 
     /// <summary>
-    /// The Missiles, Super Missiles and Power Bombs the flash spends of each kind, one every eighth update: each count must
+    /// The Missiles, Super Missiles and Power Bombs the flash spends of each kind, one at each drain: each count must
     /// hold at least this many for the flash to start.
     /// </summary>
     public const int AmmunitionPerKind = 10;

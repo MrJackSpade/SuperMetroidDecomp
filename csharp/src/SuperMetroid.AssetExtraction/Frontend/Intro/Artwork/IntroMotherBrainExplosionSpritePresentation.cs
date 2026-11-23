@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Editable explosion OAM art, independent of native placement and timing.</summary>
-public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpriteFrames
+public sealed partial class IntroMotherBrainExplosionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated fourth-hit compositions keyed by the poses that show them.</summary>
     private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -18,16 +18,13 @@ public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpri
     /// <inheritdoc/>
     IReadOnlyDictionary<CinematicSpritePose, SpriteComposition> ICinematicSpriteFrames.Frames => frames;
 
-    /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroMotherBrainExplosionSpritePresentation), frames);
-
     /// <summary>Retains the validated twelve-frame selection after JSON compilation.</summary>
     private IntroMotherBrainExplosionSpritePresentation(
         Dictionary<CinematicSpritePose, SpriteComposition> frames) => this.frames = frames;
 
     /// <summary>Loads and validates all six small and six large fourth-hit explosion frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
-    /// <returns>The compiled presentation keyed by native bank-$8C spritemap identities.</returns>
+    /// <returns>The compiled presentation, its compositions keyed by the poses that show them.</returns>
     /// <exception cref="InvalidDataException">The JSON, version, frame set, or sprite parts are invalid.</exception>
     public static IntroMotherBrainExplosionSpritePresentation Load(Stream json)
     {
@@ -58,8 +55,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation : ICinematicSpri
     public static void Write(Stream json, IntroMotherBrainExplosionSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroMotherBrainExplosionSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

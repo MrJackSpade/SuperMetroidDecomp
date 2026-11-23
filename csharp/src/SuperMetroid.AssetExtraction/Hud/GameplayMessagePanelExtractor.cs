@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Extracts the seven large item-instruction panels as editable presentation data.</summary>
-public static class GameplayMessagePanelExtractor
+public static partial class GameplayMessagePanelExtractor
 {
     /// <summary>Imports the seven large item-instruction panels with their raw templates, decoded titles, and shared border.</summary>
     /// <param name="bus">Non-null cartridge address space supplying message definitions and the four-row panel tilemaps.</param>
@@ -24,15 +24,15 @@ public static class GameplayMessagePanelExtractor
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 GameplayMessageNumbers.DefinitionEntry(id) * HudSourceDefinitions.Messages.DefinitionBytes;
-            int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
-            int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            int next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
+            int setup = bus.ReadCartridgeWord(definition);
+            int draw = bus.ReadCartridgeWord((definition + 2));
+            int pointer = bus.ReadCartridgeWord((definition + 4));
+            int next = bus.ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
             GameplayMessageRoutine expectedSetup = GameplayMessageButtons.PanelBinding(id) switch
             {
                 GameplayMessagePanelButtonBinding.Shoot => GameplayMessageRoutine.PatchShootButton,
                 GameplayMessagePanelButtonBinding.Run => GameplayMessageRoutine.PatchRunButton,
-                GameplayMessagePanelButtonBinding.None => throw new InvalidDataException(
+                null => throw new InvalidDataException(
                     $"Gameplay-message panel {id} lacks a compiled button binding."),
                 _ => throw new InvalidDataException(
                     $"Gameplay-message panel {id} lacks a compiled button binding."),
@@ -49,7 +49,7 @@ public static class GameplayMessagePanelExtractor
                 GameplayMessagePanelDefinitions.ContentWords];
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int word = 0; word < template.Length; word++)
-                template[word] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + word * sizeof(ushort))));
+                template[word] = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((content + word * sizeof(ushort))));
 
             BackgroundTile[] visible = template.AsSpan(
                 GameplayMessagePanelDefinitions.OuterLeftColumns,
@@ -75,7 +75,7 @@ public static class GameplayMessagePanelExtractor
 
         var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.LargeBorder + column * sizeof(ushort))));
+            border[column] = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((HudSourceDefinitions.Messages.LargeBorder + column * sizeof(ushort))));
 
         using var output = new MemoryStream();
         GameplayMessagePanelPresentation.Write(output, new()

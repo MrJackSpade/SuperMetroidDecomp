@@ -6,7 +6,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Reads the installed escape-warning document into the messages the game types (#1502, #1712).</summary>
-public static class EscapeTypewriterPresentationFile
+public static partial class EscapeTypewriterPresentationFile
 {
     /// <summary>Loads the two editable escape-warning messages and validates their character alphabet and tile placement.</summary>
     /// <param name="json">Non-null caller-owned readable JSON stream, consumed from its current position without being disposed.</param>
@@ -18,8 +18,7 @@ public static class EscapeTypewriterPresentationFile
         EscapeTypewriterDocument document;
         try
         {
-            document = JsonAssetDocument.Read<EscapeTypewriterDocument>(json, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Escape typewriter document is null.");
+            document = JsonAssetDocument.Read<EscapeTypewriterDocument>(json, ArtworkJson.Options);
         }
         catch (JsonException error)
         {

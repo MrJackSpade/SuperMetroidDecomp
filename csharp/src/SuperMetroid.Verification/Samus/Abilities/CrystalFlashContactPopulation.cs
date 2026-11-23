@@ -10,6 +10,9 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Position16<RoomPixels> position) :
     ISnesWritableAddressSpace, IRoomEnemyDefinitionSource
 {
+    /// <summary>Reads the wrapped address space's cartridge byte.</summary>
+    public byte ReadCartridgeByte(int address) => inner.ReadCartridgeByte(address);
+
     /// <summary>Uses the retail enemy header for the constructed Ripper population.</summary>
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         RoomEnemyDefinitionLookup.Get(pointer);
@@ -22,7 +25,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
     {
         if (pointer != CrystalFlashContactDefinitions.Pointer)
             throw new ArgumentOutOfRangeException(nameof(pointer));
-        var population = new RoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
+        var population = new PlacedRoomEnemyPopulationDefinition("Crystal Flash contact Ripper",
         [
             SuperMetroid.AssetExtraction.Enemies.RoomEnemyPopulationRecordCodec.Decode(CrystalFlashContactDefinitions.RipperHeader,
                 position.X, position.Y, 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),

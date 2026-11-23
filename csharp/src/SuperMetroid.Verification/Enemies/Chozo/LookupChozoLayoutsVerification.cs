@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Rooms.RoomObjects.SamusEaterObjectDefinit
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using static SuperMetroid.Verification.Harness.TerrainBlockFieldAssertions;
 using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -29,7 +28,7 @@ internal static class LookupChozoLayoutsVerification
         string[] ids = ["lower-norfair-cleared-hand","wrecked-ship-clear-slope-access","wrecked-ship-block-slope-access"];
         var exported = RoomObjectChozoStatueVisualFiles.All.ToArray();
         AssertEqual(3, exported.Length, "Chozo layout export count");
-        InstalledRoomObjectChozoStatueVisuals pictures = InstalledRoomObjectChozoStatueVisuals.Stock();
+        InstalledRoomObjectPictures pictures = RoomObjectPicturesStock.ChozoStatue;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -69,8 +68,8 @@ internal static class LookupChozoLayoutsVerification
             var guarded = NewChozoProgramAndDrawReadGuard(rom);
             if (field == 0)
             {
-                AssertTrue(roomObjects.ChozoStatue.TrySpawnChozoStatueObject(level,
-                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.SlopeAccessOpening)), "Chozo layout fixture spawn");
+                roomObjects.ChozoStatue.SpawnChozoStatueObject(level,
+                    new RoomObjectSpawnRequest<ChozoStatueRoomObject>(new Position16<RoomBlocks>(3, 4), ChozoStatueRoomObject.SlopeAccessOpening));
                 roomObjects.DrawSoleObjectFrameForVerification(level, NativeObjectDraws.At<ChozoStatueDraw>(pointer));
                 AssertEqual(0, guarded.ForbiddenReadAttempts, "Chozo calculated draw avoids ROM reads");
             }

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Spatial;
 /// steps.
 /// </summary>
 /// <typeparam name="T">The value each arc holds.</typeparam>
-internal sealed class TurnArcs<T>
+internal sealed partial class TurnArcs<T>
 {
     /// <summary>The steps of a full turn.</summary>
     private const int StepsPerTurn = RotationAngle.StepsPerTurn;
@@ -39,14 +39,4 @@ internal sealed class TurnArcs<T>
 
     /// <summary>The value of the arc the whole steps of <paramref name="angle"/> lie in.</summary>
     internal T At(RotationAngle angle) => At(angle.ToTrigonometryAngle());
-
-    /// <summary>Where the one arc holding <paramref name="value"/> opens.</summary>
-    /// <exception cref="ArgumentException">No arc, or more than one, holds the value.</exception>
-    internal TrigonometryAngle StartOf(T value)
-    {
-        int[] arcs = [.. Enumerable.Range(0, _values.Length).Where(arc => EqualityComparer<T>.Default.Equals(_values[arc], value))];
-        return arcs.Length == 1
-            ? Start + TrigonometryAngle.Wrapped(arcs[0] * (StepsPerTurn / _values.Length))
-            : throw new ArgumentException($"{arcs.Length} arcs hold {value}; exactly one must.", nameof(value));
-    }
 }

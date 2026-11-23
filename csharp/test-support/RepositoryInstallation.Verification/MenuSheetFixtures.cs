@@ -81,9 +81,26 @@ internal static class MenuSheetFixtures
         ArgumentNullException.ThrowIfNull(catalog);
         return ReferenceEquals(catalog, InstalledFixtures.ImportMaps.Sprites)
             ? InstalledFixtures.SpriteSheets.Get(SpriteSheetId.MapSprites)
-            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(key, InstalledFixtures.ImportMaps),
+            : mapSprites.GetValue(catalog, key => Load(SpriteSheetId.MapSprites, MapSpriteSheetComposer.Sources(WithMapSprites(InstalledFixtures.ImportMaps,
+                key as MapSpriteArtwork ?? throw new ArgumentException($"Map sprites are composed from map sprite artwork, not {key.GetType().Name}.", nameof(catalog)))),
                 $"catalog-{RuntimeHelpers.GetHashCode(key):X8}"));
     }
+
+    /// <summary>
+    /// The import presentation <paramref name="maps"/> with <paramref name="sprites"/> as its map sprites: built as the import
+    /// builds it, from the characters, colours and documents read back from <paramref name="maps"/>, the characters holding
+    /// <paramref name="sprites"/>.
+    /// </summary>
+    private static ImportAreaMapPresentation WithMapSprites(ImportAreaMapPresentation maps, MapSpriteArtwork sprites) =>
+        new(maps.Game,
+            new ImportPresentationCharacters(maps.Characters, sprites, maps.EscapeTimerTiles, maps.BlockAnimationAtlas, maps.WorldCharacters,
+                maps.IntroFont, maps.EndingFont, maps.TitleGraphics),
+            new ImportPresentationColours(maps.SamusColours, maps.TitlePalette, maps.Palettes, maps.CeresRidleyColors, maps.CeresRidleyFloorColors,
+                maps.MotherBrainHealthPalette, maps.MotherBrainRoomColors, maps.RoomFxPaletteBlends, maps.RoomPaletteFx,
+                maps.MotherBrainRainbowColours, maps.HighlightColours),
+            new ImportPresentationDocuments(maps.FileSelect, maps.Pause, maps.RoomFxPages, maps.Messages, maps.GameplayHud, maps.Screens,
+                new ImportMenuDocuments(maps.PauseSelectors, maps.PauseReserveTanks, maps.GameOverSource, maps.GameOptions, maps.EndingTextPresentation),
+                maps.StaffCredits));
 
     /// <summary>Pause sheets already composed, by selector presentation.</summary>
     private static readonly ConditionalWeakTable<PauseSelectorSourcePresentation, SpriteSheet> pauseSprites = new();
@@ -207,7 +224,7 @@ internal static class MenuSheetFixtures
     /// <summary>Loads one composed fixture tile sheet under a name of its own.</summary>
     private static SpriteSheet LoadTiles(SpriteSheetId id, ComposedSpriteSheet tiles, string fixture) =>
         SpriteSheetFileConstants.Load(tiles.Manifest,
-            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.PaletteIndices);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", tiles.Size, tiles.Pixels, tiles.Inks);
 
     /// <summary>File-select map sheets already composed, by presentation.</summary>
     private static readonly ConditionalWeakTable<ImportAreaMapPresentation, InstalledSpriteSheets> fileSelectMaps = new();
@@ -272,10 +289,10 @@ internal static class MenuSheetFixtures
     /// <summary>Composes, loads and registers one fixture sheet under a name of its own.</summary>
     private static SpriteSheet Load(SpriteSheetId id, SpriteSheetSources sources, string fixture)
     {
-        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, 0);
+        ComposedSpriteSheet sheet = SpriteSheetComposer.Compose(sources, 0, SuperMetroid.Core.Assets.ActorDepth.BehindRoom);
         // A name of its own keeps its frames apart from the installed sheet's in the frame-source registry.
         SpriteSheet loaded = SpriteSheetFileConstants.Load(sheet.Manifest,
-            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.PaletteIndices);
+            $"{SpriteSheetDefinitions.FileNames[id]}-fixture-{fixture}", sheet.Size, sheet.Pixels, sheet.Inks);
         SheetFrameSources.Register(loaded, sources);
         return loaded;
     }

@@ -63,7 +63,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             foreach (int x in new[] {native - 1, native})
             {
                 head.Position = head.Position.WithWholeX((ushort)x);
-                var state = new BotwoonEnemyState(body: []);
+                var state = new BotwoonEnemyState();
                 detect(head, state);
                 AssertEqual(x < native, state.InsideHole, "Botwoon right boundary is exclusive");
             }
@@ -85,7 +85,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             foreach (int y in new[] {native - 1, native})
             {
                 head.Position = head.Position.WithWholeY((ushort)y);
-                var state = new BotwoonEnemyState(body: []);
+                var state = new BotwoonEnemyState();
                 detect(head, state);
                 AssertEqual(y < native, state.InsideHole, "Botwoon bottom boundary is exclusive");
             }
@@ -98,21 +98,22 @@ internal static class BotwoonNavigationDefinitionsVerification
         Suite(nameof(VerifyBotwoonPathStartMapping), () => VerifyBotwoonPathStartMapping(rom));
         Suite(nameof(VerifyBotwoonPathDirectionMapping), () => VerifyBotwoonPathDirectionMapping(rom));
         Suite(nameof(VerifyBotwoonPathDestinationMapping), () => VerifyBotwoonPathDestinationMapping(rom));
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         for (int offset = 0; offset < DescriptorCount * RecordBytes; offset += RecordBytes)
         {
-            var state = new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.Finished };
+            var state = new BotwoonEnemyState { Movement = BotwoonMovement.Finished };
             BotwoonBehavior.StartBotwoonWalk(state, WalkOf(offset / RecordBytes));
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
             BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
-            AssertEqual(start.Path, TablePosition(state.Path ?? throw new InvalidOperationException("The walk sets a path.")), "Botwoon production path");
-            AssertEqual(start.Step, state.PathStep, "Botwoon production first step and backward rewind");
-            AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, state.PathTraversal,
+            AssertTrue(state.Movement is BotwoonMovement.AlongPath, "Botwoon walk handoff, which starts unfinished");
+            var walking = (BotwoonMovement.AlongPath)state.Movement;
+            AssertEqual(start.Path, TablePosition(walking.Path), "Botwoon production path");
+            AssertEqual(start.Step, walking.Step, "Botwoon production first step and backward rewind");
+            AssertEqual(direction < 0 ? BotwoonPathTraversal.Backward : BotwoonPathTraversal.Forward, walking.Traversal,
                 "Botwoon production path direction");
             AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * Array.FindIndex(BotwoonNavigationDefinitions.Holes, hole => hole.Hole == state.TargetHole),
                 "Botwoon production destination");
-            AssertEqual(BotwoonMovement.FollowAuthoredPath, state.Movement, "Botwoon walk handoff, which starts unfinished");
         }
         Console.WriteLine("Botwoon path descriptors: all 32 path, first-step, direction and destination fields and production installations match native records.");
     }
@@ -123,7 +124,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// </summary>
     private static void VerifyBotwoonPathStartMapping(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort[] boundaries = [0xa058,0xa328,0xa6ba,0xaa22,0xadfc,0xb168,0xb554,0xb954,
             0xbc84,0xc084,0xc28e,0xc68e,0xc9ca,0xcdca,0xd13e,0xd4a0,0xd87e,
             0xda00,0xdb9a,0xdd40,0xde7c,0xdfde,0xe14e];
@@ -137,7 +138,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
             short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
             BotwoonPathWalk walk = WalkOf(offset / RecordBytes);
-            BotwoonPathPosition start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
+            var start = BotwoonPathCodec.Locate(cartridge, direction < 0 ? pointer - BackwardRewindBytes : pointer);
             AssertEqual(start.Path, TablePosition(walk.Path), "Botwoon native descriptor path");
             AssertEqual(start.Step, walk.FirstStep, "Botwoon native descriptor first step");
         }
@@ -173,7 +174,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     /// </summary>
     private static void VerifyBotwoonLeaveHoleChance(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort followsPath = cartridge.ReadCartridgeWord(LeaveHoleActionTable);
         int taken = 0;
         for (int sample = 0; sample <= ushort.MaxValue; sample++)
@@ -197,7 +198,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
         Suite(nameof(VerifyBotwoonLeaveHoleChance), () => VerifyBotwoonLeaveHoleChance(rom));
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
 
         BotwoonHoleDefinition[] holes = BotwoonNavigationDefinitions.Holes;
         for (int holeIndex = 0; holeIndex < holes.Length; holeIndex++)
@@ -251,13 +252,8 @@ internal static class BotwoonNavigationDefinitionsVerification
                 {
                     movementHead.Position = movementHead.Position.WithWhole(new(0x8000, 0x8000));
                     // He starts at full speed: two path steps an update.
-                    var state = new BotwoonEnemyState(body: [])
-                    {
-                        Movement = BotwoonMovement.FollowAuthoredPath,
-                        Path = definition,
-                        PathStep = step,
-                        PathTraversal = traversal,
-                    };
+                    var walking = new BotwoonMovement.AlongPath(new BotwoonPathWalk(definition, traversal, step, definition.To));
+                    var state = new BotwoonEnemyState { Movement = walking };
                     AssertEqual(2, state.SpeedStage.MovementSpeed, "Botwoon walks two path steps an update at full speed");
                     runMovement(movementHead, state);
 
@@ -268,7 +264,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     AssertEqual(terminates || nextTerminates, state.Movement == BotwoonMovement.Finished, $"{context} completion");
                     if (terminates || nextTerminates)
                     {
-                        AssertEqual(terminates ? step : step + sign, state.PathStep, $"{context} terminating step");
+                        AssertEqual(terminates ? step : step + sign, walking.Step, $"{context} terminating step");
                         AssertEqual((ushort)0x8000, movementHead.Position.X.Whole, $"{context} terminating X");
                         AssertEqual((ushort)0x8000, movementHead.Position.Y.Whole, $"{context} terminating Y");
                         continue;
@@ -277,7 +273,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                     Offset16<RoomPixels> next = BotwoonPathCodec.Sample(cartridge, nextAddress);
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.X + next.X))), movementHead.Position.X.Whole, $"{context} X");
                     AssertEqual(unchecked((ushort)(0x8000 + sign * (expected.Y + next.Y))), movementHead.Position.Y.Whole, $"{context} Y");
-                    AssertEqual(step + 2 * sign, state.PathStep, $"{context} next step");
+                    AssertEqual(step + 2 * sign, walking.Step, $"{context} next step");
                 }
                 movementStepCount++;
             }
@@ -287,7 +283,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         foreach (BotwoonHoleDefinition hole in holes)
         {
             var head = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom()).Places.InUpdateOrder[0];
-            var state = new BotwoonEnemyState(body: []) { RingIndex = 141 };
+            var state = new BotwoonEnemyState { RingIndex = 141 };
             head.Position = head.Position.WithWhole(hole.TopLeft);
             detectHole(head, state);
             AssertTrue(state.InsideHole, $"Botwoon hole {hole.Hole} includes left/top");
@@ -313,7 +309,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
             head.Position = head.Position.WithWhole(hole.Target);
-            var state = new BotwoonEnemyState(body: [])
+            var state = new BotwoonEnemyState
             {
                 Movement = BotwoonMovement.MoveTowardHole,
                 TargetHole = hole.Hole,
@@ -331,9 +327,6 @@ internal static class BotwoonNavigationDefinitionsVerification
         AssertThrows<InvalidDataException>(
             () => BotwoonNavigation.HasStep(first, first.Steps.Length + 1),
             "Botwoon path position past the walk's end");
-        AssertThrows<InvalidOperationException>(
-            () => runMovement(movementHead, new BotwoonEnemyState(body: []) { Movement = BotwoonMovement.FollowAuthoredPath }),
-            "Botwoon cannot follow a path before choosing one");
 
         Console.WriteLine(
             $"Botwoon navigation definitions: 144 native words, all {BotwoonPathDefinitions.Paths.Length} authored " +

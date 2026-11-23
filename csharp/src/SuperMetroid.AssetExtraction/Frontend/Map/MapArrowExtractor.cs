@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Imports the visual portion of map arrow records without exporting controller masks.</summary>
-public static class MapArrowExtractor
+public static partial class MapArrowExtractor
 {
     /// <summary>The scroll direction of each cartridge arrow record, in record order.</summary>
     private static readonly MapScrollDirection[] ArrowDirections =
@@ -35,7 +35,7 @@ public static class MapArrowExtractor
             if (animation is < 1 or > 9) throw new InvalidDataException("Invalid cartridge map arrow animation.");
             int program = Read(MapSourceDefinitions.Animation.SpritePrograms + (animation - 1) * 2);
             int variants = Read(MapSourceDefinitions.Animation.SpriteBases + (animation - 1) * 2);
-            if (Read(MapSourceDefinitions.Menu.ObjectBank | variants) != MapSpriteOrdinals.Spritemaps.Word(MapArrowSprites.Picture(direction)))
+            if (Read(MapSourceDefinitions.Menu.ObjectBank | variants) != MapSpriteOrdinals.Spritemaps.Word(MapArrowDefinitions.ArrowPictures[direction]))
                 throw new InvalidDataException($"Cartridge arrow shape differs for {direction}.");
             for (int phase = 0; ; phase++)
             {
@@ -51,6 +51,6 @@ public static class MapArrowExtractor
         using var stream = new MemoryStream();
         MapArrowFile.Write(stream, new() { Version = MapArrowFormat.Version, Arrows = arrows });
         return stream.ToArray();
-        ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+        ushort Read(int address) => RomDataReader.ReadWordFixedBank(bus, address);
     }
 }

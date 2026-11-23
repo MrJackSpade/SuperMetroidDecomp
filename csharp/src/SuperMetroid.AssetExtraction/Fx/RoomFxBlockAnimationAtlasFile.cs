@@ -3,13 +3,13 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// The installed room-FX atlas PNG (#1409): its file name, pixel geometry and the stable order of the character segments
+/// The import's room-FX atlas PNG (#1409): its file name, pixel geometry and the stable order of the character segments
 /// it holds. Only the import pipeline reads and writes
 /// the file, and composes room sheets from its compiled characters (<see cref="RoomFxBlockAnimationAtlasFormat"/>).
 /// </summary>
-public static class RoomFxBlockAnimationAtlasFile
+public static partial class RoomFxBlockAnimationAtlasFile
 {
-    /// <summary>Installed indexed PNG filename for the append-only strip of room-FX and related animated characters.</summary>
+    /// <summary>Import-data indexed PNG filename of the import's room-FX atlas: the strip of room-FX and related animated characters.</summary>
     public const string FileName = "room-fx-block-animations.png";
     /// <summary>Two planar bitplanes per pixel, producing sixteen bytes for each 8-by-8 character.</summary>
     public const int BitsPerPixel = 2;
@@ -29,28 +29,19 @@ public static class RoomFxBlockAnimationAtlasFile
     private static IEnumerable<RoomFxAtlasSegment> EnumerateSegments()
     {
         int total = 0;
-        foreach (BlockAnimation definition in RoomFxBlockAnimationLoops.All)
-            if (definition is not (BlockAnimation.Spores or BlockAnimation.HorizontalSpikes))
-                foreach (var segment in Frames(definition))
-                {
-                    total += segment.ByteCount;
-                    yield return segment;
-                }
-        BlockAnimation treadmill = BlockAnimation.WreckedShipTreadmillRightwards;
-        for (int frame = 0; frame < RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount; frame++)
-        {
-            total += RoomFxBlockAnimationLoops.TreadmillFrameByteCount;
-            yield return new RoomFxAtlasSegment.Image(treadmill.TreadmillImage(frame), RoomFxBlockAnimationLoops.TreadmillFrameByteCount);
-        }
-        var statues = new RoomFxAtlasSegment.TourianStatueStrip();
-        total += statues.ByteCount;
-        yield return statues;
-        foreach (var segment in Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Spores)))
-        {
-            total += segment.ByteCount;
-            yield return segment;
-        }
-        foreach (var segment in Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes)))
+        IEnumerable<RoomFxAtlasSegment>[] strip =
+        [
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.MaridiaSandCeiling)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.MaridiaSandFalling)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Lava)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Acid)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Rain)),
+            Treadmill(BlockAnimation.WreckedShipTreadmillRightwards),
+            [new RoomFxAtlasSegment.TourianStatueStrip()],
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.Spores)),
+            Frames(RoomFxBlockAnimationLoops.Require(BlockAnimation.HorizontalSpikes)),
+        ];
+        foreach (RoomFxAtlasSegment segment in strip.SelectMany(part => part))
         {
             total += segment.ByteCount;
             yield return segment;
@@ -61,5 +52,10 @@ public static class RoomFxBlockAnimationAtlasFile
         // Each distinct picture once: the last spike step reuses a picture already present in the strip.
         static IEnumerable<RoomFxAtlasSegment> Frames(BlockAnimation definition) =>
             definition.Images.Select(image => new RoomFxAtlasSegment.Image(image, definition.PictureByteCount));
+
+        // The treadmill's frames, each its own picture.
+        static IEnumerable<RoomFxAtlasSegment> Treadmill(BlockAnimation treadmill) =>
+            Enumerable.Range(0, RoomFxBlockAnimationAtlasFormat.TreadmillFrameCount).Select(frame =>
+                new RoomFxAtlasSegment.Image(treadmill.TreadmillImage(frame), RoomFxBlockAnimationLoops.TreadmillFrameByteCount));
     }
 }

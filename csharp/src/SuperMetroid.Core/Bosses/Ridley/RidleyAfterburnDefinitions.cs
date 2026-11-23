@@ -3,9 +3,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>
 /// Launch velocities of the directional afterburns a Ridley fireball's impact centre spawns
 /// (two horizontal and two vertical): each
-/// moves fourteen pixels per frame along one axis and keeps it for its continuation chain.
+/// moves at <see cref="Speed"/> along one axis and keeps it for its continuation chain.
 /// </summary>
-internal static class RidleyAfterburnDefinitions
+internal static partial class RidleyAfterburnDefinitions
 {
     /// <summary>The speed of every directional afterburn, fourteen pixels per frame.</summary>
     private static readonly SignedEightEight Speed = SignedEightEight.FromPixels(14);

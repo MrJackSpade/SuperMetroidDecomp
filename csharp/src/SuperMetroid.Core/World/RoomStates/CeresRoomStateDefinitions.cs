@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Core.World.RoomStates;
 
 /// <summary>The initialization settings of each Ceres room state, named for their rooms.</summary>
-public static class CeresRoomStateDefinitions
+public static partial class CeresRoomStateDefinitions
 {
 
     /// <summary>The Ceres Elevator room's default state.</summary>
@@ -47,12 +47,12 @@ public static class CeresRoomStateDefinitions
         new("DeadScientistWhenAreaBossDead", RoomLevelDefinitions.DeadScientist, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.DeadScientistWhenAreaBossDead, RoomEnemyPopulationDefinitions.DeadScientistWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.FollowsForeground, RoomBackgroundSource.Level), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.DeadScientist, null, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Ceres Ridley hallway's default state.</summary>
+    /// <summary>The Ceres Ridley Hallway room's default state.</summary>
     public static RoomStateSettings CeresRidleyHallwayDefault { get; } =
         new("CeresRidleyHallwayDefault", RoomLevelDefinitions.CeresRidleyHallway, RoomGraphicsSet.BlueCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyHallwayDefault, RoomEnemyPopulationDefinitions.CeresRidleyHallwayDefault, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidleyHallway, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 
 
-    /// <summary>The Ceres Ridley hallway's state once the area's boss is dead.</summary>
+    /// <summary>The Ceres Ridley Hallway room's state once the area's boss is dead.</summary>
     public static RoomStateSettings CeresRidleyHallwayWhenAreaBossDead { get; } =
         new("CeresRidleyHallwayWhenAreaBossDead", RoomLevelDefinitions.CeresRidleyHallway, RoomGraphicsSet.WhiteCeres, RoomMusic.Inherited, SuperMetroid.Core.Fx.RoomFxDefinitions.CeresRidleyHallwayWhenAreaBossDead, RoomEnemyPopulationDefinitions.CeresRidleyHallwayWhenAreaBossDead, new BackgroundScrollModes(BackgroundAxisScroll.ParallaxAt(ParallaxRate.Of(3, 4)), BackgroundAxisScroll.Fixed, RoomBackgroundSource.Placed), SuperMetroid.Core.Rooms.Scrolling.RoomScrollDefinitions.OpenWithTopAlignedBottomRow, null, RoomMainBehavior.None, SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulationDefinitions.CeresRidleyHallway, SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundDefinitions.CeresCapsuleHall, RoomSetupBehavior.SpawnCeresHaze);
 

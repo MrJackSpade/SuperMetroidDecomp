@@ -9,8 +9,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// station (<see cref="SaveStationObject"/>), or a map, energy or missile station used through its access arm
 /// (<see cref="AccessStationObject"/>, #2484). What a station does in a room-object step joins that step's outcome (#2514).
 /// </summary>
-[RoomLifetime]
-internal sealed class StationObjects
+internal sealed partial class StationObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
@@ -33,7 +32,7 @@ internal sealed class StationObjects
     /// <summary>The map stations the room's population placed, which stay in the room for as long as it is loaded.</summary>
     private readonly List<AccessStationObject> _mapStations = [];
     /// <summary>Blocks repeated save confirmation during the current room entry.</summary>
-    internal bool SaveStationLockedOut { get; private set; }
+    internal bool SaveStationLockedOut { get; set; }
 
     /// <summary>
     /// The map station's side of gameplay resume. Ending the map access sequence does
@@ -161,7 +160,7 @@ internal sealed class StationObjects
         }
         var station = new AccessStationObject(rule, area, initialAnimation);
         place.Become(station);
-        if (rule.Refill is null)
+        if (rule.Reward == StationReward.AreaMap)
             _mapStations.Add(station);
     }
 
@@ -184,8 +183,8 @@ internal sealed class StationObjects
     }
 
     /// <summary>
-    /// Changes a station block's collision kind, and sets its optional behaviour, keeping its picture and what it shows, as
-    /// the stations' setups rewrite only each block's type, or type and parameter (#2502).
+    /// Changes a station block's collision kind, and sets its optional behaviour, keeping its picture and what it shows
+    /// (#2502).
     /// </summary>
     private static void WriteStationBlock(
         RoomLevelData level,
@@ -193,9 +192,10 @@ internal sealed class StationObjects
         RoomCollisionType collisionType,
         RoomBlockBehavior? behavior)
     {
-        level.SetCollision(block, collisionType);
         if (behavior is { } written)
-            level.SetBehavior(block, written);
+            level.SetCollisionAndBehavior(block, collisionType, written);
+        else
+            level.SetCollision(block, collisionType);
     }
 
     /// <summary>
@@ -276,7 +276,7 @@ internal sealed class StationObjects
                 // Recharge setup rejects an already-full resource before the station lock takes control. Rejecting it
                 // later leaves a locked Samus with no access animation running to release her. Collision itself remains
                 // solid.
-                if (station.Rule.Refill is { } refill && refill.IsFull(_samus.Current))
+                if (station.Rule.Reward is StationReward.Refills { Refill: var refill } && refill.IsFull(_samus.Current))
                     return true;
                 station.Trigger(accessBlock, access);
 

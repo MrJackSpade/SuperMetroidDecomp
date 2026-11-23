@@ -20,8 +20,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// the block from the word's high bits with no test of its sign; the Ridley full-movie and 100% recorded movies replay
 /// those scans on every update.
 /// </remarks>
-[CompatibilityService("a terrain scan's edges, span and alignment past the room's top or left continue from the far end of the room's coordinates, so the scan reads the blocks there as beyond the room")]
-public static class TerrainScanEdges
+public static partial class TerrainScanEdges
 {
     /// <summary>
     /// The room pixel a scan's edge, span end or alignment lands on: one computed past the room's top or left continues

@@ -13,10 +13,10 @@ namespace SuperMetroid.AssetExtraction.Frontend;
 /// Composes the options sheet (#1392): each page heading and cursor frame over the menu sprite page in the cursor
 /// palette, coloured as the screen loads the menu palette. The Japanese text colours recolour it through its shade.
 /// </summary>
-internal static class GameOptionsSheetComposer
+internal static partial class GameOptionsSheetComposer
 {
     /// <summary>CGRAM's first sprite colour.</summary>
-    private const int SpriteColours = 128;
+    private const int SpriteColours = ImageColourGroup.HalfColours;
 
     /// <summary>What the options sheet composes.</summary>
     internal static SpriteSheetSources Sources(ImportAreaMapPresentation maps) => Sources(Ensure.NotNull(maps).GameOptions, maps);
@@ -26,7 +26,7 @@ internal static class GameOptionsSheetComposer
     {
         Ensure.NotNull(options);
         Ensure.NotNull(maps);
-        SpriteArtwork page = MapSpriteArtwork.Of(maps.Sprites).Page;
+        SpriteArtwork page = maps.Sprites.Page;
         GameOptionsSourcePresentation source = options;
         int palette = source.CursorPalette;
         var frames = new List<SheetFrameSource>();

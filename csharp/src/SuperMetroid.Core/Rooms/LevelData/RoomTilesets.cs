@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.LevelData;
 
 /// <summary>The artwork resources a room state's graphics set selects.</summary>
-public static class RoomTilesets
+public static partial class RoomTilesets
 {
     /// <summary>The graphics sets in the order the tilesets are listed (#2567).</summary>
     private static readonly IReadOnlyList<RoomGraphicsSet> GraphicsSetOrder = Ensure.EveryMemberOnce<RoomGraphicsSet>(
@@ -42,9 +42,5 @@ public static class RoomTilesets
         [.. GraphicsSetOrder.Select(graphicsSet => new TilesetDefinition(graphicsSet))];
 
     /// <summary>The tileset definition of the room state's graphics set, which names the set's pictures.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="graphicsSet"/> is not a room graphics set.</exception>
-    public static TilesetDefinition Get(RoomGraphicsSet graphicsSet) =>
-        Enum.IsDefined(graphicsSet)
-            ? new TilesetDefinition(graphicsSet)
-            : throw new ArgumentOutOfRangeException(nameof(graphicsSet), graphicsSet, "Not a room graphics set.");
+    public static TilesetDefinition Get(RoomGraphicsSet graphicsSet) => new(graphicsSet);
 }

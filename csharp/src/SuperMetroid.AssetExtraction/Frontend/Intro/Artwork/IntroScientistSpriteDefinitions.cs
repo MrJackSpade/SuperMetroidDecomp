@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Visual compositions selected by the scientist delivery and examination lists.</summary>
-internal static class IntroScientistSpriteDefinitions
+internal static partial class IntroScientistSpriteDefinitions
 {
     /// <summary>
     /// Three six-part delivered poses and three one-part examined poses: every pose the two scientist scenes' babies show
@@ -12,11 +12,11 @@ internal static class IntroScientistSpriteDefinitions
     /// </summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("delivered-baby-1", CinematicSpritePose.DeliveredBabyPulseLow, 6),
-        new("delivered-baby-2", CinematicSpritePose.DeliveredBabyPulseMiddle, 6),
-        new("delivered-baby-3", CinematicSpritePose.DeliveredBabyPulseHigh, 6),
-        new("examined-baby-1", CinematicSpritePose.ExaminedBabyWide, 1),
-        new("examined-baby-2", CinematicSpritePose.ExaminedBabyNarrowing, 1),
-        new("examined-baby-3", CinematicSpritePose.ExaminedBabyNarrow, 1),
+        new("delivered-baby-pulse-low", CinematicSpritePose.DeliveredBabyPulseLow, 6),
+        new("delivered-baby-pulse-middle", CinematicSpritePose.DeliveredBabyPulseMiddle, 6),
+        new("delivered-baby-pulse-high", CinematicSpritePose.DeliveredBabyPulseHigh, 6),
+        new("examined-baby-wide", CinematicSpritePose.ExaminedBabyWide, 1),
+        new("examined-baby-narrowing", CinematicSpritePose.ExaminedBabyNarrowing, 1),
+        new("examined-baby-narrow", CinematicSpritePose.ExaminedBabyNarrow, 1),
     ];
 }

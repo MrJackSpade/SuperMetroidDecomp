@@ -16,11 +16,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// and the choice toggle (<c>$85:8532</c>) waits one more displayed frame before redrawing; the save-station and gunship
 /// confirmations in the SMV recordings consume their inputs on exactly these updates.
 /// </remarks>
-[CompatibilityService("the save confirmation reads the controller every second update, and a moved choice delays the next read by one update")]
-public sealed class SaveChoiceInputCadence
+public sealed partial class SaveChoiceInputCadence
 {
     /// <summary>The updates an opened confirmation waits before its first read.</summary>
-    public const int UpdatesBeforeFirstRead = 2;
+    internal const int UpdatesBeforeFirstRead = 2;
 
     /// <summary>The updates the confirmation waits between one read and the next.</summary>
     private const int UpdatesBetweenReads = 1;
@@ -28,8 +27,11 @@ public sealed class SaveChoiceInputCadence
     /// <summary>The wait before the next read, over on the update that reads.</summary>
     private readonly UpdateCountdown _readWait = UpdateCountdown.Ended();
 
-    /// <summary>Whether the last read moved the choice and the next update shows it.</summary>
-    private bool _movedChoicePending;
+    /// <summary>
+    /// Where the cadence stands (#2560): waiting out its countdown toward the next read, or showing a moved choice on the
+    /// next update, after which the countdown the read restarted runs on.
+    /// </summary>
+    private Stage _stage = Stage.Waiting;
 
     /// <summary>What one update of an open save confirmation does with the controller.</summary>
     public enum Update
@@ -48,15 +50,15 @@ public sealed class SaveChoiceInputCadence
     public void Begin()
     {
         _readWait.Restart(UpdatesBeforeFirstRead);
-        _movedChoicePending = false;
+        _stage = Stage.Waiting;
     }
 
     /// <summary>Advances one update and reports what that update does with the controller.</summary>
     public Update Advance()
     {
-        if (_movedChoicePending)
+        if (_stage == Stage.ShowingMovedChoice)
         {
-            _movedChoicePending = false;
+            _stage = Stage.Waiting;
             return Update.ShowsMovedChoice;
         }
         if (_readWait.IsRunning)
@@ -69,5 +71,14 @@ public sealed class SaveChoiceInputCadence
     }
 
     /// <summary>Records that this update's read moved the choice; the next update shows it before the waits resume.</summary>
-    public void ChoiceMoved() => _movedChoicePending = true;
+    public void ChoiceMoved() => _stage = Stage.ShowingMovedChoice;
+
+    /// <summary>Where the cadence stands (#2560).</summary>
+    private enum Stage
+    {
+        /// <summary>Counting down to the next controller read.</summary>
+        Waiting,
+        /// <summary>Showing the choice a read moved, on the next update.</summary>
+        ShowingMovedChoice,
+    }
 }

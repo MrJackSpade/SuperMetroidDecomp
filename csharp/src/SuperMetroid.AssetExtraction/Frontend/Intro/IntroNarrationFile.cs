@@ -6,7 +6,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>Reads and writes the installed six-page English opening narration.</summary>
-public static class IntroNarrationFile
+public static partial class IntroNarrationFile
 {
     /// <summary>Required schema revision of the six-page editable English narration document.</summary>
     public const int Version = 1;
@@ -14,7 +14,7 @@ public static class IntroNarrationFile
     /// <summary>JSON presentation-resource filename containing named pages and their ordered UTF-8 text lines.</summary>
     public const string FileName = "intro-narration.json";
 
-    /// <summary>Last permitted text row in tile cells, sixteen, inclusive.</summary>
+    /// <summary>Last permitted text row in tile cells, inclusive: the lowest row a narration line may occupy.</summary>
     public const int LastTextRow = 16;
 
     /// <summary>Loads and validates the exact six-page opening-narration document.</summary>
@@ -35,8 +35,7 @@ public static class IntroNarrationFile
         try
         {
             document = JsonAssetDocument.Read<IntroNarrationDocument>(
-                source, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Opening-narration document is null.");
+                source, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -93,8 +92,7 @@ public static class IntroNarrationFile
     public static void Write(Stream output, IntroNarrationDocument document)
     {
         Ensure.NotNull(output);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(
-            document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Intro.Artwork.IntroNarrationDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 }

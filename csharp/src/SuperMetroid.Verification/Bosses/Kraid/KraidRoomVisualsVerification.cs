@@ -29,7 +29,7 @@ internal static class KraidRoomVisualsVerification
             GameInstallation installation = copy.Installation;
             RoomObjectKraidVisualFilesConstants.ValidateStock(
                 installation.RoomObjectKraidVisualDirectory);
-            InstalledRoomObjectKraidVisuals stock =
+            InstalledRoomObjectPictures stock =
                 installation.LoadRoomObjectKraidVisuals();
             LookupEscapeGateStockFrame[] frames = [
                 new LookupEscapeGateStockFrame(0x9367, "crumble-rock"), new LookupEscapeGateStockFrame(0x936d, "crumble-pieces"),
@@ -64,8 +64,7 @@ internal static class KraidRoomVisualsVerification
         RoomLevelData level = CreateRoom(new(width, 16), words,
             new RoomBlockBehavior[words.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.KraidRoom.TrySpawn(level, new(new(5, 5), mutation)),
-            $"Kraid visual owner {mutation} allocates");
+        roomObjects.BossRoomMutations.KraidRoom.Spawn(level, new(new(5, 5), mutation));
         var guard = NewKraidRoomSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         Position16<RoomBlocks> block = new(5 + blockOffset, 5);

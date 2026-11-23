@@ -12,5 +12,4 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Changes">
 /// The colours a brightening step changed, or the channels a fade step moved; none ends the brightening or the fade.
 /// </param>
-[CompatibilityService("the Wrecked Ship ghost's colours after one brightening or fade step, and how much the step changed, none ending it")]
-public readonly record struct WreckedShipGhostFadeStep(WreckedShipGhostFade Next, int Changes);
+public readonly partial record struct WreckedShipGhostFadeStep(WreckedShipGhostFade Next, int Changes);

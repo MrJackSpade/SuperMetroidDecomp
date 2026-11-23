@@ -11,7 +11,7 @@ internal static class RoomEnemyPopulationDefinitionsAccess
     /// <summary>Each compiled population, by the pointer the cartridge stores for it.</summary>
     private static readonly Dictionary<ushort, RoomEnemyPopulationDefinition> ByPointer = new()
     {
-        [0x8000] = RoomEnemyPopulationDefinitions.DraygonOrMotherBrainWhenAreaBossDead,
+        [0x8000] = RoomEnemyPopulationDefinitions.DraygonWhenAreaBossDead,
         [0x8002] = RoomEnemyPopulationDefinitions.EastOcean,
         [0x80d5] = RoomEnemyPopulationDefinitions.CrateriaPowerBombs,
         [0x8108] = RoomEnemyPopulationDefinitions.Terminator,
@@ -314,6 +314,15 @@ internal static class RoomEnemyPopulationDefinitionsAccess
         [0xebbb] = RoomEnemyPopulationDefinitions.CeresRidleyWhenAreaBossDead,
     };
 
+    /// <summary>
+    /// The populations the cartridge reads from another's stored list: the Mother Brain room once her area's boss is dead
+    /// reads the empty list the Draygon room's does.
+    /// </summary>
+    private static readonly Dictionary<RoomEnemyPopulationDefinition, ushort> StoredWithAnother = new(ReferenceEqualityComparer.Instance)
+    {
+        [RoomEnemyPopulationDefinitions.MotherBrainWhenAreaBossDead] = 0x8000,
+    };
+
     /// <summary>Resolves and enumerates the cartridge pointers of compiled populations.</summary>
     extension(RoomEnemyPopulationDefinitions)
     {
@@ -324,7 +333,7 @@ internal static class RoomEnemyPopulationDefinitionsAccess
 
         /// <summary>The cartridge pointer of <paramref name="definition"/>.</summary>
         internal static ushort PointerOf(RoomEnemyPopulationDefinition definition) =>
-            ByPointer.Single(pair => ReferenceEquals(pair.Value, definition)).Key;
+            StoredWithAnother.TryGetValue(definition, out ushort stored) ? stored : ByPointer.Single(pair => ReferenceEquals(pair.Value, definition)).Key;
 
         /// <summary>Every compiled pointer, in ascending order.</summary>
         internal static IEnumerable<ushort> Pointers => ByPointer.Keys.Order();

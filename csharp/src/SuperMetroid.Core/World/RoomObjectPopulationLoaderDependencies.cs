@@ -4,13 +4,12 @@ using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="RoomObjectPopulationLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[RoomLifetime]
-[ArchitectureReview("context-bag", "The room-object population loader's constructor dependencies (#621): each member is a room-object family it sets up as placements load (#2288), read only by that one constructor, not a context handed on.")]
-internal sealed record RoomObjectPopulationLoaderDependencies
+internal sealed partial record RoomObjectPopulationLoaderDependencies
 {
     /// <summary>The Bomb Torizo statue's hand, which sets up by whether the Torizo is beaten.</summary>
     public required BombTorizoHandObjects BombTorizoHand { get; init; }
@@ -42,6 +41,9 @@ internal sealed record RoomObjectPopulationLoaderDependencies
     /// <summary>Draygon's wall cannons, whose objects each placement sets up with the cannons' firing they stop (#2400).</summary>
     public required DraygonCannonObjects DraygonCannons { get; init; }
 
-    /// <summary>Maridia's glass tube, which population sets up.</summary>
+    /// <summary>Maridia's glass tube, which the room's population sets up as it is placed.</summary>
     public required NoobTubeObjects NoobTube { get; init; }
+
+    /// <summary>The room's scroll triggers, bound to their blocks once every placement is set up.</summary>
+    public required ScrollObjects Scrolls { get; init; }
 }

@@ -10,11 +10,12 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>
 /// Crocomire's typed body animations (#641, #1600): each body, melting and skeleton segment's beats, and each animation his
 /// fight and death start, which plays its segments whole or repeated (#2296, #2399): a run several animations show is one
-/// segment each plays, and a run shown again and again is one segment played that often. Where he shows one picture twice in a row (his damage
-/// wait's open mouth) the showings stay two beats: an uncharged beam on his mouth holds the frame shown for a fixed count,
-/// after which the second showing still plays its own duration, and his body shows the picture as each showing begins.
+/// segment each plays, and a run shown again and again is one segment played that often. Where he shows one picture
+/// twice in a row (his damage wait's open mouth) the showings stay two beats: an uncharged beam on his mouth holds the
+/// frame shown for a fixed count, after which the next beat still plays its own duration, and his body shows the
+/// picture as each beat begins.
 /// </summary>
-internal static class CrocomireBodyAnimations
+internal static partial class CrocomireBodyAnimations
 {
     /// <summary>Every body, melting and skeleton segment's beats.</summary>
     internal static AnimationSegments<CrocomireBodySegment, EnemyFrameId, CrocomireBodyCue> Segments { get; } = new(
@@ -25,34 +26,7 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodyArmUprightMouthOpen, 1),
             Cue(K.FightAi),
         ],
-        [P.ClawSwing] =
-        [
-            Dust(16),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(0),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(-32),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(-16),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(0),
-            Show(F.CrocomireBodySwingingArmBent, 5),
-            Show(F.CrocomireBodySwingingArmRaised, 5),
-            Dust(40),
-            Show(F.CrocomireBodySwingingArmOutstretched, 5),
-            Show(F.CrocomireBodySwingingArmLowering, 5),
-            Show(F.CrocomireBodySwingingArmReturning, 5),
-            Cue(K.BigExplosionSound),
-            Dust(-16),
-        ],
+        [P.ClawSwing] = [.. ClawSwing(16, 0), .. ClawSwing(-32, -16), .. ClawSwing(0, 40), Dust(-16)],
         [P.ProjectileAttackOpenMouth] =
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 5),
@@ -115,21 +89,7 @@ internal static class CrocomireBodyAnimations
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthParted, 2),
         ],
-        [P.SteppingBack] =
-        [
-            Show(F.CrocomireBodyFarFootForwardArmUpright, 8),
-            Step(CrocomireStepDefinitions.StepBackRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmLifting, 8),
-            Step(CrocomireStepDefinitions.StepBack),
-            Show(F.CrocomireBodyFarFootForwardArmSweeping, 8),
-            Step(CrocomireStepDefinitions.StepBack),
-            Show(F.CrocomireBodyFarFootForwardArmReaching, 8),
-            Step(CrocomireStepDefinitions.StepBackRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmSquare, 8),
-            Cue(K.ShakeScreen),
-            Step(CrocomireStepDefinitions.StepBack),
-            Cue(K.FightAi),
-        ],
+        [P.SteppingBack] = Retreat(CrocomireStepDefinitions.StepBack, CrocomireStepDefinitions.StepBackRaisingDust),
         [P.AwaitingHit] =
         [
             Show(F.CrocomireBodyArmUprightMouthShut, 34),
@@ -187,35 +147,7 @@ internal static class CrocomireBodyAnimations
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 2),
         ],
-        [P.PowerBombReactionCharge] =
-        [
-            Show(F.CrocomireBodyNearFootForwardArmBent, 4),
-            Cue(K.ShakeScreen),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyNearFootForwardArmSquare, 4),
-            Step(CrocomireStepDefinitions.Advance),
-            Show(F.CrocomireBodyNearFootForwardArmReaching, 4),
-            Step(CrocomireStepDefinitions.Advance),
-            Show(F.CrocomireBodyNearFootForwardArmSweeping, 4),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyNearFootForwardArmLifting, 4),
-            Step(CrocomireStepDefinitions.Advance),
-            Show(F.CrocomireBodyNearFootForwardArmUpright, 4),
-            Step(CrocomireStepDefinitions.Advance),
-            Show(F.CrocomireBodyFarFootForwardArmBent, 4),
-            Cue(K.ShakeScreen),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmSquare, 4),
-            Step(CrocomireStepDefinitions.Advance),
-            Show(F.CrocomireBodyFarFootForwardArmReaching, 4),
-            Step(CrocomireStepDefinitions.Advance),
-            Show(F.CrocomireBodyFarFootForwardArmSweeping, 4),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmLifting, 4),
-            Step(CrocomireStepDefinitions.Advance),
-            Show(F.CrocomireBodyFarFootForwardArmUpright, 4),
-            Cue(K.FightAi),
-        ],
+        [P.PowerBombReactionCharge] = ChargeWalk(4, Step(CrocomireStepDefinitions.Advance)),
         [P.NearSpikeWallChargeOpenMouth] =
         [
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 5),
@@ -233,50 +165,8 @@ internal static class CrocomireBodyAnimations
             Show(F.CrocomireBodyFarFootForwardArmUprightMouthShut, 2),
             Cue(K.FightAi),
         ],
-        [P.NearSpikeWallChargeSteps] =
-        [
-            Show(F.CrocomireBodyNearFootForwardArmBent, 3),
-            Cue(K.ShakeScreen),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyNearFootForwardArmSquare, 3),
-            Cue(K.StepTowardSpikeWall),
-            Show(F.CrocomireBodyNearFootForwardArmReaching, 3),
-            Cue(K.StepTowardSpikeWall),
-            Show(F.CrocomireBodyNearFootForwardArmSweeping, 3),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyNearFootForwardArmLifting, 3),
-            Cue(K.StepTowardSpikeWall),
-            Show(F.CrocomireBodyNearFootForwardArmUpright, 3),
-            Cue(K.StepTowardSpikeWall),
-            Show(F.CrocomireBodyFarFootForwardArmBent, 3),
-            Cue(K.ShakeScreen),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmSquare, 3),
-            Cue(K.StepTowardSpikeWall),
-            Show(F.CrocomireBodyFarFootForwardArmReaching, 3),
-            Cue(K.StepTowardSpikeWall),
-            Show(F.CrocomireBodyFarFootForwardArmSweeping, 3),
-            Step(CrocomireStepDefinitions.AdvanceRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmLifting, 3),
-            Cue(K.StepTowardSpikeWall),
-            Show(F.CrocomireBodyFarFootForwardArmUpright, 3),
-            Cue(K.FightAi),
-        ],
-        [P.BackOffFromSpikeWall] =
-        [
-            Show(F.CrocomireBodyFarFootForwardArmUpright, 8),
-            Step(CrocomireStepDefinitions.BackOffRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmLifting, 8),
-            Step(CrocomireStepDefinitions.BackOff),
-            Show(F.CrocomireBodyFarFootForwardArmSweeping, 8),
-            Step(CrocomireStepDefinitions.BackOff),
-            Show(F.CrocomireBodyFarFootForwardArmReaching, 8),
-            Step(CrocomireStepDefinitions.BackOffRaisingDust),
-            Show(F.CrocomireBodyFarFootForwardArmSquare, 8),
-            Cue(K.ShakeScreen),
-            Step(CrocomireStepDefinitions.BackOff),
-            Cue(K.FightAi),
-        ],
+        [P.NearSpikeWallChargeSteps] = ChargeWalk(3, Cue(K.StepTowardSpikeWall)),
+        [P.BackOffFromSpikeWall] = Retreat(CrocomireStepDefinitions.BackOff, CrocomireStepDefinitions.BackOffRaisingDust),
         [P.MeltingFleshTopRow] =
         [
             Hold(F.CrocomireBodyMeltingFleshTopRow),
@@ -409,7 +299,7 @@ internal static class CrocomireBodyAnimations
     /// Each animation his fight and death can start or restart, each listing only its own segments (#1938, #2399). The step
     /// back and the damage wait lead into his roar, which plays again and again until he is hit.
     /// </summary>
-    internal static IReadOnlyDictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
+    internal static Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>> StartingAt { get; } = new Dictionary<CrocomireBodyAnimation, Animation<CrocomireBodySegment>>
     {
         [A.IdleSway] = Animation<CrocomireBodySegment>.Looping([Segments.Whole(P.IdleSway)]),
         [A.ProjectileAttack] = Animation<CrocomireBodySegment>.LeadingInto(
@@ -504,6 +394,79 @@ internal static class CrocomireBodyAnimations
     /// <summary>Publishes a big dust cloud <paramref name="offset"/> pixels from the body.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Dust(int offset) =>
         new AnimationBeat<EnemyFrameId, CrocomireBodyCue>.Event(new CrocomireBodyCue.Dust(offset));
+
+    /// <summary>
+    /// One swing of his claw (#2557): the arm bent and raised, then outstretched, lowering and returning, five updates each,
+    /// with the big explosion sound; dust rises at <paramref name="startDust"/> as it starts and at
+    /// <paramref name="reachDust"/> as it reaches out.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue>[] ClawSwing(int startDust, int reachDust) =>
+    [
+        Dust(startDust),
+        Show(F.CrocomireBodySwingingArmBent, 5),
+        Show(F.CrocomireBodySwingingArmRaised, 5),
+        Dust(reachDust),
+        Show(F.CrocomireBodySwingingArmOutstretched, 5),
+        Show(F.CrocomireBodySwingingArmLowering, 5),
+        Show(F.CrocomireBodySwingingArmReturning, 5),
+        Cue(K.BigExplosionSound),
+    ];
+
+    /// <summary>
+    /// His retreat (#2557): the far-foot poses from upright back to square, eight updates each, taking
+    /// <paramref name="raisingDust"/> on the first and fourth and <paramref name="plain"/> otherwise, shaking the screen on
+    /// the last, then his fight's next choice.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue>[] Retreat(CrocomireStep plain, CrocomireStep raisingDust) =>
+    [
+        Show(F.CrocomireBodyFarFootForwardArmUpright, 8),
+        Step(raisingDust),
+        Show(F.CrocomireBodyFarFootForwardArmLifting, 8),
+        Step(plain),
+        Show(F.CrocomireBodyFarFootForwardArmSweeping, 8),
+        Step(plain),
+        Show(F.CrocomireBodyFarFootForwardArmReaching, 8),
+        Step(raisingDust),
+        Show(F.CrocomireBodyFarFootForwardArmSquare, 8),
+        Cue(K.ShakeScreen),
+        Step(plain),
+        Cue(K.FightAi),
+    ];
+
+    /// <summary>
+    /// His charge (#2557): a stride on the near foot, <paramref name="plainStep"/>, a stride on the far foot, then his
+    /// fight's next choice; each pose shows for <paramref name="updates"/>.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue>[] ChargeWalk(int updates, AnimationBeat<EnemyFrameId, CrocomireBodyCue> plainStep) =>
+    [
+        .. ChargeStride([F.CrocomireBodyNearFootForwardArmBent, F.CrocomireBodyNearFootForwardArmSquare, F.CrocomireBodyNearFootForwardArmReaching,
+            F.CrocomireBodyNearFootForwardArmSweeping, F.CrocomireBodyNearFootForwardArmLifting, F.CrocomireBodyNearFootForwardArmUpright], updates, plainStep),
+        plainStep,
+        .. ChargeStride([F.CrocomireBodyFarFootForwardArmBent, F.CrocomireBodyFarFootForwardArmSquare, F.CrocomireBodyFarFootForwardArmReaching,
+            F.CrocomireBodyFarFootForwardArmSweeping, F.CrocomireBodyFarFootForwardArmLifting, F.CrocomireBodyFarFootForwardArmUpright], updates, plainStep),
+        Cue(K.FightAi),
+    ];
+
+    /// <summary>
+    /// One foot's stride of his charge: its six poses from bent to upright, shaking the screen and raising dust as it lands
+    /// and raising dust again on the fourth pose, taking <paramref name="plainStep"/> after the others but the last.
+    /// </summary>
+    private static AnimationBeat<EnemyFrameId, CrocomireBodyCue>[] ChargeStride(
+        F[] poses, int updates, AnimationBeat<EnemyFrameId, CrocomireBodyCue> plainStep) =>
+    [
+        Show(poses[0], updates),
+        Cue(K.ShakeScreen),
+        Step(CrocomireStepDefinitions.AdvanceRaisingDust),
+        Show(poses[1], updates),
+        plainStep,
+        Show(poses[2], updates),
+        plainStep,
+        Show(poses[3], updates),
+        Step(CrocomireStepDefinitions.AdvanceRaisingDust),
+        Show(poses[4], updates),
+        plainStep,
+        Show(poses[5], updates),
+    ];
 
     /// <summary>Publishes a walk cue taking <paramref name="step"/>.</summary>
     private static AnimationBeat<EnemyFrameId, CrocomireBodyCue> Step(CrocomireStep step) =>

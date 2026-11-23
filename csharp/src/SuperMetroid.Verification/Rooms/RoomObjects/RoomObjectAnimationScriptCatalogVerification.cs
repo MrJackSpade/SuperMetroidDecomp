@@ -1,5 +1,3 @@
-using SuperMetroid.Tooling;
-using System.Reflection;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -19,23 +17,21 @@ internal static class RoomObjectAnimationScriptCatalogVerification
     /// </summary>
     internal static void VerifyRoomObjectAnimationScriptCatalog()
     {
-        FieldInfo[] fields = typeof(RoomObjectAnimationScriptsConstants).GetFields(BindingFlags.Public | BindingFlags.Static)
-            .Concat(typeof(RoomObjectAnimationScriptsTooling).GetFields(BindingFlags.Public | BindingFlags.Static))
-            .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
-            .ToArray();
-        ushort[] pointers = fields
-            .Select(field => field.RequiredConstant<ushort>())
-            .ToArray();
+        (string Name, ushort Pointer)[] fields =
+        [
+            .. RoomObjectAnimationScriptsConstants.All,
+            (nameof(RoomObjectAnimationScriptsTooling.MotherBrainEscapeRoomGateClosed), RoomObjectAnimationScriptsTooling.MotherBrainEscapeRoomGateClosed),
+        ];
+        ushort[] pointers = [.. fields.Select(field => field.Pointer)];
 
         AssertTrue(fields.Length > 0, "PLM instruction-list catalog is populated");
         AssertEqual(fields.Length, pointers.Distinct().Count(),
             "PLM instruction-list catalog has no duplicate native pointers");
         for (int entry = 0; entry < fields.Length; entry++)
         {
-            FieldInfo field = fields[entry];
-            ushort pointer = pointers[entry];
+            (string field, ushort pointer) = fields[entry];
             AssertTrue(pointer >= 0x8000,
-                $"PLM instruction list {field.Name} uses readable bank-$84 space");
+                $"PLM instruction list {field} uses readable bank-$84 space");
         }
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -49,8 +45,7 @@ internal static class RoomObjectAnimationScriptCatalogVerification
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         for (int entry = 0; entry < fields.Length; entry++)
         {
-            FieldInfo field = fields[entry];
-            ushort pointer = pointers[entry];
+            (string field, ushort pointer) = fields[entry];
             // Read a complete first word. We intentionally do not interpret it here: an
             // instruction-list entry can begin with either a positive timer or any native
             // opcode, including routines outside the currently translated execution slice.
@@ -60,7 +55,7 @@ internal static class RoomObjectAnimationScriptCatalogVerification
                 checked((ushort)(pointer + 1))));
             ushort firstWord = unchecked(LittleEndianBytes.Word(low, high));
             AssertTrue(firstWord is not (0x0000 or 0xffff),
-                $"PLM instruction list {field.Name} begins with readable retail data");
+                $"PLM instruction list {field} begins with readable retail data");
         }
 
         Console.WriteLine(

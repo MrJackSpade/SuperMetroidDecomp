@@ -10,19 +10,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <param name="sheet">The screen's sprite sheet.</param>
 /// <param name="family">The family whose frames are drawn.</param>
 /// <param name="shading">The shading the screen shows a draw named in a colouring's drawn shade in: that shade with the screen's fades.</param>
-internal sealed class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFamily family, Func<PictureShade, PictureShading> shading)
+internal sealed partial class CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFamily family, Func<PictureShade, PictureShading> shading)
     : IIntroCinematicSpritePresentation
 {
-    /// <summary>A family's frames shown in the drawn shade of their colouring alone.</summary>
-    /// <param name="sheet">The screen's sprite sheet.</param>
-    /// <param name="family">The family whose frames are drawn.</param>
-    internal CinematicSpriteSheet(SpriteSheet sheet, CinematicSpriteFamily family)
-        : this(sheet, family, PictureShading.Shaded)
-    {
-    }
 
     /// <summary>The sheet's frame for <paramref name="family"/>'s composition of <paramref name="pose"/>.</summary>
-    [InstalledKey]
     internal static string FrameName(CinematicSpriteFamily family, CinematicSpritePose pose) =>
         $"{CinematicSpriteFamilyKeys.Installed.Of(family)}.{CinematicSpritePoseKeys.Installed.Of(pose)}";
 

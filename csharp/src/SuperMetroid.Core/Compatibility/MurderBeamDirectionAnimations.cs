@@ -18,8 +18,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TDirection">A shot direction.</typeparam>
 /// <typeparam name="TAnimation">An animation.</typeparam>
-[CompatibilityService("the Murder Beam's shot runs the animation each direction reads from the Power Bomb's animation list and the lists stored after it")]
-public sealed class MurderBeamDirectionAnimations<TDirection, TAnimation>
+public sealed partial class MurderBeamDirectionAnimations<TDirection, TAnimation>
     where TDirection : notnull
     where TAnimation : struct
 {

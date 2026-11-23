@@ -26,20 +26,28 @@ internal static class RetailGameFixtureVerification
         InstalledFixtures.CreateGame(saves, assists, renderGameplayFrames, hostServices, random);
 
     /// <summary>
+    /// Creates a game host from a single retail import over <paramref name="saves"/> whose audio mixes
+    /// <paramref name="clips"/>, as a host builds an audible game.
+    /// </summary>
+    internal static SuperMetroidGame CreateAudibleRetailGameFixture(SuperMetroid.Core.Saves.SaveSlotStore saves,
+        SuperMetroid.Core.Audio.ClipAudioLibrary clips, bool renderGameplayFrames = true, SharedRandom? random = null) =>
+        InstalledFixtures.CreateGameWithAudio(saves, clips,
+            renderGameplayFrames: renderGameplayFrames, random: random);
+
+    /// <summary>
     /// A game in main gameplay in a Brinstar room, its Samus standing under her normal movement mode with the new game's
     /// health and no reserves.
     /// </summary>
     internal static (SuperMetroidGame Game, SuperMetroidRuntime Runtime, SamusState Samus) CreateMainGameplayFixture()
     {
         var random = new SharedRandom();
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps),
-            null, SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         SuperMetroidRuntime runtime = RetailRuntimeFixtureVerification.CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -54,8 +62,8 @@ internal static class RetailGameFixtureVerification
 
     /// <summary>Creates an ending state with supplied game time, inventory, audio, and language selection.</summary>
     internal static EndingCreditsState CreateRetailEndingFixture(AudioQueues audio, ushort gameTimeHours, ushort gameTimeMinutes,
-        EndingInventorySnapshot inventory = default, bool japaneseText = false) =>
-        InstalledFixtures.CreateEnding(audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
+        EndingInventorySnapshot inventory = default, TextLanguage language = TextLanguage.English) =>
+        InstalledFixtures.CreateEnding(audio, gameTimeHours, gameTimeMinutes, inventory, language);
     /// <summary>Creates an intro state with optionally supplied audio and installed visual catalogs.</summary>
     internal static IntroCinematicState CreateRetailIntroFixture(AudioQueues? audio = null,
         ImportIntroCinematicArtwork? characterArtwork = null,

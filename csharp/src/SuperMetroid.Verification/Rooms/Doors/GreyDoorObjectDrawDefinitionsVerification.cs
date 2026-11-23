@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Rooms.Doors.LookupGreyCapVerification;
@@ -34,7 +35,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
 
         RoomObjectDrawLists.DrawList[] lists =
             RoomObjectGreyDoorVisualFiles.All.OrderBy(list => RoomObjectDrawAddressCodec.Of(list.Draw)).ToArray();
-        InstalledRoomObjectGreyDoorVisuals stock = InstalledRoomObjectGreyDoorVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.GreyDoor;
         AssertEqual("grey-right-closed", RoomObjectGreyDoorVisualFiles.VisualId(NativeObjectDraws.At<GreyDoorCaps.Draw>(0xa6d7)),
             "the grey right cap's first frame is the draw the cartridge stores at $A6D7");
         AssertEqual(RoomLevelWordCodec.Decode(ReadWord(rom, 0x840000 | (0xa6d7 + 2))).Appearance,
@@ -106,8 +107,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                     DestinationScreen: new(0, 0),
                     SamusSpeed: DoorSamusSpeed.None,
                     Setup: DoorSetupDefinitions.None);
-                AssertTrue(roomObjects.DoorObjects.TrySpawnDoorClosingObject(level, enteringDoor),
-                    $"resident grey door {header} selects its closing list");
+                roomObjects.DoorObjects.SpawnDoorClosingObject(level, enteringDoor);
                 for (int frame = 0; frame < 20 &&
                      roomObjects.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
                     roomObjects.Step(level);
@@ -121,7 +121,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
                 AssertEqual(GreyDoorPhase.Flashing, roomObjects.GreyDoorSnapshots.Single().Phase,
                     $"resident grey door {header} unlocks after boss event");
                 AssertTrue(roomObjects.TryNotifyColoredDoorHit(level.BlockAt(origin),
-                        SamusProjectileType.None),
+                        SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
                     $"resident grey door {header} accepts a beam hit");
                 roomObjects.Step(level);
                 AssertEqual(GreyDoorPhase.Opening, roomObjects.GreyDoorSnapshots.Single().Phase,
@@ -182,8 +182,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
             DestinationScreen: new(0, 0),
             SamusSpeed: DoorSamusSpeed.None,
             Setup: DoorSetupDefinitions.None);
-        AssertTrue(room.RoomObjects.DoorObjects.TrySpawnDoorClosingObject(room.Level, enteringDoor),
-            "Bomb Torizo door selects its Bomb-gated closing list");
+        room.RoomObjects.DoorObjects.SpawnDoorClosingObject(room.Level, enteringDoor);
         for (int frame = 0; frame < 10; frame++)
             room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.HeldOpen, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
@@ -197,7 +196,7 @@ internal static class GreyDoorObjectDrawDefinitionsVerification
         room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.Flashing, room.RoomObjects.GreyDoorSnapshots.Single().Phase,
             "Bomb Torizo defeat unlocks the special grey door");
-        AssertTrue(room.RoomObjects.TryNotifyColoredDoorHit(room.Level.BlockAt(origin), SamusProjectileType.None),
+        AssertTrue(room.RoomObjects.TryNotifyColoredDoorHit(room.Level.BlockAt(origin), SamusProjectileType.Beam(SamusBeamCombination.Power, charged: false)),
             "Bomb Torizo grey door accepts a post-unlock beam hit");
         room.RoomObjects.Step(room.Level);
         AssertEqual(GreyDoorPhase.Opening, room.RoomObjects.GreyDoorSnapshots.Single().Phase,

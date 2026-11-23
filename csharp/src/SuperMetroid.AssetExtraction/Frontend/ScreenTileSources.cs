@@ -5,26 +5,36 @@ using SuperMetroid.AssetExtraction.Frontend.Ending;
 
 namespace SuperMetroid.AssetExtraction.Frontend;
 
-/// <summary>The installed stock artwork the screen tile sheets compose from (#1392), each family read when first needed.</summary>
-/// <param name="maps">Reads the menus' presentation.</param>
-/// <param name="intro">Reads the opening cinematic's artwork.</param>
-/// <param name="endingObjects">Reads the ending's object artwork.</param>
-/// <param name="endingPalettes">Reads the ending's palettes.</param>
-/// <param name="endingMode7">Reads the ending's Mode 7 artwork.</param>
-internal sealed class ScreenTileSources(Func<ImportAreaMapPresentation> maps, Func<ImportIntroCinematicArtwork> intro,
-    Func<ImportEndingObjectArtwork> endingObjects, Func<EndingPaletteSet> endingPalettes, Func<EndingFloorCharacters> endingMode7)
+/// <summary>The import's reads of the stock artwork the screen tile sheets compose from (#1392), each family read when first needed.</summary>
+internal sealed partial class ScreenTileSources
 {
+    /// <summary>Creates a <see cref="ScreenTileSources"/>.</summary>
+    /// <param name="maps">Reads the menus' presentation.</param>
+    /// <param name="intro">Reads the opening cinematic's artwork.</param>
+    /// <param name="endingObjects">Reads the ending's object artwork.</param>
+    /// <param name="endingPalettes">Reads the ending's palettes.</param>
+    /// <param name="endingMode7">Reads the ending's Mode 7 artwork.</param>
+    public ScreenTileSources(Func<ImportAreaMapPresentation> maps, Func<ImportIntroCinematicArtwork> intro,
+        Func<ImportEndingObjectArtwork> endingObjects, Func<EndingPaletteSet> endingPalettes, Func<EndingFloorCharacters> endingMode7)
+    {
+        this.endingMode7 = new(endingMode7);
+        this.endingObjects = new(endingObjects);
+        this.endingPalettes = new(endingPalettes);
+        this.maps = new(maps);
+        this.intro = new(intro);
+    }
+
     /// <summary>The ending's Mode 7 artwork, once read.</summary>
-    private readonly Lazy<EndingFloorCharacters> endingMode7 = new(endingMode7);
+    private readonly Lazy<EndingFloorCharacters> endingMode7;
 
     /// <summary>The ending's Mode 7 artwork.</summary>
     internal EndingFloorCharacters EndingMode7 => endingMode7.Value;
 
     /// <summary>The ending's object artwork, once read.</summary>
-    private readonly Lazy<ImportEndingObjectArtwork> endingObjects = new(endingObjects);
+    private readonly Lazy<ImportEndingObjectArtwork> endingObjects;
 
     /// <summary>The ending's palettes, once read.</summary>
-    private readonly Lazy<EndingPaletteSet> endingPalettes = new(endingPalettes);
+    private readonly Lazy<EndingPaletteSet> endingPalettes;
 
     /// <summary>The ending's object artwork as the import read it, with the character atlases its sheets are composed from (#1636).</summary>
     internal ImportEndingObjectArtwork EndingObjects => endingObjects.Value;
@@ -33,10 +43,10 @@ internal sealed class ScreenTileSources(Func<ImportAreaMapPresentation> maps, Fu
     internal EndingPaletteSet EndingPalettes => endingPalettes.Value;
 
     /// <summary>The menus' presentation, once read.</summary>
-    private readonly Lazy<ImportAreaMapPresentation> maps = new(maps);
+    private readonly Lazy<ImportAreaMapPresentation> maps;
 
     /// <summary>The opening cinematic's artwork, once read.</summary>
-    private readonly Lazy<ImportIntroCinematicArtwork> intro = new(intro);
+    private readonly Lazy<ImportIntroCinematicArtwork> intro;
 
     /// <summary>The menus' presentation.</summary>
     internal ImportAreaMapPresentation Maps => maps.Value;

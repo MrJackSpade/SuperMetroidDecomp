@@ -7,7 +7,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Reads and writes the installed map-station marker drawing layout.</summary>
-public static class MapStationLayoutFile
+public static partial class MapStationLayoutFile
 {
     /// <summary>The station families in the order the layout lists them; the extractor writes them in this order too (#2567).</summary>
     internal static readonly MapStationKind[] KindOrder = [MapStationKind.Missile, MapStationKind.Energy, MapStationKind.Map];
@@ -23,8 +23,7 @@ public static class MapStationLayoutFile
     public static MapStationPositions Read(Stream json)
     {
         MapStationLayoutDocument document;
-        try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, ArtworkJson.Options)
-            ?? throw new InvalidDataException("Map station layout is null."); }
+        try { document = JsonAssetDocument.Read<MapStationLayoutDocument>(json, ArtworkJson.Options); }
         catch (JsonException error) { throw new InvalidDataException("Invalid map station layout JSON.", error); }
         var rules = Markers.ToArray();
         if (document.Version != MapStationLayoutFormat.Version || document.Markers is null || document.Markers.Count != rules.Length)
@@ -40,7 +39,7 @@ public static class MapStationLayoutFile
     /// <param name="document">The station-marker layout to serialize.</param>
     public static void Write(Stream json, MapStationLayoutDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.Artwork.MapStationLayoutDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

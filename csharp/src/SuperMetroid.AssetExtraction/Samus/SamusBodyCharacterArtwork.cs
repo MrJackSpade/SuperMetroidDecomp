@@ -4,156 +4,96 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// Samus's body characters: the bank-$92 tile definitions each numbered half picture transfers, bound to the body
-/// catalog whose frames select them. The body sheets are composed from these at installation; gameplay draws the sheets
-/// and never reads these characters.
+/// Samus's body characters: the tile transfers each named half picture makes visible, bound to the body catalog whose
+/// frames select them. The body sheets are composed from these at installation; gameplay draws the sheets and never reads
+/// these characters.
 /// </summary>
-public sealed class SamusBodyCharacterArtwork
+public sealed partial class SamusBodyCharacterArtwork
 {
     /// <summary>Maximum tile count represented by one definition slot.</summary>
     public const int TilesPerDefinition = 16;
     /// <summary>Maximum planar-byte capacity of one definition slot.</summary>
     public const int BytesPerDefinitionSlot = TilesPerDefinition * 32;
     /// <summary>Characters in Samus's body artwork: two sixteen-wide rows.</summary>
-    public const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
+    internal const int BodyCharacterCount = 2 * SpriteArtwork.CharactersPerRow;
     /// <summary>Characters in one half row, filled by one transfer.</summary>
     private const int HalfRowCharacters = SpriteArtwork.CharactersPerRow / 2;
 
-    /// <summary>Upper-body tile definitions grouped by native pointer-table entry.</summary>
-    internal readonly SamusBodyTileTransfer[][] top;
-    /// <summary>Lower-body tile definitions grouped by native pointer-table entry.</summary>
-    internal readonly SamusBodyTileTransfer[][] bottom;
-    /// <summary>Definition lookup by physical record, including cross-group selections.</summary>
-    private readonly Dictionary<int, SamusBodyTileTransfer> definitionsByRecord = [];
-    /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
-    private readonly Dictionary<int, int> definitionOrdinals = [];
+    /// <summary>The tile transfers each half picture makes, by picture.</summary>
+    internal readonly Dictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures;
     /// <summary>Composed body characters per selected pair, built once.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusBodyArtworkKey, SpriteArtwork> bodyArtwork = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<BodyHalvesVariant, SpriteArtwork> bodyArtwork = new();
+
+    /// <summary>A composed body sheet, distinguished by the top and bottom half pictures it composes.</summary>
+    /// <param name="Top">The top half picture, or none.</param>
+    /// <param name="Bottom">The bottom half picture, or none.</param>
+    private sealed partial record BodyHalvesVariant(SamusBodyPicture? Top, SamusBodyPicture? Bottom) : SpriteArtworkVariant;
 
     /// <summary>The body whose frames select these characters.</summary>
     public SamusBodySources Body { get; }
 
-    /// <summary>Binds <paramref name="top"/> and <paramref name="bottom"/> to the frames of <paramref name="body"/>.</summary>
-    /// <param name="body">The body catalog whose frames select these characters; <see cref="Create"/> builds one that names them.</param>
-    /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
-    /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
-    /// <exception cref="InvalidDataException">A group is missing, malformed or does not fill its set's records.</exception>
-    public SamusBodyCharacterArtwork(SamusBodySources body, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
+    /// <summary>Binds <paramref name="pictures"/> to the frames of <paramref name="body"/>.</summary>
+    /// <param name="body">The body catalog whose frames select these characters.</param>
+    /// <param name="pictures">The tile transfers each half picture makes.</param>
+    /// <exception cref="InvalidDataException">A transfer is malformed, or a frame selects a picture with none.</exception>
+    internal SamusBodyCharacterArtwork(SamusBodySources body, IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures)
     {
         Body = Ensure.NotNull(body);
-        Ensure.NotNull(top);
-        Ensure.NotNull(bottom);
-        if (top.Length != SamusBodySources.TopSetCount || bottom.Length != SamusBodySources.BottomSetCount)
-            throw new InvalidDataException("Samus body selector tables have an invalid length.");
-        int[] topStarts = body.TopSetStarts.ToArray(), bottomStarts = body.BottomSetStarts.ToArray();
-        this.top = CloneAndValidate(topStarts, top);
-        this.bottom = CloneAndValidate(bottomStarts, bottom);
-        ValidateCompleteGroups(topStarts, bottomStarts, this.top, this.bottom);
-        IndexDefinitions(SamusBodyHalf.Top, this.top);
-        IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
+        this.pictures = Ensure.NotNull(pictures).ToDictionary();
+        foreach ((SamusBodyPicture picture, SamusBodyTileTransfer transfer) in this.pictures)
+        {
+            if (transfer is null || transfer.FirstSize == 0 || transfer.FirstSize + transfer.SecondSize > BytesPerDefinitionSlot ||
+                (transfer.FirstSize + transfer.SecondSize) % 32 != 0 || transfer.Planar.Length != transfer.FirstSize + transfer.SecondSize)
+                throw new InvalidDataException($"Samus body picture {picture.Name} has invalid tile data.");
+        }
+        foreach (SamusBodyDecodedFrame frame in body.Frames.Values.SelectMany(pose => pose.Values))
+        {
+            foreach (SamusBodyPicture? selected in new SamusBodyPicture?[] { frame.Pictures.Top, frame.Pictures.Bottom })
+                if (selected is { } picture && !this.pictures.ContainsKey(picture))
+                    throw new InvalidDataException($"Samus body picture {picture.Name} is absent from installed art.");
+        }
     }
 
-    /// <summary>Builds the body catalog from <paramref name="parts"/> naming these characters, and binds the characters to it.</summary>
-    /// <param name="parts">The body's tables and catalogs.</param>
-    /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
-    /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
-    public static SamusBodyCharacterArtwork Create(SamusBodyArtworkParts parts, SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
+    /// <summary>Builds the body catalog from <paramref name="parts"/> and binds <paramref name="pictures"/> to it.</summary>
+    /// <param name="parts">The body's decoded frames and catalogs.</param>
+    /// <param name="pictures">The tile transfers each half picture makes.</param>
+    public static SamusBodyCharacterArtwork Create(SamusBodyArtworkParts parts, IReadOnlyDictionary<SamusBodyPicture, SamusBodyTileTransfer> pictures)
     {
         Ensure.NotNull(parts);
-        return new(new SamusBodySources(parts), top, bottom);
+        return new(new SamusBodySources(parts), pictures);
     }
 
     /// <summary>
-    /// Samus's 32 body characters as the selected definitions make them visible: each definition's first transfer
-    /// fills one eight-character half row (top: characters 0-7, bottom: 8-15) and its second transfer the half row
-    /// below it (top: 16-23, bottom: 24-31). A half with no selected picture is blank.
+    /// Samus's 32 body characters as the selected half pictures make them visible: each picture's first transfer fills
+    /// one eight-character half row (top: characters 0-7, bottom: 8-15) and its second transfer the half row below it
+    /// (top: 16-23, bottom: 24-31). A half with no selected picture is blank.
     /// </summary>
     /// <param name="topPicture">The selected top half picture, or null.</param>
     /// <param name="bottomPicture">The selected bottom half picture, or null.</param>
-    public SpriteArtwork BodyArtwork(SamusBodyPicture? topPicture, SamusBodyPicture? bottomPicture)
-    {
-        int? topRecord = topPicture is { } shownTop ? SamusBodySources.Record(shownTop) : null;
-        int? bottomRecord = bottomPicture is { } shownBottom ? SamusBodySources.Record(shownBottom) : null;
-        int topOrdinal = topRecord is { } upper ? definitionOrdinals[upper] : -1;
-        int bottomOrdinal = bottomRecord is { } lower ? definitionOrdinals[lower] : -1;
-        return bodyArtwork.GetOrAdd(new SamusBodyArtworkKey(topOrdinal, bottomOrdinal), key =>
+    public SpriteArtwork BodyArtwork(SamusBodyPicture? topPicture, SamusBodyPicture? bottomPicture) =>
+        bodyArtwork.GetOrAdd(new BodyHalvesVariant(topPicture, bottomPicture), key =>
         {
             var characters = new byte[BodyCharacterCount * SpriteArtwork.CharacterByteCount];
-            if (topRecord is { } upperRecord)
-                CopyHalves(DefinitionAt(upperRecord), characters, 0);
-            if (bottomRecord is { } lowerRecord)
-                CopyHalves(DefinitionAt(lowerRecord), characters, HalfRowCharacters);
-            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, key.SpriteVariant), characters);
+            if (key.Top is { } upper)
+                CopyHalves(Transfer(upper), characters, 0);
+            if (key.Bottom is { } lower)
+                CopyHalves(Transfer(lower), characters, HalfRowCharacters);
+            return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.SamusBody, key), characters);
         });
 
-        static void CopyHalves(SamusBodyTileTransfer definition, byte[] characters, int firstCharacter)
-        {
-            ReadOnlySpan<byte> planar = definition.Planar.Span;
-            planar[..definition.FirstSize].CopyTo(characters.AsSpan(firstCharacter * SpriteArtwork.CharacterByteCount));
-            planar[definition.FirstSize..].CopyTo(characters.AsSpan(
-                (firstCharacter + SpriteArtwork.CharactersPerRow) * SpriteArtwork.CharacterByteCount));
-        }
-    }
+    /// <summary>The tile transfers <paramref name="picture"/> makes.</summary>
+    /// <exception cref="InvalidDataException">The picture is absent from installed art.</exception>
+    internal SamusBodyTileTransfer Transfer(SamusBodyPicture picture) =>
+        pictures.TryGetValue(picture, out SamusBodyTileTransfer? transfer)
+            ? transfer
+            : throw new InvalidDataException($"Samus body picture {picture.Name} is absent from installed art.");
 
-    /// <summary>Resolve a saved definition record after a debugger-state rebind.</summary>
-    public SamusBodyTileTransfer DefinitionAt(int record)
+    /// <summary>Copies <paramref name="definition"/>'s two transfers into their half rows from <paramref name="firstCharacter"/>.</summary>
+    private static void CopyHalves(SamusBodyTileTransfer definition, byte[] characters, int firstCharacter)
     {
-        if (!definitionsByRecord.TryGetValue(record, out SamusBodyTileTransfer? definition))
-            throw new InvalidDataException($"Samus body definition record {record} is absent from installed art.");
-        return definition;
-    }
-
-    /// <summary>Indexes each tile definition at its physical record.</summary>
-    private void IndexDefinitions(SamusBodyHalf half, SamusBodyTileTransfer[][] groups)
-    {
-        ReadOnlySpan<int> starts = half == SamusBodyHalf.Top ? Body.TopSetStarts : Body.BottomSetStarts;
-        for (int set = 0; set < groups.Length; set++)
-        for (int position = 0; position < groups[set].Length; position++)
-        {
-            int record = starts[set] + position;
-            if (!definitionsByRecord.TryAdd(record, groups[set][position]))
-                throw new InvalidDataException($"Samus body definition record {record} is duplicated.");
-            definitionOrdinals.Add(record, definitionOrdinals.Count);
-        }
-    }
-
-    /// <summary>Clones authored groups and validates each transfer slot against native capacity.</summary>
-    private static SamusBodyTileTransfer[][] CloneAndValidate(int[] starts, SamusBodyTileTransfer[][] groups)
-    {
-        var result = new SamusBodyTileTransfer[groups.Length][];
-        for (int set = 0; set < groups.Length; set++)
-        {
-            SamusBodyTileTransfer[] source = groups[set] ??
-                throw new InvalidDataException($"Samus body definition set {set} is missing.");
-            result[set] = (SamusBodyTileTransfer[])source.Clone();
-            if (source.Length == 0 || starts[set] < 0)
-                throw new InvalidDataException($"Samus body definition set {set} is malformed.");
-            foreach (SamusBodyTileTransfer definition in source)
-            {
-                if (definition is null || definition.FirstSize == 0 ||
-                    definition.FirstSize + definition.SecondSize > BytesPerDefinitionSlot ||
-                    (definition.FirstSize + definition.SecondSize) % 32 != 0 ||
-                    definition.Planar.Length != definition.FirstSize + definition.SecondSize)
-                    throw new InvalidDataException($"Samus body definition set {set} has invalid tile data.");
-            }
-        }
-        return result;
-    }
-
-    /// <summary>Requires each set to hold exactly the records between its start and the next start in sorted order.</summary>
-    private static void ValidateCompleteGroups(int[] topStarts, int[] bottomStarts,
-        SamusBodyTileTransfer[][] top, SamusBodyTileTransfer[][] bottom)
-    {
-        IReadOnlyDictionary<int, int> counts = SamusBodySources.GroupLengths(topStarts, bottomStarts);
-        ValidateHalf(topStarts, top);
-        ValidateHalf(bottomStarts, bottom);
-
-        void ValidateHalf(int[] starts, SamusBodyTileTransfer[][] groups)
-        {
-            for (int set = 0; set < starts.Length; set++)
-                if (groups[set].Length != counts[starts[set]])
-                    throw new InvalidDataException(
-                        $"Samus definition group at record {starts[set]} requires {counts[starts[set]]} physical records, not {groups[set].Length}.");
-        }
+        ReadOnlySpan<byte> planar = definition.Planar.Span;
+        planar[..definition.FirstSize].CopyTo(characters.AsSpan(firstCharacter * SpriteArtwork.CharacterByteCount));
+        planar[definition.FirstSize..].CopyTo(characters.AsSpan(
+            (firstCharacter + SpriteArtwork.CharactersPerRow) * SpriteArtwork.CharacterByteCount));
     }
 }

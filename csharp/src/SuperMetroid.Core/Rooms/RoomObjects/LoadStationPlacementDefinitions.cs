@@ -5,9 +5,9 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// Where loading at each load station puts Samus: the door its room is entered through, the initial camera and Samus's
-/// room position, as the import computes it from the station's record.
+/// room position.
 /// </summary>
-internal static class LoadStationPlacementDefinitions
+internal static partial class LoadStationPlacementDefinitions
 {
     /// <summary>Each load station's placement.</summary>
     internal static IReadOnlyDictionary<LoadStation, LoadStationPlacement> ByStation { get; } = new Dictionary<LoadStation, LoadStationPlacement>

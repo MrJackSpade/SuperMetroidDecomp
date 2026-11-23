@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 
 /// <summary>The byte extents of the installed artwork the ending's floor loads (#1416).</summary>
-public static class EndingArtworkExtentDefinitions
+public static partial class EndingArtworkExtentDefinitions
 {
     /// <summary>The bytes of one complete Mode 7 floor lane, also the full reward character sheet.</summary>
     public const int FloorBytes = 16384;

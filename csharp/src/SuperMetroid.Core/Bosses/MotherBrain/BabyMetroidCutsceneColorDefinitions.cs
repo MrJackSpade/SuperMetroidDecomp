@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// The count stays in Core (#2471): the Baby's fade is made of its images (<see cref="MotherBrainFadeDefinitions.BabyFade"/>),
 /// as well as the import reading it.
 /// </remarks>
-public static class BabyMetroidCutsceneColorDefinitions
+public static partial class BabyMetroidCutsceneColorDefinitions
 {
-    /// <summary>The fade's six shown steps; the step after the sixth ends the fade rather than showing a seventh.</summary>
+    /// <summary>The fade's shown steps; the step after the last ends the fade rather than showing another.</summary>
     public const int FadeFrameCount = 6;
 }

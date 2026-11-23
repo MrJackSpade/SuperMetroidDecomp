@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// Selected ending scene backdrops. The ending's object maps and compositions are import data (#1638) and the turning floor's
 /// identity is its composed sheets' (#1555): the sprite sheets' identity covers the pictures composed from both.
 /// </summary>
-public static class EndingPresentationIdentity
+public static partial class EndingPresentationIdentity
 {
     /// <summary>Captures named identities of the selected ending object and backdrop content for installation/replay compatibility metadata.</summary>
     /// <param name="backdrops">Non-null selected ending scene backdrops (#1544).</param>

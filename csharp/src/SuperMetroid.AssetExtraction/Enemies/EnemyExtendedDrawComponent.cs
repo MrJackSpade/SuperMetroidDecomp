@@ -8,5 +8,5 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// </summary>
 /// <param name="Offset">Signed displacement of the component's spritemap from the enemy's on-screen origin.</param>
 /// <param name="Parts">The component's OAM parts.</param>
-internal readonly record struct EnemyExtendedDrawComponent(
+internal readonly partial record struct EnemyExtendedDrawComponent(
     Offset16<ScreenPixels> Offset, EnemySpritemapParts Parts);

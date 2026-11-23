@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// same ROM content shares one image, and a restored debugger graph re-attaches its image by digest
 /// instead of carrying a private multi-megabyte copy. Images no address space references are collected.
 /// </summary>
-internal static class CartridgeImageCache
+internal static partial class CartridgeImageCache
 {
     /// <summary>Weakly holds shared ROM images by uppercase SHA-256 digest without extending their lifetime.</summary>
     private static readonly ConcurrentDictionary<string, WeakReference<byte[]>> images = new(StringComparer.Ordinal);

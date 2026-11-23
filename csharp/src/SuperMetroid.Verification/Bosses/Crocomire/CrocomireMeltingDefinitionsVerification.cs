@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -69,7 +70,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks each pass's header: its distortion rows, its copy length and its graphics bank.</summary>
     internal static void VerifyCrocomireMeltHeaders(CartridgeImportAddressSpace rom)
     {
-        var source = CartridgeImportSource.Require(rom);
+        var source = rom;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int header = HeaderAddress(pass);
@@ -88,7 +89,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks every band copy each pass makes: its graphics source and where in the image it lands.</summary>
     internal static void VerifyCrocomireMeltCopies(CartridgeImportAddressSpace rom)
     {
-        var source = CartridgeImportSource.Require(rom);
+        var source = rom;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int bands = CrocomireMelting.BandRound(pass);
@@ -108,7 +109,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Checks every band upload each pass makes: its size, the characters it shows over and its row of the image.</summary>
     internal static void VerifyCrocomireMeltUploads(CartridgeImportAddressSpace rom)
     {
-        var source = CartridgeImportSource.Require(rom);
+        var source = rom;
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             int bands = CrocomireMelting.BandRound(pass);
@@ -131,7 +132,7 @@ internal static class CrocomireMeltingDefinitionsVerification
     /// <summary>Compares all 49 extraction erase steps with an independently calculated bitplane silhouette.</summary>
     internal static void VerifyCrocomireMeltingProductionSequence(CartridgeImportAddressSpace rom)
     {
-        var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.SecondByteCount).ToArray();
+        var image = Enumerable.Repeat((byte)0xff, CrocomireMeltingArtworkFormat.BareSkullByteCount).ToArray();
         var expected = (byte[])image.Clone();
         for (int step = 0; step < CrocomireMeltingDefinitions.ColumnCount; step++)
         {
@@ -171,12 +172,11 @@ internal static class CrocomireMeltingDefinitionsVerification
     {
         int sourceAddress = CrocomireMeltingSources.Tilemap(source);
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses);
-        var state = new CrocomireEnemyState(enemies.Places.InUpdateOrder[0]);
-        state.JoinFixtureTongue(enemies.Places.InUpdateOrder[1]);
-        var vram = new SnesVram();
-        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(vram));
-        // Crocomire's initialization attaches the body his melt image shows on (#1355, #1466, #1515).
-        BossBodyCanvasFixtures.AttachCrocomire(enemies, InstalledFixtures.BossBodySheets);
+        enemies.Presentation.BindBackgrounds(BgArtworkFixtures.For(new SnesVram()));
+        // His room's population load sets him up, and his setup attaches the body his melt image shows on (#1355, #1466,
+        // #1515).
+        enemies.BossArtworkBinding.BodySheets = InstalledFixtures.BossBodySheets;
+        CrocomireEnemyState state = CrocomirePlacement.PlaceCrocomire(enemies, new(0, 0));
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
         enemies.CrocomireBehavior.Melting.ShowCrocomireMeltImage(state, source);
         AssertEqual(CrocomireBodyAnimations.StartingWith(bodyProgram), state.BodyPlayback.Animation,
@@ -191,7 +191,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         for (int index = 0; index < result.Length; index++)
         {
             int address = sourceAddress + index * 2;
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort expected = rom.ReadCartridgeWord(address);
             if (compareRom)
                 AssertEqual(expected, result[index],
                     $"installed Crocomire tilemap ${sourceAddress:X6} cell {index}");

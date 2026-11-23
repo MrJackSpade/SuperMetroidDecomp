@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain room colour document.</summary>
-public static class MotherBrainRoomColorFile
+public static partial class MotherBrainRoomColorFile
 {
     /// <summary>Validates and compiles fake-death flash, room-entry, phase-two and recovery color artwork without retaining the document's mutable RGB5 arrays.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
@@ -44,9 +44,9 @@ public static class MotherBrainRoomColorFile
     }
 
     /// <summary>Validates the seven recovery frames and compiles their RGB5 words.</summary>
-    private static RgbColor[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
+    private static RgbColor[][] CompileRecoveryLights(PaletteRgb5[][] frames)
     {
-        if (frames is null || frames.Length != MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
+        if (frames.Length != MotherBrainRoomColorDefinitions.RecoveryLightsFrames)
             throw new InvalidDataException("Mother Brain room-light recovery requires seven frames.");
         var compiled = new RgbColor[frames.Length][];
         for (int frame = 0; frame < frames.Length; frame++)
@@ -78,6 +78,6 @@ public static class MotherBrainRoomColorFile
     /// <param name="document">Authored RGB5 arrays read for serialization, not retained by the writer.</param>
     public static void Write(Stream json, MotherBrainRoomColorDocument document)
     {
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options)));
     }
 }

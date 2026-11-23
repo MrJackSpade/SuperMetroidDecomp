@@ -35,16 +35,6 @@ No ROM, installed art, saves, frames or controller inputs are opened. The audit 
 currently clean; findings are development work, not proof that every listed identity is a
 reachable player bug. See [scope, build integration and report format](src/SuperMetroid.ResourceAudit/README.md).
 
-`SuperMetroid.ReachabilityAudit` reports every type, member, field and enum member that no
-player host or tool reaches, regardless of accessibility. Verification projects are not users:
-code only a test reaches is reported as unused. It also lists members touched only by JSON
-serialization and production code reached only by tools. Members that only reflection reaches
-carry `[AccessedByReflection]`. From the repository root:
-
-```powershell
-dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --output out/reachability
-```
-
 This file is the authoritative high-level status summary. A translated focused audit proves the named
 subsystem; it does not imply that every surrounding room or top-level game state is connected.
 
@@ -121,9 +111,10 @@ Other migrated switches are `--unhandled-exception-console-audit`, `--github-err
 `SuperMetroid.Game --replay` remains the player replay command. Its small
 `--dpi-awareness-audit` probe also remains, to verify the actual Game startup policy.
 It checks the STA apartment required by native Windows file dialogs as well as DPI awareness.
-`DesktopVerification --rom-picker-audit <published-Game.dll>` exercises the real Choose ROM
-button on the game's declared entry apartment, briefly opens and cancels its native dialog,
-and does not install content or touch player saves.
+`DesktopVerification --rom-picker-audit` runs the real Choose ROM handler on a
+single-threaded apartment, the one the Game's entry point declares and `--dpi-awareness-audit`
+checks, briefly opens and cancels its native dialog, and does not install content or touch
+player saves.
 
 ### Controls
 
@@ -454,13 +445,13 @@ dispatcher boundaries. It is not a complete-game playthrough.
 `tools/verify-all.ps1` (run from the repository root) builds once and runs every verifier
 project's suite plus the SMV replays. The replays read committed compact traces under
 `csharp/test-fixtures/replay-traces/` (`mother-brain-glitch`, `low-13-percent`,
-`full-100-percent`, `samus-drunk`, `lowc`, `ridley`), produced from private full native captures with
+`full-100-percent`, `lowc`, `ridley`), produced from private full native captures with
 `--compact-replay-trace SOURCE_DIR DEST_DIR`; see `docs/smv-gameplay-parity.md`.
 
 ### Developer tools
 
 `SuperMetroid.DebugRunner` hosts file-taking developer tools: extracted-installation
-preparation and validation, Android bundle replay, assembly-metadata and captured-frame
+preparation and validation, Android bundle replay, captured-frame
 comparisons, state-fixture exporters, and the generated-definition writer
 `--generate-room-fx-records`. The enemy visual selector catalog is frozen generated data (#1367);
 `SuperMetroid.Verification --verify-enemy-visual-selectors` checks every entry against the cartridge. The dispatchers live in

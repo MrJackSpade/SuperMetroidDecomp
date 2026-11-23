@@ -26,7 +26,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// each animation a frame shows are pictured again over every frame of that animation. The tilemap words the cartridge
 /// writes are read here, once, and nowhere else.
 /// </summary>
-internal static class BossBodySheetComposer
+internal static partial class BossBodySheetComposer
 {
     /// <summary>The boss bodies in the order their sheets are composed and listed (#2567).</summary>
     private static readonly BossBodyOwner[] OwnerOrder = [.. Ensure.EveryMemberOnce<BossBodyOwner>(
@@ -47,6 +47,16 @@ internal static class BossBodySheetComposer
 
     /// <summary>The first row of the bottom-left screen of Kraid's layer, where his lower body is written.</summary>
     internal const int LowerPageTopRow = 64;
+
+    /// <summary>
+    /// The bosses whose body layer gameplay also shades from the room and the menus' colours, with those shades: Mother
+    /// Brain's body layer; every other body has only the shades of its own colours.
+    /// </summary>
+    private static readonly Dictionary<BossBodyOwner, Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>> LayerShades =
+        new Dictionary<BossBodyOwner, Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>>
+        {
+            [BossBodyOwner.MotherBrain] = inputs => MotherBrainSheetShades.BodyLayer(inputs.Maps, inputs.Bosses),
+        };
 
     /// <summary>The enemy whose rooms each boss's body is drawn in.</summary>
     private static readonly Dictionary<BossBodyOwner, EnemyDefinitionId> Enemies = new()
@@ -83,26 +93,29 @@ internal static class BossBodySheetComposer
         return sheets;
     }
 
+    /// <summary>The first room state, in room order, whose population places <paramref name="owner"/>.</summary>
+    /// <exception cref="InvalidDataException">No room state shows the boss.</exception>
+    private static RoomStateSettings FirstStateShowing(BossBodyOwner owner)
+    {
+        EnemyDefinitionId enemy = Enemies[owner];
+        foreach (RoomDefinition room in RetailRooms.All)
+        {
+            foreach (RoomStateSettings state in RoomStateLists.GetStates(room))
+            {
+                if (state.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy))
+                    return state;
+            }
+        }
+        throw new InvalidDataException($"No room state shows {owner}.");
+    }
+
     /// <summary>
     /// Composes <paramref name="owner"/>'s sheet over the first room state, in room order, that shows the boss: the
     /// characters every frame reads there, as the tile word sheets were composed before (#1392).
     /// </summary>
     internal static ComposedBossBodySheet Compose(RoomBlockSheetInputs inputs, BossBodyOwner owner)
     {
-        EnemyDefinitionId enemy = Enemies[owner];
-        BossRoomCharacters? characters = null;
-        foreach (RoomDefinition room in RetailRooms.All)
-        {
-            RoomStateSettings? state = RoomStateLists.GetStates(room)
-                .FirstOrDefault(candidate => candidate.EnemyPopulation.Placements.Span.Any(record => record.DefinitionId == enemy));
-            if (state is not null)
-            {
-                characters = RoomBlockUploads.ShownUnderBoss(inputs, state);
-                break;
-            }
-        }
-        if (characters is null)
-            throw new InvalidDataException($"No room state shows {owner}.");
+        BossRoomCharacters characters = RoomBlockUploads.ShownUnderBoss(inputs, FirstStateShowing(owner));
         RgbColor[] colours = RoomStaticPaletteImage.Colours(inputs.Palettes.Get(characters.Tileset.Palette));
         var painter = new BossBodyPainter(owner, characters, colours);
         foreach (BossBodyFrameSource frame in Frames(inputs.Bosses, owner))
@@ -111,12 +124,11 @@ internal static class BossBodySheetComposer
         ComposedBossBodySheet composed = painter.Compose(BlankOf(owner));
         // The body is pre-coloured in the shades the boss's colour state names (#1512).
         return composed with { Sheet = ShadedSheets.With(composed.Sheet,
-            [.. BossSheetShades.Body(owner, inputs.Bosses, composed.Sheet.PaletteIndices, colours),
-                .. owner == BossBodyOwner.MotherBrain ? MotherBrainSheetShades.BodyLayer(inputs.Maps, inputs.Bosses) : []]) };
+            [.. BossSheetShades.Body(owner, inputs.Bosses, composed.Sheet.Inks, composed.Sheet.Manifest.Palette, colours),
+                .. LayerShades.TryGetValue(owner, out Func<RoomBlockSheetInputs, IReadOnlyList<SheetShade>>? layer) ? layer(inputs) : []]) };
     }
 
     /// <summary>The installed sheet name of <paramref name="owner"/>'s body sheet.</summary>
-    [InstalledKey]
     internal static string SheetNameOf(BossBodyOwner owner) => $"BossBody.{BossBodyOwnerKeys.Installed.Of(owner)}";
 
     /// <summary>The tile <paramref name="owner"/> clears its body layer with.</summary>
@@ -134,17 +146,17 @@ internal static class BossBodySheetComposer
         switch (owner)
         {
             case BossBodyOwner.Kraid:
-                return KraidFrames(bosses.KraidBackground ?? throw Missing(owner));
+                return KraidFrames(bosses.KraidBackground);
             case BossBodyOwner.Phantoon:
-                return EnemyFrames((bosses.PhantoonBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.PhantoonBg2Frames.Writes);
             case BossBodyOwner.Draygon:
-                return EnemyFrames((bosses.DraygonBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.DraygonBg2Frames.Writes);
             case BossBodyOwner.Crocomire:
-                CrocomireMeltingArtwork melting = bosses.CrocomireMelting ?? throw Missing(owner);
-                return [.. EnemyFrames((bosses.CrocomireBg2Frames ?? throw Missing(owner)).Writes),
+                CrocomireMeltingArtwork melting = bosses.CrocomireMelting;
+                return [.. EnemyFrames(bosses.CrocomireBg2Frames.Writes),
                     .. MeltingOrder.SelectMany(image => CrocomireMeltStates(melting, image))];
             case BossBodyOwner.MotherBrain:
-                return EnemyFrames((bosses.MotherBrainBodyBg2Frames ?? throw Missing(owner)).Writes);
+                return EnemyFrames(bosses.MotherBrainBodyBg2Frames.Writes);
             default:
                 throw new InvalidDataException($"Undefined boss body owner {owner}.");
         }
@@ -293,6 +305,4 @@ internal static class BossBodySheetComposer
         }
     }
 
-    /// <summary>The failure for a boss whose installed artwork is missing.</summary>
-    private static InvalidDataException Missing(BossBodyOwner owner) => new($"The installed boss artwork has no {owner} body.");
 }

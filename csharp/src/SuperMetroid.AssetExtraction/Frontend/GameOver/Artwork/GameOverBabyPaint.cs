@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork;
 /// The game-over Baby's four installed sixteen-colour phases, kept as installed: the animation shows one phase's colours
 /// with one of the three fixed Baby images, and the import pre-colours the Baby's shades in them (#1512).
 /// </summary>
-internal sealed class GameOverBabyPaint
+internal sealed partial class GameOverBabyPaint
 {
     /// <summary>The colours the Baby shows in each phase.</summary>
     private readonly Dictionary<GameOverBabyColouring, RgbColor[]> palettes;
@@ -19,7 +19,7 @@ internal sealed class GameOverBabyPaint
         this.palettes = [];
         foreach (GameOverBabyColouring palette in Enum.GetValues<GameOverBabyColouring>())
         {
-            if (!palettes.TryGetValue(palette, out RgbColor[]? colours) || colours is not { Length: 16 })
+            if (!palettes.TryGetValue(palette, out RgbColor[]? colours) || colours.Length != GameOverPresentationFormat.BabyPaletteColorCount)
                 throw new InvalidDataException($"The game-over Baby's {palette} colours require sixteen colours.");
             this.palettes.Add(palette, [.. colours]);
         }
@@ -29,7 +29,7 @@ internal sealed class GameOverBabyPaint
     /// <exception cref="ArgumentOutOfRangeException">The palette identity is unsupported.</exception>
     internal RgbColor[] Colours(GameOverBabyColouring palette)
     {
-        var colours = new RgbColor[16];
+        var colours = new RgbColor[GameOverPresentationFormat.BabyPaletteColorCount];
         for (int colour = 0; colour < colours.Length; colour++)
             colours[colour] = Read(palette, colour);
         return colours;
@@ -40,7 +40,7 @@ internal sealed class GameOverBabyPaint
     internal RgbColor Read(GameOverBabyColouring palette, int color)
     {
         if (!palettes.TryGetValue(palette, out RgbColor[]? colours)) throw new ArgumentOutOfRangeException(nameof(palette));
-        if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));
+        if ((uint)color >= GameOverPresentationFormat.BabyPaletteColorCount) throw new ArgumentOutOfRangeException(nameof(color));
         return colours[color];
     }
 }

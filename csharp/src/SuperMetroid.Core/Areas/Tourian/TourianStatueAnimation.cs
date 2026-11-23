@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// The sinking's end is a latch of its own beside the releases: the base decoration marks it once the statues rest, and a
 /// room entered after the descent has unlocked Tourian marks it on every update while its releases never begin.
 /// </remarks>
-public sealed class TourianStatueAnimation
+public sealed partial class TourianStatueAnimation
 {
     /// <summary>
     /// Whether the entrance statue has finished sinking. The statue's base decoration sets it once the sinking animation
@@ -20,7 +20,7 @@ public sealed class TourianStatueAnimation
     public bool Finished { get; private set; }
 
     /// <summary>The statues running their idle or release animation.</summary>
-    public TourianGreyStatues Animating { get; private set; }
+    private readonly HashSet<TourianStatue> animating = [];
 
     /// <summary>Where the releases stand: none, one playing, or all four released with or without the last still playing.</summary>
     public TourianStatueReleasePhase Release { get; private set; }
@@ -40,16 +40,16 @@ public sealed class TourianStatueAnimation
     /// Whether no statue is animating, none is releasing and the descent has latched nothing: the room-load state, in
     /// which the entrance statue's decorations are finished.
     /// </summary>
-    public bool AtRest => Animating == TourianGreyStatues.None && Release == TourianStatueReleasePhase.NoneReleasing;
+    public bool AtRest => animating.Count == 0 && Release == TourianStatueReleasePhase.NoneReleasing;
 
     /// <summary>The entrance statue has finished sinking.</summary>
     internal void FinishSinking() => Finished = true;
 
     /// <summary><paramref name="statue"/> starts running its idle or release animation.</summary>
-    internal void MarkAnimating(TourianGreyStatues statue) => Animating |= statue;
+    internal void MarkAnimating(TourianStatue statue) => _ = animating.Add(statue);
 
     /// <summary><paramref name="statue"/> stops running its animation.</summary>
-    internal void StopAnimating(TourianGreyStatues statue) => Animating &= ~statue;
+    internal void StopAnimating(TourianStatue statue) => _ = animating.Remove(statue);
 
     /// <summary>A statue claims the room's one release, which the others wait their turn behind.</summary>
     internal void ClaimRelease() => Release = AllReleased
@@ -57,7 +57,7 @@ public sealed class TourianStatueAnimation
         : TourianStatueReleasePhase.OneReleasing;
 
     /// <summary><paramref name="statue"/> finishes its release and stops animating.</summary>
-    internal void FinishRelease(TourianGreyStatues statue)
+    internal void FinishRelease(TourianStatue statue)
     {
         Release = AllReleased ? TourianStatueReleasePhase.AllReleased : TourianStatueReleasePhase.NoneReleasing;
         StopAnimating(statue);

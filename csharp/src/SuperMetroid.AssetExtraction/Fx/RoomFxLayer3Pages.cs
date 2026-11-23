@@ -8,10 +8,10 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Fx;
 
 /// <summary>
-/// Editable BG3 tiles for the six room-FX pages, as their installed document places them. Only the import reads them: it
+/// Editable BG3 tiles for the six room-FX pages, as the import's document places them. Only the import reads them: it
 /// pictures each page once into the BG3 sheets (#1466), and the game names the page an effect shows (#1467).
 /// </summary>
-public sealed class RoomFxLayer3Pages
+public sealed partial class RoomFxLayer3Pages
 {
     /// <summary>Each authored page's tiles, row-major, by the effect that shows it.</summary>
     private readonly Dictionary<RoomFxType, BackgroundTile[]> pages;
@@ -44,15 +44,7 @@ public sealed class RoomFxLayer3Pages
             var tiles = new BackgroundTile[RoomFxLayer3TilemapFormat.CellsPerPage];
             for (int cell = 0; cell < cells.Length; cell++)
             {
-                RoomBackgroundTilemapCell? value = cells[cell];
-                if (value is null ||
-                    (uint)value.TileColumn >= RoomBackgroundTilemapFormat.TileColumns ||
-                    (uint)value.TileRow >= RoomBackgroundTilemapFormat.TileRows ||
-                    (uint)value.Palette >= RoomBackgroundTilemapFormat.PaletteCount)
-                    throw new InvalidDataException(
-                        $"Room-FX BG3 {type} cell {cell} has an invalid tile or palette.");
-                tiles[cell] = new BackgroundTile(value.TileRow * RoomBackgroundTilemapFormat.TileColumns + value.TileColumn,
-                    value.Palette, value.FlipX, value.FlipY, value.Priority);
+                tiles[cell] = cells[cell].Placement($"Room-FX BG3 {type} cell {cell}");
             }
             return tiles;
         }
@@ -64,7 +56,7 @@ public sealed class RoomFxLayer3Pages
     public static void Write(Stream json, RoomFxLayer3TilemapDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Fx.RoomFxLayer3TilemapDocument>(JsonOptions));
         json.Write(bytes);
     }
 

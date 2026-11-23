@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// Editable UTF-8 titles for the cartridge's one-row gameplay message boxes.
 /// Message timing, input handling and item identity remain compiled behavior.
 /// </summary>
-public sealed class GameplayMessageTitlePresentation
+public sealed partial class GameplayMessageTitlePresentation
 {
     /// <summary>Validated one-row text and palette keyed by the supported gameplay message identities.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledTitle> titles;
@@ -85,8 +85,7 @@ public sealed class GameplayMessageTitlePresentation
         try
         {
             document = JsonAssetDocument.Read<GameplayMessageTitleDocument>(
-                source, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Gameplay-message title document is null.");
+                source, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -136,7 +135,7 @@ public sealed class GameplayMessageTitlePresentation
     /// <param name="document">Authored title dictionary and border array read for serialization, not retained by the writer.</param>
     public static void Write(Stream output, GameplayMessageTitleDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayMessageTitleDocument>(ArtworkJson.Options));
         output.Write(bytes);
     }
 
@@ -164,5 +163,5 @@ public sealed class GameplayMessageTitlePresentation
         TitleAlphabet.ToFrozenDictionary(GlyphTile, character => character);
 
     /// <summary>Validated title text and palette retained independently of the mutable JSON document.</summary>
-    private sealed record CompiledTitle(string Text, int Palette);
+    private sealed partial record CompiledTitle(string Text, int Palette);
 }

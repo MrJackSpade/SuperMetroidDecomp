@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The state of a jumping Squeept, the parent its cosmetic follower (<see cref="NorfairLavaJumperFollowerState"/>) follows.</summary>
-public sealed class SqueeptState
+public sealed partial class SqueeptState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal SqueeptState(SqueeptAction action) => Action = action;

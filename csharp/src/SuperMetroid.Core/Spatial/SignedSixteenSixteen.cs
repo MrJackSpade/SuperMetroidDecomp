@@ -1,8 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed 16.16 fixed-point displacement with explicit whole and fractional halves.</summary>
-[EncodingOwner("signed 16.16 fixed-point number")]
-public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSixteen>, System.Numerics.IUnaryNegationOperators<SignedSixteenSixteen, SignedSixteenSixteen>
+public readonly partial record struct SignedSixteenSixteen : IComparable<SignedSixteenSixteen>, System.Numerics.IUnaryNegationOperators<SignedSixteenSixteen, SignedSixteenSixteen>
 {
     /// <summary>Wraps an existing signed 32-bit displacement without altering its whole and fraction bits.</summary>
     private SignedSixteenSixteen(int rawValue) => RawValue = rawValue;
@@ -90,7 +89,6 @@ public readonly record struct SignedSixteenSixteen : IComparable<SignedSixteenSi
     public ushort UnsignedWholePixels => unchecked((ushort)(RawValue >> 16));
 
     /// <summary>The signed whole-pixel word.</summary>
-    [IntegerQuantity("whole-pixel part of a signed distance")]
     public int WholePixels => unchecked((short)(RawValue >> 16));
 
     /// <summary>The unsigned fractional word.</summary>

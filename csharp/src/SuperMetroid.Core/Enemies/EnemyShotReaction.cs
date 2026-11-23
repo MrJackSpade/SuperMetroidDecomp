@@ -5,13 +5,19 @@ namespace SuperMetroid.Core.Enemies;
 /// game's shot reaction occupies in the collision sequence; a reaction sets only the stages it has. The species' entity
 /// decides when it applies (<see cref="IEnemyShotReaction.ShotReaction"/>).
 /// </summary>
-internal sealed class EnemyShotReaction
+internal sealed partial class EnemyShotReaction
 {
     /// <summary>Whether bomb, power-bomb and beam-explosion families reach this reaction (the ordinary shot reaction never sees them).</summary>
     internal bool AdmitsBombFamilies { get; init; }
 
     /// <summary>Whether the enemy currently ignores every shot before any projectile is examined.</summary>
     internal Func<RoomEnemyPlace, bool>? SkipsEnemy { get; init; }
+
+    /// <summary>The reaction of an enemy shots pass: it skips every enemy, so a shot meets none of its stages (#2558).</summary>
+    internal static EnemyShotReaction ShotsPass { get; } = new() { SkipsEnemy = SkipsEveryEnemy };
+
+    /// <summary>The <see cref="SkipsEnemy"/> of an enemy shots pass: it skips every enemy.</summary>
+    private static bool SkipsEveryEnemy(RoomEnemyPlace enemy) => true;
 
     /// <summary>Runs after the overlap is found, before the frame-hitbox Super Missile quake.</summary>
     internal EnemyShotStage? BeforeSuperMissileQuake { get; init; }
@@ -22,7 +28,7 @@ internal sealed class EnemyShotReaction
     /// <summary>Runs after the check for an ignoring hitbox or definition reaction, before the projectile impact.</summary>
     internal EnemyShotStage? BeforeImpact { get; init; }
 
-    /// <summary>Whether every family takes only the collision prelude instead of an impact.</summary>
+    /// <summary>Whether every family's shot only marks its hit, with no impact.</summary>
     internal bool EndsWithoutImpact { get; init; }
 
     /// <summary>Runs after the impact, before health is sampled.</summary>
@@ -36,23 +42,19 @@ internal sealed class EnemyShotReaction
     /// before its death (<see cref="EnemyCollision"/>). The ordinary shot reaction shows it; a species whose reaction runs
     /// the common damage without the burst says so, for every hit or for the hits it decides.
     /// </summary>
-    internal Func<EnemyShotContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
+    internal Func<EnemyShotHitContext, bool> ShowsHitBurst { get; init; } = AlwaysShowsHitBurst;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction whose every hurting hit shows the burst.</summary>
-    internal static Func<EnemyShotContext, bool> AlwaysShowsHitBurst { get; } = static _ => true;
+    internal static bool AlwaysShowsHitBurst(EnemyShotHitContext context) => true;
 
     /// <summary>The <see cref="ShowsHitBurst"/> of a reaction that runs the common damage without the burst.</summary>
-    internal static Func<EnemyShotContext, bool> NeverShowsHitBurst { get; } = static _ => false;
+    internal static bool NeverShowsHitBurst(EnemyShotHitContext context) => false;
 
-    /// <summary>Whether a lethal hit leaves the death to the species instead of the generic death animation.</summary>
-    internal bool ExemptFromGenericDeath { get; init; }
+    /// <summary>What a lethal hit does: the generic death, after a stage, replaced, or the species' own (#2560).</summary>
+    internal EnemyShotLethal Lethal { get; init; } = EnemyShotLethal.Generic;
 
-    /// <summary>Runs on a lethal hit immediately before the generic death.</summary>
-    internal Action<EnemyShotContext>? BeforeGenericDeath { get; init; }
 
-    /// <summary>Replaces the generic death when it returns true.</summary>
-    internal Func<EnemyShotContext, bool>? ReplacesGenericDeath { get; init; }
 
     /// <summary>What the species does after the common shot reaction; <see cref="EnemyShotContext.Froze"/> reports the immediate-freeze path.</summary>
-    internal Action<EnemyShotContext>? AfterCommon { get; init; }
+    internal Action<EnemyShotHitContext>? AfterCommon { get; init; }
 }

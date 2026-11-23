@@ -1,20 +1,11 @@
-using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.KiHunters;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Rooms.Doors;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Rooms;
+using SuperMetroid.Verification.Enemies.KiHunters;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms.Doors;
 
@@ -28,30 +19,17 @@ internal static class DoorEntryEnemySoundVerification
     /// </summary>
     internal static void VerifyDoorEntryEnemySound()
     {
-        var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var random = new SharedRandom();
-        var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
-        var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
-        runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CrateriaKihunter);
-        var samus = runtime.Player.IntroducedSamus;
-        samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.Position = samus.Position.WithWhole(new(64, 128));
-        samus.Control.LockOutPlayer();
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
-        var body = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.KihunterGreen);
-        var state = runtime.Enemies.KiHunterBodyStates[body.Ordinal];
-        body.Position = body.Position.WithWhole(new(128, 128));
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Action = KiHunterAction.AnimatingOnGround;
-        // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
-        // The spit cue, four poses into the right spit animation.
-        state.Playback = new(KiHunterAnimations.StartingWith(KiHunterSegment.SpitRight), new AnimationPlace(0, 4));
-        body.AnimationClock.StepOnNextUpdate();
-        game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        // The Attic after Phantoon runs to the update before its Ki-Hunter's own spit, which a replica run of the same room
+        // counts; the spit's cue (library two $4C) then runs during the entry frame's enemy pass.
+        int updatesBeforeTheSpit = KiHunterSpitStaging.UpdatesBeforeTheSpit(() =>
+        {
+            (SuperMetroidGame replica, _) = KiHunterSpitStaging.AtticGame();
+            return (replica.AudioForVerification, () => replica.StepCaptured(0));
+        });
+        (SuperMetroidGame game, SuperMetroidRuntime runtime) = KiHunterSpitStaging.AtticGame();
+        for (int update = 0; update < updatesBeforeTheSpit; update++)
+            game.StepCaptured(0);
+        var samus = runtime.Player.Samus;
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)
@@ -62,17 +40,18 @@ internal static class DoorEntryEnemySoundVerification
             runtime.MeetDoorBlock(block, samus.Pose.ForRoomCollision());
             selected = true;
         }
-        AssertTrue(selected, "the Ki Hunter room has an exit");
+        AssertTrue(selected, "the Attic has an exit");
         var audio = game.AudioForVerification;
         SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
-        game.Session.Enter(DoorTransitionStep.EnteringDoor);
-        game.Step(0);
+        // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+        game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
+        game.StepCaptured(0);
 
         IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
         AssertTrue(queued.Count >= 2, "the entry frame queues at least the enemy sound and the door's cancel");
         AssertEqual<SoundEffectId>(EnemySound.AcidSpit, queued[0],
             "the entry frame's enemy pass queues the spit first");
-        AssertEqual<SoundEffectId>(EnemySound.Silence, queued[1],
+        AssertEqual<SoundEffectId>(EnemySoundStop.Any, queued[1],
             "the door's library-two cancel follows the enemy sound");
         Console.WriteLine("Door entry enemy sound: the entry frame's enemy sounds precede the door's cancel and DisableSounds.");
     }

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// A rotting corpse's pixel rows as its own rot has left them (#1539): for each of the corpse's rows, the corpse row it
 /// shows, or nothing once the rot has cleared it. Immutable: the corpse's frames are drawn whole through it.
 /// </summary>
-internal sealed class CorpseRotRows
+internal sealed partial class CorpseRotRows
 {
     /// <summary>The corpse row each row shows, or none.</summary>
     private readonly int?[] rows;

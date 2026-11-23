@@ -11,21 +11,26 @@ namespace SuperMetroid.Core.Samus.Death;
 
 /// <summary>
 /// Owns Samus's fatal-damage pose, picture, shade, flashing, whiteout, and suit-
-/// explosion sequence. This is deliberately not folded into knockback merely because the
-/// death-sequence poses have the knockback movement type: the death game states stop Samus's normal input
-/// and movement phases and run this independent state machine instead.
+/// explosion update.Sequence. It is apart from knockback, though the death-sequence poses have the knockback movement type:
+/// the death stops Samus's normal input and movement and runs this sequence instead.
 /// </summary>
-public sealed class SamusDeathSequenceState : IGameplayShadingSource
+public sealed partial class SamusDeathSequenceState : IGameplayShadingSource
 {
     /// <summary>The game-state-owned phase corresponding to the pre-flash, flashing and suit-explosion states.</summary>
-    public SamusDeathSequencePhase Phase { get; private set; }
+    public SamusDeathSequencePhase Phase => stage.Phase;
+
+    /// <summary>
+    /// The sequence's stage, holding what it plays: not dying until the death pose begins it, the explosion its own
+    /// pictures from the update the suit explodes.
+    /// </summary>
+    private DeathStage stage = NotDyingStage.Instance;
 
     /// <summary>
     /// True from the death sequence's setup through the terminal white frame. A completed sequence
-    /// remains an owner until the outer game-state fade replaces the room, preventing normal
-    /// knockback movement code from accidentally resuming on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
+    /// remains an owner until the outer game-state fade replaces the room, so normal knockback movement never resumes
+    /// on <see cref="SamusPoseId.DeathSequenceRightPose"/> and <see cref="SamusPoseId.DeathSequenceLeftPose"/>.
     /// </summary>
-    public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
+    public bool IsActive => Phase is not SamusDeathSequencePhase.Inactive;
 
     /// <summary>
     /// The wait before the alternating yellow flash, the last update included: it lasts
@@ -34,20 +39,14 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     public UpdateCountdown PreFlashingTimer { get; private set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The flash's shades (#2387): after three updates it shows her second death shade for one update and her first for
-    /// three, over and over, until the suit explodes. The death pose starts it again.
+    /// The flash's shades (#2387): after an opening wait it shows her second death shade and then her first, each for its
+    /// own hold, over and over, until the suit explodes. The death pose starts it again.
     /// </summary>
-    internal AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; private set; } =
+    internal AnimationPlayer<SamusDeathFlashSegment, SamusDeathShade, NoAnimationCue> Flash { get; set; } =
         SamusDeathAnimations.FlashStarting();
 
     /// <summary>The flashing, lasting <see cref="SamusDeathSequenceDefinitions.FlashFrameCount"/>: the suit explodes on its last update.</summary>
-    public UpdateCountdown Flashing { get; private set; } = UpdateCountdown.Ended();
-
-    /// <summary>
-    /// The suit's explosion (#2388), its nine pictures played once for their dwell times, or null before the suit explodes;
-    /// the sequence completes once its last picture has shown.
-    /// </summary>
-    internal AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue>? Explosion { get; private set; }
+    internal UpdateCountdown Flashing { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
     /// The whiteout's shades (#2387): one update each from the update after the explosion's second picture first shows,
@@ -57,26 +56,20 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     internal AnimationPlayer<SamusWhiteoutSegment, SamusWhiteoutShade, NoAnimationCue>? WhiteoutBrightening { get; private set; }
 
     /// <summary>
-    /// The whiteout shade the explosion shows, or null before its first: the explosion's last update shows
-    /// <see cref="SamusWhiteoutShade.Final"/>.
-    /// </summary>
-    public SamusWhiteoutShade? WhiteoutShade { get; private set; }
-
-    /// <summary>
     /// The colour the explosion's whiteout shows every picture and sprite in but Samus's body, or null before the
     /// whiteout's first shade. Each whiteout step shows the next installed shade, and the last one stays.
     /// </summary>
     public RgbColor? Whiteout { get; private set; }
 
     /// <summary>The signed screen place captured at death-pose setup: left of or above the screen is negative.</summary>
-    public Offset16<ScreenPixels> ScreenPosition { get; private set; }
+    internal Offset16<ScreenPixels> ScreenPosition { get; set; }
 
 /// <summary>The suit-explosion picture shown, or null outside the explosion.</summary>
-    public SamusDeathExplosionFrame? ExplosionFrame =>
-        Phase == SamusDeathSequencePhase.SuitExplosion && Explosion is { HasStopped: false } explosion ? explosion.Shown : null;
+    internal SamusDeathExplosionFrame? ExplosionFrame =>
+        stage is ExplosionStage { Explosion.HasStopped: false } exploding ? exploding.Explosion.Shown : null;
 
-    /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose.</summary>
-    public bool FacingLeft { get; private set; }
+    /// <summary>The facing captured before pose metadata is replaced by the death-sequence pose: left, or right otherwise.</summary>
+    internal HorizontalDirection Facing { get; set; }
 
     /// <summary>
     /// Sets Samus's death-sequence pose. It runs once
@@ -93,18 +86,20 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
 
         SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
 
-        FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        SamusPoseId deathPose = FacingLeft
-            ? SamusPoseId.DeathSequenceLeftPose
-            : SamusPoseId.DeathSequenceRightPose;
+        Facing = SamusPoseMetadata.ReadFacingDirection(samus) is SamusFacingDirection.Left ? HorizontalDirection.Left : HorizontalDirection.Right;
+        SamusPoseId deathPose = Facing switch
+        {
+            HorizontalDirection.Left => SamusPoseId.DeathSequenceLeftPose,
+            HorizontalDirection.Right => SamusPoseId.DeathSequenceRightPose,
+            _ => throw new InvalidOperationException($"Undefined {nameof(HorizontalDirection)} {Facing}."),
+        };
         SamusAnimationFrame initialFrame = SamusDeathSequenceFrames.InitialFrame(sourceMovementType);
 
         // The death pose is set up as any pose is, then shows the frame the movement type it starts from begins it
         // on. Every frame of the death pose lasts as long as the others, so the timer its setup starts holds for whichever frame
         // it shows.
-        samus.Pose = deathPose;
+        samus.ChangePose(deathPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose step is not running.
         samus.CommitPoseHistory();
@@ -117,14 +112,12 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         PreFlashingTimer = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.PreFlashFrameCount);
         Flash = SamusDeathAnimations.FlashStarting();
         Flashing = UpdateCountdown.Lasting(SamusDeathSequenceDefinitions.FlashFrameCount);
-        Explosion = null;
         WhiteoutBrightening = null;
-        WhiteoutShade = null;
         Whiteout = null;
         // Dying while spin jumping ends the spin's sound at normal priority.
-        if (sourceMovementType == SamusMovementType.SpinJumping)
-            samus.AudioRequests.QueueSound(SamusSound.SpinJumpEnd, SoundRequestPriority.Normal);
-        Phase = SamusDeathSequencePhase.PreFlashing;
+        if (SamusMovementTypeDefinitions.Movements[sourceMovementType].SpinSoundEndsOnDeath)
+            samus.AudioRequests.QueueSound(SamusSoundStop.SpinJump, SoundRequestPriority.Normal);
+        stage = PreFlashStage.Instance;
     }
 
     /// <summary>
@@ -133,71 +126,41 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// is shown by selecting its frame (<see cref="ExplosionFrame"/>), a whole coloured picture, on the update the game
     /// shows it.
     /// </summary>
+    /// <param name="samus">Samus, dying.</param>
+    /// <param name="begun">The phase her begun death sequence is in, its current <see cref="Phase"/>.</param>
+    /// <param name="samusColours">Samus's colours, which show her death shades and the white-out.</param>
+    /// <param name="artwork">The death sequence's pictures.</param>
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
+        SamusDeathSequencePhase.Begun begun,
         SamusColours samusColours,
         SamusDeathSteps artwork)
     {
         Ensure.NotNull(samus);
+        Ensure.NotNull(begun);
         Ensure.NotNull(samusColours);
         Ensure.NotNull(artwork);
-        if (!IsActive)
-            throw new InvalidOperationException("Samus death sequence has not begun.");
 
-        SamusDeathDraw draws = SamusDeathDraw.Nothing;
-
-        switch (Phase)
-        {
-            case SamusDeathSequencePhase.PreFlashing:
-                // The death animation advances the death pose's frame delays only during the pre-flash state.
-                // The flashing state freezes that final body frame while its shades alternate.
-                SamusPresentation.AnimateDeathFrame(samus);
-                draws = SamusDeathDraw.Pose;
-                if (PreFlashingTimer.StepEnds())
-                    Phase = SamusDeathSequencePhase.Flashing;
-                break;
-
-            case SamusDeathSequencePhase.Flashing:
-                if (Flashing.Step())
-                {
-                    // The flash's last update shows the first death shade, starts the explosion on its first picture, and
-                    // immediately plays and draws it in this same update.
-                    ShowDeathShades(samus, samusColours, SamusDeathShade.First);
-                    Explosion = SamusDeathAnimations.ExplosionStarting();
-                    WhiteoutBrightening = null;
-                    Phase = SamusDeathSequencePhase.SuitExplosion;
-                    draws = StepSuitExplosion(samus, samusColours, artwork) ? SamusDeathDraw.Explosion : SamusDeathDraw.Nothing;
-                }
-                else
-                {
-                    if (Flash.StepToNewFrame() is { } flashShade)
-                    {
-                        ShowDeathShades(samus, samusColours, flashShade);
-                    }
-                    draws = SamusDeathDraw.Pose;
-                }
-                break;
-
-            case SamusDeathSequencePhase.SuitExplosion:
-                ApplyWhiteout(samusColours, artwork);
-                draws = StepSuitExplosion(samus, samusColours, artwork) ? SamusDeathDraw.Explosion : SamusDeathDraw.Nothing;
-                break;
-
-            case SamusDeathSequencePhase.Complete:
-                // The game advances to the room fade with no Samus draw. The outer game-state
-                // owner is outside this sequence, so remain locked.
-                break;
-
-            case SamusDeathSequencePhase.Inactive:
-            default:
-                throw new InvalidOperationException($"Unknown death phase {Phase}.");
-        }
+        // The completed sequence advances to the room fade with no Samus draw. The outer game-state owner is outside this
+        // sequence, so it stays locked.
+        SamusDeathDraw draws = stage is SteppingDeathStage stepping
+            ? stepping.Step(new DeathUpdate(this, samus, samusColours, artwork))
+            : SamusDeathDraw.Nothing;
 
         return new SamusDeathSequenceStepResult(
-            Phase,
             draws,
-            Phase == SamusDeathSequencePhase.Complete);
+            Phase is SamusDeathSequencePhase.Begun.Complete);
     }
+
+    /// <summary>What <c>Draw</c> does for each <see cref="SamusDeathDraw"/> member, each member's own arm.</summary>
+    private IdentityTable<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>> DrawForSamusDeathDraw => field ??= new(new Dictionary<SamusDeathDraw, Action<SamusState, SpriteFrameBuffer, Position16<RoomPixels>, TurningFloorTransform?>>
+    {
+        [SamusDeathDraw.Pose] = (samus, sprites, cameraPosition, turningFloor) => samus.Presentation.DrawWithoutFlicker(samus, sprites, cameraPosition, turningFloor),
+        [SamusDeathDraw.Explosion] = (samus, sprites, cameraPosition, turningFloor) => DrawExplosion(sprites, samus.Artwork.Sheets),
+        [SamusDeathDraw.Nothing] = (samus, sprites, cameraPosition, turningFloor) =>
+        {
+        },
+    });
 
     /// <summary>
     /// Draws what a death update shows of Samus (<paramref name="draws"/>): her death pose with no invincibility flicker,
@@ -208,23 +171,11 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         TurningFloorTransform? turningFloor)
     {
         Ensure.NotNull(samus);
-        switch (draws)
-        {
-            case SamusDeathDraw.Pose:
-                samus.Presentation.DrawWithoutFlicker(samus, sprites, cameraPosition, turningFloor);
-                break;
-            case SamusDeathDraw.Explosion:
-                DrawExplosion(sprites, samus.Artwork.Sheets);
-                break;
-            case SamusDeathDraw.Nothing:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined death draw {draws}.");
-        }
+        DrawForSamusDeathDraw[draws](samus, sprites, cameraPosition, turningFloor);
     }
 
     /// <summary>Publishes the one right/left explosion frame at the captured screen position, from <paramref name="sheets"/>.</summary>
-    public void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets sheets)
+    internal void DrawExplosion(SpriteFrameBuffer sprites, InstalledSpriteSheets sheets)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(sheets);
@@ -232,15 +183,14 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             return;
         SpriteSheet death = sheets.Get(SpriteSheetId.SamusDeath);
         sprites.Add(new SamusColouredDraw(new SpriteSource(SpriteSourceKind.SamusDeathExplosion),
-            death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, frame)),
+            death.Frame(SamusDeathSheetDefinitions.ExplosionFrame(Facing, frame)),
             ScreenPosition));
     }
 
     /// <summary>Plays the explosion on, its death shades and terminal whiteout, returning whether to draw this frame.</summary>
-    private bool StepSuitExplosion(SamusState samus, SamusColours samusColours, SamusDeathSteps artwork)
+    private bool StepSuitExplosion(SamusState samus, SamusColours samusColours, SamusDeathSteps artwork,
+        AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion)
     {
-        AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion =
-            Explosion ?? throw new InvalidOperationException("The suit's explosion has not started.");
         if (explosion.StepToNewFrame() is { } picture)
         {
             // The whiteout starts on the update after the explosion's second picture first shows.
@@ -253,7 +203,7 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
             // The last update shows the full-white whiteout over everything but Samus's body and draws no
             // explosion frame after the last.
             ShowWhiteout(samusColours, artwork, SamusWhiteoutShade.Final);
-            Phase = SamusDeathSequencePhase.Complete;
+            stage = CompleteStage.Instance;
             return false;
         }
         return true;
@@ -267,8 +217,9 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
         if (WhiteoutBrightening is not { } whiteout)
             return;
 
-        ShowWhiteout(samusColours, artwork, whiteout.StepToNewFrame()
-            ?? throw new InvalidOperationException("The whiteout shows a shade on every update of the explosion."));
+        // The whiteout shows a new shade on every update of the explosion; one that showed none would keep its last.
+        if (whiteout.StepToNewFrame() is { } shade)
+            ShowWhiteout(samusColours, artwork, shade);
     }
 
     /// <summary>
@@ -279,7 +230,6 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     /// </summary>
     private void ShowWhiteout(SamusColours samusColours, SamusDeathSteps artwork, SamusWhiteoutShade shade)
     {
-        WhiteoutShade = shade;
         Whiteout = artwork.WhiteoutColour(shade);
         samusColours.ShowBeams(SamusShades.DeathWhiteout(shade));
     }
@@ -300,5 +250,122 @@ public sealed class SamusDeathSequenceState : IGameplayShadingSource
     {
         samusColours.ShowSuit(SamusShades.DeathSuit(samus.EquippedItems.ShownSuit(), deathShade));
         samusColours.ShowSuitless(SamusShades.DeathSuitless(deathShade));
+    }
+
+    /// <summary>A stage of the death sequence, named by the phase it is.</summary>
+    private abstract partial class DeathStage
+    {
+        /// <summary>The phase the stage is.</summary>
+        internal abstract SamusDeathSequencePhase Phase { get; }
+    }
+
+    /// <summary>A stage that plays on each update: the wait before the flash, the flash and the explosion.</summary>
+    private abstract partial class SteppingDeathStage : DeathStage
+    {
+        /// <summary>Runs one update of the stage, returning what it draws of Samus.</summary>
+        /// <param name="update">The sequence, Samus, her colours and the death's shades this update.</param>
+        internal abstract SamusDeathDraw Step(DeathUpdate update);
+    }
+
+    /// <summary>One update of the death sequence, as a stage plays it.</summary>
+    /// <param name="Sequence">The sequence the stage is of.</param>
+    /// <param name="Samus">Samus, dying.</param>
+    /// <param name="Colours">Her colours, which the stage shades.</param>
+    /// <param name="Artwork">The death's shades and whiteout colours.</param>
+    private readonly partial record struct DeathUpdate(SamusDeathSequenceState Sequence, SamusState Samus, SamusColours Colours, SamusDeathSteps Artwork);
+
+    /// <summary>Samus is not dying.</summary>
+    private sealed partial class NotDyingStage : DeathStage
+    {
+        /// <summary>The stage's only value.</summary>
+        internal static NotDyingStage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Inactive();
+    }
+
+    /// <summary>The wait before the flash, while the death pose animates.</summary>
+    private sealed partial class PreFlashStage : SteppingDeathStage
+    {
+        /// <summary>The stage's only value.</summary>
+        internal static PreFlashStage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.PreFlashing();
+
+        /// <inheritdoc/>
+        internal override SamusDeathDraw Step(DeathUpdate update)
+        {
+            // The death animation advances the death pose's frame delays only during the pre-flash state.
+            // The flashing state freezes that final body frame while its shades alternate.
+            SamusPresentation.AnimateDeathFrame(update.Samus);
+            if (update.Sequence.PreFlashingTimer.StepEnds())
+                update.Sequence.stage = FlashStage.Instance;
+            return SamusDeathDraw.Pose;
+        }
+    }
+
+    /// <summary>The flash, alternating the death shades until the suit explodes.</summary>
+    private sealed partial class FlashStage : SteppingDeathStage
+    {
+        /// <summary>The stage's only value.</summary>
+        internal static FlashStage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.Flashing();
+
+        /// <inheritdoc/>
+        internal override SamusDeathDraw Step(DeathUpdate update)
+        {
+            if (update.Sequence.Flashing.Step())
+            {
+                // The flash's last update shows the first death shade, starts the explosion on its first picture, and
+                // immediately plays and draws it in this same update.
+                ShowDeathShades(update.Samus, update.Colours, SamusDeathShade.First);
+                var exploding = new ExplosionStage(SamusDeathAnimations.ExplosionStarting());
+                update.Sequence.WhiteoutBrightening = null;
+                update.Sequence.stage = exploding;
+                return update.Sequence.StepSuitExplosion(update.Samus, update.Colours, update.Artwork, exploding.Explosion)
+                    ? SamusDeathDraw.Explosion
+                    : SamusDeathDraw.Nothing;
+            }
+            if (update.Sequence.Flash.StepToNewFrame() is { } flashShade)
+                ShowDeathShades(update.Samus, update.Colours, flashShade);
+            return SamusDeathDraw.Pose;
+        }
+    }
+
+    /// <summary>
+    /// The suit's explosion (#2388), started on the flash's last update: its pictures played once for their dwell times,
+    /// the sequence completing once its last picture has shown.
+    /// </summary>
+    /// <param name="explosion">The explosion's pictures, from its first.</param>
+    private sealed partial class ExplosionStage(AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> explosion)
+        : SteppingDeathStage
+    {
+        /// <summary>The explosion's pictures as they play.</summary>
+        internal AnimationPlayer<SamusDeathExplosionSegment, SamusDeathExplosionFrame, NoAnimationCue> Explosion { get; } = explosion;
+
+        /// <inheritdoc/>
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.SuitExplosion();
+
+        /// <inheritdoc/>
+        internal override SamusDeathDraw Step(DeathUpdate update)
+        {
+            update.Sequence.ApplyWhiteout(update.Colours, update.Artwork);
+            return update.Sequence.StepSuitExplosion(update.Samus, update.Colours, update.Artwork, Explosion)
+                ? SamusDeathDraw.Explosion
+                : SamusDeathDraw.Nothing;
+        }
+    }
+
+    /// <summary>The terminal white frame has shown; the sequence stays the owner until the room fades.</summary>
+    private sealed partial class CompleteStage : DeathStage
+    {
+        /// <summary>The stage's only value.</summary>
+        internal static CompleteStage Instance { get; } = new();
+
+        /// <inheritdoc/>
+        internal override SamusDeathSequencePhase Phase { get; } = new SamusDeathSequencePhase.Begun.Complete();
     }
 }

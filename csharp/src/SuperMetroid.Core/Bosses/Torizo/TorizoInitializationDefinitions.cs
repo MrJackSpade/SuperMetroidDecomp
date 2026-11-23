@@ -4,7 +4,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>What Bomb and Golden Torizo start with: their starting places, first animations, processing and radii.</summary>
-internal static class TorizoInitializationDefinitions
+internal static partial class TorizoInitializationDefinitions
 {
     /// <summary>
     /// Bomb Torizo's starting place, first body animation, processing and radii.

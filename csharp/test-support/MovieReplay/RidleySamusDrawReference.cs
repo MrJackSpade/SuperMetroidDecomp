@@ -31,7 +31,7 @@ internal static class RidleySamusDrawReference
         if (frame == 0 || (invincibleAtDraw && (nmi & 1) != 0))
             return new RidleyNativeCannonDrawResult(false, false, frame);
         ushort pose = W(NativeSnapshotMemory.Pose), animation = W(NativeSnapshotMemory.Animation);
-        int drawing = NativeSnapshotMemory.CannonDefinitionBank | CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.CannonPosePointers + pose * 2));
+        int drawing = NativeSnapshotMemory.CannonDefinitionBank | rom.ReadCartridgeWord((NativeSnapshotMemory.CannonPosePointers + pose * 2));
         byte first = rom.ReadCartridgeByte(drawing);
         bool alternate = (first & 128) != 0;
         byte direction = (byte)((alternate && animation != 0 ? rom.ReadCartridgeByte(drawing + 2) : first) & 127);
@@ -40,10 +40,10 @@ internal static class RidleySamusDrawReference
         // C6F4 masks the pose graphics offset to a byte, unlike the body renderer's sign extension.
         short y = unchecked((short)(W(NativeSnapshotMemory.Y) + (sbyte)rom.ReadCartridgeByte(offsets + 1) -
             rom.ReadCartridgeByte(NativeSnapshotMemory.PoseDefinitions + pose * 8 + 4) - W(NativeSnapshotMemory.CameraY)));
-        ushort attributes = CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.CannonAttributes + direction * 2));
-        int tiles = NativeSnapshotMemory.CannonDefinitionBank | CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.CannonTileLists + direction * 2));
+        ushort attributes = rom.ReadCartridgeWord((NativeSnapshotMemory.CannonAttributes + direction * 2));
+        int tiles = NativeSnapshotMemory.CannonDefinitionBank | rom.ReadCartridgeWord((NativeSnapshotMemory.CannonTileLists + direction * 2));
         return new RidleyNativeCannonDrawResult(x >= 0 && x < 256 && y >= 0 && y < 256,
-            true, frame, direction, attributes, CartridgeImportSource.Require(rom).ReadCartridgeWord((tiles + frame * 2)), new(unchecked((ushort)x), unchecked((ushort)y)));
+            true, frame, direction, attributes, rom.ReadCartridgeWord((tiles + frame * 2)), new(unchecked((ushort)x), unchecked((ushort)y)));
     }
 
     /// <summary>Looks for the expected visible cannon sprite in native low and high OAM tables.</summary>
@@ -86,7 +86,7 @@ internal static class RidleySamusDrawReference
             }
             else if (NativePoseNumberRanges.InRange(poseId, SamusPoseId.NormalLandingRightPose, SamusPoseId.SpinLandingLeftPose))
             {
-                int landingWord = CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.LandingDrawOffsets +
+                int landingWord = rom.ReadCartridgeWord((NativeSnapshotMemory.LandingDrawOffsets +
                     NativePoseNumberRanges.Offset(poseId, SamusPoseId.NormalLandingRightPose) * 4 + frame));
                 yOffset = -landingWord;
                 landingDrawnYOffset = -LittleEndianBytes.LowByte(unchecked((ushort)landingWord));
@@ -137,13 +137,13 @@ internal static class RidleySamusDrawReference
                 SamusMovementType.Moonwalking or
                 SamusMovementType.RanIntoWall or
                 SamusMovementType.Grappling or
-                SamusMovementType.TurningWhileJumping or
+                SamusMovementType.TurningRisingOrAimedCrouched or
                 SamusMovementType.TurningWhileFalling or
                 SamusMovementType.DraygonHeld => throw new InvalidDataException($"Unknown native body movement type {movement}"),
             _ => throw new InvalidDataException($"Unknown native body movement type {movement}"),
         };
-        var records = new RidleyNativeBodyRecordResult(unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),
-            bottom ? unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.BottomSpritemapBases + pose * 2)) + frame)) : (ushort)0,
+        var records = new RidleyNativeBodyRecordResult(unchecked((ushort)(rom.ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),
+            bottom ? unchecked((ushort)(rom.ReadCartridgeWord((NativeSnapshotMemory.BottomSpritemapBases + pose * 2)) + frame)) : (ushort)0,
             unchecked((ushort)(W(NativeSnapshotMemory.X) - W(NativeSnapshotMemory.CameraX))),
             unchecked((ushort)(W(NativeSnapshotMemory.Y) + yOffset - W(NativeSnapshotMemory.CameraY))));
         return new RidleyNativeBodyDraw(records,

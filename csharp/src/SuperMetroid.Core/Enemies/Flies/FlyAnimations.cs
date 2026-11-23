@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.Flies;
 /// The shared Mellow, Mella and Memu flight loop as a typed animation (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and no beat raises a cue for its owner.
 /// </summary>
-internal static class FlyAnimations
+internal static partial class FlyAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FlySegment, EnemyFrameId, NoAnimationCue> Segments { get; } = new(
@@ -24,7 +24,7 @@ internal static class FlyAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<FlySegment, Animation<FlySegment>> StartingAt { get; } = new Dictionary<FlySegment, Animation<FlySegment>>
+    internal static Dictionary<FlySegment, Animation<FlySegment>> StartingAt { get; } = new Dictionary<FlySegment, Animation<FlySegment>>
     {
         [P.Flight] = Animation<FlySegment>.Looping([Segments.Whole(P.Flight)]),
     };

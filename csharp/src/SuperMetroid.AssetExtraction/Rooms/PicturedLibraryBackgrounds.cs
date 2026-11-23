@@ -20,7 +20,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// the Ceres elevator shaft, whose door shows the room as the turning floor alone, the layer is not shown at all.</item>
 /// </list>
 /// </summary>
-internal static class PicturedLibraryBackgrounds
+internal static partial class PicturedLibraryBackgrounds
 {
     /// <summary>
     /// Whether <paramref name="state"/> shows its library background as that background's own picture, and the program

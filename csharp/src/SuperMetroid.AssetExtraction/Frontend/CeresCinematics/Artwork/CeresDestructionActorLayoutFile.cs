@@ -5,7 +5,7 @@ using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Reads and writes the installed layout of the persistent actors behind Ceres's explosion.</summary>
-public static class CeresDestructionActorLayoutFile
+public static partial class CeresDestructionActorLayoutFile
 {
     /// <summary>Loads the supported layout schema, requiring one placement for each of the three destruction roles at signed screen-pixel starting coordinates.</summary>
     /// <param name="json">Readable JSON stream, left open after deserialization.</param>
@@ -18,8 +18,7 @@ public static class CeresDestructionActorLayoutFile
         CeresDestructionActorLayoutDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresDestructionActorLayoutDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresDestructionActorLayoutDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionActorLayoutDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres destruction actor layout is null.");
         }
         catch (JsonException error)
@@ -47,8 +46,7 @@ public static class CeresDestructionActorLayoutFile
     public static void Write(Stream json, CeresDestructionActorLayoutDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.CeresCinematics.Artwork.CeresDestructionActorLayoutDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

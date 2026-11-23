@@ -7,7 +7,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Rejects ambiguous authored properties before deserializing installed presentation data.</summary>
-internal static class JsonAssetDocument
+internal static partial class JsonAssetDocument
 {
     /// <summary>Uses the document type as the diagnostic identity for older presentation compilers.</summary>
     internal static T Read<T>(Stream json, JsonSerializerOptions options) =>
@@ -53,7 +53,7 @@ internal static class JsonAssetDocument
             RejectDuplicates(json, options.PropertyNameCaseInsensitive
                 ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal, DuplicatePropertyScope.EveryObject,
                 name => new JsonException($"Duplicate presentation property '{name}'."));
-            return JsonSerializer.Deserialize<T>(json, options)
+            return JsonSerializer.Deserialize<T>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<T>(options))
                 ?? throw new InvalidDataException($"{description} JSON is null.");
         }
         catch (JsonException error)
@@ -91,7 +91,7 @@ internal static class JsonAssetDocument
     }
 
     /// <summary>One property name: a raw UTF-8 range of the document, or its decoded text when escaped.</summary>
-    private readonly record struct PropertyName(int Start, int Length, string? Decoded);
+    private readonly partial record struct PropertyName(int Start, int Length, string? Decoded);
 
     /// <summary>
     /// Rejects a repeated property name in any object of an already-parsed document, reading
@@ -165,7 +165,7 @@ internal static class JsonAssetDocument
     /// time; non-ASCII names, whose folding the hash cannot mirror, are compared
     /// directly against every name.
     /// </summary>
-    private sealed class ObjectNames
+    private sealed partial class ObjectNames
     {
         /// <summary>Names already encountered in the current object, including escaped spellings.</summary>
         private readonly List<PropertyName> names = [];
@@ -231,8 +231,8 @@ internal static class JsonAssetDocument
         /// <summary>Folds one ASCII character into an FNV-1a hash; declines a non-ASCII character.</summary>
         private static bool Mix(int value, bool ignoreCase, ref ulong hash)
         {
-            if (value >= 0x80) return false; // cartridge-encoding: allow(Text) - first non-ASCII character
-            int folded = ignoreCase && value is >= 'A' and <= 'Z' ? value | 0x20 : value; // cartridge-encoding: allow(Text) - ASCII lower-case bit
+            if (value >= 0x80) return false;
+            int folded = ignoreCase && value is >= 'A' and <= 'Z' ? value | 0x20 : value;
             hash = (hash ^ (uint)folded) * 1099511628211;
             return true;
         }

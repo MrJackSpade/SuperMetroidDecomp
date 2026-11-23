@@ -34,18 +34,18 @@ internal static class XraySetupVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         var support = runtime.Enemies.Places.InUpdateOrder[1];
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(support.Position.X.Whole, (ushort)(support.Position.Y.Whole - support.Radius.Y - samus.Kinematics.Radius.Y)));
         runtime.StepFrame(0);
         AssertTrue(samus.Xray.TryBeginAndActivate(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, PowerBombExplosionActive = false, ProjectileCooldownTimer = 0, BombCounter = 0 }), "setup fixture activates X-ray");
-        ControllerButton held = runtime.Options.ControllerBindings.Dash;
+        ControllerButton held = runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash];
         runtime.StepFrame(held); // Stage one, before either BG1 page is captured.
         RoomLevelData level = runtime.Room.LoadedLevelData;
         // Markers are tileset blocks, which no reveal or overlay metatile names, so a revealed marker can only have been

@@ -36,7 +36,7 @@ internal static class PauseReserveTanksVerification
             foreach (byte phase in new byte[] { 0, 4 })
             {
                 samus.ReserveEnergy = supply;
-                pause.Step(0, 0, frameCycle: phase);
+                pause.Step(0, 0, frameCount: phase);
                 // The frame is captured once and drawn once; the repaint and restore checks compare descriptions,
                 // drawing only one that differs (#1532).
                 var capture = pause.ComposeScene();
@@ -52,7 +52,7 @@ internal static class PauseReserveTanksVerification
                     // Native compares DOUBLED quotient with seven, not quotient.
                     if (q * 2 < 7 && supply % 100 % 14 != 0 && (phase & 4) == 0) q++;
                     int table = 0x82b3d9 + (supply >= 100 ? 16 : 0);
-                    Draw(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + q * 2), tank++);
+                    Draw(RomDataReader.ReadWordFixedBank(bus, table + q * 2), tank++);
                 }
                 for (; tank < capacity / 100; tank++) Draw(0x20, tank);
                 if (capacity != 0) Draw(0x1f, tank);
@@ -64,7 +64,7 @@ internal static class PauseReserveTanksVerification
                 CartridgePaletteImporter.LoadToCgram(nativeColours, bus, MapSourceDefinitions.Artwork.PauseColors);
                 foreach (ImageSpriteDraw draw in capture.SpriteDraws.OfType<ImageSpriteDraw>().Where(draw => draw.Shading == PictureShading.Standard))
                     AssertTrue(SuperMetroid.AssetExtraction.Artwork.InstalledPictureColoursConstants.ShowsNativeColours(draw.Image.Sheet,
-                            PictureShading.Standard.KeyColours(draw.Image.Sheet), nativeColours.Colors),
+                            PictureShading.Standard.KeyColours(draw.Image.Sheet, global::SuperMetroid.Core.Assets.ColourBlendOracle.Instance), nativeColours.Colors),
                         $"pause sprite {draw.Image.Sheet.Name} shows the cartridge's pause sprite colours {capacity}/{supply}");
                 var expected = DisplayRendering.Render(capture.WithNativeColoursAndOam(captureVram, PauseShownColours.Of(pause, RetailPresentationFixture()), objects, native.LastFinalizedSpriteCount, SuperMetroid.AssetExtraction.Frontend.PauseSheetDefinitions.ObjectSelection));
                 // This rectangle encloses the tank strip and end-cap, but not the
@@ -85,9 +85,9 @@ internal static class PauseReserveTanksVerification
                 // Draw one tank segment from the retail spritemap table at its native strip position.
                 void Draw(ushort id, int index)
                 {
-                    int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c569 + id * 2);
-                    ushort x = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1d6 + index * 2);
-                    ushort y = (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x82c1e2) - 1);
+                    int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(bus, 0x82c569 + id * 2);
+                    ushort x = RomDataReader.ReadWordFixedBank(bus, 0x82c1d6 + index * 2);
+                    ushort y = (ushort)(RomDataReader.ReadWordFixedBank(bus, 0x82c1e2) - 1);
                     DrawImportedSpritemap(bus, native, pointer, new(x, y), 0x0600);
                 }
             }

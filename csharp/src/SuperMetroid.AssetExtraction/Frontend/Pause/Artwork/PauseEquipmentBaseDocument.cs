@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Editable JSON schema for the pause equipment page's static base tilemap.</summary>
-public sealed record PauseEquipmentBaseDocument
+public sealed partial record PauseEquipmentBaseDocument
 {
     /// <summary>Must match the installed equipment-base format before any cell is accepted.</summary>
     public required int Version { get; init; }

@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// The Bomb Torizo statue's hand: its setup, the fragments and music it requests, and whether it still stands, which
 /// Bomb Torizo waits on.
 /// </summary>
-[RoomLifetime]
-internal sealed class BombTorizoHandObjects
+internal sealed partial class BombTorizoHandObjects
 {
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess _samus;
@@ -35,10 +34,15 @@ internal sealed class BombTorizoHandObjects
     /// </summary>
     public bool HandRemains => _handPlace is { Active: true } place && ReferenceEquals(place.Behaviour, _hand);
 
-    /// <summary>Sets up the hand the room's population placed at <paramref name="place"/>; a defeated Torizo's room has none.</summary>
+    /// <summary>
+    /// Sets up the hand the room's population placed at <paramref name="place"/>, throwing its fragments among
+    /// <paramref name="fragments"/>: the room's enemy projectiles, which the room's enemies built before its room objects are
+    /// set up. A defeated Torizo's room has none.
+    /// </summary>
     internal void SetupBombTorizoHand(
         RoomObjectPlace place,
-        IDefeatedBossesReader bosses)
+        IDefeatedBossesReader bosses,
+        IBombTorizoStatueFragmentSpawner fragments)
     {
         Ensure.NotNull(place);
         Ensure.NotNull(bosses);
@@ -49,7 +53,7 @@ internal sealed class BombTorizoHandObjects
             return;
         }
 
-        var hand = new BombTorizoHandObject(this);
+        var hand = new BombTorizoHandObject(this, fragments);
         place.Become(hand);
         _hand = hand;
         _handPlace = place;
@@ -58,9 +62,13 @@ internal sealed class BombTorizoHandObjects
     /// <summary>Whether Samus has Bombs, which wakes the resting hand.</summary>
     internal bool SamusHasBombs() =>
         _samus.Current.CollectedItems.HasAny(SamusEquipmentFlags.Bombs);
-    /// <summary>Throws statue fragment <paramref name="fragment"/> from the hand's block into the step's <paramref name="outcome"/>.</summary>
-    internal static void ThrowFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment, RoomObjectStepOutcome outcome) =>
-        Ensure.NotNull(outcome).Threw(new BombTorizoStatueProjectileRequest(fragment, Ensure.NotNull(place).Block));
+    /// <summary>
+    /// Throws statue fragment <paramref name="fragment"/> from the hand's block into the step's <paramref name="outcome"/>, to
+    /// spawn among <paramref name="spawner"/>.
+    /// </summary>
+    internal static void ThrowFragment(RoomObjectPlace place, BombTorizoStatueFragment fragment, RoomObjectStepOutcome outcome,
+        IBombTorizoStatueFragmentSpawner spawner) =>
+        Ensure.NotNull(outcome).Threw(new BombTorizoStatueProjectileRequest(fragment, Ensure.NotNull(place).Block, spawner));
 
     /// <summary>
     /// Queues the Torizo's awakening music now, after the shortest wait a queued song takes.

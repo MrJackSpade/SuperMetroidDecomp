@@ -1,12 +1,13 @@
 using System.Text.Json;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus charge colour document.</summary>
-public static class SamusChargeColorFile
+public static partial class SamusChargeColorFile
 {
     /// <summary>Loads version-1 <c>samus-charge-colors.json</c>, validating three suits with six phases each, ten Hyper-shot frames, sixteen colors per row, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -25,17 +26,17 @@ public static class SamusChargeColorFile
 
     /// <summary>Serializes the charge/pseudo-Screw/Hyper-shot colors as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(SamusChargeColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusChargeColorDocument>(ArtworkJson.Options));
 
-    /// <summary>Requires three suits and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>
-    private static RgbColor[][][] CompileCharge(PaletteRgb5[][][]? source, string name)
+    /// <summary>Requires every suit, each keyed by its name, and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>
+    private static Dictionary<SamusSuit, RgbColor[][]> CompileCharge(Dictionary<string, PaletteRgb5[][]>? source, string name)
     {
-        if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
-            throw new InvalidDataException($"{name} requires three suits.");
-        var result = new RgbColor[source.Length][][];
-        for (int suit = 0; suit < source.Length; suit++)
+        if (source is null || source.Count != SamusSuitListLayout.Order.Length)
+            throw new InvalidDataException($"{name} requires three suits, each keyed by its name.");
+        var result = new Dictionary<SamusSuit, RgbColor[][]>();
+        foreach (SamusSuit suit in SamusSuitListLayout.Order)
         {
-            PaletteRgb5[][]? phases = source[suit];
+            PaletteRgb5[][]? phases = source.TryGetValue(SamusSuitKeys.Installed.Of(suit), out PaletteRgb5[][]? held) ? held : null;
             if (phases is null || phases.Length != SamusChargeColorFormat.PhasesPerSuit)
                 throw new InvalidDataException($"{name} suit {suit} requires six phases.");
             result[suit] = new RgbColor[phases.Length][];

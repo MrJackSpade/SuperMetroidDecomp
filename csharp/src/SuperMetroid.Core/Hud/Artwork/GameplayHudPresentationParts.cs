@@ -7,22 +7,18 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// each element's upper-left corner shows at, below the static top row, and which icons the template leaves room for.
 /// The import validates it; the presentation only places images.
 /// </summary>
-internal sealed record GameplayHudPresentationParts
+internal sealed partial record GameplayHudPresentationParts
 {
-    /// <summary>The screen pixel each of the fourteen energy tanks' upper-left corner shows at.</summary>
+    /// <summary>The screen pixel each energy tank's upper-left corner shows at (<see cref="GameplayHudDefinitions.EnergyTankCount"/>).</summary>
     public required ImmutableArray<Position16<ScreenPixels>> EnergyTankCorners { get; init; }
 
     /// <summary>The screen pixel the energy count's first digit's upper-left corner shows at.</summary>
     public required Position16<ScreenPixels> HealthAnchor { get; init; }
 
-    /// <summary>The screen pixel the missile count's first digit's upper-left corner shows at.</summary>
-    public required Position16<ScreenPixels> MissileAmmoAnchor { get; init; }
-
-    /// <summary>The screen pixel the Super Missile count's first digit's upper-left corner shows at.</summary>
-    public required Position16<ScreenPixels> SuperMissileAmmoAnchor { get; init; }
-
-    /// <summary>The screen pixel the Power Bomb count's first digit's upper-left corner shows at.</summary>
-    public required Position16<ScreenPixels> PowerBombAmmoAnchor { get; init; }
+    /// <summary>
+    /// Each ammunition counter's field: the screen pixel its count's first digit's upper-left corner shows at, and its digits.
+    /// </summary>
+    public required IdentityTable<HudAmmoCounter, HudAmmoField> AmmoFields { get; init; }
 
     /// <summary>The screen pixel the AUTO indicator's upper-left corner shows at.</summary>
     public required Position16<ScreenPixels> AutoReserveCorner { get; init; }

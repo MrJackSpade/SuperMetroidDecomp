@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Serializable numeric glyphs and their gameplay-HUD anchors.</summary>
-public sealed record GameplayHudDigitDocument
+public sealed partial record GameplayHudDigitDocument
 {
     /// <summary>Gets the ten health-digit cells in numeral order.</summary>
     public required GameplayHudCell[] Health { get; init; }

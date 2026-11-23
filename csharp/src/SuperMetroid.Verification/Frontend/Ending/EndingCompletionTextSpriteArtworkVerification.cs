@@ -53,10 +53,9 @@ internal static class EndingCompletionTextSpriteArtworkVerification
     internal static void VerifyEndingCompletionTextSpritesRejectMissingFrame()
     {
         EndingCompletionTextSpriteDocument document =
-            JsonSerializer.Deserialize<EndingCompletionTextSpriteDocument>(
-                File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCompletionTextSpriteFormat.FileName)), ArtworkJson.Options) ??
+            JsonSerializer.Deserialize<EndingCompletionTextSpriteDocument>(File.ReadAllBytes(Path.Combine(SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.EndingObjectDirectoryName), EndingCompletionTextSpriteFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingCompletionTextSpriteDocument>(ArtworkJson.Options)) ??
             throw new InvalidDataException("Stock ending completion text sprite JSON is empty.");
-        document.Frames.Remove("operation-14");
+        document.Frames.Remove("OperationWas.Letter15");
         AssertThrows<InvalidDataException>(() =>
         {
             using var invalid = new MemoryStream();

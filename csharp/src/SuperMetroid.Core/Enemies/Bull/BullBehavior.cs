@@ -4,14 +4,14 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>The Bull species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class BullBehavior : IEnemySpecies, IEnemySpawnFactory<BullSpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Bull];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new BullEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, BullSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new BullEntity(this, occupant, place, common, settings));
 
     /// <summary>Hands each new Bull the previous Bull in its place, whose shot-reaction guard it inherits.</summary>
     private readonly PlaceInheritance<BullEnemyState> _inheritance;
@@ -21,65 +21,64 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal BullBehavior(PlaceInheritance<BullEnemyState> inheritance) => _inheritance = inheritance;
 
     /// <summary>Initializes the Bull.</summary>
-    internal void InitializeBull(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal BullEnemyState InitializeBull(BullSpawnSettings settings, RoomEnemyPlace place)
     {
-        BullEnemyState state = _inheritance.Inherit(place.Ordinal, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
-        place.SetSpeciesState(state);
+        BullEnemyState state = _inheritance.Inherit(place, static previous => new BullEnemyState(previous, BullAction.MovementDelay));
 
         state.Playback = EnemyAnimationPlayback.Start(place, BullAnimations.StartingWith(BullSegment.Idle));
-
-        BullSpawnSettings settings = place.SpawnSettings<BullSpawnSettings>();
         state.AccelerationIntervalTimer = UpdateCountdown.For(settings.Intervals.Acceleration);
         state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
+        return state;
     }
 
+    /// <summary>What <see cref="RunBullMain"/> does for each <see cref="BullAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<BullAction, Action<BullSpawnSettings, RoomEnemyPlace, BullEnemyState, SamusState>> RunBullMainForBullAction => field ??= new(new Dictionary<BullAction, Action<BullSpawnSettings, RoomEnemyPlace, BullEnemyState, SamusState>>
+    {
+        [BullAction.MovementDelay] = static (_, place, state, samus) =>
+        {
+            if (state.ActivationTimer.StepEnds())
+            {
+                state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
+                state.Action = BullAction.TargetSamus;
+            }
+        },
+        [BullAction.TargetSamus] = static (_, place, state, samus) =>
+        {
+            state.AngleToSamus = CalculateBullAngleToSamus(place, samus);
+            state.Angle = state.AngleToSamus.ToTrigonometryAngle();
+            state.Action = BullAction.Accelerating;
+            state.AccelerationDelta = BullMovementDefinitions.AccelerationStep;
+        },
+        [BullAction.Accelerating] = static (settings, place, state, samus) =>
+        {
+            if (state.IsBelow(settings.MaximumSpeed))
+                AccelerateBull(settings, state);
+            MoveBull(place, state);
+            TriggerBullDecelerationIfOffTarget(place, state, samus);
+        },
+        [BullAction.Decelerating] = static (settings, place, state, samus) =>
+        {
+            if (state.HasStopped)
+            {
+                state.Action = BullAction.MovementDelay;
+                state.Acceleration = SignedEightEight.Zero;
+                state.AccelerationDelta = SignedEightEight.Zero;
+                state.Speed = SignedEightEight.Zero;
+                return;
+            }
+            MoveBull(place, state);
+            DecelerateBull(settings, state);
+        },
+    });
+
     /// <summary>Runs a Bull for one update through all four of its actions.</summary>
-    internal static void RunBullMain(RoomEnemyPlace place, BullEnemyState state, SamusState samus)
+    internal static void RunBullMain(BullSpawnSettings bullSpawnSettings, RoomEnemyPlace place, BullEnemyState state, SamusState samus)
     {
         // A kick's guard runs out on the update its countdown reaches zero.
         state.ShotReactionDisableTimer.Step();
 
-        switch (state.Action)
-        {
-            case BullAction.MovementDelay:
-                if (state.ActivationTimer.StepEnds())
-                {
-                    state.ActivationTimer = UpdateCountdown.For(BullMovementDefinitions.MovementDelay);
-                    state.Action = BullAction.TargetSamus;
-                }
-                return;
-
-            case BullAction.TargetSamus:
-                state.AngleToSamus = CalculateBullAngleToSamus(place, samus);
-                state.Angle = state.AngleToSamus.ToTrigonometryAngle();
-                state.Action = BullAction.Accelerating;
-                state.AccelerationDelta = BullMovementDefinitions.AccelerationStep;
-                return;
-
-            case BullAction.Accelerating:
-                if (state.IsBelow(place.SpawnSettings<BullSpawnSettings>().MaximumSpeed))
-                    AccelerateBull(place, state);
-                MoveBull(place, state);
-                TriggerBullDecelerationIfOffTarget(place, state, samus);
-                return;
-
-            case BullAction.Decelerating:
-                if (state.HasStopped)
-                {
-                    state.Action = BullAction.MovementDelay;
-                    state.Acceleration = SignedEightEight.Zero;
-                    state.AccelerationDelta = SignedEightEight.Zero;
-                    state.Speed = SignedEightEight.Zero;
-                    return;
-                }
-                MoveBull(place, state);
-                DecelerateBull(place, state);
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Bull has no behaviour for action {state.Action}.");
-        }
+        RunBullMainForBullAction[state.Action](bullSpawnSettings, place, state, samus);
     }
 
     /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the game's zero-up angle.</summary>
@@ -94,22 +93,22 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             new(DistanceAcrossRoomEdge.Apart(samus.Position.X.Whole, place.Position.X.Whole), DistanceAcrossRoomEdge.Apart(samus.Position.Y.Whole, place.Position.Y.Whole)))).ToAngle();
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
-    private static void AccelerateBull(RoomEnemyPlace place, BullEnemyState state)
+    private static void AccelerateBull(BullSpawnSettings bullSpawnSettings, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Acceleration);
+        state.AccelerationIntervalTimer = UpdateCountdown.For(bullSpawnSettings.Intervals.Acceleration);
         state.Accelerate();
     }
 
     /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
-    private static void DecelerateBull(RoomEnemyPlace place, BullEnemyState state)
+    private static void DecelerateBull(BullSpawnSettings bullSpawnSettings, BullEnemyState state)
     {
         if (!state.AccelerationIntervalTimer.StepEnds())
             return;
 
-        state.AccelerationIntervalTimer = UpdateCountdown.For(place.SpawnSettings<BullSpawnSettings>().Intervals.Deceleration);
+        state.AccelerationIntervalTimer = UpdateCountdown.For(bullSpawnSettings.Intervals.Deceleration);
         state.Decelerate();
     }
 
@@ -190,36 +189,47 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Bull's idle and immune-shot animations (#641).</summary>
-    internal static void AdvanceBullAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, BullAnimations.Segments,
-            static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
-            static (_, cue) => throw new InvalidOperationException($"A cue-free Bull animation raised {cue}."));
+    internal static void AdvanceBullAnimation(RoomEnemyPlace place, BullEnemyState bullEnemyState) =>
+        EnemyAnimationPlayback.AdvanceSilently(place, bullEnemyState, BullAnimations.Segments,
+            static (BullEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback);
+
+    /// <summary>Kicks a Bull straight up from a bomb that left its health alone.</summary>
+    /// <param name="context">The bomb's hit.</param>
+    /// <param name="state">The Bull's state.</param>
+    internal static void KickFromUndamagingBomb(EnemyBombHitContext context, BullEnemyState state)
+    {
+        if (Ensure.NotNull(context).Enemy.Health == context.HealthBefore)
+            ResolveBullImmuneShot(context.Enemy, state, BullMovementDefinitions.BombKickAngle);
+    }
+
+    /// <summary>Kicks a Bull along a shot that froze it or left its health alone.</summary>
+    /// <param name="context">The shot's hit.</param>
+    /// <param name="state">The Bull's state.</param>
+    internal static void KickFromUndamagingShot(EnemyShotHitContext context, BullEnemyState state)
+    {
+        if (Ensure.NotNull(context).Froze || context.Enemy.Health == context.HealthBefore)
+            ResolveBullImmuneShot(context.Enemy, state, BullMovementDefinitions.ShotAngles.For(context.ProjectileDirection));
+    }
 
     /// <summary>
     /// Applies Bull's immune-hit recoil after common bomb damage handling: a bomb that leaves the Bull's health alone kicks
     /// it straight up (<see cref="BullMovementDefinitions.BombKickAngle"/>), so a killed Bull has no reaction.
     /// </summary>
-    internal EnemyBombReaction BombReaction { get; } =
+    /// <param name="afterCommon">The Bull's own method kicking it.</param>
+    internal static EnemyBombReaction BombReaction(Action<EnemyBombHitContext> afterCommon) =>
         new()
         {
-            AfterCommon = c =>
-            {
-                if (c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMovementDefinitions.BombKickAngle);
-            },
+            AfterCommon = afterCommon,
         };
 
     /// <summary>
     /// Applies recoil after a frozen or undamaging accepted projectile hit. Only such a hit kicks the Bull, so a killed
     /// Bull has no reaction.
     /// </summary>
-    internal EnemyShotReaction ShotReaction { get; } =
+    /// <param name="afterCommon">The Bull's own method kicking it.</param>
+    internal static EnemyShotReaction ShotReaction(Action<EnemyShotHitContext> afterCommon) =>
         new()
         {
-            AfterCommon = c =>
-            {
-                if (c.Froze || c.Enemy.Health == c.HealthBefore)
-                    ResolveBullImmuneShot(c.Enemy, c.Enemy.RequireSpeciesState<BullEnemyState>(), BullMotion.ShotAngle(c.ProjectileDirection));
-            },
+            AfterCommon = afterCommon,
         };
 }

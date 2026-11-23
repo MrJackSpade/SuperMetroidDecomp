@@ -20,16 +20,16 @@ internal static class EvirInitTimerVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.EastSandHall);
 
         int checkedBodies = 0;
         foreach (RoomEnemyPlace place in runtime.Enemies.Places.InUpdateOrder)
         {
-            if (place.DefinitionId != EnemyDefinitionId.Evir || place.SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
+            if (place.Occupant?.DefinitionId != EnemyDefinitionId.Evir || place.HeldOccupant().SpawnSettings<EvirSpawnSettings>().Part == EvirBodyPart.Arms)
                 continue;
             // The game stores the body's speed eight bytes per linear-speed row, at the row its settings encode.
-            int speedOffset = (SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(place.Spawn.Population.SpawnSettings).Parameter2 & 0xff) * 8;
+            int speedOffset = (SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(place.HeldOccupant().Spawn.SpawnSettings).Parameter2 & 0xff) * 8;
             int relative = 0x0fb7 + speedOffset - 0x0f78;
             RoomEnemyPlace aliased = runtime.Enemies.Places.InUpdateOrder[relative / 0x40];
             int byteOffset = relative % 0x40;
@@ -38,8 +38,8 @@ internal static class EvirInitTimerVerification
                 // The row holding the aliased enemy's colours, read as the native palette word that row is stored as.
                 0x1f => NativeSpriteGraphicsWords.PaletteBits(aliased.PaletteRowIn(runtime.Enemies)),
                 // The aliased enemy's second population parameter word, as its settings encode it (an empty entry is zero).
-                0x3f => aliased.DefinitionId == EnemyDefinitionId.None ? (ushort)0 : checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(
-                    aliased.Spawn.Population.SpawnSettings).Parameter2),
+                0x3f => aliased.Occupant is null ? (ushort)0 : checked((ushort)SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Encode(
+                    aliased.HeldOccupant().Spawn.SpawnSettings).Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
             // The aliased half-cycle runs out on the step below zero, which the port holds as its true duration (#2281).

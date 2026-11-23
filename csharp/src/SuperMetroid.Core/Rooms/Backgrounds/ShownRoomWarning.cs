@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// one wherever they overlap. The warning shows at its depth, the foreground's or the background's, covering what that
 /// depth shows behind it within each of its pictures; where it shows no picture, the room shows.
 /// </summary>
-public sealed class ShownRoomWarning
+public sealed partial class ShownRoomWarning
 {
     /// <summary>Holds the pictures, in the order shown, and the depth the warning shows at.</summary>
     /// <exception cref="ArgumentException">No pictures are given.</exception>
@@ -17,7 +17,7 @@ public sealed class ShownRoomWarning
         if (pictures.IsDefault)
             throw new ArgumentException("A warning needs its pictures.", nameof(pictures));
         Pictures = pictures;
-        Depth = Enum.IsDefined(depth) ? depth : throw new ArgumentOutOfRangeException(nameof(depth), depth, "Undefined warning depth.");
+        Depth = depth;
     }
 
     /// <summary>The pictures, in the order shown.</summary>

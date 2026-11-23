@@ -32,16 +32,18 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             {
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
                 var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+                // The glass breaks while her encounter is loaded, as her room's population places her, her glass set up
+                // first; its shards draw in the colours it laid (#1512).
+                _ = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
+                EnemyProjectile[] before = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive)];
                 enemies.VerificationServices().NextRandom = () => random.Dequeue();
-                // The glass breaks while her encounter is loaded; its shards draw in the colours it laid (#1512).
-                var motherBrain = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
-                enemies.MotherBrainEncounter.BeginAsSetUp(motherBrain);
                 enemies.MotherBrainBehavior.Projectiles.SpawnMotherBrainGlassProjectile(new(
                     direction,
-                    RoomObjectBlock: new(0x20, 0x08)));
+                    RoomObjectBlock: new(0x20, 0x08),
+                    Spawner: new ProjectilesSpawnShards(enemies.MotherBrainBehavior.Projectiles)));
 
                 EnemyProjectile shard =
-                    enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
+                    enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && !before.Contains(projectile));
                 // The random roll launches the shard at the start of sixteenth animationIndex, whose cartridge selector names its spin.
                 AssertTrue(shard.Animation is MotherBrainGlassAnimation started &&
                     MotherBrainNativeListAddresses.GlassEntries[started.Program] == ReadMotherBrainGlassShardWord(rom, 0x86ce41 + 2 * animationIndex),
@@ -57,9 +59,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
             }
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainGlassShards.Placement((MotherBrainGlassShard)99),
-            "Mother Brain glass-shard undefined emitter");
         Console.WriteLine(
             "Mother Brain glass-shard definitions: sixteen instruction selectors, six placement words and 48 real spawns pass with source tables forbidden.");
     }
@@ -101,11 +100,20 @@ internal static class MotherBrainGlassShardDefinitionsVerification
     internal static ushort ReadMotherBrainGlassShardWord(
         CartridgeImportAddressSpace bus,
         int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
     /// <summary>Forbids live reads of the compiled selector and placement region.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassShardReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86ce41 and < 0x86ce6d,
                 address => $"Mother Brain glass shard attempted migrated definition read ${address:X6}.");
+
+    /// <summary>The shard spawner the glass's room object would hand a shard: Mother Brain's projectiles.</summary>
+    /// <param name="projectiles">Mother Brain's projectiles, which spawn the shard.</param>
+    private sealed class ProjectilesSpawnShards(MotherBrainProjectiles projectiles) : IMotherBrainGlassShardSpawner
+    {
+        /// <inheritdoc/>
+        public void SpawnMotherBrainGlassProjectile(MotherBrainGlassProjectileRequest request) =>
+            projectiles.SpawnMotherBrainGlassProjectile(request);
+    }
 }

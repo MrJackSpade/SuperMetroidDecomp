@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The installed key of each <see cref="SamusEquipmentFlags"/> (#2520), written out so renaming a member never changes
 /// a name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class SamusEquipmentFlagsKeys
+internal static partial class SamusEquipmentFlagsKeys
 {
     /// <summary>Each SamusEquipmentFlags member's installed key.</summary>
     internal static InstalledKeys<SamusEquipmentFlags> Installed { get; } = new(new Dictionary<SamusEquipmentFlags, string>

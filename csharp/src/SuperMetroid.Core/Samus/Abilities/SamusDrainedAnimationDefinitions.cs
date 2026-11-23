@@ -10,8 +10,14 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// lands on the frame the import decoded for the place in that pose's animation (<see cref="SamusAnimationDelays.Land"/>). Several name a
 /// segment's end, whose next frame is the first of the segment after it.
 /// </summary>
-internal static class SamusDrainedAnimationDefinitions
+internal static partial class SamusDrainedAnimationDefinitions
 {
+    /// <summary>The drained pose the get-up starts from and moves on Up: the left-facing drained crouch.</summary>
+    internal const SamusPoseId GetUpPose = SamusPoseId.DrainedCrouchingLeftPose;
+
+    /// <summary>The knockback Mother Brain's rainbow beam turns Samus to and locks her in: the left-facing knockback.</summary>
+    internal const SamusPoseId RainbowBeamKnockbackPose = SamusPoseId.KnockbackLeftPose;
+
     /// <summary>The held crouch's first frame after its landing, from which the crouch accepts Up once she can stand.</summary>
     internal static SamusAnimationPlace AbleToStandFirstFrame { get; } = SamusAnimationDelayDefinitions.DrainedCrouchingLeftAnimation.Place(SamusAnimationPlaceName.DrainedAbleToStandFirst, Held, 0);
     /// <summary>The held crouch's end, which the get-up moves the left-facing drained crouch to on Up once she can stand: its next frame starts the stand-up.</summary>
@@ -48,9 +54,4 @@ internal static class SamusDrainedAnimationDefinitions
     internal const int PutCrouchingTimer = 16;
     /// <summary>How many ticks standing drained Samus up holds the drained stand's first frame.</summary>
     internal const int PutStandingTimer = 16;
-    /// <summary>
-    /// The drained crouch's vertical radius, in pixels: letting drained Samus fall keeps her feet where they were as her
-    /// body takes it.
-    /// </summary>
-    internal const int CrouchingYRadius = 21;
 }

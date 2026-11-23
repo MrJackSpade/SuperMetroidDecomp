@@ -15,8 +15,7 @@ namespace SuperMetroid.AssetExtraction;
 /// as, which a Wave shot's read landing halfway through a block takes from two neighbouring words; the import decodes
 /// what every such read finds into the installed straddled terrain (#1612).
 /// </summary>
-[EncodingOwner("room level data word")]
-public static class RoomLevelWordCodec
+public static partial class RoomLevelWordCodec
 {
     /// <summary>The bits naming the block shown.</summary>
     private const int BlockMask = (1 << 10) - 1;
@@ -109,10 +108,14 @@ public static class RoomLevelWordCodec
     /// <param name="appearance">The appearance.</param>
     /// <exception cref="ArgumentOutOfRangeException">The block is past what a level word can name.</exception>
     public static int BlockNumberOf(RoomBlockAppearance appearance) =>
-        appearance.ShowsNothing ? NothingBlockNumber
-            : appearance.IsBeyondRoom ? Rooms.RoomLevelSpaceDefinitions.PrefillWord & BlockMask
-            : appearance.IsCollectiblePairBlock ? Rooms.CollectiblePairBlockNumbers.Of(appearance.PairBlock)
-            : Ensure.BetweenInclusive(0, BlockNumbers - 1, appearance.Block);
+        appearance.Shows switch
+        {
+            RoomBlockShown.Nothing => NothingBlockNumber,
+            RoomBlockShown.BeyondRoom => Rooms.RoomLevelSpaceDefinitions.PrefillWord & BlockMask,
+            RoomBlockShown.CollectiblePairBlock => Rooms.CollectiblePairBlockNumbers.Of(appearance.PairBlock),
+            RoomBlockShown.Block => Ensure.BetweenInclusive(0, BlockNumbers - 1, appearance.Block),
+            _ => throw new InvalidOperationException($"Undefined shown kind {appearance.Shows}."),
+        };
 
     /// <summary>
     /// The terrain a level word storing <paramref name="terrain"/> decodes to: the terrain itself, but a collectible's pair
@@ -120,7 +123,7 @@ public static class RoomLevelWordCodec
     /// </summary>
     /// <param name="terrain">The terrain block.</param>
     internal static RoomTerrainBlock AsStored(RoomTerrainBlock terrain) =>
-        terrain.Appearance.IsCollectiblePairBlock
+        terrain.Appearance.Shows == RoomBlockShown.CollectiblePairBlock
             ? new(AppearanceOf(BlockNumberOf(terrain.Appearance), terrain.Appearance.Mirroring), terrain.Collision)
             : terrain;
 }

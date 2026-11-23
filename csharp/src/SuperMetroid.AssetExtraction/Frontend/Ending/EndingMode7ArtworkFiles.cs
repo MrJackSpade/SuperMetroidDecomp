@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// which only the import composes the floors' sheets from, go to the component's import-data directory, which the installer
 /// deletes before it publishes. The installation holds none of it; the game draws the floors' sheets.
 /// </summary>
-public static class EndingMode7ArtworkFiles
+public static partial class EndingMode7ArtworkFiles
 {
     /// <summary>
     /// Manifest revision covering the three backdrop pairs and reward-icon pair; 3 installs no character page (#1636), and 4
@@ -39,9 +39,9 @@ public static class EndingMode7ArtworkFiles
         foreach (EndingFloorSceneId id in Enum.GetValues<EndingFloorSceneId>())
         {
             (int characterSource, int packedMapSource) = EndingArtworkSources.Floor(id);
-            byte[] characters = RomDataReader.Decompress(CartridgeImportSource.Require(bus), characterSource,
+            byte[] characters = RomDataReader.Decompress(bus, characterSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
-            byte[] packedMap = RomDataReader.Decompress(CartridgeImportSource.Require(bus), packedMapSource,
+            byte[] packedMap = RomDataReader.Decompress(bus, packedMapSource,
                 EndingSourceDefinitions.Artwork.DecompressionLimit);
             if (characters.Length < EndingFloorArtworkFormat.CharacterByteCount ||
                 packedMap.Length < EndingFloorArtworkFormat.CharacterByteCount)
@@ -75,7 +75,7 @@ public static class EndingMode7ArtworkFiles
             Write(importData, EndingFloorArtworkFormat.MapFileName(id), mapFile);
             Write(importData, EndingFloorArtworkFormat.CharacterFileName(id), pngFile);
         }
-        byte[] reward = RomDataReader.Decompress(CartridgeImportSource.Require(bus),
+        byte[] reward = RomDataReader.Decompress(bus,
             EndingSourceDefinitions.Artwork.PostCreditsFloorCharacters,
             EndingSourceDefinitions.Artwork.DecompressionLimit);
         if (reward.Length < EndingRewardIconArtworkFormat.ByteCount)
@@ -106,8 +106,7 @@ public static class EndingMode7ArtworkFiles
         Write(importData, EndingRewardIconArtworkFormat.CharacterFileName, rewardCharacterFile);
         using var manifest = new FileStream(Path.Combine(importData,
             EndingFloorArtworkFormat.ManifestFileName), FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), JsonOptions);
+        JsonSerializer.Serialize(manifest, new Manifest(ManifestVersion, sourceCartridgeSha256, hashes), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingMode7ArtworkFiles.Manifest>(JsonOptions));
 
         void Write(string destination, string name, byte[] bytes)
         {
@@ -134,8 +133,7 @@ public static class EndingMode7ArtworkFiles
         Manifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath),
-                JsonOptions) ?? throw new InvalidDataException("Ending art manifest is empty.");
+            manifest = JsonSerializer.Deserialize<Manifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.EndingMode7ArtworkFiles.Manifest>(JsonOptions)) ?? throw new InvalidDataException("Ending art manifest is empty.");
         }
         catch (JsonException error)
         {
@@ -165,7 +163,7 @@ public static class EndingMode7ArtworkFiles
             LoadScene(EndingFloorSceneId.PlanetExplosion),
             LoadRewardIcon());
 
-        EndingRewardIconArtwork LoadRewardIcon()
+        EndingRewardIconCharacters LoadRewardIcon()
         {
             (string mapPath, byte[] map) = ReadExtracted(EndingRewardIconArtworkFormat.MapFileName);
             (string pngPath, byte[] png) = ReadExtracted(EndingRewardIconArtworkFormat.CharacterFileName);
@@ -182,7 +180,7 @@ public static class EndingMode7ArtworkFiles
             }
         }
 
-        EndingFloorSceneArtwork LoadScene(EndingFloorSceneId id)
+        EndingFloorSceneCharacters LoadScene(EndingFloorSceneId id)
         {
             (string mapPath, byte[] map) = ReadExtracted(EndingFloorArtworkFormat.MapFileName(id));
             (string pngPath, byte[] png) = ReadExtracted(EndingFloorArtworkFormat.CharacterFileName(id));
@@ -215,6 +213,6 @@ public static class EndingMode7ArtworkFiles
     };
 
     /// <summary>Installed source identity and stock digest for every ending Mode-7 map and character file.</summary>
-    private sealed record Manifest(int Version, string SourceCartridgeSha256,
+    internal sealed partial record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

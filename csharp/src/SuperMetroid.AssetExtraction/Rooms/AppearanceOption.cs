@@ -11,4 +11,4 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// <param name="Input">The input.</param>
 /// <param name="Value">The value, as a picture's name spells it.</param>
 /// <param name="Upload">The artwork the value shows and where it lands.</param>
-internal sealed record AppearanceOption(AppearanceInput Input, string Value, BgCharacterUpload Upload);
+internal sealed partial record AppearanceOption(AppearanceInput Input, string Value, BgCharacterUpload Upload);

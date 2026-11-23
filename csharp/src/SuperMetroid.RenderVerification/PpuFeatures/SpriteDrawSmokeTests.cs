@@ -51,7 +51,7 @@ internal static class SpriteDrawSmokeTests
                 indices[pixel] = (byte)(frame * 16 + 1);
                 sheetPixels[pixel] = palette[128 + indices[pixel]].ToRgbaPixel();
             }
-            SpriteImage sheet = ComposedPictures.Install("Ordering", size, sheetPixels, indices, SpriteImageColours.Sprite, palette[128..]);
+            SpriteImage sheet = ComposedPictures.Install("Ordering", size, sheetPixels, ComposedPictures.InksAt(indices.Select(place => (int)place), SpriteImageColours.Sprite), SpriteImageColours.Sprite, palette[128..]);
             SpriteSheetFrame Frame(int frame) => new(sheet, new((ushort)(frame * Side), 0), new(Side, Side), default);
             // Red covers x 10..17, blue x 14..21 and green x 12..19, all on row 10, emitted in that order.
             ImmutableArray<SpriteDraw> draws =
@@ -105,7 +105,7 @@ internal static class SpriteDrawSmokeTests
                 sheetIndices[pixel] = (byte)(random.Next(8) * 16 + random.Next(1, 16));
                 sheetPixels[pixel] = standard[sheetIndices[pixel]].ToRgbaPixel();
             }
-            SpriteImage sheet = ComposedPictures.Install("Seeded", new(64, 48), sheetPixels, sheetIndices, SpriteImageColours.Sprite, standard);
+            SpriteImage sheet = ComposedPictures.Install("Seeded", new(64, 48), sheetPixels, ComposedPictures.InksAt(sheetIndices.Select(place => (int)place), SpriteImageColours.Sprite), SpriteImageColours.Sprite, standard);
             for (int index = random.Next(1, 6); index > 0; index--)
             {
                 var size = new Extent16<ImagePixels>((ushort)random.Next(1, 33), (ushort)random.Next(1, 33));

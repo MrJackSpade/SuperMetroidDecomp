@@ -5,4 +5,4 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// source artwork, block table and colours the set's pictures are composed from is the import's knowledge (#1616).
 /// </summary>
 /// <param name="GraphicsSet">The graphics set: the tileset's identity, which names its pictures.</param>
-public readonly record struct TilesetDefinition(RoomGraphicsSet GraphicsSet);
+public readonly partial record struct TilesetDefinition(RoomGraphicsSet GraphicsSet);

@@ -8,12 +8,33 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// revealed columns and the top pixels of its top and bottom revealed rows. A map screen frames the map from these and
 /// scrolls it only while the reach still runs past the screen's edges (<see cref="MapFraming"/>).
 /// </summary>
-/// <param name="Left">The leftmost revealed column's left pixel.</param>
-/// <param name="Right">The rightmost revealed column's left pixel.</param>
-/// <param name="Top">The top revealed row's top pixel.</param>
-/// <param name="Bottom">The bottom revealed row's top pixel.</param>
-public readonly record struct MapScrollLimits(int Left, int Right, int Top, int Bottom)
+public readonly partial record struct MapScrollLimits
 {
+    /// <summary>A value of its parts; only its own operations make one.</summary>
+    /// <param name="left">The leftmost revealed column's left pixel.</param>
+    /// <param name="right">The rightmost revealed column's left pixel.</param>
+    /// <param name="top">The top revealed row's top pixel.</param>
+    /// <param name="bottom">The bottom revealed row's top pixel.</param>
+    internal MapScrollLimits(int left, int right, int top, int bottom)
+    {
+        Left = left;
+        Right = right;
+        Top = top;
+        Bottom = bottom;
+    }
+
+    /// <summary>The leftmost revealed column's left pixel.</summary>
+    public int Left { get; init; }
+
+    /// <summary>The rightmost revealed column's left pixel.</summary>
+    public int Right { get; init; }
+
+    /// <summary>The top revealed row's top pixel.</summary>
+    public int Top { get; init; }
+
+    /// <summary>The bottom revealed row's top pixel.</summary>
+    public int Bottom { get; init; }
+
     /// <summary>
     /// The reach of the plane a saved map frames by: the downloaded map's station cells once <paramref name="map"/>'s area
     /// map has been downloaded, otherwise the explored cells. The game frames one plane, not their union, so an explored

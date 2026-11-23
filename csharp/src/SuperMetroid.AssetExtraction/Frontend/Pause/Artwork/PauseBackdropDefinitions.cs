@@ -2,11 +2,11 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 /// <summary>Pause BG2 presentation geometry and import-only native sources.</summary>
-public static class PauseBackdropDefinitions
+public static partial class PauseBackdropDefinitions
 {
     /// <summary>Supported pause-backdrop JSON schema revision one, required by <see cref="PauseBackdropPresentation.Load"/>.</summary>
     public const int Version = 1;
-    /// <summary>Installed JSON resource containing all seven area backdrops and the separate mutable-button foreground image.</summary>
+    /// <summary>Import-data JSON document the import pictures the pause backdrops from: all seven area backdrops and the separate button foreground image.</summary>
     public const string FileName = "pause-backdrops.json";
     /// <summary>Full backdrop dimensions: 32 tile columns and 32 tile rows, with cells serialized in row-major order.</summary>
     public const int Columns = 32, Rows = 32;

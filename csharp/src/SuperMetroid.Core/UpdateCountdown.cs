@@ -13,7 +13,7 @@ namespace SuperMetroid.Core;
 /// an over wait (counting one is a defect and throws), <see cref="Step"/> for an owner that asks every update whether the
 /// wait is over, and <see cref="StepEnds"/> for an owner that acts only on the update the wait ends.
 /// </remarks>
-public sealed class UpdateCountdown
+public sealed partial class UpdateCountdown
 {
     /// <summary>A wait lasting <paramref name="updates"/> updates with all of them left.</summary>
     private UpdateCountdown(int updates)
@@ -23,12 +23,10 @@ public sealed class UpdateCountdown
     }
 
     /// <summary>The updates the wait lasts, as it was last started: none for a wait made over.</summary>
-    [IntegerQuantity("updates the wait lasts")]
-    public int Length { get; private set; }
+    public int Length { get; internal set; }
 
     /// <summary>The updates the wait has left, the one it ends on included: none once it is over.</summary>
-    [IntegerQuantity("updates the wait has left")]
-    public int UpdatesLeft { get; private set; }
+    public int UpdatesLeft { get; internal set; }
 
     /// <summary>The updates the wait has counted so far, from none at its start to <see cref="Length"/> once it is over.</summary>
     public int Age => Length - UpdatesLeft;

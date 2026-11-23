@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// walk their cycles as the getaway's turning floor shows them (#2329). The import pictures each frame, and the floor's
 /// sheet draws it by the frame (<see cref="RoomFloorSheet"/>).
 /// </summary>
-public static class CeresFloorAnimation
+public static partial class CeresFloorAnimation
 {
     /// <summary>The elevator platform's strip at phase <paramref name="phase"/> of its two-phase cycle.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="phase"/> is outside the cycle.</exception>

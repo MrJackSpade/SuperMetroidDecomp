@@ -6,18 +6,23 @@ namespace SuperMetroid.Core.Hud.Artwork;
 /// them from to itself (#1616); <see cref="HudState.Shown"/> places the images the HUD's values select. Placements are screen
 /// pixels across the HUD: the static top row at its top, then the band the values are drawn over.
 /// </summary>
-public sealed class GameplayHudPresentation
+public sealed partial class GameplayHudPresentation
 {
     /// <summary>The decoded layout.</summary>
     private readonly GameplayHudPresentationParts parts;
 
+    /// <summary>Where each item icon is placed, the layout's placement of every icon.</summary>
+    private readonly IdentityTable<HudIcon, HudIconPlacement> icons;
+
     /// <summary>Takes the import's decoded, validated HUD layout.</summary>
+    /// <exception cref="ArgumentException">The layout does not place each of the HUD's elements.</exception>
     internal GameplayHudPresentation(GameplayHudPresentationParts parts)
     {
         this.parts = Ensure.NotNull(parts);
         if (parts.EnergyTankCorners.Length != GameplayHudDefinitions.EnergyTankCount ||
-            parts.Icons.Count != Enum.GetValues<HudIcon>().Length || !Enum.GetValues<HudIcon>().All(parts.Icons.ContainsKey))
+            parts.Icons.Count != Enum.GetValues<HudIcon>().Length)
             throw new ArgumentException("The gameplay HUD's layout does not place each of its elements.", nameof(parts));
+        icons = new(parts.Icons);
     }
 
 
@@ -37,16 +42,14 @@ public sealed class GameplayHudPresentation
     /// <param name="shade">The shade the current selection gives the icon's place, or null.</param>
     public PlacedHudImage? Icon(HudIcon icon, bool added, HudIconShade? shade)
     {
-        HudIconPlacement placement = parts.Icons.TryGetValue(icon, out HudIconPlacement placed)
-            ? placed
-            : throw new ArgumentOutOfRangeException(nameof(icon), icon, "Undefined item icon.");
+        HudIconPlacement placement = icons[icon];
         HudIconCover cover = added && placement.ShowsOverTemplate ? HudIconCover.Icon : HudIconCover.Template;
         return cover == HudIconCover.Template && shade is null ? null
             : new PlacedHudImage(new HudIconImage(icon, cover, shade), placement.Anchor);
     }
 
     /// <summary>One energy tank full or empty.</summary>
-    /// <param name="tank">The tank, 0 through 13.</param>
+    /// <param name="tank">The tank, below <see cref="GameplayHudDefinitions.EnergyTankCount"/>.</param>
     /// <param name="shown">Whether the tank is full or empty.</param>
     public PlacedHudImage EnergyTank(int tank, HudEnergyTank shown) =>
         new(new HudEnergyTankImage(shown), parts.EnergyTankCorners[Ensure.BetweenInclusive(0, GameplayHudDefinitions.EnergyTankCount - 1, tank)]);
@@ -61,13 +64,7 @@ public sealed class GameplayHudPresentation
     /// <param name="value">The ammunition count to display.</param>
     public IEnumerable<PlacedHudImage> Ammo(HudAmmoCounter counter, int value)
     {
-        HudAmmoField field = counter switch
-        {
-            HudAmmoCounter.Missiles => new HudAmmoField(parts.MissileAmmoAnchor, GameplayHudDefinitions.MissileDigits),
-            HudAmmoCounter.SuperMissiles => new HudAmmoField(parts.SuperMissileAmmoAnchor, GameplayHudDefinitions.SuperMissileDigits),
-            HudAmmoCounter.PowerBombs => new HudAmmoField(parts.PowerBombAmmoAnchor, GameplayHudDefinitions.PowerBombDigits),
-            _ => throw new ArgumentOutOfRangeException(nameof(counter), counter, "Undefined ammunition counter."),
-        };
+        HudAmmoField field = parts.AmmoFields[counter];
         // A count the game has drained below zero shows as CountsRunBelowZero.HudShown describes.
         return Digits(CountsRunBelowZero.HudShown(value), field.Anchor, field.Digits)
             .Select(digit => new PlacedHudImage(new HudAmmoDigitImage(digit.Numeral), digit.Corner));

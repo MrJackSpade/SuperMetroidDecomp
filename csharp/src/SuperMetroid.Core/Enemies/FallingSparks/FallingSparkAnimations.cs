@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Enemies.FallingSparks;
 /// The falling spark's animations (#641). Each
 /// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
 /// </summary>
-internal static class FallingSparkAnimations
+internal static partial class FallingSparkAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<FallingSparkSegment, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static HidingUnpausedAnimationSegments<FallingSparkSegment, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<FallingSparkSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
     {
         [P.Falling] =
         [
@@ -38,9 +38,6 @@ internal static class FallingSparkAnimations
         [P.HitFloor] = new([Segments.Whole(P.HitFloor)], AnimationEnd.Holds),
     };
 
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    internal static Animation<FallingSparkSegment> StartingWith(FallingSparkSegment segment) => StartingAt[segment];
-
     /// <summary>
     /// How many times a spark that hits the floor flickers in each of its upright and diagonal shapes, before it flickers
     /// once in its small shape and shows that shape once more as it goes.
@@ -51,13 +48,17 @@ internal static class FallingSparkAnimations
     /// A spark flickering <paramref name="times"/> times (#2432): <paramref name="frame"/> for an update, then nothing for an
     /// update.
     /// </summary>
-    private static IEnumerable<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>> Flickering(EnemyProjectileFrameId frame, int times) =>
-        Enumerable.Repeat<AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>([Show(frame, 1), Show(EnemyProjectileFrameId.Blank, 1)], times)
+    private static IEnumerable<IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>> Flickering(EnemyProjectileFrameId frame, int times) =>
+        Enumerable.Repeat<IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>([Show(frame, 1), Hide(1)], times)
             .SelectMany(flicker => flicker);
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationHiddenBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Hide(int duration) =>
+        new AnimationHiddenBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>(duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

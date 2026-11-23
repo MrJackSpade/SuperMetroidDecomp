@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 /// <param name="Frames">Clip frames the beats take, at least one.</param>
 /// <param name="Beats">Beats in those frames, zero or more.</param>
-public sealed record BeatLength(long Frames, long Beats)
+public sealed partial record BeatLength(long Frames, long Beats)
 {
     /// <summary>The clip frames the beats take, validated to at least one.</summary>
     public long Frames { get; init; } = Frames >= 1

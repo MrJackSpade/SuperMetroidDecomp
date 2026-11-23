@@ -9,12 +9,11 @@ namespace SuperMetroid.Core.Compatibility;
 /// </summary>
 /// <remarks>
 /// Consulted when each segment is placed, to refuse a chain its death would not delete, and once per kill by the chain's
-/// fatal-shot reaction after the common death, before the rest of the update runs (<see cref="RemovedEnemyLeftovers{TStates}"/>).
+/// fatal-shot reaction after the common death, before the rest of the update runs (<see cref="RemovedEnemyLeftovers{TEnemy}"/>).
 /// Evidence: the original fatal-shot reaction reads the chain owner's offset from the killed segment's record after the
 /// common death cleared it, and deletes the seven records from that offset.
 /// </remarks>
-[CompatibilityService("a Shaktool chain's death deletes the seven enemies the room lists first")]
-public static class ShaktoolDeathDeletesFirstListed
+public static partial class ShaktoolDeathDeletesFirstListed
 {
     /// <summary>The enemies a chain's death deletes, in the order the room lists them.</summary>
     /// <typeparam name="TEnemy">An enemy place.</typeparam>

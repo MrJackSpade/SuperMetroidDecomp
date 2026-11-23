@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Artwork;
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
@@ -19,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// for every cross-fade level of each faded colour group (#1512) and for every record the old Mother Brain fight's background
 /// lights show (#1733).
 /// </summary>
-internal static class IntroScenePictureSheetComposer
+internal static partial class IntroScenePictureSheetComposer
 {
     /// <summary>The scene pages in the sheet's order (#2567), top to bottom.</summary>
     private static readonly IReadOnlyList<IntroScenePage> Pages = Ensure.EveryMemberOnce<IntroScenePage>(
@@ -56,7 +55,7 @@ internal static class IntroScenePictureSheetComposer
         RgbColor[] colours = [.. intro.Palette.BackgroundColours];
         int cells = IntroArtworkExtentDefinitions.PlaneCells;
         int planeCells = cells * cells;
-        Extent16<CharacterCells> eye = IntroArtworkExtentDefinitions.EyeFrameSize;
+        Extent16<CharacterCells> eye = new(IntroEyeTilemapFormat.Columns, IntroEyeTilemapFormat.Rows);
         int width = Math.Max(cells, Eyes.Count * eye.X) * CharacterPixels;
         int height = ((Pages.Count + 1) * cells + eye.Y) * CharacterPixels;
         var canvas = new RoomTileCanvas(new Extent16<ImagePixels>(checked((ushort)width), checked((ushort)height)));
@@ -73,9 +72,8 @@ internal static class IntroScenePictureSheetComposer
             PaintRect(canvas, 0, Pages.Count * cells, cells, sources.PortraitTilemap.Span[..planeCells], characters, colours));
         for (int place = 0; place < Eyes.Count; place++)
         {
-            int record = Ensure.Listed(FrontendSourceDefinitions.IntroEyeFrameRecordOf, Eyes[place]);
             frames.Add(IntroScenePictures.Eye(Eyes[place]),
-                PaintRect(canvas, place * eye.X, (Pages.Count + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(record), characters, colours));
+                PaintRect(canvas, place * eye.X, (Pages.Count + 1) * cells, eye.X, sources.EyeFrames.FrameTiles(Eyes[place]), characters, colours));
         }
         ComposedSpriteSheet sheet = canvas.ToSheet(colours, frames, SpriteImageColours.Background);
         // The scene pictures show every cross-fade level of the colour groups the opening fades (#1512), and the Mother Brain
@@ -111,7 +109,7 @@ internal static class IntroScenePictureSheetComposer
             Corner = new Position16<ImagePixels>(checked((ushort)(left * CharacterPixels)), checked((ushort)(top * CharacterPixels))),
             Size = new Extent16<ImagePixels>(checked((ushort)(columns * CharacterPixels)), checked((ushort)(tiles.Length / columns * CharacterPixels))),
             Origin = default,
-            ColourGroups = coloured.ManifestMembers,
+            ColourGroups = coloured,
         };
     }
 }

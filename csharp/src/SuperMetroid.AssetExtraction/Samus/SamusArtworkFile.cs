@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Retains the exact installed Samus filename across JSON and codec admission.</summary>
-internal sealed record SamusArtworkFile(string Path, byte[] Bytes)
+internal sealed partial record SamusArtworkFile(string Path, byte[] Bytes)
 {
     /// <summary>Exception-data key marking the precise child file responsible for invalid artwork.</summary>
     private const string DiagnosticPathKey = "SuperMetroid.SamusArtworkFile.Path";

@@ -35,7 +35,7 @@ internal static class CeresCountdownVerification
 
         // The shaft's backward sweep leaves its steps reading as run past zero, so the first tile falls at once.
         var backward = new RoomMainHandOvers().ShaftTurnToDebris;
-        backward.LeaveTurnStep(68, backward: true);
+        backward.LeaveBackwardTurnStep(68);
         AssertEqual(1, UpdatesToTile(new CeresFallingDebrisRoomMainState(backward)),
             "a count the shaft's backward sweep left drops the first tile on the first update");
 
@@ -66,7 +66,7 @@ internal static class CeresCountdownVerification
     {
         SamusState samus = InstalledFixtures.CreateSamus();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 0));
-        var arrival = new CeresElevatorArrivalState(samus);
+        var arrival = new CeresElevatorArrivalState(samus.Position.Whole);
         for (int update = 1; update < 60; update++)
         {
             arrival.Step(samus);

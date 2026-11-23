@@ -29,8 +29,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// special-attack phase also survived the original reset, but every shot that reads either writes it first, so neither
 /// is handed over.
 /// </remarks>
-[CompatibilityService("a room's shots and enemy projectiles start from what the room before left: the shots' horizontal sub-pixel positions and the enemy projectiles' positions and velocities")]
-public sealed class RoomHandOver
+public sealed partial class RoomHandOver
 {
     /// <summary>The fraction of a pixel of each shot place's horizontal position, in place order; empty until a room leaves them.</summary>
     private ImmutableArray<PixelFraction> _shotHorizontalFractions = [];

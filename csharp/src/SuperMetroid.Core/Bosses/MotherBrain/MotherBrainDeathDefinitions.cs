@@ -6,25 +6,25 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The definition data of Mother Brain's death and the escape it starts: the escape door and the subtitle.</summary>
-public static class MotherBrainDeathDefinitions
+public static partial class MotherBrainDeathDefinitions
 {
     /// <summary>The escape's song, played once the escape's data set has loaded.</summary>
     public const MusicTrack EscapeMusicTrack = MusicTrack.Escape;
 
     /// <summary>The strong diagonal foreground shake the rainbow beam starts as it pins Samus and while it drains her.</summary>
     public static readonly EarthquakeShake RainbowBeamEarthquake =
-        new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Strong, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The light diagonal foreground shake the brain starts when it hits the ground.</summary>
     public static readonly EarthquakeShake BrainLandingEarthquake =
-        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The fall speed her severed brain gains each update it falls: an eighth of a pixel an update.</summary>
     public static readonly SignedEightEight BrainFallAcceleration = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>The medium diagonal foreground shake the escape starts and keeps going.</summary>
     public static readonly EarthquakeShake EscapeEarthquake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The updates an escape-door fragment falls; on the last it turns to dust.</summary>
     public const int DoorFragmentLifetimeUpdates = 33;

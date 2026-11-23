@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus hurt colour document.</summary>
-public static class SamusHurtColorFile
+public static partial class SamusHurtColorFile
 {
     /// <summary>Supported schema version, requiring both complete sixteen-color RGB5 arrays.</summary>
     public const int Version = 1;
@@ -34,7 +34,7 @@ public static class SamusHurtColorFile
     /// <param name="document">Hurt and cinematic RGB5 artwork to serialize; its arrays are not modified.</param>
     /// <returns>A newly allocated JSON byte array suitable for <see cref="FileName"/>.</returns>
     public static byte[] Write(SamusHurtColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusHurtColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks one complete sixteen-color RGB5 document array and converts it to packed colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, string name)

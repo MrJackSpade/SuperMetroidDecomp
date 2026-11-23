@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend;
 /// until title, game over or soft reset; the immutable artwork it binds is host-owned and shared, and the frame clock and
 /// unauthored Speed Booster cadence it counts on belong to the session.
 /// </summary>
-internal static class GameplayRuntimeFactory
+internal static partial class GameplayRuntimeFactory
 {
     /// <summary>
     /// Constructs a runtime over the session's random number generator and performs the start handoff in the game's
@@ -24,7 +24,7 @@ internal static class GameplayRuntimeFactory
         var runtime = new SuperMetroidRuntime(start.Assists, start.Artwork.Gameplay, start.Carryover);
         if (start.Selected is { } selected)
         {
-            runtime.JapaneseText = selected.JapaneseText;
+            runtime.Language = selected.Language;
             runtime.Options.ControllerBindings = selected.ControllerBindings;
             runtime.Options.MoonwalkEnabled = selected.MoonwalkEnabled;
             runtime.Options.IconCancelEnabled = selected.IconCancelEnabled;

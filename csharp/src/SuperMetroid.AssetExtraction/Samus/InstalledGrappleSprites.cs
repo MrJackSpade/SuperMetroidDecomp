@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Spatial;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -6,26 +7,26 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Immutable Grapple visual attributes; cadence, placement, geometry and physics are not editable here.</summary>
-public sealed class InstalledGrappleSprites
+public sealed partial class InstalledGrappleSprites
 {
-    /// <summary>The installed appearance of each of the rope's four timed frames (#1596).</summary>
-    private readonly SpritePart[] segments;
+    /// <summary>The installed appearance of each of the rope's four pictures (#1596, #2565), keyed by the picture.</summary>
+    private readonly Dictionary<GrappleRopePicture, SpritePart> segments;
     /// <summary>Selected single-piece endpoint appearance used by both connected and unconnected drawing paths.</summary>
     public SpritePart Endpoint { get; }
     /// <summary>Keeps the installed endpoint and every rope frame's installed appearance.</summary>
-    private InstalledGrappleSprites(SpritePart endpoint, SpritePart[] segments)
+    private InstalledGrappleSprites(SpritePart endpoint, Dictionary<GrappleRopePicture, SpritePart> segments)
     {
         Endpoint = endpoint;
         this.segments = segments;
     }
-    /// <summary>Resolves one rope animation frame's selected appearance without advancing any segment's independent gameplay timer.</summary>
-    /// <param name="frame">Zero-based frame 0..3 in native $94:B18B..B19A record order.</param>
-    /// <returns>The character, palette, priority and authored mirroring; drawing additionally mirrors it by the rope's angle.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the four segment appearances.</exception>
-    public SpritePart Segment(int frame)
-        => (uint)frame < GrappleSpriteDefinitions.SegmentFrameCount
-            ? segments[frame]
-            : throw new InvalidDataException($"Invalid Grapple visual frame {frame}.");
+    /// <summary>Resolves one rope picture's selected appearance without advancing any segment's independent gameplay timer.</summary>
+    /// <param name="picture">One of the rope's four pictures.</param>
+    /// <returns>The character, palette, depth and authored mirroring; drawing additionally mirrors it by the rope's angle.</returns>
+    /// <exception cref="InvalidDataException">The rope shows no such picture.</exception>
+    public SpritePart Segment(GrappleRopePicture picture)
+        => segments.TryGetValue(picture, out SpritePart appearance)
+            ? appearance
+            : throw new InvalidDataException($"Invalid Grapple rope picture {picture}.");
 
     /// <summary>Strict camel-case JSON settings shared by grapple sprite import and export.</summary>
     private static readonly JsonSerializerOptions Options = new()
@@ -47,23 +48,24 @@ public sealed class InstalledGrappleSprites
         {
             using var parsed = JsonDocument.Parse(json);
             RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<GrappleSpriteDocument>(Options)
+            document = parsed.RootElement.Deserialize<GrappleSpriteDocument>(global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSpriteDocument>(Options))
                 ?? throw new InvalidDataException("Grapple sprite document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid Grapple sprite JSON.", error); }
         if (document.Version != GrappleSpriteDefinitions.Version || document.Segments is null ||
-            document.Segments.Length != GrappleSpriteDefinitions.SegmentFrameCount)
-            throw new InvalidDataException("Grapple sprites require version 1 and exactly four segment appearances.");
-        return new(Compile(document.Endpoint), document.Segments.Select(Compile).ToArray());
+            document.Segments.Count != GrappleSheetDefinitions.RopePattern.Count)
+            throw new InvalidDataException($"Grapple sprites require version {GrappleSpriteDefinitions.Version} and one appearance for each rope picture.");
+        return new(Compile(document.Endpoint), GrappleSheetDefinitions.RopePattern.ToDictionary(picture => picture, picture =>
+            Compile(document.Segments.TryGetValue(GrappleRopePictureKeys.Installed.Of(picture), out GrappleSpriteStyle? style) ? style : null)));
     }
 
-    /// <summary>Validates an authored tile, palette, priority, and flip style into a single-piece appearance.</summary>
+    /// <summary>Validates an authored tile, palette, depth, and flip style into a single-piece appearance.</summary>
     private static SpritePart Compile(GrappleSpriteStyle? style)
     {
         if (style is null || style.TileColumn is < 0 or >= ProjectileSpriteDefinitions.TileColumns || style.TileRow is < 0 or >= ProjectileSpriteDefinitions.TileRows ||
-            style.Palette is < 0 or > 7 || style.Priority is < 0 or > 3)
-            throw new InvalidDataException("Invalid Grapple tile, palette or priority.");
-        return SpritePart.Single(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Priority,
+            style.Palette is < 0 or > 7)
+            throw new InvalidDataException("Invalid Grapple tile or palette.");
+        return SpritePart.Single(style.TileRow * ProjectileSpriteDefinitions.TileColumns + style.TileColumn, style.Palette, style.Depth,
             (style.FlipX ? PictureFlip.Horizontal : 0) | (style.FlipY ? PictureFlip.Vertical : 0));
     }
 
@@ -71,7 +73,7 @@ public sealed class InstalledGrappleSprites
     /// <param name="document">Authored endpoint and segment styles read for serialization, not retained by the writer.</param>
     /// <returns>A new caller-owned UTF-8 JSON byte array with camel-case properties and indented formatting.</returns>
     public static byte[] Write(GrappleSpriteDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.GrappleSpriteDocument>(Options));
 
     /// <summary>Rejects duplicate style keys before JSON deserialization can overwrite them.</summary>
     private static void RejectDuplicates(JsonElement value) =>

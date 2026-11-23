@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// projectile sheets with her beams' other pictures and drawn in her beams' colouring. Its four compositions show its four
 /// mirrored pieces as they spread from its centre (#1762).
 /// </summary>
-public static class HitBurstSpriteDefinitions
+public static partial class HitBurstSpriteDefinitions
 {
     /// <summary>The burst's pieces gathered tight about its centre, as it first shows.</summary>
     public static ProjectileSpriteId Tight { get; } = new(ProjectileSpriteGroup.HitBurst, "Tight");

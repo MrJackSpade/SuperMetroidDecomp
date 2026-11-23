@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
@@ -32,12 +33,12 @@ internal static class PauseDoorShinesparkVerification
     {
         foreach (var scenario in new[] { new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:false, Terminal:true), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:false), new VerifyPauseDoorShinesparkCase(Brightening:true, Terminal:true) })
         {
-            var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+            var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
             InstalledFixtures.BindGame(game);
             game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
             var runtime = game.Session.GameplayRuntime;
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-            runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.System.SetEvent(StoryEvent.ZebesAwake);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
             foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
@@ -53,15 +54,15 @@ internal static class PauseDoorShinesparkVerification
             var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, bts,
             doorBlocks: doorBlocks);
             runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             samus.Control.Unlock();
             samus.Health = 999;
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpeedBoostCounter.AtFullStage);
             samus.Shinespark.BeginWindup(samus);
-            samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+            samus.Shinespark.BeginDirectionalLaunch(samus, ShinesparkLaunchFixtures.Of(SamusPoseId.ShinesparkHorizontalRightPose));
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, 128));
             game.Session.Enter(SuperMetroidGameState.MainGameplay);
@@ -71,7 +72,7 @@ internal static class PauseDoorShinesparkVerification
             if (scenario.Brightening)
                 game.Session.Enter(PauseStep.BrighteningGameplay);
             // The pause's fade keeps its step delay with no update left to wait, so the next update steps.
-            game.Session.screenFade.Show(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15));
+            game.Session.screenFade.Show(DisplayBrightness.Black.Brighter(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15)));
             game.Session.screenFade.SetCadence(SuperMetroid.Core.Frontend.Pause.PauseFadeTiming.WaitBeforeEachStep, 0);
             // Put the leading edge immediately before the door for the next real mover call.
             samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));

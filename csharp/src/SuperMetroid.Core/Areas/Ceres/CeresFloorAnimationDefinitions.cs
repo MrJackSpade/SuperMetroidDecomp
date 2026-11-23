@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// The cycles of Ceres floor animation frames the elevator platform, the Baby's capsule and Ridley's wings show (#1467,
 /// #1747). Each frame is a picture drawn over the turning floor (<see cref="CeresFloorAnimation"/>); the import pictures it.
 /// </summary>
-public static class CeresFloorAnimationDefinitions
+public static partial class CeresFloorAnimationDefinitions
 {
     /// <summary>The capsule's four phases: the Baby squishes vertically, rounds, squishes horizontally and rounds again.</summary>
     internal static readonly CeresFloorActorPicture[] CapsuleCycle =
@@ -20,6 +20,13 @@ public static class CeresFloorAnimationDefinitions
         [CeresFloorActorPicture.ElevatorLight, CeresFloorActorPicture.ElevatorDark];
 
     /// <summary>The wings' two beats: raised, then lowered.</summary>
-    internal static readonly CeresFloorActorPicture[] WingCycle =
-        [CeresFloorActorPicture.WingsRaised, CeresFloorActorPicture.WingsLowered];
+    internal static readonly CeresGetawayWingBeat[] WingCycle = [CeresGetawayWingBeat.Raised, CeresGetawayWingBeat.Lowered];
+
+    /// <summary>The floor picture each wing beat shows.</summary>
+    internal static readonly IdentityTable<CeresGetawayWingBeat, CeresFloorActorPicture> WingPictures = new(
+        new Dictionary<CeresGetawayWingBeat, CeresFloorActorPicture>
+        {
+            [CeresGetawayWingBeat.Raised] = CeresFloorActorPicture.WingsRaised,
+            [CeresGetawayWingBeat.Lowered] = CeresFloorActorPicture.WingsLowered,
+        });
 }

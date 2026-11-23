@@ -6,17 +6,50 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Lower Norfair rio species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class HoltzBehavior : IEnemySpecies, IEnemySpawnFactory<EnemyFollowerSpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Holtz];
 
-    /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) =>
-        Ensure.NotNull(place).SpawnSettings<EnemyFollowerSpawnSettings>().Role == EnemyFollowerRole.Follower
-            ? new HoltzFollowerEntity(this, place, common)
-            : new HoltzEntity(this, place, common);
+    /// <summary>
+    /// A parent, which offers the follower its room lists right after it the creation that builds that follower following
+    /// it (#2164, #2554); a follower joins the parent listed before it, so the population may not place one first.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A follower is listed with no parent of its species before it.</exception>
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common)
+    {
+        if (Ensure.NotNull(settings).Role == EnemyFollowerRole.Follower)
+        {
+            throw new InvalidDataException(
+                $"Lower Norfair Rio follower in place {Ensure.NotNull(place).Ordinal} must immediately follow a parent of the same definition.");
+        }
+        var parent = new HoltzEntity(this, occupant, place, common);
+        _partOffers.Offer<EnemyFollowerSpawnSettings>(EnemyDefinitionId.Holtz, new ParentFollowing(this, parent.State, parent.Place).CreateLater);
+        return EnemyOccupant.Running(parent);
+    }
+
+    /// <summary>
+    /// The creation a parent offers the entry its room lists after it (#2554): a follower following the parent; another
+    /// parent is built as any parent is.
+    /// </summary>
+    /// <param name="species">The Holtz species owner.</param>
+    /// <param name="parentState">
+    /// The state of the parent a later follower follows. The joining holds what the creation reads, not the parent's entity, so a restore of the game's state never rebuilds
+    /// that entity from inside its own offer.
+    /// </param>
+    /// <param name="parentPlace">The place of the parent a later follower follows.</param>
+    private sealed partial class ParentFollowing(HoltzBehavior species, HoltzEnemyState parentState, RoomEnemyPlace parentPlace)
+    {
+        /// <summary>A later entry: a follower following the parent, or another parent.</summary>
+        internal EnemyOccupant CreateLater(RoomEnemyOccupant occupant, EnemyFollowerSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+            settings.Role == EnemyFollowerRole.Follower
+                ? EnemyOccupant.Running(new HoltzFollowerEntity(species, occupant, place, common, parentState, parentPlace))
+                : species.Create(occupant, settings, place, common);
+    }
+
+    /// <summary>Where a parent offers the follower listed after it the creation that builds it following the parent.</summary>
+    private readonly EnemyPartOffers _partOffers;
 
     /// <summary>Supplies the shared random draw taken before every parent's and follower's AI runs.</summary>
     private readonly EnemyRoomBinding _room;
@@ -24,15 +57,15 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyTerrain _terrain;
     /// <summary>The room's enemy places, where each flame follower finds its parent when it is placed.</summary>
     private readonly EnemyPlaces _places;
-    /// <summary>The parent each flame follower found when it was placed, which its room lists right before it.</summary>
-    private readonly EnemyPartLinks<RoomEnemyPlace> _parents = new();
 
     /// <summary>Receives the species' sound requests, each queued as the species makes it.</summary>
     private readonly EnemyAudioQueue _audio;
 
     /// <summary>Binds Holtz parent and follower behavior to room RNG, collision, and place order.</summary>
-    internal HoltzBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio)
+    internal HoltzBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyPlaces places, EnemyAudioQueue audio,
+        EnemyPartOffers partOffers)
     {
+        _partOffers = partOffers;
         _audio = audio;
         _room = room;
         _terrain = terrain;
@@ -40,29 +73,128 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Initializes a flame follower: it finds its parent, listed right before it, and starts its looping flames.</summary>
-    internal void InitializeHoltzFollower(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    /// <exception cref="InvalidDataException">The room lists another enemy between the follower and <paramref name="parentPlace"/>.</exception>
+    internal HoltzFollowerState InitializeHoltzFollower(RoomEnemyPlace place, HoltzEnemyState parentState, RoomEnemyPlace parentPlace)
     {
-        _parents.Place(place, _places.ListedBefore(place, 1));
-        ValidateHoltzParent(place);
-        place.SetSpeciesState(new HoltzFollowerState
+        if (_places.Member(place, EnemyFollowerListingDefinitions.Listing, EnemyFollowerRole.Follower, EnemyFollowerRole.Leader) != Ensure.NotNull(parentPlace))
+        {
+            throw new InvalidDataException(
+                $"Lower Norfair Rio follower in place {place.Ordinal} must immediately follow a parent of the same definition.");
+        }
+        var state = new HoltzFollowerState(Ensure.NotNull(parentState), parentPlace)
         {
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Flames), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
 
     /// <summary>Initializes a Holtz parent, idle with its flames hidden.</summary>
-    internal static void InitializeHoltz(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static HoltzEnemyState InitializeHoltz()
     {
-        place.SetSpeciesState(new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
+        var state = new HoltzEnemyState(HoltzAction.WaitForAttackOpportunity)
         {
             FollowerVisible = false,
             Playback = new(HoltzAnimations.StartingWith(HoltzSegment.Idle), AnimationPlace.StartOfAnimation),
-        });
+        };
+        return state;
     }
+
+    /// <summary>What <see cref="RunHoltzMain"/> does for each <see cref="HoltzAction"/> member, each member's own arm.</summary>
+    private IdentityTable<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>> RunHoltzMainForHoltzAction => field ??= new(new Dictionary<HoltzAction, Action<RoomEnemyPlace, HoltzEnemyState, SamusState, RoomLevelData, int>>
+    {
+        [HoltzAction.WaitForAttackOpportunity] = (place, state, samus, level, random) =>
+        {
+            if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
+                Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.LowerNorfairTriggerDistance)
+            {
+                // Unlike the Geruta, a Holtz that does not attack forgets that its animation finished
+                // and asks for its idle animation on every such update; the idle animation already playing does not
+                // restart.
+                state.Finish.Forget();
+                StartHoltzAnimation(
+                    place,
+                    state,
+                    HoltzSegment.Idle);
+                return;
+            }
+
+            state.Velocity = new(
+                RioLaunchDefinitions.LowerNorfairXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
+                RioLaunchDefinitions.LowerNorfairYVelocity);
+            StartHoltzAnimation(
+                place,
+                state,
+                HoltzSegment.PrepareToSwoop);
+            state.Action = HoltzAction.WaitForTakeoffAnimation;
+        },
+        [HoltzAction.WaitForTakeoffAnimation] = (place, state, samus, level, random) =>
+        {
+            if (!state.Finish.Take())
+                return;
+            StartHoltzAnimation(
+                place,
+                state,
+                HoltzSegment.Descending);
+            state.Action = HoltzAction.Dive;
+        },
+        [HoltzAction.Dive] = (place, state, samus, level, random) =>
+        {
+            MoveHoltzHorizontally(level, place, state);
+            if (_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.Velocity.Y.ToSixteenSixteenDelta()))
+            {
+                BeginHoltzReturn(place, state);
+                return;
+            }
+
+            ApplyHoltzGravity(state);
+            if (state.Velocity.Y.IsNegative)
+                BeginHoltzReturn(place, state);
+        },
+        [HoltzAction.ReturnToPerch] = (place, state, samus, level, random) =>
+        {
+            MoveHoltzHorizontally(level, place, state);
+            if (_terrain.MoveEnemyVertically(
+                    level,
+                    place,
+                    state.Velocity.Y.ToSixteenSixteenDelta()))
+            {
+                StartHoltzAnimation(
+                    place,
+                    state,
+                    HoltzSegment.Cooldown);
+                state.Action = HoltzAction.WaitForLandingAnimation;
+                return;
+            }
+
+            ApplyHoltzGravity(state);
+            if (state.Finish.Take())
+            {
+                StartHoltzAnimation(
+                    place,
+                    state,
+                    HoltzSegment.Ascending);
+            }
+        },
+        [HoltzAction.WaitForLandingAnimation] = (place, state, samus, level, random) =>
+        {
+            if (!state.Finish.Take())
+                return;
+            StartHoltzAnimation(
+                place,
+                state,
+                HoltzSegment.Cooldown);
+            state.Action = HoltzAction.WaitForAttackOpportunity;
+        },
+    });
 
     /// <summary>
     /// Runs the Holtz's main AI and each action it runs.
-    /// The shared RNG advances before every parent and follower acts, exactly as the game does.
+    /// The shared random number advances before every parent and follower acts.
     /// </summary>
     private void RunHoltzMain(
         RoomEnemyPlace place,
@@ -72,130 +204,34 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int random = _room.Random.Generate();
 
-        switch (state.Action)
-        {
-            case HoltzAction.WaitForAttackOpportunity:
-                if (RioLaunchDefinitions.AttackHeldBack.IsTakenBy(random) ||
-                    Math.Abs(samus.Position.X.Whole - place.Position.X.Whole) >= RioLaunchDefinitions.LowerNorfairTriggerDistance)
-                {
-                    // Unlike the Geruta, a Holtz that does not attack forgets that its animation finished
-                    // and asks for its idle animation on every such update; the idle animation already playing does not
-                    // restart.
-                    state.Finish.Forget();
-                    StartHoltzAnimation(
-                        place,
-                        state,
-                        HoltzSegment.Idle);
-                    return;
-                }
-
-                state.Velocity = new(
-                    RioLaunchDefinitions.LowerNorfairXVelocity.Toward(RioLaunches.SideOfSamus(place, samus)),
-                    RioLaunchDefinitions.LowerNorfairYVelocity);
-                StartHoltzAnimation(
-                    place,
-                    state,
-                    HoltzSegment.PrepareToSwoop);
-                state.Action = HoltzAction.WaitForTakeoffAnimation;
-                return;
-
-            case HoltzAction.WaitForTakeoffAnimation:
-                if (!state.Finish.Take())
-                    return;
-                StartHoltzAnimation(
-                    place,
-                    state,
-                    HoltzSegment.Descending);
-                state.Action = HoltzAction.Dive;
-                return;
-
-            case HoltzAction.Dive:
-                MoveHoltzHorizontally(level, place, state);
-                if (_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.Velocity.Y.ToSixteenSixteenDelta()))
-                {
-                    BeginHoltzReturn(place, state);
-                    return;
-                }
-
-                ApplyHoltzGravity(state);
-                if (state.Velocity.Y.IsNegative)
-                    BeginHoltzReturn(place, state);
-                return;
-
-            case HoltzAction.ReturnToPerch:
-                MoveHoltzHorizontally(level, place, state);
-                if (_terrain.MoveEnemyVertically(
-                        level,
-                        place,
-                        state.Velocity.Y.ToSixteenSixteenDelta()))
-                {
-                    StartHoltzAnimation(
-                        place,
-                        state,
-                        HoltzSegment.Cooldown);
-                    state.Action = HoltzAction.WaitForLandingAnimation;
-                    return;
-                }
-
-                ApplyHoltzGravity(state);
-                if (state.Finish.Take())
-                {
-                    StartHoltzAnimation(
-                        place,
-                        state,
-                        HoltzSegment.Ascending);
-                }
-                return;
-
-            case HoltzAction.WaitForLandingAnimation:
-                if (!state.Finish.Take())
-                    return;
-                StartHoltzAnimation(
-                    place,
-                    state,
-                    HoltzSegment.Cooldown);
-                state.Action = HoltzAction.WaitForAttackOpportunity;
-                return;
-
-            default:
-                throw new InvalidDataException(
-                    $"Lower Norfair Rio has no behaviour for action {state.Action}.");
-        }
+        RunHoltzMainForHoltzAction[state.Action](place, state, samus, level, random);
     }
+
+    /// <summary>What <see cref="ApplyHoltzCue"/> does for each <see cref="HoltzCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<HoltzCueKind, Action<HoltzEnemyState>> ApplyHoltzCueForHoltzCueKind => field ??= new(new Dictionary<HoltzCueKind, Action<HoltzEnemyState>>
+    {
+        [HoltzCueKind.AnimationFinished] = static state => state.Finish.Raise(),
+        [HoltzCueKind.HideFlames] = static state => state.FollowerVisible = false,
+        [HoltzCueKind.ShowFlames] = static state => state.FollowerVisible = true,
+    });
 
     /// <summary>Carries out one cue of the Holtz's animations: the end of an animation, or showing or hiding its flames.</summary>
     private static void ApplyHoltzCue(HoltzEnemyState state, HoltzCue cue)
     {
-        switch (cue.Kind)
-        {
-            case HoltzCueKind.AnimationFinished:
-                state.Finish.Raise();
-                break;
-            case HoltzCueKind.HideFlames:
-                state.FollowerVisible = false;
-                break;
-            case HoltzCueKind.ShowFlames:
-                state.FollowerVisible = true;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(HoltzCueKind)} {cue.Kind}.");
-        }
+        ApplyHoltzCueForHoltzCueKind[cue.Kind](state);
     }
 
     /// <summary>Mirrors the preceding parent's freeze and visibility, placing live flames their drop below it.</summary>
-    private void FollowHoltzParent(RoomEnemyPlace follower)
+    private static void FollowHoltzParent(RoomEnemyPlace follower, HoltzFollowerState followerState)
     {
-        RoomEnemyPlace parent = GetPrecedingHoltzPlace(follower);
+        RoomEnemyPlace parent = followerState.ParentPlace;
         if (parent.Health == 0)
         {
             follower.Presence = follower.Presence.With(EnemyPresence.Deleted);
             return;
         }
 
-        HoltzEnemyState parentState = parent.RequireSpeciesState<HoltzEnemyState>();
+        HoltzEnemyState parentState = followerState.Parent;
         follower.Freeze.Restart(parent.Freeze.UpdatesLeft);
         if (parent.Freeze.IsRunning || !parentState.FollowerVisible)
         {
@@ -253,48 +289,33 @@ internal sealed class HoltzBehavior : IEnemySpecies, IEnemyEntityFactory
         HoltzSegment segment) =>
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, HoltzAnimations.StartingWith(segment));
 
-    /// <summary>The parent the flame follower found when it was placed, the enemy its room lists directly before it.</summary>
-    private RoomEnemyPlace GetPrecedingHoltzPlace(RoomEnemyPlace follower) => _parents.Of(follower);
-
-    /// <summary>Requires the preceding place to hold an unfollowing Holtz parent.</summary>
-    private void ValidateHoltzParent(RoomEnemyPlace follower)
-    {
-        RoomEnemyPlace parent = GetPrecedingHoltzPlace(follower);
-        if (parent.Entity is not HoltzEntity)
-        {
-            throw new InvalidDataException(
-                $"Lower Norfair Rio follower in place {follower.Ordinal} must immediately " +
-                "follow a parent of the same definition.");
-        }
-    }
-
     /// <summary>
     /// Runs a Holtz flame follower's main AI: it advances the shared enemy RNG, as every parent does, then
     /// follows its parent.
     /// </summary>
-    internal void RunHoltzFollowerMainAi(RoomEnemyPlace place)
+    internal void RunHoltzFollowerMainAi(RoomEnemyPlace place, HoltzFollowerState followerState)
     {
         _room.Random.Generate();
-        FollowHoltzParent(place);
+        FollowHoltzParent(place, followerState);
     }
 
     /// <summary>Runs a Holtz parent's main AI.</summary>
-    internal void RunHoltzMainAi(RoomEnemyPlace place, IEnemyAiFrame frame) =>
+    internal void RunHoltzMainAi(RoomEnemyPlace place, HoltzEnemyState holtzEnemyState, IEnemyAiFrame frame) =>
         RunHoltzMain(
             place,
-            place.RequireSpeciesState<HoltzEnemyState>(),
+            holtzEnemyState,
             frame.Samus,
             frame.Level);
 
     /// <summary>Advances a Holtz flame follower's typed animation, which raises no cue.</summary>
-    internal static void AdvanceHoltzFollowerTypedAnimation(RoomEnemyPlace place) =>
-        EnemyAnimationPlayback.Advance(place, HoltzAnimations.Segments,
+    internal static void AdvanceHoltzFollowerTypedAnimation(RoomEnemyPlace place, HoltzFollowerState holtzFollowerState) =>
+        EnemyAnimationPlayback.Advance(place, holtzFollowerState, HoltzAnimations.Segments,
             static (HoltzFollowerState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (_, cue) => throw new InvalidOperationException($"A Lower Norfair Rio flame follower's cue-free animation raised {cue}."));
 
     /// <summary>Advances a Holtz parent's typed animation, whose cues it carries out.</summary>
-    internal static void AdvanceHoltzTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, HoltzAnimations.Segments,
+    internal static void AdvanceHoltzTypedAnimation(RoomEnemyPlace place, HoltzEnemyState holtzEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, holtzEnemyState, HoltzAnimations.Segments,
             static (HoltzEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             static (state, cue) =>
             {

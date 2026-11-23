@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed cutscene Baby Metroid colour document.</summary>
-public static class BabyMetroidCutsceneColorFile
+public static partial class BabyMetroidCutsceneColorFile
 {
     /// <summary>Reads the installed initial and fade RGB5 artwork, keeping every colour as installed.</summary>
     /// <param name="json">UTF-8 JSON input read from its current position; the stream remains open.</param>
@@ -36,7 +36,7 @@ public static class BabyMetroidCutsceneColorFile
     /// <param name="document">Initial and ordered fade images to serialize; the supplied arrays are not modified.</param>
     /// <returns>A newly allocated JSON byte array for <see cref="BabyMetroidCutsceneColorFormat.FileName"/>.</returns>
     public static byte[] Write(BabyMetroidCutsceneColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.BabyMetroidCutsceneColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates an RGB5 row's length and channels before copying it to packed colors.</summary>
     private static RgbColor[] Compile(PaletteRgb5[]? source, int required, string name) =>

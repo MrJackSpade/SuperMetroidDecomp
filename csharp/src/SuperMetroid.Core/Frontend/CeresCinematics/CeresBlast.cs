@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// gunship until its animation ends it.
 /// </summary>
 /// <param name="sprite">The cinematic sprite showing the blast: its position and animation.</param>
-internal sealed class CeresBlast(CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite) : CeresSceneActor(sprite)
+internal sealed partial class CeresBlast(CinematicActor<CeresAnimation, CinematicSpritePose, CeresCue> sprite) : CeresSceneActor(sprite)
 {
     /// <inheritdoc/>
     internal override bool DrawnLast => false;

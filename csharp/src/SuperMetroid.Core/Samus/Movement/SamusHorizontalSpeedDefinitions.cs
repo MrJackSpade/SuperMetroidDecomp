@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Samus's horizontal speeds: each movement's acceleration, maximum and deceleration in air, in water and in lava or
 /// acid, and the speeds of the two movements that set their own (a diagonal bomb jump and a grapple release).
 /// </summary>
-internal static class SamusHorizontalSpeedDefinitions
+internal static partial class SamusHorizontalSpeedDefinitions
 {
     /// <summary>The extra run speed the Speed Booster's dash is held at: seven pixels an update.</summary>
     internal static readonly UnsignedSixteenSixteen BoostedExtraRunSpeedCap = UnsignedSixteenSixteen.FromWholePixels(7);
@@ -93,7 +93,7 @@ internal static class SamusHorizontalSpeedDefinitions
         [M.WallJumping] = new(DefaultAcceleration, SpinJumpingMaximum, AirDeceleration),
         [M.RanIntoWall] = new(DefaultAcceleration, StillMaximum, AirDeceleration),
         [M.Grappling] = new(DefaultAcceleration, JumpingMaximum, AirDeceleration),
-        [M.TurningWhileJumping] = new(DefaultAcceleration, StillMaximum, AirDeceleration),
+        [M.TurningRisingOrAimedCrouched] = new(DefaultAcceleration, StillMaximum, AirDeceleration),
         [M.TurningWhileFalling] = new(DefaultAcceleration, StillMaximum, AirDeceleration),
         [M.DamageBoost] = new(DefaultAcceleration, KnockbackMaximum, AirDeceleration),
     };
@@ -122,7 +122,7 @@ internal static class SamusHorizontalSpeedDefinitions
         [M.WallJumping] = new(DefaultAcceleration, SpinJumpingMaximum, WaterDeceleration),
         [M.RanIntoWall] = new(DefaultAcceleration, StillMaximum, WaterDeceleration),
         [M.Grappling] = new(DefaultAcceleration, JumpingMaximum, WaterDeceleration),
-        [M.TurningWhileJumping] = new(DefaultAcceleration, StillMaximum, WaterDeceleration),
+        [M.TurningRisingOrAimedCrouched] = new(DefaultAcceleration, StillMaximum, WaterDeceleration),
         [M.TurningWhileFalling] = new(DefaultAcceleration, StillMaximum, WaterDeceleration),
         [M.DamageBoost] = new(DefaultAcceleration, MoonwalkingMaximum, WaterDeceleration),
         [M.DraygonHeld] = new(DefaultAcceleration, KnockbackMaximum, WaterDeceleration),
@@ -153,7 +153,7 @@ internal static class SamusHorizontalSpeedDefinitions
         [M.WallJumping] = new(DefaultAcceleration, SpinJumpingMaximum, LavaDeceleration),
         [M.RanIntoWall] = new(DefaultAcceleration, StillMaximum, LavaDeceleration),
         [M.Grappling] = new(DefaultAcceleration, JumpingMaximum, LavaDeceleration),
-        [M.TurningWhileJumping] = new(DefaultAcceleration, StillMaximum, LavaDeceleration),
+        [M.TurningRisingOrAimedCrouched] = new(DefaultAcceleration, StillMaximum, LavaDeceleration),
         [M.TurningWhileFalling] = new(DefaultAcceleration, StillMaximum, LavaDeceleration),
         [M.DamageBoost] = new(DefaultAcceleration, MoonwalkingMaximum, LavaDeceleration),
         [M.DraygonHeld] = new(DefaultAcceleration, KnockbackMaximum, LavaDeceleration),
@@ -161,13 +161,13 @@ internal static class SamusHorizontalSpeedDefinitions
     };
 
     /// <summary>Each medium's movement speeds.</summary>
-    internal static IReadOnlyDictionary<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>> ByMedium { get; } =
-        new Dictionary<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>>
+    internal static IdentityTable<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>> ByMedium { get; } =
+        new(new Dictionary<SamusLiquidMedium, IReadOnlyDictionary<M, SamusHorizontalSpeeds>>
         {
             [SamusLiquidMedium.Air] = Air,
             [SamusLiquidMedium.Water] = Water,
             [SamusLiquidMedium.LavaOrAcid] = LavaOrAcid,
-        };
+        });
 
     /// <summary>
     /// The speeds Draygon's hold and special movement take in air (<see cref="WaterSpeedsInAir{TMovement, TSpeeds}"/>):

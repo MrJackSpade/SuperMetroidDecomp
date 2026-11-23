@@ -13,7 +13,6 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Animation;
 
 /// <summary>
@@ -49,21 +48,20 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Every head program the cartridge can select runs exactly like its native list.</summary>
     internal static void VerifyBotwoonHeadAnimations(CartridgeImportAddressSpace rom)
     {
-        HeadUpdateInputs inputs = HeadUpdateInputs.Standalone();
         int compared = 0;
         var drawn = new HashSet<ushort>();
         for (int angle = 0; angle < 256; angle++)
         {
-            ushort moving = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * (angle >> 5)));
-            CompareBotwoonHead(rom, moving, BotwoonHeadAnimationSegment.MovingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"moving angle ${angle:X2}", inputs, drawn);
-            ushort spitting = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSpitListTable + 2 * (unchecked((byte)(angle + 16)) >> 5)));
-            CompareBotwoonHead(rom, spitting, BotwoonHeadAnimationSegment.SpittingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"spitting angle ${angle:X2}", inputs, drawn);
+            ushort moving = rom.ReadCartridgeWord((BotwoonMovingListTable + 2 * (angle >> 5)));
+            CompareBotwoonHead(rom, moving, BotwoonHeadAnimationSegment.MovingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"moving angle ${angle:X2}", drawn);
+            ushort spitting = rom.ReadCartridgeWord((BotwoonSpitListTable + 2 * (unchecked((byte)(angle + 16)) >> 5)));
+            CompareBotwoonHead(rom, spitting, BotwoonHeadAnimationSegment.SpittingToward(AimAngleConstants.FromClockwiseSteps(angle)), $"spitting angle ${angle:X2}", drawn);
             compared += 2;
         }
         for (int octant = 0; octant < 8; octant++)
         {
-            CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonHiddenListTable + 2 * octant)), BotwoonHeadAnimationSegment.Hidden,
-                $"hidden duplicate {octant}", inputs, drawn);
+            CompareBotwoonHead(rom, rom.ReadCartridgeWord((BotwoonHiddenListTable + 2 * octant)), BotwoonHeadAnimationSegment.Hidden,
+                $"hidden duplicate {octant}", drawn);
             compared++;
         }
         // Every drawn frame is exported artwork or the shared empty map (the resource audit requires the exports).
@@ -76,9 +74,8 @@ internal static class BotwoonAnimationsVerification
     /// <summary>The AI selects the typed program the cartridge would, and reinstalling one does not restart it.</summary>
     internal static void VerifyBotwoonAnimationSelection(CartridgeImportAddressSpace rom)
     {
-        HeadUpdateInputs inputs = HeadUpdateInputs.Standalone();
         Action<RoomEnemyPlace, BotwoonEnemyState> animateHead = BotwoonBehavior.AnimateBotwoonHeadFromMovement;
-        Action<RoomEnemySystem, RoomEnemyPlace, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0, a1, a2);
+        Action<RoomEnemySystem, RoomEnemyPlace, BotwoonEnemyState, SamusState> aimHead = (owner, a0, a1, a2) => owner.BotwoonBehavior.AimBotwoonAtSamus(a0.HeldOccupant(), a0, a1, a2);
         OctantVector[] octantVectors =
             [new OctantVector(0, -100), new OctantVector(100, -100), new OctantVector(100, 0), new OctantVector(100, 100), new OctantVector(0, 100), new OctantVector(-100, 100), new OctantVector(-100, 0), new OctantVector(-100, -100)];
         // The direction each vector points, as the cartridge's octant lists number them clockwise from up.
@@ -97,8 +94,8 @@ internal static class BotwoonAnimationsVerification
             animateHead(movingHead, movingState);
             AssertTrue(PlaysHead(movingState, BotwoonHeadAnimationSegment.Moving(octantDirections[octant])),
                 $"moving head toward octant {octant}");
-            CompareBotwoonHead(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
-                movingState, $"AI-selected moving octant {octant}", inputs);
+            CompareBotwoonHead(rom, rom.ReadCartridgeWord((BotwoonMovingListTable + 2 * octant)), movingEnemies, movingHead,
+                movingState, $"AI-selected moving octant {octant}");
 
             (RoomEnemySystem spitEnemies, RoomEnemyPlace spitHead, BotwoonEnemyState spitState) = NewBotwoonHead();
             spitState.Phase = BotwoonPhase.SpitWhileHidden;
@@ -119,12 +116,15 @@ internal static class BotwoonAnimationsVerification
             byte spitAngle = unchecked((byte)(64 - aim));
             AssertEqual(RotationAngle.FromSteps(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
             int[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
-            int[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
+            // Each spit flies along its heading at the stage's spit speed: its velocity is the speed split along it.
+            string[] expectedVelocities = [.. expectedDirections
+                .Select(direction => EnemyMath.VelocityAlong(TrigonometryAngle.Wrapped(direction), volleyState.SpeedStage.SpitSpeed).ToString())
+                .Order(StringComparer.Ordinal)];
+            string[] actualVelocities = [.. volleyEnemies.Projectiles.EnemyProjectiles
                 .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)
-                .Select(projectile => (int)projectile.StateOf<AngledFlightState>().Heading.RawValue)
-                .Order()
-                .ToArray();
-            AssertTrue(expectedDirections.Order().SequenceEqual(actualDirections),
+                .Select(projectile => volleyEnemies.BotwoonBehavior.Spits.Of(projectile).Velocity.ToString())
+                .Order(StringComparer.Ordinal)];
+            AssertTrue(expectedVelocities.SequenceEqual(actualVelocities),
                 $"volley toward octant {octant} spreads around the wrapped spit angle");
         }
 
@@ -146,7 +146,7 @@ internal static class BotwoonAnimationsVerification
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector));
+            ushort native = rom.ReadCartridgeWord((BotwoonSegmentListTable + selector));
             _ = BotwoonAnimations.BodySegments.Beats(BotwoonSegmentSelectorCodec.Program(selector));
             AssertTrue(native != 0, $"Botwoon segment selector ${selector:X2} has a native list");
         }
@@ -158,18 +158,23 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Every body, tail, hidden and spit animation runs exactly like its native bank-$86 list.</summary>
     internal static void VerifyBotwoonProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: 0);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // Botwoon is alive: his room's population sets him up, and his setup spawns his body.
+        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
+        RoomEnemyPlace head = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Botwoon))[0];
+        BotwoonEnemyState state = head.EntityOf<BotwoonEntity>().State;
+        void Pass(EnemyProjectile projectile) => enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, RoomEnemyFrameFixtures.StandaloneSamus(), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
 
         for (ushort selector = 0; selector < 64; selector += 2)
         {
-            var projectile = new EnemyProjectile(0, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
+            var projectile = new EnemyProjectile(0, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
             projectile.StartAnimation(new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(selector)));
-            CompareBotwoonProjectile(rom, CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
+            CompareBotwoonProjectile(rom, rom.ReadCartridgeWord((BotwoonSegmentListTable + selector)), projectile, Pass,
                 $"segment selector ${selector:X2}");
         }
 
-        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head, new TrigonometryAngle(angle), speed);
+        Action<RoomEnemyPlace, byte, ushort> spawnSpit = (head, angle, speed) => enemies.BotwoonBehavior.SpawnBotwoonSpit(head.HeldOccupant(), head, new TrigonometryAngle(angle), speed);
         spawnSpit(enemies.Places.InUpdateOrder[0], 0x40, 0x0180);
         EnemyProjectile spit = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonSpit);
         AssertTrue(spit.Animation is BotwoonSpitAnimation, "the real spit producer starts the typed spit animation");
@@ -177,20 +182,17 @@ internal static class BotwoonAnimationsVerification
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
         // Botwoon is loaded, as his initializer leaves him, before his body segments animate: they show his body's colours.
-        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        var state = new BotwoonEnemyState(body: []);
-        head.SetSpeciesState(state);
         // A changed selector restarts the segment; an unchanged one keeps running.
-        Action<EnemyProjectile, int> animate = BotwoonBehavior.AnimateBotwoonBodySegment;
-        var segment = new EnemyProjectile(1, default) { Kind = RoomEnemyProjectileKind.BotwoonBody };
+        Action<EnemyProjectile, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
+        var segment = new EnemyProjectile(1, default, RoomEnemyProjectileKind.BotwoonBody, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         var segmentAnimation = new BotwoonSegmentAnimation(BotwoonSegmentSelectorCodec.Program(0));
-        segment.State = new BotwoonSegmentState(head, 1, segment, segmentAnimation);
+        enemies.BotwoonBehavior.Segments.Start(segment, new BotwoonSegmentState(head, state, 1, segment, segmentAnimation));
         segment.StartAnimation(segmentAnimation);
         Pass(segment);
         Pass(segment);
         animate(segment, 0);
         AssertEqual((ushort)7, segment.FrameHold.RawValue, "an unchanged Botwoon segment program keeps its timer");
-        segment.StateOf<BotwoonSegmentState>().Pose = BotwoonSegmentSelectorCodec.Program(2);
+        enemies.BotwoonBehavior.Segments.Of(segment).Pose = BotwoonSegmentSelectorCodec.Program(2);
         animate(segment, 0);
         AssertEqual((ushort)1, segment.FrameHold.RawValue, "a changed Botwoon segment program restarts");
         Pass(segment);
@@ -198,11 +200,12 @@ internal static class BotwoonAnimationsVerification
             segment.PresentationOperandAddress, "the restarted segment shows its first frame");
 
         // Landing hands the segment to the shared native big-explosion list.
-        Func<RoomEnemyPlace, int, BotwoonSegmentState> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
+        // His setup spawns his body, from the segment behind his head down to his tail.
         Action<EnemyProjectile, int> runBody = enemies.BotwoonBehavior.MoveBotwoonBodySegment;
-        BotwoonSegmentState spawned = spawnBody(head, 1);
-        EnemyProjectile body = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.BotwoonBody);
-        AssertTrue(ReferenceEquals(spawned.Projectile, body), "the real body producer returns the segment it spawned");
+        BotwoonSegmentState spawned = state.Body[1];
+        EnemyProjectile body = spawned.Projectile;
+        AssertTrue(enemies.Projectiles.EnemyProjectiles.Contains(body) && body.Kind == RoomEnemyProjectileKind.BotwoonBody,
+            "the real body producer returns the segment it spawned among the room's projectiles");
         AssertEqual(BotwoonBodyAnimationSegment.Hidden, ((BotwoonSegmentAnimation)(body.Animation ?? throw new InvalidOperationException("Verification requires body.Animation."))).PlayingSegment,
             "the real body producer starts a non-tail segment hidden");
         // A falling segment starts at the quadratic table's first row and moves on three quarters of a row each update
@@ -215,7 +218,7 @@ internal static class BotwoonAnimationsVerification
             expected = expected.AdvanceY(QuadraticSpeedCurve.AtMark(rows).Positive);
             runBody(body, 0);
             AssertEqual(expected, body.Position, $"a falling Botwoon segment's update {update} falls by row {rows}");
-            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192 * update), body.StateOf<BotwoonSegmentState>().FallPlace,
+            AssertEqual(QuadraticSpeedCurvePlace.FromTwoHundredFiftySixthsOfMark(192 * update), enemies.BotwoonBehavior.Segments.Of(body).FallPlace,
                 $"a falling Botwoon segment's place after update {update}");
         }
         body.Position = body.Position.WithWholeY(200);
@@ -233,12 +236,12 @@ internal static class BotwoonAnimationsVerification
     /// <summary>Creates a head slot with Botwoon's state attached to its owning enemy system.</summary>
     private static NewBotwoonHeadResult NewBotwoonHead()
     {
-        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        RoomEnemyPlace head = enemies.Places.InUpdateOrder[0];
-        head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
-        var state = new BotwoonEnemyState(body: []);
-        head.SetSpeciesState(state);
-        return new NewBotwoonHeadResult(enemies, head, state);
+        var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
+            definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
+        // A living Botwoon, as his room's population sets him up; his state is the one his setup built.
+        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
+        RoomEnemyPlace head = enemies.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.Botwoon))[0];
+        return new NewBotwoonHeadResult(enemies, head, head.EntityOf<BotwoonEntity>().State);
     }
 
     /// <summary>Whether the head plays the animation that begins at <paramref name="segment"/>.</summary>
@@ -247,36 +250,24 @@ internal static class BotwoonAnimationsVerification
 
     /// <summary>Starts a typed head program from its first instruction and compares it with the selected cartridge list.</summary>
     private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, BotwoonHeadAnimationSegment program, string label,
-        HeadUpdateInputs inputs, HashSet<ushort> drawn)
+        HashSet<ushort> drawn)
     {
         (RoomEnemySystem enemies, RoomEnemyPlace head, BotwoonEnemyState state) = NewBotwoonHead();
         state.HeadPlayback = new(BotwoonAnimations.HeadStartingWith(program), AnimationPlace.StartOfAnimation);
         head.AnimationClock.StepOnNextUpdate();
-        CompareBotwoonHead(rom, nativeList, enemies, head, state, label, inputs, drawn);
-    }
-
-    /// <summary>
-    /// The Samus and room a head comparison's updates run against (#2408), built once per check: the head's animation reads
-    /// neither, so every update and every comparison shares them rather than building a Samus and a room each update.
-    /// </summary>
-    /// <param name="Samus">A standalone Samus.</param>
-    /// <param name="Level">An open room.</param>
-    private sealed record HeadUpdateInputs(SamusState Samus, RoomLevelData Level)
-    {
-        /// <summary>A standalone Samus and an open 64-by-64-block room.</summary>
-        internal static HeadUpdateInputs Standalone() =>
-            new(RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
+        CompareBotwoonHead(rom, nativeList, enemies, head, state, label, drawn);
     }
 
     /// <summary>Runs the typed head beside a native-list reader for seventy updates and compares every observable.</summary>
     private static void CompareBotwoonHead(CartridgeImportAddressSpace rom, ushort nativeList, RoomEnemySystem enemies,
-        RoomEnemyPlace head, BotwoonEnemyState state, string label, HeadUpdateInputs inputs, HashSet<ushort>? drawn = null)
+        RoomEnemyPlace head, BotwoonEnemyState state, string label, HashSet<ushort>? drawn = null)
     {
         var native = new NativeBotwoonHead(nativeList, checked((ushort)head.AnimationClock.Hold), head.Radius);
         for (int update = 0; update < 70; update++)
         {
             enemies.Audio.BeginFrame();
-            EnemyAnimationPlayer.AdvanceAnimation(head, samus: inputs.Samus, level: inputs.Level, Position16<RoomPixels>.Zero, controllerInput: 0);
+            // The head's animation runs as the shared enemy animation runs Botwoon's, over the state the check built.
+            enemies.BotwoonBehavior.AdvanceBotwoonTypedAnimation(head, state);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
             SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertClockHold(native.Timer, head.AnimationClock, at);
@@ -305,7 +296,7 @@ internal static class BotwoonAnimationsVerification
             {
                 for (int command = 0; command < 8; command++)
                 {
-                    ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | cursor));
+                    ushort word = rom.ReadCartridgeWord((0x860000 | cursor));
                     if (word < 0x8000)
                     {
                         timer = word;
@@ -315,7 +306,7 @@ internal static class BotwoonAnimationsVerification
                     }
                     if (word == (ushort)NativeEnemyProjectileInstruction.GotoY)
                     {
-                        cursor = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | unchecked((ushort)(cursor + 2))));
+                        cursor = rom.ReadCartridgeWord((0x860000 | unchecked((ushort)(cursor + 2))));
                         continue;
                     }
                     AssertEqual((ushort)NativeEnemyProjectileInstruction.Sleep, word, $"Botwoon {label}: native list uses only frames, goto and sleep");
@@ -360,11 +351,11 @@ internal static class BotwoonAnimationsVerification
             bool sound = false;
             for (int command = 0; command < 8; command++)
             {
-                ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | cursor));
+                ushort word = rom.ReadCartridgeWord((0xb30000 | cursor));
                 if (word < 0x8000)
                 {
                     Timer = word;
-                    Spritemap = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb30000 | unchecked((ushort)(cursor + 2))));
+                    Spritemap = rom.ReadCartridgeWord((0xb30000 | unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 4));
                     NewFrame = true;
                     return sound;

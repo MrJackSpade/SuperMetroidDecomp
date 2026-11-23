@@ -23,8 +23,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TCell">A scroll cell's state.</typeparam>
 /// <typeparam name="TArea">An area of the game, by which the stored explored maps are kept.</typeparam>
-[CompatibilityService("a room's scroll cells past its own keep what earlier rooms left there, and checks past every cell read the stored explored maps")]
-public sealed class ScrollCellsKeptAcrossRooms<TCell, TArea>
+public sealed partial class ScrollCellsKeptAcrossRooms<TCell, TArea>
     where TCell : struct, Enum
     where TArea : struct, Enum
 {
@@ -85,6 +84,14 @@ public sealed class ScrollCellsKeptAcrossRooms<TCell, TArea>
     /// <exception cref="ArgumentOutOfRangeException">The cell lies outside the kept cells.</exception>
     public void Write(int cell, TCell state) => _cells[KeptCell(cell)] = state;
 
+    /// <summary>The cell a camera check reads for each reading of a run of the stored explored maps.</summary>
+    private IdentityTable<StoredExploredMaps<TArea>.RunReading, TCell> CellsRead => field ??= new(new Dictionary<StoredExploredMaps<TArea>.RunReading, TCell>
+    {
+        [StoredExploredMaps<TArea>.RunReading.NothingExplored] = _cleared,
+        [StoredExploredMaps<TArea>.RunReading.OnlyLastCellExplored] = _onlyLastCellExplored,
+        [StoredExploredMaps<TArea>.RunReading.OtherwiseExplored] = _otherwiseExplored,
+    });
+
     /// <summary>
     /// What a camera check reads at <paramref name="cell"/>: a kept cell, or, past every kept cell, the run of the stored
     /// explored maps it lands on.
@@ -94,13 +101,7 @@ public sealed class ScrollCellsKeptAcrossRooms<TCell, TArea>
     {
         if (Ensure.AtLeastZero(cell) < _cells.Length)
             return _cells[cell];
-        return _storedExploredMaps.ReadPastScrollCells(cell - _cells.Length) switch
-        {
-            StoredExploredMaps<TArea>.RunReading.NothingExplored => _cleared,
-            StoredExploredMaps<TArea>.RunReading.OnlyLastCellExplored => _onlyLastCellExplored,
-            StoredExploredMaps<TArea>.RunReading.OtherwiseExplored => _otherwiseExplored,
-            var reading => throw new ArgumentOutOfRangeException(nameof(cell), reading, "Unknown stored-map reading."),
-        };
+        return CellsRead[_storedExploredMaps.ReadPastScrollCells(cell - _cells.Length)];
     }
 
     /// <summary>Requires <paramref name="cell"/> to be a kept cell.</summary>

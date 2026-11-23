@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 
@@ -20,11 +19,11 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// odd records write <c>[00AC,0145]</c>. These frames reuse the initial
 /// title palette's material paint through named bindings and calculated shading.
 /// The initial palette's independent paint values remain separately required
-/// under TitlePalettePresentation.colors; each supplied initial or animated
-/// edit preserves every other installed value. Missing inputs report an error
+/// under <see cref="TitlePalettePresentation.colours"/>; each supplied initial or animated
+/// edit preserves every other colour the import reads. Missing inputs report an error
 /// rather than falling back to reading the original game data.
 /// </remarks>
-public static class TitleScreenAmbientPaletteFxColorDefinitions
+public static partial class TitleScreenAmbientPaletteFxColorDefinitions
 {
     /// <summary>Four dimming steps and their reflected return form the tube pulse. This selected pulse depth is authored title choreography.</summary>
     internal const int TubeDimmingSteps = 4;
@@ -36,22 +35,8 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
     internal const int DisplayColourCount = 2;
     /// <summary>The eight-frame baby-Metroid tube light.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition TubeLight { get; } =
-        new()
-        {
-            Owner = TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight,
-            Colours = ColourEffectColours.BabyMetroidTubeLight,
-            FrameCount = 2 * TubeDimmingSteps,
-            ColorsPerFrame = TubeColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenBabyMetroidTubeLight, TubeColourCount),
-        };
+        new(ColourEffectId.TitleScreenBabyMetroidTubeLight, 2 * TubeDimmingSteps, TubeColourCount);
     /// <summary>The two-frame flickering displays.</summary>
     public static TitleScreenAmbientPaletteFxColorDefinition Displays { get; } =
-        new()
-        {
-            Owner = TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays,
-            Colours = ColourEffectColours.TitleScreenDisplays,
-            FrameCount = DisplayStates,
-            ColorsPerFrame = DisplayColourCount,
-            ColorFrames = PaletteFxColorFrames.Of(ColourEffectId.TitleScreenFlickeringDisplays, DisplayColourCount),
-        };
+        new(ColourEffectId.TitleScreenFlickeringDisplays, DisplayStates, DisplayColourCount);
 }

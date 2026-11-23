@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// sheets, so the palettes and their manifest go to the component's import-data directory
 /// (<see cref="ImportDataDirectory.Of"/>), which the installer deletes before it publishes. The installation holds none of them.
 /// </summary>
-public static class RoomStaticPaletteArtworkFiles
+public static partial class RoomStaticPaletteArtworkFiles
 {
     /// <summary>Import-data room-palette manifest filename recording cartridge provenance and hashes for all distinct palette JSON sources.</summary>
     public const string ManifestFileName = "room-palettes.json";
@@ -42,8 +42,7 @@ public static class RoomStaticPaletteArtworkFiles
         }
         using var manifest = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(manifest,
-            new RoomPaletteFileManifest(FormatVersion, sourceCartridgeSha256, hashes), JsonOptions);
+        JsonSerializer.Serialize(manifest, new RoomPaletteFileManifest(FormatVersion, sourceCartridgeSha256, hashes), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteArtworkFiles.RoomPaletteFileManifest>(JsonOptions));
     }
 
     /// <summary>Checks the room-palette provenance and compiles each palette document of the component's import data.</summary>
@@ -58,8 +57,7 @@ public static class RoomStaticPaletteArtworkFiles
         RoomPaletteFileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<RoomPaletteFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
+            manifest = JsonSerializer.Deserialize<RoomPaletteFileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteArtworkFiles.RoomPaletteFileManifest>(JsonOptions))
                 ?? throw new InvalidDataException("Room palette manifest is empty.");
         }
         catch (JsonException error)
@@ -112,6 +110,6 @@ public static class RoomStaticPaletteArtworkFiles
     };
 
     /// <summary>Records the cartridge revision and hashes of all extracted room palette files.</summary>
-    private sealed record RoomPaletteFileManifest(
+    internal sealed partial record RoomPaletteFileManifest(
         int Version, string SourceCartridgeSha256, Dictionary<string, string> Sha256);
 }

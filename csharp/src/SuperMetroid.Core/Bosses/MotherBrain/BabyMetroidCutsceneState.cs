@@ -13,18 +13,20 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// release, ceiling retreat, route to Samus, latch, and healing, and the movement they share.
 /// </summary>
 /// <remarks>
-/// The entrance moves by a velocity in 256ths of a pixel, adding it to the position's 256ths of a pixel and carrying
-/// into its whole pixels, and the curved entrance scales by the game's sine
-/// (<see cref="SpeedAlongAngle.Along"/>). Those steps decide the update on which the Baby's hit area reaches
-/// Mother Brain's brain, so a smooth curve that looks the same would change it.
+/// The entrance moves by a velocity, its speed and position carrying their fractions of a pixel in their types, and the
+/// curved entrance follows the shared trigonometry (<see cref="SpeedAlongAngle.Along"/>). Those steps decide the update
+/// on which the Baby's hit area reaches Mother Brain's brain, so a smooth curve that looks the same would change it.
 /// </remarks>
-[ArchitectureReview("back-reference", "The Baby of Mother Brain's late fight (#2471): the late fight makes and owns its Baby for the rest of the room, and the Baby's steps move the late fight that made it on, so the two share one lifetime.")]
-public sealed class BabyMetroidCutsceneState
+public sealed partial class BabyMetroidCutsceneState
 {
-    /// <summary>Makes the Baby of <paramref name="lateFight"/>, which it holds from here, before the final beam spawns it.</summary>
-    internal BabyMetroidCutsceneState(MotherBrainRainbowBeamAttackSequence lateFight)
+    /// <summary>
+    /// Makes the Baby of <paramref name="lateFight"/> in <paramref name="place"/>, the place the final beam's spawn gave it,
+    /// both of which it holds from here.
+    /// </summary>
+    internal BabyMetroidCutsceneState(MotherBrainRainbowBeamAttackSequence lateFight, RoomEnemyPlace place)
     {
         LateFight = Ensure.NotNull(lateFight);
+        Place = Ensure.NotNull(place);
     }
 
     /// <summary>
@@ -34,19 +36,19 @@ public sealed class BabyMetroidCutsceneState
     internal MotherBrainRainbowBeamAttackSequence LateFight { get; }
 
     /// <summary>
-    /// The Baby's place in the room's enemy list, or null before the final beam's spawn gives it one: the Baby is an enemy
-    /// of its own, which Mother Brain's onion rings find there, not an effect her body draws.
+    /// The Baby's place in the room's enemy list, which the final beam's spawn gave it and which holds its position and
+    /// health: the Baby is an enemy of its own, which Mother Brain's onion rings find there, not an effect her body draws.
     /// </summary>
-    public RoomEnemyPlace? Place { get; private set; }
+    internal RoomEnemyPlace Place { get; }
 
     /// <summary>How far the Baby's hit area reaches to either side of its center: 36 room pixels.</summary>
     public const int XHitboxRadius = 36;
     /// <summary>How far the Baby's hit area reaches above and below its center: 36 room pixels.</summary>
     public const int YHitboxRadius = 36;
 
-    /// <summary>The entrance's current phase.</summary>
-    public BabyMetroidCutscenePhase Phase { get; internal set; } =
-        BabyMetroidCutscenePhase.Inactive;
+    /// <summary>The entrance's current phase, from the dash onto the screen its arrival starts.</summary>
+    public BabyMetroidCutscenePhase.Flying Phase { get; internal set; } =
+        new BabyMetroidCutscenePhase.Flying.DashOntoScreen();
 
     /// <summary>
     /// Whether the onion-ring hit flash shows the shared white colours this update instead of
@@ -67,14 +69,13 @@ public sealed class BabyMetroidCutsceneState
     internal AnimationPlayback<MotherBrainBabySegment> Playback { get; set; } = MotherBrainBabyAnimations.Starting(MotherBrainBabySegment.IdlePulse);
 
     /// <summary>
-    /// Room position, which the Baby's place holds (#2572): the Baby's steps move its place, which every other part of the
-    /// game reads. The Baby moves in 256ths of a pixel; the finer part of its position never changes.
+    /// Room position, which the Baby's place holds (#2572): the Baby's steps move its place, which every other part of
+    /// the game reads. The position keeps the fraction of a pixel its place held, which the Baby's moves never change.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
     public FixedPosition<RoomPixels> Position
     {
-        get => HeldPlace.Position;
-        internal set => HeldPlace.Position = value;
+        get => Place.Position;
+        internal set => Place.Position = value;
     }
 
     /// <summary>
@@ -84,16 +85,16 @@ public sealed class BabyMetroidCutsceneState
     internal Offset16<RoomPixels> SignedPlace => OffRoomPlaces.Signed(Position.Whole);
 
     /// <summary>Velocity in pixels per update.</summary>
-    public PixelVelocity<RoomPixels> Velocity { get; internal set; }
+    internal PixelVelocity<RoomPixels> Velocity { get; set; }
 
     /// <summary>The curved entrance's speed, zero through fourteen pixels an update.</summary>
-    public SignedEightEight Speed { get; private set; }
+    internal SignedEightEight Speed { get; set; }
 
     /// <summary>Heading of the curved entrance; only its whole step is passed to shared component math.</summary>
-    public RotationAngle Angle { get; private set; }
+    internal RotationAngle Angle { get; set; }
 
     /// <summary>Phase timer: each timed phase counts it down and moves on as it runs out (<see cref="BossCountdown"/>).</summary>
-    public BossCountdown PhaseTimer { get; } = new();
+    internal BossCountdown PhaseTimer { get; } = new();
 
     /// <summary>
     /// The leg of the ceiling-to-Samus route the Baby steers along once it reaches the ceiling, at its place on the route
@@ -103,22 +104,16 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Enemy health, which the Baby's place holds (#2572): Mother Brain's onion rings and her drain lower it there, and the
-    /// Baby's steps read it there. The Baby's enemy definition supplies 3,200.
+    /// Baby's steps read it there. The Baby arrives with <see cref="BabyMetroidCutsceneDefinitions.ArrivalHealth"/>.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
     public int Health
     {
-        get => HeldPlace.Health;
-        internal set => HeldPlace.Health = value;
+        get => Place.Health;
+        internal set => Place.Health = value;
     }
 
-    /// <summary>The Baby's place, which holds its position and health.</summary>
-    /// <exception cref="InvalidOperationException">The final beam's spawn has not given the Baby its place.</exception>
-    private RoomEnemyPlace HeldPlace => Place ??
-        throw new InvalidOperationException("The cutscene Baby Metroid has no place in the room yet: the final beam has not spawned it.");
-
     /// <summary>
-    /// The Baby's shake when Mother Brain's onion ring strikes it (#2469): a hit starts it for sixteen updates; while it
+    /// The Baby's shake when Mother Brain's onion ring strikes it (#2469): a hit starts it for its length; while it
     /// shakes the Baby, held on Samus, shows its offset doubled, and each update after the Baby moves counts it down. The
     /// hit's flash plays on its own (<see cref="HurtFlash"/>).
     /// </summary>
@@ -128,8 +123,8 @@ public sealed class BabyMetroidCutsceneState
     public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
     /// <summary>
-    /// The Baby's fade to black (#2270, #2404): from the update its centre reaches the fade's line, an image every nine
-    /// updates.
+    /// The Baby's fade to black (#2270, #2404): from the update its centre reaches the fade's line, an image each fade step
+    /// (<see cref="MotherBrainFadeDefinitions.BabyFade"/>).
     /// </summary>
     public MotherBrainFadeProgress FadeToBlack { get; } = new(MotherBrainFadeDefinitions.BabyFade);
 
@@ -138,11 +133,11 @@ public sealed class BabyMetroidCutsceneState
 
     /// <summary>
     /// Where the Baby's next death explosion bursts (#2315): each takes the next point of the scatter shared with Ridley's
-    /// death, the first after the last, starting from the scatter's second point.
+    /// death, the first after the last, starting from the scatter's first point.
     /// </summary>
     public ListStep<Offset16<RoomPixels>> NextDeathExplosion { get; private set; } = FirstDeathExplosion;
 
-    /// <summary>Where the Baby's first death explosion bursts: the shared scatter's second point.</summary>
+    /// <summary>Where the Baby's first death explosion bursts: the shared scatter's first point.</summary>
     private static ListStep<Offset16<RoomPixels>> FirstDeathExplosion => ListStep<Offset16<RoomPixels>>.FirstOf(DeathExplosionScatterDefinitions.Offsets);
 
     /// <summary>How far the room lights' recovery has come (#2316): each update of the final cutscene shows its next image.</summary>
@@ -157,8 +152,11 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Which of the two rainbow colour cycles Samus currently shows.</summary>
     public BabyMetroidSamusRainbowPhase SamusRainbowPhase { get; private set; }
 
-    /// <summary>True once the Baby has deleted itself at the end of the cutscene (<see cref="BabyMetroidCutscenePhase.Deleted"/>).</summary>
-    public bool IsDeleted => Phase == BabyMetroidCutscenePhase.Deleted;
+    /// <summary>
+    /// True once the Baby has deleted itself at the end of <see cref="BabyMetroidCutscenePhase.Flying.FinalCutscene"/>: the
+    /// cutscene is over, the room frees its place, and Mother Brain's rings no longer look for it. It never steps again.
+    /// </summary>
+    public bool IsDeleted { get; private set; }
 
     /// <summary>
     /// Initializes the Baby. Its place keeps how it meets Samus, what the room runs for it and whether it is drawn
@@ -183,23 +181,18 @@ public sealed class BabyMetroidCutsceneState
         Velocity = default;
         Speed = SignedEightEight.Zero;
         Angle = RotationAngle.Zero;
-        Phase = BabyMetroidCutscenePhase.DashOntoScreen;
+        Phase = new BabyMetroidCutscenePhase.Flying.DashOntoScreen();
         PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.ArrivalWaitUpdates);
     }
 
     /// <summary>
-    /// The Baby takes <paramref name="place"/>, which the final beam's spawn gave it, and initializes from the position the
-    /// place still holds from its previous occupant (<see cref="Initialize"/>).
+    /// The Baby's setup in its place: it initializes from the position the place still holds from its previous occupant
+    /// (<see cref="Initialize"/>).
     /// </summary>
-    internal void Arrive(RoomEnemyPlace place)
-    {
-        Place = Ensure.NotNull(place);
-        Initialize(place.Position);
-    }
+    internal void Arrive() => Initialize(Place.Position);
 
     /// <summary>
-    /// Runs one update of the Baby's main AI: the phase first, then the unconditional enemy
-    /// velocity mover.
+    /// Runs one update of the Baby's main AI: its phase runs, then it moves by its velocity.
     /// Every Baby step reads the coordinates of Mother Brain's head, which the head's AI
     /// has already moved this frame; <paramref name="head"/> carries them.
     /// </summary>
@@ -211,10 +204,7 @@ public sealed class BabyMetroidCutsceneState
         int randomNumber)
     {
         Ensure.NotNull(samus);
-        if (Phase == BabyMetroidCutscenePhase.Inactive)
-            throw new InvalidOperationException("The cutscene Baby Metroid has not been initialized.");
-
-        BabyMetroidCutscenePhase phaseBefore = Phase;
+        BabyMetroidCutscenePhase.Flying phaseBefore = Phase;
         bool brainCollision;
 
         bool latchSoundQueued = false;
@@ -222,18 +212,17 @@ public sealed class BabyMetroidCutsceneState
         // spawned in turn: when the room's enemy projectiles have nearly no room left, the earlier clouds take it.
         var releaseDustClouds = new List<BabyMetroidReleaseDustRequest>(capacity: BabyMetroidCutsceneDefinitions.ReleaseDustOffsets.Count);
         bool ambientCrySoundQueued = false;
-        bool samusRainbowActivated = false;
         DustExplosionRequest? deathExplosion = null;
         MotherBrainFadeImage? babyFadeImage = null;
         MotherBrainFadeImage? recoveryLightsImage = null;
         MotherBrainBabySegment? startedAnimation = null;
         BabyMetroidVisibilityRequest visibility = BabyMetroidVisibilityRequest.Unchanged;
 
-        // The Baby's touch is tested before its movement, against the Baby's
-        // position from the previous frame. The Baby's touch is active only while it latches onto Samus; broad
-        // Samus/enemy hitboxes gate it, then its own divisor-16 acceleration decides when
-        // both axes have reached the latch point. Main AI and its mover follow this frame.
-        if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus && TouchesSamus(samus))
+        // The Baby's touch is tested before its movement, against the Baby's position from the previous frame. The
+        // Baby's touch is active only while it latches onto Samus; broad Samus/enemy hitboxes gate it, then the latch
+        // acceleration's arrival on both axes at the latch point starts the healing. The Baby's phase and its move by
+        // its velocity follow this update.
+        if (Phase is BabyMetroidCutscenePhase.Flying.LatchOntoSamus && TouchesSamus(samus))
         {
             bool reachedLatchPoint = AccelerateTowardsPoint(
                 samus.Position.Whole + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset,
@@ -241,35 +230,39 @@ public sealed class BabyMetroidCutsceneState
             if (reachedLatchPoint)
             {
                 Velocity = default;
-                Phase = BabyMetroidCutscenePhase.HealSamusToFullHealth;
+                Phase = new BabyMetroidCutscenePhase.Flying.HealSamusToFullHealth();
             }
         }
 
-        switch (Phase)
+        // Each case ends the update or goes on into the case it has just entered (#2553).
+        while (true)
         {
-            case BabyMetroidCutscenePhase.DashOntoScreen:
-                // The Baby holds still through its arrival wait. The update the wait runs out on immediately executes the
-                // first curve update before the common mover consumes its new velocity.
+            if (Phase is BabyMetroidCutscenePhase.Flying.DashOntoScreen)
+            {
+                // The Baby holds still through its arrival wait. The update the wait runs out on runs the first curve
+                // update, and the Baby moves by the new velocity on the same update.
                 if (PhaseTimer.StepRunsOut())
                 {
                     Angle = BabyMetroidCutsceneFlightDefinitions.CurveStartHeading;
                     Speed = BabyMetroidCutsceneFlightDefinitions.CurveSpeed;
-                    Phase = BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
+                    Phase = new BabyMetroidCutscenePhase.Flying.CurveTowardMotherBrainHead();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.CurveUpdates);
-                    goto case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead;
+                    continue;
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.CurveTowardMotherBrainHead:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.CurveTowardMotherBrainHead)
+            {
                 UpdateSpeedAndHeading(BabyMetroidCutsceneFlightDefinitions.CurveTurn, BabyMetroidCutsceneFlightDefinitions.CurveTargetHeading, BabyMetroidCutsceneFlightDefinitions.CurveSpeed);
                 if (PhaseTimer.StepRunsOut())
                 {
-                    Phase = BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace;
+                    Phase = new BabyMetroidCutscenePhase.Flying.GetRightUpInMotherBrainsFace();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.FaceApproachUpdates);
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.GetRightUpInMotherBrainsFace:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.GetRightUpInMotherBrainsFace)
+            {
                 UpdateSpeedAndHeading(BabyMetroidCutsceneFlightDefinitions.FaceTurn, BabyMetroidCutsceneFlightDefinitions.FaceTargetHeading, BabyMetroidCutsceneFlightDefinitions.FaceSpeed);
                 brainCollision = CollidesWithRectangle(
                     head,
@@ -283,12 +276,12 @@ public sealed class BabyMetroidCutsceneState
 
                 if (brainCollision)
                 {
-                    Phase = BabyMetroidCutscenePhase.LatchOntoMotherBrain;
+                    Phase = new BabyMetroidCutscenePhase.Flying.LatchOntoMotherBrain();
                     samus.Drained.PutStanding(samus); // Stands the drained Samus up.
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.LatchOntoMotherBrain:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.LatchOntoMotherBrain)
             {
                 Position16<RoomPixels> target = head + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset;
                 GraduallyAccelerateTowardsPoint(
@@ -298,18 +291,18 @@ public sealed class BabyMetroidCutsceneState
                     cameraPosition);
                 brainCollision = CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.BrainLatchReach);
                 if (brainCollision)
-                    Phase = BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack;
+                    Phase = new BabyMetroidCutscenePhase.Flying.SetMotherBrainToStumbleBack();
                 break;
             }
-
-            case BabyMetroidCutscenePhase.SetMotherBrainToStumbleBack:
+            else if (Phase is BabyMetroidCutscenePhase.Flying.SetMotherBrainToStumbleBack)
+            {
                 // The drain asks her to stumble back a pixel; standing, she always starts her really-fast backward
                 // walk.
                 LateFight.RequestBabyStumbleBackward();
-                Phase = BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
-                goto case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody;
-
-            case BabyMetroidCutscenePhase.ActivateRainbowBeamAndMotherBrainBody:
+                Phase = new BabyMetroidCutscenePhase.Flying.ActivateRainbowBeamAndMotherBrainBody();
+                continue;
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.ActivateRainbowBeamAndMotherBrainBody)
             {
                 Position16<RoomPixels> target = head + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset;
                 bool reachedTarget = AccelerateTowardsPoint(target, acceleration: BabyMetroidCutsceneFlightDefinitions.BrainDrainAcceleration);
@@ -320,39 +313,39 @@ public sealed class BabyMetroidCutsceneState
                     Velocity = default;
                     Position = Position.WithWhole(target);
                     startedAnimation = MotherBrainBabySegment.DrainingMotherBrain;
-                    Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
+                    Phase = new BabyMetroidCutscenePhase.Flying.WaitForMotherBrainToTurnToCorpse();
                     LateFight.InterruptFinalBeamForBabyDrain();
                     latchSoundQueued = true; // The rainbow-drain sound starts as the Baby latches on.
                 }
                 break;
             }
-
-            case BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse:
+            else if (Phase is BabyMetroidCutscenePhase.Flying.WaitForMotherBrainToTurnToCorpse)
             {
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(head + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
+                Position = Position.WithWhole(head + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter)
+                    + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (LateFight.State.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
-                    Phase = BabyMetroidCutscenePhase.StopDraining;
+                    Phase = new BabyMetroidCutscenePhase.Flying.StopDraining();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.StopDrainingUpdates);
                 }
                 break;
             }
-
-            case BabyMetroidCutscenePhase.StopDraining:
+            else if (Phase is BabyMetroidCutscenePhase.Flying.StopDraining)
+            {
                 // Shaking ceases immediately: every update of the wait pins the Baby to the brain
                 // before stepping the wait.
                 Position = Position.WithWhole(head + BabyMetroidCutsceneFlightDefinitions.BrainLatchOffset);
                 if (PhaseTimer.StepRunsOut())
                 {
                     startedAnimation = MotherBrainBabySegment.IdlePulse;
-                    Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
+                    Phase = new BabyMetroidCutscenePhase.Flying.LetGoAndSpawnDustClouds();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.LetGoUpdates);
                     Velocity = default;
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.LetGoAndSpawnDustClouds)
+            {
                 // The release runs on into its acceleration on every update. Thus the Baby accelerates
                 // ceilingward through the whole release; the dust burst happens on its last update, which
                 // also accelerates.
@@ -364,32 +357,21 @@ public sealed class BabyMetroidCutsceneState
                     // in the highest free place for an enemy projectile.
                     foreach (Offset16<RoomPixels> dust in BabyMetroidCutsceneDefinitions.ReleaseDustOffsets)
                         releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(head + dust, Animation: DustExplosionAnimation.SmallDustCloud));
-                    Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
+                    Phase = new BabyMetroidCutscenePhase.Flying.MoveToTheCeiling();
                 }
-                goto case BabyMetroidCutscenePhase.MoveToTheCeiling;
-
-            case BabyMetroidCutscenePhase.MoveToTheCeiling:
-            {
-                Position16<RoomPixels> target = head.WithY(0);
-                GraduallyAccelerateTowardsPoint(
-                    target,
-                    accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor,
-                    BabyMetroidCutsceneFlightDefinitions.ApproachWrongWaySpeed,
-                    cameraPosition);
-                bool ceilingCollision = CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach);
-                if (ceilingCollision)
-                {
-                    samus.Drained.CrouchDrained(samus);
-                    Phase = BabyMetroidCutscenePhase.MoveToSamus;
-                    RouteLeg = BabyMetroidRoute.FirstLeg;
-                }
+                // The release's update, its last or not, is one update of the flight to the ceiling: the release's wait
+                // steps once.
+                MoveToTheCeiling(samus, head, cameraPosition);
                 break;
             }
-
-            case BabyMetroidCutscenePhase.MoveToSamus:
+            else if (Phase is BabyMetroidCutscenePhase.Flying.MoveToTheCeiling)
             {
-                // The route step enables health-based colour selection on every route update. The ambient cry takes its
-                // own chance.
+                MoveToTheCeiling(samus, head, cameraPosition);
+                break;
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.MoveToSamus)
+            {
+                // The ambient cry takes its own chance each route update.
                 ambientCrySoundQueued = MotherBrainRandomDefinitions.BabyMetroidCries.IsTakenBy(randomNumber);
 
                 // The route is its authored legs, each steered to its waypoint with its own wrong-way speed.
@@ -402,7 +384,7 @@ public sealed class BabyMetroidCutsceneState
                     leg.Entry.WrongWayOffScreenXSpeed,
                     cameraPosition);
 
-                // The route's 4x4 rectangle test occurs before the common velocity mover.
+                // The route's target rectangle is tested before the Baby moves.
                 // Reaching a leg's target moves on to the next leg; reaching the
                 // last leg's target starts the latch-onto-Samus phase instead.
                 if (CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach))
@@ -410,29 +392,27 @@ public sealed class BabyMetroidCutsceneState
                     if (leg.Following is { } next)
                         RouteLeg = next;
                     else
-                        Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
+                        Phase = new BabyMetroidCutscenePhase.Flying.LatchOntoSamus();
                 }
                 break;
             }
-
-            case BabyMetroidCutscenePhase.LatchOntoSamus:
-                // The latch approach itself only steers toward Samus's centre minus twenty pixels. It
-                // never performs the state change. That transition belongs to the enemy's touch
-                // response, executed after main AI and the common mover below.
+            else if (Phase is BabyMetroidCutscenePhase.Flying.LatchOntoSamus)
+            {
+                // The latch approach itself only steers toward Samus's centre less its latch offset; the touch at the
+                // next update's start begins the healing.
                 GraduallyAccelerateTowardsPoint(
                     samus.Position.Whole + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset,
                     accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor,
                     BabyMetroidCutsceneFlightDefinitions.ApproachWrongWaySpeed,
                     cameraPosition);
                 break;
-
-            case BabyMetroidCutscenePhase.HealSamusToFullHealth:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.HealSamusToFullHealth)
             {
-                // The healing step pins the actor to its four-step shake before healing. The
-                // subsequent common mover is harmless because the touch response zeroed
-                // both velocities when it started this phase.
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(samus.Position.Whole + MotherBrainShakeDefinitions.Offsets[shakingIndex] + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
+                // The healing step pins the actor to its four-step shake before healing; the touch that started this
+                // phase stopped the Baby, so its zero velocity keeps it pinned.
+                Position = Position.WithWhole(samus.Position.Whole + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter)
+                    + BabyMetroidCutsceneFlightDefinitions.SamusLatchOffset);
 
                 // Healing adds one energy each enemy update until Samus's health reaches her maximum.
                 int candidateHealth = samus.Health + 1;
@@ -444,12 +424,12 @@ public sealed class BabyMetroidCutsceneState
                 {
                     samus.Health = samus.MaxHealth;
                     samus.ReserveEnergy = samus.MaxReserveEnergy;
-                    Phase = BabyMetroidCutscenePhase.IdleUntilNoHealth;
+                    Phase = new BabyMetroidCutscenePhase.Flying.IdleUntilNoHealth();
                 }
                 break;
             }
-
-            case BabyMetroidCutscenePhase.IdleUntilNoHealth:
+            else if (Phase is BabyMetroidCutscenePhase.Flying.IdleUntilNoHealth)
+            {
                 // While the onion rings hit it, the Baby shakes on Samus for as long as each hit shakes it, and once the rings
                 // have worn its health away it lets go of her. Its cry at the rings that struck it plays before this step.
                 if (OnionRingHitShake.IsShaking)
@@ -463,23 +443,25 @@ public sealed class BabyMetroidCutsceneState
                     // Worn down by the volleys, the Baby takes the health its final charge starts with and lets go of Samus
                     // on its next update.
                     Health = BabyMetroidCutsceneDefinitions.FinalChargeHealth;
-                    Phase = BabyMetroidCutscenePhase.ReleaseSamus;
+                    Phase = new BabyMetroidCutscenePhase.Flying.ReleaseSamus();
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.ReleaseSamus:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.ReleaseSamus)
+            {
                 // The next step acts on both actors in one update. The speed it gives
                 // Mother Brain's brain is presentation state; the meaningful body change
                 // starts Mother Brain's fast retreat, and the Baby's flight takes its first update in this same
                 // update.
                 LateFight.PrepareForFinalBabyMetroidAttack();
-                Phase = BabyMetroidCutscenePhase.StareDownMotherBrain;
-                goto case BabyMetroidCutscenePhase.StareDownMotherBrain;
-
-            case BabyMetroidCutscenePhase.StareDownMotherBrain:
-                // The target is four pixels left of Samus, at a fixed height. This leg and the next two
-                // reverse off screen with the staging wrong-way speed, not the approaches' one.
+                Phase = new BabyMetroidCutscenePhase.Flying.StareDownMotherBrain();
+                continue;
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.StareDownMotherBrain)
             {
+                // The target is just left of Samus, at a fixed height. This leg and the next two
+                // reverse off screen with the staging wrong-way speed, not the approaches' one.
+                {
                 var target = new Position16<RoomPixels>(samus.Position.X.Whole + BabyMetroidCutsceneFlightDefinitions.StareDownOffsetX, BabyMetroidCutsceneFlightDefinitions.StareDownY);
                 GraduallyAccelerateTowardsPoint(
                     target,
@@ -488,12 +470,13 @@ public sealed class BabyMetroidCutsceneState
                     cameraPosition);
                 if (CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach))
                 {
-                    Phase = BabyMetroidCutscenePhase.FlyToRightEdge;
+                    Phase = new BabyMetroidCutscenePhase.Flying.FlyToRightEdge();
                 }
                 break;
+                }
             }
-
-            case BabyMetroidCutscenePhase.FlyToRightEdge:
+            else if (Phase is BabyMetroidCutscenePhase.Flying.FlyToRightEdge)
+            {
                 // The leg targets a fixed point just past the right edge of the screen.
                 GraduallyAccelerateTowardsPoint(
                     BabyMetroidCutsceneFlightDefinitions.RightEdgePoint,
@@ -501,10 +484,11 @@ public sealed class BabyMetroidCutsceneState
                     BabyMetroidCutsceneFlightDefinitions.StagingWrongWaySpeed,
                     cameraPosition);
                 if (CollidesWithRectangle(BabyMetroidCutsceneFlightDefinitions.RightEdgePoint, BabyMetroidCutsceneFlightDefinitions.TargetReach))
-                    Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
+                    Phase = new BabyMetroidCutscenePhase.Flying.MoveToFinalChargeStart();
                 break;
-
-            case BabyMetroidCutscenePhase.MoveToFinalChargeStart:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.MoveToFinalChargeStart)
+            {
                 // The final approach brings the Baby to the charge's start. There it takes the health the final four-ring
                 // volley kills it with on its first hit, and Mother Brain turns from her retreat to that volley.
                 GraduallyAccelerateTowardsPoint(
@@ -516,12 +500,13 @@ public sealed class BabyMetroidCutsceneState
                 {
                     Health = BabyMetroidCutsceneDefinitions.FinalVolleyHealth;
                     LateFight.ExecuteFinalBabyMetroidAttack();
-                    Phase = BabyMetroidCutscenePhase.InitiateFinalCharge;
+                    Phase = new BabyMetroidCutscenePhase.Flying.InitiateFinalCharge();
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.InitiateFinalCharge:
-                // The charge's start divides the distance by six, a much firmer pull than the staging legs' sixteen,
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.InitiateFinalCharge)
+            {
+                // The charge's start divides the distance by its own divisor, a much firmer pull than the staging legs',
                 // and reverses off screen with the approaches' wrong-way speed.
                 GraduallyAccelerateTowardsPoint(
                     BabyMetroidCutsceneFlightDefinitions.FinalChargeAim,
@@ -529,12 +514,13 @@ public sealed class BabyMetroidCutsceneState
                     BabyMetroidCutsceneFlightDefinitions.ApproachWrongWaySpeed,
                     cameraPosition);
                 if (CollidesWithRectangle(BabyMetroidCutsceneFlightDefinitions.FinalChargeAim, BabyMetroidCutsceneFlightDefinitions.TargetReach))
-                    Phase = BabyMetroidCutscenePhase.FinalCharge;
+                    Phase = new BabyMetroidCutscenePhase.Flying.FinalCharge();
                 break;
-
-            case BabyMetroidCutscenePhase.FinalCharge:
-                // The final target follows Mother Brain's brain, 32 pixels above its
-                // centre. Its divisor of four accelerates much more aggressively than the staging leg.
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.FinalCharge)
+            {
+                // The final target follows Mother Brain's brain, above its centre. Its
+                // divisor accelerates much more aggressively than the staging leg's.
                 GraduallyAccelerateTowardsPoint(
                     head + BabyMetroidCutsceneFlightDefinitions.FinalChargeOffset,
                     accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.FinalChargeDivisor,
@@ -546,43 +532,42 @@ public sealed class BabyMetroidCutsceneState
                     // shaking this same update.
                     startedAnimation = MotherBrainBabySegment.TakingFatalBlow;
                     Velocity = default;
-                    Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
+                    Phase = new BabyMetroidCutscenePhase.Flying.TakeFinalBlow();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.FatalBlowShakeUpdates);
                     FatalBlowOrigin = Position.Whole;
-                    goto case BabyMetroidCutscenePhase.TakeFinalBlow;
-                }
-                break;
-
-            case BabyMetroidCutscenePhase.TakeFinalBlow:
-            {
-                // The cutscene's shake first adds -1 to the Y velocity,
-                // which the common mover then applies, and places the Baby at the saved origin
-                // plus the undoubled shaking offsets.
-                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FinestStep);
-                int shakingIndex = MotherBrainCadenceDefinitions.BabyShakeStep.Of(enemyFrameCounter);
-                Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShakeDefinitions.Offsets[shakingIndex]);
-                if (PhaseTimer.StepRunsOut())
-                {
-                    Position = Position.WithWhole(FatalBlowOrigin);
-                    Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
-                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.SamusThemeUpdates);
-                    goto case BabyMetroidCutscenePhase.PlaySamusTheme;
+                    continue;
                 }
                 break;
             }
-
-            case BabyMetroidCutscenePhase.PlaySamusTheme:
+            else if (Phase is BabyMetroidCutscenePhase.Flying.TakeFinalBlow)
+            {
+                // The cutscene's shake first slows the Baby's rise by the finest step each update, before it moves, and
+                // places the Baby at the saved origin plus the undoubled shaking offsets.
+                Velocity = Velocity.WithY(Velocity.Y - SignedEightEight.FinestStep);
+                Position = Position.WithWhole(FatalBlowOrigin + MotherBrainShake.OffsetOn(MotherBrainCadenceDefinitions.BabyShakeStep, enemyFrameCounter));
+                if (PhaseTimer.StepRunsOut())
+                {
+                    Position = Position.WithWhole(FatalBlowOrigin);
+                    Phase = new BabyMetroidCutscenePhase.Flying.PlaySamusTheme();
+                    PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.SamusThemeUpdates);
+                    continue;
+                }
+                break;
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.PlaySamusTheme)
+            {
                 // The theme's last update queues the two delayed music requests and is immediately
                 // the first update of the Hyper Beam's preparation.
                 if (PhaseTimer.StepRunsOut())
                 {
-                    Phase = BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
+                    Phase = new BabyMetroidCutscenePhase.Flying.PrepareSamusForHyperBeam();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.HyperBeamPreparationUpdates);
-                    goto case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam;
+                    continue;
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.PrepareSamusForHyperBeam:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.PrepareSamusForHyperBeam)
+            {
                 if (PhaseTimer.StepRunsOut())
                 {
                     // The Hyper Beam acquisition freezes Samus's drained animation on its Hyper Beam acquisition frame.
@@ -590,52 +575,56 @@ public sealed class BabyMetroidCutsceneState
                     // update.
                     SamusDrainedState.FreezeForHyperBeamAcquisition(samus);
                     SamusRainbowPhase = BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow;
-                    Phase = BabyMetroidCutscenePhase.DeathSequence;
+                    Phase = new BabyMetroidCutscenePhase.Flying.DeathSequence();
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.DeathSequence:
-                StepSamusRainbowColours(samus, ref samusRainbowActivated);
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.DeathSequence)
+            {
+                StepSamusRainbowColours(samus);
                 AccelerateDownwardsForDeath();
                 if (StepFadeToBlack(ref babyFadeImage))
                 {
                     // Faded to black, the Baby is hidden, and the pause starts before Samus's rainbow runs on.
                     visibility = BabyMetroidVisibilityRequest.Hide;
-                    Phase = BabyMetroidCutscenePhase.PauseAfterFade;
+                    Phase = new BabyMetroidCutscenePhase.Flying.PauseAfterFade();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.AfterFadeUpdates);
                 }
                 else
                 {
                     deathExplosion = StepDeathExplosion();
                     // The flicker step shows the Baby on odd enemy frames and hides it on even.
-                    visibility = MotherBrainCadenceDefinitions.BabyDeathFlickerShown.IsSetIn(enemyFrameCounter)
+                    visibility = MotherBrainCadenceDefinitions.BabyDeathFlickerShown.IsInSecondHalfAt(enemyFrameCounter)
                         ? BabyMetroidVisibilityRequest.Show
                         : BabyMetroidVisibilityRequest.Hide;
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.PauseAfterFade:
-                StepSamusRainbowColours(samus, ref samusRainbowActivated);
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.PauseAfterFade)
+            {
+                StepSamusRainbowColours(samus);
                 if (PhaseTimer.StepRunsOut())
                 {
                     // Letting Samus rainbow some more starts on the pause's last update, which is its first.
-                    Phase = BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
+                    Phase = new BabyMetroidCutscenePhase.Flying.LetSamusRainbowSomeMore();
                     PhaseTimer.LastFor(BabyMetroidCutsceneDefinitions.RainbowSomeMoreUpdates);
-                    goto case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore;
+                    continue;
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.LetSamusRainbowSomeMore:
+            }
+            else if (Phase is BabyMetroidCutscenePhase.Flying.LetSamusRainbowSomeMore)
+            {
                 if (PhaseTimer.StepRunsOut())
                 {
-                    Phase = BabyMetroidCutscenePhase.FinalCutscene;
+                    Phase = new BabyMetroidCutscenePhase.Flying.FinalCutscene();
                     RecoveryLights.StartAfter(1);
-                    goto case BabyMetroidCutscenePhase.FinalCutscene;
+                    continue;
                 }
                 break;
-
-            case BabyMetroidCutscenePhase.FinalCutscene:
+            }
+            else
             {
+                // The remaining member, BabyMetroidCutscenePhase.Flying.FinalCutscene.
                 // Each update shows the next image of the room lights' recovery; the update the recovery is over ends the
                 // cutscene.
                 if (RecoveryLights.Step() is { } lights)
@@ -649,28 +638,24 @@ public sealed class BabyMetroidCutsceneState
                 LateFight.BeginPhase3RecoveryFromBabyCutscene();
                 samus.Drained.DisableRainbowAndStartStandingAnimation(samus);
                 samus.Drained.EnableHyperBeam(samus);
-                Phase = BabyMetroidCutscenePhase.Deleted;
+                IsDeleted = true;
                 break;
             }
-
-            case BabyMetroidCutscenePhase.Inactive:
-            case BabyMetroidCutscenePhase.Deleted:
-            default:
-                throw new InvalidOperationException($"Unsupported Baby Metroid phase {Phase}.");
         }
 
         // The Baby moves by its velocity on every update, its phase changes and its snaps to a target included; a snap
         // zeroes both velocities, so the Baby stays exactly on its target.
         MoveAccordingToVelocity();
 
-        // After the Baby moves, its hit shake counts down and its hit flash plays on: a hit starts the shake with sixteen
-        // updates left, so the next update shakes the Baby at sixteen and shows the flash's first hurt colours.
+        // After the Baby moves, its hit shake counts down and its hit flash plays on: a hit starts the shake with its whole
+        // length left, so the next update shakes the Baby at its full length and shows the flash's first hurt colours.
         _ = OnionRingHitShake.Step();
         HurtFlash?.Step();
 
         return new BabyMetroidCutsceneStepResult(
             phaseBefore,
             Phase,
+            IsDeleted,
             latchSoundQueued,
             releaseDustClouds.ToArray(),
             ambientCrySoundQueued,
@@ -695,50 +680,43 @@ public sealed class BabyMetroidCutsceneState
         Health = Math.Max(0, healthBefore - damage);
     }
 
-    /// <summary>Activates Samus's healed rainbow colours when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
-    private void StepSamusRainbowColours(
-        SamusState samus,
-        ref bool samusRainbowActivated)
+    /// <summary>What <see cref="StepSamusRainbowColours"/> does for each <see cref="BabyMetroidSamusRainbowPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<BabyMetroidSamusRainbowPhase, Action<SamusState>> StepSamusRainbowColoursForBabyMetroidSamusRainbowPhase => field ??= new(new Dictionary<BabyMetroidSamusRainbowPhase, Action<SamusState>>
     {
-        switch (SamusRainbowPhase)
+        [BabyMetroidSamusRainbowPhase.Inactive] = samus => { },
+        [BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow] = samus =>
         {
-            case BabyMetroidSamusRainbowPhase.Inactive:
+            // Samus's rainbow starts once the Baby has come down to no more than its margin above her.
+            if (SignedPlace.Y + BabyMetroidCutsceneDefinitions.SamusRainbowAboveBaby < samus.Position.Y.Whole)
                 return;
+            samus.Drained.EnableRainbow(samus);
+            SamusRainbowPhase = BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown;
+        },
+        [BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown] = samus =>
+        {
+            (RainbowFramePart fraction, bool frameCompleted) = SamusRainbowFraction.AdvancedByOneUpdate();
+            SamusRainbowFraction = fraction;
+            if (frameCompleted)
+                samus.Drained.HoldRainbowGlowLonger(longestHold: BabyMetroidCutsceneDefinitions.SamusRainbowLongestHold);
+        },
+    });
 
-            case BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow:
-                // Samus's rainbow starts once the Baby has come down to no more than its margin above her.
-                if (SignedPlace.Y + BabyMetroidCutsceneDefinitions.SamusRainbowAboveBaby < samus.Position.Y.Whole)
-                    return;
-                samus.Drained.EnableRainbow(samus);
-                samusRainbowActivated = true;
-                SamusRainbowPhase = BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown;
-                return;
-
-            case BabyMetroidSamusRainbowPhase.GraduallySlowAnimationDown:
-            {
-                (RainbowFramePart fraction, bool frameCompleted) = SamusRainbowFraction.AdvancedByOneUpdate();
-                SamusRainbowFraction = fraction;
-                if (frameCompleted)
-                    samus.Drained.HoldRainbowGlowLonger(longestHold: BabyMetroidCutsceneDefinitions.SamusRainbowLongestHold);
-                return;
-            }
-
-            default:
-                throw new InvalidOperationException($"Unsupported Samus rainbow phase {SamusRainbowPhase}.");
-        }
+    /// <summary>Activates Samus's healed rainbow colours when the Baby reaches her, then slows its frame cadence by a fractional counter.</summary>
+    private void StepSamusRainbowColours(SamusState samus)
+    {
+        StepSamusRainbowColoursForBabyMetroidSamusRainbowPhase[SamusRainbowPhase](samus);
     }
 
     /// <summary>Slows the horizontal speed by the death fall's drag and adds its gravity to the vertical speed.</summary>
     private void AccelerateDownwardsForDeath()
     {
         // The slowing takes the drag from the speed, stopping at rest and keeping its direction, and adds the gravity
-        // to the vertical velocity. The fall ends 63 updates after the Baby's center reaches Y 128, so its speed stays
-        // below 33 pixels an update.
+        // to the vertical velocity.
         Velocity = new(Velocity.X.SlowedBy(BabyMetroidCutsceneFlightDefinitions.DeathFallDrag), Velocity.Y + BabyMetroidCutsceneFlightDefinitions.DeathFallGravity);
     }
 
     /// <summary>
-    /// Plays the Baby's fade to black once its center reaches Y=128, an image every nine updates; true on the update the fade
+    /// Plays the Baby's fade to black once its center reaches the fade's line, an image each fade step; true on the update the fade
     /// is over, after its last image's hold.
     /// </summary>
     private bool StepFadeToBlack(ref MotherBrainFadeImage? fadeImage)
@@ -752,7 +730,7 @@ public sealed class BabyMetroidCutsceneState
         return FadeToBlack.IsOver;
     }
 
-    /// <summary>Emits a dust explosion every five updates using the shared Ridley scatter pattern.</summary>
+    /// <summary>Emits a dust explosion at the death's explosion interval using the shared Ridley scatter pattern.</summary>
     private DustExplosionRequest? StepDeathExplosion()
     {
         if (DeathExplosionTimer.StepKeepsRunning())
@@ -764,7 +742,7 @@ public sealed class BabyMetroidCutsceneState
         return new DustExplosionRequest(
             Position: Position.Whole + scatter,
             Animation: DustExplosionAnimation.SmallExplosion,
-            SoundEffect: MotherBrainSoundDefinitions.Explosion);
+            Sound: MotherBrainSoundDefinitions.Explosion);
     }
 
 
@@ -795,27 +773,16 @@ public sealed class BabyMetroidCutsceneState
             : targetHeading;
 
         TrigonometryAngle angle = Angle.ToTrigonometryAngle();
+        // Each component is the speed multiplied by the sine's size, signed as the sine is.
         Velocity = new(
-            CalculateVelocityComponent(Speed, angle),
-            CalculateVelocityComponent(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
+            SpeedAlongAngle.Along(Speed, angle),
+            SpeedAlongAngle.Along(Speed, angle.TurnedBy(TrigonometryAngle.QuarterTurn)));
     }
 
-    /// <summary>Multiplies speed by the angle's sine, rounding the product down to a 256th of a pixel, as the game does.</summary>
-    /// <param name="speed">The speed, taken without its sign.</param>
-    /// <param name="angle">The angle whose sine scales the speed.</param>
-    internal static SignedEightEight CalculateVelocityComponent(
-        SignedEightEight speed,
-        TrigonometryAngle angle)
-    {
-        // The speed is multiplied by the sine's size and the product's sign is the sine's.
-        return SpeedAlongAngle.Along(speed, angle);
-    }
-
-    /// <summary>Moves the Baby by its velocity, in 256ths of a pixel, leaving the position's finer-than-256ths part untouched.</summary>
+    /// <summary>Moves the Baby by its velocity; its position keeps the fraction of a pixel its place held.</summary>
     private void MoveAccordingToVelocity()
     {
-        // The velocity moves the position in 256ths of a pixel: a fraction past a whole pixel
-        // carries into the whole pixels, and the position's finer part is unchanged.
+        // A fraction past a whole pixel carries into the whole pixels.
         Position = Position.Advance(Velocity.ToDisplacement());
     }
 
@@ -842,7 +809,27 @@ public sealed class BabyMetroidCutsceneState
         }
     }
 
-    /// <summary>Uses the Baby's 36-pixel radii and inclusive rectangle overlap for route targets.</summary>
+    /// <summary>
+    /// One update of the Baby's flight up to the ceiling above Mother Brain's <paramref name="head"/>, through its release
+    /// and after it: it accelerates gently there, and reaching it crouches the drained Samus and starts its route to her.
+    /// </summary>
+    private void MoveToTheCeiling(SamusState samus, Position16<RoomPixels> head, Position16<RoomPixels> cameraPosition)
+    {
+        Position16<RoomPixels> target = head.WithY(0);
+        GraduallyAccelerateTowardsPoint(
+            target,
+            accelerationDivisor: BabyMetroidCutsceneFlightDefinitions.GentleAccelerationDivisor,
+            BabyMetroidCutsceneFlightDefinitions.ApproachWrongWaySpeed,
+            cameraPosition);
+        if (CollidesWithRectangle(target, BabyMetroidCutsceneFlightDefinitions.TargetReach))
+        {
+            samus.Drained.CrouchDrained(samus);
+            Phase = new BabyMetroidCutscenePhase.Flying.MoveToSamus();
+            RouteLeg = BabyMetroidRoute.FirstLeg;
+        }
+    }
+
+    /// <summary>Uses the Baby's hitbox radii and inclusive rectangle overlap for route targets.</summary>
     private bool CollidesWithRectangle(
         Position16<RoomPixels> center,
         Extent16<RoomPixels> rectangleRadius)
@@ -872,8 +859,8 @@ public sealed class BabyMetroidCutsceneState
     /// <summary>Checks the generous signed camera rectangle used by the Baby's wrong-way movement recovery.</summary>
     private bool IsVaguelyOffScreen(Position16<RoomPixels> cameraPosition)
     {
-        // The Baby is off screen only outside a generous rectangle: 16 pixels past the view's sides and 96 above and
-        // below it.
+        // The Baby is off screen only outside a generous rectangle past the view's sides, above and below it
+        // (BabyMetroidFlightWindowDefinitions).
         if (SignedPlace.Y < 0)
             return true;
         int relativeY = SignedPlace.Y + BabyMetroidFlightWindowDefinitions.VerticalMargin - cameraPosition.Y;
@@ -895,32 +882,12 @@ public sealed class BabyMetroidCutsceneState
         return reachedX && reachedY;
     }
 
-    /// <summary>Accelerates Y toward its target at at most five pixels per frame and zeroes velocity on crossing.</summary>
+    /// <summary>Accelerates Y toward its target at no more than the approach's fastest speed and zeroes velocity on crossing.</summary>
     private bool AccelerateTowardsYPosition(int targetY, SignedEightEight acceleration)
     {
-        int difference = SignedPlace.Y - targetY;
-        if (difference == 0)
-            return true;
-
-        // Each step clamps the speed to five pixels an update, so adding the acceleration stays far inside its range.
-        if (difference < 0)
-        {
-            Velocity = Velocity.WithY(SignedEightEight.Min(Velocity.Y + acceleration, BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.Y + Velocity.Y.WholePixels;
-            if (prediction < targetY)
-                return false;
-        }
-        else
-        {
-            Velocity = Velocity.WithY(SignedEightEight.Max(Velocity.Y - acceleration, -BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.Y + Velocity.Y.WholePixels;
-            int predictedDifference = prediction - targetY;
-            if (predictedDifference > 0)
-                return false;
-        }
-
-        Velocity = Velocity.WithY(default);
-        return true;
+        BabyMetroidAxisApproach approach = Approach(SignedPlace.Y, targetY, Velocity.Y, acceleration, BabyMetroidOnTarget.Arrives);
+        Velocity = Velocity.WithY(approach.Speed);
+        return approach.Arrived;
     }
 
     /// <summary>
@@ -928,27 +895,38 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     private bool AccelerateTowardsXPosition(int targetX, SignedEightEight acceleration)
     {
-        int difference = SignedPlace.X - targetX;
+        BabyMetroidAxisApproach approach = Approach(SignedPlace.X, targetX, Velocity.X, acceleration, BabyMetroidOnTarget.KeepsAccelerating);
+        Velocity = Velocity.WithX(approach.Speed);
+        return approach.Arrived;
+    }
+
+    /// <summary>
+    /// One axis of an approach: the speed along it gains <paramref name="acceleration"/> towards <paramref name="target"/>,
+    /// up to <see cref="BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed"/>, and the Baby has arrived, its speed
+    /// zeroed, once its next move would reach or cross the target. A Baby standing exactly on the target does as
+    /// <paramref name="onTarget"/> says: it has arrived, its speed kept, or it still accelerates towards the lesser side.
+    /// </summary>
+    private static BabyMetroidAxisApproach Approach(int place, int target, SignedEightEight speed, SignedEightEight acceleration,
+        BabyMetroidOnTarget onTarget)
+    {
+        int difference = place - target;
+        if (difference == 0 && onTarget == BabyMetroidOnTarget.Arrives)
+            return new(BabyMetroidAxisProgress.Arrived, speed);
+
         if (difference < 0)
         {
-            Velocity = Velocity.WithX(SignedEightEight.Min(Velocity.X + acceleration, BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.X + Velocity.X.WholePixels;
-            if (prediction < targetX)
-                return false;
+            speed = SignedEightEight.Min(speed + acceleration, BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed);
+            if (place + speed.WholePixels < target)
+                return new(BabyMetroidAxisProgress.Approaching, speed);
         }
         else
         {
-            // Deliberately sends exact equality through the left branch; unlike Y,
-            // there is no equality test before the check for a negative difference.
-            Velocity = Velocity.WithX(SignedEightEight.Max(Velocity.X - acceleration, -BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed));
-            int prediction = SignedPlace.X + Velocity.X.WholePixels;
-            int predictedDifference = prediction - targetX;
-            if (predictedDifference > 0)
-                return false;
+            speed = SignedEightEight.Max(speed - acceleration, -BabyMetroidCutsceneFlightDefinitions.ApproachMaximumSpeed);
+            if (place + speed.WholePixels - target > 0)
+                return new(BabyMetroidAxisProgress.Approaching, speed);
         }
 
-        Velocity = Velocity.WithX(default);
-        return true;
+        return new(BabyMetroidAxisProgress.Arrived, default);
     }
 
 }

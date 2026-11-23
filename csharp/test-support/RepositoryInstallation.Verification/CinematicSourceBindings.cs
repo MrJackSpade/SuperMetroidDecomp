@@ -19,16 +19,24 @@ internal static class CinematicSourceBindings
     /// <summary>The import's Ceres flight artwork by the catalog a fixture bound from it.</summary>
     private static readonly ConditionalWeakTable<CeresFlightArtwork, CeresFlightCharacters> flights = new();
 
+    /// <summary>The catalog built from each import artwork, once (#2604).</summary>
+    private static readonly ConditionalWeakTable<ImportIntroCinematicArtwork, IntroCinematicArtwork> catalogs = new();
+
     extension(ImportIntroCinematicArtwork self)
     {
-        /// <summary>The catalog the game binds of this artwork, recorded so checks of a scene bound to it can read this artwork.</summary>
+        /// <summary>
+        /// The catalog the game binds of this artwork, recorded so checks of a scene bound to it can read this artwork: its
+        /// backdrop and the Ceres scenes' backdrop and placements, as an installation of it holds them (#2604).
+        /// </summary>
         internal IntroCinematicArtwork BoundCatalog
         {
             get
             {
-                intros.AddOrUpdate(self.Cinematic, self);
-                flights.AddOrUpdate(self.Cinematic.CeresFlight, self.FlightCharacters);
-                return self.Cinematic;
+                IntroCinematicArtwork catalog = catalogs.GetValue(self,
+                    source => new IntroCinematicArtwork(source.Backdrop, source.CeresFlight.Flight, source.CeresDestruction));
+                intros.AddOrUpdate(catalog, self);
+                flights.AddOrUpdate(catalog.CeresFlight, self.FlightCharacters);
+                return catalog;
             }
         }
     }

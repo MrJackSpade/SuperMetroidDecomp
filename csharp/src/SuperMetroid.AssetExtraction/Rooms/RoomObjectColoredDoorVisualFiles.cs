@@ -6,10 +6,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The installed pictures of the forty-eight yellow, green and red door-cap frames (#1557), and the published names that key them.</summary>
-public static class RoomObjectColoredDoorVisualFiles
+public static partial class RoomObjectColoredDoorVisualFiles
 {
     /// <summary>JSON filename for yellow, green, and red door-cap visual frames.</summary>
-    public const string VisualFileName = "colored-doors.json";
+    internal const string VisualFileName = "colored-doors.json";
 
     /// <summary>The cap colours in the installed file's order (#2567): yellow, green, red.</summary>
     private static readonly IReadOnlyList<ColoredDoorColor> Colors = Ensure.EveryMemberOnce<ColoredDoorColor>(
@@ -33,7 +33,7 @@ public static class RoomObjectColoredDoorVisualFiles
     /// <summary>Loads the installed coloured-door cap pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectColoredDoorVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>Enumerates yellow, green, and red cap frames in their authored order.</summary>
@@ -43,17 +43,21 @@ public static class RoomObjectColoredDoorVisualFiles
         {
             foreach (RoomObjectDraw draw in Draws())
             {
-                TryGet(draw, out var list);
-                yield return list;
+                yield return DrawListOf(draw);
             }
         }
     }
+
+    /// <summary>The draw list of <paramref name="draw"/>, which must be one of the coloured door cap draws.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a coloured door cap draw.</exception>
+    internal static RoomObjectDrawLists.DrawList DrawListOf(RoomObjectDraw draw) =>
+        TryGet(draw, out RoomObjectDrawLists.DrawList list) ? list : throw new InvalidDataException($"{draw} is not a coloured door cap draw.");
 
     /// <summary>Builds the draw list of a recognized colored cap from how its cells collide.</summary>
     internal static bool TryGet(RoomObjectDraw request, out RoomObjectDrawLists.DrawList list)
     {
         bool found = RoomObjectDrawIdentity.TryFrame<ColoredDoorCaps.Draw>(request, out ColoredDoorCaps.Draw cap);
-        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.Vertical, cap.Blocks)) : default;
+        list = found ? RoomObjectShapeRun.DrawList(request, cap.Blocks, RoomObjectShapeRun.Line(cap.LineAxis, cap.Blocks)) : default;
         return found;
     }
 
@@ -77,8 +81,8 @@ public static class RoomObjectColoredDoorVisualFiles
     private static IEnumerable<RoomObjectDraw> Draws()
     {
         foreach (ColoredDoorColor color in Colors)
-            for (int orientation = 0; orientation < 4; orientation++)
+            foreach (ColoredDoorOrientation orientation in DoorCapOrientations.InTableOrder)
                 foreach (DoorCapLook look in DoorCaps.OpeningLooks)
-                    yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, DoorCapOrientations.FromTableIndex(orientation), look));
+                    yield return ColoredDoorCaps.Family.Of(new ColoredDoorCaps.Draw(color, orientation, look));
     }
 }

@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>The compositions the four $8B:EE5D..EE9A logo lists show.</summary>
-public static class EndingLogoSpriteDefinitions
+public static partial class EndingLogoSpriteDefinitions
 {
     /// <summary>The upper and lower S, then three right-wrap and three left-wrap circle stages.</summary>
     public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =

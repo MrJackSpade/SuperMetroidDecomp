@@ -28,23 +28,23 @@ internal static class CrocomirePresentation1193Verification
     /// <summary>Runs the retail Crocomire room and checks either NMI spike uploads or displayed BG1 rumble ordering.</summary>
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         var maps = InstalledFixtures.Maps;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
         var boss = runtime.Enemies.BossEncounters.Crocomire;
         var death = boss?.Death;
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         PlaceSamusInArena();
 
         void PlaceSamusInArena()
         {
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Health = samus.MaxHealth = 999;
             samus.Position = samus.Position.WithWhole(new(600, 120));
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -60,7 +60,7 @@ internal static class CrocomirePresentation1193Verification
         {
             (boss ?? throw new InvalidOperationException("Verification requires boss.")).DeathStage = CrocomireDeathStages.Only<CrocomireDeathStage.RumbleHiddenWall>();
             boss.Body.Presence = boss.Body.Presence.Without(EnemyPresence.Hidden);
-            boss.RumbleOscillation = 0;
+            boss.RumbleOscillation = ListStep<CrocomireRumbleOscillation>.FirstOf(CrocomireRumbleDefinitions.Oscillations);
             boss.RumbleTowardExtreme = true;
             (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = 0;
             death.RumbleRepeatsLeft = UpdateCountdown.For(10);
@@ -110,12 +110,12 @@ internal static class CrocomirePresentation1193Verification
             // A room load builds the room's spikes afresh, with their first frame pending.
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire);
             PlaceSamusInArena();
-            PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.BlockAnimations);
+            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.BlockAnimations;
             game.Step(0);
             ArtworkAnimation spikeTiles = BlockAnimationFrames.Of(BlockAnimation.HorizontalSpikes);
             AssertEqual(false, runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out _),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
-            PrivateState.Set(samus.Xray, nameof(SamusXrayState.SuspendedSubsystems), XraySuspendedSubsystems.None);
+            samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
             game.Step(0);
             AssertTrue(runtime.Room.LoadedScope.ArtworkFrames.TryShown(spikeTiles, out ArtworkFrame resumed) &&
                     resumed == BlockAnimationLoops.Frames(BlockAnimation.HorizontalSpikes)[0].Frame,

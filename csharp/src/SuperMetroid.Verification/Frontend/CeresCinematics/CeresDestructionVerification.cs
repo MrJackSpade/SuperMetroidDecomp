@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.Core.Animation;
@@ -82,7 +84,7 @@ internal static void VerifyCeresDestructionCinematic()
     var presentation = RetailPresentationFixture();
     var audio = AudioQueues.Standalone();
     var state = new CeresDestructionCinematicState(audio, glowColors: presentation.PowerBombGlowColors, artwork: artwork.BoundCatalog,
-        spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, japaneseText: false);
+        spriteSheets: CinematicSheetFixtures.WithIntro(artwork), outcome: SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionOutcome.SamusEscaped, language: TextLanguage.English);
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
     for (int wait = 0; wait < CeresDestructionSceneDefinitions.InitialFrameWaits; wait++)
     {
@@ -102,14 +104,19 @@ internal static void VerifyCeresDestructionCinematic()
     var firstFrameByPhase = new Dictionary<CeresDestructionPhase, int>();
     bool checkedGunshipTransfer = false;
     bool observedZebesActorDeletionBeforeHandoff = false;
+    // The sprites the slide of the Zebes scene starts with: its reveal's actors, which the scene draws (#2554).
+    int? zebesSceneDraws = null;
     while (!state.Finished && frame < 5000)
     {
         { state.Step(); audio.AdvanceFrame(default); }
         frame++;
         firstFrameByPhase.TryAdd(state.Phase, frame);
-        observedZebesActorDeletionBeforeHandoff |=
-            state.Phase == CeresDestructionPhase.SlideZebesSceneAway &&
-            state.ActiveActorCount < 5;
+        if (state.Phase == CeresDestructionPhase.SlideZebesSceneAway)
+        {
+            int drawn = state.ComposeScene().LayersOf<SpritesLayer>().Sum(layer => layer.Draws.Length);
+            zebesSceneDraws ??= drawn;
+            observedZebesActorDeletionBeforeHandoff |= drawn < zebesSceneDraws;
+        }
         if (!checkedGunshipTransfer &&
             state.Phase == CeresDestructionPhase.FlyingAwayFromExplosion)
         {

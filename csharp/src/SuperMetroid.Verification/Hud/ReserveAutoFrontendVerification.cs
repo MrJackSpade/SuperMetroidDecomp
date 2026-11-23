@@ -43,13 +43,13 @@ internal static class ReserveAutoFrontendVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var random = new SharedRandom();
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
         var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AlphaPowerBomb);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
@@ -136,7 +136,7 @@ internal static class ReserveAutoFrontendVerification
                 digitImages.Add(frame % 10, onesPixels);
             AssertEqual(frame + 1, samus.Health, "full automatic refill progression");
             AssertEqual(frame < 30, samus.HealthWarning.IsActive, "warning switches off exactly at health 31");
-            bool Has(int command) => roomRequests.Contains(SoundEffectCommands.Decode(SoundEffectLibrary.Room, command));
+            bool Has(int command) => roomRequests.Contains(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, command));
             AssertEqual(frame == 0, Has(2), "warning start issued only once through real frontend");
             AssertEqual(frame == 30, Has(1), "warning stop issued on 30-to-31 refill crossing");
         }
@@ -167,14 +167,14 @@ internal static class ReserveAutoFrontendVerification
         SoundRequestsMark unlockedMark = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Room);
         game.StepCaptured(0);
         AssertTrue(samus.HealthWarning.IsActive, "ordinary gameplay acquires critical warning after unlock");
-        AssertTrue(audio.SoundsQueuedSinceForVerification(unlockedMark).Contains(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)),
+        AssertTrue(audio.SoundsQueuedSinceForVerification(unlockedMark).Contains(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, 2)),
             "ordinary gameplay publishes actual warning command");
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         // The Zebes handoff installs a fresh Samus that carries over only the inventory.
         samus = runtime.Player.Samus;
         AssertTrue(runtime.Player.Samus?.Control.Mode.Movement != SamusMovementMode.Gunship, "initial post-Ceres descent does not install command 1A");
         var ship = runtime.Enemies.Places.InUpdateOrder[0];
-        GunshipState shipPart = GunshipState.Of(ship);
+        GunshipState shipPart = ship.RequireSpeciesState<GunshipState>();
         shipPart.Phase = GunshipPhase.WaitForEntranceToOpen;
         shipPart.PhaseTimer = UpdateCountdown.For(100);
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).HealthWarning.Update(99, runtime.AudioRequests);
@@ -184,7 +184,7 @@ internal static class ReserveAutoFrontendVerification
         game.StepCaptured(0);
         AssertTrue(samus.Control.Mode.Movement == SamusMovementMode.Gunship && samus.HealthWarning.IsActive,
             "gunship entry handler checks low health despite locked input");
-        AssertTrue(audio.SoundsQueuedSinceForVerification(gunshipMark).Contains(SoundEffectCommands.Decode(SoundEffectLibrary.Room, 2)),
+        AssertTrue(audio.SoundsQueuedSinceForVerification(gunshipMark).Contains(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, 2)),
             "gunship handler publishes warning audio");
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");
     }

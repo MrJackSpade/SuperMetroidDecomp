@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// whether it is one of the Spazer attack's trailing pair, and which particles voice the attack's sounds. Each attack
 /// reads only its own parts.
 /// </summary>
-internal sealed record SpecialAttackParticle
+internal sealed partial record SpecialAttackParticle
 {
+    /// <summary>The shot place, among Samus's first places, the particle takes when the attack starts (#2565).</summary>
+    public required int ShotPlace { get; init; }
+
     /// <summary>The angle an Ice or Plasma particle starts its orbit of Samus at.</summary>
     public required TrigonometryAngle OrbitStart { get; init; }
 
@@ -25,6 +28,9 @@ internal sealed record SpecialAttackParticle
     /// trails as it circles, and stepping left rather than right as it falls.
     /// </summary>
     public bool SpazerTrail { get; init; }
+
+    /// <summary>The side a falling Spazer particle steps to (#2560): its trail particles step left, the others right.</summary>
+    public HorizontalDirection FallSideStep { get; init; } = HorizontalDirection.Right;
 
     /// <summary>Whether this Spazer particle voices the attack's convergence sound.</summary>
     public bool VoicesSpazerConvergence { get; init; }

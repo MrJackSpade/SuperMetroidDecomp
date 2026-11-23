@@ -1,18 +1,18 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>The Skultera species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class SkulteraBehavior : IEnemySpecies, IEnemySpawnFactory<SkulteraSpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new SkulteraEntity(this, place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, SkulteraSpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new SkulteraEntity(this, occupant, place, common, settings));
 
     /// <summary>The room's blocks Skultera's horizontal and vertical swim steps meet.</summary>
     private readonly EnemyTerrain _terrain;
@@ -23,72 +23,68 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
+    /// <summary>What <see cref="ApplySkulteraCue"/> does for each <see cref="SkulteraCueKind"/> member, each member's own arm.</summary>
+    private static IdentityTable<SkulteraCueKind, Action<SkulteraEnemyState>> ApplySkulteraCueForSkulteraCueKind => field ??= new(new Dictionary<SkulteraCueKind, Action<SkulteraEnemyState>>
+    {
+        // Turns rest immediately after finishing (#2450): the cue moves the Skultera into its finished turn, which main AI
+        // consumes on the following update, starting the steady swim.
+        [SkulteraCueKind.FinishTurn] = static state => state.Action = SkulteraAction.TurnFinished,
+    });
+
     /// <summary>Carries out one cue of Skultera's animations.</summary>
     private static void ApplySkulteraCue(SkulteraEnemyState state, SkulteraCue cue)
     {
-        switch (cue.Kind)
-        {
-            case SkulteraCueKind.FinishTurn:
-                // Turns rest immediately after finishing (#2450). Main AI starts the steady swim on the following
-                // update.
-                if (state.Action != SkulteraAction.Turning)
-                    throw new InvalidOperationException($"A Skultera's turn finished while it was {state.Action}.");
-                state.Action = SkulteraAction.TurnFinished;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(SkulteraCueKind)} {cue.Kind}.");
-        }
+        ApplySkulteraCueForSkulteraCueKind[cue.Kind](state);
     }
 
+    /// <summary>
+    /// Where a Skultera swimming toward <paramref name="direction"/> stands among the room's actors (#2618): in front of
+    /// Samus swimming left, far behind her swimming right.
+    /// </summary>
+    internal static EnemyStacking SwimmingStacking(HorizontalDirection direction) =>
+        direction == HorizontalDirection.Left ? EnemyStacking.InFrontOfSamus : EnemyStacking.FarBehindSamus;
 
     /// <summary>Initializes the Skultera.</summary>
-    internal static void InitializeSkultera(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static SkulteraEnemyState InitializeSkultera(SkulteraSpawnSettings settings)
     {
         // The placement names the way it starts swimming and the speed it swims at either way.
-        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
         bool startsLeft = settings.StartDirection == HorizontalDirection.Left;
         var state = new SkulteraEnemyState(SkulteraAction.Swimming, settings.StartDirection);
-        place.SetSpeciesState(state);
 
         state.Playback = new(SkulteraAnimations.StartingWith(startsLeft
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight), AnimationPlace.StartOfAnimation);
 
-        state.Angle = RotationAngle.Zero;
         state.PreviousYOffset = EnemyMath.CircleNegativeSinePixels(state.Angle.ToTrigonometryAngle(), settings.Radius);
+        return state;
     }
+
+    /// <summary>What <see cref="RunSkulteraMain"/> does for each <see cref="SkulteraAction"/> member, each member's own arm.</summary>
+    private IdentityTable<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>> RunSkulteraMainForSkulteraAction => field ??= new(new Dictionary<SkulteraAction, Action<SkulteraSpawnSettings, RoomEnemyPlace, SkulteraEnemyState, RoomLevelData>>
+    {
+        [SkulteraAction.Swimming] = (settings, place, state, level) => SwimSkultera(settings, place, state, level, state.Heading),
+        [SkulteraAction.Turning] = (_, place, state, level) => { },
+        [SkulteraAction.TurnFinished] = (_, place, state, level) => FinishSkulteraTurn(place, state, state.Heading),
+    });
 
     /// <summary>Runs the Skultera's main AI.</summary>
     private void RunSkulteraMain(
-        RoomEnemyPlace place,
+        SkulteraSpawnSettings skulteraSpawnSettings, RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level)
     {
-        switch (state.Action)
-        {
-            case SkulteraAction.Swimming:
-                SwimSkultera(place, state, level, state.Heading);
-                return;
-            case SkulteraAction.Turning:
-                return;
-            case SkulteraAction.TurnFinished:
-                FinishSkulteraTurn(place, state, state.Heading);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Skultera has no behaviour for action {state.Action}.");
-        }
+        RunSkulteraMainForSkulteraAction[state.Action](skulteraSpawnSettings, place, state, level);
     }
 
     /// <summary>Runs the mirrored swimming actions.</summary>
     private void SwimSkultera(
-        RoomEnemyPlace place,
+        SkulteraSpawnSettings settings, RoomEnemyPlace place,
         SkulteraEnemyState state,
         RoomLevelData level,
         HorizontalDirection direction)
     {
-        SkulteraSpawnSettings settings = place.SpawnSettings<SkulteraSpawnSettings>();
-        SignedSixteenSixteen horizontalDisplacement = SwimVelocity(place, direction);
+        SignedSixteenSixteen horizontalDisplacement = SwimVelocity(settings, direction);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 place,
@@ -134,9 +130,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The swimming displacement of the Skultera in <paramref name="place"/> toward <paramref name="direction"/>: its
     /// spawn speed, reversed leftward (#2278).
     /// </summary>
-    internal static SignedSixteenSixteen SwimVelocity(RoomEnemyPlace place, HorizontalDirection direction)
+    internal static SignedSixteenSixteen SwimVelocity(SkulteraSpawnSettings skulteraSpawnSettings, HorizontalDirection direction)
     {
-        SignedSixteenSixteen speed = Ensure.NotNull(place).SpawnSettings<SkulteraSpawnSettings>().Speed;
+        SignedSixteenSixteen speed = skulteraSpawnSettings.Speed;
         return speed.Toward(direction);
     }
 
@@ -150,20 +146,21 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         HorizontalDirection direction)
     {
         state.Action = SkulteraAction.Swimming;
+        place.Stacking = SwimmingStacking(direction);
         state.Playback = EnemyAnimationPlayback.Start(place, SkulteraAnimations.StartingWith(direction == HorizontalDirection.Left
             ? SkulteraSegment.SwimmingLeft
             : SkulteraSegment.SwimmingRight));
     }
 
     /// <summary>Runs Skultera's main AI.</summary>
-    internal void RunSkulteraMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal void RunSkulteraMainAi(SkulteraSpawnSettings skulteraSpawnSettings, RoomEnemyPlace place, SkulteraEnemyState skulteraEnemyState, IEnemyAiFrame frame)
     {
-        RunSkulteraMain(place, place.RequireSpeciesState<SkulteraEnemyState>(), frame.Level);
+        RunSkulteraMain(skulteraSpawnSettings, place, skulteraEnemyState, frame.Level);
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>
-    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place, EnemyAnimationCueContext _) =>
-        EnemyAnimationPlayback.Advance(place, SkulteraAnimations.Segments,
+    internal static void AdvanceSkulteraTypedAnimation(RoomEnemyPlace place, SkulteraEnemyState skulteraEnemyState) =>
+        EnemyAnimationPlayback.Advance(place, skulteraEnemyState, SkulteraAnimations.Segments,
             static (SkulteraEnemyState state) => state.Playback, static (state, playback) => state.Playback = playback,
             (state, cue) =>
             {

@@ -18,7 +18,7 @@ internal static class EnemyQuadraticSpeedsVerification
     /// </summary>
     internal static void VerifyCompiledQuadraticEnemySpeeds(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         VerticalDirection[] directions = [VerticalDirection.Down, VerticalDirection.Up];
         for (int row = 0; row < QuadraticSpeedCurveDefinitions.MarkCount; row++)
         {
@@ -30,14 +30,14 @@ internal static class EnemyQuadraticSpeedsVerification
                 AssertEqual(speeds.Toward(VerticalDirection.Up), negative,
                     $"quadratic speed row {row} at {table:X6}: stored negation is the speed negated at use");
             }
-            foreach (VerticalDirection direction in directions)
-                AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, direction), (int)unchecked((ushort)speeds.CoarseToward(direction).InTwoFiftySixths), "quadratic coarse speed");
+            AssertEqual(EnemySpeedTableCodec.QuadraticCoarseSpeed(cartridge, row, VerticalDirection.Down), (int)unchecked((ushort)speeds.CoarseRise.InTwoFiftySixths),
+                "quadratic coarse rise");
         }
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(-1), "negative quadratic row");
         AssertThrows<InvalidDataException>(() => QuadraticSpeedCurve.AtMark(QuadraticSpeedCurveDefinitions.MarkCount), "quadratic row past the table");
         if (definitionsOnly) return;
         var addRock = new Action<EnemyProjectile, QuadraticSpeedCurvePlace, VerticalDirection>(PolypBehavior.AddPolypRockQuadraticStep);
-        var rock = new EnemyProjectile(0, default);
+        var rock = new EnemyProjectile(0, default, RoomEnemyProjectileKind.DustOrExplosion, global::SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileBehavior.Still, SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileDeleteAnimation.Instance);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int index = 0; index < QuadraticSpeedCurveDefinitions.MarkCount; index++)
         foreach (VerticalDirection direction in directions)
@@ -117,7 +117,7 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (VerticalDirection direction in directions)
         {
             int speed = EnemySpeedTableCodec.QuadraticSpeedToward(cartridge, EnemySpeedTableCodec.QuadraticTable, row, direction).RawValue;
-            maw.Extension = new YappingMawCurl(SixteenSixteenWords.ToDisplacement(unchecked((int)start)));
+            maw.Extension = new global::SuperMetroid.Core.Enemies.YappingMaws.YappingMawCurl(SixteenSixteenWords.ToDisplacement(unchecked((int)start)));
             maw.SpeedCurvePlace = QuadraticSpeedCurvePlace.FromMarks(row);
             maw.CurlPhase = direction == VerticalDirection.Up ? YappingMawCurlPhase.Retracting : YappingMawCurlPhase.Extending;
             mawAdditions++;

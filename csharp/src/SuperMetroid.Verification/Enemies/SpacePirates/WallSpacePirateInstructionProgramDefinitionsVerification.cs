@@ -1,5 +1,4 @@
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -74,7 +73,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, level, 70);
+            RunFrames(enemies, place, state, samus, level, 70);
             AssertEqual(expected, state.Playback,
                 $"wall Pirate {(movingRight ? "right" : "left")} attack sleeps");
             AssertEqual(WallSpacePirateAction.WallJumping, state.Action,
@@ -97,7 +96,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             ushort initialY = place.Position.Y.Whole;
             state.Playback = new(WallSpacePirateAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
             place.AnimationClock.StepOnNextUpdate();
-            RunFrames(enemies, place, samus, level, frames);
+            RunFrames(enemies, place, state, samus, level, frames);
             AssertEqual(WallSpacePirateAction.Climbing, state.Action,
                 $"wall Pirate program {program} climb function");
             AssertEqual(expectedWall, state.Wall,
@@ -120,6 +119,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             RunFrames(
                 enemies,
                 place,
+                state,
                 samus,
                 CreateWallPirateFloorRoom(),
                 11);
@@ -156,10 +156,10 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 jumpingRight ? WallSpacePirateSegment.FireAndJumpRight : WallSpacePirateSegment.FireAndJumpLeft), AnimationPlace.StartOfAnimation);
             var frame = new ClockedEnemyAiFrame(
                 RoomEnemyFrameFixtures.Standalone(level, 0) with { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
-                new FrameCounters(0));
+                new FrameCounters(SuperMetroid.Core.Compatibility.ShortFrameCount.Zero));
             for (int update = 1; update <= 32; update++)
             {
-                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place, frame);
+                WallSpacePirateBehavior.RunWallSpacePirateMainAi(place.HeldOccupant().SpawnSettings<WallSpacePirateSpawnSettings>(), place, state, frame);
                 RotationAngle expected = start.TurnedBySteps(jumpingRight ? -4 * update : 4 * update);
                 AssertEqual(expected, state.WallJumpArcAngle,
                     $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");
@@ -175,33 +175,35 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.PirateGreyWall, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition) with
+            place.Bind(EnemyDefinitionId.PirateGreyWall, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank with
             {
                 Damage = 20,
             });
             place.Position = place.Position.WithWhole(new(0x0100, 0x0100));
             place.Radius = new(8, 16);
             place.SetSpawnParameter2(EnemyDefinitionId.PirateGreyWall, 0x0080);
-            WallSpacePirateBehavior.InitializeWallSpacePirate(place);
+            // The Pirate's setup builds the state its steps and its animation, which the check plays, run on.
+            WallSpacePirateEnemyState state = WallSpacePirateBehavior.InitializeWallSpacePirate(place.HeldOccupant().SpawnSettings<WallSpacePirateSpawnSettings>(), place);
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
-            return new WallSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, (enemies.WallSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires the initialized WallSpacePirate state.")), samus);
+            return new WallSpacePirateInstructionProgramDefinitionsCreateSystemResult(enemies, place, state, samus);
         }
 
         static void RunFrames(
             RoomEnemySystem enemies,
             RoomEnemyPlace place,
+            WallSpacePirateEnemyState state,
             SamusState samus,
             RoomLevelData level,
             int frames)
         {
-            object?[] arguments =
-                [place, samus, level, Position16<RoomPixels>.Zero, default(GameplayAction)];
+            var context = new EnemyAnimationCueContext { Samus = samus, Level = level, Camera = Position16<RoomPixels>.Zero, ControllerInput = default };
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(arguments);
+                enemies.WallSpacePirateBehavior.AdvanceWallSpacePirateTypedAnimation(place.HeldOccupant(),
+                    place.HeldOccupant().SpawnSettings<WallSpacePirateSpawnSettings>(), place, state, context);
         }
     }
 

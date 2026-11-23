@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The room blocks, block behaviours and heights the Chozo statues' hands, slopes and acid use.</summary>
-internal static class ChozoStatueRoomDefinitions
+internal static partial class ChozoStatueRoomDefinitions
 {
     /// <summary>
     /// How far below the Wrecked Ship statue's middle, in pixels, its footsteps land: where a footstep probes the floor and
@@ -32,11 +32,8 @@ internal static class ChozoStatueRoomDefinitions
     /// <summary>The behaviour of the Lower Norfair hand's special block: the Lower Norfair Chozo hand.</summary>
     public static readonly RoomBlockBehavior LowerNorfairHandBehavior = RoomBlockBehavior.Reacting(SpecialBlockReaction.LowerNorfairChozoHand);
 
-    /// <summary>The column of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
-    public const int LowerNorfairTriggerX = 4;
-
-    /// <summary>The row of the Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
-    public const int LowerNorfairTriggerY = 8;
+    /// <summary>The Power Bomb block whose breaking open triggers the Lower Norfair hand.</summary>
+    public static readonly Position16<RoomBlocks> LowerNorfairTriggerBlock = new(4, 8);
 
     /// <summary>The Wrecked Ship hand's trigger block, where the hand room object is also placed.</summary>
     public static readonly Position16<RoomBlocks> WreckedShipHandBlock = new(74, 23);

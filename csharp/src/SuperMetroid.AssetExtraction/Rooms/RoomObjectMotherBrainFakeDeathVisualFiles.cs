@@ -10,10 +10,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The installed pictures of the room changes of Mother Brain's fake death (#1557): the wall fill, the escape door, the
 /// twelve mural rows and the six tube clears.
 /// </summary>
-public static class RoomObjectMotherBrainFakeDeathVisualFiles
+public static partial class RoomObjectMotherBrainFakeDeathVisualFiles
 {
     /// <summary>The installed file holding the fake-death room frames' pictures.</summary>
-    public const string VisualFileName = "mother-brain-fake-death.json";
+    internal const string VisualFileName = "mother-brain-fake-death.json";
 
     /// <summary>
     /// The tube clears in the installed file's order after the wall, the door and the mural rows (#2567): the ceiling's,
@@ -71,14 +71,12 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
         RoomObjectShapeRun[] muralRow = [RoomObjectShapeRun.Row(origin, 13)];
 
         var layouts = new List<RoomObjectFamilyFrame<RoomObjectDraw>>();
-        var ids = new Dictionary<RoomObjectDraw, string>();
         void Add<TFrame>(RoomObjectDrawFamily<TFrame> family, RoomObjectFrameDraw<TFrame> draw, RoomObjectShapeRun[] frameRuns, string id)
             where TFrame : struct
         {
             if (!RoomObjectDrawIdentity.TryShape(family, draw, out RoomBlockShape? shape))
                 throw new InvalidOperationException($"Mother Brain fake-death frame {draw} has no shape.");
-            layouts.Add(new(draw, RoomObjectShapeRun.Layout(draw, shape, frameRuns)));
-            ids.Add(draw, id);
+            layouts.Add(new(draw, RoomObjectShapeRun.Layout(draw, shape, frameRuns), id));
         }
         void AddFrame(MotherBrainFakeDeathDraw frame) =>
             Add(MotherBrainFakeDeathDraws.Family, MotherBrainFakeDeathDraws.Family.Of(frame), runs[frame], MotherBrainFakeDeathDrawKeys.Installed.Of(frame));
@@ -89,7 +87,7 @@ public static class RoomObjectMotherBrainFakeDeathVisualFiles
             Add(MotherBrainFakeDeathDraws.MuralRowFamily, MotherBrainFakeDeathDraws.MuralRow(row), muralRow, MuralRowId(row));
         foreach (MotherBrainFakeDeathDraw frame in TubeClears)
             AddFrame(frame);
-        return new(VisualFileName, "Mother Brain fake-death room", layouts, ids);
+        return new(VisualFileName, "Mother Brain fake-death room", layouts);
     }
 
     /// <summary>The published name of the mural's row <paramref name="row"/>, counted from its top row: its row number from one.</summary>

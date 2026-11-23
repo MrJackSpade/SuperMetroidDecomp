@@ -4,8 +4,11 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// Restarts a healthy Samus's breathing from frame zero; below the low-energy threshold the animation continues with the
 /// next frame, the faster drained breathing that follows in the same animation.
 /// </summary>
-internal sealed record SamusAnimationLoopUnlessLowEnergy : SamusAnimationCue
+internal sealed partial record SamusAnimationLoopUnlessLowEnergy : SamusAnimationCue
 {
+    /// <inheritdoc/>
+    internal override TResult Match<TContext, TResult>(SamusAnimationCueCases<TContext, TResult> cases, TContext context) => Ensure.NotNull(cases).LoopUnlessLowEnergy(this, context);
+
     /// <inheritdoc/>
     internal override bool ContinuesToNextSegment => true;
 }

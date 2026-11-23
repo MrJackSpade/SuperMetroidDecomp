@@ -6,49 +6,15 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// How each downward gate draw is described (#1862, #1994): the column open, lowering a row at a time and closed, five
 /// blocks tall, and four trigger colours on either side. What each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class DownwardGateObjectDraws
+internal static partial class DownwardGateObjectDraws
 {
-    /// <summary>The blocks of the gate's column, down from its top block.</summary>
-    private const int ColumnHeight = 5;
-
     /// <summary>The part and shape of one of the column's draws or one of the eight trigger draws.</summary>
-    internal static Draw Describe(DownwardGateDraw gate) => new(PartOf(gate), gate);
+    internal static Draw Describe(DownwardGateDraw gate) => Draws[gate];
 
     /// <summary>The gate's column and trigger frames (#2034), pictured by the installed downward gate frames.</summary>
     internal static RoomObjectDrawFamily<DownwardGateDraw> Family { get; } =
-        RoomObjectDrawFamily<DownwardGateDraw>.Pictured<InstalledRoomObjectDownwardGateVisuals>("downward gate",
-            gate => Describe(gate).Blocks, (visuals, draw) => visuals.Image(draw));
-
-    /// <summary>The part of the gate <paramref name="gate"/> writes.</summary>
-    /// <exception cref="InvalidOperationException">The draw is undefined.</exception>
-    private static DownwardGatePart PartOf(DownwardGateDraw gate) => gate switch
-    {
-        DownwardGateDraw.Open or DownwardGateDraw.QuarterLowered or DownwardGateDraw.HalfLowered or DownwardGateDraw.ThreeQuartersLowered
-            or DownwardGateDraw.FullyLowered or DownwardGateDraw.Closed => DownwardGatePart.Column,
-        DownwardGateDraw.TriggerBlueLeft or DownwardGateDraw.TriggerRedLeft or DownwardGateDraw.TriggerGreenLeft
-            or DownwardGateDraw.TriggerYellowLeft => DownwardGatePart.LeftTrigger,
-        DownwardGateDraw.TriggerBlueRight or DownwardGateDraw.TriggerRedRight or DownwardGateDraw.TriggerGreenRight
-            or DownwardGateDraw.TriggerYellowRight => DownwardGatePart.RightTrigger,
-        _ => throw new InvalidOperationException($"Undefined {nameof(DownwardGateDraw)} {gate}."),
-    };
-
-    /// <summary>
-    /// The rows of the column <paramref name="gate"/> fills, down from its top block: the open gate its top alone, each step
-    /// of its lowering one row more, the fully lowered and closed gate all five.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The draw is not one of the column's.</exception>
-    private static int FilledRows(DownwardGateDraw gate) => gate switch
-    {
-        DownwardGateDraw.Open => 1,
-        DownwardGateDraw.QuarterLowered => 2,
-        DownwardGateDraw.HalfLowered => 3,
-        DownwardGateDraw.ThreeQuartersLowered => 4,
-        DownwardGateDraw.FullyLowered or DownwardGateDraw.Closed => ColumnHeight,
-        DownwardGateDraw.TriggerBlueLeft or DownwardGateDraw.TriggerBlueRight or DownwardGateDraw.TriggerRedLeft or DownwardGateDraw.TriggerRedRight
-            or DownwardGateDraw.TriggerGreenLeft or DownwardGateDraw.TriggerGreenRight or DownwardGateDraw.TriggerYellowLeft
-            or DownwardGateDraw.TriggerYellowRight => throw new InvalidOperationException($"Downward gate draw {gate} is not one of the column's."),
-        _ => throw new InvalidOperationException($"Undefined {nameof(DownwardGateDraw)} {gate}."),
-    };
+        new RoomObjectDrawFamily<DownwardGateDraw>("downward gate",
+            gate => Describe(gate).Blocks);
 
     /// <summary>A right trigger: its solid block and the shootable trigger right of it.</summary>
     private static readonly RoomBlockShape RightTrigger = new(
@@ -58,32 +24,47 @@ internal static class DownwardGateObjectDraws
     private static readonly RoomBlockShape LeftTrigger = new(
         [new(new(0, 0), RoomCollisionType.SolidBlock), new(new(-1, 0), RoomCollisionType.ShootableBlock)]);
 
-    /// <summary>The column filling each count of rows, by the count: five blocks down from its top block, the filled rows shootable and the rest air.</summary>
-    private static readonly RoomBlockShape[] Columns = [.. Enumerable.Range(0, ColumnHeight + 1).Select(Column)];
+    /// <summary>
+    /// Each draw (#2553): the column's, filling its rows down from its top block (the open gate its top alone, each step of
+    /// its lowering one row more, the fully lowered and closed gate all five), and each trigger's, on its side.
+    /// </summary>
+    private static IdentityTable<DownwardGateDraw, Draw> Draws => field ??= new(new Dictionary<DownwardGateDraw, Draw>
+    {
+        [DownwardGateDraw.Open] = ColumnDraw(DownwardGateDraw.Open, 1),
+        [DownwardGateDraw.QuarterLowered] = ColumnDraw(DownwardGateDraw.QuarterLowered, 2),
+        [DownwardGateDraw.HalfLowered] = ColumnDraw(DownwardGateDraw.HalfLowered, 3),
+        [DownwardGateDraw.ThreeQuartersLowered] = ColumnDraw(DownwardGateDraw.ThreeQuartersLowered, 4),
+        [DownwardGateDraw.FullyLowered] = ColumnDraw(DownwardGateDraw.FullyLowered, DownwardGateDefinitions.GateHeightInBlocks),
+        [DownwardGateDraw.Closed] = ColumnDraw(DownwardGateDraw.Closed, DownwardGateDefinitions.GateHeightInBlocks),
+        [DownwardGateDraw.TriggerBlueLeft] = new(DownwardGatePart.LeftTrigger, DownwardGateDraw.TriggerBlueLeft, LeftTrigger),
+        [DownwardGateDraw.TriggerBlueRight] = new(DownwardGatePart.RightTrigger, DownwardGateDraw.TriggerBlueRight, RightTrigger),
+        [DownwardGateDraw.TriggerRedLeft] = new(DownwardGatePart.LeftTrigger, DownwardGateDraw.TriggerRedLeft, LeftTrigger),
+        [DownwardGateDraw.TriggerRedRight] = new(DownwardGatePart.RightTrigger, DownwardGateDraw.TriggerRedRight, RightTrigger),
+        [DownwardGateDraw.TriggerGreenLeft] = new(DownwardGatePart.LeftTrigger, DownwardGateDraw.TriggerGreenLeft, LeftTrigger),
+        [DownwardGateDraw.TriggerGreenRight] = new(DownwardGatePart.RightTrigger, DownwardGateDraw.TriggerGreenRight, RightTrigger),
+        [DownwardGateDraw.TriggerYellowLeft] = new(DownwardGatePart.LeftTrigger, DownwardGateDraw.TriggerYellowLeft, LeftTrigger),
+        [DownwardGateDraw.TriggerYellowRight] = new(DownwardGatePart.RightTrigger, DownwardGateDraw.TriggerYellowRight, RightTrigger),
+    });
 
-    /// <summary>The column filling <paramref name="rows"/> rows: five blocks down from its top block, the filled rows shootable and the rest air.</summary>
+    /// <summary>The column draw <paramref name="gate"/>, filling <paramref name="rows"/> rows.</summary>
+    private static Draw ColumnDraw(DownwardGateDraw gate, int rows) => new(DownwardGatePart.Column, gate, Columns[rows]);
+
+    /// <summary>The column filling each count of rows, by the count: <see cref="DownwardGateDefinitions.GateHeightInBlocks"/> down from its top block, the filled rows shootable and the rest air.</summary>
+    private static readonly RoomBlockShape[] Columns = [.. Enumerable.Range(0, DownwardGateDefinitions.GateHeightInBlocks + 1).Select(Column)];
+
+    /// <summary>The column filling <paramref name="rows"/> rows: <see cref="DownwardGateDefinitions.GateHeightInBlocks"/> down from its top block, the filled rows shootable and the rest air.</summary>
     private static RoomBlockShape Column(int rows) => new(
-        [.. Enumerable.Range(0, ColumnHeight).Select(row => new RoomBlockShapeCell(new(0, row),
+        [.. Enumerable.Range(0, DownwardGateDefinitions.GateHeightInBlocks).Select(row => new RoomBlockShapeCell(new(0, row),
             row < rows ? RoomCollisionType.ShootableBlock : RoomCollisionType.Air))]);
 
-    /// <summary>One gate draw: the part it writes and which of the gate's draws it is.</summary>
+    /// <summary>One gate draw: the part it writes, which of the gate's draws it is, and the blocks it changes.</summary>
     /// <param name="Part">The column or the trigger on one side.</param>
     /// <param name="Gate">The draw.</param>
-    internal readonly record struct Draw(DownwardGatePart Part, DownwardGateDraw Gate)
+    /// <param name="Blocks">
+    /// The blocks the draw changes and how each collides: the column's shootable top and filled rows, or the trigger's
+    /// solid block and its shootable trigger beside it.
+    /// </param>
+    internal readonly partial record struct Draw(DownwardGatePart Part, DownwardGateDraw Gate, RoomBlockShape Blocks)
     {
-        /// <summary>Whether the draw is the gate column's.</summary>
-        internal bool Column => Part == DownwardGatePart.Column;
-
-        /// <summary>
-        /// The blocks the draw changes and how each collides: the column's shootable top and filled rows, or the trigger's
-        /// solid block and its shootable trigger beside it.
-        /// </summary>
-        internal RoomBlockShape Blocks => Part switch
-        {
-            DownwardGatePart.Column => Columns[FilledRows(Gate)],
-            DownwardGatePart.RightTrigger => RightTrigger,
-            DownwardGatePart.LeftTrigger => LeftTrigger,
-            _ => throw new InvalidOperationException($"Undefined {nameof(DownwardGatePart)} {Part}."),
-        };
     }
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// Resolves cartridge-backed palette DMA while importing assets. ROM colors become installed asset bytes; the import
 /// maps no work RAM, so a palette transfer whose source reaches work RAM is rejected (#1688).
 /// </summary>
-public static class CartridgePaletteImporter
+public static partial class CartridgePaletteImporter
 {
     /// <summary>Copies native little-endian color words from a cartridge DMA source into a bounded CGRAM range during asset import.</summary>
     /// <param name="destination">Mutable CGRAM receiving decoded BGR555 words.</param>
@@ -31,7 +31,7 @@ public static class CartridgePaletteImporter
         SnesAddress source = SnesAddress.FromBusAddress(sourceAddress);
         byte ReadImportSource(SnesAddress address) => SnesDmaSourceMap.Classify(address) switch
         {
-            SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(bus).ReadCartridgeByte((int)address),
+            SnesDmaSourceKind.Cartridge => bus.ReadCartridgeByte((int)address),
             SnesDmaSourceKind.WorkRam => throw new InvalidOperationException(
                 $"Import palette source {address} is work RAM, which the import does not map."),
             SnesDmaSourceKind.Unmapped => throw new InvalidOperationException($"Import palette source {address} is unmapped."),

@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// The cartridge's exploration rules, read from the installed map's cells (#1466, #1513): which cells can be explored and
 /// which reveal the cell above. The import decides them once from the cells, so the game never asks what a cell shows.
 /// </summary>
-internal static class AreaMapExplorationRules
+internal static partial class AreaMapExplorationRules
 {
     /// <summary>Determines whether a map cell participates in exploration.</summary>
     /// <param name="stockCell">The installed cell.</param>

@@ -9,20 +9,31 @@ namespace SuperMetroid.Core.Enemies;
 /// projectile left there, in this room or the room before (<see cref="EnemyProjectilePlaceLeftovers"/>), which a spawn
 /// that does not set them starts from.
 /// </summary>
-public sealed class EnemyProjectile
+public sealed partial class EnemyProjectile
 {
     /// <summary>
-    /// Starts a projectile in <paramref name="place"/> from what the place's previous projectile left there: its whole
-    /// position and its velocity. Everything else starts afresh, and the projectile is gone until its spawner gives it a kind.
+    /// Starts a projectile of <paramref name="kind"/> holding <paramref name="place"/>, from what the place's previous
+    /// projectile left there: its whole position and its velocity, with <paramref name="behavior"/> bound to it for its life
+    /// (#1760) in the motion the behaviour starts that kind with (#1843). Everything else starts afresh until its spawn
+    /// copies its definition.
     /// </summary>
     /// <param name="place">The zero-based enemy-projectile place the projectile takes.</param>
     /// <param name="left">What the place's previous projectile left there.</param>
-    internal EnemyProjectile(int place, EnemyProjectileHandOver left)
+    /// <param name="kind">What the projectile is.</param>
+    /// <param name="behavior">What the projectile's kind does.</param>
+    /// <param name="animation">The animation it plays from its first pass (#2553): every spawn starts one.</param>
+    internal EnemyProjectile(int place, EnemyProjectileHandOver left, RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior,
+        EnemyProjectileAnimation animation)
     {
-        Place = Ensure.BetweenInclusive(0, EnemyProjectileEngine.PlaceCount - 1, place);
+        Place = Ensure.BetweenInclusive(0, EnemyProjectilePlaces.Capacity - 1, place);
         Position = FixedPosition<RoomPixels>.FromWhole(left.Position);
         Velocity = left.Velocity;
         Vacate();
+        Kind = kind;
+        Behavior = Ensure.NotNull(behavior);
+        Motion = behavior.InitialMotion(kind);
+        Animation = Ensure.NotNull(animation);
+        IsActive = true;
     }
 
     /// <summary>
@@ -32,14 +43,20 @@ public sealed class EnemyProjectile
     /// (<see cref="BotwoonSegmentFallDelay"/>).
     /// </summary>
     public int Place { get; }
-    /// <summary>What the projectile is, or <see cref="RoomEnemyProjectileKind.None"/> once it is gone or has freed its place.</summary>
-    public RoomEnemyProjectileKind Kind { get; internal set; }
-    /// <summary>Gets whether the projectile holds its place and takes part in the projectile passes.</summary>
-    public bool IsActive => Kind != RoomEnemyProjectileKind.None;
     /// <summary>
-    /// Where the projectile is, in whole room pixels and fractions of a pixel, to which its motion adds in 256ths of a
-    /// pixel. Every projectile is placed in the room and drawn where its place lies on screen, the Mother Brain death
-    /// subtitle's fixed place included (#1851).
+    /// What the projectile is (#2558): the kind it is created with, or the one a later binding turns it into. A projectile
+    /// that has gone or freed its place is still the kind it was.
+    /// </summary>
+    public RoomEnemyProjectileKind Kind { get; internal set; }
+
+    /// <summary>
+    /// Whether the projectile holds its place and takes part in the projectile passes: from its creation until it is
+    /// deleted or frees its place.
+    /// </summary>
+    public bool IsActive { get; private set; }
+    /// <summary>
+    /// Where the projectile is in the room, which its motion moves by its velocity. Every projectile is placed in the
+    /// room and drawn where its place lies on screen, the Mother Brain death subtitle's fixed place included (#1851).
     /// </summary>
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>How far the projectile moves each update, for the shared movements and the families that move by it.</summary>
@@ -49,7 +66,9 @@ public sealed class EnemyProjectile
     /// as they stand when that spawn takes the place (<see cref="EnemyProjectileHandOver"/>).
     /// </summary>
     internal EnemyProjectileHandOver LeftInPlace => new(Position.Whole, Velocity);
-    /// <summary>The typed animation the projectile plays (#641), or null when it plays none.</summary>
+    /// <summary>
+    /// The typed animation the projectile plays (#641): its spawn starts one (#2553), and only an ended projectile plays none.
+    /// </summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>
     /// Gets the countdown to the animation's next frame; a spawn starts it at one so the animation's first frame shows on its
@@ -57,20 +76,22 @@ public sealed class EnemyProjectile
     /// </summary>
     public WrappingCountdown FrameHold
     {
-        get;
-        internal set
-        {
-            field = value;
-            IsFrameHoldStopped = false;
-        }
+        get => frameHold ?? StoppedHold;
+        internal set => frameHold = value;
     }
+
+    /// <summary>The hold's countdown while it counts, or null while it is stopped (#2560): one value for counting or stopped.</summary>
+    private WrappingCountdown? frameHold;
+
+    /// <summary>What a stopped hold reads: zero.</summary>
+    private static WrappingCountdown StoppedHold => WrappingCountdown.Start(0);
 
     /// <summary>
     /// Whether the frame hold is stopped (#2380): the animation shows a frame for good, or rests where its timeline holds, so
     /// the hold counts nothing and the animation takes no further step until the projectile's owner sets the hold again or
     /// starts an animation (<see cref="StopFrameHold"/>).
     /// </summary>
-    public bool IsFrameHoldStopped { get; private set; }
+    public bool IsFrameHoldStopped => frameHold is null;
 
     /// <summary>
     /// Stops the frame hold (#2380): the frame shown stays, and the animation takes no further step, until the projectile's
@@ -78,23 +99,27 @@ public sealed class EnemyProjectile
     /// </summary>
     internal void StopFrameHold()
     {
-        FrameHold = WrappingCountdown.Start(0);
-        IsFrameHoldStopped = true;
+        frameHold = null;
     }
     /// <summary>The frame the projectile shows: the blank frame from its spawn until its animation shows one, none once it is gone.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>
-    /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
-    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), or null while it holds still. Its behaviour starts
-    /// it at spawn and changes it; a shot that destroys the projectile stops it.
+    /// Where the frame the projectile shows is drawn from its place (#2557): at the place itself, unless its animation moves
+    /// one picture about as it plays (the save-station electricity's band on its sweep).
     /// </summary>
-    internal Enum? Motion { get; set; }
+    public Offset16<RoomPixels> FramePlacement { get; internal set; }
+    /// <summary>
+    /// How the projectile moves itself on each pass, before its animation advances (#1843): one of the motions its
+    /// behaviour owns (<see cref="EnemyProjectileMotionBehavior{TMotion}"/>), held through that behaviour (#2571), or null
+    /// while it holds still. Its behaviour starts it at spawn and changes it; a shot that destroys the projectile stops it.
+    /// </summary>
+    internal EnemyProjectileMotion? Motion { get; private set; }
     /// <summary>
     /// What the projectile's kind does (#1760): it moves the projectile each update, carries out its animations'
-    /// cues and names its shot and touch animations. The spawner binds it with the kind; none until then. A projectile
-    /// that ends keeps it, so the cues its animation publishes on the way out still reach their owner.
+    /// cues and names its shot and touch animations. The projectile is created with it and its kind. A projectile that ends
+    /// keeps it, so the cues its animation publishes on the way out still reach their owner.
     /// </summary>
-    internal EnemyProjectileBehavior? Behavior { get; set; }
+    internal EnemyProjectileBehavior Behavior { get; }
     /// <summary>Gets the sheet and shading the projectile draws its own pictures with, as its spawner supplied them.</summary>
     public SpriteGraphics Graphics { get; internal set; }
 
@@ -103,10 +128,15 @@ public sealed class EnemyProjectile
     /// projectile shows, draws from the room's shared sheet in its standard colours; any other frame with
     /// <see cref="Graphics"/>.
     /// </summary>
-    public SpriteGraphics ShownGraphics => Frame is { } frame && EnemyProjectileRoomPictureDefinitions.RoomPictures.Contains(frame)
-        ? SpriteGraphics.SharedStandard : Graphics;
+    public SpriteGraphics ShownGraphics => Frame is { } frame && frame.IsRoomPicture ? SpriteGraphics.SharedStandard : Graphics;
     /// <summary>Gets the collision half-extents in pixels, from the projectile's definition.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
+
+    /// <summary>
+    /// Whether the projectile has a hitbox Samus can touch: a radius with extent on both axes. One with no extent on an axis,
+    /// as decorative wall shards keep, passes harmlessly through her even while it crosses her body.
+    /// </summary>
+    internal bool HasHitbox => Radius.X != 0 && Radius.Y != 0;
     /// <summary>Gets the contact damage from the projectile's definition, before Samus's suit reduction.</summary>
     public int Damage
     {
@@ -118,15 +148,13 @@ public sealed class EnemyProjectile
     /// animations move it in front. This is independent of the projectile's depth against the room's tiles.
     /// </summary>
     public EnemyProjectileDepth Depth { get; internal set; }
-    /// <summary>What the projectile's family keeps on it (#1470), given by its spawner; none until then.</summary>
-    internal EnemyProjectileState? State { get; set; }
-
-    /// <summary>The state the projectile's family gave it, read as that family's own type.</summary>
-    /// <typeparam name="TState">The family's state type.</typeparam>
-    /// <exception cref="InvalidOperationException">The projectile holds no state, or another family's.</exception>
-    internal TState StateOf<TState>() where TState : EnemyProjectileState =>
-        State as TState ?? throw new InvalidOperationException(
-            $"Enemy projectile {Kind} in place {Place} holds {State?.GetType().Name ?? "no state"}, not {typeof(TState).Name}.");
+    /// <summary>
+    /// The point the projectile is tied to, which its spawner sets where the projectile returns to it (#2571): a Tourian
+    /// statue's decorations follow the statue from it, the descending statue's dust and Torizo's explosions return to it
+    /// whenever their animations restart a puff. Everything else its family keeps on it lives in that family's behaviour
+    /// (<see cref="EnemyProjectileStates{TState}"/>).
+    /// </summary>
+    internal Position16<RoomPixels> Anchor { get; set; }
 
     /// <summary>Gets whether this actor damages Samus when it touches her, whether or not it survives contact or stops shots.</summary>
     public bool CanDamageSamus { get; internal set; }
@@ -136,25 +164,33 @@ public sealed class EnemyProjectile
     public bool BlocksSamusProjectiles { get; internal set; }
     /// <summary>
     /// How Samus's shots that reach the projectile act on it: they play its shot animation, meet an indestructible dud, or are
-    /// not tested at all. This is deliberately separate from <see cref="BlocksSamusProjectiles"/>: Kago enables that
-    /// property only after its bug has moved far enough from the source shell, while still playing its shot animation.
+    /// not tested at all. It is apart from <see cref="BlocksSamusProjectiles"/>: Kago blocks Samus's shots only after
+    /// its bug has moved far enough from the source shell, while still playing its shot animation.
     /// </summary>
     public EnemyProjectileCollisionOption CollisionOption { get; internal set; }
 
-    /// <summary>
-    /// Makes the projectile <paramref name="kind"/> with <paramref name="behavior"/> bound to it for its life (#1760), in
-    /// the motion the behaviour starts that kind with (#1843).
-    /// </summary>
-    internal void Bind(RoomEnemyProjectileKind kind, EnemyProjectileBehavior behavior)
-    {
-        Kind = kind;
-        Behavior = Ensure.NotNull(behavior);
-        Motion = behavior.InitialMotion(kind);
-    }
 
-    /// <summary>Moves the projectile by <paramref name="motion"/>, one of its behaviour's motions, from its next pass.</summary>
+    /// <summary>
+    /// Moves the projectile by <paramref name="motion"/>, one of <paramref name="owner"/>'s motions, from its next pass (#2571):
+    /// <paramref name="owner"/> is the behaviour bound to the projectile, which its own code and its spawner hold typed, so
+    /// the motion is held through it with no test of the behaviour's type.
+    /// </summary>
     /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
-    internal void StartMotion<TMotion>(TMotion motion) where TMotion : struct, Enum => Motion = motion;
+    /// <param name="owner">The projectile's behaviour, which owns <paramref name="motion"/>.</param>
+    /// <param name="motion">The motion the projectile moves by.</param>
+    internal void StartMotion<TMotion>(EnemyProjectileMotionBehavior<TMotion> owner, TMotion motion) where TMotion : struct, Enum =>
+        Motion = Ensure.NotNull(owner).Moving(motion);
+
+    /// <summary>
+    /// Moves the projectile by <paramref name="motion"/>, one of its behaviour's own motion objects, from its next pass (#2571).
+    /// </summary>
+    /// <param name="motion">The motion the projectile moves by.</param>
+    internal void StartMotion(EnemyProjectileMotion motion) => Motion = Ensure.NotNull(motion);
+
+    /// <summary>Whether the projectile moves by <paramref name="motion"/>, one of its behaviour's motions.</summary>
+    /// <typeparam name="TMotion">The behaviour's motions.</typeparam>
+    internal bool MovesBy<TMotion>(TMotion motion) where TMotion : struct, Enum =>
+        Motion is EnemyProjectileFamilyMotion<TMotion> moving && EqualityComparer<TMotion>.Default.Equals(moving.Motion, motion);
 
     /// <summary>Stops the projectile moving itself: it holds still while its animation plays, or its owner positions it.</summary>
     internal void HoldStill() => Motion = null;
@@ -167,12 +203,6 @@ public sealed class EnemyProjectile
     }
 
     /// <summary>
-    /// Replaces the running animation with <paramref name="animation"/> without touching the frame timer, as a
-    /// direct animation change does: the new segment's first frame shows when the current frame expires.
-    /// </summary>
-    internal void InstallAnimation(EnemyProjectileAnimation animation) => Animation = Ensure.NotNull(animation);
-
-    /// <summary>
     /// Frees the projectile's place without ending the projectile, for a Draygon goop or wall-turret shot a power bomb's
     /// explosion catches (#1590): a later spawn may take the place, while the update that freed it goes on with the
     /// projectile, which keeps its animation, state and properties. The caught shot finishes the update it was caught in:
@@ -181,7 +211,7 @@ public sealed class EnemyProjectile
     /// its place for the next projectile spawned there (<see cref="EnemyProjectileHandOver"/>). From the next pass on it
     /// takes no part in the game.
     /// </summary>
-    internal void FreePlace() => Kind = RoomEnemyProjectileKind.None;
+    internal void FreePlace() => IsActive = false;
 
     /// <summary>
     /// Ends the projectile: it frees its place, shows and runs nothing more, and keeps none of its family's state. Its
@@ -197,7 +227,7 @@ public sealed class EnemyProjectile
     /// <summary>Sets everything but the position and velocity to what a projectile holds before its spawner sets it up.</summary>
     private void Vacate()
     {
-        Kind = RoomEnemyProjectileKind.None;
+        IsActive = false;
         Motion = null;
         Frame = null;
         FrameHold = WrappingCountdown.Start(0);
@@ -206,7 +236,7 @@ public sealed class EnemyProjectile
         Graphics = SpriteGraphics.SharedStandard;
         Damage = 0;
         Depth = EnemyProjectileDepth.BehindSamus;
-        State = null;
+        Anchor = Position16<RoomPixels>.Zero;
         CollisionOption = EnemyProjectileCollisionOption.PlaysShotAnimation;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }

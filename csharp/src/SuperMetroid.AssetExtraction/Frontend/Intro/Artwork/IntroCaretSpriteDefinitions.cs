@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Visual identity of the opening-cinematic text caret.</summary>
-internal static class IntroCaretSpriteDefinitions
+internal static partial class IntroCaretSpriteDefinitions
 {
     /// <summary>The hardware OAM limit for an authored visual composition.</summary>
     internal const int MaximumParts = IntroCinematicSpriteCompiler.MaximumParts;

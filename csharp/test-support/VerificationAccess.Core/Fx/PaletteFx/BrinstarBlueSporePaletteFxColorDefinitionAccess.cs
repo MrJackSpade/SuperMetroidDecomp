@@ -10,6 +10,6 @@ internal static class BrinstarBlueSporePaletteFxColorDefinitionAccess
     extension(BrinstarBlueSporePaletteFxColorDefinition self)
     {
         /// <summary>Native palette-FX definitions $8D:F775 (standard) and $8D:F779 (Spore Spawn).</summary>
-        internal ushort DefinitionPointer => (ushort)(0xf775 + 4 * (int)self.Owner);
+        internal ushort DefinitionPointer => (ushort)(0xf775 + 4 * BrinstarBlueSporePaletteFxColorDefinitions.All.ToList().IndexOf(self));
     }
 }

@@ -44,7 +44,7 @@ internal static class DownwardGateObjectsVerification
     internal static void VerifyDownwardGateColumn()
     {
         SamusState? samus = null;
-        var places = new RoomObjectPlaceList(new SuperMetroid.Core.Compatibility.RoomObjectPlaces());
+        var places = new RoomObjectPlaceList();
         var gates = new GateObjects(new FixtureRoomSamus(() => samus ?? throw new InvalidOperationException("The column check places Samus before it reads her.")), places, new RoomObjectSoundQueue(GameplayAudioRequests.Standalone()));
         RoomObjectPlace gate = places.Spawn() ?? throw new InvalidOperationException("An empty room has a place for the gate.");
         gate.Block = new Position16<RoomBlocks>(6, 2);
@@ -137,8 +137,8 @@ internal static class DownwardGateObjectsVerification
         AssertTrue(places[0].Behaviour is DownwardGateObject,
             "first resident slot holds the closed downward gate");
         AssertEqual(1, places[1].UpdatePosition, "shot block is processed next");
-        AssertTrue(places[1].Behaviour is TerrainChangeObject { Change: var triggerChange }
-                && triggerChange == DownwardGateTriggerDefinitions.Triggers[new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)].Change,
+        AssertTrue(places[1].Behaviour is TerrainChangeObject trigger
+                && trigger.Starts(DownwardGateTriggerDefinitions.Triggers[new DownwardGateTrigger(DownwardGateTriggerColor.Blue, HorizontalDirection.Left)].Change),
             "argument zero selects the blue-left trigger's draw");
 
         for (int row = 0; row < DownwardGateDefinitions.GateHeightInBlocks; row++)
@@ -167,7 +167,7 @@ internal static class DownwardGateObjectsVerification
         EnemyProjectile actor = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,
             "bank-$86 pool owns the closed gate actor");
-        AssertEqual(level.BlockAt(gateBlockIndex), actor.StateOf<DownwardGateState>().RoomObjectBlock,
+        AssertEqual(level.BlockAt(gateBlockIndex), enemies.DownwardGateBehavior.Gate.Gates.Of(actor).RoomObjectBlock,
             "gate actor is tied to its gate's PLM block");
         AssertEqual((ushort)96, actor.Position.Y.Whole,
             "closed gate actor begins four tiles beneath a row-two PLM origin");
@@ -185,15 +185,13 @@ internal static class DownwardGateObjectsVerification
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).Terrain,
             "compiled initial gate draw installs the second solid column word");
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
-                DownwardGateObject { Phase: DownwardGatePhase.RestingClosed, Resting: true } restingGate &&
-                restingGate.Animation.Shown == DownwardGateMovementDefinitions.Closed,
-            "a gate that has not moved rests on its closed image, not on an image of a movement (#1627)");
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
+                DownwardGateObject { Phase: DownwardGatePhase.Closed, Resting: true },
+            "a gate that has not moved rests closed, its closed image drawn, not an image of a movement (#1627)");
+        roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
-            "power beam reaches the sleeping blue gate");
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)));
         StepDownwardGateObject(roomObjects, level);
         AssertTrue(roomObjects.PopulationPlaces.Single(place => place.Behaviour is DownwardGateObject).Behaviour is
                 DownwardGateObject { Phase: DownwardGatePhase.Reopening, Resting: false } wakingGate &&
@@ -220,15 +218,14 @@ internal static class DownwardGateObjectsVerification
             "compiled final open draw clears the second column collision word");
         RoomObjectPlaceSnapshot openedGate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
-        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.RestingOpen },
+        AssertTrue(openedGate.Behaviour is DownwardGateObject { Phase: DownwardGatePhase.Open, Resting: true },
             "open gate rests, waiting only for a trigger");
 
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(
+        roomObjects.Gates.SpawnDownwardGateTrigger(
                 level,
                 level.BlockAt(gateBlockIndex - 1),
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-                SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)),
-            "second power beam reaches the sleeping open blue gate");
+                BlockStrike.By(SamusProjectileType.Beam(SamusBeamCombination.Spazer, charged: false)));
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.
         for (int frame = 0; frame < 17; frame++)
@@ -258,8 +255,7 @@ internal static class DownwardGateObjectsVerification
             ? gateBlockIndex - 1
             : gateBlockIndex + 1;
         RoomBlockBehavior bts = level.GetCollisionBlockByIndex(triggerBlockIndex).Behavior;
-        AssertTrue(roomObjects.Gates.TrySpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)),
-            $"{trigger} is claimed by the gate dispatcher");
+        roomObjects.Gates.SpawnDownwardGateTrigger(level, level.BlockAt(triggerBlockIndex), bts, BlockStrike.By(SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeType(projectile)));
         RoomObjectPlaceSnapshot gate = roomObjects.PopulationPlaces.Single(place =>
             place.Behaviour is DownwardGateObject);
         AssertEqual(accepted, gate.Behaviour is DownwardGateObject { Triggered: true },
@@ -292,8 +288,7 @@ internal static class DownwardGateObjectsVerification
         ushort argument = unchecked((ushort)((RoomObjectBlockBehaviorNativeWords.DownwardGateTriggers.Word(trigger) - 0x46) * 2));
         // Supply imported placements directly. Cartridge header reads belong to import;
         // the guard below prohibits them only while the production runtime sets up slots.
-        var population = new RoomObjectPopulation($"$8F:{populationPointer:X4}",
-        [
+        var population = new global::SuperMetroid.Core.Rooms.RoomObjects.RoomObjectPopulation($"$8F:{populationPointer:X4}", [
             RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGate,
                 new(gateX, gateY)),
             RoomObjectPlacementAccess.Placed(RoomObjectKind.DownwardGateShotBlock,

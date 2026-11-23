@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Input;
 
 /// <summary>Named combinations of <see cref="GameplayAction"/> and the action each configurable binding asks for.</summary>
-public static class GameplayActions
+public static partial class GameplayActions
 {
     /// <summary>The four directions.</summary>
     public const GameplayAction Directions =
@@ -14,17 +14,18 @@ public static class GameplayActions
     public static bool HasAny(this GameplayAction input, GameplayAction actions) =>
         (input & actions) != GameplayAction.None;
 
-    /// <summary>The gameplay action a configurable <paramref name="action"/> asks for.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="action"/> is not a defined action.</exception>
-    public static GameplayAction Of(ControllerAction action) => action switch
+    /// <summary>The value of each action.</summary>
+    private static IdentityTable<ControllerAction, GameplayAction> ValueByAction => field ??= new(new Dictionary<ControllerAction, GameplayAction>
     {
-        ControllerAction.Shoot => GameplayAction.Shoot,
-        ControllerAction.Jump => GameplayAction.Jump,
-        ControllerAction.Dash => GameplayAction.Dash,
-        ControllerAction.ItemSelect => GameplayAction.ItemSelect,
-        ControllerAction.ItemCancel => GameplayAction.ItemCancel,
-        ControllerAction.AimUp => GameplayAction.AimUp,
-        ControllerAction.AimDown => GameplayAction.AimDown,
-        _ => throw new ArgumentOutOfRangeException(nameof(action), action, "Undefined controller action."),
-    };
+        [ControllerAction.Shoot] = GameplayAction.Shoot,
+        [ControllerAction.Jump] = GameplayAction.Jump,
+        [ControllerAction.Dash] = GameplayAction.Dash,
+        [ControllerAction.ItemSelect] = GameplayAction.ItemSelect,
+        [ControllerAction.ItemCancel] = GameplayAction.ItemCancel,
+        [ControllerAction.AimUp] = GameplayAction.AimUp,
+        [ControllerAction.AimDown] = GameplayAction.AimDown,
+    });
+
+    /// <summary>The gameplay action a configurable <paramref name="action"/> asks for.</summary>
+    public static GameplayAction Of(ControllerAction action) => ValueByAction[action];
 }

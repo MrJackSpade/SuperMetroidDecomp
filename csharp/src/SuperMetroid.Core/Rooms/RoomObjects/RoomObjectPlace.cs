@@ -7,39 +7,39 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// One place in the room's update order (<see cref="RoomObjectPlaces"/>) and the room object it holds: the object's
 /// block and the typed object that holds its own state, what its placement gave it among it (#2091), and advances it
 /// (<see cref="Behaviour"/>, #1554). A shot an object has yet to take and the terrain it saved are the object's own
-/// (#2484). A place that holds no object holds nothing: the object's record leaves the room with it (#1622).
+/// (#2484). What the place holds is one value (#2560): nothing, a spawn's place whose setup has yet to give it its object,
+/// or the object, standing in a door or not. A place that holds no object holds nothing: the object's record leaves the
+/// room with it (#1622).
 /// </summary>
-internal sealed class RoomObjectPlace
+internal sealed partial class RoomObjectPlace
 {
-    /// <summary>The room's places, which say whether this one holds an object.</summary>
-    private readonly RoomObjectPlaces _occupancy;
-
-    /// <summary>This place, numbered in update order.</summary>
-    private readonly int _place;
-
-    /// <summary>Creates the free place <paramref name="place"/> of the room's <paramref name="places"/>.</summary>
-    internal RoomObjectPlace(RoomObjectPlaces places, int place)
-    {
-        _occupancy = Ensure.NotNull(places);
-        _place = place;
-    }
+    /// <summary>What the place holds; a new place is free.</summary>
+    private Holding _holding = Holding.Free;
 
     /// <summary>
-    /// The typed room object this place holds, which advances by its own steps; null for a free place, or one whose setup
-    /// did all its work.
+    /// The typed room object this place holds, which advances by its own steps; null for a free place, or one a spawn has
+    /// taken whose setup has yet to give it its object.
     /// </summary>
-    internal RoomObjectBehaviour? Behaviour { get; private set; }
+    internal RoomObjectBehaviour? Behaviour => _holding switch
+    {
+        Holding.Held held => held.Behaviour,
+        Holding.HeldInDoor held => held.Behaviour,
+        _ => null,
+    };
+
     /// <summary>
     /// The door the object at this place stands in, which Samus's arrival through it asks to stay open or close behind her
     /// (#2493): the same object as <see cref="Behaviour"/> when its owner placed it as a door (<see cref="BecomeDoor{TDoor}"/>
-    /// or <see cref="Replace{TDoor}"/>), and null for an object that stands in no door or a free place.
+    /// or <see cref="Replace{TDoor}"/>), and null for an object that stands in no door or a place that holds none.
     /// </summary>
-    internal IDoorBehindSamus? Door { get; private set; }
+    internal IDoorBehindSamus? Door => _holding is Holding.HeldInDoor held ? held.Standing : null;
+
     /// <summary>
     /// Whether this place holds a room object and takes part in the room update. Only <see cref="RoomObjectPlaceList.Spawn"/>
     /// takes a place; <see cref="Delete"/> frees it.
     /// </summary>
-    public bool Active => _occupancy.IsHeld(_place);
+    public bool Active => _holding is not Holding.Nothing;
+
     /// <summary>
     /// The room block this room object sits on and draws from: a block of the room's grid, or one past its last row in the
     /// terrain beyond the room. It is always the block's own position (its column inside the room's width); a step to a
@@ -52,9 +52,7 @@ internal sealed class RoomObjectPlace
     internal void Become(RoomObjectBehaviour behaviour)
     {
         Ensure.NotNull(behaviour);
-        if (!Active || Behaviour is not null)
-            throw new InvalidOperationException("Only a freshly taken room-object place can become a typed room object.");
-        Behaviour = behaviour;
+        _holding = new Holding.Held(behaviour);
     }
 
     /// <summary>
@@ -65,8 +63,8 @@ internal sealed class RoomObjectPlace
     internal void BecomeDoor<TDoor>(TDoor door)
         where TDoor : RoomObjectBehaviour, IDoorBehindSamus
     {
-        Become(door);
-        Door = door;
+        Ensure.NotNull(door);
+        _holding = new Holding.HeldInDoor(door, door);
     }
 
     /// <summary>
@@ -80,38 +78,60 @@ internal sealed class RoomObjectPlace
         Ensure.NotNull(next);
         if (!Active)
             throw new InvalidOperationException("Only an occupied room-object place can turn into another typed room object.");
-        Behaviour = next;
-        Door = next;
+        _holding = new Holding.HeldInDoor(next, next);
     }
 
     /// <summary>
-    /// Readies this place, which <see cref="RoomObjectPlaceList.Spawn"/> has just taken, for a new room object's setup.
-    /// Only the spawn calls it, which analyzer SME6303 enforces.
+    /// Takes this free place, which <see cref="RoomObjectPlaceList.Spawn"/> has chosen, for a new room object's setup: it
+    /// holds no block yet, and awaits the object its setup gives it.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The place was not taken.</exception>
+    /// <exception cref="InvalidOperationException">The place is already held.</exception>
     internal void Claim()
     {
-        if (!Active)
-            throw new InvalidOperationException("A room-object place is readied only once a spawn has taken it.");
-        ClearContents();
+        if (Active)
+            throw new InvalidOperationException("A room-object place is taken only while it is free.");
+        Block = default;
+        _holding = Holding.AwaitingObject;
     }
 
     /// <summary>
     /// The object leaves the room: its place is free for the next spawn, and nothing of the object stays behind. A setup
-    /// that does all its work at once leaves this way too, so the next spawn may take the same place.
+    /// that does all its work at once leaves this way too, so the next spawn may take the same place. A place already free
+    /// stays free.
     /// </summary>
     internal void Delete()
     {
-        if (Active)
-            _occupancy.Free(_place);
-        ClearContents();
+        Block = default;
+        _holding = Holding.Free;
     }
 
-    /// <summary>Clears what the place holds.</summary>
-    private void ClearContents()
+    /// <summary>What a room-object place holds (#2560), one of the four cases below.</summary>
+    private abstract partial record Holding
     {
-        Block = default;
-        Behaviour = null;
-        Door = null;
+        /// <summary>Only the cases below are what a place holds.</summary>
+        private Holding()
+        {
+        }
+
+        /// <summary>A free place, which holds nothing.</summary>
+        internal static Holding Free { get; } = new Nothing();
+
+        /// <summary>A place a spawn has taken, whose setup has yet to give it its object or free it.</summary>
+        internal static Holding AwaitingObject { get; } = new Awaiting();
+
+        /// <summary>A free place.</summary>
+        internal sealed partial record Nothing : Holding;
+
+        /// <summary>A place a spawn has taken, whose setup has yet to give it its object or free it.</summary>
+        internal sealed partial record Awaiting : Holding;
+
+        /// <summary>A place holding <paramref name="Behaviour"/>, which stands in no door.</summary>
+        /// <param name="Behaviour">The typed object the place holds.</param>
+        internal sealed partial record Held(RoomObjectBehaviour Behaviour) : Holding;
+
+        /// <summary>A place holding <paramref name="Behaviour"/>, which stands in the door at its block as <paramref name="Standing"/>.</summary>
+        /// <param name="Behaviour">The typed object the place holds.</param>
+        /// <param name="Standing">The same object, as the door Samus's arrival asks to stay open or close.</param>
+        internal sealed partial record HeldInDoor(RoomObjectBehaviour Behaviour, IDoorBehindSamus Standing) : Holding;
     }
 }

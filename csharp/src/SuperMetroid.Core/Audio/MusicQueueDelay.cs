@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Audio;
 /// No request waits fewer than <see cref="AudioQueueDefinitions.MinimumMusicDelayPasses"/> passes: each delay the game
 /// asks for is named, at the length it waits, in the catalog of what asks for it (#2057).
 /// </summary>
-public readonly record struct MusicQueueDelay
+public readonly partial record struct MusicQueueDelay
 {
     /// <summary>A delay of <paramref name="updates"/> music-queue passes.</summary>
     /// <param name="updates">Music-queue passes, at least the shortest delay's.</param>

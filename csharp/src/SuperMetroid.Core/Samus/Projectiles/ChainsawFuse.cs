@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// leaves (<see cref="BeamFiredOverLastShot"/>, #2468): it counts that down, moves its animation at the fast stage
 /// (<see cref="ChainsawFuseAnimationShift{TCursor}"/>) and starts the Power Bomb blast when it runs out.
 /// </remarks>
-internal sealed class ChainsawFuse
+internal sealed partial class ChainsawFuse
 {
     /// <summary>Projectile animation owner used when the fuse ends the shot.</summary>
     private readonly ProjectileAnimation _animation;
@@ -30,10 +30,9 @@ internal sealed class ChainsawFuse
 
     /// <summary>Runs the Power Bomb fuse over the shot, then the Power Bomb's block reactions.</summary>
     internal void RunPowerBombFuse(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusProjectile shot,
-        SamusBombProjectileSystem samusBombs,
-        ISamusRoomObjects roomObjects)
+        SamusBombProjectileSystem samusBombs)
     {
         PowerBombFuseStep fuse = SamusPowerBombFuse.Step(shot.BeamFuse, samusBombs.PowerBombExplosion.IsArmed);
         // On a beam the fuse's switch to the fast animation moves the beam's own animation as far as a bomb's fast
@@ -53,11 +52,10 @@ internal sealed class ChainsawFuse
         if (fuse.BoundaryReacts)
         {
             SamusBombProjectileSystem.ReactToPowerBombBoundary(
-                level,
+                terrain,
                 samusBombs.PowerBombExplosion.Position,
                 samusBombs.PowerBombExplosion.Blast.ExplosionRadius,
-                roomObjects,
-                shot.Type);
+                shot.StrikingType);
         }
     }
 }

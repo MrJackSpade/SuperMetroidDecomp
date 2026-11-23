@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.AssetExtraction.Artwork;
@@ -26,7 +27,7 @@ internal static class CeresMode7MapVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AffineFloor first = Published(runtime);
@@ -73,7 +74,7 @@ internal static class CeresMode7MapVerification
         AssertTrue(first.DrawnOver.SequenceEqual(resting), "the earlier published floor keeps what it showed");
 
         // The station's escape owns the getaway's floor (#2228).
-        runtime.Enemies.CeresEscape.Floor.Active = true;
+        runtime.Enemies.CeresEscape.BeginGetaway();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         LayeredScene captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var mode7 = (TurningRoomLayer)captured.Layers[0];

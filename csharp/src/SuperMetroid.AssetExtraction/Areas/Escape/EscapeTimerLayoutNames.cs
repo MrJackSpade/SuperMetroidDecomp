@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// Names the escape timer layout document's parts (<see cref="EscapeTimerLayoutDefinitions"/>) for the import (#1502):
 /// the value a digit glyph draws and each anchor's JSON key.
 /// </summary>
-public static class EscapeTimerLayoutNames
+public static partial class EscapeTimerLayoutNames
 {
     /// <summary>The decimal value a digit glyph draws.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="glyph"/> is the label.</exception>

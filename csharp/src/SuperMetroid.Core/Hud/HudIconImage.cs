@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Hud;
 /// <param name="Item">The item icon.</param>
 /// <param name="Cover">Whether the place shows the icon or the template.</param>
 /// <param name="Shade">The shade the selection gave the place, or null when it has not shaded it.</param>
-public sealed record HudIconImage(HudIcon Item, HudIconCover Cover, HudIconShade? Shade) : HudImage
+public sealed partial record HudIconImage(HudIcon Item, HudIconCover Cover, HudIconShade? Shade) : HudImage
 {
     /// <summary>The item icon.</summary>
-    public HudIcon Item { get; } = Enum.IsDefined(Item) ? Item : throw new ArgumentOutOfRangeException(nameof(Item), Item, "Undefined item icon.");
+    public HudIcon Item { get; } = Item;
 
     /// <inheritdoc/>
     public override string FrameName =>

@@ -10,8 +10,7 @@ namespace SuperMetroid.Core.Spatial;
 /// movement from the fractions its last one left, and those fractions decide on which update that movement reaches each
 /// next whole pixel. Only <see cref="FromWhole"/> and the fraction writes clear or set them.
 /// </remarks>
-[SpatialComponents("Spatial value type: owns its X and Y axes, each a whole pixel and its fraction.")]
-public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoordinate Y)
+public readonly partial record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoordinate Y)
     where TSpace : ISpatialSpace
 {
     /// <summary>The origin, with no fraction of a pixel.</summary>
@@ -79,17 +78,21 @@ public readonly record struct FixedPosition<TSpace>(FixedCoordinate X, FixedCoor
     public static FixedPosition<TSpace> operator -(FixedPosition<TSpace> position, Offset16<TSpace> offset) =>
         position.WithWhole(position.Whole - offset);
 
-    /// <summary>Moves only the X axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
+    /// <summary>Moves only the X axis by <paramref name="delta"/>, a fraction past a whole pixel carrying into the
+    /// whole pixels, which wrap.</summary>
     public FixedPosition<TSpace> AdvanceX(SignedSixteenSixteen delta) => WithX(X.MovedBy(delta));
 
-    /// <summary>Moves only the Y axis by <paramref name="delta"/>, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
+    /// <summary>Moves only the Y axis by <paramref name="delta"/>, a fraction past a whole pixel carrying into the
+    /// whole pixels, which wrap.</summary>
     public FixedPosition<TSpace> AdvanceY(SignedSixteenSixteen delta) => WithY(Y.MovedBy(delta));
 
-    /// <summary>Moves each axis by its velocity, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
+    /// <summary>Moves each axis by its velocity, a fraction past a whole pixel carrying into the whole pixels, which
+    /// wrap.</summary>
     public FixedPosition<TSpace> MovedBy(PixelVelocity<TSpace> velocity) =>
         WithX(X.MovedBy(velocity.X)).WithY(Y.MovedBy(velocity.Y));
 
-    /// <summary>Applies a displacement on each axis, the fraction's overflow passing on to the whole pixels, which wrap.</summary>
+    /// <summary>Applies a displacement on each axis, a fraction past a whole pixel carrying into the whole pixels,
+    /// which wrap.</summary>
     public FixedPosition<TSpace> Advance(FixedVector<TSpace> displacement) =>
         new(X.MovedBy(displacement.X), Y.MovedBy(displacement.Y));
 }

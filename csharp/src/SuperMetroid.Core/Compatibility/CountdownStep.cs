@@ -15,9 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </para>
 /// </summary>
 /// <param name="Remaining">The countdown left after the step; a countdown stepped from zero has wrapped to 65535.</param>
-[CompatibilityService("the outcome of one countdown step, tested the way the game tests each timer's expiry (reached zero, went negative, or either)")]
-[EncodingOwner("wrapping countdown decrement result")]
-public readonly record struct CountdownStep(WrappingCountdown Remaining)
+public readonly partial record struct CountdownStep(WrappingCountdown Remaining)
 {
     /// <summary>Whether the step left no frames: the expiry of a timer that ends on reaching zero.</summary>
     public bool IsZero => Remaining.IsZero;

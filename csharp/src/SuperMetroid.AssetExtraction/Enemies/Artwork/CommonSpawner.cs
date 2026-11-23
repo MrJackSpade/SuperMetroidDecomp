@@ -28,9 +28,6 @@ internal enum CommonSpawner
     /// <summary>The sparks falling from the ceiling sparks.</summary>
     FallingSparksBehavior,
 
-    /// <summary>The glass tube's cracks and shards as it shatters.</summary>
-    NoobTubeBehavior,
-
     /// <summary>The old Tourian escape shaft's wall as it explodes away.</summary>
     OldTourianEscapeShaftWallBehavior,
 

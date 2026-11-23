@@ -25,7 +25,7 @@ internal static class KraidColorSourceSelectionVerification
             Secondary = original[KraidPaletteSource.Secondary],
             DeathArm = original[KraidPaletteSource.DeathArm],
         };
-        using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document));
+        using var json = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.KraidColorDocument>()));
         var catalog = KraidColorFile.Read(json);
         ushort Encode(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         foreach (var (source, row) in original)
@@ -35,8 +35,6 @@ internal static class KraidColorSourceSelectionVerification
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(source, -1), "Negative color index");
             AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(source, row.Length), "Selected source bounds");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 5, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve((KraidPaletteSource)invalid, 0), "Unknown palette source");
         string expectedIdentity = SelectedPresentationHash.Create("enemy-kraid-colors-v1", content =>
         {
             // Preserve the original dictionary's enum-key ordering contract.

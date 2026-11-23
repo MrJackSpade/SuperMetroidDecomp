@@ -42,21 +42,18 @@ internal static class SamusChargeColorsVerification
             {
                 int address = SamusSourceDefinitions.PaletteBank.Value |
                     (pointer + color * sizeof(ushort));
-                AssertEqual(BlockWord(address), native.ResolveHyper(frame, color),
+                AssertEqual(BlockWord(address), native.ResolveHyperStep(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - (frame), color),
                     $"Hyper-shot frame {frame} color {color}");
             }
         }
 
-        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)),
-            ArtworkJson.Options)
+        SamusChargeColorDocument document = JsonSerializer.Deserialize<SamusChargeColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusChargeColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusChargeColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock charge colors are null.");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             EquippedBeams = SamusBeamFlags.Charge,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         // Charge and Hyper-shot steps name shades (#1512); the import resolves them from the installed charge colours.
         var installedSources = InstalledFixtures.SamusShadeSources with { Charge = InstalledFixtures.ImportOf(original).SamusColours.Charge };
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
@@ -83,7 +80,7 @@ internal static class SamusChargeColorsVerification
             }
         }
         AssertEqual(0, projectiles.Charge.ChargeGlowStep, "six charge phases wrap");
-        samus.HyperBeamEnabled = true;
+        samus.EnableHyperBeam();
         projectiles.Charge.ChargedShotGlow = ChargedShotGlow.StartHyperBeamGlow();
         for (int call = 0; call < 20; call++)
         {
@@ -101,7 +98,7 @@ internal static class SamusChargeColorsVerification
             // Even glow steps 20..2 select Hyper palettes 0..9.
             AssertEqual(20 - frame * 2, glowStepsBefore, $"Hyper-shot playback frame {frame}");
             for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-                AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Charge.ResolveHyper(frame, color),
+                AssertEqual(InstalledFixtures.ImportOf(original).SamusColours.Charge.ResolveHyperStep(SuperMetroid.Core.Samus.Colours.SamusShadeDefinitions.FullBodyCycles.HyperBeamShadeCount - 1 - (frame), color),
                     samusColours.ShownSuit(installedSources)[color],
                     $"installed Hyper-shot colour {frame}/{color}");
         }
@@ -118,7 +115,7 @@ internal static class SamusChargeColorsVerification
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
+            return RomDataReader.ReadWordFixedBank(rom, address);
         }
     }
 
@@ -147,7 +144,7 @@ internal static class SamusChargeColorsVerification
                     AssertTrue(found, "Native charge pointer supported");
                     AssertEqual(pointer, compiled, "Native charge pointer selection");
                     samusColours.ShowSuit(SamusShades.Charge(new SamusChargeShade(
-                        family != 0 ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam, SamusSuitListLayout.AtPlace(suit), phase)));
+                        family != 0 ? SamusChargeKind.PseudoScrew : SamusChargeKind.ChargedBeam, SamusSuitListLayoutConstants.AtPlace(suit), phase)));
                     RgbColor[] shownSuit = samusColours.ShownSuit(catalogSources);
                     for (int color = 0; color < 16; color++)
                     {
@@ -180,7 +177,8 @@ internal static class SamusChargeColorsVerification
             .Select(index => Word(SamusSourceDefinitions.DeathWhiteoutShades.Value + index * 2)).ToArray();
         var selectors = Enumerable.Range(0, SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount)
             .Select(index => (ushort)rom.ReadCartridgeByte(SamusSourceDefinitions.DeathExplosionTimingAndPaletteIndices.Value + 2 * index + 1)).ToArray();
-        var death = new InstalledSamusDeathPalettes(ToColors(deathSuited), ToColors(deathSuitless), ToColors(whiteout), selectors);
+        var death = new InstalledSamusDeathPalettes(SamusDeathPaletteFixtureKeys.Suits(ToColors(deathSuited)), ToColors(deathSuitless), ToColors(whiteout),
+            SamusDeathPaletteFixtureKeys.ExplosionSteps(selectors));
         for (int index = 0; index < whiteout.Length; index++)
         {
             AssertEqual(whiteout[index], death.WhiteoutColor(index), "Every original whiteout RGB word");
@@ -193,7 +191,8 @@ internal static class SamusChargeColorsVerification
         // as they were supplied, and copies its inputs.
         {
             ushort[][][] suited = deathSuited.Select(rows => rows.Select(row => (ushort[])row.Clone()).ToArray()).ToArray();
-            var stockDeath = new InstalledSamusDeathPalettes(ToColors(suited), ToColors(deathSuitless), ToColors(whiteout), selectors);
+            var stockDeath = new InstalledSamusDeathPalettes(SamusDeathPaletteFixtureKeys.Suits(ToColors(suited)), ToColors(deathSuitless), ToColors(whiteout),
+                SamusDeathPaletteFixtureKeys.ExplosionSteps(selectors));
             for (int index = 0; index < whiteout.Length; index++)
                 AssertEqual(whiteout[index], stockDeath.WhiteoutColor(index), "Original whiteout shades");
             for (int frame = 0; frame < selectors.Length; frame++)
@@ -202,7 +201,7 @@ internal static class SamusChargeColorsVerification
             for (int palette = 0; palette < 10; palette++)
             for (int color = 0; color < 16; color++)
                 AssertEqual((family < 3 ? suited[family] : deathSuitless)[palette][color],
-                    family < 3 ? stockDeath.SuitedColor(family, palette, color) : stockDeath.SuitlessColor(palette, color),
+                    family < 3 ? stockDeath.SuitedColor(SuperMetroid.AssetExtraction.Samus.SamusSuitListLayout.Order[family], palette, color) : stockDeath.SuitlessColor(palette, color),
                     "Original death palette view");
             string originalIdentity = SelectedPresentationHash.Create(nameof(InstalledSamusDeathPalettes), content =>
             {
@@ -213,22 +212,20 @@ internal static class SamusChargeColorsVerification
                 content.AppendWords("explosion palette indices", selectors);
             });
             AssertEqual(originalIdentity, stockDeath.ContentIdentity, "Death color identity preserves original row serialization");
-            RgbColor before = stockDeath.SuitedColor(0, 0, 0);
+            RgbColor before = stockDeath.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, 0);
             suited[0][0][0] ^= 1;
-            AssertEqual(before, stockDeath.SuitedColor(0, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
+            AssertEqual(before, stockDeath.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, 0), "Death catalog copies inputs instead of retaining caller arrays");
         }
         foreach (int invalid in new[] { -1, 9, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => death.ExplosionPaletteIndex(invalid), "Invalid explosion frame");
         foreach (int invalid in new[] { -1, 10, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(0, invalid, 0), "Invalid suited death palette");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, invalid, 0), "Invalid suited death palette");
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(invalid, 0), "Invalid suitless death palette");
         }
-        foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(invalid, 0, 0), "Invalid death suit");
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(0, 0, invalid), "Invalid suited color");
+            AssertThrows<ArgumentOutOfRangeException>(() => death.SuitedColor(SuperMetroid.Core.Samus.Colours.SamusSuit.Power, 0, invalid), "Invalid suited color");
             AssertThrows<ArgumentOutOfRangeException>(() => death.SuitlessColor(0, invalid), "Invalid suitless color");
         }
         foreach (bool pseudo in new[] { false, true })
@@ -241,8 +238,8 @@ internal static class SamusChargeColorsVerification
         foreach (int invalid in new[] { -1, 16, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => colours.ResolveCharge(false, 0, 0, invalid), "Invalid color rejected");
         var guarded = NewChargeColorReadGuard(rom, forbidden);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose,
-            EquippedBeams = SamusBeamFlags.Charge };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { 
+            EquippedBeams = SamusBeamFlags.Charge }.InPose(SamusPoseId.FacingRightNormalPose);
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         projectiles.Charge.SetFlareCount(60);
         ushort[] suits = [0, 1, 0x20];

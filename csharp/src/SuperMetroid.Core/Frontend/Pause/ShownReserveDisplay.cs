@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </summary>
 /// <param name="Mode">The reserve mode the MODE label names; before a mode is chosen the label reads MANUAL.</param>
 /// <param name="Supply">The reserve energy the three supply digits show.</param>
-internal sealed record ShownReserveDisplay(ReserveTankMode Mode, int Supply)
+internal sealed partial record ShownReserveDisplay(ReserveTankMode Mode, int Supply)
 {
     /// <summary>The supply's decimal digits, hundreds first, as the equipment screen's reserve display splits it.</summary>
     internal int[] Digits() =>

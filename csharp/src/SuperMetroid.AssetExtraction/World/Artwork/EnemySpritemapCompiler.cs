@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.World.Artwork;
 /// are composed from (#1463, #1638), checking them against the composition sheet's bounds. Only the import reads them; the
 /// installation holds the composed pictures, and gameplay draws them and never reads parts.
 /// </summary>
-internal static class EnemySpritemapCompiler
+internal static partial class EnemySpritemapCompiler
 {
     /// <summary>Upper bound on sprite pieces accepted from one editable enemy composition.</summary>
     internal const int MaximumParts = 128;
@@ -19,7 +19,7 @@ internal static class EnemySpritemapCompiler
     /// <summary>Character-sheet height in eight-pixel tiles for composition tile references.</summary>
     internal const int TileRows = 32;
 
-    /// <summary>Validates part capacity, offsets, tile bounds, palette, size, and priority of ordinary or extended frame pieces.</summary>
+    /// <summary>Validates part capacity, offsets, tile bounds, palette and size of ordinary or extended frame pieces.</summary>
     /// <exception cref="InvalidDataException">The composition has too many parts or a part has invalid visual fields.</exception>
     internal static SpritePart[] CompileParts(SpriteVisualPart[] visual, string frameName)
     {
@@ -32,7 +32,7 @@ internal static class EnemySpritemapCompiler
             SpriteVisualPart? part = visual[index];
             if (part is null || part.OffsetX is < -256 or > 255 ||
                 part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
-                part.Priority is < 0 or > 3 || part.Palette is null or < 0 or > 7 ||
+                part.Palette is null or < 0 or > 7 ||
                 part.TileColumn is < 0 or >= TileColumns ||
                 part.TileRow is < 0 or >= TileRows)
                 throw new InvalidDataException(
@@ -41,7 +41,7 @@ internal static class EnemySpritemapCompiler
                 (part.FlipX ? PictureFlip.Horizontal : 0) |
                 (part.FlipY ? PictureFlip.Vertical : 0);
             parts[index] = SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
-                part.TileRow * TileColumns + part.TileColumn, part.Palette.Value, part.Priority, flips);
+                part.TileRow * TileColumns + part.TileColumn, part.Palette.Value, part.Depth, flips);
         }
         return parts;
     }

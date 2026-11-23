@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// are authored among the extended frames; hitboxes and animation timing remain
 /// gameplay data.
 /// </summary>
-internal static class CrocomireBg2FrameDefinitions
+internal static partial class CrocomireBg2FrameDefinitions
 {
     /// <summary>Schema version for the selected mixed-frame BG2 artwork file; version 3 names each frame for its pose (#1465), 4 for the animation that first shows it (#1623), 6 for what its picture shows (#2069), 7 for the mouth its striding bodies show (#2268).</summary>
     internal const int Version = 7;

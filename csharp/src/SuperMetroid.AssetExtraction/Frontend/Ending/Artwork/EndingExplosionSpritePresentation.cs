@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 
 /// <summary>Editable OAM compositions for the 16 Zebes-explosion visual frames.</summary>
-public sealed class EndingExplosionSpritePresentation : ICinematicSpriteFrames
+public sealed partial class EndingExplosionSpritePresentation : ICinematicSpriteFrames
 {
     /// <summary>Validated OAM compositions keyed by the poses that show them.</summary>
     internal readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
@@ -56,8 +56,7 @@ public sealed class EndingExplosionSpritePresentation : ICinematicSpriteFrames
     public static void Write(Stream json, EndingExplosionSpriteDocument document)
     {
         Ensure.NotNull(json);
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document,
-            ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingExplosionSpriteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

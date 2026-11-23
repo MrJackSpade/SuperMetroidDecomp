@@ -15,10 +15,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// holds the 16 frames whose picture is seen: the eight block-pair frames lie under the item's own picture (#1538) and
 /// write only their terrain, which the import checks against the cartridge with the block pairs' selectors.
 /// </summary>
-public static class RoomObjectCollectibleVisualFiles
+public static partial class RoomObjectCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the sixteen editable collectible frames.</summary>
-    public const string VisualFileName = "collectibles.json";
+    internal const string VisualFileName = "collectibles.json";
 
     /// <summary>Every collectible frame in its published order (#2567): the empty block, the Chozo orb's stages, the tanks, the block pairs' looks and the shot block's stages.</summary>
     private static readonly IReadOnlyList<CollectibleDraw> PublishedOrder = Ensure.EveryMemberOnce<CollectibleDraw>(
@@ -36,14 +36,14 @@ public static class RoomObjectCollectibleVisualFiles
         CollectibleDraw.SuperMissileTankBright,
         CollectibleDraw.PowerBombTankBright,
         CollectibleDraw.PowerBombTankDim,
-        CollectibleDraw.FirstBlockPairPrimaryLook,
-        CollectibleDraw.FirstBlockPairAlternateLook,
-        CollectibleDraw.SecondBlockPairPrimaryLook,
-        CollectibleDraw.SecondBlockPairAlternateLook,
-        CollectibleDraw.ThirdBlockPairPrimaryLook,
-        CollectibleDraw.ThirdBlockPairAlternateLook,
-        CollectibleDraw.FourthBlockPairPrimaryLook,
-        CollectibleDraw.FourthBlockPairAlternateLook,
+        CollectibleDraw.SolidPairPrimaryLook,
+        CollectibleDraw.SolidPairAlternateLook,
+        CollectibleDraw.FirstDoorPairPrimaryLook,
+        CollectibleDraw.FirstDoorPairAlternateLook,
+        CollectibleDraw.SecondDoorPairPrimaryLook,
+        CollectibleDraw.SecondDoorPairAlternateLook,
+        CollectibleDraw.ThirdDoorPairPrimaryLook,
+        CollectibleDraw.ThirdDoorPairAlternateLook,
         CollectibleDraw.ShotBlockIntact,
         CollectibleDraw.ShotBlockCracking,
         CollectibleDraw.ShotBlockDust,
@@ -69,7 +69,7 @@ public static class RoomObjectCollectibleVisualFiles
     /// <summary>Loads the installed collectible pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectCollectibleVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>
@@ -77,7 +77,6 @@ public static class RoomObjectCollectibleVisualFiles
     /// the file does not hold, the name its native checks report.
     /// </summary>
     /// <exception cref="InvalidOperationException">The draw is no collectible's frame.</exception>
-    [InstalledKey]
     internal static string VisualId(CollectibleDraw draw) => Enum.IsDefined(draw)
         ? JsonNamingPolicy.KebabCaseLower.ConvertName(CollectibleDrawKeys.Installed.Of(draw))
         : throw new InvalidOperationException($"Undefined {nameof(CollectibleDraw)} {draw}.");
@@ -116,9 +115,9 @@ public static class RoomObjectCollectibleVisualFiles
             int table = look == CollectibleLook.Primary
                 ? RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame0Table.Offset
                 : RoomObjectDrawSourceDefinitions.CollectibleDynamicFrame1Table.Offset;
-            int native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
-            int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.VisibleFrame(
-                InWorldCollectibleKind.Bombs, look, CollectibleBlockPairs.InTurn[selector]));
+            int native = bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(table + selector * 2)))));
+            int compiled = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.BlockPairFrame(
+                CollectibleBlockPairs.InTurn[selector], look));
             if (native != compiled)
                 throw new InvalidDataException(
                     $"Collectible block pair selector $84:{table + selector * 2:X4} differs from the cartridge.");
@@ -128,9 +127,9 @@ public static class RoomObjectCollectibleVisualFiles
             int address = RoomObjectDrawAddressCodec.Of(CollectibleObjectDraws.Family.Of(frame.Draw));
             RoomTerrainBlock terrain = CollectibleObjectDraws.BlockPairTerrain(frame.Draw)
                 ?? throw new InvalidOperationException($"Collectible draw {frame.Id} lies under the item's own picture but writes no block pair's terrain.");
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
-                RoomLevelWordCodec.Decode(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
+            if (bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, address)) != 1 ||
+                RoomLevelWordCodec.Decode(bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 2)))))) != RoomLevelWordCodec.AsStored(terrain) ||
+                bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
                     $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
         }

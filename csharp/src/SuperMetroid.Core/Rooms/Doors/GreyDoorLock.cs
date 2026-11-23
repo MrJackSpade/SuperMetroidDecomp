@@ -8,15 +8,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// cap makes on each update, with what that test reads. The Tourian statue's lock holds the statue room's statue, which
 /// only the statue room has, so a cap waiting for the statue can be placed only there.
 /// </summary>
-[RoomLifetime]
-internal abstract class GreyDoorLock
+internal abstract partial class GreyDoorLock
 {
-    /// <summary>A lock placed with <paramref name="condition"/>.</summary>
-    private protected GreyDoorLock(GreyDoorCondition condition) => Condition = condition;
-
-    /// <summary>The condition the cap was placed with.</summary>
-    internal GreyDoorCondition Condition { get; }
-
     /// <summary>Whether the condition holds on this update.</summary>
     /// <param name="frame">The update's room-object inputs, which carry the room's enemy deaths and quota.</param>
     internal abstract bool IsUnlocked(RoomObjectFrameInputs frame);
@@ -27,20 +20,21 @@ internal abstract class GreyDoorLock
     }
 
     /// <summary>A lock that holds until one of the area's <paramref name="bosses"/> is defeated.</summary>
-    /// <param name="condition">The condition the cap was placed with.</param>
     /// <param name="system">The game's progress, whose defeated bosses the lock reads.</param>
     /// <param name="area">The room's area.</param>
     /// <param name="bosses">The bosses of the area whose defeat unlocks the cap.</param>
-    internal sealed class BossDefeated(GreyDoorCondition condition, SharedGameState system, AreaId area, DefeatedBosses bosses)
-        : GreyDoorLock(condition)
+    internal sealed partial class BossDefeated(SharedGameState system, AreaId area, DefeatedBosses bosses) : GreyDoorLock
     {
+        /// <summary>The bosses of the area whose defeat unlocks the cap.</summary>
+        internal DefeatedBosses Bosses { get; } = bosses;
+
         /// <inheritdoc/>
-        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasDefeatedAnyOf(area, bosses);
+        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasDefeatedAnyOf(area, Bosses);
     }
 
     /// <summary>A lock that holds until the room's enemy deaths reach its quota, which also wakes Zebes.</summary>
     /// <param name="system">The game's progress, whose Zebes-awake event the unlocking sets.</param>
-    internal sealed class EnemyDeathQuota(SharedGameState system) : GreyDoorLock(GreyDoorCondition.EnemyDeathQuota)
+    internal sealed partial class EnemyDeathQuota(SharedGameState system) : GreyDoorLock
     {
         /// <inheritdoc/>
         internal override bool IsUnlocked(RoomObjectFrameInputs frame) => frame.EnemyDeaths >= frame.EnemyDeathQuota;
@@ -50,7 +44,7 @@ internal abstract class GreyDoorLock
     }
 
     /// <summary>A lock that never opens.</summary>
-    internal sealed class Never() : GreyDoorLock(GreyDoorCondition.Never)
+    internal sealed partial class Never() : GreyDoorLock
     {
         /// <inheritdoc/>
         internal override bool IsUnlocked(RoomObjectFrameInputs frame) => false;
@@ -58,7 +52,7 @@ internal abstract class GreyDoorLock
 
     /// <summary>A lock that holds until the Tourian entrance statue has finished sinking.</summary>
     /// <param name="statue">The statue room's statue.</param>
-    internal sealed class TourianStatueFinished(ITourianStatueProgress statue) : GreyDoorLock(GreyDoorCondition.TourianStatueFinished)
+    internal sealed partial class TourianStatueFinished(ITourianStatueProgress statue) : GreyDoorLock
     {
         /// <summary>The statue room's statue.</summary>
         private readonly ITourianStatueProgress _statue = Ensure.NotNull(statue);
@@ -68,12 +62,14 @@ internal abstract class GreyDoorLock
     }
 
     /// <summary>A lock that holds until <paramref name="storyEvent"/> has happened.</summary>
-    /// <param name="condition">The condition the cap was placed with.</param>
     /// <param name="system">The game's progress, whose events the lock reads.</param>
     /// <param name="storyEvent">The event that unlocks the cap.</param>
-    internal sealed class EventSet(GreyDoorCondition condition, SharedGameState system, StoryEvent storyEvent) : GreyDoorLock(condition)
+    internal sealed partial class EventSet(SharedGameState system, StoryEvent storyEvent) : GreyDoorLock
     {
+        /// <summary>The event that unlocks the cap.</summary>
+        internal StoryEvent StoryEvent { get; } = storyEvent;
+
         /// <inheritdoc/>
-        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasEvent(storyEvent);
+        internal override bool IsUnlocked(RoomObjectFrameInputs frame) => system.HasEvent(StoryEvent);
     }
 }

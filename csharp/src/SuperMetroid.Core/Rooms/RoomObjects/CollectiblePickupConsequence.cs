@@ -5,7 +5,7 @@
 /// combination's colours, a suit starts its transformation once its message closes, and every other item changes
 /// nothing there, its inventory already applied.
 /// </summary>
-public abstract record CollectiblePickupConsequence
+public abstract partial record CollectiblePickupConsequence
 {
     /// <summary>Only the consequences below derive from this.</summary>
     private protected CollectiblePickupConsequence()
@@ -25,7 +25,7 @@ public abstract record CollectiblePickupConsequence
     internal abstract void Apply(ICollectiblePickupConsequences consequences);
 
     /// <summary>A pickup whose inventory is all it changes.</summary>
-    private sealed record NoChange : CollectiblePickupConsequence
+    private sealed partial record NoChange : CollectiblePickupConsequence
     {
         /// <inheritdoc/>
         internal override void Apply(ICollectiblePickupConsequences consequences)
@@ -34,7 +34,7 @@ public abstract record CollectiblePickupConsequence
     }
 
     /// <summary>A beam pickup.</summary>
-    private sealed record EquippedBeams : CollectiblePickupConsequence
+    private sealed partial record EquippedBeams : CollectiblePickupConsequence
     {
         /// <inheritdoc/>
         internal override void Apply(ICollectiblePickupConsequences consequences) =>
@@ -43,7 +43,7 @@ public abstract record CollectiblePickupConsequence
 
     /// <summary>A suit pickup.</summary>
     /// <param name="Suit">The suit the transformation reveals.</param>
-    private sealed record SuitTransformation(SamusSuitPickupKind Suit) : CollectiblePickupConsequence
+    private sealed partial record SuitTransformation(SamusSuitPickupKind Suit) : CollectiblePickupConsequence
     {
         /// <inheritdoc/>
         internal override void Apply(ICollectiblePickupConsequences consequences) =>

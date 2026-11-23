@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 /// One of the twelve sideways offsets of a rising Powamp's wiggle (#2375), in the order the body and balloon take them:
 /// a three-pixel triangle wave, centred where the offset is zero; the last is followed by the first.
 /// </summary>
-public readonly record struct PowampWiggle
+public readonly partial record struct PowampWiggle
 {
     /// <summary>The offset at <paramref name="step"/> of the cycle.</summary>
     private PowampWiggle(int step) => Step = step;
@@ -13,7 +13,7 @@ public readonly record struct PowampWiggle
     private int Step { get; }
 
     /// <summary>Every offset of the cycle, in the order the Powamp takes them.</summary>
-    public static IReadOnlyList<PowampWiggle> All { get; } =
+    internal static IReadOnlyList<PowampWiggle> All { get; } =
         [.. Enumerable.Range(0, PowampMotionDefinitions.WiggleOffsets.Length).Select(step => new PowampWiggle(step))];
 
     /// <summary>The cycle's first offset, the centre, where a new body starts.</summary>

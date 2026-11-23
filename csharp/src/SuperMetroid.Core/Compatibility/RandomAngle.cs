@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// <param name="Field">The part of the sample the choice reads.</param>
 /// <param name="Least">The angle the field's zero chooses.</param>
 /// <param name="Step">How much further round each next value of the field chooses.</param>
-[CompatibilityService("which angle each random number chooses, exactly as the game's angle draws read it")]
-public readonly record struct RandomAngle(RandomSampleField Field, RotationAngle Least, RotationAngle Step)
+public readonly partial record struct RandomAngle(RandomSampleField Field, RotationAngle Least, RotationAngle Step)
 {
     /// <summary>The angle <paramref name="sample"/> chooses: the least, turned on by a step for each value of its field.</summary>
     /// <param name="sample">A random sample, 0 through 65535.</param>

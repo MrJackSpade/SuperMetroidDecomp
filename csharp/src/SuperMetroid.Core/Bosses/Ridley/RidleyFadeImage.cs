@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>One image of one of the Ridley encounters' authored colour runs (#2316).</summary>
-public readonly record struct RidleyFadeImage
+public readonly partial record struct RidleyFadeImage
 {
     /// <summary>The image at <paramref name="step"/> of <paramref name="fade"/>.</summary>
     internal RidleyFadeImage(RidleyFade fade, int step)

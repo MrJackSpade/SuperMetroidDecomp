@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;
@@ -28,9 +29,9 @@ internal static class GrowingShutterDefinitionsVerification
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => LittleEndianBytes.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-        Action<RoomEnemyPlace> initialize = ShuttersBehavior.InitializeGrowingShutter;
+        Func<RoomEnemyPlace, GrowingShutterEnemyState> initialize = fixturePlace => ShuttersBehavior.InitializeGrowingShutter(fixturePlace.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>(), fixturePlace);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.ShutterGrowing, place.Definition);
+        place.Bind(EnemyDefinitionId.ShutterGrowing, place.KeptDefinition);
         for (ushort selector = 0; selector < 4; selector++)
         {
             for (int high = 0; high < 256; high++)
@@ -42,14 +43,14 @@ internal static class GrowingShutterDefinitionsVerification
                     place.SetSpawnWords(EnemyDefinitionId.ShutterGrowing, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(
                         selector & 1, 0, selector >> 1, 0, (high << 8) | speed));
                     place.Position = place.Position.WithWholeY(296);
-                    initialize(place);
-                    GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
+                    // The shutter's setup builds its state.
+                    GrowingShutterEnemyState state = initialize(place);
                     AssertEqual(Word(0xa2ea4e + selector * 2), ShuttersNativeWords.GrowingShutterActions.Word((state.Action, state.Growth)), "Shutter real dispatch without bus");
-                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.WholePixels, "Shutter native whole speed");
-                    AssertEqual(Word(0xa2ea58 + speed * 4), place.SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.Fraction, "Shutter native fractional speed");
+                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.WholePixels, "Shutter native whole speed");
+                    AssertEqual(Word(0xa2ea58 + speed * 4), place.HeldOccupant().SpawnSettings<GrowingShutterSpawnSettings>().GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
-                    for (int level = 0; level < GrowingShutterEnemyState.SectionCount; level++)
-                        AssertEqual(place.Position.Y.Whole + direction * 8 * level, state.SectionOriginY(level), $"Shutter section origin {level}");
+                    for (ListStep<GrowingShutterSection>? section = GrowingShutterEnemyState.FirstSection; section is { } step; section = step.Following)
+                        AssertEqual(place.Position.Y.Whole + direction * 8 * step.Entry.GrownBefore, state.OriginY(step), $"Shutter section origin {step.Entry.GrownBefore}");
                     AssertTrue(!place.CollidesByFrameHitboxes && !place.AnimationClock.ShowsNewFrame, "Shutter clears its additional properties");
                 }
             }
@@ -58,7 +59,7 @@ internal static class GrowingShutterDefinitionsVerification
     }
 
     /// <summary>Reads cartridge bytes used as the compiled shutter comparison oracle.</summary>
-    private static byte CompiledGrowingShuttersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CompiledGrowingShuttersRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks signed whole-pixel shutter velocities across high-byte selector aliases.</summary>
     private static void VerifyGrowingShutterWholeSpeed(CartridgeImportAddressSpace rom) =>
@@ -103,5 +104,5 @@ internal static class GrowingShutterDefinitionsVerification
             SuperMetroid.AssetExtraction.Enemies.PopulationWords.Parameters(0, parameter2))).GrowthSpeed;
 
     /// <summary>Reads a native velocity byte for the shutter speed-field comparison.</summary>
-    private static byte GrowingShutterSpeedFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte GrowingShutterSpeedFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -3,8 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>The cartridge's room level space, which the import reads past each room's grid (#1469).</summary>
-[EncodingOwner("room level space prefill word and extent")]
-internal static class RoomLevelSpaceDefinitions
+internal static partial class RoomLevelSpaceDefinitions
 {
     /// <summary>
     /// The level word <c>$82:EA73</c> fills the room's whole level space with before the room is decompressed over its

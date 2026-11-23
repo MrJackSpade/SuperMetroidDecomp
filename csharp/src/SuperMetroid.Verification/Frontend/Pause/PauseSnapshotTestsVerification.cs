@@ -35,8 +35,7 @@ internal static class PauseSnapshotTestsVerification
         system.SetAreaMapAcquired(AreaId.Maridia);
         system.MarkExploredMapTile(AreaId.Maridia, new(30, 5));
         // Retain a drawn HUD rather than testing only the cleared menu background (#1466).
-        var gameplayHud = new HudState();
-        gameplayHud.BindPresentation(InstalledFixtures.Maps.GameplayHud);
+        var gameplayHud = new HudState(InstalledFixtures.Maps.GameplayHud);
         gameplayHud.Initialize(HudSnapshot.NewGame);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = system, Area = AreaId.Maridia, RoomMapPosition = new(28, 2), GameplayHud = gameplayHud.Shown(), MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
         var pages = new HashSet<PauseScreenMode>();
@@ -52,7 +51,7 @@ internal static class PauseSnapshotTestsVerification
             LayeredScene repeated = pause.ComposeScene();
             AssertTrue(packet.SpriteParts().SequenceEqual(repeated.SpriteParts()), "repeat pause capture OAM");
             pages.Add(pause.ScreenMode);
-            levels.Add(packet.Brightness);
+            levels.Add(packet.Brightness.StepsAboveBlack);
             ControllerButton input = frame == 8 ? ControllerButton.R
                 : frame == 80 ? ControllerButton.L : 0;
             pause.Step(input, input);

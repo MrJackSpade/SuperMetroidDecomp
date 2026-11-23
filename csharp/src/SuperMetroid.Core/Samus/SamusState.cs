@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Samus;
 /// <remarks>
 /// The movement, pose, ability and drawing systems share it. The Landing Site cinematic actor is not part of it.
 /// </remarks>
-public sealed class SamusState
+public sealed partial class SamusState
 {
     /// <summary>The installed input and movement modes and the control setups that replace them.</summary>
     internal SamusControl Control { get; } = new();
@@ -33,16 +33,19 @@ public sealed class SamusState
     /// <summary>The <see cref="SamusPresentation"/> owner of this SamusState.</summary>
     internal SamusPresentation Presentation { get; }
 
-    /// <summary>Samus's current pose.</summary>
+    /// <summary>Samus's current pose, whose animation <see cref="AnimationFrame"/> is a frame of.</summary>
     /// <remarks>
-    /// An ordinary write also models the pose setup, publishing the
-    /// pose's direction and movement type to <see cref="InitializedPose"/>. Only the
-    /// writes that skip that setup use <see cref="WritePoseWithoutInitialization"/>.
+    /// The pose changes only together with its animation (#2553): <see cref="ChangePose(SamusPoseId)"/> and its overloads
+    /// start the new pose's animation in the same operation, <see cref="ChangePoseKeepingAnimation"/> keeps the running
+    /// frame as the pose change does when the new pose names no frame, and <see cref="PlaceInPose"/> puts a new Samus on
+    /// her pose's first frame. An ordinary change also sets the pose up, publishing the pose's direction and movement type
+    /// to <see cref="InitializedPose"/>; only the scripted sequences that skip that setup use
+    /// <see cref="ChangePoseWithoutSetup"/>.
     /// </remarks>
     public SamusPoseId Pose
     {
         get;
-        set
+        private set
         {
             field = value;
             InitializedPose = value;
@@ -57,15 +60,85 @@ public sealed class SamusState
     public SamusPoseId InitializedPose { get; private set; } = SamusPoseId.FacingRightNormalPose;
 
     /// <summary>
-    /// Writes the pose as the game does when it skips the pose setup
-    /// (the drained Samus sequences): the previous pose's
-    /// direction and movement type stay in force.
+    /// Changes her pose and starts its animation on its first frame, in one operation (#2553): the pose sets up as an
+    /// ordinary change does (<see cref="InitializedPose"/>), and its animation starts as a pose change starts it
+    /// (<see cref="SamusPresentation.InitializeAnimation(SamusState)"/>), its timer seeded from where she now stands.
     /// </summary>
-    internal void WritePoseWithoutInitialization(SamusPoseId pose)
+    /// <param name="pose">The pose she changes to.</param>
+    internal void ChangePose(SamusPoseId pose) => ChangePose(pose, SamusAnimationDelays.AnimationForPose(pose).Start);
+
+    /// <summary>
+    /// Changes her pose and starts its animation on <paramref name="initialFrame"/>, a place named for another animation
+    /// landing on the frame the import decoded for it in the pose's (<see cref="SamusAnimationDelays.Land"/>), as
+    /// <see cref="ChangePose(SamusPoseId)"/> does.
+    /// </summary>
+    /// <param name="pose">The pose she changes to.</param>
+    /// <param name="initialFrame">Where in the pose's animation it starts.</param>
+    internal void ChangePose(SamusPoseId pose, SamusAnimationPlace initialFrame) =>
+        ChangePose(pose, SamusAnimationDelays.Land(pose, initialFrame, FramesBeyondAnimation));
+
+    /// <summary>
+    /// Changes her pose and starts its animation on <paramref name="initialFrame"/>, a frame of the pose's own animation, as
+    /// <see cref="ChangePose(SamusPoseId)"/> does.
+    /// </summary>
+    /// <param name="pose">The pose she changes to.</param>
+    /// <param name="initialFrame">The frame of the pose's animation it starts on.</param>
+    internal void ChangePose(SamusPoseId pose, SamusAnimationFrame initialFrame)
+    {
+        Pose = pose;
+        SamusPresentation.StartAnimation(this, SamusAnimationDelays.DelayFrame(pose, initialFrame, FramesBeyondAnimation));
+    }
+
+    /// <summary>
+    /// Changes her pose and keeps her animation's frame and timer, as the pose change does when the new pose names no
+    /// frame to start on (#2553): from one running pose to another, or as her Morph Ball turns. The frame is read from now
+    /// on as a frame of the new pose's animation.
+    /// </summary>
+    /// <param name="pose">The pose she changes to.</param>
+    internal void ChangePoseKeepingAnimation(SamusPoseId pose) => Pose = pose;
+
+    /// <summary>
+    /// Changes her pose as a scene's setup does before it commits her pose history (#2553): the new pose's animation starts
+    /// on its first frame only when the pose differs from the previous pose of her history, and otherwise her animation
+    /// keeps its frame and timer.
+    /// </summary>
+    /// <param name="pose">The pose she changes to.</param>
+    internal void ChangePoseRestartingIfChanged(SamusPoseId pose)
+    {
+        if (pose == PoseHistory.PreviousPose)
+            ChangePoseKeepingAnimation(pose);
+        else
+            ChangePose(pose);
+    }
+
+    /// <summary>
+    /// Puts a new Samus in <paramref name="pose"/> on the first frame of its animation, before her room loads (#2553); the
+    /// room's start then starts the animation's timer (<see cref="SamusPresentation.InitializeAnimation(SamusState)"/>).
+    /// </summary>
+    /// <param name="pose">The pose she is placed in.</param>
+    internal void PlaceInPose(SamusPoseId pose)
+    {
+        Pose = pose;
+        AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Start;
+    }
+
+    /// <summary>
+    /// Changes her pose and its animation as a scripted sequence does when it skips the pose setup (the drained Samus
+    /// sequences, #2553): the previous pose's direction and movement type stay in force, and her animation is put on
+    /// <paramref name="frame"/> of the new pose's animation with <paramref name="timer"/> frames left; her liquid's extra
+    /// animation delay stays as it was.
+    /// </summary>
+    /// <param name="pose">The pose she changes to.</param>
+    /// <param name="frame">The frame of the pose's animation she is put on.</param>
+    /// <param name="timer">The frames left on it.</param>
+    internal void ChangePoseWithoutSetup(SamusPoseId pose, SamusAnimationFrame frame, int timer)
     {
         SamusPoseId initialized = InitializedPose;
         Pose = pose;
         InitializedPose = initialized;
+        AnimationFrame = SamusAnimationDelays.AnimationForPose(pose).Require(frame);
+        AnimationFrameTimer = WrappingCountdown.Start(timer);
+        CuePose.Forget();
     }
 
     /// <summary>
@@ -76,27 +149,38 @@ public sealed class SamusState
     public PoseTransitionCancellation PoseTransitionCancellation { get; } = new();
 
     /// <summary>
-    /// Where Samus's animation stands (#2048): a frame of a named segment of the animation of <see cref="AnimatedPose"/>.
+    /// Where Samus's animation stands (#2048): a frame of a named segment of the animation of her <see cref="Pose"/>.
     /// Every frame the animation reaches names a step of that animation or of the animation a frame read past its end reaches, and reading
     /// a frame that names no step fails (<see cref="AnimationStep"/>).
     /// </summary>
     internal SamusAnimationFrame AnimationFrame { get; set; }
 
-    /// <summary>The pose whose animation <see cref="AnimationFrame"/> is a frame of: the animated pose, or before her animation starts, her pose.</summary>
-    internal SamusPoseId AnimationPose => AnimatedPose ?? Pose;
-
     /// <summary>Sets her animation frame to <paramref name="place"/>, as it lands in the animation she animates by (<see cref="SamusAnimationDelays.Land"/>).</summary>
-    internal void SetAnimationFrame(SamusAnimationPlace place) => AnimationFrame = SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
+    internal void SetAnimationFrame(SamusAnimationPlace place) => AnimationFrame = SamusAnimationDelays.Land(Pose, place, FramesBeyondAnimation);
 
     /// <summary>Moves her animation on to the frame after the one it is on, a frame past her animation's end included.</summary>
-    internal void AdvanceAnimationFrame() => AnimationFrame = SamusAnimationDelays.Next(AnimationPose, AnimationFrame, FramesBeyondAnimation);
+    internal void AdvanceAnimationFrame() => AnimationFrame = SamusAnimationDelays.Next(Pose, AnimationFrame, FramesBeyondAnimation);
 
     /// <summary>Moves her animation back to the first frame of the animation she animates by.</summary>
-    internal void RestartAnimation() => AnimationFrame = SamusAnimationDelays.AnimationForPose(AnimationPose).Start;
+    internal void RestartAnimation() => AnimationFrame = SamusAnimationDelays.AnimationForPose(Pose).Start;
 
-    /// <summary>Moves her animation to the frame <paramref name="target"/> names, as a cue read on her current frame names it.</summary>
-    internal void MoveAnimationTo(SamusAnimationFrame target) =>
-        AnimationFrame = SamusAnimationDelays.Target(AnimationPose, AnimationFrame, target, FramesBeyondAnimation);
+    /// <summary>
+    /// The frame a cue read on her current frame moves her animation to when it names <paramref name="target"/>, with the
+    /// delay its timer starts from there (<see cref="SamusAnimationDelays.DelayFrame"/>).
+    /// </summary>
+    internal SamusAnimationDelayFrame AnimationMovedTo(SamusAnimationFrame target) => SamusAnimationDelays.DelayFrame(Pose,
+        SamusAnimationDelays.Target(Pose, AnimationFrame, target, FramesBeyondAnimation), FramesBeyondAnimation);
+
+    /// <summary>The first frame of the animation she animates by, with the delay its timer starts from, which a restart moves her animation to.</summary>
+    internal SamusAnimationDelayFrame AnimationRestart =>
+        SamusAnimationDelays.DelayFrame(Pose, SamusAnimationDelays.AnimationForPose(Pose).Start, FramesBeyondAnimation);
+
+    /// <summary>
+    /// The frame after the one her animation is on, with the delay its timer starts from, which a cue that continues into the
+    /// next segment moves her animation to.
+    /// </summary>
+    internal SamusAnimationDelayFrame AnimationFrameAfterCue => SamusAnimationDelays.DelayFrame(Pose,
+        SamusAnimationDelays.Next(Pose, AnimationFrame, FramesBeyondAnimation), FramesBeyondAnimation);
 
     /// <summary>
     /// Her animation frame read as a frame of <paramref name="pose"/>'s animation, which must be the animation she animates
@@ -104,27 +188,27 @@ public sealed class SamusState
     /// </summary>
     /// <exception cref="InvalidOperationException"><paramref name="pose"/> animates by another animation than hers.</exception>
     internal SamusAnimationFrame AnimationFrameOf(SamusPoseId pose) =>
-        ReferenceEquals(SamusAnimationDelays.AnimationForPose(pose), SamusAnimationDelays.AnimationForPose(AnimationPose))
+        ReferenceEquals(SamusAnimationDelays.AnimationForPose(pose), SamusAnimationDelays.AnimationForPose(Pose))
             ? AnimationFrame
             : throw new InvalidOperationException(
-                $"Samus's pose {pose} animates by another animation than the one of pose {AnimationPose}, whose frame {AnimationFrame} she is on.");
+                $"Samus's pose {pose} animates by another animation than the one of pose {Pose}, whose frame {AnimationFrame} she is on.");
 
     /// <summary>Whether her animation has reached <paramref name="place"/>, as it lies in the animation she animates by.</summary>
-    internal bool AnimationHasReached(SamusAnimationPlace place) => SamusAnimationDelays.HasReached(AnimationPose, AnimationFrame, place, FramesBeyondAnimation);
+    internal bool AnimationHasReached(SamusAnimationPlace place) => SamusAnimationDelays.HasReached(Pose, AnimationFrame, place, FramesBeyondAnimation);
 
     /// <summary>Whether her animation lies past <paramref name="place"/>, as it lies in the animation she animates by.</summary>
-    internal bool AnimationHasPassed(SamusAnimationPlace place) => SamusAnimationDelays.HasPassed(AnimationPose, AnimationFrame, place, FramesBeyondAnimation);
+    internal bool AnimationHasPassed(SamusAnimationPlace place) => SamusAnimationDelays.HasPassed(Pose, AnimationFrame, place, FramesBeyondAnimation);
 
     /// <summary>Whether her animation is on <paramref name="frame"/> of the animation she animates by.</summary>
     internal bool AnimationIsAt(SamusAnimationFrame frame) =>
-        AnimationFrame == SamusAnimationDelays.AnimationForPose(AnimationPose).Require(frame);
+        AnimationFrame == SamusAnimationDelays.AnimationForPose(Pose).Require(frame);
 
     /// <summary>Her animation frame, named by its segment, for diagnostics.</summary>
     internal string AnimationFrameName =>
         $"{AnimationFrame.Segment} frame {AnimationFrame.Frame}";
 
     /// <summary>Whether her animation is on <paramref name="place"/>, as it lands in the animation she animates by.</summary>
-    internal bool AnimationIsOn(SamusAnimationPlace place) => AnimationFrame == SamusAnimationDelays.Land(AnimationPose, place, FramesBeyondAnimation);
+    internal bool AnimationIsOn(SamusAnimationPlace place) => AnimationFrame == SamusAnimationDelays.Land(Pose, place, FramesBeyondAnimation);
 
     /// <summary>
     /// The frame of the run's stride her animation is on, which the running cadence times (<see cref="SamusRunningCadences"/>)
@@ -143,7 +227,7 @@ public sealed class SamusState
     public WrappingCountdown AnimationFrameTimer { get; internal set; }
 
     /// <summary>
-    /// The updates added to each frame of Samus's animation (#2286): two in water, three in lava or acid, and on dry ground
+    /// The updates added to each frame of Samus's animation (#2286): its liquid delay in water, lava or acid, and on dry ground
     /// her <see cref="SlowdownLevel"/>, so 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>; the
     /// setter rejects any other value.
     /// </summary>
@@ -155,9 +239,8 @@ public sealed class SamusState
     public SamusHorizontalSpeedState HorizontalSpeed { get; }
 
     /// <summary>
-    /// Live room-FX surface values and remembered liquid medium. Physics, animation, and
-    /// pose initialization intentionally share this object because the game shares
-    /// room-FX values across all three phases.
+    /// Live room-FX surface values and remembered liquid medium, which Samus's physics, animation and pose setup all
+    /// read.
     /// </summary>
     public SamusLiquidPhysicsState LiquidPhysics { get; }
 
@@ -165,19 +248,7 @@ public sealed class SamusState
     public SamusPeriodicDamage PeriodicDamage { get; } = new();
 
     /// <summary>
-    /// The ground her footstep and landing effects go by (#2416): every room load sets its room's, and a scene that
-    /// loads no room sets its own; null until either does.
-    /// </summary>
-    internal SamusGround? Ground { get; set; }
-
-    /// <summary>The ground her footstep and landing effects go by, once a room or a scene has set it.</summary>
-    /// <exception cref="InvalidOperationException">Nothing has set her ground yet.</exception>
-    internal SamusGround StandingGround => Ground ?? throw new InvalidOperationException("Samus's ground is read before any room or scene has set it.");
-
-    /// <summary>
     /// Stored-shine colouring countdown and the shinespark's hold on her movement.
-    /// Its fields are the values documented on
-    /// <see cref="SamusShinesparkState"/> and keep their individual values.
     /// </summary>
     public SamusShinesparkState Shinespark { get; }
 
@@ -188,9 +259,8 @@ public sealed class SamusState
     internal GameplaySoundRequests AudioRequests { get; }
 
     /// <summary>
-    /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her
-    /// movement. It is deliberately separate from <see cref="Shinespark"/> even though the
-    /// game shares a few values between the mutually exclusive effects.
+    /// Crystal Flash initiation, ammo cadence, energy restoration, and its hold on her movement, apart from
+    /// <see cref="Shinespark"/>, which never runs with it.
     /// </summary>
     public SamusCrystalFlashState CrystalFlash { get; }
 
@@ -235,11 +305,10 @@ public sealed class SamusState
 
     /// <summary>
     /// How slowed Samus is (#2286), 0 through <see cref="SamusHorizontalSpeedState.LargestSlowdownLevel"/>, as her own view
-    /// of <see cref="SamusHorizontalSpeedState.SlowdownLevel"/>. The game keeps one level for two effects: her speed is
-    /// halved once per level, and on dry ground each level adds an update to every frame of her animation
-    /// (<see cref="ExtraAnimationDelay"/>). The setter rejects values outside that range.
+    /// of <see cref="SamusHorizontalSpeedState.SlowdownLevel"/>: each level halves her speed once and, on dry ground,
+    /// adds an update to every frame of her animation (<see cref="ExtraAnimationDelay"/>). The setter rejects values
+    /// outside that range.
     /// </summary>
-    [IntegerQuantity("halvings of Samus's horizontal speed, zero when she is not slowed")]
     public int SlowdownLevel
     {
         get => HorizontalSpeed.SlowdownLevel;
@@ -250,7 +319,7 @@ public sealed class SamusState
     public int Health { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>
-    /// The previous energy for the hurt check: initialized from Energy when Samus is initialized,
+    /// The previous energy for the hurt check: initialized from <see cref="Health"/> when Samus is initialized,
     /// then compared and refreshed after Samus/projectile drawing by the post-draw input filter.
     /// </summary>
     public int PreviousHealthForHurtCheck { get; set; } = SamusEnergyDefinitions.StartingEnergy;
@@ -261,7 +330,7 @@ public sealed class SamusState
     /// of one update is never rounded on its own; how the fraction reaches the whole energy is the compatibility layer's
     /// (<see cref="PeriodicDamageEnergyFraction"/>).
     /// </summary>
-    public PeriodicDamageEnergyFraction EnergyFraction { get; private set; }
+    internal PeriodicDamageEnergyFraction EnergyFraction { get; set; }
 
     /// <summary>
     /// Takes periodic damage as the game's periodic damage does: the fraction comes off <see cref="EnergyFraction"/>
@@ -285,7 +354,7 @@ public sealed class SamusState
         Health = health;
     }
 
-    /// <summary>Maximum normal energy; defaults to the initial 99.</summary>
+    /// <summary>Maximum normal energy; defaults to <see cref="SamusEnergyDefinitions.StartingEnergy"/>.</summary>
     public int MaxHealth { get; set; } = SamusEnergyDefinitions.StartingEnergy;
 
     /// <summary>Current reserve energy.</summary>
@@ -320,15 +389,15 @@ public sealed class SamusState
 
     /// <summary>
     /// The item chosen for auto-cancel, by pressing Select while Item Cancel is held: the HUD returns to the beam when its
-    /// use ends. <see cref="HudItem.Beam"/> when no item was chosen that way.
+    /// use ends. Null when no item was chosen that way.
     /// </summary>
-    public HudItem AutoCancelledItem { get; set; }
+    public HudItem? AutoCancelledItem { get; set; }
 
     /// <summary>Returns the HUD to the beam, with no item chosen for auto-cancel.</summary>
     public void SelectBeam()
     {
         SelectedHudItem = HudItem.Beam;
-        AutoCancelledItem = HudItem.Beam;
+        AutoCancelledItem = null;
     }
 
     /// <summary>
@@ -346,17 +415,15 @@ public sealed class SamusState
 
     /// <summary>
     /// The beam's charge (#1577): the session's one count, which the projectile pass advances and her movement, bombs,
-    /// sounds and colourings read; at least 60 is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
+    /// sounds and colourings read; at least <see cref="BeamChargeDefinitions.FullyChargedCounter"/> is a full charge, which makes her spin and wall jump a pseudo Screw Attack.
     /// Every clear, hers or the projectiles', clears it for every reader.
     /// </summary>
     internal BeamChargeState BeamCharge { get; }
 
     /// <summary>
-    /// The shared bomb-spread charge timeout. The game clears this
-    /// timeout in the morphing-transition pose setup after a
-    /// successful Morph Ball item check, regardless of the humanoid movement family that
-    /// selected the transition. Keeping it separate from the beam flare counter prevents a
-    /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
+    /// The shared bomb-spread charge timeout. The morphing-transition pose setup clears it after a successful Morph
+    /// Ball item check, whatever humanoid movement chose the transition; it is apart from the beam flare counter, so a
+    /// mid-air morph leaves the arm cannon's charge as it is.
     /// </summary>
     /// <remarks>
     /// The hold of Down while a spread is charged, lasting
@@ -373,8 +440,14 @@ public sealed class SamusState
     /// </summary>
     public TransitionShot<SamusTransitionShot> TransitionShot { get; } = new();
 
-    /// <summary>Whether Mother Brain's hyper beam is enabled.</summary>
-    public bool HyperBeamEnabled { get; set; }
+    /// <summary>
+    /// Whether the Baby's gift has enabled the Hyper Beam (<see cref="EnableHyperBeam"/>): once enabled it stays, so the
+    /// charge flare never plays forward again (#2553).
+    /// </summary>
+    public bool HyperBeamEnabled { get; private set; }
+
+    /// <summary>The Baby's gift enables the Hyper Beam, for good.</summary>
+    public void EnableHyperBeam() => HyperBeamEnabled = true;
 
     /// <summary>
     /// Equipped-item flags. The animation cue's equipment test and the Morph-Ball projectile
@@ -396,41 +469,40 @@ public sealed class SamusState
     /// </summary>
     public SamusMetroidAttachmentShade MetroidAttachmentShade { get; internal set; }
 
-    /// <summary>How far a landing Morph Ball or Spring Ball has bounced; see <see cref="SamusBallBounceState"/>.</summary>
-    public SamusBallBounceState MorphBallBounceState { get; set; }
+    /// <summary>How far a landing Morph Ball or Spring Ball has bounced, or null while it is not bouncing; see <see cref="SamusBallBounce"/>.</summary>
+    public SamusBallBounce? MorphBallBounceState { get; set; }
 
     /// <summary>
-    /// The bomb jump a bomb's blast asked of Samus: its launch direction, and whether her pose handling has accepted it,
-    /// which keeps the same request from arming the jump again. It is her state from the blast's overlap until her pose
-    /// handling rejects it, an input transition to another pose cancels it, or the jump it armed ends: the rising arc reads
-    /// its direction throughout, and a later blast replaces it whole.
+    /// Samus's bomb jump, from the blast that starts it until her pose handling rejects it, an input transition to another
+    /// pose cancels it, or the jump ends: its launch direction, which the rising arc reads throughout, and whether her pose
+    /// handling has armed it. A later blast starts a new one. None while she is not bomb jumping.
     /// </summary>
-    public SamusBombJumpRequest BombJumpRequest { get; set; }
+    public SamusBombJump? BombJump { get; set; }
 
-    /// <summary>True for the bomb jump's one-frame start, which sets her velocity (<see cref="SamusMovementOwner.BombJump"/>).</summary>
-    public bool BombJumpStarting { get; set; }
-
-    /// <summary>True while the bomb jump moves Samus along its rising arc (<see cref="SamusMovementOwner.BombJump"/>).</summary>
-    public bool BombJumpActive { get; set; }
+    /// <summary>
+    /// The phase of the bomb jump that holds her movement (<see cref="SamusMovementOwner.BombJump"/>): its one-update start
+    /// or its rise, or none while no bomb jump moves her.
+    /// </summary>
+    public SamusBombJumpPhase? BombJumpPhase { get; set; }
 
     /// <summary>The bomb jump locked her pose input; independent of who moves her now.</summary>
     public bool BombJumpPoseInputLocked { get; set; }
 
-    /// <summary>Which way the pending or running knockback moves Samus, or none.</summary>
-    public Movement.SamusKnockbackDirection KnockbackDirection { get; set; }
+    /// <summary>The knockback a hit put her in: none, one moving her, or one whose movement went back to her pose.</summary>
+    public Movement.SamusKnockback Knockback { get; set; } = Movement.SamusKnockback.None;
 
     /// <summary>Which way the pending or active knockback moves Samus horizontally.</summary>
     public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }
 
     /// <summary>
     /// The count her hurt flash runs on, which a knockback, a health loss and a moving shinespark write; the hurt flash's
-    /// shading advances it and clears it on reaching sixty (<see cref="SamusHurtFlashDefinitions.EndingUpdate"/>).
+    /// shading advances it and clears it on reaching its end (<see cref="SamusHurtFlashDefinitions.EndingUpdate"/>).
     /// </summary>
     public SharedHurtFlashCount HurtFlash { get; }
 
     /// <summary>
     /// Whether the charging-beam sound resumes on the next post-draw sound pass if Shoot is still held (#1682). Hurt-flash
-    /// recovery sets it at counter forty when a non-spinning Samus is still holding a sufficiently charged beam, and the
+    /// recovery sets it at its sound recovery count when a non-spinning Samus is still holding a sufficiently charged beam, and the
     /// post-draw sound check consumes it later in the same gameplay pass; a spin's end sets it for the next pass.
     /// </summary>
     public ChargingSoundResumption ChargingSound { get; } = new();
@@ -444,13 +516,13 @@ public sealed class SamusState
     public WrappingCountdown InvincibilityTimer { get; set; }
 
     /// <summary>
-    /// The knockback hold: started for five updates by enemy damage collision and counted once per gameplay update. The
+    /// The knockback hold: started for its knockback updates by enemy damage collision and counted once per gameplay update. The
     /// knockback holds her movement only while it runs.
     /// </summary>
     public UpdateCountdown KnockbackHold { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>Whether no hit holds Samus: her knockback hold has run out and no knockback is pending or moving her.</summary>
-    public bool HasNoKnockback => KnockbackHold.IsOver && KnockbackDirection == Movement.SamusKnockbackDirection.None;
+    public bool HasNoKnockback => KnockbackHold.IsOver && Knockback is Movement.SamusKnockback.NoKnockback;
 
     /// <summary>Clears Samus's two own hurt timers: no invincibility is left and no knockback is held.</summary>
     public void ClearHurtTimers()
@@ -497,28 +569,12 @@ public sealed class SamusState
     public SamusArtworkBinding Artwork { get; }
 
     /// <summary>
-    /// The room's visor shade cycle, advancing every five updates, used only by backdrop-blending rooms.
+    /// The room's visor shade cycle, advancing at its own pace, used only by backdrop-blending rooms.
     /// </summary>
     public SamusVisorShadeState VisorShades { get; } = new();
 
-    /// <summary>
-    /// Whether the knockback moves Samus (<see cref="SamusMovementOwner.Knockback"/>). It is separate from
-    /// the knockback movement type because the game also uses that type for crystal-flash art.
-    /// </summary>
-    public bool KnockbackActive { get; set; }
-
-    /// <summary>
-    /// The pose the animation was last started for, whose animation <see cref="AnimationFrame"/> steps through; none before
-    /// the animation is first started. Changing the pose to one with another animation without restarting the animation
-    /// is a defect the next animation tick reports.
-    /// </summary>
-    public SamusPoseId? AnimatedPose { get; internal set; }
-
-    /// <summary>The step of the animated pose's animation that Samus's animation frame is on.</summary>
-    /// <exception cref="InvalidOperationException">The animation has not been started.</exception>
-    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(
-        AnimatedPose ?? throw new InvalidOperationException("Samus's animation has not been started for any pose."), AnimationFrame,
-        FramesBeyondAnimation);
+    /// <summary>The step of the animation of <see cref="Pose"/> that Samus's animation frame is on.</summary>
+    internal SamusPoseAnimationStep AnimationStep => SamusAnimationDelays.StepFor(Pose, AnimationFrame, FramesBeyondAnimation);
 
     /// <summary>
     /// What an animation frame past her pose's animation reads, the session's installed service, which decides the frames her
@@ -605,7 +661,7 @@ public sealed class SamusState
     /// next one. Most movement methods return collision results directly; Draygon-held movement has no displacement and its
     /// sole effect is forgetting this result. A downward move keeps a wall jump's result unless it lands.
     /// </summary>
-    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
+    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; internal set; }
 
     /// <summary>A downward move leaves its result: landed when it collided, otherwise falling, unless a wall jump's is kept.</summary>
     internal void LeaveDownwardMoveResult(bool landed)
@@ -644,10 +700,9 @@ public sealed class SamusState
     /// probe restores the source pose; simultaneous initial hits select stable crouch.
     /// </remarks>
     internal LargerPoseCollisionOutcome ResolveLargerPoseCollision(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SamusPoseId targetPose,
         int frameCounter,
-        ISamusRoomObjects roomObjects,
         out int centerAdjustment)
     {
         int targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
@@ -682,15 +737,15 @@ public sealed class SamusState
 
         // Both probes test the room from where her body stands now, on copies of it; neither moves her.
         BlockMoveResult upward = ProbeChangedPoseVertical(
-            level,
+            terrain,
             displacement: SignedSixteenSixteen.FromWholePixels(-radiusDifference),
             scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-            targetPose, roomObjects);
+            targetPose);
         BlockMoveResult downward = ProbeChangedPoseVertical(
-            level,
+            terrain,
             displacement: SignedSixteenSixteen.FromWholePixels(radiusDifference),
             scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-            targetPose, roomObjects);
+            targetPose);
 
         if (upward.Collided && downward.Collided)
         {
@@ -712,10 +767,10 @@ public sealed class SamusState
             // The move up is tested against the ceiling. A hit keeps her previous pose; she does not crouch, since only one
             // side blocked her at first.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                level,
+                terrain,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-                targetPose, roomObjects: roomObjects);
+                targetPose);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyUp.Collided)
@@ -729,10 +784,10 @@ public sealed class SamusState
 
             // The move down is tested against the floor, as the move up is against the ceiling.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                level,
+                terrain,
                 displacement: SignedSixteenSixteen.FromWholePixels(centerAdjustment),
                 scanLeftToRight: SamusCadenceDefinitions.BlockScansLeftToRight.IsDue(frameCounter),
-                targetPose, roomObjects: roomObjects);
+                targetPose);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
             if (enemyDown.Collided)
@@ -771,28 +826,22 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Executes the unusual two-pass distance probe of the
-    /// changed-pose collision detection.
+    /// Runs the two-pass distance probe of the changed-pose collision detection.
     /// </summary>
     /// <remarks>
-    /// A pose expansion of eight pixels or more is not tested only at its final leading
-    /// boundary. The game first tests the signed displacement rounded to the intermediate
-    /// eight-pixel boundary and returns immediately if that scan collides, then tests the
-    /// complete displacement only when the intermediate scan was clear. That first scan is
-    /// observable on square half-blocks: an eleven-pixel compact-to-standing expansion can
-    /// cross from the solid lower quadrant into an air upper quadrant at its final boundary.
-    /// A single final-boundary scan therefore misses the floor, expands Samus downward, and
-    /// lets her fall through the platform. Each probe uses a separate kinematics copy because
-    /// the collision check publishes a distance without moving live Samus.
-    /// The probe carries the pose being installed: the pose setup writes it to Samus's pose
-    /// before the larger-radius check, so the elevator ride's standing-pose gate tests it.
+    /// A pose expansion of <see cref="SamusPoseCollisionDefinitions.IntermediateProbeExpansion"/> or more is first tested
+    /// at the intermediate boundary and stops there if that scan collides; only a clear intermediate scan goes on to the
+    /// complete displacement. On square half-blocks a compact-to-standing expansion can cross from the solid lower
+    /// quadrant into an air upper quadrant at its final boundary, and the first scan finds the floor there and keeps
+    /// Samus on the platform. Each probe tests a copy of Samus's movement, which publishes a distance without moving her.
+    /// The probe carries the pose being set up: the pose setup gives Samus the pose before the larger-radius check, so
+    /// the elevator ride's standing-pose gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
-        RoomLevelData level,
+        SamusTerrain terrain,
         SignedSixteenSixteen displacement,
         bool scanLeftToRight,
-        SamusPoseId targetPose,
-        ISamusRoomObjects roomObjects)
+        SamusPoseId targetPose)
     {
         int wholePixels = displacement.WholePixels;
         if (Math.Abs(wholePixels) >= SamusPoseCollisionDefinitions.IntermediateProbeExpansion)
@@ -810,7 +859,7 @@ public sealed class SamusState
         {
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-                level, probe, this, targetPose, amount, scanLeftToRight, roomObjects);
+                terrain, probe, this, targetPose, amount, scanLeftToRight);
             // Submerging sand clears speed/gravity even during an observation.
             // Those reactions take hold without the probe's position becoming hers.
             Kinematics.VerticalVelocity = Kinematics.VerticalVelocity.WithSpeed(probe.VerticalVelocity.Speed);
@@ -837,7 +886,6 @@ public sealed class SamusState
         if (sourcePose == fallbackPose)
             return;
 
-        Pose = fallbackPose;
         int fallbackRadius = SamusPoseMetadata.ReadPoseYRadius(fallbackPose);
         // The collision fallback reads the prospective radius for center correction,
         // but leaves the live radius untouched until the next ordinary input phase.
@@ -852,7 +900,7 @@ public sealed class SamusState
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
-        SamusPresentation.InitializeAnimation(this);
+        ChangePose(fallbackPose);
     }
 
     /// <summary>How this update corrects the camera's record of where Samus was before its scrolling (#2562).</summary>
@@ -879,10 +927,9 @@ public sealed class SamusState
     }
 
     /// <summary>
-    /// Records Samus's previous Y position as set by something such as
-    /// changed-pose collision correction or facing forward's lift. The previous
-    /// fraction is deliberately not changed: the game writes only the whole pixels, not the fraction.
-    /// The write is absolute, discarding any earlier bottom-alignment shift this frame.
+    /// Records Samus's previous Y position as set by something such as changed-pose collision correction or facing
+    /// forward's lift: only its whole pixels change, and its fraction stays. The write is absolute, discarding any
+    /// earlier bottom-alignment shift this update.
     /// </summary>
     internal void WritePreviousYPosition(int correctedY) => PreviousPositionCorrections.WriteY(correctedY);
 
@@ -902,30 +949,33 @@ public sealed class SamusState
         PreviousPositionCorrections.HandOver(previous);
 
     /// <summary>Persistent low-energy warning state, shared by the movement phase and reserve recovery.</summary>
-    public SamusHealthWarningState HealthWarning => field ??= new();
+    public SamusHealthWarningState HealthWarning { get; } = new();
 
     /// <summary>
-    /// Copies the inventory and energy from <paramref name="source"/>: what Samus keeps when she is set up again. A Samus
-    /// created fresh and given these values is the same player set up again.
+    /// What Samus carries, read or replaced whole (#2557): what a save keeps of her, and what she keeps when she is set up
+    /// again. A Samus created fresh and given it is the same player set up again.
     /// </summary>
-    internal void CopyInventoryFrom(SamusState source)
+    internal SamusInventory Inventory
     {
-        Ensure.NotNull(source);
-        EquippedItems = source.EquippedItems;
-        CollectedItems = source.CollectedItems;
-        EquippedBeams = source.EquippedBeams;
-        CollectedBeams = source.CollectedBeams;
-        ReserveTankMode = source.ReserveTankMode;
-        Health = source.Health;
-        MaxHealth = source.MaxHealth;
-        Missiles = source.Missiles;
-        MaxMissiles = source.MaxMissiles;
-        SuperMissiles = source.SuperMissiles;
-        MaxSuperMissiles = source.MaxSuperMissiles;
-        PowerBombs = source.PowerBombs;
-        MaxPowerBombs = source.MaxPowerBombs;
-        MaxReserveEnergy = source.MaxReserveEnergy;
-        ReserveEnergy = source.ReserveEnergy;
+        get => new(EquippedItems, CollectedItems, EquippedBeams, CollectedBeams, ReserveTankMode, Health, MaxHealth, Missiles, MaxMissiles, SuperMissiles, MaxSuperMissiles, PowerBombs, MaxPowerBombs, MaxReserveEnergy, ReserveEnergy);
+        set
+        {
+            EquippedItems = value.EquippedItems;
+            CollectedItems = value.CollectedItems;
+            EquippedBeams = value.EquippedBeams;
+            CollectedBeams = value.CollectedBeams;
+            ReserveTankMode = value.ReserveMode;
+            Health = value.Health;
+            MaxHealth = value.MaxHealth;
+            Missiles = value.Missiles;
+            MaxMissiles = value.MaxMissiles;
+            SuperMissiles = value.SuperMissiles;
+            MaxSuperMissiles = value.MaxSuperMissiles;
+            PowerBombs = value.PowerBombs;
+            MaxPowerBombs = value.MaxPowerBombs;
+            MaxReserveEnergy = value.MaxReserveEnergy;
+            ReserveEnergy = value.ReserveEnergy;
+        }
     }
 
     /// <summary>
@@ -946,13 +996,12 @@ public sealed class SamusState
         // The movement owners select the stationary pose even while airborne. Keeping
         // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
         bool left = SamusPoseMetadata.IsFacing(this, SamusFacingDirection.Left);
-        Pose = enable
-            ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
-            : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
-        SamusPoseMetadata.RefreshCollisionRadii(this);
         // Switching between the Morph Ball and the Spring Ball through the equipment menu
         // restarts the ball's animation from its first frame.
-        SamusPresentation.InitializeAnimation(this);
+        ChangePose(enable
+            ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
+            : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose);
+        SamusPoseMetadata.RefreshCollisionRadii(this);
     }
 
     /// <summary>Transition-owned pose history.</summary>

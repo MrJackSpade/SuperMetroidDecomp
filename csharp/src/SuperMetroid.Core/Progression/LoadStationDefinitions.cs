@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Progression;
 /// The load stations: the save stations, the elevators' arrivals, the Ceres start and the arrival on Zebes. A save
 /// resumes at one, and the used-station record keeps the ones Samus has used.
 /// </summary>
-public static class LoadStationDefinitions
+public static partial class LoadStationDefinitions
 {
     /// <summary>The gunship on the Landing Site, where a new game on Zebes first saves.</summary>
     public static LoadStation Gunship { get; } = new("Gunship", AreaId.Crateria);
@@ -129,13 +129,5 @@ public static class LoadStationDefinitions
     /// The stations Samus uses, which the used-station record keeps: every station but the arrival on Zebes, where only
     /// the gunship's landing loads her.
     /// </summary>
-    public static IReadOnlyList<LoadStation> Usable { get; } =
-    [
-        Gunship, CrateriaSave, ForgottenHighwayElevator, RedBrinstarElevator, BlueBrinstarElevator, GreenBrinstarElevator,
-        StatuesElevator, BigPinkSave, GreenBrinstarSave, EtecoonSave, WarehouseSave,
-        RedBrinstarSave, GreenBrinstarMainShaftElevator, MorphBallElevator, CaterpillarElevator, WarehouseEntranceElevator, PostCrocomireSave,
-        BubbleMountainSave, FrogSave, CrocomireSave, LowerNorfairElevatorSave, LowerNorfairSave, BusinessCenterElevator,
-        LowerNorfairElevator, MainHallElevator, WreckedShipSave, GlassTunnelSave, ForgottenHighwaySave, AqueductSave,
-        DraygonSave, MaridiaElevator, MotherBrainSave, UpperTourianSave, TourianFirstElevator, CeresElevator,
-    ];
+    public static IReadOnlyList<LoadStation> Usable { get; } = [.. All.Except([ZebesArrival])];
 }

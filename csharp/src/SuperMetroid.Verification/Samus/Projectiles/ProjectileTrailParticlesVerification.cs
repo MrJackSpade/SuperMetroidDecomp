@@ -21,23 +21,25 @@ internal static class ProjectileTrailParticlesVerification
         // A charged power shot, part way through its animation, showing its first frame, in the first direction that names
         // a placement list: the charged list places a trail from the charged shot's frames, not the uncharged one's.
         SamusProjectile shot = Enum.GetValues<SamusProjectileDirection>()
-            .Select(direction => new SamusProjectile(0)
+            .Select(direction =>
             {
-                Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true),
-                Direction = direction,
-                Animation = SamusProjectileProgramAddresses.ShowingBeatBefore(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(SamusProjectileSegment.ChargedPowerUp, 1))),
-                Position = new(new(100, 0), new(200, 0)),
+                var charged = new SamusProjectile(0);
+                charged.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true));
+                charged.HeldShot().Direction = direction;
+                charged.HeldShot().Animation = SamusProjectileProgramAddresses.ShowingBeatBefore(SamusProjectilePlayback.PlaybackAt(new SamusProjectileSegmentBeat(SamusProjectileSegment.ChargedPowerUp, 1)));
+                charged.HeldShot().Position = new(new(100, 0), new(200, 0));
+                return charged;
             })
             .First(candidate =>
             {
                 system.Reset();
-                system.Trails.SpawnTrail(candidate);
+                system.Trails.SpawnTrail(candidate.HeldShot());
                 return system.LiveTrails.Count == 1;
             });
         system.Reset();
 
         for (int spawn = 0; spawn < TrailsLeft; spawn++)
-            system.Trails.SpawnTrail(shot);
+            system.Trails.SpawnTrail(shot.HeldShot());
         AssertEqual(TrailsLeft, system.LiveTrails.Count, $"all {TrailsLeft} trails left at once are kept");
         AssertEqual(TrailsLeft, system.LiveTrails.Distinct().Count(), "every trail is its own particle; none displaces another");
         SamusProjectileTrail oldest = system.LiveTrails[0];

@@ -31,7 +31,7 @@ internal static class SamusCueValuePlaceReadsVerification
     /// <summary>Drives each reported chain and compares it with the cartridge's bytes.</summary>
     internal static void VerifySamusCueValuePlaceReads(ISnesAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         VerifyChain(cartridge, SamusPoseId.MorphingTransitionRightPose, "rainbow stop",
             samus => samus.Drained.DisableRainbowAndStartStandingAnimation(samus), SamusPoseId.GlitchBallRightPose);
         VerifyChain(cartridge, SamusPoseId.UnmorphingTransitionLeftPose, "Hyper Beam freeze",
@@ -51,9 +51,8 @@ internal static class SamusCueValuePlaceReadsVerification
     {
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
+        }.InPose(pose);
         SamusPresentation.InitializeAnimation(samus);
         write(samus);
         AssertEqual(0, samus.ExtraAnimationDelay, $"{pose} at the {writer} animates without a liquid's delay buffer");
@@ -76,7 +75,7 @@ internal static class SamusCueValuePlaceReadsVerification
         for (int tick = 1; tick <= ticks; tick++)
         {
             AssertTrue(samus.CuePose.Named is null, $"{pose} at the {writer} has no transition pending before tick {tick}");
-            SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+            SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
         }
         AssertEqual<SamusPoseId?>(expected, samus.CuePose.Named, $"{pose} at the {writer} publishes {expected} after {ticks} ticks");
     }

@@ -22,14 +22,14 @@ namespace SuperMetroid.Core.Enemies;
 /// one its owner shows the animation's next frame, pauses, holds the frame or stops the clock on.
 /// </para>
 /// </remarks>
-public sealed class EnemyAnimationClock
+public sealed partial class EnemyAnimationClock
 {
     /// <summary>
     /// Updates left before the animation takes its next step: one or more while the clock runs, and none from the update
     /// the hold runs out until its owner shows, pauses or holds the frame again. A stopped or suspended clock keeps the
     /// count it had, which a lengthening still adds to.
     /// </summary>
-    public int Hold { get; private set; }
+    internal int Hold { get; set; }
 
     /// <summary>
     /// Whether the animation showed a new frame on this update: the clock's own record of its last step, set when a step
@@ -37,7 +37,7 @@ public sealed class EnemyAnimationClock
     /// (<see cref="Halt"/>). A boss body shows its part's frame on the update the part shows a new one; the draw pass asks
     /// the part's clock, because only the draw pass knows whether it reaches the part.
     /// </summary>
-    public bool ShowsNewFrame { get; private set; }
+    public bool ShowsNewFrame { get; internal set; }
 
     /// <summary>
     /// Whether the clock is stopped (#2213): its animation takes no step, and shows no new frame, until its owner starts or
@@ -50,7 +50,7 @@ public sealed class EnemyAnimationClock
     /// frame, until its owner resumes it, when the hold runs on from where it stood. Suspending is apart from stopping and
     /// from the hold: starting an animation, or stopping or resuming its clock, leaves the other as it is.
     /// </summary>
-    public bool IsSuspended { get; private set; }
+    internal bool IsSuspended { get; set; }
 
     /// <summary>Suspends the clock (#2463): the frame shown stays and the hold waits, without counting, until <see cref="Resume"/>.</summary>
     internal void Suspend() => IsSuspended = true;

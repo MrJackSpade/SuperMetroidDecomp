@@ -19,6 +19,7 @@ internal static class ObjSubscreenVerification
     {
         Suite(nameof(VerifyMode7ObjSubtraction), () => VerifyMode7ObjSubtraction());
         Suite(nameof(VerifyMode7Bg1Addition), () => VerifyMode7Bg1Addition());
+        Suite(nameof(VerifyTurningRoomActorsAroundFloor), () => VerifyTurningRoomActorsAroundFloor());
         Suite(nameof(VerifyBg4SubscreenAddition), () => VerifyBg4SubscreenAddition());
         Suite(nameof(VerifyObjFixedColor), () => VerifyObjFixedColor());
         byte[] vram = new byte[SnesVram.ByteCount];
@@ -30,7 +31,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 0);
         var packet = new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
-            new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, SpriteBlend.Glows) }, 15));
+            new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, SpriteBlend.Glows) }, DisplayBrightness.Full));
 
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(255, 0, 255), pixels[8 * 256 + 8], "a glowing sprite adds its blue to the red backdrop");
@@ -38,9 +39,10 @@ internal static class ObjSubscreenVerification
     }
 
     /// <summary>
-    /// Checks a floor that adds its own colour: it shows over the sprites drawn behind the room and adds its colour to
-    /// itself and to the blending sprites in front of it (#1514). A sprite's depth is its frame's, which the import takes
-    /// from its priority: priorities zero and one draw behind the whole room, two and three in front of the floor.
+    /// Checks a floor that adds its own colour: it shows over the sprites drawn behind it and adds its colour to itself and
+    /// to the blending sprites in front of it (#1514). A sprite's depth is its frame's, which the import takes from its
+    /// priority: as on the cartridge's turning plane, only priority zero draws behind the floor, and priorities one, two and
+    /// three in front of it (#2583).
     /// </summary>
     private static void VerifyMode7Bg1Addition()
     {
@@ -66,15 +68,48 @@ internal static class ObjSubscreenVerification
                     oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
                     var memory = FramePaint.FromOam(vram, shownColours, oam, 1, 3);
                     var packet = new DisplayPacket(0, new LayeredScene(memory,
-                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, FloorColorBlend.AddForeground) }, 15));
+                        new DisplayLayer[] { new TurningFloorLayer(registers, floor, FloorColorBlend.AddForeground) }, DisplayBrightness.Full));
                     var pixels = DisplayRendering.Render(packet);
-                    bool behindFloor = opaqueBg && priority < 2;
+                    bool behindFloor = opaqueBg && priority == 0;
                     RgbaPixel expected = behindFloor ? new(0, 132, 0)
                         : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
                     AssertEqual(expected, pixels[8 * 256 + 8], "a sprite behind the room lies under the floor; a blending sprite in front takes its colour");
                     AssertEqual(opaqueBg ? new RgbaPixel(0, 132, 0) : new RgbaPixel(0, 0, 24), pixels[0],
                         "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Checks a gameplay room shown as a turning floor (#2583): an actor whose part has priority zero lies behind the floor
+    /// and shows only where the floor is clear, and an actor at priority one, two or three draws in front of it, as the
+    /// cartridge's turning plane lies between priorities one and zero. An opaque floor's green shows over the priority-zero
+    /// sprite's red; the others' red shows over the floor.
+    /// </summary>
+    private static void VerifyTurningRoomActorsAroundFloor()
+    {
+        var registers = new FloorView(0, FloorView.OwnSize, new Offset16<FloorPixels>(0, 0), new Offset16<FloorPixels>(0, 0));
+        foreach (bool opaqueFloor in new[] { false, true })
+        {
+            byte[] vram = new byte[SnesVram.ByteCount];
+            if (opaqueFloor) for (int pixel = 0; pixel < 64; pixel++) vram[pixel * 2 + 1] = 1;
+            for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
+            ushort[] colors = new ushort[256];
+            colors[0] = 3 << 10; colors[1] = 8 << 5; colors[129] = 12;
+            var shownColours = ToColors(colors);
+            var floor = AffineFloorFixtures.Floor(vram, shownColours);
+            foreach (byte priority in new byte[] { 0, 1, 2, 3 })
+            {
+                byte[] oam = new byte[SnesPpuLayoutConstants.OamUploadByteCount];
+                oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority * 16);
+                var memory = FramePaint.FromOamGameplay(vram, shownColours, oam, 1, 3);
+                var packet = new DisplayPacket(0, new LayeredScene(memory,
+                    new DisplayLayer[] { new TurningRoomLayer(registers, floor, 0) }, DisplayBrightness.Full));
+                var pixels = DisplayRendering.Render(packet);
+                RgbaPixel expected = opaqueFloor && priority == 0 ? new(0, 66, 0) : new(99, 0, 0);
+                AssertEqual(expected, pixels[8 * 256 + 8],
+                    $"a priority-{priority} actor lies {(priority == 0 ? "behind" : "in front of")} the turning floor");
             }
         }
     }
@@ -92,7 +127,7 @@ internal static class ObjSubscreenVerification
         oam[0] = 8; oam[1] = 8;
         var memory = FramePaint.FromOam(vram, ToColors(colors), oam, 1, 3);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new TurningFloorLayer(new FloorView(0, FloorView.OwnSize, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), FloorColorBlend.SubtractSprites) }, 15));
+            new DisplayLayer[] { new TurningFloorLayer(new FloorView(0, FloorView.OwnSize, default, default), AffineFloorFixtures.Floor(vram, ToColors(colors)), FloorColorBlend.SubtractSprites) }, DisplayBrightness.Full));
         var pixels = DisplayRendering.Render(packet);
         AssertEqual(new RgbaPixel(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new RgbaPixel(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");
@@ -113,7 +148,7 @@ internal static class ObjSubscreenVerification
             oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
             FramePaint memory = FramePaint.FromOam(vram, ToColors(palette), oam, 1, 0);
             var packet = new DisplayPacket(0, new LayeredScene(new FramePaint(memory.Backdrop),
-                new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, tint: new RgbColor(66, 33, 16)) }, 15));
+                new DisplayLayer[] { new SpritesLayer(memory.SpriteDraws, tint: new RgbColor(66, 33, 16)) }, DisplayBrightness.Full));
             var pixels = DisplayRendering.Render(packet);
             AssertEqual(objPalette == 4 ? new RgbaPixel(123, 33, 16) : new RgbaPixel(57, 0, 0), pixels[8 * 256 + 8],
                 "a sprite tint brightens only the sprites that blend, its five-bit channels expanded");
@@ -135,7 +170,7 @@ internal static class ObjSubscreenVerification
         PicturedPlane Plane(int tilemapWord) => VramPictureFixtures.Plane(vram, ToColors(colors), tilemapWord, 0, TileInkDepth.SixteenColours, new Extent16<CharacterCells>(32, 32));
         var memory = FramePaint.FromNative(ToColors(colors), []);
         var packet = new DisplayPacket(0, new LayeredScene(memory,
-            new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, 15));
+            new DisplayLayer[] { new AddedPicturedPlaneLayer(Plane(0x7000)) }, DisplayBrightness.Full));
         AssertTrue(DisplayRendering.Render(packet).All(pixel => pixel == new RgbaPixel(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
 
@@ -151,7 +186,7 @@ internal static class ObjSubscreenVerification
             var shown = new SpritesLayer(sprites.SpriteDraws);
             var masked = new DisplayPacket(0, new LayeredScene(new FramePaint(sprites.Backdrop),
                 new DisplayLayer[] { shown, new AddedPicturedPlaneLayer(Plane(0x7000),
-                    new PicturedPlaneLayer(Plane(0x6800), Offset16<PlanePixels>.Zero), shown) }, 15));
+                    new PicturedPlaneLayer(Plane(0x6800), Offset16<PlanePixels>.Zero), shown) }, DisplayBrightness.Full));
             var pixels = DisplayRendering.Render(masked);
             AssertEqual(new RgbaPixel(255, 0, 0), pixels[0], "a glow over a plane does not add to the backdrop");
             AssertEqual(palette == 4 ? new RgbaPixel(0, 255, 255) : new RgbaPixel(0, 255, 0), pixels[8 * 256 + 8],

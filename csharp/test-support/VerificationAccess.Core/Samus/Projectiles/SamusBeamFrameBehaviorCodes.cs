@@ -63,11 +63,11 @@ internal static class SamusBeamFrameBehaviorCodes
     /// and charged Spazer-Plasma shots run the same live state from different words, so the two words are told apart
     /// by the behaviour each table position selects.
     /// </summary>
-    private static readonly IReadOnlyList<(SamusShotBehavior Behavior, ushort Word)> Words =
+    private static readonly IReadOnlyList<(SamusShotFiring Behavior, ushort Word)> Words =
     [
         (SamusShotBehaviors.Beam, NoWave),
-        (SamusShotBehaviors.WaveBeamThreeUpdateTrail, WaveThreeFrameTrail),
-        (SamusShotBehaviors.WaveBeamFourUpdateTrail, WaveFourFrameTrail),
+        (SamusShotBehaviors.UnchargedWaveBeamTrail, WaveThreeFrameTrail),
+        (SamusShotBehaviors.WaveBeamTrail, WaveFourFrameTrail),
         (SamusShotBehaviors.UnchargedSpazerPlasma, UnchargedSpazerPlasmaUnconnectedRegionWord),
         (SamusShotBehaviors.Spacetime, SpaceTimeProgressionOverwrite),
         (SamusShotBehaviors.ChainsawPowerBomb, ChainsawPowerBomb),
@@ -78,9 +78,9 @@ internal static class SamusBeamFrameBehaviorCodes
     ];
 
     /// <summary>The bank-$90 word that selects <paramref name="behavior"/>.</summary>
-    internal static ushort Of(SamusShotBehavior behavior)
+    internal static ushort Of(SamusShotFiring behavior)
     {
-        foreach ((SamusShotBehavior candidate, ushort word) in Words)
+        foreach ((SamusShotFiring candidate, ushort word) in Words)
         {
             if (ReferenceEquals(candidate, behavior))
                 return word;
@@ -89,7 +89,7 @@ internal static class SamusBeamFrameBehaviorCodes
     }
 
     /// <summary>A beam shot behaviour by its bank-$90 word.</summary>
-    extension(SamusShotBehavior behavior)
+    extension(SamusShotFiring behavior)
     {
         /// <summary>The bank-$90 word the fire handler table holds for the behaviour.</summary>
         internal ushort NativePointer => Of(behavior);

@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Spatial;
 /// A speed, distance or turn taken toward a direction (#2569): the one operation that gives a quantity its direction, so a
 /// velocity is a signed value built toward its side rather than a size whose sign a test restores.
 /// </summary>
-public static class TowardDirection
+public static partial class TowardDirection
 {
     /// <summary>
     /// <paramref name="amount"/> taken toward <paramref name="direction"/>: as it is rightward, toward increasing X, and

@@ -1,16 +1,21 @@
+using SuperMetroid.Core.Animation;
+
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>
 /// A Magdollite's tracking overlay's state, the hand that rides the arm's cap and throws the lava: what it is doing, its
 /// throw and the cooldown before the head attacks again.
 /// </summary>
-public sealed class MagdolliteOverlayState : MagdollitePartState
+public sealed partial class MagdolliteOverlayState : MagdollitePartState
 {
     /// <summary>Creates the overlay's state, starting in <paramref name="action"/>.</summary>
     internal MagdolliteOverlayState(MagdolliteOverlayAction action)
     {
         Action = action;
     }
+
+    /// <summary>The animation the overlay plays and where it stands in it (#1600, #2554).</summary>
+    internal AnimationPlayback<MagdolliteOverlaySegment> Playback { get; set; }
 
     /// <summary>What the overlay is doing.</summary>
     public MagdolliteOverlayAction Action { get; internal set; }
@@ -30,8 +35,5 @@ public sealed class MagdolliteOverlayState : MagdollitePartState
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }
 
     /// <summary>The throw's finishing cue (#2439): the hand has thrown, and its next update starts the arm's descent.</summary>
-    /// <exception cref="InvalidOperationException">The hand is not waiting for its throw.</exception>
-    internal void FinishThrow() => Action = Action == MagdolliteOverlayAction.WaitingForThrowAnimation
-        ? MagdolliteOverlayAction.Thrown
-        : throw new InvalidOperationException($"A Magdollite's hand finished an animation while it was {Action}.");
+    internal void FinishThrow() => Action = MagdolliteOverlayAction.Thrown;
 }

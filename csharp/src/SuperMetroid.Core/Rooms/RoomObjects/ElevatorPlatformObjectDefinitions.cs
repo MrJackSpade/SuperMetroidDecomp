@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// The elevator platform's complete animation loop and its three layouts (#1554). Timing, layout selection, collision
 /// kinds and offsets are authored; what each frame shows is its installed picture (#1557).
 /// </summary>
-internal static class ElevatorPlatformObjectDefinitions
+internal static partial class ElevatorPlatformObjectDefinitions
 {
     /// <summary>The platform's loop, which it plays from its first update for as long as it stays: each layout four updates, there and back.</summary>
-    internal static IReadOnlyList<TerrainChangeFrame> Cycle { get; } =
+    internal static IReadOnlyList<ElevatorPlatformFrame> Cycle { get; } =
     [
         new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Dim), 4),
         new(ElevatorPlatformDraws.Family.Of(ElevatorPlatformDraw.Glowing), 4),

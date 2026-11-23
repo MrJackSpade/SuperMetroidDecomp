@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Where on the screen, in pixels from its left edge, each camera distance mode aims to keep Samus.</summary>
-internal static class HorizontalCameraTargetDefinitions
+internal static partial class HorizontalCameraTargetDefinitions
 {
     /// <summary>
     /// How far behind the screen's centre normal tracking keeps Samus, toward the side she faces away from, so she sees

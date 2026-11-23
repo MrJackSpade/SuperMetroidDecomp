@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
 /// One front-end game-state step's output: its status and the semantic audio it published. Its picture is the
-/// published render snapshot (<see cref="CapturedFrontendFrame.Snapshot"/>), which every backend draws.
+/// published display packet (<see cref="CapturedFrontendFrame.Snapshot"/>), which every backend draws.
 /// </summary>
 /// <param name="GameState">Front-end game state reported with this emitted frame.</param>
 /// <param name="Phase">Human-readable scene or runtime phase label for host diagnostics.</param>
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 /// The update's ordered semantic audio events after sound acceptance. The session has already rendered them into the
 /// update's PCM (<see cref="SuperMetroidGame.CopyAudioFrame"/>); a host that plays audio itself plays these instead.
 /// </param>
-public readonly record struct FrontendFrame(
+public readonly partial record struct FrontendFrame(
     SuperMetroidGameState GameState,
     string Phase,
     int FrameNumber,

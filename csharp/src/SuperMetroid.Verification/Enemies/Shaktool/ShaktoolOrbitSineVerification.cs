@@ -15,7 +15,7 @@ internal static class ShaktoolOrbitSineVerification
         short Original(int index)
         {
             int address = EnemyMathReferenceData.ShaktoolOrbit + 2 * index;
-            return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
+            return unchecked((short)rom.ReadCartridgeWord(address));
         }
         // The native table's index runs a quarter turn behind the angle it holds: its first 64 words are the negative
         // cosine, so word i holds the angle i + 192 within a turn.

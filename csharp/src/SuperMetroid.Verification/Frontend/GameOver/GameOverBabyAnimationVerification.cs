@@ -49,18 +49,18 @@ internal static class GameOverBabyAnimationVerification
             AssertEqual(index == original.Count - 1 ? original[0].Pointer : original[index + 1].Pointer, expected.Next, "Baby records play in stream order");
             var look = AssertIs<AnimationBeat<GameOverBabyLook, GameOverBabySound>.Frame>(beats[beat++], $"Baby record {index} is a look");
             AssertEqual(expected.Duration, look.Duration, "Baby duration field");
-            AssertEqual(expected.Sprite, GameOverBabyAnimationDefinitions.NativeSpritemap(look.Shown.Frame), "Baby frame field");
-            AssertEqual(expected.Palette, GameOverBabyAnimationDefinitions.NativePalettePointer(look.Shown.Colours), "Baby palette field");
+            AssertEqual(expected.Sprite, GameOverBabyAnimationDefinitions.Spritemaps.Word(look.Shown.Frame), "Baby frame field");
+            AssertEqual(expected.Palette, GameOverBabyAnimationDefinitions.PalettePointers.Word(look.Shown.Colours), "Baby palette field");
             if (expected.Sound == 0)
             {
                 AssertTrue(beat == beats.Count || beats[beat] is AnimationBeat<GameOverBabyLook, GameOverBabySound>.Frame, "Baby silent handoff");
                 continue;
             }
             var cry = AssertIs<AnimationBeat<GameOverBabyLook, GameOverBabySound>.Event>(beats[beat++], $"Baby record {index} is followed by its cry");
-            AssertEqual(expected.Sound, GameOverBabyAnimationDefinitions.NativeSoundOpcode(cry.Raised), "Baby sound handoff");
+            AssertEqual(expected.Sound, GameOverBabyAnimationDefinitions.CryCallbacks.Word(cry.Raised), "Baby sound handoff");
             SoundEffectId sound = GameOverBabyCries.ResolveCry(expected.Sound);
             AssertEqual((byte)0xa9, GameOverBabyAnimationRomByte(rom, 0x820000 | expected.Sound), "native Baby cry LDA immediate");
-            AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadVerificationWord(rom, 0x820001 + expected.Sound)), sound,
+            AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, ReadVerificationWord(rom, 0x820001 + expected.Sound)), sound,
                 "the import decodes the native Baby cry effect to the cry");
             AssertEqual(SoundEffectLibrary.Room, sound.Library, "Baby cry library");
             AssertEqual((byte)0x22, GameOverBabyAnimationRomByte(rom, 0x820003 + expected.Sound), "native Baby cry JSL");

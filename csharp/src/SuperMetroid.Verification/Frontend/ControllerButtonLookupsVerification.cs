@@ -15,9 +15,19 @@ internal static class ControllerButtonLookupsVerification
         ControllerAction.ItemCancel, ControllerAction.AimUp, ControllerAction.AimDown,
     ];
 
-    /// <summary>Values outside the defined actions, which every action lookup rejects.</summary>
-    private static readonly ControllerAction[] UndefinedActions =
-        [(ControllerAction)int.MinValue, (ControllerAction)(-1), (ControllerAction)7, (ControllerAction)int.MaxValue];
+    /// <summary>Whether <paramref name="bindings"/> bind <paramref name="buttons"/> to Shoot, rather than refusing it as unassignable.</summary>
+    private static bool BindingAccepts(ControllerBindings bindings, ControllerButton buttons)
+    {
+        try
+        {
+            _ = bindings.AssignAndSwap(ControllerAction.Shoot, buttons);
+            return true;
+        }
+        catch (ArgumentOutOfRangeException refused) when (refused.ParamName == "physicalButton")
+        {
+            return false;
+        }
+    }
 
     /// <summary>Checks seven assignable buttons, inverse lookup, swaps, and rejection of invalid permutations.</summary>
     internal static void VerifyAssignableControllerButtons(ISnesAddressSpace rom)
@@ -30,20 +40,23 @@ internal static class ControllerButtonLookupsVerification
         for (int index = 0; index < 7; index++)
             AssertEqual(original[index], ControllerBindings.AssignableButtons[index],
                 $"native assignable button {index}");
+        var bindings = new ControllerBindings(new Dictionary<ControllerAction, ControllerButton>
+        {
+            [ControllerAction.Shoot] = original[0], [ControllerAction.Jump] = original[1], [ControllerAction.Dash] = original[2],
+            [ControllerAction.ItemSelect] = original[3], [ControllerAction.ItemCancel] = original[4], [ControllerAction.AimUp] = original[5],
+            [ControllerAction.AimDown] = original[6],
+        });
         int buttonBits = ControllerWordCodec.ToJoypadWord(ControllerButtons.All);
+        // A button set is assignable when the options menu can bind it: binding any other refuses it.
         for (int word = 0; word <= ushort.MaxValue; word++)
         {
             // A word with bits no button produces names no set of buttons.
             if ((word & ~buttonBits) != 0) continue;
             ControllerButton buttons = ControllerWordCodec.FromJoypadWord((ushort)word, "assignable inverse word");
             int nativeIndex = Array.IndexOf(original, buttons, 0, 7);
-            AssertEqual(nativeIndex >= 0,
-                ControllerBindings.IsAssignable(buttons),
-                $"assignable inverse {buttons}");
+            AssertEqual(nativeIndex >= 0, BindingAccepts(bindings, buttons), $"assignable inverse {buttons}");
         }
 
-        var bindings = new ControllerBindings(original[0], original[1], original[2],
-            original[3], original[4], original[5], original[6]);
         for (int action = 0; action < ConstructorOrder.Length; action++)
         for (int requested = 0; requested < 7; requested++)
         {
@@ -51,24 +64,21 @@ internal static class ControllerButtonLookupsVerification
             for (int other = 0; other < ConstructorOrder.Length; other++)
                 AssertEqual(original[other == action ? requested : other == requested ? action : other],
                     result[ConstructorOrder[other]], $"button swap {ConstructorOrder[action]}/{requested} {ConstructorOrder[other]}");
-            AssertTrue(result.IsUniquePermutation, "swapped buttons remain a permutation");
+            AssertEqual(result, result.RequireUniquePermutation(), "swapped buttons remain a permutation");
         }
         foreach (ControllerButton rejected in new ControllerButton[] { ControllerButton.None, original[7], original[8],
                      original[0] | original[1], ControllerButton.Start, ControllerButtons.All })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(ControllerAction.Shoot, rejected),
                 $"reject nonassignable {rejected}");
-            AssertTrue(!(bindings with { Shoot = rejected }).IsUniquePermutation,
+            AssertThrows<InvalidDataException>(() => bindings.With(ControllerAction.Shoot, rejected).RequireUniquePermutation(),
                 "nonassignable button invalidates permutation");
         }
-        foreach (ControllerAction undefined in UndefinedActions)
-            AssertThrows<ArgumentOutOfRangeException>(() => bindings.AssignAndSwap(undefined, original[0]),
-                $"reject undefined action {(int)undefined}");
-        AssertTrue(!(bindings with { Shoot = bindings.Jump }).IsUniquePermutation,
+        AssertThrows<InvalidDataException>(() => bindings.With(ControllerAction.Shoot, bindings[ControllerAction.Jump]).RequireUniquePermutation(),
             "duplicate button invalidates permutation");
         // Bindings that leave a button to no action are not a permutation; a swap onto that button is refused rather than
         // leaving the action's old button bound twice.
-        AssertThrows<InvalidOperationException>(() => (bindings with { Shoot = bindings.Jump }).AssignAndSwap(ControllerAction.Jump, original[0]),
+        AssertThrows<InvalidOperationException>(() => bindings.With(ControllerAction.Shoot, bindings[ControllerAction.Jump]).AssignAndSwap(ControllerAction.Jump, original[0]),
             "a swap onto a button no action holds is refused");
     }
 
@@ -97,9 +107,6 @@ internal static class ControllerButtonLookupsVerification
         foreach (ControllerAction action in Enum.GetValues<ControllerAction>())
             AssertEqual(ControllerWordCodec.FromJoypadWord(original[destinations[action]], "native default binding"), ControllerBindings.Default[action],
                 $"default action {action} WRAM {destinations[action]:X4}");
-        foreach (ControllerAction undefined in UndefinedActions)
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = ControllerBindings.Default[undefined]; },
-                $"invalid default action {(int)undefined}");
-        AssertTrue(ControllerBindings.Default.IsUniquePermutation, "native defaults form a permutation");
+        AssertEqual(ControllerBindings.Default, ControllerBindings.Default.RequireUniquePermutation(), "native defaults form a permutation");
     }
 }

@@ -23,21 +23,21 @@ internal static class GroundedBombSpreadVerification
         foreach (int hold in new[] { 0, 1, 63, 64, 127, 128, 191, 192 })
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphBallGroundRightPose,
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { 
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512))}.InPose(SamusPoseId.MorphBallGroundRightPose).WithBeamChargeCount(BeamChargeDefinitions.FullyChargedCounter);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.YAcceleration = new UnsignedSixteenSixteen(0, 0x1c00);
             var bombs = CreateBombFixture();
             GameplayAction shootDown = (GameplayAction.Shoot | GameplayAction.Down);
             for (int tick = 0; tick < hold; tick++)
             {
-                bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, shootDown, 0);
+                bombs.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, shootDown, 0);
                 AssertTrue(bombs.Bombs.All(slot => !slot.IsActive) && bombs.BombCounter == 0, "Down+Shoot postpones grounded spread");
                 AssertEqual(BeamChargeDefinitions.FullyChargedCounter, samus.BeamCharge.UpdatesHeld, "retained spread charge is not consumed while holding Down");
                 AssertEqual((ushort)(tick + 1), samus.BombSpreadCharge.Age, "grounded spread hold counter advances once per tick");
             }
-            bool releasedCharge = bombs.StepFrameConsumingCharge(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
+            bool releasedCharge = bombs.StepFrameConsumingCharge(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, keepDown ? shootDown : GameplayAction.Shoot, 0);
             AssertTrue(bombs.Bombs.All(slot => slot.IsActive && slot.IsBombSpread) && releasedCharge, "release or timeout creates spread and consumes charge");
             AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
             AssertEqual(0, samus.BeamCharge.UpdatesHeld, "spawn clears actual flare counter");
@@ -46,11 +46,11 @@ internal static class GroundedBombSpreadVerification
             // acceleration precedes integration, including the spawning alpha call.
             for (int tick = 1; tick <= 60; tick++)
             {
-                if (tick != 1) bombs.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, GameplayAction.Shoot, 0);
+                if (tick != 1) bombs.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, GameplayAction.Shoot, 0);
                 for (int slotIndex = 0; slotIndex < bombs.Bombs.Count; slotIndex++)
                 {
                     var slot = bombs.Bombs[slotIndex];
-                    ushort Read(int address) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + slotIndex * 2);
+                    ushort Read(int address) => RomDataReader.ReadWordFixedBank(bus, address + slotIndex * 2);
                     ushort encodedX = Read(MorphBallBombDefinitions.XVelocities);
                     long initialY = -(Read(MorphBallBombDefinitions.YSpeeds) + (hold >> 6 & 3)) * 65536L + Read(MorphBallBombDefinitions.YSubspeeds);
                     long expectedX = 512L * 65536 + tick * (encodedX & 0x7fff) * 256L * ((encodedX & 0x8000) == 0 ? 1 : -1);

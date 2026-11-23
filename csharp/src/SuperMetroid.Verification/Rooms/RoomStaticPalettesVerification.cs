@@ -72,7 +72,7 @@ internal static class RoomStaticPalettesVerification
         JsonNode malformed = JsonNode.Parse(files[selectedName])
             ?? throw new InvalidDataException("Extracted room palette JSON is empty.");
         malformed.Required("colors").Required(0)["red"] = 32;
-        byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed);
+        byte[] invalid = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(malformed, global::SuperMetroid.Verification.VerificationJson.Info<global::System.Text.Json.Nodes.JsonNode>());
         AssertThrows<InvalidDataException>(() => RoomStaticPaletteFile.Read(
                 new MemoryStream(invalid, writable: false)),
             "room palette rejects out-of-range RGB5 components");

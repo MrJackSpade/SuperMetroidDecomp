@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -7,8 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// Address arithmetic and playback remain managed-driver mechanics; definitions retain their
 /// native fixed slots so edits cannot silently relocate into adjacent music or sample data.
 /// </summary>
-[EncodingOwner("sound driver music track, phrase and channel program bytecode")]
-internal static class SpcMusicDefinitionCodec
+internal static partial class SpcMusicDefinitionCodec
 {
     /// <summary>
     /// The effects in opcode order: the driver's effect opcodes are consecutive bytes from
@@ -54,15 +54,15 @@ internal static class SpcMusicDefinitionCodec
     /// <summary>The identity of the program at <paramref name="place"/> among bank <paramref name="dataIndex"/>'s programs, in their slots' order (#2548).</summary>
     internal static string ProgramId(int dataIndex, int place) => $"music-{dataIndex:x2}-program-{place:000}";
 
-    /// <summary>The identity of track <paramref name="track"/> of bank <paramref name="dataIndex"/>.</summary>
-    internal static string TrackId(int dataIndex, int track) => $"music-{dataIndex:x2}-track-{track:00}";
-
     /// <summary>
-    /// Walks selected track pointers and their referenced phrase and channel programs within uploaded APU RAM. Phrases and
-    /// programs are named by their place among the bank's in their slots' order (#2548); a slot's address is the codec's
-    /// routing alone, and no identity spells one.
+    /// Walks selected track pointers and their referenced phrase and channel programs within uploaded APU RAM. Each track is
+    /// the song its slot plays in <paramref name="dataSet"/> (#2556); a slot that points nowhere plays no song and has no
+    /// track. Phrases and programs are named by their place among the bank's in their slots' order (#2548); a slot's address
+    /// is the codec's routing alone, and no identity spells one.
     /// </summary>
+    /// <exception cref="InvalidDataException">A slot that points somewhere plays no song of the data set.</exception>
     internal static SpcMusicDefinitionBundle DecodeBank(
+        MusicDataSet? dataSet,
         int dataIndex,
         IReadOnlyList<ushort> trackPointers,
         ReadOnlySpan<byte> ram,
@@ -71,9 +71,11 @@ internal static class SpcMusicDefinitionCodec
         var tracks = new List<DecodedTrack>(trackPointers.Count);
         Dictionary<ushort, ushort[]> phrases = [];
         Dictionary<ushort, DecodedProgram> programs = [];
-        for (int track = 0; track < trackPointers.Count; track++)
+        for (int slot = 0; slot < trackPointers.Count; slot++)
         {
-            DecodedTrack definition = DecodeTrack(dataIndex, track, trackPointers[track], ram, written);
+            if (trackPointers[slot] == 0)
+                continue;
+            DecodedTrack definition = DecodeTrack(MusicTrackNumbers.Decode(dataSet, slot), trackPointers[slot], ram, written);
             tracks.Add(definition);
             foreach (TrackWord word in definition.Words)
             {
@@ -107,13 +109,7 @@ internal static class SpcMusicDefinitionCodec
         Ensure.NotNull(track);
         Ensure.NotNull(phrases);
         if (track.Instructions is null)
-            throw new InvalidDataException($"Music track '{track.Id}' has no instruction list.");
-        if (track.Address == 0)
-        {
-            if (track.ByteCapacity != 0 || track.Instructions.Count != 0)
-                throw new InvalidDataException($"Inactive music track '{track.Id}' must have no program data.");
-            return [];
-        }
+            throw new InvalidDataException($"Music track '{track.Song}' has no instruction list.");
         int[] offsets = new int[track.Instructions.Count];
         int offset = 0;
         for (int index = 0; index < offsets.Length; index++)
@@ -126,14 +122,14 @@ internal static class SpcMusicDefinitionCodec
         foreach (AudioMusicTrackInstructionMetadata instruction in track.Instructions)
         {
             if (instruction is null)
-                throw new InvalidDataException($"Music track '{track.Id}' contains a null instruction.");
+                throw new InvalidDataException($"Music track '{track.Song}' contains a null instruction.");
             if (ended)
-                throw new InvalidDataException($"Music track '{track.Id}' contains data after end.");
+                throw new InvalidDataException($"Music track '{track.Song}' contains data after end.");
             switch (instruction)
             {
                 case AudioMusicPlayPhrase play:
                     if (play.Phrase is null || !phrases.TryGetValue(play.Phrase, out AudioMusicPhraseMetadata? phrase))
-                        throw new InvalidDataException($"Music track '{track.Id}' plays missing phrase '{play.Phrase}'.");
+                        throw new InvalidDataException($"Music track '{track.Song}' plays missing phrase '{play.Phrase}'.");
                     if (LittleEndianBytes.HighByte(checked((ushort)phrase.Address)) < SpcDriverDefinitions.Music.PatternPointerHighByteMinimum)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, phrase.Address);
@@ -156,12 +152,12 @@ internal static class SpcMusicDefinitionCodec
                     WriteWord(bytes, track.Address + offsets[repeat.Target]);
                     break;
                 default:
-                    throw new InvalidDataException($"Music track '{track.Id}' holds an undefined instruction {instruction}.");
+                    throw new InvalidDataException($"Music track '{track.Song}' holds an undefined instruction {instruction}.");
             }
         }
         if (!ended)
-            throw new InvalidDataException($"Music track '{track.Id}' has no end instruction.");
-        ValidateCapacity(track.Id, track.ByteCapacity, bytes.Count);
+            throw new InvalidDataException($"Music track '{track.Song}' has no end instruction.");
+        ValidateCapacity(track.Song.ToString(), track.ByteCapacity, bytes.Count);
         return [.. bytes];
     }
 
@@ -231,11 +227,7 @@ internal static class SpcMusicDefinitionCodec
         foreach (AudioMusicProgramMetadata program in bank.MusicPrograms) expectedBytes += program.ByteCapacity;
         var writes = new Dictionary<int, byte>(expectedBytes);
         foreach (AudioMusicTrackMetadata track in bank.MusicTracks)
-        {
-            byte[] encoded = EncodeTrack(track, phrases);
-            if (encoded.Length != 0)
-                Merge(writes, track.Address, encoded, track.Id);
-        }
+            Merge(writes, track.Address, EncodeTrack(track, phrases), track.Song.ToString());
         foreach (AudioMusicPhraseMetadata phrase in bank.MusicPhrases)
         {
             if (phrase.ChannelPrograms is null || phrase.ChannelPrograms.Count != SpcDriverDefinitions.ChannelCount)
@@ -266,15 +258,12 @@ internal static class SpcMusicDefinitionCodec
 
     /// <summary>Reads a bounded track control stream: its words, each phrase it plays by the phrase's slot.</summary>
     private static DecodedTrack DecodeTrack(
-        int dataIndex,
-        int track,
+        MusicTrack song,
         ushort address,
         ReadOnlySpan<byte> ram,
         ReadOnlySpan<bool> written)
     {
-        string id = TrackId(dataIndex, track);
-        if (address == 0)
-            return new(track, id, 0, 0, []);
+        string id = song.ToString();
         var words = new List<TrackWord>();
         int cursor = address;
         for (int count = 0; count < SpcDriverDefinitions.ApuRamSize; count++)
@@ -289,7 +278,7 @@ internal static class SpcMusicDefinitionCodec
             if (value == 0)
             {
                 words.Add(new(offset, value));
-                return new(track, id, address, cursor - address, words);
+                return new(song, address, cursor - address, words);
             }
             if (MusicTrackControls.TryDecode(value, out _))
                 words.Add(new(offset, value));
@@ -395,15 +384,10 @@ internal static class SpcMusicDefinitionCodec
     /// <summary>Distinguishes pitched notes, tie, rest, and percussion in the note opcode range.</summary>
     private static AudioMusicInstructionKind NoteKind(int opcode)
     {
-        if (Enum.IsDefined((NoteCommand)opcode))
-        {
-            return (NoteCommand)opcode switch
-            {
-                NoteCommand.Tie => AudioMusicInstructionKind.Tie,
-                NoteCommand.Rest => AudioMusicInstructionKind.Rest,
-                _ => throw new InvalidOperationException($"Undefined {nameof(NoteCommand)} {opcode:X2}."),
-            };
-        }
+        if (opcode == SpcDriverDefinitions.Music.TieNote)
+            return AudioMusicInstructionKind.Tie;
+        if (opcode == SpcDriverDefinitions.Music.RestNote)
+            return AudioMusicInstructionKind.Rest;
         return opcode >= SpcDriverDefinitions.Music.FirstPercussionNote
             ? AudioMusicInstructionKind.Percussion
             : AudioMusicInstructionKind.Note;
@@ -414,15 +398,14 @@ internal static class SpcMusicDefinitionCodec
     /// <param name="Value">The word.</param>
     /// <param name="Phrase">The slot of the phrase a play word plays; null for any other word.</param>
     /// <param name="RepeatTarget">The slot a repeat word repeats from; null for any other word.</param>
-    private readonly record struct TrackWord(int Offset, ushort Value, ushort? Phrase = null, ushort? RepeatTarget = null);
+    private readonly partial record struct TrackWord(int Offset, ushort Value, ushort? Phrase = null, ushort? RepeatTarget = null);
 
     /// <summary>A track's control stream as the codec read it, named once the bank's phrases are.</summary>
-    /// <param name="Track">The track's number.</param>
-    /// <param name="Id">The track's identity.</param>
-    /// <param name="Address">The track's slot, or zero for an inactive track.</param>
+    /// <param name="Song">The song the track plays.</param>
+    /// <param name="Address">The track's slot.</param>
     /// <param name="ByteCapacity">The bytes its slot holds.</param>
     /// <param name="Words">Its words in stream order, its end last.</param>
-    private sealed record DecodedTrack(int Track, string Id, ushort Address, int ByteCapacity, IReadOnlyList<TrackWord> Words)
+    private sealed partial record DecodedTrack(MusicTrack Song, ushort Address, int ByteCapacity, IReadOnlyList<TrackWord> Words)
     {
         /// <summary>The track's metadata: each phrase it plays named by <paramref name="phraseIds"/>, each repeat by the place of the word it repeats from.</summary>
         /// <exception cref="InvalidDataException">A repeat's slot begins none of the track's words.</exception>
@@ -432,7 +415,7 @@ internal static class SpcMusicDefinitionCodec
             for (int place = 0; place < Words.Count; place++)
                 places.Add(Address + Words[place].Offset, place);
             AudioMusicTrackInstructionMetadata[] instructions = [.. Words.Select(word => Instruction(word, phraseIds, places))];
-            return new(Track, Id, Address, ByteCapacity, instructions);
+            return new(Song, Address, ByteCapacity, instructions);
         }
 
         /// <summary>The instruction <paramref name="word"/> is, its phrase named and its repeat's slot found among <paramref name="places"/>.</summary>
@@ -445,30 +428,23 @@ internal static class SpcMusicDefinitionCodec
             if (word.RepeatTarget is { } target)
             {
                 return places.TryGetValue(target, out int repeated) ? new AudioMusicRepeat(word.Value, repeated)
-                    : throw new InvalidDataException($"Music track '{Id}' repeats from ${target:X4}, which begins none of its words.");
+                    : throw new InvalidDataException($"Music track '{Song}' repeats from ${target:X4}, which begins none of its words.");
             }
             if (word.Value == 0)
                 return new AudioMusicTrackEnd();
             if (MusicTrackControls.Is(word.Value, MusicTrackControl.FastForwardOn))
                 return new AudioMusicFastForwardOn();
             return MusicTrackControls.Is(word.Value, MusicTrackControl.FastForwardOff) ? new AudioMusicFastForwardOff()
-                : throw new InvalidOperationException($"Music track '{Id}' word ${word.Value:X4} is no instruction.");
+                : throw new InvalidOperationException($"Music track '{Song}' word ${word.Value:X4} is no instruction.");
         }
     }
 
     /// <summary>A channel program as the codec read it, named once the bank's programs are.</summary>
     /// <param name="ByteCapacity">The bytes its slot holds.</param>
     /// <param name="Instructions">Its commands, its end last.</param>
-    private sealed record DecodedProgram(int ByteCapacity, IReadOnlyList<AudioMusicInstructionMetadata> Instructions);
+    private sealed partial record DecodedProgram(int ByteCapacity, IReadOnlyList<AudioMusicInstructionMetadata> Instructions);
 
     /// <summary>The two note-range bytes that are not pitches: tie and rest. Pitches and percussion stay numeric.</summary>
-    private enum NoteCommand : byte
-    {
-        /// <summary>Extends the previous note.</summary>
-        Tie = SpcDriverDefinitions.Music.TieNote,
-        /// <summary>Silences the track for the note duration.</summary>
-        Rest = SpcDriverDefinitions.Music.RestNote,
-    }
 
     /// <summary>Allows at most two nonzero timing bytes below the SPC command marker.</summary>
     private static void ValidateTiming(string id, IReadOnlyList<byte> timing)
@@ -532,7 +508,7 @@ internal static class SpcMusicDefinitionCodec
         AudioMusicTrackMetadata track,
         AudioMusicTrackInstructionMetadata instruction) =>
         new InvalidDataException(
-            $"Music track '{track.Id}' has invalid {instruction} operands.");
+            $"Music track '{track.Song}' has invalid {instruction} operands.");
 
     /// <summary>Creates a diagnostic for a channel opcode and operation mismatch.</summary>
     private static InvalidDataException InvalidProgramInstruction(

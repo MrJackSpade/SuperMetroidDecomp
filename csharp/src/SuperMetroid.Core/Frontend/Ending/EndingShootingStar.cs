@@ -3,7 +3,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>One post-credits star: its own flight's definition, and its position, velocity, start delay and pictures.</summary>
-internal struct EndingShootingStar
+internal partial struct EndingShootingStar
 {
     /// <summary>How the star flies: its acceleration, its pictures' pace and its start delay (#2541).</summary>
     internal EndingShootingStarDefinition Definition;
@@ -13,7 +13,7 @@ internal struct EndingShootingStar
     /// </summary>
     internal UpdateCountdown? Delay;
     /// <summary>The star's pictures through its flight (<see cref="EndingShootingStarAnimations"/>).</summary>
-    internal AnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue> Flight;
+    internal ShowingAnimationPlayer<EndingShootingStarPace, EndingShootingStarLook, NoAnimationCue> Flight;
     /// <summary>
     /// Signed screen place, to a fraction of a pixel, before centering the sprite: left of or above the screen is negative, so a star
     /// leaving by the top or left edge is tested against <see cref="EndingShootingStarDefinitions.SpriteOffset"/> as it is.

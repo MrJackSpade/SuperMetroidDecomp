@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// An upgrade's control on the equipment page (#1772): the upgrade A toggles while the cursor rests on it, and the label
 /// the page shows in that upgrade's state.
 /// </summary>
-public sealed class PauseUpgradeControl : PauseEquipmentControl
+public sealed partial class PauseUpgradeControl : PauseEquipmentControl
 {
     /// <summary>Names the control of <paramref name="upgrade"/> in <paramref name="category"/>, shown by <paramref name="label"/>.</summary>
     internal PauseUpgradeControl(PauseEquipmentCategory category, string anchor, PauseUpgrade upgrade, PauseEquipmentLabelId label)

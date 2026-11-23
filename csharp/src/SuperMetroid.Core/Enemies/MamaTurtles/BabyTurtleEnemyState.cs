@@ -3,19 +3,26 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The state of a Baby Turtle.</summary>
-public sealed class BabyTurtleEnemyState
+public sealed partial class BabyTurtleEnemyState
 {
-    /// <summary>Starts the state in <paramref name="action"/>.</summary>
-    internal BabyTurtleEnemyState(BabyTurtleAction action) => Action = action;
+    /// <summary>Starts the state in <paramref name="action"/>, in the family of the Mama <paramref name="family"/> names.</summary>
+    internal BabyTurtleEnemyState(BabyTurtleAction action, MamaTurtleFamily family)
+    {
+        Action = action;
+        Family = family;
+    }
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<BabyTurtleSegment> Playback { get; set; }
+
+    /// <summary>The family of the Mama the room lists before the baby, which she offered it as she was placed (#2554).</summary>
+    internal MamaTurtleFamily Family { get; }
 
     /// <summary>Gets the Baby Turtle's current action.</summary>
     public BabyTurtleAction Action { get; internal set; }
 
     /// <summary>
-    /// The child's spawn point: its spawn X, which the crawl turns around 48 pixels from, and the top of its spawn
+    /// The child's spawn point: its spawn X, which the crawl turns around its travel distance from, and the top of its spawn
     /// hitbox, which the crawl holds it to.
     /// </summary>
     public Position16<RoomPixels> SpawnTopCenter { get; internal set; }
@@ -27,7 +34,7 @@ public sealed class BabyTurtleEnemyState
     public HorizontalDirection Heading { get; internal set; }
 
     /// <summary>
-    /// How fast the baby moves along <see cref="Heading"/>, in whole pixels an update (#2338): a pixel as it crawls, and
+    /// How fast the baby moves along <see cref="Heading"/>, in whole pixels an update (#2338): its crawl speed as it crawls, and
     /// a spin's speed from a spin until its crawl next turns it.
     /// </summary>
     public int HorizontalSpeed { get; internal set; }

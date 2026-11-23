@@ -5,7 +5,6 @@ using SuperMetroid.Core.Samus.Grapple;
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
 /// <summary>The cartridge words naming the enemies' grapple reactions, which only verification's header decode reads (#1411).</summary>
-[EncodingOwner("enemy grapple response words")]
 internal static class EnemyGrappleResponseWords
 {
     /// <summary>The bank-$A0 routine an enemy header's grapple word names for each reaction.</summary>
@@ -23,6 +22,8 @@ internal static class EnemyGrappleResponseWords
     /// <summary>The grapple words naming no reaction (#2283): zero, and the elevator's own routine, whose behaviour carries on.</summary>
     private static readonly HashSet<ushort> NoReaction = [0x0000, 0x952a];
 
-    /// <summary>The reaction an enemy header's grapple word names, or null for a word that names none.</summary>
-    internal static GrappleEnemyReaction? Decode(ushort word) => NoReaction.Contains(word) ? null : Reactions.Decode(word, "grapple response");
+    /// <summary>The response an enemy header's grapple word names: its reaction, or <see cref="EnemyGrappleResponse.Unreactive"/> for a word that names none.</summary>
+    internal static EnemyGrappleResponse Decode(ushort word) => NoReaction.Contains(word)
+        ? EnemyGrappleResponse.Unreactive.Instance
+        : new EnemyGrappleResponse.Reacting(Reactions.Decode(word, "grapple response"));
 }

@@ -55,8 +55,7 @@ internal static class CeresEscapeHandoffVerification
         FixedCoordinate xBeforeInitialization = samus.Kinematics.Position.X;
         FixedCoordinate yBeforeInitialization = samus.Kinematics.Position.Y;
         samus.CeresRidleyEjection.Step(
-            emptyRoom,
-            SamusRoomObjectFixtures.Uninstalled,
+            new RoomTerrain(emptyRoom, SamusRoomObjectFixtures.Uninstalled),
             samus,
             cameraX: 0,
             frameCounter: 0);
@@ -68,7 +67,6 @@ internal static class CeresEscapeHandoffVerification
         AssertEqual(xBeforeInitialization, samus.Kinematics.Position.X, "first gamma performs no horizontal movement");
         AssertEqual(yBeforeInitialization, samus.Kinematics.Position.Y, "first gamma performs no vertical movement");
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
-        AssertEqual(HorizontalDirection.Left, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.VerticalVelocity.Speed.Whole, "ejection installs terminal downward speed");
         AssertSamusPosition(new(100, 100), samus, "first ejection gamma leaves world position unchanged");
 
@@ -80,20 +78,19 @@ internal static class CeresEscapeHandoffVerification
         // Leftover extra-run speed from before the shove (retail 100% movie: `.4000`).
         samus.HorizontalSpeed.ExtraRunSpeed = new UnsignedSixteenSixteen(samus.HorizontalSpeed.ExtraRunSpeed.Whole, 0x4000);
         samus.CeresRidleyEjection.Step(
-            emptyRoom,
-            SamusRoomObjectFixtures.Uninstalled,
+            new RoomTerrain(emptyRoom, SamusRoomObjectFixtures.Uninstalled),
             samus,
             cameraX: 0,
             frameCounter: 1);
-        AssertEqual(null, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
-        AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
+        // Only a shove toward the left meets the room's left wall here: a left-half Samus is pushed left.
+        AssertTrue(!samus.CeresRidleyEjection.IsActive, "the left-half Samus's shove ends against the room's left wall, restoring normal movement");
         AssertTrue(!samus.Control.InputLocked, "wall contact leaves ordinary pose input available");
         // The push never sets knockback direction `$0A52`, so `$90:DDE9` has no knockback
         // to finish: the hurt pose remains for the ordinary movement handler (retail 100%
         // movie: `$53` on the wall frame, then landing `$A4`).
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose,
             "wall handoff keeps the hurt pose for ordinary movement");
-        AssertEqual(SuperMetroid.Core.Samus.Movement.SamusKnockbackDirection.None, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
+        AssertEqual(null, samus.KnockbackDirection, "Ceres push never publishes knockback direction");
         AssertEqual(0, samus.Kinematics.VerticalVelocity.Speed.Whole, "$90:DF85 clears Y speed");
         AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
             "Kill_SamusXSpeed_IfCollisionDetected clears extra-run speed at the wall");
@@ -109,7 +106,7 @@ internal static class CeresEscapeHandoffVerification
         SamusPresentation.InitializeAnimation(airborne);
         airborne.PoseHistory.Restore(SamusPoseId.FallingRightPose, airborne.PoseHistory.PreviousMovement, airborne.PoseHistory.MovementBeforePrevious);
         airborne.CeresRidleyEjection.Request(airborne);
-        airborne.CeresRidleyEjection.Step(emptyRoom, SamusRoomObjectFixtures.Uninstalled, airborne, cameraX: 0, frameCounter: 0);
+        airborne.CeresRidleyEjection.Step(new RoomTerrain(emptyRoom, SamusRoomObjectFixtures.Uninstalled), airborne, cameraX: 0, frameCounter: 0);
         AssertEqual(98, airborne.Kinematics.Position.Y.Whole, "ejection alignment uses the interrupted pose's live radius");
         AssertEqual(0x13, airborne.Kinematics.Radius.Y, "ejection initialization leaves the live radius for the pose epilogue");
     }
@@ -164,39 +161,38 @@ internal static class CeresEscapeHandoffVerification
             position: new(113, 75));
         CeresElevatorShaftRoomMainResult refused =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false);
-        AssertTrue(!refused.ElevatorTookSamus, "non-gameplay dispatcher cannot trigger departure");
+        AssertTrue(refused.Outcome == CeresShaftOutcome.Nothing, "non-gameplay dispatcher cannot trigger departure");
         AssertTrue(!samus.Control.InputLocked, "a refused departure leaves Samus free");
 
         CeresElevatorShaftRoomMainResult requested =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true);
-        AssertTrue(requested.ElevatorTookSamus, "inclusive lower Y/exclusive lower X trigger admits Samus");
+        AssertTrue(requested.Outcome == CeresShaftOutcome.ElevatorTookSamus, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.Control.InputLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         // The update that took Samus moved the game to the departure, whose own updates leave main gameplay (#2545).
         CeresElevatorShaftRoomMainResult departing =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false);
-        AssertTrue(!departing.ElevatorTookSamus, "the departure's own updates do not take Samus again");
+        AssertTrue(departing.Outcome == CeresShaftOutcome.Nothing, "the departure's own updates do not take Samus again");
     }
 
     /// <summary>Checks the exact 60-call departure hold and 15 visible fade steps before forced blank renders black.</summary>
     private static void VerifyCeresDepartureDispatcherTiming()
     {
         var departure = new CeresDepartureState();
-        departure.Begin();
+        AssertEqual(CeresDeparturePhase.HoldingOnElevator, departure.Phase, "a departure begins holding on the elevator");
         AssertEqual(60, departure.Hold.UpdatesLeft, "Ceres state 20 starts at 60");
 
         StepFrames(59, _ =>
-            AssertTrue(!departure.StepHoldAfterGameplay(), "first 59 state-20 calls retain hold"));
+            AssertTrue(!departure.StepAfterGameplay(), "first 59 state-20 calls retain hold"));
         AssertEqual(1, departure.Hold.UpdatesLeft, "state 20 has one call remaining");
-        AssertTrue(departure.StepHoldAfterGameplay(), "60th state-20 call enters blackout");
+        AssertTrue(!departure.StepAfterGameplay(), "60th state-20 call enters the blackout without completing it");
         AssertEqual(CeresDeparturePhase.FadingToBlack, departure.Phase, "state 21 is active");
 
         StepFrames(14, _ =>
-            AssertTrue(!departure.StepFadeAfterGameplay(), "first 14 fade calls are visible"));
-        AssertEqual(1, departure.Brightness, "14 fade calls leave brightness one");
-        AssertTrue(departure.StepFadeAfterGameplay(), "15th fade call reaches forced blank");
-        AssertEqual(CeresDeparturePhase.Complete, departure.Phase, "Ceres blackout completes");
+            AssertTrue(!departure.StepAfterGameplay(), "first 14 fade calls are visible"));
+        AssertEqual(1, departure.Brightness.StepsAboveBlack, "14 fade calls leave brightness one");
+        AssertTrue(departure.StepAfterGameplay(), "15th fade call reaches forced blank and completes the departure");
     }
 
     /// <summary>Synthetic cartridge with the knockback and falling poses the Ridley ejection handler installs.</summary>

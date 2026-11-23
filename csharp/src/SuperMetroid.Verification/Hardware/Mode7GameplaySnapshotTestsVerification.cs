@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -38,28 +39,28 @@ internal static class Mode7GameplaySnapshotTestsVerification
             var m = new FloorView(0.13, scale, new Offset16<FloorPixels>(128, 96), new Offset16<FloorPixels>(-13, unchecked((short)scroll)));
             var layer = new TurningRoomLayer(m, floor, ScreenGeometry.GameplayHudHeightPixels);
             samples++;
-            var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, 15));
+            var packet = new DisplayPacket(0, new LayeredScene(memory, new DisplayLayer[] { layer }, DisplayBrightness.Full));
             AssertEqual(layer, (TurningRoomLayer)((LayeredScene)packet.Scene).Layers[0], "the turning-floor band layer keeps its floor view");
             if (samples == 1)
             {
                 AssertThrows<ArgumentException>(() => new LayeredScene(memory,
-                    new DisplayLayer[] { new SpritesLayer([]), layer }, 15), "Mode-7 base cannot erase earlier layers");
+                    new DisplayLayer[] { new SpritesLayer([]), layer }, DisplayBrightness.Full), "Mode-7 base cannot erase earlier layers");
             }
         }
-        // Retail room assets with an explicitly constructed getaway floor exercise
-        // the runtime producer, without pretending this is a controller-driven battle.
+        // Retail room assets with the getaway flown from its beginning exercise the runtime producer, without pretending
+        // this is a controller-driven battle.
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        // The station's escape owns the getaway's floor (#2228).
-        var getaway = runtime.Enemies.CeresEscape.Floor;
-        getaway.Active = true;
-        getaway.Angle = RotationAngle.FromSteps(5);
-        getaway.Zoom = FloorZoomConstants.FromTwoHundredFiftySixths(240);
-        getaway.Center = new Offset16<FloorPixels>(128, 120);
-        getaway.Offset = new Offset16<FloorPixels>(7, 19);
+        // The station's escape owns the getaway's floor (#2228); its first forty updates turn, zoom and scroll it.
+        SuperMetroid.Core.Bosses.Ridley.CeresEscape escape = runtime.Enemies.CeresEscape;
+        RoomFloor arena = runtime.Room.LoadedScope.Floor ?? throw new InvalidOperationException("Ridley's arena shows his floor.");
+        escape.BeginGetaway();
+        int flown = 0;
+        for (; flown < 40; flown++)
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, flown);
         // The getaway's floor reaches the display at the accepted frame boundary (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         RgbaPixel[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
@@ -74,7 +75,10 @@ internal static class Mode7GameplaySnapshotTestsVerification
         AssertEqual(new Offset16<BackgroundPixels>(5, -3) + runtime.Display.DisplayedGameplayScrolls.RoomShake.Background,
             (aboveOrigin.LowerBand ?? throw new InvalidOperationException("The getaway shows the room's background below its floor.")).Scroll,
             "the floor band's background scroll above the origin is signed");
-        getaway.Active = false; getaway.Zoom = default;
+        // The getaway flies its remaining steps, and the update after its last leaves the turning floor.
+        for (; flown <= SuperMetroid.Core.Bosses.Ridley.CeresRidleyGetawayCurve.Steps.Count; flown++)
+            escape.RunGetawayRoomMain(runtime.Player.Samus, arena, flown);
+        AssertTrue(escape.ShownFloor is null, "the getaway's end leaves the turning floor");
         runtime.Vram.LoadBytes(0, new byte[SnesVram.ByteCount]);
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");
         AssertThrows<ArgumentOutOfRangeException>(() => new TurningRoomLayer(default, RoomBackgroundsFixtures.BlankMode7Floor(), ScreenGeometry.ScreenHeightPixels + 1), "the HUD cannot cover more than the screen");

@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Extracts the one-row item/status messages as editable UTF-8 titles.</summary>
-public static class GameplayMessageTitleExtractor
+public static partial class GameplayMessageTitleExtractor
 {
     /// <summary>Decodes the fifteen editable one-row item/status titles and preserves their common 32-cell border as tiles.</summary>
     /// <param name="bus">Cartridge source for the bank-$85 message definitions, small title rows, and border artwork.</param>
@@ -23,10 +23,10 @@ public static class GameplayMessageTitleExtractor
         {
             int definition = HudSourceDefinitions.Messages.DefinitionTable +
                 GameplayMessageNumbers.DefinitionEntry(id) * HudSourceDefinitions.Messages.DefinitionBytes;
-            int setup = CartridgeImportSource.Require(bus).ReadCartridgeWord(definition);
-            int draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
-            int pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
-            int next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
+            int setup = bus.ReadCartridgeWord(definition);
+            int draw = bus.ReadCartridgeWord((definition + 2));
+            int pointer = bus.ReadCartridgeWord((definition + 4));
+            int next = bus.ReadCartridgeWord((definition + HudSourceDefinitions.Messages.DefinitionBytes + 4));
             if (GameplayMessageRoutineWords.Routines.Decode(setup, "message setup routine") != GameplayMessageRoutine.SetupSmall ||
                 GameplayMessageRoutineWords.Routines.Decode(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap ||
                 next - pointer != GameplayMessageTilemapDefinitions.TilemapWidth * sizeof(ushort))
@@ -39,7 +39,7 @@ public static class GameplayMessageTitleExtractor
             int content = HudSourceDefinitions.Messages.BankBase | pointer;
             for (int column = 0; column < GameplayMessageTilemapDefinitions.TilemapWidth; column++)
             {
-                BackgroundTile cell = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((content + column * sizeof(ushort))));
+                BackgroundTile cell = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((content + column * sizeof(ushort))));
                 if (column is < GameplayMessageTitleDefinitions.OuterLeftColumns or
                     >= (GameplayMessageTilemapDefinitions.TilemapWidth -
                         GameplayMessageTitleDefinitions.OuterRightColumns))
@@ -66,7 +66,7 @@ public static class GameplayMessageTitleExtractor
 
         var border = new BackgroundTile[GameplayMessageTilemapDefinitions.TilemapWidth];
         for (int column = 0; column < border.Length; column++)
-            border[column] = BackgroundTileWords.ToTile(CartridgeImportSource.Require(bus).ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
+            border[column] = BackgroundTileWords.ToTile(bus.ReadCartridgeWord((HudSourceDefinitions.Messages.SmallBorder + column * sizeof(ushort))));
 
         using var output = new MemoryStream();
         GameplayMessageTitlePresentation.Write(output, new()

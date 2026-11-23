@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.RoomObjects;
@@ -14,11 +15,11 @@ namespace SuperMetroid.Core.World;
 /// persistence and suit transformation that follow a box closing, and the sounds a box's updates make outside gameplay's
 /// own requests.
 /// </summary>
-internal sealed class MessageBoxFlow
+internal sealed partial class MessageBoxFlow
 {
     /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
     private readonly GameplayTimeFreeze _freeze;
-    /// <summary>Refreshes counters when message completion lacks a suspended frame tail.</summary>
+    /// <summary>Refreshes the HUD counters after the box closes, unless the resumed update shows them itself.</summary>
     private readonly HudState _hud;
     /// <summary>Starts Varia or Gravity transformation after its suspended room object resumes.</summary>
     private readonly SamusSuitPickupState _suitPickup;
@@ -46,9 +47,6 @@ internal sealed class MessageBoxFlow
     /// gunship's entrance pad opening as its prompt returns.
     /// </summary>
     private readonly List<SoundRequest> _sounds = [];
-
-    /// <summary>Whether an outcome waits for the open message box to close.</summary>
-    internal bool HasPendingOutcome => _awaitingClose is not null;
 
     /// <summary>Holds <paramref name="outcome"/> until the message box it opens with closes.</summary>
     /// <exception cref="InvalidDataException">Another outcome already waits: two message boxes opened at once.</exception>
@@ -102,35 +100,25 @@ internal sealed class MessageBoxFlow
             // Only a save prompt's box answers, and only a save prompt's outcome waits for its answer.
             return outcome switch
             {
-                MessageBoxOutcome.GunshipSaveAnswer => ResolveGunshipSaveAnswer(room, answer.Choice),
+                MessageBoxOutcome.GunshipSaveAnswer gunship => ResolveGunshipSaveAnswer(gunship.Prompt, answer.Choice),
                 MessageBoxOutcome.SaveConfirmation confirmation => ResolveSaveConfirmation(room, confirmation.Station, answer.Choice),
                 _ => throw new InvalidDataException(
                     $"The message box closed with {answer.Choice}, but what waited on it ('{outcome}') waits for no answer."),
             };
         }
-        switch (outcome)
-        {
-            case MessageBoxOutcome.GunshipSaveAnswer or MessageBoxOutcome.SaveConfirmation:
-                throw new InvalidDataException($"{outcome} waited for an answer its message box closed without.");
-            case MessageBoxOutcome.SaveCompletion completion:
-                room.RoomObjects.Stations.CompleteSaveStation(completion.Station);
-                break;
-            case MessageBoxOutcome.SuitTransformation:
-            case null:
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined message-box outcome {outcome}.");
-        }
+        // A suit's transformation, and a box nothing waited on, have nothing to finish here.
+        if (outcome is MessageBoxOutcome.GunshipSaveAnswer or MessageBoxOutcome.SaveConfirmation)
+            throw new InvalidDataException($"{outcome} waited for an answer its message box closed without.");
+        if (outcome is MessageBoxOutcome.SaveCompletion completion)
+            room.RoomObjects.Stations.CompleteSaveStation(completion.Station);
 
         room.RoomObjects.CollectibleObjects.CompleteCollectibleMessage(room.LevelData);
-        // The resumed frame reaches the HUD update, which shows the new inventory. A
-        // suspended frame tail does that itself; a capture without one updates it here.
+        // The resumed update shows the new inventory itself; otherwise the close refreshes the HUD here.
         if (!frameSuspended)
             _hud.UpdateGameplayCounters(samus, _audioRequests, _freeze.TimeIsFrozen);
 
         // Closing the message resumes the item pickup that opened it.
-        // Varia/Gravity immediately call their shared setup; for other items the
-        // rest of the pickup already ran when the box opened.
+        // Closing a suit's message starts its transformation; other items finished their pickup when the box opened.
         if (outcome is MessageBoxOutcome.SuitTransformation suit)
         {
             room.Enemies.Elevator.ResetStatus();
@@ -147,9 +135,9 @@ internal sealed class MessageBoxFlow
     /// opening, and a YES saves at the gunship.
     /// </summary>
     /// <returns>The save at the gunship a YES completed; null for a NO.</returns>
-    private SaveStationPersistenceRequest? ResolveGunshipSaveAnswer(RoomScope room, SaveChoice choice)
+    private SaveStationPersistenceRequest? ResolveGunshipSaveAnswer(GunshipSavePrompt prompt, SaveChoice choice)
     {
-        room.Enemies.Gunship.AnswerSavePrompt();
+        prompt.Answer();
         // Message-box updates do not publish the ordinary enemy sound list, so the pad's sound goes with the box's.
         _sounds.Add(new SoundRequest(RoomSound.GunshipPadOpening, SoundRequestPriority.Normal));
         if (choice != SaveChoice.Yes)

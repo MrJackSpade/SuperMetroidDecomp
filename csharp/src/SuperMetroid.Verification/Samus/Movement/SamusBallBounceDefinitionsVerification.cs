@@ -13,8 +13,8 @@ internal static class SamusBallBounceDefinitionsVerification
     /// <summary>Exercises signed landing speed, bounce phase, facing, and spring-ball branches while guarding physics ROM reads.</summary>
     internal static void VerifySamusBallBounceDefinitions(CartridgeImportAddressSpace rom)
     {
-        ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSpeed);
-        ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSubspeed);
+        ushort whole = rom.ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSpeed);
+        ushort fraction = rom.ReadCartridgeWord(SamusMovementDefinitionsVerticalMotionConstants.BallBounceSubspeed);
         AssertEqual(whole, SamusVerticalMotionDefinitions.BallBounceSpeed.Whole, "Native ball rebound whole definition");
         AssertEqual(fraction, SamusVerticalMotionDefinitions.BallBounceSpeed.Fraction, "Native ball rebound fraction definition");
         int cases = 0;
@@ -27,36 +27,36 @@ internal static class SamusBallBounceDefinitionsVerification
             SamusPoseId groundedPose = spring
                 ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
                 : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
-            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+            var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(pose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             for (int phase = 0; phase < 3; phase++)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                samus.Pose = pose;
+                samus.ChangePoseKeepingAnimation(pose);
                 samus.MorphBallBounceState = phase switch
                 {
-                    0 => SamusBallBounceState.None,
-                    1 => spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound,
-                    _ => spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound,
+                    0 => null,
+                    1 => spring ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst,
+                    _ => spring ? SamusBallBounce.SpringBallSecond : SamusBallBounce.MorphBallSecond,
                 };
                 samus.Kinematics.VerticalVelocity = SamusVerticalVelocityConstants.Of(new UnsignedSixteenSixteen((ushort)raw, ushort.MaxValue), SamusVerticalDirection.Down);
                 samus.HorizontalSpeed.BaseSpeed = new UnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
-                bool grounded = spring
-                    ? SamusPosturePoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0)
-                    : SamusPosturePoseTransitions.ApplyMorphBallLanding(samus);
+                if (spring)
+                    SamusPosturePoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0);
+                else
+                    SamusPosturePoseTransitions.ApplyMorphBallLanding(samus);
                 bool first = phase == 0 && unchecked((short)(raw - 3)) >= 0;
                 bool rebound = first || phase == 1;
-                AssertEqual(!rebound, grounded, "Native rebound versus grounded return");
                 AssertEqual(rebound ? (ushort)(first ? whole : whole - 1) : (ushort)0,
                     samus.Kinematics.VerticalVelocity.Speed.Whole, "Native rebound whole decrement");
                 AssertEqual(rebound ? fraction : (ushort)0, samus.Kinematics.VerticalVelocity.Speed.Fraction, "Native rebound fraction");
                 AssertEqual(rebound ? SamusVerticalDirection.Up : SamusVerticalDirection.None, samus.Kinematics.VerticalVelocity.Direction, "Native rebound direction");
-                SamusBallBounceState published = !rebound ? SamusBallBounceState.None
+                SamusBallBounce? published = !rebound ? null
                     : first
-                        ? spring ? SamusBallBounceState.SpringBallFirstRebound : SamusBallBounceState.FirstRebound
-                        : spring ? SamusBallBounceState.SpringBallSecondRebound : SamusBallBounceState.SecondRebound;
+                        ? spring ? SamusBallBounce.SpringBallFirst : SamusBallBounce.MorphBallFirst
+                        : spring ? SamusBallBounce.SpringBallSecond : SamusBallBounce.MorphBallSecond;
                 AssertEqual(published, samus.MorphBallBounceState, "Native ball family/phase publication");
                 AssertEqual(rebound ? pose : groundedPose, samus.Pose, "Rebound retains airborne pose until grounded");
                 AssertEqual(rebound ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseSpeed.RawValue,

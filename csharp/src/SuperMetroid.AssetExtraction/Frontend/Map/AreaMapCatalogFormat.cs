@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>On-disk names and manifest bounds for seven area maps and their shared presentation resources.</summary>
-public static class AreaMapCatalogFormat
+public static partial class AreaMapCatalogFormat
 {
     /// <summary>
     /// Supported extracted map-catalog schema version; other manifest versions are rejected. 82 installs no colour document
@@ -25,14 +25,12 @@ public static class AreaMapCatalogFormat
     /// the import's read opens it (#1693).
     /// </summary>
     public const string ManifestFile = "manifest.json";
-    /// <summary>Builds the extracted JSON filename from a validated retail area identity using its lowercase enum name.</summary>
+    /// <summary>Builds the extracted JSON filename from a validated retail area identity: its installed key in lower case.</summary>
     /// <param name="area">One of the seven retail area identities.</param>
-    /// <returns>The area's lowercase name followed by <c>.json</c>, without a directory.</returns>
+    /// <returns>The area's installed key in lower case followed by <c>.json</c>, without a directory.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The value is not a retail area identity.</exception>
-    [InstalledKey]
     public static string FileName(AreaId area)
     {
-        _ = AreaIds.Require(area);
         return AreaIdKeys.Installed.Of(area).ToLowerInvariant() + ".json";
     }
 }

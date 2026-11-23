@@ -6,7 +6,7 @@ using SuperMetroid.Core.Earthquakes;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>What Maridia's n00b tube does: what wakes it, the block it occupies, its sounds, its earthquake and its debris counts.</summary>
-public static class NoobTubeObjectDefinitions
+public static partial class NoobTubeObjectDefinitions
 {
     /// <summary>The newly pressed actions that wake the tube once it is cracked: Dash, item cancel, Left, Right, Jump and Shoot.</summary>
     public const GameplayAction AcceptedWakeInputMask =
@@ -26,7 +26,7 @@ public static class NoobTubeObjectDefinitions
 
     /// <summary>The light diagonal earthquake, shaking both layers, the break starts.</summary>
     public static readonly EarthquakeShake Earthquake =
-        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.ForegroundAndBackground);
+        new EarthquakeShake(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocksAndScenery);
 
     /// <summary>How long the break's earthquake lasts, in frames.</summary>
     public const int EarthquakeFrames = 64;

@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// (<see cref="ImportIntroCinematicArtwork.FlightPalette"/>); the game keeps their backdrop, which the opening's backdrop
 /// document names (#1544).
 /// </summary>
-public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
+public sealed partial class CeresFlightCharacters : CeresFlightSourceArtwork
 {
     /// <summary>Retains compiled characters and maps with the installed documents they are drawn by.</summary>
     /// <param name="floorCharacters">The chunky Mode 7 floor characters.</param>
@@ -37,14 +37,6 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
 
     /// <summary>Front 768 map bytes followed by rear 768 map bytes, which the import pictures into the flight's floors (#1467).</summary>
     public ReadOnlyMemory<byte> FloorMaps { get; }
-
-    /// <summary>Identity of the installed documents and of the maps and compositions the flight sheets are composed from.</summary>
-    public override string ContentIdentity => SelectedPresentationHash.Create("CeresFlightImportArtwork-v2", content =>
-    {
-        content.Append("documents", Convert.FromHexString(base.ContentIdentity));
-        content.Append("mode7-maps", FloorMaps.Span);
-        content.Append("sprites", Convert.FromHexString(Sprites.ContentIdentity));
-    });
 
 
     /// <summary>Owned $4000-byte stream of 256 chunky 8-bpp Mode-7 characters, imported from <c>Tiles_Gunship_Ceres_Mode7</c> at <c>$95:A82F</c>; also reused by the ending flyaway.</summary>
@@ -117,7 +109,7 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
     public static void WriteMap(Stream json, CeresFlightMapDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightMapDocument>(ArtworkJson.Options)));
     }
 
     /// <summary>Requires two complete 32-by-24 tile-index views before compiling their upload bytes.</summary>
@@ -126,8 +118,7 @@ public sealed class CeresFlightCharacters : CeresFlightSourceArtwork
         CeresFlightMapDocument document;
         try
         {
-            document = JsonSerializer.Deserialize<CeresFlightMapDocument>(json,
-                ArtworkJson.Options)
+            document = JsonSerializer.Deserialize<CeresFlightMapDocument>(json, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Areas.Ceres.CeresFlightMapDocument>(ArtworkJson.Options))
                 ?? throw new InvalidDataException("Ceres flight Mode-7 map JSON is null.");
         }
         catch (JsonException error)

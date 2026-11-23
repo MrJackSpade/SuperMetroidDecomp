@@ -10,8 +10,8 @@ static const uint OpXrayRoom = 14;
 cbuffer TileParameters : register(b0)
 {
     // LayerWindowed marks a layer pass drawn only within its window (#1514), whose shapes WindowShapes holds. DrawnDepth
-    // is the depth of what a pass draws (#1514, #1634): zero for everything; for a sprite insertion, one more than the depth
-    // whose sprites it inserts; for a layer pass, which of its pictures' parts it draws (DrawsBehindPart or
+    // is the depth of what a pass draws (#1514, #1634): zero for everything; for a sprite insertion, a bit for each depth
+    // whose sprites it inserts (#2583); for a layer pass, which of its pictures' parts it draws (DrawsBehindPart or
     // DrawsInFrontPart).
     uint Operation, TableWord, LayerWindowed, HorizontalScroll;
     uint VerticalScroll, Reserved5, Reserved6, DrawnDepth;
@@ -96,6 +96,8 @@ static const uint FloorSheetShift = 20;
 static const uint FloorBlendsNot = 0, FloorSubtractsSprites = 1, FloorAddsOwnColour = 2;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> SpriteLayer : register(u1);
+// The translucent sprite layer (#2642): as the sprite layer, for the draws shown at half strength.
+RWTexture2D<uint2> TranslucentLayer : register(u2);
 
 // Where `v` lands within a span that repeats every `period` pixels, for any `v`; only unsigned remainders are taken, as
 // HLSL leaves a negative remainder undefined.
@@ -729,7 +731,7 @@ void Main(uint3 id : SV_DispatchThreadID)
     {
         bool blends;
         uint2 winner = SpriteAt(id.xy, blends);
-        if (winner.y != NoSprite && (DrawnDepth == 0 || DrawnDepth - 1 == winner.y))
+        if (winner.y != NoSprite && (DrawnDepth == 0 || ((DrawnDepth >> winner.y) & 1) != 0))
         {
             // AddR makes the sprites glow, adding each one's colour to the screen's; AddG tints the sprites that blend by
         // AddB's five-bit colour. The sums are of five-bit channels, before brightness (#1514).
@@ -745,6 +747,14 @@ void Main(uint3 id : SV_DispatchThreadID)
                 Output[id.xy] = blends ? Pack((color << 3) | (color >> 2), 255) : winner.x;
             }
             else Output[id.xy] = winner.x;
+        }
+        // A translucent draw at a depth this pass inserts shows at half strength over what the screen holds there by now,
+        // the room behind it and the opaque sprites at its depth among it (#2642).
+        uint2 glass = TranslucentLayer[id.xy];
+        if (glass.y != NoSprite && (DrawnDepth == 0 || ((DrawnDepth >> (glass.y & 3)) & 1) != 0))
+        {
+            uint3 mixed = (Unpack(Output[id.xy]) + Unpack(glass.x) + 1) / 2;
+            Output[id.xy] = Pack(mixed, 255);
         }
         return;
     }

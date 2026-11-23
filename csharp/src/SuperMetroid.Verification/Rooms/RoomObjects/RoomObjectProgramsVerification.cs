@@ -28,7 +28,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyNoobTubePrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, TerrainChangeFrame frame, string at)
@@ -64,7 +64,7 @@ internal static class RoomObjectProgramsVerification
         for (int index = 0; index < NoobTubeObjectDefinitions.Cracking.Count; index++, cursor += 4)
             AssertShown(cursor, NoobTubeObjectDefinitions.Cracking[index], $"cracking image {index}");
         AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), "the tube shatters with its sound");
-        AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "tube break sound");
+        AssertEqual(NoobTubeObjectDefinitions.BreakSound, SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), "tube break sound");
         AssertEqual(SoundRequestPriority.Normal, NoobTubeObjectDefinitions.BreakSoundPriority, "tube break sound priority");
         AssertEqual(RoomObjectInstruction.SpawnNoobTubeShardsAndBubbles, At(cursor + 3), "the tube throws its shards and bubbles");
         AssertEqual(RoomObjectInstruction.TriggerNoobTubeEarthquake, At(cursor + 5), "the tube shakes the room");
@@ -83,7 +83,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifySpeedBoosterEscapePrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         SpeedBoosterEscapePhase[] waits =
             [SpeedBoosterEscapePhase.WaitingForSpeedBooster, SpeedBoosterEscapePhase.WaitingForSamusLeft, SpeedBoosterEscapePhase.AdvancingLava];
         for (int index = 0; index < waits.Length; index++)
@@ -105,20 +105,20 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyBlockReactionPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int frames = 0;
-        foreach ((BlockReactionChange change, ushort entry) in BlockReactionEntries)
-            frames += CompareBlockReaction(cartridge, change, entry, change == BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock);
+        foreach ((object change, ushort entry) in BlockReactionEntries)
+            frames += CompareBlockReaction(cartridge, ImagesOf(change), entry, ReferenceEquals(change, BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock));
         Console.WriteLine($"  Block reactions: {frames} typed images match bank $84.");
     }
 
     /// <summary>The Speed Booster blocks' crumbles play as their native lists do; both restore instructions restore the saved block.</summary>
     internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int frames = 0;
-        foreach ((BlockReactionChange change, ushort entry) in SpeedBoosterBlockEntries)
-            frames += CompareBlockReaction(cartridge, change, entry, restoresGrappleBehaviour: false);
+        foreach ((object change, ushort entry) in SpeedBoosterBlockEntries)
+            frames += CompareBlockReaction(cartridge, ImagesOf(change), entry, restoresGrappleBehaviour: false);
         AssertEqual(SoundRequestPriority.WhenIdle, SpeedBoosterBlockObjectDefinitions.BreakSoundPriority, "speed block break sound priority");
         Console.WriteLine($"  Speed Booster blocks: {frames} typed images match bank $84.");
     }
@@ -127,7 +127,19 @@ internal static class RoomObjectProgramsVerification
     /// Plays the native list at <paramref name="entry"/> beside <paramref name="change"/>, image by image, and returns the
     /// images compared.
     /// </summary>
-    private static int CompareBlockReaction(IImportCartridgeSource cartridge, BlockReactionChange change, ushort entry, bool restoresGrappleBehaviour)
+    /// <summary>
+    /// The images of <paramref name="change"/>, a reaction that saves terrain to restore or one that lasts, as the room's
+    /// block reactions show them.
+    /// </summary>
+    private static IReadOnlyList<BlockReactionFrame> ImagesOf(object change) => change switch
+    {
+        BlockReactionChange saving => saving.Frames,
+        LastingBlockReactionChange lasting => [.. lasting.Frames.Select(frame =>
+            new BlockReactionFrame(frame.Image, frame.Updates, frame.SoundBefore) { SoundPriority = frame.SoundPriority })],
+        _ => throw new ArgumentException($"{change} is no block reaction.", nameof(change)),
+    };
+
+    private static int CompareBlockReaction(IImportCartridgeSource cartridge, IReadOnlyList<BlockReactionFrame> images, ushort entry, bool restoresGrappleBehaviour)
     {
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         int cursor = entry;
@@ -141,9 +153,11 @@ internal static class RoomObjectProgramsVerification
             int word = Word(cursor);
             if (word < 0x8000)
             {
-                AssertTrue(frame < change.Frames.Count, $"{at}: the typed reaction ends before the native list draws");
-                BlockReactionFrame expected = change.Frames[frame];
-                RoomObjectDraw draw = expected.Draw ?? throw new InvalidDataException($"{at}: the native image draws where the typed one restores the block.");
+                AssertTrue(frame < images.Count, $"{at}: the typed reaction ends before the native list draws");
+                BlockReactionFrame expected = images[frame];
+                RoomObjectDraw draw = expected.Image is BlockReactionImage.Drawn drawn
+                    ? drawn.Draw
+                    : throw new InvalidDataException($"{at}: the native image draws where the typed one restores the block.");
                 AssertEqual(expected.Updates, word, $"{at}: updates");
                 AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(draw), (int)Word(cursor + 2), $"{at}: draw");
                 AssertEqual(sound, expected.SoundBefore, $"{at}: sound with the image");
@@ -157,7 +171,7 @@ internal static class RoomObjectProgramsVerification
             RoomObjectInstruction instruction = InstructionAt<RoomObjectInstruction>(cartridge, cursor);
             if (instruction == RoomObjectInstruction.Delete)
             {
-                AssertEqual(change.Frames.Count, frame, $"{at}: the native list ends after the typed images");
+                AssertEqual(images.Count, frame, $"{at}: the native list ends after the typed images");
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound is left for the end");
                 AssertEqual(restoresGrappleBehaviour, grappleRestored, $"{at}: the Grapple behaviour restore");
                 return frame;
@@ -171,7 +185,7 @@ internal static class RoomObjectProgramsVerification
                 or RoomObjectInstruction.QueueSoundLibrary2Maximum6)
             {
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: one sound per image");
-                sound = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
+                sound = SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
                 priority = instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum1Direct ? SoundRequestPriority.WhenIdle
                     : instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low
                     : SoundRequestPriority.Normal;
@@ -180,7 +194,7 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction == RoomObjectInstruction.SetObjectBtsToOne)
             {
-                AssertTrue(restoresGrappleBehaviour && frame < change.Frames.Count && change.Frames[frame].Draw is null,
+                AssertTrue(restoresGrappleBehaviour && frame < images.Count && images[frame].Image is BlockReactionImage.RestoresSavedTerrain,
                     $"{at}: only the respawning Grapple block restores its behaviour, just before its restored block");
                 grappleRestored = true;
                 cursor += 2;
@@ -188,8 +202,8 @@ internal static class RoomObjectProgramsVerification
             }
             if (instruction is RoomObjectInstruction.DrawObjectBlock or RoomObjectInstruction.DrawObjectBlockClone)
             {
-                AssertTrue(frame < change.Frames.Count && change.Frames[frame].Draw is null, $"{at}: the typed image restores the saved block");
-                AssertEqual(1, change.Frames[frame].Updates, $"{at}: the restored block stays one update");
+                AssertTrue(frame < images.Count && images[frame].Image is BlockReactionImage.RestoresSavedTerrain, $"{at}: the typed image restores the saved block");
+                AssertEqual(1, images[frame].Updates, $"{at}: the restored block stays one update");
                 AssertEqual<SoundEffectId?>(null, sound, $"{at}: no sound with the restored block");
                 frame++;
                 cursor += 2;
@@ -209,7 +223,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     private static void VerifyScriptedTerrainChanges(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var changes = new Dictionary<string, TerrainChange>
         {
             [nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube)] = ScriptedTerrainChangeDefinitions.MaridiaElevatube,
@@ -225,7 +239,7 @@ internal static class RoomObjectProgramsVerification
             AssertTrue(!began, $"{name} opens nothing as it starts");
             string ending = string.Join(", ", atEnd.Select(step => step.Effect ?? $"{step.Sound} at {step.Priority}"));
             string expected = name == nameof(ScriptedTerrainChangeDefinitions.CritterWallBreakthrough) ? "critters escaped"
-                : name == nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube) ? $"{(SoundEffectId?)EnemySound.Elevatube} at {SoundRequestPriority.Normal}"
+                : name == nameof(ScriptedTerrainChangeDefinitions.MaridiaElevatube) ? $"{(SoundEffectId?)EnemySoundStop.Elevatube} at {SoundRequestPriority.Normal}"
                 : "";
             AssertEqual(expected, ending, $"{name} acts as it ends exactly as its typed object does");
         }
@@ -239,7 +253,7 @@ internal static class RoomObjectProgramsVerification
         if (instruction is RoomObjectInstruction.QueueSoundLibrary2Maximum3 or RoomObjectInstruction.QueueSoundLibrary2Maximum6)
         {
             step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero,
-                SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Begins: false, Length: 3,
+                SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)), Begins: false, Length: 3,
                 priority: instruction == RoomObjectInstruction.QueueSoundLibrary2Maximum3 ? SoundRequestPriority.Low : SoundRequestPriority.Normal);
             return true;
         }
@@ -286,7 +300,7 @@ internal static class RoomObjectProgramsVerification
             ? (gate.Animation.Playback.Place.Beat > 0 ? gate.Animation.Playback.Place.Beat - 1
                 : throw new InvalidDataException($"A moving downward gate in {gate.Phase} ended an update showing no image."))
             : 0;
-        return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame), out ushort address)
+        return downwardGateAddresses.TryGetValue(new GateState(gate.Phase, frame, gate.Resting), out ushort address)
             ? address
             : throw new InvalidDataException($"A downward gate in {gate.Phase} at image {frame} has no native instruction.");
     }
@@ -300,7 +314,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     private static Dictionary<GateState, ushort> DownwardGateAddresses(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, DownwardGateImage image, string at)
@@ -311,7 +325,7 @@ internal static class RoomObjectProgramsVerification
         void AssertMovementSound(int cursor, string at)
         {
             AssertEqual(RoomObjectInstruction.QueueSoundLibrary3Maximum6, At(cursor), $"{at} movement sound");
-            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.Decode(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)),
+            AssertEqual(DownwardGateDefinitions.MovementSound, SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Room, ReadOperandByte(cartridge, cursor + 2)),
                 $"{at} movement sound identity");
             AssertEqual(SoundRequestPriority.Normal, DownwardGateMovementDefinitions.MovementSoundPriority, $"{at} movement sound priority");
         }
@@ -338,51 +352,52 @@ internal static class RoomObjectProgramsVerification
             AssertMovementSound(cursor + 4, at);
             return cursor + 7;
         }
-        int Resting(int list, DownwardGateImage image, DownwardGatePhase showing, DownwardGatePhase resting, Dictionary<GateState, ushort> into)
+        int Resting(int list, DownwardGateImage image, DownwardGatePhase standing, Dictionary<GateState, ushort> into)
         {
-            AssertEqual(DownwardGateMovement.None, image.Starts, $"{showing} starts no movement");
-            AssertShown(list, image, $"{showing}");
-            AssertEqual(RoomObjectInstruction.ClearDownwardGateTrigger, At(list + 4), $"{resting} clears the trigger");
-            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list + 6), $"{resting} arms its wake");
-            AssertEqual(resting, RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(Word(list + 8), "downward gate wake"), $"{resting} wake");
-            AssertEqual(RoomObjectInstruction.Sleep, At(list + 10), $"{resting} sleeps");
-            into[new GateState(showing, 0)] = checked((ushort)(list + 4));
-            into[new GateState(resting, 0)] = checked((ushort)(list + 10));
+            AssertEqual(DownwardGateMovement.None, image.Starts, $"{standing} starts no movement");
+            AssertShown(list, image, $"{standing}");
+            AssertEqual(RoomObjectInstruction.ClearDownwardGateTrigger, At(list + 4), $"resting {standing} clears the trigger");
+            AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list + 6), $"resting {standing} arms its wake");
+            AssertEqual(standing, RoomObjectFrameBehaviorNativeWords.DownwardGate.Decode(Word(list + 8), "downward gate wake"), $"resting {standing} wake");
+            AssertEqual(RoomObjectInstruction.Sleep, At(list + 10), $"resting {standing} sleeps");
+            into[new GateState(standing, 0, Resting: false)] = checked((ushort)(list + 4));
+            into[new GateState(standing, 0, Resting: true)] = checked((ushort)(list + 10));
             return list + 12;
         }
 
         var addresses = new Dictionary<GateState, ushort>();
         int closed = Word(RoomObjectNativeWords.Word(RoomObjectKind.DownwardGate) + 2);
-        addresses[new GateState(DownwardGatePhase.Starting, 0)] = checked((ushort)closed);
-        int cursor = Resting(closed, DownwardGateMovementDefinitions.Closed, DownwardGatePhase.ShowingClosed, DownwardGatePhase.RestingClosed, addresses);
+        addresses[new GateState(DownwardGatePhase.Starting, 0, Resting: false)] = checked((ushort)closed);
+        int cursor = Resting(closed, DownwardGateMovementDefinitions.Closed, DownwardGatePhase.Closed, addresses);
         for (int index = 0; index < DownwardGateMovementDefinitions.Reopening.Count; index++, cursor += 4)
         {
             cursor = Starting(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
             AssertShown(cursor, DownwardGateMovementDefinitions.Reopening[index], $"reopening image {index}");
-            addresses[new GateState(DownwardGatePhase.Reopening, index)] = checked((ushort)(cursor + 4));
+            addresses[new GateState(DownwardGatePhase.Reopening, index, Resting: false)] = checked((ushort)(cursor + 4));
         }
         AssertEqual(RoomObjectInstruction.Goto, At(cursor), "reopening goes on to the open gate");
         int open = Word(cursor + 2);
-        cursor = Resting(open, DownwardGateMovementDefinitions.Open, DownwardGatePhase.ShowingOpen, DownwardGatePhase.RestingOpen, addresses);
+        cursor = Resting(open, DownwardGateMovementDefinitions.Open, DownwardGatePhase.Open, addresses);
         for (int index = 0; index < DownwardGateMovementDefinitions.Closing.Count; index++, cursor += 4)
         {
             cursor = Starting(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
             AssertShown(cursor, DownwardGateMovementDefinitions.Closing[index], $"closing image {index}");
-            addresses[new GateState(DownwardGatePhase.Closing, index)] = checked((ushort)(cursor + 4));
+            addresses[new GateState(DownwardGatePhase.Closing, index, Resting: false)] = checked((ushort)(cursor + 4));
         }
         AssertEqual(closed, cursor, "closing runs on into the closed gate");
         return addresses;
     }
 
-    /// <summary>A typed gate state: its phase and, while it moves, the image it shows.</summary>
+    /// <summary>A typed gate state: its phase, while it moves the image it shows, and whether it rests.</summary>
     /// <param name="Phase">The gate's phase.</param>
     /// <param name="Frame">The image of its movement, or zero at rest.</param>
-    private readonly record struct GateState(DownwardGatePhase Phase, int Frame);
+    /// <param name="Resting">Whether the gate rests as the closed or open gate it shows.</param>
+    private readonly record struct GateState(DownwardGatePhase Phase, int Frame, bool Resting);
 
     /// <summary>The Tourian elevator access changes play as their native lists do.</summary>
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<TourianAccessFloor>().Length, TourianAccessEntries.Count, "every Tourian access floor has a native list");
         int frames = 0;
         foreach ((TourianAccessFloor floor, ushort entry) in TourianAccessEntries)
@@ -404,7 +419,7 @@ internal static class RoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyWreckedShipAtticPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(RoomObjectInstruction.InstallFrameBehavior, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList), "attic installs its routine");
         AssertEqual(WreckedShipAtticObjectRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (WreckedShipAtticList + 2)), "attic pre-instruction");
         AssertEqual(RoomObjectInstruction.Sleep, InstructionAt<RoomObjectInstruction>(cartridge, WreckedShipAtticList + 4), "attic sleeps for good");
@@ -414,28 +429,28 @@ internal static class RoomObjectProgramsVerification
     /// <summary>The blue caps play as their native lists do (#1554).</summary>
     internal static void VerifyBlueDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareBlueCaps(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareBlueCaps(rom);
         Console.WriteLine($"  Blue door caps: {images} typed images match bank $84.");
     }
 
     /// <summary>Every coloured cap plays, counts its hits and takes its shot as its native lists do (#1554).</summary>
     internal static void VerifyColoredDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareColoredCaps(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareColoredCaps(rom);
         Console.WriteLine($"  Coloured door caps: {images} typed images match bank $84.");
     }
 
     /// <summary>Every grey cap, Bomb Torizo's included, plays and counts its hit as its native lists do (#1554).</summary>
     internal static void VerifyGreyDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareGreyCaps(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareGreyCaps(rom);
         Console.WriteLine($"  Grey door caps: {images} typed images match bank $84.");
     }
 
     /// <summary>Every eye door's eye, body and bottom, both facings, play as their native lists do (#1554).</summary>
     internal static void VerifyEyeDoorPrograms(ISnesAddressSpace rom)
     {
-        int images = DoorObjectNativeProgramOracle.CompareEyeDoors(CartridgeImportSource.Require(rom));
+        int images = DoorObjectNativeProgramOracle.CompareEyeDoors(rom);
         Console.WriteLine($"  Eye doors: {images} typed images match bank $84.");
     }
 
@@ -448,7 +463,7 @@ internal static class RoomObjectProgramsVerification
     internal static void VerifySamusEaterList(ISnesAddressSpace rom, int list, SamusEaterObjectDefinition plant)
     {
         ArgumentNullException.ThrowIfNull(plant);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, SamusEaterDraw image, int updates, string at)
@@ -457,7 +472,7 @@ internal static class RoomObjectProgramsVerification
             AssertEqual(SuperMetroid.AssetExtraction.Rooms.RoomObjectDrawAddressCodec.Of(SamusEaterObjectDraws.Family.Of(image)), (int)Word(cursor + 2), $"{at} image");
         }
 
-        string plantName = plant.Ceiling ? "ceiling plant" : "floor plant";
+        string plantName = plant.Side == VerticalDirection.Up ? "ceiling plant" : "floor plant";
         AssertEqual(RoomObjectInstruction.InstallFrameBehavior, At(list), $"{plantName} first holds Samus");
         AssertEqual(SamusEaterObjectDefinitionsConstants.HoldFrameBehavior, Word(list + 2), $"{plantName} hold");
         AssertEqual(RoomObjectInstruction.SetEightBitTimer, At(list + 4), $"{plantName} counts its chews");
@@ -471,7 +486,7 @@ internal static class RoomObjectProgramsVerification
             if (frame.BiteBefore == SamusEaterBite.SoundAndDamage)
             {
                 AssertEqual(RoomObjectInstruction.QueueSoundLibrary2Maximum6, At(cursor), $"{at} chew sound");
-                AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
+                AssertEqual(SamusEaterObjectDefinitions.ChewSound, SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2)),
                     $"{at} chew sound identity");
                 AssertEqual(SoundRequestPriority.Normal, SamusEaterObjectDefinitions.ChewSoundPriority, $"{at} chew sound priority");
                 cursor += 3;

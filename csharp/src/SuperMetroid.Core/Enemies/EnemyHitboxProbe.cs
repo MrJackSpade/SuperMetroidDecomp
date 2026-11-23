@@ -20,8 +20,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Top">The target's top edge, which may lie above the room.</param>
 /// <param name="Right">The target's right edge.</param>
 /// <param name="Bottom">The target's bottom edge.</param>
-/// <param name="SelectsShot">Whether the test selects the shot reaction with strict edges, rather than the touch reaction with inclusive ones.</param>
-internal readonly record struct EnemyHitboxProbe(int Left, int Top, int Right, int Bottom, bool SelectsShot)
+/// <param name="Contact">The contact the test selects (#2560): the shot reaction with strict edges, or the touch reaction with inclusive ones.</param>
+internal readonly partial record struct EnemyHitboxProbe(int Left, int Top, int Right, int Bottom, HitboxContactKind Contact)
 {
     /// <summary>
     /// The edges of a target at <paramref name="position"/> reaching <paramref name="radius"/> each way, for the
@@ -33,7 +33,7 @@ internal readonly record struct EnemyHitboxProbe(int Left, int Top, int Right, i
             Top: position.Y - radius.Y,
             Right: position.X + radius.X,
             Bottom: position.Y + radius.Y,
-            SelectsShot: contactKind == HitboxContactKind.Shot);
+            Contact: contactKind);
 
     /// <summary>
     /// The shared frame-hitbox rectangle test. Shots and touch meet the rectangle's edges differently in the game:
@@ -42,7 +42,7 @@ internal readonly record struct EnemyHitboxProbe(int Left, int Top, int Right, i
     /// remarks name.
     /// </summary>
     internal bool Overlaps(int left, int top, int right, int bottom) =>
-        SelectsShot
+        Contact == HitboxContactKind.Shot
             ? !DistanceAcrossRoomEdge.LiesBefore(Right, left) &&
               DistanceAcrossRoomEdge.LiesBefore(Left, right) &&
               !DistanceAcrossRoomEdge.LiesBefore(Bottom, top) &&

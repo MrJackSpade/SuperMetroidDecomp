@@ -1,32 +1,31 @@
-using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>
-/// The factory for Lower Norfair Ridley, Ceres Ridley and the breakup explosion actor. Each Ridley body runs its own
-/// encounter over the parts of his body both share (#2229).
+/// The factory for Lower Norfair Ridley and the breakup explosion actor. Each Ridley body runs its own encounter over the
+/// parts of his body both share (#2229); Ceres Ridley has his own factory, which only a room with a warning picture sheet
+/// builds (<see cref="CeresRidleyEntityFactory"/>).
 /// </summary>
 /// <param name="norfair">Lower Norfair Ridley's encounter behaviour.</param>
-/// <param name="ceres">Ceres Ridley's encounter behaviour.</param>
-/// <param name="escape">The station's escape progress, which ends Ceres Ridley's touch and drawing.</param>
-internal sealed class RidleyEntityFactory(NorfairRidleyBehavior norfair, CeresRidleyBehavior ceres, ICeresEscapeStatus escape) : IEnemyEntityFactory
+internal sealed partial class RidleyEntityFactory(NorfairRidleyBehavior norfair) : IEnemyEntityFactory
 {
-    /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-        [EnemyDefinitionId.Ridley, EnemyDefinitionId.RidleyCeres, EnemyDefinitionId.RidleyBreakupPiece];
+    /// <summary>Lower Norfair Ridley's encounter behaviour.</summary>
+    internal NorfairRidleyBehavior Norfair { get; } = norfair;
 
-    /// <summary>Lower Norfair Ridley, Ceres Ridley, or a piece of the breakup explosion (#2146).</summary>
-    /// <exception cref="InvalidOperationException">The place holds no Ridley definition.</exception>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common)
+    /// <summary>
+    /// Lower Norfair Ridley, built the same way wherever he is set up; the pieces of the breakup explosion are only spawned
+    /// joining the breakup, by Ridley's death (<see cref="NorfairRidleyDeath"/>).
+    /// </summary>
+    /// <param name="registrar">The room's registry being composed.</param>
+    public void OfferCreations(EnemySpeciesRegistrar registrar)
     {
-        EnemyDefinitionId definition = Ensure.NotNull(place).DefinitionId;
-        if (definition == EnemyDefinitionId.Ridley)
-            return new NorfairRidleyEntity(norfair, place, common);
-        if (definition == EnemyDefinitionId.RidleyCeres)
-            return new CeresRidleyEntity(ceres, escape, place, common);
-        if (definition == EnemyDefinitionId.RidleyBreakupPiece)
-            return new RidleyBreakupPieceEntity(norfair, place, common);
-        throw new InvalidOperationException($"The Ridley factory creates no {place.DefinitionId}.");
+        Ensure.NotNull(registrar).Spawns<EnemySpawnSettings>([EnemyDefinitionId.Ridley], CreateRidley);
+        registrar.Joins([EnemyDefinitionId.RidleyBreakupPiece]);
     }
+
+    /// <summary>Lower Norfair Ridley.</summary>
+    private EnemyOccupant CreateRidley(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) =>
+        EnemyOccupant.Running(new NorfairRidleyEntity(Norfair, occupant, place, common));
 }

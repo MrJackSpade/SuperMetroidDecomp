@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -6,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports the ten authored Hyper Beam palettes without exposing phase logic.</summary>
-public static class SamusHyperBeamColorExtractor
+public static partial class SamusHyperBeamColorExtractor
 {
     /// <summary>Exports the ten full-body Hyper Beam palette images in the compiled frame-selection order.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$9B rows descending from $A360 in $20-byte steps.</param>
@@ -21,18 +23,13 @@ public static class SamusHyperBeamColorExtractor
         for (int frame = 0; frame < frames.Length; frame++)
         {
             int address = SamusSourceDefinitions.HyperBeamPalettes.Value - frame * SamusSourceDefinitions.HyperBeamPaletteStride;
-            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address,
+            byte[] source = RomDataReader.ReadFixedBank(bus, address,
                 SamusHyperBeamColorFormat.ColorsPerFrame * sizeof(ushort));
             frames[frame] = new PaletteRgb5[SamusHyperBeamColorFormat.ColorsPerFrame];
             for (int index = 0; index < frames[frame].Length; index++)
             {
                 int word = unchecked(LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]));
-                frames[frame][index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = (word >> 5) & 31,
-                    Blue = (word >> 10) & 31,
-                };
+                frames[frame][index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
         }
         return SamusHyperBeamColorFile.Write(new SamusHyperBeamColorDocument

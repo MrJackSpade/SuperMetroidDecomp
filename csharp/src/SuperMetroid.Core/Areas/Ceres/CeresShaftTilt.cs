@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </summary>
 /// <remarks>
 /// The step is a 256th of a radian, not a 256th of a turn (the unit of <see cref="RotationAngle"/>): the shaft's turn
-/// shows each tilt as the turn whose sine is its steps in 256ths, so the full tilt of 34 steps leans the shaft about
-/// seven and a half degrees.
+/// shows each tilt as the turn whose sine is its steps in 256ths, so the full tilt (<see cref="FullTiltSteps"/>) leans
+/// the shaft only a few degrees.
 /// </remarks>
-public readonly record struct CeresShaftTilt
+public readonly partial record struct CeresShaftTilt
 {
     /// <summary>Holds a tilt of <paramref name="stepsFromLevel"/>, within the shaft's full tilt either way.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="stepsFromLevel"/> lies past the shaft's full tilt.</exception>
@@ -28,11 +28,11 @@ public readonly record struct CeresShaftTilt
     /// <summary>The shaft's full anticlockwise tilt, where its backward sweep turns forward again.</summary>
     public static CeresShaftTilt FullAnticlockwise { get; } = new(-FullTiltSteps);
 
-    /// <summary>The steps from level, clockwise positive: -34 through 34.</summary>
-    public int StepsFromLevel { get; }
+    /// <summary>The steps from level, clockwise positive, at most <see cref="FullTiltSteps"/> either way.</summary>
+    internal int StepsFromLevel { get; }
 
     /// <summary>
-    /// The steps from the full anticlockwise tilt, 0 through 68: the place in the shaft's turn the following room's main
+    /// The steps from the full anticlockwise tilt, up to the full clockwise one: the place in the shaft's turn the following room's main
     /// inherits (<see cref="ShaftTurnSetsDebrisWait"/>).
     /// </summary>
     public int StepsFromFullAnticlockwise => StepsFromLevel + FullTiltSteps;

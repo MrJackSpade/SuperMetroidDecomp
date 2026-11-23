@@ -327,12 +327,18 @@ internal static class DoorDefinitionsAccess
     {
         /// <summary>The word the cartridge's door list stores for this entry's physical door, or null for the elevator ride.</summary>
         internal ushort? Pointer => self.Door is { } door ? DoorHeaderSourcesConstants.PointerOf(door) : null;
+
+        /// <summary>The physical door the entry leads through, which a check reads; null for the elevator ride.</summary>
+        internal DoorDefinition? Door => self is DoorBlockExit.ThroughDoor { Door: var door } ? door : null;
     }
 
     /// <summary>
-    /// The physical door a cartridge door-list word names, or null for either of the two addresses the cartridge keeps the
-    /// elevator ride at, which are one entry.
+    /// The physical door a cartridge door-list word names, by the record that names it (the first, for the door the
+    /// cartridge stores twice, #2574), or null for either of the two addresses the cartridge keeps the elevator ride at,
+    /// which are one entry.
     /// </summary>
     internal static ushort? DoorPointerOf(ushort listWord) =>
-        listWord is SharedElevatorRidePointer or MaridiaTourianElevatorRidePointer ? null : listWord;
+        listWord is SharedElevatorRidePointer or MaridiaTourianElevatorRidePointer
+            ? null
+            : DoorHeaderSourcesConstants.PointerOf(DoorHeaderSources.Door(listWord));
 }

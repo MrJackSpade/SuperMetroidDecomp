@@ -19,12 +19,12 @@ internal static class WaterfallRoomsVerification
     /// <summary>Loads both reported rooms, confirms native TM/TS/CGADSUB values, and checks BG2 joins the subscreen without a second overlay.</summary>
     internal static void VerifyWaterfallRooms()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         foreach (ushort room in new ushort[] { 0xd72a, 0xd913 })
         {
@@ -40,9 +40,8 @@ internal static class WaterfallRoomsVerification
             var math = snapshot.Layers[0] as GameplayBlendLayer
                 ?? throw new InvalidDataException("Waterfall room still captures an ordinary opaque background.");
             AssertTrue(math.BackgroundBehind && math.OverlayBehind is not null, "the waterfall's background and liquid lie behind what it blends");
-            AssertEqual(BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop, math.Blend.Blended,
-                "the waterfall darkens the foreground, the actors and the backdrop");
-            AssertTrue(math.Blend.Operation == BlendOperation.Subtract && !math.Blend.Halved, "the waterfall subtracts unhalved");
+            AssertTrue(math.Blend is EffectBehindRoomBlend { Effect: { Blended: BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop, Operation: BlendOperation.Subtract } },
+                "the waterfall lying behind the room darkens the foreground, the actors and the backdrop");
             AssertEqual(ScreenLayers.Foreground | ScreenLayers.Sprites,
                 math.Gameplay.View.ShownLayers, "the waterfall shows its background only through its blend");
             AssertTrue(!snapshot.Layers.Any(layer => layer is OverlayBlendLayer),

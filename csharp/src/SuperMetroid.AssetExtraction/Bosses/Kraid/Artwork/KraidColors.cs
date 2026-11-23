@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Compatibility;
@@ -5,7 +6,7 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 /// <summary>Reads Kraid's installed colour sources: one colour of a named source, and the identity of all five.</summary>
-internal static class KraidColors
+internal static partial class KraidColors
 {
     /// <summary>
     /// Selects one of five named editable sources directly. Each source keeps its
@@ -25,12 +26,15 @@ internal static class KraidColors
     /// the health colours hold the hurt flash's colour group and then each band's, the eyes starting at the same colour
     /// of each.
     /// </summary>
-    internal static KraidEyeColours Eyes(KraidColorCatalog colors) =>
-        new(EyeSet(colors, KraidPalettes.HurtFlashBand),
-            KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band, band => (IReadOnlyList<RgbColor>)EyeSet(colors, KraidPalettes.BandOf(band))));
+    internal static KraidEyeColours Eyes(KraidColorCatalog colors)
+    {
+        Dictionary<PictureShade, RgbColor[]> byShade = KraidPalettes.HealthSequence.ToDictionary(band => band.Shade, band => EyeSet(colors, band));
+        return new(byShade[KraidShades.HurtFlash],
+            KraidHealthBandDefinitions.HighestFirst.ToDictionary(band => band, band => (IReadOnlyList<RgbColor>)byShade[KraidShades.Health(band)]));
+    }
 
-    /// <summary>The eyes' colours of the health colours' band <paramref name="band"/>: the hurt flash's or a health band's.</summary>
-    private static RgbColor[] EyeSet(KraidColorCatalog colors, int band) =>
-        [.. Enumerable.Range(KraidPalettes.BandColors * band + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
+    /// <summary>The eyes' colours of the installed health colours' band <paramref name="band"/>.</summary>
+    private static RgbColor[] EyeSet(KraidColorCatalog colors, KraidHealthSequenceBand band) =>
+        [.. Enumerable.Range(band.FirstColour + KraidPalettes.FirstEyeColour, KraidEyeGlow.Eyes)
             .Select(colour => Resolve(colors, KraidPaletteSource.Health, colour))];
 }

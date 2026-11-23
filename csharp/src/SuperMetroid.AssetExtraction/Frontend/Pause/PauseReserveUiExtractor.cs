@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
@@ -7,7 +9,7 @@ using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Pause;
 
 /// <summary>Resolves reserve-screen presentation once without exposing its mode or energy mechanics.</summary>
-public static class PauseReserveUiExtractor
+public static partial class PauseReserveUiExtractor
 {
     /// <summary>Resolves reserve labels, decimal digit cells, arrow positions, palettes, and animation colors into a versioned presentation document.</summary>
     /// <param name="bus">Supported-cartridge address space containing reserve-screen label pointers, tilemaps, and arrow color tables.</param>
@@ -39,8 +41,8 @@ public static class PauseReserveUiExtractor
         for (int frame = 0; frame < frames.Length; frame++)
             frames[frame] = new()
             {
-                Color6 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowFirstColours + frame * 2)),
-                Color11 = Rgb(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveArrowSecondColours + frame * 2)),
+                Shade = Rgb(RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveArrowFirstColours + frame * 2)),
+                Light = Rgb(RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveArrowSecondColours + frame * 2)),
             };
         using var output = new MemoryStream();
         PauseReserveUiFile.Write(output, new()
@@ -53,8 +55,8 @@ public static class PauseReserveUiExtractor
                 Cells = arrowCells,
                 EnabledPalette = PauseReserveUiDefinitions.EnabledPalette,
                 DisabledPalette = PauseReserveUiDefinitions.DisabledPalette,
-                SolidColor6 = PauseReserveUiDefinitions.SolidColor6,
-                SolidColor11 = PauseReserveUiDefinitions.SolidColor11,
+                SolidShade = PauseReserveUiDefinitions.SolidShade,
+                SolidLight = PauseReserveUiDefinitions.SolidLight,
                 Frames = frames,
             },
         });
@@ -62,22 +64,22 @@ public static class PauseReserveUiExtractor
 
         PauseReserveLabelVisual Label(int index, int words)
         {
-            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelPlacements.AddWithinBank(index * 2)) -
+            int destination = RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveLabelPlacements.AddWithinBank(index * 2)) -
                 PauseMenuSourceDefinitions.EquipmentTilemapBase;
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuSourceDefinitions.ReserveLabelSources.AddWithinBank(index * 2));
+            int pointer = RomDataReader.ReadWordFixedBank(bus, PauseMenuSourceDefinitions.ReserveLabelSources.AddWithinBank(index * 2));
             return DirectLabel(CartridgeBankWindow.At(PauseMenuSourceDefinitions.MenuBank, pointer), destination / 2, words);
         }
         PauseReserveLabelVisual DirectLabel(int address, int cell, int words) => new()
         {
             Anchor = Point(cell),
             Cells = Enumerable.Range(0, words).Select(index => PauseTileWords.FromWord(
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * 2), $"Reserve label {address:X6}.{index}")).ToArray(),
+                RomDataReader.ReadWordFixedBank(bus, address + index * 2), $"Reserve label {address:X6}.{index}")).ToArray(),
         };
         static PauseGridPoint Point(int cell) => new()
         {
             Column = cell % PauseReserveUiDefinitions.TilemapColumns,
             Row = cell / PauseReserveUiDefinitions.TilemapColumns,
         };
-        static PaletteRgb5 Rgb(int word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
+        static PaletteRgb5 Rgb(int word) => PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
     }
 }

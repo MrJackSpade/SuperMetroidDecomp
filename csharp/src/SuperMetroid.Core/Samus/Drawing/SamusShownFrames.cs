@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// it, a drawing decision authorised by the owner's ruling on #1513 that every Samus body frame is a whole Samus of its
 /// pose; the animation frame itself, its timing and everything gameplay reads from it stay as the game computes them.
 /// </remarks>
-public sealed class SamusShownFrames
+public sealed partial class SamusShownFrames
 {
     /// <summary>The picture frame each frame each pose shows draws, by pose.</summary>
     private readonly Dictionary<SamusPoseId, IReadOnlyDictionary<SamusAnimationFrame, SamusAnimationFrame>> pictureFrames;

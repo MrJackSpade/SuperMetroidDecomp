@@ -2,7 +2,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Hud;
 
 /// <summary>Explicit inputs consumed while constructing one HUD state.</summary>
-public readonly record struct HudSnapshot(
+public readonly partial record struct HudSnapshot(
     int Health,
     int MaxHealth,
     int Missiles,
@@ -22,7 +22,7 @@ public readonly record struct HudSnapshot(
         samus.MaxSuperMissiles, samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, samus.SelectedHudItem,
         samus.ReserveEnergy, samus.ReserveTankMode);
 
-    /// <summary>The HUD a new game starts with, before any item is collected: 99 energy and no equipment.</summary>
+    /// <summary>The HUD a new game starts with, before any item is collected: its starting energy (<see cref="SamusEnergyDefinitions.StartingEnergy"/>) and no equipment.</summary>
     public static HudSnapshot NewGame => new(
         Health: SamusEnergyDefinitions.StartingEnergy,
         MaxHealth: SamusEnergyDefinitions.StartingEnergy,

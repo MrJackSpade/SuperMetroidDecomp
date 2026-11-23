@@ -4,7 +4,7 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Diagnostics.Configuration;
 
 /// <summary>Strict reader and documented template for the hosts' shared INI options file.</summary>
-public static class HostOptionsIni
+public static partial class HostOptionsIni
 {
     /// <summary>
     /// Documented defaults written when the host has no active <c>SuperMetroid.ini</c>.
@@ -13,17 +13,8 @@ public static class HostOptionsIni
     /// The same tracked INI is embedded here and shipped beside the Windows executable.
     /// Keeping one source prevents the release template and startup defaults from drifting.
     /// </remarks>
-    public static string DefaultFileContents { get; } = ReadDefaultFile();
-
-    /// <summary>Reads the embedded release INI template that supplies startup defaults.</summary>
-    private static string ReadDefaultFile()
-    {
-        using Stream stream = typeof(HostOptionsIni).Assembly.GetManifestResourceStream(
-            "SuperMetroid.defaults.ini")
-            ?? throw new InvalidDataException("The documented default INI resource is missing.");
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
-    }
+    [GeneratedText("SuperMetroid.defaults.ini")]
+    public static partial string DefaultFileContents { get; }
 
     /// <summary>Parses the supported INI surface and rejects misspelled or ambiguous keys.</summary>
     public static HostOptions Parse(
@@ -140,7 +131,7 @@ public static class HostOptionsIni
                     doorTransitionAutosave = ParseBoolean(sourceName, lineNumber, key, value);
                     continue;
                 }
-                if (key.Equals(nameof(SuperMetroidGameOptions.ResetBossesOnLoad), StringComparison.OrdinalIgnoreCase))
+                if (key.Equals("ResetBossesOnLoad", StringComparison.OrdinalIgnoreCase))
                 {
                     if (resetBossesOnLoad.HasValue)
                         throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");

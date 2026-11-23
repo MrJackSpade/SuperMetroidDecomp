@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Menus;
 /// The selection missile file select, options and game over share: the pictures of its roll, each frame's hold being
 /// installed (#1615).
 /// </summary>
-public static class MenuMissileAnimationDefinitions
+public static partial class MenuMissileAnimationDefinitions
 {
     /// <summary>The pictures the missile's roll shows, in order, before it starts its roll again.</summary>
     internal static IReadOnlyList<MenuMissileFrame> Roll { get; } =

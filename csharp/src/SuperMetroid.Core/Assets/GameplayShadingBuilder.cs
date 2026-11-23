@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// asks them, and a door or the death sequence fades the whole display. Later shades win where they recolour the same
 /// inks.
 /// </summary>
-public sealed class GameplayShadingBuilder
+public sealed partial class GameplayShadingBuilder
 {
     /// <summary>Each group's shading so far.</summary>
     private readonly Dictionary<GameplayPictures, PictureShading> shadings =
@@ -18,15 +18,15 @@ public sealed class GameplayShadingBuilder
     private GameplayDisplayFade? fade;
 
     /// <summary>Lays <paramref name="shade"/> over <paramref name="pictures"/>' shades.</summary>
-    public void Shade(GameplayPictures pictures, PictureShade shade) => shadings[Defined(pictures)] = shadings[pictures].With(shade);
+    public void Shade(GameplayPictures pictures, PictureShade shade) => shadings[pictures] = shadings[pictures].With(shade);
 
     /// <summary>Shows <paramref name="fade"/> over <paramref name="pictures"/>' shades, after their fades (#2215).</summary>
     public void Shade(GameplayPictures pictures, PictureShadeFade fade) =>
-        shadings[Defined(pictures)] = shadings[pictures].With(Ensure.NotNull(fade));
+        shadings[pictures] = shadings[pictures].With(Ensure.NotNull(fade));
 
     /// <summary>Applies <paramref name="effect"/> to <paramref name="pictures"/> after their effects.</summary>
     public void Affect(GameplayPictures pictures, ColourEffect effect) =>
-        shadings[Defined(pictures)] = shadings[pictures].With(Ensure.NotNull(effect));
+        shadings[pictures] = shadings[pictures].With(Ensure.NotNull(effect));
 
     /// <summary>Fades the whole display with <paramref name="displayFade"/>: one fade runs at a time.</summary>
     /// <exception cref="InvalidOperationException">Another fade of the display already runs.</exception>
@@ -42,19 +42,13 @@ public sealed class GameplayShadingBuilder
     /// scene's backdrop (#1544), shown under the room's shading and the display's fade: the tileset's backdrop colour, with
     /// what the room's effects make of it.
     /// </summary>
-    /// <param name="roomColours">A picture of the room's tileset, which names its scene's backdrop colour.</param>
-    /// <exception cref="InvalidDataException">The picture names no backdrop colour.</exception>
-    public GameplayShading Build(SpriteImage roomColours)
+    /// <param name="roomColours">A picture of the room's tileset.</param>
+    /// <param name="backdrop">The backdrop colour the picture names for its scene, which its room sheet requires (#2554).</param>
+    public GameplayShading Build(SpriteImage roomColours, ColourKey backdrop)
     {
         Ensure.NotNull(roomColours);
-        ColourKey backdrop = roomColours.Backdrop
-            ?? throw new InvalidDataException($"Room picture {roomColours.Name} names no backdrop colour for its scene.");
         var built = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
-        return built.WithBackdrop(built.Of(GameplayPictures.Room).Shown(roomColours, backdrop));
+        return built.WithBackdrop(new ShownColour.OfPicture(roomColours, backdrop, built.Of(GameplayPictures.Room)));
     }
 
-    /// <summary>Checks that <paramref name="pictures"/> is a group of gameplay pictures.</summary>
-    private static GameplayPictures Defined(GameplayPictures pictures) => Enum.IsDefined(pictures)
-        ? pictures
-        : throw new ArgumentOutOfRangeException(nameof(pictures), pictures, "Undefined group of gameplay pictures.");
 }

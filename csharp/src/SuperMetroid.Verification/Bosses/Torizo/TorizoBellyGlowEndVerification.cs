@@ -30,8 +30,8 @@ internal static class TorizoBellyGlowEndVerification
     internal static void VerifyTorizoBellyGlowEnd()
     {
         VerifyTorizoRooms();
-        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, ColourEffectId.BombTorizoBelly, TorizoVariant.Bomb);
-        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, ColourEffectId.GoldenTorizoBelly, TorizoVariant.Golden);
+        VerifyGlowEnd(EnemyDefinitionId.BombTorizo, TorizoCueKind.StartBombTorizoFight, TorizoBellyGlow.BombTorizo, ColourEffectId.BombTorizoBelly);
+        VerifyGlowEnd(EnemyDefinitionId.GoldenTorizo, TorizoCueKind.StartGoldenTorizoFight, TorizoBellyGlow.GoldenTorizo, ColourEffectId.GoldenTorizoBelly);
         Console.WriteLine("Torizo belly glow: the Bomb and Golden Torizo rooms hold their Torizo alone in the first place, and each glow ends on the update its Torizo has no health left, as the original's first-place test ends it.");
     }
 
@@ -60,26 +60,27 @@ internal static class TorizoBellyGlowEndVerification
     /// <see cref="Updates"/> updates, its health dropping to one and then to zero, and checks each update against the
     /// original's test: the glow runs until the first update the first place's health reads zero, and ends on it.
     /// </summary>
-    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, ColourEffectId glow, TorizoVariant variant)
+    private static void VerifyGlowEnd(EnemyDefinitionId definition, TorizoCueKind fightStart, TorizoBellyGlow bellyGlow, ColourEffectId glow)
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(),
             definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace torizo = enemies.Places.InUpdateOrder[0];
-        torizo.Bind(definition, RoomEnemyDefinitionLookup.Get(definition));
+        // The room's population load places the Torizo alone in its first place and sets it up, building its state.
+        RoomEnemyPlace torizo = enemies.LoadPopulation(PopulationPlacementAccess.Entry(definition))[0];
+        TorizoEntity entity = torizo.EntityOf<TorizoEntity>();
+        TorizoEnemyState state = entity.State;
         torizo.Health = 800;
-        var state = new TorizoEnemyState(variant) { Phase = TorizoPhase.Falling };
-        torizo.SetSpeciesState(state);
+        state.Phase = TorizoPhase.Falling;
         enemies.PassEvents.Begin();
         AssertTrue(enemies.TorizoBehavior.ApplyTorizoCue(
-                torizo, state, new TorizoCueInputs { Torizo = torizo.Entity as ILitTorizo ?? throw new InvalidOperationException($"{definition} binds no Torizo."), Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
+                torizo.HeldOccupant(), torizo, state, new TorizoCueInputs { Torizo = entity, Samus = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.StandaloneSamus(), Level = SuperMetroid.Core.Enemies.RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), ControllerInput = 0, FrameCounter = 0 },
                 new TorizoCue.Signal(fightStart), TorizoAnimations.Start(TorizoAnimation.BombTorizoAwakening)) is null,
             $"{definition}'s fight start plays on");
         TorizoBellyGlowRequest request = enemies.LastEnemyFrame.All<TorizoBellyGlowRequest>().LastOrDefault()
             ?? throw new InvalidOperationException($"{definition}'s fight start asks for no belly glow.");
-        AssertEqual(glow, request.Glow, $"{definition}'s fight start asks for its own belly glow");
+        AssertEqual(bellyGlow, request.Glow, $"{definition}'s fight start asks for its own belly glow");
         AssertTrue(ReferenceEquals(torizo.Entity, request.Torizo), $"{definition}'s glow lights the Torizo whose fight started it");
 
-        var fx = new ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var fx = new global::SuperMetroid.Core.Fx.ColourEffectSystem(new ColourEffectSessionState(), SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         fx.StartTorizoBellyGlow(request.Glow, request.Torizo, equippedItems: 0);
         var conditions = new ColourEffectInputs { Samus = FixtureRoomSamus.Uninstalled, SamusY = 0, EquippedItems = 0, AreaMiniBossDefeated = false };
         bool originalEnded = false;

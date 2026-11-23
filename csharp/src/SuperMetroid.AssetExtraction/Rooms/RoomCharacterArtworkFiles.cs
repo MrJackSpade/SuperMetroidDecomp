@@ -12,10 +12,10 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// The pages are import data (#1636), written to the component's import-data directory and never installed, and so is their
 /// manifest (#1693), which records native transfer lengths and does not expose room mechanics.
 /// </summary>
-public static class RoomCharacterArtworkFiles
+public static partial class RoomCharacterArtworkFiles
 {
     /// <summary>Stock character manifest filename recording cartridge provenance, page hashes, and required native planar transfer lengths.</summary>
-    public const string ManifestFileName = "room-characters.json";
+    internal const string ManifestFileName = "room-characters.json";
     /// <summary>Schema revision required by the room character manifest; 4 installs no character page (#1636), and 5 no manifest (#1693).</summary>
     private const int FormatVersion = 5;
 
@@ -34,17 +34,12 @@ public static class RoomCharacterArtworkFiles
         Directory.CreateDirectory(importData);
 
         IReadOnlyDictionary<string, byte[]> pngs = RoomCharacterAtlasExtractor.Extract(bus);
-        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap tilesets = RoomTilesetSources.Read(bus);
         var entries = new Dictionary<string, RoomCharacterFileEntry>();
         foreach ((string name, RoomCharacterSource source) in ExpectedSources())
         {
             byte[] png = pngs[name];
-            // The ghost sheet is stored uncompressed, so its length is the library background's.
-            int nativeByteCount = source.Set == RoomCharacterSet.TourianStatueGhost
-                ? LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount
-                : RomDataReader.Decompress(CartridgeImportSource.Require(bus), source.Set is { } set
-                    ? tilesets.Characters[set]
-                    : RoomTilesetSourceDefinitions.CreCharacters).Length;
+            int nativeByteCount = source.NativeByteCount(bus, tilesets);
             RoomCharacterAtlasFormat.ValidateTileCount(nativeByteCount);
             using (var output = new FileStream(Path.Combine(importData, name), FileMode.CreateNew, FileAccess.Write))
                 output.Write(png);
@@ -56,7 +51,7 @@ public static class RoomCharacterArtworkFiles
             FormatVersion, sourceCartridgeSha256, entries);
         using var stream = new FileStream(Path.Combine(importData, ManifestFileName),
             FileMode.CreateNew, FileAccess.Write);
-        JsonSerializer.Serialize(stream, manifest, JsonOptions);
+        JsonSerializer.Serialize(stream, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.RoomCharacterFileManifest>(JsonOptions));
     }
 
     /// <summary>
@@ -71,8 +66,7 @@ public static class RoomCharacterArtworkFiles
         RoomCharacterFileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<RoomCharacterFileManifest>(
-                File.ReadAllBytes(manifestPath), JsonOptions)
+            manifest = JsonSerializer.Deserialize<RoomCharacterFileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomCharacterArtworkFiles.RoomCharacterFileManifest>(JsonOptions))
                 ?? throw new InvalidDataException("Room character manifest is empty.");
         }
         catch (JsonException error)
@@ -88,9 +82,16 @@ public static class RoomCharacterArtworkFiles
             sources.Keys.Any(name => !manifest.Entries.ContainsKey(name)))
             throw new InvalidDataException($"Room character manifest {manifestPath} does not describe this installation.");
 
-        RoomCharacterAtlas? cre = null;
         var sheets = new Dictionary<RoomCharacterSet, RoomCharacterAtlas>();
         foreach ((string name, RoomCharacterSource source) in sources)
+        {
+            if (source is RoomCharacterSource.OfSet(RoomCharacterSet set))
+                sheets.Add(set, Atlas(name));
+        }
+        return new RoomCharacterAtlases(Atlas(RoomCharacterSheetFiles.CreFileName), sheets);
+
+        // The page the manifest lists as name, checked against its hash and decoded.
+        RoomCharacterAtlas Atlas(string name)
         {
             RoomCharacterFileEntry entry = manifest.Entries[name];
             RoomCharacterAtlasFormat.ValidateTileCount(entry.NativeByteCount);
@@ -109,11 +110,8 @@ public static class RoomCharacterArtworkFiles
             {
                 throw new InvalidDataException($"Invalid room character PNG {path}: {error.Message}", error);
             }
-            if (source.Set is { } set) sheets.Add(set, atlas);
-            else cre = atlas;
+            return atlas;
         }
-        return new RoomCharacterAtlases(
-            cre ?? throw new InvalidDataException("Room character manifest has no CRE sheet."), sheets);
     }
 
     /// <summary>Maps the CRE, each distinct graphics-set sheet and the ghost sheet by file name to their sheet.</summary>
@@ -121,21 +119,56 @@ public static class RoomCharacterArtworkFiles
     {
         var sources = new Dictionary<string, RoomCharacterSource>
         {
-            [RoomCharacterSheetFiles.CreFileName] = new(null),
+            [RoomCharacterSheetFiles.CreFileName] = new RoomCharacterSource.Common(),
         };
         foreach (TilesetDefinition tileset in RoomTilesets.All)
         {
             RoomCharacterSet set = tileset.Characters;
-            sources[RoomCharacterSheetFiles.FileName(set)] = new(set);
+            sources[RoomCharacterSheetFiles.FileName(set)] = new RoomCharacterSource.OfSet(set);
         }
+        // The ghost sheet is stored uncompressed, so its length is the library background's.
         sources[RoomCharacterSheetFiles.FileName(RoomCharacterSet.TourianStatueGhost)] =
-            new(RoomCharacterSet.TourianStatueGhost);
+            new RoomCharacterSource.UncompressedSet(RoomCharacterSet.TourianStatueGhost, LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
         return sources;
     }
 
-    /// <summary>A character file's sheet: none for the common room elements.</summary>
-    /// <param name="Set">The sheet, or null for the common room elements.</param>
-    private readonly record struct RoomCharacterSource(RoomCharacterSet? Set);
+    /// <summary>A character file's sheet: the common room elements' or a character set's.</summary>
+    private abstract partial record RoomCharacterSource
+    {
+        /// <summary>Only the nested cases derive.</summary>
+        private RoomCharacterSource()
+        {
+        }
+
+        /// <summary>The bytes the sheet's characters occupy in the cartridge, decompressed where the cartridge compresses them.</summary>
+        internal abstract int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets);
+
+        /// <summary>The common room elements' sheet.</summary>
+        internal sealed partial record Common : RoomCharacterSource
+        {
+            /// <inheritdoc/>
+            internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
+                RomDataReader.Decompress(bus, RoomTilesetSourceDefinitions.CreCharacters).Length;
+        }
+
+        /// <summary>A character set's sheet, which the cartridge stores compressed.</summary>
+        /// <param name="Set">The set.</param>
+        internal partial record OfSet(RoomCharacterSet Set) : RoomCharacterSource
+        {
+            /// <inheritdoc/>
+            internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) =>
+                RomDataReader.Decompress(bus, Ensure.NotNull(tilesets).Characters[Set]).Length;
+        }
+
+        /// <summary>A character set's sheet the cartridge stores uncompressed, at its fixed length.</summary>
+        /// <param name="Set">The set.</param>
+        /// <param name="ByteCount">The bytes the sheet occupies.</param>
+        internal sealed partial record UncompressedSet(RoomCharacterSet Set, int ByteCount) : OfSet(Set)
+        {
+            /// <inheritdoc/>
+            internal override int NativeByteCount(ISnesAddressSpace bus, RoomTilesetSourceMap tilesets) => ByteCount;
+        }
+    }
 
     /// <summary>Reads and writes manifest property names in their stable camel-case JSON form.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -146,10 +179,10 @@ public static class RoomCharacterArtworkFiles
     };
 
     /// <summary>Records cartridge provenance and the required PNG entries for a stock installation.</summary>
-    private sealed record RoomCharacterFileManifest(
+    internal sealed partial record RoomCharacterFileManifest(
         int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomCharacterFileEntry> Entries);
 
     /// <summary>Pairs an installed PNG hash with the planar transfer length its atlas must decode.</summary>
-    private sealed record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
+    internal sealed partial record RoomCharacterFileEntry(int NativeByteCount, string Sha256);
 }

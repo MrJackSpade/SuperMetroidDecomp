@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
-
+﻿using SuperMetroid.Core.Assets;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>The colour arithmetic the import's paints compute their pre-coloured shades with.</summary>

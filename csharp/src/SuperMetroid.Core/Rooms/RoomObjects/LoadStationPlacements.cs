@@ -3,7 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>Where loading at each load station puts Samus (<see cref="LoadStationPlacementDefinitions"/>).</summary>
-public static class LoadStationPlacements
+public static partial class LoadStationPlacements
 {
     /// <summary>A load station's placement.</summary>
     extension(LoadStation station)

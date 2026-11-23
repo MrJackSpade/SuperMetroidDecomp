@@ -4,14 +4,18 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>A Phantoon flame's typed animation.</summary>
-internal sealed class PhantoonFlameAnimation(PhantoonFlameSegment segment)
-    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>(PhantoonFlameAnimations.StartingWith(segment))
+internal sealed partial class PhantoonFlameAnimation
+    : EnemyProjectileFrameAnimation<PhantoonFlameSegment, PhantoonFlameCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>
-        PhantoonFlameAnimations.Segments;
+    /// <summary>Creates a <see cref="PhantoonFlameAnimation"/>.</summary>
+    /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+    /// <param name="segment">Where the animation starts.</param>
+    public PhantoonFlameAnimation(IEnemyProjectileCues<PhantoonFlameCue> owner, PhantoonFlameSegment segment)
+        : base(segment, PhantoonFlameAnimations.StartingWith(segment), EnemyProjectileCueRunner<PhantoonFlameSegment, PhantoonFlameCue>.By(owner))
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt =>
-        PhantoonFlameAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments =>
+        PhantoonFlameAnimations.Segments;
 }

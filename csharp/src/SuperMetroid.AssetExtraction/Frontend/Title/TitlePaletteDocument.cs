@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Editable RGB5 schema for the initial title palette, ambient color frames and copyright replacements; nested arrays remain caller-mutable until compilation.</summary>
-public sealed record TitlePaletteDocument
+public sealed partial record TitlePaletteDocument
 {
     /// <summary>Schema revision; loading requires <see cref="TitlePaletteFormat.Version"/>.</summary>
     public required int Version { get; init; }

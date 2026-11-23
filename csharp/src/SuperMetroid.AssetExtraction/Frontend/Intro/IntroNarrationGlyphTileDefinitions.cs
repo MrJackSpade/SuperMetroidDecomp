@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 
 /// <summary>The font tiles the cartridge types the opening narration's characters with (#1467).</summary>
-internal static class IntroNarrationGlyphTileDefinitions
+internal static partial class IntroNarrationGlyphTileDefinitions
 {
     /// <summary>Tile of uppercase A, from <c>IndirectInstructions_IntroText_A</c> at <c>$8C:D685</c>; A-Z use consecutive tiles in the upper priority tier.</summary>
     internal const int UppercaseATile = 0;

@@ -32,7 +32,7 @@ internal static class SporeSpawnAnimationsVerification
     /// <summary>Every body program matches its native list, and every projectile program its bank-$86 list.</summary>
     internal static void VerifySporeSpawnAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<SporeSpawnBodySegment>().Length, BodyEntries.Length, "every typed Spore Spawn body program has a native entry");
         for (int index = 0; index < BodyEntries.Length; index++)
             AssertEqual((SporeSpawnBodySegment)index, BodyEntries[index].Program, "the Spore Spawn body programs are declared in authored order");
@@ -40,7 +40,7 @@ internal static class SporeSpawnAnimationsVerification
         var body = BodyLists(cartridge);
         int updates = VerifyProjectilePrograms(rom);
         Console.WriteLine($"  Spore Spawn animations: {body.Count} body segments ({body.Values.Sum(list => list.BeatAddresses.Length)} beats) match bank $A5, " +
-            $"and {ProjectileEntries.Length} projectile programs match bank $86 over {updates} updates.");
+            $"and {CeilingEntries.Length + SporeEntries.Length} projectile programs match bank $86 over {updates} updates.");
     }
 
     /// <summary>Each body segment's native entry, in authored order.</summary>
@@ -92,7 +92,7 @@ internal static class SporeSpawnAnimationsVerification
                 AssertEqual(operands[0] != 0, setSporeGeneration.SporeGenerationSuppressed, $"{at}: spore generation stopped");
                 break;
             case SporeSpawnCue.QueueSound queueSound:
-                AssertEqual(SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0]), queueSound.Sound, $"{at}: library-two sound");
+                AssertEqual(SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, operands[0]), queueSound.Sound, $"{at}: library-two sound");
                 break;
             case SporeSpawnCue.ShowDeathShade showDeathShade:
                 AssertEqual(operands[0], checked((ushort)(showDeathShade.DeathShadeStep.Step * SporeSpawnSourceDefinitions.ImageBytes)), $"{at}: the cartridge's byte offset names the cue's death image");
@@ -127,46 +127,63 @@ internal static class SporeSpawnAnimationsVerification
     /// </summary>
     private static int VerifyProjectilePrograms(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
         int updates = 0;
-        foreach ((SporeSpawnProjectileSegment program, ushort entry) in ProjectileEntries)
+        // A spawner's programs run on a real ceiling spawner, whose release spawns its fight's spores (#2231); the stalk's,
+        // which publishes no cue, and the spore's run on a real spore.
+        foreach ((SporeSpawnCeilingSegment program, ushort entry) in CeilingEntries)
+            updates += VerifyProjectileProgram(rom, program.ToString(), entry,
+                onSpawner: program is SporeSpawnCeilingSegment.SpawnerClosed or SporeSpawnCeilingSegment.SpawnerRelease,
+                enemies => new SporeSpawnCeilingAnimation(enemies.SporeSpawnBehavior.Spawner, program), deletes: false);
+        foreach ((SporeSpawnSporeSegment program, ushort entry) in SporeEntries)
+            updates += VerifyProjectileProgram(rom, program.ToString(), entry, onSpawner: false,
+                enemies => new SporeSpawnSporeAnimation(enemies.SporeSpawnBehavior.Spore, program),
+                deletes: program == SporeSpawnSporeSegment.SporeShot);
+        return updates;
+    }
+
+    /// <summary>
+    /// Runs one projectile program, <paramref name="animation"/> started on a real spore or, <paramref name="onSpawner"/>,
+    /// a real ceiling spawner, beside its native list at <paramref name="entry"/>; returns the updates compared.
+    /// </summary>
+    private static int VerifyProjectileProgram(CartridgeImportAddressSpace rom, string program, ushort entry, bool onSpawner,
+        Func<RoomEnemySystem, EnemyProjectileAnimation> animation, bool deletes)
+    {
+        IImportCartridgeSource cartridge = rom;
+        int updates = 0;
+        RoomEnemySystem enemies = NewProjectileSystem();
+        // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
+        var sporeSpawn = new SporeSpawnEnemyState();
+        enemies.SporeSpawnBehavior.Spawner.SpawnSporeSpawnSpore(new(128, 256), HorizontalDirection.Right, sporeSpawn);
+        EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
+        AssertTrue(projectile.Animation is SporeSpawnSporeAnimation started &&
+            started.Playback == new AnimationPlayback<SporeSpawnSporeSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnSporeSegment.Spore), AnimationPlace.StartOfAnimation),
+            "the real spore producer starts the falling-spore program");
+        if (onSpawner)
         {
-            RoomEnemySystem enemies = NewProjectileSystem();
-            // The spore takes the colours of the Spore Spawn whose spawner releases it (#2231).
-            var sporeSpawn = new SporeSpawnEnemyState();
-            enemies.SporeSpawnBehavior.Spawner.SpawnSporeSpawnSpore(new(128, 256), HorizontalDirection.Right, sporeSpawn);
-            EnemyProjectile projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
-            AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
-                started.Playback == new AnimationPlayback<SporeSpawnProjectileSegment>(SporeSpawnProjectileAnimations.StartingWith(SporeSpawnProjectileSegment.Spore), AnimationPlace.StartOfAnimation),
-                "the real spore producer starts the falling-spore program");
-            // A spawner's programs run on a real ceiling spawner, whose release spawns its fight's spores (#2231).
-            if (program is SporeSpawnProjectileSegment.SpawnerClosed or SporeSpawnProjectileSegment.SpawnerRelease)
-            {
-                projectile.Delete();
-                enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
-                projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
-            }
-            projectile.StartAnimation(new SporeSpawnProjectileAnimation(program));
-            var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
-            int drops = 0;
-            for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
-            {
-                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
-                native.Step(cartridge);
-                drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
-                string at = $"Spore Spawn projectile {program} update {update}";
-                AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
-                if (native.Deleted)
-                    break;
-                // A held frame (#2235) shows its picture for good and stops the hold (#2380): the native timer running down
-                // to the list's sleep shows nothing else, so only the picture is compared once the typed animation rests.
-                SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, at);
-                // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2234).
-                AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, projectile.Graphics.Owner), projectile.Frame, $"{at}: frame");
-            }
-            AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Spore Spawn projectile {program}: drop requests");
-            AssertEqual(program == SporeSpawnProjectileSegment.SporeShot, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");
+            projectile.Delete();
+            enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner(enemies.Places.InUpdateOrder[0].BoundFor(EnemyDefinitionId.SporeSpawn), enemies.Places.InUpdateOrder[0], sporeSpawn, new(new(128, 256), HorizontalDirection.Right));
+            projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.IsActive && item.Kind == RoomEnemyProjectileKind.SporeSpawnSpawner);
         }
+        projectile.StartAnimation(animation(enemies));
+        var native = new NativeEnemyProjectileListReader(entry, projectile.FrameHold.RawValue);
+        int drops = 0;
+        for (int update = 0; update < 48 && !native.Deleted; update++, updates++)
+        {
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
+            native.Step(cartridge);
+            drops += native.Callbacks.Count(callback => callback == NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops);
+            string at = $"Spore Spawn projectile {program} update {update}";
+            AssertEqual(!native.Deleted, projectile.IsActive, $"{at}: deletion");
+            if (native.Deleted)
+                break;
+            // A held frame (#2235) shows its picture for good and stops the hold (#2380): the native timer running down
+            // to the list's sleep shows nothing else, so only the picture is compared once the typed animation rests.
+            SuperMetroid.Verification.Enemies.NativeEnemyProjectileParity.AssertFrameHold(native.Timer, projectile, at);
+            // A list that shows a pose again from an operand of its own shows the pose's one installed frame (#2234).
+            AssertEqual<EnemyProjectileFrameId?>(EnemyProjectileProgramFrameOperands.Frame(native.Operand, projectile.Graphics.Owner), projectile.Frame, $"{at}: frame");
+        }
+        AssertEqual(drops, enemies.ActiveEnemyDropPickups, $"Spore Spawn projectile {program}: drop requests");
+        AssertEqual(deletes, native.Deleted, $"Spore Spawn projectile {program}: only the shot deletes");
         return updates;
     }
 
@@ -190,29 +207,32 @@ internal static class SporeSpawnAnimationsVerification
         ImportEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(bound.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         enemies.BossArtwork = bound.Bosses;
-        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
-        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
-        body.Bind(body.DefinitionId, default(RoomEnemyDefinition));
+        enemies.VerificationServices().NextRandom = () => 4660;
+        SamusState samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
+        // The room's population load sets him up, his body holding the encounter his initialization builds (#2231).
+        RoomEnemyPlace body = enemies.LoadPopulation(samus, PopulationPlacementAccess.Entry(EnemyDefinitionId.SporeSpawn, new Position16<RoomPixels>(128, 624)))[0];
+        SporeSpawnEnemyState state = body.EntityOf<SporeSpawnEntity>().Encounter;
+        // The program runs from the fight's place, idle, swaying by the original's starting radius and step.
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.AnimationClock.StepOnNextUpdate();
-
-        var state = new SporeSpawnEnemyState
-        {
-            Movement = SporeSpawnMovement.Idle,
-            MovementCenter = body.Position.Whole,
-            SwayRadius = new(48),
-            SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise),
-            BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation),
-        };
-        enemies.VerificationServices().NextRandom = () => 4660;
-        SamusState samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99, MaxHealth = 99 };
-        // His body holds his encounter, as his initialization installs it (#2231).
-        body.SetSpeciesState(state);
+        state.Movement = SporeSpawnMovement.Idle;
+        state.MovementCenter = body.Position.Whole;
+        state.SwayRadius = new(48);
+        state.SwayStep = new(RotationAngle.FromSteps(1), RotationDirection.Counterclockwise);
+        state.BodyPlayback = new AnimationPlayback<SporeSpawnBodySegment>(SporeSpawnAnimations.StartingWith(program), AnimationPlace.StartOfAnimation);
+        // His death program plays once his death has deleted every enemy projectile but his stalk's links, as his death
+        // does before it starts the program; his setup's spore emitters are gone with them.
+        if (program == SporeSpawnBodySegment.Death)
+            enemies.SporeSpawnBehavior.DeleteProjectilesButStalk(state);
 
         for (int frame = 0; frame < frames; frame++)
         {
             EnemyAnimationPlayer.AdvanceAnimation(body, samus: samus, level: RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, controllerInput: 0);
+            // The enemy projectile pass follows the enemies' each update: his dust and explosions play out and leave the
+            // places his death's drops take, his stalk's links hanging on.
+            foreach (EnemyProjectile projectile in enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray())
+                enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, samus, Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero.After(frame));
             afterFrame?.Invoke(enemies, body);
         }
         return new RunSporeSpawnProgramResult(enemies, body);
@@ -220,7 +240,7 @@ internal static class SporeSpawnAnimationsVerification
 
     /// <summary>Reads one native bank-$A5 word for the independent reference trace.</summary>
     internal static ushort ReadSporeSpawnProgramWord(CartridgeImportAddressSpace source, ushort address) =>
-        CartridgeImportSource.Require(source).ReadCartridgeWord((BodyBankNumber << 16) | address);
+        source.ReadCartridgeWord((BodyBankNumber << 16) | address);
 
     /// <summary>A guard over the cartridge that rejects any production read of Spore Spawn's native body lists.</summary>
     internal static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)

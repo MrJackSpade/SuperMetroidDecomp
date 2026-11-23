@@ -5,5 +5,5 @@ internal static class RainbowFramePartConstants
 {
     /// <summary>The part of <paramref name="parts"/> of a frame's 256 parts, 0 through 255.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The part is a whole frame or more, or below zero.</exception>
-    public static RainbowFramePart Of(int parts) => new(parts);
+    public static RainbowFramePart Of(int parts) => new global::SuperMetroid.Core.Bosses.MotherBrain.RainbowFramePart(parts);
 }

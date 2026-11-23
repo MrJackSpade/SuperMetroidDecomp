@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Imports gameplay-HUD artwork references and positions while excluding counter mechanics.</summary>
-public static class GameplayHudPresentationExtractor
+public static partial class GameplayHudPresentationExtractor
 {
     /// <summary>Imports HUD tilemap templates, item icons, digit cells, energy-tank artwork, and automatic-reserve indicators.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying native HUD BG-cell tables.</param>
@@ -75,7 +75,7 @@ public static class GameplayHudPresentationExtractor
     /// <summary>Reads consecutive fixed-bank HUD tilemap words and decodes their presentation attributes.</summary>
     private static GameplayHudCell[] ReadCells(ISnesAddressSpace bus, int address, int count) =>
         Enumerable.Range(0, count)
-            .Select(index => Cell(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address + index * sizeof(ushort))))
+            .Select(index => Cell(RomDataReader.ReadWordFixedBank(bus, address + index * sizeof(ushort))))
             .ToArray();
 
     /// <summary>Splits a native BG tilemap word into atlas coordinates, palette, priority, and flips.</summary>

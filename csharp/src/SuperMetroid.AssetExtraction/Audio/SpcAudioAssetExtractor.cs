@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -14,7 +15,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// checks read them: they go to the audio component's import-data directory, the installation holds the rendered clips
 /// alone, and audio is replaced by clip.
 /// </summary>
-public static class SpcAudioAssetExtractor
+public static partial class SpcAudioAssetExtractor
 {
 
     /// <summary>Extracts the audio's import data directly from a user's cartridge, without raw files or an upstream checkout.</summary>
@@ -96,7 +97,7 @@ public static class SpcAudioAssetExtractor
         // Stream the UTF-8 JSON into the file; the manifest is large enough that one
         // intermediate string per install dominated extraction allocation.
         using (var output = File.Create(Path.Combine(root, ExtractedAudioAssetCatalog.ManifestFileName)))
-            JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
+            JsonSerializer.Serialize(output, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options));
         return manifest;
     }
 
@@ -134,6 +135,7 @@ public static class SpcAudioAssetExtractor
         }
         SpcMusicDefinitionBundle music = includeTrackPointers
             ? SpcMusicDefinitionCodec.DecodeBank(
+                definition.DataSet,
                 definition.DataIndex,
                 trackPointers,
                 ram,
@@ -174,7 +176,7 @@ public static class SpcAudioAssetExtractor
             int loop = ReadWord(ram, directory + 2);
             if (start == 0 || !written[start])
                 continue;
-            if (!TryDecodeBrr(ram, written, start, loop, out short[] pcm, out _, out int? loopSample))
+            if (!TryDecodeBrr(ram, written, start, loop, out short[] pcm, out int? loopSample))
                 continue;
 
             string sampleId = canonicalSamples.Add(
@@ -206,15 +208,15 @@ public static class SpcAudioAssetExtractor
     {
         List<AudioSoundLibraryMetadata> libraries = [];
         Dictionary<int, AudioSoundProgramMetadata> programsByAddress = [];
-        for (int library = 0; library < SuperMetroid.Core.Audio.SoundEffectLibraries.Count; library++)
+        foreach (SoundEffectLibrary library in SoundLibraryNumbers.InNumberOrder)
         {
             int commandCount = SpcSoundEffectTables.CommandCount(library);
             List<AudioSoundEffectMetadata> effects = [];
             for (int index = 0; index < commandCount; index++)
             {
                 int streamPointer = SpcSoundEffectTables.StreamPointer(library, index + 1);
-                int configuration = SpcSoundEffectTables.Configuration(library, index + 1);
-                int voiceCount = SpcSoundEffectTables.GetVoiceCount(library, configuration);
+                string policy = SpcSoundEffectTables.PolicyKey(library, index + 1);
+                int voiceCount = SpcSoundEffectTables.VoiceCount(library, policy);
                 var channelPrograms = new string[voiceCount];
                 for (int channel = 0; channel < voiceCount; channel++)
                 {
@@ -223,7 +225,7 @@ public static class SpcAudioAssetExtractor
                         !commonWritten[pointerAddress] || !commonWritten[pointerAddress + 1])
                     {
                         throw new InvalidDataException(
-                            $"SFX library {library + 1} command ${index + 1:X2} channel {channel} " +
+                            $"SFX library {library} command ${index + 1:X2} channel {channel} " +
                             $"pointer at ${pointerAddress:X4} is outside common uploaded content.");
                     }
                     int programAddress = ReadWord(commonRam, pointerAddress);
@@ -241,12 +243,12 @@ public static class SpcAudioAssetExtractor
                 }
                 effects.Add(new AudioSoundEffectMetadata(
                     unchecked((byte)(index + 1)),
-                    $"sfx-{library + 1}-{index + 1:x2}",
+                    $"sfx-{SoundLibraryNumbers.Number(library)}-{index + 1:x2}",
                     streamPointer,
-                    configuration,
+                    policy,
                     channelPrograms));
             }
-            libraries.Add(new AudioSoundLibraryMetadata(library + 1, effects));
+            libraries.Add(new AudioSoundLibraryMetadata(SoundLibraryNumbers.Number(library), effects));
         }
         // Each program is named by its place among the programs in their slots' order, never by its slot (#2548).
         AudioSoundProgramMetadata[] ordered = [.. programsByAddress.Values.OrderBy(program => program.Address)];
@@ -267,7 +269,6 @@ public static class SpcAudioAssetExtractor
         int start,
         int loop,
         out short[] pcm,
-        out int blockCount,
         out int? loopSampleIndex)
     {
         List<short> samples = [];
@@ -277,7 +278,7 @@ public static class SpcAudioAssetExtractor
         int old = 0;
         int older = 0;
         bool followingLoop = false;
-        blockCount = 0;
+        int blockCount = 0;
         while (samples.Count < BrrExtractionLimits.MaximumDecodedLoopSamples)
         {
             if (!followingLoop && blockCount >= MaximumBrrBlocks)
@@ -311,7 +312,7 @@ public static class SpcAudioAssetExtractor
             for (int sampleIndex = 0; sampleIndex < InstrumentSampleFormat.StreamingWindowSampleCount; sampleIndex++)
             {
                 int packed = ram[address + 1 + sampleIndex / 2];
-                int sample = (sampleIndex & 1) == 0 ? packed >> 4 : packed & 0x0f; // cartridge-encoding: allow(Codec) - BRR low sample nibble
+                int sample = (sampleIndex & 1) == 0 ? packed >> 4 : packed & 0x0f;
                 if (sample > 7)
                     sample -= 16;
                 sample = shift <= 12 ? (sample << shift) >> 1 : (sample >> 3) << 12;
@@ -324,7 +325,7 @@ public static class SpcAudioAssetExtractor
                     _ => throw new InvalidDataException($"Impossible BRR filter {filter}."),
                 };
                 sample = Math.Clamp(sample, short.MinValue, short.MaxValue);
-                sample = unchecked((short)((sample & 0x7fff) << 1)) >> 1; // cartridge-encoding: allow(Codec) - BRR fifteen-bit sample wrap
+                sample = unchecked((short)((sample & 0x7fff) << 1)) >> 1;
                 older = old;
                 old = sample;
                 samples.Add(unchecked((short)sample));
@@ -355,7 +356,6 @@ public static class SpcAudioAssetExtractor
 
     Invalid:
         pcm = [];
-        blockCount = 0;
         loopSampleIndex = null;
         return false;
     }
@@ -417,7 +417,7 @@ public static class SpcAudioAssetExtractor
     /// durable identity. Content hashes are only deduplication and integrity mechanisms:
     /// replacing a WAV later does not force callers to rename its sample ID.
     /// </summary>
-    private sealed class CanonicalSampleBuilder
+    private sealed partial class CanonicalSampleBuilder
     {
         /// <summary>Import-data root the manifest's stable relative WAV paths start from.</summary>
         private readonly string root;

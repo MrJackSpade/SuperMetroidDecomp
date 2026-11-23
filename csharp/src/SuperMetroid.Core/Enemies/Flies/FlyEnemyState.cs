@@ -2,7 +2,7 @@ using SuperMetroid.Core.Animation;
 namespace SuperMetroid.Core.Enemies.Flies;
 
 /// <summary>The state of one Mellow, Mella or Memu.</summary>
-public sealed class FlyEnemyState
+public sealed partial class FlyEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal FlyEnemyState(FlyAction action) => Action = action;
@@ -34,7 +34,7 @@ public sealed class FlyEnemyState
     /// <summary>Samus's whole room-pixel Y captured when the attack begins. It determines the turnaround rather than tracking Samus's later movement.</summary>
     public int TargetY { get; internal set; }
 
-    /// <summary>The circular flight's phase, advanced a sixteenth of a turn each circling update and wrapping after a full turn.</summary>
+    /// <summary>The circular flight's phase, advanced by its circling turn each circling update and wrapping after a full turn.</summary>
     public RotationAngle Angle { get; internal set; }
 
     /// <summary>The current circling, attacking or retreating behaviour.</summary>

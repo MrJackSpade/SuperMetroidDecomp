@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.EyeDoor;
 /// Where an eye door's attack, sweat and smoke start, how the sweat is launched and how the smoke looks (#1414).
 /// Offsets are from the top-left corner of the eye's block.
 /// </summary>
-internal static class EyeDoorEffectDefinitions
+internal static partial class EyeDoorEffectDefinitions
 {
     /// <summary>A left-facing eye's attack starts half a block left of the eye, at the top of the block below.</summary>
     internal static readonly Offset16<RoomPixels> LeftShotOrigin = new(-8, 16);
@@ -36,7 +36,7 @@ internal static class EyeDoorEffectDefinitions
     internal const DustExplosionAnimation ScatteredSmokeAnimation = DustExplosionAnimation.CorpseDustCloud;
 
     /// <summary>The scattered puffs land anywhere in a centred box 16 pixels wide and 32 tall.</summary>
-    internal static DustExplosionPlacement ScatteredSmokePlacement => SmokePuffPlacements.CentredSixteenByThirtyTwoBox;
+    internal static DustExplosionPlacement ScatteredSmokePlacement => SmokePuffPlacements.CentredBox;
 
     /// <summary>The dust animation of the smoke puff centred on the eye.</summary>
     internal const DustExplosionAnimation CenteredSmokeAnimation = DustExplosionAnimation.EyeDoorSmokePuff;

@@ -8,4 +8,4 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// </summary>
 /// <param name="Source">The character and mirroring the map word names.</param>
 /// <param name="Cell">The cell the character, so mirrored, pictures.</param>
-internal sealed record MapCellCharacter(MapCellSource Source, MapCell Cell);
+internal sealed partial record MapCellCharacter(MapCellSource Source, MapCell Cell);

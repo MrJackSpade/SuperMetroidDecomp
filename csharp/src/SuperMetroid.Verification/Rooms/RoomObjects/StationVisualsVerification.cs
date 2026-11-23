@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using static SuperMetroid.Verification.Rooms.RoomObjects.LookupStationStockVerification;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -20,9 +21,9 @@ internal static class StationVisualsVerification
     /// <summary>Checks the stock map-station tile and its physical collision.</summary>
     internal static void VerifyStationVisuals(CartridgeImportAddressSpace rom)
     {
-        InstalledRoomObjectStationVisuals stock = InstalledRoomObjectStationVisuals.Stock();
+        InstalledRoomObjectPictures stock = RoomObjectPicturesStock.Station;
         StationVisualsRenderResult Render(
-            InstalledRoomObjectStationVisuals visuals)
+            InstalledRoomObjectPictures visuals)
         {
             var bus = new TestAddressSpace();
             SeedRoomObjectPopulationRom(bus);

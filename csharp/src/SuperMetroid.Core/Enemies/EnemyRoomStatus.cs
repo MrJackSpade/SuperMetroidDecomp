@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Enemies;
 /// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text and Fireflea
 /// darkness.
 /// </summary>
-internal sealed class EnemyRoomStatus
+internal sealed partial class EnemyRoomStatus
 {
     /// <summary>Binds the room's status to the session that holds the language flag.</summary>
     /// <param name="session">The enemy state that outlives each room.</param>
@@ -40,10 +40,10 @@ internal sealed class EnemyRoomStatus
     /// <summary>Deepens the room's Fireflea darkness by one more Fireflea death (<see cref="FirefleaDarkness.Deeper"/>).</summary>
     internal void RecordFirefleaDeath() => FirefleaDarkness = FirefleaDarkness.Deeper;
 
-    /// <summary>Language flag sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
-    public bool JapaneseText
+    /// <summary>Text language sampled when the Ceres warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
+    public TextLanguage Language
     {
-        get => _session.JapaneseText;
-        set => _session.JapaneseText = value;
+        get => _session.Language;
+        set => _session.Language = value;
     }
 }

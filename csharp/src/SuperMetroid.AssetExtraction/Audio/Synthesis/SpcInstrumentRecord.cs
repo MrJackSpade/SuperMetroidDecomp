@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <param name="Adsr2">VxADSR2 value.</param>
 /// <param name="Gain">VxGAIN value.</param>
 /// <param name="PitchBase">Pitch multiplier, stored big-endian in the record.</param>
-internal readonly record struct SpcInstrumentRecord(int SourceOrNoiseRate, int Adsr1, int Adsr2, int Gain, int PitchBase)
+internal readonly partial record struct SpcInstrumentRecord(int SourceOrNoiseRate, int Adsr1, int Adsr2, int Gain, int PitchBase)
 {
     /// <summary>Sample source number, or the noise rate, 0 through 255.</summary>
     public int SourceOrNoiseRate { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, SourceOrNoiseRate);

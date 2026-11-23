@@ -2,7 +2,7 @@
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 
 /// <summary>Editable warning schema containing the exact two named escape warnings.</summary>
-public sealed record EscapeTypewriterDocument
+public sealed partial record EscapeTypewriterDocument
 {
     /// <summary>Schema revision; loading requires <see cref="EscapeTypewriterDocumentDefinitions.Version"/>.</summary>
     public required int Version { get; init; }

@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
 /// Owned collision for Mother Brain's body frames and her brain, read by the shot and contact frame-hitbox tests for
-/// the body and the head. Each root lists component offsets, each with the hitbox list holding its rectangles; the
-/// sprite and body-layer art the same roots reference is replaceable.
+/// the body and the head. Each body frame lists its hit areas, each placed against her body with the hitbox list holding
+/// its rectangles.
 /// </summary>
-internal static class MotherBrainCollisionDefinitions
+internal static partial class MotherBrainCollisionDefinitions
 {
     /// <summary>The brain's rectangle, which Samus touches and shoots as the head.</summary>
     internal static readonly EnemyCollisionHitbox[] BrainHitboxes =
@@ -43,39 +43,55 @@ internal static class MotherBrainCollisionDefinitions
         new(-24, -42, 13, -25, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
+    /// <summary>Her neck's rectangle, which every upper body she shows holds first (#2557).</summary>
+    private static readonly EnemyCollisionHitbox Neck = new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot);
+
     /// <summary>The upper body's two rectangles: the neck, and the arm reaching forward from it.</summary>
     internal static readonly EnemyCollisionHitbox[] UpperBodyHitboxes =
     [
-        new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+        Neck,
         new(28, -41, 57, -30, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The upper body as her hand beam's hand curls: the neck, and the arm a little shorter.</summary>
     internal static readonly EnemyCollisionHitbox[] HandCurlingUpperBodyHitboxes =
     [
-        new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+        Neck,
         new(28, -41, 54, -30, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The upper body with the hand beam's arm drawn back: the neck, and the short drawn-back arm.</summary>
     internal static readonly EnemyCollisionHitbox[] ArmDrawnBackUpperBodyHitboxes =
     [
-        new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+        Neck,
         new(29, -43, 45, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The upper body with the hand beam's arm flung out: the neck, and the arm reaching high and far.</summary>
     internal static readonly EnemyCollisionHitbox[] ArmFlungOutUpperBodyHitboxes =
     [
-        new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+        Neck,
         new(29, -48, 68, -40, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
     ];
 
     /// <summary>The upper body as the hand beam's arm returns: the neck, and the arm a pixel further than standing.</summary>
     internal static readonly EnemyCollisionHitbox[] ArmReturningUpperBodyHitboxes =
     [
-        new(4, -59, 28, -24, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+        Neck,
         new(28, -41, 58, -31, EnemyReaction.Ignore, MotherBrainReactions.BodyShot),
+    ];
+
+    /// <summary>The components she shows standing, which her walk shows again with her legs together.</summary>
+    private static readonly EnemyCollisionComponent[] StandingComponents = Stance(UpperBodyHitboxes);
+
+    /// <summary>
+    /// Her standing stance holding <paramref name="upperBody"/> (#2557): her right leg, her torso, that upper body and her left
+    /// leg, each at its standing place. She stands so, and her hand beam's frames stand so with their own upper bodies.
+    /// </summary>
+    private static EnemyCollisionComponent[] Stance(EnemyCollisionHitbox[] upperBody) =>
+    [
+        new(new(18, 58), RightLegHitboxes), new(new(0, 0), TorsoHitboxes), new(new(0, 0), upperBody),
+        new(new(-10, 56), LeftLegHitboxes),
     ];
 
     /// <summary>
@@ -85,13 +101,9 @@ internal static class MotherBrainCollisionDefinitions
     /// </summary>
     internal static readonly Dictionary<EnemyFrameId, EnemyCollisionComponent[]> FrameComponents = new()
     {
+        [EnemyFrameId.MotherBrainBrainHitArea] = BrainComponents,
         [EnemyFrameId.MotherBrainBodyStanding] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), UpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
+        StandingComponents,
         [EnemyFrameId.MotherBrainBodyWalkingNearLegLifting] =
         [
             new(new(28, 47), RightLegHitboxes),
@@ -142,12 +154,7 @@ internal static class MotherBrainCollisionDefinitions
             new(new(-8, 47), LeftLegHitboxes),
         ],
         [EnemyFrameId.MotherBrainBodyWalkingLegsTogether] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), UpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
+        StandingComponents,
         [EnemyFrameId.MotherBrainBodyCrouched] =
         [
             new(new(18, 20), RightLegHitboxes),
@@ -170,33 +177,9 @@ internal static class MotherBrainCollisionDefinitions
             new(new(-10, 44), LeftLegHitboxes),
         ],
 
-        [EnemyFrameId.MotherBrainBodyHandCurling] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), HandCurlingUpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
-        [EnemyFrameId.MotherBrainBodyArmDrawnBack] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), ArmDrawnBackUpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
-        [EnemyFrameId.MotherBrainBodyArmFlungOut] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), ArmFlungOutUpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
-        [EnemyFrameId.MotherBrainBodyArmReturning] =
-        [
-            new(new(18, 58), RightLegHitboxes),
-            new(new(0, 0), TorsoHitboxes),
-            new(new(0, 0), ArmReturningUpperBodyHitboxes),
-            new(new(-10, 56), LeftLegHitboxes),
-        ],
+        [EnemyFrameId.MotherBrainBodyHandCurling] = Stance(HandCurlingUpperBodyHitboxes),
+        [EnemyFrameId.MotherBrainBodyArmDrawnBack] = Stance(ArmDrawnBackUpperBodyHitboxes),
+        [EnemyFrameId.MotherBrainBodyArmFlungOut] = Stance(ArmFlungOutUpperBodyHitboxes),
+        [EnemyFrameId.MotherBrainBodyArmReturning] = Stance(ArmReturningUpperBodyHitboxes),
     };
 }

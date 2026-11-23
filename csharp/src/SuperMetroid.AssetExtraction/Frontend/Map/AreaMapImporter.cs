@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Progression;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Extracts native area map tilemaps and reveal masks before gameplay starts.</summary>
-public static class AreaMapImporter
+public static partial class AreaMapImporter
 {
     /// <summary>Resolves one area's native tilemap and map-station reveal-mask pointers, copies their bytes, and decodes the split native tilemap layout into row-major cells.</summary>
     /// <param name="bus">Supported-cartridge address space containing the area pointer tables and map data.</param>
@@ -19,16 +19,16 @@ public static class AreaMapImporter
         Ensure.NotNull(bus);
         int areaIndex = AreaNumberCodec.Encode(area);
         int tilemapAddress = RomDataReader.ReadLongFixedBank(
-            CartridgeImportSource.Require(bus),
+            bus,
             MapSourceDefinitions.AreaMaps.TilemapPointers + areaIndex * MapSourceDefinitions.AreaMaps.TilemapPointerBytes);
         int revealPointer = RomDataReader.ReadWordFixedBank(
-            CartridgeImportSource.Require(bus),
+            bus,
             MapSourceDefinitions.AreaMaps.StationRevealMaskPointers + areaIndex * sizeof(ushort));
         int revealAddress = MapSourceDefinitions.AreaMaps.StationRevealMaskBank | revealPointer;
         byte[] tilemapBytes = RomDataReader.ReadFixedBank(
-            CartridgeImportSource.Require(bus), tilemapAddress, MapSourceDefinitions.AreaMaps.TilemapBytes);
+            bus, tilemapAddress, MapSourceDefinitions.AreaMaps.TilemapBytes);
         byte[] revealBytes = RomDataReader.ReadFixedBank(
-            CartridgeImportSource.Require(bus), revealAddress, MapSourceDefinitions.AreaMaps.StationRevealMaskBytes);
+            bus, revealAddress, MapSourceDefinitions.AreaMaps.StationRevealMaskBytes);
         var tilemap = new MapTileWord[AreaMapSize.WidthInMapTiles * AreaMapSize.HeightInMapTiles];
         for (int y = 0; y < AreaMapSize.HeightInMapTiles; y++)
         {

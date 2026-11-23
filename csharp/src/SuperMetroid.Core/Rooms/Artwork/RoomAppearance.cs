@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// pictures of the room's blocks, background cells and written cells by it. A collectible shows its kind's picture where
 /// it lies, which depends on nothing shown before it (#1538).
 /// </summary>
-public sealed class RoomAppearance
+public sealed partial class RoomAppearance
 {
     /// <summary>Whether Kraid's rise has shown his backdrop over the room's blocks.</summary>
     public bool KraidBackdropShown { get; private set; }

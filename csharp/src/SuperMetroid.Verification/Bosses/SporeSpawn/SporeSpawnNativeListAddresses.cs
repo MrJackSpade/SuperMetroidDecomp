@@ -52,14 +52,19 @@ internal static class SporeSpawnNativeListAddresses
         [0xe9b1] = new SporeSpawnNativeListAddressesBodyInstruction(NativeCueShape<SporeSpawnCue>.Exactly(new SporeSpawnCue.Signal(SporeSpawnCueKind.SpawnDyingExplosion)), 0),
     };
 
-    /// <summary>Each typed projectile program's native entry point in bank $86.</summary>
-    internal static readonly SporeSpawnNativeListAddressesProjectileEntry[] ProjectileEntries =
+    /// <summary>Each typed ceiling program's native entry point in bank $86.</summary>
+    internal static readonly SporeSpawnNativeListAddressesProjectileEntry<SporeSpawnCeilingSegment>[] CeilingEntries =
     [
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.SpawnerClosed, 0xdc00),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.SpawnerRelease, 0xdc06),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.Spore, 0xdc1e),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.Stalk, 0xdc2e),
-        new SporeSpawnNativeListAddressesProjectileEntry(SporeSpawnProjectileSegment.SporeShot, 0xdc34),
+        new(SporeSpawnCeilingSegment.SpawnerClosed, 0xdc00),
+        new(SporeSpawnCeilingSegment.SpawnerRelease, 0xdc06),
+        new(SporeSpawnCeilingSegment.Stalk, 0xdc2e),
+    ];
+
+    /// <summary>Each typed spore program's native entry point in bank $86.</summary>
+    internal static readonly SporeSpawnNativeListAddressesProjectileEntry<SporeSpawnSporeSegment>[] SporeEntries =
+    [
+        new(SporeSpawnSporeSegment.Spore, 0xdc1e),
+        new(SporeSpawnSporeSegment.SporeShot, 0xdc34),
     ];
 
     /// <summary>The body program whose native list starts at <paramref name="address"/>, if one does.</summary>

@@ -1,8 +1,8 @@
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
-/// One Samus spritemap composition: its place in the installed composition list, an identity the import chooses once
-/// and composes whole body pictures from (#1585).
+/// One Samus spritemap composition, named once when the import decodes the body's tables (#2556) by the first pose half
+/// frame, explosion frame or atmosphere frame that shows it; the import composes whole body pictures from it (#1585).
 /// </summary>
-/// <param name="Ordinal">The composition's place in the installed list.</param>
-public readonly record struct SamusSpritemapId(int Ordinal);
+/// <param name="Name">The composition's name.</param>
+public readonly partial record struct SamusSpritemapId(string Name);

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Audio;
 /// states are game state, so the host plays only what the queues release and invents no
 /// gameplay-specific sounds.
 /// </remarks>
-public sealed class AudioQueues
+public sealed partial class AudioQueues
 {
     /// <summary>
     /// The music requests waiting on the music queue, oldest first, each with its delay. The request the queue fetched
@@ -23,8 +23,8 @@ public sealed class AudioQueues
     /// </summary>
     internal readonly Queue<QueuedMusic> Music = new();
     /// <summary>Each sound library's own queue of waiting requests.</summary>
-    internal readonly Dictionary<SoundEffectLibrary, SoundQueue> SoundQueues =
-        SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue());
+    internal readonly IdentityTable<SoundEffectLibrary, SoundQueue> SoundQueues =
+        new(SoundEffectLibraries.InQueueOrder.ToDictionary(library => library, _ => new SoundQueue()));
     /// <summary>The request cycle each sound queue runs with its library, injected by the session's composition root.</summary>
     internal readonly SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId> SoundHandshakes;
 
@@ -37,7 +37,7 @@ public sealed class AudioQueues
     /// The request the music queue fetched and is waiting out the delay of, or none when its next pass fetches the
     /// next request from the queue.
     /// </summary>
-    internal FetchedMusicRequest? FetchedMusic { get; private set; }
+    internal FetchedMusicRequest? FetchedMusic { get; set; }
     /// <summary>
     /// The sound-queue passes, <see cref="AudioQueueDefinitions.MusicChangeSoundDowntimePasses"/> from a music change, for
     /// which the change withdraws every library's sound request: counted once on each pass it withdraws them.
@@ -63,11 +63,14 @@ public sealed class AudioQueues
         Reset();
     }
 
-    /// <summary>The music data set most recently loaded by a dispatched request, or null while only the shared sounds are loaded.</summary>
-    public MusicDataSet? DataSet { get; private set; }
+    /// <summary>
+    /// The music data set the songs are asked of: the one most recently loaded by a dispatched request, and from power-on
+    /// until the first set loads <see cref="AudioQueueDefinitions.PowerOnDataSet"/>.
+    /// </summary>
+    internal MusicDataSet DataSet { get; set; } = AudioQueueDefinitions.PowerOnDataSet;
 
     /// <summary>The track most recently played, or null after a stop or a data set change.</summary>
-    public MusicTrack? PlayingTrack { get; private set; }
+    internal MusicTrack? PlayingTrack { get; set; }
 
     /// <summary>
     /// What phases waiting for the music to settle read: true while the music queue holds any request, including the one
@@ -90,13 +93,13 @@ public sealed class AudioQueues
             queue.Clear();
         SoundHandshakes.Reset();
         _soundDowntime.End();
-        DataSet = null;
+        DataSet = AudioQueueDefinitions.PowerOnDataSet;
         PlayingTrack = null;
         _pendingPowerOnRequests.Clear();
 
         // Starting the game installs the shared sounds, then stops the music and withdraws the enemy
         // sound library's request before the first ordinary update.
-        _pendingPowerOnRequests.Add(new AudioRequest.ChangeMusicDataSet(null));
+        _pendingPowerOnRequests.Add(new AudioRequest.InstallSharedSounds());
         _pendingPowerOnRequests.Add(new AudioRequest.StopMusic());
         _pendingPowerOnRequests.Add(new AudioRequest.ClearSoundRequest(SoundEffectLibrary.Enemies));
     }
@@ -139,7 +142,7 @@ public sealed class AudioQueues
         // load stops the music, so the song must be queued again after it instead of leaving
         // only the gunship-engine sound at the Landing Site.
         if (RoomTrackQueues(music.Track, changesMusicData))
-            ScheduleMusic(music.Track.Request, MusicQueueDelay.Shortest);
+            ScheduleRoomTrack(music.Track, MusicQueueDelay.Shortest);
     }
 
     /// <summary>
@@ -150,7 +153,49 @@ public sealed class AudioQueues
     internal void QueueRoomMusicTrack(RoomMusic music)
     {
         if (RoomTrackQueues(music.Track, music.DataSet != DataSet))
-            ScheduleMusic(music.Track.Request, MusicQueueDelay.Shortest);
+            ScheduleRoomTrack(music.Track, MusicQueueDelay.Shortest);
+    }
+
+    /// <summary>
+    /// Schedules the request that carries out a room's track choice after <paramref name="delay"/>: its song, or a stop
+    /// for a silenced or inherited track (a saved game schedules the room's choice directly, and an inherited track stops
+    /// the music there). An area theme is the theme of the data set loaded when the request plays: the set the last data
+    /// set change waiting on the queue loads, or the loaded set when none waits.
+    /// </summary>
+    /// <param name="track">The room's track choice.</param>
+    /// <param name="delay">How long the request waits on the queue, at least the shortest delay.</param>
+    public void ScheduleRoomTrack(RoomMusicTrack track, MusicQueueDelay delay)
+    {
+        Ensure.NotNull(track);
+        switch (track)
+        {
+            case RoomMusicTrack.Play play:
+                ScheduleMusic(MusicRequest.SelectTrack(play.Track), delay);
+                break;
+            case RoomMusicTrack.PlayAreaTheme:
+                ScheduleMusic(MusicRequest.SelectTrack(AreaThemeDefinitions.Themes[DataSetLoadedAfterQueue()]), delay);
+                break;
+            case RoomMusicTrack.Inherit or RoomMusicTrack.Silence:
+                ScheduleMusic(MusicRequest.Stop, delay);
+                break;
+            default:
+                throw new InvalidDataException($"Unknown room music track {track}.");
+        }
+    }
+
+    /// <summary>
+    /// The data set loaded once every request waiting on the music queue has played: the set the last waiting change loads,
+    /// or the loaded set when no change waits.
+    /// </summary>
+    private MusicDataSet DataSetLoadedAfterQueue()
+    {
+        MusicDataSet loaded = DataSet;
+        foreach (QueuedMusic queued in Music)
+        {
+            if (queued.Request is MusicRequest.ChangeDataSet change)
+                loaded = change.DataSet;
+        }
+        return loaded;
     }
 
     /// <summary>
@@ -172,15 +217,7 @@ public sealed class AudioQueues
     /// Whether a room's track choice is queued: never for an inherited track, always for a
     /// silenced room, and for a played song or area theme when the data set changes or it is not playing.
     /// </summary>
-    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track switch
-    {
-        RoomMusicTrack.Inherit => false,
-        RoomMusicTrack.Silence => true,
-        RoomMusicTrack.Play play => dataSetDiffers || play.Track != PlayingTrack,
-        // With no data set loaded no area theme can play, so the choice is queued.
-        RoomMusicTrack.PlayAreaTheme => dataSetDiffers || DataSet is not MusicDataSet loaded || AreaThemeDefinitions.Themes[loaded] != PlayingTrack,
-        _ => throw new InvalidDataException($"Unknown room music track {track}."),
-    };
+    private bool RoomTrackQueues(RoomMusicTrack track, bool dataSetDiffers) => track.Queues(new RoomMusicEntry(dataSetDiffers, PlayingTrack, DataSet));
 
     /// <summary>
     /// Runs the shared permanent-item music sequence.
@@ -208,15 +245,15 @@ public sealed class AudioQueues
     }
 
     /// <summary>
-    /// Silences all three sound libraries by queueing each one's silence request at <paramref name="priority"/>, in library
+    /// Silences all three sound libraries by queueing each one's stop of any sound at <paramref name="priority"/>, in library
     /// order: pausing asks at normal priority, and the sequences that leave gameplay (the Ceres departure, death, the
     /// ending's liftoff and the time-up) at essential priority, which no waiting request refuses.
     /// </summary>
     public void QueueCancelSoundEffects(SoundRequestPriority priority)
     {
-        QueueSound(SamusSound.Silence, priority);
-        QueueSound(EnemySound.Silence, priority);
-        QueueSound(RoomSound.Silence, priority);
+        QueueSound(SamusSoundStop.Any, priority);
+        QueueSound(EnemySoundStop.Any, priority);
+        QueueSound(RoomSoundStop.Any, priority);
     }
 
     /// <summary>Queues <paramref name="request"/> and returns what the queue did with it (see the overload taking the request's parts).</summary>
@@ -235,19 +272,16 @@ public sealed class AudioQueues
     /// <exception cref="InvalidOperationException"><paramref name="soundEffect"/> is the default identity, which names no sound.</exception>
     public SoundQueueAdmission QueueSound(SoundEffectId soundEffect, SoundRequestPriority priority)
     {
-        SoundQueue queue = QueueOf(soundEffect.Library);
-        SoundQueueAdmission admission = SoundQueueAdmission.For(queue.Count, priority);
-        if (!admission.Joins(new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding)))
-            return admission;
-
-        // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so an
-        // admitted request always finds room: the game's handling of a request arriving at a queue with no room, which
-        // keeps the higher-priority of the two, is never reached.
-        queue.Add(soundEffect);
-        return admission;
+        // Every priority turns a request away once the queue holds its most (SoundQueueAdmission.MaximumOccupancy), so
+        // an admitted request always finds room.
+        return QueueOf(soundEffect.Library).Admit(soundEffect, priority,
+            new SoundSuppression(_gameplay.DoorTransitionDisablesSounds, _gameplay.AttractDemoPlaying, _gameplay.PowerBombExploding));
     }
 
-    /// <summary>Runs selected audio dispatch owners and returns their requests, which only the session's audio advance consumes.</summary>
+    /// <summary>
+    /// Releases the deferred power-on requests, runs the music queue's pass when asked and the given number of sound-queue
+    /// passes, and returns their requests, which only the session's audio advance consumes.
+    /// </summary>
     /// <param name="acknowledgements">What each sound library has acknowledged, which its sound queue's pass reads.</param>
     /// <param name="advanceMusicQueue">Whether the update runs the music queue's pass, which a message box's update may skip.</param>
     /// <param name="soundQueuePasses">How many passes the sound queues run: one in an ordinary update, as many as a message box's update runs.</param>
@@ -301,13 +335,7 @@ public sealed class AudioQueues
                 return;
             }
 
-            PlayingTrack = pending.Request switch
-            {
-                MusicRequest.PlayTrack play => play.Track,
-                MusicRequest.PlayAreaTheme => AreaThemeOf(DataSet),
-                MusicRequest.StopMusic => null,
-                _ => throw new InvalidDataException($"Unknown music request {pending.Request}."),
-            };
+            PlayingTrack = pending.Request.TrackPlayed;
             requests.Add(AudioRequest.ForTrack(PlayingTrack));
             Music.Dequeue();
             _soundDowntime.Restart(AudioQueueDefinitions.MusicChangeSoundDowntimePasses);
@@ -316,12 +344,6 @@ public sealed class AudioQueues
         if (Music.TryPeek(out QueuedMusic? next))
             FetchedMusic = new FetchedMusicRequest(next.Request, UpdateCountdown.Lasting(next.Delay.Updates));
     }
-
-    /// <summary>The area theme of <paramref name="dataSet"/>, the data set loaded as an area-theme request plays.</summary>
-    /// <exception cref="InvalidOperationException">No data set is loaded, so no area theme can play.</exception>
-    private static MusicTrack AreaThemeOf(MusicDataSet? dataSet) => dataSet is MusicDataSet loaded
-        ? AreaThemeDefinitions.Themes[loaded]
-        : throw new InvalidOperationException("An area theme was requested with no music data set loaded.");
 
     /// <summary>Either withdraws all three libraries' requests during music downtime or advances their independent request cycles.</summary>
     private void HandleSoundEffects(
@@ -341,6 +363,17 @@ public sealed class AudioQueues
             HandleSoundEffectQueue(library, acknowledgements[library], requests);
     }
 
+    /// <summary>What <see cref="HandleSoundEffectQueue"/> does for each <see cref="SoundRequestHandshakes{TLibrary, TSound}.HandshakeStep"/> member, each member's own arm.</summary>
+    private IdentityTable<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>> HandleSoundEffectQueueForHandshakeStep => field ??= new(new Dictionary<SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep, Action<SoundEffectLibrary, List<AudioRequest>>>
+    {
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait] = (library, requests) =>
+        {
+        },
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext] = (library, requests) => SendNextSound(library, requests),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest] = (library, requests) => requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)?.Sound)),
+        [SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw] = (library, requests) => requests.Add(new AudioRequest.ClearSoundRequest(library)),
+    });
+
     /// <summary>Runs one pass of <paramref name="library"/>'s request cycle and does what the pass asks of its queue.</summary>
     private void HandleSoundEffectQueue(
         SoundEffectLibrary library,
@@ -348,26 +381,7 @@ public sealed class AudioQueues
         List<AudioRequest> requests)
     {
         SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep step = SoundHandshakes.Advance(library, acknowledgement);
-        switch (step)
-        {
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Wait:
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RequestNext:
-                SendNextSound(library, requests);
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.RepeatRequest:
-                requests.Add(AudioRequest.ForSound(library, SoundHandshakes.Awaited(library)));
-                break;
-
-            case SoundRequestHandshakes<SoundEffectLibrary, SoundEffectId>.HandshakeStep.Withdraw:
-                requests.Add(new AudioRequest.ClearSoundRequest(library));
-                break;
-
-            default:
-                throw new InvalidDataException($"Sound library {library}'s request cycle asked for unknown step {step}.");
-        }
+        HandleSoundEffectQueueForHandshakeStep[step](library, requests);
     }
 
     /// <summary>Takes <paramref name="library"/>'s oldest waiting request, if one waits, asks the library for it, and starts awaiting its acceptance.</summary>
@@ -381,9 +395,5 @@ public sealed class AudioQueues
     }
 
     /// <summary>The queue of <paramref name="library"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="library"/> is not a sound library.</exception>
-    private SoundQueue QueueOf(SoundEffectLibrary library) =>
-        SoundQueues.TryGetValue(library, out SoundQueue? queue)
-            ? queue
-            : throw new ArgumentOutOfRangeException(nameof(library), library, "Unknown sound-effect library.");
+    private SoundQueue QueueOf(SoundEffectLibrary library) => SoundQueues[library];
 }

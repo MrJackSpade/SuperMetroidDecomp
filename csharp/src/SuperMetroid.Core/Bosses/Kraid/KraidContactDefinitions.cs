@@ -1,13 +1,13 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Contact geometry and response definitions for Kraid's private AI.</summary>
-internal static class KraidContactDefinitions
+internal static partial class KraidContactDefinitions
 {
-    /// <summary>Two pixels left of the lint hitbox's left edge.</summary>
+    /// <summary>The lint's leading edge, just left of its hitbox's left edge.</summary>
     internal const int LintLeadingEdge = -26;
-    /// <summary>Two pixels below the lint hitbox's top edge.</summary>
+    /// <summary>The lint's top, just below its hitbox's top edge.</summary>
     internal const int LintTop = -2;
-    /// <summary>Two pixels above the lint hitbox's bottom edge.</summary>
+    /// <summary>The lint's bottom, just above its hitbox's bottom edge.</summary>
     internal const int LintBottom = 4;
     /// <summary>How far past Samus's edge a lint pushes her, and the farthest right its push may leave her carried.</summary>
     internal const int LintPush = 16;

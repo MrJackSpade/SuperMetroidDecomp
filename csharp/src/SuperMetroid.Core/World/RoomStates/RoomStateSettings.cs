@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.World.RoomStates;
 /// The settings one state of a room loads with: its level, graphics set, music, effects, enemies, scrolling, X-ray
 /// overlay, room behaviours, room objects and background, as loading the state copies them.
 /// </summary>
-[ArchitectureReview("context-bag", "A room state's authored definition data; its setup and main members are immutable behaviour definitions the room load composes (#2287), not services carried through.")]
-public sealed record RoomStateSettings(
+public sealed partial record RoomStateSettings(
     string Name,
     RoomLevelId Level,
     RoomGraphicsSet GraphicsSet,
@@ -31,7 +30,7 @@ public sealed record RoomStateSettings(
     /// <summary>The graphics set the state draws its rooms with.</summary>
     public RoomGraphicsSet GraphicsSet { get; init; } = GraphicsSet;
 
-    /// <summary>The music data set and track the room state selects.</summary>
+    /// <summary>The room's song, and the set of music it plays from.</summary>
     public RoomMusic Music { get; init; } = Music;
 
     /// <summary>

@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 /// <param name="Place">Where the emitter hangs, in room pixels.</param>
 /// <param name="Drift">The way the emitter's spores first drift.</param>
-internal readonly record struct SporeSpawnEmitter(Position16<RoomPixels> Place, HorizontalDirection Drift);
+internal readonly partial record struct SporeSpawnEmitter(Position16<RoomPixels> Place, HorizontalDirection Drift);

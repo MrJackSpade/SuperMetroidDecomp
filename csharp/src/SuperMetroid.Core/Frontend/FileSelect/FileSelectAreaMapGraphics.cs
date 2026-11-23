@@ -12,9 +12,9 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// Picture and backdrop owners for the saved-game world map: each area's pictures are pre-coloured in its world-map colours
 /// by the import (#1512). Labels and transition windows are separate owners; this renders the unmasked map layers.
 /// </summary>
-public sealed class FileSelectAreaMapGraphics
+public sealed partial class FileSelectAreaMapGraphics
 {
-    /// <summary>The map's menu screen: its artwork, backdrop and sprite entries.</summary>
+    /// <summary>The map's menu screen: its artwork, backdrop and sprites.</summary>
     internal readonly MenuScreen screen;
     /// <summary>The installed world-map backdrops, rebound when presentation content changes.</summary>
     private MenuBackdrops backdrops;
@@ -48,12 +48,12 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>The selected Zebes area, controlling the background, backdrop, and label highlight; this does not select a gameplay load station.</summary>
-    public AreaId SelectedArea { get; private set; }
+    internal AreaId SelectedArea { get; set; }
 
     /// <summary>Shows the installed area's world-map backdrop before publishing its selection, without advancing menu input, windows, or transition timers.</summary>
     /// <param name="selectedArea">One of the six Zebes areas.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area is not one of the six Zebes areas.</exception>
-    public void SelectArea(AreaId selectedArea)
+    internal void SelectArea(AreaId selectedArea)
     {
         if (!AreaIds.IsZebes(selectedArea))
             throw new ArgumentOutOfRangeException(nameof(selectedArea), selectedArea, "Only the six Zebes areas have world-map selections.");
@@ -95,17 +95,17 @@ public sealed class FileSelectAreaMapGraphics
         ScreenSprites entries = screen.Sprites;
         entries.BeginFrame();
         Draw(MapSpriteId.WorldTitle, FileSelectMapDefinitions.WorldTitlePosition, MapSpriteColouring.Labels);
-        foreach (AreaId area in FileSelectMapAreaOrder.Labels)
+        foreach (ZebesArea area in FileSelectMapAreaOrder.Labels)
         {
-            if (MapSaveMarkers.HasUsedMarker(area, progress.UsedStations))
+            if (MapSaveMarkers.HasUsedMarker(AreaIds.Area(area), progress.UsedStations))
                 DrawArea(area);
         }
         entries.FinishFrame();
 
-        void DrawArea(AreaId shown)
+        void DrawArea(ZebesArea shown)
         {
-            Draw(MapSpriteNames.WorldLabel(shown), labels.Get(shown),
-                shown == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
+            Draw(MapSpriteDefinitions.WorldLabels[shown], labels.Get(shown),
+                AreaIds.Area(shown) == SelectedArea ? MapSpriteColouring.Labels : MapSpriteColouring.DimLabels);
         }
 
         void Draw(MapSpriteId id, Offset16<ScreenPixels> origin, MapSpriteColouring colouring)
@@ -140,11 +140,6 @@ public sealed class FileSelectAreaMapGraphics
     }
 
     /// <summary>The plane <paramref name="glow"/> limits the background's glow to: none over the whole screen, or the foreground.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="glow"/> is undefined.</exception>
-    private static PicturedPlaneLayer? GlowsOver(AreaMapBackgroundGlow glow, PicturedPlaneLayer foreground) => glow switch
-    {
-        AreaMapBackgroundGlow.WholeScreen => null,
-        AreaMapBackgroundGlow.ForegroundOnly => foreground,
-        _ => throw new ArgumentOutOfRangeException(nameof(glow), glow, "Undefined area map glow."),
-    };
+    private static PicturedPlaneLayer? GlowsOver(AreaMapBackgroundGlow glow, PicturedPlaneLayer foreground) =>
+        glow == AreaMapBackgroundGlow.ForegroundOnly ? foreground : null;
 }

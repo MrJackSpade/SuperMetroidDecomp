@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Draygon;
 
 /// <summary>The shapes of Draygon's colour sets: the introduction, the body, the sprite, the white flash and the health bands.</summary>
-public static class DraygonColorDefinitions
+public static partial class DraygonColorDefinitions
 {
     /// <summary>
     /// The colours of the introduction's transfer: all of the first sprite palette and the first nine colours of the
@@ -17,9 +17,6 @@ public static class DraygonColorDefinitions
 
     /// <summary>The colours of the white flash shared by the body and sprite hurt transfers.</summary>
     public const int WhiteFlashCount = 16;
-
-    /// <summary>The health bands, in descending-health order.</summary>
-    public const int HealthBandCount = 8;
 
     /// <summary>The colours in each health band, replacing only the body's damage-sensitive colours.</summary>
     public const int HealthBandColorCount = 4;

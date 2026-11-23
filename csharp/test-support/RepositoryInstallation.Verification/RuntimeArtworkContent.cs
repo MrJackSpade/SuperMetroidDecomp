@@ -17,7 +17,7 @@ namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <param name="standardObjects">The standard OBJ sheet the runtime's room loads show first.</param>
 /// <param name="enemyTiles">The import's enemy artwork the runtime's enemy sheets and frame displays were installed from.</param>
 internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCharacterAtlas standardObjects, EnemyTileSourceArtwork enemyTiles)
-    : IInstalledArtworkContent, IInstalledSpriteCharacterArtwork, IInstalledBossSpriteCharacterArtwork, IInstalledAreaSpriteCharacterArtwork
+    : IInstalledEncounterArtwork
 {
     /// <summary>The artwork bound into <paramref name="runtime"/>, with the installation's standard OBJ sheet and enemy artwork.</summary>
     internal static RuntimeArtworkContent Of(SuperMetroidRuntime runtime) => Of(runtime, InstalledFixtures.EnemyTiles);
@@ -35,6 +35,9 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
     /// <summary>The installation's area artwork, which only the import reads; the runtime binds none (#1512).</summary>
     public AreaSourceArtwork AreaTiles => InstalledFixtures.AreaArtwork;
 
+    /// <summary>The installation's room-FX atlas, whose Tourian statue eye pictures the sprite statues' looks copy (#2625).</summary>
+    public SuperMetroid.AssetExtraction.Fx.RoomFxBlockAnimationAtlas AnimatedTiles => InstalledFixtures.ImportMaps.BlockAnimationAtlas;
+
     /// <summary>The characters a typed asset names, from the standard OBJ sheet, the gunship's takeoff pages or the map presentation's escape-timer characters.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No bound catalog holds characters for the asset.</exception>
     public ReadOnlyMemory<byte> Resolve(InstalledArtworkId asset) =>
@@ -44,8 +47,8 @@ internal sealed class RuntimeArtworkContent(SuperMetroidRuntime runtime, RoomCha
                 InstalledArtworkId.GunshipLiftoffThirdTiles or InstalledArtworkId.GunshipLiftoffFourthTiles or
                 InstalledArtworkId.GunshipLiftoffFifthTiles
             ? (EnemyTiles.GunshipLiftoff ?? throw new InvalidOperationException("Gunship takeoff artwork is not bound.")).Resolve(asset)
-            : asset is InstalledArtworkId.EscapeTimerFirstTiles or InstalledArtworkId.EscapeTimerSecondTiles
-            ? EscapeTimerTilePageTransfers.Resolve(InstalledFixtures.ImportMaps.EscapeTimerTiles, asset)
+            : EscapeTimerTilePages.TryPageOf(asset, out EscapeTimerTilePage timerPage)
+            ? EscapeTimerTilePageTransfers.Resolve(InstalledFixtures.ImportMaps.EscapeTimerTiles, timerPage)
             : throw new ArgumentOutOfRangeException(nameof(asset), asset, "The runtime binds no characters for this asset.");
 
     /// <summary>The gameplay OBJ character page enemy-format sprites draw from: the table's uploads over the bound artwork.</summary>

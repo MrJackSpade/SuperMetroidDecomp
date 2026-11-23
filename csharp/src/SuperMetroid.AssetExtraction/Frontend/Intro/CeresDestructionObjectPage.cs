@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// cinematic sheet over their start, then, once the Zebes reveal loads, the reveal's characters over them. The scene's
 /// sprite sheets are composed over this page.
 /// </summary>
-internal static class CeresDestructionObjectPage
+internal static partial class CeresDestructionObjectPage
 {
     /// <summary>The page's characters, with the Zebes reveal's loaded when <paramref name="zebesRevealed"/>.</summary>
     internal static byte[] Characters(ImportIntroCinematicArtwork artwork, bool zebesRevealed)

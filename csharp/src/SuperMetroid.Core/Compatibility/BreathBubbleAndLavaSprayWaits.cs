@@ -26,8 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// by running out, by a landing that shows nothing (which clears the landing's two places), and by room setup.
 /// </para>
 /// </remarks>
-[CompatibilityService("Samus's breath bubbles and lava spray wait for the splashes, dust and spray that shared their places to run out")]
-public sealed class BreathBubbleAndLavaSprayWaits
+public sealed partial class BreathBubbleAndLavaSprayWaits
 {
     /// <summary>The wait for the effect holding up the next breath bubble to run out; over when none does.</summary>
     internal readonly UpdateCountdown bubbleWait = UpdateCountdown.Ended();

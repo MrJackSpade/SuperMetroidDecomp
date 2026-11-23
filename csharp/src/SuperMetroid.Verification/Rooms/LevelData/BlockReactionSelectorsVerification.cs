@@ -111,8 +111,6 @@ internal static class BlockReactionSelectorsVerification
             bool selected = RoomBlockBehaviorCodec.Decode(index).TryGetContactCrumble(out _);
             AssertEqual(index < 8, selected, $"special-block BTS {index:X2} selects a crumble block exactly when it is one of the first eight");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => BlockReactionChanges.ContactCrumble((ContactCrumbleBlock)(-1)),
-            "contact crumble program rejects an undefined crumble block");
     }
 
     /// <summary>The crumble block common special-block reaction <paramref name="index"/> selects, rejecting any other index.</summary>
@@ -125,12 +123,24 @@ internal static class BlockReactionSelectorsVerification
     /// <summary>Checks collision-triggered bomb PLM instruction selection through native headers.</summary>
     internal static void VerifyCollisionBombInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.CollisionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "collision bomb"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(CollisionBombAt(index)), "collision bomb"));
+
+    /// <summary>
+    /// The collision bomb block bomb-block reaction <paramref name="index"/> sets off, rejecting any other index: a reaction
+    /// whose break sets off nothing is a block Samus's contact breaks without one (<see cref="BlockReactionChanges.TryCollisionBomb"/>),
+    /// outside the selector's domain.
+    /// </summary>
+    private static BlockReactionChange CollisionBombAt(int index) =>
+        index is >= 0 and < RoomBlockBehaviorCodec.ByteCount &&
+            RoomBlockBehaviorCodec.Decode(index).Bombable is { } reaction &&
+            BlockReactionChanges.TryCollisionBomb(reaction, out BlockReactionChange? change)
+            ? change
+            : throw new ArgumentOutOfRangeException(nameof(index), index, "The reaction sets off no collision bomb block.");
 
     /// <summary>Checks projectile-triggered bomb reaction instruction selection through native headers.</summary>
     internal static void VerifyReactionBombInstructionSelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
-            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChanges.ReactionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "bomb reaction"));
+            index => RoomObjectNativeListAddresses.BlockReactionEntry(BlockReactionChangesConstants.ReactionBomb(RoomBlockBehaviorCodec.Decode(index).Bombable)), "bomb reaction"));
 
     /// <summary>Checks crumble-reveal instruction selection for the eight crumble blocks, revealed by their four native sizes.</summary>
     internal static void VerifyCrumbleRevealInstructionSelection(CartridgeImportAddressSpace rom) =>
@@ -160,7 +170,8 @@ internal static class BlockReactionSelectorsVerification
             // Independent cartridge header indirection, not the replacement's reaction cases.
             ushort header = ReadRomWord(rom, 0x949da4 + index * 2);
             ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
-            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special)),
+            AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(RoomBlockBehaviorCodec.Decode(index).Special
+                    ?? throw new InvalidDataException($"BTS {index:X2} gives a special block no reaction."))),
                 $"bomb special: native instruction at BTS {index:X2}");
         }
         for (int areaIndex = 0; areaIndex < AreaIds.All.Count; areaIndex++)
@@ -170,23 +181,22 @@ internal static class BlockReactionSelectorsVerification
             ushort header = ReadRomWord(rom, 0x949da4 + (sharedReactions + areaReactions * areaIndex + entry) * 2);
             ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
             AssertEqual(instruction, BombSpecialNativeList(BombSpecialBlockReactions.ChangeFor(
-                    RoomBlockBehaviorCodec.Decode(area, areaTableBehavior | entry).Special)),
+                    RoomBlockBehaviorCodec.Decode(area, areaTableBehavior | entry).Special
+                        ?? throw new InvalidDataException($"{area}'s entry {entry} gives a special block no reaction."))),
                 $"bomb special: native instruction at {area}'s entry {entry}");
         }
         for (int index = sharedRead; index < 0x80; index++)
         {
             SpecialBlockReaction? reaction = RoomBlockBehaviorCodec.Decode(index).Special;
             AssertTrue(reaction is null, $"bomb special: BTS {index:X2} gives a special block no reaction");
-            AssertThrows<ArgumentOutOfRangeException>(() => BombSpecialBlockReactions.ChangeFor(reaction),
-                $"bomb special: rejects BTS {index:X2}, which has no reaction");
         }
     }
 
     /// <summary>The native list a bomb-special reaction stands for: the shared delete, the speed reveal or a crumble reveal.</summary>
-    private static ushort BombSpecialNativeList(BlockReactionChange change) =>
-        change == BlockReactionChange.MadeAtSpawn ? RoomObjectNativeListAddresses.DeleteList
-            : change == SpeedBoosterBlockObjectDefinitions.BombReveal
-                ? RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Program == change).Entry
+    private static ushort BombSpecialNativeList(LastingBlockReactionChange change) =>
+        ReferenceEquals(change, LastingBlockReactionChange.MadeAtSpawn) ? RoomObjectNativeListAddresses.DeleteList
+            : ReferenceEquals(change, SpeedBoosterBlockObjectDefinitions.BombReveal)
+                ? RoomObjectNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => ReferenceEquals(entry.Program, change)).Entry
                 : RoomObjectNativeListAddresses.BlockReactionEntry(change);
 
     /// <summary>Compares a selector with the native header indirection and rejects indexes outside its domain.</summary>

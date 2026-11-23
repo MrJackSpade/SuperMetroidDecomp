@@ -12,8 +12,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// one otherwise, and restores the spawn height into both the whole pixels and the fraction; the Pipe Bug emergence check
 /// steps a placed and a respawned bug against that arithmetic.
 /// </remarks>
-[CompatibilityService("a Brinstar Pipe Bug's height fraction counts its emergence: two pixels on the update it is zero, one otherwise, and a respawn sets it to the spawn height")]
-public static class PipeBugEmergenceRise
+public static partial class PipeBugEmergenceRise
 {
     /// <summary>The fractions a height holds.</summary>
     private const int FractionRange = 65536;

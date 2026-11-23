@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Defines the installed enemy overread file (#1500).</summary>
-internal static class EnemyOverreadFormat
+internal static partial class EnemyOverreadFormat
 {
     /// <summary>
     /// Supported enemy overread schema revision; revision one held Magdollite's apex growth and the falling spark's
@@ -21,5 +21,8 @@ internal static class EnemyOverreadFormat
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
+        RespectRequiredConstructorParameters = true,
     };
 }

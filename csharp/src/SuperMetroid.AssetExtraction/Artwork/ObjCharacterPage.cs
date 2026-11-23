@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// Builds the 512-character OBJ page a nine-bit OBJ character number indexes. Characters past the supplied sheet are
 /// blank, and a further row plus one is blank overhang, so any character a large part names stays inside the page.
 /// </summary>
-public static class ObjCharacterPage
+public static partial class ObjCharacterPage
 {
     /// <summary>Characters a nine-bit OBJ name selects.</summary>
     public const int Characters = 512;

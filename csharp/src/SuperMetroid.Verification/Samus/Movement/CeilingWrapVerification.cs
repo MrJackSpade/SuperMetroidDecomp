@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction;
@@ -29,11 +30,14 @@ internal static class CeilingWrapVerification
             var words = Enumerable.Repeat(RoomTerrainBlock.Of(0x040, BlockMirroring.None, RoomCollisionType.Air), 128 * 32).ToArray();
             var level = CreateRoom(new(128, 32), words, new RoomBlockBehavior[words.Length]);
             var roomObjects = RoomObjectFixtures.Unbound();
-            var shot = new SamusProjectile(0) { Position = new(new((ushort)(tileX * 16), 0), new(4, 0)), Radius = new(1, 8), Type = SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false),
-                Direction = SamusProjectileDirection.Right };
+            var shot = new SamusProjectile(0);
+            shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombination.Wave, charged: false));
+            shot.HeldShot().Position = new(new((ushort)(tileX * 16), 0), new(4, 0));
+            shot.HeldShot().Radius = new(1, 8);
+            shot.HeldShot().Direction = SamusProjectileDirection.Right;
             for (int call = 0; call < 45; call++)
             {
-                system.TerrainCollision.RunInitialBeamCollision(level, shot, roomObjects, true);
+                system.TerrainCollision.RunInitialBeamCollision(new RoomTerrain(level, roomObjects), shot.HeldShot(), true);
                 int owner = roomObjects.Places.ActiveCount == 0 ? 0 : level.Size.RowMajorIndex(roomObjects.PopulationPlaces[0].Block) * 2;
                 string actual = $"{tileX},{call},{roomObjects.Places.ActiveCount},{owner:X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX).Terrain):X4},{RoomLevelWordEncoder.Encode(level.GetCollisionBlockByIndex(tileX + 1).Terrain):X4}";
                 string expected = native[cursor++];

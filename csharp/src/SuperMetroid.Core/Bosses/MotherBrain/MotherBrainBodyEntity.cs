@@ -1,8 +1,10 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.BossBodies;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -11,18 +13,38 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// a bomb, and the pictures she shows on her boss body layer.
 /// </summary>
 /// <param name="species">The MotherBrain species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
 /// <param name="bossArtwork">The session's installed boss artwork.</param>
-internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
-    : MotherBrainEntity(species, place, common), IBossBodyFrames, IEnemyPrivateShotReaction
+/// <param name="encounter">What the enemy's setup built (#2554).</param>
+internal sealed partial class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, BossArtworkBinding bossArtwork, MotherBrainEnemyState encounter)
+    : MotherBrainEntity(species, occupant, place, common), IBossBodyFrames, IEnemyPrivateShotReaction, IEnemyDrawHooks,
+        IEnemySecondPicture
 {
-    /// <inheritdoc/>
-    public override void Initialize() => Species.Body.InitializeMotherBrainBody(Place);
+    /// <summary>
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
+    /// </summary>
+    /// <param name="species">The MotherBrain species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    /// <param name="bossArtwork">The session's installed boss artwork.</param>
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
+    internal MotherBrainBodyEntity(MotherBrainBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common,
+        BossArtworkBinding bossArtwork, RoomWarning zebesWarning)
+        : this(species, occupant, place, common, bossArtwork, species.BeginEncounter(occupant, zebesWarning))
+    {
+    }
+
+    /// <summary>The encounter the body begins as it is set up, which her head joins (#2218, #2554).</summary>
+    internal override MotherBrainEnemyState Encounter { get; } = encounter;
 
     /// <summary>The body's hitboxes: her brain's rectangle until its first animation shows a body frame, then its frame's.</summary>
-    public override bool? FindHitboxReaction(EnemyHitboxProbe probe, out EnemyReaction? reaction) =>
-        MotherBrainCombat.FindMotherBrainBodyHitboxReaction(Place, probe, out reaction);
+    public override EnemyHitboxContact FindHitboxReaction(EnemyHitboxProbe probe) =>
+        MotherBrainCombat.FindMotherBrainBodyHitboxReaction(Place, probe);
 
     /// <inheritdoc/>
     public override void RunMainAi(IEnemyAiFrame frame) => Species.RunMotherBrainBodyMain(Place, Encounter, frame.Samus, frame.SamusBombs);
@@ -30,11 +52,8 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     /// <inheritdoc/>
     public override void AdvanceTypedAnimation(EnemyAnimationCueContext context) => Species.Body.AdvanceMotherBrainBodyAnimation(Encounter, context.Samus);
 
-    /// <summary>The body's shot reaction, which its definition leaves to it.</summary>
-    public override EnemyReaction? SpeciesShot => MotherBrainReactions.BodyShot;
-
     /// <summary>The body's own shot reaction where its definition leaves shots to it, or the shared one.</summary>
-    public override EnemyShotReaction? ShotReaction => LeavesShotToSpecies ? Species.Combat.BodyShotReaction : base.ShotReaction;
+    public override EnemyShotReaction ShotReaction => Occupant.Definition.Shot == MotherBrainReactions.BodyShot ? (field ??= MotherBrainCombat.BodyShotReactionOf(this)) : base.ShotReaction;
 
     /// <summary>
     /// Makes a dud of a bomb that selects the body's shot reaction, before the ignoring check: the bomb's explosion is
@@ -45,14 +64,8 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     public override bool TryReactToBomb(EnemyBombContext context) =>
         context.SelectedShot == MotherBrainReactions.BodyShot || base.TryReactToBomb(context);
 
-    /// <summary>
-    /// The shared Power Bomb reaction; the body leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches it.
-    /// </summary>
-    /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
+    /// <inheritdoc/>
+    public BossBodyParts BodyParts => Encounter.BodyParts;
 
     /// <inheritdoc/>
     public BossBodyFrame? FindBodyFrame(EnemyFrameId selected) =>
@@ -61,7 +74,29 @@ internal sealed class MotherBrainBodyEntity(MotherBrainBehavior species, RoomEne
     /// <summary>Shots meet the body's frames' hitboxes; its contact uses the definition's radius.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;
 
+    /// <summary>
+    /// Her legs, the body's own picture, show her own colouring (#2636): the game draws them in the colours her health, her
+    /// beam, her greying and her phase two change, as it draws her brain, so they show her damage with the rest of her.
+    /// </summary>
+    public PictureShading? CommonDrawShading() => Encounter.Colours.OwnShading;
+
+    /// <summary>
+    /// Her far leg, which every body frame shows as a picture of its own after her near leg's (#2633, #2634): the game draws it
+    /// behind the room's front tiles and her body, so it passes behind the wall as she backs up to it and behind her body as
+    /// she walks.
+    /// </summary>
+    /// <param name="frame">The frame her body shows.</param>
+    public string? SecondPictureOf(EnemyFrameId frame) =>
+        MotherBrainBodyVisualDefinitions.AnimationFrames.Contains(frame) ? MotherBrainBodyVisualDefinitions.SecondPictureName(frame) : null;
+
+    /// <summary>The body draws nothing before its legs.</summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="camera">The camera position.</param>
+    public void DrawBeforeBody(SpriteFrameBuffer sprites, Position16<RoomPixels> camera)
+    {
+    }
+
     /// <summary>The body's own shot reaction, which a normal bomb triggers as it does the common one.</summary>
-    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names, or null.</param>
-    public bool OwnsPrivateShotReaction(EnemyReaction? reaction) => reaction == MotherBrainReactions.BodyShot;
+    /// <param name="reaction">The reaction the species' definition leaves to it or the selected hitbox names.</param>
+    public bool OwnsPrivateShotReaction(EnemyReaction reaction) => reaction == MotherBrainReactions.BodyShot;
 }

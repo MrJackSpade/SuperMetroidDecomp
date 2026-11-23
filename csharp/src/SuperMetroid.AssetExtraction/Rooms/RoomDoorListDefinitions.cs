@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// </summary>
 /// <remarks>Each list is the room's own door list. Fourteen lists hold the elevator ride, which consumes no
 /// physical door record.</remarks>
-internal static class RoomDoorListDefinitions
+internal static partial class RoomDoorListDefinitions
 {
     /// <summary>Each retail room's door list, in its authored list order.</summary>
     internal static IReadOnlyDictionary<RoomDefinition, IReadOnlyList<DoorBlockExit>> ByRoom { get; } =
@@ -164,7 +164,7 @@ internal static class RoomDoorListDefinitions
         [RoomDefinitions.GoldenTorizoEnergyRefill] = [DoorBlockExit.Physical(NorfairDoorDefinitions.GoldenTorizoEnergyRefillToScrewAttack)],
         [RoomDefinitions.Ridley] = [DoorBlockExit.Physical(NorfairDoorDefinitions.RidleyToRidleyEnergyTank), DoorBlockExit.Physical(NorfairDoorDefinitions.RidleyToLowerNorfairFarming)],
         [RoomDefinitions.LowerNorfairFarming] = [DoorBlockExit.Physical(NorfairDoorDefinitions.LowerNorfairFarmingToRidley), DoorBlockExit.Physical(NorfairDoorDefinitions.LowerNorfairFarmingToPlowerhouse)],
-        [RoomDefinitions.FastPillarsSetup] = [DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToMainHall), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToMickeyMouse), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToMainHallAlternate), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToFastRipper), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToPillar)],
+        [RoomDefinitions.FastPillarsSetup] = [DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToMainHall), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToMickeyMouse), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToMainHall), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToFastRipper), DoorBlockExit.Physical(NorfairDoorDefinitions.FastPillarsSetupToPillar)],
         [RoomDefinitions.MickeyMouse] = [DoorBlockExit.Physical(NorfairDoorDefinitions.MickeyMouseToFastPillarsSetup), DoorBlockExit.Physical(NorfairDoorDefinitions.MickeyMouseToWorstRoomInTheGame)],
         [RoomDefinitions.Pillar] = [DoorBlockExit.Physical(NorfairDoorDefinitions.PillarToFastPillarsSetup), DoorBlockExit.Physical(NorfairDoorDefinitions.PillarToWorstRoomInTheGame)],
         [RoomDefinitions.Plowerhouse] = [DoorBlockExit.Physical(NorfairDoorDefinitions.PlowerhouseToLowerNorfairFarming), DoorBlockExit.Physical(NorfairDoorDefinitions.PlowerhouseToMetalPirates)],

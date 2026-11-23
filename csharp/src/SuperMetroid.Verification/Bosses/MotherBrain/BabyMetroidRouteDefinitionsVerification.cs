@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -55,6 +55,6 @@ internal static class BabyMetroidRouteDefinitionsVerification
 
     /// <summary>Reads one native route word solely as the verification oracle.</summary>
     internal static ushort ReadRomWord(CartridgeImportAddressSpace bus, int address) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
+        bus.ReadCartridgeWord(address);
 
 }

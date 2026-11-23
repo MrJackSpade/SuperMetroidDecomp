@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Corpses;
 /// table, the corpse's first row topmost, so the band of eight of the corpse's rows a character holds is its row of the
 /// table less the corpse's first. The extraction reads them only to find where the corpse lies in each of its pictures.
 /// </summary>
-internal sealed class RottingCorpseCells
+internal sealed partial class RottingCorpseCells
 {
     /// <summary>The band of the corpse's rows each of its characters holds, by character.</summary>
     private readonly Dictionary<int, int> bandOf;
@@ -55,8 +55,7 @@ internal sealed class RottingCorpseCells
     /// rotting corpse in: any frame of a dead monster's or the dead Torizo's, and Mother Brain's dead brain.
     /// </summary>
     internal static bool Shows(EnemyDefinitionId enemy, EnemyFrameId frame) =>
-        enemy is EnemyDefinitionId.CorpseSidehopper or EnemyDefinitionId.CorpseTorizo || DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy)
-        || enemy == EnemyDefinitionId.MotherBrainHead && EncounterArtworkDrawingDefinitions.MotherBrainCorpseFrames.Contains(frame);
+        Showings.TryGetValue(enemy, out CorpseShowing? showing) && showing.ShowsIn(frame);
 
     /// <summary>Whether encounter frame <paramref name="frame"/> is one the game shows a rotting corpse in: the dead Torizo's hook.</summary>
     internal static bool ShowsInEncounter(EnemyFrameId frame) =>
@@ -68,28 +67,46 @@ internal sealed class RottingCorpseCells
         var corpses = new List<RottingCorpseCells>();
         foreach (EnemyDefinitionId enemy in Ensure.NotNull(drawn).Distinct())
         {
-            if (enemy == EnemyDefinitionId.MotherBrainHead)
-                corpses.Add(MotherBrain);
-            else if (enemy == EnemyDefinitionId.CorpseTorizo)
-                corpses.AddRange([TorizoBody, TorizoSand]);
-            else if (enemy == EnemyDefinitionId.CorpseSidehopper)
-            {
-                corpses.AddRange([DeadMonster(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, 0)),
-                    DeadMonster(new CorpseRowUploadList(RottingCorpseSpecies.Sidehopper, 1))]);
-            }
-            else if (DeadTourianBehavior.IsDeadTourianCorpseDefinition(enemy))
-            {
-                DeadTourianCorpseSpecies species = DeadTourianBehavior.SpeciesOf(enemy);
-                for (int variant = 0; variant < DeadTourianCorpses.VariantCount(species); variant++)
-                    corpses.Add(DeadMonster(DeadTourianCorpses.RowUploadList(species, variant)));
-            }
+            if (Showings.TryGetValue(enemy, out CorpseShowing? showing))
+                corpses.AddRange(showing.Corpses());
         }
         return corpses;
     }
 
+    /// <summary>
+    /// Each enemy whose frames show a rotting corpse, with the frames it shows one in and the corpses they rot: every frame
+    /// of a dead monster's or the dead Torizo's, and Mother Brain's dead brain.
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, CorpseShowing> Showings = BuildShowings();
+
+    /// <summary>The frames an enemy shows a rotting corpse in, and the corpses they rot.</summary>
+    /// <param name="ShowsIn">Whether one of the enemy's frames shows the corpse.</param>
+    /// <param name="Corpses">The corpses the enemy's frames rot.</param>
+    private sealed partial record CorpseShowing(Func<EnemyFrameId, bool> ShowsIn, Func<IEnumerable<RottingCorpseCells>> Corpses);
+
+    /// <summary>Lists each corpse-showing enemy with its frames and corpses.</summary>
+    private static Dictionary<EnemyDefinitionId, CorpseShowing> BuildShowings()
+    {
+        Func<EnemyFrameId, bool> everyFrame = _ => true;
+        var showings = new Dictionary<EnemyDefinitionId, CorpseShowing>
+        {
+            [EnemyDefinitionId.MotherBrainHead] = new(frame => EncounterArtworkDrawingDefinitions.MotherBrainCorpseFrames.Contains(frame), () => [MotherBrain]),
+            [EnemyDefinitionId.CorpseTorizo] = new(everyFrame, () => [TorizoBody, TorizoSand]),
+            [EnemyDefinitionId.CorpseSidehopper] = new(everyFrame, () =>
+                [DeadMonster(CorpseRowUploadList.SidehopperBabyMetroidVictim),
+                    DeadMonster(CorpseRowUploadList.SidehopperAlreadyDead)]),
+        };
+        foreach ((EnemyDefinitionId dead, DeadTourianCorpseSpecies species) in DeadTourianCorpseSpeciesDefinitions.Species)
+        {
+            showings.Add(dead, new(everyFrame, () => Enumerable.Range(0, DeadTourianCorpses.VariantCount(species))
+                .Select(variant => DeadMonster(DeadTourianCorpses.RowUploadList(species, variant)))));
+        }
+        return showings;
+    }
+
     /// <summary>The dead monster whose rows <paramref name="list"/> uploads.</summary>
     private static RottingCorpseCells DeadMonster(CorpseRowUploadList list) =>
-        new(list.Name, DeadMonsterRowUploadDefinitions.ForList(list).Select(Run));
+        new(list.ToString(), DeadMonsterRowUploadDefinitions.ForList(list).Select(Run));
 
     /// <summary>The dead Torizo's body: the body rows of both its upload lists.</summary>
     private static RottingCorpseCells TorizoBody { get; } = new("Torizo",
@@ -114,5 +131,5 @@ internal sealed class RottingCorpseCells
     /// <summary>A run of characters in one row of the sprite character table.</summary>
     /// <param name="FirstCharacter">The first.</param>
     /// <param name="Count">How many.</param>
-    private readonly record struct CorpseCharacterRun(int FirstCharacter, int Count);
+    private readonly partial record struct CorpseCharacterRun(int FirstCharacter, int Count);
 }

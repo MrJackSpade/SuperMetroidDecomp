@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Editable four-bit characters of Samus's suit explosion as she dies, from which its pre-coloured sheet is composed.</summary>
-public sealed class SamusDeathTileAtlas
+public sealed partial class SamusDeathTileAtlas
 {
     /// <summary>The installed explosion characters, in atlas order.</summary>
     internal readonly byte[] planar;

@@ -24,14 +24,15 @@ internal static class MotherBrainHeadHitboxVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         MotherBrainEnemyState state = runtime.Enemies.BossEncounters.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
         RoomEnemyPlace head = state.Head;
-        AssertEqual<MotherBrainHeadSegment?>(MotherBrainHeadSegment.WholeHeadMouthClosed, state.Brain.Playback?.PlayingSegment,
-            "the brain program starts at InstList_MotherBrainHead_Initial");
-        AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut, state.Brain.ShownFrame,
+        // The brain program starts at InstList_MotherBrainHead_Initial, which holds her closed eye from its start: a draw with
+        // time frozen shows the picture the brain holds without playing it on.
+        AssertEqual<EnemyFrameId?>(EnemyFrameId.MotherBrainHeadEyeShut,
+            state.Brain.AdvanceAtDraw(timeIsFrozen: true, cue => throw new InvalidOperationException($"A frozen draw played the brain's {cue}.")),
             "the brain's initial animation shows its closed eye from its start");
 
         EnemyAnimationPlayer.AdvanceAnimation(head, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
@@ -43,12 +44,12 @@ internal static class MotherBrainHeadHitboxVerification
         head.Health = 18000;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
         head.Invincibility.End();
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
+        runtime.Enemies.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.PlasmaIceWave, charged: true); shot.Damage = 900; shot.Direction = SamusProjectileDirection.UpLeft;
-        shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
-        runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.IntroducedSamus);
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.PlasmaIceWave, charged: true), 900); shot.HeldShot().Direction = SamusProjectileDirection.UpLeft;
+        shot.HeldShot().Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.HeldShot().Radius = new(24, 24);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
+        runtime.Enemies.ResolveShotsOnInteractiveEnemies(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, runtime.Player.Samus);
         AssertEqual(17100, head.Health, "the charged beam lands on the head's native hitbox");
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");
     }

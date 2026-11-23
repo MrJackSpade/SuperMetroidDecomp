@@ -40,121 +40,10 @@ internal static class SamusBodyArtworkVerification
             "the installed death steps are the death palettes' explosion steps and whiteout colours");
         SamusDeathTileAtlas stockDeathTiles = SamusBodySheetFixtures.Inputs.DeathTiles;
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
-        int definitions = 0;
-        IReadOnlyDictionary<SamusPoseId, ushort> posePointers = stock.PosePointers;
-        AssertEqual(SamusPoseNumbers.RecordedPoses.Count, posePointers.Count, "Samus body installs a frame list for each pose with a record and none for a record no pose names");
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
-        {
-            if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            int address = 0x92D94E + pose * 2;
-            ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
-            AssertEqual(native, posePointers[SamusPoseNumbering.FromNumber(pose)], $"Samus body pose pointer {pose:X2}");
-            int graphicsAddress = SamusSourceDefinitions.PoseDefinitions.Value +
-                pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
-            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)),
-                stock.Gameplay.ArtOrigin(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} visual Y origin");
-        }
-        for (int index = 0; index < SamusBodySources.FrameCount; index++)
-        {
-            int address = SamusBodySources.FirstFrameAddress + index * 4;
-            SamusBodyFrameSelection frame = stock.Frames[index];
-            AssertEqual(bus.ReadCartridgeByte(address), frame.TopSet, $"Samus frame {index} upper set");
-            AssertEqual(bus.ReadCartridgeByte(address + 1), frame.TopPosition, $"Samus frame {index} upper position");
-            AssertEqual(bus.ReadCartridgeByte(address + 2), frame.BottomSet, $"Samus frame {index} lower set");
-            AssertEqual(bus.ReadCartridgeByte(address + 3), frame.BottomPosition, $"Samus frame {index} lower position");
-        }
-        for (int half = 0; half < 2; half++)
-        {
-            bool upper = half == 0;
-            int setCount = upper ? SamusBodySources.TopSetCount : SamusBodySources.BottomSetCount;
-            int pointerTable = upper ? 0x92D91E : 0x92D938;
-            for (int set = 0; set < setCount; set++)
-            {
-                ushort nativePointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerTable + set * 2);
-                AssertEqual(nativePointer,
-                    upper ? stock.TopSetPointers[set] : stock.BottomSetPointers[set],
-                    $"Samus {(upper ? "top" : "bottom")} set {set} pointer");
-                IReadOnlyList<SamusBodyTileTransfer> entries = upper ? stockCharacters.TopSet(set) : stockCharacters.BottomSet(set);
-                for (int position = 0; position < entries.Count; position++)
-                {
-                    SamusBodyTileTransfer entry = entries[position];
-                    int definitionAddress = stock.DefinitionAddress(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
-                    int source = (CartridgeImportSource.Require(bus).ReadCartridgeLong(definitionAddress));
-                    ushort first = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress + 3);
-                    ushort second = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress + 5);
-                    AssertEqual(first, entry.FirstSize, $"Samus definition {definitionAddress:X6} first size");
-                    AssertEqual(second, entry.SecondSize, $"Samus definition {definitionAddress:X6} second size");
-                    // Planar rebuilds the definition's bytes on every read, so it is read once per definition.
-                    ReadOnlySpan<byte> planar = entry.Planar.Span;
-                    for (int i = 0; i < planar.Length; i++)
-                        AssertEqual(bus.ReadCartridgeByte(source + i), planar[i],
-                            $"Samus definition {definitionAddress:X6} tile byte {i:X3}");
-                    definitions++;
-                }
-            }
-        }
-        AssertEqual(435, definitions, "complete Samus body DMA definition count");
-
-        SamusSpritemapSources sprites = stock.Spritemaps;
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
-        {
-            if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            int topAddress = SamusSpritemapSources.TopBaseAddress + pose * 2;
-            int bottomAddress = SamusSpritemapSources.BottomBaseAddress + pose * 2;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(topAddress),
-                sprites.TopBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} top OAM base");
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(bottomAddress),
-                sprites.BottomBase(SamusPoseNumbering.FromNumber(pose)), $"Samus pose {pose:X2} bottom OAM base");
-        }
-        int nonzeroSpritemaps = 0;
-        ushort[] nativePointers = [.. Enumerable.Range(0, SamusSpritemapSources.EntryCount).Select(index =>
-            CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSpritemapSources.PointerTableAddress + index * 2))];
-        SamusSpritemapId?[] nativeEntries = SamusSpritemapNative.Entries(nativePointers);
-        for (int index = 0; index < SamusSpritemapSources.EntryCount; index++)
-        {
-            ushort pointer = nativePointers[index];
-            AssertEqual(nativeEntries[index], sprites.Entries[index], $"Samus OAM pointer index {index}");
-            if (!sprites.TryGet((ushort)index, out SamusSpritemapDefinition? record))
-            {
-                AssertEqual((ushort)0, pointer, $"Samus OAM index {index} mutable-memory pointer");
-                continue;
-            }
-            nonzeroSpritemaps++;
-            int address = 0x920000 | pointer;
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(address),
-                (ushort)record.Parts.Length, $"Samus OAM record ${pointer:X4} part count");
-            for (int part = 0; part < record.Parts.Length; part++)
-            {
-                int at = address + 2 + part * 5;
-                // The installed piece holds what the cartridge's five-byte record describes: the import codec decodes
-                // the record, and its offset, size, character, palette row, priority and mirroring are compared.
-                SpritePart expectedPart = new SpritemapPart(
-                    new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(at)),
-                    new SnesSpritemapYByte(bus.ReadCartridgeByte(at + 2)),
-                    new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(at + 3))).ToPart();
-                AssertEqual(expectedPart.Offset, record.Parts[part].Offset, $"Samus OAM ${pointer:X4} part {part} X/Y offset");
-                AssertEqual(expectedPart.Large, record.Parts[part].Large, $"Samus OAM ${pointer:X4} part {part} size");
-                AssertEqual(expectedPart, record.Parts[part], $"Samus OAM ${pointer:X4} part {part} character, palette, priority and flips");
-            }
-            var nativeOam = new OamBuffer();
-            nativeOam.BeginFrame();
-            DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, new(127, 131));
-            OamBuffer installedOam = SamusSpritemapDrawsAccess.SamusSpritemapOam((ushort)index,
-                new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus));
-            AssertTrue(nativeOam.ImageEquals(installedOam) &&
-                nativeOam.NextByteOffset == installedOam.LastFinalizedSpriteCount * 4,
-                $"Samus OAM index {index} installed/native staging parity");
-        }
-        AssertEqual(1913, nonzeroSpritemaps, "all nonzero Samus OAM pointer entries");
-        int zeroIndex = Array.FindIndex(sprites.Entries.ToArray(), entry => entry is null);
-        AssertTrue(zeroIndex >= 0, "retail Samus pointer table contains a zero entry");
-        // Owner decision on #1318 row 11: a zero entry draws nothing instead of reading direct-page scratch.
-        OamBuffer zeroOam = SamusSpritemapDrawsAccess.SamusSpritemapOam((ushort)zeroIndex,
-            new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus));
-        AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
-        // The installation holds each pose's and frame's placement, decoded once from the cartridge's tables (#1517).
+        // The import decodes the cartridge's body tables once into what each pose's picture frames show (#2556); each decoded
+        // frame's half pictures, placement and compositions are the ones the cartridge's tables select for that frame.
         Dictionary<SamusPoseId, SamusBodyPosePlacement> expectedPlacements = SamusBodyPlacementDecoding.Decode(
-            Enumerable.Range(0, SamusBodySources.PoseCount).Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
+            Enumerable.Range(0, SamusBodyTableDecoding.PoseCount).Select(pose => (int)unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4))).ToArray(),
             Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.LandingByteCount).Select(i =>
                 (int)bus.ReadCartridgeByte(SamusSourceDefinitions.LandingVerticalOffsets.Value + i)).ToArray(),
@@ -162,15 +51,92 @@ internal static class SamusBodyArtworkVerification
                 (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value + i))).ToArray(),
             Enumerable.Range(0, SamusBodyPlacementSourceDefinitions.DrainedByteCount).Select(i =>
                 (int)unchecked((sbyte)bus.ReadCartridgeByte(SamusSourceDefinitions.DrainedVerticalOffsets.Value + i))).ToArray());
-        AssertEqual(expectedPlacements.Count, stock.Placements.Count, "Samus placements cover every pose with a record");
-        foreach (KeyValuePair<SamusPoseId, SamusBodyPosePlacement> expected in expectedPlacements)
+        IImportCartridgeSource cartridge = bus;
+        SamusSpritemapSources sprites = stock.Spritemaps;
+        SamusShownFrames shownFrames = InstalledFixtures.SamusShownFrameAnalysis.Installed();
+        int decodedFrames = 0, drawnHalves = 0;
+        // Each half picture and composition is compared with the cartridge once, at the first frame that shows it; every
+        // later frame showing it must select the same definition record or spritemap.
+        var pictureRecords = new Dictionary<SamusBodyPicture, int>();
+        var compositionPointers = new Dictionary<ushort, SamusSpritemapDefinition?>();
+        for (int pose = 0; pose < SamusBodyTableDecoding.PoseCount; pose++)
         {
-            SamusBodyPosePlacement installed = stock.Placements[expected.Key];
-            AssertEqual(expected.Value.ArtOrigin, installed.ArtOrigin, $"Samus pose {expected.Key} installed origin");
-            AssertTrue(expected.Value.FrameRises is null ? installed.FrameRises is null
-                : installed.FrameRises is { } rises && rises.SequenceEqual(expected.Value.FrameRises),
-                $"Samus pose {expected.Key} installed frame placements");
+            if (!SamusPoseNumbering.NamesPose(pose)) continue;
+            SamusPoseId named = SamusPoseNumbering.FromNumber(pose);
+            int graphicsAddress = SamusSourceDefinitions.PoseDefinitions.Value + pose * SamusSourceDefinitions.PoseDefinitionByteCount + 4;
+            AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(graphicsAddress)), stock.Gameplay.ArtOrigin(named), $"Samus pose {pose:X2} visual Y origin");
+            int frameList = (cartridge.ReadCartridgeWord(SamusSourceDefinitions.AnimationDefinitionListPointers.Value + pose * 2) - SamusSourceDefinitions.FirstBodyFrame) / 4;
+            SamusPoseAnimation animation = SamusAnimationDelays.AnimationForPose(named);
+            IEnumerable<int> pictured = shownFrames.PictureFrames.ContainsKey(named)
+                ? shownFrames.Pictures(named).Select(frame => SamusAnimationLayout.Offset(animation, frame)) : [];
+            AssertTrue(stock.Frames[named].Keys.All(pictured.Contains), $"Samus pose {pose:X2} decodes only the frames its animation pictures");
+            foreach ((int frame, SamusBodyDecodedFrame decoded) in stock.Frames[named])
+            {
+                int selector = SamusSourceDefinitions.BodyFrames.Value + (frameList + frame) * 4;
+                void Picture(int groups, int set, int position, SamusBodyPicture picture, string what)
+                {
+                    int record = cartridge.ReadCartridgeWord(groups + set * 2) + position * SamusSourceDefinitions.BodyDefinitionBytes;
+                    if (pictureRecords.TryAdd(picture, record))
+                        AssertTransfer(bus, record, stockCharacters.Transfer(picture), what);
+                    else
+                        AssertEqual(pictureRecords[picture], record, $"{what} is the definition its picture names");
+                }
+                Picture(SamusSourceDefinitions.TopDefinitionListPointers.Value, bus.ReadCartridgeByte(selector), bus.ReadCartridgeByte(selector + 1),
+                    decoded.Pictures.Top, $"Samus pose {pose:X2} frame {frame} top picture");
+                int bottomSet = bus.ReadCartridgeByte(selector + 2);
+                AssertEqual(bottomSet != byte.MaxValue, decoded.Pictures.Bottom is not null, $"Samus pose {pose:X2} frame {frame} names a bottom picture as its selector does");
+                if (decoded.Pictures.Bottom is { } bottomPicture)
+                    Picture(SamusSourceDefinitions.BottomDefinitionListPointers.Value, bottomSet, bus.ReadCartridgeByte(selector + 3),
+                        bottomPicture, $"Samus pose {pose:X2} frame {frame} bottom picture");
+                AssertTrue(expectedPlacements[named].TryFrameRise(frame, out int rise) && rise == decoded.OriginRise,
+                    $"Samus pose {pose:X2} frame {frame} carries its native placement");
+                foreach (SamusBodyHalf half in new[] { SamusBodyHalf.Top, SamusBodyHalf.Bottom })
+                {
+                    if (half == SamusBodyHalf.Bottom && !SamusBodyCompositions.ShowsBottomHalf(named, frame))
+                        continue;
+                    var halfFrame = new SamusBodyHalfFrame(named, half, frame);
+                    int index = SamusSpritemapNative.Index(halfFrame);
+                    ushort pointer = cartridge.ReadCartridgeWord(SamusSourceDefinitions.SpritemapPointers.Value + index * 2);
+                    SamusSpritemapDefinition? definition = sprites.Definition(halfFrame);
+                    if (!compositionPointers.TryAdd(pointer, definition))
+                    {
+                        AssertTrue(ReferenceEquals(compositionPointers[pointer], definition), $"Samus {halfFrame} shows the composition its spritemap names");
+                        continue;
+                    }
+                    AssertComposition(bus, pointer, definition, $"Samus {halfFrame}");
+                    var nativeOam = new OamBuffer();
+                    nativeOam.BeginFrame();
+                    if (pointer != 0)
+                        DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, new(127, 131));
+                    OamBuffer installedOam = SamusSpritemapDrawsAccess.SamusSpritemapOam(
+                        sprites.TryGetFrame(halfFrame, out SpriteFrame? shownHalf) ? shownHalf : null,
+                        new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus));
+                    AssertTrue(nativeOam.ImageEquals(installedOam) && nativeOam.NextByteOffset == installedOam.LastFinalizedSpriteCount * 4,
+                        $"Samus {halfFrame} installed/native staging parity");
+                    drawnHalves++;
+                }
+                decodedFrames++;
+            }
         }
+        foreach (HorizontalDirection facing in SamusDeathSheetComposer.Facings)
+        foreach (SamusDeathExplosionFrame frame in SamusDeathSheetDefinitions.Explosion)
+        {
+            string name = SamusDeathSheetDefinitions.ExplosionFrame(facing, frame);
+            AssertComposition(bus, cartridge.ReadCartridgeWord(SamusSourceDefinitions.SpritemapPointers.Value +
+                SamusDeathSheetComposerConstants.ExplosionSpritemap(facing, frame) * 2), sprites.ExplosionDefinition(name), name);
+        }
+        void AtmosphereEntries(IReadOnlyList<SamusAtmosphereFrame> effect, int first)
+        {
+            for (int frame = 0; frame < effect.Count; frame++)
+            {
+                string name = SamusAtmosphereSheetDefinitions.FrameName(effect[frame]);
+                AssertComposition(bus, cartridge.ReadCartridgeWord(SamusSourceDefinitions.SpritemapPointers.Value + (first + frame) * 2),
+                    sprites.AtmosphereDefinition(name), name);
+            }
+        }
+        // $92:808D entries $18F and $186: the diving splash's and bubbles' first compositions; their later frames follow.
+        AtmosphereEntries(SamusAtmosphereSheetDefinitions.DivingSplash, 399);
+        AtmosphereEntries(SamusAtmosphereSheetDefinitions.Bubbles, 390);
 
         // The installed selector and both VRAM halves must take the production path
         // without even reading one cartridge byte. This covers every authored pose's
@@ -206,8 +172,9 @@ internal static class SamusBodyArtworkVerification
                 : SamusSourceDefinitions.SharedAtmosphericAttributes;
             int source = SamusSourceDefinitions.MovementBank.Value | (pointer + frame * sizeof(ushort));
             // The cartridge's attribute word is decoded by the import codec into the single piece it describes.
-            SpritePart expectedAttributes = new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(source)).ToSinglePart();
-            AssertTrue(stock.Atmosphere.TryResolve(type, frame, out SpritePart installedAttributes),
+            SpritePart expectedAttributes = new SnesObjAttributeWord(bus.ReadCartridgeWord(source)).ToSinglePart();
+            AssertTrue(SamusAtmosphericTypeCodec.TryDecode(type, out SamusAtmosphericPictures pictures), $"atmospheric type {type} draws single-piece pictures");
+            AssertTrue(stock.Atmosphere.TryResolve(pictures, frame, out SpritePart installedAttributes),
                 $"atmospheric type {type} frame {frame} has installed artwork");
             AssertEqual(expectedAttributes, installedAttributes,
                 $"atmospheric type {type} frame {frame} imported the native character, palette row, priority and flips");
@@ -224,19 +191,19 @@ internal static class SamusBodyArtworkVerification
                 nativeEffects.All[0].StepUpdatesLeft == installedEffects.All[0].StepUpdatesLeft,
                 $"direct atmospheric type {type} frame {frame} installed/native OAM and timing parity");
         }
-        AssertTrue(!stock.Atmosphere.TryResolve(2, 0, out _),
+        AssertTrue(!SamusAtmosphericTypeCodec.TryDecode(2, out _),
             "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-        };
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         deathSamus.DeathSequence.Begin(deathSamus, cameraPosition: new(0, 0));
         var deathCgram = new SamusColours();
-        for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
+        for (int frame = 0; deathSamus.DeathSequence.Phase is not SamusDeathSequencePhase.Begun.SuitExplosion;
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.Gameplay.DeathSteps);
+            deathSamus.DeathSequence.Step(deathSamus, (SamusDeathSequencePhase.Begun)deathSamus.DeathSequence.Phase, deathCgram, stock.Gameplay.DeathSteps);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, SamusBodySheetFixtures.For(stock)));
@@ -255,17 +222,17 @@ internal static class SamusBodyArtworkVerification
         {
             int pointerAt = SamusSourceDefinitions.SuitPointers.Value +
                 (suit * SamusShadeDefinitions.Death.ExplosionShadeCount + palette) * sizeof(ushort);
-            ushort suitPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAt);
+            ushort suitPointer = bus.ReadCartridgeWord(pointerAt);
             int suitlessAt = SamusSourceDefinitions.SuitlessPointers.Value + palette * sizeof(ushort);
-            ushort suitlessPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(suitlessAt);
+            ushort suitlessPointer = bus.ReadCartridgeWord(suitlessAt);
             for (int color = 0; color < InstalledSamusDeathPalettes.ColorCount; color++)
             {
                 int suitedAt = SamusSourceDefinitions.PaletteBank.Value | suitPointer + color * 2;
                 int suitlessColorAt = SamusSourceDefinitions.PaletteBank.Value | suitlessPointer + color * 2;
-                AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(suitedAt),
-                    stockDeathPalettes.SuitedColor(suit, palette, color),
+                AssertEqual(bus.ReadCartridgeWord(suitedAt),
+                    stockDeathPalettes.SuitedColor(SuperMetroid.AssetExtraction.Samus.SamusSuitListLayout.Order[suit], palette, color),
                     $"death suit {suit} palette {palette} color {color}");
-                AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(suitlessColorAt),
+                AssertEqual(bus.ReadCartridgeWord(suitlessColorAt),
                     stockDeathPalettes.SuitlessColor(palette, color),
                     $"death suitless palette {palette} color {color}");
             }
@@ -273,7 +240,7 @@ internal static class SamusBodyArtworkVerification
         for (int shade = 0; shade < SamusShadeDefinitions.Death.WhiteoutShadeCount; shade++)
         {
             int at = SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort);
-            AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at),
+            AssertEqual(bus.ReadCartridgeWord(at),
                 stockDeathPalettes.WhiteoutColor(shade), $"death whiteout shade {shade}");
         }
         for (int frame = 0; frame < SuperMetroid.Core.Samus.Death.SamusDeathExplosionTimingDefinitionsConstants.RecordCount; frame++)
@@ -290,12 +257,12 @@ internal static class SamusBodyArtworkVerification
             };
             var nativeSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
-            };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             var installedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
-            };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = SamusEquipmentWordCodec.FromEquipmentWord(equipment),
+            }.InPose(SamusPoseId.FacingRightNormalPose);
             nativeSamus.DeathSequence.Begin(nativeSamus, Position16<RoomPixels>.Zero);
             installedSamus.DeathSequence.Begin(installedSamus, Position16<RoomPixels>.Zero);
             var nativeColors = new SamusColours();
@@ -304,16 +271,16 @@ internal static class SamusBodyArtworkVerification
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
-                installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.Gameplay.DeathSteps);
+                nativeSamus.DeathSequence.Step(nativeSamus, (SamusDeathSequencePhase.Begun)nativeSamus.DeathSequence.Phase, nativeColors, stock.Gameplay.DeathSteps);
+                installedSamus.DeathSequence.Step(installedSamus, (SamusDeathSequencePhase.Begun)installedSamus.DeathSequence.Phase, installedColors, stock.Gameplay.DeathSteps);
             }
             int pairFrames = 0;
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    nativeSamus, nativeColors, stock.Gameplay.DeathSteps);
+                    nativeSamus, (SamusDeathSequencePhase.Begun)nativeSamus.DeathSequence.Phase, nativeColors, stock.Gameplay.DeathSteps);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    installedSamus, installedColors, stock.Gameplay.DeathSteps);
+                    installedSamus, (SamusDeathSequencePhase.Begun)installedSamus.DeathSequence.Phase, installedColors, stock.Gameplay.DeathSteps);
                 // Samus's death colours are her shades and the whiteout a colour the display shows (#1512): each frame
                 // her shown suit and suitless colours are one of the cartridge's death palette pairs for her suit, and the
                 // whiteout one of the cartridge's whiteout shades.
@@ -335,17 +302,16 @@ internal static class SamusBodyArtworkVerification
                       + $"{Hex(suitlessWords)}; suit matches {string.Join(',', suitMatches)}; suitless matches {string.Join(',', suitlessMatches)})");
                 AssertTrue(installedSamus.DeathSequence.Whiteout is not { } whiteout ||
                     Enumerable.Range(0, SamusShadeDefinitions.Death.WhiteoutShadeCount).Any(shade =>
-                        CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort))
+                        bus.ReadCartridgeWord(SamusSourceDefinitions.DeathWhiteoutShades.Value + shade * sizeof(ushort))
                             == whiteout.ToWord()),
                     $"death suit {suit} frame {frame} whiteout is one of the cartridge's whiteout shades");
                 AssertTrue(nativeSamus.DeathSequence.Whiteout == installedSamus.DeathSequence.Whiteout &&
-                    nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
+                    nativeSamus.DeathSequence.Phase == installedSamus.DeathSequence.Phase &&
                     nativeSamus.DeathSequence.Flash.UpdatesLeft == installedSamus.DeathSequence.Flash.UpdatesLeft &&
                     nativeSamus.DeathSequence.Flash.Shown == installedSamus.DeathSequence.Flash.Shown &&
                     nativeSamus.DeathSequence.Flashing.Age == installedSamus.DeathSequence.Flashing.Age &&
-                    nativeSamus.DeathSequence.Explosion?.UpdatesLeft == installedSamus.DeathSequence.Explosion?.UpdatesLeft &&
                     nativeSamus.DeathSequence.ExplosionFrame == installedSamus.DeathSequence.ExplosionFrame &&
-                    nativeSamus.DeathSequence.WhiteoutShade == installedSamus.DeathSequence.WhiteoutShade,
+                    nativeColors.Beams == installedColors.Beams,
                     $"death suit {suit} frame {frame} native/installed colors and timing");
                 if (nativeStep.Completed)
                     break;
@@ -353,29 +319,58 @@ internal static class SamusBodyArtworkVerification
             }
             AssertTrue(pairFrames > 0, $"death suit {suit} shows the cartridge's death palette pairs");
         }
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
-        {
-            if (!SamusPoseNumbering.NamesPose(pose)) continue;
-            // The half pictures the import composes a pose's frame zero of are the definition records the cartridge's
-            // frame-zero selector names (#1465, #1585).
-            SamusBodyFramePictures pictures = stock.Pictures(SamusPoseNumbering.FromNumber(pose), 0);
-            SamusBodyFrameSelection selection = stock.Selection(SamusPoseNumbering.FromNumber(pose), 0);
-            AssertEqual(SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Top, selection.TopSet, selection.TopPosition)),
-                pictures.Top, $"Samus pose {pose:X2} composes its frame-zero top definition");
-            AssertEqual(selection.NamesBottom
-                    ? SamusBodySources.Picture(stock.DefinitionRecord(SamusBodyHalf.Bottom, selection.BottomSet, selection.BottomPosition)) : null,
-                pictures.Bottom, $"Samus pose {pose:X2} composes its frame-zero bottom definition, or none when the frame names none");
-        }
+        Console.WriteLine($"Samus body art: {decodedFrames} decoded pose frames and {drawnHalves} distinct compositions, the explosion and atmosphere compositions and special draw offsets match retail.");
+    }
 
-        Console.WriteLine("Samus body art: 253 poses, 1143 frames, 435 split DMAs, 1913 nonzero OAM indices and special draw offsets match retail.");
+    /// <summary>
+    /// Requires <paramref name="transfer"/> to be the body definition at bank-$92 <paramref name="record"/>: its two transfer
+    /// sizes and characters.
+    /// </summary>
+    private static void AssertTransfer(ISnesAddressSpace bus, int record, SamusBodyTileTransfer transfer, string what)
+    {
+        IImportCartridgeSource cartridge = bus;
+        int definitionAddress = 0x920000 | record;
+        int source = cartridge.ReadCartridgeLong(definitionAddress);
+        AssertEqual(cartridge.ReadCartridgeWord(definitionAddress + 3), (ushort)transfer.FirstSize, $"{what} first size");
+        AssertEqual(cartridge.ReadCartridgeWord(definitionAddress + 5), (ushort)transfer.SecondSize, $"{what} second size");
+        ReadOnlySpan<byte> planar = transfer.Planar.Span;
+        for (int i = 0; i < planar.Length; i++)
+            AssertEqual(bus.ReadCartridgeByte(source + i), planar[i], $"{what} tile byte {i:X3}");
+    }
+
+    /// <summary>
+    /// Requires <paramref name="record"/> to be the composition the cartridge's spritemap at bank-$92
+    /// <paramref name="pointer"/> describes, or none for a zero pointer, which draws nothing (owner decision on #1318).
+    /// </summary>
+    private static void AssertComposition(ISnesAddressSpace bus, ushort pointer, SamusSpritemapDefinition? record, string what)
+    {
+        if (pointer == 0)
+        {
+            AssertTrue(record is null, $"{what} shows no composition for a zero pointer");
+            return;
+        }
+        if (record is null)
+            throw new InvalidOperationException($"{what} shows no composition, but the cartridge's pointer is ${pointer:X4}.");
+        IImportCartridgeSource cartridge = bus;
+        int address = 0x920000 | pointer;
+        AssertEqual(cartridge.ReadCartridgeWord(address), (ushort)record.Parts.Length, $"{what} part count");
+        for (int part = 0; part < record.Parts.Length; part++)
+        {
+            int at = address + 2 + part * 5;
+            // The decoded piece holds what the cartridge's five-byte record describes: the import codec decodes the record,
+            // and its offset, size, character, palette row, priority and mirroring are compared.
+            SpritePart expectedPart = new SpritemapPart(new SnesSpritemapXWord(cartridge.ReadCartridgeWord(at)),
+                new SnesSpritemapYByte(bus.ReadCartridgeByte(at + 2)), new SnesObjAttributeWord(cartridge.ReadCartridgeWord(at + 3))).ToPart();
+            AssertEqual(expectedPart, record.Parts[part], $"{what} part {part} offset, size, character, palette, priority and flips");
+        }
     }
 
     /// <summary>The sixteen colour words of the cartridge's death palette whose pointer lies at <paramref name="pointerAt"/>.</summary>
     private static ushort[] CartridgeDeathColours(ISnesAddressSpace bus, int pointerAt)
     {
-        ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAt);
+        ushort pointer = bus.ReadCartridgeWord(pointerAt);
         return [.. Enumerable.Range(0, InstalledSamusDeathPalettes.ColorCount).Select(colour =>
-            CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.PaletteBank.Value | pointer + colour * 2))];
+            bus.ReadCartridgeWord(SamusSourceDefinitions.PaletteBank.Value | pointer + colour * 2))];
     }
 
     /// <summary>Compares arm-cannon pose records and tiles to ROM, then checks guarded cover OAM and DMA output.</summary>
@@ -383,43 +378,49 @@ internal static class SamusBodyArtworkVerification
         SamusBodySources body)
     {
         SamusArmCannonSourceArtwork armCannon = body.ArmCannon;
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
+        // The pose records and drawing bytes are the import's document, which the stock cannon is composed from (#2604).
+        SamusArmCannonArtworkDocument cannonDocument = SuperMetroid.Tooling.RequiredJson.Deserialize<SamusArmCannonArtworkDocument>(
+            File.ReadAllBytes(Path.Combine(CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),
+                SamusArmCannonArtworkFormat.ArtworkFileName)),
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true, Converters = { new SamusPoseIdJsonConverter(),
+                new SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirectionJsonConverter(), new SamusArmCannonCoverOrientationJsonConverter() } });
+        for (int pose = 0; pose < SamusBodyTableDecoding.PoseCount; pose++)
         {
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
             int source = SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2;
-            ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
-            AssertEqual(native, armCannon.PoseDrawingData(SamusPoseNumbering.FromNumber(pose)),
+            ushort native = bus.ReadCartridgeWord(source);
+            AssertEqual(native, cannonDocument.PoseDrawingData(SamusPoseNumbering.FromNumber(pose)),
                 $"arm-cannon pose {pose:X2} drawing pointer");
         }
         for (int offset = 0; offset < SamusArmCannonArtworkFormat.DrawingDataByteCount; offset++)
             AssertEqual(bus.ReadCartridgeByte(SamusSourceDefinitions.MovementBank.Value |
                     (SamusSourceDefinitions.ArmCannonDrawingData + offset)),
-                armCannon.ReadDrawingByteAt((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + offset)),
+                cannonDocument.ReadDrawingByteAt((ushort)(SamusSourceDefinitions.ArmCannonDrawingData + offset)),
                 $"arm-cannon drawing byte {offset:X3}");
         for (int direction = 0; direction < SamusProjectileDirectionCodec.Count; direction++)
         {
             int attrAddress = SamusSourceDefinitions.ArmCannonSpriteAttributes.Value + direction * 2;
-            AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(bus).ReadCartridgeWord(attrAddress)).ToSinglePart(),
-                armCannon.CoverAppearance(direction), $"arm-cannon direction {direction} cover character, palette row, priority and flips");
+            AssertEqual(new SnesObjAttributeWord(bus.ReadCartridgeWord(attrAddress)).ToSinglePart(),
+                armCannon.CoverAppearance(SuperMetroid.AssetExtraction.Samus.SamusProjectileDirectionCodec.FromAimIndex(direction)), $"arm-cannon direction {direction} cover character, palette row, priority and flips");
             int listAddress = SamusSourceDefinitions.TileListPointers.Value + direction * 2;
-            int list = CartridgeImportSource.Require(bus).ReadCartridgeWord(listAddress);
-            for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)
+            int list = bus.ReadCartridgeWord(listAddress);
+            for (int frame = 0; frame < SamusArmCannonArtworkFormatConstants.FramesPerDirection; frame++)
             {
                 int word = SamusSourceDefinitions.MovementBank.Value | (list + frame * 2);
-                AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(word),
+                AssertEqual(bus.ReadCartridgeWord(word),
                     armCannon.TileSource(direction, frame),
                     $"arm-cannon direction {direction} frame {frame} tile source");
             }
         }
         int drawingWindowEnd = SamusSourceDefinitions.MovementBank.Value |
             (SamusSourceDefinitions.ArmCannonDrawingData + SamusArmCannonArtworkFormat.DrawingDataByteCount);
-        for (int pose = 0; pose < SamusBodySources.PoseCount; pose++)
+        for (int pose = 0; pose < SamusBodyTableDecoding.PoseCount; pose++)
         {
             // The typed placement gameplay reads holds what the pose's native descriptor does (#1463): its drawing mode,
             // its direction at frame zero and, when the direction byte's top bit is set, after it, then one signed X/Y
             // displacement per animation frame up to the end of the drawing window.
             int descriptor = SamusSourceDefinitions.MovementBank.Value |
-                CartridgeImportSource.Require(bus).ReadCartridgeWord(SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2);
+                bus.ReadCartridgeWord(SamusSourceDefinitions.PoseDrawingDataPointers.Value + pose * 2);
             int direction = bus.ReadCartridgeByte(descriptor);
             bool frameDependent = (direction & 0x80) != 0;
             if (!SamusPoseNumbering.NamesPose(pose)) continue;
@@ -452,15 +453,14 @@ internal static class SamusBodyArtworkVerification
 
         var nativeSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             AnimationNumber = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         var installedSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = nativeSamus.Pose, AnimationFrame = nativeSamus.AnimationFrame,
+            AnimationFrame = nativeSamus.AnimationFrame,
             Position = FixedPosition<RoomPixels>.FromWhole(nativeSamus.Position.Whole),
             SelectedHudItem = nativeSamus.SelectedHudItem,
-        };
+        }.InPose(nativeSamus.Pose);
         // The imported bytes above are the independent stock oracle. Both runtime
         // owners must now receive the installed catalog; no ROM fallback remains.
         nativeSamus.BindBodyFixture(body);
@@ -495,15 +495,15 @@ internal static class SamusBodyArtworkVerification
     private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort index, Position16<ScreenPixels> origin)
     {
-        int pointerAddress = SamusSpritemapSources.PointerTableAddress + index * 2;
-        int recordAddress = 0x920000 | CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(pointerAddress);
-        ushort partCount = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(recordAddress);
+        int pointerAddress = SamusSourceDefinitions.SpritemapPointers.Value + index * 2;
+        int recordAddress = 0x920000 | bus.ReadCartridgeWordFixedBank(pointerAddress);
+        ushort partCount = bus.ReadCartridgeWordFixedBank(recordAddress);
         int partAddress = SnesAddressMath.AddWithinBank(recordAddress, 2);
         for (int part = 0; part < partCount; part++)
         {
-            oam.AddProjectileSpritePart(new SnesSpritemapXWord(CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(partAddress)),
+            oam.AddProjectileSpritePart(new SnesSpritemapXWord(bus.ReadCartridgeWordFixedBank(partAddress)),
                 bus.ReadCartridgeByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3)), origin);
+                bus.ReadCartridgeWordFixedBank(SnesAddressMath.AddWithinBank(partAddress, 3)), origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

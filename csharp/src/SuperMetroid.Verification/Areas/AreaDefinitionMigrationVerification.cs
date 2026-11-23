@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -83,7 +84,7 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x20, RoomEarthquakeDefinitions.SustainedShakeFrames, "descent and release earthquake timer bit");
         AssertEqual(16, TourianStatueColorFormat.BaseColorCount, "statue base colours");
         AssertEqual(16, TourianStatueColorFormat.StatueColorCount, "statue colours");
-        AssertEqual(4, TourianStatueColorDefinitions.EyeGlowCount, "eye rows");
+        AssertEqual(4, TourianStatueColorDefinitions.EyeGlows.Count, "eye rows");
         AssertEqual(4, TourianStatueColorDefinitions.EyeColorCount, "eye colours");
         AssertEqual(8, TourianStatueColorDefinitions.GreyColorCount, "grey colours");
         AssertEqual(0x86b91e, EnemySourceDefinitions.TourianStatueEyeColors, "eye colour source");
@@ -93,8 +94,8 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(0x2610, EscapeTypewriterTileDefinitions.ZebesTileBase.PackedWord, "Zebes glyph base");
         AssertEqual(65, EscapeTypewriterTileDefinitions.FirstLetter, "first letter");
         AssertEqual(91, EscapeTypewriterTileDefinitions.ExclamationGlyph, "exclamation glyph");
-        AssertEqual<SoundEffectId>(RoomSound.IntroTypewriter, EscapeTypewriterDefinitions.ZebesClick, "Zebes click");
-        AssertEqual<SoundEffectId>(EnemySound.CeresTypewriter, EscapeTypewriterDefinitions.CeresClick, "Ceres click");
+        AssertEqual<SoundEffectId>(RoomSound.Typewriter, EscapeTypewriterDefinitions.ZebesClick, "Zebes click");
+        AssertEqual<SoundEffectId>(RoomSound.Typewriter, EscapeTypewriterDefinitions.CeresClick, "Ceres click");
         AssertEqual(42, ZebesEscapeDefinitions.DiagonalFrames, "diagonal shake frames");
         AssertEqual(18, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.LightHorizontal), "light horizontal shake");
         AssertEqual(21, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MediumHorizontal), "medium horizontal shake");
@@ -102,8 +103,8 @@ internal static class AreaDefinitionMigrationVerification
         AssertEqual(26, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.StrongDiagonal), "strong diagonal shake");
         AssertEqual(24, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.MainstreetQuake), "Mainstreet quake");
         // The cartridge skips outdoor explosions over its blank tile, 255: the level word's open-space block shows nothing (#2100).
-        AssertTrue(SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(255).ShowsNothing
-            && !SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(254).ShowsNothing, "the blank explosion tile is the block that shows nothing");
+        AssertTrue(SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(255).Shows == RoomBlockShown.Nothing
+            && SuperMetroid.AssetExtraction.RoomLevelWordCodec.DecodeAppearance(254).Shows != RoomBlockShown.Nothing, "the blank explosion tile is the block that shows nothing");
         AssertEqual(6, NativeEarthquakeTypes.TypeOf(ZebesEscapeDefinitions.LandingQuake), "landing site quake");
         AssertEqual(128, EscapeTimerDefinitions.ClearedPixel, "timer cleared origin");
         var earthquake = new RoomEarthquake();

@@ -4,13 +4,12 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The terrain change of each of Mother Brain's room mutations.</summary>
-internal static class MotherBrainRoomMutationDefinitions
+internal static partial class MotherBrainRoomMutationDefinitions
 {
     /// <summary>
     /// The change each mutation makes: its layout, drawn on the mutation's first update; it is gone on the next.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<MotherBrainRoomMutation, TerrainChange> Changes =
-        new Dictionary<MotherBrainRoomMutation, TerrainChange>
+    internal static readonly IdentityTable<MotherBrainRoomMutation, TerrainChange> Changes = new(new Dictionary<MotherBrainRoomMutation, TerrainChange>
         {
             [MotherBrainRoomMutation.FillWall] = Drawn(MotherBrainFakeDeathDraw.FillWall),
             [MotherBrainRoomMutation.EscapeDoor] = Drawn(MotherBrainFakeDeathDraw.EscapeDoor),
@@ -20,7 +19,7 @@ internal static class MotherBrainRoomMutationDefinitions
             [MotherBrainRoomMutation.ClearBottomMiddleTubes] = Drawn(MotherBrainFakeDeathDraw.ClearBottomMiddleTubes),
             [MotherBrainRoomMutation.ClearBottomLeftTube] = Drawn(MotherBrainFakeDeathDraw.ClearBottomLeftTube),
             [MotherBrainRoomMutation.ClearBottomRightTube] = Drawn(MotherBrainFakeDeathDraw.ClearBottomRightTube),
-        };
+        });
 
     /// <summary>
     /// The blocks the escape door's setup installs as it spawns, before its first draw changes their artwork: the door

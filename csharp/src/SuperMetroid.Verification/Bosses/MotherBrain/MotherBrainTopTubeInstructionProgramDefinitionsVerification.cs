@@ -32,7 +32,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             InstructionMechanicsWord definition =
                 MotherBrainTopTubeInstructionProgramDefinitionsTooling.MechanicsWord(index);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
+            ushort native = rom.ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | definition.Address);
             AssertEqual(definition.Value, native,
                 $"Mother Brain ceiling-tube mechanics word $86:{definition.Address:X4}");
         }
@@ -42,7 +42,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         var executedOperands = new HashSet<ushort>();
         var guard = NewMotherBrainTopTubeInstructionReadGuard(rom);
         Func<EnemyProjectileAnimation, ushort?> nativePointers =
-            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(CartridgeImportSource.Require(rom));
+            MotherBrainTopTubeNativeListAddresses.Family.NativePointers(rom);
 
         foreach (TopTubeLaunchCase item in
                  new TopTubeLaunchCase[]
@@ -63,7 +63,7 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         {
             RoomEnemySystem enemies = NewSystem();
             // The collapse step names the pose its spawn falls in, the one the kind's spawn starts.
-            MotherBrainTopTubeSegment pose = FamilyProjectileStarts.StartingAnimation(item.Kind) is MotherBrainTopTubeAnimation started
+            MotherBrainTopTubeSegment pose = FamilyProjectileStarts.StartingAnimation(item.Kind)?.Invoke(enemies) is MotherBrainTopTubeAnimation started
                 ? started.PlayingSegment
                 : throw new InvalidOperationException($"{item.Kind} is not a top tube.");
             enemies.MotherBrainBehavior.FakeDeath.SpawnMotherBrainTopTube(item.Kind, pose, new Position16<RoomPixels>(item.X, item.Y));
@@ -111,15 +111,16 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
         RoomEnemySystem NewSystem()
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-            // The tubes fall in Mother Brain's encounter, whose colours they take, as her body's initializer loads it.
-            enemies.MotherBrainEncounter.BeginAsSetUp(new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], enemies.Places.InUpdateOrder[1], new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()));
+            // The tubes fall in Mother Brain's encounter, whose colours they take, as her room's population places her, her
+            // glass set up first, and her body's setup begins it.
+            _ = MotherBrainPlacement.PlaceMotherBrain(enemies, RoomEnemyFrameFixtures.StandaloneSamus());
             return enemies;
         }
 
         void RunForcedTick(RoomEnemySystem enemies, EnemyProjectile projectile)
         {
             projectile.FrameHold = WrappingCountdown.Start(1);
-            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: 0);
+            enemies.Projectiles.AdvanceEnemyProjectileAnimations(projectile, new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()), Position16<RoomPixels>.Zero, shortCounter: SuperMetroid.Core.Compatibility.ShortFrameCount.Zero);
             // The shown frame's operand sits just before the instruction the native pointer stands on.
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,
                 projectile.IsActive ? unchecked((ushort)(NativePointer(projectile) - 2)) : null);

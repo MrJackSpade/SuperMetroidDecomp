@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending;
 /// The installed ending scene backdrops (#1544): the solid colour each scene shows behind every layer, each written as
 /// <c>#rrggbb</c> (#2564).
 /// </summary>
-public sealed record EndingBackdropDocument
+public sealed partial record EndingBackdropDocument
 {
     /// <summary>Schema revision; loading requires <see cref="EndingBackdropFiles.Version"/>.</summary>
     public required int Version { get; init; }

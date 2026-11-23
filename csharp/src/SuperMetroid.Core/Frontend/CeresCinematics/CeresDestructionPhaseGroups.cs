@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// The stretches of Ceres's destruction the cinematic tests (#1452): each names the phases it covers instead of
 /// ordering the phase identities.
 /// </summary>
-internal static class CeresDestructionPhaseGroups
+internal static partial class CeresDestructionPhaseGroups
 {
     /// <summary>The phases that show Ceres: the approach to the explosion, the flight away from it and its fade out.</summary>
     internal static readonly FrozenSet<CeresDestructionPhase> CeresScene = new[]

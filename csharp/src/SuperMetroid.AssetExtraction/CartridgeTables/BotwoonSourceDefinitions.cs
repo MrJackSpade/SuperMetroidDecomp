@@ -1,4 +1,5 @@
 using SuperMetroid.Core;
+using SuperMetroid.Core.Bosses.Botwoon;
 
 namespace SuperMetroid.AssetExtraction.CartridgeTables;
 
@@ -6,9 +7,11 @@ namespace SuperMetroid.AssetExtraction.CartridgeTables;
 /// Where the cartridge keeps the Botwoon data extraction reads (#1413): the import pipeline's private knowledge of the
 /// cartridge, decoded once into the installed colour document.
 /// </summary>
-[EncodingOwner("cartridge addresses of Botwoon's colour tables")]
-internal static class BotwoonSourceDefinitions
+internal static partial class BotwoonSourceDefinitions
 {
     /// <summary>$B3:971B-$981A, BotwoonHealthBasedPalettes: the eight sixteen-colour health images.</summary>
     internal const int HealthColors = 0xb3971b;
+
+    /// <summary>The health bands in the order <see cref="HealthColors"/> holds their images: the order he shows them.</summary>
+    internal static IReadOnlyList<BotwoonHealthBand> HealthTableOrder => BotwoonHealthBandDefinitions.InOrderShown;
 }

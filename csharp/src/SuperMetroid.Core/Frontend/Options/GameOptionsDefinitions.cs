@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// The options screen's fixed timing: the controller page's scrolling and the menu's sound priority. The pages' rows are
 /// <see cref="GameOptionsPageRows"/>'s; the cursor's and headings' anchors are installed (#1615).
 /// </summary>
-public static class GameOptionsDefinitions
+public static partial class GameOptionsDefinitions
 {
     /// <summary>
     /// Updates the menu holds the black screen the previous menu leaves before fading in; the selection missile animates

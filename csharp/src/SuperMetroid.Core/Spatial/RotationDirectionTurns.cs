@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Turning the sense of a rotation around (#2452).</summary>
-public static class RotationDirectionTurns
+public static partial class RotationDirectionTurns
 {
     /// <summary>The other way round from <paramref name="direction"/>: counterclockwise for clockwise and clockwise for counterclockwise.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="direction"/> is not clockwise or counterclockwise.</exception>

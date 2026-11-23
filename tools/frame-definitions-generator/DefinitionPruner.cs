@@ -22,7 +22,8 @@ internal sealed record DispatchConstant(INamedTypeSymbol Type, object Value)
 /// <summary>
 /// Evaluates an entity's (or its factory's) dispatch for one definition: the entity's own slot holds that definition,
 /// and the behaviour's parts table maps it to its part, so a switch over the part, a test of the slot's definition, or a
-/// conditional on either takes the branches that definition takes. Whatever it cannot evaluate keeps every branch.
+/// conditional on either takes the branches that definition takes, and a lookup of the definition's entry in a parts table
+/// of factories runs that entry alone. Whatever it cannot evaluate keeps every branch.
 /// </summary>
 internal sealed class DefinitionPruner
 {
@@ -99,6 +100,33 @@ internal sealed class DefinitionPruner
                     taken.AddRange(defaultSection.Statements);
                 return taken;
             }
+            // A factory's creations name each definition's own creation (#2553): only the definition's entry runs.
+            case InitializerExpressionSyntax initializer when UnitScanner.IsCreate(_unit, _context.Behaviour) && initializer.Expressions.Count > 0
+                && initializer.Expressions.All(entry => entry is AssignmentExpressionSyntax { Left: ImplicitElementAccessSyntax { ArgumentList.Arguments: [_] } }):
+            {
+                DispatchConstant? definition = DispatchConstant.Of(_context.Definition);
+                var taken = new List<SyntaxNode>();
+                foreach (AssignmentExpressionSyntax entry in initializer.Expressions.Cast<AssignmentExpressionSyntax>())
+                {
+                    ExpressionSyntax key = ((ImplicitElementAccessSyntax)entry.Left).ArgumentList.Arguments[0].Expression;
+                    if (Equal(Value(key), definition) != false)
+                        taken.Add(entry.Right);
+                }
+                return taken;
+            }
+            // A factory's creations name the definitions each builds (#2554): a registrar's Spawns or Loads names the
+            // definitions its creation builds, a part offer the one part its creation builds. Under another definition the
+            // call runs only those names, never the creation, unless the creation offers that definition's own, as Mama
+            // Turtle's creation offers her babies theirs.
+            case InvocationExpressionSyntax { ArgumentList.Arguments: [var named, var creation, ..] } invocation
+                when _model.IsFactoryCode(_unit, _context.Behaviour) && CreationNames(invocation, named) is { } names:
+                return names.Any(name => Equal(name, DispatchConstant.Of(_context.Definition)) != false) || OffersOwnDefinition(creation)
+                    ? null
+                    : [invocation.Expression, named];
+            // Under a definition one of the factory's part offers builds, a block making that offer runs only the statements
+            // making it (#2554): the part is built by the creation it is offered, not by the code building whoever offers it.
+            case BlockSyntax block when _model.IsFactoryCode(_unit, _context.Behaviour) && block.Statements.Any(OffersOwnDefinition):
+                return [.. block.Statements.Where(OffersOwnDefinition)];
             case ConditionalExpressionSyntax conditional when Truth(conditional.Condition) is { } truth:
                 return [conditional.Condition, truth ? conditional.WhenTrue : conditional.WhenFalse];
             case IfStatementSyntax ifStatement when Truth(ifStatement.Condition) is { } truth:
@@ -109,9 +137,34 @@ internal sealed class DefinitionPruner
                 return [conjunction.Left];
             case BinaryExpressionSyntax disjunction when disjunction.IsKind(SyntaxKind.LogicalOrExpression) && Truth(disjunction.Left) == true:
                 return [disjunction.Left];
+            // A factory looking its definition's entry up in its parts table of factories (#2559: Parts[definition] and the
+            // factory it holds builds the definition's entity) runs that entry alone, as an if-chain's branch would.
+            case ElementAccessExpressionSyntax { ArgumentList.Arguments: [var key] } lookup when OwnFactoryEntry(lookup, key) is { } entry:
+                return [key.Expression, entry];
             default:
                 return null;
         }
+    }
+
+    /// <summary>
+    /// The value of the definition's own entry when <paramref name="lookup"/> reads it from the behaviour's parts table and
+    /// that value is no part (an enum member, which <see cref="Value"/> evaluates) but code, such as the factory building
+    /// the definition's entity; null for any other lookup.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The entry is declared in another file than the lookup.</exception>
+    private ExpressionSyntax? OwnFactoryEntry(ElementAccessExpressionSyntax lookup, ArgumentSyntax key)
+    {
+        if (_context.Behaviour.PartsTable is not { } table || _context.Part is not null
+            || !SymbolEqualityComparer.Default.Equals(_semantic.GetSymbolInfo(lookup.Expression).Symbol?.OriginalDefinition, table)
+            || Equal(Value(key.Expression), DispatchConstant.Of(_context.Definition)) != true
+            || !_context.Behaviour.PartEntries.TryGetValue(_context.Definition.Name, out ExpressionSyntax? entry))
+        {
+            return null;
+        }
+        return entry.SyntaxTree == _semantic.SyntaxTree
+            ? entry
+            : throw new InvalidDataException(
+                $"{_context.Behaviour.Type.ToDisplayString()}: the parts table entry for {_context.Definition.Name} is not declared in the file that looks it up.");
     }
 
     /// <summary>Whether <paramref name="condition"/> holds for the definition, or null when it cannot be evaluated.</summary>
@@ -209,8 +262,8 @@ internal sealed class DefinitionPruner
     }
 
     /// <summary>
-    /// Whether <paramref name="expression"/> is the slot the dispatched definition occupies: an entity's own slot member
-    /// or primary-constructor slot, or the factory's slot parameter.
+    /// Whether <paramref name="expression"/> is the slot the dispatched definition occupies, or the enemy holding it (#2558):
+    /// an entity's own slot or occupant member or primary-constructor parameter, or the factory's slot or occupant parameter.
     /// </summary>
     private bool IsOwnSlot(ExpressionSyntax expression)
     {
@@ -229,13 +282,20 @@ internal sealed class DefinitionPruner
             IParameterSymbol parameter => parameter.Type,
             _ => null,
         };
-        if (type is null || !SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemyPlace))
+        if (type is null || !(SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemyPlace)
+                || SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, _model.RoomEnemyOccupant)))
             return false;
         return symbol switch
         {
             IParameterSymbol { ContainingSymbol: IMethodSymbol owner } =>
                 (owner.MethodKind == MethodKind.Constructor && InEntityChain(owner.ContainingType))
-                || UnitScanner.IsCreate(Unit.Member(owner.OriginalDefinition), _context.Behaviour),
+                || _model.IsFactoryCode(Unit.Member(owner.OriginalDefinition), _context.Behaviour)
+                // A creation in the factory's creations (#2553) is handed the factory's own slot.
+                || (owner is { MethodKind: MethodKind.AnonymousFunction, ContainingSymbol: IMethodSymbol { AssociatedSymbol: IPropertySymbol creations } }
+                    && UnitScanner.IsCreate(Unit.Member(creations.OriginalDefinition), _context.Behaviour))
+                // So is a creation the factory hands the registrar or offers a part (#2554).
+                || (owner is { MethodKind: MethodKind.AnonymousFunction, ContainingSymbol: IMethodSymbol creating }
+                    && _model.IsFactoryCode(Unit.Member(creating.OriginalDefinition), _context.Behaviour)),
             _ => InEntityChain(symbol!.ContainingType),
         };
     }
@@ -250,6 +310,64 @@ internal sealed class DefinitionPruner
         }
         return false;
     }
+
+    /// <summary>The registrar's creation calls, which name the definitions their creation builds.</summary>
+    private static readonly string[] RegistrarCreationCalls = ["Spawns", "Loads"];
+
+    /// <summary>The part offers, which name the one part their creation builds.</summary>
+    private static readonly string[] PartOfferCalls = ["Offer", "OfferLoaded"];
+
+    /// <summary>
+    /// The definitions <paramref name="invocation"/>, a registrar's creation call or a part offer, names in its first
+    /// argument <paramref name="named"/>, each as a constant or unknown (null); null for any other call, or one whose
+    /// definitions are no list written in place nor one constant.
+    /// </summary>
+    private IReadOnlyList<DispatchConstant?>? CreationNames(InvocationExpressionSyntax invocation, ArgumentSyntax named)
+    {
+        if (_semantic.GetSymbolInfo(invocation).Symbol is not IMethodSymbol { ContainingType.Name: var owner, Name: var name } method || !_model.IsSource(method))
+            return null;
+        if (owner == "EnemySpeciesRegistrar" && RegistrarCreationCalls.Contains(name) && named.Expression is CollectionExpressionSyntax list)
+            return [.. list.Elements.Select(element => element is ExpressionElementSyntax { Expression: var definition } ? Value(definition) : null)];
+        if (owner == "EnemyPartOffers" && PartOfferCalls.Contains(name))
+            return [Value(named.Expression)];
+        return null;
+    }
+
+    /// <summary>Whether <paramref name="node"/> makes a part offer naming the dispatched definition, or holds code that does.</summary>
+    private bool OffersOwnDefinition(SyntaxNode node) => OffersOwnDefinition(node, _semantic, new HashSet<IMethodSymbol>(SymbolEqualityComparer.Default));
+
+    /// <summary>
+    /// Whether <paramref name="node"/>, which <paramref name="semantic"/> binds, makes a part offer naming the dispatched
+    /// definition or holds code that does, a creation it names included: a creation handed on as a method group offers what
+    /// its body offers (#2554: <c>Spawns([MamaTurtle], CreateMama)</c>, whose body offers her babies theirs). Each creation
+    /// is read once (<paramref name="read"/>).
+    /// </summary>
+    private bool OffersOwnDefinition(SyntaxNode node, SemanticModel semantic, HashSet<IMethodSymbol> read)
+    {
+        foreach (SyntaxNode descendant in node.DescendantNodesAndSelf())
+        {
+            if (descendant is InvocationExpressionSyntax { ArgumentList.Arguments: [var named, _, ..] } invocation
+                && semantic.GetSymbolInfo(invocation).Symbol is IMethodSymbol { ContainingType.Name: "EnemyPartOffers", Name: var name } method
+                && _model.IsSource(method) && PartOfferCalls.Contains(name)
+                && Equal(semantic == _semantic ? Value(named.Expression) : MemberValue(semantic, named.Expression), DispatchConstant.Of(_context.Definition)) == true)
+                return true;
+            if (descendant is not ExpressionSyntax expression
+                || semantic.GetSymbolInfo(expression).Symbol is not IMethodSymbol { MethodKind: MethodKind.Ordinary } creation
+                || !_model.IsFactoryCode(Unit.Member(creation.OriginalDefinition), _context.Behaviour)
+                || !read.Add(creation.OriginalDefinition))
+                continue;
+            foreach (SyntaxReference declaration in creation.OriginalDefinition.DeclaringSyntaxReferences)
+            {
+                if (OffersOwnDefinition(declaration.GetSyntax(), _model.ModelOf(declaration.SyntaxTree), read))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>The enum member <paramref name="expression"/>, which <paramref name="semantic"/> binds, names, or null.</summary>
+    private static DispatchConstant? MemberValue(SemanticModel semantic, ExpressionSyntax expression) =>
+        semantic.GetSymbolInfo(expression).Symbol is IFieldSymbol member ? DispatchConstant.Of(member) : null;
 
     /// <summary>Whether two constants are the same value, or null when either is unknown.</summary>
     private static bool? Equal(DispatchConstant? left, DispatchConstant? right) =>

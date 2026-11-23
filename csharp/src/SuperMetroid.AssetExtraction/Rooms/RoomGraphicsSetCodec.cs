@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// the position of each set's entry in the cartridge's tileset table. The game names a room state's graphics set and
 /// never sees the number.
 /// </summary>
-internal static class RoomGraphicsSetCodec
+internal static partial class RoomGraphicsSetCodec
 {
     /// <summary>Each graphics set at the position of its number in the cartridge.</summary>
     internal static readonly RoomGraphicsSet[] Numbered =

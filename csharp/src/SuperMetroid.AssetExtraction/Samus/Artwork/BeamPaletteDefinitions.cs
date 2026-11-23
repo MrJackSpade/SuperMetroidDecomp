@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// load writes that material's sixteen colours. Every combination's sixteen colours are installed and read as installed
 /// (BeamPaletteFile, #1596). Investigation: #625 / #901.
 /// </remarks>
-public static class BeamPaletteDefinitions
+public static partial class BeamPaletteDefinitions
 {
     /// <summary>Sixteen colors copied by the beam loader, covering all entries of sprite palette 6, including color zero.</summary>
     public const int ColorCount = 16;

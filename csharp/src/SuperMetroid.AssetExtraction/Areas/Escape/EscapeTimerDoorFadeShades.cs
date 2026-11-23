@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// from. A door keeps the timer's colours one, two, four and thirteen, as <c>GameState_A_LoadingNextRoom</c>'s third copy
 /// into its fade's target keeps them.
 /// </summary>
-internal static class EscapeTimerDoorFadeShades
+internal static partial class EscapeTimerDoorFadeShades
 {
     /// <summary>Colours in the timer's sprite row.</summary>
     private const int RowColours = 16;
@@ -23,7 +23,7 @@ internal static class EscapeTimerDoorFadeShades
     /// <param name="row">The sprite row the timer is drawn in.</param>
     internal static IReadOnlyList<SheetShade> Of(int row)
     {
-        int[] faded = [.. Enumerable.Range(0, RowColours).Except(Kept).Select(colour => row * RowColours + colour)];
-        return [new SheetShade(DoorFadeShades.EscapeTimerDark, faded, [.. faded.Select(_ => RgbColor.Black)])];
+        IEnumerable<int> faded = Enumerable.Range(0, RowColours).Except(Kept).Select(colour => row * RowColours + colour);
+        return [SheetShade.Of(DoorFadeShades.EscapeTimerDark, faded, _ => RgbColor.Black)];
     }
 }

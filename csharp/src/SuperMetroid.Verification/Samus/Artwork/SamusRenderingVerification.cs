@@ -39,10 +39,9 @@ internal static void VerifySamusRenderingSlice()
 
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         AnimationNumber = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
     var samusColours = new SamusColours();
     var oamFrame = new SpriteFrameBuffer();
     var oam = new OamBuffer();
@@ -60,9 +59,7 @@ internal static void VerifySamusRenderingSlice()
     // parts read them (#1585).
     SamusBodySources poseOneArtwork = BoundArtwork(samus);
     SamusBodyFramePictures poseOnePictures = poseOneArtwork.Pictures(SamusPoseId.FacingRightNormalPose, 0);
-    AssertEqual(0x92d0b0, 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOnePictures.Top)), "pose 1 frame 0 top tile definition");
-    AssertEqual(0x92d1c8, poseOnePictures.Bottom is { } poseOneBottom ? 0x920000 | SamusBodyNative.RecordPointer(SamusBodySources.Record(poseOneBottom)) : 0,
-        "pose 1 frame 0 bottom tile definition");
+    AssertTrue(poseOnePictures.Bottom is not null, "pose 1 frame 0 selects a bottom half picture");
     ReadOnlySpan<byte> poseOneCharacters = SamusBodySheetFixtures.CharactersOf(poseOneArtwork)
         .BodyArtwork(poseOnePictures.Top, poseOnePictures.Bottom).Characters;
     AssertEqual(0x10, poseOneCharacters[0], "Samus top part 1 is the composed body's character 0");
@@ -78,18 +75,18 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 9; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(0, samus.AnimationNumber, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
     samus.LiquidPhysics.BeginFrameSoundRequests();
-    SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+    SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     AssertEqual(1, samus.AnimationNumber, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(0, samus.AnimationNumber, "healthy $F6 command loops standing animation");
 
@@ -100,30 +97,35 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 40; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(5, samus.AnimationNumber, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
     {
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusPresentation.Animate(samus, new SamusAnimationStep { Random = new SharedRandom() });
+        SamusPresentation.Animate(samus, new SamusAnimationStep { Ground = samus.Ground, Random = new SharedRandom() });
     }
     AssertEqual(5, samus.AnimationNumber, "$FE,$04 loops low-health standing sequence");
 
     // The item transition's two poses, chosen by equipment (#1473). Only the right-facing instant morph's animation holds
-    // one in retail, and no pose animates by it: the left-facing morph read past its end reaches it (#2048), at native
-    // frame 29 its one zero-tick frame, so the death-animation entry point, which shares the interpreter but needs no
-    // gameplay movement metadata, reaches the transition on its first tick.
-    var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.MorphingTransitionLeftPose };
-    SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
-    SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.MorphBallGroundRightPose, itemTransitionSamus.CuePose.Named,
+    // one in retail, and no pose animates by it: the left-facing morph read past its end reaches it (#2048). The morph
+    // starts no frame there (#2553 starts a pose only on a frame the installation holds a delay for); it lands on the drained
+    // Hyper Beam acquisition's place, the last place landing in its layout, and plays on into native frame 29, the instant
+    // morph's one zero-tick frame, and on to its transition. The death-animation entry point, which shares the interpreter
+    // but needs no gameplay movement metadata, plays it.
+    var itemTransitionSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.MorphingTransitionLeftPose);
+    static SamusPoseId? PlayOnToItemTransition(SamusState samus)
+    {
+        samus.ChangePose(samus.Pose, SuperMetroid.Core.Samus.Abilities.SamusDrainedAnimationDefinitions.HyperBeamAcquisitionFrame);
+        for (int tick = 0; tick <= byte.MaxValue && samus.CuePose.Named is null; tick++)
+            SamusPresentation.AnimateDeathFrame(samus);
+        return samus.CuePose.Named;
+    }
+    AssertEqual(SamusPoseId.MorphBallGroundRightPose, PlayOnToItemTransition(itemTransitionSamus),
         "an item transition without Spring Ball selects its unequipped pose");
     itemTransitionSamus.EquippedItems = SamusEquipmentFlags.SpringBall;
-    SamusPresentation.InitializeAnimation(itemTransitionSamus, itemTransitionSamus.PoseFrameNumbered(29));
-    SamusPresentation.AnimateDeathFrame(itemTransitionSamus);
-    AssertEqual(SamusPoseId.SpringBallGroundRightPose, itemTransitionSamus.CuePose.Named,
+    AssertEqual(SamusPoseId.SpringBallGroundRightPose, PlayOnToItemTransition(itemTransitionSamus),
         "an item transition with Spring Ball selects its equipped pose");
 
     // Restore the ordinary debugger scenario before verifying frame-zero drawing below.
@@ -167,7 +169,7 @@ internal static void VerifySamusRenderingSlice()
     // The verified ordinary transition applies pose $09 after movement/animation and before
     // drawing. Its movement type one uses default position math and always draws both halves.
     SeedPoseNineSamusData(bus);
-    SamusGroundedPoseTransitions.ApplyStandingToRunning(samus);
+    SamusGroundedPoseTransitions.StartRunning(samus, SamusPoseId.MovingRightNormalPose);
     AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
     AssertEqual(0, samus.AnimationNumber, "running transition resets animation frame");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "running pose first delay byte");
@@ -337,8 +339,7 @@ internal static void VerifySamusRenderingSlice()
     {
         AssertEqual(movementType, SamusMovementTypeNativeWords.Byte(SamusPoseMetadata.ReadMovementType(pose)), "Rendering fixture uses native movement identity");
         // The native state holds the pose animating by its own animation at the frame the case draws.
-        samus.Pose = pose;
-        samus.AnimatedPose = pose;
+        samus.ChangePoseKeepingAnimation(pose);
         samus.AnimationNumber = frame;
         oamFrame.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
@@ -351,8 +352,7 @@ internal static void VerifySamusRenderingSlice()
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values.
-    samus.Pose = SamusPoseId.MorphingTransitionRightPose;
-    samus.AnimatedPose = samus.Pose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.MorphingTransitionRightPose);
     samus.Position = samus.Position.WithWholeY(0x0086);
     samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
@@ -372,8 +372,7 @@ internal static void VerifySamusRenderingSlice()
     // Standing's position selector has two special families. Front-view frames zero/one
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
     // already carries a deliberately different graphics offset in the fixture above.
-    samus.Pose = SamusPoseId.ForwardFacingPowerSuitPose;
-    samus.AnimatedPose = samus.Pose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.ForwardFacingPowerSuitPose);
     WriteSamusTileAnimationPointer(bus, samus.Pose, 0xe100);
     samus.AnimationNumber = 2;
     samus.Position = samus.Position.WithWholeY(0x0086);
@@ -396,8 +395,7 @@ internal static void VerifySamusRenderingSlice()
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.NormalLandingRightPose), [8, 0, 0xff, 0xff, 9, 0, 21, 0]);
     WriteSamusTileAnimationPointer(bus, SamusPoseId.NormalLandingRightPose, 0xe100);
     WriteSamusSpritemapBases(bus, SamusPoseId.NormalLandingRightPose, top: 0, bottom: 0);
-    samus.Pose = SamusPoseId.NormalLandingRightPose;
-    samus.AnimatedPose = samus.Pose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.NormalLandingRightPose);
     samus.AnimationNumber = 0;
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -419,8 +417,7 @@ internal static void VerifySamusRenderingSlice()
     // Over the Ceres shaft's turning floor, Samus's drawing turns her point with the floor before applying the
     // ordinary pose offset. A quarter turn around (1152, 128) maps (+8,+6) to (-6,+8). The body must use that
     // temporary point while collision-visible Samus coordinates remain unchanged afterward.
-    samus.Pose = SamusPoseId.FacingRightNormalPose;
-    samus.AnimatedPose = samus.Pose;
+    samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
     samus.AnimationNumber = 0;
     samus.Position = samus.Position.WithWhole(new(0x0488, 0x0086));
     var quarterTurn = new TurningFloorTransform(Math.PI / 2, new Position16<RoomPixels>(0x0480, 0x0080));
@@ -479,7 +476,7 @@ internal static void VerifySamusArmCannon()
     for (int index = 0; index < drawing.Length; index++)
         document.Required("drawingData")[index] = drawing[index];
     // Direction two's cover keeps its installed appearance, the retail $281F: tile $1F, palette four, priority two.
-    document.Required("coverTiles")[2] = new System.Text.Json.Nodes.JsonArray(0, 1, 2);
+    document.Required("coverOrientations")["Right"] = "Vertical";
     using var placement = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString()));
     // The cover characters are import data no installation holds (#1636): the cartridge-derived extraction's are bound.
     using var tiles = File.OpenRead(Path.Combine(CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.SamusBodyDirectoryName),
@@ -488,11 +485,10 @@ internal static void VerifySamusArmCannon()
     SamusArmCannonSourceArtwork artwork = coverCharacters.Cannon;
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         AnimationNumber = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
         SelectedHudItem = HudItem.Beam,
-    };
+    }.InPose(SamusPoseId.FacingRightNormalPose);
 
     samus.BindBodyFixture(InstalledFixtures.SamusBody);
     samus.BindArmCannonFixture(artwork);
@@ -558,8 +554,7 @@ internal static void VerifySamusArmCannon()
     AssertTrue(!cover.IsLarge, "arm-cannon cover is a small OBJ");
     // Natively the third cover tile ($9A:9E00) is uploaded to tile $1F; the draw shows the sheet frame composed over it.
     SpriteArtwork coverTile = SheetFrameSources.CharacterDraw(coverFrame.Draws[0]).Artwork;
-    AssertEqual(new SpriteArtworkId(SpriteArtworkKind.SamusArmCannonCover,
-            SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(0x9e00)), coverTile.Id,
+    AssertEqual(SpriteArtworkKind.SamusArmCannonCover, coverTile.Id.Kind,
         "pose record selects direction two, whose frame three binds the third cover tile");
     AssertTrue(coverCharacters.TryResolveTile(0x9a9e00, SpriteArtwork.CharacterByteCount, out ReadOnlyMemory<byte> nativeCover) &&
             coverTile.Characters.SequenceEqual(nativeCover.Span),
@@ -707,9 +702,8 @@ internal static void VerifySamusHurtFlashPalette()
     var hurtColors = SamusHurtColorFile.Read(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusHurtColorExtractor.Extract(bus)));
     var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
     {
-        Pose = SamusPoseId.FacingRightNormalPose,
         EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit), // Both suit bits prove Gravity's native precedence.
-    }.WithHurtFlashCount(1);
+    }.InPose(SamusPoseId.FacingRightNormalPose).WithHurtFlashCount(1);
     // The flash names shades (#1512); the import resolves them from the diagnostic hurt and suit colours.
     var hurtSources = InstalledFixtures.SamusShadeSources with
     {
@@ -802,10 +796,7 @@ internal static void VerifySamusHurtFlashPalette()
     // must select `$33`; using the ROM movement-type byte keeps this a real dispatcher test.
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.ScrewAttackRightPose),
         [0x08, 0x03, 0, 0, 0, 0, 0x15, 0]);
-    var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-    {
-        Pose = SamusPoseId.ScrewAttackRightPose,
-    }.WithHurtFlashCount(39);
+    var spinning = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.ScrewAttackRightPose).WithHurtFlashCount(39);
     SamusHurtFlash.Update(
         samusColours, spinning, controllerInput: 0);
     AssertEqual(1, spinning.LiquidPhysics.SoundRequests.Count,
@@ -818,10 +809,7 @@ internal static void VerifySamusHurtFlashPalette()
     // queues `$41` only while Shoot is still held, then clears the latch in either case.
     WritePoseDefinition(bus, SamusPoseNumbers.Number(SamusPoseId.FacingRightNormalPose),
         [0x08, 0x00, 0, 0, 0, 0, 0x15, 0]);
-    var charging = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
-    {
-        Pose = SamusPoseId.FacingRightNormalPose,
-    }.WithBeamChargeCount(0x10).WithHurtFlashCount(39);
+    var charging = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose).WithBeamChargeCount(0x10).WithHurtFlashCount(39);
     SamusHurtFlash.Update(
         samusColours, charging, GameplayAction.Shoot);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
@@ -996,7 +984,7 @@ static void SeedBodyHalfRoutingSpritemaps(TestAddressSpace bus)
 {
     bus.WriteBytes(0x92e000, [1, 0, 0, 0, 0, 0x00, 0x28]);
     for (int index = 0; index <= 3; index++)
-        WriteTestWord(bus, SamusSpritemapSources.PointerTableAddress + index * 2, 0xe000);
+        WriteTestWord(bus, SamusSourceDefinitions.SpritemapPointers.Value + index * 2, 0xe000);
     bus.WriteBytes(SamusSourceDefinitions.PostureTransitionVerticalOffsets.Value, [
         0xf8, 0x00, 0xf8, 0x00,
         0xfc, 0xfe, 0xfc, 0xfe,

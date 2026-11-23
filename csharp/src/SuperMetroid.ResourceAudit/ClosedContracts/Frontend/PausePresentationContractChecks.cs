@@ -2,10 +2,8 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.AssetExtraction.Frontend.Pause.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 
@@ -35,16 +33,15 @@ internal static class PausePresentationContractChecks
                     backdrop.LoadTo(tilemap, AreaId.Ceres);
                     backdrop.LoadTo(tilemap, (AreaId)99);
                     backdrop.CreateButtonTilemap();
-                    wireframe.ApplyTo(page, PauseWireframeKind.VariaSuitHiJump);
-                    wireframe.ApplyTo(page, (PauseWireframeKind)99);
+                    wireframe.ApplyTo(page, new PauseWireframe(PauseWireframeSuit.VariaSuit, PauseWireframeBoots.HiJumpBoots));
                     labels.ApplyInventory(page, 0, 0, 0, 0, false);
-                    selector.Anchor(PauseEquipmentControls.SpaceJump);
-                    selector.Anchor(PauseEquipmentControls.SpeedBooster);
+                    selector.Draw(oam, sheet, PauseEquipmentControls.SpaceJump, look);
+                    selector.Draw(oam, sheet, PauseEquipmentControls.Boots[^1], look);
                     selector.Draw(oam, sheet, PauseEquipmentControls.ReserveMode, look);
                     tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount - 1);
                     tanks.Draw(oam, sheet, (PauseReserveTankVisual)99, 0);
-                    tanks.Anchor(PauseReserveTankDefinitions.AnchorCount);
-                    tanks.Anchor(0);
+                    tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, PauseReserveTankDefinitions.AnchorCount);
+                    tanks.Draw(oam, sheet, PauseReserveTankVisual.Full, 0);
                 }
             }
             """;
@@ -52,7 +49,7 @@ internal static class PausePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("PauseProviderFixture", sources,
-            platforms.Append(typeof(PauseSelectorPresentation).Assembly.Location).Append(typeof(PauseEquipmentBasePresentation).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -67,12 +64,15 @@ internal static class PausePresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         FixtureConsumerBinding.Require(compilation, calls, "PausePresentationContractChecks");
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 14, "fourteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 4 && after.MissingCount == 0 &&
-            after.Consumers.Count == 14, "complete resources qualify, while wrong area/kind/identity constants still fail (expected 10/4/0/14; " + after.Describe() + ")");
-        // A selector is placed for a named control (#1772), so no selector can borrow another column's anchor.
-        Require(after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Anchor") == 0,
-            "every named control's selector anchor qualifies");
+        // A wireframe is its suit and boots (#2560), so no number names a wireframe outside the domain: the fixture's
+        // wrong constants are the area, the reserve tanks' visual and their index.
+        Require(before.UnresolvedCount == 13, "thirteen calls must first reproduce the absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 10 && after.UnresolvedCount == 3 && after.MissingCount == 0 &&
+            after.Consumers.Count == 13, "complete resources qualify, while wrong area/kind/identity constants still fail (expected 10/3/0/13; " + after.Describe() + ")");
+        // A selector is placed for a named control (#1772), so no selector can borrow another column's anchor; its anchor is
+        // the presentation's own, read only by its draw (#2570).
+        Require(after.Findings.Count(item => item.Owner is "PauseSelectorPresentation.Draw") == 0,
+            "every named control's selector draw qualifies");
     }
 
     /// <summary>Fails the audit with the violated pause-provider contract predicate.</summary>

@@ -7,11 +7,10 @@ namespace SuperMetroid.Core.Escape;
 /// <summary>
 /// Where an escape room's random explosions go off (#2287): a behaviour object (#2485) holding the cadence they go off at,
 /// whether they go off only over scenery, the kinds an explosion whose random draw leaves its kind open shows by its
-/// block's column, and what the room's quake does beside them. Outdoors they go off every second update and only over
-/// scenery, the room shaking on with them; indoors every fourth update anywhere on the screen. It replaces the outdoors
-/// test the escape rooms' mains made.
+/// block's column, and what the room's quake does beside them. Outdoors they go off at the outdoor cadence and only over
+/// scenery, the room shaking on with them; indoors at the slower indoor cadence anywhere on the screen.
 /// </summary>
-public abstract class EscapeExplosionSite
+public abstract partial class EscapeExplosionSite
 {
     /// <summary>Keeps the site's cadence and its kinds left open.</summary>
     /// <param name="cadence">The updates on which the site sets off an explosion.</param>
@@ -35,7 +34,7 @@ public abstract class EscapeExplosionSite
 
     /// <summary>Whether an explosion placed over <paramref name="block"/> of <paramref name="level"/> goes off.</summary>
     internal bool GoesOffOver(RoomLevelData level, Position16<RoomBlocks> block) =>
-        !OnlyOverScenery || !Ensure.NotNull(level).GetObjectCollisionBlock(block).Terrain.Appearance.ShowsNothing;
+        !OnlyOverScenery || Ensure.NotNull(level).GetObjectCollisionBlock(block).Terrain.Appearance.Shows != RoomBlockShown.Nothing;
 
     /// <summary>The kind an explosion over <paramref name="block"/> shows when its random draw leaves the kind open.</summary>
     internal RoomEffectActorKind KindLeftOpen(Position16<RoomBlocks> block) =>
@@ -45,17 +44,17 @@ public abstract class EscapeExplosionSite
     /// <param name="earthquake">The room's earthquake.</param>
     internal virtual void AfterExplosions(RoomEarthquake earthquake) => Ensure.NotNull(earthquake);
 
-    /// <summary>Under Zebes's sky: an explosion every second update over scenery, the room's quake kept shaking.</summary>
+    /// <summary>Under Zebes's sky: an explosion at the outdoor cadence over scenery, the room's quake kept shaking.</summary>
     public static EscapeExplosionSite Outdoors { get; } = new OutdoorSite();
 
-    /// <summary>Inside: an explosion every fourth update anywhere on the screen.</summary>
+    /// <summary>Inside: an explosion at the indoor cadence anywhere on the screen.</summary>
     public static EscapeExplosionSite Indoors { get; } = new IndoorSite();
 
     /// <summary>
     /// The outdoor site: an explosion goes off only over scenery, and one whose random draw leaves its kind open takes the
     /// kind its block's column phase gives it; the room's quake shakes on beside them.
     /// </summary>
-    private sealed class OutdoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.OutdoorExplosionEverySecondUpdate,
+    private sealed partial class OutdoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.OutdoorExplosion,
         ZebesEscapeExplosionDefinitions.OutdoorKindsLeftOpenByColumnPhase)
     {
         /// <inheritdoc/>
@@ -66,7 +65,7 @@ public abstract class EscapeExplosionSite
     }
 
     /// <summary>The indoor site: an explosion goes off anywhere, and one whose random draw leaves its kind open is a small explosion.</summary>
-    private sealed class IndoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.IndoorExplosionEveryFourthUpdate,
+    private sealed partial class IndoorSite() : EscapeExplosionSite(ZebesEscapeDefinitions.IndoorExplosion,
         [ZebesEscapeExplosionDefinitions.IndoorKindLeftOpen])
     {
         /// <inheritdoc/>

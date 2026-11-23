@@ -26,18 +26,19 @@ internal static class PauseRemappedShoulderVerification
         foreach ((ControllerButton held, bool opensEquipment) in new[] { new VerifyPauseRemappedShoulderCase(ControllerButton.R, true), new VerifyPauseRemappedShoulderCase(ControllerButton.L, false) })
         {
             var random = new SharedRandom();
-            var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
-            game.Session.Enter(PauseStep.Menu);
+            var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), hostServices: SuperMetroidGameHostServices.Default, random: random);
             var runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            runtime.Options.ControllerBindings = ControllerBindings.Default with { AimUp = ControllerButton.L, AimDown = ControllerButton.R };
-            SamusState samus = runtime.Player.IntroducedSamus;
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+            runtime.Options.ControllerBindings = ControllerBindings.Default.With(ControllerAction.AimUp, ControllerButton.L).With(ControllerAction.AimDown, ControllerButton.R);
+            SamusState samus = runtime.Player.Samus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { ScreenContent = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps, SpriteSheets = global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SpriteSheets, Audio = AudioQueues.Standalone(), Samus = samus, System = runtime.System, Area = AreaId.Crateria, RoomMapPosition = new(0, 1), GameplayHud = runtime.AcceptedHud, MapRevealMode = global::SuperMetroid.Core.Map.MapRevealMode.None });
             game.AdoptRuntime(runtime);
             game.Session.Show(pause);
+            // The game stands at the stable menu over the menu the pause built and shows.
+            game.Session.Enter(PauseStep.Menu);
             for (int frame = 0; frame < 8 && !pause.IsPageTransitionActive; frame++)
                 game.StepCaptured(held);
             AssertEqual(opensEquipment, pause.IsPageTransitionActive,

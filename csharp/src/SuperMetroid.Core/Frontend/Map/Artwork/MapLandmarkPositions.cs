@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 
 /// <summary>Boss, elevator and gunship drawing anchors, independent of progression and destination rules.</summary>
-public sealed class MapLandmarkPositions
+public sealed partial class MapLandmarkPositions
 {
     /// <summary>Case-sensitive drawing anchors indexed by stable landmark identity.</summary>
     private readonly Dictionary<string, Position16<MapPixels>> points;

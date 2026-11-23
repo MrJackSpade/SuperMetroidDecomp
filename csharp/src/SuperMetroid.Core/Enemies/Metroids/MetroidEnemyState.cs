@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 /// <summary>
 /// The state of an ordinary Metroid, among it the two outer-body effect actors it spawned and its energy drain.
 /// </summary>
-public sealed class MetroidEnemyState
+public sealed partial class MetroidEnemyState
 {
     /// <summary>Connects the Metroid to its two live outer-body effect actors.</summary>
     internal MetroidEnemyState(RoomEffectActor electricity,
@@ -41,7 +41,7 @@ public sealed class MetroidEnemyState
     /// The Metroid's drain of Samus's energy, a fraction an update: it takes an energy whenever its suit's fraction is
     /// more than what is held over from the last energy it took (<see cref="FractionalEnergyDrain"/>).
     /// </summary>
-    public FractionalEnergyDrain Drain { get; internal set; }
+    internal FractionalEnergyDrain Drain { get; set; }
 
     /// <summary>
     /// Drains one update's <paramref name="fraction"/> of an energy and reports whether it takes a whole energy from

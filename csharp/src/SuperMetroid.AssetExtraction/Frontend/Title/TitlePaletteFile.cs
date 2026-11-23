@@ -8,12 +8,12 @@ using SuperMetroid.AssetExtraction.Fx.PaletteFx;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
-/// <summary>Reads and writes the installed title palette document.</summary>
-public static class TitlePaletteFile
+/// <summary>Reads and writes the import's title palette document.</summary>
+public static partial class TitlePaletteFile
 {
-    /// <summary>Validates the initial, ambient-animation and skip-only RGB5 colours and keeps every one as installed.</summary>
+    /// <summary>Validates the import's initial, ambient-animation and skip-only RGB5 colours and keeps every one.</summary>
     /// <param name="json">UTF-8 JSON read from its current position to the end and left open.</param>
-    /// <returns>An immutable colour source holding every installed initial and ambient colour.</returns>
+    /// <returns>An immutable colour source holding every initial and ambient colour the import reads.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is invalid or ambiguous, its version or array dimensions are wrong, or a required color is null or has a channel outside 0..31.</exception>
     public static TitlePalettePresentation Read(Stream json)
@@ -43,61 +43,59 @@ public static class TitlePaletteFile
             colors[index] = color.ToRgbColor();
         }
         var animatedColors = new Dictionary<PaletteFxColorKey, RgbColor>();
-        foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
-                 TitleScreenAmbientPaletteOwners.All)
-        {
-            PaletteRgb5[][]? frames = definition.Owner switch
-            {
-                TitleScreenAmbientPaletteFxProgramOwner.BabyMetroidTubeLight =>
-                    document.BabyMetroidTubeLight,
-                TitleScreenAmbientPaletteFxProgramOwner.FlickeringDisplays =>
-                    document.FlickeringDisplays,
-                _ => throw new InvalidDataException(
-                    $"Unsupported title ambient palette owner {definition.Owner}."),
-            };
-            if (frames is null || frames.Length != definition.FrameCount)
-            {
-                throw new InvalidDataException(
-                    $"Title palette {definition.Owner} requires exactly " +
-                    $"{definition.FrameCount} frames.");
-            }
-
-            for (int frame = 0; frame < frames.Length; frame++)
-            {
-                PaletteRgb5[]? frameColors = frames[frame];
-                if (frameColors is null || frameColors.Length != definition.ColorsPerFrame)
-                {
-                    throw new InvalidDataException(
-                        $"Title palette {definition.Owner} frame {frame} requires exactly " +
-                        $"{definition.ColorsPerFrame} colors.");
-                }
-
-                for (int index = 0; index < frameColors.Length; index++)
-                {
-                    PaletteRgb5? color = frameColors[index];
-                    if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
-                        (uint)color.Blue > 31)
-                    {
-                        throw new InvalidDataException(
-                            $"Title palette {definition.Owner} frame {frame} color {index} " +
-                            "requires RGB components from 0 to 31.");
-                    }
-
-                    animatedColors.Add(
-                        definition.Color(frame, index),
-                        color.ToRgbColor());
-                }
-            }
-        }
+        ReadAnimated(TitleScreenAmbientPaletteFxColorDefinitions.TubeLight, document.BabyMetroidTubeLight, animatedColors);
+        ReadAnimated(TitleScreenAmbientPaletteFxColorDefinitions.Displays, document.FlickeringDisplays, animatedColors);
 
         ImmutableArray<RgbColor> screen = [.. colors];
         return new TitlePalettePresentation(screen, animatedColors,
-            PackColor(document.SkipCopyrightWhite, "skip copyright white"),
-            PackColor(document.SkipCopyrightTint, "skip copyright tint"));
+            SkipColour(document.SkipCopyrightWhite, "skip copyright white"),
+            SkipColour(document.SkipCopyrightTint, "skip copyright tint"));
     }
 
-    /// <summary>Validates one skip-only RGB5 color before packing its CGRAM word.</summary>
-    private static RgbColor PackColor(PaletteRgb5? color, string name)
+    /// <summary>
+    /// Validates the document's records of one looping ambient program, <paramref name="frames"/>, and adds each colour to
+    /// <paramref name="animatedColors"/> under its key in <paramref name="definition"/>.
+    /// </summary>
+    private static void ReadAnimated(TitleScreenAmbientPaletteFxColorDefinition definition, PaletteRgb5[][]? frames,
+        Dictionary<PaletteFxColorKey, RgbColor> animatedColors)
+    {
+        if (frames is null || frames.Length != definition.FrameCount)
+        {
+            throw new InvalidDataException(
+                $"Title palette {definition.Effect} requires exactly " +
+                $"{definition.FrameCount} frames.");
+        }
+
+        for (int frame = 0; frame < frames.Length; frame++)
+        {
+            PaletteRgb5[]? frameColors = frames[frame];
+            if (frameColors is null || frameColors.Length != definition.ColorsPerFrame)
+            {
+                throw new InvalidDataException(
+                    $"Title palette {definition.Effect} frame {frame} requires exactly " +
+                    $"{definition.ColorsPerFrame} colors.");
+            }
+
+            for (int index = 0; index < frameColors.Length; index++)
+            {
+                PaletteRgb5? color = frameColors[index];
+                if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
+                    (uint)color.Blue > 31)
+                {
+                    throw new InvalidDataException(
+                        $"Title palette {definition.Effect} frame {frame} color {index} " +
+                        "requires RGB components from 0 to 31.");
+                }
+
+                animatedColors.Add(
+                    definition.Color(frame, index),
+                    color.ToRgbColor());
+            }
+        }
+    }
+
+    /// <summary>Validates one skip-only RGB5 colour and converts it to its RGB colour.</summary>
+    private static RgbColor SkipColour(PaletteRgb5? color, string name)
     {
         if (color is null || (uint)color.Red > 31 || (uint)color.Green > 31 ||
             (uint)color.Blue > 31)
@@ -110,7 +108,7 @@ public static class TitlePaletteFile
     /// <param name="document">Editable RGB5 collections read for serialization, not retained by the writer.</param>
     public static void Write(Stream json, TitlePaletteDocument document)
     {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Title.TitlePaletteDocument>(ArtworkJson.Options));
         json.Write(bytes);
     }
 }

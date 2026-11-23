@@ -134,7 +134,7 @@ internal static class ReplayTraceCompactionVerification
     /// <summary>Rewrites the compact manifest through <paramref name="change"/>.</summary>
     private static void RewriteManifest(string directory, Func<CompactReplayTraceManifest, CompactReplayTraceManifest> change) =>
         File.WriteAllText(Path.Combine(directory, ReplayTrace.CompactManifestFile),
-            JsonSerializer.Serialize(change(ReplayTrace.ReadCompactManifest(directory)), ReplayTrace.ManifestJson));
+            JsonSerializer.Serialize(change(ReplayTrace.ReadCompactManifest(directory)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.TestSupport.MovieReplay.CompactReplayTraceManifest>(ReplayTrace.ManifestJson)));
 
     /// <summary>Changes one payload byte of <paramref name="recordIndex"/> and re-hashes the stream in the manifest.</summary>
     private static void RewriteExpected(string directory, ReplayTraceLayout layout, int recordIndex)

@@ -5,36 +5,30 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// band whose <see cref="MinimumHealth"/> his health reaches, and in <see cref="DraygonHealthBandDefinitions.BelowEighth"/>
 /// below them all; health exactly on a band's minimum is in that band.
 /// </summary>
-public sealed class DraygonHealthBand
+public sealed partial class DraygonHealthBand
 {
     /// <summary>Defines a band.</summary>
-    /// <param name="minimumHealth">The least health in the band, or null for the lowest band.</param>
+    /// <param name="minimumHealth">The least health in the band: zero for the lowest band, which holds all the health below the others.</param>
     /// <param name="key">The band's name in its shade's name.</param>
-    internal DraygonHealthBand(int? minimumHealth, [InstalledKey] string key)
+    internal DraygonHealthBand(int minimumHealth, string key)
     {
         MinimumHealth = minimumHealth;
         Key = key;
     }
 
-    /// <summary>The least health in the band, or null for the lowest band, which holds all the health below the others.</summary>
-    public int? MinimumHealth { get; }
+    /// <summary>The least health in the band: zero for the lowest band, which holds all the health below the others.</summary>
+    internal int MinimumHealth { get; }
 
     /// <summary>The band's name in its shade's name.</summary>
     public string Key { get; }
 
-    /// <summary>The band Draygon is in at <paramref name="health"/>.</summary>
-    /// <exception cref="InvalidDataException">
-    /// The health is above his authored health: corrupt restored state, not permission to choose a band above his own.
-    /// </exception>
-    internal static DraygonHealthBand Of(int health)
-    {
-        if (health > DraygonHealthBandDefinitions.MaximumAuthoredHealth)
-        {
-            throw new InvalidDataException(
-                $"Draygon health {health} exceeds the authored maximum {DraygonHealthBandDefinitions.MaximumAuthoredHealth} for health-band selection.");
-        }
-        return DraygonHealthBandDefinitions.HighestFirst.First(band => band.MinimumHealth is not { } least || health >= least);
-    }
+    /// <summary>
+    /// The band Draygon is in at <paramref name="health"/>: the first, highest first, whose least health his health reaches,
+    /// as the game's threshold search finds it, so any health at or above the highest band's least is in
+    /// that band.
+    /// </summary>
+    internal static DraygonHealthBand Of(int health) =>
+        DraygonHealthBandDefinitions.HighestFirst.First(band => health >= band.MinimumHealth);
 
     /// <inheritdoc/>
     public override string ToString() => Key;

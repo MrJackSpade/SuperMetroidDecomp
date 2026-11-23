@@ -24,10 +24,9 @@ internal static class SpeedBoosterEchoDrawVerification
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
             SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.FacingRightNormalPose,
             AnimationNumber = 0,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
-        };
+        }.InPose(SamusPoseId.FacingRightNormalPose);
         BindSyntheticSamusRendering(bus, samus);
         SamusPresentation.InitializeAnimation(samus);
         var camera = new Position16<RoomPixels>(0x0400, 0x0040);

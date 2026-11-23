@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// and of the body and bottom it watches over (#2480), each action an event raised just before the picture after it
 /// draws. Both facings play the same animations, mirrored; the right-facing body and bottom pulse faster.
 /// </summary>
-internal static class EyeDoorSequenceDefinitions
+internal static partial class EyeDoorSequenceDefinitions
 {
     /// <summary>The sound each hit on the eye makes.</summary>
     internal static readonly SoundEffectId HitSound = EnemySound.EnemyKilled;
@@ -75,19 +75,11 @@ internal static class EyeDoorSequenceDefinitions
         new Dictionary<EyeDoorPartSegment, AnimationBeat<EyeDoorPartPose, NoAnimationCue>[]>
         {
             [EyeDoorPartSegment.Still] = [Pose(EyeDoorPartPose.Resting, 8)],
-            [EyeDoorPartSegment.LeftPulse] =
-            [
-                Pose(EyeDoorPartPose.Resting, 8), Pose(EyeDoorPartPose.Swelling, 8), Pose(EyeDoorPartPose.Swollen, 8),
-                Pose(EyeDoorPartPose.Swelling, 8),
-            ],
-            [EyeDoorPartSegment.RightPulse] =
-            [
-                Pose(EyeDoorPartPose.Resting, 6), Pose(EyeDoorPartPose.Swelling, 6), Pose(EyeDoorPartPose.Swollen, 6),
-                Pose(EyeDoorPartPose.Swelling, 6),
-            ],
+            [EyeDoorPartSegment.LeftPulse] = PulseBeats(8),
+            [EyeDoorPartSegment.RightPulse] = PulseBeats(6),
         });
 
-    /// <summary>The closed eye, for four updates before it looks for Samus again.</summary>
+    /// <summary>The closed eye, held for its beat before it looks for Samus again.</summary>
     internal static Animation<EyeDoorSegment> Closed { get; } = Once(S.Closed);
 
     /// <summary>The eye opening as Samus nears.</summary>
@@ -125,6 +117,13 @@ internal static class EyeDoorSequenceDefinitions
     /// <summary>Draws the part in <paramref name="pose"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<EyeDoorPartPose, NoAnimationCue> Pose(EyeDoorPartPose pose, int updates) =>
         new AnimationBeat<EyeDoorPartPose, NoAnimationCue>.Frame(pose, updates);
+
+    /// <summary>One pulse of the body: resting, swelling, swollen and swelling again, each pose for <paramref name="poseUpdates"/>, as its facing paces it.</summary>
+    private static AnimationBeat<EyeDoorPartPose, NoAnimationCue>[] PulseBeats(int poseUpdates) =>
+    [
+        Pose(EyeDoorPartPose.Resting, poseUpdates), Pose(EyeDoorPartPose.Swelling, poseUpdates), Pose(EyeDoorPartPose.Swollen, poseUpdates),
+        Pose(EyeDoorPartPose.Swelling, poseUpdates),
+    ];
 
     /// <summary>Draws <paramref name="frame"/> for <paramref name="updates"/> updates.</summary>
     private static AnimationBeat<EyeDoorObjectFrame, EyeDoorAction> Show(EyeDoorObjectFrame frame, int updates) =>

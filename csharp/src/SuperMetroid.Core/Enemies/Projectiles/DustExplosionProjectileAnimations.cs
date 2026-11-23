@@ -5,14 +5,15 @@ using P = SuperMetroid.Core.Enemies.Projectiles.DustExplosionAnimation;
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
-/// The fourteen misc-dust explosion, smoke, dust and bubble animations (#641, #1686). Each
-/// frame shows a <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it acts on.
+/// The fourteen explosion, smoke, dust and bubble animations (#641, #1686). Each frame shows a
+/// <see cref="EnemyProjectileFrameId"/> and each cue is a <see cref="EnemyProjectileCommonCue"/> with the values it
+/// acts on.
 /// </summary>
-internal static class DustExplosionProjectileAnimations
+internal static partial class DustExplosionProjectileAnimations
 {
     /// <summary>Every segment's beats.</summary>
-    internal static AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
-        new Dictionary<DustExplosionAnimation, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>[]>
+    internal static UnpausedAnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments { get; } = new(
+        new Dictionary<DustExplosionAnimation, AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused[]>
     {
         [P.MotherBrainElbowChargeParticle] =
         [
@@ -163,34 +164,15 @@ internal static class DustExplosionProjectileAnimations
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = new Dictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>>
-    {
-        [P.MotherBrainElbowChargeParticle] = new([Segments.Whole(P.MotherBrainElbowChargeParticle)], AnimationEnd.Holds),
-        [P.MotherBrainElbowChargeEnergy] = new([Segments.Whole(P.MotherBrainElbowChargeEnergy)], AnimationEnd.Holds),
-        [P.SmallExplosion] = new([Segments.Whole(P.SmallExplosion)], AnimationEnd.Holds),
-        [P.MotherBrainRainbowBeamExplosion] = new([Segments.Whole(P.MotherBrainRainbowBeamExplosion)], AnimationEnd.Holds),
-        [P.DudShotTinyExplosion] = new([Segments.Whole(P.DudShotTinyExplosion)], AnimationEnd.Holds),
-        [P.SmallDustCloud] = new([Segments.Whole(P.SmallDustCloud)], AnimationEnd.Holds),
-        [P.CorpseDustCloud] = new([Segments.Whole(P.CorpseDustCloud)], AnimationEnd.Holds),
-        [P.EyeDoorSmokePuff] = new([Segments.Whole(P.EyeDoorSmokePuff)], AnimationEnd.Holds),
-        [P.Smoke] = new([Segments.Whole(P.Smoke)], AnimationEnd.Holds),
-        [P.BigExplosion] = new([Segments.Whole(P.BigExplosion)], AnimationEnd.Holds),
-        [P.RockParticles] = new([Segments.Whole(P.RockParticles)], AnimationEnd.Holds),
-        [P.ShortBigDustCloud] = new([Segments.Whole(P.ShortBigDustCloud)], AnimationEnd.Holds),
-        [P.BigDustCloud] = new([Segments.Whole(P.BigDustCloud)], AnimationEnd.Holds),
-        [P.LongDraygonBreathBubbles] = new([Segments.Whole(P.LongDraygonBreathBubbles)], AnimationEnd.Holds),
-    };
-
-    /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="segment"/> is not one of the fourteen animations.</exception>
-    internal static Animation<DustExplosionAnimation> StartingWith(DustExplosionAnimation segment) =>
-        StartingAt.TryGetValue(segment, out Animation<DustExplosionAnimation>? animation)
-            ? animation
-            : throw new ArgumentOutOfRangeException(nameof(segment), segment, "Undefined misc-dust animation.");
+    internal static IdentityTable<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt { get; } = new(Segments.EachEnding(AnimationEnd.Holds,
+        P.MotherBrainElbowChargeParticle, P.MotherBrainElbowChargeEnergy, P.SmallExplosion,
+        P.MotherBrainRainbowBeamExplosion, P.DudShotTinyExplosion, P.SmallDustCloud, P.CorpseDustCloud,
+        P.EyeDoorSmokePuff, P.Smoke, P.BigExplosion, P.RockParticles, P.ShortBigDustCloud, P.BigDustCloud,
+        P.LongDraygonBreathBubbles));
 
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> updates.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Frame(frame, duration);
 
     /// <summary>Publishes <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue> Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
+    private static AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Unpaused Cue(EnemyProjectileCommonCue cue) => new AnimationBeat<EnemyProjectileFrameId, EnemyProjectileCommonCue>.Event(cue);
 }

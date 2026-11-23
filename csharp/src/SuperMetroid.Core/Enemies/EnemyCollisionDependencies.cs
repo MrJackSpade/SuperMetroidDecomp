@@ -6,8 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The collaborators a <see cref="EnemyCollision"/> is constructed with, built once by the owner that creates it (#621).</summary>
-[RoomLifetime]
-internal sealed record EnemyCollisionDependencies
+internal sealed partial record EnemyCollisionDependencies
 {
     /// <summary>Sets up enemies in their places, spawns them and runs their AI.</summary>
     public required IEnemyLifecycle Lifecycle { get; init; }

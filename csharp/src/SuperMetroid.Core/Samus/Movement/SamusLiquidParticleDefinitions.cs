@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// Where Samus's liquid and landing particles start relative to her: landing dust and splashes, the splashes of a shallow
 /// entry into water, a diving splash's first step, breath bubbles, the lava spray and running footsteps (#2118).
 /// </summary>
-internal static class SamusLiquidParticleDefinitions
+internal static partial class SamusLiquidParticleDefinitions
 {
     /// <summary>
     /// A landing's two splashes: the right one four pixels right of Samus and four above her last occupied pixel, the

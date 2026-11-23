@@ -1,16 +1,21 @@
 using SuperMetroid.Core.Enemies;
+using static SuperMetroid.Core.DefinitionRun;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The spawn geometry and movement of Spore Spawn's projectiles.</summary>
-internal static class SporeSpawnProjectileDefinitions
+internal static partial class SporeSpawnProjectileDefinitions
 {
     /// <summary>
     /// His stalk's four segments in the order he spawns them, each relative to his body: on his centre line, from 64 pixels
-    /// above him downward eight pixels apart.
+    /// above him downward eight pixels apart; the last he spawns hangs at the ceiling, the one before it a quarter of the way
+    /// down the stalk, then half and three quarters of the way.
     /// </summary>
-    internal static IReadOnlyList<Offset16<RoomPixels>> StalkSegments { get; } =
-        [new(0, -64), new(0, -56), new(0, -48), new(0, -40)];
+    internal static IReadOnlyList<SporeSpawnStalkLinkDefinition> StalkSegments { get; } =
+    [
+        new(new(0, -64), SporeSpawnStalkPlace.ThreeQuarters), new(new(0, -56), SporeSpawnStalkPlace.Half),
+        new(new(0, -48), SporeSpawnStalkPlace.Quarter), new(new(0, -40), SporeSpawnStalkPlace.Ceiling),
+    ];
 
     /// <summary>
     /// The four ceiling spore emitters in the order he opens them, centred in successive 64-pixel columns of his room: the
@@ -24,7 +29,7 @@ internal static class SporeSpawnProjectileDefinitions
     ];
 
     /// <summary>The chances the drop a shot spore leaves rolls (#2244): mostly a missile, sometimes energy, never a Super Missile or Power Bomb.</summary>
-    internal static readonly EnemyDropChances SporeDropChances = new(SmallEnergy: 10, BigEnergy: 20, Missile: 200, Nothing: 25, SuperMissile: 0, PowerBomb: 0);
+    internal static readonly EnemyDropChances SporeDropChances = new(smallEnergy: 10, bigEnergy: 20, missile: 200, nothing: 25, superMissile: 0, powerBomb: 0);
 
     /// <summary>
     /// A spore's drift path: how many pixels it moves across and down at each step, repeating after the last (#2335). It
@@ -36,17 +41,13 @@ internal static class SporeSpawnProjectileDefinitions
         new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(0, 2),
         new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0),
         new(1, 0), new(0, 2), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0),
-        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
-        new(0, 2), new(1, 0), new(1, 0), new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(1, 0),
-        new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(1, 0), new(0, -2), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0), new(1, 0),
-        new(0, -2), new(1, 0), new(1, 0), new(0, 0), new(-1, 2), new(-1, 2), new(-1, 2), new(-1, 0),
+        new(1, 0), new(0, 2), new(1, 0), new(1, 0), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 3),
+        new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 3), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 12), new(0, -2), .. Repeated<Offset16<RoomPixels>>(new(1, 0), 6),
+        new(0, -2), new(1, 0), new(1, 0), new(0, 0), .. Repeated<Offset16<RoomPixels>>(new(-1, 2), 3), new(-1, 0),
         new(0, 2), new(-1, 2), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 2), new(-1, 0), new(0, 2),
         new(-1, 0), new(0, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 2), new(-1, 0),
         new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 2), new(-1, 0),
-        new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0),
-        new(-1, 0), new(-1, 0), new(0, -2), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0), new(0, 0),
+        new(-1, 0), new(0, 2), new(-1, 0), new(-1, 0), new(0, 2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3),
+        new(-1, 2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 9), new(0, -2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3), new(-1, -2), .. Repeated<Offset16<RoomPixels>>(new(-1, 0), 3), new(0, -2), new(-1, 0), new(-1, 0), new(-1, -2), new(-1, 0), new(0, 0),
     ];
 }

@@ -3,11 +3,10 @@ using System.Collections.Frozen;
 namespace SuperMetroid.Core.Progression;
 
 /// <summary>Decoding and component predicates for <see cref="SamusBeamCombination"/>.</summary>
-public static class SamusBeamCombinations
+public static partial class SamusBeamCombinations
 {
     /// <summary>The beam components of each combination.</summary>
-    private static readonly FrozenDictionary<SamusBeamCombination, SamusBeamFlags> ComponentsOf =
-        new Dictionary<SamusBeamCombination, SamusBeamFlags>
+    private static readonly IdentityTable<SamusBeamCombination, SamusBeamFlags> ComponentsOf = new(new Dictionary<SamusBeamCombination, SamusBeamFlags>
         {
             [SamusBeamCombination.Power] = SamusBeamFlags.None,
             [SamusBeamCombination.Wave] = SamusBeamFlags.Wave,
@@ -26,24 +25,23 @@ public static class SamusBeamCombinations
             [SamusBeamCombination.SpazerPlasmaIce] = SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Ice,
             [SamusBeamCombination.SpazerPlasmaIceWave] =
                 SamusBeamFlags.Spazer | SamusBeamFlags.Plasma | SamusBeamFlags.Ice | SamusBeamFlags.Wave,
-        }.ToFrozenDictionary();
+        });
 
     /// <summary>The combination each set of beam components forms.</summary>
     private static readonly FrozenDictionary<SamusBeamFlags, SamusBeamCombination> CombinationOf =
         ComponentsOf.ToFrozenDictionary(entry => entry.Value, entry => entry.Key);
 
     /// <summary>The combination of the beam components in <paramref name="beams"/>; other equipment such as Charge is ignored.</summary>
-    public static SamusBeamCombination Of(SamusBeamFlags beams) =>
-        CombinationOf[beams & (SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)];
+    public static SamusBeamCombination Of(SamusBeamFlags beams) => CombinationOf[beams & AllBeams];
+
+    /// <summary>The beam components a combination can hold: Wave, Ice, Spazer and Plasma.</summary>
+    private const SamusBeamFlags AllBeams = SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma;
 
     /// <summary>Exposes the equipment predicates for a beam combination.</summary>
     extension(SamusBeamCombination combination)
     {
         /// <summary>The beam components.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The combination is undefined.</exception>
-        public SamusBeamFlags Components => ComponentsOf.TryGetValue(combination, out SamusBeamFlags components)
-            ? components
-            : throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination.");
+        public SamusBeamFlags Components => ComponentsOf[combination];
 
         /// <summary>Whether Wave is a component.</summary>
         public bool HasWave => (combination.Components & SamusBeamFlags.Wave) != SamusBeamFlags.None;
@@ -54,17 +52,16 @@ public static class SamusBeamCombinations
         /// <summary>Whether Plasma is a component.</summary>
         public bool HasPlasma => (combination.Components & SamusBeamFlags.Plasma) != SamusBeamFlags.None;
 
+        /// <summary>Whether Spazer is a component.</summary>
+        public bool HasSpazer => (combination.Components & SamusBeamFlags.Spazer) != SamusBeamFlags.None;
+
+        /// <summary>Whether Spazer and Plasma are both components, which equipment cannot pair.</summary>
+        public bool PairsSpazerWithPlasma => combination.HasSpazer && combination.HasPlasma;
+
+        /// <summary>Whether every beam, Wave, Ice, Spazer and Plasma, is a component.</summary>
+        public bool HoldsEveryBeam => combination.Components == AllBeams;
+
         /// <summary>Whether equipment can produce this combination: every one but those pairing Spazer with Plasma.</summary>
-        public bool CanBeEquipped => combination switch
-        {
-            SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
-                SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
-                SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or SamusBeamCombination.Plasma or
-                SamusBeamCombination.PlasmaWave or SamusBeamCombination.PlasmaIce or
-                SamusBeamCombination.PlasmaIceWave => true,
-            SamusBeamCombination.SpazerPlasma or SamusBeamCombination.SpazerPlasmaWave or
-                SamusBeamCombination.SpazerPlasmaIce or SamusBeamCombination.SpazerPlasmaIceWave => false,
-            _ => throw new ArgumentOutOfRangeException(nameof(combination), combination, "Undefined beam combination."),
-        };
+        public bool CanBeEquipped => !combination.PairsSpazerWithPlasma;
     }
 }

@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// them: it pre-colours the screens' sheets from them and takes each screen's backdrop from them once, into the scene
 /// colours the game reads (#1544, <see cref="SceneColourFiles"/>); the game loads no palette document.
 /// </summary>
-public sealed class MapStaticPalettes
+public sealed partial class MapStaticPalettes
 {
     /// <summary>The colour of an image that the screen shows where nothing is drawn.</summary>
     private const int BackdropColour = 0;

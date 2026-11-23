@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
@@ -14,9 +15,6 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.AssetExtraction.Video;
 namespace SuperMetroid.Verification.Rooms.RoomObjects;
-
-using SuperMetroid.Verification.Harness;
-
 /// <summary>Checks compiled item graphics and that a retail room population sets its item up from them.</summary>
 internal static class CompiledDynamicCollectibleGraphicsVerification
 {
@@ -48,7 +46,7 @@ internal static class CompiledDynamicCollectibleGraphicsVerification
 
     /// <summary>Reads a bank-$84 native graphics instruction word for the independent oracle.</summary>
     internal static ushort ReadCollectibleGraphicsWord(
-        ISnesAddressSpace bus, int address) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | address);
+        ISnesAddressSpace bus, int address) => bus.ReadCartridgeWordFixedBank(0x840000 | address);
 
     /// <summary>
     /// The cartridge's header of a Chozo-orb Energy Tank, the first of the Chozo-orb item headers, which no room places and

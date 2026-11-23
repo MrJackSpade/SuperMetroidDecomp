@@ -34,7 +34,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// <c>$A6:AA64</c>), the 0 that <c>$A6:AB41</c> writes as the getaway ends coming with background mode 1.
 /// </para>
 /// </remarks>
-internal static class RepeatingFloors
+internal static partial class RepeatingFloors
 {
     /// <summary>The frontend floor sheets whose scenes repeat the floor beyond its edges: the ending's escape and explosion.</summary>
     private static readonly FrozenSet<SpriteSheetId> RepeatedFrontendFloors = new[]

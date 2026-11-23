@@ -20,6 +20,17 @@ internal static class EnemySessionFixtures
         new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads,
             new SheetsOnFirstDraw(() => EnemySheetFixtures.For(InstalledFixtures.EnemyTiles)), InstalledFixtures.EnemyFrameDisplays);
 
+    /// <summary>
+    /// A fresh power-on enemy session bound to the installation's services, drawing a retail room's population from the
+    /// installed sheets alone, as the game does, with the installed frame displays (#2606): it composes nothing and loads no
+    /// import artwork, and a sheet's picture is assembled only when the session first draws from it, so a case drawing one
+    /// enemy under a retail set (<see cref="SpawnedObjectFixtures.LoadSetDrawing"/>) builds that enemy's sheet alone. A
+    /// fixture's own population, which no installation holds artwork for, does not draw in it.
+    /// </summary>
+    internal static EnemySession DrawingInstalledSheets() =>
+        new(GameplayAudioRequests.Standalone(), InstalledFixtures.EnemyOverreads, InstalledFixtures.BossAndIntroOverreads,
+            InstalledFixtures.EnemySheets, InstalledFixtures.InstalledEnemyFrameDisplays);
+
     /// <summary>A fresh power-on enemy session drawing from <paramref name="tiles"/>' sheets and frame displays.</summary>
     /// <exception cref="InvalidOperationException"><paramref name="tiles"/> holds only one of the two enemy frame documents.</exception>
     internal static EnemySession WithInstalledServices(EnemyTileSourceArtwork tiles)
@@ -55,7 +66,7 @@ internal static class EnemySessionFixtures
         {
             CeresStatus = session.CeresStatus,
             CriticalEnergyDropBias = session.CriticalEnergyDropBias,
-            JapaneseText = session.JapaneseText,
+            Language = session.Language,
             EnemyPassCount = session.EnemyPassCount,
             DeathQuota = session.DeathQuota,
         };

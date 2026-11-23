@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// continues into on its first step that plays. Held and newly-pressed buttons are independent; deriving edges loses
 /// scripted edges.
 /// </summary>
-public sealed class AttractDemoInput
+public sealed partial class AttractDemoInput
 {
     /// <summary>
     /// The recording the playback continues into on its first step that plays (the diagonal shinespark's, #2190), until
@@ -40,6 +40,6 @@ public sealed class AttractDemoInput
             _continuation = null;
             Script.Load(continuation);
         }
-        Script.Step(cue => throw new InvalidOperationException($"Title demonstrations handle no {cue} cue."));
+        Script.Step();
     }
 }

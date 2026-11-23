@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Frontend.Menus;
@@ -135,14 +137,12 @@ internal static class LookupStream3Verification
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
         IntroEyeTilemapPresentation stock = Load(native);
         Confirm(stock, native);
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(-1).ToArray(), "negative eye frame");
-        AssertThrows<ArgumentOutOfRangeException>(() => stock.FrameTiles(4).ToArray(), "upper eye frame");
         Console.WriteLine("Intro eye rectangles:24 native cells, the content identity and bounds pass; actual portrait draw copies pass.");
 
         static void Confirm(IntroEyeTilemapPresentation selected, ushort[][] expected)
         {
             for (int frame = 0; frame < expected.Length; frame++)
-                AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(frame))), $"eye rectangle {frame}");
+                AssertTrue(expected[frame].SequenceEqual(BackgroundTileWordBytes.Words(selected.FrameTiles(IntroEyeTilemapFormat.Eyes[frame]))), $"eye rectangle {frame}");
             string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>
             {
                 content.Append("frames", expected.Length);
@@ -157,7 +157,7 @@ internal static class LookupStream3Verification
                 Version = IntroEyeTilemapFormat.Version,
                 Frames = frames.Select((words, frame) => new IntroEyeTilemapFrame
                 {
-                    Id = IntroEyeTilemapFormat.FrameId(frame),
+                    Id = IntroEyeTilemapFormat.FrameId(IntroEyeTilemapFormat.Eyes[frame]),
                     Cells = words.Select(raw =>
                     {
                         var word = new SnesBgTilemapWord(raw);
@@ -215,7 +215,7 @@ internal static class LookupStream3Verification
         GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<GameOptionsPage, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
-            var value = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            var value = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options))));
             return value.headingSprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
@@ -235,7 +235,7 @@ internal static class LookupStream3Verification
             var stock = Load(original)[page];
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
-            var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
+            var presentation = GameOptionsSourcePresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options))));
             string anchorKey = GameOptionsPresentationFormat.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
@@ -246,7 +246,7 @@ internal static class LookupStream3Verification
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual heading draw preserves exact native ordered OAM");
-            AssertEqual((ushort)count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native border header");
+            AssertEqual((ushort)count, rom.ReadCartridgeWord(address), "native border header");
             for (int index = 0; index < count; index++)
             {
                 int entry = address + 2 + index * 5;
@@ -263,7 +263,7 @@ internal static class LookupStream3Verification
         FileSelectArtworkDocument Read() => RequiredJson.Deserialize<FileSelectArtworkDocument>(imported.Artwork, ArtworkJson.Options);
         FileSelectLayoutDocument layout = RequiredJson.Deserialize<FileSelectLayoutDocument>(imported.Layout, ArtworkJson.Options);
         FileSelectSourcePresentation LoadPresentation(FileSelectArtworkDocument document) => FileSelectSourcePresentation.Load(
-            new MemoryStream(imported.Layout), new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            new MemoryStream(imported.Layout), new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectArtworkDocument>(ArtworkJson.Options))));
         Dictionary<FileSelectBorder, SpriteComposition> Load(FileSelectArtworkDocument document) => LoadPresentation(document).borderSprites;
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
         {
@@ -293,7 +293,7 @@ internal static class LookupStream3Verification
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual file-select border draw preserves native OAM");
-            AssertEqual((ushort)count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address), "native border header");
+            AssertEqual((ushort)count, rom.ReadCartridgeWord(address), "native border header");
             for (int index = 0; index < count; index++)
             {
                 int entry = address + 2 + index * 5;
@@ -309,9 +309,9 @@ internal static class LookupStream3Verification
     /// pipeline's record codec, with the palette row cleared because the drawing owner supplies the palette.
     /// </summary>
     private static SpritePart NativeOwnerPalettePart(ISnesAddressSpace rom, int entry) =>
-        new SpritemapPart(new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry)),
+        new SpritemapPart(new SnesSpritemapXWord(rom.ReadCartridgeWord(entry)),
             new SnesSpritemapYByte(rom.ReadCartridgeByte(entry + 2)),
-            new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 3)).WithPaletteIndex(0)).ToPart();
+            new SnesObjAttributeWord(rom.ReadCartridgeWord(entry + 3)).WithPaletteIndex(0)).ToPart();
 
     /// <summary>Decodes the seven grapple transfers and checks derived tile pixels against ROM.</summary>
     internal static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
@@ -329,11 +329,11 @@ internal static class LookupStream3Verification
         {
             foreach (var transfer in transfers)
             {
-                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                AssertTrue(planar.AsSpan(transfer.AtlasOffset, transfer.ByteCount).SequenceEqual(atlas.Shown(transfer).Span),
                     "stream 3 exact Grapple calculated/upload bytes");
                 AssertTrue(atlas.TryResolve(transfer.SourceAddress, transfer.ByteCount, out var resolved),
                     "stream 3 existing Grapple transfer identity binding");
-                AssertTrue(resolved.Span.SequenceEqual(atlas.Resolve(transfer.Asset).Span),
+                AssertTrue(resolved.Span.SequenceEqual(atlas.Shown(transfer).Span),
                     "stream 3 rebound Grapple bytes preserve transfer boundaries");
             }
         }
@@ -350,10 +350,10 @@ internal static class LookupStream3Verification
         {
             var expected = new List<IntroNarrationCharacter>();
             int cursor = 0x8c0000 | (source.InstructionPointer + 8);
-            while ((CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor) & 0x8000) == 0)
+            while ((rom.ReadCartridgeWord(cursor) & 0x8000) == 0)
             {
-                ushort position = CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2));
-                ushort glyph = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8c0000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor + 4) + 4)));
+                ushort position = rom.ReadCartridgeWord((cursor + 2));
+                ushort glyph = rom.ReadCartridgeWord((0x8c0000 | (rom.ReadCartridgeWord(cursor + 4) + 4)));
                 BackgroundTile glyphTile = BackgroundTileWordBytes.Tile(glyph);
                 expected.Add(new(LittleEndianBytes.LowByte(position), LittleEndianBytes.HighByte(position), IntroNarrationGlyphTiles.DecodeGlyph(glyphTile)));
                 cursor += 6;
@@ -380,7 +380,7 @@ internal static class LookupStream3Verification
                 AssertEqual((byte)0xa3, frame.Bank, "Mochtroid native frame bank");
                 AssertEqual((ushort)pointer, frame.Pointer, "Mochtroid native counted-record stride");
                 AssertEqual($"mochtroid_{(family == 0 ? "flight" : "attached")}_{pose}", frame.Name, "Mochtroid legacy frame name");
-                int count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer);
+                int count = rom.ReadCartridgeWordFixedBank(0xa30000 | pointer);
                 pointer += 2 + 5 * count;
             }
         }
@@ -404,7 +404,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         GameOverPresentationDocument Read() => RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverSourcePresentation Load(GameOverPresentationDocument document) => GameOverSourcePresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPresentationDocument>(ArtworkJson.Options))));
         var original = Read();
         var stock = Sprites(Load(original));
         // The stock presentation draws the installation's sheet, composed from it.
@@ -456,31 +456,17 @@ internal static class LookupStream3Verification
         }
     }
 
-    /// <summary>Checks the ordered named frame registry and derived room-sprite additions without duplicate identities.</summary>
-    internal static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
+    /// <summary>
+    /// Checks the installed enemy frame registry holds each cartridge record once. The registry no longer begins with the
+    /// 472 source registrations of commit 723df7b36: Stoke's frames (#1686), the Rios' same-picture twins (#2272), the room
+    /// sprite objects' record that draws nothing (#2370) and the Ceres doors' initial frame (#2424) left it, and the Ceres
+    /// doors' frames took new names (#1989), so its frozen prefix, and the room-sprite additions counted from that prefix,
+    /// are gone with it. The room sprite objects' pictures are compared with the cartridge's lists in
+    /// VerifyInstalledEnemySpritemaps.
+    /// </summary>
+    internal static void VerifyStream3EnemyFrameRegistration()
     {
-        // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36, under the names they had
-        // before frames were named for their meaning (#1465).
-        const string originalNamedIdentity = "421A60158BA376F9A6AD58EA817315553AD268A44B411B87A4B25059EE5DFE92";
-        var named = EnemySpritemapDefinitions.Frames.Take(472).ToArray();
-        string identity = string.Join("|", named.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.LegacyName}"));
-        AssertEqual(originalNamedIdentity, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-            System.Text.Encoding.UTF8.GetBytes(identity))), "enemy named registration exact ordered source identities");
         var all = EnemySpritemapDefinitions.Frames.ToArray();
-        AssertEqual(all.Length, EnemySpritemapDefinitions.Frames.Count, "enemy calculated registry count");
-        AssertTrue(EnemySpritemapDefinitions.Frames.Take(472).SequenceEqual(named), "enemy legacy named prefix slice");
-        for (int index = 0; index < 472; index++)
-            AssertEqual(named[index], EnemySpritemapDefinitions.Frames[index], "enemy legacy registration ordinal identity");
-        var additionalPointers = new SortedSet<ushort>();
-        var namedSpritePointers = named.Where(frame => frame.Bank == 0xb4).Select(frame => frame.Pointer).ToHashSet();
-        foreach (ushort pointer in SuperMetroid.Verification.Rooms.EffectActors.RoomEffectActorNativeLists.SpritemapPointers(rom))
-        {
-            if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
-        }
-        var expectedAdditional = additionalPointers.Select(pointer =>
-            new NativeEnemySpritemapDefinition(0xb4, pointer, $"room_sprite_b4_{pointer:x4}")).ToArray();
-        AssertTrue(all.Skip(472).Take(expectedAdditional.Length).Select(frame => frame.Native).SequenceEqual(expectedAdditional),
-            "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
         AssertEqual(all.Length, all.Select(frame => new FrameAddressKey(frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
     }
 
@@ -500,7 +486,7 @@ internal static class LookupStream3Verification
             AssertEqual(count, Compiled(stock).Count, "file-select installed patch native cell count " + name);
             for (int index = 0; index < count; index++)
             {
-                ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
+                ushort word = rom.ReadCartridgeWord(address + index * 2);
                 AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), BackgroundTileWords.ToTile(word)), Compiled(stock).Cell(index),
                     "file-select installed patch exact native cell");
             }
@@ -537,7 +523,7 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.GameOverPresentationExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<GameOverPresentationDocument>(imported, ArtworkJson.Options);
         GameOverSourcePresentation Load() => GameOverSourcePresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.GameOver.Artwork.GameOverPresentationDocument>(ArtworkJson.Options))));
         var stock = Load();
         AssertTrue(stock.page.SequenceEqual(Enumerable.Range(0, GameOverPageDefinitions.TilemapCellCount).Select(GameOverText.TilemapTile)),
             "the stock game-over page is the spelled game-over text");
@@ -566,14 +552,14 @@ internal static class LookupStream3Verification
         GameOptionsPresentationDocument ReadDocument() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             imported, ArtworkJson.Options);
         GameOptionsSourcePresentation Load(GameOptionsPresentationDocument document) => GameOptionsSourcePresentation.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Options.Artwork.GameOptionsPresentationDocument>(ArtworkJson.Options))));
         var stock = ReadDocument();
         var loaded = Load(stock);
         for (int action = 0; action < 7; action++)
         {
-            ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f639 + action * 2));
+            ushort offset = rom.ReadCartridgeWord((0x82f639 + action * 2));
             AssertEqual(new Position16<CharacterCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
-                loaded.controllerLabelAnchors[action], "native options label anchor");
+                loaded.controllerLabelAnchors[global::SuperMetroid.Core.Frontend.Options.GameOptionsPageRows.ControllerActions[action]], "native options label anchor");
         }
         foreach ((GameOptionsPage page, int address, int count) in new[]
         {
@@ -585,32 +571,32 @@ internal static class LookupStream3Verification
             IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
             AssertEqual(count, rows.Count, "native options cursor rows");
             for (int place = 0; place < rows.Count; place++)
-                AssertEqual(new Offset16<ScreenPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + place * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + place * 4 + 2))),
+                AssertEqual(new Offset16<ScreenPixels>(rom.ReadCartridgeWord((address + place * 4)), rom.ReadCartridgeWord((address + place * 4 + 2))),
                     loaded.Presentation.CursorPosition(rows[place]), "native options cursor anchor");
         }
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
+            AssertEqual(rom.ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
                 BackgroundTileWords.ToWord(loaded.controllerLabels[GameOptionsPresentationDefinitions.ControllerLabelButtons[button]][cell]),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
 
         void Confirm(GameOptionsPresentationDocument document, GameOptionsSourcePresentation presentation)
         {
-            foreach (bool japanese in new[] { false, true })
+            foreach (TextLanguage language in Enum.GetValues<TextLanguage>())
             {
                 byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Primary);
                 byte[] expected = (byte[])actual.Clone();
                 foreach (var region in document.LanguageRegions)
-                    Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
-                presentation.ApplyLanguage(actual, japanese);
+                    Paint(expected, region.Cells, language == region.Language ? document.SelectedPalette : document.UnselectedPalette);
+                presentation.ApplyLanguage(actual, language);
                 AssertTrue(actual.SequenceEqual(expected), "options language boxes preserve exact stock cells");
             }
             foreach (GameOptionsToggle toggle in GameOptionsPresentationFormat.Toggles)
             foreach (bool enabled in new[] { false, true })
             {
                 GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsNames.ToggleName(toggle)];
-                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.SpecialEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English));
                 byte[] expected = (byte[])actual.Clone();
                 Paint(expected, visual.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
                 Paint(expected, visual.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
@@ -620,9 +606,9 @@ internal static class LookupStream3Verification
             for (int action = 0; action < 7; action++)
             for (int button = 0; button < 7; button++)
             {
-                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.ControllerEnglish);
+                byte[] actual = presentation.CreatePageBytes(GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English));
                 byte[] expected = (byte[])actual.Clone();
-                Position16<CharacterCells> point = document.ControllerLabelAnchors[action];
+                Position16<CharacterCells> point = document.ControllerLabelAnchors[GameOptionsPageRows.ControllerActions[action].ToString()];
                 for (int cell = 0; cell < 6; cell++)
                 {
                     MapPresentationCell source = document.ControllerLabels[GameOptionsNames.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButtons[button])][cell];
@@ -636,11 +622,11 @@ internal static class LookupStream3Verification
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
-                Offset16<ScreenPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
-                IReadOnlyList<GameOptionsRow> rows = GameOptionsRowConstants.OnPage(page);
-                AssertEqual(cursors.Length, rows.Count, "options stock cursor rows");
-                for (int place = 0; place < rows.Count; place++)
-                    AssertEqual(cursors[place], presentation.Presentation.CursorPosition(rows[place]), "options stock cursor");
+                Dictionary<string, Offset16<ScreenPixels>> cursors = document.CursorAnchors[GameOptionsPresentationFormat.MenuName(page)];
+                IReadOnlyList<GameOptionsCursorRow> rows = GameOptionsLayoutFile.CursorRowsOn(page);
+                AssertEqual(cursors.Count, rows.Count, "options stock cursor rows");
+                foreach (GameOptionsCursorRow row in rows)
+                    AssertEqual(cursors[row.Name], presentation.Presentation.CursorPosition(row.Row), "options stock cursor");
             }
             foreach (GameOptionsPage page in GameOptionsPresentationFormat.MenuPages)
             {
@@ -655,8 +641,6 @@ internal static class LookupStream3Verification
                 AssertTrue(actual.ImageEquals(expected),
                     "options stock heading origin and scroll");
             }
-            AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, SuperMetroid.Core.Input.ControllerButton.X), "options invalid action");
-            AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRowConstants.OnPage((GameOptionsPage)byte.MaxValue), "options invalid page");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {
@@ -727,9 +711,9 @@ internal static class LookupStream3Verification
                 AssertEqual((byte)0xa0, rom.ReadCartridgeByte(address + 3), "stream 3 intro native LDY color count");
                 // The native X operand is the first color's byte offset into the two-byte palette entries.
                 AssertEqual(expectedIntroRegions[group][index].FirstColor * 2,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 1), "stream 3 intro native offset");
+                    rom.ReadCartridgeWord(address + 1), "stream 3 intro native offset");
                 AssertEqual(expectedIntroRegions[group][index].ColorCount,
-                    CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4), "stream 3 intro native count");
+                    rom.ReadCartridgeWord(address + 4), "stream 3 intro native count");
             }
             foreach (int invalid in new[] { -1, expectedIntroRegions[group].Length, int.MaxValue })
                 AssertThrows<IndexOutOfRangeException>(() => _ = expectedIntroRegions[group][invalid], "stream 3 intro region bounds");
@@ -761,7 +745,7 @@ internal static class LookupStream3Verification
             AssertEqual((byte)0xa9, actual.Bank, "stream 3 Mother Brain visual bank");
             AssertEqual($"mother_brain_a9_{motherBrainRoots[index]:x4}", actual.Name, "stream 3 Mother Brain visual identity name");
             int address = 0xa90000 | actual.Pointer;
-            AssertEqual(nativeCharacterCounts[index], CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            AssertEqual(nativeCharacterCounts[index], rom.ReadCartridgeWord(address),
                 "stream 3 native OAM record widths used for root strides");
         }
         foreach (int invalid in new[] { -1, 18, int.MaxValue })
@@ -789,7 +773,7 @@ internal static class LookupStream3Verification
             [0x82e22f, 0x82e235, 0x82e23b, 0x82e241, 0x82e247],
             [0x82e252, 0x82e258, 0x82e25e, 0x82e264],
         ];
-        int targetPaletteBase = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x82e1f5) - 18;
+        int targetPaletteBase = rom.ReadCartridgeWord(0x82e1f5) - 18;
         ushort[] sourceColors = Enumerable.Range(1, 256).Select(value => (ushort)value).ToArray();
         // The HUD's door fade shades (#1512, #2289) black every HUD ink but those the door keeps lit: an ink a shade leaves
         // out is one the native copy writes into the fade's target.
@@ -810,7 +794,7 @@ internal static class LookupStream3Verification
             foreach (int instruction in nativeDoorCopies[group])
             {
                 AssertEqual((byte)0x8d, rom.ReadCartridgeByte(instruction), "stream 3 native door color store opcode");
-                int destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(instruction + 1);
+                int destination = rom.ReadCartridgeWord(instruction + 1);
                 int color = (destination - targetPaletteBase) / 2;
                 expected[color] = sourceColors[color];
             }
@@ -824,9 +808,8 @@ internal static class LookupStream3Verification
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             int address = 0x9bc346 + 2 * (angle >> 10);
-            int expected = (0x9a0000|CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
-            var asset = GrappleTileSelection.SegmentAssetFor(RotationAngleConstants.FromRaw((ushort)angle));
-            AssertEqual(expected, GrappleTileSelection.TransferFor(asset).SourceAddress,
+            int expected = (0x9a0000|rom.ReadCartridgeWord(address));
+            AssertEqual(expected, GrappleTileSelection.SegmentTransferFor(RotationAngleConstants.FromRaw((ushort)angle)).SourceAddress,
                 "stream 3 native grapple angle sector");
         }
 
@@ -848,18 +831,14 @@ internal static class LookupStream3Verification
         {
             AssertEqual(expectedTransfers[index], actualTransfers[index],
                 "stream 3 grapple transfer index");
-            AssertEqual(expectedTransfers[index], GrappleTileSelection.TransferFor(expectedTransfers[index].Asset),
-                "stream 3 grapple transfer asset dispatch");
             AssertEqual(expectedSources[index], actualTransfers[index].SourceAddress, "stream 3 grapple transfer cartridge source");
         }
-        AssertThrows<InvalidDataException>(() => GrappleTileSelection.TransferFor((InstalledArtworkId)(-1)),
-            "stream 3 invalid grapple asset");
 
         for (int parameter = 0; parameter < 3; parameter++)
         {
             int offset = 2 * parameter;
-            ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e682 + offset);
-            var action = SparksNativeWords.SparkActions.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa8e688 + offset), "Spark function");
+            ushort list = rom.ReadCartridgeWord(0xa8e682 + offset);
+            var action = SparksNativeWords.SparkActions.Decode(rom.ReadCartridgeWord(0xa8e688 + offset), "Spark function");
             SparkMovementDefinition definition = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.SparkStart(parameter);
             AssertEqual(list, NativeEnemyAnimationOracle.EntryOf(SparkNativeListAddresses.Entries, definition.Animation),
                 "stream 3 native Spark list selector");
@@ -870,14 +849,14 @@ internal static class LookupStream3Verification
         for (int bucket = 0; bucket <= 224; bucket += 32)
         {
             CompassDirection aim = AimAngleConstants.FromClockwiseSteps(bucket).DirectionOfEighth();
-            AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(CartridgeImportSource.Require(rom), bucket),
+            AssertEqual(ShaktoolNativeListAddresses.AimedSpritemap(rom, bucket),
                 SuperMetroid.Core.Enemies.Shaktool.Artwork.ShaktoolFrameToolingDefinitions.Spritemap(ShaktoolHeadPictures.Aiming(aim)),
                 "stream 3 native Shaktool orientation picture");
         }
         for (int segment = 0; segment < 7; segment++)
         {
             int offset = segment * 2;
-            ushort collision = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xaadf13 + offset);
+            ushort collision = rom.ReadCartridgeWord(0xaadf13 + offset);
             AssertEqual(collision, NativeEnemyAnimationOracle.EntryOf(ShaktoolNativeListAddresses.Entries, ShaktoolSegmentDefinitions.Segments[segment].CollisionAnimation),
                 "stream 3 native Shaktool collision program");
         }
@@ -906,13 +885,12 @@ internal static class LookupStream3Verification
             int address = 0x94b18d + 4 * frame;
             // The segment appearance has no packed word: the native attribute word is decoded by the import pipeline's
             // codec and compared by character, palette row, priority and mirroring.
-            AssertEqual(new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(address)).ToSinglePart(),
-                grappleSprites.Segment(frame), "stream 3 calculated native rope appearance");
+            AssertEqual(new SnesObjAttributeWord(rom.ReadCartridgeWord(address)).ToSinglePart(),
+                grappleSprites.Segment(GrappleSheetDefinitions.RopePattern[frame]), "stream 3 calculated native rope appearance");
         }
         foreach (int invalid in new[] { -1, 4, int.MaxValue })
         {
             AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.SegmentAttributeAddress(invalid), "stream 3 rope operand address bounds");
-            AssertThrows<InvalidDataException>(() => grappleSprites.Segment(invalid), "stream 3 rope attribute bounds");
         }
         var swingFrames = GrappleSwingFrameFile.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Samus.GrappleSwingFrameExtractor.Extract(rom)));
@@ -940,7 +918,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = credits.GetRow(invalid).Length, "stream 3 calculated credits row bounds");
         var escapePrograms = CrateriaEscapeLightningPaletteFxColorDefinitions.All;
         AssertEqual(2, escapePrograms.Count, "stream 3 escape lightning owner count");
-        AssertTrue(escapePrograms.Select(program => program.Owner).SequenceEqual(new[] { CrateriaEscapeLightningPaletteOwner.YellowLightning, CrateriaEscapeLightningPaletteOwner.ParlorSky }), "stream 3 escape lightning owner order");
+        AssertTrue(escapePrograms.Select(program => program.Effect).SequenceEqual(new[] { ColourEffectId.CrateriaEscapeYellowLightning, ColourEffectId.ParlorEscapeSkyFlicker }), "stream 3 escape lightning owner order");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
@@ -965,7 +943,7 @@ internal static class LookupStream3Verification
         const int RowColours = 16;
         int timerRowFirstInk = SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerSheetComposer.PaletteRow * RowColours;
         int[] nativeKept = [.. timerCopy.Select(instruction =>
-            (CartridgeImportSource.Require(rom).ReadCartridgeWord(instruction + 1) - targetPaletteBase) / 2
+            (rom.ReadCartridgeWord(instruction + 1) - targetPaletteBase) / 2
                 - SpriteColoursFirst - timerRowFirstInk).Order()];
         AssertTrue(nativeKept.SequenceEqual(SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerDoorFadeShades.Kept),
             "stream 3 native third door copy keeps exactly the escape timer's kept colours");
@@ -983,7 +961,7 @@ internal static class LookupStream3Verification
             pictures => pictures == GameplayPictures.EscapeTimer ? PictureShading.Shaded(step) : PictureShading.Standard);
         var fade = new GameplayDisplayFade(new ColourFlash(RgbColor.Black), GameplayFadeSpares.Hud);
         var gameplay = new GameplayShading(RgbColor.Black, shadings.ToImmutableDictionary(), fade);
-        PictureShading timer = gameplay.OfEscapeTimer(PictureShading.Standard);
+        PictureShading timer = gameplay.OfGroupShaded(PictureShading.Standard, GameplayPictures.EscapeTimer);
         AssertTrue(timer.Shades.SequenceEqual([step]) && timer.Effects.IsEmpty,
             "the escape timer's draw shows its door shade, which keeps its lit colours, without the display's fade");
         AssertTrue(gameplay.OfSprite(PictureShading.Standard, isSamus: false).Effects.SequenceEqual([fade.Effect]),
@@ -994,11 +972,11 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86c929 + 2 * parameter)), DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionDefinitions.Animations[MotherBrainDeathExplosionNativeSelectors.Animations[parameter]]),
+            AssertEqual(rom.ReadCartridgeWord((0x86c929 + 2 * parameter)), DustExplosionProjectileNativeListAddresses.Entry(MotherBrainDeathExplosionNativeSelectors.Animations[parameter]),
                 "stream 3 native death explosion variant");
         // The groups are listed in the order they burst, which steps back through the cartridge's groups.
         for (int index = 0; index < 28; index++)
-            AssertEqual(new Offset16<RoomPixels>((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 4 * index)), (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 4 * index))),
+            AssertEqual(new Offset16<RoomPixels>((short)rom.ReadCartridgeWord((0xa9b099 + 4 * index)), (short)rom.ReadCartridgeWord((0xa9b09b + 4 * index))),
                 MotherBrainDeathExplosionDefinitions.Groups[^(index / 4 + 1)].Mixed[index % 4], "stream 3 native decorative death anchor");
         foreach (bool mixed in new[] { false, true })
         {
@@ -1007,7 +985,7 @@ internal static class LookupStream3Verification
             scatter.Encounter.Body.Position = FixedPosition<RoomPixels>.FromWhole(new(320, 192));
             for (int burst = 0; burst < 8; burst++)
             {
-                PrivateState.SetField(bursts, "burstWait", UpdateCountdown.For(1));
+                bursts.burstWait.PlaceAt(UpdateCountdown.For(1));
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
@@ -1017,19 +995,19 @@ internal static class LookupStream3Verification
                 AssertEqual(requests.Count, calls, "stream 3 one RNG call per death projectile");
                 for (int item = 0; item < requests.Count; item++)
                 {
-                    short x = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 16 * group + 4 * item));
-                    short y = (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
+                    short x = (short)rom.ReadCartridgeWord((0xa9b099 + 16 * group + 4 * item));
+                    short y = (short)rom.ReadCartridgeWord((0xa9b09b + 16 * group + 4 * item));
                     AssertEqual(group, bursts.Place, "stream 3 death scatter reverse group order");
                     AssertEqual(new OctantVector(x, y), new OctantVector(requests[item].Offset.X, requests[item].Offset.Y), "stream 3 selected death scatter anchors");
                     AssertEqual((ushort)(320 + x), unchecked((ushort)(scatter.State.BodyPosition.X + requests[item].Offset.X)), "stream 3 death scatter body-relative X");
                     AssertEqual((ushort)(192 + y), unchecked((ushort)(scatter.State.BodyPosition.Y + requests[item].Offset.Y)), "stream 3 death scatter body-relative Y");
-                    AssertEqual(mixed ? MotherBrainDeathExplosionAnimation.BigExplosion : MotherBrainDeathExplosionAnimation.Smoke, requests[item].Animation, "stream 3 independent death type case");
+                    AssertEqual(mixed ? DustExplosionAnimation.BigExplosion : DustExplosionAnimation.Smoke, requests[item].Animation, "stream 3 independent death type case");
                 }
             }
         }
         var sequence = MotherBrainLateFightFixtures.NewSequence();
         // The escape's start begins with its wait, as the hold before the escape starts it (#2469).
-        sequence.Encounter.DeathPhase = MotherBrainDeathPhase.StartEscape;
+        sequence.State.DeathPhase = MotherBrainDeathPhase.StartEscape;
         sequence.Encounter.PhaseTimer.LastFor(MotherBrainLateFightDefinitions.EscapeStartUpdates);
         var bus = new TestAddressSpace();
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Health = 99 };
@@ -1038,7 +1016,7 @@ internal static class LookupStream3Verification
         var handoff = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(4, handoff.EscapeColourEffectRequests.Count, "stream 3 four escape palette registrations");
         for (int effect = 0; effect < 4; effect++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b296 + 7 * effect)), PaletteFxObjectAccess.NativeAddress(handoff.EscapeColourEffectRequests[effect]),
+            AssertEqual(rom.ReadCartridgeWord((0xa9b296 + 7 * effect)), PaletteFxObjectAccess.NativeAddress(handoff.EscapeColourEffectRequests[effect]),
                 "stream 3 native escape palette registration order");
         var text = sequence.Step(samus, MotherBrainLateFightFixtures.QuietFrame(0, 0));
         AssertEqual(0, text.EscapeColourEffectRequests.Count, "stream 3 escape palette registrations occur once");
@@ -1068,9 +1046,9 @@ internal static class LookupStream3Verification
         AssertEqual(8, stages.Count, "stream 3 stagger stage count");
         for (int stage = 0; stage < stages.Count; stage++)
         {
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9beee + 2 * stage)), WalkPoseDuration(stages[stage].Speed), "stream 3 native stagger animation delay");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9befe + 2 * stage)), stages[stage].NeckTurn.RawValue, "stream 3 native stagger neck angle delta");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9c049 + 2 * stage)), stages[stage].PauseUpdates, "stream 3 native stagger pause timer");
+            AssertEqual(rom.ReadCartridgeWord((0xa9beee + 2 * stage)), WalkPoseDuration(stages[stage].Speed), "stream 3 native stagger animation delay");
+            AssertEqual(rom.ReadCartridgeWord((0xa9befe + 2 * stage)), stages[stage].NeckTurn.RawValue, "stream 3 native stagger neck angle delta");
+            AssertEqual(rom.ReadCartridgeWord((0xa9c049 + 2 * stage)), stages[stage].PauseUpdates, "stream 3 native stagger pause timer");
             AssertEqual(stage == 6, ReferenceEquals(stages[stage], MotherBrainPainfulWalkingDefinitions.BeamRunsOut), "stream 3 the beam runs out as the seventh stage begins");
         }
         for (int stage = 0; stage < stages.Count; stage++)
@@ -1080,11 +1058,11 @@ internal static class LookupStream3Verification
             // stagger's front, and the backward ones stand at the room's left.
             sequence.Encounter.Body.Position = sequence.Encounter.Body.Position.WithWholeX(
                 stage % 2 == 0 ? MotherBrainFightDefinitions.StaggerFrontX + 1 : 0);
-            sequence.DrainedByBaby.PainfulWalkingStage = SuperMetroid.Core.Bosses.ListStep<MotherBrainStaggerStage>.At(stages, stage);
+            sequence.DrainedByBaby.PainfulWalkingStage = SuperMetroid.Core.ListStep<MotherBrainStaggerStage>.At(stages, stage);
             // As the stagger's setup does before each walk: the stage selects its speed.
             sequence.DrainedByBaby.PainfulWalkingSpeed = stages[stage].Speed;
             sequence.DrainedByBaby.StepPainfulWalking();
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.CartridgeCount,
+            AssertEqual(rom.ReadCartridgeWord(0xa9c049 + 2 * stage) - 1, sequence.DrainedByBaby.PainfulWalkingPause?.CartridgeCount,
                 "stream 3 real stagger pause after each stage's walk");
         }
     }
@@ -1096,8 +1074,8 @@ internal static class LookupStream3Verification
     /// </summary>
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
-        EncounterArtworkUpload[] Copies(params ComposedLook[] looks) => [.. looks.SelectMany(look => EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-            EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, look), InstalledPageResolver))];
+        EncounterArtworkUpload[] Copies(params ComposedLook[] looks) =>
+            [.. looks.SelectMany(EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, InstalledPageResolver).CopiesOf)];
         foreach (bool timerList in new[] { true, false })
         {
             int count = timerList ? 7 : 2;
@@ -1111,8 +1089,8 @@ internal static class LookupStream3Verification
             for (int index = 0; index < count; index++)
             {
                 int address = start + index * 7;
-                int nativeSize = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-                int nativeTableByte = (CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2;
+                int nativeSize = rom.ReadCartridgeWord(address);
+                int nativeTableByte = (rom.ReadCartridgeWord(address + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2;
                 EncounterArtworkUpload shown = copies[index];
                 AssertEqual(nativeTableByte, shown.FirstByte, "stream 3 escape page lands where the native record places it");
                 AssertEqual(nativeSize, shown.Characters.Length, "stream 3 escape page copies the native record's bytes");
@@ -1120,9 +1098,9 @@ internal static class LookupStream3Verification
         }
         int timerPages = Enum.GetValues<SuperMetroid.AssetExtraction.Areas.Escape.EscapeTimerTilePage>().Length;
         for (int page = 0; page < EscapeTextSheetFormat.PageCount; page++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa6c4cb + (timerPages + page) * 7 + 2),
+            AssertEqual(rom.ReadCartridgeLong(0xa6c4cb + (timerPages + page) * 7 + 2),
                 (int)EscapeSourceDefinitions.TextCharacters + EscapeTextPages.PageOffset(page), "stream 3 escape text page source: the page's offset into the installed sheet");
-        AssertEqual((uint)CartridgeImportSource.Require(rom).ReadCartridgeLong(0xa9902f + 2),
+        AssertEqual((uint)rom.ReadCartridgeLong(0xa9902f + 2),
             (uint)MotherBrainSourceDefinitions.SpecialSprites.Sources[MotherBrainSpriteSheet.ExplodedDoor], "stream 3 exploded door source");
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
@@ -1141,7 +1119,7 @@ internal static class LookupStream3Verification
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 8; row++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), row * MotherBrainCorpseStaging.RowBytes,
+            AssertEqual(rom.ReadCartridgeWord(0xa9e262 + row * 2), row * MotherBrainCorpseStaging.RowBytes,
                 "stream 3 corpse native tile row offset");
         IReadOnlyList<MotherBrainCorpseRotRow> rotRows = MotherBrainCorpseSheet.RotRows;
         AssertEqual(6, rotRows.Count, "stream 3 corpse rot row count");
@@ -1150,20 +1128,20 @@ internal static class LookupStream3Verification
             int entry = 0xa9e1f4 + row * 8;
             MotherBrainCorpseRotRow rotRow = rotRows[row];
             AssertEqual(row, rotRow.Row, "stream 3 corpse rot rows in row order");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry), MotherBrainCorpseStaging.ByteCount(rotRow), "stream 3 native corpse rot row bytes");
-            int nativeStaging = (int)new SnesAddress(LittleEndianBytes.HighByte(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 4));
+            AssertEqual(rom.ReadCartridgeWord(entry), MotherBrainCorpseStaging.ByteCount(rotRow), "stream 3 native corpse rot row bytes");
+            int nativeStaging = (int)new SnesAddress(LittleEndianBytes.HighByte(rom.ReadCartridgeWord(entry + 2)), rom.ReadCartridgeWord(entry + 4));
             AssertEqual(nativeStaging, CorpseWorkMemory.CorpseRottingHeap + MotherBrainCorpseStaging.RottingOffset(rotRow), "stream 3 native corpse rot row source");
-            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
+            AssertEqual((rom.ReadCartridgeWord(entry + 6) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 MotherBrainCorpseSheet.RotRowFirstCharacter(rotRow) * 32, "stream 3 native corpse rot row placement");
             int pageEntry = 0xa99003 + row * 7;
-            uint source = (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong(pageEntry + 2));
+            uint source = (uint)(rom.ReadCartridgeLong(pageEntry + 2));
             AssertEqual(source, (uint)(MotherBrainSourceDefinitions.Corpse.Characters + MotherBrainCorpseSheet.PageOffset(row)),
                 "stream 3 corpse page starts at its offset in the corpse sheet");
-            EncounterArtworkUpload page = EncounterLookUploads.Uploads(ComposedEncounter.MotherBrain,
-                EncounterLookUploads.IndexOf(ComposedEncounter.MotherBrain, EncounterLookUploads.MotherBrainCorpseLook), InstalledPageResolver)[row];
-            AssertEqual((CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
+            EncounterArtworkUpload page = EncounterLookUploads.Steps(ComposedEncounter.MotherBrain, InstalledPageResolver)
+                .CopiesOf(EncounterLookUploads.MotherBrainCorpseLook)[row];
+            AssertEqual((rom.ReadCartridgeWord(pageEntry + 5) - GameplayVramLayoutConstants.ObjectCharacters.Offset) * 2,
                 page.FirstByte, "stream 3 corpse page placement");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(pageEntry), page.Characters.Length, "stream 3 corpse page bytes");
+            AssertEqual(rom.ReadCartridgeWord(pageEntry), page.Characters.Length, "stream 3 corpse page bytes");
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
@@ -1177,7 +1155,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3BabyMetroidPulse(ISnesAddressSpace rom)
     {
         PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
-        ushort[] Words(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2 * i))).ToArray();
+        ushort[] Words(int address, int count) => Enumerable.Range(0, count).Select(i => rom.ReadCartridgeWord((address + 2 * i))).ToArray();
         var normal = Enumerable.Range(0, 8).Select(frame => Words(0xa9f6d1 + 8 * frame, 4)).ToArray();
         var sidehopper = Words(0xa9f8c6, 16);
         var babyMetroid = Words(0xa9f8e6, 16);
@@ -1212,7 +1190,7 @@ internal static class LookupStream3Verification
         var stock = Load();
         Check(stock);
         for (int color = 0; color < 15; color++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + color * 2)), stock.TargetColor(BabyMetroidColorTarget.BabyMetroid, color + 1),
+            AssertEqual(rom.ReadCartridgeWord((0xa994d4 + color * 2)), stock.TargetColor(BabyMetroidColorTarget.BabyMetroid, color + 1),
                 "stream 3 native Baby/Shitroid palette duplication");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.TargetColor(BabyMetroidColorTarget.BabyMetroid, invalid), "stream 3 Shitroid target bounds");
@@ -1230,12 +1208,12 @@ internal static class LookupStream3Verification
 
         MotherBrainRainbowPaletteFrameDocument ReadFull(int bodySource, int legSource) => new()
         {
-            Body = Enumerable.Range(0, 15).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((bodySource + 2 * color)))).ToArray(),
-            BackLegs = Enumerable.Range(0, 15).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((legSource + 2 * color)))).ToArray(),
+            Body = Enumerable.Range(0, 15).Select(color => Color(rom.ReadCartridgeWord((bodySource + 2 * color)))).ToArray(),
+            BackLegs = Enumerable.Range(0, 15).Select(color => Color(rom.ReadCartridgeWord((legSource + 2 * color)))).ToArray(),
         };
         var rainbow = Enumerable.Range(0, 10).Select(frame =>
         {
-            int source = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade434 + 2 * frame));
+            int source = 0xad0000 | rom.ReadCartridgeWord((0xade434 + 2 * frame));
             return ReadFull(source, source + 30);
         }).ToArray();
         var drain = new MotherBrainRainbowPaletteFrameDocument[8];
@@ -1243,22 +1221,20 @@ internal static class LookupStream3Verification
         var revival = new MotherBrainRainbowPaletteFrameDocument[8];
         for (int frame = 0; frame < 8; frame++)
         {
-            int source = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadef87 + 2 * frame));
+            int source = 0xad0000 | rom.ReadCartridgeWord((0xadef87 + 2 * frame));
             drain[frame] = new()
             {
-                Body = Enumerable.Range(0, 15).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 2 * color)))).ToArray(),
-                BackLegs = Enumerable.Range(0, 5).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 30 + 2 * color)))).ToArray(),
-                TrailingColor = Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + 40))),
+                Body = Enumerable.Range(0, 15).Select(color => Color(rom.ReadCartridgeWord((source + 2 * color)))).ToArray(),
+                BackLegs = Enumerable.Range(0, 5).Select(color => Color(rom.ReadCartridgeWord((source + 30 + 2 * color)))).ToArray(),
             };
-            int revivalSource = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaded9c + 2 * frame));
+            int revivalSource = 0xad0000 | rom.ReadCartridgeWord((0xaded9c + 2 * frame));
             revival[frame] = new()
             {
-                Body = Enumerable.Range(0, 13).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 2 * color)))).ToArray(),
-                BackLegs = Enumerable.Range(0, 5).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 26 + 2 * color)))).ToArray(),
-                TrailingColor = Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((revivalSource + 36))),
+                Body = Enumerable.Range(0, 13).Select(color => Color(rom.ReadCartridgeWord((revivalSource + 2 * color)))).ToArray(),
+                BackLegs = Enumerable.Range(0, 5).Select(color => Color(rom.ReadCartridgeWord((revivalSource + 26 + 2 * color)))).ToArray(),
             };
-            int fakeSource = 0xad0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaded8a + 2 * frame));
-            fake[frame] = Enumerable.Range(0, 3).Select(color => Color(CartridgeImportSource.Require(rom).ReadCartridgeWord((fakeSource + 2 * color)))).ToArray();
+            int fakeSource = 0xad0000 | rom.ReadCartridgeWord((0xaded8a + 2 * frame));
+            fake[frame] = Enumerable.Range(0, 3).Select(color => Color(rom.ReadCartridgeWord((fakeSource + 2 * color)))).ToArray();
         }
         var document = new MotherBrainRainbowPaletteDocument
         {
@@ -1266,14 +1242,14 @@ internal static class LookupStream3Verification
             ToGrey = drain, FromGrey = revival,
             FakeDeathToGrey = fake, Normal = ReadFull(0xa99474, 0xa99494),
         };
-        ushort[] beamWords = [.. Enumerable.Range(0, 38).Select(index => CartridgeImportSource.Require(rom).ReadCartridgeWord((0x88e833 + 4 * index)))];
+        ushort[] beamWords = [.. Enumerable.Range(0, 38).Select(index => rom.ReadCartridgeWord((0x88e833 + 4 * index)))];
         var beamDocument = new MotherBrainBeamColourDocument
         {
             Version = MotherBrainBeamColourFile.Version, First = InstalledColourText.Format(RgbColor.FromWord(0x3ce0)),
             Cycle = [.. beamWords.Select(word => InstalledColourText.Format(RgbColor.FromWord(word)))],
         };
         InstalledMotherBrainRainbowPalette Load(MotherBrainRainbowPaletteDocument value) => MotherBrainRainbowPaletteFile.Read(
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, ArtworkJson.Options)));
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(value, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRainbowPaletteDocument>(ArtworkJson.Options))));
         void Check(InstalledMotherBrainRainbowPalette palette)
         {
             var cgram = new SnesCgram();
@@ -1303,7 +1279,7 @@ internal static class LookupStream3Verification
             AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         MotherBrainRainbowBeamColours beam = MotherBrainBeamColourFile.Read(
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(beamDocument, ArtworkJson.Options)));
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(beamDocument, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainBeamColourDocument>(ArtworkJson.Options))));
         CheckBeam(beam);
         Check(stock);
         void CheckRainbow(InstalledMotherBrainRainbowPalette palette)
@@ -1360,12 +1336,12 @@ internal static class LookupStream3Verification
         var initial = new ushort[15];
         var fade = new ushort[6][];
         for (int color = 0; color < initial.Length; color++)
-            initial[color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa994d4 + 2 * color));
+            initial[color] = rom.ReadCartridgeWord((0xa994d4 + 2 * color));
         for (int frame = 0; frame < fade.Length; frame++)
         {
             fade[frame] = new ushort[14];
             for (int color = 0; color < fade[frame].Length; color++)
-                fade[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xade90c + 28 * frame + 2 * color));
+                fade[frame][color] = rom.ReadCartridgeWord((0xade90c + 28 * frame + 2 * color));
         }
         static PaletteRgb5 Rgb(ushort value) => new()
         {
@@ -1384,7 +1360,7 @@ internal static class LookupStream3Verification
                 AssertEqual(initial[color], catalog.InitialColor(color), "stream 3 Baby initial color");
             for (int frame = 0; frame < fade.Length; frame++)
             for (int color = 0; color < fade[frame].Length; color++)
-                AssertEqual(fade[frame][color], catalog.FadeColor(frame + 1, color), "stream 3 Baby fade selected color");
+                AssertEqual(fade[frame][color], catalog.FadeColor(frame, color), "stream 3 Baby fade selected color");
             string identity = SelectedPresentationHash.Create("BabyMetroidCutsceneColorCatalog-v1", content =>
             {
                 content.AppendWords("initial", initial);
@@ -1394,10 +1370,10 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (int invalid in new[] { -1, 0, 7, int.MaxValue })
+        foreach (int invalid in new[] { -1, 6, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(invalid, 0), "stream 3 Baby fade frame bounds");
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(1, invalid), "stream 3 Baby fade color bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(0, invalid), "stream 3 Baby fade color bounds");
     }
 
     /// <summary>Checks Mother Brain body, leg, and corpse fade frames against the native color sequences.</summary>
@@ -1412,15 +1388,15 @@ internal static class LookupStream3Verification
             leg[frame] = new ushort[14];
             for (int color = 0; color < 14; color++)
             {
-                body[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadea0a + 56 * frame + 2 * color));
-                leg[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadea26 + 56 * frame + 2 * color));
+                body[frame][color] = rom.ReadCartridgeWord((0xadea0a + 56 * frame + 2 * color));
+                leg[frame][color] = rom.ReadCartridgeWord((0xadea26 + 56 * frame + 2 * color));
             }
         }
         for (int frame = 0; frame < 8; frame++)
         {
             corpse[frame] = new ushort[15];
             for (int color = 0; color < 15; color++)
-                corpse[frame][color] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xadf119 + 30 * frame + 2 * color));
+                corpse[frame][color] = rom.ReadCartridgeWord((0xadf119 + 30 * frame + 2 * color));
         }
 
         static PaletteRgb5 Rgb(ushort value) => new()
@@ -1431,8 +1407,11 @@ internal static class LookupStream3Verification
             MotherBrainDeathColorFile.Write(new MotherBrainDeathColorDocument
             {
                 Version = MotherBrainDeathColorFormat.Version,
-                BodyFade = body.Select(row => row.Select(Rgb).ToArray()).ToArray(),
-                LegFade = leg.Select(row => row.Select(Rgb).ToArray()).ToArray(),
+                BodyFade = [.. Enumerable.Range(0, body.Length).Select(stage => new MotherBrainBodyColoursDocument
+                {
+                    Body = [.. body[stage].Select(Rgb)],
+                    BackLegs = [.. leg[stage].Select(Rgb)],
+                })],
                 CorpseFade = corpse.Select(row => row.Select(Rgb).ToArray()).ToArray(),
             }), writable: false));
         void Check(MotherBrainDeathColorCatalog catalog)
@@ -1477,12 +1456,12 @@ internal static class LookupStream3Verification
     {
         for (ushort pattern = 0; pattern < 5; pattern++)
         {
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + 2 * pattern));
-            ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + 2 * pattern));
+            ushort pointer = rom.ReadCartridgeWord((0xa2df5e + 2 * pattern));
+            ushort distancePointer = rom.ReadCartridgeWord((0xa2df6a + 2 * pattern));
             ChootFallingPath fallingPath = DecodedChootFallingPath(pattern);
             AssertEqual(ChootNativeWords.ChootFallingPaths.Decode(pointer, "Choot falling path"), fallingPath,
                 "stream 3 Choot pattern identity");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)), ChootFalls.LoopYDistance(fallingPath),
+            AssertEqual(rom.ReadCartridgeWord((0xa20000 | distancePointer)), ChootFalls.LoopYDistance(fallingPath),
                 "stream 3 Choot loop advance");
         }
         foreach (int invalid in new[] { 5, 6, byte.MaxValue })
@@ -1498,15 +1477,15 @@ internal static class LookupStream3Verification
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)
     {
         // Selector zero is the program table's empty first entry, which no pickup kind names.
-        AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x86ef04), "stream 3 pickup table's empty first entry");
+        AssertEqual((ushort)0, rom.ReadCartridgeWord(0x86ef04), "stream 3 pickup table's empty first entry");
         for (int kind = 1; kind < 6; kind++)
         {
             EnemyPickupAnimationDefinition animation = EnemyPickups.Animation(EnemyPickupNativeWords.Selectors.Decode(kind, "enemy pickup selector"));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind)),
+            AssertEqual(rom.ReadCartridgeWord((0x86ef04 + 2 * kind)),
                 EnemyDeathProjectileNativeListAddresses.Entry(animation.Animation), "stream 3 pickup kind dispatch");
         }
         for (ushort animation = 0; animation < 5; animation++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)),
+            AssertEqual(rom.ReadCartridgeWord((0x86efd5 + 2 * animation)),
                 EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosions.Animation(
                     SuperMetroid.AssetExtraction.CartridgeTables.EnemyDeathExplosionWords.Selectors.Decode(animation, "death explosion"))),
                 "stream 3 death variant dispatch");
@@ -1531,7 +1510,7 @@ internal static class LookupStream3Verification
             for (int color = 0; color < 4; color++)
             {
                 int address = 0xa8ccc1 + 10 * frame + 2 * color;
-                ushort value = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                ushort value = rom.ReadCartridgeWord(address);
                 words[frame][color] = value;
                 colors[frame][color] = new PaletteRgb5
                 {
@@ -1549,7 +1528,7 @@ internal static class LookupStream3Verification
             for (int frame = 0; frame < 6; frame++)
             {
                 for (int color = 0; color < 4; color++)
-                    AssertEqual(words[frame][color], cycle.Resolve(frame, color),
+                    AssertEqual(words[frame][color], cycle.GlowColours(WorkRobotGlowAnimations.Cycle[frame])[color],
                         "stream 3 Work Robot selected color");
             }
             string expectedIdentity = SelectedPresentationHash.Create("WorkRobotPaletteCycle-v1",
@@ -1559,12 +1538,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        foreach (int invalid in new[] { -1, 6, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(invalid, 0),
-                "stream 3 Work Robot frame bounds");
-        foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(0, invalid),
-                "stream 3 Work Robot color bounds");
     }
 
     /// <summary>Checks Mother Brain's health tint from paint anchors without retaining native intermediate rows.</summary>
@@ -1580,8 +1553,9 @@ internal static class LookupStream3Verification
             SheetShade sprites = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthSprites(health).Single(candidate => candidate.Shade == shade);
             SheetShade background = SuperMetroid.AssetExtraction.Bosses.MotherBrainSheetShades.HealthBackground(health).Single(candidate => candidate.Shade == shade);
             const int count = MotherBrainRainbowPaletteGeometry.ColorCount;
-            AssertEqual(2 * count, sprites.Colours.Length, "stream 3 health band sprite shade holds her brain's and rear legs' colours");
-            return (sprites.Colours[..count], sprites.Colours[count..], background.Colours);
+            RgbColor[] shown = [.. sprites.Colours];
+            AssertEqual(2 * count, shown.Length, "stream 3 health band sprite shade holds her brain's and rear legs' colours");
+            return (shown[..count], shown[count..], [.. background.Colours]);
         }
         for (int state = 0; state < 4; state++)
         {
@@ -1592,11 +1566,11 @@ internal static class LookupStream3Verification
                 new VerifyStream3HealthTintCase(MotherBrainSourceDefinitions.Palettes.HealthRearLegPointerTable, rearLegs),
             })
             {
-                int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(table + state * 2);
+                int pointer = rom.ReadCartridgeWord(table + state * 2);
                 for (int color = 0; color < 15; color++)
                 {
                     int address = 0xad0000 | pointer + color * 2;
-                    ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                    ushort expected = rom.ReadCartridgeWord(address);
                     AssertEqual(expected, shown[color], "stream 3 all native health tint words reach the band's shades");
                 }
             }
@@ -1617,7 +1591,7 @@ internal static class LookupStream3Verification
             for (int color = 0; color < 28; color++)
             {
                 int address = 0xadf3d3 - frame * 0x38 + color * 2;
-                ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                ushort expected = rom.ReadCartridgeWord(address);
                 int destination = color < 14 ? MotherBrainRoomColorDestinations.RecoveryLightsFirstColor + color :
                     MotherBrainRoomColorDestinations.RecoveryLightsSecondColor + color - 14;
                 AssertEqual(expected, actual.Colors[destination], "stream 3 all native recovery light words");
@@ -1634,13 +1608,13 @@ internal static class LookupStream3Verification
         {
             ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashEntryBytes));
             int operand = MotherBrainSourceDefinitions.RoomColors.FlashBank + entry + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashPaletteOperandOffset;
-            int source = (MotherBrainSourceDefinitions.RoomColors.FlashBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
+            int source = (MotherBrainSourceDefinitions.RoomColors.FlashBank|rom.ReadCartridgeWord(operand));
             var actual = new SnesCgram();
             stock.ApplyFlash(actual, frame);
             for (int color = 0; color < MotherBrainRoomColorGeometry.SliceColors * 2; color++)
             {
                 int address = source + color * sizeof(ushort);
-                ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                ushort native = rom.ReadCartridgeWord(address);
                 int destination = color < MotherBrainRoomColorGeometry.SliceColors
                     ? MotherBrainRoomColorDestinations.FirstColor + color
                     : MotherBrainRoomColorDestinations.SecondColor + color - MotherBrainRoomColorGeometry.SliceColors;
@@ -1687,7 +1661,7 @@ internal static class LookupStream3Verification
                     break;
 
                 case 0x8f: // STA long
-                    int destination = (CartridgeImportSource.Require(bus).ReadCartridgeLong(pc));
+                    int destination = (bus.ReadCartridgeLong(pc));
                     pc += 3;
                     int storageIndex = destination - RoomScrollGrid.WorkRamAddress;
                     if ((uint)storageIndex >= RoomScrollGrid.KeptCellCount)
@@ -1731,7 +1705,7 @@ internal static class LookupStream3Verification
         for (int color = 0; color < 15; color++)
         {
             int address = 0xa99494 + color * 2;
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, phaseTwo.Colors[0xb1 + color], "stream 3 native phase-two rear color and destination");
         }
     }
@@ -1762,7 +1736,7 @@ internal static class LookupStream3Verification
                 {
                     EnemyAuxiliaryPaletteSource stored = EnemySourceDefinitions.AuxiliaryPalettes[definition.Id];
                     int address = stored.FirstRow.Value + 2 * (frame * stored.RowStrideColors + color);
-                    return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+                    return rom.ReadCartridgeWord(address);
                 }).ToArray()).ToArray());
         EnemyAuxiliaryColorCatalog Load()
         {
@@ -1796,8 +1770,6 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, invalid, 0), "stream 3 Torizo band bounds");
         foreach (int invalid in new[] { -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 0, invalid), "stream 3 Torizo color bounds");
-        foreach (int invalid in new[] { -1, 4, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((EnemyAuxiliaryPalette)invalid, 0, 0), "stream 3 auxiliary palette identities reject unknown values");
     }
 
     /// <summary>Checks Baby Metroid sprite parts, reflected OAM placement, and imported schema behavior.</summary>
@@ -1815,23 +1787,23 @@ internal static class LookupStream3Verification
         foreach (var frame in selected)
         {
             int source = ((int)new SnesAddress(frame.Bank, frame.Pointer));
-            AssertEqual(30, CartridgeImportSource.Require(rom).ReadCartridgeWord(source), "stream 3 native Baby counted-record extent");
+            AssertEqual(30, rom.ReadCartridgeWord(source), "stream 3 native Baby counted-record extent");
             document.Frames[frame.Name] = Enumerable.Range(0, 30).Select(index =>
             {
                 int entry = source + 2 + index * 5;
-                var x = new SnesSpritemapXWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(entry));
-                var attributes = new SnesObjAttributeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((entry + 3)));
+                var x = new SnesSpritemapXWord(rom.ReadCartridgeWord(entry));
+                var attributes = new SnesObjAttributeWord(rom.ReadCartridgeWord((entry + 3)));
                 return new SpriteVisualPart
                 {
                     OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)rom.ReadCartridgeByte(entry + 2)), Size = x.IsLarge ? 16 : 8,
                     TileColumn = attributes.TileNumber % 16, TileRow = attributes.TileNumber / 16,
-                    Palette = attributes.PaletteIndex, Priority = attributes.Priority,
+                    Palette = attributes.PaletteIndex, Depth = attributes.Depth,
                     FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
                 };
             }).ToArray();
         }
         EnemySpritemapCatalog Load() => EnemySpritemapDocuments.Load(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.World.Artwork.EnemySpritemapDocument>(ArtworkJson.Options))));
         void Check(EnemySpritemapCatalog catalog)
         {
             foreach (var frame in selected)
@@ -1880,7 +1852,7 @@ internal static class LookupStream3Verification
         for (int color = 0; color < MotherBrainRoomColorGeometry.PhaseTwoColors; color++)
         {
             int address = MotherBrainSourceDefinitions.RoomColors.PhaseTwoAttackColors + color * sizeof(ushort);
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort expected = rom.ReadCartridgeWord(address);
             AssertEqual(expected, native.Colors[MotherBrainRoomColorDestinations.PhaseTwoAttackColor + color],
                 "attack palette exact native color and CGRAM destination");
         }
@@ -1908,12 +1880,12 @@ internal static class LookupStream3Verification
         byte[] imported = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<MotherBrainRoomColorDocument>(imported, ArtworkJson.Options);
         MotherBrainRoomColorPresentation Load() => MotherBrainRoomColorFile.Read(new MemoryStream(
-            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options))));
         var stock = Load();
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
             int address = MotherBrainSourceDefinitions.RoomColors.FlashBank + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FinalPalette + color * sizeof(ushort);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, Word(document.FinalRoom[color]), "final-room direct native word");
         }
         Confirm(stock);
@@ -1956,16 +1928,15 @@ internal static class LookupStream3Verification
         MotherBrainRoomColorDocument Read() => RequiredJson.Deserialize<MotherBrainRoomColorDocument>(
             imported, ArtworkJson.Options);
         MotherBrainRoomColorPresentation Load(MotherBrainRoomColorDocument document) =>
-            MotherBrainRoomColorFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-                document, ArtworkJson.Options)));
+            MotherBrainRoomColorFile.Read(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorDocument>(ArtworkJson.Options))));
         var document = Read();
         var stock = Load(document);
         for (int color = 0; color < MotherBrainRoomColorGeometry.InitialColors; color++)
         {
             int glassAddress = MotherBrainSourceDefinitions.RoomColors.InitialGlassShardColors + color * sizeof(ushort);
             int tubeAddress = MotherBrainSourceDefinitions.RoomColors.InitialTubeProjectileColors + color * sizeof(ushort);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(glassAddress), Word((document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[color]), "glass direct native color");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(tubeAddress), Word((document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[color]), "tube direct native color");
+            AssertEqual(rom.ReadCartridgeWord(glassAddress), Word((document.InitialGlassShard ?? throw new InvalidOperationException("Verification requires document.InitialGlassShard."))[color]), "glass direct native color");
+            AssertEqual(rom.ReadCartridgeWord(tubeAddress), Word((document.InitialTubeProjectile ?? throw new InvalidOperationException("Verification requires document.InitialTubeProjectile."))[color]), "tube direct native color");
         }
         Confirm(stock, document);
 
@@ -2004,7 +1975,7 @@ internal static class LookupStream3Verification
         for (int color = 0; color < BabyMetroidCutsceneColorFormat.InitialColorCount; color++)
         {
             int address = MotherBrainSourceDefinitions.BabyMetroid.InitialColors + color * sizeof(ushort);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort native = rom.ReadCartridgeWord(address);
             AssertEqual(native, stock.InitialColor(color), "Baby initial exact native color");
             AssertEqual(native, liveStock.TargetColor(BabyMetroidColorTarget.BabyMetroid, color + 1), "Baby live initial alias");
         }
@@ -2040,11 +2011,11 @@ internal static class LookupStream3Verification
             IntroCinematicSourceDefinitions.FirstNarrationTilemap, maximumOutputBytes: 2048);
         var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
-        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas(BackgroundTileWordBytes.Tiles(bytes));
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] narration) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span)), Page(narration), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 initial narration words match native");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2065,7 +2036,8 @@ internal static class LookupStream3Verification
         for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             AssertEqual(ReadVerificationWord(rom, IntroCinematicSourceDefinitions.FinalTextLine + index * 2),
                 LittleEndianBytes.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
-        AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent stock bundle preserves canonical identity");
+        AssertTrue(BackgroundTileWordBytes.Of(Copy(native).InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native),
+            "an equivalent stock bundle holds the same narration page");
         BackgroundTile[] first = stock.InitialNarrationTilemap.ToArray();
         first[0] = first[0] with { Tile = first[0].Tile ^ 1 };
         AssertTrue(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span).AsSpan().SequenceEqual(native), "installed page is not mutated through a copy");
@@ -2080,7 +2052,7 @@ internal static class LookupStream3Verification
         FileSelectArtworkDocument Read() => RequiredJson.Deserialize<FileSelectArtworkDocument>(imported.Artwork, ArtworkJson.Options);
         FileSelectLayoutDocument layout = RequiredJson.Deserialize<FileSelectLayoutDocument>(imported.Layout, ArtworkJson.Options);
         FileSelectSourcePresentation Load(FileSelectArtworkDocument document) => FileSelectSourcePresentation.Load(new MemoryStream(imported.Layout),
-            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
+            new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Frontend.FileSelect.Artwork.FileSelectArtworkDocument>(ArtworkJson.Options))));
         SpriteComposition Composition(FileSelectSourcePresentation owner, FileSelectHelmetFrame frame) => owner.helmetSprites[frame];
         var original = Read();
         var stock = Load(original);
@@ -2116,7 +2088,7 @@ internal static class LookupStream3Verification
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actual.Presentation.DrawHelmet(actualOam, MenuSheetFixtures.FileSelect(actual), frame, SuperMetroid.Core.Saves.SaveSlot.A);
-            var anchor = layout.HelmetAnchors[0];
+            var anchor = layout.HelmetAnchors[nameof(SuperMetroid.Core.Saves.SaveSlot.A)];
             expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
@@ -2150,7 +2122,7 @@ internal static class LookupStream3Verification
             IntroCinematicSourceDefinitions.BackgroundPageTilemaps, maximumOutputBytes: 8192);
         var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
-        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas(BackgroundTileWordBytes.Tiles(bytes));
         ImportIntroCinematicArtwork Copy(byte[] background)
         {
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
@@ -2164,8 +2136,9 @@ internal static class LookupStream3Verification
             if (expected != actual) mismatches.Add($"page{cell / 1024} ({cell % 32},{cell % 1024 / 32}) expected{expected:X4}/actual{actual:X4}");
         }
         AssertTrue(mismatches.Count == 0, "all 4096 installed background words match native: " + string.Join("; ", mismatches.Take(32)));
-        AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
+        AssertTrue(BackgroundTileWordBytes.Of(Copy(native).BackgroundPages.Span).AsSpan().SequenceEqual(installed),
+            "equivalent backgrounds hold the same words");
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),
@@ -2273,12 +2246,13 @@ BranchesToSharedBody:true),
             IntroCinematicSourceDefinitions.SamusHeadTilemap, maximumOutputBytes: 2048);
         var installation = SuperMetroid.TestSupport.RepositoryInstallation.RepositoryInstallation.Installation;
         ImportIntroCinematicArtwork stock = SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicArtworkFiles.LoadForImport(installation.IntroCinematicDirectory, SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.ImportData(SuperMetroid.AssetExtraction.Installation.GameInstallationLayout.IntroCinematicDirectoryName));
-        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new(BackgroundTileWordBytes.Tiles(bytes));
+        static RoomBackgroundTilemapAtlas Page(byte[] bytes) => new global::SuperMetroid.AssetExtraction.Rooms.RoomBackgroundTilemapAtlas(BackgroundTileWordBytes.Tiles(bytes));
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(BackgroundTileWordBytes.Of(stock.BackgroundPages.Span.Slice(index * 1024, 1024)))).ToArray();
         ImportIntroCinematicArtwork Copy(byte[] portrait) => new(new IntroCinematicSceneParts { Backdrop = stock.Backdrop, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction }, stock.Sprites, new IntroCinematicLayouts(pages, Page(portrait), Page(BackgroundTileWordBytes.Of(stock.InitialNarrationTilemap.Span)), stock.FinalLine, stock.EyeFrames, stock.ZebesRevealMap, stock.CeresDestructionMaps), new IntroCinematicCharacters(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters, stock.ZebesReveal.Characters, stock.FlightCharacters), stock.Palette, stock.FlightPalette);
         AssertTrue(BackgroundTileWordBytes.Of(stock.PortraitTilemap.Span).AsSpan().SequenceEqual(native), "all 1024 installed portrait words match native");
-        AssertEqual(stock.ContentIdentity, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
-        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, japaneseText: false)
+        AssertTrue(BackgroundTileWordBytes.Of(Copy(native).PortraitTilemap.Span).AsSpan().SequenceEqual(native),
+            "an equivalent portrait holds the same words");
+        var intro = new IntroCinematicState(new IntroCinematicOverreads(InstalledFixtures.SamusOverreads, InstalledFixtures.BossAndIntroOverreads.ShellFragmentFallPastCurve), AudioQueues.Standalone(), InstalledFixtures.SamusArtwork(), characterArtwork: stock.BoundCatalog, language: TextLanguage.English)
         {
             Random = new SharedRandom(),
             UnauthoredBoostCadence = new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(),

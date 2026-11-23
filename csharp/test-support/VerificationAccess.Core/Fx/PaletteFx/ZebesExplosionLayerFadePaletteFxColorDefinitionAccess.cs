@@ -13,6 +13,8 @@ internal static class ZebesExplosionLayerFadePaletteFxColorDefinitionAccess
         internal int CycleFrames =>
             ZebesExplosionLayerFadePaletteFxColorDefinitionsConstants.FrameCount *
             self.FrameDuration;
+        /// <summary>The native duration of each timed record: twenty updates for the crust, fourteen for the grey clouds.</summary>
+        internal int FrameDuration => self.Effect == ColourEffectId.FadeOutExplodingZebesCrust ? 20 : 14;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.ColorFrames.Color(frame, color);
     }

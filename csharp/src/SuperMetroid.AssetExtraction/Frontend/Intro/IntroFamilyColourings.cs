@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Intro;
 /// The colouring the opening draws each of its sprite families in (#1513), as the opening's draw sites name it: every draw
 /// from a family names one colouring, so the intro sheet pictures each family's poses in that colouring's sprite set.
 /// </summary>
-internal static class IntroFamilyColourings
+internal static partial class IntroFamilyColourings
 {
     /// <summary>
     /// Each family's colouring: the discovery's egg and baby, its egg effects and its Rinkas in the discovery actors'; the

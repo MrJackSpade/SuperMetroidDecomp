@@ -14,9 +14,9 @@ internal static class KraidHeightPhasesVerification
     {
         for (int y = short.MinValue; y <= ushort.MaxValue; y++)
         {
-            AssertSameAt((y & 2) == 0 ? 1 : -1, KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(y) ? -1 : 1, "ceiling-break sway", y);
-            AssertSameAt((y & 2) == 0 ? -1 : 1, KraidCadenceDefinitions.RiseSwayPhase.IsSetIn(y) ? 1 : -1, "raised-body sway", y);
-            AssertSameAt((y & 3) == 0, KraidCadenceDefinitions.CeilingRockEveryFourthRow.IsDue(y), "ceiling rock height", y);
+            AssertSameAt((y & 2) == 0 ? 1 : -1, KraidCadenceDefinitions.RiseSwayPhase.IsInSecondHalfAt(y) ? -1 : 1, "ceiling-break sway", y);
+            AssertSameAt((y & 2) == 0 ? -1 : 1, KraidCadenceDefinitions.RiseSwayPhase.IsInSecondHalfAt(y) ? 1 : -1, "raised-body sway", y);
+            AssertSameAt((y & 3) == 0, KraidCadenceDefinitions.CeilingRockRow.IsDue(y), "ceiling rock height", y);
         }
 
         Console.WriteLine("Kraid height phases: every height sways and drops ceiling rocks as the masks they replace.");

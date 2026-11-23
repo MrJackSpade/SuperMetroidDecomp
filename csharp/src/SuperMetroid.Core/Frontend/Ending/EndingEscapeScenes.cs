@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's escape scenes: their setup, the clouds, and the ending sprites and their cues.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingEscapeScenes
+internal sealed partial class EndingEscapeScenes
 {
     /// <summary>Queues the authored ending music transitions.</summary>
     private readonly AudioQueues audio;
@@ -45,7 +45,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudRightTrailing, EndingSpriteRole.SideCloudRightTrailing);
         _stage.SpawnSprite(EndingActorDefinitions.SideCloudLeftTrailing, EndingSpriteRole.SideCloudLeftTrailing);
         _stage.Floor.SetUp(Offset16<FloorPixels>.Zero, EndingMotionDefinitions.EscapeInitialZoom, EndingMotionDefinitions.EscapeInitialAngle.ToAngle());
-        _stage.Fade.Show(0);
+        _stage.Fade.Show(DisplayBrightness.Black);
         _artwork.PostCreditsText.Drop = 0;
         audio.QueueMusic(MusicRequest.Stop);
         audio.QueueMusic(MusicRequest.LoadDataSet(MusicDataSet.ZebesExplosion));
@@ -65,7 +65,7 @@ internal sealed class EndingEscapeScenes
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudEdge, EndingSpriteRole.BottomCloudEdge);
         _stage.SpawnSprite(EndingActorDefinitions.BottomCloudPattern, EndingSpriteRole.BottomCloudPattern);
         _stage.Floor.SetUp(Offset16<FloorPixels>.Zero, EndingMotionDefinitions.EscapeInitialZoom, EndingMotionDefinitions.EscapeInitialAngle.ToAngle());
-        _stage.Fade.Show(0);
+        _stage.Fade.Show(DisplayBrightness.Black);
         _stage.StartFastFade();
     }
 
@@ -93,6 +93,80 @@ internal sealed class EndingEscapeScenes
         sprites.RemoveAll(wrapper => !wrapper.Sprite.IsActive);
     }
 
+    /// <summary>What <see cref="HandleSpriteCue"/> does for each <see cref="EndingSceneCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingSceneCue, Action<EndingSprite, EndingSceneCue>> HandleSpriteCueForEndingSceneCue => field ??= new(new Dictionary<EndingSceneCue, Action<EndingSprite, EndingSceneCue>>
+    {
+        [EndingSceneCue.WaitForFlyaway] = (wrapper, cue) =>
+        {
+            // The right-hand stars wait for the flyaway to carry them away: the cue moves the actor raising it into the
+            // waiting starfield motion, as the game's animation sets it; the stars have not moved before.
+            wrapper.Motion = EndingFlyawayStarsMotion.WaitingFromSpawn();
+        },
+        [EndingSceneCue.FadeExplosionColours] = (wrapper, cue) =>
+        {
+            _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.FadePlanet);
+            screen.Colours.Flash(EndingFlash.PlanetGlow, null);
+        },
+        [EndingSceneCue.SpawnExplosionSilhouette] = (wrapper, cue) =>
+        {
+            _stage.SpawnSprite(
+                EndingActorDefinitions.ExplosionSilhouette,
+                EndingSpriteRole.ExplosionSilhouette);
+            screen.Colours.Flash(EndingFlash.SilhouetteBackdrop, RgbColor.White);
+        },
+        [EndingSceneCue.StartZebesExplosion] = (wrapper, cue) =>
+        {
+            ExplosionDisplay = EndingExplosionDisplay.Burst;
+            _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Supernova);
+            _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Explosion);
+            _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.WideExplosion);
+            _stage.SpawnSprite(
+                EndingActorDefinitions.ExplosionStarsRight,
+                EndingSpriteRole.ExplosionStarsRight);
+            _stage.SpawnSprite(
+                EndingActorDefinitions.ExplosionStarsLeft,
+                EndingSpriteRole.ExplosionStarsLeft);
+        },
+        [EndingSceneCue.ExplosionFinale] = (wrapper, cue) =>
+        {
+            ExplosionDisplay = EndingExplosionDisplay.Finale;
+            _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.SupernovaFinale);
+            _stage.SpawnSprite(
+                EndingActorDefinitions.ExplosionAfterglow,
+                EndingSpriteRole.ExplosionAfterglow);
+        },
+        [EndingSceneCue.SpawnCompletedText] = (wrapper, cue) =>
+        {
+            _stage.SpawnText(
+                EndingActorDefinitions.CompletedSuccessfullyText,
+                EndingSpriteRole.CompletedSuccessfullyText);
+        },
+        [EndingSceneCue.SpawnClearTime] = (wrapper, cue) =>
+        {
+            _stage.SpawnText(
+                EndingActorDefinitions.ClearTimeText,
+                EndingSpriteRole.ClearTimeText);
+        },
+        [EndingSceneCue.SpawnHoursTens] = (wrapper, cue) => SpawnDigit(gameTimeHours / 10, EndingResultTextLayout.HoursTensX),
+        [EndingSceneCue.SpawnHoursUnits] = (wrapper, cue) => SpawnDigit(gameTimeHours % 10, EndingResultTextLayout.HoursUnitsX),
+        [EndingSceneCue.SpawnColon] = (wrapper, cue) =>
+        {
+            _stage.SpawnSprite(
+                EndingActorDefinitions.ClearTimeColon,
+                EndingSpriteRole.ClearTimeDigit);
+        },
+        [EndingSceneCue.SpawnMinutesTens] = (wrapper, cue) => SpawnDigit(gameTimeMinutes / 10, EndingResultTextLayout.MinutesTensX),
+        [EndingSceneCue.SpawnMinutesUnits] = (wrapper, cue) => SpawnDigit(gameTimeMinutes % 10, EndingResultTextLayout.MinutesUnitsX),
+        [EndingSceneCue.EndZebesExplosion] = (wrapper, cue) => HandleSpriteCueForEndingSceneCueEndZebesExplosion(wrapper, cue),
+        [EndingSceneCue.TransitionToCredits] = (wrapper, cue) => HandleSpriteCueForEndingSceneCueEndZebesExplosion(wrapper, cue),
+    });
+
+    /// <summary>What <see cref="HandleSpriteCueForEndingSceneCue"/> does for <see cref="EndingSceneCue.EndZebesExplosion"/>, <see cref="EndingSceneCue.TransitionToCredits"/>.</summary>
+    private static void HandleSpriteCueForEndingSceneCueEndZebesExplosion(EndingSprite wrapper, EndingSceneCue cue)
+    {
+        throw new InvalidOperationException($"The {cue} cue of the {wrapper.Role} actor changes the ending's phase, which its own update answers.");
+    }
+
     /// <summary>
     /// Answers the ending sprite animations' cues that spawn actors, start the stars' wait or trigger colour effects; the
     /// cues that end a phase are the ending's own (<see cref="EndingCreditsState"/>).
@@ -101,87 +175,7 @@ internal sealed class EndingEscapeScenes
     internal void HandleSpriteCue(EndingSprite wrapper, EndingSceneCue cue)
     {
         Ensure.NotNull(wrapper);
-        switch (cue)
-        {
-            case EndingSceneCue.WaitForFlyaway:
-                // The right-hand stars wait for the flyaway to carry them away: the cue goes to the motion their role gives them.
-                wrapper.Motion.TakeCue(cue);
-                return;
-
-            case EndingSceneCue.FadeExplosionColours:
-                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.FadePlanet);
-                screen.Colours.Flash(EndingFlash.PlanetGlow, null);
-                return;
-
-            case EndingSceneCue.SpawnExplosionSilhouette:
-                _stage.SpawnSprite(
-                    EndingActorDefinitions.ExplosionSilhouette,
-                    EndingSpriteRole.ExplosionSilhouette);
-                screen.Colours.Flash(EndingFlash.SilhouetteBackdrop, RgbColor.White);
-                return;
-
-            case EndingSceneCue.StartZebesExplosion:
-                ExplosionDisplay = EndingExplosionDisplay.Burst;
-                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Supernova);
-                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.Explosion);
-                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.WideExplosion);
-                _stage.SpawnSprite(
-                    EndingActorDefinitions.ExplosionStarsRight,
-                    EndingSpriteRole.ExplosionStarsRight);
-                _stage.SpawnSprite(
-                    EndingActorDefinitions.ExplosionStarsLeft,
-                    EndingSpriteRole.ExplosionStarsLeft);
-                return;
-
-            case EndingSceneCue.ExplosionFinale:
-                ExplosionDisplay = EndingExplosionDisplay.Finale;
-                _stage.ColourEffects.StartScreen(EndingColourEffectDefinitions.SupernovaFinale);
-                _stage.SpawnSprite(
-                    EndingActorDefinitions.ExplosionAfterglow,
-                    EndingSpriteRole.ExplosionAfterglow);
-                return;
-
-            case EndingSceneCue.SpawnCompletedText:
-                _stage.SpawnText(
-                    EndingActorDefinitions.CompletedSuccessfullyText,
-                    EndingSpriteRole.CompletedSuccessfullyText);
-                return;
-
-            case EndingSceneCue.SpawnClearTime:
-                _stage.SpawnText(
-                    EndingActorDefinitions.ClearTimeText,
-                    EndingSpriteRole.ClearTimeText);
-                return;
-
-            case EndingSceneCue.SpawnHoursTens:
-                SpawnDigit(gameTimeHours / 10, EndingResultTextLayout.HoursTensX);
-                return;
-
-            case EndingSceneCue.SpawnHoursUnits:
-                SpawnDigit(gameTimeHours % 10, EndingResultTextLayout.HoursUnitsX);
-                return;
-
-            case EndingSceneCue.SpawnColon:
-                _stage.SpawnSprite(
-                    EndingActorDefinitions.ClearTimeColon,
-                    EndingSpriteRole.ClearTimeDigit);
-                return;
-
-            case EndingSceneCue.SpawnMinutesTens:
-                SpawnDigit(gameTimeMinutes / 10, EndingResultTextLayout.MinutesTensX);
-                return;
-
-            case EndingSceneCue.SpawnMinutesUnits:
-                SpawnDigit(gameTimeMinutes % 10, EndingResultTextLayout.MinutesUnitsX);
-                return;
-
-            case EndingSceneCue.EndZebesExplosion:
-            case EndingSceneCue.TransitionToCredits:
-                throw new InvalidOperationException($"The {cue} cue of the {wrapper.Role} actor changes the ending's phase, which its own update answers.");
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(EndingSceneCue)} {cue}.");
-        }
+        HandleSpriteCueForEndingSceneCue[cue](wrapper, cue);
     }
 
     /// <summary>Spawns clear-time <paramref name="digit"/>'s animation in the clear-time column at <paramref name="x"/>.</summary>
@@ -194,10 +188,11 @@ internal sealed class EndingEscapeScenes
             EndingSpriteRole.ClearTimeDigit);
     }
 
-    /// <summary>The animation showing clear-time <paramref name="digit"/>.</summary>
-    private static EndingSceneAnimation ClearTimeDigitAnimation(int digit) => (uint)digit < (uint)EndingCreditsState.ClearTimeDigitAnimations.Length
-        ? EndingCreditsState.ClearTimeDigitAnimations[digit]
-        : throw new ArgumentOutOfRangeException(nameof(digit), digit, "A clear-time digit is 0..9.");
+    /// <summary>
+    /// The animation showing clear-time <paramref name="digit"/>, 0 through 9: a digit of the setup's hours or minutes,
+    /// which their setup bounds to two digits.
+    /// </summary>
+    private static EndingSceneAnimation ClearTimeDigitAnimation(int digit) => EndingCreditsState.ClearTimeDigitAnimations[digit];
 
     /// <summary>Installs the two-piece Samus reward art selected by clear-time thresholds.</summary>
     internal void SpawnEndingRewardActors()

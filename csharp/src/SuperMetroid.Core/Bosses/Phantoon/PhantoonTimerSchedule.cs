@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// One of Phantoon's eight-way random phase timers (#2262): its short, medium and long durations, and which of them
 /// each of its eight picks takes.
 /// </summary>
-public sealed class PhantoonTimerSchedule
+public sealed partial class PhantoonTimerSchedule
 {
     /// <summary>Keeps a timer's durations and its picks.</summary>
     /// <param name="durations">The timer's short, medium and long durations, in updates.</param>
@@ -28,9 +28,17 @@ public sealed class PhantoonTimerSchedule
     /// <summary>The length each pick takes, in pick order.</summary>
     internal ImmutableArray<PhantoonTimerLength> Picks { get; }
 
-    /// <summary>The duration, in updates, that pick <paramref name="pick"/>, zero through seven, takes.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pick"/> is outside zero through seven.</exception>
-    public int this[int pick] => DurationOf(Picks[Ensure.BetweenInclusive(0, PickCount - 1, pick)]);
+    /// <summary>
+    /// The duration, in updates, a choice by a counter's cadence takes (#2556): the values <paramref name="cadence"/> reads
+    /// of <paramref name="counter"/> take the picks' durations in turn, in pick order, so a cadence of fewer than eight values
+    /// chooses among the first picks only, as the first round's eye-closed choice does.
+    /// </summary>
+    /// <param name="cadence">The cycle of the counter the choice reads, of at most eight steps.</param>
+    /// <param name="counter">The counter the choice reads.</param>
+    /// <exception cref="ArgumentException"><paramref name="cadence"/> has more than eight steps.</exception>
+    internal int ChosenOn(UpdateCycle cadence, int counter) => cadence.Steps <= PickCount
+        ? DurationOf(Picks[cadence.StepAt(counter)])
+        : throw new ArgumentException($"A Phantoon timer's choice reads at most {PickCount} values.", nameof(cadence));
 
     /// <summary>
     /// The duration a random draw chooses (#2510): the eight values <paramref name="field"/> reads take the picks' durations
@@ -42,12 +50,14 @@ public sealed class PhantoonTimerSchedule
         ? WeightedRandomChoice<int>.InTurn(field, [.. Picks.Select(DurationOf)])
         : throw new ArgumentException($"A Phantoon timer's draw reads {PickCount} values, not {field.Outcomes}.", nameof(field));
 
-    /// <summary>The duration, in updates, a pick of <paramref name="length"/> takes.</summary>
-    private int DurationOf(PhantoonTimerLength length) => length switch
+    /// <summary>The duration of each length.</summary>
+    private IdentityTable<PhantoonTimerLength, int> DurationByLength => field ??= new(new Dictionary<PhantoonTimerLength, int>
     {
-        PhantoonTimerLength.Short => Durations.Short,
-        PhantoonTimerLength.Medium => Durations.Medium,
-        PhantoonTimerLength.Long => Durations.Long,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PhantoonTimerLength)} {length}."),
-    };
+        [PhantoonTimerLength.Short] = Durations.Short,
+        [PhantoonTimerLength.Medium] = Durations.Medium,
+        [PhantoonTimerLength.Long] = Durations.Long,
+    });
+
+    /// <summary>The duration, in updates, a pick of <paramref name="length"/> takes.</summary>
+    private int DurationOf(PhantoonTimerLength length) => DurationByLength[length];
 }

@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// <see cref="Decelerate"/>. The shot-reaction guard is inherited from the previous Bull in its
 /// place (<see cref="PlaceInheritance{TOccupant}"/>).
 /// </summary>
-public sealed class BullEnemyState
+public sealed partial class BullEnemyState
 {
     /// <summary>Starts one Bull with the shot-reaction guard the previous Bull in its place left, or none for the place's first.</summary>
     /// <remarks>
-    /// The Bull's setup writes only the speed and interval settings. The guard flag and its countdown are
+    /// The Bull's setup writes only the speed and interval settings. The guard's countdown is
     /// read by the Bull's first main-AI update, which counts the inherited countdown down: a Bull set up while its
-    /// predecessor's 48-update guard was still running ignores no-damage kicks until that guard runs out. The angles
+    /// predecessor's guard (<see cref="BullMovementDefinitions.ShotReactionGuardDuration"/>) was still running ignores no-damage kicks until that guard runs out. The angles
     /// are always written by targeting or a kick before they are read, so they are the Bull's own.
     /// </remarks>
     /// <param name="previous">The place's previous Bull, or null for the place's first in the room.</param>
@@ -34,7 +34,7 @@ public sealed class BullEnemyState
     /// <see cref="Accelerate"/> and <see cref="Decelerate"/>; braking after a kick can take it below zero, which stops the
     /// flight (<see cref="HasStopped"/>).
     /// </summary>
-    public SignedEightEight Acceleration { get; internal set; }
+    internal SignedEightEight Acceleration { get; set; }
 
     /// <summary>
     /// The change in <see cref="Acceleration"/> at each interval expiry, <see cref="BullMovementDefinitions.AccelerationStep"/>
@@ -43,15 +43,13 @@ public sealed class BullEnemyState
     public SignedEightEight AccelerationDelta { get; internal set; }
 
     /// <summary>
-    /// The flight speed along the heading: never below zero and never above eleven and a quarter pixels an update. A
-    /// flight starts from rest and speeds up by one, two, three and more acceleration steps
-    /// (<see cref="BullMovementDefinitions.AccelerationStep"/>, three thirty-seconds of a pixel an update) each interval
-    /// until it reaches the spawn's top speed, just under eleven pixels an update at most, so it passes that by at most one
-    /// step, from nine and twenty-seven thirty-seconds to eleven and a quarter pixels an update. A braking flight slows by
-    /// one acceleration step less each interval than it last sped up by, so its braking runs out before it comes to rest; a
-    /// kick, six pixels an update slowing by a pixel an interval at first, stops with its braking spent at a pixel and three
-    /// sixteenths an update, or, when the kick finds the Bull waiting with no braking change, slows a whole pixel each
-    /// interval to exactly zero.
+    /// The flight speed along the heading: never below zero and never more than one acceleration step past the spawn's
+    /// top speed. A flight starts from rest and speeds up by one, two, three and more acceleration steps
+    /// (<see cref="BullMovementDefinitions.AccelerationStep"/>) each interval until it reaches the spawn's top speed, so
+    /// it passes that by at most one step. A braking flight slows by one acceleration step less each interval than it last
+    /// sped up by, so its braking runs out before it comes to rest; a kick, slowing by a pixel an interval at first, stops
+    /// with its braking spent short of rest, or, when the kick finds the Bull waiting with no braking change, slows a whole
+    /// pixel each interval to exactly zero.
     /// </summary>
     public SignedEightEight Speed { get; internal set; }
 
@@ -79,7 +77,7 @@ public sealed class BullEnemyState
     }
 
     /// <summary>
-    /// Movement-delay countdown initialized/reloaded to 16, with targeting selected when its decrement
+    /// Movement-delay countdown initialized/reloaded to <see cref="BullMovementDefinitions.MovementDelay"/>, with targeting selected when its decrement
     /// reaches exactly zero.
     /// </summary>
     public UpdateCountdown ActivationTimer { get; internal set; } = UpdateCountdown.Ended();
@@ -103,7 +101,7 @@ public sealed class BullEnemyState
     public bool ShotReactionDisabled => ShotReactionDisableTimer.IsRunning;
 
     /// <summary>
-    /// The no-damage kick's guard, inherited from the place's previous Bull: started for 48 main-AI updates by the kick and
+    /// The no-damage kick's guard, inherited from the place's previous Bull: started for its duration (<see cref="BullMovementDefinitions.ShotReactionGuardDuration"/>) by the kick and
     /// counted each main-AI update, the guard clearing on the update it ends (#2282). Over while no guard counts.
     /// </summary>
     public UpdateCountdown ShotReactionDisableTimer { get; internal set; }

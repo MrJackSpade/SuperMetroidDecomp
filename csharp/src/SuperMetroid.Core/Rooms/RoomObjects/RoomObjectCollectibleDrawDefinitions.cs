@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (#1557), except a block pair's frame, which writes its pair's block under the item's picture
 /// (<see cref="Rooms.LevelData.CollectiblePairBlock"/>, #2354).
 /// </summary>
-internal static class RoomObjectCollectibleDrawDefinitions
+internal static partial class RoomObjectCollectibleDrawDefinitions
 {
     /// <summary>The six kinds of collectible draw; each kind's blocks collide alike.</summary>
     internal enum DrawGroup
@@ -45,12 +45,11 @@ internal static class RoomObjectCollectibleDrawDefinitions
     };
 
     /// <summary>Each block pair's draw under an item's own picture in each of the picture's two looks (#1994).</summary>
-    internal static readonly IReadOnlyDictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws> BlockPairLooks =
-        new Dictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws>
+    internal static readonly IdentityTable<CollectibleBlockPairs.Pair, CollectibleLookDraws> BlockPairLooks = new(new Dictionary<CollectibleBlockPairs.Pair, CollectibleLookDraws>
         {
-            [CollectibleBlockPairs.Pair.First] = new(Primary: D.FirstBlockPairPrimaryLook, Alternate: D.FirstBlockPairAlternateLook),
-            [CollectibleBlockPairs.Pair.Second] = new(Primary: D.SecondBlockPairPrimaryLook, Alternate: D.SecondBlockPairAlternateLook),
-            [CollectibleBlockPairs.Pair.Third] = new(Primary: D.ThirdBlockPairPrimaryLook, Alternate: D.ThirdBlockPairAlternateLook),
-            [CollectibleBlockPairs.Pair.Fourth] = new(Primary: D.FourthBlockPairPrimaryLook, Alternate: D.FourthBlockPairAlternateLook),
-        };
+            [CollectibleBlockPairs.Pair.Solid] = new(Primary: D.SolidPairPrimaryLook, Alternate: D.SolidPairAlternateLook),
+            [CollectibleBlockPairs.Pair.FirstDoor] = new(Primary: D.FirstDoorPairPrimaryLook, Alternate: D.FirstDoorPairAlternateLook),
+            [CollectibleBlockPairs.Pair.SecondDoor] = new(Primary: D.SecondDoorPairPrimaryLook, Alternate: D.SecondDoorPairAlternateLook),
+            [CollectibleBlockPairs.Pair.ThirdDoor] = new(Primary: D.ThirdDoorPairPrimaryLook, Alternate: D.ThirdDoorPairAlternateLook),
+        });
 }

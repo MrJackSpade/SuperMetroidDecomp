@@ -2,7 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -27,23 +26,19 @@ internal static class SamusArtworkPresentationContractChecks
                     body.ArtOrigin(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
                     body.ArtOrigin((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
                     body.OriginRise(0, default(SuperMetroid.Core.Samus.Poses.SamusAnimationFrame));
-                    compositions.TryGetComposition(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
-                    compositions.TryGetComposition(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1), SamusBodyHalf.Top, 0), out _);
-                    atmosphere.TryResolve(byte.MaxValue, byte.MaxValue, out _);
-                    arm.PoseDescriptor(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose);
-                    arm.PoseDescriptor((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1));
-                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount - 1);
-                    arm.ReadDrawingByte(SamusArmCannonArtworkFormat.DrawingDataByteCount);
-                    arm.CoverTileIndex(9, 3);
-                    arm.CoverTileIndex(9, 4);
-                    arm.CoverTileIndex(10, 0);
+                    compositions.TryGetFrame(new SamusBodyHalfFrame(SuperMetroid.Core.Samus.Poses.SamusPoseId.StandingTransitionAimDiagonalDownLeftPose, SamusBodyHalf.Top, 0), out _);
+                    compositions.TryGetFrame(new SamusBodyHalfFrame((SuperMetroid.Core.Samus.Poses.SamusPoseId)(-1), SamusBodyHalf.Top, 0), out _);
+                    atmosphere.TryResolve(SuperMetroid.AssetExtraction.Samus.SamusAtmosphericPictures.FootstepSplash, byte.MaxValue, out _);
+                    arm.CoverTile(SamusProjectileDirectionCodec.FromAimIndex(9), SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame.FullyOpen);
+                    arm.CoverTile(SamusProjectileDirectionCodec.FromAimIndex(9), (SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame)99);
+                    arm.CoverTile((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)99, SuperMetroid.Core.Samus.Artwork.SamusArmCannonCoverFrame.SlightlyOpen);
                 }
             }
             """, path: "fixture-samus-art-consumer.cs");
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("SamusArtworkProviderFixture", sources,
-            platforms.Append(typeof(InstalledSamusBodyArtwork).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)
@@ -57,9 +52,9 @@ internal static class SamusArtworkPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 13, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 6 && after.UnresolvedCount == 7 && after.MissingCount == 0 &&
-            after.Consumers.Count == 13, "complete table indices and false queries qualify; invalid indices and editable frame placements do not" + " (" + after.Describe() + ")");
+        Require(before.UnresolvedCount == 9, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 4 && after.UnresolvedCount == 5 && after.MissingCount == 0 &&
+            after.Consumers.Count == 9, "complete table indices and false queries qualify; invalid indices and editable frame placements do not" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "InstalledSamusBodyArtwork.OriginRise"),
             "offset closure must not imply installed frame placement closure");
 
@@ -68,9 +63,10 @@ internal static class SamusArtworkPresentationContractChecks
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(external,
                 path: "fixture-external-arm.cs"))), true);
-            Require(revoked.Classifications.Count == 3 && revoked.UnresolvedCount == 10 &&
-                revoked.Findings.Count(item => item.Owner.StartsWith("SamusArmCannonSourceArtwork.", StringComparison.Ordinal) &&
-                    item.Message.Contains("stale", StringComparison.Ordinal)) == 7,
+            Require(revoked.Classifications.Count == 3 && revoked.UnresolvedCount == 6 &&
+                revoked.Findings.Count(item => (item.Owner.StartsWith("SamusArmCannonSourceArtwork.", StringComparison.Ordinal) ||
+                    item.Owner.StartsWith("SamusArmCannonDescriptors.", StringComparison.Ordinal)) &&
+                    item.Message.Contains("stale", StringComparison.Ordinal)) == 3,
                 "unvalidated placement construction must revoke the arm proof" + " (" + revoked.Describe() + ")");
         }
         AuditReport partial = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText("""
@@ -78,7 +74,7 @@ internal static class SamusArtworkPresentationContractChecks
                 public sealed partial class InstalledSamusBodyArtwork { void Change() { artOrigins[0] = 0; } }
             }
             """, path: "fixture-extra-body-partial.cs"))), true);
-        Require(partial.Classifications.Count == 5 && partial.UnresolvedCount == 8,
+        Require(partial.Classifications.Count == 3 && partial.UnresolvedCount == 6,
             "an unreviewed partial provider declaration must revoke access to the private offset state" + " (" + partial.Describe() + ")");
     }
 

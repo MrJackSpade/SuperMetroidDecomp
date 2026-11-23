@@ -3,15 +3,14 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Compression;
 
 /// <summary>Bit layout and bounds shared by every command in the cartridge format.</summary>
-[EncodingOwner("compressed asset command header bits")]
-public static class SmCompressionCodes
+public static partial class SmCompressionCodes
 {
     /// <summary><c>$FF</c>: ends a compressed stream; this value takes precedence over the long-header marker.</summary>
     public const byte Terminator = 0xff;
     /// <summary><c>$E0</c>: selects the upper three bits used to recognize a long command header.</summary>
     public const byte LongHeaderMarkerMask = 0xe0;
     /// <summary><c>$E0</c>: all three marker bits must be set to introduce a second length byte.</summary>
-    public const byte LongHeaderMarker = 0xe0;
+    internal const byte LongHeaderMarker = 0xe0;
     /// <summary><c>$E0</c>: selects command bits in a short header or in the normalized long-header command.</summary>
     public const byte CommandMask = 0xe0;
     /// <summary><c>$1F</c>: selects the short header's five-bit output length minus one.</summary>

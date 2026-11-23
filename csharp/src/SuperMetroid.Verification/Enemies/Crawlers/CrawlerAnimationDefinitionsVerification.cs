@@ -36,8 +36,8 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             // The selector's entry leads into the crawl's list (#2061).
             AssertEqual(CrawlerSurfaceAnimations.AnimationFor(family, orientations[orientation]),
-                NativeEnemyAnimationOracle.LeadsInto(CartridgeImportSource.Require(rom), CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
-                    CrawlerAnimationsVerification.Rules, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + orientation * 2))),
+                NativeEnemyAnimationOracle.LeadsInto(rom, CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
+                    CrawlerAnimationsVerification.Rules, rom.ReadCartridgeWord((address + orientation * 2))),
                 $"crawler initial selector {family}/{orientation}");
         }
 
@@ -48,8 +48,8 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             CrawlerAnimationFamily family = SuperMetroid.AssetExtraction.Enemies.CrawlerSurfaceTableOrder.FamilyAt(column * 2);
             AssertEqual(CrawlerSurfaceAnimations.AnimationFor(family, orientations[orientation]),
-                NativeEnemyAnimationOracle.LeadsInto(CartridgeImportSource.Require(rom), CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
-                    CrawlerAnimationsVerification.Rules, CartridgeImportSource.Require(rom).ReadCartridgeWord((surfaceTables[orientation] + column * 2))),
+                NativeEnemyAnimationOracle.LeadsInto(rom, CrawlerNativeListAddresses.Bank, CrawlerNativeListAddresses.Entries,
+                    CrawlerAnimationsVerification.Rules, rom.ReadCartridgeWord((surfaceTables[orientation] + column * 2))),
                 $"crawler surface selector column {column} ({family})/{orientation}");
         }
 
@@ -58,28 +58,35 @@ internal static class CrawlerAnimationDefinitionsVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(orangeZoomer ? EnemyDefinitionId.OrangeZoomer : EnemyDefinitionId.Zoomer, place.Definition);
+            // The place holds a crawler of the family the table serves, whose species its setup reads the family from.
+            EnemyDefinitionId species = orangeZoomer ? EnemyDefinitionId.OrangeZoomer : family switch
+            {
+                CrawlerAnimationFamily.Viola => EnemyDefinitionId.Viola,
+                CrawlerAnimationFamily.Sciser => EnemyDefinitionId.Sciser,
+                CrawlerAnimationFamily.Zero => EnemyDefinitionId.Zero,
+                CrawlerAnimationFamily.Shared => EnemyDefinitionId.Zoomer,
+                _ => throw new ArgumentOutOfRangeException(nameof(family), family, "No crawler family has that value."),
+            };
+            place.Bind(species, place.KeptDefinition);
             // The codec decodes the initialization word into the surface the crawler starts on, and the property word's
             // low bits into the side of its block.
             AssertEqual(new CrawlerSpawnSettings(orientations[orientation], orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))),
                 SuperMetroid.AssetExtraction.Enemies.EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Zoomer,
                     new SuperMetroid.AssetExtraction.Enemies.PopulationWords(orientation, orientation, 0, 0, 0)),
                 $"crawler population words {orientation} decode to its surface and block side");
-            place.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+            // The orange Zoomer's entry carries its own settings: the same surface, block side and speed.
+            if (orangeZoomer)
+                place.SetSpawnSettings(new OrangeZoomerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
+            else
+                place.SetSpawnSettings(new CrawlerSpawnSettings(orientations[orientation], CrawlerSurfaceOrientation.OnLeftWall, CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             if (family == CrawlerAnimationFamily.Viola)
             {
                 // InitAI_Viola ($A3:B678) selects with its block side, not its surface.
                 place.SetSpawnSettings(new ViolaSpawnSettings(orientations[orientation], CrawlSpeed: new SignedEightEight(CrawlerSpeeds.ForParameter(0))));
             }
-            place.SetSpawnParameter1(family == CrawlerAnimationFamily.Viola ? EnemyDefinitionId.Viola : EnemyDefinitionId.Zoomer, 0);
-            if (orangeZoomer)
-            {
-                new Action<RoomEnemyPlace>(CrawlersBehavior.InitializeOrangeZoomer)(place);
-            }
-            else
-            {
-                new Action<RoomEnemyPlace, CrawlerAnimationFamily>(CrawlersBehavior.InitializeCrawler)(place, family);
-            }
+            place.SetSpawnParameter1(species, 0);
+            // The crawler is set up as the population load sets it up, its species building its entity.
+            _ = enemies.LoadAuthoredPopulation();
 
             AssertEqual(new AnimationPlayback<CrawlerSegment>(CrawlerAnimations.StartingWith(CrawlerSurfaceAnimations.AnimationFor(
                     family, orientations[orientation])), AnimationPlace.StartOfAnimation),
@@ -117,10 +124,6 @@ internal static class CrawlerAnimationDefinitionsVerification
                 state.Playback, $"crawler production up surface {surfaceFamily}");
         }
 
-        AssertThrows<InvalidDataException>(
-            () => CrawlerSurfaceAnimations.AnimationFor(
-                (CrawlerAnimationFamily)5, CrawlerSurfaceOrientation.OnLeftWall),
-            "crawler initial family beyond authored tables");
         Console.WriteLine(
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 16 real surface handoffs pass with source tables forbidden.");
     }

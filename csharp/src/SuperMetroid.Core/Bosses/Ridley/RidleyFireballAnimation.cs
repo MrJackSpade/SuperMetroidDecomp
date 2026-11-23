@@ -4,14 +4,18 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>A Ridley fireball's or afterburn's typed animation.</summary>
-internal sealed class RidleyFireballAnimation(RidleyFireballSegment segment)
-    : EnemyProjectileFrameAnimation<RidleyFireballSegment, RidleyFireballCue>(RidleyFireballAnimations.StartingWith(segment))
+internal sealed partial class RidleyFireballAnimation
+    : EnemyProjectileFrameAnimation<RidleyFireballSegment, RidleyFireballCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments =>
-        RidleyFireballAnimations.Segments;
+    /// <summary>Creates a <see cref="RidleyFireballAnimation"/>.</summary>
+    /// <param name="owner">The family's cue owner, which carries out the events the animation raises (#2571).</param>
+    /// <param name="segment">Where the animation starts.</param>
+    public RidleyFireballAnimation(IEnemyProjectileCues<RidleyFireballCue> owner, RidleyFireballSegment segment)
+        : base(segment, RidleyFireballAnimations.StartingAt[segment], EnemyProjectileCueRunner<RidleyFireballSegment, RidleyFireballCue>.By(owner))
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<RidleyFireballSegment, Animation<RidleyFireballSegment>> StartingAt =>
-        RidleyFireballAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<RidleyFireballSegment, EnemyProjectileFrameId, RidleyFireballCue> Segments =>
+        RidleyFireballAnimations.Segments;
 }

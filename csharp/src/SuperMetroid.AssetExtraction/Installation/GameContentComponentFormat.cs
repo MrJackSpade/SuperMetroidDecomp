@@ -3,7 +3,7 @@ using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Installation;
 
 /// <summary>Bounded, extensible component table shared by state and recording headers.</summary>
-public static class GameContentComponentFormat
+public static partial class GameContentComponentFormat
 {
     /// <summary>Maximum number of independently named presentation catalogs in an artifact.</summary>
     public const int MaximumComponentCount = 64;

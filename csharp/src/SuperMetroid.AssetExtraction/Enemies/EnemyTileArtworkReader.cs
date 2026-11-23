@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire;
 using SuperMetroid.AssetExtraction.Bosses.Torizo;
 using SuperMetroid.AssetExtraction.World.Artwork;
@@ -23,6 +24,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
+using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Enemies.Artwork;
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -33,7 +35,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// component's files. The game's read (<see cref="EnemyTileArtworkFiles.Load"/>) opens no manifest and reads only the
 /// documents it binds.
 /// </summary>
-internal sealed class EnemyTileArtworkReader
+internal sealed partial class EnemyTileArtworkReader
 {
     /// <summary>The checked manifest of the import data.</summary>
     private readonly EnemyTileArtworkFiles.EnemyTileManifest manifest;
@@ -57,7 +59,7 @@ internal sealed class EnemyTileArtworkReader
         EnemyTileArtworkFiles.EnemyTileManifest manifest;
         try
         {
-            manifest = JsonSerializer.Deserialize<EnemyTileArtworkFiles.EnemyTileManifest>(File.ReadAllBytes(manifestPath), EnemyTileArtworkFiles.JsonOptions)
+            manifest = JsonSerializer.Deserialize<EnemyTileArtworkFiles.EnemyTileManifest>(File.ReadAllBytes(manifestPath), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.EnemyTileManifest>(EnemyTileArtworkFiles.JsonOptions))
                 ?? throw new InvalidDataException("Enemy tile manifest is empty.");
         }
         catch (JsonException error)
@@ -132,7 +134,7 @@ internal sealed class EnemyTileArtworkReader
         // The compiled graphics sets must name the same pinned identities the installation was built from.
         EnemyTileArtworkFiles.ValidateDefinitionIds(EnemyTileSourceDefinitions.All.Select(source => (int)EnemyDefinitionIds.HeaderPointer(source.DefinitionId))
             .Concat(EnemyTileSourceDefinitions.Unplaced.Select(artwork => (int)EnemyHeaderWords.UnplacedArtworkHeaders.WordsByIdentity[artwork].Single())));
-        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadTilemapFormat.HeadsByMouthStage.Select(KraidHeadTilemapFormat.ImportKey)))
+        if (!manifest.KraidHeadsSha256.Keys.ToHashSet(StringComparer.Ordinal).SetEquals(KraidHeadTilemapFormat.HeadsByMouthStage.Select(KraidHeadTilemapFormat.ImportKey)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
                 .SequenceEqual(TorizoSwapArtworkDefinitions.All
@@ -159,14 +161,10 @@ internal sealed class EnemyTileArtworkReader
         EnemyTileArtworkParts enemySheets = EnemySheets(importData);
         CrocomireMeltingArtwork crocomire = CrocomireMelting(importData);
         CrocomireSkeletonArtwork skeleton = CrocomireSkeleton(importData);
-        EnemySpritemapCatalog spritemaps = Spritemaps(importData);
-        EnemyProjectileSpritemapCatalog projectileSpritemaps = ProjectileSpritemaps(importData);
-        EnemyExtendedFrameCatalog extendedFrames = ExtendedFrames(importData);
         PhantoonBg2FrameCatalog phantoonBg2Frames = PhantoonBg2Frames(importData);
         DraygonBg2FrameCatalog draygonBg2Frames = DraygonBg2Frames(importData);
         CrocomireBg2FrameCatalog crocomireBg2Frames = CrocomireBg2Frames(importData);
         MotherBrainBodyBg2FrameCatalog motherBrainBodyBg2Frames = MotherBrainBodyBg2Frames(importData);
-        GunshipLiftoffArtworkCatalog gunshipLiftoff = GunshipLiftoff(importData);
         TorizoSwapArtwork torizoInstructionVram = TorizoSwaps(importData);
         CeresEscapeTileArtwork ceresEscapeTiles = CeresEscapeTiles(importData);
         CeresEscapeOverlays ceresEscapeOverlay = CeresEscapeOverlayTilemaps(importData);
@@ -176,14 +174,10 @@ internal sealed class EnemyTileArtworkReader
         KraidBackgroundArtwork kraidBackground = KraidBackground(importData);
         KraidColorCatalog kraidColors = KraidColors(importData);
         CeresDoorSourceArtwork ceresDoor = CeresDoor(importData);
-        MagdollitePaletteCycle magdollitePaletteCycle = MagdollitePaletteCycle(importData);
-        WorkRobotPaletteCycle workRobotPaletteCycle = WorkRobotPaletteCycle(importData);
         CrocomireColorCatalog crocomireColors = CrocomireColors(importData);
         DraygonColorCatalog draygonColors = DraygonColors(importData);
         PhantoonColorCatalog phantoonColors = PhantoonColors(importData);
-        ChozoAndTubeColorCatalog chozoAndTubeColors = ChozoAndTubeColors(importData);
         SporeSpawnColorCatalog sporeSpawnColors = SporeSpawnColors(importData);
-        DachoraColorCatalog dachoraColors = DachoraColors(importData);
         BabyMetroidColorCatalog babyMetroidColors = BabyMetroidColors(importData);
         BabyMetroidCutsceneColorCatalog babyMetroidCutsceneColors = BabyMetroidCutsceneColors(importData);
         BotwoonColorCatalog botwoonColors = BotwoonColors(importData);
@@ -191,16 +185,9 @@ internal sealed class EnemyTileArtworkReader
         ZebetiteColorCatalog zebetiteColors = ZebetiteColors(importData);
         NorfairRidleyColorCatalog norfairRidleyColors = NorfairRidleyColors(importData);
         TourianStatuePalettes tourianStatueColors = TourianStatueColors(importData);
-        EnemyAuxiliaryColorCatalog auxiliaryColors = AuxiliaryColors(importData);
         return new ImportEnemyArtwork(
-            EnemyTileSourceArtwork.FromInstalledArtwork(enemySheets with
-            {
-                Spritemaps = spritemaps, ExtendedFrames = extendedFrames,
-                GunshipLiftoff = gunshipLiftoff, ProjectileSpritemaps = projectileSpritemaps,
-                MagdollitePaletteCycle = magdollitePaletteCycle, WorkRobotPaletteCycle = workRobotPaletteCycle,
-                ChozoAndTubeColors = chozoAndTubeColors, DachoraColors = dachoraColors, AuxiliaryColors = auxiliaryColors,
-            }),
-            BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork
+            EnemyTileSourceArtwork.FromInstalledArtwork(enemySheets),
+            new BossSourceArtwork
             {
                 CrocomireMelting = crocomire, CrocomireSkeleton = skeleton, CrocomireBg2Frames = crocomireBg2Frames,
                 CrocomireColors = crocomireColors, TorizoSwaps = torizoInstructionVram,
@@ -213,12 +200,12 @@ internal sealed class EnemyTileArtworkReader
                 BabyMetroidCutsceneColors = babyMetroidCutsceneColors, BabyMetroidColors = babyMetroidColors,
                 ZebetiteColors = zebetiteColors, SporeSpawnColors = sporeSpawnColors, BotwoonColors = botwoonColors,
                 NorfairRidleyColors = norfairRidleyColors,
-            }),
-            AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork
+            },
+            new AreaSourceArtwork
             {
                 CeresDoor = ceresDoor, CeresEscapeTiles = ceresEscapeTiles,
                 CeresEscapeOverlayTilemaps = ceresEscapeOverlay, TourianStatueColors = tourianStatueColors,
-            }));
+            });
     }
 
     /// <summary>
@@ -227,7 +214,7 @@ internal sealed class EnemyTileArtworkReader
     /// catalog that hold no frames or colour cycles.
     /// </summary>
     /// <exception cref="InvalidDataException">A file is invalid, or the manifest keys a header that is neither.</exception>
-    internal EnemyTileArtworkParts EnemySheets(string importData)
+    private EnemyTileArtworkParts EnemySheets(string importData)
     {
         var sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
         var palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
@@ -253,7 +240,15 @@ internal sealed class EnemyTileArtworkReader
         }
         if (!unplacedSheets.Keys.ToHashSet().SetEquals(EnemyTileSourceDefinitions.Unplaced) || unplacedSheets.Count != EnemyTileSourceDefinitions.Unplaced.Count)
             throw new InvalidDataException("Enemy tile manifest omits or substitutes artwork a graphics set loads for no enemy.");
-        return new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, UnplacedSheets = unplacedSheets, UnplacedPalettes = unplacedPalettes };
+        return new EnemyTileArtworkParts
+        {
+            Sheets = sheets, Palettes = palettes, UnplacedSheets = unplacedSheets, UnplacedPalettes = unplacedPalettes,
+            Spritemaps = Spritemaps(importData), ExtendedFrames = ExtendedFrames(importData),
+            GunshipLiftoff = GunshipLiftoff(importData), ProjectileSpritemaps = ProjectileSpritemaps(importData),
+            MagdollitePaletteCycle = MagdollitePaletteCycle(importData), WorkRobotPaletteCycle = WorkRobotPaletteCycle(importData),
+            ChozoAndTubeColors = ChozoAndTubeColors(importData), DachoraColors = DachoraColors(importData),
+            AuxiliaryColors = AuxiliaryColors(importData),
+        };
     }
 
     /// <summary>Requires <paramref name="entry"/>'s page to hold the retail <paramref name="byteCount"/> bytes.</summary>
@@ -299,17 +294,17 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
     internal CrocomireMeltingArtwork CrocomireMelting(string importData)
     {
-        byte[] first = ReadImportData(importData, CrocomireMeltingArtworkFormat.FirstFileName);
-        byte[] second = ReadImportData(importData, CrocomireMeltingArtworkFormat.SecondFileName);
+        byte[] first = ReadImportData(importData, CrocomireMeltingArtworkFormat.FleshFileName);
+        byte[] second = ReadImportData(importData, CrocomireMeltingArtworkFormat.BareSkullFileName);
         byte[] firstTilemap = ReadImportData(importData,
-            CrocomireMeltingArtworkFormat.FirstTilemapFileName);
+            CrocomireMeltingArtworkFormat.FleshTilemapFileName);
         byte[] secondTilemap = ReadImportData(importData,
-            CrocomireMeltingArtworkFormat.SecondTilemapFileName);
+            CrocomireMeltingArtworkFormat.BareSkullTilemapFileName);
         try
         {
             return CrocomireMeltingArtwork.Load(
-                RoomCharacterAtlasPng.Read(new MemoryStream(first, writable: false), CrocomireMeltingArtworkFormat.FirstByteCount),
-                RoomCharacterAtlasPng.Read(new MemoryStream(second, writable: false), CrocomireMeltingArtworkFormat.SecondByteCount),
+                RoomCharacterAtlasPng.Read(new MemoryStream(first, writable: false), CrocomireMeltingArtworkFormat.FleshByteCount),
+                RoomCharacterAtlasPng.Read(new MemoryStream(second, writable: false), CrocomireMeltingArtworkFormat.BareSkullByteCount),
                 new MemoryStream(firstTilemap, writable: false),
                 new MemoryStream(secondTilemap, writable: false));
         }
@@ -464,9 +459,9 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The manifest omits a frame, or an installed file is invalid.</exception>
     internal GunshipLiftoffArtworkCatalog GunshipLiftoff(string importData)
     {
-        var gunshipFrames = new RoomCharacterAtlas[
-            GunshipLiftoffTransferDefinitions.Frames.Length];
-        for (int index = 0; index < gunshipFrames.Length; index++)
+        var gunshipFrames = new Dictionary<InstalledArtworkId, RoomCharacterAtlas>();
+        // The installed takeoff frames are named by their place in the takeoff, which each transfer holds.
+        for (int index = 0; index < GunshipLiftoffTransferDefinitions.Frames.Length; index++)
         {
             if (!manifest.GunshipLiftoffSha256.TryGetValue(index,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
@@ -476,7 +471,7 @@ internal sealed class EnemyTileArtworkReader
             byte[] selected = ReadImportData(importData, fileName);
             try
             {
-                gunshipFrames[index] = RoomCharacterAtlasPng.Read(
+                gunshipFrames[GunshipLiftoffTransferDefinitions.Frames[index].Asset] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false),
                     GunshipLiftoffCharacterDefinitions.ByteCount);
             }
@@ -493,12 +488,9 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
     internal TorizoSwapArtwork TorizoSwaps(string importData)
     {
-        var torizoPages = new RoomCharacterAtlas[
-            TorizoSwapArtworkDefinitions.All.Length];
-        for (int index = 0; index < torizoPages.Length; index++)
+        var torizoPages = new Dictionary<TorizoTilePage, RoomCharacterAtlas>();
+        foreach (TorizoTileSheet page in TorizoSwapArtworkDefinitions.All)
         {
-            TorizoTileSheet page =
-                TorizoSwapArtworkDefinitions.All[index];
             if (!manifest.TorizoInstructionTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
@@ -506,7 +498,7 @@ internal sealed class EnemyTileArtworkReader
             byte[] selected = ReadImportData(importData, page.FileName);
             try
             {
-                torizoPages[index] = RoomCharacterAtlasPng.Read(
+                torizoPages[page.Page] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false), page.ByteCount);
             }
             catch (InvalidDataException error)
@@ -523,12 +515,9 @@ internal sealed class EnemyTileArtworkReader
     /// <exception cref="InvalidDataException">The manifest omits a page, or an installed file is invalid.</exception>
     internal CeresEscapeTileArtwork CeresEscapeTiles(string importData)
     {
-        var ceresEscapePages = new RoomCharacterAtlas[
-            CeresEscapeTileArtworkDefinitions.All.Length];
-        for (int index = 0; index < ceresEscapePages.Length; index++)
+        var ceresEscapePages = new Dictionary<TileSheetDefinition, RoomCharacterAtlas>();
+        foreach (TileSheetDefinition page in CeresEscapeTileArtworkDefinitions.All)
         {
-            TileSheetDefinition page =
-                CeresEscapeTileArtworkDefinitions.All[index];
             if (!manifest.CeresEscapeTilesSha256.TryGetValue(page.FileName,
                     out string? expectedHash) || string.IsNullOrWhiteSpace(expectedHash))
                 throw new InvalidDataException(
@@ -536,7 +525,7 @@ internal sealed class EnemyTileArtworkReader
             byte[] selected = ReadImportData(importData, page.FileName);
             try
             {
-                ceresEscapePages[index] = RoomCharacterAtlasPng.Read(
+                ceresEscapePages[page] = RoomCharacterAtlasPng.Read(
                     new MemoryStream(selected, writable: false), page.ByteCount);
             }
             catch (InvalidDataException error)
@@ -639,20 +628,20 @@ internal sealed class EnemyTileArtworkReader
 
     /// <summary>Kraid's body and head layouts and room background, all import data (#1636, #1638).</summary>
     /// <exception cref="InvalidDataException">An extracted file is invalid.</exception>
-    internal KraidBackgroundArtwork KraidBackground(string importData)
+    internal static KraidBackgroundArtwork KraidBackground(string importData)
     {
         RoomBackgroundTilemapAtlas upperKraid = LoadKraidTilemap(importData,
             KraidBackgroundArtworkFormat.UpperFileName);
         RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(importData,
             KraidBackgroundArtworkFormat.LowerFileName);
-        var kraidHeads = new Dictionary<int, KraidHeadTilemapAtlas>();
-        foreach (int mouthStage in manifest.KraidHeadsSha256.Keys)
+        var kraidHeads = new Dictionary<KraidHeadFrame, KraidHeadTilemapAtlas>();
+        foreach (KraidHeadFrame head in KraidHeadTilemapFormat.HeadsByMouthStage)
         {
-            string fileName = KraidBackgroundArtworkFormat.HeadFileName(mouthStage);
+            string fileName = KraidBackgroundArtworkFormat.HeadFileName(KraidHeadTilemapFormat.ImportKey(head));
             byte[] selected = ReadImportData(importData, fileName);
             try
             {
-                kraidHeads.Add(mouthStage, KraidHeadTilemapAtlas.Load(
+                kraidHeads.Add(head, KraidHeadTilemapAtlas.Load(
                     new MemoryStream(selected, writable: false)));
             }
             catch (InvalidDataException error)

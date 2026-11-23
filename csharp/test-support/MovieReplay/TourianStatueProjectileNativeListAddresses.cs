@@ -50,7 +50,7 @@ internal static class TourianStatueProjectileNativeListAddresses
             switch (cue)
             {
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.PlayReleaseSound }:
-                    VerificationAssertions.AssertEqual<SoundEffectId>(EnemySound.TourianStatueParticle, SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, operands[0]),
+                    VerificationAssertions.AssertEqual<SoundEffectId>(EnemySound.TourianStatueParticle, SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, operands[0]),
                         $"{at}: the import decodes the native sound byte to the release sound");
                     break;
                 case TourianStatueProjectileCue.MoveDown moveDown:
@@ -58,8 +58,8 @@ internal static class TourianStatueProjectileNativeListAddresses
                     break;
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.FollowReveal }:
                     // Setting the reveal-following routine is the cue that starts the base decoration following the reveal.
-                    VerificationAssertions.AssertEqual<Enum?>(TourianStatueDecorationMotion.FollowingReveal,
-                        EnemyProjectileMotionAccess.FromWord((ushort)(operands[0] | operands[1] << 8)), $"{at}: movement");
+                    VerificationAssertions.AssertTrue(EnemyProjectileMotionAccess.StandsFor((ushort)(operands[0] | operands[1] << 8),
+                        TourianStatueDecorationMotion.FollowingReveal), $"{at}: movement");
                     break;
                 case TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Delete } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.Earthquake } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnParticle } or TourianStatueProjectileCue.Signal { Kind: TourianStatueProjectileCueKind.SpawnTail }:
                     break;

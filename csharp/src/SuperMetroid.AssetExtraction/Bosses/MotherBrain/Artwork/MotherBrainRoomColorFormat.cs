@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 
 /// <summary>Installation filename and schema revision for Mother Brain's room and cutscene color artwork.</summary>
-public static class MotherBrainRoomColorFormat
+public static partial class MotherBrainRoomColorFormat
 {
     /// <summary>Installed JSON filename selecting room-entry, fake-death, phase-two and post-Baby recovery colors.</summary>
     public const string FileName = "mother-brain-room-colors.json";

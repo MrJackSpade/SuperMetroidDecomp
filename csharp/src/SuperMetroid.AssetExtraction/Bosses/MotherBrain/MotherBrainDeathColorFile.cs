@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Reads and writes the installed Mother Brain death colour document.</summary>
-public static class MotherBrainDeathColorFile
+public static partial class MotherBrainDeathColorFile
 {
     /// <summary>The body and leg fade images, shown in order before the body is cleared.</summary>
     public const int BodyFadeFrameCount = 16;
@@ -28,12 +28,11 @@ public static class MotherBrainDeathColorFile
         if (document.Version != MotherBrainDeathColorFormat.Version)
             throw new InvalidDataException(
                 "Mother Brain death colors require the supported version.");
-        return new(CompileFrames(document.BodyFade,
-                BodyFadeFrameCount,
-                MotherBrainDeathColorFormat.BodyColorCount, "body fade"),
-            CompileFrames(document.LegFade,
-                BodyFadeFrameCount,
-                MotherBrainDeathColorFormat.BodyColorCount, "leg fade"),
+        if (document.BodyFade is not { } stages || stages.Length != BodyFadeFrameCount)
+            throw new InvalidDataException($"Mother Brain death body fade requires {BodyFadeFrameCount} stages.");
+        return new([.. stages.Select((stage, index) => new MotherBrainDeathFadeStage(
+                Compile(stage?.Body, MotherBrainDeathColorFormat.BodyColorCount, $"body fade stage {index} body"),
+                Compile(stage?.BackLegs, MotherBrainDeathColorFormat.BodyColorCount, $"body fade stage {index} legs")))],
             CompileFrames(document.CorpseFade,
                 CorpseFadeFrameCount,
                 MotherBrainDeathColorFormat.CorpseColorCount, "corpse fade"));
@@ -43,7 +42,7 @@ public static class MotherBrainDeathColorFile
     /// <param name="document">Palette-stage colors to serialize; their collections are not retained.</param>
     /// <returns>JSON bytes ready to install under <see cref="MotherBrainDeathColorFormat.FileName"/>.</returns>
     public static byte[] Write(MotherBrainDeathColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainDeathColorDocument>(ArtworkJson.Options));
 
     /// <summary>Checks the authored stage count and converts each RGB5 row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source,

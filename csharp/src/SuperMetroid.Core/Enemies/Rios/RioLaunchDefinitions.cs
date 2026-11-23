@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Rios;
 /// Fixed launch magnitudes for the three Rio families, each with its own behaviour, how near Samus brings each to dive
 /// and how its dive slows (#2156).
 /// </summary>
-internal static class RioLaunchDefinitions
+internal static partial class RioLaunchDefinitions
 {
     /// <summary>Rio initial downward velocity, five and a half pixels per update.</summary>
     internal static SignedEightEight RioYVelocity { get; } = SignedEightEight.FromPixelFraction(11, 2);
@@ -29,13 +29,13 @@ internal static class RioLaunchDefinitions
     /// The chance, taken by half the random numbers, that sends a diving Norfair Rio down at its slower launch velocity; the
     /// random number that let it attack decides it.
     /// </summary>
-    internal static readonly RandomChance SlowLaunch = RandomChance.Highest(1, new RandomSampleField(2, 1));
+    internal static readonly RandomChance SlowLaunch = RandomChance.Highest(1, EnemyRandomRolls.RioSlowDive);
 
     /// <summary>
     /// The chance, taken by one random number in four, that a Norfair or Lower Norfair Rio waiting for Samus holds back from
     /// attacking on its update, however near she is.
     /// </summary>
-    internal static readonly RandomClearBitsChance AttackHeldBack = RandomClearBitsChance.WhenAllClear(new RandomSampleField(0, 1), new RandomSampleField(8, 1));
+    internal static readonly RandomClearBitsChance AttackHeldBack = RandomClearBitsChance.WhenAllClear(RandomSampleField.OneOf(2), RandomSampleField.SecondOf(2));
 
     /// <summary>How close horizontally Samus comes, in pixels and exclusive, before a Rio dives.</summary>
     internal const int RioTriggerDistance = 160;

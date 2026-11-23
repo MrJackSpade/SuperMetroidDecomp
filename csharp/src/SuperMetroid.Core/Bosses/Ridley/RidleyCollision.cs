@@ -6,7 +6,7 @@ using static SuperMetroid.Core.Bosses.Ridley.RidleyCollisionDefinitions;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>The collision of Ridley's body: whether it is inside the interaction window, and the components of the body frame it shows.</summary>
-internal static class RidleyCollision
+internal static partial class RidleyCollision
 {
     /// <summary>
     /// Ridley's off-screen test: he is outside while he lies above or left of the room, or while his place moved by the
@@ -35,19 +35,16 @@ internal static class RidleyCollision
     {
         if (frame == EnemyFrameId.RidleyBodyForward)
             return [new(new(0, ForwardYOffset), Forward)];
-        bool right = RightFacing.Contains(frame);
-        EnemyHitboxRectangle[] legs = Legs.TryGetValue(frame, out EnemyHitboxRectangle[]? shownLegs)
-            ? shownLegs
+        RidleySideBodyCollision side = SideFacing.TryGetValue(frame, out RidleySideBodyCollision? shown)
+            ? shown
             : throw new InvalidOperationException($"{frame} is no side-facing Ridley body frame.");
-        EnemyHitboxRectangle[] head = Heads.TryGetValue(frame, out EnemyHitboxRectangle[]? shownHead)
-            ? shownHead
-            : throw new InvalidOperationException($"{frame} is no side-facing Ridley body frame.");
+        bool right = side.Facing == SuperMetroid.Core.Spatial.HorizontalDirection.Right;
         return
         [
-            Side(LeftLegsOrigin, legs),
+            Side(LeftLegsOrigin, side.Legs),
             Side(LeftHandOrigin, right ? RightHand : LeftHand),
             Side(LeftTorsoOrigin, right ? RightTorso : LeftTorso),
-            Side(LeftHeadOrigin, head),
+            Side(LeftHeadOrigin, side.Head),
         ];
 
         RidleyCollisionComponent Side(Offset16<RoomPixels> leftOrigin, EnemyHitboxRectangle[] hitboxes) =>
@@ -57,7 +54,7 @@ internal static class RidleyCollision
     /// <summary>The computed collision components of the body frame <paramref name="frame"/> shows.</summary>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> shows no Ridley body frame.</exception>
     internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
-        frame is { } shown && FrameComponents.TryGetValue(shown, out ImmutableArray<RidleyCollisionComponent> components)
-            ? components
+        frame is not { } shown ? []
+            : FrameComponents.TryGetValue(shown, out ImmutableArray<RidleyCollisionComponent> components) ? components
             : throw new InvalidDataException($"Ridley frame {frame} has no collision.");
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Skultera;
 /// The state of one Skultera. It reads its speed, its wave's height and its wave's step from its spawn settings where it
 /// uses them (#2450).
 /// </summary>
-public sealed class SkulteraEnemyState
+public sealed partial class SkulteraEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/> toward <paramref name="heading"/>.</summary>
     internal SkulteraEnemyState(SkulteraAction action, HorizontalDirection heading)

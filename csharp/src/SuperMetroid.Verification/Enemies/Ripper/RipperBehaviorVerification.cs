@@ -27,9 +27,9 @@ internal static class RipperBehaviorVerification
                      new VerifyRipperBehaviorCase(EnemyRomTablePointersRipper.RipperPopulationRecord, EnemyDefinitionId.Ripper),
                  })
         {
-            AssertEqual(definition, EnemyDefinitionIdsConstants.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
+            AssertEqual(definition, EnemyDefinitionIdsConstants.FromHeaderPointer(rom.ReadCartridgeWord(record)),
                 $"retail Ripper population ${record:X6} definition");
-            ushort extra = CartridgeImportSource.Require(rom).ReadCartridgeWord(record + 10);
+            ushort extra = rom.ReadCartridgeWord(record + 10);
             AssertTrue(!SuperMetroid.AssetExtraction.Enemies.EnemyPropertyWordCodec.Decode(0, extra).CollidesByFrameHitboxes,
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }
@@ -53,7 +53,7 @@ internal static class RipperBehaviorVerification
             place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
             place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
             place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
+            _ = enemies.LoadAuthoredPopulation();
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -61,11 +61,12 @@ internal static class RipperBehaviorVerification
         {
             RoomEnemySystem enemies = NewSystem();
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.GrappleRipper);
-            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: ushort.MaxValue));
-            place.SetSpawnParameter1(EnemyDefinitionId.GrappleRipper, 0);
-            place.SetSpawnParameter2(EnemyDefinitionId.GrappleRipper, ushort.MaxValue);
-            RipperBehavior.InitializeGrappleRipper(place);
-            RipperBehavior.ReverseRipperVariant(place);
+            // Its patrol's right bound lies at the room's left edge, so its first flight passes it and it turns back.
+            place.SetSpawnSettings(new GrappleRipperSpawnSettings(Speed: SignedSixteenSixteen.FromSixteenthsOfPixel(1), HorizontalDirection.Right, MinimumX: 0, MaximumX: 0));
+            _ = enemies.LoadAuthoredPopulation();
+            place.Position = place.Position.WithWhole(new(0x80, 0x80));
+            place.Radius = new(8, 8);
+            place.RunMainAi(RoomEnemyFrameFixtures.StandaloneSamus());
             VerifyInstalledLoop(enemies, place, RipperSegment.GrappleRipperMovingLeft, "GrappleRipper left reversal");
         }
 
@@ -75,7 +76,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.JetRipper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeJetRipper(place);
+            _ = enemies.LoadAuthoredPopulation();
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -85,7 +86,7 @@ internal static class RipperBehaviorVerification
             RoomEnemyPlace place = NewPlace(enemies, EnemyDefinitionId.Ripper);
             place.SetSpawnParameter1(EnemyDefinitionId.Ripper, 1);
             place.SetSpawnParameter2(EnemyDefinitionId.Ripper, initialDirection);
-            RipperBehavior.InitializeRipper(place);
+            _ = enemies.LoadAuthoredPopulation();
             VerifyInstalledLoop(enemies, place, expectedProgram, context);
         }
 
@@ -123,8 +124,8 @@ internal static class RipperBehaviorVerification
     private static RoomEnemyPlace NewPlace(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(definition, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(definition, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         return place;
     }
 

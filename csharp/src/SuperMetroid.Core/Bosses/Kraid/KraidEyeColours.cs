@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// them and fades back to them, and times his roar from the eyes reaching them; the rest of his colours belong to the
 /// import, which pre-colours his pictures.
 /// </summary>
-public sealed class KraidEyeColours
+public sealed partial class KraidEyeColours
 {
     /// <summary>The eyes' colours under the hurt flash.</summary>
     private readonly RgbColor[] hurt;
@@ -16,7 +16,8 @@ public sealed class KraidEyeColours
     /// <summary>The eyes' colours under each health band.</summary>
     private readonly Dictionary<KraidHealthBand, RgbColor[]> bands;
 
-    /// <summary>Takes the eyes' colours under the hurt flash and under each health band, three colours to each.</summary>
+    /// <summary>Takes the eyes' colours under the hurt flash and under each health band, a colour for each
+    /// eye.</summary>
     /// <param name="hurt">The eyes' colours under the hurt flash.</param>
     /// <param name="healthBands">The eyes' colours under each of the eight health bands.</param>
     /// <exception cref="ArgumentException">A set does not hold one colour per eye, or a band has none.</exception>

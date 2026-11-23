@@ -19,8 +19,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// each kind's rows with that test across the whole space, and the Kraid recorded movie confirms the charged beams',
 /// missiles' and Super Missiles' outcomes.
 /// </remarks>
-[CompatibilityService("a later projectile in the same update reaches Kraid's mouth only from the row the damaging hit before it leaves")]
-public static class KraidMouthHitReach
+public static partial class KraidMouthHitReach
 {
     /// <summary>The kinds of projectile hit that damage Kraid's mouth.</summary>
     public enum DamagingHit

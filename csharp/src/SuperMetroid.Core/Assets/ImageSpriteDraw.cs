@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// frame's depth among the room's layers (#1514). Every draw a frame shows is one; a draw shown in Samus's colours is
 /// made one when the frame publishes, in the shading her colours show then (#2505).
 /// </summary>
-public sealed record ImageSpriteDraw : SpriteDraw
+public sealed partial record ImageSpriteDraw : SpriteDraw
 {
     /// <summary>Places a sheet frame.</summary>
     /// <param name="source">The actor or display element shown.</param>
@@ -36,6 +36,13 @@ public sealed record ImageSpriteDraw : SpriteDraw
     /// its image as it is.
     /// </summary>
     public CorpseRotPicture? CorpseRot { get; init; }
+
+    /// <summary>
+    /// Whether the draw shows at half strength over what lies behind it at its depth (#2642): the steady equivalent of a
+    /// picture the game shows only every other update, which a display whose refresh does not match the game's would
+    /// otherwise show pulsing on and off.
+    /// </summary>
+    public bool Translucent { get; init; }
 
     /// <summary>The sheet frame shown.</summary>
     public SpriteSheetFrame Image { get; }

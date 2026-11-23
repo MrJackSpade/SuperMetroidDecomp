@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// bounds each edge, by name. These fields say how the cell looks; whether it can be explored and whether exploring it
 /// reveals the cell above follow from them, and map-station reveals come from the station mask, never from the document.
 /// </summary>
-public sealed record AreaMapDocumentCell
+public sealed partial record AreaMapDocumentCell
 {
     /// <summary>The kind of place the cell shows.</summary>
     [JsonConverter(typeof(MapCellKindJsonConverter))]

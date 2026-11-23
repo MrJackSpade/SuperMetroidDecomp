@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>Kago's quake and its bugs' random jump selection, waits and motion.</summary>
-internal static class KagoDefinitions
+internal static partial class KagoDefinitions
 {
     /// <summary>The random field that adds zero to three <see cref="JumpHeightStepPixels"/> to a Kago bug's upward jump speed.</summary>
-    internal static readonly RandomSampleField JumpHeightSteps = new(8, 2);
+    internal static readonly RandomSampleField JumpHeightSteps = RandomSampleField.SecondOf(4);
 
     /// <summary>The upward jump speed every bug's jump starts from, in whole pixels per update.</summary>
     internal const int BaseJumpSpeedPixels = 8;
@@ -13,10 +13,10 @@ internal static class KagoDefinitions
     internal const int JumpHeightStepPixels = 1;
 
     /// <summary>
-    /// Whether a bug near its shell jumps leftward (#2479): an odd count of <see cref="JumpHeightSteps"/> sends it left, one
-    /// jump in two, so the jump's height and its way come from one random number rather than two.
+    /// Whether a bug near its shell jumps leftward (#2479): one jump in two goes left, decided by the same random
+    /// number as its height (<see cref="JumpHeightSteps"/>).
     /// </summary>
-    internal static readonly RandomChance BugJumpsLeft = RandomChance.Highest(1, new RandomSampleField(8, 1));
+    internal static readonly RandomChance BugJumpsLeft = RandomChance.Highest(1, RandomSampleField.SecondOf(2));
 
     /// <summary>How long the quake lasts when a shot strikes a Kago, in updates.</summary>
     internal const int ShotQuakeDuration = 16;
@@ -25,7 +25,7 @@ internal static class KagoDefinitions
     internal static readonly SuperMetroid.Core.Earthquakes.EarthquakeShake ShotQuake = new(
         SuperMetroid.Core.Earthquakes.EarthquakeStrength.Light,
         SuperMetroid.Core.Earthquakes.EarthquakeDirection.Diagonal,
-        SuperMetroid.Core.Earthquakes.EarthquakeReach.Foreground);
+        SuperMetroid.Core.Earthquakes.EarthquakeReach.RoomBlocks);
 
     /// <summary>How many updates after its first hop a new Kago bug first sounds.</summary>
     internal const int FirstSoundPastFirstHop = 3;
@@ -37,10 +37,10 @@ internal static class KagoDefinitions
     internal const int ShortestGroundWait = 2;
 
     /// <summary>The random field that adds zero to seven updates to a new Kago bug's first wait.</summary>
-    internal static readonly RandomSampleField FirstIdleFrames = new(0, 3);
+    internal static readonly RandomSampleField FirstIdleFrames = RandomSampleField.OneOf(8);
 
     /// <summary>The random field that adds zero to thirty-one updates to a landed Kago bug's wait.</summary>
-    internal static readonly RandomSampleField LandedIdleFrames = new(0, 5);
+    internal static readonly RandomSampleField LandedIdleFrames = RandomSampleField.OneOf(32);
 
     /// <summary>How much faster a bug falls each unobstructed airborne update (#2339).</summary>
     internal static SignedEightEight BugGravity { get; } = SignedEightEight.FromPixelFraction(7, 8);

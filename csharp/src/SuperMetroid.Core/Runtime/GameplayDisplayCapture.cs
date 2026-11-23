@@ -13,7 +13,7 @@ using SuperMetroid.Core.Enemies.BossBodies;
 namespace SuperMetroid.Core.Runtime;
 
 /// <summary>Resolution of one published gameplay display frame into the layered scene the backend draws.</summary>
-public static class GameplayDisplayCapture
+public static partial class GameplayDisplayCapture
 {
     /// <summary>
     /// Captures the full gameplay composition, including the HUD band above the room,
@@ -144,12 +144,11 @@ public static class GameplayDisplayCapture
     /// </summary>
     /// <param name="latched">The ordinary room frame the frame boundary latched.</param>
     /// <param name="live">The display inputs read as the frame ends.</param>
-    public static OrdinaryGameplayBase CaptureOrdinaryBase(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live)
+    internal static OrdinaryGameplayBase CaptureOrdinaryBase(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live)
     {
         Ensure.NotNull(latched);
         Ensure.NotNull(live);
         GameplayRenderSnapshot scrolls = latched.Scrolls;
-        GameplayLatchedBossBody bosses = latched.Bosses;
         RoomShakeFrameResult shake = scrolls.RoomShake;
         // The foreground's scroll is signed (#2384): the room's shake, like the Crocomire rumble, adds a plain offset, and a
         // scroll above or left of the room's origin needs no wrap.
@@ -163,14 +162,14 @@ public static class GameplayDisplayCapture
             // The statue room's descent supplies the background's vertical scroll per line after the
             // ordinary scroll. It replaces, rather than adds to, the quake-adjusted
             // scroll. The descent also gives the statue sprites zero quake displacement.
-            backgroundScroll = backgroundScroll.WithY(scrolls.ForegroundPosition.Y + descent);
+            backgroundScroll = backgroundScroll.WithY(StatueDescentBackgroundRow(scrolls.ForegroundPosition, descent));
         LatchedScrollingSky? sky = latched.Scene.ScrollingSky;
         ScrollBands? skyX = SkyHorizontalScrolls(live, shake);
         // Lava, water or the sky moves the background's lines.
         BackgroundLineScrolls backgroundLines = LiquidLineScrolls(latched.RoomFxOverlay, backgroundScroll, skyX);
         // A boss's body shows whole where it lies (#1873); while it is hidden, once Draygon is deleted or while Mother Brain's
         // death flicker hides hers, it shows nothing.
-        ScreenLayers displayedLayers = bosses.Hidden
+        ScreenLayers displayedLayers = latched.BossBodyHidden
             ? latched.ShownLayers & ~ScreenLayers.BossBody
             : latched.ShownLayers;
         // The cameras become the pixels the layers show at the screen's top-left corner (#1514), where the room is shown
@@ -192,6 +191,17 @@ public static class GameplayDisplayCapture
     }
 
     /// <summary>
+    /// The background row the statue room shows at the screen's top (#2305, #2631): the foreground camera's row plus the
+    /// statues' <paramref name="descent"/>. The camera's position wraps past the room's top, as a door transition's view
+    /// does, so its row is taken signed (<see cref="CameraPastRoomEdge.Signed"/>), a few rows above the origin reading as
+    /// a small negative row rather than one past the signed range.
+    /// </summary>
+    /// <param name="camera">The camera position the frame's actors were drawn against.</param>
+    /// <param name="descent">How far the statues move the background vertically, between minus their distance and zero.</param>
+    internal static int StatueDescentBackgroundRow(Position16<RoomPixels> camera, int descent) =>
+        CameraPastRoomEdge.Signed(camera.Y) + descent;
+
+    /// <summary>
     /// The boss's body the frame shows as its own layer (#1352-#1356, #2031, #2573), or null in a room no boss shows a body
     /// in: its parts' pictures where its boss places them against the frame's camera, moved by the room's shake as the room's
     /// background is, rippled by Phantoon's wave or sagged by Crocomire's melt, and otherwise moved as the room's lava, water
@@ -200,9 +210,9 @@ public static class GameplayDisplayCapture
     private static BossBodyView? BossBodyOf(OrdinaryRoomFrameLatch latched, GameplayFrameEndDisplayInputs live,
         RoomShakeFrameResult shake, ScrollBands? skyX)
     {
-        GameplayLatchedBossBody bosses = latched.Bosses;
-        if (bosses.Shown is not { } body)
+        if (latched.Bosses is not { } bosses)
             return null;
+        ShownBossBody body = bosses.Shown;
         Position16<RoomPixels> camera = latched.Scrolls.ForegroundPosition;
         // The body shows from its placement against the camera; a body no boss places shows where the room's background
         // scroll puts it.
@@ -214,7 +224,7 @@ public static class GameplayDisplayCapture
             // Phantoon's wave ripples his body about where it lies, and Crocomire's melt sags his.
             Horizontal = latched.Phantoon is { Wave: { } wave } phantoon ? BossLineScrolls.Of(wave, camera, phantoon.BodyPlacement) : liquid.Horizontal,
             Vertical = live.CrocomireMelt is { } melt ? BossLineScrolls.Of(melt, camera) : liquid.Vertical,
-            Pixelation = latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : default,
+            Pixelation = latched.Phantoon is { } phantoonDisplay ? new BackgroundPixelation(phantoonDisplay.PixelationBlockSize) : BackgroundPixelation.Unpixelated,
         };
     }
 
@@ -265,13 +275,7 @@ public static class GameplayDisplayCapture
     /// where each is frontmost, everywhere on the screen. The foreground and Samus keep their colours.
     /// </summary>
     private static GameplayBlendLayer CaptureFirefleaDarkness(RgbColor shade, GameplaySceneLayer ordinary) =>
-        new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new GameplayBlend
-        {
-            Blended = BlendedLayers.Background | BlendedLayers.Backdrop,
-            Operation = BlendOperation.Subtract,
-            Halved = false,
-            Colour = shade,
-        });
+        new(ordinary, ScreenWindow.Closed, revealBlocks: false, blend: new FirefleaDarknessBlend(shade));
 
     /// <summary>
     /// The pictures fixed in the room around a turning floor (#1545), each placed so its origin lands on its room point,
@@ -288,6 +292,20 @@ public static class GameplayDisplayCapture
         return new(new PicturedPlane(placed), camera.AsPlaneOffset());
     }
 
+    /// <summary>What <see cref="PhantoonScene"/> comes to for each <see cref="PhantoonBodyVisibility"/> member, each member's own arm.</summary>
+    private static IdentityTable<PhantoonBodyVisibility, Func<GameplaySceneLayer, GameplaySceneLayer>> PhantoonSceneForPhantoonBodyVisibility => field ??= new(new Dictionary<PhantoonBodyVisibility, Func<GameplaySceneLayer, GameplaySceneLayer>>
+    {
+        [PhantoonBodyVisibility.Shown] = static ordinary => ordinary,
+        [PhantoonBodyVisibility.Hidden] = static ordinary => new GameplaySceneLayer(ordinary.View with
+                {
+                    ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.BossBody,
+                }, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody },
+        [PhantoonBodyVisibility.Translucent] = static ordinary => new GameplaySceneLayer(ordinary.View with
+                {
+                    ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.BossBody,
+                }, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody },
+    });
+
     /// <summary>
     /// The room's scene as Phantoon's body shows on it (#1545): as the room shows it, or without the background his body
     /// shows on while he is hidden or translucent.
@@ -295,19 +313,7 @@ public static class GameplayDisplayCapture
     /// <exception cref="InvalidOperationException">His body's visibility is undefined.</exception>
     private static GameplaySceneLayer PhantoonScene(PhantoonDisplaySnapshot phantoon, GameplaySceneLayer ordinary)
     {
-        switch (phantoon.BodyVisibility)
-        {
-            case PhantoonBodyVisibility.Shown:
-                return ordinary;
-            case PhantoonBodyVisibility.Hidden:
-            case PhantoonBodyVisibility.Translucent:
-                return new GameplaySceneLayer(ordinary.View with
-                {
-                    ShownLayers = ordinary.View.ShownLayers & ~ScreenLayers.BossBody,
-                }, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody };
-            default:
-                throw new InvalidOperationException($"Undefined Phantoon body visibility {phantoon.BodyVisibility}.");
-        }
+        return PhantoonSceneForPhantoonBodyVisibility[phantoon.BodyVisibility](ordinary);
     }
 
     /// <summary>
@@ -316,13 +322,7 @@ public static class GameplayDisplayCapture
     /// the foreground.
     /// </summary>
     private static GameplayBlendLayer PhantoonTranslucence(GameplaySceneLayer gameplay) =>
-        new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
-        {
-            Blended = BlendedLayers.Foreground | BlendedLayers.Actors | BlendedLayers.Backdrop,
-            Operation = BlendOperation.Add,
-            Halved = false,
-            Colour = RgbColor.Black,
-        }, backgroundBehind: true);
+        new(gameplay, ScreenWindow.Closed, false, PhantoonTranslucenceBlend.Body, backgroundBehind: true);
 
     /// <summary>
     /// The X-ray's scene (#1514): the room, its reveal's blocks inside the cone where the room reveals them, and outside the
@@ -360,7 +360,7 @@ public static class GameplayDisplayCapture
         // line scrolls.
         // The reveal is drawn on the background from block pictures (#1392), so it replaces what the room's background shows
         // (#2544), and a boss's body with it (#2573). No boss whose body shows lets X-ray reveal blocks
-        // (XrayBlockRevealDefinitions).
+        // (AreaBossDefinition.XrayKeepsBackground).
         var gameplay = shownReveal is not null
             ? new GameplaySceneLayer(view, ordinary.Rooms with { Background = new XrayRevealBackground(shownReveal) })
             : new GameplaySceneLayer(view, ordinary.Rooms, ordinary.BackgroundLineScrolls) { BossBody = ordinary.BossBody };
@@ -375,10 +375,11 @@ public static class GameplayDisplayCapture
         bool roomDarkens = scene.Blend?.Operation == BlendOperation.Subtract;
         // The X-ray's own tint: grey in a reveal room, none elsewhere; in Fireflea's room the room's darkness shade, never
         // lighter than the reveal's grey. Its last pass clears the tint at once, except in Fireflea's room.
-        int level = latched.Fireflea is { } darkness
-            ? Math.Max(darkness.Shade.FadeLevels.Red, mode.TintLevel)
-            : mode.TintLevel;
-        if (finishedThisFrame && !mode.KeepsDarkness) level = 0;
+        FadeLevelColour grey = GreyOf(mode);
+        FadeLevelColour tint = latched.Fireflea is { } darkness && darkness.Shade.FadeLevels.Red > grey.Red
+            ? FadeLevelColour.Grey(darkness.Shade.FadeLevels.Red)
+            : grey;
+        if (finishedThisFrame && !mode.KeepsDarkness) tint = XrayWindowRenderDefinitions.NoTint;
         // Releasing Run starts the beam's closing, whose window and backdrop still show until its first update is spent;
         // the X-ray keeps the display until its last step finally unfreezes gameplay.
         bool closing = finishedThisFrame || (xray.BeamPhase is XrayBeamPhase.Closing or XrayBeamPhase.Finish && !xray.Closing.ShowsBeam);
@@ -386,13 +387,11 @@ public static class GameplayDisplayCapture
             : frame.Paint.WithBackdrop(closing ? RgbColor.Black : XrayWindowRenderDefinitions.ActiveBackdrop);
         bool closed = warmingUp || closing || xray.BeamPhase == XrayBeamPhase.NoBeam;
         ScreenWindow window = closed ? ScreenWindow.Closed : GameplayEffectCapture.CaptureXrayWindow(xray, latched.Scrolls.ForegroundPosition);
-        var layer = new GameplayBlendLayer(gameplay, window, reveal, new GameplayBlend
-        {
-            Blended = mode.Blended,
-            Operation = mode.Operation(roomDarkens),
-            Halved = mode.Halves && overlayBehind is not null,
-            Colour = new FadeLevelColour(level, level, level).ToColour(),
-        }, overlayBehind);
+        var layer = new GameplayBlendLayer(gameplay, window, reveal,
+            new XrayDimmingBlend(mode, roomDarkens, tint.ToColour()), overlayBehind);
         return new(paint, new DisplayLayer[] { layer, basis.Hud }, DisplayBrightness.Full);
     }
+
+    /// <summary>The X-ray's grey in a room <paramref name="mode"/> dims, or no tint where it takes none.</summary>
+    private static FadeLevelColour GreyOf(XrayRoomBlendMode mode) => mode.WashesGrey ? XrayWindowRenderDefinitions.RevealTint : XrayWindowRenderDefinitions.NoTint;
 }

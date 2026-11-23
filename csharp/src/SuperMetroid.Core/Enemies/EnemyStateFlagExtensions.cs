@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies;
 /// The set, clear and test operations behaviours apply to an enemy's <see cref="EnemyContact"/>,
 /// <see cref="EnemyProcessing"/> and <see cref="EnemyPresence"/>.
 /// </summary>
-public static class EnemyStateFlagExtensions
+public static partial class EnemyStateFlagExtensions
 {
     /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
     public static bool HasAny(this EnemyContact contact, EnemyContact flags) => (contact & flags) != EnemyContact.None;

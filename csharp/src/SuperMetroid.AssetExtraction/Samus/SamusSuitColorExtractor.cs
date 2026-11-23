@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -7,7 +9,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports the three ordinary suit palettes; selection and palette timing stay compiled.</summary>
-public static class SamusSuitColorExtractor
+public static partial class SamusSuitColorExtractor
 {
     /// <summary>Exports the ordinary Power, Varia, and Gravity suit OBJ palette rows, not suit-up effects or transient palette cycles.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for $9B:9400, $9B:9520, and $9B:9800 respectively.</param>
@@ -28,18 +30,13 @@ public static class SamusSuitColorExtractor
 
         PaletteRgb5[] Read(int address)
         {
-            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address,
+            byte[] source = RomDataReader.ReadFixedBank(bus, address,
                 SamusSuitColorFormat.ColorsPerSuit * sizeof(ushort));
             var result = new PaletteRgb5[SamusSuitColorFormat.ColorsPerSuit];
             for (int index = 0; index < result.Length; index++)
             {
                 int color = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
-                result[index] = new PaletteRgb5
-                {
-                    Red = color & 31,
-                    Green = color >> 5 & 31,
-                    Blue = color >> 10 & 31,
-                };
+                result[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(color));
             }
             return result;
         }

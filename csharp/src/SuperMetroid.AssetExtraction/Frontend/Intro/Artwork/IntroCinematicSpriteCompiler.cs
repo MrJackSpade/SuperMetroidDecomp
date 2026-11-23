@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Checked OAM compilation shared by the opening cinematic's editable actors.</summary>
-internal static class IntroCinematicSpriteCompiler
+internal static partial class IntroCinematicSpriteCompiler
 {
     /// <summary>Sixteen character columns in the opening cinematic's OBJ tile sheet.</summary>
     internal const int TileColumns = 16;
@@ -24,7 +24,7 @@ internal static class IntroCinematicSpriteCompiler
             SpriteVisualPart? part = visual[index];
             if (part is null || part.OffsetX is < -256 or > 255 ||
                 part.OffsetY is < -128 or > 127 || part.Size is not (8 or 16) ||
-                part.Priority is < 0 or > 3 || part.Palette is < 0 or > 7 ||
+                part.Palette is < 0 or > 7 ||
                 part.TileColumn < 0 || part.TileRow < 0 ||
                 part.TileColumn > TileColumns - part.Size / 8 ||
                 part.TileRow > TileRows - part.Size / 8)
@@ -36,7 +36,7 @@ internal static class IntroCinematicSpriteCompiler
             compiled[index] = new CompiledSpritePart(
                 SpritePart.Create(Offset16<ScreenPixels>.Of(part.OffsetX, part.OffsetY), part.Size == 16,
                     part.TileRow * TileColumns + part.TileColumn,
-                    part.Palette ?? 0, part.Priority, flips),
+                    part.Palette ?? 0, part.Depth, flips),
                 part.Palette is null);
         }
         return new SpriteComposition(compiled);

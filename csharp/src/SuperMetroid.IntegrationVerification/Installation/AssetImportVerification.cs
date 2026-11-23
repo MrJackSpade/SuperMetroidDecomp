@@ -15,10 +15,6 @@ internal static class AssetImportVerification
 /// Exercises invalid imports first, then one retail import that every reading check shares, ROM-free startup and the
 /// rejection of outdated content on a copy of it, one repair, and cancellation and recovery that extract nothing (#1680).
 /// </summary>
-[PrivateInstallation("Checks the importer itself. Two runs extract: the import of a headered, user-named ROM, which every " +
-    "reading check shares, and the repair from the installed copy once that document is gone, which only a completed " +
-    "extraction can show regenerates damaged content exactly. ROM-free startup and cancellation work on copies of the " +
-    "import, and every rejection and the cancelled repair stop before any component extracts.")]
 public static int Run(string? romPath)
 {
 using var temporaryScratch = new TestScratchDirectory("import-verification");
@@ -62,7 +58,7 @@ try
     GameInstallation installed = GameAssetInstaller.Install(input, root);
     Check(File.ReadAllBytes(input).SequenceEqual(headered), "original selected ROM is preserved");
     Check(File.ReadAllBytes(installed.RomPath).SequenceEqual(rom), "installed ROM strips only the copier header");
-    Check(GameAssetInstaller.TryOpenExtractedContent(root) is not null,
+    Check(GameAssetInstaller.HoldsCurrentExtractedContent(root),
         "complete extracted content is recognized with its source-revision receipt");
     InstalledClipAudioLibrary installedClips = installed.LoadAudioClips();
     Console.WriteLine($"PASS installed runtime resources: {installedClips.Manifest.Music.Count} songs and {installedClips.Manifest.SoundEffects.Count} sound effects.");
@@ -77,8 +73,8 @@ try
     for (int frame = 0; frame < 120; frame++)
     {
         AudioRequest[] commands = frame == 0
-            ? [new AudioRequest.ChangeMusicDataSet(null),
-               new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Music[0].DataSet),
+            ? [new AudioRequest.InstallSharedSounds(),
+               new AudioRequest.ChangeMusicDataSet(AudioAssetCatalogDefinitions.Music[0].DataSet ?? throw new InvalidDataException("The music upload names no data set.")),
                AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.TitleSequence, AudioRomDataMusicTracks.Title))] : [];
         renderer.Render(new AudioFrameEvents(events.Advance(commands)), pcm);
         foreach (short sample in pcm) if (sample != 0) audible++;
@@ -89,11 +85,11 @@ try
     // checked on the copy, first with the import's current content and below with its receipt naming another format.
     using var romFree = new PrivateInstallationCopy(root);
     File.Delete(romFree.Installation.RomPath);
-    GameInstallation? romFreeContent = GameAssetInstaller.TryOpenExtractedContent(romFree.Root);
+    GameInstallation? romFreeContent = GameAssetInstaller.OpenOrRepair(romFree.Root);
+    Check(romFreeContent is not null,
+        "normal host startup accepts complete extracted content without a ROM copy");
     Check(romFreeContent is not null && romFreeContent.LoadAudioClips().Manifest.Music.Count > 0,
         "installed presentation assets remain usable without the private ROM copy");
-    Check(GameAssetInstaller.OpenOrRepair(romFree.Root) is not null,
-        "normal host startup accepts complete extracted content without a ROM copy");
     (romFreeContent ?? throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
         .RequireExtractedContent();
     using (var romFreeSession = new SuperMetroid.Diagnostics.Sessions.InstalledGameSession(romFree.Root))
@@ -129,7 +125,7 @@ try
         $"\"FormatVersion\":{GameInstallationLayout.FormatVersion - 1}", StringComparison.Ordinal);
     File.WriteAllText(receipt, outdatedReceipt);
     Check(File.ReadAllText(receipt) != currentReceipt, "the fixture names an outdated format in the receipt");
-    Check(GameAssetInstaller.TryOpenExtractedContent(root) is null,
+    Check(!GameAssetInstaller.HoldsCurrentExtractedContent(root),
         "content extracted for another format is not mistaken for current ROM-free content");
     File.WriteAllText(Path.Combine(romFree.Installation.ContentDirectory, GameInstallationLayout.ReceiptFileName), outdatedReceipt);
     Check(GameAssetInstaller.OpenOrRepair(romFree.Root) is null,

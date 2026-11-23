@@ -9,15 +9,14 @@ namespace SuperMetroid.Core.Compatibility;
 /// <remarks>
 /// Consulted once, when the Baby is set up in the first free enemy place on the update Mother Brain's final beam calls it.
 /// It owns no state of its own: the fractions are what the place's previous occupant left, which an enemy deleted without
-/// being killed leaves in its place, as <see cref="RemovedEnemyLeftovers{TStates}"/> describes for its species state, so it is
+/// being killed leaves in its place, as <see cref="RemovedEnemyLeftovers{TEnemy}"/> describes for its species state, so it is
 /// a rule over what the place holds rather than a store, as <see cref="BabyMetroidVictim"/> is for the Tourian Baby.
 /// Evidence: the enemy spawn routine and the cutscene Baby's setup write the arrival point's whole X and Y only, never
 /// the fractions, and a kill is the only thing that clears a place's fractions; the 100% movie loses the Baby's vertical
 /// fraction and with it the frame it reaches the brain on when the fractions are cleared (#1269), and the Baby's
 /// inherited-fractions check reproduces the start against the retail Mother Brain room.
 /// </remarks>
-[CompatibilityService("the Baby Metroid that rescues Samus starts its entrance from the fractions of a pixel the enemy last in its place left, which decide the update on which it reaches Mother Brain's brain")]
-public static class BabyMetroidArrivalFractions
+public static partial class BabyMetroidArrivalFractions
 {
     /// <summary>
     /// The position the Baby starts its entrance from: <paramref name="arrival"/>'s whole pixels with

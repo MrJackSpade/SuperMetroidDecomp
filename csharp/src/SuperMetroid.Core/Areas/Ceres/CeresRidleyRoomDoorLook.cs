@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Areas.Ceres;
 
-/// <summary>How the door of Ceres Ridley's room shows (#2545, #2573), which the door's animation changes.</summary>
+/// <summary>How a Ceres door shows (#2545, #2573), which only the animations of the door of Ceres Ridley's room change.</summary>
 internal enum CeresRidleyRoomDoorLook
 {
     /// <summary>The door shows its actor frames through the room's enemies, as every other door does.</summary>

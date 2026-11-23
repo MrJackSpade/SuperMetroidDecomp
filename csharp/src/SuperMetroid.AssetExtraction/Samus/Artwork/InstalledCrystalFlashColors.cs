@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Samus.Artwork;
 /// The installed Crystal Flash body and bubble colours, every frame of both kept as installed. Timers, frame cursors,
 /// and completion still belong to <see cref="SamusCrystalFlashState"/>.
 /// </summary>
-public sealed class InstalledCrystalFlashColors
+public sealed partial class InstalledCrystalFlashColors
 {
     /// <summary>Every installed body frame's colours, in playback order.</summary>
     private readonly RgbColor[][] body;
@@ -25,15 +25,15 @@ public sealed class InstalledCrystalFlashColors
     }
 
     /// <summary>Returns one installed body colour.</summary>
-    /// <param name="frame">Zero-based body record index, 0 through 9 in playback order.</param>
-    /// <param name="color">Zero-based color within the ten-color body portion, including transparent color zero.</param>
+    /// <param name="frame">Zero-based body record index in playback order, below <see cref="CrystalFlashColorFormat.BodyFrameCount"/>.</param>
+    /// <param name="color">Zero-based color within the body portion, including transparent color zero.</param>
     /// <returns>The installed colour.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the body dimensions.</exception>
     public RgbColor ResolveBody(int frame, int color) => Resolve(body, frame, color);
 
     /// <summary>Returns one installed bubble colour.</summary>
-    /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
-    /// <param name="color">Zero-based color within the six-color bubble portion, 0 through 5.</param>
+    /// <param name="frame">Zero-based bubble palette index, below <see cref="CrystalFlashColorFormat.BubbleFrameCount"/>.</param>
+    /// <param name="color">Zero-based color within the bubble portion.</param>
     /// <returns>The installed colour.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The frame or color index is outside the bubble dimensions.</exception>
     public RgbColor ResolveBubble(int frame, int color) => Resolve(bubble, frame, color);

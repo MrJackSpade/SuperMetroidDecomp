@@ -23,7 +23,6 @@ internal static class MenuScreenMemory
     /// The character image a menu shows from <paramref name="maps"/>: its world-map characters, which the menu's installed
     /// sheets are composed from (#1583), with the installation's map characters and sprite page; a copy the caller owns.
     /// </summary>
-    [WholeImageFixture("the menu's character image")]
     internal static byte[] Characters(InstalledScreenContent maps) =>
         (byte[])composedCharacters.GetValue(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.ImportOf(maps).WorldCharacters, ComposeCharacters).Clone();
 
@@ -31,7 +30,6 @@ internal static class MenuScreenMemory
     /// Composes the character image a menu showing <paramref name="worldCharacters"/> holds: its world characters with the
     /// installed map characters and sprite page.
     /// </summary>
-    [WholeImageFixture("the menu's character image")]
     private static byte[] ComposeCharacters(WorldMapCharacters worldCharacters)
     {
         var image = new SnesVram();
@@ -49,7 +47,6 @@ internal static class MenuScreenMemory
     /// cartridge's four menu screens (BG1, the area map's second screen, BG2, the area background) laid out from what it
     /// shows (#1467).
     /// </summary>
-    [WholeImageFixture("the menu's 64 KiB memory image")]
     internal static byte[] Compose(InstalledScreenContent maps, ReadOnlySpan<BackgroundTile> tilemaps)
     {
         byte[] image = Characters(maps);

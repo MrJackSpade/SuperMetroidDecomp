@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms.LevelData;
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
@@ -30,7 +31,7 @@ internal static class LookupStationLayoutsVerification
         string[] ids = ["map-dim","energy-dim","missile-dim","map-lit","energy-lit","missile-lit","map-bright","energy-bright","missile-bright","save-idle","save-lit","save-dark","map-right-retracted","map-right-extended","map-left-retracted","map-left-extended","resource-right-retracted","resource-right-extended","resource-left-retracted","resource-left-extended"];
         var exported = RoomObjectStationVisualFiles.All.ToArray();
         AssertEqual(20, exported.Length, "Station layout export count");
-        InstalledRoomObjectStationVisuals? pictures = field == 2 ? InstalledRoomObjectStationVisuals.Stock() : null;
+        InstalledRoomObjectPictures? pictures = field == 2 ? RoomObjectPicturesStock.Station : null;
         if (field == 0)
         {
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

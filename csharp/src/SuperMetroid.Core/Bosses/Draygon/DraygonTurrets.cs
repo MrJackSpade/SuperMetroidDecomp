@@ -8,8 +8,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The wall turrets' firing cadence during Draygon's fight.</summary>
-[RoomLifetime]
-internal sealed class DraygonTurrets
+internal sealed partial class DraygonTurrets
 {
     /// <summary>The loaded room's bindings: its game-state services, random source and the boss state that outlives the room.</summary>
     private readonly EnemyRoomBinding _room;
@@ -35,12 +34,12 @@ internal sealed class DraygonTurrets
         _shots = shots;
     }
 
-    /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
+    /// <summary>Fires a wall turret on the turrets' cadence, drawing a random number each time.</summary>
     internal void ObserveDraygonTurretCadence(
         SamusState samus,
         int frameCounter)
     {
-        if (!DraygonCadenceDefinitions.TurretTurnEverySixtyFourthUpdate.IsDue(frameCounter))
+        if (!DraygonCadenceDefinitions.TurretTurn.IsDue(frameCounter))
             return;
 
         // The turret cadence tests the frame counter, then advances the room RNG even when the
@@ -54,26 +53,21 @@ internal sealed class DraygonTurrets
         SamusState samus,
         int random)
     {
-        if (DraygonCannonData.FiringCannon.Choose(random) is not { } cannon || _disabledCannons.Contains(cannon))
+        if (DraygonCannonData.FiringCannon.Choose(random) is not DraygonTurretTurn.FiresFrom { Cannon: var cannon } ||
+            _disabledCannons.Contains(cannon))
             return;
 
-        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? turret = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.DraygonWallTurret, _shots.WallTurretShot, graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook), new DraygonProjectileAnimation(_shots.WallTurretShot, DraygonProjectileSegment.WallTurretBloom));
         if (turret is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            turret,
-            RoomEnemyProjectileKind.DraygonWallTurret,
-            _shots.WallTurretShot,
-            graphics: SpriteGraphics.SharedIn(EnemyShades.InProjectileLook));
-        turret.StartAnimation(new DraygonProjectileAnimation(DraygonProjectileSegment.WallTurretBloom));
         turret.Position = FixedPosition<RoomPixels>.FromWhole(DraygonCannonData.FiringOrigins[cannon]);
 
         // The shot flies along the direction from the turret to Samus at the wall turret's speed, its direction on
         // each axis taken from that direction every update.
         TrigonometryAngle flightAngle = EnemyMath.CalculateAimAngle(
             new(samus.Position.X.Whole - turret.Position.X.Whole, samus.Position.Y.Whole - turret.Position.Y.Whole));
-        DraygonParts.SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
+        DraygonParts.SetDraygonProjectileVelocity(_shots.WallTurretShot, turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
         // The shot holds still until its muzzle bloom reaches the step that sets it flying.
     }

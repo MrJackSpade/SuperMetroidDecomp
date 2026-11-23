@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Beam and missile impact sound requests, each queued as the impact happens.</summary>
-internal sealed class ProjectileImpactAudio
+internal sealed partial class ProjectileImpactAudio
 {
     /// <summary>Whose frame the impacts belong to; a cinematic's omits missile impact sounds.</summary>
     private ImpactAudioContext _frame;
@@ -22,6 +22,6 @@ internal sealed class ProjectileImpactAudio
     internal void RequestMissileImpactSound()
     {
         if (_frame != ImpactAudioContext.Cinematic)
-            Requests.QueueSound(EnemySound.MissileImpact, SoundRequestPriority.Normal);
+            Requests.QueueSound(EnemySound.WeaponExplosion, SoundRequestPriority.Normal);
     }
 }

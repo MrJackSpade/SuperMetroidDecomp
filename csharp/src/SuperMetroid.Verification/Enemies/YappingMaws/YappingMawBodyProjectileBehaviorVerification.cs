@@ -15,20 +15,20 @@ internal static class YappingMawBodyProjectileBehaviorVerification
     /// <summary>Each facing's initializer starts all four body links on that facing's program, matching the native list.</summary>
     internal static void VerifyYappingMawBodyProjectileBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, YappingMawBodyProjectileNativeListAddresses.Extent, "Yapping Maw body");
         foreach ((ushort facing, YappingMawBodyProjectileSegment program) in new VerifyYappingMawBodyProjectileBehaviorCase[]
                  { new VerifyYappingMawBodyProjectileBehaviorCase(0, YappingMawBodyProjectileSegment.FacingDown), new VerifyYappingMawBodyProjectileBehaviorCase(1, YappingMawBodyProjectileSegment.FacingUp) })
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace owner = enemies.Places.InUpdateOrder[0];
-            owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
-            owner.Bind(owner.DefinitionId, default(RoomEnemyDefinition));
+            owner.Bind(EnemyDefinitionId.YappingMaw, owner.KeptDefinition);
+            owner.Bind(owner.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             owner.SetSpawnParameter1(EnemyDefinitionId.YappingMaw, 128);
             owner.SetSpawnParameter2(EnemyDefinitionId.YappingMaw, facing);
             // A room places a Maw inside it, where its root, a few pixels away, lies inside the room too (#2449).
             owner.Position = owner.Position.WithWhole(new(128, 128));
-            enemies.YappingMawBehavior.InitializeYappingMaw(owner);
+            enemies.YappingMawBehavior.InitializeYappingMaw(owner.HeldOccupant(), owner.HeldOccupant().SpawnSettings<YappingMawSpawnSettings>(), owner);
             EnemyProjectile[] links = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Kind == RoomEnemyProjectileKind.YappingMawBody)];
             AssertEqual(4, links.Length, $"facing {facing} spawns four body links");
             foreach (EnemyProjectile link in links)

@@ -1,6 +1,6 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies.Projectiles;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -25,7 +25,7 @@ internal static class KraidCeilingRockPositionsVerification
     }
 
     /// <summary>Reads one bank-$A7 coordinate byte solely for the native oracle.</summary>
-    private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidCeilingRockCoordinatesRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Confirms each ceiling spawn advances to the next rock and pairs its native X coordinate with the PLM mutation while source-table reads are forbidden.</summary>
     internal static void VerifyKraidCeilingRockPositions(CartridgeImportAddressSpace rom)
@@ -33,9 +33,10 @@ internal static class KraidCeilingRockPositionsVerification
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => LittleEndianBytes.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        KraidEnemyState state = enemies.KraidBehavior.BeginEncounterInRoomOrder(enemies.Places);
+        KraidEnemyState state = KraidPartsFixtures.PlaceKraid(enemies);
         enemies.VerificationServices().ReadRandom = () => 63;
-        Action<RoomEnemyPlace, KraidEnemyState> step = enemies.KraidBehavior.Rise.RunKraidGrowthPhase;
+        // Each growth update is his body's main AI, as the enemy pass runs it, in one frame of an open room.
+        IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
         var body = enemies.Places.InUpdateOrder[0];
         body.FrameCounter = 1; // Isolate the ceiling placement from the independent rising-rock cadence.
         // Every height his rising body passes through as it breaks the ceiling, and on past his room's two screens (#2299).
@@ -47,7 +48,7 @@ internal static class KraidCeilingRockPositionsVerification
             body.Position = body.Position.WithWhole(new(128, (ushort)raw));
             state.BodyState.NextCeilingRock = ListStep<KraidCeilingRock>.At(KraidCeilingRockDefinitions.Rocks, index);
             state.BodyState.GrowthPhase = KraidGrowthPhase.BreakCeilingPlatforms;
-            step(body, state);
+            body.RunMainAi(frame);
             int y = raw - 1;
             bool spawn = (y & 3) == 0;
             AssertEqual(y, body.Position.Y.Whole, "Ceiling break moves before cadence test");
@@ -56,7 +57,7 @@ internal static class KraidCeilingRockPositionsVerification
             AssertEqual(index + (spawn ? 1 : 0), state.BodyState.NextCeilingRock?.Place ?? KraidCeilingRockDefinitions.Rocks.Count,
                 "Ceiling rock advances only on emission");
             if (!spawn) continue;
-            var rock = enemies.Projectiles.ProjectileInPlace(17);
+            var rock = enemies.Projectiles.SpawnedInPlace(17);
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + index * 2), rock.Position.X.Whole, "Native ceiling X reaches actual projectile");
             AssertEqual((ushort)312, rock.Position.Y.Whole, "Ceiling projectile origin Y");
             AssertEqual((ushort)127, rock.Velocity.Y.RawValue, "Ceiling projectile retains current RNG velocity");
@@ -66,6 +67,6 @@ internal static class KraidCeilingRockPositionsVerification
     }
 
     /// <summary>Reads a retail placement byte for the production-spawn comparison.</summary>
-    private static byte KraidCeilingRockPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidCeilingRockPositionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

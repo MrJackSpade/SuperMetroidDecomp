@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// How the self-destruct warning after Ceres Ridley's getaway waits to show, holds its title and waits for its subtitle
 /// (#2232, #2368, #2469).
 /// </summary>
-internal static class CeresSelfDestructWarningDefinitions
+internal static partial class CeresSelfDestructWarningDefinitions
 {
     /// <summary>
     /// The updates from the getaway's end to the escape timer and warning showing, the first being the update the getaway

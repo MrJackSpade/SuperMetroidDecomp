@@ -7,11 +7,23 @@ internal static class SoundEffectPortBytes
     internal const byte MusicLoadPortByte = 187;
 
     /// <summary>
-    /// The byte the original sound program's port held for <paramref name="acknowledgement"/>: the acknowledged sound's
-    /// request number, zero for nothing, or <see cref="MusicLoadPortByte"/> while music loads. Recordings of the
-    /// original's ports are compared through it.
+    /// The byte the original sound program's port for <paramref name="library"/> held for <paramref name="acknowledgement"/>:
+    /// the number of the library's request it acknowledges, zero for nothing, or <see cref="MusicLoadPortByte"/> while
+    /// music loads. Recordings of the original's ports are compared through it.
     /// </summary>
-    internal static byte PortByte(SoundAcknowledgement<SoundEffectId> acknowledgement) =>
-        acknowledgement.IsMusicLoading ? MusicLoadPortByte
-            : acknowledgement.Sound is SoundEffectId sound ? checked((byte)SoundEffectCommands.Command(sound)) : (byte)0;
+    /// <exception cref="InvalidDataException">The acknowledgement acknowledges none of the library's requests.</exception>
+    internal static byte PortByte(SoundEffectLibrary library, SoundAcknowledgement<SoundEffectId> acknowledgement)
+    {
+        if (acknowledgement.Equals(SoundAcknowledgement<SoundEffectId>.MusicLoading))
+            return MusicLoadPortByte;
+        if (acknowledgement.IsNone)
+            return 0;
+        for (int command = 1; command <= byte.MaxValue; command++)
+        {
+            if (SoundEffectCommands.Names(library, command)
+                && acknowledgement.Acknowledges(new RequestedSound<SoundEffectId>(SoundEffectCommands.Decode(library, command))))
+                return (byte)command;
+        }
+        throw new InvalidDataException($"{library} acknowledges {acknowledgement}, none of its requests.");
+    }
 }

@@ -25,7 +25,7 @@ internal static class HalfWaveAlgorithmsVerification
     }
 
     /// <summary>Reads the original byte sine table only for this retail oracle check.</summary>
-    private static byte CoarseHalfWaveRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CoarseHalfWaveRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks all 128 unsigned word samples, precise rounding bounds, and invalid indices.</summary>
     internal static void VerifyUnsignedHalfWaveAlgorithm(CartridgeImportAddressSpace rom)
@@ -47,5 +47,5 @@ internal static class HalfWaveAlgorithmsVerification
     }
 
     /// <summary>Reads bytes of the original unsigned sine table for this retail oracle check.</summary>
-    private static byte UnsignedHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte UnsignedHalfWaveAlgorithmRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

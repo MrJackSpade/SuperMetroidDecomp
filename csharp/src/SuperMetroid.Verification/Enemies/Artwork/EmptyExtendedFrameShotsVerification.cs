@@ -28,10 +28,10 @@ internal static class EmptyExtendedFrameShotsVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MiniKraid);
-        RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == EnemyDefinitionId.PirateGreenWalking);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        RoomEnemyPlace pirate = runtime.Enemies.Places.InUpdateOrder.First(place => place.Holds(EnemyDefinitionId.PirateGreenWalking));
+        SamusState samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
 
         // Native update 37306: the pirate at ($1F4,$A0) on $804F, the charged beam at ($1F2,$A3).
@@ -39,17 +39,17 @@ internal static class EmptyExtendedFrameShotsVerification
         pirate.SpritemapPointer = CommonEnemyEmptyFrameToolingDefinitionsConstants.Frame;
         pirate.AnimationClock.HoldFor(0x7fff);
         int health = pirate.Health;
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectile shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true); shot.Damage = 60; shot.Direction = SamusProjectileDirection.Left;
-        shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
-        shot.Radius = new(8, 8);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
-        bool hit = runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            pirate, Position16<RoomPixels>.Zero);
+        shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Power, charged: true), 60); shot.HeldShot().Direction = SamusProjectileDirection.Left;
+        shot.HeldShot().Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
+        shot.HeldShot().Radius = new(8, 8);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
+            pirate.HeldOccupant(), Position16<RoomPixels>.Zero);
 
-        AssertTrue(!hit, "the empty extended frame takes no projectile hit");
+        AssertTrue(!shot.IsSpent, "the empty extended frame takes no projectile hit: the beam flies on");
         AssertEqual(health, pirate.Health, "the beam over the empty frame deals no damage");
         Console.WriteLine("  Empty extended frame: a beam over $804F leaves the pirate untouched.");
     }

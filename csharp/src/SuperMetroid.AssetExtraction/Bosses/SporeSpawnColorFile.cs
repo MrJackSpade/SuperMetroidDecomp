@@ -7,7 +7,7 @@ using SuperMetroid.AssetExtraction.Bosses.SporeSpawn.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses;
 
 /// <summary>Reads and writes the installed Spore Spawn colour document.</summary>
-public static class SporeSpawnColorFile
+public static partial class SporeSpawnColorFile
 {
     /// <summary>Loads version-1 <c>spore-spawn-colors.json</c>, validating exact palette-row dimensions and RGB5 channels from 0 through 31 while keeping health thresholds and death timing in boss code.</summary>
     /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -21,7 +21,8 @@ public static class SporeSpawnColorFile
             throw new InvalidDataException("Spore Spawn colors require the supported version.");
         return new(
             Compile(document.Spores, "spores"),
-            CompileFrames(document.Health, SporeSpawnColorFormat.HealthFrameCount, "health"),
+            Rgb5Rows.CompileKeyed(document.Health, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst,
+                band => band.Key, SporeSpawnColorFormat.ColorsPerFrame, "Spore Spawn health band"),
             CompileFrames(document.DeathSprite, SporeSpawnColorFormat.DeathSpriteFrameCount,
                 "death sprite"),
             CompileFrames(document.DeathLevel, SporeSpawnColorFormat.DeathSceneFrameCount,
@@ -32,7 +33,7 @@ public static class SporeSpawnColorFile
 
     /// <summary>Serializes the editable palette document as indented camel-case UTF-8 JSON.</summary>
     public static byte[] Write(SporeSpawnColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Bosses.SporeSpawnColorDocument>(ArtworkJson.Options));
 
     /// <summary>Requires the native number of ordered palette phases and compiles each sixteen-ink RGB5 row.</summary>
     private static RgbColor[][] CompileFrames(PaletteRgb5[][]? source, int count, string name)

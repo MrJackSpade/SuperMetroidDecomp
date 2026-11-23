@@ -1,13 +1,10 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Samus's pose transitions: grounded, aerial, posture and morph-ball changes, turn and wall-jump handling, and the collision checks a larger new pose must pass, applied to the Samus state it owns.</summary>
-internal static class SamusPoseTransitions
+internal static partial class SamusPoseTransitions
 {
     /// <summary>
     /// Installs the ordinary or aimed falling pose selected by the walk-off transition when a
@@ -16,25 +13,12 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static void ApplyWalkedOffFloorTransition(
         SamusState samus,
-        RoomLevelData level,
-        SamusPoseId targetPose,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        int frameCounter)
     {
-        Ensure.NotNull(level);
-        // A walk-off is chosen from the pose that moved, while this check reads the live pose. Beyond the walk-off
-        // sources it also accepts the moonwalk turn jumps, the grounded turn between a moonwalk and its jump.
-        bool supportedSource =
-            SamusPoseMetadata.WalksOffFloor(samus.Pose) ||
-            SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose);
-        SamusPoseId expectedTarget = SelectFallingPoseForCurrentAim(samus);
-        if (!supportedSource || targetPose != expectedTarget)
-        {
-            // The target comes from this pose's metadata immediately
-            // before this runs. A mismatch is an inconsistent request, not missing logic.
-            throw new InvalidOperationException(
-                $"Walk-off transition {samus.Pose} -> {targetPose} does not match the pose's falling target {expectedTarget}.");
-        }
+        Ensure.NotNull(terrain);
+        // The fall is the one her current aim selects.
+        SamusPoseId targetPose = SelectFallingPoseForCurrentAim(samus);
 
         // A crouched or compact source can grow when falling is selected. The game's
         // pose setup runs the same pose-expansion collision as an input-driven transition,
@@ -42,7 +26,7 @@ internal static class SamusPoseTransitions
         // floor after a near-ground unmorph. Rejection also skips starting the fall.
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level, targetPose, frameCounter, roomObjects, out int centerAdjustment);
+            terrain, targetPose, frameCounter, out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -55,11 +39,10 @@ internal static class SamusPoseTransitions
         // Flash can do exactly that; unconditional reset shortens its return arc.
         if (!samus.Kinematics.VerticalVelocity.IsRising)
         {
-            samus.MorphBallBounceState = SamusBallBounceState.None;
+            samus.MorphBallBounceState = null;
             samus.Kinematics.VerticalVelocity = SamusVerticalVelocity.FallFromRest;
         }
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-        samus.Pose = targetPose;
         // The input phase publishes the falling radius next frame; pose commit retains the
         // radius used by this frame's grounded movement and collision probes.
         // The pose refresh runs the new falling movement type through the falling setup
@@ -67,13 +50,13 @@ internal static class SamusPoseTransitions
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement behaviour consumes it.
         SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
-        SamusPresentation.InitializeAnimation(samus);
+        samus.ChangePose(targetPose);
     }
 
     /// <summary>
     /// Runs the facing lookup used by the walk-off transition for a grounded walk-off.
     /// </summary>
-    public static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
+    private static SamusPoseId SelectFallingPoseForCurrentAim(SamusState samus)
     {
         // The falling pose selection indexes its pair with the pose's facing, not the muzzle direction.
         // Moonwalk's visual facing opposes this physics facing; aim input is reconsidered
@@ -86,66 +69,70 @@ internal static class SamusPoseTransitions
     /// is known to have room for the destination pose, followed by grounded collision cleanup.
     /// </summary>
     /// <remarks>
-    /// Playable room code must call <see cref="SamusPoseTransitions.TryApplyAerialLanding"/> instead. The game
-    /// sends every prospective landing pose through the changed-pose collision; omitting
-    /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
-    /// point is for cinematic movement only.
+    /// Playable room code calls <see cref="SamusPoseTransitions.ApplyAerialLandingInRoom"/> instead, which tests every
+    /// landing pose against the changed-pose collision, so the much taller landing body never overlaps a low ceiling.
+    /// This roomless form is for cinematic movement only.
     /// </remarks>
+    /// <param name="samus">Samus, landing.</param>
+    /// <param name="sourceAim">The aim the pose she lands from holds.</param>
+    /// <param name="wasSpinning">Whether she lands from a spin.</param>
+    /// <param name="controllerInput">The actions held as she lands.</param>
     public static void ApplyAerialLanding(
         SamusState samus,
+        SamusPoseAim.ISteady sourceAim,
         bool wasSpinning,
         GameplayAction controllerInput)
     {
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
-        SamusPoseId targetPose = SelectAerialLandingPose(samus, wasSpinning, controllerInput);
+        SamusPoseId targetPose = SelectAerialLandingPose(samus, sourceAim, wasSpinning, controllerInput);
 
         int oldRadius = samus.Kinematics.Radius.Y;
-        samus.Pose = targetPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (samus.Kinematics.Radius.Y > oldRadius)
+        int targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
+        if (targetRadius > oldRadius)
         {
-            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, samus.Kinematics.Radius.Y - oldRadius);
+            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, targetRadius - oldRadius);
         }
 
         SettleAcceptedLanding(samus, leavingScrewAttack);
-        SamusPresentation.InitializeAnimation(samus, StandingPoseInitialFrame(sourcePose, targetPose));
+        samus.ChangePose(targetPose, StandingPoseInitialFrame(sourcePose, targetPose));
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
     }
 
     /// <summary>
     /// Applies a normal or spinning landing through the game's shared prospective-pose
     /// collision response before committing the taller landing body.
     /// </summary>
-    /// <returns>
-    /// True when the selected landing pose fit. False means the game's collision retained the
-    /// source pose or selected its stable-crouch fallback; the game then does not settle Samus on the landing.
-    /// </returns>
-    public static bool TryApplyAerialLanding(
+    /// <param name="samus">Samus, landing.</param>
+    /// <param name="sourceAim">The aim the pose she lands from holds.</param>
+    /// <param name="terrain">The terrain Samus meets: its level and, in a room, the room objects its reacting blocks reach.</param>
+    /// <param name="wasSpinning">Whether she lands from a spin.</param>
+    /// <param name="controllerInput">The actions held as she lands.</param>
+    /// <param name="frameCounter">The frame counter the collision reads.</param>
+    public static void ApplyAerialLandingInRoom(
         SamusState samus,
-        RoomLevelData level,
+        SamusPoseAim.ISteady sourceAim,
+        SamusTerrain terrain,
         bool wasSpinning,
         GameplayAction controllerInput,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        int frameCounter)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
 
         SamusPoseId sourcePose = samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
-        SamusPoseId targetPose = SelectAerialLandingPose(samus, wasSpinning, controllerInput);
+        SamusPoseId targetPose = SelectAerialLandingPose(samus, sourceAim, wasSpinning, controllerInput);
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
-            samus.Pose = targetPose;
             // Correct the center now, but retain the movement frame's live radius
             // until the input phase, including when landing on a frozen enemy.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-            SamusPresentation.InitializeAnimation(samus, StandingPoseInitialFrame(sourcePose, targetPose));
+            samus.ChangePose(targetPose, StandingPoseInitialFrame(sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -163,12 +150,11 @@ internal static class SamusPoseTransitions
         else if (leavingScrewAttack)
             // Shade restoration belongs to the pose change, before the blocked-collision gate on settling.
             samus.HorizontalSpeed.ShowSuitShadeAtColourStep();
-        return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>
-    /// Keeps the gun raised on frame one when both standing poses aim straight up;
-    /// other standing transitions begin at frame zero.
+    /// Keeps the gun raised on the frame after the start when both standing poses aim straight up;
+    /// other standing transitions begin at the start.
     /// </summary>
     internal static SamusAnimationFrame StandingPoseInitialFrame(SamusPoseId sourcePose, SamusPoseId targetPose)
     {
@@ -184,6 +170,7 @@ internal static class SamusPoseTransitions
     /// <summary>Chooses the landing transition's prospective landing pose.</summary>
     private static SamusPoseId SelectAerialLandingPose(
         SamusState samus,
+        SamusPoseAim.ISteady sourceAim,
         bool wasSpinning,
         GameplayAction controllerInput)
     {
@@ -195,23 +182,9 @@ internal static class SamusPoseTransitions
                 : SamusPoseId.SpinLandingRightPose;
         }
 
-        // A pose that disables shooting lands through the ordinary facing pair before her
-        // aim chooses a landing; hurt and damage-boost art disable shooting.
-        // Horizontal aims take the landing's extra Shot-binding test. Held Shot selects the
-        // firing landing; released Shot selects the ordinary normal landing pair. The six
-        // admitted aimed directions select the aimed landings.
-        SamusPoseAim aim = SamusPoseMetadata.ReadAim(samus);
-        if (aim.DisablesShooting)
-            return facingLeft ? SamusPoseId.NormalLandingLeftPose : SamusPoseId.NormalLandingRightPose;
-        bool shotHeld = (controllerInput & GameplayAction.Shoot) != GameplayAction.None;
-        // The straight-down aims are consumed by TryApplyCompactAerialLanding, because the 10 -> 21 expansion needs room
-        // collision data.
-        SamusLandingChoice landing = aim is SamusPoseAim.Aiming { Direction: var direction } &&
-            SamusAimedPoseChoiceDefinitions.Landings.TryGetValue(direction, out SamusLandingChoice? choice)
-            ? choice
-            : throw new InvalidOperationException(
-                $"Landing from aim {aim} requires the collision-aware compact landing operation.");
-        return shotHeld ? landing.ShootHeld : landing.ShootReleased;
+        // A pose that disables shooting lands through the ordinary facing pair before her aim chooses a landing; hurt and
+        // damage-boost art disable shooting. An aiming pose lands keeping its aim, a level aim with held Shot firing.
+        return sourceAim.Landing(facingLeft ? HorizontalDirection.Left : HorizontalDirection.Right, (controllerInput & GameplayAction.Shoot) != GameplayAction.None);
     }
 
     /// <summary>
@@ -235,39 +208,34 @@ internal static class SamusPoseTransitions
     }
 
     /// <summary>
-    /// Applies the landing for her two straight-down aims when radius-ten straight-down Samus lands.
-    /// Both select the ordinary normal landing; the expansion from radius ten to 21 still runs the full
+    /// Applies the landing for her two straight-down aims when compact straight-down Samus lands.
+    /// Both select the ordinary normal landing; the expansion from the compact radius to the standing one still runs the full
     /// block pose-change collision resolver; settling the landing clears motion only if accepted.
     /// </summary>
-    public static bool TryApplyCompactAerialLanding(
+    public static void ApplyCompactAerialLanding(
         SamusState samus,
-        RoomLevelData level,
-        int frameCounter,
-        ISamusRoomObjects roomObjects)
+        SamusTerrain terrain,
+        int frameCounter)
     {
-        Ensure.NotNull(level);
-        if (!SamusPoseMetadata.IsCompactAerialPose(samus.Pose))
-            throw new InvalidOperationException($"Compact landing requires a compact straight-down jumping or falling pose, not {samus.Pose}.");
+        Ensure.NotNull(terrain);
 
+        // A compact pose aims straight down the way it faces, and lands in the normal landing facing that way.
         SamusPoseId sourcePose = samus.Pose;
-        SamusProjectileDirection? aim = SamusPoseMetadata.ReadAimDirection(samus);
-        SamusPoseId targetPose = aim == SamusProjectileDirection.DownFacingRight ? SamusPoseId.NormalLandingRightPose
-            : aim == SamusProjectileDirection.DownFacingLeft ? SamusPoseId.NormalLandingLeftPose
-            : throw new InvalidOperationException($"Compact pose {samus.Pose} has unexpected aim {SamusPoseMetadata.ReadAim(samus)}.");
+        SamusPoseId targetPose = SamusPoseMetadata.IsFacingLeft(samus.Pose)
+            ? SamusPoseId.NormalLandingLeftPose
+            : SamusPoseId.NormalLandingRightPose;
         LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
-            level,
+            terrain,
             targetPose,
             frameCounter,
-            roomObjects,
             out int centerAdjustment);
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
-            samus.Pose = targetPose;
             // The collision radius stays the compact body's: this frame's enemy and
             // projectile collision still use it, and the input phase's radius update takes the
             // landing body only next frame, as for an ordinary landing.
             samus.Kinematics.Position += new Offset16<RoomPixels>(0, centerAdjustment);
-            SamusPresentation.InitializeAnimation(samus);
+            samus.ChangePose(targetPose);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -278,7 +246,6 @@ internal static class SamusPoseTransitions
         // A collision-selected crouch is not allowed to clear velocity or arm autojump.
         if (collision == LargerPoseCollisionOutcome.Allowed)
             SettleAcceptedLanding(samus, leavingScrewAttack: false);
-        return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
     /// <summary>
@@ -290,21 +257,13 @@ internal static class SamusPoseTransitions
         if (samus.CuePose.Named is not SamusPoseId targetPose)
             return false;
 
-        // The game's pose initialization computes its own local delay without replacing
-        // the extra animation delay this frame's liquid step published. The pose-transition cue adds that
-        // delay once more after installing the new animation.
+        // Her pose's setup works out its own delay and keeps the extra animation delay this update's liquid step
+        // published; the pose-transition cue adds that delay once more after the new animation starts.
         int cueExtraAnimationDelay = samus.ExtraAnimationDelay;
 
-        // Only a pose-transition cue of the current pose's own animation leaves a pose pending; anything else means the
-        // request named a target that was not read from that animation.
-        if (!SamusAnimationDelays.AnimationForPose(samus.Pose).Segments.Any(segment => segment.End is { } end && end.PublishedPoses.Contains(targetPose)))
-        {
-            throw new InvalidOperationException(
-                $"Animation transition {samus.Pose} -> {targetPose} is no pose-transition cue of the pose's animation.");
-        }
-
-        bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnJumpPose(samus.Pose) &&
-            targetPose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose;
+        // Only a pose-transition cue of the current pose's own animation leaves a pose pending.
+        bool startsMoonwalkJump = SamusPoseMetadata.IsMoonwalkTurnToSpinJumpPose(samus.Pose) &&
+            SamusPoseTraits.IsIn(targetPose, SamusPoseFamily.GenericSpinJump);
         SamusPoseId sourcePose = samus.Pose;
         SamusMovementType previousMovementType = SamusPoseMetadata.ReadMovementType(sourcePose);
 
@@ -321,7 +280,7 @@ internal static class SamusPoseTransitions
             // through movement-type initialization, so equipment substitution occurs here
             // just as it does for an input-transition jump from ordinary running.
             SamusPoseId installedPose = startsMoonwalkJump
-                ? SamusAerialPoseTransitions.SelectEquippedSpinPose(samus, targetPose)
+                ? SamusAerialPoseTransitions.SelectEquippedSpinPose(samus, SamusPoseMetadata.ReadFacingDirection(targetPose))
                 : targetPose;
             // Animation-owned pose changes still run the target movement setup.
             // In particular an aerial turn must stop decelerating in the old direction
@@ -329,7 +288,7 @@ internal static class SamusPoseTransitions
             // the turn finish before base speed reached zero. Do not clear that speed.
             if (SamusPoseMetadata.ReadMovementType(installedPose) is SamusMovementType.NormalJumping or SamusMovementType.Falling)
                 SamusAerialPoseTransitions.InitializeOrdinaryAerialAcceleration(samus);
-            SamusGroundedPoseTransitions.ApplySimpleGroundedPoseChange(samus, sourcePose, installedPose, "Pose-transition cue",
+            SamusGroundedPoseTransitions.ApplySimpleGroundedPoseChange(samus, installedPose,
                 refreshRadius: !SamusPoseMetadata.IsAerialTurnPose(sourcePose));
         }
         if (SamusPoseMetadata.IsDrainedPose(sourcePose))
@@ -342,7 +301,7 @@ internal static class SamusPoseTransitions
         // The pose-transition cue does not run the jump setups. An input
         // transition out of the same turn art DOES initialize jump velocity; keeping
         // those two routes distinct preserves both ordinary jumping and Moonfall.
-        samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.MorphBallBounceState = null;
         samus.AnimationFrameTimer = samus.AnimationFrameTimer.AddFrames(cueExtraAnimationDelay);
         return true;
     }

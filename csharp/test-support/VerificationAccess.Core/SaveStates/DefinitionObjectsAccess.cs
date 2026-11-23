@@ -7,13 +7,6 @@ internal static class DefinitionObjectsAccess
     extension(DefinitionObjects self)
     {
         /// <summary>Every catalog of the game's static members, in their prefixes' ordinal order, none indexed until needed.</summary>
-        internal IReadOnlyList<DefinitionCatalog> Catalogs
-        {
-            get
-            {
-                lock (self.gate)
-                    return self.Declared.Catalogs;
-            }
-        }
+        internal IReadOnlyList<DefinitionCatalog> Catalogs => self.AllCatalogs();
     }
 }

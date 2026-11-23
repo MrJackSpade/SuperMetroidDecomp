@@ -42,9 +42,9 @@ internal static class DoorEntryRoomFxSoundVerification
         var random = new SharedRandom();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false, random: random);
         var runtime = LoadRisingTide(entry, random, game.AudioForVerification);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
         game.Session.Enter(SuperMetroidGameState.MainGameplay);
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(DoorDefinition door, SharedRandom random, AudioQueues? audio)
@@ -52,9 +52,9 @@ internal static class DoorEntryRoomFxSoundVerification
             var loaded = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: audio);
             loaded.HudSetup.InitializeHud(HudSnapshot.NewGame);
             loaded.RoomLoader.InitializeStartingCeresRoom();
-            loaded.RoomLoader.InitializeCeresStartSamus();
+            loaded.RoomLoader.InitializeCeresStartSamus(loaded.Room.LoadedScope);
             loaded.LoadCartridgeRoomThroughDoorForVerification(door);
-            loaded.Player.IntroducedSamus.Control.LockOutPlayer();
+            loaded.Player.Samus.Control.LockOutPlayer();
             return loaded;
         }
 
@@ -76,16 +76,17 @@ internal static class DoorEntryRoomFxSoundVerification
         AssertTrue(selected, "Rising Tide has an exit");
         var audio = game.AudioForVerification;
         SoundRequestsMark start = audio.MarkSoundRequestsForVerification(SoundEffectLibrary.Enemies);
-        game.Session.Enter(DoorTransitionStep.EnteringDoor);
+        // The game enters the transition through the door Samus's collision entered, as it does when she reaches it.
+        game.Session.EnterDoor(runtime.EnteredDoor ?? throw new InvalidOperationException("Samus's collision entered no door."));
         game.Step(0);
 
-        AssertEqual(DoorTransitionPhase.WaitForSoundQueues, game.DoorTransitionPhaseForVerification,
+        AssertEqual(new DoorTransitionPhase.Running.WaitForSoundQueues(), game.DoorTransitionPhaseForVerification,
             "the entry frame begins the door sound wait");
         IReadOnlyList<SoundEffectId> queued = audio.SoundsQueuedSinceForVerification(start);
         AssertTrue(queued.Count >= 2, "the entry frame queues at least the rumble and the door's cancel");
         AssertEqual<SoundEffectId>(EnemySound.Lavaquake, queued[0],
             "the HDMA pass's rumble is queued first");
-        AssertEqual<SoundEffectId>(EnemySound.Silence, queued[1],
+        AssertEqual<SoundEffectId>(EnemySoundStop.Any, queued[1],
             "the door's library-two cancel follows it");
         Console.WriteLine("Door entry room-FX sound: the entry frame's rumble precedes the door's cancel and DisableSounds.");
     }

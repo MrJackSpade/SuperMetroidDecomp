@@ -64,7 +64,7 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads a native callback byte for the independent PLM argument oracle.</summary>
-    private static byte KraidSinkObjectFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidSinkObjectFieldRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Exercises each production callback and checks its rock X and PLM request count.</summary>
     private static void VerifyKraidSinkRockPlacement(CartridgeImportAddressSpace rom,
@@ -82,16 +82,16 @@ internal static class KraidSinkScheduleVerification
             int code = 0xa70000 | entry.Value;
             bool empty = KraidSinkRockPlacementRomByte(rom, code) == 0x60;
             AssertEqual(empty ? 0 : 1, enemies.LastEnemyFrame.All<KraidRoomChange>().Count(), "Sinking callback mutation count");
-            AssertEqual(empty ? 0 : 1, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None),
+            AssertEqual(empty ? 0 : 1, enemies.Projectiles.EnemyProjectiles.Count(),
                 "Sinking callback rock count");
             if (empty) continue;
             ushort expectedX = LittleEndianBytes.Word(KraidSinkRockPlacementRomByte(rom, code + 1), KraidSinkRockPlacementRomByte(rom, code + 2));
-            AssertEqual(expectedX, enemies.Projectiles.ProjectileInPlace(17).Position.X.Whole, "Production sinking rock matches native immediate");
+            AssertEqual(expectedX, enemies.Projectiles.SpawnedInPlace(17).Position.X.Whole, "Production sinking rock matches native immediate");
         }
     }
 
     /// <summary>Reads a native rock-placement immediate for comparison with the spawned projectile.</summary>
-    private static byte KraidSinkRockPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidSinkRockPlacementRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks native schedule rows and optionally runs all 65,536 body Y values through production sinking behavior.</summary>
     internal static void VerifyKraidSinkSchedule(CartridgeImportAddressSpace rom, bool definitionsOnly = false)
@@ -127,7 +127,7 @@ internal static class KraidSinkScheduleVerification
             step(body);
             bool crumble = expected.HasValue && KraidNativeListAddresses.NativeSinkCallbacks[callback] is not null;
             AssertEqual(crumble ? 1 : 0, enemies.LastEnemyFrame.All<KraidRoomChange>().Count(), "Only native crumble callbacks mutate platforms");
-            AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
+            AssertEqual(crumble ? 1 : 0, enemies.Projectiles.EnemyProjectiles.Count(), "Exact native rock count");
             if (!crumble) continue;
             int code = 0xa70000 | callback;
             AssertEqual(new Position16<RoomBlocks>(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), enemies.LastEnemyFrame.All<KraidRoomChange>().First().Request.Block, "Native callback inline PLM block");
@@ -137,6 +137,6 @@ internal static class KraidSinkScheduleVerification
     }
 
     /// <summary>Reads the bank-$A7 schedule and inline callback data for the cartridge oracle.</summary>
-    private static byte KraidSinkScheduleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte KraidSinkScheduleRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

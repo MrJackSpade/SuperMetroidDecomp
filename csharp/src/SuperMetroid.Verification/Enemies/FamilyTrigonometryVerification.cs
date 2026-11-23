@@ -31,7 +31,7 @@ internal static class FamilyTrigonometryVerification
     }
 
     /// <summary>Reads a native sine-table byte for the signed-sample oracle.</summary>
-    private static byte FineSignedSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte FineSignedSineDefinitionsRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks boundary-word Maw products, Bull movement, and linked Shaktool segment placement without runtime ROM reads.</summary>
     internal static void VerifyCompiledFamilyTrigonometry(CartridgeImportAddressSpace rom)
@@ -88,7 +88,7 @@ internal static class FamilyTrigonometryVerification
         {
             uint initial = bullOrigins[heading / 256];
             int angle = heading % 256;
-            var bull = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+            var bull = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>());
             var bullState = new BullEnemyState(previous: null, BullAction.MovementDelay);
             for (int speed = 0; speed <= 2880; speed++)
             {
@@ -117,23 +117,25 @@ internal static class FamilyTrigonometryVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
             var previous = enemies.Places.InUpdateOrder[0];
             var segment = enemies.Places.InUpdateOrder[1];
-            previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
+            previous.Bind(EnemyDefinitionId.Shaktool, previous.KeptDefinition);
             // The leading saw starts the chain the second segment joins (#2452); the second segment finds the saw it
             // orbits as production places it, right after the saw.
             previous.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 0);
-            enemies.ShaktoolBehavior.InitializeShaktool(previous);
-            segment.Bind(EnemyDefinitionId.Shaktool, segment.Definition);
+            segment.Bind(EnemyDefinitionId.Shaktool, segment.KeptDefinition);
             segment.SetSpawnParameter2(EnemyDefinitionId.Shaktool, 2);
-            enemies.ShaktoolBehavior.InitializeShaktool(segment);
-            var segmentState = new ShaktoolSegmentState();
-            Action<RoomEnemyPlace, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
+            // Both are set up in the chain the check holds (ShaktoolChainHolding), which steers the second's orbit while its
+            // own entity runs its main AI, placing it on its orbit around the saw before it; with no angular speed of its own
+            // its orbit then stays where it was.
+            ShaktoolSegmentState segmentState = enemies.HoldShaktoolChain().Segments[1].State;
+            segmentState.AngularVelocity = RotationAngle.Zero;
+            IEnemyAiFrame frame = PlacedEnemyAccess.AiFrame(RoomEnemyFrameFixtures.StandaloneSamus());
             int firstAngle = block * AnglesPerBlock;
             foreach (uint initial in origins)
             for (int angle = firstAngle; angle < firstAngle + AnglesPerBlock; angle++)
             {
                 previous.Position = new(SixteenSixteenWords.ToCoordinate(initial), SixteenSixteenWords.ToCoordinate(initial));
                 segmentState.OrbitAngle = RotationAngleConstants.FromRaw((ushort)angle);
-                place(segment, segmentState);
+                segment.RunMainAi(frame);
                 uint expectedX = unchecked(initial + (uint)EightEightOracle.ToSixteenSixteen(orbit[RotationAngleConstants.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue + 64]));
                 uint expectedY = unchecked(initial + (uint)EightEightOracle.ToSixteenSixteen(orbit[RotationAngleConstants.FromRaw(unchecked((ushort)angle)).ToTrigonometryAngle().RawValue]));
                 if (segment.Position.X != SixteenSixteenWords.ToCoordinate(expectedX) ||
@@ -146,5 +148,5 @@ internal static class FamilyTrigonometryVerification
     }
 
     /// <summary>Reads a retail trigonometry byte for the independent family-math reference arrays.</summary>
-    private static byte CompiledFamilyTrigonometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    private static byte CompiledFamilyTrigonometryRomByte(CartridgeImportAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

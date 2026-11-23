@@ -22,7 +22,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// <see cref="SpawnedObjectOwner.Shared"/> sheet; and the pieces of Mother Brain's tank glass at the characters they
 /// draw from, as the <see cref="SpawnedObjectOwner.MotherBrainTankGlass"/> sheet.
 /// </summary>
-internal static class SpawnedObjectSheetComposer
+internal static partial class SpawnedObjectSheetComposer
 {
     /// <summary>The elevator arrival's poses in the order the shared sheet holds them (#2567), each listed once.</summary>
     private static readonly IReadOnlyList<CeresElevatorArrivalPose> ArrivalPoseOrder = Ensure.EveryMemberOnce(CeresElevatorArrivalPoseKeys.ListedOrder);
@@ -35,6 +35,21 @@ internal static class SpawnedObjectSheetComposer
     /// index within its page, so its parts count from there.
     /// </summary>
     private const int ProjectilePageCharacters = 256;
+
+    /// <summary>A spawner's own sheet and the character it begins at.</summary>
+    /// <param name="Sheet">The spawned object's own sheet.</param>
+    /// <param name="FirstCharacter">The character its pictures begin at.</param>
+    private sealed partial record OwnCharacterSheet(SpawnedObjectOwner Sheet, int FirstCharacter);
+
+    /// <summary>
+    /// The spawners whose objects draw from a sheet of characters of their own, whatever the spawner's, with that sheet and
+    /// the character it begins at: Mother Brain's body, whose tank glass draws from its own characters (#1435).
+    /// </summary>
+    private static readonly Dictionary<EnemyDefinitionId, OwnCharacterSheet> OwnCharacterSheets =
+        new Dictionary<EnemyDefinitionId, OwnCharacterSheet>
+        {
+            [EnemyDefinitionId.MotherBrainBody] = new(SpawnedObjectOwner.MotherBrainTankGlass, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters),
+        };
 
     /// <summary>
     /// The spawned-object sheets of a set laid out as <paramref name="layout"/>, drawing <paramref name="drawn"/>, each enemy
@@ -73,10 +88,12 @@ internal static class SpawnedObjectSheetComposer
         }
         // Mother Brain's tank glass draws from characters of its own, whatever its spawner's (#1435), and holds only what
         // draws from that sheet (#1513).
-        if (drawn.Contains(EnemyDefinitionId.MotherBrainBody) && SpawnedObjectFrameDefinitions.BySheet.ContainsKey(SpawnedObjectOwner.MotherBrainTankGlass))
-            plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.MotherBrainTankGlass,
-                EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters, EnemyCharacterBaseDefinitions.MotherBrainTankGlassCharacters,
-                rowOf(EnemyDefinitionId.MotherBrainBody), [EnemyDefinitionId.MotherBrainBody], [], [], []));
+        foreach (EnemyDefinitionId spawner in drawn.Where(OwnCharacterSheets.ContainsKey).Distinct())
+        {
+            (SpawnedObjectOwner sheet, int firstCharacter) = OwnCharacterSheets[spawner];
+            if (SpawnedObjectFrameDefinitions.BySheet.ContainsKey(sheet))
+                plans.Add(new SpawnedObjectSheetPlan(sheet, firstCharacter, firstCharacter, rowOf(spawner), [spawner], [], [], []));
+        }
         return plans;
     }
 
@@ -123,25 +140,25 @@ internal static class SpawnedObjectSheetComposer
                 rowShades.AddRange(commonRows);
             }
         }
-        EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps
-            ?? throw new InvalidDataException("Spawned-object sheets require the installed projectile compositions.");
-        EnemySpritemapCatalog spritemaps = enemies.Spritemaps
-            ?? throw new InvalidDataException("Spawned-object sheets require the installed enemy compositions.");
-        int projectileBase = checked((ushort)plan.ProjectileCharacters);
-        int objectBase = checked((ushort)plan.ObjectCharacters);
+        EnemyProjectileSpritemapCatalog projectiles = enemies.ProjectileSpritemaps;
+        EnemySpritemapCatalog spritemaps = enemies.Spritemaps;
+        int projectileBase = plan.ProjectileCharacters;
+        int objectBase = plan.ObjectCharacters;
         SpawnedObjects spawned = Spawned(plan);
         // Mother Brain's tank glass sheet is drawn from only by the glass's pieces, which shatter before she shows any look
         // after her room's load; the other objects of her body it holds are drawn from her body's own sheet, so none of its
         // frames is drawn in a look of hers and each shows her room's load (#1513, #1538).
         FrameDrawings Drawn(FrameDrawings drawings) => plan.Owner.IsMotherBrainTankGlass ? FrameDrawings.None : drawings;
-        // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row.
+        // The palette bits are the sheet's, ORed in at composition, so each pixel keeps its part's own row, with the row a
+        // projectile's initialization or an effect actor's spawn ORs into every part (#2640, #2641).
         FramePictures[] frames = [.. spawned.Projectiles.Select(frame => characters.Pictures(
-                EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase, 0),
+                EnemySheetDefinitions.ProjectileFrameName(frame), EnemySpriteFrames.Frame(EnemyProjectileFrames.Parts(projectiles, frame), projectileBase,
+                    EnemyProjectilePaletteRowDefinitions.Rows.GetValueOrDefault(frame, 0)),
                 Drawn(FrameDrawings.Of(frame))))
             .Concat(EffectActorFrames(spawned.EffectActors).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EffectActorFrameName(frame),
                 EnemySpriteFrames.Frame(spritemaps.TryGetDisplay(frame, out EnemySpritemapParts parts) ? parts
-                    : throw new InvalidDataException($"Room effect-actor frame {frame} has no installed composition."), objectBase, 0),
+                    : throw new InvalidDataException($"Room effect-actor frame {frame} has no installed composition."), objectBase, EffectActorRow(frame)),
                 Drawn(FrameDrawings.Of(frame)))))
             .Concat(EncounterFrames(plan.Spawners, plan.Owner == SpawnedObjectOwner.Shared).Select(frame => characters.Pictures(
                 EnemySheetDefinitions.EncounterFrameName(frame),
@@ -261,11 +278,25 @@ internal static class SpawnedObjectSheetComposer
     }
 
     /// <summary>
+    /// The row the effect actors showing <paramref name="frame"/> draw it in (#2641): the row their spawn ORs into every part
+    /// (<see cref="EffectActorPaletteRowDefinitions.Rows"/>), or none, so its parts show their own rows.
+    /// </summary>
+    /// <exception cref="InvalidDataException">Two effect actors showing the frame draw it in different rows.</exception>
+    private static int EffectActorRow(EnemyFrameId frame)
+    {
+        int[] rows = [.. RoomEffectActorSegment.Kinds
+            .Where(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)).Any(picture => picture.EnemyFrame == frame))
+            .Select(kind => EffectActorPaletteRowDefinitions.Rows.GetValueOrDefault(kind, 0)).Distinct()];
+        return rows.Length == 1 ? rows[0]
+            : throw new InvalidDataException($"Room effect-actor frame {frame} is drawn in {rows.Length} rows by the effect actors showing it, not one.");
+    }
+
+    /// <summary>
     /// The enemy frames the room effect actors of <paramref name="kinds"/> show, each once in the order of their installed names
     /// (#2567); the empty frame draws nothing.
     /// </summary>
     private static IEnumerable<EnemyFrameId> EffectActorFrames(IEnumerable<RoomEffectActorKind> kinds) =>
         kinds.SelectMany(kind => RoomEffectActorAnimations.Segments.FramesOf(RoomEffectActorAnimations.StartingWith(kind)))
-            .Select(picture => picture.RequireEnemyFrame()).Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct()
+            .Select(picture => picture.EnemyFrame).OfType<EnemyFrameId>().Where(frame => !CommonEnemyEmptyFrames.DrawsNothing(frame)).Distinct()
             .OrderBy(EnemySheetDefinitions.EffectActorFrameName, StringComparer.Ordinal);
 }

@@ -1,20 +1,27 @@
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>
-/// The state of one Dragon body. The body's motion timer and its three-shot counter are separate countdowns here, since
+/// The state of one Dragon body. The body's motion timer and its shot counter are separate countdowns here, since
 /// every phase starts its own before reading it.
 /// </summary>
-public sealed class DragonEnemyState : DragonPartState
+public sealed partial class DragonEnemyState : DragonPartState
 {
     /// <summary>Starts the body in <paramref name="action"/>.</summary>
-    internal DragonEnemyState(DragonAction action, RoomEnemyPlace wing)
+    internal DragonEnemyState(DragonAction action, RoomEnemyPlace wing, DragonWingState wingState)
     {
         Action = action;
         Wing = Ensure.NotNull(wing);
+        WingState = Ensure.NotNull(wingState);
     }
 
     /// <summary>The body's cosmetic wing, which its room lists right after it, found when the body was placed.</summary>
     internal RoomEnemyPlace Wing { get; }
+
+    /// <summary>
+    /// The state of the body's wing, which the body begins as it is placed and the wing listed after it receives as it is
+    /// built (#2554): the body animates the wing through it.
+    /// </summary>
+    internal DragonWingState WingState { get; }
 
     /// <summary>The way the body last turned to face, toward Samus (#2277); the fireball spawns on that side.</summary>
     public HorizontalDirection Facing { get; internal set; }
@@ -25,7 +32,7 @@ public sealed class DragonEnemyState : DragonPartState
     /// </summary>
     public UpdateCountdown ActionTimer { get; internal set; } = UpdateCountdown.Ended();
 
-    /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
+    /// <summary>The body's shots left while attacking; initialized to <see cref="DragonTimingDefinitions.ShotsPerAttack"/> before the first volley.</summary>
     public int AttackCounter { get; internal set; }
 
     /// <summary>

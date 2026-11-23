@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// How one axis of a room state's background follows the camera (#2046): it copies the foreground, keeps its place, or
 /// trails the foreground at a parallax rate.
 /// </summary>
-public abstract record BackgroundAxisScroll
+public abstract partial record BackgroundAxisScroll
 {
     /// <summary>Closes the hierarchy to the choices declared here.</summary>
     private BackgroundAxisScroll()
@@ -12,14 +12,14 @@ public abstract record BackgroundAxisScroll
     }
 
     /// <summary>The axis copies the foreground's position.</summary>
-    public sealed record Follow : BackgroundAxisScroll
+    public sealed partial record Follow : BackgroundAxisScroll
     {
         /// <inheritdoc />
         internal override int? BackgroundPositionFor(int foregroundPosition) => foregroundPosition;
     }
 
     /// <summary>The axis keeps the background's position and view wherever they were: the camera never moves it.</summary>
-    public sealed record Hold : BackgroundAxisScroll
+    public sealed partial record Hold : BackgroundAxisScroll
     {
         /// <inheritdoc />
         internal override int? BackgroundPositionFor(int foregroundPosition) => null;
@@ -27,7 +27,7 @@ public abstract record BackgroundAxisScroll
 
     /// <summary>The axis trails the foreground at <paramref name="Rate"/> of its movement.</summary>
     /// <param name="Rate">The share of the foreground's movement the background moves by.</param>
-    public sealed record Parallax(ParallaxRate Rate) : BackgroundAxisScroll
+    public sealed partial record Parallax(ParallaxRate Rate) : BackgroundAxisScroll
     {
         /// <inheritdoc />
         internal override int? BackgroundPositionFor(int foregroundPosition) => Rate.Trail(foregroundPosition);

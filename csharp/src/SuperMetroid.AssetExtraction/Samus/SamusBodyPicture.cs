@@ -2,8 +2,8 @@ namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>
 /// One of the half pictures the import composes Samus's whole body pictures from: the characters one half of the
-/// cartridge's split body shows. The import numbers the pictures once, in the order it stores them; the body sheet holds
-/// only the whole pictures composed from them (#1585).
+/// cartridge's split body shows. The import names each picture once, when it decodes the body's tables (#2556), by the
+/// half and the first pose frame that shows it; the body sheet holds only the whole pictures composed from them (#1585).
 /// </summary>
-/// <param name="Ordinal">The picture's place in the import's stored order.</param>
-public readonly record struct SamusBodyPicture(int Ordinal);
+/// <param name="Name">The picture's name, which also names its import-data image.</param>
+public readonly partial record struct SamusBodyPicture(string Name);

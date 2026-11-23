@@ -10,24 +10,10 @@ namespace SuperMetroid.Core.Fx;
 /// </summary>
 internal static class FxNativeWords
 {
-    /// <summary>A <see cref="RoomFxType"/> value naming no effect, standing for a dispatcher byte that names none.</summary>
-    internal const RoomFxType UndefinedFxType = (RoomFxType)ushort.MaxValue;
-
-    /// <summary>A <see cref="RoomEffectTint"/> value naming no blend, standing for a selector byte that names none.</summary>
-    internal const RoomEffectTint UndefinedPaletteBlend = (RoomEffectTint)byte.MaxValue;
-
-    /// <summary>
-    /// The effect a native record's dispatcher byte <paramref name="word"/> names, or <see cref="UndefinedFxType"/> when it
-    /// names none: a domain sweep over native bytes keeps testing rejection now that the identity's values are arbitrary.
-    /// </summary>
-    internal static RoomFxType FxType(int word) =>
-        word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.Types.TryDecode((ushort)word, out RoomFxType type)
-            ? type : UndefinedFxType;
-
-    /// <summary>The palette blend native selector byte <paramref name="word"/> names, or <see cref="UndefinedPaletteBlend"/>.</summary>
+    /// <summary>The palette blend native selector byte <paramref name="word"/> names.</summary>
+    /// <exception cref="InvalidDataException">The byte names no blend.</exception>
     internal static RoomEffectTint PaletteBlend(int word) =>
-        word is >= 0 and <= ushort.MaxValue && SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.TryDecode((ushort)word, out RoomEffectTint blend)
-            ? blend : UndefinedPaletteBlend;
+        SuperMetroid.AssetExtraction.CartridgeTables.RoomFxRecordWords.PaletteBlends.Decode(word, "room effect palette blend selector");
 
     /// <summary>
     /// The bank-$87 object header an area's animated-tile bit names when it starts no animation: a still object with no
@@ -48,10 +34,9 @@ internal static class FxNativeWords
             _ => 0x824b,
         };
 
-    /// <summary>The bank-$87 object header naming each <see cref="BlockAnimation"/>; zero names no object.</summary>
+    /// <summary>The bank-$87 object header naming each <see cref="BlockAnimation"/>.</summary>
     internal static readonly NativeWordIdentities<BlockAnimation> AnimatedTileObjects = new(new Dictionary<BlockAnimation, ushort>
     {
-        [BlockAnimation.None] = 0x0000,
         [BlockAnimation.TourianStatuePhantoon] = 0x854c,
         [BlockAnimation.TourianStatueRidley] = 0x8552,
         [BlockAnimation.TourianStatueKraid] = 0x8558,

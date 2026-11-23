@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Crocomire;
 
 /// <summary>The shapes of Crocomire's colour transfers.</summary>
-public static class CrocomireColorDefinitions
+public static partial class CrocomireColorDefinitions
 {
     /// <summary>The body and head colours restored after a hurt flash.</summary>
     public const int FightBodyCount = 8;

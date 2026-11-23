@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire.Artwork;
 /// The shades the import pre-colours Crocomire's sheets in (#1512): his body's fight colours and hurt flash on the background,
 /// the wall's and his projectiles' colours through his fight, and his skeleton's arm and the wall spikes as he dies.
 /// </summary>
-public static class CrocomireShades
+public static partial class CrocomireShades
 {
     /// <summary>His body's and head's fight colours on the background.</summary>
     public static PictureShade FightBody { get; } = new("crocomire-fight-body", 0);

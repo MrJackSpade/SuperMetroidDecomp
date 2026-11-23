@@ -7,8 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// its block count. Core runs hold a <see cref="RoomObjectRunDirection"/> and their terrain blocks; this codec is the one place
 /// the two become or leave that word, for import checks against the cartridge's draw lists.
 /// </summary>
-[EncodingOwner("PLM block-run header word")]
-internal static class RoomObjectRunHeaderCodec
+internal static partial class RoomObjectRunHeaderCodec
 {
     /// <summary>The header bit set when the run writes down a column.</summary>
     internal const int VerticalBit = 0x8000;

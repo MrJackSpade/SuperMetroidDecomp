@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 /// The reactions of the Oum's own that its frames' hitboxes name (#1759). Only the Oum's handlers tell them apart; a
 /// definition names only the engine's shared reactions.
 /// </summary>
-internal static class OumReactions
+internal static partial class OumReactions
 {
     /// <summary>The touch reaction that damages Samus.</summary>
     internal static EnemyReaction DamagingTouch { get; } = EnemyReaction.OfSpecies("Oum.DamagingTouch");

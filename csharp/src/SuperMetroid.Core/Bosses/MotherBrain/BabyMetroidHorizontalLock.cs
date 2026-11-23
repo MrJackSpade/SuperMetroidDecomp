@@ -6,11 +6,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// never below none, on each update it strays; its hover chases Samus and its follow leaves once the lock has built to
 /// their thresholds.
 /// </summary>
-public sealed class BabyMetroidHorizontalLock
+public sealed partial class BabyMetroidHorizontalLock
 {
     /// <summary>How far the lock has built: none until the Baby Metroid first keeps within reach.</summary>
-    [IntegerQuantity("how far the lock has built")]
-    public int Built { get; private set; }
+    public int Built { get; internal set; }
 
     /// <summary>Builds or decays the lock for one update.</summary>
     /// <param name="withinReach">Whether the Baby Metroid keeps within reach of its target's X on this update.</param>

@@ -1,15 +1,15 @@
 using SuperMetroid.Core.Fx.ColourEffects;
-using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>The opening cinematic's shared definitions: its text layout, crossfade timing, music, actors' sounds, and the narration caret.</summary>
-public static class IntroCinematicDefinitions
+public static partial class IntroCinematicDefinitions
 {
     /// <summary>The timing of the repeating crossfades between the narration and the flashback scenes.</summary>
-    public static class Crossfade
+    public static partial class Crossfade
     {
-        /// <summary>The updates a crossfade lasts, its last included.</summary>
+        /// <summary>The updates a crossfade lasts.</summary>
         public const int Updates = 128;
         /// <summary>
         /// The crossfaded scenes in the order their shades are listed and laid over each other (#2567): the narration's, the
@@ -26,7 +26,7 @@ public static class IntroCinematicDefinitions
     public const ColourEffectId FightLights = ColourEffectId.OldMotherBrainFightBackgroundLights;
 
     /// <summary>The music the opening's scene changes start.</summary>
-    public static class Music
+    public static partial class Music
     {
         /// <summary>The song the opening's first spoken line plays once its music set has loaded.</summary>
         public const MusicTrack CaptivityLineSong = MusicTrack.LastMetroidInCaptivity;
@@ -34,32 +34,32 @@ public static class IntroCinematicDefinitions
         public const MusicTrack PeaceLineSong = MusicTrack.GalaxyAtPeace;
         /// <summary>The song the illustrated pages play once the introduction's music set has loaded.</summary>
         public const MusicTrack IntroductionSong = MusicTrack.Introduction;
-        /// <summary>How long the second line's and the pages' songs wait on the music queue: fourteen passes.</summary>
+        /// <summary>How long the second line's and the pages' songs wait on the music queue, in passes.</summary>
         public static MusicQueueDelay SceneTrackDelay { get; } = new(14);
     }
 
     /// <summary>Screen-fade cadences of the opening's scene changes.</summary>
-    public static class Fade
+    public static partial class Fade
     {
-        /// <summary>Updates each step of the narration's fades takes: one brightness level every two updates.</summary>
+        /// <summary>Updates each brightness step of the narration's fades takes.</summary>
         public const int NarrationUpdatesPerStep = 2;
-        /// <summary>Updates each step of the final fade takes: one brightness level every second update.</summary>
+        /// <summary>Updates each brightness step of the final fade takes.</summary>
         public const int FinishUpdatesPerStep = 2;
     }
 
     /// <summary>The narration's holds, in updates.</summary>
-    public static class Timing
+    public static partial class Timing
     {
         /// <summary>The first line's hold after it fades in, before the captivity line's song.</summary>
         public const int FirstLineHold = 60;
         /// <summary>The captivity line's hold before the galaxy-at-peace line's music.</summary>
         public const int CaptivityLineHold = 200;
         /// <summary>The four-second hold after the galaxy-at-peace line's music.</summary>
-        public const int FourSecondHold = 240;
+        public const int PeaceLineHold = 240;
     }
 
     /// <summary>Samus as the flashback to her fight with Mother Brain sets her up.</summary>
-    public static class Flashback
+    public static partial class Flashback
     {
         /// <summary>Where Samus stands, facing left, in Mother Brain's room.</summary>
         public static Position16<RoomPixels> SamusPosition => new(155, 115);
@@ -69,11 +69,11 @@ public static class IntroCinematicDefinitions
         /// The ground her footsteps and landings go by in the flashback, which loads no room (#2416): dry, so her
         /// footsteps raise dust only while she speed-boosts, and her landings raise nothing.
         /// </summary>
-        internal static SamusGround Ground { get; } = new(SamusGroundWetness.Dry, DryLandingsRaiseDust: false);
+        internal static RoomGround Ground { get; } = RoomGroundDefinitions.Bare;
     }
 
     /// <summary>The actors' sounds.</summary>
-    public static class Sounds
+    public static partial class Sounds
     {
         /// <summary>
         /// How crowded the sound queue may be for the opening's sounds to join it: the Baby's cries, the hatching and the
@@ -81,15 +81,15 @@ public static class IntroCinematicDefinitions
         /// </summary>
         public static readonly SoundRequestPriority SoundPriority = SoundRequestPriority.Normal;
         /// <summary>The Baby Metroid's first cry.</summary>
-        public static readonly SoundEffectId BabyCry1 = RoomSound.BabyMetroidCry1;
+        public static readonly SoundEffectId BabyHighCry = RoomSound.BabyMetroidHighCry;
         /// <summary>The typewriter sound while narration characters appear.</summary>
-        public static readonly SoundEffectId Typewriter = RoomSound.IntroTypewriter;
+        public static readonly SoundEffectId Typewriter = RoomSound.Typewriter;
         /// <summary>The sound of the Baby Metroid hatching.</summary>
         public static readonly SoundEffectId EggHatch = EnemySound.ContactKill;
     }
 
     /// <summary>The narration caret's positions and the text characters' size.</summary>
-    public static class NarrationLayout
+    public static partial class NarrationLayout
     {
         /// <summary>The caret's leftmost column, in pixels.</summary>
         public const int CaretLeftX = 8;

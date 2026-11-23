@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Enemies.Animals;
 /// <summary>
 /// The state of a Dachora's body. It waits at rest for Samus, blinks, runs, charges and shinesparks: its first run starts
 /// from rest because it has not moved before it, and its shinespark starts from rest because the charge stops it
-/// (<see cref="StartCharging"/>). Its four speed-boost echoes keep their own state (<see cref="DachoraEchoState"/>, #2147).
+/// (<see cref="StartCharging"/>). Its speed-boost echoes keep their own state (<see cref="DachoraEchoState"/>, #2147).
 /// </summary>
-public sealed class DachoraEnemyState
+public sealed partial class DachoraEnemyState
 {
     /// <summary>Starts the state in <paramref name="action"/>.</summary>
     internal DachoraEnemyState(DachoraAction action) => Action = action;
@@ -16,6 +16,9 @@ public sealed class DachoraEnemyState
 
     /// <summary>The animation the enemy plays and where it stands in it (#1600).</summary>
     internal AnimationPlayback<DachoraSegment> Playback { get; set; }
+
+    /// <summary>The speed-boost echoes its room lists after it, each joining as it is built (#2147, #2554).</summary>
+    internal DachoraEchoTrail Echoes { get; } = new();
 
     /// <summary>
     /// The speed in pixels per update while running, falling or shinesparking, horizontal while running and
@@ -59,8 +62,7 @@ public sealed class DachoraEnemyState
     public int GlowFrame => _glowCycle.Frame;
 
     /// <summary>The updates left before the glow cycle shows <see cref="GlowFrame"/>.</summary>
-    [IntegerQuantity("updates left before the glow cycle advances")]
-    public int GlowTicks => _glowCycle.UpdatesLeft;
+    internal int GlowTicks => _glowCycle.UpdatesLeft;
 
     /// <summary>Sets the glow cycle to <paramref name="cycle"/>, as the run, wall, launch and ceiling phases restart or clear it.</summary>
     internal void SetGlowCycle(DachoraGlowCycle cycle) => _glowCycle = cycle;
@@ -82,7 +84,7 @@ public sealed class DachoraEnemyState
     }
 
     /// <summary>
-    /// Moves the speed glow to its next frame, sixteen updates later; once that reaches the cycle's end, the glow stays on
+    /// Moves the speed glow to its next frame, a step later; once that reaches the cycle's end, the glow stays on
     /// its brightest frame instead of starting over from frame zero.
     /// </summary>
     internal void AdvanceSpeedGlow()

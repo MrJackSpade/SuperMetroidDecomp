@@ -1,6 +1,7 @@
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Hardware;
@@ -64,9 +65,9 @@ internal static class EnemyDropsVerification
             killed.Bind(EnemyDefinitionId.Mellow, mellow);
             killed.Presence = respawns ? EnemyPresence.RespawnsIfKilled : EnemyPresence.None;
 
-            fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed, EnemyDeathExplosion.Small, fixture.Samus);
+            fixture.System.DeathsAndDrops.StartGenericEnemyDeath(killed.HeldOccupant(), EnemyDeathExplosion.Small, fixture.Samus);
 
-            AssertEqual(EnemyDefinitionId.None, killed.DefinitionId, $"respawns {respawns}: the killed enemy leaves its place");
+            AssertTrue(killed.Occupant is null, $"respawns {respawns}: the killed enemy leaves its place");
             AssertEqual(respawns, killed.AwaitsRespawn, $"respawns {respawns}: the place awaits the enemy's respawn");
             AssertTrue(killed.Entity is null, $"respawns {respawns}: no behaviour runs in the place");
             AssertEqual(respawns ? places[1] : places[0], EnemyPlaceOrder.FirstFree(places),
@@ -77,7 +78,7 @@ internal static class EnemyDropsVerification
         RoomEnemyPlace place = rebuilt.System.Places.InUpdateOrder[0];
         place.Bind(EnemyDefinitionId.Mellow, mellow);
         place.Presence = EnemyPresence.RespawnsIfKilled;
-        rebuilt.System.DeathsAndDrops.StartGenericEnemyDeath(place, EnemyDeathExplosion.Small, rebuilt.Samus);
+        rebuilt.System.DeathsAndDrops.StartGenericEnemyDeath(place.HeldOccupant(), EnemyDeathExplosion.Small, rebuilt.Samus);
         place.Bind(EnemyDefinitionId.Mellow, mellow);
         AssertTrue(!place.AwaitsRespawn, "rebuilding the enemy in its place ends the wait");
         AssertEqual(rebuilt.System.Places.InUpdateOrder[1], EnemyPlaceOrder.FirstFree(rebuilt.System.Places.InUpdateOrder),
@@ -90,25 +91,21 @@ internal static class EnemyDropsVerification
     {
         var samus = CreateDropTestSamus();
         samus.HorizontalSpeed.BodyAttack = SamusBodyAttack.PseudoScrew;
-        var fixture = CreateEnemyDropFixture(samus, [1]);
+        // An ordinary enemy that respawns if killed, a Skultera touching Samus as every ordinary enemy does, set up as its
+        // room's population load sets it up (#2554).
+        var fixture = CreateEnemyDropFixture(samus, [1], CompiledRoomEnemyDefinitions.Instance,
+            [PopulationPlacementAccess.Entry(EnemyDefinitionId.Skultera, EnemySpawnSettingsCodec.Decode(EnemyDefinitionId.Skultera,
+                EnemySpawnSettingsCodec.Blank(EnemyDefinitionId.Skultera) with { Parameter1 = 3 }, Position16<RoomPixels>.Zero))
+                with { Presence = EnemyPresence.RespawnsIfKilled }]);
         var enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
-        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
-        {
-            Touch = EnemyReaction.OrdinaryTouch,
-        });
-        SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
         enemy.Frame = EnemyFrameId.SkulteraSwimmingLeftTailStraight;
-        enemy.Contact = EnemyContact.None;
-        enemy.Processing = EnemyProcessing.None;
-        enemy.Presence = EnemyPresence.RespawnsIfKilled;
         var projectiles = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var samusColours = new SamusColours();
         fixture.System.StepStandaloneFrame(fixture.System.StandaloneFrame(fixture.Level) with { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, SamusProjectiles = projectiles, SamusColours = samusColours });
-        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+        AssertTrue(enemy.AwaitsRespawn && enemy.Occupant is null,
             "contact death leaves the respawning enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "the death update still counts the awaiting place's update");
@@ -196,7 +193,6 @@ internal static class EnemyDropsVerification
             EnemyPickupKind.Missile => 1,
             EnemyPickupKind.SuperMissile => 196,
             EnemyPickupKind.PowerBomb => 246,
-            EnemyPickupKind.NoDrop => throw new ArgumentOutOfRangeException(nameof(kind)),
             _ => throw new ArgumentOutOfRangeException(nameof(kind)),
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);
@@ -205,15 +201,15 @@ internal static class EnemyDropsVerification
             NativeDropChances, fixture.Samus) ??
             throw new InvalidOperationException($"Could not allocate {kind} test pickup.");
 
-        AssertEqual(kind, pickup.StateOf<EnemyPickupState>().Kind,
+        AssertEqual(kind, fixture.System.DeathsAndDrops.Pickups.Of(pickup).Kind,
             $"{kind} pickup restores {kind}");
-        AssertEqual(400, pickup.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
+        AssertEqual(400, fixture.System.DeathsAndDrops.Pickups.Of(pickup).Lifetime.UpdatesLeft,
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
-        AssertEqual((SoundEffectId?)SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, expectedSound), fixture.System.Audio.LatestSound,
+        AssertEqual((SoundEffectId?)SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, expectedSound), fixture.System.Audio.LatestSound,
             $"{kind} library-two sound");
-        AssertEqual<Enum?>(null, pickup.Motion,
+        AssertTrue(pickup.HoldsStill,
             $"{kind} enters shared blank/no-collision tail after collection");
         assertEffect(samus);
     }
@@ -228,7 +224,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture reroll = CreateEnemyDropFixture(rerollSamus, randomValues: [0, 1]);
         EnemyProjectile rerolled = (reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(
             new(50, 50), NativeDropChances, reroll.Samus) ?? throw new InvalidOperationException("Verification requires reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable( new(50, 50), NativeDropChan...."));
-        AssertEqual(EnemyPickupKind.SmallEnergy, rerolled.StateOf<EnemyPickupState>().Kind,
+        AssertEqual(EnemyPickupKind.SmallEnergy, reroll.System.DeathsAndDrops.Pickups.Of(rerolled).Kind,
             "zero RNG sample rerolls before selecting small energy");
 
         // `$7E:0E1E` is a stateful critical-energy flag. Energy below 30 enables it,
@@ -243,19 +239,19 @@ internal static class EnemyDropsVerification
 
         EnemyProjectile belowThirty =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChances, bias.Samus) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePoi...."));
-        AssertEqual(EnemyPickupKind.BigEnergy, belowThirty.StateOf<EnemyPickupState>().Kind,
+        AssertEqual(EnemyPickupKind.BigEnergy, bias.System.DeathsAndDrops.Pickups.Of(belowThirty).Kind,
             "critical energy suppresses no-drop and renormalizes energy weights");
 
         biasSamus.Health = 40;
         EnemyProjectile graceBand =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChances, bias.Samus) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChancePoi...."));
-        AssertEqual(EnemyPickupKind.BigEnergy, graceBand.StateOf<EnemyPickupState>().Kind,
+        AssertEqual(EnemyPickupKind.BigEnergy, bias.System.DeathsAndDrops.Pickups.Of(graceBand).Kind,
             "30..49 energy retains the previous critical-drop bias");
 
         biasSamus.Health = 50;
         EnemyProjectile clearedBias =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChances, bias.Samus) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(30, 30), biasDropChancePoi...."));
-        AssertEqual<Enum?>(null, clearedBias.Motion,
+        AssertTrue(clearedBias.HoldsStill,
             "50 energy clears critical bias and permits the table's no-drop weight");
 
         SamusState fullSamus = CreateDropTestSamus();
@@ -266,7 +262,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture full = CreateEnemyDropFixture(fullSamus, randomValues: [1]);
         EnemyProjectile ineligible =
             (full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChances, full.Samus) ?? throw new InvalidOperationException("Verification requires full.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(40, 40), NativeDropChanceP...."));
-        AssertEqual<Enum?>(null, ineligible.Motion,
+        AssertTrue(ineligible.HoldsStill,
             "full resources make the native record's ammo weights ineligible");
     }
 
@@ -279,11 +275,11 @@ internal static class EnemyDropsVerification
 
         EnemyProjectile expiring =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropChances, fixture.Samus) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropCh...."));
-        expiring.StateOf<EnemyPickupState>().Lifetime = UpdateCountdown.Lasting(1);
+        fixture.System.DeathsAndDrops.Pickups.Of(expiring).Lifetime.PlaceAt(UpdateCountdown.Lasting(1));
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(0, expiring.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
+        AssertEqual(0, fixture.System.DeathsAndDrops.Pickups.Of(expiring).Lifetime.UpdatesLeft,
             "pickup lifetime decrements before its expiry comparison");
-        AssertEqual<Enum?>(null, expiring.Motion,
+        AssertTrue(expiring.HoldsStill,
             "expired pickup enters native blank tail");
         AssertEqual(50, samus.Health,
             "expiry does not apply a pickup effect");
@@ -321,7 +317,7 @@ internal static class EnemyDropsVerification
             AssertEqual(50, samus.Health,
                 $"grapple cannot collect pickup during protected frame {frame + 1}");
         }
-        AssertEqual(384, pickup.StateOf<EnemyPickupState>().Lifetime.UpdatesLeft,
+        AssertEqual(384, fixture.System.DeathsAndDrops.Pickups.Of(pickup).Lifetime.UpdatesLeft,
             "sixteen protected frames still decrement pickup lifetime");
 
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
@@ -348,14 +344,14 @@ internal static class EnemyDropsVerification
                 (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances, fixture.Samus) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
             AssertEqual(17 - allocation, pickup.Place,
                 $"enemy projectile allocation {allocation} descends from native $22");
-            AssertEqual<Enum?>(SingleMotion.Moving, pickup.Motion,
+            AssertTrue(pickup.MovesBy(SingleMotion.Moving),
                 $"nonzero projectile slot {pickup.Place} becomes pickup");
         }
 
         EnemyProjectile slotZero =
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances, fixture.Samus) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropCh...."));
         AssertEqual(0, slotZero.Place, "eighteenth allocation reaches physical slot zero");
-        AssertEqual<Enum?>(SingleMotion.Moving, slotZero.Motion,
+        AssertTrue(slotZero.MovesBy(SingleMotion.Moving),
             "a directly spawned drop in physical slot zero becomes a pickup");
         AssertEqual<EnemyProjectile?>(null,
             fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(100, 100), NativeDropChances, fixture.Samus),
@@ -369,10 +365,9 @@ internal static class EnemyDropsVerification
         samus.Health = 50;
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
 
-        ushort enemyHeader = TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
-        SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
+        SeedStandInDropper(fixture.Bus);
         RoomEnemyPlace enemy = fixture.System.Places.InUpdateOrder[0];
-        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.Definition);
+        enemy.Bind(EnemyPlaceFixtures.StandIn, enemy.KeptDefinition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
         enemy.Contact = EnemyContact.None;
@@ -380,23 +375,23 @@ internal static class EnemyDropsVerification
         enemy.Presence = EnemyPresence.RespawnsIfKilled;
 
         // A Fireflea touched with health nine left dies in the small explosion.
-        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy,
+        fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy.HeldOccupant(),
             deathAnimation: EnemyDeathExplosionDefinitions.LeftoverNumbered.Named(9), fixture.Samus);
-        AssertTrue(enemy.AwaitsRespawn && enemy.DefinitionId == EnemyDefinitionId.None,
+        AssertTrue(enemy.AwaitsRespawn && enemy.Occupant is null,
             "respawning death leaves the enemy's place awaiting its respawn");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");
 
-        EnemyProjectile explosion = fixture.System.Projectiles.ProjectileInPlace(17);
+        EnemyProjectile explosion = fixture.System.Projectiles.SpawnedInPlace(17);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
-        AssertEqual(EnemyPlaceFixtures.StandIn, explosion.StateOf<EnemyDeathExplosionState>().DropDefinitionId,
+        AssertEqual(EnemyPlaceFixtures.StandIn, fixture.System.DeathsAndDrops.Explosions.Of(explosion).Dropper?.DefinitionId,
             "death actor retains killed enemy header for later chance lookup");
         AssertEqual((ushort)321, explosion.Position.X.Whole,
             "death actor retains killed enemy X position");
         AssertEqual((ushort)123, explosion.Position.Y.Whole,
             "death actor retains killed enemy Y position");
-        AssertEqual(KilledEnemy.Of(enemy, respawns: true), explosion.StateOf<EnemyDeathExplosionState>().KilledEnemy,
+        AssertEqual(KilledEnemy.Of((PopulatedEnemyPlace)enemy.History, respawns: true), fixture.System.DeathsAndDrops.Explosions.Of(explosion).KilledEnemy,
             "respawning slot zero is retained as the killed enemy, marked to respawn");
         AssertEqual(
             EnemyDeathExplosions.Animation(EnemyDeathExplosion.Small),
@@ -408,9 +403,9 @@ internal static class EnemyDropsVerification
         EnemyDeathAndDropSegment converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion, fixture.Samus);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "EEAF converts death actor in place without rewriting its definition identity");
-        AssertEqual(EnemyPickupKind.SmallEnergy, explosion.StateOf<EnemyPickupState>().Kind,
+        AssertEqual(EnemyPickupKind.SmallEnergy, fixture.System.DeathsAndDrops.Pickups.Of(explosion).Kind,
             "converted death actor becomes a small-energy pickup");
-        AssertEqual<Enum?>(SingleMotion.Moving, explosion.Motion,
+        AssertTrue(explosion.MovesBy(SingleMotion.Moving),
             "converted death actor enters shared pickup pre-instruction");
         AssertEqual(EnemyDeathAndDropSegment.SmallEnergy, converted,
             "converted death actor continues at the small-energy drop program");
@@ -424,11 +419,17 @@ internal static class EnemyDropsVerification
         MaxHealth = 99,
     };
 
-    /// <summary>Loads a one-block room with ROM-shaped pickup programs and a controlled random queue.</summary>
+    /// <summary>
+    /// Loads a one-block room with ROM-shaped pickup programs and a controlled random queue, placing no enemies, or the
+    /// <paramref name="population"/> a check places (#2554), each species named in <paramref name="authored"/> built with
+    /// the definition the check gives it there.
+    /// </summary>
     internal static EnemyDropFixture CreateEnemyDropFixture(
         SamusState samus,
         IReadOnlyList<ushort> randomValues,
-        IRoomEnemyDefinitionSource? definitions = null)
+        IRoomEnemyDefinitionSource? definitions = null,
+        IReadOnlyList<RoomEnemyPlacement>? population = null,
+        IReadOnlyDictionary<EnemyDefinitionId, RoomEnemyDefinition>? authored = null)
     {
         var bus = new TestAddressSpace();
         SeedEnemyPickupRom(bus);
@@ -437,7 +438,12 @@ internal static class EnemyDropsVerification
 
         RoomLevelData level = CreateEmptyRoom(new(1, 1));
         var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: definitions ?? bus, services: new StandaloneRoomEnemyServices(NextRandom));
-        system.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9000), BgArtworkFixtures.For(new SnesVram()), level, samus));
+        foreach ((EnemyDefinitionId species, RoomEnemyDefinition definition) in authored ?? new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>())
+            AuthoredEnemyDefinitions.Of(system).Author(species, definition);
+        if (population is null)
+            system.Load(RoomEnemyFrameFixtures.StandaloneLoad(bus.ReadEnemyPopulation(0x9000), BgArtworkFixtures.For(new SnesVram()), level, samus));
+        else
+            _ = system.LoadPopulation(samus, level, [.. population]);
         return new EnemyDropFixture(bus, system, level, samus);
     }
 
@@ -465,21 +471,28 @@ internal static class EnemyDropsVerification
     }
 
     /// <summary>
-    /// Points the synthetic bank-$A0 enemy definition at <paramref name="enemyHeader"/> (its
-    /// drop-chance pointer field, definition byte 58) at the native first drop-chance table,
-    /// and seeds that table's six chances, which the import decodes.
+    /// Seeds the synthetic bank-$A0 header of the stand-in (<see cref="EnemyPlaceFixtures.StandIn"/>), which a check kills
+    /// for its drop, as the import decodes it. Its bank byte (definition byte 12) and its touch and shot words (bytes 48 and
+    /// 50) are the retail header's: the engine's shared return in the stand-in's bank, so they decode to the ignoring
+    /// reaction its compiled definition names; a zero word would name the species' own reaction instead, which the stand-in
+    /// has none of (#2589). Its drop-chance pointer (byte 58) selects the native first drop-chance table, whose six chances
+    /// are seeded.
     /// </summary>
-    internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader)
+    internal static void SeedStandInDropper(TestAddressSpace bus)
     {
-        WriteTestWord(bus, 0xa00000 | (enemyHeader + 58), SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
-        NativeDropChances.Deconstruct(out int small, out int big, out int missile, out int nothing, out int super, out int powerBomb);
+        int header = 0xa00000 | TestAddressSpace.FixtureHeaderPointer(EnemyPlaceFixtures.StandIn);
+        ushort sharedReturn = SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankA0.NoOp.Offset;
+        WriteTestByte(bus, header + 12, SuperMetroid.AssetExtraction.Enemies.Callbacks.EnemyAiRoutineDefinitions.BankAA.Bank);
+        WriteTestWord(bus, header + 48, sharedReturn);
+        WriteTestWord(bus, header + 50, sharedReturn);
+        WriteTestWord(bus, header + 58, SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances);
+        EnemyDropChances chances = NativeDropChances;
+        (int small, int big, int missile, int nothing, int super, int powerBomb) =
+            (chances.SmallEnergy, chances.BigEnergy, chances.Missile, chances.Nothing, chances.SuperMissile, chances.PowerBomb);
         bus.WriteBytes(SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.TableBank | SuperMetroid.AssetExtraction.Enemies.EnemyHeaderTableDefinitions.FirstDropChances,
             [(byte)small, (byte)big, (byte)missile, (byte)nothing, (byte)super, (byte)powerBomb]);
     }
 
-    /// <summary>Seeds the bank-$B4 vulnerability byte the contact-death fixture enemy consults.</summary>
-    private static void SeedContactDeathVulnerability(TestAddressSpace bus) =>
-        bus.WriteBytes(0xb48014, [2]);
 
     /// <summary>Groups the synthetic bus, loaded enemy system, one-block level and the Samus whose drops it rolls for pickup checks.</summary>
     internal readonly record struct EnemyDropFixture(

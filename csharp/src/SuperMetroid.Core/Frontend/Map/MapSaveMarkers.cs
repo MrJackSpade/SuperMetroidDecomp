@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// Decides which stations of a Zebes area have saved-game map markers, names them, and reports whether any marked station
 /// has been used. Every station Samus uses in a Zebes area has a marker; Ceres has none.
 /// </summary>
-public static class MapSaveMarkers
+public static partial class MapSaveMarkers
 {
     /// <summary>The stations of <paramref name="area"/> that have markers, in the order the load stations are declared.</summary>
     /// <param name="area">One of the six Zebes areas; Ceres has no save-map marker list.</param>

@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Saves;
 /// <param name="MaxPowerBombs">Acquired power bomb capacity.</param>
 /// <param name="ReserveEnergy">Energy points currently stored in reserve tanks.</param>
 /// <param name="MaxReserveEnergy">Acquired reserve-tank capacity in energy points.</param>
-public sealed record SaveResourcesJsonDocument(
+public sealed partial record SaveResourcesJsonDocument(
     int Health,
     int MaxHealth,
     int Missiles,

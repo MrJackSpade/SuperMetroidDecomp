@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// fade shows its goal. The backdrop's colours never reach gameplay; only when a fade completes does, through the shared
 /// counter.
 /// </summary>
-internal sealed class KraidBackdropColours : IGameplayShadingSource
+internal sealed partial class KraidBackdropColours : IGameplayShadingSource
 {
     /// <summary>What the backdrop showed when no fade was running, or when the running fade started.</summary>
     private KraidBackdropShown StartedFrom { get; set; } = new KraidBackdropShown.Settled(KraidBackdropSettledColours.RoomColours);
@@ -39,52 +39,38 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     /// (<see cref="KraidBackgroundDefinitions.BackdropFadeLastStep"/>), whatever values the counter takes (#2302).
     /// </summary>
     /// <param name="fade">The colours faded toward.</param>
-    internal void Step(KraidBackdropFade fade)
+    internal void Step(KraidBackdropSettledColours fade)
     {
-        KraidBackdropSettledColours goal = GoalOf(fade);
-        if (running is not null && running.Goal == goal)
+        if (running is not null && running.Goal == fade)
         {
             running = running with { Progress = running.Progress.Then() };
             return;
         }
         StartedFrom = Shows;
-        running = new RunningKraidBackdropFade(goal, StepCountedFadeProgress.Started(KraidBackgroundDefinitions.BackdropFadeLastStep));
+        running = new RunningKraidBackdropFade(fade, StepCountedFadeProgress.Started(KraidBackgroundDefinitions.BackdropFadeLastStep));
     }
 
     /// <summary>Completes the fade toward <paramref name="fade"/>'s colours: the backdrop shows them from now on.</summary>
     /// <param name="fade">The colours faded toward.</param>
-    internal void Complete(KraidBackdropFade fade)
+    internal void Complete(KraidBackdropSettledColours fade)
     {
-        StartedFrom = new KraidBackdropShown.Settled(GoalOf(fade));
+        StartedFrom = new KraidBackdropShown.Settled(fade);
         running = null;
     }
-
-    /// <summary>The colours a fade toward <paramref name="fade"/> ends on.</summary>
-    private static KraidBackdropSettledColours GoalOf(KraidBackdropFade fade) => fade switch
-    {
-        KraidBackdropFade.ToBlack => KraidBackdropSettledColours.Black,
-        KraidBackdropFade.ToKraidColours => KraidBackdropSettledColours.KraidColours,
-        _ => throw new ArgumentOutOfRangeException(nameof(fade), fade, "Kraid's backdrop fades only to black or to his colours."),
-    };
 
     /// <inheritdoc />
     public void ShadeGameplay(GameplayShadingBuilder frame)
     {
         Ensure.NotNull(frame);
-        switch (Shows)
-        {
-            case KraidBackdropShown.Settled { Colours: KraidBackdropSettledColours.RoomColours }:
-                return;
-            case KraidBackdropShown.Settled settled:
-                frame.Shade(GameplayPictures.Room, ShadeOf(settled.Colours)
-                    ?? throw new InvalidOperationException($"Kraid's backdrop colours {settled.Colours} have no shade."));
-                return;
-            case KraidBackdropShown.Fading fading:
-                frame.Shade(GameplayPictures.Room, FadeOf(fading));
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined Kraid backdrop colours {Shows}.");
-        }
+        // The room's own colours are its pictures' standard colours, which no shade changes.
+        Shows.React(
+            static (settled, shaded) =>
+            {
+                if (ShadeOf(settled.Colours) is { } shade)
+                    shaded.Shade(GameplayPictures.Room, shade);
+            },
+            static (fading, shaded) => shaded.Shade(GameplayPictures.Room, FadeOf(fading)),
+            frame);
     }
 
     /// <summary>The fade between the backdrop's shadings that <paramref name="fading"/> shows.</summary>
@@ -92,28 +78,27 @@ internal sealed class KraidBackdropColours : IGameplayShadingSource
     {
         Ensure.NotNull(fading);
         return new PictureShadeFade(ShadingOf(fading.From), ShadingOf(new KraidBackdropShown.Settled(fading.Goal)),
-            fading.Progress.Moved, fading.Progress.Length);
+            new FadeLevel(fading.Progress.Moved, fading.Progress.Length));
     }
 
     /// <summary>The room pictures' shading that shows <paramref name="shown"/>.</summary>
-    private static PictureShading ShadingOf(KraidBackdropShown shown) => shown switch
+    private static PictureShading ShadingOf(KraidBackdropShown shown) => shown.Match(
+        static settled => ShadeOf(settled.Colours) is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard,
+        static fading => PictureShading.Standard.With(FadeOf(fading)));
+
+    /// <summary>The shade of each colours.</summary>
+    private static IdentityTable<KraidBackdropSettledColours, PictureShade?> ShadeByColours => field ??= new(new Dictionary<KraidBackdropSettledColours, PictureShade?>
     {
-        KraidBackdropShown.Settled settled => ShadeOf(settled.Colours) is { } shade ? PictureShading.Shaded(shade) : PictureShading.Standard,
-        KraidBackdropShown.Fading fading => PictureShading.Standard.With(FadeOf(fading)),
-        _ => throw new ArgumentOutOfRangeException(nameof(shown), shown, "Undefined Kraid backdrop colours."),
-    };
+        [KraidBackdropSettledColours.RoomColours] = null,
+        [KraidBackdropSettledColours.KraidColours] = KraidShades.Backdrop,
+        [KraidBackdropSettledColours.Black] = KraidShades.BackdropBlack,
+    });
 
     /// <summary>The installed shade of settled backdrop colours; none for the room's own, its pictures' standard colours.</summary>
-    private static PictureShade? ShadeOf(KraidBackdropSettledColours colours) => colours switch
-    {
-        KraidBackdropSettledColours.RoomColours => null,
-        KraidBackdropSettledColours.KraidColours => KraidShades.Backdrop,
-        KraidBackdropSettledColours.Black => KraidShades.BackdropBlack,
-        _ => throw new ArgumentOutOfRangeException(nameof(colours), colours, "Undefined Kraid backdrop colours."),
-    };
+    private static PictureShade? ShadeOf(KraidBackdropSettledColours colours) => ShadeByColours[colours];
 
     /// <summary>The fade that took the backdrop's latest step.</summary>
     /// <param name="Goal">The colours it ends on.</param>
     /// <param name="Progress">How far it has come.</param>
-    private sealed record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress);
+    private sealed partial record RunningKraidBackdropFade(KraidBackdropSettledColours Goal, StepCountedFadeProgress Progress);
 }

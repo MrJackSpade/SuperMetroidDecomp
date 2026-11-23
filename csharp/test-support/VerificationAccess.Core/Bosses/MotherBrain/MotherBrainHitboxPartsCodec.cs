@@ -7,7 +7,6 @@
 /// <see cref="FromNativeWord"/>, rejecting a word with any other bit set, and word-level checks encode through
 /// <see cref="ToNativeWord"/>; nothing else turns the parts into a word.
 /// </summary>
-[EncodingOwner("snapshot hitbox-enable word")]
 public static class MotherBrainHitboxPartsCodec
 {
     /// <summary>Each part's bit in the hitbox-enable word.</summary>

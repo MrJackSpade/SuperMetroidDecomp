@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Kraid.Artwork;
 
 /// <summary>Installed-resource identity and schema revision for Kraid's five editable color sources.</summary>
-public static class KraidColorFormat
+public static partial class KraidColorFormat
 {
     /// <summary>JSON resource filename containing Kraid's single-band and flash/health-band RGB5 sources.</summary>
     public const string FileName = "kraid-colors.json";

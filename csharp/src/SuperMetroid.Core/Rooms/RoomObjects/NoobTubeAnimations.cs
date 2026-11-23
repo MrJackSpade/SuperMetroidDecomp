@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// Maridia's glass tube's animations (#2480): its authored images (<see cref="NoobTubeObjectDefinitions"/>), each shown for
 /// its own updates, played once through on the shared animation player.
 /// </summary>
-internal static class NoobTubeAnimations
+internal static partial class NoobTubeAnimations
 {
     /// <summary>Each run's images.</summary>
     internal static AnimationSegments<NoobTubeSegment, TerrainChangeFrame, NoAnimationCue> Segments { get; } = new(

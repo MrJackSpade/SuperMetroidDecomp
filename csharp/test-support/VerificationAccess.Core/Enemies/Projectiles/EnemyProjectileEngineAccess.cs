@@ -14,7 +14,15 @@ internal static class EnemyProjectileEngineAccess
         /// Samus bombs: no power bomb explodes for a cue to test (#2159).
         /// </summary>
         internal void AdvanceEnemyProjectileAnimations(EnemyProjectile projectile, SamusState samus, Position16<RoomPixels> camera,
-            int shortCounter) =>
+            SuperMetroid.Core.Compatibility.ShortFrameCount shortCounter) =>
             engine.AdvanceEnemyProjectileAnimations(projectile, samus, camera, shortCounter, InstalledFixtures.CreateBombSystem());
+
+        /// <summary>
+        /// Whether the pre-Phantoon room's setup holds <paramref name="place"/> (#2556): no projectile is live there, yet a
+        /// spawn may not take it.
+        /// </summary>
+        internal bool HoldsForPrePhantoonRoom(int place) =>
+            engine.LatestInPlace(place) is not { IsActive: true } &&
+            !engine.IsFree(place);
     }
 }

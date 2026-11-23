@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Pause;
 
 /// <summary>How the equipment screen shows and refills reserve energy: the tank gauge's steps and the manual refill's sound.</summary>
-internal static class PauseReserveEnergyDefinitions
+internal static partial class PauseReserveEnergyDefinitions
 {
     /// <summary>The supply digits' number base: each digit place counts ten of the place after it.</summary>
     internal const int DecimalBase = 10;

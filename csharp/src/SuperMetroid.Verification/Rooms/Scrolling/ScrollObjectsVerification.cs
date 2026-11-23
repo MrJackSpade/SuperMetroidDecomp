@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -36,7 +37,7 @@ internal static class ScrollObjectsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new RoomTerrainBlock[width * height], new RoomBlockBehavior[width * height], new RoomBlockAppearance[width * height]), RoomLevelData.NothingBeyondGrid(), []);
         var roomObjects = RoomObjectFixtures.Unbound();
         RoomObjectFixtures.LoadPopulation(ref roomObjects, new RoomObjectRoom(level, new SharedGameState(new SharedRandom()), 0), RoomObjectPopulationImporter.Read(bus, population), RoomObjectServiceFixtures.Uninstalled with { Samus = new FixtureRoomSamus(() => new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
-        AssertEqual(1, roomObjects.Scrolls.TriggerBlocks.Count,
+        AssertEqual(1, roomObjects.Places.InUpdateOrder.Count(place => place.Active && place.Behaviour is ScrollTriggerObject),
             "extension setup consumes no persistent PLM slot");
 
         var origin = new Position16<RoomBlocks>(3, 3);
@@ -73,7 +74,7 @@ internal static class ScrollObjectsVerification
         {
             var insideSamus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
             insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
-            SamusInsideBlockReactions.PrepareFrame(level, insideSamus, roomHasPower: true, roomObjects: roomObjects);
+            SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(level, roomObjects), insideSamus, roomHasPower: true);
             AssertEqual(shouldWake, roomObjects.ScrollObjectTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
             roomObjects.Step(level, scrolls);
@@ -81,8 +82,7 @@ internal static class ScrollObjectsVerification
 
         // A direct touch wakes the resident object. Its next handler pass interprets the
         // room-owned bank-$8F bytecode, restores sleep/type-three state, and remains live.
-        AssertTrue(roomObjects.Scrolls.TryNotifyScrollTouch(origin),
-            "direct special-air contact finds resident scroll owner");
+        roomObjects.Scrolls.NotifyScrollTouch(origin);
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
             "direct contact sets native PLM var bit fifteen");
         roomObjects.Step(level, scrolls);
@@ -100,7 +100,9 @@ internal static class ScrollObjectsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
             Radius = new(8, 7),
         };
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = roomObjects }, body, null, null, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
+        // The probe moves as a Samus the game builds, in her pose, whose collision reactions act on her (#2554).
+        SamusState probeSamus = InstalledFixtures.CreateSamus();
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, roomObjects), body, probeSamus, probeSamus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(1) });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
@@ -118,18 +120,12 @@ internal static class ScrollObjectsVerification
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
         var ball = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(ball);
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
-        SamusMorphBallMovement.StepGrounded(
-
-            level,
-            ball,
-            frameCounter: 0,
-            roomObjects: roomObjects);
+        SamusMorphBallMovement.StepGrounded(SamusMovementFixtures.GroundedBallOf(ball), new RoomTerrain(level, roomObjects), ball, frameCounter: 0);
         AssertTrue(ball.Position.X.Whole > ballStartX,
             "Morph Ball traverses scroll extension as special air");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
@@ -146,10 +142,9 @@ internal static class ScrollObjectsVerification
         scrolls.SetRoomScreen(new(1, 0), RoomScrollState.Closed);
         var bombJump = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
         {
-            Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
-        };
+        }.InPose(SamusPoseId.MorphBallGroundRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(bombJump);
         bombJump.Kinematics.YAcceleration = default;
         bombJump.RequestMorphedBombJump(SamusBombJumpDirection.Straight);
@@ -157,10 +152,9 @@ internal static class ScrollObjectsVerification
         bombJump.Kinematics.VerticalVelocity = bombJump.Kinematics.VerticalVelocity.WithSpeed(new UnsignedSixteenSixteen(1, 0));
         SamusBombJumpMovement.Step(
 
-            level,
+            new RoomTerrain(level, roomObjects),
             bombJump,
-            frameCounter: 0,
-            roomObjects);
+            frameCounter: 0);
         AssertTrue(bombJump.BombJumpActive,
             "unobstructed scroll extension does not terminate bomb-jump ascent");
         AssertTrue(roomObjects.ScrollObjectTriggered(origin),
@@ -174,7 +168,7 @@ internal static class ScrollObjectsVerification
     /// The retail scroll program the fixture's trigger runs (#2355): it opens screen (1, 0) aligned to its top, as the
     /// Brinstar Reserve Tank room's trigger does.
     /// </summary>
-    private const RoomScrollChange TriggerProgram = RoomScrollChange.BrinstarReserveTankOpensScreen1x0TopAligned;
+    private const RoomScrollChange TriggerProgram = RoomScrollChange.BrinstarReserveTank;
 
     /// <summary>
     /// Seeds the room-scroll PLM population and the retail scroll program its trigger runs. Six-byte room records are

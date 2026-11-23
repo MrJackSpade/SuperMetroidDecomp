@@ -11,11 +11,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// first.
 /// Lifetime: Samus's.
 /// </remarks>
-[CompatibilityService("the suit's shade a cancelled boost or a new pose shows waits for the update's colour step")]
-public sealed class SuitShadeAtColourStep
+public sealed partial class SuitShadeAtColourStep
 {
     /// <summary>Whether the suit's shade waits for the colour step.</summary>
-    public bool IsDue { get; private set; }
+    internal bool IsDue { get; set; }
 
     /// <summary>A cancelled boost or a new pose shows the suit's shade at the colour step.</summary>
     internal void Show() => IsDue = true;

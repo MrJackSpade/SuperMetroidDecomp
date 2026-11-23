@@ -3,9 +3,27 @@ using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>Scripted Ceres laboratory vignette between intro pages three and four.</summary>
-internal sealed class IntroScientistCutsceneState
+/// <summary>Scripted Ceres laboratory vignette: the Baby's delivery to the scientists or their examination of it, each between two narration pages.</summary>
+internal sealed partial class IntroScientistCutsceneState
 {
+    /// <summary>How one laboratory scene pans: while it has not reached its end, its page moves and the baby with it.</summary>
+    /// <param name="StillPanning">Whether the scene's page, at its scroll, has yet to reach its end.</param>
+    /// <param name="PagePan">How far the page moves each laboratory step.</param>
+    /// <param name="BabyPan">How far the baby moves on screen each laboratory step.</param>
+    private sealed partial record LaboratoryPan(Func<Offset16<PlanePixels>, bool> StillPanning, Offset16<PlanePixels> PagePan, Offset16<ScreenPixels> BabyPan);
+
+    /// <summary>
+    /// The laboratory scenes that pan: the delivery scene moves the camera left while keeping the delivered baby fixed
+    /// relative to the laboratory subjects; the examination scene moves the second laboratory page down to its end scroll
+    /// while the examined baby rises by the same distance.
+    /// </summary>
+    private static readonly IdentityTable<IntroLaboratoryScene, LaboratoryPan> ScenePans = new(new Dictionary<IntroLaboratoryScene, LaboratoryPan>
+    {
+        [IntroLaboratoryScene.Delivery] = new(scroll => scroll.X != 0, IntroLaboratoryDefinitions.DeliveryPagePan, IntroLaboratoryDefinitions.DeliveredBabyCounterPan),
+        [IntroLaboratoryScene.Examination] = new(scroll => scroll.Y < IntroLaboratoryDefinitions.ExaminationPageEndY,
+            IntroLaboratoryDefinitions.ExaminationPageScroll, IntroLaboratoryDefinitions.ExaminedBabyRise),
+    });
+
     /// <summary>Delivered or examined Baby actor whose animation drives scene completion.</summary>
     internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroLaboratoryCue> baby;
 
@@ -40,14 +58,14 @@ internal sealed class IntroScientistCutsceneState
     /// </remarks>
     public bool NextPageRequested { get; private set; }
 
-    /// <summary>Starts the delivered-Baby page with a leftward camera pan and page-four handoff.</summary>
+    /// <summary>Starts the delivered-Baby page with a leftward camera pan, handing on to the narration page that follows the delivery.</summary>
     public static IntroScientistCutsceneState CreateDelivery() => new(IntroLaboratoryScene.Delivery);
 
-    /// <summary>Starts the examined-Baby page with a downward camera pan and page-five handoff.</summary>
+    /// <summary>Starts the examined-Baby page with a downward camera pan, handing on to the narration page that follows the examination.</summary>
     public static IntroScientistCutsceneState CreateExamination() => new(IntroLaboratoryScene.Examination);
 
     /// <summary>
-    /// Advances the Baby script and pans the laboratory with it on every fourth update counted down by the crossfade into
+    /// Advances the Baby script and pans the laboratory with it on each crossfade step counted down by the crossfade into
     /// the laboratory; the crossfade back out of the laboratory ends the Baby as it reaches its final update (#1980).
     /// </summary>
     /// <param name="crossfade">What the running crossfade did on this update, or null when none runs.</param>
@@ -61,22 +79,14 @@ internal sealed class IntroScientistCutsceneState
             baby.Delete();
         }
         else if (crossfade is { To: IntroCrossfadeScene.Laboratory } intoLaboratory
-            && IntroCadenceDefinitions.LaboratoryStepEveryFourthUpdate.IsDue(intoLaboratory.UpdatesLeft))
+            // The laboratory steps on the cadence's updates counted before the crossfade's last, one fewer than it has left.
+            && IntroCadenceDefinitions.LaboratoryStep.IsDue(intoLaboratory.UpdatesLeft - 1))
         {
-            if (Scene == IntroLaboratoryScene.Delivery && Background.X != 0)
+            LaboratoryPan pan = ScenePans[Scene];
+            if (pan.StillPanning(Background))
             {
-                // The delivery scene moves the camera left while keeping the delivered baby fixed
-                // relative to the laboratory subjects.
-                Background += IntroLaboratoryDefinitions.DeliveryPagePan;
-                baby.ScreenPlace += IntroLaboratoryDefinitions.DeliveredBabyCounterPan;
-            }
-            else if (Scene == IntroLaboratoryScene.Examination &&
-                Background.Y < IntroLaboratoryDefinitions.ExaminationPageEndY)
-            {
-                // The examination scene moves the second laboratory page down to its end scroll while the
-                // examined baby rises by the same distance.
-                Background += IntroLaboratoryDefinitions.ExaminationPageScroll;
-                baby.ScreenPlace += IntroLaboratoryDefinitions.ExaminedBabyRise;
+                Background += pan.PagePan;
+                baby.ScreenPlace += pan.BabyPan;
             }
         }
 
@@ -87,17 +97,19 @@ internal sealed class IntroScientistCutsceneState
     public void Draw(ScreenSprites screenSprites, IIntroCinematicSpritePresentation installedArt) =>
         baby.Draw(screenSprites, installedArt: installedArt);
 
+    /// <summary>What <see cref="HandleCue"/> does for each <see cref="IntroLaboratoryCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroLaboratoryCue, Action> HandleCueForIntroLaboratoryCue => field ??= new(new Dictionary<IntroLaboratoryCue, Action>
+    {
+        [IntroLaboratoryCue.StartNextPage] = () =>
+        {
+            // The Baby's last pulse ends by selecting the next page.
+            NextPageRequested = true;
+        },
+    });
+
     /// <summary>Requests the next intro page when the Baby's animation reaches its page cue.</summary>
     private void HandleCue(IntroLaboratoryCue cue)
     {
-        switch (cue)
-        {
-            case IntroLaboratoryCue.StartNextPage:
-                // The Baby's tenth pulse ends by selecting the next page.
-                NextPageRequested = true;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroLaboratoryCue)} {cue}.");
-        }
+        HandleCueForIntroLaboratoryCue[cue]();
     }
 }

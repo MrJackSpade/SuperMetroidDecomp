@@ -14,7 +14,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// the installed file holds every frame's picture, cell by cell, which the player edits in place. The game reads the
 /// pictures as installed: there is no compiled copy and no override.
 /// </summary>
-internal static class RoomObjectFrameImageFiles
+internal static partial class RoomObjectFrameImageFiles
 {
     /// <summary>The installed document's format; a document naming another is rejected and the content is extracted again.</summary>
     /// <remarks>
@@ -22,7 +22,8 @@ internal static class RoomObjectFrameImageFiles
     /// each shows, not by its place in its group (#1762). Revision 5 names the door caps', shot blocks', Grapple blocks', eye doors',
     /// stations', downward gate's and Samus Eaters' frames by what each shows, not by number (#1994). Revision 6 writes no
     /// block for a cell that shows nothing (#2100). Revision 7 names Draygon's cannon frames by what each shows, not by
-    /// letter (#2176).
+    /// letter (#2176). Revision 8 names Mother Brain's glass draws by what each shows and the mural's rows for the mural
+    /// (#2211). Revision 9 names Spore Spawn's ceiling crumble frames by what each shows (#2241).
     /// </remarks>
     internal const int FormatVersion = 9;
 
@@ -52,13 +53,9 @@ internal static class RoomObjectFrameImageFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Ensure.NotNull(visualId);
         var layouts = new List<RoomObjectFamilyFrame<RoomObjectDraw>>();
-        var ids = new Dictionary<RoomObjectDraw, string>();
         foreach (RoomObjectDrawLists.DrawList frame in Ensure.NotNull(frames))
-        {
-            layouts.Add(new(frame.Draw, RoomObjectFrameLayout.Of(frame)));
-            ids.Add(frame.Draw, visualId(frame.Draw));
-        }
-        return new(fileName, name, layouts, ids);
+            layouts.Add(new(frame.Draw, RoomObjectFrameLayout.Of(frame), visualId(frame.Draw)));
+        return new(fileName, name, layouts);
     }
 
     /// <summary>Pictures every frame of <paramref name="family"/> from the cartridge and writes the installed document.</summary>
@@ -74,15 +71,15 @@ internal static class RoomObjectFrameImageFiles
         Ensure.NotNull(family);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         var frames = new List<FrameEntry>();
-        foreach ((TFrame frame, RoomObjectFrameLayout layout) in family.Frames)
+        foreach (RoomObjectFamilyFrame<TFrame> frame in family.Frames)
         {
-            RoomObjectFrameImage image = Picture(bus, family.Name, layout);
-            frames.Add(new FrameEntry(Id(family, frame), image.Cells
-                .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.ShowsNothing ? null : cell.Value.Block,
+            RoomObjectFrameImage image = Picture(bus, family.Name, frame.Layout);
+            frames.Add(new FrameEntry(frame.Id, image.Cells
+                .Select(cell => new FrameCell(cell.Key.X, cell.Key.Y, cell.Value.Shows == RoomBlockShown.Nothing ? null : cell.Value.Block,
                     cell.Value.Mirroring)).ToArray()));
         }
         Directory.CreateDirectory(directory);
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), JsonOptions);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new FrameDocument(FormatVersion, frames.ToArray()), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameDocument>(JsonOptions));
         using var output = new FileStream(Path.Combine(directory, family.FileName), FileMode.CreateNew, FileAccess.Write);
         output.Write(json);
     }
@@ -148,19 +145,19 @@ internal static class RoomObjectFrameImageFiles
     {
         if (document.Version != FormatVersion || document.Frames is null)
             throw new InvalidDataException("the document's format is not this importer's.");
-        var byId = family.Ids.ToDictionary(pair => pair.Value, pair => pair.Key, StringComparer.Ordinal);
+        var byId = family.Frames.ToDictionary(frame => frame.Id, StringComparer.Ordinal);
         var images = new Dictionary<TFrame, RoomObjectFrameImage>();
         foreach (FrameEntry entry in document.Frames)
         {
-            if (entry?.Id is null || !byId.TryGetValue(entry.Id, out TFrame? frame))
+            if (entry?.Id is null || !byId.TryGetValue(entry.Id, out RoomObjectFamilyFrame<TFrame>? frame))
                 throw new InvalidDataException($"frame {entry?.Id ?? "(unnamed)"} is not one of {family.Name}'s frames.");
-            if (images.ContainsKey(frame))
+            if (images.ContainsKey(frame.Frame))
                 throw new InvalidDataException($"frame {entry.Id} is pictured twice.");
-            images.Add(frame, Image(entry, Layout(family, frame).Cells()));
+            images.Add(frame.Frame, Image(entry, frame.Layout.Cells()));
         }
-        foreach ((TFrame drawn, _) in family.Frames)
-            if (!images.ContainsKey(drawn))
-                throw new InvalidDataException($"frame {Id(family, drawn)} is not pictured.");
+        foreach (RoomObjectFamilyFrame<TFrame> drawn in family.Frames)
+            if (!images.ContainsKey(drawn.Frame))
+                throw new InvalidDataException($"frame {drawn.Id} is not pictured.");
         return new RoomObjectFrameImages<TFrame>(images);
     }
 
@@ -195,24 +192,13 @@ internal static class RoomObjectFrameImageFiles
         return new RoomObjectFrameImage(cells);
     }
 
-    /// <summary>The geometry of <paramref name="frame"/>.</summary>
-    private static RoomObjectFrameLayout Layout<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
-        family.Layouts.TryGetValue(frame, out RoomObjectFrameLayout layout)
-            ? layout
-            : throw new InvalidOperationException($"{family.Name} frame {frame} has no geometry.");
-
-    /// <summary>The published name of <paramref name="frame"/>.</summary>
-    private static string Id<TFrame>(RoomObjectFrameFamily<TFrame> family, TFrame frame) where TFrame : notnull =>
-        family.Ids.TryGetValue(frame, out string? id)
-            ? id
-            : throw new InvalidOperationException($"{family.Name} frame {frame} has no published name.");
 
     /// <summary>Reads and parses an installed document, naming its path in a rejection.</summary>
     private static FrameDocument Read(string path, string family)
     {
         try
         {
-            return JsonSerializer.Deserialize<FrameDocument>(File.ReadAllBytes(path), JsonOptions)
+            return JsonSerializer.Deserialize<FrameDocument>(File.ReadAllBytes(path), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomObjectFrameImageFiles.FrameDocument>(JsonOptions))
                 ?? throw new InvalidDataException($"{family} pictures {path} are empty.");
         }
         catch (JsonException error)
@@ -225,18 +211,17 @@ internal static class RoomObjectFrameImageFiles
     private static ushort ReadWord(ISnesAddressSpace bus, int pointer) =>
         pointer >= ushort.MaxValue
             ? throw new InvalidDataException("A room-object draw-list word cannot start at the bank's last byte.")
-            : CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, pointer));
+            : bus.ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomObjectSourceDefinitions.RoomObjectBank, pointer));
 
     /// <summary>The installed document: its format and every frame's picture.</summary>
-    private sealed record FrameDocument(int Version, FrameEntry[] Frames);
+    internal sealed partial record FrameDocument(int Version, FrameEntry[] Frames);
 
     /// <summary>One frame's picture: its published name and every cell it shows.</summary>
-    private sealed record FrameEntry(string Id, FrameCell[] Cells);
+    internal sealed partial record FrameEntry(string Id, FrameCell[] Cells);
 
     /// <summary>
     /// One pictured cell: its place from the object's origin, the block it shows, or null where it shows nothing, and how it
     /// is mirrored.
     /// </summary>
-    [SpatialComponents("External format: a room object's frame document stores each pictured cell's offset from the object's origin as x/y blocks.")]
-    private sealed record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
+    internal sealed partial record FrameCell(int X, int Y, int? Block, BlockMirroring Mirroring);
 }

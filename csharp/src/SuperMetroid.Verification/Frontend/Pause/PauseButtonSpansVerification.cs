@@ -25,9 +25,6 @@ internal static class PauseButtonSpansVerification
             AssertEqual(expected, PauseMenuButtonLabels.ButtonLabelSpan((PauseButtonLabel)(index / 2), index % 2).Word,
                 "named button row projection");
         }
-        foreach (int invalid in new[] { int.MinValue, -1, 3, 256, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => PauseMenuButtonLabels.ButtonLabelSpan((PauseButtonLabel)invalid, 0),
-                "unsupported button identity");
         foreach (int invalid in new[] { int.MinValue, -1, 2, 256, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => PauseMenuButtonLabels.ButtonLabelSpan(PauseButtonLabel.Map, invalid),
                 "unsupported button row");

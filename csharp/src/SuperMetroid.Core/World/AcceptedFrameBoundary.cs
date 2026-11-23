@@ -1,7 +1,7 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World.RoomStates;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.BossBodies;
@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.World;
 /// The frame boundary at the start of each update: the previous update's frame becomes visible, the controllers are
 /// latched and the frame counters advance; the display captures are published here.
 /// </summary>
-internal sealed class AcceptedFrameBoundary
+internal sealed partial class AcceptedFrameBoundary
 {
     /// <summary>Latches the controllers and advances the frame counters after publication.</summary>
     private readonly AcceptedFrameInput _input;
@@ -119,14 +119,11 @@ internal sealed class AcceptedFrameBoundary
             _backgroundScroll.BackgroundScroll,
             scope.Enemies.Earthquake.LastRoomShake);
         RoomFxOverlayRenderSnapshot? roomFxOverlay = scope.FxOverlay.CaptureForDisplay();
-        // Phantoon's wave and visibility, the statues' descent and the rainbow beam's colour latch with the rest of the
-        // frame, whatever kind of frame the room shows.
-        displays.Phantoon?.BodyWave.LatchDisplay();
-        if (displays.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.BodyVisibility.LatchDisplay(phantoonDisplay.Death.PixelationSize);
-        scope.TourianStatues?.LatchDisplay();
-        displays.MotherBrain?.RainbowBeam.LatchDisplay();
-        MorphBallEyeBeamCone? eyeBeam = displays.MorphBallEyeBeam.LatchDisplay();
+        // Every displayed state the room keeps apart from its live state latches with the rest of the frame, whatever kind
+        // of frame the room shows: the enemies' and the room's own (#2571).
+        foreach (IDisplayLatch latch in scope.DisplayLatches)
+            latch.LatchDisplay();
+        MorphBallEyeBeamCone? eyeBeam = displays.LatchedBeamCone;
         GameplayLatchedScene scene = CaptureScene(scope);
         XrayRevealedBlocks? reveal = CaptureXrayReveal(scope, scene);
         // The room's pictures are named by what gameplay showed over its load, the frames its animations selected and, in
@@ -144,11 +141,11 @@ internal sealed class AcceptedFrameBoundary
         {
             // The floor Ceres Ridley's getaway flies over shows while he flies it (his room main computes it), with the
             // chamber's walls around it and the room's background plane in a band below it (#1545).
-            if (displays.CeresGetawayFloor is { } ridley)
+            if (displays.FlownFloor is { } flown)
             {
                 RoomLevelPlane band = level.BackgroundPlane;
                 return new PerspectiveFloorFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
-                    CeresPerspectiveFloors.RidleyGetaway(ridley, displays.CeresGetawayChamberWalls), floor.Publish(),
+                    CeresPerspectiveFloors.RidleyGetaway(flown, displays.FlownFloorWalls), floor.Publish(),
                     new RoomBackgroundLayer(band.Cells, BlockPictures(scope, appearance, band, reveal)));
             }
             // The elevator shaft's floor shows while the shaft has its transform, which exists exactly while the room was
@@ -166,13 +163,14 @@ internal sealed class AcceptedFrameBoundary
             : null;
         RoomBlockPictureTable pictures = BlockPictures(scope, appearance, backgroundPlane, reveal);
         RoomBackgroundLayer? background = backgroundPlane is { } shownPlane ? new RoomBackgroundLayer(shownPlane.Cells, pictures) : null;
-        GameplayLatchedBossBody bosses = GameplayLatchedBossBody.Of(displays.BossBody);
+        GameplayLatchedBossBody? bosses = GameplayLatchedBossBody.Of(displays.BossBody);
         return new OrdinaryRoomFrameLatch(hud, picturedHud, scrolls, roomFxOverlay, effectOverlay, eyeBeam, tints,
             _screenLayers.Displayed,
-            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses.Body),
+            RoomBackgroundsOf(scope, appearance, new RoomBackgroundLayer(level.ForegroundPlane.Cells, pictures), background, bosses?.Body),
             scene,
             bosses,
-            displays.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
+            displays.BossBody is { HidesBodyLayer: true },
+            displays.WavingBody,
             scope.FxOverlay.Fireflea is { } fireflea ? new LatchedFirefleaDarkness(fireflea.Tint) : null,
             // Only the statue room has statues, so only its frames carry a descent (#2385). The descent stops at its
             // authored distance, which holds the offset between minus that distance and zero (#1627).
@@ -195,7 +193,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     private static RoomBlockPictureTable BlockPictures(RoomScope scope, RoomAppearanceView appearance, RoomLevelPlane? backgroundPlane,
         XrayRevealedBlocks? reveal) =>
-        scope.Room.State.TurningFloor == RoomTurningFloor.ElevatorShaft
+        scope.Room.State.TurningFloor.HidesLevelBlocks
             ? RoomBlockPictureTable.NoneDrawn(scope.BlockPictures.Sheet)
             : scope.BlockPictures.Resolve(scope.LevelData.ForegroundPlane, backgroundPlane, appearance,
                 reveal?.Grid.Blocks.OfType<RevealedBlock>().Select(block => block.Picture) ?? []);
@@ -230,26 +228,16 @@ internal sealed class AcceptedFrameBoundary
             : scope.BackgroundImage is RoomLibraryBackgroundPicture.Drawn { Image: var backgroundImage }
                 ? new LibraryImageBackground(backgroundImage.Resolve(appearance, RoomBackgroundImagePlacement.Whole(backgroundImage.Image)))
             : ShownRoomBackground.Nothing;
-        // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): Zebes's at the background's
-        // depth, Ceres's at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on
-        // (#1466). A room shows one escape's warning at most.
-        ShownRoomWarning? zebes = WarningOf(scope, scope.Enemies.DisplaySources.ZebesWarning, appearance, RoomWarningDepth.WithBackground);
-        ShownRoomWarning? ceres = WarningOf(scope, scope.Enemies.DisplaySources.CeresWarning, appearance, RoomWarningDepth.WithForeground);
-        if (zebes is not null && ceres is not null)
-            throw new InvalidOperationException($"{scope.Room.Definition.Name} shows both Zebes's and Ceres's warnings.");
+        // The warning an escape shows in the room, as its sequence describes it (#1555, #2573): one at the background's depth,
+        // one at the foreground's, each drawn from the warning picture sheet's frames for the inputs they depend on (#1466).
+        // A room shows one escape's warning at most.
+        ShownRoomWarning? backgroundWarning = scope.Warnings?.WithBackground.Shown(appearance);
+        ShownRoomWarning? foregroundWarning = scope.Warnings?.WithForeground.Shown(appearance);
+        if (backgroundWarning is not null && foregroundWarning is not null)
+            throw new InvalidOperationException($"{scope.Room.Definition.Name} shows warnings at both the background's and the foreground's depths.");
         // The planes are shared until gameplay changes level data.
-        return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, zebes ?? ceres, scope.Floor?.Publish());
+        return new RoomBackgrounds(foreground, shown, room.DoorSourceBackground, backgroundWarning ?? foregroundWarning, scope.Floor?.Publish());
     }
-
-    /// <summary>
-    /// The warning <paramref name="text"/> shows at <paramref name="depth"/>, drawn from the room's warning picture sheet's
-    /// frames for the inputs they depend on (#1466), or null while it shows nothing.
-    /// </summary>
-    /// <exception cref="InvalidDataException">A warning shows in a room whose tileset has no installed warning picture sheet.</exception>
-    private static ShownRoomWarning? WarningOf(RoomScope scope, RoomWarningText text, RoomAppearanceView appearance, RoomWarningDepth depth) =>
-        text.Pictures.IsEmpty ? null
-            : new ShownRoomWarning((scope.WrittenPictures ?? throw new InvalidDataException(
-                $"{scope.Room.Definition.Name} shows a warning with no installed warning picture sheet.")).Resolve(text, appearance), depth);
 
     /// <summary>The pictures of the HUD's images in <paramref name="sheet"/>, the room's HUD picture sheet.</summary>
     private HudPictures HudPicturesIn(SpriteSheet sheet) =>
@@ -265,7 +253,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     private XrayRevealedBlocks? CaptureXrayReveal(RoomScope scope, GameplayLatchedScene scene) =>
         // Where X-ray preserves the backgrounds it reveals no blocks: the pictures are another room's.
-        _player.IntroducedSamus.Xray.IsActive && XrayBlockRevealRules.RevealsBlocks(scene.Room, scene.Boss)
+        _player.Samus.Xray.IsActive && XrayBlockRevealRules.RevealsBlocks(scene.Room, scene.Boss)
             ? _xray.Reveal(scope)
             : null;
 }

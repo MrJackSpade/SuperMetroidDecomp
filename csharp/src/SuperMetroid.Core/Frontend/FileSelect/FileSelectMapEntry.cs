@@ -4,11 +4,11 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// The file-select map's entry (#1512, #2415): the black screen it holds for
 /// <see cref="FileSelectMapDefinitions.EntryBlackHoldUpdates"/> updates, then the centered area-map reveal.
 /// </summary>
-public sealed class FileSelectMapEntry
+public sealed partial class FileSelectMapEntry
 {
     /// <summary>The entry's black hold, counted once each update; the reveal starts on its last.</summary>
     private readonly UpdateCountdown blackHold = UpdateCountdown.Lasting(FileSelectMapDefinitions.EntryBlackHoldUpdates);
-    /// <summary>Number of eight-pixel expansion updates applied to the centered reveal.</summary>
+    /// <summary>Number of expansion updates applied to the centered reveal, each edge moving at <see cref="FileSelectMapDefinitions.EntryWindowSpeed"/>.</summary>
     private int revealSteps;
 
     /// <summary>Gets the current entry stage.</summary>
@@ -29,26 +29,30 @@ public sealed class FileSelectMapEntry
     /// <summary>Gets the lower edge of the expanding reveal window in pixels.</summary>
     public int Bottom => ScreenGeometry.ScreenHeightPixels - Top;
 
+    /// <summary>What <c>Step</c> does for each <see cref="FileSelectMapEntryPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<FileSelectMapEntryPhase, Action> StepForFileSelectMapEntryPhase => field ??= new(new Dictionary<FileSelectMapEntryPhase, Action>
+    {
+        [FileSelectMapEntryPhase.BlackHold] = () =>
+        {
+            if (blackHold.StepEnds())
+                Phase = FileSelectMapEntryPhase.Revealing;
+        },
+        [FileSelectMapEntryPhase.Revealing] = () =>
+        {
+            // When the window's top would pass the screen's top this update, the window opens fully instead: its
+            // edges stay where they are and the whole area shows.
+            if (Top - FileSelectMapDefinitions.EntryWindowSpeed < 0)
+                Phase = FileSelectMapEntryPhase.Complete;
+            else revealSteps++;
+        },
+        [FileSelectMapEntryPhase.Complete] = () =>
+        {
+        },
+    });
+
     /// <summary>Advances the entry's black hold or centered reveal by one frontend update.</summary>
     public void Step()
     {
-        switch (Phase)
-        {
-            case FileSelectMapEntryPhase.BlackHold:
-                if (blackHold.StepEnds())
-                    Phase = FileSelectMapEntryPhase.Revealing;
-                break;
-            case FileSelectMapEntryPhase.Revealing:
-                // When the window's top would pass the screen's top this update, the window opens fully instead: its
-                // edges stay where they are and the whole area shows.
-                if (Top - FileSelectMapDefinitions.EntryWindowSpeed < 0)
-                    Phase = FileSelectMapEntryPhase.Complete;
-                else revealSteps++;
-                break;
-            case FileSelectMapEntryPhase.Complete:
-                break;
-            default:
-                throw new InvalidOperationException($"Unknown file-select entry phase {Phase}.");
-        }
+        StepForFileSelectMapEntryPhase[Phase]();
     }
 }

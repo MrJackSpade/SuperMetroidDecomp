@@ -7,16 +7,16 @@ namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>
 /// One post-credits typed text (#1555): the item-percentage labels with their percentage and subtitle, or the final
-/// message. It types its installed characters with the four-frame typewriter cadence, its typing played by the shared
+/// message. It types its installed characters with the typewriter cadence (<see cref="EndingTypewriterDefinitions.CharacterDelayFrames"/>), its typing played by the shared
 /// animation player (<see cref="EndingTypewriterAnimations"/>, #2488), and shows what it has typed so far as glyph pictures
 /// at their screen places; nothing is written to a page.
 /// </summary>
-internal sealed class EndingTypewriter
+internal sealed partial class EndingTypewriter
 {
     /// <summary>Collected ammo and item counts used for the item percentage.</summary>
     private readonly EndingInventorySnapshot inventory;
     /// <summary>Whether the Japanese subtitle shows during the percentage hold.</summary>
-    private readonly bool japaneseText;
+    private readonly TextLanguage language;
     /// <summary>The text this typewriter types.</summary>
     private readonly EndingTextSequence sequence;
 
@@ -25,11 +25,11 @@ internal sealed class EndingTypewriter
     {
         Ensure.NotNull(setup);
         inventory = setup.Inventory;
-        japaneseText = setup.JapaneseText;
+        language = setup.Language;
         this.sequence = sequence;
         Characters = Ensure.NotNull(setup.Text).CharactersOf(sequence).ToArray();
         AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> segments =
-            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+            EndingTypewriterAnimations.Segments(sequence, Characters);
         typing = AnimationPlayer<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue>.Starting(
             segments, EndingTypewriterAnimations.Typing(segments, sequence));
     }
@@ -44,7 +44,7 @@ internal sealed class EndingTypewriter
     /// <summary>Set after the text and any percentage hold have finished.</summary>
     public bool Completed { get; private set; }
     /// <summary>Whether the text is the item percentage's, whose completion lets the scene move the text down (#2562).</summary>
-    internal bool TypesItemPercentage => sequence == EndingTextSequence.ItemPercentage;
+    internal bool TypesItemPercentage => EndingTextSequenceDefinitions.HoldingPercentage.Contains(sequence);
 
     /// <summary>The installed characters.</summary>
     private EndingTextCharacter[] Characters { get; set; }
@@ -57,28 +57,25 @@ internal sealed class EndingTypewriter
         if (TypedCount > Characters.Length)
             throw new InvalidDataException($"Saved ending-text typed count {TypedCount} exceeds the rebound text.");
         AnimationSegments<EndingTextSequence, EndingTypewriterTyping, EndingTypewriterCue> rebound =
-            EndingTypewriterAnimations.Segments(sequence, Characters.Length);
+            EndingTypewriterAnimations.Segments(sequence, Characters);
         typing.Rebind(rebound, EndingTypewriterAnimations.Typing(rebound, sequence));
     }
 
-    /// <summary>Runs the typing one update: the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
+    /// <summary>Runs the typing one update: the initial delay, character cadence, optional percentage hold, and completion handoff.</summary>
     public void Step() => typing.Step(CarryOut);
+
+    /// <summary>What <see cref="CarryOut"/> does for each <see cref="EndingTypewriterCue"/> member, each member's own arm.</summary>
+    private IdentityTable<EndingTypewriterCue, Action> CarryOutForEndingTypewriterCue => field ??= new(new Dictionary<EndingTypewriterCue, Action>
+    {
+        [EndingTypewriterCue.ShowPercentage] = () => shownPercentage = ItemPercentage(),
+        [EndingTypewriterCue.Complete] = () => Completed = true,
+    });
 
     /// <summary>Carries out <paramref name="cue"/> of the text's typing.</summary>
     /// <exception cref="InvalidOperationException">The cue is not one a text's typing raises.</exception>
     private void CarryOut(EndingTypewriterCue cue)
     {
-        switch (cue)
-        {
-            case EndingTypewriterCue.ShowPercentage:
-                shownPercentage = ItemPercentage();
-                return;
-            case EndingTypewriterCue.Complete:
-                Completed = true;
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined ending typewriter cue {cue}.");
-        }
+        CarryOutForEndingTypewriterCue[cue]();
     }
 
     /// <summary>
@@ -106,7 +103,7 @@ internal sealed class EndingTypewriter
             yield return new(EndingPictureNames.PercentDigit(tens), PercentageCorner(1));
         yield return new(EndingPictureNames.PercentDigit(units), PercentageCorner(2));
         yield return new(EndingPictureNames.PercentSign, PercentageCorner(3));
-        if (japaneseText && !Completed)
+        if (language == TextLanguage.Japanese && !Completed)
             yield return new(EndingPictureNames.JapaneseSubtitle, EndingResultTextLayout.JapaneseSubtitleCorner);
     }
 

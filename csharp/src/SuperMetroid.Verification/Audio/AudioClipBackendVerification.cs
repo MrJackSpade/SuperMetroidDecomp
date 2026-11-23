@@ -65,8 +65,8 @@ internal static class AudioClipBackendVerification
             IReadOnlyList<AudioRequest> commands = update switch
             {
                 0 => dataSet is MusicDataSet loaded
-                    ? [new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(loaded)]
-                    : [new AudioRequest.ChangeMusicDataSet(null)],
+                    ? [new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(loaded)]
+                    : [new AudioRequest.InstallSharedSounds()],
                 1 => [request],
                 _ => [],
             };
@@ -96,7 +96,7 @@ internal static class AudioClipBackendVerification
     private static void VerifyMusicCommands(ClipAudioLibrary clips, int beatUpdates)
     {
         var script = new Script(clips);
-        script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
+        script.Advance([new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         script.Advance([AudioRequest.ForTrack(MusicTrackNumbers.Decode(MusicDataSet.GreenBrinstar, RoomTrack))]);
         script.AdvanceUntil(() => script.State.Song is not null, beatUpdates);
         long start = script.State.SongStart;
@@ -129,40 +129,41 @@ internal static class AudioClipBackendVerification
         InstalledSoundEffectClip high = clips.Manifest.SoundEffects.First(entry =>
             entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.High, IgnoresPriority: false } &&
-            entry.ActiveFrames > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
+            entry.Shape is InstalledOneShotSoundEffect { ActiveFrames: var active } &&
+            active > (SoundStartUpdates + 6) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame);
         InstalledSoundEffectClip low = clips.Manifest.SoundEffects.First(entry =>
             entry.Sound.Library == SoundEffectLibrary.Enemies &&
             entry.Policy is { Priority: SoundEffectPriorityEffect.Low, IgnoresPriority: false } && entry.Sound != high.Sound);
         var script = new Script(clips.Clips);
-        script.Advance([new AudioRequest.ChangeMusicDataSet(null), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
+        script.Advance([new AudioRequest.InstallSharedSounds(), new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         ClipLibraryState library2 = script.State.Libraries[SoundEffectLibrary.Enemies];
 
         script.Advance([new AudioRequest.RequestSound(high.Sound)]);
-        script.AdvanceUntil(() => library2.Sound is not null, SoundStartUpdates);
-        AssertEqual<SoundEffectId?>(high.Sound, library2.Sound?.Sound, "the high-priority sound starts");
-        AssertEqual(script.LastStart(SoundEffectLibrary.Enemies), library2.Start, "it starts at its accepting poll");
+        script.AdvanceUntil(() => library2.Playback is not null, SoundStartUpdates);
+        AssertEqual<SoundEffectId?>(high.Sound, library2.Playback?.Sound.Sound, "the high-priority sound starts");
+        AssertEqual<long?>(script.LastStart(SoundEffectLibrary.Enemies), library2.Playback?.Start, "it starts at its accepting poll");
         script.Advance([new AudioRequest.RequestSound(low.Sound)]);
         script.Advance(4);
-        AssertEqual<SoundEffectId?>(high.Sound, library2.Sound?.Sound, "a low-priority request is rejected while the high-priority sound holds the library");
-        script.Advance([new AudioRequest.RequestSound(EnemySound.Silence)]);
-        AssertTrue(library2.Active && library2.HighPriority, "the high-priority sound still holds library 2");
-        script.AdvanceUntil(() => library2.Sound?.Sound == EnemySound.Silence, SoundStartUpdates);
+        AssertEqual<SoundEffectId?>(high.Sound, library2.Playback?.Sound.Sound, "a low-priority request is rejected while the high-priority sound holds the library");
+        script.Advance([new AudioRequest.RequestSound(EnemySoundStop.Any)]);
+        AssertTrue(library2.Playback is HoldingClipPlayback && library2.HighPriority, "the high-priority sound still holds library 2");
+        script.AdvanceUntil(() => library2.Playback?.Sound.Sound == EnemySoundStop.Any, SoundStartUpdates);
 
         ClipLibraryState library3 = script.State.Libraries[SoundEffectLibrary.Room];
         script.Advance([new AudioRequest.RequestSound(RoomSound.LowHealthBeep)]);
-        script.AdvanceUntil(() => library3.Sound?.Sound == RoomSound.LowHealthBeep, SoundStartUpdates);
+        script.AdvanceUntil(() => library3.Playback?.Sound.Sound == RoomSound.LowHealthBeep, SoundStartUpdates);
         AssertTrue(library3.InLowHealthMode, "the low-health beep enters low-health mode");
         script.Advance([new AudioRequest.RequestSound(RoomSound.SpeedBooster)]);
         script.Advance(4);
-        AssertEqual<SoundEffectId?>(RoomSound.LowHealthBeep, library3.Sound?.Sound, "low-health mode rejects another library-3 sound");
+        AssertEqual<SoundEffectId?>(RoomSound.LowHealthBeep, library3.Playback?.Sound.Sound, "low-health mode rejects another library-3 sound");
 
-        long beepStart = library3.Start;
+        long? beepStart = library3.Playback?.Start;
         script.Advance([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
-        AssertTrue(library3.Sound?.Sound == RoomSound.LowHealthBeep && library3.Start == beepStart,
+        AssertTrue(library3.Playback?.Sound.Sound == RoomSound.LowHealthBeep && library3.Playback?.Start == beepStart,
             "a clip-set switch leaves the looping beep playing on, unchanged");
 
-        script.Advance([new AudioRequest.RequestSound(RoomSound.Silence)]);
-        script.AdvanceUntil(() => library3.Sound?.Sound == RoomSound.Silence, SoundStartUpdates);
+        script.Advance([new AudioRequest.RequestSound(RoomSoundStop.Any)]);
+        script.AdvanceUntil(() => library3.Playback?.Sound.Sound == RoomSoundStop.Any, SoundStartUpdates);
         AssertTrue(!library3.InLowHealthMode, "$01 is accepted in low-health mode and clears it");
     }
 

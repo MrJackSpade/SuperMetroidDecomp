@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// Phantoon's typed flame animations (#641, #1600, #2011), each beat the installed <see cref="EnemyProjectileFrameId"/> it
 /// shows.
 /// </summary>
-internal static class PhantoonFlameAnimations
+internal static partial class PhantoonFlameAnimations
 {
     /// <summary>How many times each of a falling flame's three runs plays its flicker.</summary>
     private const int FallingRepeatCount = 4;
@@ -18,8 +18,8 @@ internal static class PhantoonFlameAnimations
     /// update and a rain flame's impact one for a longer beat; a falling flame flickers between each of its three poses and nothing,
     /// one update each, in three runs (#2250).
     /// </summary>
-    internal static AnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(
-        new Dictionary<PhantoonFlameSegment, AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[]>
+    internal static HidingUnpausedAnimationSegments<PhantoonFlameSegment, EnemyProjectileFrameId, PhantoonFlameCue> Segments { get; } = new(
+        new Dictionary<PhantoonFlameSegment, IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[]>
     {
         [P.Burning] =
         [
@@ -45,21 +45,9 @@ internal static class PhantoonFlameAnimations
             Show(EnemyProjectileFrameId.PhantoonFlameLastWisp, 5),
         ],
         [P.RainImpact] = [Show(EnemyProjectileFrameId.PhantoonFlameSplashed, 8)],
-        [P.CasualFallingKindling] =
-        [
-            Show(EnemyProjectileFrameId.PhantoonFlameKindling, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
-        ],
-        [P.CasualFallingTeardrop] =
-        [
-            Show(EnemyProjectileFrameId.PhantoonFlameTeardrop, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
-        ],
-        [P.CasualFallingSputtering] =
-        [
-            Show(EnemyProjectileFrameId.PhantoonFlameSputtering, 1),
-            Show(EnemyProjectileFrameId.Blank, 1),
-        ],
+        [P.CasualFallingKindling] = Flicker(EnemyProjectileFrameId.PhantoonFlameKindling),
+        [P.CasualFallingTeardrop] = Flicker(EnemyProjectileFrameId.PhantoonFlameTeardrop),
+        [P.CasualFallingSputtering] = Flicker(EnemyProjectileFrameId.PhantoonFlameSputtering),
         [P.StartingFlame] =
         [
             Show(EnemyProjectileFrameId.PhantoonFlameKindling, 5),
@@ -72,8 +60,8 @@ internal static class PhantoonFlameAnimations
 
     /// <summary>
     /// How each flame animation plays its steps: the loops cycle for good, a resting or impacting flame runs on into dying
-    /// and its deletion, a shot flame dies, leaves its drop and is deleted, and a falling flame plays each of its three
-    /// flickers four times, in turn for good.
+    /// and its deletion, a shot flame dies, leaves its drop and is deleted, and a falling flame plays each of its
+    /// flickers over again (<see cref="FallingRepeatCount"/>), in turn for good.
     /// </summary>
     internal static IReadOnlyDictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>> StartingAt { get; } = new Dictionary<PhantoonFlameSegment, Animation<PhantoonFlameSegment>>
     {
@@ -95,11 +83,19 @@ internal static class PhantoonFlameAnimations
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<PhantoonFlameSegment> StartingWith(PhantoonFlameSegment segment) => StartingAt[segment];
 
+    /// <summary>A falling flame's flicker: <paramref name="pose"/> for one update, then nothing for one.</summary>
+    private static IUnpausedHidingAnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>[] Flicker(EnemyProjectileFrameId pose) =>
+        [Show(pose, 1), Hide(1)];
+
     /// <summary>Shows <paramref name="frame"/> for <paramref name="duration"/> passes.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Show(EnemyProjectileFrameId frame, int duration) =>
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused Show(EnemyProjectileFrameId frame, int duration) =>
         new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Frame(frame, duration);
 
+    /// <summary>Shows nothing for <paramref name="duration"/> updates (#2558): the projectile is hidden until its next frame.</summary>
+    private static AnimationHiddenBeat<EnemyProjectileFrameId, PhantoonFlameCue> Hide(int duration) =>
+        new AnimationHiddenBeat<EnemyProjectileFrameId, PhantoonFlameCue>(duration);
+
     /// <summary>Raises <paramref name="cue"/>.</summary>
-    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue> Cue(PhantoonFlameCue cue) =>
+    private static AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Unpaused Cue(PhantoonFlameCue cue) =>
         new AnimationBeat<EnemyProjectileFrameId, PhantoonFlameCue>.Event(cue);
 }

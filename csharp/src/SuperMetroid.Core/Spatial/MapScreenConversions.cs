@@ -1,12 +1,12 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Named conversions between the area-map grids and the screen showing them.</summary>
-public static class MapScreenConversions
+public static partial class MapScreenConversions
 {
     /// <summary>Map-plane pixels per map tile on each axis.</summary>
     public const int PixelsPerMapTile = 8;
 
-    /// <summary>The top-left map-plane pixel of a map tile (<c>tile × 8</c>), wrapping each axis at 65536.</summary>
+    /// <summary>The top-left map-plane pixel of a map tile (<see cref="PixelsPerMapTile"/> to a tile), wrapping each axis at 65536.</summary>
     public static Position16<MapPixels> ToMapPixels(this Position16<MapTiles> tile) =>
         Position16<MapPixels>.Wrapped(tile.X * PixelsPerMapTile, tile.Y * PixelsPerMapTile);
 

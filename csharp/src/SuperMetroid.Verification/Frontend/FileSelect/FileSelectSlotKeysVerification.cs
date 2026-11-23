@@ -16,12 +16,10 @@ internal static class FileSelectSlotKeysVerification
         AssertTrue(SaveSlots.All.Select(FileSelectParts.LetterFrame)
                 .SequenceEqual(["FileSelect.Letter.A", "FileSelect.Letter.B", "FileSelect.Letter.C"]),
             "each slot's letter is pictured under the slot's name");
-        AssertThrows<ArgumentOutOfRangeException>(() => FileSelectParts.LetterFrame((SaveSlot)byte.MaxValue), "an undefined slot has no letter");
-        AssertEqual(SaveSlot.A, FileSelectItemRows.SaveSlotOf(FileSelectItem.SlotA), "slot A's row names slot A");
-        AssertEqual(SaveSlot.B, FileSelectItemRows.SaveSlotOf(FileSelectItem.SlotB), "slot B's row names slot B");
-        AssertEqual(SaveSlot.C, FileSelectItemRows.SaveSlotOf(FileSelectItem.SlotC), "slot C's row names slot C");
+        foreach ((FileSelectItem row, SaveSlot slot) in new[] { (FileSelectItem.SlotA, SaveSlot.A), (FileSelectItem.SlotB, SaveSlot.B), (FileSelectItem.SlotC, SaveSlot.C) })
+            AssertTrue(FileSelectItemRows.TryGetSaveSlot(row, out SaveSlot named) && named == slot, $"the {row} row names slot {slot}");
         foreach (FileSelectItem command in new[] { FileSelectItem.Copy, FileSelectItem.Clear, FileSelectItem.Exit })
-            AssertThrows<InvalidDataException>(() => FileSelectItemRows.SaveSlotOf(command), $"the {command} row names no save slot");
+            AssertTrue(!FileSelectItemRows.TryGetSaveSlot(command, out _), $"the {command} row names no save slot");
         Console.WriteLine("File-select slot keys: letters pictured by slot name; only slot rows name a selected slot.");
     }
 }

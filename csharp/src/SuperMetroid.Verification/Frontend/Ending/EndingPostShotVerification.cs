@@ -39,26 +39,26 @@ internal static class EndingPostShotVerification
                 {
                     ushort word = initial[start + i].ToWord();
                     ushort faded = (ushort)(((word & 31) * level / 32) | ((word >> 5 & 31) * level / 32) << 5 | ((word >> 10 & 31) * level / 32) << 10);
-                    AssertEqual(faded, shade.Colours[i].ToWord(), "post-shot fade level colour matches the cartridge's component fade");
+                    AssertEqual(faded, shade.Colours.ElementAt(i).ToWord(), "post-shot fade level colour matches the cartridge's component fade");
                 }
             }
         }
         var expected = new byte[SnesVram.ByteCount];
-        byte[] font = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x97e7de, 0x8000);
+        byte[] font = RomDataReader.Decompress(bus, 0x97e7de, 0x8000);
         using var fontPng = new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontCharacters fontAtlas = EndingFontCharacters.Read(fontPng);
         var shot = new EndingPostShot();
         ImportEndingObjectArtwork objects = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.EndingObjects;
-        byte[] tiles = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
-        byte[] map = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
+        byte[] tiles = RomDataReader.Decompress(bus, 0x99e089, 0x8000);
+        byte[] map = RomDataReader.Decompress(bus, 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)
         {
-            shot.Step(screen);
+            bool ready = shot.Step(screen);
             AssertEqual(FloorZoomConstants.FromTwoHundredFiftySixths(Math.Max(24, 2304 - Math.Min(frame, 36) * 64)), shot.Zoom, "native post-shot zoom trajectory");
             AssertEqual(RotationAngle.FromSteps(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
-            AssertEqual(frame == 216, shot.ReadyForWhiteFlash, "white-flash handoff follows a full 180-frame hold");
+            AssertEqual(frame == 216, ready, "white-flash handoff follows a full 180-frame hold");
             // The screen names the shot's and Samus's fade levels, Samus's after its delay (#1512).
             AssertTrue(screen.Colours.Shading.Shades.Contains(EndingShades.Faded(EndingFade.Shot, 32 - Math.Clamp(frame, 0, 32))),
                 "post-shot shot fade level");

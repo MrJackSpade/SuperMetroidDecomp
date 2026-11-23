@@ -6,7 +6,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Reads and writes the installed room palette document.</summary>
-public static class RoomStaticPaletteFile
+public static partial class RoomStaticPaletteFile
 {
     /// <summary>
     /// Loads one room graphics-set palette from a JSON document containing exactly 128 RGB5 colors.
@@ -45,7 +45,7 @@ public static class RoomStaticPaletteFile
     public static void Write(Stream json, RoomStaticPaletteDocument document)
     {
         Ensure.NotNull(json);
-        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions));
+        json.Write(JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomStaticPaletteDocument>(JsonOptions)));
     }
 
     /// <summary>Uses camel-case JSON and rejects unknown properties so palette schema mistakes fail during loading.</summary>

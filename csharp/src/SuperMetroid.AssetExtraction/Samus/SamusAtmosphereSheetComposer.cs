@@ -9,19 +9,13 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// lava-and-dust small sprites in each frame, as their installed attributes name them, and the diving splash's and
 /// bubbles' spritemaps, coloured as Samus's other sheets are.
 /// </summary>
-internal static class SamusAtmosphereSheetComposer
+internal static partial class SamusAtmosphereSheetComposer
 {
     /// <summary>Every frame the sheet holds.</summary>
     internal static IEnumerable<string> Frames =>
         SamusAtmosphereSheetDefinitions.FootstepSplash.Concat(SamusAtmosphereSheetDefinitions.LavaAndDust)
             .Concat(SamusAtmosphereSheetDefinitions.DivingSplash).Concat(SamusAtmosphereSheetDefinitions.Bubbles)
             .Select(SamusAtmosphereSheetDefinitions.FrameName);
-
-    /// <summary>The cartridge's number of the atmospheric type whose list the footstep splash draws.</summary>
-    private const int FootstepType = 1;
-
-    /// <summary>The cartridge's number of the atmospheric type whose shared list the lava spray and dust draw.</summary>
-    private const int LavaAndDustType = 4;
 
     /// <summary>What the atmosphere sheet composes with the body's spritemaps and atmospheric attributes.</summary>
     internal static SpriteSheetSources Sources(SamusSheetInputs inputs) =>
@@ -35,28 +29,19 @@ internal static class SamusAtmosphereSheetComposer
         Ensure.NotNull(spritemaps);
         Ensure.NotNull(atmosphere);
         var frames = new List<SheetFrameSource>();
-        // Each effect's pictures stand in the cartridge's order of its frames and spritemaps.
-        for (int frame = 0; frame < SamusAtmosphericArtworkDefinitions.DirectAtmosphericFrameCount; frame++)
-        {
-            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.FootstepSplash[frame]), FootstepType, frame));
-            frames.Add(Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.LavaAndDust[frame]), LavaAndDustType, frame));
-        }
-        for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.DivingSplash.Count; frame++)
-        {
-            frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.DivingSplash[frame]),
-                SamusAtmosphericArtworkDefinitions.DivingSplashFirstEntry + frame));
-        }
-        for (int frame = 0; frame < SamusAtmosphereSheetDefinitions.Bubbles.Count; frame++)
-        {
-            frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.FrameName(SamusAtmosphereSheetDefinitions.Bubbles[frame]),
-                SamusAtmosphericArtworkDefinitions.BubblesFirstEntry + frame));
-        }
+        // Each picture of a small-sprite effect shows the effect's appearance at its own frame of the effect's animation.
+        frames.AddRange(SamusAtmosphereSheetDefinitions.FootstepSplash.Select((picture, frame) =>
+            Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(picture), SamusAtmosphericPictures.FootstepSplash, frame)));
+        frames.AddRange(SamusAtmosphereSheetDefinitions.LavaAndDust.Select((picture, frame) =>
+            Direct(inputs, atmosphere, SamusAtmosphereSheetDefinitions.FrameName(picture), SamusAtmosphericPictures.LavaAndDust, frame)));
+        foreach (SamusAtmosphereFrame frame in SamusAtmosphereSheetDefinitions.DivingSplash.Concat(SamusAtmosphereSheetDefinitions.Bubbles))
+            frames.Add(Spritemap(inputs, spritemaps, SamusAtmosphereSheetDefinitions.FrameName(frame)));
         return new SpriteSheetSources(frames, inputs.SuitedColours(), ObjectSelectionCodec.GameplaySizes, Shades: inputs.Shades);
     }
 
-    /// <summary>A small sprite whose installed attributes name its character, palette, priority and flips.</summary>
+    /// <summary>A small sprite whose installed attributes name its character, palette, depth and flips.</summary>
     private static SheetFrameSource Direct(SamusSheetInputs inputs, SamusAtmosphericSourceArtwork atmosphere, string name,
-        int type, int frame)
+        SamusAtmosphericPictures type, int frame)
     {
         if (!atmosphere.TryResolve(type, frame, out SpritePart appearance))
             throw new InvalidDataException($"Atmospheric type {type} frame {frame} has no installed sprite.");
@@ -64,9 +49,10 @@ internal static class SamusAtmosphereSheetComposer
     }
 
     /// <summary>
-    /// A Samus spritemap over the standard OBJ sheet. A zero entry in the installed pointer table names direct-page
-    /// scratch the port does not model and draws nothing (owner decision on #1318), so its frame is empty.
+    /// The Samus spritemap the atmosphere frame <paramref name="name"/> shows over the standard OBJ sheet. A frame the import
+    /// decoded no composition for names direct-page scratch the port does not model and draws nothing (owner decision on
+    /// #1318), so its frame is empty.
     /// </summary>
-    private static SheetFrameSource Spritemap(SamusSheetInputs inputs, SamusSpritemapSources spritemaps, string name, int index) =>
-        new(name, spritemaps.TryGetFrame(index, out SpriteFrame? frame) ? frame : new SpriteFrame(name, []), inputs.StandardObjects);
+    private static SheetFrameSource Spritemap(SamusSheetInputs inputs, SamusSpritemapSources spritemaps, string name) =>
+        new(name, spritemaps.TryGetAtmosphereFrame(name, out SpriteFrame? frame) ? frame : new SpriteFrame(name, []), inputs.StandardObjects);
 }

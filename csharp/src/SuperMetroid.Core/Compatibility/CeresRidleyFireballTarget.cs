@@ -17,8 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// a base that could reach them is refused. The fireball target check compares every base X and jitter with that chained
 /// addition.
 /// </remarks>
-[CompatibilityService("a leftward jitter of Ceres Ridley's fireball hover point lifts it one pixel less than it moves it left")]
-internal static class CeresRidleyFireballTarget
+internal static partial class CeresRidleyFireballTarget
 {
     /// <summary>The largest jitter either way, in pixels.</summary>
     internal const int LargestJitter = 7;

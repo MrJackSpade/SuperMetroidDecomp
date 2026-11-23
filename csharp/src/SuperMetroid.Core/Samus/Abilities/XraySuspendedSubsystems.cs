@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 [Flags]
 public enum XraySuspendedSubsystems
 {
-    /// <summary>No independent X-ray subsystem disable is retained; this does not establish whether the separate shared time-freeze flag is clear.</summary>
+    /// <summary>No X-ray subsystem is held; whether time is frozen is apart from this.</summary>
     None = 0,
     /// <summary>The enemy projectiles, which X-ray setup disables; suppresses enemy-projectile updates and drawing independently of shared time freeze.</summary>
     EnemyProjectiles = 1 << 0,

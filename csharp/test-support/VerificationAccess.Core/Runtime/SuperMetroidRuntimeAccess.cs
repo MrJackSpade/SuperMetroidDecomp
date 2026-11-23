@@ -57,7 +57,7 @@ internal static class SuperMetroidRuntimeAccess
                 DoorPassage = self.DoorTransition.Passage,
                 // The room's earthquake is the room's, which its shots also start.
                 Earthquake = self.Room.LoadedScope.Enemies.Earthquake,
-                Scenery = new RoomEnemyScenery(self.Room.LoadedScope.Floor, self.Room.LoadedScope.CeresElevatorShaft, self.Room.LoadedScope.TourianStatues?.Room),
+                Scenery = new RoomEnemyScenery(self.Room.LoadedScope.Floor, self.Room.LoadedScope.CeresElevatorShaft, self.Room.LoadedScope.TourianStatues?.Room, self.Room.LoadedScope.Warnings),
             });
             enemies.Load(request);
             self.Room.Adopt(self.Room.LoadedScope with { Enemies = enemies, Looks = looks });
@@ -90,11 +90,11 @@ internal static class SuperMetroidRuntimeAccess
                 DoorPassage = self.DoorTransition.Passage,
                 // The room's earthquake is the room's, which its shots also start.
                 Earthquake = loaded.Earthquake,
-                Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, scope.TourianStatues?.Room),
+                Scenery = new RoomEnemyScenery(scope.Floor, scope.CeresElevatorShaft, scope.TourianStatues?.Room, scope.Warnings),
             });
             // The room load hands the scope its enemy system before loading the population, as here.
             self.Room.Adopt(scope with { Enemies = enemies, Looks = looks });
-            enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(scope.Room.State.EnemyPopulation, scope.Appearance, scope.LevelData, self.Player.IntroducedSamus) with { Camera = scope.Camera.PixelPosition });
+            enemies.Load(RoomEnemyFrameFixtures.StandaloneLoad(scope.Room.State.EnemyPopulation, scope.Appearance, scope.LevelData, self.Player.Samus) with { Camera = scope.Camera.PixelPosition });
             return enemies;
         }
 
@@ -152,15 +152,16 @@ internal static class SuperMetroidRuntimeAccess
             // Radius is pose data, so construct/refresh pose $01 before deriving the surface
             // center. The temporary Y=0 is never rendered or stepped.
             self.InitializeDebugSamus(new(xPosition, 0));
-            ushort yRadius = self.Player.IntroducedSamus.Kinematics.Radius.Y;
+            ushort yRadius = self.Player.Samus.Kinematics.Radius.Y;
 
-            if ((uint)minimumFloorBlockY >= self.Room.LevelData.Size.Y)
+            RoomLevelData level = self.Room.LevelData ?? throw new InvalidOperationException("The room holds no level data.");
+            if ((uint)minimumFloorBlockY >= level.Size.Y)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
 
             int blockX = xPosition >> 4;
-            for (int blockY = minimumFloorBlockY; blockY < self.Room.LevelData.Size.Y; blockY++)
+            for (int blockY = minimumFloorBlockY; blockY < level.Size.Y; blockY++)
             {
-                RoomCollisionBlock floor = self.Room.LevelData.GetCollisionBlock(new(checked((ushort)blockX), checked((ushort)blockY)));
+                RoomCollisionBlock floor = level.GetCollisionBlock(new(checked((ushort)blockX), checked((ushort)blockY)));
 
                 int height;
                 if (floor.CollisionType == RoomCollisionType.SolidBlock)
@@ -196,12 +197,12 @@ internal static class SuperMetroidRuntimeAccess
                     // Entry placement clamps a requested origin left of or above the room to zero.
                     (ushort)Math.Max(0, xPosition - 0x60),
                     (ushort)Math.Max(0, restingY - desiredScreenY)));
-                self.Player.IntroducedSamus.Position = self.Player.IntroducedSamus.Position.WithWholeY(restingY);
+                self.Player.Samus.Position = self.Player.Samus.Position.WithWholeY(restingY);
                 self.Player.GroundedSamusMovementEnabled = true;
                 self.BombProjectiles.Reset();
                 self.Projectiles.Reset();
-                self.Player.IntroducedSamus.HorizontalSpeed.ClearSpeedEchoes();
-                self.Player.IntroducedSamus.Shinespark.ForgetCrashEchoes();
+                self.Player.Samus.HorizontalSpeed.ClearSpeedEchoes();
+                self.Player.Samus.Shinespark.ForgetCrashEchoes();
                 return new DebugGroundedSamusPlacement(
                     new(xPosition, restingY),
                     desiredScreenY,
@@ -227,11 +228,10 @@ internal static class SuperMetroidRuntimeAccess
         {
             self.Player.Samus = new SamusState(GameplayAudioRequests.Standalone(), self.SamusOverreads.FramesBeyondAnimation, self.UnauthoredBoostCadence, SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), self.BeamCharge, self.Artwork.SamusArtwork)
             {
-                Pose = SamusPoseId.FacingRightNormalPose,
-                AnimationFrame = SamusAnimationDelays.AnimationForPose(SamusPoseId.FacingRightNormalPose).Start,
                 Position = FixedPosition<RoomPixels>.FromWhole(position),
-                Ground = SamusGround.Of(self.Room.LoadedRoom.Definition),
+                Ground = self.Room.LoadedRoom.Definition.Ground,
             };
+            self.Player.Samus.PlaceInPose(SamusPoseId.FacingRightNormalPose);
 
             SamusSuitShade.ShowPower(self.Player.Colours);
             SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);

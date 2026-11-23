@@ -1,9 +1,9 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Poses;
@@ -25,11 +25,11 @@ internal static class RetailCrocomireCaptureTests
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame); runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Crocomire, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var boss = runtime.Enemies.BossEncounters.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
         var death = boss.Death;
@@ -43,7 +43,7 @@ internal static class RetailCrocomireCaptureTests
             Position16<RoomPixels> previousPlacement = boss.Body.Position.Whole;
             runtime.StepFrame(0);
             GameplayDisplayFrame published = runtime.PublishDisplayFrame();
-            if (published.OrdinaryLatch.Bosses.Placement != previousPlacement)
+            if (published.OrdinaryLatch.Bosses?.Placement != previousPlacement)
                 throw new InvalidOperationException($"Crocomire's body placement was not published by the following frame boundary at tick {tick}.");
             if (previousPlacement != boss.Body.Position.Whole) latchedScrollChanges++;
             var scene = GameplayDisplayCapture.Capture(published);

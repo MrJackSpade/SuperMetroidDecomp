@@ -8,11 +8,11 @@ using SuperMetroid.Core.Enemies.Corpses;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Enemy presentation state: the room's appearance, the boss body layer, the shared gradual-change
-/// counter, and drawing from the installed pre-coloured sheets under each draw's shading (#1512).
+/// Enemy presentation state: the room's appearance, the boss body layer, the shared fade step count
+/// (<see cref="SharedFadeStepCount"/>), and drawing from the installed pre-coloured sheets under each draw's shading
+/// (#1512).
 /// </summary>
-[RoomLifetime]
-internal sealed class EnemyPresentation
+internal sealed partial class EnemyPresentation
 {
     /// <summary>The enemy session, which holds the installed sheets.</summary>
     private readonly EnemySession _session;
@@ -37,7 +37,7 @@ internal sealed class EnemyPresentation
     /// The population whose artwork the room's enemies and the objects they spawn draw from (#1599): the one the room's
     /// load placed, or none for a room that has placed no enemies, which draws from the standard artwork.
     /// </summary>
-    internal RoomEnemyPopulationDefinition? DrawnPopulation { get; private set; }
+    internal RoomEnemyPopulationDefinition? DrawnPopulation { get; set; }
 
     /// <summary>
     /// Room load: the room's enemies and the objects they spawn draw from <paramref name="population"/>'s artwork from now
@@ -59,34 +59,19 @@ internal sealed class EnemyPresentation
     internal void BindBackgrounds(RoomAppearance appearance) => Appearance = Ensure.NotNull(appearance);
 
     /// <summary>
-    /// The body the room's boss shows its parts' frames on (#1353, #1466, #1515), once a boss that shows one attaches it;
-    /// Kraid publishes his own.
-    /// </summary>
-    internal BossBodyParts? BossBody { get; private set; }
-
-    /// <summary>A boss's initialization: attaches the body, no part showing anything yet, that its parts show their frames on.</summary>
-    internal void AttachBossBody(BossBodyParts body)
-    {
-        BossBody = Ensure.NotNull(body);
-        BossBodyDisplay = body;
-    }
-
-    /// <summary>
     /// The boss body the room shows (#2194), which the frame-end display latch reads: the one the room's boss attached as
     /// it set up, kept for the room's lifetime; null in a room no boss has shown a body in.
     /// </summary>
     internal IBossBodyDisplay? BossBodyDisplay { get; private set; }
 
-    /// <summary>A boss that draws its own body, as Kraid does, attaches it as it sets up (#2194).</summary>
+    /// <summary>
+    /// A boss's initialization attaches its body (#2194): the parts its parts show their frames on (#1353, #1466, #1515), no
+    /// part showing anything yet, or the body it draws itself, as Kraid does.
+    /// </summary>
     internal void AttachBossBody(IBossBodyDisplay display) => BossBodyDisplay = Ensure.NotNull(display);
 
     /// <summary>The colour effects the room's bosses show on gameplay's pictures, attached as each sets up (#2194).</summary>
     internal BossShadings BossShadings { get; } = new();
-
-    /// <summary>The attached body.</summary>
-    /// <exception cref="InvalidOperationException">No boss has attached one.</exception>
-    internal BossBodyParts RequireBossBody() =>
-        BossBody ?? throw new InvalidOperationException("No boss has attached its body.");
 
     /// <summary>The look each of the room's encounters shows, which the frames its looks change show their pictures of (#1538).</summary>
     internal EncounterLooks Looks { get; }
@@ -144,7 +129,7 @@ internal sealed class EnemyPresentation
     /// </exception>
     /// <param name="layering">Where the frame shows among the actors drawn so far: in draw order, or in front of them all.</param>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Offset16<ScreenPixels> origin,
-        SpriteGraphics graphics, CorpseRotRows? rows = null, ActorLayering layering = ActorLayering.InDrawOrder)
+        SpriteGraphics graphics, CorpseRotRows? rows = null, ActorLayering layering = ActorLayering.InDrawOrder, bool translucent = false)
     {
         EnemyArtworkVariant<SpawnedObjectSheet> variant = Artwork.Spawned(graphics.Owner);
         SpawnedObjectSheet sheet = variant.Sheet;
@@ -157,6 +142,7 @@ internal sealed class EnemyPresentation
         {
             Shading = graphics.Shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), rows, image),
+            Translucent = translucent,
         }, layering);
     }
 
@@ -199,6 +185,9 @@ internal sealed class EnemyPresentation
     /// <param name="frame">The frame pictured.</param>
     internal SpriteSheetFrame SheetPicture(EnemyDefinitionId enemy, EnemyFrameId frame) =>
         Artwork.Enemy(enemy).Sheet.Frame(EnemySheetDefinitions.FrameName(frame));
+
+    /// <summary>Whether the room's sheet of <paramref name="enemy"/> is pre-coloured in <paramref name="shade"/> (#2622).</summary>
+    internal bool SheetHolds(EnemyDefinitionId enemy, PictureShade shade) => Artwork.Enemy(enemy).Sheet.Image.Shades.ContainsKey(shade);
 
     /// <summary>The installed enemy sheets.</summary>
     private IEnemySheetSource Sheets => _session.Sheets;

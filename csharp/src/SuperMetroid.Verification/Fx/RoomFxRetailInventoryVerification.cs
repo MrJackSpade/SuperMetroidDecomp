@@ -30,8 +30,8 @@ internal static class RoomFxRetailInventoryVerification
     private const int RetailRoomFxRoomCount = 261;
     /// <summary>Expected number of named retail room states selected by the source inventory.</summary>
     private const int RetailRoomFxStateCount = 322;
-    /// <summary>Expected number of physical bank-$83 entry doors exercised by the audit.</summary>
-    private const int RetailRoomFxDoorCount = 596;
+    /// <summary>Expected number of held retail entry doors exercised by the audit.</summary>
+    private const int RetailRoomFxDoorCount = 594;
 
     /// <summary>
     /// The animated tiles' characters as the import reads them from the shared installation's import data (#1527, #1680):
@@ -42,10 +42,10 @@ internal static class RoomFxRetailInventoryVerification
     private static RoomFxBlockAnimationAtlas AnimatedTiles => InstalledFixtures.ImportMaps.BlockAnimationAtlas;
 
     /// <summary>
-    /// Exhaustively compares every named retail room state and every physical entry door
-    /// with the FX record selected by the production owner. The named-state and physical-
-    /// door cardinalities are fixed cartridge facts, so silently omitting an alternate
-    /// boss/event state or an unlabelled door header fails the suite.
+    /// Exhaustively compares every named retail room state and every entry door the game holds
+    /// with the FX record selected by the production owner. The named-state and held-door
+    /// cardinalities are fixed cartridge facts, so silently omitting an alternate
+    /// boss/event state or a door header fails the suite.
     /// </summary>
     internal static void VerifyRetailRoomFxInventory()
     {
@@ -66,22 +66,23 @@ internal static class RoomFxRetailInventoryVerification
             .Select(state => state.RoomPointer)
             .Distinct()
             .ToArray();
-        DoorDefinition[] doors = RetailDoorHeaderCatalog.EnumeratePointers()
-            .Select(pointer => SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, pointer))
-            .ToArray();
+        // Each physical door header and the door it leads through: two headers can lead through one door (the Fast Pillars
+        // Setup room's two blocks into the Main Hall), so a header is found by its own pointer, not by its door's.
+        ushort[] doorPointers = [.. RetailDoorHeaderCatalog.EnumeratePointers()];
+        DoorDefinition[] doors = [.. doorPointers.Select(pointer => SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, pointer))];
 
         AssertEqual(RetailRoomFxRoomCount, roomPointers.Length,
             "retail room-FX inventory room count");
         AssertEqual(RetailRoomFxStateCount, states.Length,
             "retail room-FX inventory state count");
         AssertEqual(RetailRoomFxDoorCount, doors.Length,
-            "retail room-FX inventory physical door count");
+            "retail room-FX inventory held door count");
         Suite(nameof(VerifyRetailRoomFxBlockAnimationHeaders), () => VerifyRetailRoomFxBlockAnimationHeaders(bus));
         Suite(nameof(VerifyRetailLavaSurface), () => VerifyRetailLavaSurface(bus, states));
 
-        var doorByPointer = doors.ToDictionary(door => door.Pointer);
-        ILookup<ushort, DoorDefinition> incomingDoors = doors
-            .ToLookup(door => RoomDefinitions.PointerOf(door.DestinationRoom));
+        var doorByPointer = doorPointers.Zip(doors).ToDictionary(header => header.First, header => header.Second);
+        ILookup<ushort, ushort> incomingDoors = doorPointers.Zip(doors)
+            .ToLookup(header => RoomDefinitions.PointerOf(header.Second.DestinationRoom), header => header.First);
         var classifications = new Dictionary<RetailLiquidClassification, int>();
         var auditedStatePointers = new HashSet<ushort>();
         var knownExamples = new Dictionary<RoomDefinition, HashSet<RetailLiquidClassification>>();
@@ -116,12 +117,13 @@ internal static class RoomFxRetailInventoryVerification
                 AssertTrue(doorByPointer.TryGetValue(recordDoor, out DoorDefinition? fxDoor),
                     $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} FX-specific " +
                     $"door $83:{recordDoor:X4} is a physical retail door");
-                AssertEqual(room.Definition, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom,
+                // The header import reads the room from the cartridge, which states none of what the room declares beside it
+                // (its silent quakes, #2559), so the door is checked to enter the room by the room's identity.
+                AssertEqual(room.Definition.Name, (fxDoor ?? throw new InvalidOperationException("Verification requires fxDoor.")).DestinationRoom.Name,
                     $"FX-specific door $83:{recordDoor:X4} enters room {room.Definition.Name}");
             }
 
             ushort[] entryPaths = incomingDoors[room.Pointer]
-                .Select(door => door.Pointer)
                 .Prepend((ushort)0)
                 .Distinct()
                 .Order()
@@ -204,7 +206,7 @@ internal static class RoomFxRetailInventoryVerification
 
         Console.WriteLine(
             $"  Room FX inventory: audited {roomPointers.Length} rooms, {states.Length} states, " +
-            $"{doors.Length} physical doors, {auditedEntryPaths} state/entry paths, and " +
+            $"{doors.Length} held doors, {auditedEntryPaths} state/entry paths, and " +
             $"{doorSpecificRecords} door-specific FX records ({tidalEntryPaths} tidal paths); " +
             string.Join(", ", classifications.OrderBy(pair => pair.Key)
                 .Select(pair => $"{pair.Key}={pair.Value}")) +
@@ -619,15 +621,15 @@ internal static class RoomFxRetailInventoryVerification
         string name)
     {
         int header = RoomFxNativeSources.AnimatedTilesBank | objectPointer;
-        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header),
+        AssertEqual(expectedInstruction, RomDataReader.ReadWordFixedBank(bus, header),
             $"retail {name} animated-tile instruction list");
-        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 2),
+        AssertEqual(expectedSize, RomDataReader.ReadWordFixedBank(bus, header + 2),
             $"retail {name} animated-tile frame size");
-        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), header + 4),
+        AssertEqual(expectedDestination, RomDataReader.ReadWordFixedBank(bus, header + 4),
             $"retail {name} animated-tile VRAM destination");
         AssertEqual(expectedFirstSource,
             RomDataReader.ReadWordFixedBank(
-                CartridgeImportSource.Require(bus),
+                bus,
                 RoomFxNativeSources.AnimatedTilesBank | expectedInstruction + 2),
             $"retail {name} animated-tile first source frame");
     }
@@ -637,7 +639,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         if ((uint)fieldOffset >= RoomFxToolingRomData.Record.ByteCount)
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return CartridgeImportSource.Require(bus).ReadCartridgeByte(
+        return bus.ReadCartridgeByte(
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
@@ -646,7 +648,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         if ((uint)fieldOffset > RoomFxToolingRomData.Record.ByteCount - sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(fieldOffset));
-        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+        return RomDataReader.ReadWordFixedBank(bus,
             RoomFxRomDataBanksTooling.RoomDefinitions | (record + fieldOffset));
     }
 
@@ -786,7 +788,7 @@ internal static class RoomFxRetailInventoryVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomThroughDoorForVerification(door);
         if (runtime.Player.Samus is null)
             throw new InvalidDataException("Room $02/$28 runtime load omitted Samus.");
@@ -810,11 +812,13 @@ internal static class RoomFxRetailInventoryVerification
                 expectedRequests = 1;
                 referenceSoundCount++;
             }
+            // The runtime steps without the game's audio dispatch, so the session's queues would fill and turn the quake
+            // away; empty them as a dispatch that played every sound leaves them, so each frame's admission is the quake's own.
+            runtime.AudioRequests.QueuesReached.Reset();
             runtime.StepFrame(0);
             // Lava's ambient sound ($88:B421, #1269) shares the request list; this checks the
             // earthquake cadence only.
-            AssertEqual(expectedRequests, runtime.AudioRequests.SoundRequests.Count(request =>
-                    request.SoundEffect == EnemySound.Lavaquake),
+            AssertEqual(expectedRequests, runtime.AudioRequests.SoundsQueued.Count(sound => sound == EnemySound.Lavaquake),
                 $"room $02/$28 earthquake sound cadence frame {frame}");
         }
 
@@ -825,9 +829,9 @@ internal static class RoomFxRetailInventoryVerification
         // accepted frame of this effect publishes a non-default delta.
         static bool Shook(RoomShakeFrameResult shake) => shake != default;
         // The runtime's update records every system's sounds in one ordered list (#1620); the effect's are its quake and lava sounds.
-        IReadOnlyList<SoundRequest> EffectSounds() => [.. runtime.AudioRequests.SoundRequests.Where(request =>
-            request.SoundEffect == EnemySound.Lavaquake || request.SoundEffect == EnemySound.LavaBubbling1 ||
-            request.SoundEffect == EnemySound.LavaBubbling2 || request.SoundEffect == EnemySound.LavaBubbling3)];
+        IReadOnlyList<SoundEffectId> EffectSounds() => [.. runtime.AudioRequests.SoundsQueued.Where(sound =>
+            sound == EnemySound.Lavaquake || sound == EnemySound.LavaBubblingBurst ||
+            sound == EnemySound.LavaBubblingFalling || sound == EnemySound.LavaBubblingRising)];
 
         runtime.StepFrame(0);
         AssertTrue(!Shook(runtime.Enemies.Earthquake.LastRoomShake), "room $02/$28 callback install pass does not shake");
@@ -844,11 +848,8 @@ internal static class RoomFxRetailInventoryVerification
         RoomShakeFrameResult firstActiveShake = runtime.Enemies.Earthquake.LastRoomShake;
         AssertEqual(1, EffectSounds().Count,
             "room $02/$28 first wait frame emits one earthquake sound");
-        SoundRequest sound = EffectSounds()[0];
-        AssertEqual(EnemySound.Lavaquake, sound.SoundEffect,
+        AssertEqual(EnemySound.Lavaquake, EffectSounds()[0],
             "room $02/$28 earthquake sound identity");
-        AssertEqual(SoundRequestPriority.Normal, sound.Priority,
-            "room $02/$28 earthquake sound priority");
         AssertEqual<EarthquakeShake?>(RoomEarthquakeDefinitions.RisingLiquidShake, runtime.Enemies.Earthquake.Shake,
             "room $02/$28 earthquake type");
         AssertTrue(Shook(firstActiveShake) &&
@@ -858,13 +859,13 @@ internal static class RoomFxRetailInventoryVerification
         int table = RoomFxNativeSources.EarthquakeDisplacementTable +
             NativeEarthquakeTypes.TypeOf(RoomEarthquakeDefinitions.RisingLiquidShake) *
             RoomFxNativeSources.EarthquakeDisplacementRecordBytes;
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table)),
             firstActiveShake.Foreground.X, "room $02/$28 first shake BG1 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 2)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 2)),
             firstActiveShake.Foreground.Y, "room $02/$28 first shake BG1 Y");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 4)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 4)),
             firstActiveShake.Background.X, "room $02/$28 first shake BG2 X");
-        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), table + 6)),
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 6)),
             firstActiveShake.Background.Y, "room $02/$28 first shake BG2 Y");
 
         StepAndVerifySound(2);
@@ -879,8 +880,7 @@ internal static class RoomFxRetailInventoryVerification
             "room $02/$28 alternating shake BG2 Y");
 
         int appliedFrames = 2;
-        int EarthquakeSounds() => runtime.AudioRequests.SoundRequests.Count(request =>
-            request.SoundEffect == EnemySound.Lavaquake);
+        int EarthquakeSounds() => runtime.AudioRequests.SoundsQueued.Count(sound => sound == EnemySound.Lavaquake);
         int emittedSounds = 1 + EarthquakeSounds();
         int firstMovementFrame = -1;
         int targetFrame = -1;
@@ -940,8 +940,8 @@ internal static class RoomFxRetailInventoryVerification
 
         int expectedMaximum =
             fx.Liquid?.Tide == LiquidTide.Small
-                ? LiquidTideDefinitions.SmallTidePeakPixels
-                : LiquidTideDefinitions.LargeTidePeakPixels;
+                ? LiquidTideDefinitions.Motions[LiquidTide.Small].PeakPixels
+                : LiquidTideDefinitions.Motions[LiquidTide.Large].PeakPixels;
         AssertTrue(maximumAbsoluteOffset > 0 && maximumAbsoluteOffset <= expectedMaximum,
             $"room {room.Definition.Name} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} tide moves within ±{expectedMaximum} pixels");

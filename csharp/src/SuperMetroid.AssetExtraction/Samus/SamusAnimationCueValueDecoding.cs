@@ -13,8 +13,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// instruction's operands taken from the bytes after it. The Baby's Hyper Beam freeze and rainbow stop set frames that land
 /// on such places in the programs laid out after a transition's.
 /// </summary>
-[SuperMetroid.Core.EncodingOwner("Samus animation program bytes: a delay byte, or an instruction whose low four bits select its handler")]
-internal static class SamusAnimationCueValueDecoding
+internal static partial class SamusAnimationCueValueDecoding
 {
     /// <summary>
     /// A cue value's step as the import decodes it, the frames it names counted in the game's layout of its program; the
@@ -25,7 +24,7 @@ internal static class SamusAnimationCueValueDecoding
     /// <param name="Frames">The frames the step selects, counted from its program's start; null for a step that selects none.</param>
     /// <param name="Items">The names of the items a transition tests; null for any other kind.</param>
     /// <param name="Poses">The names of the poses a transition publishes; null for any other kind.</param>
-    internal sealed record DecodedStep(Kind Kind, int? Ticks, IReadOnlyList<int>? Frames, IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
+    internal sealed partial record DecodedStep(Kind Kind, int? Ticks, IReadOnlyList<int>? Frames, IReadOnlyList<string>? Items, IReadOnlyList<string>? Poses);
 
     /// <summary>
     /// The step at every cue-value place of every program, by program, then by frame counted from the program's start: every
@@ -107,7 +106,6 @@ internal static class SamusAnimationCueValueDecoding
     };
 
     /// <summary>The names of every item in <paramref name="items"/>.</summary>
-    [InstalledKey]
     private static string[] ItemNames(SamusEquipmentFlags items) =>
         [.. SamusEquipmentFlagsKeys.ListedOrder.Where(item => items.HasFlag(item)).Select(SamusEquipmentFlagsKeys.Installed.Of)];
 }

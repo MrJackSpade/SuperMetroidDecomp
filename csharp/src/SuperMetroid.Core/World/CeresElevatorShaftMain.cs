@@ -9,18 +9,25 @@ namespace SuperMetroid.Core.World;
 /// elevator, which may take Samus to the Ceres elevator only while main gameplay runs it.
 /// </summary>
 /// <param name="shaft">The shaft's turn and elevator.</param>
-[RoomLifetime]
-internal sealed class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState shaft) : IRoomMain
+internal sealed partial class CeresElevatorShaftMain(CeresElevatorShaftRoomMainState shaft) : IRoomMain
 {
+    /// <summary>The shaft's turn and elevator, which the main steps and checks read.</summary>
+    internal readonly CeresElevatorShaftRoomMainState shaft = shaft;
+
     /// <inheritdoc/>
     public RoomMainOutcome Run(RoomMainUpdate update)
     {
         CeresElevatorShaftRoomMainResult result = shaft.Step(
-            update.Player.IntroducedSamus,
+            update.Player.Samus,
             update.Room.Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
             allowDeparture: update.AllowCeresElevatorDeparture);
         if (result.TiltChanged)
             update.Display.ActiveTurningFloor = result.Transform;
-        return result.ElevatorTookSamus ? RoomMainOutcome.CeresElevatorTookSamus : RoomMainOutcome.None;
+        return result.Outcome switch
+        {
+            CeresShaftOutcome.ElevatorTookSamus => RoomMainOutcome.CeresElevatorTookSamus,
+            CeresShaftOutcome.Nothing => RoomMainOutcome.None,
+            _ => throw new InvalidOperationException($"Undefined {nameof(CeresShaftOutcome)} {result.Outcome}."),
+        };
     }
 }

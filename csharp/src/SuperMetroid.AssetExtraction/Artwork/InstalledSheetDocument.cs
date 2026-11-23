@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Artwork;
 /// backdrop as a colour key, each frame's rectangle, origin, depth, blending and where the store holds its picture, and the
 /// frames that show nothing. Every colour is an RGB colour written as <c>#rrggbb</c>.
 /// </summary>
-public sealed record InstalledSheetDocument
+public sealed partial record InstalledSheetDocument
 {
     /// <summary>The manifest's schema revision, <see cref="SpriteSheetFile.Version"/>.</summary>
     public required int Version { get; init; }

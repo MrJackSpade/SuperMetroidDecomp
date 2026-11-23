@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
@@ -7,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.EffectActors;
 /// link, one of Draygon's Evirs), created fresh each time one is spawned (#1591). Its spawner holds it when it moves,
 /// recolours, freezes or ends it; the room's <see cref="RoomEffectActors"/> steps and draws it until it ends.
 /// </summary>
-public sealed class RoomEffectActor
+public sealed partial class RoomEffectActor
 {
     /// <summary>Spawns an object of <paramref name="kind"/> at <paramref name="position"/>, showing its animation's first frame.</summary>
     /// <param name="kind">What the object is, which selects the animation it plays.</param>
@@ -18,12 +20,13 @@ public sealed class RoomEffectActor
         Kind = kind;
         Position = FixedPosition<RoomPixels>.FromWhole(position);
         Graphics = graphics;
-        Playback = new(RoomEffectActorAnimations.StartingWith(kind), AnimationPlace.StartOfAnimation);
-        AdvanceAnimation();
+        var start = new AnimationPlayback<RoomEffectActorSegment>(RoomEffectActorAnimations.StartingWith(kind), AnimationPlace.StartOfAnimation);
+        Playback = start;
+        AdvanceAnimation(start);
     }
 
-    /// <summary>What the object shows, as its spawner chose it, which is also the animation it plays.</summary>
-    public RoomEffectActorKind Kind { get; }
+    /// <summary>What the object shows, as its spawner chose it, which is also the animation it plays and restarts.</summary>
+    private RoomEffectActorKind Kind { get; }
 
     /// <summary>Whether the object still runs its animation; once it ends it never runs or shows again.</summary>
     public bool IsActive => Playback is not null;
@@ -39,7 +42,7 @@ public sealed class RoomEffectActor
     public SpriteGraphics Graphics { get; internal set; }
 
     /// <summary>The animation the object plays and where it stands in it (#1600), or null once it has ended.</summary>
-    internal AnimationPlayback<RoomEffectActorSegment>? Playback { get; private set; }
+    internal AnimationPlayback<RoomEffectActorSegment>? Playback { get; set; }
 
     /// <summary>
     /// The object's animation clock (#2477), as an enemy's is: how long <see cref="Frame"/> holds before the animation moves
@@ -48,8 +51,26 @@ public sealed class RoomEffectActor
     /// </summary>
     public EnemyAnimationClock AnimationClock { get; } = new();
 
-    /// <summary>The frame the object shows.</summary>
-    internal RoomEffectActorPicture Frame { get; private set; }
+    /// <summary>The frame the object shows; nothing before its animation shows one.</summary>
+    internal RoomEffectActorPicture Frame
+    {
+        get;
+        private set
+        {
+            field = value;
+            if (value.EnemyFrame is { } shown && !CommonEnemyEmptyFrames.DrawsNothing(shown))
+                LastPictured = shown;
+        }
+    }
+
+    /// <summary>
+    /// The last enemy-sheet frame the object showed that draws a picture (#2642): what a translucent object keeps showing
+    /// through the empty frames its animation flickers between, or nothing before it has shown one.
+    /// </summary>
+    internal EnemyFrameId? LastPictured { get; private set; }
+
+    /// <summary>Whether the object shows translucent rather than flickering (<see cref="RoomEffectActorTranslucencyDefinitions"/>).</summary>
+    internal bool IsTranslucent => RoomEffectActorTranslucencyDefinitions.Translucent.Contains(Kind);
 
     /// <summary>Ends the object: it stops running and showing.</summary>
     internal void End() => Playback = null;
@@ -57,47 +78,41 @@ public sealed class RoomEffectActor
     /// <summary>Counts one update off the shown frame on the object's clock and moves the animation on when it runs out.</summary>
     internal void Step()
     {
-        if (IsActive && AnimationClock.Expire())
-            AdvanceAnimation();
+        if (Playback is { } playback && AnimationClock.Expire())
+            AdvanceAnimation(playback);
     }
 
     /// <summary>
     /// Plays the animation to its next frame: a frame shows for its duration, a still picture or the hold keeps the frame for
     /// good, stopping the clock, and the animation's end ends the object. The animations count no repeats and raise no events.
     /// </summary>
-    private void AdvanceAnimation()
+    private void AdvanceAnimation(AnimationPlayback<RoomEffectActorSegment> playback)
     {
-        AnimationPlayback<RoomEffectActorSegment> playback = Playback ?? throw new InvalidOperationException(
-            $"Effect actor {Kind} has no animation to play.");
         Animation<RoomEffectActorSegment> animation = playback.Animation;
         AnimationPlace place = playback.Place;
-        AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture> shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
-            ref animation, ref place,
-            raised => throw new InvalidOperationException($"Effect actor {Kind}'s event-free animation raised {raised}."));
-        switch (shown)
-        {
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Frame frame:
-                Playback = new(animation, place);
-                Frame = frame.Shown;
-                AnimationClock.Show(frame.Duration);
-                return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.HeldFrame held:
-                // A still picture shows from now on (#2275).
-                Playback = new(animation, place);
-                Frame = held.Shown;
-                AnimationClock.ShowForGood();
-                return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Held:
-                Playback = new(animation, place);
-                AnimationClock.Stop();
-                return;
-            case AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended:
-                End();
-                return;
-            default:
-                throw new InvalidOperationException($"Effect actor {Kind}'s animation reached {shown}.");
-        }
+        AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Unpaused shown = RoomEffectActorAnimations.Segments.PlayToNextFrame(
+            ref animation, ref place);
+        // The animation's end ends the object; every other outcome stands its animation where the play stopped.
+        if (shown is not AnimationShown<RoomEffectActorSegment, RoomEffectActorPicture>.Ended)
+            Playback = new(animation, place);
+        shown.React(AdvanceAnimationReactions, this);
     }
+
+    /// <summary>What <see cref="AdvanceAnimation"/> does on each outcome of the object's animation, which never pauses, built once (#2553).</summary>
+    private static UnpausedAnimationShownReactions<RoomEffectActorSegment, RoomEffectActorPicture, RoomEffectActor> AdvanceAnimationReactions { get; } = new(
+        Frame: static (frame, actor) =>
+        {
+            actor.Frame = frame.Shown;
+            actor.AnimationClock.Show(frame.Duration);
+        },
+        HeldFrame: static (held, actor) =>
+        {
+            // A still picture shows from now on (#2275).
+            actor.Frame = held.Shown;
+            actor.AnimationClock.ShowForGood();
+        },
+        Held: static (_, actor) => actor.AnimationClock.Stop(),
+        Ended: static (_, actor) => actor.End());
 
     /// <summary>
     /// Restarts the object's own animation from its first frame, as its spawn started it (#2047): a frozen Metroid's
@@ -107,7 +122,8 @@ public sealed class RoomEffectActor
     {
         if (!IsActive)
             throw new InvalidOperationException($"Effect actor {Kind} has ended and shows no frame.");
-        Playback = new(RoomEffectActorAnimations.StartingWith(Kind), AnimationPlace.StartOfAnimation);
-        AdvanceAnimation();
+        var start = new AnimationPlayback<RoomEffectActorSegment>(RoomEffectActorAnimations.StartingWith(Kind), AnimationPlace.StartOfAnimation);
+        Playback = start;
+        AdvanceAnimation(start);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
@@ -33,11 +34,11 @@ internal static class XrayGameStateVerification
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(random: random, audio: game.AudioForVerification);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope);
-            SamusState samus = runtime.Player.IntroducedSamus;
+            SamusState samus = runtime.Player.Samus;
             samus.Control.Unlock();
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             // Open floor in the Scope chamber, as used by the X-ray input fixture.
@@ -45,7 +46,7 @@ internal static class XrayGameStateVerification
             samus.EquippedItems = SamusEquipmentFlags.XrayScope;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
             game.AdoptRuntime(runtime);
-            game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+            game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
             game.Session.Enter(SuperMetroidGameState.MainGameplay);
             game.Step(0);
             game.Step(ControllerButton.Select);
@@ -60,7 +61,7 @@ internal static class XrayGameStateVerification
         {
             game.Step(ControllerButton.Start);
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "Start begins pause darkening");
-            game.Step(runtime.Options.ControllerBindings.Dash);
+            game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertTrue(game.IsAt(PauseStep.DarkeningGameplay), "the held-Run frame is a darkening gameplay frame");
             AssertEqual(SuperMetroidGameState.Pause, runtime.RunningGameState, "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $0C rejects X-ray setup");
@@ -69,9 +70,9 @@ internal static class XrayGameStateVerification
 
         // State $12: the unpause fade also runs the state-eight routine.
         {
-            game.Session.screenFade.Show(0);
+            game.Session.screenFade.Show(DisplayBrightness.Black);
             game.Session.Enter(PauseStep.BrighteningGameplay);
-            game.Step(runtime.Options.ControllerBindings.Dash);
+            game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertTrue(game.IsAt(PauseStep.BrighteningGameplay), "the held-Run frame is an unpausing gameplay frame");
             AssertEqual(SuperMetroidGameState.Pause, runtime.RunningGameState, "the runtime sees the live pause");
             AssertTrue(!samus.Xray.IsActive, "state $12 rejects X-ray setup");
@@ -81,7 +82,7 @@ internal static class XrayGameStateVerification
         // State eight still admits the same held-Run input.
         {
             game.Session.Enter(SuperMetroidGameState.MainGameplay);
-            game.Step(runtime.Options.ControllerBindings.Dash);
+            game.Step(runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Dash]);
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the held-Run frame is a state-eight frame");
             AssertTrue(samus.Xray.IsActive, "state eight admits X-ray setup");
             AssertTrue(runtime.Freeze.TimeIsFrozen, "admitted X-ray freezes gameplay");

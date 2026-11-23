@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// called. This class deliberately does not invent that enemy AI. It owns only the state
 /// mutations made by those calls and the fall the drained-fall animation cue starts later.
 /// </remarks>
-public sealed class SamusDrainedState
+public sealed partial class SamusDrainedState
 {
     /// <summary>
     /// Where the rainbow's colouring stands (#2562): showing, or ended by letting drained Samus fall or the rainbow's stop,
@@ -32,22 +32,24 @@ public sealed class SamusDrainedState
     public DrainedSamusPhase Phase { get; private set; }
 
     /// <summary>
+    /// Whether Samus in <paramref name="pose"/> is the knockback Mother Brain's rainbow beam locks her in, which silences the
+    /// hurt flash's impact.
+    /// </summary>
+    internal bool HoldsRainbowBeamKnockback(SamusPoseId pose) =>
+        Phase == DrainedSamusPhase.RainbowBeamLocked && pose == SamusDrainedAnimationDefinitions.RainbowBeamKnockbackPose;
+
+    /// <summary>
     /// The drained Samus's Hyper Beam glow colouring, or null until she receives the Hyper Beam (<see cref="EnableHyperBeam"/>).
     /// It animates the glow's colours independently of the earlier full-body rainbow colouring.
     /// </summary>
     public HyperBeamColourEffectState? HyperBeamColourEffect { get; private set; }
 
     /// <summary>
-    /// Whether the rainbow glow colours Samus, ahead of every other colouring: the rainbow start sets it and the rainbow
-    /// stop clears it during the Baby Metroid's death.
+    /// How long the rainbow holds each of its shades while it glows (#2387, #2560): one update as the rainbow starts,
+    /// lengthened by the Baby; none while it does not glow. Each shade the rainbow moves on to shows for the hold as it
+    /// stands then.
     /// </summary>
-    public bool RainbowGlowing { get; private set; }
-
-    /// <summary>
-    /// How long the rainbow holds each of its shades (#2387): one update as the rainbow starts, lengthened by the Baby, and
-    /// none once it stops. Each shade the rainbow moves on to shows for the hold as it stands then.
-    /// </summary>
-    public RainbowGlowHold RainbowGlowHold { get; private set; }
+    private RainbowGlowHold? rainbowHold;
 
     /// <summary>
     /// The rainbow's play of the Hyper Beam's full-body glow (#2387, #2447): the shade it shows, none outside the rainbow,
@@ -56,13 +58,16 @@ public sealed class SamusDrainedState
     /// stands then, not for its own beat.
     /// </summary>
     internal AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue> Rainbow { get; } =
-        SamusGlowPlay.Starting(SamusGlowSegment.HyperBeamRainbow);
+        SamusGlowPlay.Starting(SamusGlowSegment.Of(SamusGlow.HyperBeamRainbow));
+
+    /// <summary>The rainbow's shade shown, from the update the rainbow colouring starts on its first shade.</summary>
+    private PictureShade rainbowShade;
 
     /// <summary>
     /// How Samus answers Up after each movement, which either drain setup chooses: able or unable to stand. It
     /// deliberately survives the later drained pose changes, just as it does in the game.
     /// </summary>
-    public DrainedGetUpCheck GetUpCheck { get; private set; }
+    public DrainedGetUpCheck GetUpCheck { get; internal set; }
 
     /// <summary>
     /// Ends the drain's hold on Samus's movement when another owner takes her movement and pose before the drain's
@@ -99,7 +104,7 @@ public sealed class SamusDrainedState
 
     /// <summary>
     /// Runs one drained get-up check. The game runs
-    /// it after movement and immediately before animation, so a written timer of one is
+    /// it after movement and immediately before animation, so a timer set to expire at once is
     /// decremented and the selected art begins advancing in that same movement phase.
     /// </summary>
     public bool RunGetUpCheck(SamusState samus, GameplayAction newlyPressedInput)
@@ -110,7 +115,7 @@ public sealed class SamusDrainedState
             return false;
 
         if (GetUpCheck == DrainedGetUpCheck.AbleToStand &&
-            samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
+            samus.Pose == SamusDrainedAnimationDefinitions.GetUpPose &&
             samus.AnimationHasReached(SamusDrainedAnimationDefinitions.AbleToStandFirstFrame))
         {
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.AbleToStandFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
@@ -147,18 +152,22 @@ public sealed class SamusDrainedState
     public void EnableRainbow(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowGlowing = true;
-        RainbowGlowHold = RainbowGlowHold.Starting;
-        SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.HyperBeamRainbow, RainbowGlowHold.Updates);
+        rainbowHold = RainbowGlowHold.Starting;
+        rainbowShade = SamusGlowPlay.RestartShowing(Rainbow, SamusGlowSegment.Of(SamusGlow.HyperBeamRainbow), RainbowGlowHold.Starting.Updates);
         _colouringStage = SpecialColouringStage.Showing;
     }
 
     /// <summary>
-    /// Holds each shade of the rainbow one update longer, as the Baby slows it each time its 768ths of a step add up to a
-    /// whole one; the hold stops at <paramref name="longestHold"/>.
+    /// Holds each shade of the rainbow one update longer, each time the Baby's slowing of it completes a step
+    /// (RainbowFramePart); the hold stops at <paramref name="longestHold"/>.
     /// </summary>
-    /// <param name="longestHold">The longest hold the glow may reach; the Baby passes ten.</param>
-    public void HoldRainbowGlowLonger(int longestHold) => RainbowGlowHold = RainbowGlowHold.Lengthened(longestHold);
+    /// <param name="longestHold">The longest hold the glow may reach, which the Baby passes.</param>
+    /// <remarks>A rainbow that does not glow holds nothing: its start holds each shade one update again.</remarks>
+    public void HoldRainbowGlowLonger(int longestHold)
+    {
+        if (rainbowHold is { } hold)
+            rainbowHold = hold.Lengthened(longestHold);
+    }
 
     /// <summary>
     /// Stops Samus's rainbow colouring: clear every rainbow/charge colouring
@@ -167,9 +176,8 @@ public sealed class SamusDrainedState
     public void DisableRainbowAndStartStandingAnimation(SamusState samus)
     {
         Ensure.NotNull(samus);
-        RainbowGlowing = false;
-        RainbowGlowHold = RainbowGlowHold.None;
-        SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.HyperBeamRainbow);
+        rainbowHold = null;
+        SamusGlowPlay.Restart(Rainbow, SamusGlowSegment.Of(SamusGlow.HyperBeamRainbow));
         _colouringStage = SpecialColouringStage.Ending;
         SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.RainbowStopFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
     }
@@ -181,7 +189,7 @@ public sealed class SamusDrainedState
     /// While the rainbow colouring is enabled, this colouring has absolute priority over
     /// charge, Speed Booster, shinespark, Crystal Flash, and X-ray colourings. It shows its shade of the Hyper Beam's
     /// full-body glow on every update before counting down its hold; the import pre-colours Samus in each of its frames
-    /// (#1512). The Baby independently lengthens <see cref="RainbowGlowHold"/> from one update to ten; that hold becomes
+    /// (#1512). The Baby independently lengthens <see cref="RainbowGlowHold"/> from one update up to its longest; that hold becomes
     /// the delay before the rainbow moves on to its next shade (#2387).
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus colours.</returns>
@@ -198,15 +206,18 @@ public sealed class SamusDrainedState
             return true;
         }
 
-        if (!RainbowGlowing)
+        if (rainbowHold is not { } hold)
             return false;
 
         // The colouring shows the rainbow's shade before counting down its hold.
-        colours.ShowSuit(Rainbow.Showing);
+        colours.ShowSuit(rainbowShade);
 
         // Each shade shows for the rainbow's hold as it stands when the rainbow moves on to it, not for its own beat.
-        if (Rainbow.StepToNewFrame() is not null)
-            Rainbow.HoldShownFrameFor(RainbowGlowHold.Updates);
+        if (Rainbow.StepToNewFrame() is { } next)
+        {
+            rainbowShade = next;
+            Rainbow.HoldShownFrameFor(hold.Updates);
+        }
         return true;
     }
 
@@ -219,26 +230,21 @@ public sealed class SamusDrainedState
 
         // The game raises her center by the drained pose's radius less her previous one before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
-        // not already have the drained pose's radius of 21 pixels.
-        int sourceRadius = samus.Kinematics.Radius.Y;
-        samus.Position = samus.Position.WithWholeY(
-            samus.Position.Y.Whole - (SamusDrainedAnimationDefinitions.CrouchingYRadius - sourceRadius));
-
+        // not already have the drained pose's radius.
         // A left-facing pose chooses the left-facing drained pose; every other facing chooses the right-facing one.
         // Read it before replacing the pose, exactly as the drained setup does.
         bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
-        samus.Pose = facingLeft
+        SamusPoseId drainedPose = facingLeft
             ? SamusPoseId.DrainedCrouchingLeftPose
             : SamusPoseId.DrainedCrouchingRightPose;
-        SamusPoseMetadata.RefreshCollisionRadii(samus);
-        if (SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.Special ||
-            samus.Kinematics.Radius.Y != SamusDrainedAnimationDefinitions.CrouchingYRadius)
-            throw new InvalidDataException("The drained crouching poses' metadata changed unexpectedly.");
-
+        int sourceRadius = samus.Kinematics.Radius.Y;
+        samus.Position = samus.Position.WithWholeY(
+            samus.Position.Y.Whole - (SamusPoseMetadata.ReadPoseYRadius(drainedPose) - sourceRadius));
         // The new pose starts on the collapse's third frame. The animation is initialized here,
         // but the special movement type keeps her still until the drained-fall
         // animation step appears.
-        SamusPresentation.InitializeAnimation(samus, SamusDrainedAnimationDefinitions.FallInitialFrame);
+        samus.ChangePose(drainedPose, SamusDrainedAnimationDefinitions.FallInitialFrame);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.TurnedDownward();
         _colouringStage = SpecialColouringStage.Ending;
@@ -262,26 +268,30 @@ public sealed class SamusDrainedState
         // either special owner: an ordinary uncrashed spark retains its boost state as Blue Suit,
         // while Crystal Flash retains its independent colour/input state as Shinespark Suit.
         // Neither old movement behaviour may resume.
-        SamusMovementHandOver.To(samus, SamusMovementOwner.Drained);
+        SamusMovementHandOver.ToDrained(samus);
         Phase = DrainedSamusPhase.Falling;
     }
 
     /// <summary>
-    /// Runs one update of drained Samus's fall, using
+    /// Runs one update of drained Samus's fall while she falls, using
     /// the shared Y-speed calculation and block collision.
     /// </summary>
-    internal DrainedSamusMovementResult StepFalling(
-        RoomLevelData level,
-        ISamusRoomObjects roomObjects,
+    /// <returns>Whether she was falling and the fall stepped.</returns>
+    internal bool TryStepFalling(
+        SamusTerrain terrain,
         SamusState samus,
-        int frameCounter)
+        int frameCounter,
+        out DrainedSamusMovementResult result)
     {
-        Ensure.NotNull(level);
+        Ensure.NotNull(terrain);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
-            throw new InvalidOperationException("Drained Samus is not falling.");
+        {
+            result = default;
+            return false;
+        }
 
-        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus, frameCounter, out _, out bool downwardDisplacement);
+        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(terrain, samus, frameCounter, out _, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact velocity before the landing erases its speed for on-floor art.
@@ -298,9 +308,10 @@ public sealed class SamusDrainedState
             Phase = DrainedSamusPhase.OnFloor;
         }
 
-        return new DrainedSamusMovementResult(
+        result = new DrainedSamusMovementResult(
             downwardDisplacement && vertical.Collided,
             impact);
+        return true;
     }
 
     /// <summary>Stands drained Samus up.</summary>
@@ -338,9 +349,9 @@ public sealed class SamusDrainedState
         // These are named places in the left-facing drained animations; where each lands in the animation Samus plays is an
         // installed outcome (#2048). The crouch's release place is the one its held crouch's repeat carries rather than a
         // frame of its own, and it is drawn until the next animation step advances it.
-        if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
+        if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.DrainedCrouch))
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseCrouchingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
-        else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
+        else if (SamusPoseTraits.IsIn(samus.Pose, SamusPoseFamily.DrainedStanding))
             SamusPresentation.SetAnimationFrameFromMovementOwner(samus, SamusDrainedAnimationDefinitions.ReleaseStandingFrame, timer: SamusDrainedAnimationDefinitions.SetFrameTimer);
 
         // The shared step runs for any pose, an unexpected one included: the game accepts
@@ -363,7 +374,7 @@ public sealed class SamusDrainedState
             SamusBeamFlags.Charge |
             SamusBeamFlags.Wave |
             SamusBeamFlags.Plasma;
-        samus.HyperBeamEnabled = true;
+        samus.EnableHyperBeam();
         HyperBeamColourEffect = new();
         samus.ChargingSound.Cancel();
     }
@@ -378,9 +389,8 @@ public sealed class SamusDrainedState
 
         // The rainbow setup unconditionally chooses left-facing knockback KnockbackLeftPose, even when
         // Samus had faced right. This is why letting her fall later selects DrainedCrouchingLeftPose.
-        samus.Pose = SamusPoseId.KnockbackLeftPose;
+        samus.ChangePose(SamusPoseId.KnockbackLeftPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
-        SamusPresentation.InitializeAnimation(samus);
         // The shared rainbow setup records the pose history before the lock.
         samus.CommitPoseHistory();
         // The shared rainbow setup locks Samus's input and movement after changing art.

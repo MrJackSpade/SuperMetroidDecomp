@@ -20,15 +20,11 @@ internal static class SaveLoadRandomAudit
             var save = SaveSnapshotFixtures.NewGame with
             {
                 Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.MotherBrainSave,
-                Health = 399, MaxHealth = 399,
-                EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),
-                CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit),
-                PowerBombs = 5, MaxPowerBombs = 5,
-                Missiles = 10, MaxMissiles = 10, SuperMissiles = 10, MaxSuperMissiles = 10,
+                Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 399, MaxHealth = 399, EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit), CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.GravitySuit), PowerBombs = 5, MaxPowerBombs = 5, Missiles = 10, MaxMissiles = 10, SuperMissiles = 10, MaxSuperMissiles = 10 },
             };
             var saves = new SaveSlotStore(SaveMapPresentationFixture.Create());
             saves.SaveSlot(SaveSlot.A, save);
-            var game = new SuperMetroidGame(saves);
+            var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(saves);
             bindPresentation(game);
             bool insertedWait = false;
             long sequence = 0;

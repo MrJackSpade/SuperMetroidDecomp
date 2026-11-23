@@ -20,7 +20,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
     {
         for (int index = 0; index < 16; index++)
         {
-            ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa0c2da + index * 2));
+            ushort header = rom.ReadCartridgeWord((0xa0c2da + index * 2));
             AssertEqual(index == 15 ? NativeEnemyBreakableBlockHeader : (ushort)0,
                 header,
                 $"enemy spike reaction header {index}");
@@ -31,7 +31,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         {
             byte behavior = (byte)(highBit | index);
             AssertEqual(index == 15,
-                EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehaviorCodec.Decode(behavior)),
+                RoomBlockBehaviorCodec.Decode(behavior).Spike is { } spike && EnemyBreakableTerrain.IsEnemyBreakable(spike),
                 $"compiled enemy spike reaction ${behavior:X2}");
 
             var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes(
@@ -40,8 +40,9 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 [RoomBlockAppearance.Of(0, BlockMirroring.None)]), RoomLevelData.NothingBeyondGrid(), []);
             var roomObjects = RoomObjectFixtures.Unbound();
             var terrain = new EnemyTerrain(roomObjects.BreakableTerrain);
-            RoomCollisionBlock block = level.GetCollisionBlock(Position16<RoomBlocks>.Zero);
-            bool collision = terrain.ReactToEnemySpikeBlock(level, Position16<RoomBlocks>.Zero, block);
+            // An enemy within the block's row moves a pixel down, its lower edge reaching the spike block as it moves.
+            var body = new MovingEnemyBody(FixedPosition<RoomPixels>.FromWhole(new(8, 4)), new(4, 2));
+            bool collision = terrain.MoveEnemyVertically(level, body, SignedSixteenSixteen.OnePixel);
 
             AssertEqual(index != 15, collision,
                 $"production enemy spike collision ${behavior:X2}");
@@ -52,8 +53,8 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
                 AssertTrue(roomObjects.PopulationPlaces.Single() is
                     {
                         Block: { X: 0, Y: 0 },
-                        Behaviour: TerrainChangeObject { Change: var change },
-                    } && change == ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak,
+                        Behaviour: TerrainChangeObject started,
+                    } && started.Starts(ScriptedTerrainChangeDefinitions.EnemyBreakableBlockBreak),
                     $"production enemy spike ${behavior:X2} spawns the block's break at the block");
             AssertEqual(index == 15 ? RoomCollisionType.Air : RoomCollisionType.SpikeBlock,
                 level.GetCollisionBlock(Position16<RoomBlocks>.Zero).CollisionType,
@@ -64,12 +65,23 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
         {
             if ((behavior & 0x7f) <= 15) continue;
             byte invalid = (byte)behavior;
-            AssertThrows<InvalidDataException>(
-                () => EnemyBreakableTerrain.IsEnemyBreakable(RoomBlockBehaviorCodec.Decode(invalid)),
-                $"out-of-domain enemy spike BTS ${invalid:X2}");
+            AssertTrue(RoomBlockBehaviorCodec.Decode(invalid).Spike is null,
+                $"out-of-domain enemy spike BTS ${invalid:X2} gives no spike reaction");
         }
 
         Console.WriteLine(
             "Enemy terrain reactions: sixteen native headers, all 32 authored/high-bit selectors and real collision/PLM handoffs pass through the bus-free terrain owner; 224 adjacent-code selectors fail explicitly.");
+    }
+
+    /// <summary>The body of an enemy the check moves through the room's terrain: where it is and how far it reaches.</summary>
+    /// <param name="position">Where the enemy starts.</param>
+    /// <param name="radius">How far the enemy reaches from its centre.</param>
+    private sealed class MovingEnemyBody(FixedPosition<RoomPixels> position, Extent16<RoomPixels> radius) : IEnemyTerrainBody
+    {
+        /// <inheritdoc/>
+        public FixedPosition<RoomPixels> Position { get; set; } = position;
+
+        /// <inheritdoc/>
+        public Extent16<RoomPixels> Radius { get; } = radius;
     }
 }

@@ -5,6 +5,6 @@ internal enum MotherBrainHandBeamCue
 {
     /// <summary>Spawns the next fired beam along the aim.</summary>
     SpawnNextBeam,
-    /// <summary>Deletes the beam after its third stage.</summary>
+    /// <summary>Deletes the beam after its last stage.</summary>
     Delete,
 }

@@ -1,17 +1,22 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// What a dropped pickup keeps: what it restores, how long it remains collectible, and the enemy whose death explosion it
-/// came from (#2455).
+/// What a dropped pickup keeps: what it restores and how long it remains collectible (#2455).
 /// </summary>
-/// <param name="kind">What the pickup restores.</param>
-/// <param name="lifetime">Updates the pickup remains collectible.</param>
-/// <param name="killedEnemy">The enemy the pickup's explosion came from, or <see cref="KilledEnemy.None"/> for a pickup spawned directly.</param>
-internal sealed class EnemyPickupState(EnemyPickupKind kind, int lifetime, KilledEnemy killedEnemy) : EnemyDeathAndDropState(killedEnemy)
+internal partial class EnemyPickupState : EnemyDeathAndDropState
 {
+    /// <summary>Creates an <see cref="EnemyPickupState"/>.</summary>
+    /// <param name="kind">What the pickup restores.</param>
+    /// <param name="lifetime">Updates the pickup remains collectible.</param>
+    public EnemyPickupState(EnemyPickupKind kind, int lifetime)
+    {
+        this.Kind = kind;
+        this.Lifetime = UpdateCountdown.For(lifetime);
+    }
+
     /// <summary>What the pickup restores.</summary>
-    internal EnemyPickupKind Kind { get; } = kind;
+    internal EnemyPickupKind Kind { get; }
 
     /// <summary>The updates the pickup remains collectible, counted once each update it is tended; it fades on the update this ends.</summary>
-    internal UpdateCountdown Lifetime { get; set; } = UpdateCountdown.For(lifetime);
+    internal UpdateCountdown Lifetime { get; }
 }

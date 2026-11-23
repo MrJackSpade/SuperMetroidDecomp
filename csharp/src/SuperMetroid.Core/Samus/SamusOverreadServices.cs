@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Samus;
 /// scan past the room's ceiling finds straddling two blocks (#1612).
 /// Lifetime: the installation's, shared by every runtime of the session.
 /// </summary>
-public sealed class SamusOverreadServices
+public sealed partial class SamusOverreadServices
 {
     /// <summary>Keeps every decoded service.</summary>
     /// <param name="framesBeyondAnimation">What a Samus animation frame past its pose's animation reads.</param>

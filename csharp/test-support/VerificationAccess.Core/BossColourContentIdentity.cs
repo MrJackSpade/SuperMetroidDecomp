@@ -2,7 +2,6 @@ using SuperMetroid.AssetExtraction.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Botwoon;
-using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.Draygon;
@@ -32,7 +31,7 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> bandColors = stackalloc RgbColor[BotwoonColorFormat.ColorsPerPalette];
                 for (int band = 0; band < BotwoonHealthBandDefinitions.InOrderShown.Count; band++)
                 {
-                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(band, color);
+                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.HealthColor(SuperMetroid.Core.Bosses.Botwoon.BotwoonHealthBandDefinitions.InOrderShown[band], color);
                     content.AppendColors("row", bandColors);
                 }
             });
@@ -74,11 +73,11 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> flash = stackalloc RgbColor[DraygonColorDefinitions.WhiteFlashCount];
                 for (int color = 0; color < flash.Length; color++) flash[color] = colors.ResolveWhiteFlash(color);
                 content.AppendColors("whiteFlash", flash);
-                content.Append("healthBands", DraygonColorDefinitions.HealthBandCount);
+                content.Append("healthBands", SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count);
                 Span<RgbColor> bandColors = stackalloc RgbColor[DraygonColorDefinitions.HealthBandColorCount];
-                for (int band = 0; band < DraygonColorDefinitions.HealthBandCount; band++)
+                for (int band = 0; band < SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst.Count; band++)
                 {
-                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.ResolveHealthBand(band, color);
+                    for (int color = 0; color < bandColors.Length; color++) bandColors[color] = colors.ResolveHealthBand(SuperMetroid.Core.Bosses.Draygon.DraygonHealthBandDefinitions.HighestFirst[band], color);
                     content.AppendColors("row", bandColors);
                 }
             });
@@ -113,7 +112,7 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> frameColors = stackalloc RgbColor[BabyMetroidCutsceneColorFormat.FadeColorCount];
                 for (int frame = 0; frame < BabyMetroidCutsceneColorDefinitions.FadeFrameCount; frame++)
                 {
-                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = colors.FadeColor(frame + 1, color);
+                    for (int color = 0; color < frameColors.Length; color++) frameColors[color] = colors.FadeColor(frame, color);
                     content.AppendColors("row", frameColors);
                 }
             });
@@ -168,16 +167,12 @@ internal static class BossColourContentIdentity
                 Span<RgbColor> target = stackalloc RgbColor[PhantoonColorFormat.FadeOutCount];
                 for (int color = 0; color < target.Length; color++) target[color] = colors.ResolveFadeOut(color);
                 content.AppendColors("fadeOut", target);
-                var power = new List<RgbColor>(PhantoonColorFormat.PoweredParts.Length * PhantoonColorFormat.PoweredPartColourCount);
-                foreach (WreckedShipPoweredPart part in PhantoonColorFormat.PoweredParts)
+                var power = new List<RgbColor>();
+                foreach (WreckedShipPoweredPart part in SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.PowerOnGroups.OrderBy(group => group.Value).Select(group => group.Key))
                     for (int color = 0; color < PhantoonColorFormat.PoweredPartColourCount; color++) power.Add(colors.ResolvePowerOn(part, color));
                 content.AppendColors("powerOn", power.ToArray());
-                var frames = new RgbColor[PhantoonColorDefinitions.HealthBandCount][];
-                for (int band = 0; band < frames.Length; band++)
-                {
-                    frames[band] = new RgbColor[PhantoonColorFormat.HealthBandColorCount];
-                    for (int color = 0; color < frames[band].Length; color++) frames[band][color] = colors.ResolveHealth(band, color);
-                }
+                RgbColor[][] frames = [.. SuperMetroid.AssetExtraction.CartridgeTables.PhantoonSourceDefinitions.HealthBandPalettes.OrderBy(palette => palette.Value)
+                    .Select(palette => Enumerable.Range(0, PhantoonColorFormat.HealthBandColorCount).Select(color => colors.ResolveHealth(palette.Key, color)).ToArray())];
                 content.AppendColorFrames("healthBands", frames);
             });
     }
@@ -210,9 +205,9 @@ internal static class BossColourContentIdentity
             SelectedPresentationHash.Create("SporeSpawnColorCatalog-v1", content =>
             {
                 content.AppendColors("spores", Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame).Select(colors.ResolveSpore).ToArray());
-                content.AppendColorFrames("health", Enumerable.Range(0, SporeSpawnColorFormat.HealthFrameCount)
+                content.AppendColorFrames("health", Enumerable.Range(0, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst.Count)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
-                        .Select(color => colors.ResolveHealth(frame, color)).ToArray()).ToArray());
+                        .Select(color => colors.ResolveHealth(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnHealthBandDefinitions.HighestFirst[frame], color)).ToArray()).ToArray());
                 content.AppendColorFrames("deathSprite", Enumerable.Range(0, SporeSpawnColorFormat.DeathSpriteFrameCount)
                     .Select(frame => Enumerable.Range(0, SporeSpawnColorFormat.ColorsPerFrame)
                         .Select(color => colors.ResolveDeathSprite(frame, color)).ToArray()).ToArray());

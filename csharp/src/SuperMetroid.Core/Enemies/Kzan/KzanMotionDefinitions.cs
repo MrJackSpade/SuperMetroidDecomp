@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>How a Kzan's two parts hold together, how its top falls, rests and rises, and how it feels for Samus beneath it (#2149, #2339).</summary>
-internal static class KzanMotionDefinitions
+internal static partial class KzanMotionDefinitions
 {
     /// <summary>How far below the Kzan's top its lower part follows, in pixels.</summary>
     internal const int BottomBelowTop = 12;

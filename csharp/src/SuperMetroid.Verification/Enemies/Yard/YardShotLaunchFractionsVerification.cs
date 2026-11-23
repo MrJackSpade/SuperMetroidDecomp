@@ -24,16 +24,16 @@ internal static class YardShotLaunchFractionsVerification
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
         place.SetSpawnWords(EnemyDefinitionId.Yard, _ => new SuperMetroid.AssetExtraction.Enemies.PopulationWords(0, 0, 0, 0, 0));
-        place.Bind(EnemyDefinitionId.Yard, place.Definition);
-        YardEnemyBehavior.InitializeYard(place);
-        YardEnemyState state = enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0].");
+        place.Bind(EnemyDefinitionId.Yard, place.KeptDefinition);
+        // The Yard's setup builds the state its steps run on.
+        YardEnemyState state = YardEnemyBehavior.InitializeYard(place.HeldOccupant().SpawnSettings<YardSpawnSettings>(), place);
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork());
 
         int[] fractions = [0x0000, 0x0001, 0x1000, 0x2000, 0x8000, 0xf000, 0xffff];
         int launches = 0;
         foreach ((SamusPoseId pose, int sideways) in new[] { (SamusPoseId.FacingLeftNormalPose, -1), (SamusPoseId.FacingRightNormalPose, 1) })
         {
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             foreach (int sidewaysFraction in fractions)
             foreach (int verticalFraction in fractions)
             {

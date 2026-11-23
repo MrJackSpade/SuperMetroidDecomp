@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -67,9 +68,9 @@ internal static class MenuScreenPublicationVerification
         saves.SaveSlot(SaveSlot.A, SaveSnapshotFixtures.NewGame);
         saves.SelectSlot(SaveSlot.A);
         var fileSelect = new FileSelectMenuState(saves, AudioQueues.Standalone(), screenContent: maps, spriteSheets: MenuSheetFixtures.For(maps));
-        for (int frame = 0; frame < 60 && fileSelect.Phase != FileSelectPhase.Main; frame++)
+        for (int frame = 0; frame < 60 && fileSelect.Phase is not FileSelectPhase.Main; frame++)
             fileSelect.Step(0);
-        AssertEqual(FileSelectPhase.Main, fileSelect.Phase, "file select reaches its main menu");
+        AssertEqual(new FileSelectPhase.Main(), fileSelect.Phase, "file select reaches its main menu");
         // File select shows its backdrop's picture, then its page's picture with its slots' fields over it (#1467).
         SpriteSheet fileSelectPictures = MenuSheetFixtures.For(maps).Get(SpriteSheetId.MenuPictures);
         LayeredScene fileSelectScene = fileSelect.ComposeScene();
@@ -83,10 +84,10 @@ internal static class MenuScreenPublicationVerification
         AssertEqual(maps.Backdrops.Menus, fileSelectScene.Paint.Backdrop, "file select shows its own backdrop");
         AssertTrue(fileSelectScene.Layers.ToArray().OfType<PicturedPlaneLayer>().All(layer => layer.Plane.Pictures.All(placed => placed.Shading == PictureShading.Standard)),
             "file select's pictures show the colours the import pre-coloured them in");
-        AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.screen.Sprites.Draws), "file select draws its own sprite entries");
+        AssertTrue(PaintedSpriteEntries.AreOwn(fileSelectScene.SpriteDraws, fileSelect.Screen.Sprites.Draws), "file select draws its own sprite entries");
 
         InstalledSpriteSheets optionsSheets = MenuSheetFixtures.For(maps);
-        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets, controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
+        var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: maps, spriteSheets: optionsSheets, controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
         for (int frame = 0; frame < 30; frame++)
             options.Step(0);
         // Options shows its backdrop's picture, then the primary page's picture with its language labels' English picture over it (#1467, #1780).
@@ -97,7 +98,7 @@ internal static class MenuScreenPublicationVerification
             "options shows its backdrop's picture under its page and sprites");
         AssertTrue(optionsScene.Layers[1] is PicturedPlaneLayer { Plane.Pictures: [{ } primaryPage, { } languages] } &&
             ReferenceEquals(primaryPage.Picture, menuPictures.Frame(GameOptionsNames.PageFrame(GameOptionsScreen.Primary))) &&
-            ReferenceEquals(languages.Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(japanese: false))),
+            ReferenceEquals(languages.Picture, menuPictures.Frame(GameOptionsNames.LanguageFrame(TextLanguage.English))),
             "options shows the primary page with one picture of its language labels highlighting English (#1780)");
         AssertEqual(maps.Backdrops.Menus, optionsScene.Paint.Backdrop, "options shows its own backdrop");
         AssertTrue(optionsScene.SpriteDraws.OfType<ImageSpriteDraw>().All(draw => draw.Shading == PictureShading.Standard),

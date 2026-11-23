@@ -5,8 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's wall cannons: which room objects they are, their setup, and the firing a destroyed cannon stops.</summary>
-[RoomLifetime]
-internal sealed class DraygonCannonObjects
+internal sealed partial class DraygonCannonObjects
 {
     /// <summary>The enemy effects room objects trigger.</summary>
     private readonly IRoomObjectEnemyEffects _enemies;
@@ -50,8 +49,8 @@ internal sealed class DraygonCannonObjects
     }
 
     /// <summary>
-    /// Changes a cannon block's collision kind and behaviour, keeping its picture and what it shows, as the cannon's setup
-    /// and its destruction rewrite only each block's type and parameter (#2502).
+    /// Changes a cannon block's collision and behaviour and keeps the block's picture and what it shows, as the
+    /// cannon's setup and its destruction do (#2502).
     /// </summary>
     private static void WriteDraygonCannonTerrain(
         RoomLevelData level,

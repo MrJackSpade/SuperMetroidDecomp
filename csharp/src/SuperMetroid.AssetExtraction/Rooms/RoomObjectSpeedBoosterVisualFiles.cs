@@ -4,10 +4,10 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Installed, replaceable Speed Booster bomb-reveal visual block, and the editable identity that names it.</summary>
-public static class RoomObjectSpeedBoosterVisualFiles
+public static partial class RoomObjectSpeedBoosterVisualFiles
 {
     /// <summary>Editable Speed Booster bomb-reveal visual JSON filename.</summary>
-    public const string VisualFileName = "speed-booster.json";
+    internal const string VisualFileName = "speed-booster.json";
 
     /// <summary>The Speed Booster reveal as the import pictures them: every frame's geometry and published name.</summary>
     internal static RoomObjectFrameFamily<RoomObjectDraw> Family { get; } =
@@ -23,7 +23,7 @@ public static class RoomObjectSpeedBoosterVisualFiles
     /// <summary>Loads the installed Speed Booster reveal pictures as the player left them, without the cartridge.</summary>
     /// <param name="directory">The installed directory.</param>
     /// <exception cref="InvalidDataException">The file's format is not this importer's, or a frame's picture is missing or misshapen.</exception>
-    public static InstalledRoomObjectSpeedBoosterVisuals Load(string directory) =>
+    public static InstalledRoomObjectPictures Load(string directory) =>
         new(RoomObjectFrameImageFiles.Load(directory, Family));
 
     /// <summary>The artwork identity of the bomb reveal of one Speed Booster block.</summary>

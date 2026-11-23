@@ -9,12 +9,8 @@ namespace SuperMetroid.Core.Fx;
 /// it names where each is frontmost (#2505). Every room effect blends on every gameplay line below the HUD, through no
 /// window.
 /// </summary>
-public abstract record RoomEffectBlend
+public abstract partial record RoomEffectBlend
 {
-    /// <summary>Only the two ways an overlay lies derive from this.</summary>
-    private protected RoomEffectBlend()
-    {
-    }
 
     /// <summary>Whether the overlay adds its colours, brightening what it blends with, or subtracts them, darkening it.</summary>
     public required BlendOperation Operation { get; init; }

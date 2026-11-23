@@ -9,9 +9,15 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 /// (<see cref="MotherBrainEscapeGateDefinitions.Closing"/>). A shut gate at the door Samus arrives through closes behind her
 /// instead, from its next update.
 /// </summary>
-/// <param name="change">The gate's change, shut or closing.</param>
-internal sealed class MotherBrainEscapeGateObject(TerrainChange change) : TerrainChangeObject(change), IDoorBehindSamus
+internal sealed partial class MotherBrainEscapeGateObject : TerrainChangeObject, IDoorBehindSamus
 {
+    /// <summary>Creates a <see cref="MotherBrainEscapeGateObject"/>.</summary>
+    /// <param name="change">The gate's change, shut or closing.</param>
+    public MotherBrainEscapeGateObject(TerrainChange change)
+        : base(change)
+    {
+    }
+
     /// <summary>The gate never stays open behind Samus: its placement names no door opened for good.</summary>
     public bool StaysOpenBehindSamus(Func<LockedDoor, bool> openedForGood) =>
         false;

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// What Kraid shows behind the room (#1413, #1466): how far the room backdrop's fades move its colours. The layouts his
 /// body sheet is composed from belong to the asset import.
 /// </summary>
-public static class KraidBackgroundDefinitions
+public static partial class KraidBackgroundDefinitions
 {
 
 

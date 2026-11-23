@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// The codec of the installed gameplay-HUD layout (#1638): the extraction writes it from the HUD's decoded artwork, whose
 /// cells are import data, and the game reads it as the layout it places the HUD's images by (#1616).
 /// </summary>
-public static class GameplayHudLayoutFile
+public static partial class GameplayHudLayoutFile
 {
     /// <summary>The layout document of <paramref name="artwork"/>, as UTF-8 JSON.</summary>
     /// <param name="artwork">The HUD's decoded, validated artwork, whose layout is written.</param>
@@ -31,14 +31,14 @@ public static class GameplayHudLayoutFile
             Version = GameplayHudDocumentDefinitions.LayoutVersion,
             EnergyTankCorners = [.. parts.EnergyTankCorners],
             HealthAnchor = parts.HealthAnchor,
-            MissileAmmoAnchor = parts.MissileAmmoAnchor,
-            SuperMissileAmmoAnchor = parts.SuperMissileAmmoAnchor,
-            PowerBombAmmoAnchor = parts.PowerBombAmmoAnchor,
+            MissileAmmoAnchor = parts.AmmoFields[HudAmmoCounter.Missiles].Anchor,
+            SuperMissileAmmoAnchor = parts.AmmoFields[HudAmmoCounter.SuperMissiles].Anchor,
+            PowerBombAmmoAnchor = parts.AmmoFields[HudAmmoCounter.PowerBombs].Anchor,
             AutoReserveCorner = parts.AutoReserveCorner,
             IconAnchors = anchors,
             IconsShowOverTemplate = showsOverTemplate,
             MinimapAnchor = parts.MinimapAnchor,
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Hud.GameplayHudLayoutDocument>(ArtworkJson.Options));
     }
 
     /// <summary>Reads and validates an installed gameplay-HUD layout.</summary>
@@ -57,8 +57,7 @@ public static class GameplayHudLayoutFile
         GameplayHudLayoutDocument document;
         try
         {
-            document = JsonAssetDocument.Read<GameplayHudLayoutDocument>(source, ArtworkJson.Options) ??
-                throw new InvalidDataException("Gameplay HUD layout document is null.");
+            document = JsonAssetDocument.Read<GameplayHudLayoutDocument>(source, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -77,9 +76,12 @@ public static class GameplayHudLayoutFile
         {
             EnergyTankCorners = [.. document.EnergyTankCorners.Select((corner, index) => InBand(corner, $"energy tank {index}"))],
             HealthAnchor = InBand(document.HealthAnchor, "health digits"),
-            MissileAmmoAnchor = InBand(document.MissileAmmoAnchor, "missile digits"),
-            SuperMissileAmmoAnchor = InBand(document.SuperMissileAmmoAnchor, "Super Missile digits"),
-            PowerBombAmmoAnchor = InBand(document.PowerBombAmmoAnchor, "Power Bomb digits"),
+            AmmoFields = new(new Dictionary<HudAmmoCounter, HudAmmoField>
+            {
+                [HudAmmoCounter.Missiles] = new(InBand(document.MissileAmmoAnchor, "missile digits"), GameplayHudDefinitions.MissileDigits),
+                [HudAmmoCounter.SuperMissiles] = new(InBand(document.SuperMissileAmmoAnchor, "Super Missile digits"), GameplayHudDefinitions.SuperMissileDigits),
+                [HudAmmoCounter.PowerBombs] = new(InBand(document.PowerBombAmmoAnchor, "Power Bomb digits"), GameplayHudDefinitions.PowerBombDigits),
+            }),
             AutoReserveCorner = InBand(document.AutoReserveCorner, "AUTO indicator"),
             Icons = icons.ToImmutableDictionary(icon => icon, icon => new HudIconPlacement(
                 InBand(document.IconAnchors[HudIconKeys.Installed.Of(icon)], $"{icon} icon"), document.IconsShowOverTemplate[HudIconKeys.Installed.Of(icon)])),

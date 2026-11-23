@@ -1,6 +1,4 @@
 using SuperMetroid.Verification.Bosses.Torizo;
-using SuperMetroid.Tooling;
-using System.Reflection;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.WorkRobots.WorkRobotInitialSelectionVerification;
 using SuperMetroid.Core.Bosses.Torizo;
@@ -24,39 +22,23 @@ internal static class EnemyRomTablePointersVerification
     internal static void VerifyEnemyRomTablePointerCatalog()
     {
         // The retail ROM oracle's tables live in test-support (#1412): production reads none of them, and the
-        // import reads the ones it needs through its own source catalogs.
-        Type[] families =
-        [
-            .. MetadataShape.NestedTypes(typeof(EnemyRomTablePointers), BindingFlags.Public | BindingFlags.NonPublic),
-            .. typeof(Program).Assembly.GetTypes().Where(type => type != typeof(EnemyRomTablePointers) &&
-                type.Name.StartsWith(nameof(EnemyRomTablePointers), StringComparison.Ordinal)),
-        ];
-        AssertTrue(families.Length >= 14, "enemy ROM data is grouped by owning family");
-
-        FieldInfo[] fields = families
-            .SelectMany(family => family.GetFields(BindingFlags.Public | BindingFlags.Static))
-            .Where(field => field.IsLiteral && field.FieldType == typeof(int))
-            .ToArray();
-        AssertTrue(fields.Length >= 50, "enemy ROM data catalog covers fixed data tables");
-        foreach (FieldInfo field in fields)
-        {
-            int address = field.RequiredConstant<int>();
-            AssertTrue(
-                address is >= 0x808000 and <= 0xffffff,
-                $"{(field.DeclaringType ?? throw new InvalidOperationException("Verification requires field.DeclaringType.")).Name}.{field.Name} is a mapped SNES ROM address");
-        }
+        // import reads the ones it needs through its own source catalogs. Each represented range lies in mapped ROM.
+        RepresentativeEnemyRomRangesResult[] ranges = RepresentativeEnemyRomRanges();
+        foreach ((int address, int byteLength) in ranges)
+            AssertTrue(address is >= 0x808000 and <= 0xffffff && address + byteLength - 1 <= 0xffffff,
+                $"enemy ROM range ${address:X6} ({byteLength} bytes) is mapped SNES ROM");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
         {
             Console.WriteLine(
-                $"  Enemy ROM data: {fields.Length} named ranges are structurally valid; " +
+                $"  Enemy ROM data: {ranges.Length} represented ranges are structurally valid; " +
                 "retail ROM reads skipped (private input absent).");
             return;
         }
 
         CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        foreach ((int start, int byteLength) in RepresentativeEnemyRomRanges())
+        foreach ((int start, int byteLength) in ranges)
         {
             _ = bus.ReadCartridgeByte(start);
             _ = bus.ReadCartridgeByte(start + byteLength - 1);
@@ -64,8 +46,7 @@ internal static class EnemyRomTablePointersVerification
         Suite(nameof(VerifyCompiledEnemyInstructionSelectors), () => VerifyCompiledEnemyInstructionSelectors(bus));
 
         Console.WriteLine(
-            $"  Enemy ROM data: {fields.Length} named ranges and " +
-            $"{RepresentativeEnemyRomRanges().Length} representative retail ranges verified.");
+            $"  Enemy ROM data: {ranges.Length} representative retail ranges verified.");
     }
 
     /// <summary>
@@ -93,10 +74,10 @@ internal static class EnemyRomTablePointersVerification
         CartridgeImportAddressSpace rom)
     {
 
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
+        AssertEqual(rom.ReadCartridgeWord(EnemyRomTablePointersTorizo.SuperMissileInstructionPointers),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileLeft),
             "Golden Torizo left reflected-Super list");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
+        AssertEqual(rom.ReadCartridgeWord((EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 2)),
             TorizoNativeListAddresses.ProjectileEntry(TorizoProjectileSegment.SuperMissileRight),
             "Golden Torizo right reflected-Super list");
         Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(rom));
@@ -106,14 +87,14 @@ internal static class EnemyRomTablePointersVerification
             "Tourian statue selector rejects odd byte offsets");
 
         var guarded = NewEnemyInstructionSelectionReadGuard(rom);
-        Type type = typeof(RoomEnemySystem);
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
-            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork, statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
             RoomEnemyPlace place = system.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            EnemySystemFixtures.InitializeStatuePlacement(place);
+            // The room's population load builds the placement and initializes it.
+            _ = system.LoadAuthoredPopulation();
             AssertEqual(SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.TourianStatueSpawnsDecorations(parameter) ? 3 : 0,
                 system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive),
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
@@ -122,10 +103,12 @@ internal static class EnemyRomTablePointersVerification
         foreach (bool facingRight in new[] { false, true })
         {
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(InstalledFixtures.EnemyTiles), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: InstalledFixtures.BossArtwork);
-            RoomEnemyPlace torizo = system.Places.InUpdateOrder[0];
-            torizo.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128));
-            torizo.BindTorizoFixtureState(facingRight ? 0x8000 : 0, TorizoVariant.Golden);
-            system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo);
+            // Golden Torizo is set up as his room's population sets him up (#2554), then stands in the posture of the case's
+            // parameter word, facing its way.
+            RoomEnemyPlace torizo = system.LoadPopulation(PopulationPlacementAccess.Entry(EnemyDefinitionId.GoldenTorizo, new(128, 128)))[0];
+            TorizoEnemyState torizoState = torizo.RequireSpeciesState<TorizoEnemyState>();
+            torizoState.Posture = TorizoParameterFlagWords.PostureOf(facingRight ? 0x8000 : 0);
+            system.TorizoBehavior.Attacks.SpawnGoldenTorizoSuperMissile(torizo.HeldOccupant(), torizo, torizoState);
             EnemyProjectile projectile = system.Projectiles.EnemyProjectiles.Single(
                 candidate => candidate.IsActive);
             AssertEqual(

@@ -3,31 +3,24 @@ using System.Collections.Immutable;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>How the hatching egg's shell pieces and the Baby's slime drops fly, independent of their pictures.</summary>
-internal static class IntroEggMotionDefinitions
+internal static partial class IntroEggMotionDefinitions
 {
-    /// <summary>Where each piece of the shell starts, which <see cref="IntroEggMotion.FragmentInitialPosition"/> selects.</summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, Offset16<ScreenPixels>> FragmentInitialPositions =
-        new Dictionary<IntroEggShellFragment, Offset16<ScreenPixels>>
+    /// <summary>
+    /// Each piece of the shell: where it starts and its horizontal launch speed, which
+    /// <see cref="IntroEggMotion.FragmentInitialPosition"/> and <see cref="IntroEggMotion.FragmentX"/> select.
+    /// </summary>
+    internal static readonly IdentityTable<IntroEggShellFragment, IntroEggShellPiece> ShellPieces = new(new Dictionary<IntroEggShellFragment, IntroEggShellPiece>
         {
-            [IntroEggShellFragment.UpperLeft] = new(108, 147),
-            [IntroEggShellFragment.UpperRight] = new(115, 147),
-            [IntroEggShellFragment.Left] = new(105, 152),
-            [IntroEggShellFragment.Centre] = new(112, 150),
-            [IntroEggShellFragment.Right] = new(118, 153),
-            [IntroEggShellFragment.Lower] = new(115, 155),
-        };
+            [IntroEggShellFragment.UpperLeft] = new(new(108, 147), SignedSixteenSixteen.FromPixelFraction(-3, 4)),
+            [IntroEggShellFragment.UpperRight] = new(new(115, 147), SignedSixteenSixteen.FromPixelFraction(1, 4)),
+            [IntroEggShellFragment.Left] = new(new(105, 152), SignedSixteenSixteen.FromPixelFraction(-1, 2)),
+            [IntroEggShellFragment.Centre] = new(new(112, 150), SignedSixteenSixteen.FromPixelFraction(-7, 8)),
+            [IntroEggShellFragment.Right] = new(new(118, 153), SignedSixteenSixteen.FromPixelFraction(1, 2)),
+            [IntroEggShellFragment.Lower] = new(new(115, 155), SignedSixteenSixteen.FromPixelFraction(1, 8)),
+        });
 
-    /// <summary>Each piece of the shell's horizontal launch speed, which <see cref="IntroEggMotion.FragmentX"/> selects.</summary>
-    internal static readonly IReadOnlyDictionary<IntroEggShellFragment, SignedSixteenSixteen> FragmentXVelocities =
-        new Dictionary<IntroEggShellFragment, SignedSixteenSixteen>
-        {
-            [IntroEggShellFragment.UpperLeft] = SignedSixteenSixteen.FromPixelFraction(-3, 4),
-            [IntroEggShellFragment.UpperRight] = SignedSixteenSixteen.FromPixelFraction(1, 4),
-            [IntroEggShellFragment.Left] = SignedSixteenSixteen.FromPixelFraction(-1, 2),
-            [IntroEggShellFragment.Centre] = SignedSixteenSixteen.FromPixelFraction(-7, 8),
-            [IntroEggShellFragment.Right] = SignedSixteenSixteen.FromPixelFraction(1, 2),
-            [IntroEggShellFragment.Lower] = SignedSixteenSixteen.FromPixelFraction(1, 8),
-        };
+    /// <summary>The definition of <paramref name="fragment"/>.</summary>
+    internal static IntroEggShellPiece ShellPiece(IntroEggShellFragment fragment) => ShellPieces[fragment];
 
     /// <summary>
     /// The updates <see cref="ShellFall"/> covers. The upper-left and upper-right pieces fly three updates past it before
@@ -81,8 +74,8 @@ internal static class IntroEggMotionDefinitions
     internal static IntroEggFallCurve ShallowSlimeFall { get; } = new(TwoSpellRise, Updates: 62);
 
     /// <summary>
-    /// The four slime drops the hatched Baby sheds, in the order it sheds them: a steep drop a pixel an update to the left,
-    /// a shallow one half a pixel to the left, a steep one a pixel to the right and a shallow one half a pixel to the right.
+    /// The slime drops the hatched Baby sheds, in the order it sheds them: a steep drop and a shallow one to the left, then
+    /// a steep one and a shallow one to the right.
     /// </summary>
     internal static IReadOnlyList<IntroEggSlimeLaunch> SlimeLaunches { get; } =
     [

@@ -17,11 +17,61 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 /// <summary>Confirms the identified partial ordinary-enemy installation admission gap.</summary>
 internal static class EnemyTileArtworkPresentationContractChecks
 {
+    /// <summary>The atlases the check builds, by their byte count, each built once.</summary>
+    private static readonly Dictionary<int, RoomCharacterAtlas> cachedSheets = [];
+
+    /// <summary>A blank atlas of <paramref name="bytes"/> character bytes, built once per size.</summary>
+    private static RoomCharacterAtlas Sheet(int bytes)
+    {
+        if (cachedSheets.TryGetValue(bytes, out RoomCharacterAtlas? existing)) return existing;
+        int tiles = RoomCharacterAtlasFormat.ValidateTileCount(bytes);
+        int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles), rows = (tiles + columns - 1) / columns;
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
+            Enumerable.Range(0, EnemyPaletteSheetFile.ColorCount).Select(index => new RgbaPixel((byte)index, 0, 0)).ToArray());
+        png.Position = 0;
+        RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(png, bytes);
+        cachedSheets.Add(bytes, atlas);
+        return atlas;
+    }
+
+    /// <summary>
+    /// The installed enemy artwork with <paramref name="sheets"/> and <paramref name="palettes"/>, the admission under check;
+    /// every other part an installation holds is constructed blank, which the sheets' admission does not read.
+    /// </summary>
+    private static EnemyTileArtworkParts PartsWith(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
+        IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes, Func<int, RoomCharacterAtlas> sheet)
+    {
+        static RgbColor[] Row(int colours) => new RgbColor[colours];
+        static RgbColor[][] Rows(int rows, int colours) => [.. Enumerable.Range(0, rows).Select(_ => Row(colours))];
+        return new EnemyTileArtworkParts
+        {
+            Sheets = sheets,
+            Palettes = palettes,
+            Spritemaps = new EnemySpritemapCatalog([], []),
+            ExtendedFrames = new EnemyExtendedFrameCatalog([], []),
+            GunshipLiftoff = new GunshipLiftoffArtworkCatalog(GunshipLiftoffTransferDefinitions.Frames.ToDictionary(frame => frame.Asset, _ => sheet(GunshipLiftoffCharacterDefinitions.ByteCount))),
+            ProjectileSpritemaps = new EnemyProjectileSpritemapCatalog([], [], []),
+            MagdollitePaletteCycle = new MagdollitePaletteCycle(new InstalledColourRows(
+                Rows(SuperMetroid.Core.Enemies.Magdollite.MagdolliteGlowAnimations.Cycle.Count, MagdollitePaletteCycle.AnimatedColorCount),
+                SuperMetroid.Core.Enemies.Magdollite.MagdolliteGlowAnimations.Cycle.Count, MagdollitePaletteCycle.AnimatedColorCount, "blank Magdollite palette cycle")),
+            WorkRobotPaletteCycle = new WorkRobotPaletteCycle(new InstalledColourRows(
+                Rows(SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowAnimations.Cycle.Count, WorkRobotPaletteDefinitions.ColorCount),
+                SuperMetroid.Core.Enemies.WorkRobots.WorkRobotGlowAnimations.Cycle.Count, WorkRobotPaletteDefinitions.ColorCount, "blank Work Robot palette cycle")),
+            ChozoAndTubeColors = new ChozoAndTubeColorCatalog(Row(ChozoAndTubeColorDefinitions.ColorCount),
+                Row(ChozoAndTubeColorDefinitions.ColorCount), Row(ChozoAndTubeColorDefinitions.ColorCount)),
+            DachoraColors = new DachoraColorCatalog(Row(DachoraColorFormat.ColorsPerFrame),
+                Rows(SuperMetroid.Core.Enemies.Animals.DachoraColorDefinitions.AnimatedFrameCount, DachoraColorFormat.ColorsPerFrame),
+                Rows(SuperMetroid.Core.Enemies.Animals.DachoraColorDefinitions.AnimatedFrameCount, DachoraColorFormat.ColorsPerFrame)),
+            AuxiliaryColors = new EnemyAuxiliaryColorCatalog([]),
+        };
+    }
+
     /// <summary>Confirms empty ordinary artwork is rejected, then checks complete installed artwork and its static ownership contract.</summary>
     internal static void Run()
     {
         bool rejected = false;
-        try { _ = EnemyTileSourceArtwork.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }); }
+        try { _ = EnemyTileSourceArtwork.FromInstalledArtwork(PartsWith(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Sheet)); }
         catch (InvalidDataException) { rejected = true; }
         if (!rejected) throw new InvalidOperationException(
             "Enemy artwork confirmation failed: production construction must reject an empty ordinary installation.");
@@ -32,20 +82,6 @@ internal static class EnemyTileArtworkPresentationContractChecks
     /// <summary>Exercises complete identity admission, copied source aliases, and exact VRAM/CGRAM upload boundaries with constructed artwork.</summary>
     private static void ConfirmInstalledData()
     {
-        var cached = new Dictionary<int, RoomCharacterAtlas>();
-        RoomCharacterAtlas Sheet(int bytes)
-        {
-            if (cached.TryGetValue(bytes, out RoomCharacterAtlas? existing)) return existing;
-            int tiles = RoomCharacterAtlasFormat.ValidateTileCount(bytes);
-            int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tiles), rows = (tiles + columns - 1) / columns;
-            using var png = new MemoryStream();
-            IndexedPng.Write(png, new(checked((ushort)(columns * 8)), checked((ushort)(rows * 8))), new byte[columns * rows * 64],
-                Enumerable.Range(0, EnemyPaletteSheetFile.ColorCount).Select(index => new RgbaPixel((byte)index, 0, 0)).ToArray());
-            png.Position = 0;
-            RoomCharacterAtlas atlas = RoomCharacterAtlasPng.Read(png, bytes);
-            cached.Add(bytes, atlas);
-            return atlas;
-        }
         var sheets = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId,
             definition => Sheet(definition.ByteCount));
         using var paletteJson = new MemoryStream(EnemyPaletteSheetFile.Write(new EnemyPaletteSheetDocument {
@@ -53,24 +89,22 @@ internal static class EnemyTileArtworkPresentationContractChecks
                 .Select(_ => new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }).ToArray() }));
         EnemyPaletteSheet palette = EnemyPaletteSheetFile.Read(paletteJson);
         var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
-        var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
+        var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.ToDictionary(page => page, page => Sheet(page.ByteCount)));
         using var overlayJson = new MemoryStream(CeresEscapeOverlays.Write(new CeresEscapeOverlayTilemapDocument {
             Version = CeresWarningGlyphDefinitions.Version,
             Pages = CeresEscapeOverlayPages.All.ToDictionary(page => page.Name, page => new BackgroundTile[page.WordCount]) }));
         CeresEscapeOverlays overlays = CeresEscapeOverlays.Load(overlayJson);
         var torizo = new TorizoSwapArtwork(TorizoSwapArtworkDefinitions.All
-            .Select(page => Sheet(page.ByteCount)).ToArray());
-        EnemyTileSourceArtwork Install() => EnemyTileSourceArtwork.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes });
+            .ToDictionary(page => page.Page, page => Sheet(page.ByteCount)));
+        EnemyTileSourceArtwork Install() => EnemyTileSourceArtwork.FromInstalledArtwork(PartsWith(sheets, palettes, Sheet));
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileSourceArtwork catalog = Install();
-        _ = AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
-        _ = BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork { TorizoSwaps = torizo });
-        Reject(() => AreaSourceArtwork.FromInstalledArtwork(new AreaSourceArtwork { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
-        Reject(() => BossSourceArtwork.FromInstalledArtwork(new BossSourceArtwork()), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionId];
-        sheets.Remove(first.DefinitionId); sheets.Add(0, original);
+        // The substitute is an enemy whose installation holds no sheet of its own (#2558): no identity stands for none.
+        EnemyDefinitionId substitute = Enum.GetValues<EnemyDefinitionId>().First(id => !sheets.ContainsKey(id));
+        sheets.Remove(first.DefinitionId); sheets.Add(substitute, original);
         Reject(() => Install(), "same-count substituted identity");
-        sheets.Remove(0);
+        sheets.Remove(substitute);
         sheets[first.DefinitionId] = Sheet(first.ByteCount == 32 ? 64 : 32);
         Reject(() => Install(), "incorrect native sheet length");
         sheets[first.DefinitionId] = original;
@@ -79,7 +113,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
         sheets.Clear(); palettes.Clear();
         Require(catalog.TilesOf(first.DefinitionId).Length == first.ByteCount, "copied installed sheet");
         ReadOnlyMemory<byte> bytes;
-        Require(ceres.TryResolve(0, 1, 1, out bytes) && bytes.Length == 1,
+        Require(ceres.TryResolve(CeresEscapeTileArtworkDefinitions.WarningText, 1, 1, out bytes) && bytes.Length == 1,
             "bounded Ceres tile slice");
         CeresEscapeWarningPicture overlay = CeresEscapeWarningPictures.Emergency;
         Require(overlays.TryResolve(overlay, out ReadOnlyMemory<BackgroundTile> tiles) &&

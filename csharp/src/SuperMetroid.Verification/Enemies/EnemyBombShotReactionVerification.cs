@@ -38,16 +38,14 @@ internal static class EnemyBombShotReactionVerification
             (RoomEnemySystem enemies, RoomEnemyPlace place) = LoadedRoomWithMellow(definition, frozenTimer);
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Type = SamusBombProjectileSystem.NormalBombType;
-            bomb.Damage = 30;
-            bomb.Radius = new(4, 4);
-            bomb.Position = FixedPosition<RoomPixels>.FromWhole(Place);
+            bomb.Occupy(SamusBombKind.Bomb, 30);
+            bomb.HeldBomb().Radius = new(4, 4);
+            bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(Place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
                 new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
             enemies.Audio.BeginFrame();
-            AssertTrue(enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place, Position16<RoomPixels>.Zero),
-                $"{kind}: the exploding bomb hits the Mellow");
+            enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), place.HeldOccupant(), Position16<RoomPixels>.Zero);
 
             bool immune = kind == "immune";
             AssertTrue(bomb.IsSpent, $"{kind}: the hit marks the bomb");
@@ -60,7 +58,7 @@ internal static class EnemyBombShotReactionVerification
                 _ => [new SoundRequest(SamusSound.DudShot, SoundRequestPriority.Low)],
             };
             AssertSequenceEqual(expected, enemies.Audio.SoundRequests, $"{kind}: the sounds the bomb's hit queues");
-            RoomEffectActor[] duds = [.. enemies.EffectActors.Live.Where(spawned => spawned.Kind == RoomEffectActorKind.DudShot)];
+            RoomEffectActor[] duds = [.. enemies.EffectActors.Live.Where(spawned => spawned.Shows(RoomEffectActorKind.DudShot))];
             AssertEqual(immune ? 1 : 0, duds.Length, $"{kind}: the dud flashes the bomb's hit shows");
             if (immune)
                 AssertEqual(Place, duds[0].Position.Whole, "the dud flash shows where the bomb lies");
@@ -89,19 +87,17 @@ internal static class EnemyBombShotReactionVerification
             enemy.Position = FixedPosition<RoomPixels>.FromWhole(place);
             enemy.CollidesByFrameHitboxes = frameHitboxes;
             if (frameHitboxes)
-                enemy.Frame = EnemyFrameId.Empty;
+                enemy.Frame = EnemyFrameId.PointAtOrigin;
             var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             SamusBomb bomb = bombs.Bombs[0];
-            bomb.Type = SamusBombProjectileSystem.NormalBombType;
-            bomb.Damage = 30;
-            bomb.Radius = new(4, 4);
-            bomb.Position = FixedPosition<RoomPixels>.FromWhole(place);
+            bomb.Occupy(SamusBombKind.Bomb, 30);
+            bomb.HeldBomb().Radius = new(4, 4);
+            bomb.HeldBomb().Position = FixedPosition<RoomPixels>.FromWhole(place);
             var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads,
                 new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(), new global::SuperMetroid.Core.Fx.RoomEarthquake());
 
             enemies.Audio.BeginFrame();
-            AssertEqual(hit, enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), enemy, Position16<RoomPixels>.Zero),
-                $"{kind}: the bomb's hits");
+            enemies.Collision.ResolveOrdinaryBombHit(bombs, shots, samus: RoomEnemyFrameFixtures.StandaloneSamus(), enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
             AssertEqual(hit, bomb.IsSpent, $"{kind}: the hit marks the bomb");
             AssertEqual(hit ? 1000 - 30 : 1000, enemy.Health, $"{kind}: the Mellow's health after the bomb");
         }

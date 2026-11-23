@@ -4,6 +4,7 @@ using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shaktool;
+using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.World;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -27,28 +28,31 @@ internal static class ShaktoolSegmentDefinitionsVerification
         {
             ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.Segments[index];
             definitions[index] = definition;
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaadef7 + index * 2)),
+            AssertEqual((ushort)0, rom.ReadCartridgeWord((0xaadef7 + index * 2)),
                 $"Shaktool segment {index} initialization subtrahend");
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemyPlace> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < definitions.Length; index++)
         {
-            ShaktoolSegmentDefinition definition = definitions[index];
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
-            place.Bind(EnemyDefinitionId.Shaktool, place.Definition);
+            place.Bind(EnemyDefinitionId.Shaktool, place.KeptDefinition);
             place.SetSpawnParameter2(EnemyDefinitionId.Shaktool, unchecked((ushort)(index * 2)));
             place.Contact = EnemyContact.BlocksPlasmaBeam;
             place.Processing = EnemyProcessing.None;
             place.Presence = EnemyPresence.None;
             place.Position = place.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
-            initialize(place);
-
-            ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
+        }
+        // Each segment is set up in the chain the check holds (ShaktoolChainHolding), its own setup initializing its state.
+        ShaktoolChain chain = enemies.HoldShaktoolChain();
+        for (int index = 0; index < definitions.Length; index++)
+        {
+            ShaktoolSegmentDefinition definition = definitions[index];
+            RoomEnemyPlace place = enemies.Places.InUpdateOrder[index];
+            ShaktoolSegmentState state = chain.Segments[index].State;
             AssertEqual(EnemyContact.BlocksPlasmaBeam | definition.Contact,
                 place.Contact, $"Shaktool production contact {index}");
-            AssertEqual(definition.Processing,
+            AssertEqual(ShaktoolSegmentDefinitions.Processing,
                 place.Processing, $"Shaktool production processing {index}");
             AssertEqual(EnemyPresence.None,
                 place.Presence, $"Shaktool production presence {index}");
@@ -64,14 +68,21 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production instruction timer {index}");
         }
 
-        foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Motion = ShaktoolSegmentMotion.Idle;
-        // The reset cue carries out its reaction and the animation plays on: a cue's reaction continues nowhere else.
-        enemies.ShaktoolBehavior.ApplyShaktoolCue(enemies.Places.InUpdateOrder[0], new ShaktoolCue(ShaktoolCueKind.ResumeMotion));
+        foreach (ShaktoolChainSegment segment in chain.Segments)
+            segment.State.Motion = ShaktoolSegmentMotion.Idle;
+        // The trailing saw's head bob ends with the cue that resumes the whole chain's motion, which its animation carries out
+        // as it plays on.
+        RoomEnemyPlace trailingSaw = enemies.Places.InUpdateOrder[6];
+        chain.Segments[6].State.Playback =
+            new(ShaktoolAnimations.StartingWith(ShaktoolSegment.SawHandHeadBobFinalPiece), AnimationPlace.StartOfAnimation);
+        trailingSaw.AnimationClock.StepOnNextUpdate();
+        object?[] arguments = [trailingSaw, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
+        for (int update = 0; update < 21 && chain.Segments[1].State.Motion != definitions[1].Motion; update++)
+            EnemyInstructionRunner.Process(arguments);
         for (int index = 0; index < definitions.Length; index++)
         {
             AssertEqual(definitions[index].Motion,
-                (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index].")).Motion,
+                chain.Segments[index].State.Motion,
                 $"Shaktool production reset callback {index}");
         }
 
@@ -83,7 +94,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     private static void VerifyShaktoolPropertySelection(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
             definition => checked((ushort)EnemyPropertyWordCodec.EncodePropertyWord(new EnemyPropertyState(
-                definition.Contact, definition.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))),
+                definition.Contact, ShaktoolSegmentDefinitions.Processing, EnemyPresence.None, CollidesByFrameHitboxes: false, NewInstructionFrame: false))),
             "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
@@ -91,10 +102,13 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle.RawValue, "initial angle algorithm"));
 
-    /// <summary>Checks each segment's offset back to the controlling Shaktool slot.</summary>
+    /// <summary>
+    /// Checks each segment's offset back to the controlling Shaktool slot is its place in the chain's listing
+    /// (<see cref="ShaktoolSegmentDefinitions.Chain"/>), which the segments find each other by.
+    /// </summary>
     private static void VerifyShaktoolOwnerOffsetAlgorithm(CartridgeImportAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeOwnerOffsetAddress,
-            definition => checked((ushort)(definition.OwnerPlaceDistance * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
+            definition => checked((ushort)(Array.IndexOf(ShaktoolSegmentDefinitions.Segments, definition) * SuperMetroid.AssetExtraction.Enemies.EnemySlotOffsets.RecordSize)), "owner offset"));
 
     /// <summary>Checks the first animation instruction list selected for each segment.</summary>
     private static void VerifyShaktoolInitialInstructionSelection(CartridgeImportAddressSpace rom) =>
@@ -106,7 +120,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     {
         for (int index = 0; index < 7; index++)
         {
-            ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(ShaktoolSegmentDefinitions.NativeCallbackAddress + 2 * index);
+            ushort word = rom.ReadCartridgeWord(ShaktoolSegmentDefinitions.NativeCallbackAddress + 2 * index);
             AssertEqual(ShaktoolNativeWords.DecodeMotion(word, "Shaktool segment callback"), ShaktoolSegmentDefinitions.Segments[index].Motion,
                 $"Shaktool callback selection {index}");
         }
@@ -119,7 +133,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         for (int index = 0; index < 7; index++)
         {
             int address = nativeAddress + 2 * index;
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
+            ushort expected = rom.ReadCartridgeWord(address);
             AssertEqual(expected, select(ShaktoolSegmentDefinitions.Segments[index]),
                 $"Shaktool {label} original word {index}");
         }

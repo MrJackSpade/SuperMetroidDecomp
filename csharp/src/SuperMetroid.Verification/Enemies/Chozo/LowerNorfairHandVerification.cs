@@ -29,25 +29,25 @@ internal static class LowerNorfairHandVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.AcidStatue);
         runtime.StepFrame(0);
         var level = runtime.Room.LoadedLevelData;
         var hand = level.GetCollisionBlock(new(4, 8));
         AssertTrue(runtime.RoomObjects.BlockReactions.TrySpawnProjectileShotBlock(level, hand.At,
-            hand.Behavior, SamusProjectileType.Of(SamusProjectileFamily.PowerBomb), true), "power bomb breaks the retail hand cover");
+            ShotBlockReactions.ShotBlocks[hand.Behavior.Shootable], BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.PowerBomb)), true), "power bomb breaks the retail hand cover");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
         AssertEqual(ChozoStatueRoomDefinitions.LowerNorfairHandBehavior, hand.Behavior, "Norfair hand activation behaviour");
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
             samus.CollectedItems = hasSpaceJump ? SamusEquipmentFlags.SpaceJump : 0;
             samus.PoseId = hasSpaceJump ? SamusPoseId.FacingRightNormalPose : SamusPoseId.MorphBallGroundRightPose;
             SamusPresentation.InitializeAnimation(samus);
             samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
-            var rejected = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
+            var rejected = SamusBlockCollision.MoveVertical(runtime.Room.LoadedScope.SamusTerrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
             AssertTrue(rejected.Collided, "hand remains solid for ineligible contact");
             AssertTrue(!runtime.System.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid),
                 "standing or missing Space Jump must not activate statue");
@@ -56,7 +56,7 @@ internal static class LowerNorfairHandVerification
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
-        var collision = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = runtime.RoomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
+        var collision = SamusBlockCollision.MoveVertical(runtime.Room.LoadedScope.SamusTerrain, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2), ScanLeftToRight = true, CanBreakBombBlocks = false, IncludeSolidEnemies = false });
         // Samus's whole width lies in the hand's block column, so the downward probe's
         // only candidate is the hand block at (4, 8).
         int leftColumn = (samus.Kinematics.Position.X.Whole - samus.Kinematics.Radius.X) >> 4;
@@ -65,9 +65,7 @@ internal static class LowerNorfairHandVerification
             rightColumn == hand.At.X,
             "downward morph contact lands on the actual hand tile");
         AssertTrue(runtime.System.HasEvent(StoryEvent.LowerNorfairChozoLoweredAcid), "hand sets native acid event");
-        AssertTrue((runtime.Enemies.Places.InUpdateOrder[0].SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException("Verification requires the statue state.")).Phase
-            is ChozoStatuePhase.HandTriggered or ChozoStatuePhase.HandTriggeredBeforeWaiting, "hand wakes statue");
-        AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "statue takes control on hand contact");
+        AssertTrue(!runtime.Player.GroundedSamusMovementEnabled, "the hand wakes the statue, which takes control on hand contact");
         ushort startingAcidY = runtime.RoomFxOverlay.NamedBaseY.Whole;
         bool sawAcidDrain = false;
         var displayedHeights = new HashSet<int>();

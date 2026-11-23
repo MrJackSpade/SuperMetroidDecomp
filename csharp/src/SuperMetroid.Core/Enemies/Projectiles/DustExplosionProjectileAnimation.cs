@@ -2,13 +2,17 @@ using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 
-/// <summary>Misc dust's typed animation.</summary>
-internal sealed class DustExplosionProjectileAnimation(DustExplosionAnimation animation)
-    : EnemyProjectileFrameAnimation<DustExplosionAnimation, EnemyProjectileCommonCue>(DustExplosionProjectileAnimations.StartingWith(animation))
+/// <summary>The animation of a dust cloud, explosion, smoke or bubbles.</summary>
+internal sealed partial class DustExplosionProjectileAnimation
+    : EnemyProjectileFrameAnimation<DustExplosionAnimation, EnemyProjectileCommonCue>
 {
-    /// <inheritdoc/>
-    private protected override AnimationSegments<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;
+    /// <summary>Creates a <see cref="DustExplosionProjectileAnimation"/>.</summary>
+    /// <param name="animation">animation</param>
+    public DustExplosionProjectileAnimation(DustExplosionAnimation animation)
+        : base(animation, DustExplosionProjectileAnimations.StartingAt[animation], EnemyProjectileCueRunners.Common<DustExplosionAnimation>())
+    {
+    }
 
     /// <inheritdoc/>
-    private protected override IReadOnlyDictionary<DustExplosionAnimation, Animation<DustExplosionAnimation>> StartingAt => DustExplosionProjectileAnimations.StartingAt;
+    private protected override IUnpausedAnimationPlay<DustExplosionAnimation, EnemyProjectileFrameId, EnemyProjectileCommonCue> Segments => DustExplosionProjectileAnimations.Segments;
 }

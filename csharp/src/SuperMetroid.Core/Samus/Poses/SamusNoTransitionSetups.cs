@@ -3,7 +3,7 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Which setup the pose update runs when Samus's input chooses no new pose (#2506).</summary>
-internal static class SamusNoTransitionSetups
+internal static partial class SamusNoTransitionSetups
 {
     /// <summary>
     /// The setup of <paramref name="pose"/>, or, for a pose that names none, the setup of
@@ -15,12 +15,8 @@ internal static class SamusNoTransitionSetups
     /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
     internal static SamusNoTransitionSetup For(SamusPoseId pose, SamusMovementType movementInForce)
     {
-        SamusNoTransitionSetup own = SamusPoseTraits.Of(pose).NoTransitionSetup;
-        if (own != SamusNoTransitionSetup.None)
+        if (SamusPoseNoTransitionSetupDefinitions.Own.TryGetValue(pose, out SamusNoTransitionSetup? own))
             return own;
-        return SamusMovementTypeDefinitions.Movements.TryGetValue(movementInForce, out SamusMovementTypeDefinition? movement)
-            ? movement.NoTransitionSetup
-            : throw new ArgumentOutOfRangeException(nameof(movementInForce), movementInForce,
-                "Movement type names no setup for input that chooses no new pose.");
+        return SamusMovementTypeDefinitions.Movements[movementInForce].NoTransitionSetup;
     }
 }

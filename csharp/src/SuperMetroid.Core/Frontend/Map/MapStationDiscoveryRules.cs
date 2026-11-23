@@ -4,10 +4,10 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>
-/// Application-owned discovery cells from the station lists, each named for the room its station stands in (#1975):
-/// the name its editable marker position is installed under.
+/// The discovery cells of the map stations, each named for the room its station stands in (#1975): the name its
+/// editable marker position is installed under.
 /// </summary>
-public static class MapStationDiscoveryRules
+public static partial class MapStationDiscoveryRules
 {
     /// <summary>The Brinstar and Maridia missile station cells.</summary>
     private static readonly MapStationDiscoveryRule[] missile =
@@ -36,6 +36,14 @@ public static class MapStationDiscoveryRules
         new("MaridiaMap", AreaId.Maridia, new(17, 18)),
     ];
 
+    /// <summary>The discovery rules of each kind of station.</summary>
+    private static IdentityTable<MapStationKind, MapStationDiscoveryRule[]> RulesByKind => field ??= new(new Dictionary<MapStationKind, MapStationDiscoveryRule[]>
+    {
+        [MapStationKind.Missile] = missile,
+        [MapStationKind.Energy] = energy,
+        [MapStationKind.Map] = map,
+    });
+
     /// <summary>Selects an area's marker family without testing exploration or consulting editable drawing positions.</summary>
     /// <param name="area">Validated area identity whose saved map owns the discovery cells.</param>
     /// <param name="kind">The mutually exclusive missile, energy, or map station family.</param>
@@ -43,14 +51,7 @@ public static class MapStationDiscoveryRules
     /// <exception cref="ArgumentOutOfRangeException">The area or station kind is not a supported identity.</exception>
     public static IEnumerable<MapStationDiscoveryRule> Get(AreaId area, MapStationKind kind)
     {
-        _ = AreaIds.Require(area);
-        MapStationDiscoveryRule[] source = kind switch
-        {
-            MapStationKind.Missile => missile,
-            MapStationKind.Energy => energy,
-            MapStationKind.Map => map,
-            _ => throw new ArgumentOutOfRangeException(nameof(kind))
-        };
+        MapStationDiscoveryRule[] source = RulesByKind[kind];
         return source.Where(rule => rule.Area == area);
     }
 }

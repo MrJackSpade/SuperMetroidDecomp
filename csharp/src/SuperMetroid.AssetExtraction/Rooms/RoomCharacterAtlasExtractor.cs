@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.Rooms.Artwork;
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Extracts the shared CRE and all distinct retail room-character sources as indexed PNGs.</summary>
-public static class RoomCharacterAtlasExtractor
+public static partial class RoomCharacterAtlasExtractor
 {
     /// <summary>Imports shared CRE characters, every distinct room graphics-set character source, and the uncompressed Tourian-statue ghost span.</summary>
     /// <param name="bus">Non-null cartridge import address space supplying compressed room characters and the raw ghost artwork.</param>
@@ -20,7 +20,7 @@ public static class RoomCharacterAtlasExtractor
     {
         Ensure.NotNull(bus);
         var files = new Dictionary<string, byte[]>();
-        RoomTilesetSourceMap sources = RoomTilesetSources.Read(CartridgeImportSource.Require(bus));
+        RoomTilesetSourceMap sources = RoomTilesetSources.Read(bus);
         Add(RoomCharacterSheetFiles.CreFileName,
             RoomTilesetSourceDefinitions.CreCharacters);
         foreach (TilesetDefinition tileset in RoomTilesets.All)
@@ -36,8 +36,8 @@ public static class RoomCharacterAtlasExtractor
         void Add(string fileName, SnesAddress sourceAddress, bool compressed = true)
         {
             byte[] planar = compressed
-                ? RomDataReader.Decompress(CartridgeImportSource.Require(bus), sourceAddress)
-                : RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), sourceAddress,
+                ? RomDataReader.Decompress(bus, sourceAddress)
+                : RomDataReader.ReadFixedBank(bus, sourceAddress,
                     LibraryBackgroundStagingDefinitions.TourianStatueGhostByteCount);
             _ = RoomCharacterAtlasFormat.ValidateTileCount(planar.Length);
             byte[] indexes = SnesGraphics.DecodePlanarTiles(planar, 4,

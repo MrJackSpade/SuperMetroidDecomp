@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Enemies.Artwork;
 /// room mains or setups, or drawing one of its enemies (any enemy, for code every enemy runs). A set's shared sheet holds a
 /// spawner's objects exactly when one of the set's states, or the enemies drawn under it, satisfy it.
 /// </summary>
-internal sealed record CommonSpawnerPresence
+internal sealed partial record CommonSpawnerPresence
 {
     /// <summary>The PLMs whose placement runs the spawner.</summary>
     public IReadOnlyList<RoomObjectKind> RoomObjects { get; init; } = [];

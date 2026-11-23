@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// contract treats those frames as hardware lag, which the game eliminates, and a replay supplies the frames its
 /// recording counted through its own <see cref="IDoorMusicLoadFrames"/>.
 /// </remarks>
-[CompatibilityService("music loads instantly, so no frame is counted while it loads")]
-public sealed class InstantDoorMusicLoad : IDoorMusicLoadFrames
+public sealed partial class InstantDoorMusicLoad : IDoorMusicLoadFrames
 {
     /// <summary>The shared, stateless instance every session uses.</summary>
     public static InstantDoorMusicLoad Instance { get; } = new();

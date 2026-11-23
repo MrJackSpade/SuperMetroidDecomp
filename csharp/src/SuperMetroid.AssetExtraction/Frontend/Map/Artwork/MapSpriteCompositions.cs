@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map.Artwork;
 /// compositions, and the menu OBJ characters the menu sheets are composed over, belong to the import pipeline that reads
 /// the installed artwork.
 /// </summary>
-public abstract class MapSpriteCompositions
+public abstract partial class MapSpriteCompositions
 {
     /// <summary>Restricts the catalog to the import pipeline's reader.</summary>
     internal MapSpriteCompositions()

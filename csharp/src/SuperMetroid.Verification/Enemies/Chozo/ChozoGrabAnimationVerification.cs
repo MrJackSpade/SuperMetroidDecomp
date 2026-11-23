@@ -11,28 +11,28 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Enemies.Chozo;
 
-using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Compatibility;
 /// <summary>Checks the Wrecked Ship Chozo hand's Samus carry and optional Power Bomb continuation.</summary>
 internal static class ChozoGrabAnimationVerification
 {
     /// <summary>Checks frozen ball animation during capture, movement and release, and blast state when armed.</summary>
     internal static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.System.RecordBossesDefeated(AreaId.WreckedShip, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.BowlingAlley);
-        var samus = runtime.Player.IntroducedSamus;
-        samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+        var samus = runtime.Player.Samus;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
         samus.CollectedItems = samus.EquippedItems = SamusEquipmentFlags.MorphBall;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);

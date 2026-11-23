@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// attacks, her third phase's walks and recoils, and her third-phase death through the escape's start. Each wait is the
 /// updates it lasts, its last being the update it runs out on (#2311).
 /// </summary>
-internal static class MotherBrainLateFightDefinitions
+internal static partial class MotherBrainLateFightDefinitions
 {
     /// <summary>The energy at or above which Samus can stand as the rainbow beam takes her.</summary>
     internal const int SamusStandsInBeamHealth = 700;
@@ -35,7 +35,7 @@ internal static class MotherBrainLateFightDefinitions
     internal const int DrainUpdates = 300;
 
     /// <summary>The updates the room shakes as the rainbow beam drains Samus: all of the drain but its last update.</summary>
-    internal const int DrainShakeUpdates = 299;
+    internal const int DrainShakeUpdates = DrainUpdates - 1;
 
     /// <summary>The updates she lowers her head after the rainbow beam before deciding what to do next.</summary>
     internal const int LowerHeadUpdates = 129;

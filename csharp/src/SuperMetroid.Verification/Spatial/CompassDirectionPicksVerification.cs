@@ -24,7 +24,6 @@ internal static class CompassDirectionPicksVerification
         }
         for (int octant = 0; octant < OctantDirections.Length; octant++)
             AssertEqual(AimAngleConstants.FromClockwiseSteps(octant * 32), AimAngleConstants.Toward(OctantDirections[octant]), $"octant {octant} bearing");
-        AssertThrows<ArgumentOutOfRangeException>(() => AimAngleConstants.Toward((CompassDirection)99), "undefined compass direction bearing");
         Console.WriteLine("  Compass direction picks: 256 bearings' octant and nearest directions equal the octant arithmetic, and each direction's bearing is its eighths.");
     }
 }

@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Ending.Artwork;
 /// characters from the component's import data, which the ending's pictures and sheets are composed from. The game reads
 /// none of the characters.
 /// </summary>
-public sealed class ImportEndingObjectArtwork : EndingObjectSourceArtwork
+public sealed partial class ImportEndingObjectArtwork : EndingObjectSourceArtwork
 {
     /// <summary>Validates and retains the installed documents and the import's characters.</summary>
     /// <param name="parts">The ending's maps and sprite presentations.</param>
@@ -24,14 +24,14 @@ public sealed class ImportEndingObjectArtwork : EndingObjectSourceArtwork
         WaitingSamus = Ensure.NotNull(characters.WaitingSamus);
         ShootingScreen = Ensure.NotNull(characters.ShootingScreen);
         SuitlessSamus = Ensure.NotNull(characters.SuitlessSamus);
-        PostCreditsFragmentA = Ensure.NotNull(characters.PostCreditsFragmentA);
+        TransformationCharacters = Ensure.NotNull(characters.TransformationCharacters);
         PostShotLogoTiles = Ensure.NotNull(characters.PostShotLogoTiles);
         if (!HasRequiredLength(Clouds, EndingObjectTransfer.Clouds) ||
             !HasRequiredLength(Explosion, EndingObjectTransfer.Explosion) ||
             !HasRequiredLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
             !HasRequiredLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
             !HasRequiredLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
-            !HasRequiredLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
+            !HasRequiredLength(TransformationCharacters, EndingObjectTransfer.TransformationCharacters) ||
             !HasRequiredLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
     }
@@ -51,7 +51,7 @@ public sealed class ImportEndingObjectArtwork : EndingObjectSourceArtwork
     /// <summary>Under-three-hour suitless reward sheet.</summary>
     public RoomCharacterAtlas SuitlessSamus { get; }
     /// <summary>BG3 transformation characters imported from <c>$99:DA9F</c> and uploaded at VRAM byte $4000; separate from the transformation map.</summary>
-    public RoomCharacterAtlas PostCreditsFragmentA { get; }
+    public RoomCharacterAtlas TransformationCharacters { get; }
     /// <summary>Four post-shot logo tile chunks uploaded to BG/OBJ VRAM.</summary>
     public RoomCharacterAtlas PostShotLogoTiles { get; }
 }

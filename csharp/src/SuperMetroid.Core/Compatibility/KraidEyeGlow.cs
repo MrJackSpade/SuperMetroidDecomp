@@ -26,8 +26,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// A value Kraid's colours own; each operation gives the eyes after it.
 /// </para>
 /// </remarks>
-[CompatibilityService("Kraid's eyes glow up and fade back a level an update, a fading channel at none wrapping to full; the glow's peak and the eyes' return to the band's time his roar")]
-public readonly struct KraidEyeGlow
+public readonly partial struct KraidEyeGlow
 {
     /// <summary>The eyes Kraid has.</summary>
     public const int Eyes = 3;
@@ -57,6 +56,20 @@ public readonly struct KraidEyeGlow
 
     /// <summary>The eye colours shown now, one per eye.</summary>
     public ImmutableArray<RgbColor> Shown => [.. shown.Select(levels => levels.ToColour())];
+
+    /// <summary>
+    /// The colour each eye shows now, by the colour <paramref name="shaded"/>, the eyes' colours under their shade, gives
+    /// that eye, so the eyes' shaded colours show the glow's in their place.
+    /// </summary>
+    /// <exception cref="ArgumentException">The colours are not one per eye, or two eyes are shaded alike.</exception>
+    public ImmutableDictionary<RgbColor, RgbColor> ShownInPlaceOf(ReadOnlySpan<RgbColor> shaded)
+    {
+        Ensure.LengthEqual(shaded, Eyes);
+        var substitution = ImmutableDictionary.CreateBuilder<RgbColor, RgbColor>();
+        for (int eye = 0; eye < Eyes; eye++)
+            substitution.Add(shaded[eye], shown[eye].ToColour());
+        return substitution.ToImmutable();
+    }
 
     /// <summary>Whether every eye's red and green stand at full, which a glow step reaches on the update it peaks.</summary>
     public bool HasPeaked => shown.All(levels => levels.Red == FadeLevelColour.FullLevel && levels.Green == FadeLevelColour.FullLevel);

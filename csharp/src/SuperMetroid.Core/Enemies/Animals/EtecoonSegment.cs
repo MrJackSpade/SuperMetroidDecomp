@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>
-/// The Etecoon's look, run, wall-jump, hop and flex animations (#641): one segment per animation a spawn, branch or wake enters, in authored order.
+/// The Etecoon's look, run, wall-jump, hop and flex animations (#641).
 /// Their steps are <see cref="EtecoonAnimations"/>.
 /// </summary>
 internal enum EtecoonSegment
@@ -42,7 +42,7 @@ internal enum EtecoonSegment
     WallJumpRightEligible,
     /// <summary>Crouched to hop facing right, the pose it starts in.</summary>
     StartingCrouch,
-    /// <summary>The flex's six hop poses, which the flex plays four times.</summary>
+    /// <summary>The flex's hop poses, which the flex plays over (<see cref="EtecoonAnimations.FlexRuns"/>).</summary>
     Flexing,
     /// <summary>The flex's two closing poses, the last held.</summary>
     FlexEnd,

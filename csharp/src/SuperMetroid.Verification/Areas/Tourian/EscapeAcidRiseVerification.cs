@@ -33,7 +33,7 @@ internal static class EscapeAcidRiseVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesTimebombSet);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.TourianEscape4);
         bool TriggerPresent() => runtime.RoomObjects.PopulationPlaces.Any(place => place.Behaviour is EscapeAcidRiseObject);
@@ -45,7 +45,7 @@ internal static class EscapeAcidRiseVerification
         AssertEqual(AcidStartLevel, (int)loaded.Whole, "the acid starts at the room effect's level");
         AssertEqual(SignedEightEight.Zero, acid.LiquidLevelSpeed, "the acid starts still");
 
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         // Each step places Samus, steps one update, and reports whether, where the update left her, she had passed the
         // trigger point; the trigger reads her after her own movement.
         bool StepWithSamusAt(int x, int y)
@@ -90,7 +90,7 @@ internal static class EscapeAcidRiseVerification
     /// </summary>
     private static void VerifyDefinitionsAgainstRom(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(address);
         const int Setup = 0x8fc953;
         const int Entry = 0x84b968;

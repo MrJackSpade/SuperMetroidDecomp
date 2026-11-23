@@ -68,12 +68,12 @@ internal static class GrappleEndpointGeometryVerification
     {
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
         {
-            samus.Pose = pose;
+            samus.ChangePoseKeepingAnimation(pose);
             samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
             SamusPresentation.InitializeAnimation(samus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -83,7 +83,7 @@ internal static class GrappleEndpointGeometryVerification
             samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithX(samus.Position.X.Whole);
             samus.Grapple.FlareOrigin = samus.Grapple.FlareOrigin.WithY(samus.Position.Y.Whole);
             runtime.Sprites.BeginFrame();
-            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.IntroducedSamus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
+            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, runtime.Player.Samus, SamusDrawOwner.Gameplay, SamusColourEffects.Hold, deathStep: null);
             runtime.Sprites.FinalizeFrame();
             SamusColouredDraw[] endpoints = [.. runtime.Sprites.Draws.Where(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint).Cast<SamusColouredDraw>()];
             // The endpoint just above the view is published in every pose; the display clips it (#1541).

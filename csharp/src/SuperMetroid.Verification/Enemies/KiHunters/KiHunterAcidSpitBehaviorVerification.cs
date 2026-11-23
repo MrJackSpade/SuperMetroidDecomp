@@ -21,16 +21,14 @@ internal static class KiHunterAcidSpitBehaviorVerification
     /// </summary>
     internal static void VerifyKiHunterAcidSpitBehavior(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, KiHunterAcidSpitNativeListAddresses.Extent, "Ki-Hunter acid");
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook,
-        };
-        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, HorizontalDirection.Left);
-        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body, HorizontalDirection.Right);
+        RoomEnemyPlace body = enemies.Places.InUpdateOrder[0];
+        body.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        body.Shading = SuperMetroid.Core.Enemies.Drawing.EnemyShades.FrozenLook;
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body.BoundFor(EnemyDefinitionId.KihunterGreen), body, HorizontalDirection.Left);
+        enemies.KiHunterBehavior.SpawnKiHunterAcidSpit(body.HeldOccupant(), body, HorizontalDirection.Right);
         // Both ways' acid is one kind, its velocity its way (#2278).
         EnemyProjectile left = Find(HorizontalDirection.Left);
         EnemyProjectile right = Find(HorizontalDirection.Right);
@@ -45,7 +43,7 @@ internal static class KiHunterAcidSpitBehaviorVerification
         left.Position = left.Position.WithWhole(new(64, 63));
         left.Radius = new(2, 2);
         left.Velocity = left.Velocity.WithY(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(256));
-        KiHunterBehavior.RunKiHunterAcidMovement(left, level);
+        KiHunterBehavior.RunKiHunterAcidMovement(enemies.KiHunterBehavior.Acid, left, level);
         AssertEqual(KiHunterAcidSpitSegment.HitFloor, ProgramOf(left), "a floor collision starts the splash program");
         (bool splashed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, left, Entry(KiHunterAcidSpitSegment.HitFloor), 60, "acid splash");
         AssertTrue(splashed, "the splash deletes the spit");

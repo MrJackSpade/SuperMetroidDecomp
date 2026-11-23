@@ -28,8 +28,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// runtime's scrolling into a loaded room's kick.
 /// </para>
 /// </remarks>
-[CompatibilityService("a Yard kicked by Samus flies sideways at the distance the camera last measured her moving, plus one pixel, and upward at the speed that distance's whole pixels select")]
-public sealed class YardKickTrackingDistance
+public sealed partial class YardKickTrackingDistance
 {
     /// <summary>
     /// How far the camera last measured Samus moving sideways, plus one pixel: the kicked shell's sideways speed in pixels
@@ -37,6 +36,12 @@ public sealed class YardKickTrackingDistance
     /// and zero before the runtime's first Samus.
     /// </summary>
     public SignedSixteenSixteen HorizontalDistancePlusOne { get; private set; }
+
+    /// <summary>
+    /// The speed the kick's choice reads from the distance (#2563): its whole pixels, a negative measure reading as its
+    /// whole pixels counted up from 65536, past every kick, so a measure of Samus moving left picks the fastest kick.
+    /// </summary>
+    public int KickChoiceSpeed => HorizontalDistancePlusOne.UnsignedWholePixels;
 
     /// <summary>The measure Samus's initialisation leaves before the camera has tracked her: no movement, plus one pixel.</summary>
     private static SignedSixteenSixteen InitialDistancePlusOne => SignedSixteenSixteen.OnePixel;

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// picture of the Baby in each pose of its pulse animation, drawn over the floor where it lies. The import composes them
 /// from the title's floor map and artwork.
 /// </summary>
-public static class TitleFloors
+public static partial class TitleFloors
 {
     /// <summary>The name of the whole floor's picture.</summary>
     public const string FloorFrameName = "floor";
@@ -18,7 +18,6 @@ public static class TitleFloors
     private static readonly ConditionalWeakTable<SpriteSheetFrame, AffineFloor> floors = new();
 
     /// <summary>The name of the picture of the Baby in <paramref name="pose"/>.</summary>
-    [InstalledKey]
     public static string BabyFrameName(TitleBabyPose pose) => $"baby-{TitleBabyPoseKeys.Installed.Of(pose)}";
 
     /// <summary>The floor with the Baby in <paramref name="pose"/> drawn over it.</summary>

@@ -18,7 +18,7 @@ namespace SuperMetroid.AssetExtraction.Bosses;
 /// so the import walks that program and pre-colours each record it shows there, and the glowing colours in each colouring
 /// a fade runs toward. A fade between colourings is a typed fade between these shades, never pre-coloured.
 /// </summary>
-internal static class TorizoSheetShades
+internal static partial class TorizoSheetShades
 {
     /// <summary>The first ink of a Torizo's body and belly: the first of the two rows they draw in.</summary>
     private const int BodyFirstInk = 1 * LoadedSetColours.RowColours;
@@ -56,15 +56,18 @@ internal static class TorizoSheetShades
         Ensure.NotNull(paletteFx);
         var shades = new List<SheetShade>
         {
-            new(TorizoShades.Shared,
-                [.. Enumerable.Range(OrbsFirstInk, LoadedSetColours.RowColours), .. Enumerable.Range(ShadingFirstInk, LoadedSetColours.RowColours)],
-                TorizoPaletteColours.Shared.ToArray()),
+            // The shared colours are the orb-and-flame row's run, then the statue-shading row's.
+            SheetShade.Combined(TorizoShades.Shared,
+            [
+                SheetShade.Run(TorizoShades.Shared, OrbsFirstInk, TorizoPaletteColours.Shared[..LoadedSetColours.RowColours]),
+                SheetShade.Run(TorizoShades.Shared, ShadingFirstInk, TorizoPaletteColours.Shared[LoadedSetColours.RowColours..]),
+            ]),
         };
         TorizoLook[] settled =
         [
             new(TorizoLookKind.BombStatue), new(TorizoLookKind.GoldenInitial), new(TorizoLookKind.Normal), new(TorizoLookKind.Golden),
             new(TorizoLookKind.White), new(TorizoLookKind.Black),
-            .. GoldenTorizoHealthBandDefinitions.LowestFirst.Select(TorizoLook.GoldenHealth),
+            .. GoldenTorizoHealthBandDefinitions.HighestFirst.Reverse().Select(TorizoLook.GoldenHealth),
         ];
         foreach (TorizoLook look in settled)
             shades.Add(SheetShade.Run(TorizoShades.Body(look), BodyFirstInk, Colours(auxiliary, look)));
@@ -92,13 +95,20 @@ internal static class TorizoSheetShades
         foreach (TorizoLook to in FadeTargets)
         {
             RgbColor[] colouring = Colours(auxiliary, to);
-            shades.Add(new SheetShade(TorizoShades.GlowingBelly(to), inks, [.. inks.Select(ink => colouring[ink - BodyFirstInk])]));
+            shades.Add(SheetShade.Of(TorizoShades.GlowingBelly(to), inks, ink => colouring[ink - BodyFirstInk]));
         }
         return shades;
     }
 
     /// <summary>The body's and belly's colours of <paramref name="look"/>, body first.</summary>
-    private static RgbColor[] Colours(EnemyAuxiliaryColorCatalog auxiliary, TorizoLook look) => look.Kind switch
+    private static RgbColor[] Colours(EnemyAuxiliaryColorCatalog auxiliary, TorizoLook look) => look.Band is { } band
+        // Golden Torizo's health colouring shows its band's body and belly colours; the others are named by their kind.
+        ?
+        [
+            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, HealthRow(band), colour)),
+            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBelly, HealthRow(band), colour)),
+        ]
+        : look.Kind switch
     {
         TorizoLookKind.BombStatue => TorizoPaletteColours.BombInitial.ToArray(),
         TorizoLookKind.GoldenInitial => TorizoPaletteColours.GoldenInitial.ToArray(),
@@ -106,27 +116,26 @@ internal static class TorizoSheetShades
         TorizoLookKind.Golden => TorizoPaletteColours.Golden.ToArray(),
         TorizoLookKind.White => [.. Enumerable.Repeat(RgbColor.White, BodyColours)],
         TorizoLookKind.Black => new RgbColor[BodyColours],
-        TorizoLookKind.GoldenHealth =>
-        [
-            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, HealthRow(look), colour)),
-            .. Enumerable.Range(0, LoadedSetColours.RowColours).Select(colour => auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBelly, HealthRow(look), colour)),
-        ],
-        _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
+        // A health colouring names its band, which the colours above read.
+        TorizoLookKind.GoldenHealth or _ => throw new InvalidDataException($"Undefined Torizo colouring {look.Kind}."),
     };
 
-    /// <summary>
-    /// The row of Golden Torizo's installed health colours <paramref name="look"/>'s band reads: they hold his bands lowest
-    /// first, one row per 2048 health.
-    /// </summary>
-    /// <exception cref="InvalidDataException"><paramref name="look"/> names no health band.</exception>
-    private static int HealthRow(TorizoLook look)
+    /// <summary>The row of Golden Torizo's installed health colours each band reads, one row per 2048 health.</summary>
+    private static readonly Dictionary<GoldenTorizoHealthBand, int> HealthRows = new()
     {
-        GoldenTorizoHealthBand band = look.Band ?? throw new InvalidDataException($"The Torizo health colouring {look.Kind} names no band.");
-        for (int row = 0; row < GoldenTorizoHealthBandDefinitions.LowestFirst.Count; row++)
-        {
-            if (GoldenTorizoHealthBandDefinitions.LowestFirst[row] == band)
-                return row;
-        }
-        throw new InvalidDataException($"Golden Torizo has no installed health colours for band {band}.");
+        [GoldenTorizoHealthBandDefinitions.NearlyDead] = 0,
+        [GoldenTorizoHealthBandDefinitions.GravelyWounded] = 1,
+        [GoldenTorizoHealthBandDefinitions.BadlyWounded] = 2,
+        [GoldenTorizoHealthBandDefinitions.Wounded] = 3,
+        [GoldenTorizoHealthBandDefinitions.Hurt] = 4,
+        [GoldenTorizoHealthBandDefinitions.Grazed] = 5,
+        [GoldenTorizoHealthBandDefinitions.Unhurt] = 6,
+    };
+
+    /// <summary>The row of Golden Torizo's installed health colours <paramref name="band"/> reads.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="band"/> has no installed colours.</exception>
+    private static int HealthRow(GoldenTorizoHealthBand band)
+    {
+        return HealthRows.TryGetValue(band, out int row) ? row : throw new InvalidDataException($"Golden Torizo has no installed health colours for band {band}.");
     }
 }

@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// Choot's idle, jumping and falling animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="ChootCue"/> naming what it does.
 /// </summary>
-internal static class ChootAnimations
+internal static partial class ChootAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<ChootSegment, EnemyFrameId, ChootCue> Segments { get; } = new(
@@ -38,7 +38,7 @@ internal static class ChootAnimations
     /// The animation that starts at each segment an owner can start or restart at: each switches off-screen processing and
     /// ends on a still picture (#2275).
     /// </summary>
-    internal static IReadOnlyDictionary<ChootSegment, Animation<ChootSegment>> StartingAt { get; } = new Dictionary<ChootSegment, Animation<ChootSegment>>
+    internal static Dictionary<ChootSegment, Animation<ChootSegment>> StartingAt { get; } = new Dictionary<ChootSegment, Animation<ChootSegment>>
     {
         [P.Idle] = new([Segments.Whole(P.Idle)], AnimationEnd.Holds),
         [P.Jumping] = new([Segments.Whole(P.Jumping)], AnimationEnd.Holds),

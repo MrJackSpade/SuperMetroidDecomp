@@ -35,20 +35,19 @@ internal static class EnemyTileArtworkDachoraColorsVerification
             VerifyFrame(DachoraColourPhase.Shine, frame);
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraColourPhase.Speed, frame)),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     DachoraColorSources.SpeedPointerTable + frame * sizeof(ushort)),
                 $"native Dachora speed selector {frame}");
             AssertEqual(unchecked((ushort)DachoraColorSources.Source(
                     DachoraColourPhase.Shine, frame)),
-                RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                RomDataReader.ReadWordFixedBank(rom,
                     DachoraColorSources.ShinePointerTable + frame * sizeof(ushort)),
                 $"native Dachora shine selector {frame}");
         }
 
         string file = Path.Combine(stockDirectory, DachoraColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
-        DachoraColorDocument visual = JsonSerializer.Deserialize<DachoraColorDocument>(
-            stockJson, CaseInsensitiveJson) ??
+        DachoraColorDocument visual = JsonSerializer.Deserialize<DachoraColorDocument>(stockJson, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Enemies.DachoraColorDocument>(CaseInsensitiveJson)) ??
             throw new InvalidDataException("Stock Dachora color JSON is null.");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -100,7 +99,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         {
             int source = DachoraColorSources.Source(phase, frame);
             for (int color = 0; color < DachoraColorFormat.ColorsPerFrame; color++)
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+                AssertEqual(RomDataReader.ReadWordFixedBank(rom,
                     source + color * sizeof(ushort)),
                     native.Resolve(phase, frame, color),
                     $"installed Dachora {phase} frame {frame} color {color}");

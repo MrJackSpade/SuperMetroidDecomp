@@ -10,7 +10,7 @@ internal static class IntroRinkaProgramsVerification
     /// <summary>Checks three native frame operands, published names, stock part counts, and catalog bounds.</summary>
     internal static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
     {
-        string[] names = ["rinka-0", "rinka-1", "rinka-2"];
+        string[] names = ["rinka-dim", "rinka-glowing", "rinka-bright"];
         var frames = IntroRinkaSpriteDefinitions.Frames;
         AssertEqual(3, frames.Count, "three original Rinka frames");
         for (int index = 0; index < 3; index++)
@@ -19,7 +19,7 @@ internal static class IntroRinkaProgramsVerification
             ushort pointer = LittleEndianBytes.Word(IntroRinkaFrameCatalogRomByte(rom, operand), IntroRinkaFrameCatalogRomByte(rom, operand + 1));
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "native Rinka frame operand");
             AssertEqual(names[index], frames[index].Name, "published Rinka asset key");
-            AssertEqual(IntroRinkaSpriteDefinitions.StockPartCount,
+            AssertEqual(frames[index].StockPartCount,
                 LittleEndianBytes.Word(IntroRinkaFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroRinkaFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "native four-part Rinka record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Frontend.Map;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>Installed HUD atlas identity and geometry.</summary>
-public static class HudTileAtlasFormat
+public static partial class HudTileAtlasFormat
 {
     /// <summary>Installation-relative indexed PNG filename for standard HUD/minimap characters, separate from the 4-bpp map atlas.</summary>
     public const string FileName = "hud-tiles.png";

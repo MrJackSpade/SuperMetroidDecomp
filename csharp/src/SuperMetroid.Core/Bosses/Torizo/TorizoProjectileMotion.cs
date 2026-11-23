@@ -26,7 +26,7 @@ internal enum TorizoProjectileMotion
     /// <summary>Accelerates a hatched Golden Torizo egg toward a wall.</summary>
     EggCharging,
 
-    /// <summary>Drops a Golden Torizo egg that struck a wall to the floor, where it hatches or bursts.</summary>
+    /// <summary>Drops a charging Golden Torizo hatchling that a wall stopped to the floor, where it breaks.</summary>
     EggDropping,
 
     /// <summary>Keeps a held super missile at Golden Torizo's hand.</summary>

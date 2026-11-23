@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rendering;
 /// The sprite layer, one of the scene's layers, whose sprites the glow covers where they show, or null for none.
 /// </param>
 /// <param name="VerticalScroll">The plane line shown on the screen's top line, every line's.</param>
-public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneLayer? GlowsOver = null,
+public sealed partial record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneLayer? GlowsOver = null,
     SpritesLayer? GlowsOverSprites = null, int VerticalScroll = 0) : DisplayLayer
 {
     /// <summary>The glowing plane's pictures.</summary>
@@ -27,11 +27,7 @@ public sealed record AddedPicturedPlaneLayer(PicturedPlane Plane, PicturedPlaneL
     /// The plane line shown on the screen's top line, every line's: a displacement in the plane's space, which holds it as
     /// it holds every picture's corner and every plane layer's scroll (<see cref="Offset16{TSpace}"/>, #1627).
     /// </summary>
-    public int VerticalScroll
-    {
-        get;
-        init => field = PlaneLine(value);
-    } = PlaneLine(VerticalScroll);
+    public int VerticalScroll { get; } = PlaneLine(VerticalScroll);
 
     /// <summary>A vertical displacement in the plane's space, as the plane's offsets hold it.</summary>
     private static int PlaneLine(int line) => Offset16<PlanePixels>.Of(0, line).Y;

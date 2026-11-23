@@ -12,7 +12,7 @@ namespace SuperMetroid.Core;
 /// </summary>
 /// <typeparam name="TIdentity">The identity the converter reads and writes.</typeparam>
 /// <param name="keys">The identity's written-out keys.</param>
-public abstract class InstalledKeyJsonConverter<TIdentity>(InstalledKeys<TIdentity> keys) : JsonConverter<TIdentity>
+public abstract partial class InstalledKeyJsonConverter<TIdentity>(InstalledKeys<TIdentity> keys) : JsonConverter<TIdentity>
     where TIdentity : struct, Enum
 {
     /// <summary>The identity's written-out keys.</summary>
@@ -20,7 +20,6 @@ public abstract class InstalledKeyJsonConverter<TIdentity>(InstalledKeys<TIdenti
 
     /// <inheritdoc />
     /// <exception cref="JsonException">The value is not a string naming a member.</exception>
-    [SuppressMessage("Design", "SME6426", Justification = "System.Text.Json's JsonConverter contract fixes the signature; a converter of one identity needs neither the type it converts nor the options.")]
     public override TIdentity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
         reader.TokenType == JsonTokenType.String
             ? Named(reader.GetString())
@@ -32,7 +31,6 @@ public abstract class InstalledKeyJsonConverter<TIdentity>(InstalledKeys<TIdenti
 
     /// <inheritdoc />
     /// <exception cref="JsonException">The property name names no member.</exception>
-    [SuppressMessage("Design", "SME6426", Justification = "System.Text.Json's JsonConverter contract fixes the signature; a converter of one identity needs neither the type it converts nor the options.")]
     public override TIdentity ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
         Named(reader.GetString());
 

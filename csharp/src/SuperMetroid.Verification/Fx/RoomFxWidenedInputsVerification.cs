@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.ColourEffects;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -19,10 +20,11 @@ internal static class RoomFxWidenedInputsVerification
         AssertEqual(ushort.MaxValue, Conditions(ushort.MaxValue).SamusY, "palette-FX Samus Y keeps the room's lowest line");
         AssertEqual(0, Conditions(0).SamusY, "palette-FX Samus Y keeps the room's top line");
 
-        AssertEqual(6, Frame(6).FirefleaDarkness.FirefleasKilled, "Fireflea darkness keeps its last step");
+        // The darkness's last step is the fifth death's (#2573).
+        AssertEqual(5, Frame(5).FirefleaDarkness.FirefleasKilled, "Fireflea darkness keeps its last step");
         AssertEqual(0, new RoomFxOverlayFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false }.FirefleaDarkness.FirefleasKilled,
             "Fireflea darkness defaults to none");
-        AssertThrows<ArgumentOutOfRangeException>(() => Frame(7), "Fireflea darkness past its last step");
+        AssertThrows<ArgumentOutOfRangeException>(() => Frame(6), "Fireflea darkness past its last step");
         AssertThrows<ArgumentOutOfRangeException>(() => Frame(-1), "negative Fireflea darkness");
 
         const int largestRandom = SuperMetroid.Core.Compatibility.SharedRandomState.LargestValue;
@@ -43,7 +45,7 @@ internal static class RoomFxWidenedInputsVerification
         const int deepest = CoordinateAxis.LastNonNegative;
         AssertTrue(CoordinateAxis.AsSigned(deepest) >= 0 && CoordinateAxis.AsSigned(deepest + 1) < 0,
             "the deepest named line is the last a signed reading finds at or below the room's top");
-        var liquid = new RoomFxOverlayState(SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
+        var liquid = global::SuperMetroid.Core.Fx.RoomFxOverlayState.ForRoom(fx: null, door: null, randomNumber: 0, sounds: SuperMetroid.Core.Audio.GameplayAudioRequests.Standalone());
         AssertTrue(liquid.BaseY is null && liquid.TargetSurface is null && liquid.Surface is null,
             "a room with no effect has no liquid surface or target (#1987)");
         liquid.SetLiquidLevel(deepest);
@@ -65,7 +67,7 @@ internal static class RoomFxWidenedInputsVerification
         static ColourEffectInputs Conditions(int samusY) =>
             new() { Samus = FixtureRoomSamus.Uninstalled, SamusY = samusY, EquippedItems = 0, AreaMiniBossDefeated = false };
         static RoomFxOverlayFrame Frame(int darkness) =>
-            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new FirefleaDarkness(darkness) };
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, FirefleaDarkness = new global::SuperMetroid.Core.Fx.FirefleaDarkness(darkness) };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
             new() { Fx = null, Door = null, RandomNumber = randomNumber, Room = null, SuppliedDefinition = null };
     }

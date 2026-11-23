@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Poses;
 
-/// <summary>What one Samus animation step reads: input, the frame counter, system state, pose-input policy, and the echo-sound queue (#633).</summary>
-public sealed record SamusAnimationStep
+/// <summary>What one Samus animation step reads (#633): the controller input, the frame counter, the shared random generator, the prospective input pose, whether a demo supplies the pose input, and whether a boss is present.</summary>
+public sealed partial record SamusAnimationStep
 {
     /// <summary>The actions held this update.</summary>
     public GameplayAction ControllerInput { get; init; } = GameplayAction.None;
@@ -17,6 +18,9 @@ public sealed record SamusAnimationStep
         get;
         init => field = Ensure.BetweenInclusive(0, Compatibility.FrameClock.CounterPeriod - 1, value);
     }
+
+    /// <summary>The ground of the room or scene Samus animates in, which her running footsteps go by (#2416).</summary>
+    public required RoomGround Ground { get; init; }
 
     /// <summary>The session's random-number generator, which Samus's liquid effects draw air bubbles from.</summary>
     public required SharedRandom Random { get; init; }

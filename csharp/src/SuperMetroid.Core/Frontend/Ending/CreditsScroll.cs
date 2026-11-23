@@ -15,15 +15,15 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// top starting <see cref="StartDistance"/> pixels below the view's top, moved up by the distance scrolled; nothing wraps,
 /// and no line is held or replaced.
 /// </remarks>
-internal sealed class CreditsScroll
+internal sealed partial class CreditsScroll
 {
     /// <summary>Pixels below the view's top the roll's top starts at, more than the screen's height, so each line comes up from below the view.</summary>
     internal const int StartDistance = 256;
     /// <summary>The distance the roll has scrolled up, in pixels and fractions of a pixel.</summary>
     private SignedSixteenSixteen scrolled;
 
-    /// <summary>Whether the roll still scrolls.</summary>
-    public bool Enabled { get; private set; } = true;
+    /// <summary>Whether the roll still scrolls: until it has finished (#2560).</summary>
+    internal bool Enabled => !Finished;
     /// <summary>Set when the roll has scrolled past its end.</summary>
     public bool Finished { get; private set; }
     /// <summary>The whole pixels the roll has scrolled up.</summary>
@@ -39,7 +39,6 @@ internal sealed class CreditsScroll
         if (ScrolledPixels < CreditsRollLines.FinishingScroll)
             return;
         Finished = true;
-        Enabled = false;
     }
 
     /// <summary>

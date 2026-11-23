@@ -4,8 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>The electricity a save station shows while it saves: its spawn into the room's enemy projectiles.</summary>
-[RoomLifetime]
-internal sealed class SaveStationElectricity
+internal sealed partial class SaveStationElectricity
 {
     /// <summary>The room's enemy projectiles, which hold the electricity.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -18,25 +17,19 @@ internal sealed class SaveStationElectricity
 
     /// <summary>
     /// Spawns the save station's electricity with the room's graphics. The game derives its origin from the save station
-    /// room object at <paramref name="roomObjectBlock"/>: one block right and two blocks above its trigger block.
+    /// room object at <paramref name="roomObjectBlock"/>: off its trigger block by <see cref="SaveStationElectricityDefinitions.BlocksFromTrigger"/>.
     /// </summary>
     internal void Spawn(Position16<RoomBlocks> roomObjectBlock)
     {
 
-        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile();
+        EnemyProjectile? projectile = _projectiles.AllocateEnemyProjectile(RoomEnemyProjectileKind.SaveStationElectricity, EnemyProjectileBehavior.Still, graphics: SpriteGraphics.SharedStandard, new SaveStationElectricityAnimation());
         if (projectile is null)
         {
-            // The projectile spawn deliberately drops a spawn when all eighteen places
+            // The projectile spawn deliberately drops a spawn when every place
             // are occupied. This is the game's finite-pool behavior, not an error.
             return;
         }
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            RoomEnemyProjectileKind.SaveStationElectricity,
-            EnemyProjectileBehavior.Still,
-            graphics: default);
-        projectile.StartAnimation(new SaveStationElectricityAnimation());
         projectile.Position = projectile.Position.WithWhole((roomObjectBlock + SaveStationElectricityDefinitions.BlocksFromTrigger).ToRoomPixels());
     }
 }

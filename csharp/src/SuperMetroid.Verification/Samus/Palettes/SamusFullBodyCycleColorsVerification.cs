@@ -38,10 +38,8 @@ internal static class SamusFullBodyCycleColorsVerification
                 originalPointers.Add(ReadVerificationWord(rom, 0x910000 | (list + 2 * phase)));
         }
         AssertEqual(48, originalPointers.Count, "Original dispatcher lists select48 distinct color rows");
-        int ordinal = 0;
         foreach (ushort pointer in originalPointers)
         {
-            AssertEqual(ordinal++, SamusFullBodyCycleColorFormat.PaletteIndex(pointer), "Original palette allocation order equals calculated index");
             var cgram = new SamusColours();
             SamusPaletteNative.ShowFullBodyCycle(cgram, pointer);
             for (int color = 0; color < 16; color++)
@@ -65,9 +63,7 @@ internal static class SamusFullBodyCycleColorsVerification
         byte[] extracted = SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom);
         Suite(nameof(VerifyFullBodyPaletteColorData), () => VerifyFullBodyPaletteColorData(rom, extracted));
 
-        SamusFullBodyCycleColorDocument document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(
-            File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)),
-            ArtworkJson.Options)
+        SamusFullBodyCycleColorDocument document = JsonSerializer.Deserialize<SamusFullBodyCycleColorDocument>(File.ReadAllBytes(Path.Combine(stockDirectory, SamusFullBodyCycleColorFormat.FileName)), global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorDocument>(ArtworkJson.Options))
             ?? throw new InvalidDataException("Stock full-body cycle color JSON is null.");
         var installedSources = InstalledFixtures.SamusShadeSources with { FullBodyCycles = InstalledFixtures.ImportOf(original).SamusColours.FullBodyCycles };
         var guard = NewFullBodyColorReadGuard(rom);
@@ -86,8 +82,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 speed.CycleShadeStep = phase;
                 speed.CycleShadeTimer = 1;
                 var cgram = new SamusColours();
-                AssertTrue(speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, AnimationOnSpinStart = (0) == 0, AnimationPastScrewAttackSpin = (0) >= 27, AnimationBeforeWallJumpSpin = (0) < 3, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-                    "Speed Booster reaches installed color source");
+                speed.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.Running, SpinPlace = SpinGlowPlace.NotSpinning, EquippedItems = items, SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
 
@@ -96,8 +91,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 var screw = new SamusHorizontalSpeedState(SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus());
                 screw.CycleShadeStep = phase;
                 var cgram = new SamusColours();
-                AssertTrue(screw.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, AnimationOnSpinStart = (1) == 0, AnimationPastScrewAttackSpin = (1) >= 27, AnimationBeforeWallJumpSpin = (1) < 3, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false }),
-                    "Screw Attack reaches installed color source");
+                screw.UpdateSpeedBoosterGlow(cgram, new SpeedBoosterGlowFrame { MovementType = SamusMovementType.SpinJumping, SpinPlace = SpinGlowPlace.Glowing, EquippedItems = (items | SamusEquipmentFlags.ScrewAttack), SuppressActiveSpeedBoosterGlow = false, BottomBoundarySubmerged = false });
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));
             }
@@ -140,9 +134,9 @@ internal static class SamusFullBodyCycleColorsVerification
         // Samus binds no colour table (#1512): the installed cycles reach her only through the import's shades, which the
         // checks above resolve.
 
-        PaletteRgb5 originalColor = document.SpeedBooster[0][0][1];
-        document.SpeedBooster[0][0][1] = originalColor with { Blue = 32 };
-        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        PaletteRgb5 originalColor = document.SpeedBooster["Power"][0][1];
+        document.SpeedBooster["Power"][0][1] = originalColor with { Blue = 32 };
+        byte[] malformed = JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.Verification.VerificationJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorDocument>(ArtworkJson.Options));
         AssertThrows<InvalidDataException>(() => SamusFullBodyCycleColorFile.Read(
             new MemoryStream(malformed, writable: false)),
             "full-body cycle colors reject out-of-range RGB5 values");

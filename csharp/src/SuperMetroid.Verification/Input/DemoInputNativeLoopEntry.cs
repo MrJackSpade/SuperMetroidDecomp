@@ -6,4 +6,4 @@ namespace SuperMetroid.Verification.Input;
 /// <param name="Recording">The recording.</param>
 /// <param name="FirstRecord">The recording's input the loop starts at.</param>
 /// <param name="Entry">The loop list's native entry.</param>
-internal readonly record struct DemoInputNativeLoopEntry(DemoInputRecordingId Recording, int FirstRecord, ushort Entry);
+internal readonly record struct DemoInputNativeLoopEntry(DemoRecording Recording, int FirstRecord, ushort Entry);

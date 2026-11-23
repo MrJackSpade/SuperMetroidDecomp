@@ -9,78 +9,24 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 /// The Fune's and Namihe's idle and spitting animations (#641). Each
 /// frame shows a <see cref="EnemyFrameId"/> and each cue is a <see cref="FuneNamiheCue"/> naming what it does.
 /// </summary>
-internal static class FuneNamiheAnimations
+internal static partial class FuneNamiheAnimations
 {
     /// <summary>Every segment's beats.</summary>
     internal static AnimationSegments<FuneNamiheSegment, EnemyFrameId, FuneNamiheCue> Segments { get; } = new(
         new Dictionary<FuneNamiheSegment, AnimationBeat<EnemyFrameId, FuneNamiheCue>[]>
     {
         [P.FuneIdleLeft] = [Hold(EnemyFrameId.FuneFacingLeftMouthClosed)],
-        [P.FuneActiveLeft] =
-        [
-            Show(EnemyFrameId.FuneFacingLeftMouthClosed, 16),
-            Show(EnemyFrameId.FuneFacingLeftMouthOpening, 8),
-            Show(EnemyFrameId.FuneFacingLeftMouthHalfOpen, 8),
-            Show(EnemyFrameId.FuneFacingLeftMouthOpen, 8),
-            Cue(new FuneNamiheCue.Fire(HorizontalDirection.Left)),
-            Cue(new FuneNamiheCue.Signal(K.SpitSound)),
-            Show(EnemyFrameId.FuneFacingLeftMouthWide, 16),
-            Show(EnemyFrameId.FuneFacingLeftMouthOpen, 8),
-            Show(EnemyFrameId.FuneFacingLeftMouthHalfOpen, 8),
-            Show(EnemyFrameId.FuneFacingLeftMouthOpening, 8),
-            Cue(new FuneNamiheCue.Signal(K.FinishActivity)),
-        ],
+        [P.FuneActiveLeft] = FuneSpit(EnemyFrameId.FuneFacingLeftMouthClosed, EnemyFrameId.FuneFacingLeftMouthOpening, EnemyFrameId.FuneFacingLeftMouthHalfOpen, EnemyFrameId.FuneFacingLeftMouthOpen, HorizontalDirection.Left, EnemyFrameId.FuneFacingLeftMouthWide),
         [P.FuneIdleRight] = [Hold(EnemyFrameId.FuneFacingRightMouthClosed)],
-        [P.FuneActiveRight] =
-        [
-            Show(EnemyFrameId.FuneFacingRightMouthClosed, 16),
-            Show(EnemyFrameId.FuneFacingRightMouthOpening, 8),
-            Show(EnemyFrameId.FuneFacingRightMouthHalfOpen, 8),
-            Show(EnemyFrameId.FuneFacingRightMouthOpen, 8),
-            Cue(new FuneNamiheCue.Fire(HorizontalDirection.Right)),
-            Cue(new FuneNamiheCue.Signal(K.SpitSound)),
-            Show(EnemyFrameId.FuneFacingRightMouthWide, 16),
-            Show(EnemyFrameId.FuneFacingRightMouthOpen, 8),
-            Show(EnemyFrameId.FuneFacingRightMouthHalfOpen, 8),
-            Show(EnemyFrameId.FuneFacingRightMouthOpening, 8),
-            Cue(new FuneNamiheCue.Signal(K.FinishActivity)),
-        ],
+        [P.FuneActiveRight] = FuneSpit(EnemyFrameId.FuneFacingRightMouthClosed, EnemyFrameId.FuneFacingRightMouthOpening, EnemyFrameId.FuneFacingRightMouthHalfOpen, EnemyFrameId.FuneFacingRightMouthOpen, HorizontalDirection.Right, EnemyFrameId.FuneFacingRightMouthWide),
         [P.NamiheIdleLeft] = [Hold(EnemyFrameId.NamiheFacingLeftMouthClosed)],
-        [P.NamiheActiveLeft] =
-        [
-            Show(EnemyFrameId.NamiheFacingLeftMouthClosed, 8),
-            Show(EnemyFrameId.NamiheFacingLeftMouthOpening, 8),
-            Show(EnemyFrameId.NamiheFacingLeftMouthHalfOpen, 8),
-            Show(EnemyFrameId.NamiheFacingLeftMouthOpen, 8),
-            Show(EnemyFrameId.NamiheFacingLeftMouthWide, 8),
-            Cue(new FuneNamiheCue.Fire(HorizontalDirection.Left)),
-            Cue(new FuneNamiheCue.Signal(K.SpitSound)),
-            Show(EnemyFrameId.NamiheFacingLeftMouthWidest, 8),
-            Show(EnemyFrameId.NamiheFacingLeftMouthWide, 8),
-            Show(EnemyFrameId.NamiheFacingLeftMouthOpen, 8),
-            Show(EnemyFrameId.NamiheFacingLeftMouthHalfOpen, 8),
-            Cue(new FuneNamiheCue.Signal(K.FinishActivity)),
-        ],
+        [P.NamiheActiveLeft] = NamiheSpit(EnemyFrameId.NamiheFacingLeftMouthClosed, EnemyFrameId.NamiheFacingLeftMouthOpening, EnemyFrameId.NamiheFacingLeftMouthHalfOpen, EnemyFrameId.NamiheFacingLeftMouthOpen, EnemyFrameId.NamiheFacingLeftMouthWide, HorizontalDirection.Left, EnemyFrameId.NamiheFacingLeftMouthWidest),
         [P.NamiheIdleRight] = [Hold(EnemyFrameId.NamiheFacingRightMouthClosed)],
-        [P.NamiheActiveRight] =
-        [
-            Show(EnemyFrameId.NamiheFacingRightMouthClosed, 8),
-            Show(EnemyFrameId.NamiheFacingRightMouthOpening, 8),
-            Show(EnemyFrameId.NamiheFacingRightMouthHalfOpen, 8),
-            Show(EnemyFrameId.NamiheFacingRightMouthOpen, 8),
-            Show(EnemyFrameId.NamiheFacingRightMouthWide, 8),
-            Cue(new FuneNamiheCue.Fire(HorizontalDirection.Right)),
-            Cue(new FuneNamiheCue.Signal(K.SpitSound)),
-            Show(EnemyFrameId.NamiheFacingRightMouthWidest, 8),
-            Show(EnemyFrameId.NamiheFacingRightMouthWide, 8),
-            Show(EnemyFrameId.NamiheFacingRightMouthOpen, 8),
-            Show(EnemyFrameId.NamiheFacingRightMouthHalfOpen, 8),
-            Cue(new FuneNamiheCue.Signal(K.FinishActivity)),
-        ],
+        [P.NamiheActiveRight] = NamiheSpit(EnemyFrameId.NamiheFacingRightMouthClosed, EnemyFrameId.NamiheFacingRightMouthOpening, EnemyFrameId.NamiheFacingRightMouthHalfOpen, EnemyFrameId.NamiheFacingRightMouthOpen, EnemyFrameId.NamiheFacingRightMouthWide, HorizontalDirection.Right, EnemyFrameId.NamiheFacingRightMouthWidest),
     });
 
     /// <summary>The animation that starts at each segment an owner can start or restart at.</summary>
-    internal static IReadOnlyDictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
+    internal static Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>> StartingAt { get; } = new Dictionary<FuneNamiheSegment, Animation<FuneNamiheSegment>>
     {
         [P.FuneIdleLeft] = new([Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
         [P.FuneActiveLeft] = new([Segments.Whole(P.FuneActiveLeft), Segments.Whole(P.FuneIdleLeft)], AnimationEnd.Holds),
@@ -94,6 +40,39 @@ internal static class FuneNamiheAnimations
 
     /// <summary>The animation that starts at <paramref name="segment"/>.</summary>
     internal static Animation<FuneNamiheSegment> StartingWith(FuneNamiheSegment segment) => StartingAt[segment];
+
+    /// <summary>A Fune's spit over a facing's mouth poses, <paramref name="mouthClosed"/>, <paramref name="mouthOpening"/>, <paramref name="mouthHalfOpen"/>, <paramref name="mouthOpen"/>, <paramref name="facing"/>, <paramref name="mouthWide"/>: its mouth opens, it fires and spits, and its mouth closes again.</summary>
+    private static AnimationBeat<EnemyFrameId, FuneNamiheCue>[] FuneSpit(EnemyFrameId mouthClosed, EnemyFrameId mouthOpening, EnemyFrameId mouthHalfOpen, EnemyFrameId mouthOpen, HorizontalDirection facing, EnemyFrameId mouthWide) =>
+    [
+        Show(mouthClosed, 16),
+        Show(mouthOpening, 8),
+        Show(mouthHalfOpen, 8),
+        Show(mouthOpen, 8),
+        Cue(new FuneNamiheCue.Fire(facing)),
+        Cue(new FuneNamiheCue.Signal(K.SpitSound)),
+        Show(mouthWide, 16),
+        Show(mouthOpen, 8),
+        Show(mouthHalfOpen, 8),
+        Show(mouthOpening, 8),
+        Cue(new FuneNamiheCue.Signal(K.FinishActivity)),
+    ];
+
+    /// <summary>A Namihe's spit over a facing's mouth poses, <paramref name="mouthClosed"/>, <paramref name="mouthOpening"/>, <paramref name="mouthHalfOpen"/>, <paramref name="mouthOpen"/>, <paramref name="mouthWide"/>, <paramref name="facing"/>, <paramref name="mouthWidest"/>: its mouth opens wide, it fires and spits, and its mouth closes again.</summary>
+    private static AnimationBeat<EnemyFrameId, FuneNamiheCue>[] NamiheSpit(EnemyFrameId mouthClosed, EnemyFrameId mouthOpening, EnemyFrameId mouthHalfOpen, EnemyFrameId mouthOpen, EnemyFrameId mouthWide, HorizontalDirection facing, EnemyFrameId mouthWidest) =>
+    [
+        Show(mouthClosed, 8),
+        Show(mouthOpening, 8),
+        Show(mouthHalfOpen, 8),
+        Show(mouthOpen, 8),
+        Show(mouthWide, 8),
+        Cue(new FuneNamiheCue.Fire(facing)),
+        Cue(new FuneNamiheCue.Signal(K.SpitSound)),
+        Show(mouthWidest, 8),
+        Show(mouthWide, 8),
+        Show(mouthOpen, 8),
+        Show(mouthHalfOpen, 8),
+        Cue(new FuneNamiheCue.Signal(K.FinishActivity)),
+    ];
 
     /// <summary>A still picture (#2275): <paramref name="frame"/>, held from the update it shows.</summary>
     private static AnimationBeat<EnemyFrameId, FuneNamiheCue> Hold(EnemyFrameId frame) => new AnimationBeat<EnemyFrameId, FuneNamiheCue>.HeldFrame(frame);

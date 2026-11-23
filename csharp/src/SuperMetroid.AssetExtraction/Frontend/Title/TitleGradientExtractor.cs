@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.AssetExtraction.Frontend.Title;
 
 /// <summary>Turns the title HDMA streams into the editable gradient stops (#1468).</summary>
-internal static class TitleGradientExtractor
+internal static partial class TitleGradientExtractor
 {
     /// <summary>Decodes the title HDMA gradient for every zoom range and
     /// writes each gradient's stops as presentation data.</summary>
@@ -18,7 +18,7 @@ internal static class TitleGradientExtractor
         for (int variant = 0; variant < variants.Length; variant++)
         {
             ScreenGradient decoded = TitleGradientDecoder.Decode(
-                CartridgeImportSource.Require(bus), checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth.TwoHundredFiftySixths)));
+                bus, checked((ushort)(variant * TitleGradientFormat.ZoomRangeWidth.TwoHundredFiftySixths)));
             variants[variant] = new TitleGradientVariant
             {
                 Stops = [.. decoded.Stops.Select(TitleGradientFile.Author)],

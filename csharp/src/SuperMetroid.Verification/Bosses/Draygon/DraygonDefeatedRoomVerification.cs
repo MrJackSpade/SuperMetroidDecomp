@@ -23,7 +23,7 @@ internal static class DraygonDefeatedRoomVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.RecordBossesDefeated(AreaId.Maridia, DefeatedBosses.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Draygon);
         AssertTrue(runtime.Enemies.Draygon is null, "defeated retail state has no Draygon actor");
@@ -31,20 +31,20 @@ internal static class DraygonDefeatedRoomVerification
         AssertTrue(runtime.Enemies.Draygon is null, "cannon processing must not recreate defeated boss");
         Console.WriteLine("Defeated Draygon room: pre-destroyed cannon and 121 gameplay frames pass without boss actor.");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.SpaceJump);
-        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.SpaceJump][0]), runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
+        runtime.MeetDoorBlock(runtime.Room.LoadedLevelData.DoorBlockLeadingThrough(RoomDoorListDefinitions.ByRoom[RoomDefinitions.SpaceJump][0]), runtime.Player.Samus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
         var audio = AudioQueues.Standalone();
         transition.Begin(runtime);
-        for (int frame = 0; transition.Phase != DoorTransitionPhase.FinishDoorOpeningScroll && frame < 600; frame++)
+        for (int frame = 0; transition.Phase is not DoorTransitionPhase.Running.FinishDoorOpeningScroll && frame < 600; frame++)
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-        AssertEqual(DoorTransitionPhase.FinishDoorOpeningScroll, transition.Phase, "Space Jump exit reaches finalization");
+        AssertEqual(new DoorTransitionPhase.Running.FinishDoorOpeningScroll(), transition.Phase, "Space Jump exit reaches finalization");
         // $82:E6A2 finalizes the scroll and returns before the E737 actor/fade dispatch, so a
         // destination actor frame can never re-enter scroll finalization (#387).
         transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-        AssertEqual(DoorTransitionPhase.DrawFirstDestinationFrame, transition.Phase,
+        AssertEqual(new DoorTransitionPhase.Running.DrawFirstDestinationFrame(), transition.Phase,
             "scroll finalization returns before the destination actor frame");
         for (int frame = 0; transition.IsActive && frame < 120; frame++) transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
-        AssertEqual(DoorTransitionPhase.Complete, transition.Phase, "destination OAM and fade complete after one scroll finalization");
+        AssertEqual(new DoorTransitionPhase.Complete(), transition.Phase, "destination OAM and fade complete after one scroll finalization");
         Console.WriteLine("Space Jump to defeated Draygon: scroll finalization precedes destination OAM and fade.");
     }
 

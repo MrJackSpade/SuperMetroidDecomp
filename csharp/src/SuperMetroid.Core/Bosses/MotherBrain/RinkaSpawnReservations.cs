@@ -6,8 +6,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Which of Mother Brain's Rinka spawn points are reserved in this room, and how a special Rinka reserves one (#1699).
 /// A point stays reserved until the Rinka holding it releases it, so no two Rinkas share a point.
 /// </summary>
-[RoomLifetime]
-internal sealed class RinkaSpawnReservations
+internal sealed partial class RinkaSpawnReservations
 {
     /// <summary>The points reserved and not yet released.</summary>
     private readonly HashSet<RinkaSpawnPoint> _reserved = [];
@@ -44,16 +43,11 @@ internal sealed class RinkaSpawnReservations
     internal void Release(RinkaSpawnPoint point) => _reserved.Remove(point);
 
     /// <summary>Where a Rinka placed at <paramref name="point"/> appears.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="point"/> is not one of the room's spawn points.</exception>
-    internal static Position16<RoomPixels> Centre(RinkaSpawnPoint point)
-    {
-        foreach (RinkaSpawnPointDefinition definition in RinkaSpawnPointDefinitions.SearchOrder)
-        {
-            if (definition.Point == point)
-                return definition.Centre;
-        }
-        throw new InvalidOperationException($"Rinka spawn point {point} has no place in Mother Brain's room.");
-    }
+    internal static Position16<RoomPixels> Centre(RinkaSpawnPoint point) => Centres[point];
+
+    /// <summary>Each spawn point's centre, from the definitions, which name every point (#2553).</summary>
+    private static IdentityTable<RinkaSpawnPoint, Position16<RoomPixels>> Centres { get; } = new(
+        RinkaSpawnPointDefinitions.SearchOrder.ToDictionary(definition => definition.Point, definition => definition.Centre));
 
     /// <summary>Reserves <paramref name="point"/> and returns it.</summary>
     private RinkaSpawnPoint Take(RinkaSpawnPoint point)

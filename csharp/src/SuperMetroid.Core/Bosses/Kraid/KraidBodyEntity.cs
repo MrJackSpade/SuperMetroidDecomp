@@ -7,25 +7,29 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// shots meet his frames' hitboxes.
 /// </summary>
 /// <param name="species">The Kraid species owner.</param>
+/// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
 /// <param name="place">The place the body occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class KraidBodyEntity(KraidBehavior species, RoomEnemyPlace place, EnemyCommonParticipation common)
-    : KraidEntity(species, place, common, species.Parts.BodyReference)
+/// <param name="encounter">What the enemy's setup built, which its base holds (#2554).</param>
+internal sealed partial class KraidBodyEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place,
+    EnemyCommonParticipation common, KraidEnemyState encounter)
+    : KraidEntity(species, occupant, place, common, encounter)
 {
-    /// <inheritdoc/>
-    protected override void SetUp() => Species.Rise.InitializeKraidBody(Place);
-
-    /// <inheritdoc/>
-    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidMainAi(Place, Encounter, frame);
-
     /// <summary>
-    /// The shared Power Bomb reaction; Kraid's body leaves the blast to the species, which has no reaction to it, and fails
-    /// loudly if a blast reaches him.
+    /// Builds the enemy, running its setup as the game builds it (#2554). A restore of the game's state builds it through the
+    /// primary constructor from what it holds, so the setup never runs again.
     /// </summary>
-    /// <exception cref="InvalidDataException">The body's definition leaves the blast to the species.</exception>
-    public override EnemyPowerBombReaction? PowerBombReaction => LeavesPowerBombToSpecies
-        ? throw new InvalidDataException($"Enemy {Place.DefinitionId} has no response to its own Power Bomb reaction.")
-        : base.PowerBombReaction;
+    /// <param name="species">The Kraid species owner.</param>
+    /// <param name="occupant">The occupant the entity is created for, which carries its identity.</param>
+    /// <param name="place">The place the body occupies.</param>
+    /// <param name="common">The shared participation.</param>
+    internal KraidBodyEntity(KraidBehavior species, RoomEnemyOccupant occupant, RoomEnemyPlace place, EnemyCommonParticipation common)
+        : this(species, occupant, place, common, species.BeginKraid(place))
+    {
+    }
+
+    /// <inheritdoc/>
+    public override void RunMainAi(IEnemyAiFrame frame) => Species.RunKraidMainAi(Occupant, Encounter, frame);
 
     /// <summary>Only shots meet Kraid's body's frames' hitboxes.</summary>
     public override EnemyCapabilities Capabilities => EnemyCapabilities.ProjectileFrameHitboxes;

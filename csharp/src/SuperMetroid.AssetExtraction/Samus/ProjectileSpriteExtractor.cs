@@ -8,7 +8,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Extracts timed-projectile visual parts only; physical fields and instruction programs stay compiled.</summary>
-public static class ProjectileSpriteExtractor
+public static partial class ProjectileSpriteExtractor
 {
     /// <summary>JSON options: Camel-case property names, indented output.</summary>
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
@@ -18,7 +18,7 @@ public static class ProjectileSpriteExtractor
     /// holds the composition it copies, which it must store byte for byte (#2295).
     /// </summary>
     /// <param name="bus">Cartridge-import-capable address space containing the native projectile spritemaps.</param>
-    /// <returns>New UTF-8 JSON bytes containing named frames with signed pixel offsets, 8- or 16-pixel part sizes, tile references, palettes, priorities, and flips.</returns>
+    /// <returns>New UTF-8 JSON bytes containing named frames with signed pixel offsets, 8- or 16-pixel part sizes, tile references, palettes, depths, and flips.</returns>
     /// <remarks>Physical projectile fields, animation timing, and instruction programs are not exported.</remarks>
     /// <exception cref="InvalidDataException">
     /// A native frame exceeds the OAM part limit, a record held as another composition's copy stores other bytes, or two
@@ -45,7 +45,7 @@ public static class ProjectileSpriteExtractor
     private static byte[] RecordBytes(ISnesAddressSpace bus, SnesAddress address)
     {
         int start = (int)address;
-        int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start);
+        int count = RomDataReader.ReadWordFixedBank(bus, start);
         if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"The projectile composition record at {start:X6} exceeds OAM capacity.");
         return [.. Enumerable.Range(start, sizeof(ushort) + 5 * count).Select(bus.ReadCartridgeByte)];
     }
@@ -78,22 +78,21 @@ public static class ProjectileSpriteExtractor
                 throw new InvalidDataException($"Projectile compositions {written[bytes].Name} at {(int)locations[written[bytes]]:X6} and {id.Name} " +
                     $"at {address:X6} store the same parts, byte for byte, and both were about to be written. A composition is " +
                     "written once (#1635, #2295): a record storing one again holds the composition it copies.");
-            int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+            int count = RomDataReader.ReadWordFixedBank(bus, address);
             if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id.Name} exceeds OAM capacity.");
             var parts = new SpriteVisualPart[count];
             for (int i = 0; i < count; i++)
             {
                 int part = address + 2 + i * 5;
-                var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), part));
-                var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), part + 3));
+                var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(bus, part));
+                var a = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, part + 3));
                 parts[i] = new() { OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadCartridgeByte(part + 2)),
                     TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns, TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
-                    Size = x.IsLarge ? 16 : 8, Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically };
+                    Size = x.IsLarge ? 16 : 8, Palette = a.PaletteIndex, Depth = a.Depth, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically };
             }
             frames.Add(id.Name, parts);
         }
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames },
-            CamelCaseIndentedJson);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.ProjectileSpriteDocument>(CamelCaseIndentedJson));
         return json;
     }
 }

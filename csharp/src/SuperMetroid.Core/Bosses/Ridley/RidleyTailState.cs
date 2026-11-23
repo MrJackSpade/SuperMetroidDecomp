@@ -5,25 +5,31 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// their rest lengths and initial angles; what it is doing, how far it may swing, the whip it aims and how hard its tip
 /// strikes.
 /// </summary>
-public sealed class RidleyTailState
+public sealed partial class RidleyTailState
 {
     /// <summary>Makes a tail at its initial layout, striking for <paramref name="damage"/>, that starts no whips of its own.</summary>
     /// <param name="damage">The tip's contact damage before Samus's suit reduction.</param>
     internal RidleyTailState(int damage)
     {
         Damage = damage;
-        Base = new RidleyTailLink(RidleyTailDefinitions.BaseLink, previous: null);
+        Base = new RidleyTailLink(RidleyTailDefinitions.BaseLink.Link, previous: null);
         var shaft = new List<RidleyTailLink>();
+        var pictures = new List<RidleyTailLinkPicture> { new(Base, RidleyTailDefinitions.BaseLink.Frame) };
         RidleyTailLink previous = Base;
-        foreach (RidleyTailLinkDefinition definition in RidleyTailDefinitions.ShaftLinks)
+        foreach (RidleyDrawnTailLinkDefinition definition in RidleyTailDefinitions.ShaftLinks)
         {
-            previous = new RidleyTailLink(definition, previous);
+            previous = new RidleyTailLink(definition.Link, previous);
             shaft.Add(previous);
+            pictures.Add(new(previous, definition.Frame));
         }
         Shaft = shaft;
         Tip = new RidleyTailLink(RidleyTailDefinitions.TipLink, previous);
         Links = [Base, .. Shaft, Tip];
+        LinkPictures = pictures;
     }
+
+    /// <summary>Each link nearer the body than the tip, from the body out, with the frame drawn at it.</summary>
+    internal IReadOnlyList<RidleyTailLinkPicture> LinkPictures { get; }
 
     /// <summary>The link at Ridley's hip, which every wave starts from.</summary>
     public RidleyTailLink Base { get; }
@@ -42,19 +48,19 @@ public sealed class RidleyTailState
 
     /// <summary>What Ridley's tail is doing: nothing, curling and whipping in flight, or one of the pogo and stab movements.</summary>
     public RidleyTailAction Action { get; internal set; } = RidleyTailAction.None;
-    /// <summary>Gets how far each swinging link turns each update and adds to its stagger (zero through eight steps).</summary>
+    /// <summary>Gets how far each swinging link turns each update and adds to its stagger.</summary>
     public RidleyTailTurn SwingStep { get; internal set; } = RidleyTailDefinitions.SlowNeutralSwing;
     /// <summary>
     /// Gets the facing-dependent furthest-clockwise angle clockwise tail movement may reach. The tail is made with a
     /// left-facing Ridley's whichever way he faces (#2471), as the game's tail setup gives it, until his tail's action sets
     /// the bounds for his facing.
     /// </summary>
-    public RidleyTailAngle MinimumClockwiseAngle { get; internal set; } = RidleyTailReach.MinimumClockwise(RidleyFacing.Left);
+    internal RidleyTailAngle MinimumClockwiseAngle { get; set; } = RidleyTailReach.MinimumClockwise(RidleyFacing.Left);
     /// <summary>
     /// Gets the facing-dependent furthest-counterclockwise angle counterclockwise tail movement may reach, made with a
     /// left-facing Ridley's as <see cref="MinimumClockwiseAngle"/> is.
     /// </summary>
-    public RidleyTailAngle MaximumCounterClockwiseAngle { get; internal set; } = RidleyTailReach.MaximumCounterClockwise(RidleyFacing.Left);
+    internal RidleyTailAngle MaximumCounterClockwiseAngle { get; set; } = RidleyTailReach.MaximumCounterClockwise(RidleyFacing.Left);
     /// <summary>
     /// Gets the tail angle a clockwise whip stops at, or null while no clockwise whip is aimed. Aimed targets lie within
     /// a turn either side of straight down.
@@ -72,14 +78,14 @@ public sealed class RidleyTailState
     public RidleyTailWhipOrder Whip { get; } = new();
     /// <summary>Gets whether neutral tail control may start random or proximity-triggered whips; the Ceres swoop disables it.</summary>
     public bool IdleWhipEnabled { get; internal set; }
-    /// <summary>Gets the distance (fifteen sixteenths or one and a half pixels) tail links extend each update toward their targets.</summary>
+    /// <summary>Gets the distance tail links extend each update toward their targets (<see cref="RidleyTailDefinitions.StandardExtensionSpeed"/> or <see cref="RidleyTailDefinitions.PogoExtensionSpeed"/>).</summary>
     public SignedEightEight ExtensionSpeed { get; internal set; } = RidleyTailDefinitions.StandardExtensionSpeed;
     /// <summary>
-    /// Gets how far a link swings before it starts the next one (eight through 23 steps), which sets how tightly the tail
+    /// Gets how far a link swings before it starts the next one, which sets how tightly the tail
     /// curls.
     /// </summary>
     public RidleyTailTurn IdealLinkSpacing { get; internal set; } = RidleyTailDefinitions.StandardLinkSpacing;
-    /// <summary>Gets the tail tip's contact damage before Samus's suit reduction: fifteen in Ceres, 120 in Lower Norfair.</summary>
+    /// <summary>Gets the tail tip's contact damage before Samus's suit reduction (<see cref="RidleyTailDefinitions.CeresTipDamage"/> or <see cref="RidleyTailDefinitions.NorfairTipDamage"/>).</summary>
     public int Damage { get; }
 
     /// <summary>The whip target a link swinging <paramref name="direction"/> chases, or null while none is aimed that way.</summary>

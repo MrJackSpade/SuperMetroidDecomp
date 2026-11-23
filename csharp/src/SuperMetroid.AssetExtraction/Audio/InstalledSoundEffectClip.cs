@@ -8,15 +8,22 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="Sound">The sound effect, whose library plays it.</param>
 /// <param name="Policy">How the library accepts and starts the request.</param>
-/// <param name="ActiveFrames">Frames until the library's logical end, when its priority resets; null for a never-ending effect.</param>
-/// <param name="Layers">One layer for an audible one-shot effect, none for a silent one, or one looping layer per channel.</param>
-public sealed record InstalledSoundEffectClip(
+/// <param name="Shape">Whether the effect is a one-shot that ends or a never-ending loop, with the clips each plays (#2560).</param>
+public sealed partial record InstalledSoundEffectClip(
     SoundEffectId Sound,
     SoundEffectClipPolicy Policy,
-    long? ActiveFrames,
-    IReadOnlyList<InstalledSoundEffectLayer> Layers)
+    InstalledSoundEffectShape Shape)
 {
+    /// <summary>
+    /// The sound's shape in each music data set that plays it differently (#2645, #2648, #2650, #2652): one that redefines an
+    /// instrument it plays. Every other set plays <see cref="Shape"/>.
+    /// </summary>
+    public IReadOnlyList<InstalledSoundEffectSetShape> ByDataSet { get; init; } = [];
+
     /// <summary>The entry the game plays; a method, so the manifest does not store it.</summary>
-    public SoundEffectClipEntry PlayedEntry() =>
-        new(Sound, Policy, ActiveFrames, [.. Layers.Select(layer => layer.PlayedLayer())]);
+    public SoundEffectClipEntry PlayedEntry() => new(Sound, Policy, Shape.PlayedShape());
+
+    /// <summary>The entry the game plays in each data set of <see cref="ByDataSet"/>.</summary>
+    public IEnumerable<SoundEffectSetClipEntry> PlayedSetEntries() =>
+        ByDataSet.Select(set => new SoundEffectSetClipEntry(set.DataSet, new SoundEffectClipEntry(Sound, Policy, set.Shape.PlayedShape())));
 }

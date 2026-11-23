@@ -13,7 +13,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// edges, by name, read into the <see cref="MapCell"/>s the game shows. Exploration rules are supplied separately and never
 /// come from the document.
 /// </summary>
-public static class AreaMapPresentationFile
+public static partial class AreaMapPresentationFile
 {
     /// <summary>Reads a full row-major layout, without ROM reads or writable file operations.</summary>
     /// <param name="json">The area's presentation document.</param>
@@ -26,8 +26,7 @@ public static class AreaMapPresentationFile
         MapPresentationDocument document;
         try
         {
-            document = JsonAssetDocument.Read<MapPresentationDocument>(json, ArtworkJson.Options)
-                ?? throw new InvalidDataException("Map presentation document is null.");
+            document = JsonAssetDocument.Read<MapPresentationDocument>(json, ArtworkJson.Options);
         }
         catch (JsonException error)
         {
@@ -72,6 +71,6 @@ public static class AreaMapPresentationFile
         JsonSerializer.Serialize(json, new MapPresentationDocument
         {
             Version = MapPresentationFormat.Version, Area = AreaIdKeys.Installed.Of(map.Area), Cells = cells
-        }, ArtworkJson.Options);
+        }, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationDocument>(ArtworkJson.Options));
     }
 }

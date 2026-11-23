@@ -10,7 +10,6 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Checks signed 16.16 statue descent and the exact Tourian unlock threshold.</summary>
 internal static class TourianStatueDescentRoundingVerification
@@ -22,7 +21,7 @@ internal static class TourianStatueDescentRoundingVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         for (int area = 1; area <= 4; area++)
             runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
         foreach (StoryEvent grey in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey,
@@ -33,13 +32,13 @@ internal static class TourianStatueDescentRoundingVerification
         AssertTrue(runtime.Display.Latched is not OrdinaryRoomFrameLatch { TourianStatueVerticalOffset: not null },
             "a room without the statues latches no descent");
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-        runtime.Player.IntroducedSamus.Control.LockOutPlayer();
+        runtime.Player.Samus.Control.LockOutPlayer();
 
         // The statue's base decoration reads the descent from the room each update and so sits that far below its anchor
         // on the update the descent moves (#2033).
         EnemyProjectile baseDecoration = runtime.Enemies.Projectiles.EnemyProjectiles.Single(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.TourianStatueBaseDecoration);
-        int decorationAnchor = baseDecoration.StateOf<AnchoredProjectileState>().Anchor.Y;
+        int decorationAnchor = baseDecoration.Anchor.Y;
         void AssertDecorationFollows(string context) => AssertEqual(decorationAnchor - runtime.TourianStatues.VerticalOffset,
             baseDecoration.Position.Y.Whole, $"the base decoration follows the statue: {context}");
 

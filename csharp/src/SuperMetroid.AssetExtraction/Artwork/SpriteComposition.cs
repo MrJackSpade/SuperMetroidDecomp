@@ -3,23 +3,12 @@ using System.Collections.Immutable;
 namespace SuperMetroid.AssetExtraction.Artwork;
 
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
-public sealed class SpriteComposition
+public sealed partial class SpriteComposition
 {
     /// <summary>Ordered immutable parts, including per-part palette inheritance choices.</summary>
     internal readonly IReadOnlyList<CompiledSpritePart> parts;
     /// <summary>Copies authored parts so later document edits cannot alter a compiled composition.</summary>
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
-
-    /// <summary>Hashes only compiled visual fields, preserving the draw order and palette inheritance.</summary>
-    internal void AppendIdentity(SelectedPresentationHash content)
-    {
-        content.Append("parts", parts.Count);
-        foreach (CompiledSpritePart part in parts)
-        {
-            part.Part.AppendIdentity(content);
-            content.Append("inherit-palette", part.InheritPalette ? 1 : 0);
-        }
-    }
     /// <summary>
     /// The composition as a whole frame over artwork whose character 0 is sheet character <paramref name="firstCharacter"/>,
     /// on a screen drawing the <see cref="SpritePartFrames.StandardSizes"/>.

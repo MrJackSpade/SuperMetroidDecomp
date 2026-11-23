@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Phantoon's health bands, each showing its body in its own colours.</summary>
-public static class PhantoonColorDefinitions
+public static partial class PhantoonColorDefinitions
 {
     /// <summary>The health-dependent body colours, one per health band.</summary>
     public const int HealthBandCount = 8;

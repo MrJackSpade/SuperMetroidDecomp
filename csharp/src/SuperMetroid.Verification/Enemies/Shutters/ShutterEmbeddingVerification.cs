@@ -32,11 +32,11 @@ internal static class ShutterEmbeddingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             runtime.LoadCartridgeRoomForDebug(RoomDefinitions.XrayScope, new Position16<RoomPixels>(0, 0));
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             var platform = runtime.Enemies.Places.InUpdateOrder[slot];
-            samus.Pose = SamusPoseId.MorphBallGroundRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.MorphBallGroundRightPose);
             samus.Control.Unlock();
             samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -48,7 +48,7 @@ internal static class ShutterEmbeddingVerification
             for (int frame = 0; frame < 220; frame++)
             {
                 ControllerButton input = frame < stopAt ? direction : ControllerButton.None;
-                if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings.Shoot;
+                if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot];
                 runtime.StepFrame(input);
                 activated |= (runtime.Enemies.VerticalShutterStates[slot] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[slot].")).Action == VerticalShutterAction.MovingUp;
                 carried |= samus.Kinematics.ExtraDisplacement.Y.RawValue < 0;

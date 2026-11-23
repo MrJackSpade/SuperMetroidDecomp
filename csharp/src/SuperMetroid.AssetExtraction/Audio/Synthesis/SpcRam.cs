@@ -4,7 +4,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// The SPC700's 64 KiB audio RAM, which the managed driver and the S-DSP share (#1503). Every read the driver or the
 /// DSP makes goes through the indexer, so a render can record exactly which bytes its output depended on.
 /// </summary>
-internal sealed class SpcRam
+internal sealed partial class SpcRam
 {
     /// <summary>The bytes of audio RAM.</summary>
     private readonly byte[] bytes = new byte[SpcDriverDefinitions.ApuRamSize];

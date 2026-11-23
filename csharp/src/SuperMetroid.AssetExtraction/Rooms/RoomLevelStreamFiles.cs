@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core;
 using System.Collections.Immutable;
 using System.Text.Json;
@@ -35,7 +36,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// (<see cref="SuperMetroid.Core.Compatibility.BlockParameterCarryOver{TBehavior, TReading}"/>).
 /// </para>
 /// </remarks>
-public static class RoomLevelStreamFiles
+public static partial class RoomLevelStreamFiles
 {
     /// <summary>The reaction families in the order the level stream files list them (#2567).</summary>
     private static readonly IReadOnlyList<BlockReactionFamily> FamilyOrder = Ensure.EveryMemberOnce<BlockReactionFamily>(
@@ -52,7 +53,7 @@ public static class RoomLevelStreamFiles
     /// The family's document naming the collision kinds, in the order the level files write them by position; the levels
     /// are the retail rooms' (#1693), each in its own file.
     /// </summary>
-    public const string CollisionKindsFileName = "room-level-streams.json";
+    internal const string CollisionKindsFileName = "room-level-streams.json";
     /// <summary>
     /// Collision-kind document schema version this loader accepts; version 3 installs typed blocks instead of decompressed
     /// level data, 4 names the collision kinds alone, with no level list, hash or cartridge digest (#1693), 5 writes each
@@ -91,7 +92,7 @@ public static class RoomLevelStreamFiles
     /// <summary>Formats the stable per-level filename without validating the level.</summary>
     /// <param name="level">The level, shared by all room states using it.</param>
     /// <returns><c>level-</c> followed by the level's name and <c>.bin</c>.</returns>
-    public static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.bin";
+    internal static string LevelFileName(RoomLevelId level) => $"level-{level.Name}.bin";
 
     /// <summary>
     /// Decompresses and decodes every distinct retail room level and writes each as typed blocks, and where each room's door
@@ -108,7 +109,7 @@ public static class RoomLevelStreamFiles
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         Directory.CreateDirectory(directory);
         var doorLinks = new Dictionary<RoomLevelId, IReadOnlyDictionary<Position16<RoomBlocks>, int>>();
         foreach ((RoomLevelId level, int width) in RoomVisualLayoutFiles.RetailLevels.OrderBy(item => item.Key.Name, StringComparer.Ordinal))
@@ -123,9 +124,8 @@ public static class RoomLevelStreamFiles
         using var kinds = new FileStream(Path.Combine(directory, CollisionKindsFileName), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(kinds, new CollisionKindDocument(FormatVersion, [.. CollisionKinds.Select(RoomCollisionTypeKeys.Installed.Of)],
             Families.ToDictionary(family => BlockReactionFamilyKeys.Installed.Of(family),
-                family => BlockReactionFamilies.Reactions(family).Select(BlockReactionFamilies.KeyOf).ToArray()),
-            [.. SlopeShapes.Select(shape => shape.Name)]),
-            JsonOptions);
+                family => BlockReactionFamilies.Reactions(family).Select(reaction => reaction.Key).ToArray()),
+            [.. SlopeShapes.Select(shape => shape.Name)]), global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Rooms.RoomLevelStreamFiles.CollisionKindDocument>(JsonOptions));
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ public static class RoomLevelStreamFiles
             throw new InvalidDataException(
                 $"Room-level collision kinds {kindsPath} have unsupported version {document.Version}.");
         RoomCollisionType[] kinds = ReadKinds(document.CollisionKinds, kindsPath);
-        Dictionary<BlockReactionFamily, Enum[]> reactions = ReadReactions(document.Reactions, kindsPath);
+        Dictionary<BlockReactionFamily, BlockReaction[]> reactions = ReadReactions(document.Reactions, kindsPath);
         SlopeShape[] shapes = ReadSlopeShapes(document.SlopeShapes, kindsPath);
 
         // The levels are the retail rooms' (#1693): no manifest lists them.
@@ -182,8 +182,8 @@ public static class RoomLevelStreamFiles
         {
             writer.Write((int)level.Size.X);
             writer.Write((int)level.Size.Y);
-            writer.Write(level.Following.Length);
-            writer.Write(level.BeyondCount);
+            writer.Write(level.PastGrid.Blocks.Length);
+            writer.Write(level.PastGrid.SpaceBlocks);
             for (int index = 0; index < level.Foreground.Length; index++)
             {
                 WriteTerrain(writer, level.Foreground[index]);
@@ -191,7 +191,7 @@ public static class RoomLevelStreamFiles
             }
             foreach (RoomBlockAppearance appearance in level.Background)
                 WriteAppearance(writer, appearance);
-            foreach (RoomTerrainBlock block in level.Following)
+            foreach (RoomTerrainBlock block in level.PastGrid.Blocks)
                 WriteTerrain(writer, block);
         }
         return memory.ToArray();
@@ -206,28 +206,28 @@ public static class RoomLevelStreamFiles
         RoomLevelId level, int index)
     {
         RoomBlockBehavior rebuilt;
-        switch (ReadingOf(kind))
+        switch (RoomCollisionTypes.Of(kind).Behavior)
         {
-            case BehaviorReading.Reaction:
+            case RoomCollisionBehaviorKind.Reaction:
             {
                 BlockReactionFamily family = BlockReactionFamilies.Of(kind) ??
                     throw new InvalidOperationException($"Collision kind {kind} reads no reaction.");
-                Enum reaction = behavior.ReactionIn(family) ?? throw new InvalidDataException(
+                BlockReaction reaction = behavior.ReactionIn(family) ?? throw new InvalidDataException(
                     $"Room level {level} block {index} is {kind} with behaviour {behavior}, which gives its kind no reaction.");
                 writer.Write(checked((byte)IndexOf(BlockReactionFamilies.Reactions(family), reaction)));
-                rebuilt = RoomBlockBehavior.ReactingAs(reaction);
+                rebuilt = reaction.Behavior;
                 break;
             }
-            case BehaviorReading.Slope:
+            case RoomCollisionBehaviorKind.Slope:
                 writer.Write(checked((byte)IndexOf(SlopeShapes, behavior.Slope.Shape)));
                 writer.Write(checked((byte)MirroringCodes.IndexOf(behavior.Slope.Mirroring)));
                 rebuilt = RoomBlockBehavior.Sloping(behavior.Slope);
                 break;
-            case BehaviorReading.Extension:
+            case RoomCollisionBehaviorKind.Extension:
                 writer.Write(checked((sbyte)behavior.ExtensionOffset));
                 rebuilt = RoomBlockBehavior.Extending(behavior.ExtensionOffset);
                 break;
-            case BehaviorReading.Nothing:
+            case RoomCollisionBehaviorKind.None:
                 rebuilt = RoomBlockBehavior.None;
                 break;
             default:
@@ -241,20 +241,20 @@ public static class RoomLevelStreamFiles
     /// <summary>Reads a foreground block's behaviour written by <see cref="WriteBehavior"/>, rebuilding every reading.</summary>
     /// <exception cref="InvalidDataException">The reaction or mirroring code is unknown.</exception>
     private static RoomBlockBehavior ReadBehavior(BinaryReader reader, RoomCollisionType kind,
-        Dictionary<BlockReactionFamily, Enum[]> reactions, SlopeShape[] shapes)
+        Dictionary<BlockReactionFamily, BlockReaction[]> reactions, SlopeShape[] shapes)
     {
-        switch (ReadingOf(kind))
+        switch (RoomCollisionTypes.Of(kind).Behavior)
         {
-            case BehaviorReading.Reaction:
+            case RoomCollisionBehaviorKind.Reaction:
             {
-                Enum[] named = reactions[BlockReactionFamilies.Of(kind) ??
+                BlockReaction[] named = reactions[BlockReactionFamilies.Of(kind) ??
                     throw new InvalidOperationException($"Collision kind {kind} reads no reaction.")];
                 int reaction = reader.ReadByte();
                 if (reaction >= named.Length)
                     throw new InvalidDataException($"Reaction code {reaction} is not one of the {named.Length} reactions the {kind} family names.");
-                return RoomBlockBehavior.ReactingAs(named[reaction]);
+                return named[reaction].Behavior;
             }
-            case BehaviorReading.Slope:
+            case RoomCollisionBehaviorKind.Slope:
             {
                 int shape = reader.ReadByte();
                 if (shape >= shapes.Length)
@@ -264,28 +264,14 @@ public static class RoomLevelStreamFiles
                     throw new InvalidDataException($"Mirroring code {mirroring} is not one of the {MirroringCodes.Length} codes.");
                 return RoomBlockBehavior.Sloping(new SlopeGeometry(shapes[shape], MirroringCodes[mirroring]));
             }
-            case BehaviorReading.Extension:
+            case RoomCollisionBehaviorKind.Extension:
                 return RoomBlockBehavior.Extending(reader.ReadSByte());
-            case BehaviorReading.Nothing:
+            case RoomCollisionBehaviorKind.None:
                 return RoomBlockBehavior.None;
             default:
                 throw new InvalidOperationException($"Undefined behaviour reading for collision kind {kind}.");
         }
     }
-
-    /// <summary>The reading a collision kind takes of its block's behaviour, which decides how the level files write it.</summary>
-    private static BehaviorReading ReadingOf(RoomCollisionType kind) => kind switch
-    {
-        RoomCollisionType.Slope => BehaviorReading.Slope,
-        RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => BehaviorReading.Extension,
-        RoomCollisionType.SpikeAir or RoomCollisionType.SpecialAir or RoomCollisionType.ShootableAir or
-            RoomCollisionType.BombableAir or RoomCollisionType.SpikeBlock or RoomCollisionType.SpecialBlock or
-            RoomCollisionType.ShootableBlock or RoomCollisionType.GrappleBlock or RoomCollisionType.BombableBlock =>
-            BehaviorReading.Reaction,
-        RoomCollisionType.Air or RoomCollisionType.UnrevealedAir or RoomCollisionType.SolidBlock or RoomCollisionType.DoorBlock =>
-            BehaviorReading.Nothing,
-        _ => throw new InvalidOperationException($"Undefined collision kind {kind}."),
-    };
 
     /// <summary>Writes a terrain block: its collision kind's position, then its appearance.</summary>
     private static void WriteTerrain(BinaryWriter writer, RoomTerrainBlock block)
@@ -295,21 +281,21 @@ public static class RoomLevelStreamFiles
     }
 
     /// <summary>
-    /// Writes an appearance: what it shows (<see cref="ShownCode"/>), a block's number, then its mirroring's code.
+    /// Writes an appearance: what it shows (<see cref="ShownCodes"/>), a block's number, then its mirroring's code.
     /// </summary>
     /// <exception cref="InvalidDataException">The appearance is terrain beyond the room, which no installed level holds.</exception>
     private static void WriteAppearance(BinaryWriter writer, RoomBlockAppearance appearance)
     {
-        if (appearance.IsBeyondRoom)
+        if (appearance.Shows == RoomBlockShown.BeyondRoom)
             throw new InvalidDataException("An installed level holds no terrain beyond the room: the game fills that space itself.");
-        writer.Write(checked((byte)(appearance.ShowsNothing ? ShownCode.Nothing : ShownCode.Block)));
-        if (appearance.ShowsBlock)
+        writer.Write(ShownCodes[appearance.Shows == RoomBlockShown.Nothing ? Shown.Nothing : Shown.Block]);
+        if (appearance.Shows == RoomBlockShown.Block)
             writer.Write(checked((ushort)appearance.Block));
         writer.Write(checked((byte)MirroringCodes.IndexOf(appearance.Mirroring)));
     }
 
-    /// <summary>What an appearance shows, as the byte a level file writes before it (#2100).</summary>
-    private enum ShownCode
+    /// <summary>What an appearance shows (#2100).</summary>
+    private enum Shown
     {
         /// <summary>A block, whose number follows.</summary>
         Block,
@@ -317,10 +303,17 @@ public static class RoomLevelStreamFiles
         Nothing,
     }
 
+    /// <summary>The byte a level file writes before an appearance for what it shows (#2556).</summary>
+    private static readonly Dictionary<Shown, byte> ShownCodes = new()
+    {
+        [Shown.Block] = 0,
+        [Shown.Nothing] = 1,
+    };
+
     /// <summary>Reads one installed level file.</summary>
     /// <exception cref="InvalidDataException">The file is truncated, has trailing bytes, or holds an unknown kind, mirroring, block or reaction list, or a reading out of its range.</exception>
     private static InstalledRoomLevel Decode(byte[] file, RoomCollisionType[] kinds,
-        Dictionary<BlockReactionFamily, Enum[]> reactions, SlopeShape[] shapes, string path)
+        Dictionary<BlockReactionFamily, BlockReaction[]> reactions, SlopeShape[] shapes, string path)
     {
         try
         {
@@ -348,7 +341,7 @@ public static class RoomLevelStreamFiles
             if (reader.BaseStream.Position != file.Length)
                 throw new InvalidDataException($"Room-level file {path} has trailing bytes.");
             return new InstalledRoomLevel(size, foreground.MoveToImmutable(), behaviors.MoveToImmutable(),
-                background.MoveToImmutable(), following.MoveToImmutable(), beyondCount);
+                background.MoveToImmutable(), new LevelDataPastGrid<RoomTerrainBlock>(following.MoveToImmutable(), beyondCount));
         }
         catch (Exception error) when (error is EndOfStreamException or OverflowException or ArgumentException)
         {
@@ -369,12 +362,14 @@ public static class RoomLevelStreamFiles
     /// <exception cref="InvalidDataException">The appearance's code or its mirroring's code is unknown.</exception>
     private static RoomBlockAppearance ReadAppearance(BinaryReader reader)
     {
-        var shown = (ShownCode)reader.ReadByte();
+        int code = reader.ReadByte();
+        Shown shown = ShownCodes.Where(entry => entry.Value == code).Select(entry => (Shown?)entry.Key).SingleOrDefault()
+            ?? throw new InvalidDataException($"Appearance code {code} names neither a block nor nothing.");
         RoomBlockAppearance appearance = shown switch
         {
-            ShownCode.Block => RoomBlockAppearance.Of(reader.ReadUInt16()),
-            ShownCode.Nothing => RoomBlockAppearance.Nothing,
-            _ => throw new InvalidDataException($"Appearance code {(int)shown} names neither a block nor nothing."),
+            Shown.Block => RoomBlockAppearance.Of(reader.ReadUInt16()),
+            Shown.Nothing => RoomBlockAppearance.Nothing,
+            _ => throw new InvalidDataException($"Appearance code {code} names neither a block nor nothing."),
         };
         int mirroring = reader.ReadByte();
         if (mirroring >= MirroringCodes.Length)
@@ -402,21 +397,21 @@ public static class RoomLevelStreamFiles
     /// Reads the document's reactions by name for every family, requiring each family's every reaction exactly once, in
     /// the order the level files write them by position.
     /// </summary>
-    private static Dictionary<BlockReactionFamily, Enum[]> ReadReactions(Dictionary<string, string[]>? names, string kindsPath)
+    private static Dictionary<BlockReactionFamily, BlockReaction[]> ReadReactions(Dictionary<string, string[]>? names, string kindsPath)
     {
         if (names is null || names.Count != Families.Length)
             throw new InvalidDataException($"Room-level collision kinds {kindsPath} do not name the reactions of the {Families.Length} reaction families.");
-        var reactions = new Dictionary<BlockReactionFamily, Enum[]>(Families.Length);
+        var reactions = new Dictionary<BlockReactionFamily, BlockReaction[]>(Families.Length);
         foreach (BlockReactionFamily family in Families)
         {
-            IReadOnlyList<Enum> all = BlockReactionFamilies.Reactions(family);
+            IReadOnlyList<BlockReaction> all = BlockReactionFamilies.Reactions(family);
             if (!names.TryGetValue(BlockReactionFamilyKeys.Installed.Of(family), out string[]? familyNames) || familyNames is null ||
                 familyNames.Length != all.Count)
                 throw new InvalidDataException($"Room-level collision kinds {kindsPath} do not name the {all.Count} {family} reactions.");
-            var named = new Enum[familyNames.Length];
+            var named = new BlockReaction[familyNames.Length];
             for (int index = 0; index < familyNames.Length; index++)
             {
-                named[index] = all.FirstOrDefault(reaction => string.Equals(BlockReactionFamilies.KeyOf(reaction), familyNames[index], StringComparison.Ordinal)) ??
+                named[index] = all.FirstOrDefault(reaction => string.Equals(reaction.Key, familyNames[index], StringComparison.Ordinal)) ??
                     throw new InvalidDataException($"Room-level collision kinds {kindsPath} name unknown {family} reaction '{familyNames[index]}'.");
             }
             if (named.Distinct().Count() != named.Length)
@@ -457,26 +452,10 @@ public static class RoomLevelStreamFiles
         throw new InvalidOperationException($"{item} is not among the {items.Count} the level files name.");
     }
 
-    /// <summary>The readings a collision kind takes of its block's behaviour, which decide how the level files write it.</summary>
-    private enum BehaviorReading
-    {
-        /// <summary>The kind reads no behaviour; its block holds <see cref="RoomBlockBehavior.None"/>.</summary>
-        Nothing,
-
-        /// <summary>The kind reads its family's reaction.</summary>
-        Reaction,
-
-        /// <summary>The kind reads a slope's shape and mirroring.</summary>
-        Slope,
-
-        /// <summary>The kind reads a signed offset to the block it collides as.</summary>
-        Extension,
-    }
-
     /// <summary>
     /// The collision kinds, each reaction family's reactions, and the slope shapes, by the position the level files write
     /// them at, under the document's schema revision.
     /// </summary>
-    private sealed record CollisionKindDocument(int Version, [InstalledKey] string[] CollisionKinds, [InstalledKey] Dictionary<string, string[]> Reactions,
+    internal sealed partial record CollisionKindDocument(int Version, string[] CollisionKinds, Dictionary<string, string[]> Reactions,
         string[] SlopeShapes);
 }

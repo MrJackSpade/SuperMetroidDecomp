@@ -6,17 +6,20 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>The perspective floors Ceres shows, made from the turns its rooms compute during the update (#1407).</summary>
-internal static class CeresPerspectiveFloors
+internal static partial class CeresPerspectiveFloors
 {
     /// <summary>
     /// The elevator shaft's floor: turned by the shaft's tilt at its own size about the shaft's centre, scrolled with the
     /// foreground, and repeating beyond its edges, so a tilted shaft shows the far wall's columns where the floor runs out
     /// (#1653); Ceres Ridley's getaway floor shows nothing beyond its edges. Nothing shows below it: it fills the gameplay view.
+    /// Like every gameplay view, it shows the room from the row below the camera's (<see cref="RoomView"/>, #2617), so the
+    /// shaft's actors stand on its floor and the arrival's concealer covers the landing pad's top row.
     /// </summary>
     /// <param name="shaft">The tilt the shaft's room main last set.</param>
     /// <param name="foregroundScroll">The foreground's scroll in the frame that shows the floor.</param>
     internal static PerspectiveFloor ElevatorShaft(TurningFloorTransform shaft, Offset16<RoomPixels> foregroundScroll) => new(
-        new FloorView(shaft.Angle, FloorView.OwnSize, shaft.Center.AsFloorOffset(), foregroundScroll.AsFloorOffset(), FloorOverflowMode.Wrap));
+        new FloorView(shaft.Angle, FloorView.OwnSize, shaft.Center.AsFloorOffset(), RoomView.Shown(foregroundScroll).AsFloorOffset(),
+            FloorOverflowMode.Wrap));
 
     /// <summary>
     /// The floor Ceres Ridley's getaway flies over, with the chamber's walls around it (#1545); the room's background shows in

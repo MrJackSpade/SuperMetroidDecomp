@@ -2,6 +2,7 @@ using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -10,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// Most of these values belong to neither enemy. A dedicated object therefore keeps both enemies' places in the room
 /// separate while one owner serves the two.
 /// </summary>
-public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacedAt;
@@ -18,24 +19,48 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <inheritdoc />
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => DeathHidesBodyLayer;
 
+    /// <inheritdoc/>
+    bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.HidesBackgroundLayer => DeathHidesBodyLayer;
+
     /// <summary>Starts the shared encounter state with her body and her head (#2298).</summary>
-    /// <param name="body">Her body's place.</param>
+    /// <param name="body">The enemy holding her body's place, which begins the encounter as it sets up.</param>
     /// <param name="head">Her head's place, which her room lists right after her body.</param>
     /// <param name="walk">The walk credit the encounter's setup creates for it.</param>
     /// <param name="bursts">The burst cycle the encounter's setup creates for it (#1872).</param>
     /// <param name="brain">The brain animation the encounter's setup creates for it (#2317).</param>
-    internal MotherBrainEnemyState(RoomEnemyPlace body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
-        MotherBrainBrainAnimation brain)
+    /// <param name="zebesWarning">The room's background warning, which her death types Zebes's warning on.</param>
+    internal MotherBrainEnemyState(RoomEnemyOccupant body, RoomEnemyPlace head, MotherBrainWalkCounter walk, MotherBrainBurstCycle bursts,
+        MotherBrainBrainAnimation brain, RoomWarning zebesWarning)
     {
-        Body = body;
+        ZebesWarning = Ensure.NotNull(zebesWarning);
+        BodyOccupant = Ensure.NotNull(body);
         Head = Ensure.NotNull(head);
         Walk = Ensure.NotNull(walk);
         Bursts = Ensure.NotNull(bursts);
         Brain = Ensure.NotNull(brain);
+        BodyParts = SuperMetroid.Core.Enemies.BossBodies.BossBodyParts.Hidden(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.MotherBrain);
     }
 
+    /// <summary>
+    /// The room's background warning, which her death types Zebes's warning on (#1555, #2554): the glyphs typed, in the order
+    /// typed, each at its background cell. It lasts the room, as the encounter does.
+    /// </summary>
+    internal RoomWarning ZebesWarning { get; }
+
+    /// <summary>
+    /// The parts her body layer shows (#1466, #1515), which her setup attaches to the room's display and her body's frames
+    /// show on; hidden until her phase-two transition reveals it.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
+
+    /// <summary>
+    /// The enemy holding her body's place (#2558), which owns the encounter: its definition's damage is her contact damage,
+    /// which her body's, brain's and neck's touches and her laser deal.
+    /// </summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
+
     /// <summary>Her body, which owns the encounter and runs first.</summary>
-    public RoomEnemyPlace Body { get; }
+    public RoomEnemyPlace Body => BodyOccupant.Place;
 
     /// <summary>Her head, the brain, which her room lists right after her body: her body's setup begins the encounter with it (#2298).</summary>
     public RoomEnemyPlace Head { get; }
@@ -47,117 +72,38 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
     /// <summary>
-    /// The stage her body is in (#2208), which names the type of the phase it runs on its next AI turn; setting a stage's
-    /// phase enters that stage. Her body's setup leaves it in the <see cref="MotherBrainBodyStage.Glass"/> stage.
+    /// The stage her body is in before her late fight (#2208), which names the type of the phase it runs on its next AI turn;
+    /// setting a stage's phase enters that stage. Her body's setup leaves it in the <see cref="MotherBrainBodyStage.Glass"/>
+    /// stage. From her rainbow beam on her late fight runs her body in stages of its own
+    /// (<see cref="MotherBrainLateFightState.Stage"/>), and this one stays at the second phase's fight it ended.
     /// </summary>
-    public MotherBrainBodyStage Stage { get; private set; }
+    public MotherBrainBodyStage Stage => step.Stage;
+
+    /// <summary>The stage the body is in with the phase of it it runs, one value (#2560): no phase of another stage is held.</summary>
+    private BossStagePhase<MotherBrainBodyStage> step = new BossStagePhase<MotherBrainBodyStage>.Phaseless(MotherBrainBodyStage.Glass);
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathDescent"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainDescentPhase DescentPhase
     {
-        get => Stage == MotherBrainBodyStage.FakeDeathDescent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathDescent);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.FakeDeathDescent;
-        }
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDescentPhase> { Stage: MotherBrainBodyStage.FakeDeathDescent } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.FakeDeathDescent);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainDescentPhase>(MotherBrainBodyStage.FakeDeathDescent, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.FakeDeathAscent"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainAscentPhase AscentPhase
     {
-        get => Stage == MotherBrainBodyStage.FakeDeathAscent ? field : throw NotIn(MotherBrainBodyStage.FakeDeathAscent);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.FakeDeathAscent;
-        }
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainAscentPhase> { Stage: MotherBrainBodyStage.FakeDeathAscent } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.FakeDeathAscent);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainAscentPhase>(MotherBrainBodyStage.FakeDeathAscent, value);
     }
 
     /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase2Fight"/> stage the body runs; setting it enters that stage.</summary>
     /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
     public MotherBrainPhase2FightPhase Phase2FightPhase
     {
-        get => Stage == MotherBrainBodyStage.Phase2Fight ? field : throw NotIn(MotherBrainBodyStage.Phase2Fight);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.Phase2Fight;
-        }
-    }
-
-    /// <summary>The phase of the <see cref="MotherBrainBodyStage.RainbowBeam"/> stage the body runs; setting it enters that stage.</summary>
-    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
-    public MotherBrainRainbowPhase RainbowPhase
-    {
-        get => Stage == MotherBrainBodyStage.RainbowBeam ? field : throw NotIn(MotherBrainBodyStage.RainbowBeam);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.RainbowBeam;
-        }
-    }
-
-    /// <summary>The phase of the <see cref="MotherBrainBodyStage.FinishingSamusOff"/> stage the body runs; setting it enters that stage.</summary>
-    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
-    public MotherBrainFinishOffPhase FinishOffPhase
-    {
-        get => Stage == MotherBrainBodyStage.FinishingSamusOff ? field : throw NotIn(MotherBrainBodyStage.FinishingSamusOff);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.FinishingSamusOff;
-        }
-    }
-
-    /// <summary>The phase of the <see cref="MotherBrainBodyStage.DrainedByBaby"/> stage the body runs; setting it enters that stage.</summary>
-    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
-    public MotherBrainDrainedPhase DrainedPhase
-    {
-        get => Stage == MotherBrainBodyStage.DrainedByBaby ? field : throw NotIn(MotherBrainBodyStage.DrainedByBaby);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.DrainedByBaby;
-        }
-    }
-
-    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Reviving"/> stage the body runs; setting it enters that stage.</summary>
-    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
-    public MotherBrainRevivalPhase RevivalPhase
-    {
-        get => Stage == MotherBrainBodyStage.Reviving ? field : throw NotIn(MotherBrainBodyStage.Reviving);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.Reviving;
-        }
-    }
-
-    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Phase3Fight"/> stage the body runs; setting it enters that stage.</summary>
-    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
-    public MotherBrainPhase3FightPhase Phase3FightPhase
-    {
-        get => Stage == MotherBrainBodyStage.Phase3Fight ? field : throw NotIn(MotherBrainBodyStage.Phase3Fight);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.Phase3Fight;
-        }
-    }
-
-    /// <summary>The phase of the <see cref="MotherBrainBodyStage.Dying"/> stage the body runs; setting it enters that stage.</summary>
-    /// <exception cref="InvalidOperationException">The body is in another stage.</exception>
-    public MotherBrainDeathPhase DeathPhase
-    {
-        get => Stage == MotherBrainBodyStage.Dying ? field : throw NotIn(MotherBrainBodyStage.Dying);
-        internal set
-        {
-            field = value;
-            Stage = MotherBrainBodyStage.Dying;
-        }
+        get => step is BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainPhase2FightPhase> { Stage: MotherBrainBodyStage.Phase2Fight } inStage ? inStage.Phase : throw NotIn(MotherBrainBodyStage.Phase2Fight);
+        internal set => step = new BossStagePhase<MotherBrainBodyStage>.Of<MotherBrainPhase2FightPhase>(MotherBrainBodyStage.Phase2Fight, value);
     }
 
     /// <summary>The failure of reading a stage's phase while her body is in another.</summary>
@@ -197,13 +143,13 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public ListStep<Position16<RoomPixels>> NextFakeDeathExplosion { get; internal set; } = ListStep<Position16<RoomPixels>>.FirstOf(MotherBrainTubeCollapseDefinitions.FakeDeathExplosionPositions);
 
     /// <summary>
-    /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its fourteen images, or null while
+    /// Her room's flash playing (#641, #2259, #2404): the shared animation player looping its images, or null while
     /// no flash runs.
     /// </summary>
-    internal AnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
+    internal ShowingAnimationPlayer<MotherBrainRoomFlashSegment, MotherBrainRoomFlashImage, NoAnimationCue>? RoomFlash { get; set; }
 
-    /// <summary>Where the tube collapse stands, or null until her fake-death flash starts the collapse.</summary>
-    internal MotherBrainTubeCollapseProgress? TubeCollapse { get; set; }
+    /// <summary>Where the tube collapse stands: at its first tube, standing, until her fake-death flash starts it there.</summary>
+    internal MotherBrainTubeCollapseProgress TubeCollapse { get; set; } = MotherBrainTubeCollapseProgress.Start;
     /// <summary>Independent countdown used by selected tube spawn stages; a stage moves on as it runs out.</summary>
     public BossCountdown TubeCollapseTimer { get; } = new();
 
@@ -226,7 +172,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// <summary>
     /// Her brain's own shake (#2469), counted down at each draw that shows her brain, as her brain's animation plays there:
     /// the glass event's earthquake starts it for the earthquake's length, and the brain's shake cue, the Hyper Beam recoil
-    /// and the drained beam's refresh for fifty.
+    /// and the drained beam's refresh for <see cref="MotherBrainFightDefinitions.BrainShakeUpdates"/>.
     /// </summary>
     internal MotherBrainShake BrainShake { get; } = new(MotherBrainCadenceDefinitions.BrainShakeStep);
 
@@ -249,7 +195,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     public ListStep<MotherBrainRainbowImage> NextRainbowImage { get; internal set; } = MotherBrainRainbowImage.CycleStart;
 
-    /// <summary>Whether her brain's draw appends five articulated neck joints: while her head's last main drew her neck.</summary>
+    /// <summary>Whether her brain's draw appends her articulated neck joints: while her head's last main drew her neck.</summary>
     public bool DrawNeck => BrainActionDrawn == MotherBrainBrainAction.ShowsBrainOnNeck;
 
     /// <summary>
@@ -285,13 +231,15 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// follows her, so each of her body's pictures lies where its installed frame places it against her; the room's
     /// top-left corner once she is gone, where the escape warning written over the background lies.
     /// </summary>
-    public Position16<RoomPixels>? BodyPlacedAt => BodyPlacement switch
+    internal Position16<RoomPixels>? BodyPlacedAt => BodyPlacements[BodyPlacement](this);
+
+    /// <summary>Where each body placement places her body's frames from.</summary>
+    private static IdentityTable<MotherBrainBodyPlacement, Func<MotherBrainEnemyState, Position16<RoomPixels>?>> BodyPlacements => field ??= new(new Dictionary<MotherBrainBodyPlacement, Func<MotherBrainEnemyState, Position16<RoomPixels>?>>
     {
-        MotherBrainBodyPlacement.FollowsBody => Body.Position.Whole,
-        MotherBrainBodyPlacement.AtRoomCorner => Position16<RoomPixels>.Zero,
-        MotherBrainBodyPlacement.Unplaced => null,
-        _ => throw new InvalidOperationException($"Undefined body placement {BodyPlacement}."),
-    };
+        [MotherBrainBodyPlacement.FollowsBody] = static brain => brain.Body.Position.Whole,
+        [MotherBrainBodyPlacement.AtRoomCorner] = static _ => Position16<RoomPixels>.Zero,
+        [MotherBrainBodyPlacement.Unplaced] = static _ => null,
+    });
 
     /// <summary>Whether her death flicker hides her body this frame, separate from the sprites' invisibility.</summary>
     public bool DeathHidesBodyLayer { get; internal set; }
@@ -349,7 +297,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
     /// <summary>
     /// The step of the current attack. Head animation runs independently while this advances from selection, through
-    /// 64 cooldown frames, and back to the ordinary thinking phase.
+    /// the attack's cooldown, and back to the ordinary thinking phase.
     /// </summary>
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
@@ -357,25 +305,25 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     public BossCountdown AttackCooldown { get; } = new();
 
     /// <summary>
-    /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at
-    /// least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
+    /// Number of Mother Brain bombs counted at their spawn and not yet deleted by their own update. Phase two refuses
+    /// another bomb when this is at least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
     /// </summary>
-    public int BombCounter { get; internal set; }
+    public int BombCounter => _countedBombs.Count;
+
+    /// <summary>The bombs counted at their spawn that their own update has not deleted yet.</summary>
+    private readonly HashSet<MotherBrainBombState> _countedBombs = [];
 
     /// <summary>Counts a bomb the shared bomb setup has just spawned.</summary>
-    internal void RecordBombSpawned() => BombCounter++;
+    /// <param name="bomb">The spawned bomb's own state.</param>
+    internal void RecordBombSpawned(MotherBrainBombState bomb) => _countedBombs.Add(bomb);
 
-    /// <summary>
-    /// Uncounts a bomb that has just been deleted. Every deleted bomb was counted when it
-    /// spawned, so the count is positive here; a zero count means a bomb was deleted twice.
-    /// </summary>
-    internal void RecordBombRemoved() => BombCounter = BombCounter > 0
-        ? BombCounter - 1
-        : throw new InvalidOperationException("A Mother Brain bomb was deleted while none was counted.");
+    /// <summary>Uncounts a bomb its own update has just deleted, which its spawn counted.</summary>
+    /// <param name="bomb">The deleted bomb's own state.</param>
+    internal void RecordBombRemoved(MotherBrainBombState bomb) => _countedBombs.Remove(bomb);
 
     /// <summary>
     /// The body's target X, used while the bomb decision walks the body toward
-    /// X=64 or 96 before entering its posture sequence.
+    /// one of its bomb positions before entering its posture sequence.
     /// </summary>
     public int BodyTargetXPosition { get; internal set; }
 
@@ -390,7 +338,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// starts from this exact position, fraction of a pixel included, moves this position on by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
-    /// <remarks>Charging starts it at the beam position with no fraction of a pixel (body Y minus 48).</remarks>
+    /// <remarks>Charging starts it at the beam position, above her body, with no fraction of a pixel.</remarks>
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
     /// <summary>The aimed velocity; moves the shared start position on before each child receives its independent randomized scatter velocity.</summary>
     public PixelVelocity<RoomPixels> HandBeamNextVelocity { get; internal set; }
@@ -411,6 +359,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// here.
     /// </summary>
     /// <returns>The late fight begun.</returns>
+    /// <summary>Begins her late fight (#2560): the rainbow beam's attack sequence, which runs every late-fight stage.</summary>
     internal MotherBrainRainbowBeamAttackSequence BeginLateFight() => RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(this);
 
     /// <summary>
@@ -419,7 +368,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
     /// </summary>
     internal int PendingBabyCryCount { get; set; }
 
-    /// <summary>The rainbow beam's colour and cone, advanced by the simulation rather than by painting a frame.</summary>
+    /// <summary>The rainbow beam's colour and cone as she fires it.</summary>
     public MotherBrainRainbowBeamEffect RainbowBeam { get; } = new();
 
     /// <summary>
@@ -437,7 +386,7 @@ public sealed class MotherBrainEnemyState : SuperMetroid.Core.Enemies.BossBodies
 
 
     /// <summary>
-    /// Clamped aim angle, a sixteenth through nine thirty-seconds of a turn, written by the head's aim step
+    /// Clamped aim angle, between the aim's lowest and highest angles, written by the head's aim step
     /// and consumed by the next onion-ring spawn.
     /// </summary>
     public TrigonometryAngle OnionRingsTargetAngle { get; internal set; }

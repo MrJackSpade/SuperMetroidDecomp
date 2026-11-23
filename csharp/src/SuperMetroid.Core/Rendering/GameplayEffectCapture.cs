@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Rendering;
 /// Ceres haze, the X-ray's cone, and the
 /// room effects' own blends (#1545). The backend draws these descriptions; nothing here draws.
 /// </summary>
-public static class GameplayEffectCapture
+public static partial class GameplayEffectCapture
 {
     /// <summary>The screen's width in pixels.</summary>
     private const int Width = ScreenGeometry.ScreenWidthPixels;
@@ -28,19 +28,18 @@ public static class GameplayEffectCapture
     /// <summary>
     /// Describes water's optional background wave (#1468): below the surface, background's horizontal scroll follows
     /// the background waveform one sample a line, counted from the line below the surface and advanced by the wave's phase
-    /// and the background's vertical scroll within its 16-pixel block; the lines above keep background's own scroll. Null
+    /// and the background's vertical scroll within its block; the lines above keep background's own scroll. Null
     /// without the wave, or while the frame places no water surface.
     /// </summary>
     public static SampledScrollWave? BuildWaterBackgroundHorizontalScrolls(
         RoomFxOverlayRenderSnapshot fx,
         Offset16<BackgroundPixels> backgroundScroll)
     {
-        if (fx.Type != RoomFxType.Water || fx.Liquid is not RoomWater { BackgroundWave: true } ||
-            fx.WaterSurfaceScreenY is not int surfaceLine)
+        if (fx.WaterBackgroundWavePhase is not int wavePhase || fx.WaterSurfaceScreenY is not int surfaceLine)
             return null;
         int belowSurface = surfaceLine + 1;
         return new SampledScrollWave(backgroundScroll.X, WaterWaveDefinitions.BackgroundWaveform,
-            SampledScrollWave.PhaseWhere(fx.WaterBackgroundWavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, WaterWaveDefinitions.BackgroundWaveform.Length),
+            SampledScrollWave.PhaseWhere(wavePhase + PhaseInBackgroundBlock(backgroundScroll.Y), belowSurface, WaterWaveDefinitions.BackgroundWaveform.Length),
             Math.Clamp(belowSurface, HudHeight, Height), Height);
     }
 
@@ -79,8 +78,8 @@ public static class GameplayEffectCapture
     }
 
     /// <summary>
-    /// The sixteen-sample heat haze over every gameplay line (#1468, #2367). The haze repeats its sixteen samples, one a
-    /// line, down the frame: it starts at the background's vertical scroll within its 16-pixel block, drawn back by the
+    /// The heat haze over every gameplay line (#1468, #2367). The haze repeats its samples, one a
+    /// line, down the frame: it starts at the background's vertical scroll within its block, drawn back by the
     /// wave's phase, so each later phase draws the waveform one line further down.
     /// </summary>
     private static SampledScrollWave HeatHaze(int baseScroll, int backgroundVerticalScroll, int wavePhase, ImmutableArray<int> waveform) =>
@@ -89,8 +88,8 @@ public static class GameplayEffectCapture
             HudHeight, Height);
 
     /// <summary>
-    /// Where the background's vertical scroll lies within the background's 16-pixel block: the row of its block the
-    /// camera's top row is on, zero through fifteen, counted downward for a scroll above the room's top as well.
+    /// Where the background's vertical scroll lies within the background's block: the row of its block the camera's top
+    /// row is on, counted downward for a scroll above the room's top as well.
     /// </summary>
     private static int PhaseInBackgroundBlock(int backgroundVerticalScroll) =>
         ((backgroundVerticalScroll % RoomLevelPlane.BlockPixels) + RoomLevelPlane.BlockPixels) % RoomLevelPlane.BlockPixels;
@@ -100,7 +99,7 @@ public static class GameplayEffectCapture
     public static ColourAddWindowLayer? CaptureMorphBallEyeBeam(
         MorphBallEyeBeamCone beam, Position16<RoomPixels> cameraPosition)
     {
-        if (beam.Phase is MorphBallEyeBeamPhase.Inactive or MorphBallEyeBeamPhase.PendingInitialization)
+        if (beam.Phase is MorphBallEyeBeamPhase.PendingInitialization)
             return null;
         Offset16<ScreenPixels> eye = beam.Origin.RelativeToCamera(cameraPosition);
         TrigonometryAngle angle = beam.Angle.ToTrigonometryAngle();
@@ -137,13 +136,8 @@ public static class GameplayEffectCapture
         OverlayBehindRoomBlend behind)
     {
         Ensure.NotNull(behind);
-        return new(gameplay, ScreenWindow.Closed, false, new GameplayBlend
-        {
-            Blended = behind.Blended,
-            Operation = behind.Operation,
-            Halved = false,
-            Colour = RgbColor.Black,
-        }, CaptureRoomFxOverlay(overlay), behind.BackgroundBehind);
+        return new(gameplay, ScreenWindow.Closed, false, new EffectBehindRoomBlend(behind), CaptureRoomFxOverlay(overlay),
+            behind.BackgroundBehind);
     }
 
     /// <summary>
@@ -157,7 +151,7 @@ public static class GameplayEffectCapture
         Ensure.NotNull(overlay).Map(OverlayLayers.Instance);
 
     /// <summary>Each kind of effect overlay as the effect overlay's blend: none for an overlay showing nothing.</summary>
-    private sealed class OverlayLayers : IRoomEffectOverlayMapping<OverlayBlendLayer?>
+    private sealed partial class OverlayLayers : IRoomEffectOverlayMapping<OverlayBlendLayer?>
     {
         /// <summary>The one mapping.</summary>
         internal static OverlayLayers Instance { get; } = new();
@@ -239,7 +233,7 @@ public static class GameplayEffectCapture
     {
         Offset16<ScreenPixels> samusOnScreen = xray.SamusPosition.RelativeToCamera(cameraPosition);
         int eyeX = samusOnScreen.X +
-            XrayWindowRenderDefinitions.EyeHorizontalOffset.Toward(xray.FacingLeft ? HorizontalDirection.Left : HorizontalDirection.Right);
+            XrayWindowRenderDefinitions.EyeHorizontalOffset.Toward(xray.Facing);
         int eyeY = samusOnScreen.Y -
             (xray.Crouching ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         TrigonometryAngle angle = xray.Angle.ToTrigonometryAngle();
@@ -258,6 +252,31 @@ public static class GameplayEffectCapture
         return new(SuitPickupBeamWindow(active.Beam), active.Color);
     }
 
+    /// <summary>What <see cref="SuitPickupBeamWindow"/> comes to for each <see cref="SamusSuitPickupBeamShape"/> member, each member's own arm.</summary>
+    private static IdentityTable<SamusSuitPickupBeamShape, Func<SamusSuitPickupBeam, int, int, int, int, ScreenWindow>> SuitPickupBeamWindowForSamusSuitPickupBeamShape => field ??= new(new Dictionary<SamusSuitPickupBeamShape, Func<SamusSuitPickupBeam, int, int, int, int, ScreenWindow>>
+    {
+        [SamusSuitPickupBeamShape.None] = static (beam, left, right, lines, centre) => ScreenWindow.Closed,
+        [SamusSuitPickupBeamShape.GrowingFromEdges] = static (beam, left, right, lines, centre) =>
+        {
+            int grown = Math.Min(beam.Progress, lines);
+            if (grown <= 0) return ScreenWindow.Closed;
+            return new([WindowRectangle.Spanning(left, 0, right, grown - 1),
+                WindowRectangle.Spanning(left, lines - grown, right, lines - 1)]);
+        },
+        [SamusSuitPickupBeamShape.Column] = static (beam, left, right, lines, centre) => ScreenWindow.Of(WindowRectangle.Spanning(left, 0, right, lines - 1)),
+        [SamusSuitPickupBeamShape.CurvedColumn] = static (beam, left, right, lines, centre) => ScreenWindow.Of(CurvedColumn(left, right, centre)),
+        [SamusSuitPickupBeamShape.ClosingCurvedColumn] = static (beam, left, right, lines, centre) =>
+        {
+            // The upper wipe always clears at least the first line; the lower wipe is one line shorter.
+            int topWiped = Math.Clamp(beam.Progress, 1, lines);
+            int bottomWiped = Math.Clamp(beam.Progress - 1, 1, lines);
+            int first = Math.Min(topWiped, Height);
+            int end = Math.Clamp(lines - bottomWiped, first, Height);
+            return ScreenWindow.Of(CurvedColumn(left, right, centre), first, end);
+        },
+        [SamusSuitPickupBeamShape.CenterLine] = static (beam, left, right, lines, centre) => ScreenWindow.Of(WindowRectangle.Spanning(left, centre, right, centre)),
+    });
+
     /// <summary>The window of each light-beam outline: columns, a rounded column, its wiped remainder or the centre line.</summary>
     private static ScreenWindow SuitPickupBeamWindow(SamusSuitPickupBeam beam)
     {
@@ -265,35 +284,7 @@ public static class GameplayEffectCapture
         int lines = SuitPickupBeamDefinitions.BeamLines;
         int centre = lines / 2;
         if (left > right) return ScreenWindow.Closed;
-        switch (beam.Shape)
-        {
-            case SamusSuitPickupBeamShape.None:
-                return ScreenWindow.Closed;
-            case SamusSuitPickupBeamShape.GrowingFromEdges:
-            {
-                int grown = Math.Min(beam.Progress, lines);
-                if (grown <= 0) return ScreenWindow.Closed;
-                return new([WindowRectangle.Spanning(left, 0, right, grown - 1),
-                    WindowRectangle.Spanning(left, lines - grown, right, lines - 1)]);
-            }
-            case SamusSuitPickupBeamShape.Column:
-                return ScreenWindow.Of(WindowRectangle.Spanning(left, 0, right, lines - 1));
-            case SamusSuitPickupBeamShape.CurvedColumn:
-                return ScreenWindow.Of(CurvedColumn(left, right, centre));
-            case SamusSuitPickupBeamShape.ClosingCurvedColumn:
-            {
-                // The upper wipe always clears at least the first line; the lower wipe is one line shorter.
-                int topWiped = Math.Clamp(beam.Progress, 1, lines);
-                int bottomWiped = Math.Clamp(beam.Progress - 1, 1, lines);
-                int first = Math.Min(topWiped, Height);
-                int end = Math.Clamp(lines - bottomWiped, first, Height);
-                return ScreenWindow.Of(CurvedColumn(left, right, centre), first, end);
-            }
-            case SamusSuitPickupBeamShape.CenterLine:
-                return ScreenWindow.Of(WindowRectangle.Spanning(left, centre, right, centre));
-            default:
-                throw new ArgumentOutOfRangeException(nameof(beam), beam.Shape, "Unknown suit-pickup beam shape.");
-        }
+        return SuitPickupBeamWindowForSamusSuitPickupBeamShape[beam.Shape](beam, left, right, lines, centre);
     }
 
     /// <summary>The beam's column widened on each line by its rounded sides, widest at the middle line.</summary>

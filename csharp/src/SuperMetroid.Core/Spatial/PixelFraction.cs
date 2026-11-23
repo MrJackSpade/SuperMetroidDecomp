@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Spatial;
 /// pixel. A position keeps one on each axis; placing a mover sets, clears or copies it, and its value decides on which
 /// update the mover's next movement reaches each next whole pixel.
 /// </summary>
-public readonly record struct PixelFraction
+public readonly partial record struct PixelFraction
 {
     /// <summary>Keeps the part of a pixel counted in a coordinate's finest steps, none up to the last.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The part lies outside a pixel.</exception>

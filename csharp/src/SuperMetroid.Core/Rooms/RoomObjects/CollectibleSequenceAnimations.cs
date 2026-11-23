@@ -6,15 +6,15 @@ namespace SuperMetroid.Core.Rooms.RoomObjects;
 
 /// <summary>
 /// Everything a collectible shows at its block (#1994, #2480), played by the shared animation player. A Chozo orb's shell
-/// shows dim for twenty updates, glowing for ten, bright for twenty and glowing again for ten, then starts again (#1825).
-/// A shot Chozo orb shows the empty block, its burst and the empty block again, three updates each, before its item
-/// appears. An exposed item alternates its two looks, four updates each, until Samus takes it. A shot block crumbles from
-/// whole to dust, four updates each, uncovering its item, which alternates its looks for twenty-two pairs; then the block
+/// shows dim, glowing, bright and glowing again, the dim and bright looks held longest, then starts again (#1825).
+/// A shot Chozo orb shows the empty block, its burst and the empty block again, each for <see cref="CollectibleTimingDefinitions.OrbBurstImageUpdates"/>, before its item
+/// appears. An exposed item alternates its two looks, each for <see cref="CollectibleTimingDefinitions.VisibleImageUpdates"/>, until Samus takes it. A shot block crumbles from
+/// whole to dust, each image for <see cref="CollectibleTimingDefinitions.RevealImageUpdates"/>, uncovering its item, which alternates its looks (<see cref="CollectibleTimingDefinitions.RevealedImagePairs"/>); then the block
 /// forms again from dust over it, showing whole once more as its saved block returns. A collected item's shot block stands
-/// empty for twenty-two eight-update intervals, then grows back from dust to rock, four updates each, before its saved
+/// empty for <see cref="CollectibleTimingDefinitions.CollectedShotBlockEmptyUpdates"/>, then grows back from dust to rock, each image for <see cref="CollectibleTimingDefinitions.RespawnImageUpdates"/>, before its saved
 /// block returns. A picked-up item's empty block shows for one update before the item leaves.
 /// </summary>
-internal static class CollectibleSequenceAnimations
+internal static partial class CollectibleSequenceAnimations
 {
     /// <summary>Each run's images and how long each shows; a revealed item's last look marks the block starting to form again.</summary>
     internal static AnimationSegments<CollectibleSequence, CollectibleImage, CollectiblePhase> Segments { get; } = new(
@@ -71,7 +71,7 @@ internal static class CollectibleSequenceAnimations
     internal static Animation<CollectibleSequence> Exposed { get; } = Animation<CollectibleSequence>.Looping([Segments.Whole(C.Looks)]);
 
     /// <summary>
-    /// A revealed item's twenty-two pairs of looks, then its shot block forming again over it. The block starts to form as
+    /// A revealed item's pairs of looks (<see cref="CollectibleTimingDefinitions.RevealedImagePairs"/>), then its shot block forming again over it. The block starts to form as
     /// the last pair's alternate look shows, which the marker before it raises, and the item is hidden again once the
     /// animation is over.
     /// </summary>

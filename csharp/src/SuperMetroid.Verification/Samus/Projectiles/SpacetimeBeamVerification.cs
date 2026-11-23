@@ -65,7 +65,7 @@ internal static class SpacetimeBeamVerification
 
         Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
 
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.SelectedHudItem = HudItem.Beam;
         samus.Missiles = 20;
@@ -83,14 +83,14 @@ internal static class SpacetimeBeamVerification
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
+        projectiles.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
         AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertEqual(0x9137, projectiles.Shots[0].InstructionPointer,
             "native frame-zero next animation record");
 
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
-        SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
+        projectiles.StepFrame(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0, ControllerPreviousNewInput = GameplayAction.None }, new(0, 0), shared, system);
         AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         // The overwrite writes word $0880, which the dispatcher does not name, so it resumes the main game (#1523).
@@ -103,7 +103,7 @@ internal static class SpacetimeBeamVerification
         saveRam.SaveSlot(SaveSlot.A, SuperMetroidSaveSnapshot.Capture(samus, system, SaveSnapshotFixtures.At(SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave)));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(SaveSlot.A)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
-        AssertEqual((ushort)0x100e, saved.EquippedBeams.ToEquipmentWord(),
+        AssertEqual((ushort)0x100e, saved.Inventory.EquippedBeams.ToEquipmentWord(),
             "save retains invalid SpaceTime equipment");
         AssertEqual(SaveStartupRoute.MainGame, saved.StartupRoute,
             "save retains the corrupted startup route");
@@ -118,9 +118,9 @@ internal static class SpacetimeBeamVerification
             "intro flashback removes current missiles");
         AssertEqual(0, restarted.MaxMissiles,
             "intro flashback removes missile capacity");
-        AssertEqual(saved.SuperMissiles, restarted.SuperMissiles,
+        AssertEqual(saved.Inventory.SuperMissiles, restarted.SuperMissiles,
             "intro flashback preserves Super Missiles");
-        AssertEqual(saved.PowerBombs, restarted.PowerBombs,
+        AssertEqual(saved.Inventory.PowerBombs, restarted.PowerBombs,
             "intro flashback preserves Power Bombs");
 
         Suite(nameof(VerifySpacetimeSaveRestartFrontend), () => VerifySpacetimeSaveRestartFrontend());
@@ -140,7 +140,7 @@ internal static class SpacetimeBeamVerification
     private static void VerifySpacetimeOverwritesAgainstRetailRom(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(bus);
+        IImportCartridgeSource cartridge = bus;
         var service = InstalledFixtures.SamusOverreads.Projectiles.SpaceTimeOverwrite;
         int reaching = 0;
         int situations = 0;
@@ -208,19 +208,8 @@ internal static class SpacetimeBeamVerification
             var snapshot = SaveSnapshotFixtures.NewGame with
             {
                 Checkpoint = SuperMetroid.Core.Progression.LoadStationDefinitions.CrateriaSave,
-                Health = 399,
-                MaxHealth = 499,
-                Missiles = 20,
-                MaxMissiles = 50,
-                SuperMissiles = 7,
-                MaxSuperMissiles = 10,
-                PowerBombs = 3,
-                MaxPowerBombs = 5,
-                EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-                CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma,
-                EquippedItems = SamusEquipmentFlags.GravitySuit,
-                CollectedItems = SamusEquipmentFlags.GravitySuit,
                 StartupRoute = SaveStartupRoute.OpeningCinematic,
+                Inventory = SaveSnapshotFixtures.NewGame.Inventory with { Health = 399, MaxHealth = 499, Missiles = 20, MaxMissiles = 50, SuperMissiles = 7, MaxSuperMissiles = 10, PowerBombs = 3, MaxPowerBombs = 5, EquippedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, CollectedBeams = SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma, EquippedItems = SamusEquipmentFlags.GravitySuit, CollectedItems = SamusEquipmentFlags.GravitySuit },
             };
             snapshot.Progress.Events.AddAll();
             return snapshot;
@@ -277,13 +266,13 @@ internal static class SpacetimeBeamVerification
         SuperMetroidRuntime runtime = skippedGame.GameplayRuntimeForVerification;
         AssertEqual(AreaId.Ceres, runtime.Room.LoadedRoom.Area,
             "SpaceTime save restarts at Ceres");
-        AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams.ToEquipmentWord(),
+        AssertEqual((ushort)0x100e, runtime.Player.Samus.EquippedBeams.ToEquipmentWord(),
             "SpaceTime Ceres restart retains equipped beams");
-        AssertEqual(0, runtime.Player.IntroducedSamus.MaxMissiles,
+        AssertEqual(0, runtime.Player.Samus.MaxMissiles,
             "SpaceTime Ceres restart loses Missiles after the intro flashback");
-        AssertEqual(7, runtime.Player.IntroducedSamus.SuperMissiles,
+        AssertEqual(7, runtime.Player.Samus.SuperMissiles,
             "SpaceTime Ceres restart retains Super Missiles");
-        AssertEqual(3, runtime.Player.IntroducedSamus.PowerBombs,
+        AssertEqual(3, runtime.Player.Samus.PowerBombs,
             "SpaceTime Ceres restart retains Power Bombs");
         AssertTrue(!runtime.System.Progress.Events.Members.Any(),
             "SpaceTime Ceres restart begins with fresh progression events");

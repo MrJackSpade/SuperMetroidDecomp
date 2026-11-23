@@ -1,10 +1,11 @@
+using SuperMetroid.Core;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Defines the installed Samus overread file.</summary>
-internal static class SamusOverreadFormat
+internal static partial class SamusOverreadFormat
 {
     /// <summary>
     /// Supported Samus overread schema revision. Revision eight holds each over-read's decoded domain result in place of
@@ -29,9 +30,15 @@ internal static class SamusOverreadFormat
     /// projectile animations for the travel they serve and holds the shinespark echo's still picture as one place (#2347);
     /// revision twenty-six names the frame each frame past a segment's cue goes on to, and holds the knockback's unnamed
     /// slow recoil as frames past the knockback's cue (#2395); revision twenty-seven states the unauthored beams' launch
-    /// speeds in pixels an update (#2555).
+    /// speeds in pixels an update (#2555); revision twenty-eight holds the byte each frame a pose start or a cue can move an
+    /// animation to reads as its delay where the frame holds no delay of its own (#2553); revision twenty-nine keys
+    /// SpaceTime's overwrites by the shot place's name, not by a list position (#2565).
     /// </summary>
-    internal const int Version = 27;
+    internal const int Version = 29;
+
+    /// <summary>The installed name of Samus's shot place <paramref name="place"/>, which keys what SpaceTime's copy overwrites from it.</summary>
+    internal static string ShotPlaceName(int place) =>
+        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"place-{Ensure.AtLeastZero(place)}");
     /// <summary>JSON filename holding the decoded over-read results.</summary>
     internal const string FileName = "samus-overreads.json";
     /// <summary>Shared camel-case, case-insensitive JSON options that reject unknown fields; the file is written compactly.</summary>
@@ -41,5 +48,8 @@ internal static class SamusOverreadFormat
         PropertyNameCaseInsensitive = true,
         WriteIndented = false,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        RespectNullableAnnotations = true,
+        TypeInfoResolver = InstalledDocumentElements.Resolver,
+        RespectRequiredConstructorParameters = true,
     };
 }

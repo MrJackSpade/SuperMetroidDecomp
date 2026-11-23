@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Animation;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Flies;
@@ -23,12 +22,10 @@ internal static class FlyBehaviorVerification
         {
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(definition, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            FliesBehavior.InitializeFly(place);
-            AssertEqual(new AnimationPlayback<FlySegment>(FlyAnimations.StartingWith(FlySegment.Flight), AnimationPlace.StartOfAnimation),
-                (enemies.Places.InUpdateOrder[0].EntityState<FliesEntity, FlyEnemyState>() ?? throw new InvalidOperationException("The fly has no state.")).Playback,
-                $"fly {definition} initializer animation");
+            place.Bind(definition, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+            // The fly is set up as the population load sets it up.
+            _ = enemies.LoadAuthoredPopulation();
             AssertEqual(expected, EnemyInstructionRunner.ShownFrames(place, 9),
                 $"fly {definition} runs the flight loop");
         }

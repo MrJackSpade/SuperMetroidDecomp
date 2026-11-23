@@ -5,8 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The ending's installed artwork: its text, its sprite sheets and its backdrops.</summary>
-[RoomScopeBoundary("A cinematic scene that owns its own colour effects for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingArtwork
+internal sealed partial class EndingArtwork
 {
     /// <summary>What every ending scene draws on: brightness, the turning-floor view, colours, the shared sprites and stars, and the artwork they share.</summary>
     private readonly EndingStage _stage;

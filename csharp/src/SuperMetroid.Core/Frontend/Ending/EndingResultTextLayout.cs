@@ -6,18 +6,18 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// Where the post-credits text shows on the screen (#1416, #1467, #1555), in screen pixels before the text is moved down,
 /// the items the item percentage counts, and the clear-time digit positions.
 /// </summary>
-public static class EndingResultTextLayout
+public static partial class EndingResultTextLayout
 {
     /// <summary>The side of one glyph of the ending's fixed-width text in pixels; a typed character's column and row count glyphs.</summary>
     public const int GlyphPixels = 8;
 
-    /// <summary>The upper-left corner of the nine-row result panel: the left edge, nine glyphs down.</summary>
+    /// <summary>The upper-left corner of the result panel, at the left edge.</summary>
     public static Position16<ScreenPixels> ResultPanelCorner { get; } = new(0, 9 * GlyphPixels);
 
-    /// <summary>The upper-left corner of the two-row copyright panel: the left edge, twelve glyphs down.</summary>
+    /// <summary>The upper-left corner of the copyright panel, at the left edge below the result panel.</summary>
     public static Position16<ScreenPixels> CopyrightPanelCorner { get; } = new(0, 12 * GlyphPixels);
 
-    /// <summary>The upper-left corner of the two-row Japanese subtitle: the left edge, twenty-three glyphs down.</summary>
+    /// <summary>The upper-left corner of the Japanese subtitle, at the left edge near the screen's bottom.</summary>
     public static Position16<ScreenPixels> JapaneseSubtitleCorner { get; } = new(0, 23 * GlyphPixels);
 
     /// <summary>The upper-left corner of the item percentage's hundreds digit; tens, units and the percent sign follow to its right.</summary>

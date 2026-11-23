@@ -12,7 +12,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// two common rooms the HUD's item and minimap backgrounds too, as <c>GameState_A_LoadingNextRoom</c> copies them into its
 /// fade's target.
 /// </summary>
-internal static class DoorFadeHudShades
+internal static partial class DoorFadeHudShades
 {
     /// <summary>The HUD's inks: its two colour sets of sixteen, as a layer-3 picture inks them.</summary>
     private const int HudInks = 32;
@@ -34,5 +34,5 @@ internal static class DoorFadeHudShades
     private static int[] Faded(ImmutableArray<int> kept) => [.. Enumerable.Range(0, HudInks).Except(kept)];
 
     /// <summary><paramref name="inks"/> black, as a door's fade out leaves them.</summary>
-    private static SheetShade Dark(PictureShade shade, int[] inks) => new(shade, inks, [.. inks.Select(_ => RgbColor.Black)]);
+    private static SheetShade Dark(PictureShade shade, int[] inks) => SheetShade.Of(shade, inks, _ => RgbColor.Black);
 }

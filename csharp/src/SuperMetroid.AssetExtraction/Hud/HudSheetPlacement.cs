@@ -7,4 +7,4 @@ namespace SuperMetroid.AssetExtraction.Hud;
 /// <param name="Image">The image and the tiles it is pictured from.</param>
 /// <param name="Shelf">The row of images it sits on.</param>
 /// <param name="Cell">Its upper-left cell, from the left of its shelf's top row.</param>
-internal sealed record HudSheetPlacement(HudImageTiles Image, int Shelf, Position16<CharacterCells> Cell);
+internal sealed partial record HudSheetPlacement(HudImageTiles Image, int Shelf, Position16<CharacterCells> Cell);

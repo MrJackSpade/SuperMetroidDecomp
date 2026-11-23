@@ -39,27 +39,27 @@ internal static class SuperMissileDeathAnimationVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RisingTide);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.LockOutPlayer();
-        RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.DefinitionId == enemyDefinition);
+        RoomEnemyPlace enemy = runtime.Enemies.Places.InUpdateOrder.First(place => place.Occupant?.DefinitionId == enemyDefinition);
         enemy.Health = 1;
         enemy.Invincibility.End();
         // The room loads both on the empty map, which the shot pass skips. The Dragon shows its surfaced frame ($E80C,
         // as at native update 40203) and the Sova a shared crawler surface frame.
-        if (enemy.Frame == EnemyFrameId.Empty)
+        if (enemy.Frame == EnemyFrameId.PointAtOrigin)
             enemy.Frame = enemyDefinition == EnemyDefinitionId.Dragon ? EnemyFrameId.DragonBodyFacingLeft : EnemyFrameId.SpinyCrawlerOnFloorSpinesTurned0;
         enemy.AnimationClock.HoldFor(0x7fff);
-        runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
+        runtime.Enemies.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectile shot = runtime.Projectiles.Shots[0];
-        shot.Type = SamusProjectileType.Of(SamusProjectileFamily.SuperMissile); shot.Damage = 300; shot.Direction = SamusProjectileDirection.Right;
-        shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
-        shot.Radius = new(4, 4);
-        shot.Animation = ProjectileFixturePlaybacks.Active();
+        shot.Occupy(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile), 300); shot.HeldShot().Direction = SamusProjectileDirection.Right;
+        shot.HeldShot().Position = shot.Position.WithWhole(enemy.Position.Whole);
+        shot.HeldShot().Radius = new(4, 4);
+        shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHit(runtime.Projectiles, runtime.BombProjectiles, runtime.Room.LoadedRoom.Area, samus,
-            enemy, Position16<RoomPixels>.Zero);
+            enemy.HeldOccupant(), Position16<RoomPixels>.Zero);
 
         EnemyProjectile explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);

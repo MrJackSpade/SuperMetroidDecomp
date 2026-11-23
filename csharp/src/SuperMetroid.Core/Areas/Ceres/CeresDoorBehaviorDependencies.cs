@@ -6,8 +6,7 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The collaborators a <see cref="CeresDoorBehavior"/> is constructed with, built once by its owner.</summary>
-[RoomLifetime]
-internal sealed record CeresDoorBehaviorDependencies
+internal sealed partial record CeresDoorBehaviorDependencies
 {
     /// <summary>Provides Ceres room artwork, boss status, and the gameplay RNG.</summary>
     public required EnemyRoomBinding Room { get; init; }

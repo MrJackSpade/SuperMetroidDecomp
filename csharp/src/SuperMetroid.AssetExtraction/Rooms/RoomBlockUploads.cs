@@ -16,7 +16,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World.RoomStates;
-using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.AssetExtraction.Hud;
@@ -34,7 +34,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// arena, Ridley's looks over what the arena loads under its blocks (#1791); and the collectibles its rooms place, each pictured as its kind
 /// alone (#1513, #1538), never under the room's other blocks.
 /// </summary>
-internal static class RoomBlockUploads
+internal static partial class RoomBlockUploads
 {
     /// <summary>Crocomire's melting illustrations in the order their bands are bound (#2567).</summary>
     private static readonly IReadOnlyList<CrocomireMeltingIllustration> MeltingOrder = Ensure.EveryMemberOnce<CrocomireMeltingIllustration>(
@@ -76,7 +76,7 @@ internal static class RoomBlockUploads
             TilesetDefinition tileset = RoomTilesets.Get(state.GraphicsSet);
             if (PicturedLibraryBackgrounds.TryProgramOf(state, out LibraryBackgroundProgram? library))
             {
-                DoorDefinition?[] doors = [.. DoorVariants(library)];
+                LibraryBackgroundPicture[] doors = [.. DoorVariants(library)];
                 names.AddRange(doors.Select(door => RoomBackgroundImage.NameOf(library.Background, door, tileset)));
             }
             if (RoomBehaviorPictureDefinitions.MainSkies.TryGetValue(state.MainBehavior, out ScrollingSky sky))
@@ -137,8 +137,8 @@ internal static class RoomBlockUploads
                 // Only a library background the player sees as its own picture is pictured (#1649).
                 if (PicturedLibraryBackgrounds.TryProgramOf(state, out LibraryBackgroundProgram? library))
                 {
-                    foreach (DoorDefinition? door in DoorVariants(library))
-                        uploads.AddBackground(Replay(inputs, room, tileset, library, door, StacksBackgroundPages(state)));
+                    foreach (LibraryBackgroundPicture door in DoorVariants(library))
+                        uploads.AddBackground(Replay(inputs, tileset, library, door, StacksBackgroundPages(state)));
                 }
                 // BG3 shows the HUD over the layer-3 characters the room's load binds, and its effects' pages over their
                 // frames.
@@ -192,7 +192,7 @@ internal static class RoomBlockUploads
         {
             yield return new AppearanceOption(AppearanceInputSpellings.KraidBackdrop, RoomAppearanceValues.Shown,
                 new BgCharacterUpload(RoomBgArtwork.KraidBackdrop, BgCharacterSet.Tiles, RoomTileCharacters.KraidBackdropFirst,
-                    (inputs.Bosses.KraidBackground ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters."))
+                    inputs.Bosses.KraidBackground
                         .RoomBackgroundTiles.Characters));
         }
     }
@@ -235,8 +235,7 @@ internal static class RoomBlockUploads
     /// </summary>
     private static IEnumerable<AnimatedCharacterPlacement> CrocomireMeltBandFrames(RoomBlockSheetInputs inputs)
     {
-        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting
-            ?? throw new InvalidDataException("Installed boss artwork has no Crocomire melting graphics.");
+        CrocomireMeltingArtwork artwork = inputs.Bosses.CrocomireMelting;
         foreach (CrocomireMeltingIllustration illustration in MeltingOrder)
         {
             byte[] image = artwork.Characters(illustration).ToArray();
@@ -248,25 +247,23 @@ internal static class RoomBlockUploads
         }
     }
 
-    /// <summary>No door, for the background's ordinary picture, and each door that shows its own picture of it.</summary>
-    private static IEnumerable<DoorDefinition?> DoorVariants(LibraryBackgroundProgram program) => [null, .. program.Background.PictureDoors];
+    /// <summary>The background's ordinary picture and the picture of each door that shows its own (#2558).</summary>
+    private static IEnumerable<LibraryBackgroundPicture> DoorVariants(LibraryBackgroundProgram program) =>
+        [LibraryBackgroundPicture.Ordinary, .. program.Background.PictureDoors.Select(LibraryBackgroundPicture.Of)];
 
     /// <summary>
-    /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> entered through <paramref name="door"/>
+    /// Replays <paramref name="program"/> as a room of <paramref name="tileset"/> showing picture <paramref name="door"/>
     /// runs it: one period of the BG2 pages it leaves (<see cref="RoomBackgroundImageGeometry.OnePeriod"/>, #1651), the
     /// first page alone where both hold one tilemap, over the characters the room loads. Two different pages are laid out
     /// as the room shows them (#1617): one above the other where <paramref name="pagesStacked"/>, otherwise side by side.
     /// </summary>
-    private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, RoomDefinition room, TilesetDefinition tileset,
-        LibraryBackgroundProgram program, DoorDefinition? door, bool pagesStacked)
+    private static RoomBackgroundMap Replay(RoomBlockSheetInputs inputs, TilesetDefinition tileset,
+        LibraryBackgroundProgram program, LibraryBackgroundPicture door, bool pagesStacked)
     {
         BgArtworkBindings content = Loaded(inputs, tileset);
         var vram = new SnesVram();
-        // A door no transfer names stands for every door the program does not tell apart.
-        DoorDefinition entry = door ?? new DoorDefinition("no library background door", room,
-            new DoorOrientation(DoorDirection.Right, DoorClosingBehavior.None), default, default, DoorSamusSpeed.None, DoorSetupDefinitions.None);
         LibraryBackgroundReplay.Execute(vram, program,
-            entry, new LibraryBackgroundArtwork
+            door, new LibraryBackgroundArtwork
             {
                 TilemapArt = inputs.BackgroundTilemaps,
                 SkyArt = inputs.Skies,
@@ -338,14 +335,13 @@ internal static class RoomBlockUploads
             if (EncounterLookUploads.ShownAs(encounter) is not EncounterArtwork shownAs || !EncounterLookUploads.ShownIn(encounter, state))
                 continue;
             EncounterLookSteps steps = EncounterLookUploads.Steps(encounter, inputs.Objects);
-            IReadOnlyList<ComposedLook> looks = EncounterLookUploads.Looks(encounter);
-            for (int look = 1; look < looks.Count; look++)
+            foreach (ComposedLook look in steps.Looks.Where(look => !look.IsLoaded))
             {
-                var appearance = new EncounterLookAppearance(new EncounterLook(shownAs, looks[look].Name));
-                EncounterArtworkUpload[] copies = [.. steps.Looks.Take(look + 1).SelectMany(earlier => earlier)];
+                var appearance = new EncounterLookAppearance(new EncounterLook(shownAs, look.Name));
+                EncounterArtworkUpload[] copies = [.. steps.CopiesThrough(look)];
                 for (int copy = 0; copy < copies.Length; copy++)
                     yield return new AppearanceOption(appearance, RoomAppearanceValues.Shown,
-                        new BgCharacterUpload(new BgArtworkIdentity($"{encounter} look {looks[look].Name} copy {copy}"), BgCharacterSet.Tiles,
+                        new BgCharacterUpload(new BgArtworkIdentity($"{encounter} look {look.Name} copy {copy}"), BgCharacterSet.Tiles,
                             copies[copy].FirstCharacter, copies[copy].Characters));
             }
         }
@@ -450,7 +446,7 @@ internal static class RoomBlockUploads
     /// <summary>What one tileset's rooms show over their characters.</summary>
     /// <param name="ceres">Whether the tileset's rooms are Ceres rooms, which load no common room elements.</param>
     /// <param name="inputs">The installed artwork the uploads are drawn from.</param>
-    internal sealed class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs)
+    internal sealed partial class TilesetUploads(bool ceres, RoomBlockSheetInputs inputs)
     {
         /// <summary>What the rooms show over their tile characters after loading, collectibles aside, each once.</summary>
         private readonly List<AppearanceOption> options = [];
@@ -526,8 +522,15 @@ internal static class RoomBlockUploads
                 RidleyLooks = looks;
         }
 
-        /// <summary>What the first room shows BG3's words over, or null before a room is recorded.</summary>
-        internal BgArtworkBindings? Bg3Content { get; private set; }
+        /// <summary>What the first room recorded showing BG3 shows its words over; none before a room is recorded.</summary>
+        private BgArtworkBindings? bg3Content;
+
+        /// <summary>Finds what the first room recorded showing BG3 shows its words over: false before a room is recorded.</summary>
+        internal bool TryGetBg3Content([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out BgArtworkBindings? content)
+        {
+            content = bg3Content;
+            return content is not null;
+        }
 
         /// <summary>The room effects whose BG3 pages the tileset's rooms show.</summary>
         internal HashSet<RoomFxType> FxTypes { get; } = [];
@@ -538,7 +541,7 @@ internal static class RoomBlockUploads
         /// <summary>Records a room showing BG3 over <paramref name="content"/>'s layer-3 characters, with <paramref name="effects"/>' pages.</summary>
         internal void AddBg3(BgArtworkBindings content, IEnumerable<RoomFxType> effects)
         {
-            Bg3Content ??= content;
+            bg3Content ??= content;
             foreach (RoomFxType effect in effects)
             {
                 if (!FxTypes.Add(effect))
@@ -587,7 +590,7 @@ internal static class RoomBlockUploads
         /// installed room block sheet restyles them.
         /// </summary>
         internal IReadOnlyList<RoomObjectDynamicCollectibleGraphic> Collectibles =>
-            [.. placedCollectibles.OrderBy(DynamicCollectibleGraphics.KindIndex).Select(DynamicCollectibleGraphics.Get)];
+            [.. placedCollectibles.OrderBy(DynamicCollectibleGraphics.UploadOrder).Select(DynamicCollectibleGraphics.Get)];
 
         /// <summary>Records that a room of the tileset places collectible <paramref name="kind"/>.</summary>
         /// <exception cref="InvalidDataException">The tileset's rooms are Ceres rooms, which place no collectibles.</exception>
@@ -623,7 +626,7 @@ internal static class RoomBlockUploads
     /// hold one tilemap, otherwise its two pages as the room shows them (#1617); or the sky's rows.
     /// </param>
     /// <param name="Content">The bindings the room's load leaves.</param>
-    internal sealed record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content)
+    internal sealed partial record RoomBackgroundMap(string Name, ushort[] Words, BgArtworkBindings Content)
     {
         /// <summary>Tiles across one row of <see cref="Words"/>: a page, or one period across of a page that repeats (#1675).</summary>
         internal int WidthTiles { get; init; } = RoomBackgroundImageGeometry.PageTiles;
@@ -632,7 +635,7 @@ internal static class RoomBlockUploads
     /// <summary>What an OBJ character table holds at one place: the artwork and the character it starts at.</summary>
     /// <param name="Identity">The artwork.</param>
     /// <param name="FirstCharacter">The character it starts at.</param>
-    private readonly record struct PagePlacement(BgArtworkIdentity Identity, int FirstCharacter)
+    private readonly partial record struct PagePlacement(BgArtworkIdentity Identity, int FirstCharacter)
     {
         /// <summary>Where <paramref name="placement"/> places its artwork.</summary>
         internal static PagePlacement Of(BgCharacterUpload placement) => new(placement.Identity, placement.FirstCharacter);

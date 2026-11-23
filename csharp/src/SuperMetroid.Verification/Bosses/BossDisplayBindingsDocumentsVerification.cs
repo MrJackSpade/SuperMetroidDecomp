@@ -41,7 +41,7 @@ internal static class BossDisplayBindingsDocumentsVerification
                 Oam.Frames[frame.Name] = EnemyExtendedFrameBounds.IsBg2Only(frame) ? [] :
                 [ new() { OffsetX = 0, OffsetY = 0,
                     Parts = [new() { OffsetX = 2, OffsetY = 3, Size = index % 2 == 0 ? 16 : 8,
-                        TileColumn = index % 16, TileRow = index / 16, Palette = 1, Priority = 2,
+                        TileColumn = index % 16, TileRow = index / 16, Palette = 1, Depth = SuperMetroid.Core.Assets.ActorDepth.BehindFrontParts,
                         FlipX = false, FlipY = false }] } ];
             }
             Crocomire = Bg2(CrocomireBg2FrameDefinitions.Frames, CrocomireBg2FrameDefinitions.Version);
@@ -49,16 +49,16 @@ internal static class BossDisplayBindingsDocumentsVerification
             Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, DraygonBg2FrameDefinitions.Version);
         }
 
-        /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
-        internal ImportEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null)
+        /// <summary>Loads fixture documents into an artwork catalog.</summary>
+        internal ImportEnemyArtwork Build()
         {
             // Bosses draw from sheets composed over the installed enemy artwork, so the fixture starts from it and
             // replaces only the extended frames it authors (#1446).
-            EnemyTileSourceArtwork tiles = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
-            tiles.ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null;
+            EnemyTileSourceArtwork stock = SuperMetroid.TestSupport.RepositoryInstallation.Verification.CartridgeImportContent.FreshEnemyArtwork().Enemies;
+            EnemyTileSourceArtwork tiles = stock.WithFrames(stock.Spritemaps, EnemyExtendedFrameDocuments.Load(json.Json(Oam)));
             return new(tiles,
-                new BossSourceArtwork { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
-                new AreaSourceArtwork());
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.BossArtwork with { CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
+                SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.AreaArtwork);
         }
 
         /// <summary>Locates authored BG2 writes by bank and native frame pointer.</summary>

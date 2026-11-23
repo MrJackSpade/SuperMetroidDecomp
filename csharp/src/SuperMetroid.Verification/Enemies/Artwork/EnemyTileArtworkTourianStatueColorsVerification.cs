@@ -3,27 +3,24 @@ using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Runtime;
-using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
-using SuperMetroid.Core.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
 using SuperMetroid.AssetExtraction;
 
 using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.Areas.Tourian.Artwork;
-using SuperMetroid.Verification.Harness;
-namespace SuperMetroid.Verification.Enemies.Artwork;
+using SuperMetroid.Verification.Areas.Tourian;
+using SuperMetroid.Verification.Harness;namespace SuperMetroid.Verification.Enemies.Artwork;
 
 /// <summary>Native colour-write and guarded-source checks for installed Tourian entrance statue colors (#1512).</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification
@@ -41,11 +38,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         for (int color = 0; color < TourianStatueColorFormat.StatueColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueColors + color * sizeof(ushort),
                 colors.ResolveStatue(color).ToWord());
-        for (int row = 0; row < TourianStatueColorDefinitions.EyeGlowCount; row++)
+        for (int row = 0; row < TourianStatueColorDefinitions.EyeGlows.Count; row++)
         for (int color = 0; color < TourianStatueColorDefinitions.EyeColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueEyeColors +
                 (row * TourianStatueColorDefinitions.EyeColorCount + color) * sizeof(ushort),
-                (colors.ResolveEye(row, color)).ToWord());
+                (colors.ResolveEye(EnemySourceDefinitions.TourianStatueEyeRowOrder[row], color)).ToWord());
         for (int color = 0; color < TourianStatueColorDefinitions.GreyColorCount; color++)
             CheckSource(EnemySourceDefinitions.TourianStatueGreyColors + color * sizeof(ushort),
                 colors.ResolveGrey(color).ToWord());
@@ -111,17 +108,16 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         // The $87:837F grey instruction is reached on re-entry after each
         // defeated-boss statue's grey event. Exercise the actual room program,
         // including its four compiled destination operands.
-        string romPath = Path.GetFullPath("Super Metroid.smc");
-        var installedRoom = CreateGreyRoom(
-            NewTourianStatueColorGuard(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath), forbidden), stock);
-        installedRoom.TourianStatues.StepBlockAnimations();
+        RoomScope greyRoomScope = TourianStatueRoomScopeFixture.GreyStatues(stock);
+        TourianStatueSequence greyStatues = greyRoomScope.TourianStatues
+            ?? throw new InvalidOperationException("The retail Tourian statue room enables grey animation programs.");
+        greyStatues.StepBlockAnimations();
         // After the step, the room's pictures under the room's shading and the statue scene's pictures under the scene's
         // shading show, at each of the four retail programs' grey destinations, the native grey instruction's colours
         // (#1512): the room-tile statues grey over the room's pictures, the sprite statues over the scene's.
-        RgbColor[] greyRoom = GameplayShownColours.Of(installedRoom, InstalledFixtures.SamusShadeSources);
-        RgbColor[] greyScene = NativeColouredPictures.ShownIn(composedStatueSheet, EnemySystemFixtures.StatueScene(installedRoom.Enemies).SceneShading);
-        HashSet<int> roomHeld = [.. GameplayShownColours.ComparedIn(installedRoom)];
+        RgbColor[] greyRoom = GameplayShownColours.BackgroundOf(greyRoomScope, greyRoomScope.Shading([]));
+        RgbColor[] greyScene = NativeColouredPictures.ShownIn(composedStatueSheet, EnemySystemFixtures.StatueScene(greyRoomScope.Enemies).SceneShading);
+        HashSet<int> roomHeld = [.. GameplayShownColours.BackgroundComparedIn(greyRoomScope)];
         foreach (int program in new[] { 0x8783ac, 0x878414, 0x87847c, 0x8784e4 })
         {
             AssertEqual((ushort)0x837f, ReadReferenceWord(program + 0x62),
@@ -145,7 +141,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         {
             forbidden.Add(address);
             forbidden.Add(address + 1);
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address), expected,
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), expected,
                 $"Tourian statue palette source ${address:X6}");
         }
 
@@ -171,32 +167,15 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             LittleEndianBytes.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         static RoomEnemySystem CreateEnemy(ImportEnemyArtwork artwork) =>
-            EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses, statueRoom: new SuperMetroid.Verification.Areas.Tourian.FixedTourianStatueRoom(WaterSurface: 216, StatueOffset: 0));
+            EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(artwork.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, installedBosses: artwork.Bosses, statueRoom: new SuperMetroid.Core.World.TourianStatueRoom(new SuperMetroid.Core.Fx.RoomLiquidSurfaceLine(216)));
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
             RoomEnemyPlace place = enemy.Places.InUpdateOrder[0];
+            place.Bind(EnemyDefinitionId.TourianStatue, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.TourianStatue, parameter);
-            place.Bind(EnemyDefinitionId.TourianStatue, place.Definition);
-            EnemySystemFixtures.InitializeStatuePlacement(place);
-        }
-
-        static SuperMetroidRuntime CreateGreyRoom(
-            ISnesAddressSpace source, ImportEnemyArtwork artwork)
-        {
-            var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.BossArtwork.KraidEyes = (artwork.Bosses.KraidColors ?? throw new InvalidOperationException("The artwork holds Kraid's colours.")).Eyes();
-            runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-            runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            for (int area = 1; area <= 4; area++)
-                runtime.System.RecordBossesDefeated(area, DefeatedBosses.AreaBoss);
-            foreach (StoryEvent greyEvent in new[] { StoryEvent.PhantoonStatueGrey, StoryEvent.RidleyStatueGrey, StoryEvent.DraygonStatueGrey, StoryEvent.KraidStatueGrey })
-                runtime.System.Progress.Events.Add(greyEvent);
-            runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Statues);
-            AssertTrue(runtime.Room.LoadedScope.TourianStatues is not null,
-                "retail Tourian statue room enables grey animation programs");
-            return runtime;
+            // The room's population load builds the placement and initializes it.
+            _ = enemy.LoadAuthoredPopulation();
         }
     }
 

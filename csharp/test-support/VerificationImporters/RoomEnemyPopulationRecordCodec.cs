@@ -8,7 +8,6 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// entry (#1472), for the checks that compare compiled populations with the cartridge and the fixtures that seed native
 /// records. The definition pointer is the caller's: this type takes and gives the resolved identity.
 /// </summary>
-[EncodingOwner("room enemy population entry words")]
 internal static class RoomEnemyPopulationRecordCodec
 {
     /// <summary>The typed entry the words of a native population entry describe.</summary>
@@ -31,7 +30,7 @@ internal static class RoomEnemyPopulationRecordCodec
         }
         return new RoomEnemyPlacement(
             enemy,
-            new Position16<RoomPixels>(checked((ushort)x), checked((ushort)y)),
+            PlacingOf(enemy, new Position16<RoomPixels>(checked((ushort)x), checked((ushort)y))),
             state.Contact,
             state.Processing,
             state.Presence,
@@ -39,12 +38,36 @@ internal static class RoomEnemyPopulationRecordCodec
             settings);
     }
 
+    /// <summary>
+    /// Where an entry of <paramref name="enemy"/> whose position words are <paramref name="position"/> places it: a
+    /// Zebetite's entry is placed by its setup, which stands it where its generation stands, and its words hold the room
+    /// origin; every other entry at its words' position.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A Zebetite's entry holds a position other than the room origin.</exception>
+    public static EnemyPlacing PlacingOf(EnemyDefinitionId enemy, Position16<RoomPixels> position)
+    {
+        if (enemy != EnemyDefinitionId.Zebetite)
+            return EnemyPlacing.At(position);
+        if (position != Position16<RoomPixels>.Zero)
+            throw new InvalidDataException($"A Zebetite's population entry holds position {position}, where its setup places it.");
+        return EnemyPlacing.BySetup;
+    }
+
+    /// <summary>The position words of an entry placed by <paramref name="placing"/>: an entry its setup places holds the room origin.</summary>
+    public static Position16<RoomPixels> PositionWordsOf(EnemyPlacing placing) => Ensure.NotNull(placing) switch
+    {
+        EnemyPlacedAt at => at.Position,
+        EnemyPlacedBySetup => Position16<RoomPixels>.Zero,
+        _ => throw new InvalidDataException($"Undefined {nameof(EnemyPlacing)} {placing}."),
+    };
+
     /// <summary>The words of a native population entry for a typed entry, after the definition pointer.</summary>
     public static PopulationEntryWords Encode(RoomEnemyPlacement record)
     {
         PopulationWords settings = EnemySpawnSettingsCodec.Encode(record.DefinitionId, record.SpawnSettings);
+        Position16<RoomPixels> position = PositionWordsOf(record.Placing);
         return new PopulationEntryWords(
-            record.Position.X, record.Position.Y, settings.Initialization,
+            position.X, position.Y, settings.Initialization,
             EnemyPropertyWordCodec.EncodePropertyWord(record.Contact, record.Processing, record.Presence) | settings.SpeciesPropertyBits,
             EnemyPropertyWordCodec.EncodeExtraPropertyWord(
                 EnemyPropertyState.None with { CollidesByFrameHitboxes = record.CollidesByFrameHitboxes }) | settings.ExtraProperties,

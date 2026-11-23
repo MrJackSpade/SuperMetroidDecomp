@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>The post-shot transition's timing, motion and sound.</summary>
-internal static class EndingPostShotDefinitions
+internal static partial class EndingPostShotDefinitions
 {
     /// <summary>The charged plasma-wave sound the shot queues.</summary>
-    public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasmaWave;
+    public static readonly SoundEffectId ShotSound = SamusSound.ChargedPlasma;
     /// <summary>The priority the post-shot step queues the shot's sound at: essential, so it joins any sound queue that is not full.</summary>
     public static SoundRequestPriority ShotSoundPriority { get; } = SoundRequestPriority.Essential;
     /// <summary>The post-credits turning floor's horizontal origin.</summary>
@@ -15,9 +15,9 @@ internal static class EndingPostShotDefinitions
     public const int OffsetX = -4;
     /// <summary>The post-shot background vertical offset.</summary>
     public const int OffsetY = -8;
-    /// <summary>The reward turning floor's starting zoom: nine floor pixels per screen pixel.</summary>
+    /// <summary>The reward turning floor's starting zoom.</summary>
     public static FloorZoom InitialZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(9);
-    /// <summary>The zoom narrows by a quarter floor pixel per screen pixel each update.</summary>
+    /// <summary>How far the zoom narrows each update.</summary>
     public static FloorZoomStep ZoomStep { get; } = FloorZoomStep.FromFloorPixelsPerScreenPixel(1, 4);
     /// <summary>The zoom the completed rotation stops at.</summary>
     public static FloorZoom MinimumZoom { get; } = FloorZoom.FromFloorPixelsPerScreenPixel(3, 32);

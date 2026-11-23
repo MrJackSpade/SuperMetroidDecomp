@@ -3,7 +3,7 @@ using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>Creates sound and music queues for hosts that run a runtime without a frontend session (#2057).</summary>
-internal static class AudioQueuesToolingExtensions
+internal static partial class AudioQueuesToolingExtensions
 {
     /// <summary>Creates queues that stand alone.</summary>
     extension(AudioQueues)
@@ -19,7 +19,7 @@ internal static class AudioQueuesToolingExtensions
     }
 
     /// <summary>The gameplay states of queues that stand alone: no door disables sounds, no attract demo plays and no power bomb explodes.</summary>
-    private sealed class NoGameplaySoundState : IGameplaySoundState
+    private sealed partial class NoGameplaySoundState : IGameplaySoundState
     {
         /// <inheritdoc/>
         public bool DoorTransitionDisablesSounds => false;

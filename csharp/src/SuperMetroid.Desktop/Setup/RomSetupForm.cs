@@ -1,0 +1,122 @@
+using SuperMetroid.AssetExtraction.Installation;
+
+namespace SuperMetroid.Desktop.Setup;
+
+/// <summary>First-launch ROM selection and recoverable installation without blocking the UI thread.</summary>
+internal sealed class RomSetupForm : Form
+{
+    /// <summary>Command-line or environment ROM source checked when the dialog first appears.</summary>
+    private readonly string? sourcePath;
+    /// <summary>Cancels a background install when the user closes the dialog.</summary>
+    private readonly CancellationTokenSource stopping = new();
+    /// <summary>Displays installer progress and recoverable errors in the form.</summary>
+    private readonly Label status = new() { AutoSize = false, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft };
+    /// <summary>Opens a picker for a supported user-supplied cartridge.</summary>
+    private readonly Button choose = new() { Text = "Choose ROM…", AutoSize = true };
+    /// <summary>Indicates that installation or repair is running on a worker task.</summary>
+    private readonly ProgressBar progressBar = new() { Dock = DockStyle.Bottom, Height = 12, Style = ProgressBarStyle.Marquee };
+    /// <summary>Tracks the active installer so closing can request cancellation first.</summary>
+    private bool busy;
+    /// <summary>Defers dialog closure until the background installer has observed cancellation.</summary>
+    private bool closeRequested;
+    /// <summary>Validated installation returned to the game host after setup succeeds.</summary>
+    public GameInstallation? Installation { get; private set; }
+
+    /// <summary>Initializes first-launch setup and accepts at most one explicit ROM path.</summary>
+    public RomSetupForm(string[] arguments)
+    {
+        if (arguments.Length > 1) throw new ArgumentException("Supply at most one ROM path.");
+        sourcePath = arguments.Length == 1 ? arguments[0] : Environment.GetEnvironmentVariable("SUPERMETROID_ROM");
+        Text = "Super Metroid — Game setup";
+        StartPosition = FormStartPosition.CenterScreen;
+        ClientSize = new Size(540, 235);
+        MinimumSize = new Size(500, 250);
+        Padding = new Padding(20);
+        var introduction = new Label
+        {
+            Dock = DockStyle.Top, Height = 68,
+            Text = "Choose your own Super Metroid ROM to get started.\r\n" +
+                   "Supported: Japan/USA NTSC v1.0 (.smc or .sfc).\r\n" +
+                   "A copy and the required audio will be saved in your local app data.",
+        };
+        var buttons = new FlowLayoutPanel { Dock = DockStyle.Bottom, AutoSize = true, FlowDirection = FlowDirection.RightToLeft };
+        var cancel = new Button { Text = "Cancel", AutoSize = true };
+        cancel.Click += (_, _) => Close();
+        choose.Click += async (_, _) => await ChooseRomAsync();
+        buttons.Controls.Add(cancel);
+        buttons.Controls.Add(choose);
+        Controls.Add(status);
+        Controls.Add(progressBar);
+        Controls.Add(buttons);
+        Controls.Add(introduction);
+        AcceptButton = choose;
+    }
+
+    /// <summary>
+    /// Opens the native picker for the player's ROM, as the Choose ROM button does, and installs the chosen file; a
+    /// cancelled picker changes nothing.
+    /// </summary>
+    internal async Task ChooseRomAsync()
+    {
+        using var picker = new OpenFileDialog
+        {
+            Title = "Choose your Super Metroid ROM",
+            Filter = "SNES ROMs (*.smc;*.sfc)|*.smc;*.sfc|All files (*.*)|*.*",
+            CheckFileExists = true,
+        };
+        if (picker.ShowDialog(this) == DialogResult.OK) await Prepare(picker.FileName);
+    }
+
+    /// <summary>Checks or repairs the installed game files after the form is displayed.</summary>
+    protected override async void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        await Prepare(string.IsNullOrWhiteSpace(sourcePath) ? null : sourcePath);
+    }
+
+    /// <summary>Installs a selected ROM or opens an existing installation, reporting progress in the form.</summary>
+    private async Task Prepare(string? source)
+    {
+        busy = true;
+        choose.Enabled = false;
+        progressBar.Visible = true;
+        status.Text = "Checking installed game files…";
+        var progress = new Progress<string>(message => { if (!IsDisposed) status.Text = message; });
+        try
+        {
+            Installation = await Task.Run(() => source is null
+                ? GameAssetInstaller.OpenOrRepair(GameAssetInstaller.DesktopRoot, stopping.Token, progress)
+                : GameAssetInstaller.Install(source, GameAssetInstaller.DesktopRoot, stopping.Token, progress));
+            status.Text = Installation is null ? "Select a ROM to continue. Your original file will be kept." : "Ready to play.";
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception error) { status.Text = error.Message; }
+        finally
+        {
+            busy = false;
+            choose.Enabled = true;
+            progressBar.Visible = false;
+        }
+        if (closeRequested) { DialogResult = DialogResult.Cancel; Close(); }
+        else if (Installation is not null) { DialogResult = DialogResult.OK; Close(); }
+    }
+
+    /// <summary>Requests cancellation and waits for the active installer before allowing closure.</summary>
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        if (busy)
+        {
+            closeRequested = true;
+            stopping.Cancel();
+            e.Cancel = true;
+        }
+        base.OnFormClosing(e);
+    }
+
+    /// <summary>Releases the installer cancellation source with the form.</summary>
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing) stopping.Dispose();
+        base.Dispose(disposing);
+    }
+}

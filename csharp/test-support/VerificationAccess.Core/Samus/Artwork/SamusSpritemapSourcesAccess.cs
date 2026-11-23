@@ -1,32 +1,26 @@
-using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Samus;
 
 namespace SuperMetroid.Core.Samus.Artwork;
 
-/// <summary>Verification access to <see cref="SamusSpritemapSources"/> members the import does not use.</summary>
+/// <summary>Verification access to the compositions <see cref="SamusSpritemapSources"/> decoded, which checks compare with the cartridge.</summary>
 internal static class SamusSpritemapSourcesAccess
 {
-    /// <summary>Inspects installed Samus compositions.</summary>
+    /// <summary>Inspects decoded Samus compositions.</summary>
     extension(SamusSpritemapSources self)
     {
-        /// <summary>The stored compositions, each at its identity's ordinal, without recreating stock art.</summary>
-        internal IReadOnlyList<SamusSpritemapDefinition> Definitions => self.definitions;
+        /// <summary>The composition <paramref name="frame"/> shows, or none for a frame that draws nothing.</summary>
+        /// <exception cref="InvalidOperationException">The half frame is not decoded.</exception>
+        internal SamusSpritemapDefinition? Definition(SamusBodyHalfFrame frame) =>
+            self.halves.TryGetValue(frame, out SamusSpritemapId? composition)
+                ? composition is { } shown ? self.definitions[shown] : null
+                : throw new InvalidOperationException($"Samus {frame} is not decoded.");
 
-        /// <summary>Whether <paramref name="frame"/> is an animation frame installed for its pose half.</summary>
-        /// <exception cref="ArgumentOutOfRangeException">The pose has no record.</exception>
-        internal bool Covers(SamusBodyHalfFrame frame) => (uint)frame.AnimationFrame < (uint)self.Frames(frame).Count;
-    }
+        /// <summary>The composition the suit-explosion sheet frame <paramref name="name"/> shows, or none.</summary>
+        internal SamusSpritemapDefinition? ExplosionDefinition(string name) =>
+            self.explosion[name] is { } shown ? self.definitions[shown] : null;
 
-    /// <summary>Where the cartridge stores the tables the catalog installs.</summary>
-    extension(SamusSpritemapSources)
-    {
-        /// <summary>$92:808D: the spritemap pointer of each pose-half table entry.</summary>
-        internal static int PointerTableAddress => SamusSourceDefinitions.SpritemapPointers.Value;
-
-        /// <summary>$92:9263: each pose's first upper-half table entry.</summary>
-        internal static int TopBaseAddress => SamusSourceDefinitions.SpritemapTopBases.Value;
-
-        /// <summary>$92:945D: each pose's first lower-half table entry.</summary>
-        internal static int BottomBaseAddress => SamusSourceDefinitions.SpritemapBottomBases.Value;
+        /// <summary>The composition the diving-splash or bubbles sheet frame <paramref name="name"/> shows, or none.</summary>
+        internal SamusSpritemapDefinition? AtmosphereDefinition(string name) =>
+            self.atmosphere[name] is { } shown ? self.definitions[shown] : null;
     }
 }

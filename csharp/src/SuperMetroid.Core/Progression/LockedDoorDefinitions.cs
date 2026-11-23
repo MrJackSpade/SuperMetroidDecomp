@@ -8,8 +8,7 @@ namespace SuperMetroid.Core.Progression;
 /// condition, its block or, for the Climb's escape, the state that places it; an eye door's three parts are one door.
 /// Regenerate with tools/generate-room-object-population-definitions.ps1.
 /// </summary>
-[NumberedIdentities("Each door named with its block is one distinct door of its room, told apart by where it stands; nothing indexes them.")]
-public static class LockedDoorDefinitions
+public static partial class LockedDoorDefinitions
 {
     /// <summary>The green door facing left at column 142, row 70 of the Landing Site room, in its default state, its state once Samus has Power Bombs and its state once Zebes is awake: once opened, it stays open for good.</summary>
     public static LockedDoor LandingSiteGreenDoorFacingLeft { get; } = new("LandingSiteGreenDoorFacingLeft");
@@ -383,7 +382,7 @@ public static class LockedDoorDefinitions
     /// <summary>The green door facing left at column 110, row 22 of the Colosseum room: once opened, it stays open for good.</summary>
     public static LockedDoor ColosseumGreenDoorFacingLeftAt110x22 { get; } = new("ColosseumGreenDoorFacingLeftAt110x22");
 
-    /// <summary>The eye door facing right at column 1, row 38 of the The Precious room: once opened, it stays open for good.</summary>
+    /// <summary>The eye door facing right at column 1, row 38 of the Precious room: once opened, it stays open for good.</summary>
     public static LockedDoor ThePreciousEyeDoorFacingRight { get; } = new("ThePreciousEyeDoorFacingRight");
 
     /// <summary>The grey door facing right at column 1, row 22 of the Halfie Climb room: it stays shut until the area's boss is dead, and once opened, it stays open for good.</summary>

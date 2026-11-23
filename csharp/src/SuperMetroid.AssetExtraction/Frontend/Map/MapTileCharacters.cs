@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 /// indexed PNG compiled to 256 row-major 8-by-8 SNES 4-bpp characters, which the screen tile sheets compose from. The
 /// game never reads them.
 /// </summary>
-public sealed class MapTileCharacters
+public sealed partial class MapTileCharacters
 {
     /// <summary>Owned SNES 4-bpp character bytes compiled from indexed PNG pixels.</summary>
     private readonly byte[] planar;

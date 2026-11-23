@@ -2,8 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.AssetExtraction.Hud;
-using SuperMetroid.Core.Hud;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -31,8 +29,8 @@ internal static class MessagePresentationContractChecks
                     panels.Build(GameplayMessageId.MissileTank);
                     panels.Build(GameplayMessageId.EnergyTank);
                     notices.Build(GameplayMessageId.EnergyRechargeCompleted);
-                    notices.ApplySelection(GameplayMessageId.SaveConfirmation, cells, true);
-                    notices.ApplySelection(GameplayMessageId.EnergyRechargeCompleted, cells, true);
+                    notices.ApplySelection(GameplayMessageId.SaveConfirmation, cells, SuperMetroid.Core.Rooms.SaveChoice.Yes);
+                    notices.ApplySelection(GameplayMessageId.EnergyRechargeCompleted, cells, SuperMetroid.Core.Rooms.SaveChoice.Yes);
                     notices.Contains((GameplayMessageId)99);
                 }
             }
@@ -41,8 +39,8 @@ internal static class MessagePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("MessageProviderFixture", trees,
-            platforms.Append(typeof(GameplayMessageTitlePresentation).Assembly.Location)
-                .Append(typeof(GameplayMessageBoxDefinitions).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.AssetExtraction)
+                .Append(FixtureAssemblies.Core).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "MessagePresentationContractChecks");

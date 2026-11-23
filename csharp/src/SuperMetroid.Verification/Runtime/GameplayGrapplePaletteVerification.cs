@@ -22,12 +22,12 @@ internal static class GameplayGrapplePaletteVerification
     /// <summary>Checks normal fire, pose-change refire, fixed flare color, and cancellation for two equipped beams.</summary>
     internal static void VerifyGameplayGrapplePalette()
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.Parlor);
         foreach (var enemy in runtime.Enemies.Places.InUpdateOrder) enemy.Clear();
@@ -38,14 +38,14 @@ internal static class GameplayGrapplePaletteVerification
         // pictures the room's tileset sheet holds.
         var level = Harness.VerificationHelpersVerification.CreateRoom(new Extent16<RoomBlocks>(32, 16), words, new RoomBlockBehavior[512]);
         runtime.Room.Adopt(scope with { LevelData = level });
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         // The beam colours are import data (#1637): the import's read holds them.
         var palettes = InstalledFixtures.ImportProjectiles.BeamPalettes;
         // Grapple firing names the Ice beam's shade and the flare's (#1512); the import resolves both.
         var sources = InstalledFixtures.SamusShadeSources with { BeamPalettes = palettes };
         foreach (ushort beam in new ushort[] { 0, 4 })
         {
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Control.Unlock();
             samus.EquippedItems = samus.CollectedItems = SamusEquipmentFlags.GrappleBeam;
             samus.EquippedBeams = SamusEquipmentWordCodec.FromBeamWord(beam);
@@ -56,15 +56,15 @@ internal static class GameplayGrapplePaletteVerification
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.VerticalVelocity = samus.Kinematics.VerticalVelocity.Stopped();
             runtime.StepFrame(0);
-            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beam)));
+            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrderConstants.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.LatestGameplayFrame?.GrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
-            samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.StandingAimDiagonalUpRightPose);
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
-            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrder.FromTableIndex(beam)));
+            runtime.Player.Colours.ShowBeams(SamusShades.Beam(SamusBeamCombinationTableOrderConstants.FromTableIndex(beam)));
             runtime.StepFrame(ControllerButton.X);
             AssertTrue(runtime.LatestGameplayFrame?.GrappleMovement is { Fired: true }, "native pose-change window refires grapple");
             AssertPalette("pose-change refiring");

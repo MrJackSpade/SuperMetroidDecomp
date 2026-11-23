@@ -29,16 +29,16 @@ internal static class MetroidBehaviorDefinitionsVerification
             Offset16<RoomPixels> actual =
                 MetroidReactions.EscapeDisplacement(movesLeft);
             int entry = movesLeft & 3;
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea3f + entry * 2))), actual.X,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa3ea3f + entry * 2))), actual.X,
                 $"Metroid escape X displacement with {movesLeft} moves left");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ea47 + entry * 2))), actual.Y,
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((0xa3ea47 + entry * 2))), actual.Y,
                 $"Metroid escape Y displacement with {movesLeft} moves left");
         }
 
         for (ushort index = 0; index < 8; index++)
         {
             SoundEffectId cry = MetroidBehaviorDefinitions.Cry.Choose(index);
-            AssertEqual(SoundEffectCommands.Decode(cry.Library, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2))),
+            AssertEqual(SoundEffectCommands.DecodeCartridge(cry.Library, rom.ReadCartridgeWord((0xa3ead6 + index * 2))),
                 cry,
                 $"Metroid random cry {index}");
         }
@@ -61,7 +61,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         // An escape starts at its duration and ends on the step that reaches zero.
         for (int timer = 1; timer <= MetroidBehaviorDefinitions.EscapeDuration; timer++)
         {
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>())
+            var place = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>())
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };
@@ -95,7 +95,8 @@ internal static class MetroidBehaviorDefinitionsVerification
         }
 
         // A Metroid frozen while it escapes strains its moves away, flashing, and keeps none once they are spent.
-        var frozenPlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+        var frozenPlace = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>());
+        frozenPlace.Bind(EnemyDefinitionId.Metroid, frozenPlace.KeptDefinition);
         var frozen = new MetroidEnemyState(
             new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard),
             new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
@@ -103,12 +104,11 @@ internal static class MetroidBehaviorDefinitionsVerification
             EscapeMovesLeft = UpdateCountdown.Lasting(2),
             Movement = MetroidMovement.Homing,
         };
-        frozenPlace.SetSpeciesState(frozen);
         var strain = new List<(int MovesLeft, int Flash)>();
         for (int update = 0; update < 3; update++)
         {
             frozenPlace.HurtFlash.End();
-            MetroidBehavior.RunMetroidFrozen(frozenPlace);
+            MetroidBehavior.RunMetroidFrozen(frozenPlace, frozen);
             strain.Add((frozen.EscapeMovesLeft.UpdatesLeft, frozenPlace.HurtFlash.UpdatesLeft));
         }
         AssertTrue(strain.SequenceEqual([(1, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, MetroidBehaviorDefinitions.EscapeFlashDuration), (0, 0)]),
@@ -126,29 +126,29 @@ internal static class MetroidBehaviorDefinitionsVerification
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = () => selectedRandom;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Metroid, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+            place.Bind(EnemyDefinitionId.Metroid, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
             place.AnimationClock.StepOnNextUpdate();
             // Start at the chasing loop's random-cry cue, after its four pulses.
-            enemies.Places.InUpdateOrder[0].SetSpeciesState(new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
+            var state = new MetroidEnemyState(new RoomEffectActor(RoomEffectActorKind.MetroidElectricity, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard), new RoomEffectActor(RoomEffectActorKind.MetroidShell, default, SuperMetroid.Core.Enemies.SpriteGraphics.SharedStandard))
             {
                 Playback = new(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                     AnimationSegments<MetroidSegment, EnemyFrameId, MetroidCue>.PlaceOf(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus),
                         MetroidSegment.ChasingCry, 0)),
-            });
+            };
 
-            EnemyAnimationPlayer.AdvanceAnimation(place, RoomEnemyFrameFixtures.StandaloneSamus(), RoomEnemyFrameFixtures.OpenRoom(new(64, 64)), Position16<RoomPixels>.Zero, 0);
+            enemies.MetroidBehavior.AdvanceMetroidTypedAnimation(place, state);
 
             AssertEqual((SoundEffectId?)MetroidBehaviorDefinitions.Cry.Choose(random),
                 enemies.Audio.LatestSound,
                 $"production Metroid random cry {random}");
             AssertEqual(16, place.AnimationClock.Hold,
                 $"production Metroid script timer {random}");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), place.SpritemapPointer,
+            AssertEqual(rom.ReadCartridgeWord(0xa3e9d1), place.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
             // The cue ends the pass; the loop shows its first pose and stands before its second, its four pulses all to come.
             AssertEqual(new AnimationPlayback<MetroidSegment>(MetroidAnimations.StartingWith(MetroidSegment.ChasingSamus), new AnimationPlace(0, 1).WithPlaysLeft(4)),
-                (enemies.Places.InUpdateOrder[0].EntityState<MetroidEntity, MetroidEnemyState>() ?? throw new InvalidOperationException("The Metroid has no state.")).Playback,
+                state.Playback,
                 $"production Metroid script continuation {random}");
         }
     }

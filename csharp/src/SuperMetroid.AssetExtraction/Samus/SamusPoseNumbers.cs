@@ -8,7 +8,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// numbers, and installs what it reads keyed by each pose's name (#1595). The numbering itself, and the pose each number
 /// names, is <see cref="SamusPoseNumbering"/>'s.
 /// </summary>
-internal static class SamusPoseNumbers
+internal static partial class SamusPoseNumbers
 {
     /// <summary>Each pose's number: its position in <see cref="SamusPoseNumberDefinitions.ByNumber"/>.</summary>
     private static readonly FrozenDictionary<SamusPoseId, int> Numbers = Enumerable

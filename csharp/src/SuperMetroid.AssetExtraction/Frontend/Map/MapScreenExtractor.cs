@@ -11,8 +11,7 @@ using SuperMetroid.AssetExtraction.CartridgeTables;
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 
 /// <summary>Resolves native world layers and final room-map frames into editable visual resources.</summary>
-[EncodingOwner("cartridge map screen object words")]
-public static class MapScreenExtractor
+public static partial class MapScreenExtractor
 {
     /// <summary>The frame word $82:9628 writes the selected area name from.</summary>
     private const int RoomLabelFirstWord = 170;
@@ -25,22 +24,22 @@ public static class MapScreenExtractor
     public static Dictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         var pages = new Dictionary<string, MapPresentationCell[]>();
-        Add(MapScreenDefinitions.WorldForeground, RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaForeground, MapScreenDefinitions.PageBytes), WorldMapArtworkFormat.TileColumns);
+        Add(MapScreenDefinitions.WorldForeground, RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.FileSelectMap.AreaForeground, MapScreenDefinitions.PageBytes), WorldMapArtworkFormat.TileColumns);
         for (int index = 0; index < MapScreenDefinitions.ZebesAreas; index++)
         {
             AreaId area = AreaNumberCodec.At(index);
-            Add(MapScreenDefinitions.WorldBackground(area), RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            Add(MapScreenDefinitions.WorldBackground(area), RomDataReader.ReadFixedBank(bus,
                 MapSourceDefinitions.FileSelectMap.AreaBackgrounds + index * MapScreenDefinitions.PageBytes, MapScreenDefinitions.PageBytes), WorldMapArtworkFormat.TileColumns);
             var frame = new byte[MapScreenDefinitions.PageBytes];
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrame, MapSourceDefinitions.FileSelectMap.RoomFrameHeaderWords * 2).CopyTo(frame, 0);
+            RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.FileSelectMap.RoomFrame, MapSourceDefinitions.FileSelectMap.RoomFrameHeaderWords * 2).CopyTo(frame, 0);
             for (int word = MapSourceDefinitions.FileSelectMap.RoomFrameHeaderWords; word < MapScreenDefinitions.PageCells; word++)
                 BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan(word * 2), MapSourceDefinitions.FileSelectMap.RoomFrameBlank);
             // Native's reverse copy supplies footer words 1..160, not 0..159.
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.RoomFrameFooter + 2, MapSourceDefinitions.FileSelectMap.RoomFrameFooterWords * 2).CopyTo(frame, MapSourceDefinitions.FileSelectMap.RoomFrameHeaderWords * 2);
-            int label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.FileSelectMap.AreaLabelPointers + index * 2);
+            RomDataReader.ReadFixedBank(bus, MapSourceDefinitions.FileSelectMap.RoomFrameFooter + 2, MapSourceDefinitions.FileSelectMap.RoomFrameFooterWords * 2).CopyTo(frame, MapSourceDefinitions.FileSelectMap.RoomFrameHeaderWords * 2);
+            int label = RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.FileSelectMap.AreaLabelPointers + index * 2);
             for (int word = 0; word < MapSourceDefinitions.FileSelectMap.RoomLabelWords; word++)
                 BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((RoomLabelFirstWord + word) * 2),
-                    (ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MapSourceDefinitions.Menu.ObjectBank | (label + word * 2)) & MapSourceDefinitions.FileSelectMap.RoomLabelMask));
+                    (ushort)(RomDataReader.ReadWordFixedBank(bus, MapSourceDefinitions.Menu.ObjectBank | (label + word * 2)) & MapSourceDefinitions.FileSelectMap.RoomLabelMask));
             Add(MapScreenDefinitions.RoomFrame(area), frame, MapTileAtlasFormat.TileColumns);
         }
         using var json = new MemoryStream();
@@ -58,15 +57,14 @@ public static class MapScreenExtractor
             for (int index = 0; index < cells.Length; index++)
             {
                 var word = new MapTileWord(BinaryPrimitives.ReadUInt16LittleEndian(bytes.AsSpan(index * 2)));
-                cells[index] = new() { TileColumn = word.CharacterIndex % columns, TileRow = word.CharacterIndex / columns,
-                    Palette = word.PaletteIndex, Priority = word.HasPriority,
-                    FlipX = (word.Mirroring & PictureFlip.Horizontal) != PictureFlip.None, FlipY = (word.Mirroring & PictureFlip.Vertical) != PictureFlip.None };
+                cells[index] = MapPresentationCell.Of(new BackgroundTile(word.CharacterIndex, word.PaletteIndex,
+                    word.Mirroring.HasFlag(PictureFlip.Horizontal), word.Mirroring.HasFlag(PictureFlip.Vertical), word.HasPriority), columns);
             }
             pages.Add(page.Name, cells);
         }
         byte[] Atlas(int address, int count, int bpp)
         {
-            byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count), bpp,
+            byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(bus, address, count), bpp,
                 WorldMapArtworkFormat.TileColumns, out Extent16<ImagePixels> size);
             using var png = new MemoryStream();
             IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(1 << bpp));

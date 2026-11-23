@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>
 /// Samus's grapple beam: its phase, anchor, rope, swing, flare and the release that ends it.
 /// </summary>
-public sealed class SamusGrappleState
+public sealed partial class SamusGrappleState
 {
     /// <summary>Starts an inactive grapple whose flare, swing pictures and rope draw from <paramref name="artwork"/>.</summary>
     internal SamusGrappleState(SamusArtworkBinding artwork) => Artwork = Ensure.NotNull(artwork);
@@ -31,12 +31,11 @@ public sealed class SamusGrappleState
     /// </summary>
     public Position16<RoomPixels> FlareOrigin { get; set; }
     /// <summary>
-    /// Rope length in pixels. Connected motion clamps it below 64, while firing grows it by twelve per frame
-    /// and cancels once it reaches 128, so it never leaves 0 through
+    /// Rope length in pixels. Connected motion clamps it below the swing's longest rope, while firing grows it each frame
+    /// and cancels once it reaches its longest, so it never leaves 0 through
     /// <see cref="GrappleBeamDefinitions.Physics.LongestRopeLength"/>; other writes are rejected, which keeps every
     /// signed length test an ordinary comparison.
     /// </summary>
-    [IntegerQuantity("rope length in pixels")]
     public int RopeLength
     {
         get;
@@ -44,8 +43,8 @@ public sealed class SamusGrappleState
     }
 
     /// <summary>
-    /// The signed per-update change in rope length: the connection's retraction, the Up or Down adjustment of two
-    /// pixels, firing's extension or none.
+    /// The signed per-update change in rope length: the connection's retraction, the Up or Down adjustment
+    /// (<see cref="GrappleBeamDefinitions.Swing.RopeLengthStep"/>), firing's extension or none.
     /// </summary>
     public int RopeLengthDelta
     {
@@ -162,8 +161,8 @@ public sealed class SamusGrappleState
     /// <summary>The swing turns without colliding, or the grapple starts, connects or ends: it no longer rests.</summary>
     internal void SwingFreely() => RestsCloseToHand = false;
 
-    /// <summary>The swing's positioning makes the camera follow it slowly while <paramref name="fast"/>, ordinarily otherwise.</summary>
-    internal void FollowSwing(bool fast) => CameraScroll = fast ? GrappleCameraScroll.Slow : GrappleCameraScroll.Ordinary;
+    /// <summary>The swing's positioning makes the camera follow it with <paramref name="scroll"/>: slowly while it swings fast.</summary>
+    internal void FollowSwing(GrappleCameraScroll scroll) => CameraScroll = scroll;
 
     /// <summary>The grapple's firing, connection, release or end returns the camera to its ordinary scroll.</summary>
     internal void ScrollCameraOrdinarily() => CameraScroll = GrappleCameraScroll.Ordinary;
@@ -176,12 +175,6 @@ public sealed class SamusGrappleState
     public UpdateCountdown WallJumpTimer { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// Distinguishes a cancel reached from a locked grappling pose from ordinary firing
-    /// cancellation, whose pre-existing movement and pose continue in the same frame.
-    /// </summary>
-    public bool CancelFromConnectedPose { get; set; }
-
-    /// <summary>
     /// How far the muzzle flare has come: firing marks it just fired, each connected-beam draw moves it on a stage, and
     /// teardown clears it before ordinary charge handling can resume.
     /// </summary>
@@ -189,16 +182,16 @@ public sealed class SamusGrappleState
 
     /// <summary>
     /// The grapple's flare (#2396): the main flare's animation, which the flare restarts at the main flare's loop when
-    /// fired and plays on from there, and which teardown clears.
+    /// fired and plays on from there, and which teardown clears; it always shows a picture.
     /// </summary>
-    internal ChargeFlareComponentState Flare { get; } = new(ChargeFlareComponent.MainFlare);
+    internal ChargeFlarePlay<MainFlareSegment, MainFlarePicture> Flare { get; } = ChargeFlarePlays.MainFlare();
 
     /// <summary>
-    /// The endpoint's animation (#1627, #2388): its four pictures, six beam draws each, over and over; a fresh beam starts
+    /// The endpoint's animation (#1627, #2388): its pictures, over and over; a fresh beam starts
     /// it on its first.
     /// </summary>
-    internal AnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue> Endpoint { get; } =
-        AnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue>.StartShowing(
+    internal ShowingAnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue> Endpoint { get; } =
+        ShowingAnimationPlayer<GrappleEndpointSegment, GrappleEndpointFrame, NoAnimationCue>.StartShowing(
             GrappleAnimations.EndpointSegments, GrappleAnimations.Endpoint);
 
     /// <summary>
@@ -207,7 +200,7 @@ public sealed class SamusGrappleState
     /// <see cref="GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay"/>. Each segment further along the rope
     /// shows the picture before its neighbour's (<see cref="GrappleAnimations.RopePictureBefore"/>).
     /// </summary>
-    internal AnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue> Rope { get; } =
-        AnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue>.StartShowing(
+    internal ShowingAnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue> Rope { get; } =
+        ShowingAnimationPlayer<GrappleRopeSegment, GrappleRopePicture, NoAnimationCue>.StartShowing(
             GrappleAnimations.RopeSegments, GrappleAnimations.Rope, GrappleBeamDefinitions.Rendering.FirstSegmentAnimationDelay);
 }

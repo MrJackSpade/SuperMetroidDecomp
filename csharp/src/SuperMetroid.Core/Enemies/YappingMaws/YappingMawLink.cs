@@ -5,14 +5,17 @@ namespace SuperMetroid.Core.Enemies.YappingMaws;
 /// near end (the Maw's root for the first link, the previous link's far end for the others), and the solved offset of its
 /// far end from the root. The last link's far end is the mouth.
 /// </summary>
-public sealed class YappingMawLink
+public sealed partial class YappingMawLink
 {
     /// <summary>Links the tongue to <paramref name="body"/>, its far end still at the root.</summary>
-    /// <param name="body">The body projectile the Maw spawned for the link at its room load.</param>
-    internal YappingMawLink(EnemyProjectile body) => Body = Ensure.NotNull(body);
+    /// <param name="body">The body projectile the Maw spawned for the link at its room load, or none when the pool was full.</param>
+    internal YappingMawLink(EnemyProjectile? body) => Body = body;
 
-    /// <summary>The body projectile showing the link, which the Maw spawned at its room load and places every update.</summary>
-    public EnemyProjectile Body { get; }
+    /// <summary>
+    /// The body projectile showing the link, which the Maw spawned at its room load and places every update; none when the
+    /// pool had no place for it, and the link then shows nothing.
+    /// </summary>
+    public EnemyProjectile? Body { get; }
 
     /// <summary>The signed offset of the link's far end from the Maw's root (Y positive downward), as the curl last solved it.</summary>
     public Offset16<RoomPixels> Offset { get; internal set; }

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 
 /// <summary>How the large Maridia snail pushes and shoves Samus (#2043), attacks, rolls and bounces (#2156).</summary>
-internal static class OumMotionDefinitions
+internal static partial class OumMotionDefinitions
 {
     /// <summary>
     /// How far toward Samus the snail reaches while it pushes her, in pixels: its move tests the terrain that much

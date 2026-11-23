@@ -4,19 +4,20 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// The gunship's state, one for the whole ship, which its top hull keeps and runs: its phase, landing brakes, bob and
 /// engine timers, and its takeoff.
 /// </summary>
-internal sealed class GunshipState
+internal sealed partial class GunshipState
 {
     /// <summary>Starts the ship in <paramref name="phase"/>.</summary>
     internal GunshipState(GunshipPhase phase) => Phase = phase;
 
     /// <summary>
-    /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at 144 and the wait
-    /// for the engines at five, and the update that takes it to zero ends the phase (#2340, #2469).
+    /// The updates left of a waiting phase, the one it ends on included: each pad movement starts it at
+    /// <see cref="GunshipBoardingDefinitions.PadMovementDuration"/> and the wait for the engines at
+    /// <see cref="GunshipTakeoffDefinitions.EngineStartUpdates"/>, and the update that takes it to zero ends the phase (#2340, #2469).
     /// </summary>
     public UpdateCountdown PhaseTimer { get; internal set; } = UpdateCountdown.Ended();
 
     /// <summary>The ship's next idle-bob step.</summary>
-    public GunshipIdleBob Bob { get; internal set; }
+    public GunshipIdleBob Bob { get; internal set; } = GunshipIdleBob.First;
 
     /// <summary>The ship's updates until its next idle-bob step.</summary>
     public UpdateCountdown BobTimer { get; internal set; } = UpdateCountdown.Ended();
@@ -28,22 +29,22 @@ internal sealed class GunshipState
     public int BaseY { get; internal set; }
 
     /// <summary>The ship's next landing brake.</summary>
-    public GunshipLandingBrake LandingBrake { get; internal set; }
+    public GunshipLandingBrake LandingBrake { get; internal set; } = GunshipLandingBrake.First;
 
     /// <summary>
     /// The ship's engine rumble, the <see cref="GunshipTakeoffDefinitions.EngineRumbleFrames"/> updates before liftoff,
     /// counted once each: its age chooses each update's shake, and the rumble strengthens at
     /// <see cref="GunshipTakeoffDefinitions.RumbleStrengthensFrame"/>.
     /// </summary>
-    public UpdateCountdown Rumble { get; internal set; } = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineRumbleFrames);
+    public UpdateCountdown Rumble { get; } = UpdateCountdown.Lasting(GunshipTakeoffDefinitions.EngineRumbleFrames);
 
     /// <summary>The phase the ship runs.</summary>
     public GunshipPhase Phase { get; internal set; }
 
     /// <summary>
     /// The ship's upward escape speed, raised each update up to its cap (<see cref="AccelerateEscape"/>). It
-    /// starts at two pixels an update and grows by a quarter pixel each update; reaching ten pixels sets it back to nine,
-    /// so it never passes nine pixels and three quarters.
+    /// starts slow and grows each update; reaching its trigger speed sets it back to its cap, so it never passes the cap by
+    /// a whole pixel.
     /// </summary>
     public SignedEightEight EscapeVelocity { get; internal set; }
 
@@ -59,8 +60,4 @@ internal sealed class GunshipState
         if (EscapeVelocity >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
             EscapeVelocity = GunshipMotionDefinitions.EscapeVelocityCap;
     }
-
-    /// <summary>The state of the ship whose top hull <paramref name="top"/> holds, failing if it never initialized as one.</summary>
-    internal static GunshipState Of(RoomEnemyPlace top) =>
-        top.SpeciesState<GunshipState>() ?? throw new InvalidOperationException("A gunship top hull has no ship state.");
 }

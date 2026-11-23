@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.AssetExtraction.Rooms;
@@ -23,12 +25,12 @@ internal static class MotherBrainTankBackgroundVerification
     /// <summary>Verifies pipe-room VRAM survives initialization and the crouched body updates only its authored BG2 words.</summary>
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
-        var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game=SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
         var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
-        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.System.SetEvent(StoryEvent.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.MotherBrain);
         if (ascentMaskOnly) return VerifyMotherBrainAscentCapture(runtime);
@@ -39,7 +41,7 @@ internal static class MotherBrainTankBackgroundVerification
         BossBodyParts image = runtime.Enemies.Presentation.RequireBossBody();
         AssertTrue(!image.IsShown && Words(image.Publish()).All(word => word == 0x0338),
             "Initializer attaches her body showing nothing, which her room does not show yet");
-        runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
+        MotherBrainAscent.SetupMotherBrainPhaseTwoGraphics(state);
         // Since #1356 her room shows her body from the transition (#1515), and the room's pipe background stays untouched.
         AssertTrue(image.IsShown && ReferenceEquals(image, runtime.Enemies.Presentation.RequireBossBody())
                 && Words(image.Publish())[..0x400].All(word => word == 0x0338),
@@ -48,8 +50,8 @@ internal static class MotherBrainTankBackgroundVerification
         BossSourceArtwork artwork = InstalledFixtures.BossArtwork;
         AssertTrue((artwork.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
-        SuperMetroid.Core.PrivateState.Set(state.Body.AnimationClock, nameof(EnemyAnimationClock.ShowsNewFrame), true);
-        runtime.Enemies.AnimationPlayer.DrawBossBodyFrame(state.Body, EnemyFrameId.MotherBrainBodyCrouched);
+        state.Body.AnimationClock.ShowsNewFrame = true;
+        EnemyAnimationPlayer.DrawBossBodyFrame(state.Body, state.Body.HeldOccupant(), EnemyFrameId.MotherBrainBodyCrouched);
         var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapCellCount).ToArray();
         foreach (var write in writes.Span)
             write.Words.CopyTo(expectedImage.AsSpan(write.FirstCell));
@@ -60,7 +62,7 @@ internal static class MotherBrainTankBackgroundVerification
         return 0;
         bool RoomShowsPipeBackground() => runtime.Room.Scope is { BackgroundImage: RoomLibraryBackgroundPicture.Drawn { Image: { } shown } } scope
             && scope.Room.State.Background == LibraryBackgroundProgramDefinitions.Get(0xe48a).Background
-            && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, null, scope.Assets.Tileset);
+            && shown.Image.Name == RoomBackgroundImage.NameOf(LibraryBackgroundProgramDefinitions.Get(0xe48a).Background, LibraryBackgroundPicture.Ordinary, scope.Assets.Tileset);
     }
 
     /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>

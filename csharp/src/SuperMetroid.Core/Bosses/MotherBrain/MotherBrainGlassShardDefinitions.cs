@@ -4,10 +4,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The graphics and physical origins of Mother Brain's glass shards.</summary>
-internal static class MotherBrainGlassShardDefinitions
+internal static partial class MotherBrainGlassShardDefinitions
 {
     /// <summary>The random sample's field a shard's launch angle is: a whole turn of 256 steps.</summary>
-    internal static readonly RandomSampleField LaunchAngle = new(0, 8);
+    internal static readonly RandomSampleField LaunchAngle = RandomSampleField.OneOf(256);
 
     /// <summary>A launched shard's sideways speed along its launch angle's sine, in whole pixels an update.</summary>
     internal const int LaunchAcrossSpeed = 1;
@@ -18,7 +18,7 @@ internal static class MotherBrainGlassShardDefinitions
     /// <summary>
     /// A launched shard's jitter on each axis, 0 through 15 pixels less <see cref="ShardJitterCentre"/>.
     /// </summary>
-    internal static readonly RandomSampleField ShardJitter = new(0, 4);
+    internal static readonly RandomSampleField ShardJitter = RandomSampleField.OneOf(16);
 
     /// <summary>
     /// The pixels taken from a launched shard's <see cref="ShardJitter"/> on each axis, so its jitter spans eight pixels
@@ -27,15 +27,9 @@ internal static class MotherBrainGlassShardDefinitions
     internal const int ShardJitterCentre = 8;
 
     /// <summary>
-    /// The chance a falling shard sparkles each update, one in four: two even choices of the random number must both
-    /// come up.
-    /// </summary>
-    internal static readonly RandomClearBitsChance ShardSparkles = RandomClearBitsChance.WhenAllClear(new RandomSampleField(5, 1), new RandomSampleField(10, 1));
-
-    /// <summary>
     /// A sparkle's offset from its shard on each axis, 0 through 31 pixels less <see cref="SparkleOffsetCentre"/>.
     /// </summary>
-    internal static readonly RandomSampleField SparkleOffset = new(0, 5);
+    internal static readonly RandomSampleField SparkleOffset = RandomSampleField.OneOf(32);
 
     /// <summary>
     /// The pixels taken from a sparkle's <see cref="SparkleOffset"/> on each axis, so it shows from sixteen pixels before
@@ -50,8 +44,8 @@ internal static class MotherBrainGlassShardDefinitions
     internal static readonly SignedEightEight ShardGravity = SignedEightEight.FromPixelFraction(1, 8);
 
     /// <summary>
-    /// Graphics installed by the shard and sparkle setups: from the sheet of her tank glass's pieces, in
-    /// <paramref name="shading"/>, the encounter's sprite colours, which hold the glass shards' colours her room's entry loads.
+    /// The pictures the shards and sparkles show: her tank glass's pieces, in <paramref name="shading"/>, the
+    /// encounter's shading.
     /// </summary>
     internal static SpriteGraphics Graphics(PictureShading shading) => new(SpawnedObjectOwner.MotherBrainTankGlass, shading);
 
@@ -59,13 +53,13 @@ internal static class MotherBrainGlassShardDefinitions
     /// The three horizontal emitter positions on the glass: right, half a block right of the glass's origin block;
     /// left, two and a half blocks left; centre, one block left.
     /// </summary>
-    internal static readonly Dictionary<MotherBrainGlassShard, int> EmitterXs = new()
+    internal static readonly IdentityTable<MotherBrainGlassShard, int> EmitterXs = new(new Dictionary<MotherBrainGlassShard, int>
     {
         [MotherBrainGlassShard.Right] = 8,
         [MotherBrainGlassShard.Left] = -40,
         [MotherBrainGlassShard.Centre] = -16,
-    };
+    });
 
     /// <summary>Every emitter sits two blocks below the glass's origin block.</summary>
-    internal const int EmitterY = 2 * 16;
+    internal const int EmitterY = 2 * RoomGridConversions.BlockPixels;
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -70,7 +71,7 @@ internal static class ResumeChargingSoundCancelVerification
     {
         var fired = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         fired.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        fired.Samus.TransitionShot.Hand(new SamusTransitionShot(SamusProjectileDirection.Left));
+        fired.Samus.TransitionShot.Hand(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Left));
         fired.Samus.ChargingSound.Arm();
         fired.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         fired.AssertShotCancelled("charged release");
@@ -79,13 +80,13 @@ internal static class ResumeChargingSoundCancelVerification
         // the request and then silences the charge.
         var rejected = new Fixture(SamusPoseId.NormalJumpGunExtendedLeftPose, JumpingPosition, SamusBeamFlags.Charge | SamusBeamFlags.Wave);
         rejected.Charge.SetFlareCount(BeamChargeDefinitions.FullyChargedCounter);
-        rejected.Samus.TransitionShot.Hand(new SamusTransitionShot(SamusProjectileDirection.Left));
+        rejected.Samus.TransitionShot.Hand(new global::SuperMetroid.Core.Samus.SamusTransitionShot(SamusProjectileDirection.Left));
         rejected.Bombs.SetSharedCooldown(5);
         rejected.Samus.ChargingSound.Arm();
         rejected.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.None, ControllerPreviousNewInput = GameplayAction.None });
         AssertTrue(!rejected.Samus.ChargingSound.IsArmed, "the rejected release clears the pending resume");
         rejected.PostDraw(GameplayAction.Shoot);
-        AssertTrue(rejected.Requests.SoundRequests.SequenceEqual([new SoundRequest(SamusSound.Silence, SoundRequestPriority.Essential)]),
+        AssertTrue(rejected.Requests.SoundRequests.SequenceEqual([new SoundRequest(SamusSoundStop.Any, SoundRequestPriority.Essential)]),
             "the rejected release requests only the charge-silencing sound, and no resume follows it");
     }
 
@@ -96,7 +97,7 @@ internal static class ResumeChargingSoundCancelVerification
     private static void VerifyHyperBeamAfterSpinCancels()
     {
         var fixture = new Fixture(SamusPoseId.FacingRightNormalPose, StandingPosition, SamusBeamFlags.Wave | SamusBeamFlags.Plasma);
-        fixture.Samus.HyperBeamEnabled = true;
+        fixture.Samus.EnableHyperBeam();
         fixture.Fire(new ProjectileButtonInput { ControllerInput = GameplayAction.Shoot, ControllerNewInput = GameplayAction.Shoot, ControllerPreviousNewInput = GameplayAction.None });
         AssertTrue(fixture.Charge.HyperBeamFlare, "the first Hyper Beam shot starts its flare");
 
@@ -129,16 +130,19 @@ internal static class ResumeChargingSoundCancelVerification
         /// <summary>An empty room the shots fly through without striking anything.</summary>
         private readonly RoomLevelData room = CreateRoom(new(32, 32), new RoomTerrainBlock[1024], new RoomBlockBehavior[1024]);
 
+        /// <summary>The shot places as they stood before the last firing pass, to observe the shot it fired.</summary>
+        private SamusProjectileSlotObservation slotsBeforeFire;
+
         /// <summary>Places Samus in <paramref name="pose"/> at <paramref name="position"/> with <paramref name="beams"/> equipped.</summary>
         internal Fixture(SamusPoseId pose, FixedPosition<RoomPixels> position, SamusBeamFlags beams)
         {
             Samus = new SamusState(Requests, InstalledFixtures.FramesBeyondAnimation, new UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), Charge, global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork())
             {
-                Pose = pose,
                 Position = position,
                 EquippedBeams = beams,
-            };
+            }.InPose(pose);
             Projectiles = new SamusProjectileSystem(Requests, Charge, InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
+            slotsBeforeFire = Projectiles.ObserveSlots();
         }
 
         /// <summary>The charge Samus and her projectiles share.</summary>
@@ -157,8 +161,11 @@ internal static class ResumeChargingSoundCancelVerification
         internal SamusBombProjectileSystem Bombs { get; } = CreateBombFixture();
 
         /// <summary>Runs the projectile producer's firing pass with <paramref name="buttons"/>.</summary>
-        internal void Fire(ProjectileButtonInput buttons) =>
-            Projectiles.FireFromHud(new SamusTerrain { Level = room, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, Samus, buttons, Bombs, projectileProducerEnabled: true);
+        internal void Fire(ProjectileButtonInput buttons)
+        {
+            slotsBeforeFire = Projectiles.ObserveSlots();
+            Projectiles.FireFromHud(new RoomTerrain(room, SamusRoomObjectFixtures.Uninstalled), Samus, buttons, Bombs, projectileProducerEnabled: true);
+        }
 
         /// <summary>Runs the post-draw sound pass with <paramref name="held"/> held, Samus's movement unchanged.</summary>
         internal void PostDraw(GameplayAction held) =>
@@ -170,11 +177,12 @@ internal static class ResumeChargingSoundCancelVerification
         /// </summary>
         internal void AssertShotCancelled(string shot)
         {
-            SamusProjectileFrameResult result = Projectiles.LastFrameResult;
-            AssertTrue(result.QueuedSoundEffect is not null, $"the {shot} fires and requests its sound");
+            // The firing pass fired a shot, and its one request is the shot's sound, as the requests received it.
+            AssertTrue(slotsBeforeFire.FiredSlot(Projectiles) is not null, $"the {shot} fires");
+            AssertTrue(Requests.SoundRequests.Count == 1, $"the {shot} requests its sound: [{string.Join(", ", Requests.SoundRequests)}]");
+            SoundRequest shotRequest = Requests.SoundRequests[0];
             AssertTrue(!Samus.ChargingSound.IsArmed, $"the {shot} clears the pending resume");
             PostDraw(GameplayAction.Shoot);
-            var shotRequest = new SoundRequest(result.QueuedSoundEffect!.Value, result.QueuedSoundPriority!.Value);
             AssertTrue(Requests.SoundRequests.SequenceEqual([shotRequest]),
                 $"the {shot} requests only its own sound, and no resume follows it: [{string.Join(", ", Requests.SoundRequests)}]");
         }

@@ -16,13 +16,14 @@ internal static class CrawlerOwnedStateVerification
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.Zoomer, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
+        place.Bind(EnemyDefinitionId.Zoomer, place.KeptDefinition);
+        place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
         place.SetSpawnParameter1(EnemyDefinitionId.Zoomer, 2);
         place.Contact = EnemyContact.None;
         place.Processing = EnemyProcessing.None;
         place.Presence = EnemyPresence.None;
-        CrawlersBehavior.InitializeCrawler(place, CrawlerAnimationFamily.Shared);
+        // The Zoomer is set up as the population load sets it up, its species building its entity.
+        _ = enemies.LoadAuthoredPopulation();
         CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
         int speed = CrawlerSpeeds.ForParameter(2);
         AssertEqual(new PixelVelocity<RoomPixels>(new SignedEightEight(unchecked((ushort)-speed)), new SignedEightEight(speed)),

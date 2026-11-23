@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
@@ -23,7 +24,7 @@ internal static class ProjectileContactPhaseVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Definition, new Position16<RoomPixels>(0, 0));
         var level = runtime.Room.LoadedLevelData;
         for (int y = 0; y <= 16; y++)
@@ -33,20 +34,20 @@ internal static class ProjectileContactPhaseVerification
             actor.Presence = actor.Presence.With(EnemyPresence.Deleted);
         foreach (var actor in runtime.Enemies.Projectiles.EnemyProjectiles) actor.Delete();
         runtime.InitializeDebugGroundedSamus(128, 235, 16);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.Health = 99;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
-        projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
-        projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
-        projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+        var projectile = FamilyProjectileStarts.Allocate(runtime.Enemies, RoomEnemyProjectileKind.RidleyFireball, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+        projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
         projectile.HoldStill();
         projectile.FrameHold = WrappingCountdown.Start(2);
         projectile.Position = projectile.Position.WithWhole(new(128, 235));
         projectile.Radius = new(8, 8);
         projectile.Damage = 20;
         projectile.CanDamageSamus = true;
+        // A nonpersistent projectile, which contact deletes, unlike the fireball's own definition.
+        projectile.PersistsOnSamusContact = false;
 
         // Original CPU trace: beta first, inert projectile contact afterward, timers last.
         // Include subpositions: a standing floor collision snaps the fraction to FFFF.
@@ -61,7 +62,7 @@ internal static class ProjectileContactPhaseVerification
         {
             runtime.StepFrame(0);
             var actual = new ProjectileContactPhaseExpected(SixteenSixteenWords.Compose(samus.Kinematics.Position.X), SixteenSixteenWords.Compose(samus.Kinematics.Position.Y), samus.Pose,
-                checked((ushort)samus.KnockbackHold.UpdatesLeft), SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirections.Word(samus.KnockbackDirection));
+                checked((ushort)samus.KnockbackHold.UpdatesLeft), SuperMetroid.Core.Samus.Movement.SamusMovementNativeWords.KnockbackDirectionWord(samus.Knockback));
             Console.WriteLine($"CONTACT_FRAME {frame} x={SixteenSixteenWords.Compose(samus.Kinematics.Position.X):X8} y={SixteenSixteenWords.Compose(samus.Kinematics.Position.Y):X8} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} health={samus.Health} timer={samus.KnockbackHold.UpdatesLeft} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");
@@ -78,28 +79,28 @@ internal static class ProjectileContactPhaseVerification
             var runtime = CreateRetailRuntimeFixture();
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
-            var samus = runtime.Player.IntroducedSamus;
-            samus.Pose = SamusPoseId.FacingRightNormalPose;
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
+            var samus = runtime.Player.Samus;
+            samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
             samus.Position = samus.Position.WithWhole(new(120, 120));
             samus.Health = 99;
             samus.EquippedItems = suit;
             SamusPoseMetadata.RefreshCollisionRadii(samus);
-            var projectile = runtime.Enemies.Projectiles.ProjectileInPlace(17);
-            projectile.Kind = RoomEnemyProjectileKind.RidleyFireball;
-            projectile.Behavior = FamilyProjectileStarts.BehaviorOf(runtime.Enemies, projectile.Kind);
-            projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballSegment.Fireball));
+            var projectile = FamilyProjectileStarts.Allocate(runtime.Enemies, RoomEnemyProjectileKind.RidleyFireball, SpriteGraphics.SharedIn(SuperMetroid.Core.Enemies.Drawing.EnemyShades.InProjectileLook));
+            projectile.StartAnimation(new RidleyFireballAnimation(runtime.Enemies.RidleyProjectiles.Fireballs, RidleyFireballSegment.Fireball));
             projectile.HoldStill();
             projectile.FrameHold = WrappingCountdown.Start(2);
             projectile.Position = projectile.Position.WithWhole(new(120, 120));
             projectile.Radius = new(8, 8);
             projectile.Damage = 20;
             projectile.CanDamageSamus = true;
+            // A nonpersistent projectile, which contact deletes, unlike the fireball's own definition.
+            projectile.PersistsOnSamusContact = false;
             runtime.Enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
             Console.WriteLine($"PROJECTILE suit={suit.ToEquipmentWord():X4} health={samus.Health} pose={(int)SamusPoseNumbers.Number(samus.Pose):X2} timer={samus.KnockbackHold.UpdatesLeft} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
             ushort expectedHealth = suit == 0 ? (ushort)79 : suit == SamusEquipmentFlags.VariaSuit ? (ushort)89 : (ushort)94;
             if (samus.Health != expectedHealth) failures.Add($"suit {suit.ToEquipmentWord():X4}: expected health {expectedHealth}, got {samus.Health}");
-            if (verifyPhase && (samus.Pose != SamusPoseId.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != 0))
+            if (verifyPhase && (samus.Pose != SamusPoseId.FacingRightNormalPose || samus.KnockbackActive || samus.KnockbackDirection != null))
                 failures.Add($"suit {suit.ToEquipmentWord():X4}: projectile contact initialized hurt movement early");
             AssertEqual(5, samus.KnockbackHold.UpdatesLeft, "projectile publishes five-frame hurt request");
             AssertEqual(96, samus.InvincibilityTimer.RawValue, "projectile publishes invincibility");

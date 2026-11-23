@@ -26,7 +26,7 @@ internal static class SpeedBoosterEchoStopVerification
         renderer.RenderFrame(queue.AdvanceFrame(renderer.Acknowledgements));
         renderer.RenderFrame([new AudioRequest.ChangeMusicDataSet(MusicDataSet.GreenBrinstar)]);
         var libraries = renderer.PlayerForVerification.soundLibraries;
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) }.InPose(SamusPoseId.RanIntoWallRightPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var speed = samus.HorizontalSpeed;
@@ -45,11 +45,11 @@ internal static class SpeedBoosterEchoStopVerification
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();
             if (frame == 40)
-                SamusGroundedMovement.StepRanIntoWall(level, samus, 40, roomObjects: SamusRoomObjectFixtures.Uninstalled);
+                SamusGroundedMovement.StepRanIntoWall(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, 40);
             SamusPostDrawAudio.Step(samus, SamusMovementType.RanIntoWall, 0);
             foreach (var request in samus.LiquidPhysics.SoundRequests)
             {
-                if (request.SoundEffect == RoomSound.SpeedBoosterOrElevatorStop)
+                if (request.SoundEffect == RoomSoundStop.SpeedBoosterOrElevator)
                 {
                     AssertEqual(40, frame, "echo stop occurs on the wall-cancellation frame");
                     AssertEqual(SoundRequestPriority.Essential, request.Priority, "echo stop is requested at essential priority");
@@ -62,21 +62,21 @@ internal static class SpeedBoosterEchoStopVerification
             {
                 (bool library3, SoundEffectId? value) = command switch
                 {
-                    AudioRequest.RequestSound { Sound.Library: SoundEffectLibrary.Room } sound => (true, (SoundEffectId?)sound.Sound),
+                    AudioRequest.RequestSound { Sound.Library: SoundEffectLibrary.Room } sound => (true, sound.Sound),
                     AudioRequest.ClearSoundRequest { Library: SoundEffectLibrary.Room } => (true, null),
                     _ => (false, null),
                 };
                 if (!library3)
                     continue;
                 if (value != library3Port && value == RoomSound.SpeedBooster) starts++;
-                if (value != library3Port && value == RoomSound.SpeedBoosterOrElevatorStop) stops++;
+                if (value != library3Port && value == RoomSoundStop.SpeedBoosterOrElevator) stops++;
                 library3Port = value;
             }
             var pcm = renderer.RenderFrame(commands);
             finalPeak = pcm.Max(sample => Math.Abs((int)sample));
             if (frame == 39)
             {
-                AssertEqual(3, libraries[2].CurrentSound, "boost echo remains active before wall contact");
+                AssertEqual(3, libraries[SuperMetroid.Core.Audio.SoundEffectLibrary.Room].CurrentSound, "boost echo remains active before wall contact");
                 AssertTrue(finalPeak > 0, "boost echo is audible before wall contact");
                 AssertEqual(0, stopRequests, "active boost does not cancel its echo");
             }
@@ -84,7 +84,7 @@ internal static class SpeedBoosterEchoStopVerification
         AssertEqual(1, starts, "one native boost-start request");
         AssertEqual(1, stopRequests, "one native post-draw stop request");
         AssertEqual(1, stops, "one stop request reaches the SPC");
-        AssertEqual(0, libraries[2].CurrentSound, "SPC echo ends without footsteps or landing sounds");
+        AssertEqual(0, libraries[SuperMetroid.Core.Audio.SoundEffectLibrary.Room].CurrentSound, "SPC echo ends without footsteps or landing sounds");
         AssertEqual(0, finalPeak, "echo PCM reaches silence after wall cancellation");
         Suite(nameof(VerifyEchoSoundPlayingOwnership), () => VerifyEchoSoundPlayingOwnership());
         Console.WriteLine("Speed Booster echo: one start, no premature stop, one wall-cancellation stop, then SPC/PCM silence.");
@@ -93,7 +93,7 @@ internal static class SpeedBoosterEchoStopVerification
     /// <summary>Checks whether the echo sound is playing across charging, serialization, and quicksand suppression.</summary>
     private static void VerifyEchoSoundPlayingOwnership()
     {
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()) { Pose = SamusPoseId.FacingRightNormalPose };
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork()).InPose(SamusPoseId.FacingRightNormalPose);
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(3, 1);
@@ -110,7 +110,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0, 0);
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertTrue(!speed.EchoSoundPlaying, "the post-draw pass after the boost ends stops the echo sound");
-        AssertEqual(RoomSound.SpeedBoosterOrElevatorStop, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
+        AssertEqual(RoomSoundStop.SpeedBoosterOrElevator, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
             "deferred producer receives the same native stop");
 
         speed.EchoSoundPlaying = true;
@@ -127,7 +127,7 @@ internal static class SpeedBoosterEchoStopVerification
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat(RoomTerrainBlock.Of(0x000, BlockMirroring.None, RoomCollisionType.SpecialAir), 16).ToArray(), Enumerable.Repeat(RoomBlockBehaviorCodec.Decode(AreaId.Maridia, 0x80), 16).ToArray(), new RoomBlockAppearance[16]), RoomLevelData.NothingBeyondGrid(), []);
         // The sand room's quicksand consults its room's places, so the check installs the quicksand objects that room has.
-        SamusInsideBlockReactions.PrepareFrame(sand, samus, roomHasPower: true, roomObjects: SamusRoomObjectFixtures.WithQuicksand());
+        SamusInsideBlockReactions.PrepareFrame(new RoomTerrain(sand, SamusRoomObjectFixtures.WithQuicksand()), samus, roomHasPower: true);
         AssertTrue(!speed.EchoSoundPlaying, "quicksand silently ends the echo sound");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "quicksand silently suppresses the post-draw stop");

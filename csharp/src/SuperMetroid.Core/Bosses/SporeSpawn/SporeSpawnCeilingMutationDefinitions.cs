@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.RoomObjects;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>Where Spore Spawn's ceiling object is spawned, and the terrain change each ceiling mutation makes.</summary>
-internal static class SporeSpawnCeilingMutationDefinitions
+internal static partial class SporeSpawnCeilingMutationDefinitions
 {
     /// <summary>The room block both ceiling mutations are spawned at: the top-left block of the 2x2 ceiling.</summary>
     internal static readonly Position16<RoomBlocks> Block = new(7, 30);
@@ -21,8 +21,8 @@ internal static class SporeSpawnCeilingMutationDefinitions
     /// The change each mutation makes: the crumble plays its sound with the first of three crumble images and ends on
     /// the cleared ceiling; the clear of an already-defeated room shows only the cleared ceiling.
     /// </summary>
-    internal static readonly IReadOnlyDictionary<SporeSpawnCeilingMutation, TerrainChange> Changes =
-        new Dictionary<SporeSpawnCeilingMutation, TerrainChange>
+    internal static readonly IdentityTable<SporeSpawnCeilingMutation, TerrainChange> Changes =
+        new(new Dictionary<SporeSpawnCeilingMutation, TerrainChange>
         {
             [SporeSpawnCeilingMutation.Crumble] = new(1,
             [
@@ -32,5 +32,5 @@ internal static class SporeSpawnCeilingMutationDefinitions
                 Cleared,
             ]),
             [SporeSpawnCeilingMutation.Clear] = new(1, [Cleared]),
-        };
+        });
 }

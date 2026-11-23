@@ -1,5 +1,7 @@
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms.Doors;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -24,20 +26,21 @@ internal static class WaveDoorBandsVerification
             behaviors[target] = (left ? RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Right)) : RoomBlockBehavior.Reacting(BlockReactionDefinitions.BlueDoorCaps.ReactionFor(ColoredDoorOrientation.Left)));
             var level = CreateRoom(new(16, 32), words, behaviors);
             var roomObjects = RoomObjectFixtures.Unbound();
-            var shot = new SamusProjectile(0)
-            {
-                Position = new(new(72, 0), new(y, 0)), Radius = new(1, 0),
-                Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0)), Type = SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false),
-            };
+            var shot = new SamusProjectile(0);
+            SamusProjectileOccupant held = shot.OccupyAsFired(SamusProjectileType.Beam(SamusBeamCombinations.Of(SamusBeamFlags.Wave), charged: false));
+            // The shot stands a 256th of a pixel into its pixel, which its move by a 256th of a pixel either way leaves it in.
+            shot.HeldShot().Position = new(new(72, 256), new(y, 0));
+            shot.HeldShot().Radius = new(1, 0);
+            shot.HeldShot().Velocity = new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(left ? -1 : 1), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0));
             // A one-pixel span avoids testing adjacent-row aggregation at the boundary.
-            shot.Radius = shot.Radius.WithY(1);
+            shot.HeldShot().Radius = shot.Radius.WithY(1);
             if (inside && (y & 15) == 0 && y > 0)
             {
                 words[target - 16] = words[target];
                 behaviors[target - 16] = behaviors[target];
                 level = CreateRoom(new(16, 32), words, behaviors);
             }
-            ProjectileTerrainCollision.ScanHorizontalWaveShotReactions(level, shot, roomObjects,
+            WaveShotTerrainMoves.MoveWaveShotHorizontally(new RoomTerrain(level, roomObjects), held,
                 SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusOverreads.StraddledTerrain);
             AssertEqual(inside ? ((y & 15) == 0 && y > 0 ? 2 : 1) : 0, roomObjects.Places.ActiveCount,
                 $"Wave door reaction at Y={y}, left={left}: XBA tests the original high byte");

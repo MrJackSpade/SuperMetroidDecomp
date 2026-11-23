@@ -1,8 +1,8 @@
 
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
-/// <summary>File identity and dimensions for the cartridge's four-row Japanese subtitle staging map.</summary>
-public static class IntroFinalLineTilemapFormat
+/// <summary>File identity and dimensions of the final-line map: the four rows of the opening's Japanese subtitle line.</summary>
+public static partial class IntroFinalLineTilemapFormat
 {
     /// <summary>Supported revision of the ordered editable subtitle-map schema.</summary>
     public const int Version = 1;
@@ -12,6 +12,6 @@ public static class IntroFinalLineTilemapFormat
     public const int Rows = 2 * 2;
     /// <summary>Required tile-reference count, 128, corresponding to the $0100-byte native map copied into BG3 rows 24-27.</summary>
     public const int CellCount = Columns * Rows;
-    /// <summary>Editable JSON filename for the opening cinematic's four-row subtitle staging map, not a prose or animation-sequence file.</summary>
-    public const string FileName = "intro-final-text-divider.json";
+    /// <summary>Import-data JSON filename of the final-line map, not a prose or animation-sequence file.</summary>
+    public const string FileName = "intro-final-line.json";
 }

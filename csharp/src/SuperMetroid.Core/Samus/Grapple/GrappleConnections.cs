@@ -7,7 +7,7 @@ using static SuperMetroid.Core.Samus.Poses.SamusPoseId;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>How the grapple connects at each special angle: the stop or its reflection, firing cancellation and the pose a release drops into.</summary>
-internal static class GrappleConnections
+internal static partial class GrappleConnections
 {
     /// <summary>
     /// The special connections in the order a swing compares them: each authored stop followed by its left/right
@@ -21,14 +21,11 @@ internal static class GrappleConnections
     /// less its own, its X offset negated and its pose facing the other way; its Y offset and connection kind are shared.
     /// </summary>
     internal static SpecialConnection Reflection(SpecialConnection stop) =>
-        new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Kind);
+        new(ReflectionTurn - stop.Angle, SamusPoseMirror.Of(stop.Pose), stop.SamusOffset.MirroredX(), stop.Phase);
 
     /// <summary>Whether <paramref name="movement"/> cancels firing the Grapple (<see cref="SamusMovementTypeDefinitions"/>).</summary>
-    /// <exception cref="ArgumentOutOfRangeException">The movement type has no definition.</exception>
     internal static bool CancelsFiring(SamusMovementType movement) =>
-        SamusMovementTypeDefinitions.Movements.TryGetValue(movement, out SamusMovementTypeDefinition? definition)
-            ? definition.GrappleFiring == GrappleFiringResponse.Cancelled
-            : throw new ArgumentOutOfRangeException(nameof(movement));
+        SamusMovementTypeDefinitions.Movements[movement].GrappleFiring == GrappleFiringResponse.Cancelled;
 
     /// <summary>Directional standing/crouching poses after the rope drops.</summary>
     internal static SamusPoseId DroppedPose(SamusProjectileDirection direction, bool compact) => direction switch

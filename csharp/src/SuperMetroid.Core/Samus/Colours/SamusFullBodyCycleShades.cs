@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Colours;
 /// only its own suit's colours (#1736); the cycles themselves are named shade sequences (#2387,
 /// <see cref="SamusGlowAnimationDefinitions"/>).
 /// </summary>
-public static class SamusFullBodyCycleShades
+public static partial class SamusFullBodyCycleShades
 {
     /// <summary>The cycle shade the special Metroid-attachment flash alternates with normal suit colors, the Speed Booster family's last shade.</summary>
     /// <param name="suit">The suit Samus shows.</param>

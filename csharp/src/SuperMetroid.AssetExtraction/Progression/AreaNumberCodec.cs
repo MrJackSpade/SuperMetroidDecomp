@@ -6,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Progression;
 /// The cartridge's numbering of the areas, which its room headers, save files and per-area tables use: the six Zebes
 /// areas, then Ceres. Import and export decode and encode it here; the game names areas and never sees the number.
 /// </summary>
-public static class AreaNumberCodec
+public static partial class AreaNumberCodec
 {
     /// <summary>Each area at the position of its number.</summary>
     private static readonly AreaId[] Numbered =

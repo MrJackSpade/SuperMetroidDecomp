@@ -26,13 +26,13 @@ internal static class WorkRobotInitialSelectionVerification
         {
             int address = EnemyRomTablePointers.WorkRobot.InitialAnimationScriptWords + 2 * parameter;
             WorkRobotSegment expected = SuperMetroid.AssetExtraction.Enemies.SpawnWordDecodes.WorkRobotPose(parameter);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            AssertEqual(rom.ReadCartridgeWord(address),
                 NativeEnemyAnimationOracle.EntryOf(WorkRobotNativeListAddresses.Entries, expected),
                 $"Work Robot original selection {parameter}");
             var system = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom());
-            var place = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+            RoomEnemyPlace place = system.Places.InUpdateOrder[0];
             place.SetSpawnParameter1(EnemyDefinitionId.WorkRobot, parameter);
-            UnpoweredWorkRobotEnemyState state = system.WorkRobotBehavior.InitializeUnpoweredWorkRobot(place);
+            UnpoweredWorkRobotEnemyState state = system.WorkRobotBehavior.InitializeUnpoweredWorkRobot(place.HeldOccupant().SpawnSettings<WorkRobotSpawnSettings>(), place);
             AssertEqual(new AnimationPlayback<WorkRobotSegment>(WorkRobotAnimations.StartingWith(expected), AnimationPlace.StartOfAnimation), state.Playback,
                 $"Work Robot production selection {parameter} without cartridge access");
         }

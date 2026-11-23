@@ -8,7 +8,7 @@ internal static class BackgroundMosaicVerification
     /// <summary>Exercises the register widths and the default descriptor.</summary>
     internal static void VerifyBackgroundMosaicWidth()
     {
-        AssertEqual(1, default(BackgroundPixelation).Size, "default descriptor disables pixel grouping");
+        AssertEqual(1, BackgroundPixelation.Unpixelated.Size, "the unpixelated descriptor disables pixel grouping");
         int cases = 0;
         foreach (int register in Enumerable.Range(0, 256))
         {

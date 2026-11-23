@@ -78,6 +78,13 @@ internal static class PaletteFxObjectAccess
     /// <summary>The bank-$8D definition address of <paramref name="paletteFxObject"/>.</summary>
     internal static ushort NativeAddress(ColourEffectId paletteFxObject) => Addresses[paletteFxObject];
 
+    /// <summary>The Torizo belly glow <paramref name="effect"/> is.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">The effect is no Torizo's belly glow.</exception>
+    internal static TorizoBellyGlow BellyGlowOf(ColourEffectId effect) =>
+        effect == ColourEffectId.BombTorizoBelly ? TorizoBellyGlow.BombTorizo
+        : effect == ColourEffectId.GoldenTorizoBelly ? TorizoBellyGlow.GoldenTorizo
+        : throw new ArgumentOutOfRangeException(nameof(effect), effect, "The colour effect is no Torizo's belly glow.");
+
     /// <summary>The object whose definition is at <paramref name="address"/>.</summary>
     internal static ColourEffectId FromNative(ushort address) => Objects.TryGetValue(address, out ColourEffectId paletteFxObject)
         ? paletteFxObject
@@ -99,7 +106,7 @@ internal static class PaletteFxObjectAccess
             ColourEffectDefinition shown = ColourEffectAnimations.Definition(effect);
             // A Torizo's belly glow lights the check's unwatched Torizo; another enemy's glow shows on its unwatched enemy (#2544).
             if (shown.Condition is ColourEffectCondition.EndsWhenTorizoDies)
-                self.StartTorizoBellyGlow(effect, UnwatchedEnemy.Instance, equippedItems);
+                self.StartTorizoBellyGlow(BellyGlowOf(effect), UnwatchedEnemy.Instance, equippedItems);
             else if (ColourEffectEnemyColourDefinitions.EnemyColours.Contains(shown.Colours))
                 self.StartShownOn(effect, UnwatchedEnemy.Instance, equippedItems);
             else
@@ -114,7 +121,7 @@ internal static class PaletteFxObjectAccess
         /// as the Torizo's fight start does (#1700).
         /// </summary>
         internal void StartTorizoBellyGlow(ushort definition, ILitTorizo torizo, SamusEquipmentFlags equippedItems) =>
-            self.StartTorizoBellyGlow(FromNative(definition), torizo, equippedItems);
+            self.StartTorizoBellyGlow(BellyGlowOf(FromNative(definition)), torizo, equippedItems);
 
         /// <summary>Whether the effect whose definition is at <paramref name="definition"/> is running.</summary>
         internal bool IsRunning(ushort definition) => self.IsRunning(FromNative(definition));
@@ -145,62 +152,62 @@ internal static class PaletteFxObjectAccess
     extension(CinematicGlowPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="CrateriaEscapeLightningPaletteFxColorDefinition"/>.</summary>
     extension(CrateriaEscapeLightningPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="NorfairEnvironmentalPaletteFxColorDefinition"/>.</summary>
     extension(NorfairEnvironmentalPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="OldTourianEscapeAccentPaletteFxColorDefinition"/>.</summary>
     extension(OldTourianEscapeAccentPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="SamusLoadingSuitPaletteFxColorDefinition"/>.</summary>
     extension(SamusLoadingSuitPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="TorizoBellyPaletteFxColorDefinition"/>.</summary>
     extension(TorizoBellyPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="TourianEscapeRedFlashPaletteFxColorDefinition"/>.</summary>
     extension(TourianEscapeRedFlashPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="ZebesExplosionAmbientPaletteFxColorDefinition"/>.</summary>
     extension(ZebesExplosionAmbientPaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 
     /// <summary>Native view of a <see cref="ZebesExplosionLayerFadePaletteFxColorDefinition"/>.</summary>
     extension(ZebesExplosionLayerFadePaletteFxColorDefinition self)
     {
         /// <summary>The bank-$8D definition address of the program's object.</summary>
-        internal ushort DefinitionPointer => NativeAddress(self.Object);
+        internal ushort DefinitionPointer => NativeAddress(self.ColorFrames.Effect);
     }
 }

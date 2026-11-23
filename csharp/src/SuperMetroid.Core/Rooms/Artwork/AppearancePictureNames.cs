@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// the subject's own name, then each input's token and value in the order extraction recorded the inputs. Extraction and
 /// the room spell the same name, so the room chooses among a subject's pictures by its inputs alone.
 /// </summary>
-public static class AppearancePictureNames
+public static partial class AppearancePictureNames
 {
     /// <summary>The name of the picture of <paramref name="subject"/> while <paramref name="inputs"/> take <paramref name="values"/>.</summary>
     /// <exception cref="ArgumentException">The subject is empty, or there is not one value for each input.</exception>

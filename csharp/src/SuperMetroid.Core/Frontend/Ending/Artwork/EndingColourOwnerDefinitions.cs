@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// shot's floor is drawn in the shot's colours. Every installed cinematic frame shows its actor's colours, but the
 /// animals' escape pod's frames and the shooting stars keep their own.
 /// </summary>
-internal static class EndingColourOwnerDefinitions
+internal static partial class EndingColourOwnerDefinitions
 {
     /// <summary>Every actor: a scene's whole screen of colours.</summary>
     private static readonly ImmutableArray<EndingSpriteColouring> EveryActor =

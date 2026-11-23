@@ -2,8 +2,6 @@ using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -25,18 +23,18 @@ internal static class ProjectilePresentationContractChecks
             using SuperMetroid.Core.Samus.Poses;
             using SuperMetroid.Core.Samus.Projectiles;
             class ProjectileConsumer {
-                void Inspect(ChargeFlarePlacements placement,
+                void Inspect(ChargeFlarePlacements placement, BeamFlarePlacements beam,
                     ChargeFlareSprites flare, InstalledProjectileTrails trails,
                     InstalledProjectileFrameBindings bindings, InstalledGrappleSprites grapple,
                     InstalledGrappleSwingFrames swing, InstalledProjectileSprites sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    placement.Resolve(false, new SamusFlareAim.WhileTurning(SamusTurningAim.Down));
-                    placement.Resolve(true, new SamusFlareAim.AtMuzzle(SamusProjectileDirection.UpFacingLeft));
+                    beam.WhileTurning(SamusTurningAim.Down);
+                    placement.AtMuzzle(true, SamusProjectileDirection.UpFacingLeft);
                     flare.Frame(ChargeFlareSpriteDefinitions.All[27]);
                     flare.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.FlareFastSparksLeft, "SparksSeventh"));
                     trails.Resolve(ProjectileTrailFrame.IceSparkleClustered);
                     trails.Resolve((ProjectileTrailFrame)ProjectileTrailVisualDefinitions.RecordCount);
-                    grapple.Segment(3);
-                    grapple.Segment(4);
+                    grapple.Segment(SuperMetroid.Core.Samus.Artwork.GrappleRopePicture.ThreeQuarters);
+                    grapple.Segment((SuperMetroid.Core.Samus.Artwork.GrappleRopePicture)4);
                     swing.Resolve(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.FromNumber(SuperMetroid.Core.Samus.Grapple.GrappleSwingDirection.Count - 1));
                     sprites.Frame(ProjectileSpriteDefinitions.All[0]);
                     sprites.Frame(new ProjectileSpriteId(ProjectileSpriteGroup.Power, "Sideways"));
@@ -47,7 +45,7 @@ internal static class ProjectilePresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         CSharpCompilation Compile(IEnumerable<SyntaxTree> sources) => CSharpCompilation.Create("ProjectileProviderFixture", sources,
-            platforms.Append(typeof(ProjectileSpriteId).Assembly.Location).Append(typeof(InstalledProjectileTrails).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         AuditReport Inspect(CSharpCompilation compilation, bool adapted)

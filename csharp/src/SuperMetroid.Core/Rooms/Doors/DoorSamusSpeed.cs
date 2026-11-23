@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// How far a door transition pushes Samus on each step of the door-opening scroll: a door's own speed, or the game's
 /// default for the door's axis.
 /// </summary>
-public readonly record struct DoorSamusSpeed
+public readonly partial record struct DoorSamusSpeed
 {
     /// <summary>The default push through a vertical door: one and a half pixels per step.</summary>
     private static readonly SignedEightEight VerticalDefault = Pixels(1, 1, 2);
@@ -28,9 +28,11 @@ public readonly record struct DoorSamusSpeed
     /// A door's own push of <paramref name="wholePixels"/> and <paramref name="numerator"/>/<paramref name="denominator"/>
     /// of a pixel per step (#2356): a forward push, so it is not negative.
     /// </summary>
-    /// <param name="wholePixels">The push's whole pixels, 0 through 127.</param>
-    /// <param name="numerator">The parts of a pixel past the whole pixels, less than <paramref name="denominator"/>.</param>
-    /// <param name="denominator">The parts of a pixel the push's fraction counts, a divisor of 256.</param>
+    /// <param name="wholePixels">The push's whole pixels forward.</param>
+    /// <param name="numerator">The parts of a pixel past the whole pixels, less than
+    /// <paramref name="denominator"/>.</param>
+    /// <param name="denominator">The parts of a pixel the push's fraction counts, a fraction the push's speed can hold
+    /// (<see cref="SignedSixteenSixteen"/>).</param>
     /// <exception cref="ArgumentOutOfRangeException">A part of the push lies outside its range.</exception>
     public static DoorSamusSpeed PixelsPerStep(int wholePixels, int numerator = 0, int denominator = 1) =>
         new(Pixels(wholePixels, numerator, denominator));

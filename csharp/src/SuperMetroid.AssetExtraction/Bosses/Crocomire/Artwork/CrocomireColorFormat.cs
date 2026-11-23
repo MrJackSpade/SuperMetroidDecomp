@@ -1,7 +1,7 @@
 namespace SuperMetroid.AssetExtraction.Bosses.Crocomire.Artwork;
 
 /// <summary>Installed filename and supported schema revision for Crocomire's bounded editable palette-transfer payloads.</summary>
-public static class CrocomireColorFormat
+public static partial class CrocomireColorFormat
 {
     /// <summary>Installed editable JSON filename for fight-body, initial-wall/projectile, skeleton-arm, and wall-spike colors.</summary>
     public const string FileName = "crocomire-colors.json";

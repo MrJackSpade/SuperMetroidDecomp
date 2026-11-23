@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using System.Text.Json;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -9,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// The audio's import data (#1693): the manifest names each upload by its cartridge address; loading maps it to the
 /// bank identity once. Only the clip export and its checks read it; the installation holds the clips rendered from it.
 /// </summary>
-public sealed class ExtractedAudioAssetCatalog
+public sealed partial class ExtractedAudioAssetCatalog
 {
     /// <summary>JSON manifest filename beneath the audio's import-data root, identifying upload streams, canonical WAV samples, and authored bank/SFX definitions.</summary>
     public const string ManifestFileName = "audio-manifest.json";
@@ -24,8 +25,6 @@ public sealed class ExtractedAudioAssetCatalog
     private readonly IReadOnlyDictionary<AudioBank, AudioBankMetadata> musicBanks;
     /// <summary>Each music upload's compiled definition bytes by APU RAM address, compiled once at load.</summary>
     private readonly IReadOnlyDictionary<AudioBank, IReadOnlyDictionary<int, byte>> compiledMusicBanks;
-    /// <summary>Number of distinct PCM assets after equivalent sample sources are aliased.</summary>
-    internal readonly int canonicalSampleCount;
 
     /// <summary>Retains the validated stream, sample, instrument, music, and SFX catalogs as one selected installation.</summary>
     private ExtractedAudioAssetCatalog(ExtractedAudioAssetParts parts)
@@ -38,7 +37,6 @@ public sealed class ExtractedAudioAssetCatalog
         SoundPrograms = parts.SoundPrograms;
         SoundLibraries = parts.SoundLibraries;
         SoundEffectImage = parts.SoundEffectImage;
-        this.canonicalSampleCount = parts.CanonicalSampleCount;
         ContentIdentity = parts.ContentIdentity;
     }
 
@@ -141,7 +139,7 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
             if (!instruments.TryAdd(definition.AudioSet, ValidateInstruments(bank)))
                 throw new InvalidDataException($"Audio manifest repeats instrument bank address ${bank.SnesAddress:X6}.");
-            IReadOnlyDictionary<int, byte> compiled = ValidateMusicBank(bank);
+            IReadOnlyDictionary<int, byte> compiled = ValidateMusicBank(bank, definition.DataSet);
             if (!musicBanks.TryAdd(definition.AudioSet, bank))
                 throw new InvalidDataException($"Audio manifest repeats music bank address ${bank.SnesAddress:X6}.");
             compiledMusicBanks.Add(definition.AudioSet, compiled);
@@ -171,7 +169,7 @@ public sealed class ExtractedAudioAssetCatalog
             IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries) =
             ValidateSoundDefinitions(manifest);
         var soundEffectImage = new SpcSoundEffectImage(soundPrograms, soundLibraries);
-        return new ExtractedAudioAssetCatalog(new ExtractedAudioAssetParts { Streams = loaded, SampleBanks = banks, InstrumentBanks = instruments, MusicBanks = musicBanks, CompiledMusicBanks = compiledMusicBanks, SoundPrograms = soundPrograms, SoundLibraries = soundLibraries, SoundEffectImage = soundEffectImage, CanonicalSampleCount = canonicalSamples.Count, ContentIdentity = ComputeContentIdentity(manifest) });
+        return new ExtractedAudioAssetCatalog(new ExtractedAudioAssetParts { Streams = loaded, SampleBanks = banks, InstrumentBanks = instruments, MusicBanks = musicBanks, CompiledMusicBanks = compiledMusicBanks, SoundPrograms = soundPrograms, SoundLibraries = soundLibraries, SoundEffectImage = soundEffectImage, ContentIdentity = ComputeContentIdentity(manifest) });
     }
 
     /// <summary>SHA-256 of the canonical serialized manifest, hashed as it streams out.</summary>
@@ -179,12 +177,12 @@ public sealed class ExtractedAudioAssetCatalog
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using (var hashing = new HashingWriteStream(hash))
-            JsonSerializer.Serialize(hashing, manifest, AudioAssetJson.Options);
+            JsonSerializer.Serialize(hashing, manifest, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options));
         return Convert.ToHexString(hash.GetHashAndReset());
     }
 
     /// <summary>A write-only stream that appends every byte to an incremental hash.</summary>
-    private sealed class HashingWriteStream(IncrementalHash hash) : Stream
+    private sealed partial class HashingWriteStream(IncrementalHash hash) : Stream
     {
         /// <summary>Canonical manifest hashing never reads the bytes it receives.</summary>
         public override bool CanRead => false;
@@ -343,15 +341,18 @@ public sealed class ExtractedAudioAssetCatalog
 
     /// <summary>Checks stable track, phrase, and program addresses, then compiles an authored SPC music bank.</summary>
     /// <returns>The bank's compiled definition bytes by APU RAM address.</returns>
-    private static IReadOnlyDictionary<int, byte> ValidateMusicBank(AudioBankMetadata bank)
+    /// <param name="bank">The bank's installed music.</param>
+    /// <param name="dataSet">The music data set the bank uploads, which numbers its songs; none for the driver's own upload.</param>
+    private static IReadOnlyDictionary<int, byte> ValidateMusicBank(AudioBankMetadata bank, MusicDataSet? dataSet)
     {
         if (bank.TrackPointers is null || bank.MusicTracks is null ||
             bank.MusicPhrases is null || bank.MusicPrograms is null)
             throw new InvalidDataException($"Audio bank '{bank.Name}' has an incomplete music catalog.");
-        if (bank.TrackPointers.Count != bank.MusicTracks.Count)
+        int playingSlots = bank.TrackPointers.Count(pointer => pointer != 0);
+        if (playingSlots != bank.MusicTracks.Count)
         {
             throw new InvalidDataException(
-                $"Audio bank '{bank.Name}' has {bank.TrackPointers.Count} track pointers but " +
+                $"Audio bank '{bank.Name}' has {playingSlots} track slots that play a song but " +
                 $"{bank.MusicTracks.Count} decoded tracks.");
         }
         // Phrases and programs are named by their place among the bank's in their slots' order, never by a slot (#2548).
@@ -371,12 +372,11 @@ public sealed class ExtractedAudioAssetCatalog
                 (place > 0 && program.Address <= bank.MusicPrograms[place - 1].Address))
                 throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid program identity '{program.Id}'.");
         }
-        for (int trackIndex = 0; trackIndex < bank.MusicTracks.Count; trackIndex++)
+        var songs = new HashSet<MusicTrack>();
+        foreach (AudioMusicTrackMetadata track in bank.MusicTracks)
         {
-            AudioMusicTrackMetadata track = bank.MusicTracks[trackIndex];
-            if (track.Track != trackIndex || track.Id != SpcMusicDefinitionCodec.TrackId(bank.DataIndex, trackIndex) ||
-                track.Address != bank.TrackPointers[trackIndex])
-                throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid track identity '{track.Id}'.");
+            if (!songs.Add(track.Song) || track.Address != bank.TrackPointers[MusicTrackNumbers.Number(dataSet, track.Song)])
+                throw new InvalidDataException($"Audio bank '{bank.Name}' has invalid track '{track.Song}'.");
             _ = SpcMusicDefinitionCodec.EncodeTrack(track, phrases);
         }
         foreach (AudioMusicProgramMetadata program in bank.MusicPrograms)
@@ -433,14 +433,14 @@ public sealed class ExtractedAudioAssetCatalog
                 $"Audio manifest defines {manifest.SoundLibraries.Count} SFX libraries; " +
                 $"expected {SuperMetroid.Core.Audio.SoundEffectLibraries.Count}.");
         }
-        for (int libraryIndex = 0; libraryIndex < manifest.SoundLibraries.Count; libraryIndex++)
+        if (!manifest.SoundLibraries.Select(library => library.Library).SequenceEqual(SoundLibraryNumbers.InNumberOrder.Select(SoundLibraryNumbers.Number)))
+            throw new InvalidDataException("Audio manifest does not list each SFX library once, in number order.");
+        foreach (AudioSoundLibraryMetadata library in manifest.SoundLibraries)
         {
-            AudioSoundLibraryMetadata library = manifest.SoundLibraries[libraryIndex];
             if (library.Effects is null)
                 throw new InvalidDataException($"Audio SFX library {library.Library} has no effect list.");
-            if (library.Library != libraryIndex + 1)
-                throw new InvalidDataException($"Audio SFX library index {libraryIndex} is identified as {library.Library}.");
-            int commandCount = SpcSoundEffectTables.CommandCount(libraryIndex);
+            SoundEffectLibrary soundLibrary = SoundLibraryNumbers.Decode(library.Library);
+            int commandCount = SpcSoundEffectTables.CommandCount(soundLibrary);
             if (library.Effects.Count != commandCount)
             {
                 throw new InvalidDataException(
@@ -455,16 +455,14 @@ public sealed class ExtractedAudioAssetCatalog
                 int command = effectIndex + 1;
                 string id = $"sfx-{library.Library}-{command:x2}";
                 if (effect.Command != command || effect.Id != id ||
-                    effect.StreamPointer != SpcSoundEffectTables.StreamPointer(libraryIndex, command) ||
-                    effect.Configuration != SpcSoundEffectTables.Configuration(libraryIndex, command))
+                    effect.StreamPointer != SpcSoundEffectTables.StreamPointer(soundLibrary, command) ||
+                    effect.Policy != SpcSoundEffectTables.PolicyKey(soundLibrary, command))
                 {
                     throw new InvalidDataException(
                         $"Audio effect {library.Library}:${command:X2} changes compiled identity, " +
                         "routing pointer, or voice-allocation configuration.");
                 }
-                int channelCount = SpcSoundEffectTables.GetVoiceCount(
-                    libraryIndex,
-                    effect.Configuration);
+                int channelCount = SpcSoundEffectTables.VoiceCount(soundLibrary, effect.Policy);
                 if (effect.ChannelPrograms.Count != channelCount)
                 {
                     throw new InvalidDataException(
@@ -508,7 +506,7 @@ public sealed class ExtractedAudioAssetCatalog
         using var file = File.OpenRead(path);
         try
         {
-            return JsonSerializer.Deserialize<AudioAssetManifest>(file, AudioAssetJson.Options)
+            return JsonSerializer.Deserialize<AudioAssetManifest>(file, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Audio.Synthesis.AudioAssetManifest>(AudioAssetJson.Options))
                 ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
         }
         catch (JsonException error)

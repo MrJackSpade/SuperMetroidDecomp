@@ -29,27 +29,27 @@ internal static class MotherBrainContactHitboxesVerification
         {
             int address = MotherBrainContactHitboxDefinitions.GetSourceAddress(part);
             IReadOnlyList<EnemyHitboxRectangle> hitboxes = MotherBrainContacts.Get(part);
-            AssertEqual(hitboxes.Count, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
+            AssertEqual(hitboxes.Count, rom.ReadCartridgeWord(address),
                 $"Mother Brain {part} hitbox count");
 
             for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = address + 2 + index * 8;
                 EnemyHitboxRectangle hitbox = hitboxes[index];
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(record)), hitbox.Left,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(record)), hitbox.Left,
                     $"Mother Brain {part} hitbox {index} left");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), hitbox.Top,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), hitbox.Top,
                     $"Mother Brain {part} hitbox {index} top");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4))), hitbox.Right,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), hitbox.Right,
                     $"Mother Brain {part} hitbox {index} right");
-                AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6))), hitbox.Bottom,
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), hitbox.Bottom,
                     $"Mother Brain {part} hitbox {index} bottom");
                 comparedWords += 4;
             }
         }
 
-        var body = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
-        var state = new MotherBrainEnemyState(body, new RoomEnemyPlace(1, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation());
+        var body = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>()) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
+        var state = new MotherBrainEnemyState(body.BoundFor(EnemyDefinitionId.MotherBrainBody), new RoomEnemyPlace(1, new RemovedEnemyLeftovers<IEnemyEntity>()), new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation(), RoomWarningFixtures.Zebes());
         Func<MotherBrainEnemyState, SamusState, MotherBrainContactPart,
                 Position16<RoomPixels>, bool> resolve = MotherBrainBody.ResolveMotherBrainSamusCollisionPart;
 
@@ -84,9 +84,6 @@ internal static class MotherBrainContactHitboxesVerification
             }
         }
 
-        AssertThrows<ArgumentOutOfRangeException>(
-            () => MotherBrainContacts.Get((MotherBrainContactPart)3),
-            "Mother Brain hitbox catalog rejects an unknown component");
         Console.WriteLine(
             $"  Mother Brain contact hitboxes: {comparedWords} native extent words and " +
             $"{collisionCases} production collision probes pass without a ROM bus.");

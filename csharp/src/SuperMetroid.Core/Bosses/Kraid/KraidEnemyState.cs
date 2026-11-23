@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Animation;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
@@ -5,25 +6,28 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>
 /// Kraid's encounter state, which all of his parts share, and the room's effects that belong to no one part of him.
 /// </summary>
-public sealed class KraidEnemyState
+public sealed partial class KraidEnemyState
 {
     /// <summary>
     /// Begins an encounter whose parts each hold it from their setup (#2218): each part's state knows the place that joins
     /// <paramref name="parts"/>' reference to it, and each animated part plays the animation its setup starts (#2298).
     /// </summary>
-    /// <param name="parts">Kraid's references to his parts in his room.</param>
+    /// <param name="parts">His parts' places, which his body found as his room lists them.</param>
     internal KraidEnemyState(KraidParts parts)
     {
-        Ensure.NotNull(parts);
-        BodyState = new(this, parts.BodyReference);
-        ArmState = new(this, parts.ArmReference);
-        TopLintState = new(this, parts.TopLintReference);
-        MiddleLintState = new(this, parts.MiddleLintReference);
-        BottomLintState = new(this, parts.BottomLintReference);
-        FootState = new(this, parts.FootReference);
-        FirstNailState = new(this, parts.FirstNailReference, sibling: parts.SecondNailReference);
-        SecondNailState = new(this, parts.SecondNailReference, sibling: parts.FirstNailReference);
+        Parts = Ensure.NotNull(parts);
+        BodyState = new(this, parts.Body);
+        ArmState = new(this, parts.Arm);
+        TopLintState = new(this, parts.TopLint);
+        MiddleLintState = new(this, parts.MiddleLint);
+        BottomLintState = new(this, parts.BottomLint);
+        FootState = new(this, parts.Foot);
+        FirstNailState = new(this, parts.FirstNail, sibling: parts.SecondNail);
+        SecondNailState = new(this, parts.SecondNail, sibling: parts.FirstNail);
     }
+
+    /// <summary>His eight parts' places, which his body found as his room lists them as it set up (#2554).</summary>
+    internal KraidParts Parts { get; }
 
     /// <summary>Kraid's body's, sprite parts' and eyes' colours (#1512).</summary>
     internal KraidColours Colours { get; } = new();
@@ -53,21 +57,18 @@ public sealed class KraidEnemyState
     internal KraidNailState SecondNailState { get; }
 
     /// <summary>His lint <paramref name="part"/>'s own state.</summary>
-    internal KraidLintState Lint(KraidLintPart part) => part switch
+    internal KraidLintState Lint(KraidLintPart part) => LintStates[part](this);
+
+    /// <summary>Each lint part's own state.</summary>
+    private static IdentityTable<KraidLintPart, Func<KraidEnemyState, KraidLintState>> LintStates => field ??= new(new Dictionary<KraidLintPart, Func<KraidEnemyState, KraidLintState>>
     {
-        KraidLintPart.Top => TopLintState,
-        KraidLintPart.Middle => MiddleLintState,
-        KraidLintPart.Bottom => BottomLintState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidLintPart)} {part}."),
-    };
+        [KraidLintPart.Top] = static kraid => kraid.TopLintState,
+        [KraidLintPart.Middle] = static kraid => kraid.MiddleLintState,
+        [KraidLintPart.Bottom] = static kraid => kraid.BottomLintState,
+    });
 
     /// <summary>His fingernail <paramref name="part"/>'s own state.</summary>
-    internal KraidNailState Nail(KraidNailPart part) => part switch
-    {
-        KraidNailPart.First => FirstNailState,
-        KraidNailPart.Second => SecondNailState,
-        _ => throw new InvalidOperationException($"Undefined {nameof(KraidNailPart)} {part}."),
-    };
+    internal KraidNailState Nail(KraidNailPart part) => part == KraidNailPart.First ? FirstNailState : SecondNailState;
 
     /// <summary>His three lints' own states, top first.</summary>
     internal IEnumerable<KraidLintState> Lints => [TopLintState, MiddleLintState, BottomLintState];
@@ -83,33 +84,28 @@ public sealed class KraidEnemyState
     /// </summary>
     public HeldBossCountdown ThinkingWait { get; } = new();
     /// <summary>
-    /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: 324 for the small form and 164 once
-    /// growth raises the clamp.
+    /// Gets the highest room Y Samus may be pushed to when Kraid's body ejects her: <see cref="KraidArenaDefinitions.FirstPhaseEjectionLimitY"/>
+    /// for the small form and <see cref="KraidArenaDefinitions.GrownEjectionLimitY"/> once growth raises the clamp.
     /// </summary>
     public int EjectionLimitY { get; internal set; }
-    /// <summary>
-    /// Whether his mouth's reopens are armed (#2400): a charged body hit that started his eye glow arms them, and only a
-    /// clear of his mouth disarms them.
-    /// </summary>
-    internal bool MouthReopenArmed { get; set; }
 
     /// <summary>
-    /// Whether his mouth reopens as it closes (#2400): a mouth hit while the reopens are armed marks it, and a closing mouth
-    /// that finds it removes one pending reopen.
+    /// His mouth's reopening as one value (#2560): disarmed; armed with the reopens left; or marked by a mouth hit, the
+    /// closing mouth then spending one of the reopens left.
     /// </summary>
-    internal bool MouthReopenMarked { get; set; }
+    private MouthReopens mouthReopens = DisarmedReopens.Instance;
 
     /// <summary>
-    /// Gets the number of mouth reopens still pending, from zero to three. A charged body hit arms three; each reopen
+    /// Gets the number of mouth reopens still pending, from zero to <see cref="ArmedMouthReopens"/>. A charged body hit arms them all; each reopen
     /// continuation removes one, and the last removal clears the mouth with the count (#1627).
     /// </summary>
-    public int PendingMouthReopens { get; internal set; }
+    public int PendingMouthReopens => mouthReopens.Left;
     /// <summary>Health captured by the living setup before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
     /// <summary><paramref name="eighths"/> eighths of the health Kraid initialized with, one eighth truncated first (#1890).</summary>
     /// <param name="eighths">How many eighths, one through eight.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="eighths"/> is not one through eight.</exception>
-    public int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
+    internal int HealthEighths(int eighths) => KraidHealthThresholds.Eighths(InitialHealth, eighths);
 
     /// <summary>Seven eighths of Kraid's initial health: below it, the small Kraid grows (#1890).</summary>
     internal int SevenEighthsHealth => HealthEighths(7);
@@ -137,43 +133,12 @@ public sealed class KraidEnemyState
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
     /// <summary>
-    /// Kraid's playing head animation and where it stands; <see cref="HeadHold"/> paces it. Null until the first attack, glow
-    /// or death starts an animation.
-    /// </summary>
-    internal AnimationPlayback<KraidHeadSegment>? HeadPlayback { get; set; }
-
-    /// <summary>
     /// His head's hold on the pose it shows (#2538): each pose the head shows or enters holds for its duration, and the head
     /// animation plays on to its next pose on the hold's last update. Once an animation has ended the hold has run out and
     /// holds, so the head keeps its pose until another animation starts. His rise and his closing mouth hold the pose
     /// without an animation playing (<see cref="HoldHeadUntilRise"/>, <see cref="HoldClosedMouth"/>).
     /// </summary>
     internal HeldBossCountdown HeadHold { get; } = new();
-
-    /// <summary>
-    /// Starts the head animation that starts at <paramref name="animation"/> (#2399): the head enters its opening pose without
-    /// showing it, and holds it for that pose's duration.
-    /// </summary>
-    internal void StartHeadAnimation(KraidHeadSegment animation) => EnterHead(KraidHeadAnimations.Starting(animation));
-
-    /// <summary>
-    /// Selects the head animation that starts at <paramref name="animation"/> (#2399): the head stands past its opening pose,
-    /// as starting it leaves it, while its hold runs on as it is.
-    /// </summary>
-    internal void SelectHeadAnimation(KraidHeadSegment animation) => HeadPlayback = KraidHeadAnimations.Starting(animation).Playback;
-
-    /// <summary>
-    /// Resumes the roar as growth does from <paramref name="resume"/> (#2399): the head enters the resumed pose without
-    /// showing it, and holds it for that pose's duration.
-    /// </summary>
-    internal void ResumeHeadRoar(KraidHeadGrowthResume resume) => EnterHead(KraidHeadAnimations.GrowthResume(resume));
-
-    /// <summary>Stands the head past the pose <paramref name="entry"/> entered, holding that pose for its duration.</summary>
-    private void EnterHead(KraidHeadEntry entry)
-    {
-        HeadPlayback = entry.Playback;
-        HeadHold.LastFor(entry.Delay);
-    }
 
     /// <summary>Shows the head pose <paramref name="shown"/> his head animation reached, holding it for its duration.</summary>
     internal void ShowHeadPose(AnimationShown<KraidHeadSegment, KraidHeadFrame>.Frame shown)
@@ -192,47 +157,89 @@ public sealed class KraidEnemyState
     /// </summary>
     internal void HoldClosedMouth() => HeadHold.LastFor(KraidArenaDefinitions.MouthClosedHeadDelayUpdates);
 
-    /// <summary>Arms three mouth reopens, whatever number of them was still pending (#1890).</summary>
-    internal void ArmMouthReopens() => PendingMouthReopens = ArmedMouthReopens;
+    /// <summary>Arms <see cref="ArmedMouthReopens"/> mouth reopens, whatever number of them was still pending (#1890).</summary>
+    internal void ArmMouthReopens() => mouthReopens = mouthReopens is MarkedReopens
+        ? new MarkedReopens(ArmedMouthReopens)
+        : new ArmedReopens(ArmedMouthReopens);
+
+    /// <summary>A mouth hit marks his mouth to reopen as it closes, while its reopens are armed (#2400).</summary>
+    internal void MarkMouthReopen()
+    {
+        if (mouthReopens is ArmedReopens armed)
+            mouthReopens = new MarkedReopens(armed.Left);
+    }
 
     /// <summary>
-    /// Removes one pending mouth reopen (#1627). Kraid removes one only while the mouth's reopen is pending, which a
-    /// mouth hit marks only after arming three, and the removal that leaves none clears the mouth, so a reopen is always
-    /// pending here: the game's wrap of its count from zero is never reached, and removing from none breaks that
-    /// order.
+    /// His mouth closes (#1627): a marked mouth spends one pending reopen, and while any remain he waits to glow his eye
+    /// again; otherwise every hit that would reopen it is forgotten.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No reopen is pending.</exception>
-    internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens > 0
-        ? PendingMouthReopens - 1
-        : throw new InvalidOperationException("Removing a mouth reopen from none breaks Kraid's mouth-reopen order.");
+    /// <returns>Whether a reopen is still pending, so he waits to glow his eye again.</returns>
+    internal bool SpendMouthReopenAsMouthCloses()
+    {
+        if (mouthReopens is MarkedReopens { Left: > 1 } marked)
+        {
+            mouthReopens = new MarkedReopens(marked.Left - 1);
+            return true;
+        }
+
+        ClearMouthReactions();
+        return false;
+    }
 
     /// <summary>Forgets every hit on his mouth and body that would reopen it, and the reopens still pending.</summary>
     internal void ClearMouthReactions()
     {
-        MouthReopenArmed = false;
-        MouthReopenMarked = false;
-        PendingMouthReopens = 0;
+        mouthReopens = DisarmedReopens.Instance;
     }
 
     /// <summary>The reopen count a charged body hit arms.</summary>
     private const int ArmedMouthReopens = 3;
 
+    /// <summary>His mouth's reopening (#2560): a closed choice of disarmed, armed and marked, the last two with the reopens left.</summary>
+    /// <param name="Left">The mouth reopens still pending.</param>
+    private abstract partial record MouthReopens(int Left);
+
+    /// <summary>No reopen is armed.</summary>
+    private sealed partial record DisarmedReopens() : MouthReopens(0)
+    {
+        /// <summary>The one disarmed mouth.</summary>
+        internal static DisarmedReopens Instance { get; } = new();
+    }
+
+    /// <summary>A charged body hit armed reopens, and no mouth hit has marked one yet.</summary>
+    /// <param name="Left">The reopens left.</param>
+    private sealed partial record ArmedReopens(int Left) : MouthReopens(Left);
+
+    /// <summary>A mouth hit marked his armed mouth: each closing spends one reopen until none is left.</summary>
+    /// <param name="Left">The reopens left.</param>
+    private sealed partial record MarkedReopens(int Left) : MouthReopens(Left);
+
 
     /// <summary>
-    /// How Kraid's body appears (#1352, #1466, #1515): behind the room's sprites once his body is ready, in front of them
-    /// once he has grown, hidden in a defeated room and once his death has sunk him. Once <see cref="BodyShown"/>, his
-    /// whole body shows it at once, with his head at its current pose over it.
+    /// How Kraid's body shows (#1352, #1466, #1515, #2560): readied behind the room's sprites, shown from his rise through the
+    /// floor on or from the growth or death that shows it again in a room he was found in later, in front of the sprites once
+    /// he has grown, hidden in a defeated room and once his death has sunk him.
     /// </summary>
-    internal KraidBodyAppearance BodyAppearance { get; set; }
+    internal KraidBodyShowing Body { get; set; } = KraidBodyShowing.Hidden;
 
-    /// <summary>
-    /// Whether his body shows on his body layer (#1515): from his rise through the floor on, or from the growth or death
-    /// that shows it again in a room he was found in later.
-    /// </summary>
-    internal bool BodyShown { get; private set; }
+    /// <summary>What his body layer shows of his body now.</summary>
+    internal KraidBodyAppearance BodyAppearance => Body.Appearance;
 
     /// <summary>His body shows on his body layer from now on, as it appears.</summary>
-    internal void ShowBody() => BodyShown = true;
+    internal void ShowBody() => Body = Body.Shown();
+
+    /// <summary>His body comes in front of the sprites, as his growth brings it (#1634).</summary>
+    /// <exception cref="InvalidOperationException">His body is not behind the sprites.</exception>
+    internal void BringBodyInFront() => Body = Body.InFront();
+
+    /// <summary>
+    /// His death redraws his body behind the sprites (#2646), grown or not: his sinking arm, behind the room's front tiles,
+    /// shows in front of it.
+    /// </summary>
+    internal void RedrawBodyForDeath() => Body = Body.ShownBehindSprites();
+
+    /// <summary>His body is hidden from now on, as a defeated room and his sunk body hide it.</summary>
+    internal void HideBody() => Body = KraidBodyShowing.Hidden;
 
     /// <summary>
     /// True while the room shows Kraid's body layer behind the level: from his room's load until his sunk body is hidden,
@@ -246,7 +253,7 @@ public sealed class KraidEnemyState
     /// </summary>
     internal void InitializeBodyLayer()
     {
-        BodyAppearance = KraidBodyAppearance.BehindSprites;
+        Body = new KraidBodyShowing.Readied(BossBodyDepth.BehindSprites);
         ShowsBodyLayer = true;
     }
 

@@ -22,7 +22,7 @@ internal static class EnemyHitDamageVerification
         for (int multiplier = 0; multiplier <= LargestAuthoredMultiplier; multiplier++)
         {
             WeaponDamageFactor factor = WeaponDamageFactor.FromStoredHalves(multiplier);
-            var response = new EnemyWeaponVulnerability(factor, EnemyIceResponse.FreezesOnLethalHit);
+            var response = new global::SuperMetroid.Core.Enemies.EnemyWeaponVulnerability(factor, EnemyIceResponse.FreezesOnLethalHit);
             var shot = new EnemyCollision.NormalShotVulnerability(factor, FreezeImmediately: false, PreventsLethalFreeze: false);
             for (int weaponDamage = 0; weaponDamage <= ushort.MaxValue; weaponDamage++)
             {

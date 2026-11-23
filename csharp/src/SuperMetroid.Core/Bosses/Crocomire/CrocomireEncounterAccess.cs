@@ -6,8 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>Crocomire's body animation start, room objects, dust and random numbers, and its sound and music requests.</summary>
-[RoomLifetime]
-internal sealed class CrocomireEncounterAccess
+internal sealed partial class CrocomireEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
     private readonly EnemyPassEvents _passEvents;
@@ -51,7 +50,7 @@ internal sealed class CrocomireEncounterAccess
     /// <summary>The session's installed gradient the volley's last shot is fired along, past the authored ones.</summary>
     internal CrocomireLastShotGradient LastShotGradient => _room.Session.BossOverreads.CrocomireLastShotGradient;
 
-    /// <summary>Places a foot dust puff at the body offset with an additional random jitter of up to seven pixels.</summary>
+    /// <summary>Places a foot dust puff at the body offset with an additional random jitter (<see cref="CrocomireRandomDefinitions.DustJitter"/>).</summary>
     internal void SpawnCrocomireDust(CrocomireEnemyState state, int xOffset)
     {
         int random = ReadCrocomireRandom();

@@ -27,10 +27,9 @@ internal static class EnemyProjectileSpritemapNative
                 new SpritemapFrameDefinition(EnemyProjectileCompositionSources.ElevatorArrivalSpritemap(entry.Key), entry.Value))];
     }
 
-    /// <summary>The composition frame stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
-    internal static EnemyProjectileFrameId FrameAt(ushort spritemap) => spritemap == EnemyProjectileCompositionDefinitions.BlankSpritemap
-        ? EnemyProjectileFrameId.Blank
-        : EnemyProjectileSpritemapDefinitions.FrameNames.Select(EnemyProjectileFrames.Identity)
+    /// <summary>The composition frame stored at bank-$8D spritemap <paramref name="spritemap"/>, which is not the blank map.</summary>
+    internal static EnemyProjectileFrameId FrameAt(ushort spritemap) =>
+        EnemyProjectileSpritemapDefinitions.FrameNames.Select(EnemyProjectileFrames.Identity)
             .Single(frame => EnemyProjectileCompositionSources.Spritemap(frame) == spritemap);
 
     /// <summary>The Ceres elevator arrival's pose whose picture is stored at bank-$8D spritemap <paramref name="spritemap"/>, if any.</summary>
@@ -42,8 +41,10 @@ internal static class EnemyProjectileSpritemapNative
     /// <summary>Native lookups of an installed catalog.</summary>
     extension(EnemyProjectileSpritemapCatalog catalog)
     {
-        /// <summary>The parts of the composition stored at bank-$8D spritemap <paramref name="spritemap"/>.</summary>
-        internal ReadOnlyMemory<SpritePart> Get(ushort spritemap) => ElevatorArrivalPoseAt(spritemap) is { } pose
+        /// <summary>The parts of the composition stored at bank-$8D spritemap <paramref name="spritemap"/>; none for the blank map (#2558).</summary>
+        internal ReadOnlyMemory<SpritePart> Get(ushort spritemap) => spritemap == EnemyProjectileCompositionDefinitions.BlankSpritemap
+            ? ReadOnlyMemory<SpritePart>.Empty
+            : ElevatorArrivalPoseAt(spritemap) is { } pose
             ? catalog.GetElevatorArrival(pose)
             : catalog.Get(FrameAt(spritemap));
     }

@@ -7,8 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The collaborators a <see cref="CrocomireFight"/> is constructed with, built once by its owner.</summary>
-[RoomLifetime]
-internal sealed record CrocomireFightDependencies
+internal sealed partial record CrocomireFightDependencies
 {
     /// <summary>Accesses the active room, enemy places, and shared RNG.</summary>
     public required EnemyRoomBinding Room { get; init; }

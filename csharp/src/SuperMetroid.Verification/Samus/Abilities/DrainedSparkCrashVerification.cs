@@ -29,16 +29,16 @@ internal static class DrainedSparkCrashVerification
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
-        SamusState samus = runtime.Player.IntroducedSamus;
+        SamusState samus = runtime.Player.Samus;
         samus.Control.Unlock();
-        samus.Pose = SamusPoseId.FacingLeftNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingLeftNormalPose);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         // Two calls left in the echo hold after the echoes finish circling Samus.
-        PrivateState.Set(samus.Shinespark, nameof(SamusShinesparkState.Phase), ShinesparkPhase.CrashHold);
-        PrivateState.Set(samus.Shinespark, nameof(SamusShinesparkState.CrashHoldCountdown), UpdateCountdown.Lasting(2));
+        samus.Shinespark.Phase = ShinesparkPhase.CrashHold;
+        samus.Shinespark.CrashHoldCountdown = UpdateCountdown.Lasting(2);
         samus.Drained.LetFall(samus);
         AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, samus.Pose, "controller zero installs the drained pose");
 

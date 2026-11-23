@@ -8,13 +8,13 @@ namespace SuperMetroid.Core.Samus;
 /// <remarks>
 /// This is an outer game-state owner, not an inventory convenience. It locks Samus, leaves
 /// ordinary main gameplay running under the global time freeze, transfers one
-/// energy unit per frame, and publishes the room-library refill sound on
-/// every eighth frame of the frame counter.
+/// energy unit per frame, and publishes the room-library refill sound at the
+/// refill sound's cadence of the frame counter.
 /// </remarks>
-public sealed class SamusReserveAutoRecoveryState
+public sealed partial class SamusReserveAutoRecoveryState
 {
     /// <summary>True between the control setup that locks her for reserve recovery and the one that restores control.</summary>
-    public bool IsActive { get; private set; }
+    internal bool IsActive { get; set; }
 
     /// <summary>Starts only the game's automatic-mode path, which only the AUTO reserve mode selects.</summary>
     public void Begin(SamusState samus)
@@ -47,7 +47,7 @@ public sealed class SamusReserveAutoRecoveryState
         if (!IsActive)
             throw new InvalidOperationException("Reserve recovery has not begun.");
 
-        bool refillSoundRequested = samus.ReserveEnergy != 0 && SamusCadenceDefinitions.ReserveRefillSoundEveryEighthUpdate.IsDue(frameCounter);
+        bool refillSoundRequested = samus.ReserveEnergy != 0 && SamusCadenceDefinitions.ReserveRefillSound.IsDue(frameCounter);
 
         if (samus.ReserveEnergy != 0)
         {
@@ -59,8 +59,7 @@ public sealed class SamusReserveAutoRecoveryState
             }
             else
             {
-                // The game's below-zero repair after this decrement handled corrupt reserve counts; a count
-                // decremented from a positive value reaches zero first.
+                // The reserve count stops at zero.
                 samus.ReserveEnergy = SamusQuantity.DecrementPositive(samus.ReserveEnergy);
             }
         }

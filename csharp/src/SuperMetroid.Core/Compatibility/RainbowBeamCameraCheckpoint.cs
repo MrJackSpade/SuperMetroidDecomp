@@ -16,8 +16,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// speed routine subtracts the full sub-pixel words; the 100% movie's fall into the floor clamp established the
 /// complete case. The rainbow-beam movement check confirms both cases.
 /// </remarks>
-[CompatibilityService("Mother Brain's rainbow-beam push hides only the coarse part of its sub-pixel movement from the camera's speed")]
-public sealed class RainbowBeamCameraCheckpoint
+public sealed partial class RainbowBeamCameraCheckpoint
 {
     /// <summary>The horizontal sub-pixel the push recorded this update.</summary>
     private HiddenFraction _horizontal;
@@ -72,7 +71,7 @@ public sealed class RainbowBeamCameraCheckpoint
     /// <summary>One axis's hidden sub-pixel: what part of the record it replaces, and with what.</summary>
     /// <param name="Extent">How much of the record is replaced.</param>
     /// <param name="Fraction">The replacing sub-pixel, 0 through <see cref="FixedCoordinate.LastFraction"/>; only its coarse part counts for a coarse extent.</param>
-    private readonly record struct HiddenFraction(HiddenExtent Extent, int Fraction)
+    private readonly partial record struct HiddenFraction(HiddenExtent Extent, int Fraction)
     {
         /// <summary>A sub-pixel's coarse steps: the 1/256ths of a pixel the push moves Samus by.</summary>
         private const int FineStepsPerCoarseStep = 256;
@@ -94,13 +93,11 @@ public sealed class RainbowBeamCameraCheckpoint
         }
 
         /// <summary>The record's sub-pixel <paramref name="recorded"/> with this replacement applied.</summary>
-        public int ApplyTo(int recorded) => Extent switch
-        {
-            HiddenExtent.None => recorded,
-            HiddenExtent.Coarse => Fraction + Fine(recorded),
-            HiddenExtent.Complete => Fraction,
-            _ => throw new InvalidOperationException($"Undefined hidden extent {Extent}."),
-        };
+        public int ApplyTo(int recorded) =>
+            Extent == HiddenExtent.None ? recorded
+            : Extent == HiddenExtent.Coarse ? Fraction + Fine(recorded)
+            // The remaining member, HiddenExtent.Complete.
+            : Fraction;
 
         /// <summary>The whole coarse steps of a sub-pixel position.</summary>
         private static int Coarse(int fraction) => fraction - Fine(fraction);

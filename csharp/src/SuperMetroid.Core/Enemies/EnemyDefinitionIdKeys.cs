@@ -4,12 +4,11 @@ namespace SuperMetroid.Core.Enemies;
 /// The installed key of each <see cref="EnemyDefinitionId"/> (#2520), written out so renaming a member never changes a
 /// name the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class EnemyDefinitionIdKeys
+internal static partial class EnemyDefinitionIdKeys
 {
     /// <summary>Each EnemyDefinitionId member's installed key.</summary>
     internal static InstalledKeys<EnemyDefinitionId> Installed { get; } = new(new Dictionary<EnemyDefinitionId, string>
     {
-        [EnemyDefinitionId.None] = "None",
         [EnemyDefinitionId.Boyon] = "Boyon",
         [EnemyDefinitionId.MamaTurtle] = "MamaTurtle",
         [EnemyDefinitionId.BabyTurtle] = "BabyTurtle",
@@ -80,7 +79,7 @@ internal static class EnemyDefinitionIdKeys
         [EnemyDefinitionId.RidleyCeres] = "RidleyCeres",
         [EnemyDefinitionId.Ridley] = "Ridley",
         [EnemyDefinitionId.RidleyBreakupPiece] = "RidleyBreakupPiece",
-        [EnemyDefinitionId.CeresSteam] = "CeresSteam",
+        [EnemyDefinitionId.SteamVent] = "SteamVent",
         [EnemyDefinitionId.CeresDoor] = "CeresDoor",
         [EnemyDefinitionId.CeresRidleyRoomDoor] = "CeresRidleyRoomDoor",
         [EnemyDefinitionId.CeresElevatorDoor] = "CeresElevatorDoor",
@@ -165,7 +164,6 @@ internal static class EnemyDefinitionIdKeys
     /// <summary>The EnemyDefinitionId members in the order the installation lists them (#2567), written out beside the keys so reordering the members never reorders an installed sheet or document.</summary>
     internal static IReadOnlyList<EnemyDefinitionId> ListedOrder { get; } =
     [
-        EnemyDefinitionId.None,
         EnemyDefinitionId.Boyon,
         EnemyDefinitionId.MamaTurtle,
         EnemyDefinitionId.BabyTurtle,
@@ -236,7 +234,7 @@ internal static class EnemyDefinitionIdKeys
         EnemyDefinitionId.RidleyCeres,
         EnemyDefinitionId.Ridley,
         EnemyDefinitionId.RidleyBreakupPiece,
-        EnemyDefinitionId.CeresSteam,
+        EnemyDefinitionId.SteamVent,
         EnemyDefinitionId.CeresDoor,
         EnemyDefinitionId.CeresRidleyRoomDoor,
         EnemyDefinitionId.CeresElevatorDoor,

@@ -3,7 +3,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Hud;
 
 /// <summary>One large-panel title and four-row tile template; button substitution and message timing are supplied by compiled gameplay behavior.</summary>
-public sealed record GameplayMessagePanel
+public sealed partial record GameplayMessagePanel
 {
     /// <summary>Nonempty title of at most 26 characters, using uppercase A..Z, space, hyphen, period or question mark; inserted into the first content row.</summary>
     public required string Title { get; init; }

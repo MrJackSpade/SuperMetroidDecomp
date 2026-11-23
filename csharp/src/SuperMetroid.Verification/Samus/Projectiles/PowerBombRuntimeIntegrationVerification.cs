@@ -36,7 +36,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.FrameBoundary.BeginAcceptedFrame(playerInput: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(
             RoomDefinitions.AlphaPowerBomb,
             camera: new Position16<RoomPixels>(0, 0));
@@ -48,7 +48,7 @@ internal static class PowerBombRuntimeIntegrationVerification
         explosion.Spawn(
             new(PowerBombRuntimeVerificationDefinitions.ScreenCenterX, PowerBombRuntimeVerificationDefinitions.ScreenCenterY));
         explosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
-        AssertEqual(PowerBombExplosionPhase.Inactive, explosion.Blast.RenderedPhase,
+        AssertEqual(new PowerBombExplosionPhase.Inactive(), explosion.Blast.RenderedPhase,
             "HDMA allocation setup does not draw the first flash prematurely");
         explosion.StepFrame(runtime.Artwork.SamusArtwork.PowerBombGlowColors);
         // The window table is read during display, but the pre-instruction's COLDATA

@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// <summary>
 /// The pulse the pause and file-select map markers share (#1825, #2359): the marker grows from its smallest picture through
 /// its middle one to its largest and shrinks back through the middle one, then starts again. The smallest and largest
-/// pictures hold for eight menu updates, the middle one for four.
+/// pictures hold longer than the middle one.
 /// </summary>
-internal static class PauseMapIndicatorAnimation
+internal static partial class PauseMapIndicatorAnimation
 {
     /// <summary>The pulse's one segment: each picture for its hold, then the moment the pulse completes.</summary>
     internal static AnimationSegments<MapIndicatorSegment, MapSpriteId, MapIndicatorCue> Segments { get; } = new(

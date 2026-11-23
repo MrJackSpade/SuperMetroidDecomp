@@ -12,16 +12,16 @@ internal static class CeresFlightFrameCatalogVerification
     {
         // Independent native instruction operands in the published catalog order.
         int[] operands = [0xcda5, 0xce4d, 0xcc49, 0xcc51, 0xcc59, 0xcc5d];
-        string[] names = ["stars", "large-asteroid", "station-under-attack", "small-asteroid", "vortex-first", "vortex-second"];
+        string[] names = ["stars", "large-asteroid", "station-under-attack", "small-asteroid", "vortex-bright-sparks", "vortex-faint-sparks"];
         var frames = CeresFlightSpriteDefinitions.Frames;
         AssertEqual(operands.Length, frames.Count, "flight catalog count");
         var enumerated = frames.ToArray();
         for (int index = 0; index < operands.Length; index++)
         {
             int operand = 0x8b0000 | operands[index];
-            ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
+            ushort pointer = rom.ReadCartridgeWord(operand);
             int record = 0x8c0000 | pointer;
-            int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
+            int count = rom.ReadCartridgeWord(record);
             AssertEqual(pointer, CinematicSpritemapSources.Of(frames[index].Pose), "native flight frame selection");
             AssertEqual(count, frames[index].StockPartCount, "native flight OAM count");
             AssertEqual(names[index], frames[index].Name, "published flight frame key");

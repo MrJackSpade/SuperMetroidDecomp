@@ -68,7 +68,7 @@ internal static class RoomObjectSystemAccess
                 .Select(entry => new ColoredDoorObjectSnapshot(
                     entry.Place.Block,
                     entry.Place.NativeRoomArgument,
-                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
+                    (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).PlacedColor,
                     entry.Door.Orientation,
                     entry.Door.Phase, checked((byte)entry.Door.HitCounter))),
         ];
@@ -82,7 +82,7 @@ internal static class RoomObjectSystemAccess
                     entry.Place.Block,
                     entry.Place.NativeRoomArgument,
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation,
-                    entry.Door.Lock.Condition,
+                    entry.Door.Lock.PlacedCondition,
                     // A grey cap counts only the one shot that opens it, so an opening cap has counted its hit.
                     entry.Door.Phase, entry.Door.Phase == GreyDoorPhase.Opening ? (byte)1 : (byte)0, entry.Door)),
         ];
@@ -129,14 +129,12 @@ internal static class RoomObjectSystemAccess
                     continue;
                 if (!reached)
                     return false;
-                return self.ProjectileTriggers.TryNotifyResidentProjectileHit(block, projectileType);
+                self.ProjectileTriggers.NotifyResidentProjectileHit(block, BlockStrike.By(projectileType));
+                return true;
             }
             return false;
         }
 
-
-        /// <summary>Whether the cartridge's room population installed PLM <c>$D6DE</c>.</summary>
-        internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass.MotherBrainGlassWasLoaded;
 
         /// <summary>The live glass, or null once it has left the room.</summary>
         internal MotherBrainGlassObject? LiveMotherBrainGlass => LiveGlass(self);
@@ -250,7 +248,10 @@ internal static class RoomObjectSystemAccess
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior)
-            => self.BlockReactions.TrySpawnCollisionBombBlock(level, position, RoomBlockBehaviorCodec.Decode(behavior));
+            => RoomBlockBehaviorCodec.Decode(behavior).Bombable is { } bombable
+                && BlockReactionChanges.TryCollisionBomb(bombable, out BlockReactionChange? change)
+                ? self.BlockReactions.TrySpawnCollisionBombBlock(level, position, change)
+                : throw new ArgumentException($"Block behaviour {behavior} sets off no collision bomb block.", nameof(behavior));
 
         /// <summary>
         /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
@@ -270,17 +271,22 @@ internal static class RoomObjectSystemAccess
         /// invisible resource/timing effect. A negative BTS is filtered by bank $94 before this
         /// method is called because it denotes an area-dependent/duplicate path.
         /// </remarks>
-        /// <returns>False only when every PLM slot is occupied.</returns>
-        internal bool TrySpawnBombReactionBlock(
+        /// <returns>Whether the reaction took a room-object place: false only when every place is occupied.</returns>
+        internal bool SpawnBombReactionBlock(
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
             SamusProjectileType projectileType)
-            => self.BlockReactions.TrySpawnBombReactionBlock(
+        {
+            int active = self.Places.ActiveCount;
+            self.BlockReactions.SpawnBombReactionBlock(
                 level,
                 position,
-                RoomBlockBehaviorCodec.Decode(behavior),
+                RoomBlockBehaviorCodec.Decode(behavior).Bombable
+                    ?? throw new ArgumentException($"Block behaviour {behavior} gives a bomb block no reaction.", nameof(behavior)),
                 projectileType);
+            return self.Places.ActiveCount > active;
+        }
 
         /// <summary>
         /// Runs the normal-bomb branch of the shootable-air/block entries selected at
@@ -316,12 +322,6 @@ internal static class RoomObjectSystemAccess
         {
             Ensure.NotNull(level);
             bool areaDependent = bts.Shootable == ShootableReaction.NothingWhenSolid;
-            if (bts.Shootable is null)
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(bts),
-                    "The shootable BTS gives a shootable block no reaction.");
-            }
             if (!areaDependent && !ShotBlockReactions.IsWeaponReaction(bts.Shootable))
             {
                 throw new ArgumentOutOfRangeException(
@@ -347,7 +347,7 @@ internal static class RoomObjectSystemAccess
             {
                 // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
                 // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+                place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
                 return true;
             }
 
@@ -367,7 +367,7 @@ internal static class RoomObjectSystemAccess
                 // The deactivating setup does not synthesize a restore block. Deactivation turns shootable air into
                 // ordinary air and a shootable block into a solid block until the same-frame program draws its first
                 // breaking frame.
-                place.Become(new BlockReactionObject(BlockReactionChanges.PermanentShot(bts.Shootable)));
+                place.Become(new LastingBlockReactionObject(BlockReactionChanges.PermanentShot(bts.Shootable)));
                 level.SetTerrain(position, block.Terrain.Deactivated());
                 return true;
             }
@@ -376,7 +376,7 @@ internal static class RoomObjectSystemAccess
             {
                 // CF2E sees projectile family `$0500` and replaces the entry's normal
                 // power-bomb animation pointer with the one-frame visible `$C057` reveal.
-                place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
+                place.Become(new LastingBlockReactionObject(BlockReactionChangeDefinitions.BombedPowerBombBlockReveal));
                 return true;
             }
 
@@ -384,11 +384,11 @@ internal static class RoomObjectSystemAccess
             {
                 // CF67 performs the analogous redirect to visible super-missile word
                 // `$C09F`; it neither clears collision nor queues the shot-block sound.
-                place.Become(new BlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
+                place.Become(new LastingBlockReactionObject(BlockReactionChangeDefinitions.BombedSuperMissileBlockReveal));
                 return true;
             }
 
-            place.Become(new BlockReactionObject(BlockReactionChange.MadeAtSpawn));
+            place.Become(new LastingBlockReactionObject(LastingBlockReactionChange.MadeAtSpawn));
             return true;
         }
 
@@ -414,13 +414,13 @@ internal static class RoomObjectSystemAccess
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
-            SamusProjectileType projectileType,
+            BlockStrike strike,
             bool solidBlock)
             => self.BlockReactions.TrySpawnProjectileShotBlock(
                 level,
                 position,
-                RoomBlockBehaviorCodec.Decode(behavior),
-                projectileType,
+                ShotBlockReactions.ShotBlocks[RoomBlockBehaviorCodec.Decode(behavior).Shootable],
+                strike,
                 solidBlock);
 
         /// <summary>
@@ -437,17 +437,23 @@ internal static class RoomObjectSystemAccess
         /// family `$0300` still reaches Spawn_PLM, but `$84:CFA0` clears the new PLM header
         /// synchronously; observably no terrain changes and no active slot survives.
         /// </remarks>
-        internal bool TrySpawnBombedSpecialBlock(
+        /// <returns>Whether the reveal holds a room-object place once its setup has run.</returns>
+        internal bool SpawnBombedSpecialBlock(
             RoomLevelData level,
             Position16<RoomBlocks> position,
             byte behavior,
             AreaId area,
             SamusProjectileType projectileType)
-            => self.BlockReactions.TrySpawnBombedSpecialBlock(
+        {
+            int active = self.Places.ActiveCount;
+            self.BlockReactions.SpawnBombedSpecialBlock(
                 level,
                 position,
-                RoomBlockBehaviorCodec.Decode(area, behavior),
+                RoomBlockBehaviorCodec.Decode(area, behavior).Special
+                    ?? throw new ArgumentException($"Block behaviour {behavior} gives a special block no reaction.", nameof(behavior)),
                 projectileType);
+            return self.Places.ActiveCount > active;
+        }
 
         /// <summary>
         /// Executes <c>PLM_Handler</c>'s timer/instruction portion for all translated slots. Drawn blocks change the level
@@ -472,5 +478,5 @@ internal static class RoomObjectSystemAccess
 
     /// <summary>The live Mother Brain glass, as the system's own search finds it.</summary>
     private static MotherBrainGlassObject? LiveGlass(RoomObjectSystem roomObjects) =>
-        roomObjects.MotherBrainGlass.TryGetMotherBrainGlass(out MotherBrainGlassObject? glass) ? glass : null;
+        RoomObjectFixtures.ReachedByEnemiesOf(roomObjects).MotherBrainGlass.TryGetMotherBrainGlass(out MotherBrainGlassObject? glass) ? glass : null;
 }

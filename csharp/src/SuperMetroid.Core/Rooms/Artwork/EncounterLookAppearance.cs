@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// without it.
 /// </summary>
 /// <param name="Look">The encounter's look the block shows over.</param>
-public sealed record EncounterLookAppearance(EncounterLook Look) : AppearanceInput
+public sealed partial record EncounterLookAppearance(EncounterLook Look) : AppearanceInput
 {
     /// <summary>The encounter's look the block shows over.</summary>
     public EncounterLook Look { get; } = Look;

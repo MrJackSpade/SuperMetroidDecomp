@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 /// <param name="Behind">The part drawn with the layer's back tiles, or null where nothing of the picture lies behind.</param>
 /// <param name="InFront">The part drawn with the layer's front tiles, or null where nothing of the picture lies in front.</param>
-public sealed record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? InFront)
+public sealed partial record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? InFront)
 {
     /// <summary>The installed parts, behind first; none for a picture that shows nothing.</summary>
     public IEnumerable<SpriteSheetFrame> Parts
@@ -24,7 +24,7 @@ public sealed record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? 
 
     /// <summary>The parts' width and height, or null for a picture that shows nothing.</summary>
     /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
-    public Extent16<ImagePixels>? Size
+    private Extent16<ImagePixels>? Size
     {
         get
         {
@@ -33,5 +33,19 @@ public sealed record LayeredPicture(SpriteSheetFrame? Behind, SpriteSheetFrame? 
                     $"A picture's behind part is {behind.Size.X}x{behind.Size.Y} and its in-front part {inFront.Size.X}x{inFront.Size.Y}.");
             return Behind?.Size ?? InFront?.Size;
         }
+    }
+
+    /// <summary>Whether the picture shows something, and then its parts' width and height in <paramref name="size"/>.</summary>
+    /// <param name="size">The parts' width and height, when the picture shows something.</param>
+    /// <exception cref="InvalidDataException">The two parts differ in size.</exception>
+    public bool ShowsSomething(out Extent16<ImagePixels> size)
+    {
+        if (Size is { } shown)
+        {
+            size = shown;
+            return true;
+        }
+        size = default;
+        return false;
     }
 }

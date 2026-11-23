@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core;
+using SuperMetroid.Core.Samus.Colours;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
@@ -7,7 +8,7 @@ using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Reads and writes the installed Samus full-body cycle colour document.</summary>
-public static class SamusFullBodyCycleColorFile
+public static partial class SamusFullBodyCycleColorFile
 {
     /// <summary>Loads and validates all 48 full-body cycle palettes for three suits and four families.</summary>
     public static InstalledSamusFullBodyCycleColors Read(Stream json)
@@ -18,7 +19,7 @@ public static class SamusFullBodyCycleColorFile
         if (document.Version != SamusFullBodyCycleColorFormat.Version)
             throw new InvalidDataException("Samus full-body cycle colors require the supported version.");
 
-        var palettes = new RgbColor[SamusFullBodyCycleColorFormat.PaletteCount][];
+        var palettes = new Dictionary<SamusFullBodyCycleShade, RgbColor[]>();
         AddFamily(palettes, SamusFullBodyCycleFamily.SpeedBooster, document.SpeedBooster);
         AddFamily(palettes, SamusFullBodyCycleFamily.ScrewAttack, document.ScrewAttack);
         AddFamily(palettes, SamusFullBodyCycleFamily.StoredShine, document.StoredShine);
@@ -28,17 +29,17 @@ public static class SamusFullBodyCycleColorFile
 
     /// <summary>Serializes a full-body cycle color document as JSON.</summary>
     public static byte[] Write(SamusFullBodyCycleColorDocument document) =>
-        JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options);
+        JsonSerializer.SerializeToUtf8Bytes(document, global::SuperMetroid.AssetExtraction.AssetExtractionJson.Info<global::SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorDocument>(ArtworkJson.Options));
 
     /// <summary>Validates a family's three suits and four shades, then places RGB5 colors in their artwork rows.</summary>
-    private static void AddFamily(RgbColor[][] destination,
-        SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
+    private static void AddFamily(Dictionary<SamusFullBodyCycleShade, RgbColor[]> destination,
+        SamusFullBodyCycleFamily family, Dictionary<string, PaletteRgb5[][]>? source)
     {
-        if (source is null || source.Length != SamusFullBodyCycleColorFormat.SuitCount)
-            throw new InvalidDataException($"{family} requires three suit palettes.");
-        for (int suit = 0; suit < source.Length; suit++)
+        if (source is null || source.Count != SamusSuitListLayout.Order.Length)
+            throw new InvalidDataException($"{family} requires three suit palettes, each keyed by its suit.");
+        foreach (SamusSuit suit in SamusSuitListLayout.Order)
         {
-            PaletteRgb5[][]? shades = source[suit];
+            PaletteRgb5[][]? shades = source.TryGetValue(SamusSuitKeys.Installed.Of(suit), out PaletteRgb5[][]? held) ? held : null;
             if (shades is null || shades.Length != SamusFullBodyCycleColorFormat.ShadesPerSuit)
                 throw new InvalidDataException($"{family} suit {suit} requires four shades.");
             for (int shade = 0; shade < shades.Length; shade++)
@@ -56,10 +57,8 @@ public static class SamusFullBodyCycleColorFile
                             $"{family} suit {suit}, shade {shade}, color {index} requires RGB5 channels 0..31.");
                     words[index] = rgb.ToRgbColor();
                 }
-                int paletteIndex = SamusFullBodyCycleColorFormat.PaletteIndex(new(family, SamusSuitListLayout.AtPlace(suit), shade));
-                if (destination[paletteIndex] is not null)
+                if (!destination.TryAdd(new(family, suit, shade), words))
                     throw new InvalidDataException($"Duplicate full-body palette {family} suit {suit}, shade {shade}.");
-                destination[paletteIndex] = words;
             }
         }
     }

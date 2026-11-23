@@ -3,15 +3,21 @@ using SuperMetroid.Core.Enemies.Crawlers;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>Fixed direction and airborne-animation definitions for Yard.</summary>
-internal static class YardDirectionDefinitions
+internal static partial class YardDirectionDefinitions
 {
     /// <summary>
+    /// The direction a Yard holds before its first direction cue sets its live direction (#2556): a Yard starts with only
+    /// its animations and the signs of its velocity, so a hide on its first update, which skips the cue, keeps this one.
+    /// </summary>
+    internal static YardDirection BeforeFirstDirectionCue => YardDirection.OnLeftWallMovingUp;
+
+    /// <summary>
     /// Each of the eight surface orientations' crawling and hiding animations, airborne
-    /// facing, opposite direction and the crawl turning around into it begins, by direction: right-side wall moving up and
-    /// down, left-side wall moving up and down, ceiling moving left and right, floor moving left and right. Direction
+    /// facing, opposite direction and the crawl turning around into it begins, by direction: on a wall to its left moving
+    /// up and down, on a wall to its right moving up and down, ceiling moving left and right, floor moving left and right. Direction
     /// pairs reverse motion on the same surface. Each names the side of its block a landing crawl takes its signs from.
     /// </summary>
-    internal static readonly Dictionary<YardDirection, YardDirectionDefinition> Directions = new()
+    internal static readonly IdentityTable<YardDirection, YardDirectionDefinition> Directions = new(new Dictionary<YardDirection, YardDirectionDefinition>()
     {
         [YardDirection.OnLeftWallMovingUp] = new(YardSegment.CrawlingOnLeftWallMovingUp, CrawlerSurfaceOrientation.OnCeiling,
             YardSegment.HidingOnLeftWallMovingUp, HorizontalDirection.Left, YardDirection.OnLeftWallMovingDown,
@@ -37,15 +43,15 @@ internal static class YardDirectionDefinitions
         [YardDirection.OnFloorMovingRight] = new(YardSegment.CrawlingOnFloorMovingRight, CrawlerSurfaceOrientation.OnRightWall,
             YardSegment.HidingOnFloorMovingRight, HorizontalDirection.Right, YardDirection.OnFloorMovingLeft,
             YardDirection.OnFloorMovingRight),
-    };
+    });
 
     /// <summary>
     /// The visible and hidden airborne animations by facing. Detach, contact-kick and shot-launch repeat these
     /// pairs.
     /// </summary>
-    internal static readonly Dictionary<HorizontalDirection, YardAirborneAnimationDefinition> AirborneFacings = new()
+    internal static readonly IdentityTable<HorizontalDirection, YardAirborneAnimationDefinition> AirborneFacings = new(new Dictionary<HorizontalDirection, YardAirborneAnimationDefinition>
     {
         [HorizontalDirection.Left] = new(YardSegment.AirborneFacingLeft, YardSegment.HiddenOnFloorMovingLeft),
         [HorizontalDirection.Right] = new(YardSegment.AirborneFacingRight, YardSegment.HiddenOnFloorMovingRight),
-    };
+    });
 }

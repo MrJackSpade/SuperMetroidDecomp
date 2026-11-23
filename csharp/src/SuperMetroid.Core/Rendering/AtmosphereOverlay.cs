@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 /// <param name="Artwork">The atmosphere's picture.</param>
 /// <param name="Vertical">The picture's vertical scroll line by line, added to the screen line before the picture repeats.</param>
-public sealed record AtmosphereOverlay(AtmosphereArtwork Artwork, LineScroll Vertical) : OverlayPicture
+public sealed partial record AtmosphereOverlay(AtmosphereArtwork Artwork, LineScroll Vertical) : OverlayPicture
 {
     /// <summary>The atmosphere's picture.</summary>
     public AtmosphereArtwork Artwork { get; } = Ensure.NotNull(Artwork);

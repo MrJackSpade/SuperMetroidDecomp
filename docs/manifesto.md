@@ -2,8 +2,7 @@
 
 This document is the reference for every design decision in this repository. Every agent, primary or sub, reads it
 before changing code, and every change is judged against it. It explains what the project is, where it is going,
-why the analyzers exist, why their findings are never excused, and what a correct change looks like as opposed to a
-change that merely makes a tool stop complaining.
+and what a correct change looks like.
 
 It describes the destination and the principles, not the current state. Current state lives in the tree, the
 tickets and the build. If a shorter rule elsewhere (AGENTS.md, a `docs/*.md` note, a ticket) seems to permit
@@ -32,8 +31,8 @@ The path there is deliberate and ordered:
    address-valued dispatch with owned state, typed domains, semantic identities and behaviour objects, inside the
    C# product, with the existing hosts consuming the modernised simulation.
 3. **Write it in Godot.** A new program, designed for Godot, with this code as its reference for what the game does
-   ([the v1.0.0 manifesto](v1.0.0-manifesto.md)). This code is not moved or reused, and this manifesto, its
-   analyzers and its rules stop at the Godot project's boundary.
+   ([the v1.0.0 manifesto](v1.0.0-manifesto.md)). This code is not moved or reused, and this manifesto and its
+   rules stop at the Godot project's boundary.
 
 Stage two exists to make this code a clear reference for stage three. It does not define stage three's design.
 
@@ -139,7 +138,7 @@ So:
 - Definition data (durations, speeds, shapes, damage, names, frame lists) lives in domain-named catalog types,
   one per domain, with the meaning on each member's XML summary. Call sites read as named domain operations.
 - A catalog file holds **data**. It does not hold `if`, `switch`, loops or decisions. If a file named as a catalog
-  contains dispatch logic, the name is a lie that hides the logic from the analyzers, and the logic moves out.
+  contains dispatch logic, the name is a lie that hides the logic from review, and the logic moves out.
 - Functional code holds no raw hex. A hex literal is one of: a quantity (decimal, with a unit), a domain identity
   (an enum member), composable bits (a flag), a structured instruction (a typed record or timeline), or unknown
   (kept at the boundary under an explicit unresolved name until its meaning is established). "Unknown" is a
@@ -177,158 +176,26 @@ and SPC equivalents, each with a reason naming the layer). Understand what a bou
 
 ### Ownership and layering
 
-- One top-level type per file, named after the type, in a namespace that mirrors its module path
-  (`csharp/module-map.json`). Core's layers depend downward only.
+- One top-level type per file, named after the type, in a namespace that mirrors its module
+  path. Core's layers depend downward only.
 - A type owns its state; aggregates call domain operations on their children instead of writing their fields.
 - Gameplay signatures take the owned state or the narrow service they use, never a bus interface or a broad
-  context bag. Parameter lists stay under the ceiling and pass capabilities as narrow typed contracts
-  (`docs/parameter-lists.md`).
+  context bag. Parameter lists stay short and pass capabilities as narrow typed contracts.
 - `partial` exists only for a generated boundary. The null-forgiving operator does not exist. Reflection into
   production types from tests does not exist; tests use typed seams.
 - Every member carries XML documentation that says what it means, not what its type already says.
 
-## 5. Why analyzers
+## 5. Code analysis
 
-The design above is dozens of rules deep and touches hundreds of thousands of lines. No reviewer holds that in
-their head, and no agent reads every file before changing one. Without enforcement, every rule decays to a
-suggestion within a week, because the path of least resistance in this codebase is always the machine-shaped one:
-the `ushort` is already there, the hex is already there, the address switch is already there.
+The SNES port's Roslyn analyzers, audits and asynchronous cleanup (everything under `csharp/` that only policed or
+cleaned up the code) were removed on 2026-11-22. The v0.9.0 bugs are still fixed in `csharp/`; once they are, that
+code is frozen as the reference version and new work happens only in the Godot project (`godot/`, also C#), which
+gets its own code analysis and rules later. Until then the principles above are kept by review.
 
-So each design decision, once made, is written down as a Roslyn analyzer in `SuperMetroid.EnsureAnalyzer`, runs
-at **error** severity in every maintained project, and fails the build. The rules are the migration made
-executable. The one exception is the owner's (2026-11-11): rules whose every finding an existing fixer resolves with
-no choice and no change of behaviour are grouped in `csharp/.editorconfig` at `none`, so the build spends no time on
-them, and the asynchronous cleanup (`tools/cleanup/`) fixes them and pushes the fixes after each commit. Dead code,
-stale inventories and stale architecture reviews never block a push either; the cleanup fixes them. Only findings that
-need judgment block. `csharp/.editorconfig` and the analyzer sources
-are the authoritative list; the families are:
-
-| Family | Enforces |
-| --- | --- |
-| Closed domains | A primitive switched or compared over named constants is a type. Switches are exhaustive and fail on undefined values. |
-| Spatial | Spatial values are typed, branded by space, never parallel scalars. |
-| Controller | Controller state is typed buttons; the raw word exists only where the controller is read. |
-| Parameter lists | Operations take cohesive narrow contracts. |
-| Encoding | Functional code holds no raw hex, address dispatch, opaque word arrays, raw width operations, hand-written countdowns, untyped flags or narrow storage. |
-| Word reads | Multi-byte values are read through canonical operations, never rebuilt from bytes. |
-| Source layout | One type per file, named after it, in its module's namespace, within the layer graph; `partial` only at generated boundaries. |
-| Null-forgiving | `!` does not exist; express the contract. |
-| Reflection and adapters | No reflective test access, no adapter chains. |
-| Species | Species identity is owned by the species; outsiders use capability interfaces. |
-| Guards | Argument guards use `Ensure` so failures name the expression. |
-
-A rule is the record of a decision that was argued, decided and documented. An agent that disagrees with a rule
-raises that with the owner. It does not route around the rule.
-
-## 6. Why every finding is resolved, immediately, with no exceptions in bulk
-
-A rule with a baseline is not a rule. It is a count. It says "the code may be this wrong, but no wronger," which
-means the migration it was meant to drive is stalled at exactly the point where it was written down. The code the
-rule was created to find is precisely the code the baseline excuses.
-
-This is not hypothetical. This repository did it, and it cost three rounds of work:
-
-1. Rules were added **with per-file baselines**. The build went green. The tickets that had asked for the rules
-   were **closed** on that green build, while the baselines were still excusing most of their work. Those
-   closures were false.
-2. When the owner asked for the baselines to be removed, the agent **removed the rules as well**, because the
-   rules "depended on" the baselines. The findings did not go away; they became invisible.
-3. The rules were restored at full severity with no baseline, and tens of thousands of findings surfaced,
-   because they had been there all along.
-
-The lesson is not "baselines are bad." The lesson is that **any mechanism that lets a finding exist without a
-decision about that finding is a lie about the state of the code**, and lies about the state of the code
-compound: tickets close on them, new work builds on them, and the next agent reads the green build as evidence
-that the design is being followed.
-
-Therefore:
-
-- A finding is resolved by **fixing the code** or by a **justification at that one site** that states why this
-  site is intrinsic or a false positive. Nothing else resolves it.
-- Never: a baseline file, a per-file count, a "may only shrink" list, an accepted-fingerprint file, an
-  allow-list kept as a hook, a tool that regenerates allowances, an assembly- or namespace-wide suppression, a
-  `<Pending>` justification, `NoWarn`, `WarningsNotAsErrors`, a severity below error (outside the owner's
-  automatically fixed group), a change to a rule's scope,
-  or a change to a rule's exemption lists (catalog suffixes, owner attributes) to make a site pass.
-- A new or tightened rule ships at full severity with every existing site fixed or justified in the same work.
-- A ticket whose rule still has findings is not done. If the findings are too many for the change in hand, the
-  agent stops and asks the owner, and the ticket stays open.
-
-## 7. What a correct fix is, and what a lazy one is
-
-Agents are judged on this section. The analyzer stops complaining in both columns; only the left column is work.
-
-### Fix versus satisfy
-
-| The rule fires on | A correct fix | Lazy, and rejected |
-| --- | --- | --- |
-| A `ushort` field holding gameplay state | Decide whether the width is load-bearing (every producer bounded, every wrap clamped, no aliasing reads: `docs/cartridge-encoding.md`). If not, store `int` or the domain type and record the decision. If it is, store the countdown type or a named wrapping operation on the owning type. | Change `ushort` to `int` without checking. Add an allowance comment to every field. Rename the file to a catalog suffix. Mark the state class an encoding owner. |
-| A test asserting `0xc000` against a subspeed | Say what the value is: a fixed-point subspeed constructed by its type, or a named expected constant with its unit; a cast like `(SamusEquipmentFlags)0x0004` becomes the flag's name. The test gets more readable, not less. | Write `49152`. Delete the assertion. Move the number into a catalog-named file beside the test. Wrap the suite in an owner attribute. |
-| `switch (roomPointer) { case 0x91f8: … }` inside a catalog-named file | This is dispatch on a cartridge address in functional code, hidden by its filename. The rooms get semantic identities; the selection logic moves to a non-catalog type and switches on those. | Leave it: the analyzer does not fire on catalog-named files. |
-| A `[Flags]`-to-word cast inside the one `ToWord` codec | This is the encoding boundary. The codec type is marked the owner of that encoding, with the reason on its summary, because it really is the single place the conversion happens. | Mark every type that casts a flag. Rewrite the codec to avoid the cast. |
-| A species identity tested in a shared catalog | Give the species an interface for the capability being asked, implement it on the entity, and ask the bound entity. | Move the test into the species folder unchanged. Add a catalog wrapper. |
-| A bus interface parameter in a gameplay phase | Find what the phase reads through the bus, give that state an owner, pass the owner or a narrow service. | Add a boundary attribute to the class. |
-| A countdown written as a wrapping decrement and a sign-bit mask | The field becomes the countdown type; the site decrements and acts on the step's outcome. | Write `t--` on an `int` and `if (t < 0)`, changing the wrap. Add an allowance. |
-| An integral array of hex words driving an animation | A typed timeline with frames, durations and cues, verified against the ROM as an oracle; delete the array and its interpreter. | Split the array into pieces too small to trigger the rule. Move it to a catalog file. |
-| An enum whose members are named but whose values are ROM addresses and are read somewhere | Find every read of the value. Each is a translation (move it to the import codec) or a dispatch (replace with a behaviour reference or capability interface). Then the values are arbitrary. | Keep reading the value "because the enum names it." |
-
-### When an allowance is legitimate
-
-A same-line `// cartridge-encoding: allow(Class) - reason`, a boundary attribute with a reason, an
-encoding-owner attribute, or an `[ArchitectureReview(finding, reason)]` on the flagged type is correct **only**
-when the value, operation or shape is intrinsic to that site: an exact mask
-the hardware or a file format defines, a hash, a wire-format constant, a conversion that is by construction the
-one place the encoding happens. The reason names the thing, not the rule: `allow(BitMask) - phase-inversion bit`
-is a reason; `allow(Native) - cartridge value` is a baseline entry wearing a comment.
-
-A reviewer may reject any allowance whose reason would be equally true of a thousand other sites. If it would, it
-is not a reason.
-
-### Recognising lazy task completion
-
-The repository contains work done to close a ticket rather than to advance the project. Learn to see it:
-
-- **A type that wraps the machine representation without replacing it.** A "typed" property that returns the raw
-  word. A view class whose every member is a cell read. A countdown whose every use reads the raw value.
-- **A rename that satisfies a check.** A catalog-named file with control flow. A catalog that contains behaviour.
-  A boundary attribute on a whole class because one method needed it.
-- **An identity that is still an address.** An enum, constant or record whose value is a ROM address and whose
-  value is read, compared, indexed or switched on anywhere in the simulation.
-- **Documentation that describes the code instead of the design.** A summary that says "the X word" on a `ushort`
-  called `X`. A note that lists what was done rather than what shape the code is meant to reach, or that records a
-  first stage whose successor never appeared.
-- **A test that pins the representation.** Asserting raw words the port is meant to stop storing. A ROM oracle
-  that compares hex instead of meaning.
-- **A ticket closed on a green build that had exemptions in it.** Any ticket closed while a rule it depended on
-  had a baseline is suspect until that rule has zero findings.
-- **A commit that lands a rule without landing its fixes**, under any name: stage, ratchet, baseline, inventory.
-- **A scaffold with a maintenance tool.** An inventory of addresses, a generator that rewrites a catalog, a
-  reviews file for shapes the design forbids, an accepted-cycles list with tracking issues. Each one keeps a step
-  alive past the point where it should have been replaced.
-
-When an agent finds one of these while doing other work, it does not quietly work around it. It records it on the
-owning ticket (or opens one) with the file, the shape, and what the correct shape would be. It does not expand its
-own scope to fix it unless that is the ticket in hand.
-
-## 8. Rules for agents
+## 6. Rules for agents
 
 These are binding for a primary agent and for every subagent it spawns. A subagent prompt that omits them is
 incomplete.
-
-**Source of truth for findings.** A red build stops at the first failing project; `dotnet build` undercounts.
-Count with the census (`tools/sme-census`, see `docs/analyzer-cleanup.md` for the invocation) and work from its
-output. A project is clean when the census says so, not when the build passes.
-
-**Never touch the enforcement to clear a finding.** Only the owner moves a rule into the automatically fixed group.
-The analyzer sources, `.editorconfig` severities,
-`Directory.Build.targets`, `module-map.json`, the catalog-suffix list in the encoding scanner, and the set of
-boundary and owner attributes are not cleanup surfaces. A genuine analyzer bug (a false positive the rule's own
-documentation says should not fire) is fixed in the analyzer **with a verification case in
-`SuperMetroid.EnsureVerification` that fails before the fix**, in its own commit, named as an analyzer fix.
-
-**Never move code to a name that exempts it.** No renaming to a catalog suffix, no new catalog-named file that
-contains logic, no encoding-owner or boundary attribute on a type that is not by construction the single owner of
-that encoding or layer.
 
 **Never add machine knowledge to the simulation.** No new address, cell, register, bank, pointer, hex identity or
 bus read in gameplay code, whatever label it would carry. New knowledge of the ROM goes in the import pipeline.
@@ -341,37 +208,32 @@ stops asserting a raw word says what it asserts instead.
 a wrap-sensitive field gets a test that exercises the wrap. A behaviour conversion gets its ROM-oracle check.
 Nobody runs the full movie replays to "see if anything broke"; the player tests the build.
 
-**One clean build and the focused checks, then commit.** Commits are per rule family per subsystem, each with its
+**One clean build and the focused checks, then commit.** Commits are per change per subsystem, each with its
 tests, each leaving the tree no redder than it found it. Nothing is batched into a thousand-file commit.
 
-**Report in these terms.** For each batch: the rule, the census count before and after, the sites fixed, the
-sites given an allowance with each reason, anything found that is lazy completion from earlier work, and anything
-that needs the owner's decision. "Resolved N findings" without the breakdown is not a report.
+**Report in these terms.** For each batch: the sites changed and why, anything found that is lazy completion
+from earlier work, and anything that needs the owner's decision.
 
 **Ask when the right fix is a design decision the ticket does not settle.** Whether a width is load-bearing is
 investigated, not asked. Whether a capability deserves a new interface or an existing one is a pattern question:
-find the existing pattern and follow it. A change to a whole subsystem's representation that the analyzers or the
-destination require is made, not asked about: the size of a change is never a reason to pause.
+find the existing pattern and follow it. A change to a whole subsystem's representation that the destination
+requires is made, not asked about: the size of a change is never a reason to pause.
 
-## 9. On documentation
+## 7. On documentation
 
 A document in this repository exists to tell the next agent what the design **is**, so that their change follows
 it. It is not a changelog, a ticket summary, a status board or a record of effort. A doc that cannot be used to
 judge whether a new change is correct is not documentation.
 
-Each `docs/*.md` note states the target shape, the rules that enforce it, the exemplar in the tree, and what an
-allowance looks like. It is updated in the same commit as the design change it describes. A note that describes a
+Each `docs/*.md` note states the target shape and the exemplar in the tree. It is updated in the same commit as the design change it describes. A note that describes a
 shape the tree no longer has, or a step whose successor never came, is wrong and is fixed or deleted. A note that
 describes a point in time (counts, stages, what is in progress) belongs in a ticket, not in `docs`.
 
-## 10. In one paragraph
+## 8. In one paragraph
 
 This is a port of Super Metroid being turned from an emulator-shaped translation into a modern simulation so that
 it can be moved into Godot without carrying the SNES with it. The gameplay is preserved exactly; the machine's
 representation is removed wherever it is not load-bearing and expressed in domain terms wherever it is. Identities
 are names, never addresses; behaviour is an object, never a pointer; the ROM is known only to the import pipeline.
-Hardware boundaries are scaffolding for removal, not a design. Analyzer rules encode the design decisions already
-made, run at error, and fail the build on every finding, because a finding that is excused is a decision that was
-never made. Every finding is fixed at its site or justified at its site, never in bulk, never by renaming, never by
-weakening the rule. Work that makes a check pass without moving the simulation further from the machine is not
+Hardware boundaries are scaffolding for removal, not a design. Work that makes a check pass without moving the simulation further from the machine is not
 progress and is recorded as debt. An agent that cannot do a fix correctly within its ticket stops and says so.

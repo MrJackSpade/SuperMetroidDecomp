@@ -4,7 +4,7 @@ using SuperMetroid.AssetExtraction.Samus.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Presentation geometry of the color payloads at $8D:D906..D9CA.</summary>
-public static class HyperBeamFxColorFormat
+public static partial class HyperBeamFxColorFormat
 {
     /// <summary>Asset filename for the Hyper Beam projectile palette colors, separate from Samus's full-body Hyper Beam cycle.</summary>
     public const string FileName = "hyper-beam-fx-colors.json";

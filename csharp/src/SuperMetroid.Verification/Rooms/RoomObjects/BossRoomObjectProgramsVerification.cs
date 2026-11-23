@@ -29,7 +29,7 @@ internal static class BossRoomObjectProgramsVerification
     /// <summary>Botwoon's wall changes play as their native lists do; only the crumble opens the scrolls as it starts.</summary>
     internal static void VerifyBotwoonWallPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int frames = 0;
         foreach ((BotwoonWallMutation mutation, ushort entry) in BotwoonWallEntries)
         {
@@ -47,7 +47,7 @@ internal static class BossRoomObjectProgramsVerification
 
     /// <summary>Crocomire's arena changes play as their native lists do.</summary>
     internal static void VerifyCrocomireArenaPrograms(ISnesAddressSpace rom) =>
-        CompareChanges(rom, CrocomireArenaEntries, CrocomireArenaMutationDefinitions.Changes, NativeTerrainChanges.NoSteps, "Crocomire arena");
+        CompareChanges(rom, CrocomireArenaEntries, CrocomireArenaDraws.Changes, NativeTerrainChanges.NoSteps, "Crocomire arena");
 
     /// <summary>
     /// Mother Brain's fake-death changes play as their native lists do: each mutation's own change, and the reveal of
@@ -55,11 +55,11 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         const string family = "Mother Brain fake death";
         AssertEqual(Enum.GetValues<MotherBrainRoomMutation>().Length, MotherBrainFakeDeathEntries.Count,
             $"every {family} mutation has a native list");
-        AssertEqual(MotherBrainFakeDeathEntries.Count, MotherBrainRoomMutationDefinitions.Changes.Count, $"every {family} mutation has a typed change");
+        AssertEqual(MotherBrainFakeDeathEntries.Count, MotherBrainRoomMutationDefinitions.Changes.Count(), $"every {family} mutation has a typed change");
         AssertEqual(MotherBrainMuralDefinitions.RowCount, MotherBrainMuralRowEntries.Count, "every mural row has a native list");
         int frames = 0;
         foreach ((MotherBrainRoomMutation mutation, ushort entry) in MotherBrainFakeDeathEntries)
@@ -94,10 +94,11 @@ internal static class BossRoomObjectProgramsVerification
     /// opens anything as it starts.
     /// </summary>
     private static void CompareChanges<TMutation>(ISnesAddressSpace rom, IReadOnlyList<NativeProgramEntry<TMutation>> entries,
-        IReadOnlyDictionary<TMutation, TerrainChange> changes, NativeTerrainChanges.StepReader steps, string family)
+        IEnumerable<KeyValuePair<TMutation, TerrainChange>> typedChanges, NativeTerrainChanges.StepReader steps, string family)
         where TMutation : struct, Enum
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        Dictionary<TMutation, TerrainChange> changes = typedChanges.ToDictionary(change => change.Key, change => change.Value);
+        IImportCartridgeSource cartridge = rom;
         AssertEqual(Enum.GetValues<TMutation>().Length, entries.Count, $"every {family} mutation has a native list");
         AssertEqual(entries.Count, changes.Count, $"every {family} mutation has a typed change");
         int frames = 0;
@@ -116,7 +117,7 @@ internal static class BossRoomObjectProgramsVerification
         step = default;
         if (InstructionAt<RoomObjectInstruction>(cartridge, cursor) != RoomObjectInstruction.QueueSoundLibrary2Maximum6)
             return false;
-        SoundEffectId sound = SoundEffectCommands.Decode(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
+        SoundEffectId sound = SoundEffectCommands.DecodeCartridge(SoundEffectLibrary.Enemies, ReadOperandByte(cartridge, cursor + 2));
         AssertEqual(expected, sound, $"{family} crumble sound");
         step = new NativeTerrainChanges.NativeStep(Offset16<RoomBlocks>.Zero, sound, Begins: false, Length: 3);
         return true;
@@ -130,7 +131,7 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyDraygonCannonPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         int frames = 0;
@@ -205,7 +206,7 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyMotherBrainGlassPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, MotherBrainGlassDraw image, int updates, string at)
@@ -236,10 +237,9 @@ internal static class BossRoomObjectProgramsVerification
         AssertEqual(RoomObjectInstruction.Delete, At(noGlass + 4), "already shattered glass ends");
 
         int cursor = entry + 15;
-        IReadOnlyList<MotherBrainGlassStage> stages = MotherBrainGlassStageDefinitions.Stages;
-        for (int index = 0; index < stages.Count; index++)
+        int index = 0;
+        for (MotherBrainGlassStage? stage = MotherBrainGlassStageDefinitions.First; stage is not null; index++)
         {
-            MotherBrainGlassStage stage = stages[index];
             string at = $"glass stage {index}";
             int start = cursor;
             AssertShown(cursor, stage.Image, 1, at);
@@ -247,25 +247,27 @@ internal static class BossRoomObjectProgramsVerification
             AssertEqual(stage.BreaksAtHits, (int)Word(cursor + 6), $"{at} hits");
             AssertEqual(start, (int)Word(cursor + 8), $"{at} repeats itself");
             cursor += 10;
-            bool last = index + 1 == stages.Count;
-            MotherBrainGlassDraw next = last ? MotherBrainGlassStageDefinitions.ShatteredImage : stages[index + 1].Image;
-            if (stage.Burst is { } burst)
+            MotherBrainGlassStage? following = stage switch
             {
-                AssertBurst(cursor, burst.First, $"{at} first burst");
+                MotherBrainGlassStage.Cracks cracks => cracks.Next,
+                MotherBrainGlassStage.Bursts.Into into => into.Next,
+                _ => null,
+            };
+            if (stage is MotherBrainGlassStage.Bursts bursts)
+            {
+                MotherBrainGlassDraw next = following?.Image ?? MotherBrainGlassStageDefinitions.ShatteredImage;
+                AssertBurst(cursor, bursts.Burst.First, $"{at} first burst");
                 AssertShown(cursor + 10, next, MotherBrainGlassStageDefinitions.BurstFrameDuration, $"{at} burst image");
-                AssertBurst(cursor + 14, burst.Second, $"{at} second burst");
+                AssertBurst(cursor + 14, bursts.Burst.Second, $"{at} second burst");
                 cursor += 24;
             }
-            else
-            {
-                AssertTrue(!last, "the last glass stage bursts");
-            }
+            stage = following;
         }
         AssertShown(cursor, MotherBrainGlassStageDefinitions.ShatteredImage, MotherBrainGlassStageDefinitions.FinalShatterDuration, "shattered glass");
         AssertEqual(RoomObjectInstruction.SetEvent, At(cursor + 4), "shattered glass sets its event");
         AssertEqual((ushort)StoryEvent.MotherBrainGlassDestroyed.Number(), Word(cursor + 6), "glass sets its destroyed event");
         AssertEqual(RoomObjectInstruction.Delete, At(cursor + 8), "shattered glass ends");
-        Console.WriteLine($"  Mother Brain glass: {stages.Count} typed stages match bank $84.");
+        Console.WriteLine($"  Mother Brain glass: {index} typed stages match bank $84.");
     }
 
     /// <summary>
@@ -276,7 +278,7 @@ internal static class BossRoomObjectProgramsVerification
     /// </summary>
     internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         ushort Word(int address) => cartridge.ReadCartridgeWord(ProgramBank | address);
         RoomObjectInstruction At(int address) => InstructionAt<RoomObjectInstruction>(cartridge, address);
         void AssertShown(int cursor, BombTorizoHandDraw image, int updates, string at)

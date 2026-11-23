@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 /// What Bomb and Golden Torizo's blow-ups and death leave and how long they flash (#2032): the gut's drool, the low-health
 /// and death explosions, and the death drops over each Torizo's arena.
 /// </summary>
-internal static class TorizoDeathDefinitions
+internal static partial class TorizoDeathDefinitions
 {
     /// <summary>The drool pieces Bomb Torizo's gut spills as it blows up.</summary>
     internal const int GutDroolPieces = 6;
@@ -27,13 +27,13 @@ internal static class TorizoDeathDefinitions
     /// The chances both Torizos' death drops roll, Golden Torizo's as well as Bomb Torizo's (#2244): Bomb Torizo's own,
     /// never nothing.
     /// </summary>
-    internal static readonly EnemyDropChances DeathDropChances = new(SmallEnergy: 50, BigEnergy: 50, Missile: 50, Nothing: 0, SuperMissile: 50, PowerBomb: 55);
+    internal static readonly EnemyDropChances DeathDropChances = new(smallEnergy: 50, bigEnergy: 50, missile: 50, nothing: 0, superMissile: 50, powerBomb: 55);
 
-    /// <summary>Bomb Torizo's arena: a 128-by-64-pixel stretch of the upper room.</summary>
+    /// <summary>Bomb Torizo's arena: a narrow stretch of the upper room.</summary>
     internal static readonly TorizoDropArena BombTorizoArena =
         new(new(64, 96), EnemyDropScatterDefinitions.NarrowArenaHorizontalScatter, EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
 
-    /// <summary>Golden Torizo's arena: a 256-by-64-pixel strip much lower in its room.</summary>
+    /// <summary>Golden Torizo's arena: a wide strip much lower in its room.</summary>
     internal static readonly TorizoDropArena GoldenTorizoArena =
         new(new(128, 288), EnemyDropScatterDefinitions.WideArenaHorizontalScatter, EnemyDropScatterDefinitions.ArenaBandVerticalScatter);
 }

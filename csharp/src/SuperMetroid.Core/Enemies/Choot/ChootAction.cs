@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Enemies.Choot;
 /// </summary>
 public enum ChootAction
 {
-    /// <summary>Waits for Samus within 80 horizontal pixels, then loads the population's jump delay.</summary>
+    /// <summary>Waits for Samus within <see cref="ChootMotionDefinitions.ActivationDistance"/> across, then loads the population's jump delay.</summary>
     WaitingForSamus,
     /// <summary>Waits out the jump delay (<see cref="ChootEnemyState.JumpDelayTimer"/>), then selects the jump animation and ascent state.</summary>
     PreparingJump,

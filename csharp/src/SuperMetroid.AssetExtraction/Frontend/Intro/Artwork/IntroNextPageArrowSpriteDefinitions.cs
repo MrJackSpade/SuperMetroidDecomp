@@ -2,7 +2,7 @@ using SuperMetroid.Core.Frontend.Intro;
 namespace SuperMetroid.AssetExtraction.Frontend.Intro.Artwork;
 
 /// <summary>Visual identity of the Japanese text's next-page arrow in the intro narration (#1655).</summary>
-internal static class IntroNextPageArrowSpriteDefinitions
+internal static partial class IntroNextPageArrowSpriteDefinitions
 {
     /// <summary>
     /// The arrow's three two-part poses: every pose the arrow's actor (definition $8B:CE73, lists $8B:CC0F to $8B:CC2B)
@@ -10,8 +10,8 @@ internal static class IntroNextPageArrowSpriteDefinitions
     /// </summary>
     internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
     [
-        new("next-page-arrow-1", CinematicSpritePose.NextPageArrowBright, 2),
-        new("next-page-arrow-2", CinematicSpritePose.NextPageArrowFading, 2),
-        new("next-page-arrow-3", CinematicSpritePose.NextPageArrowFaint, 2),
+        new("next-page-arrow-bright", CinematicSpritePose.NextPageArrowBright, 2),
+        new("next-page-arrow-fading", CinematicSpritePose.NextPageArrowFading, 2),
+        new("next-page-arrow-faint", CinematicSpritePose.NextPageArrowFaint, 2),
     ];
 }

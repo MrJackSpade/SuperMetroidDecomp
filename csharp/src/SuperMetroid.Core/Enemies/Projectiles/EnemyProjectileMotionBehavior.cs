@@ -6,17 +6,22 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// cues and code change the motion by calling its methods; a shot that destroys the projectile, or its deletion, stops it.
 /// </summary>
 /// <typeparam name="TMotion">The family's motions.</typeparam>
-internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectileBehavior
+internal abstract partial class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectileBehavior
     where TMotion : struct, Enum
 {
-    /// <summary>The motion every kind this behaviour is bound to starts with, or null when it starts holding still.</summary>
+    /// <summary>
+    /// The motion a kind this behaviour is bound to starts with, or null when it starts holding still (#2560): one source,
+    /// the one motion every kind starts with or each kind's own. The null is the absence of a motion, not a stand-in for one:
+    /// a projectile holds a motion only while something moves it, as <see cref="EnemyProjectile.Motion"/> holds none for
+    /// every family, so one that holds none is moved by nothing (#2558).
+    /// </summary>
     private readonly TMotion? _initial;
 
-    /// <summary>
-    /// The motion each kind this behaviour is bound to starts with, null for one that starts holding still; null when every
-    /// kind starts with <see cref="_initial"/>.
-    /// </summary>
+    /// <summary>Each kind's own starting motion, or none when every kind starts with <see cref="_initial"/>.</summary>
     private readonly IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?>? _startingMotions;
+
+    /// <summary>Each of this behaviour's motions a projectile has moved by, created once.</summary>
+    private readonly Dictionary<TMotion, EnemyProjectileFamilyMotion<TMotion>> _motions = [];
 
     /// <summary>A kind that starts in <paramref name="initial"/> and reacts to shots and touch by the factories' animations.</summary>
     /// <param name="initial">The motion the projectile starts with, or null when it starts holding still.</param>
@@ -41,31 +46,36 @@ internal abstract class EnemyProjectileMotionBehavior<TMotion> : EnemyProjectile
         IReadOnlyDictionary<RoomEnemyProjectileKind, TMotion?> startingMotions,
         Func<EnemyProjectileAnimation>? shot = null,
         Func<EnemyProjectileAnimation>? touch = null)
-        : base(shot, touch) => _startingMotions = Ensure.NotNull(startingMotions);
-
-    /// <inheritdoc/>
-    /// <exception cref="InvalidOperationException">This behaviour does not name the motion <paramref name="kind"/> starts with.</exception>
-    internal sealed override Enum? InitialMotion(RoomEnemyProjectileKind kind)
+        : base(shot, touch)
     {
-        TMotion? motion = _startingMotions is null
-            ? _initial
-            : _startingMotions.TryGetValue(kind, out TMotion? starting)
-                ? starting
-                : throw new InvalidOperationException($"{GetType().Name} is not bound to enemy projectile {kind}.");
-        return motion is { } moving ? moving : null;
+        _startingMotions = Ensure.NotNull(startingMotions);
     }
 
     /// <inheritdoc/>
-    internal sealed override void RunMotion(EnemyProjectileMotionContext context)
+    /// <exception cref="InvalidOperationException">This behaviour does not name the motion <paramref name="kind"/> starts with.</exception>
+    internal sealed override EnemyProjectileMotion? InitialMotion(RoomEnemyProjectileKind kind)
     {
-        if (context.Projectile.Motion is TMotion motion)
-            Move(context, motion);
-        else
-            base.RunMotion(context);
+        TMotion? motion = _startingMotions is null ? _initial
+            : _startingMotions.TryGetValue(kind, out TMotion? starting) ? starting
+            : throw new InvalidOperationException($"{GetType().Name} is not bound to enemy projectile {kind}.");
+        return motion is { } moving ? Moving(moving) : null;
+    }
+
+    /// <summary><paramref name="motion"/>, one of this behaviour's motions, held through this behaviour (#2571).</summary>
+    /// <param name="motion">The motion.</param>
+    /// <remarks>Each motion is created once, so a projectile that moves by it holds the same object every time.</remarks>
+    internal EnemyProjectileFamilyMotion<TMotion> Moving(TMotion motion)
+    {
+        if (!_motions.TryGetValue(motion, out EnemyProjectileFamilyMotion<TMotion>? moving))
+        {
+            moving = new EnemyProjectileFamilyMotion<TMotion>(this, motion);
+            _motions.Add(motion, moving);
+        }
+        return moving;
     }
 
     /// <summary>Moves the projectile one pass by <paramref name="motion"/>, which this behaviour owns.</summary>
     /// <param name="context">The projectile and what its pass hands every motion.</param>
     /// <param name="motion">The motion the projectile holds.</param>
-    private protected abstract void Move(EnemyProjectileMotionContext context, TMotion motion);
+    internal abstract void Move(EnemyProjectileMotionContext context, TMotion motion);
 }

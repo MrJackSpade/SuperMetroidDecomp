@@ -4,9 +4,8 @@ using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
-/// <summary>What Samus's weapons do to Ceres Ridley: each accepted shot or bomb counts toward the hundred that end his fight.</summary>
-[RoomLifetime]
-internal sealed class CeresRidleyHits
+/// <summary>What Samus's weapons do to Ceres Ridley: each accepted shot or bomb counts toward the hits that end his fight (<see cref="CeresRidleyFightDefinitions.HitsToDriveOff"/>).</summary>
+internal sealed partial class CeresRidleyHits
 {
     /// <summary>The room's view of Ridley: Ceres Ridley as he attached himself, and the station's escape progress.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
@@ -38,7 +37,7 @@ internal sealed class CeresRidleyHits
 
         foreach (SamusProjectile projectile in projectiles.Shots)
         {
-            if (!projectile.HasEnemyCollisionPayload ||
+            if (projectile.Occupant is not { HasEnemyCollisionPayload: true } held ||
                 !FrameHitboxesOverlapRectangle(
                     place,
                     projectile.Position.Whole,
@@ -46,7 +45,7 @@ internal sealed class CeresRidleyHits
             {
                 continue;
             }
-            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, projectile))
+            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(samusBombs, held))
                 continue;
 
             ResolveCeresRidleyShotAfterCollision(place, ceres.Ridley);
@@ -66,7 +65,7 @@ internal sealed class CeresRidleyHits
     {
         // A hit restarts his hurt flash; a hit while the flash runs on an odd count restarts it one update longer,
         // so repeated hits keep the flash's place in its alternation.
-        place.HurtFlash.Restart(place.HurtFlash.IsRunning && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsSetIn(place.HurtFlash.UpdatesLeft)
+        place.HurtFlash.Restart(place.HurtFlash.IsRunning && RidleyCadenceDefinitions.CeresHurtFlashOddCount.IsInSecondHalfAt(place.HurtFlash.UpdatesLeft)
             ? CeresRidleyFightDefinitions.HurtFlashKeepingPhase
             : CeresRidleyFightDefinitions.HurtFlash);
         ridley.HitCounter++;
@@ -94,9 +93,8 @@ internal sealed class CeresRidleyHits
     }
 
     /// <summary>
-    /// The shared rectangle walk used by projectile contact. Every component offset and every rectangle comes from the
-    /// frame Ridley shows; the tiny 8x8 radius in Ridley's species definition is not his body and must never be
-    /// substituted for this data.
+    /// Whether a shot's rectangle overlaps any hitbox of the frame Ridley shows: his body is that frame's hitboxes, not
+    /// the small radius of his species definition.
     /// </summary>
     internal static bool FrameHitboxesOverlapRectangle(
         RoomEnemyPlace place,

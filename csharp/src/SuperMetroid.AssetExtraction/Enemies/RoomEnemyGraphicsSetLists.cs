@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 /// enemy's tiles from, every set rooms draw under to compose the variants of, and the set each room state and population
 /// draws under (#1599). The game knows no set: it draws each population's enemies in the variants the import names for it.
 /// </summary>
-internal static class RoomEnemyGraphicsSetLists
+internal static partial class RoomEnemyGraphicsSetLists
 {
     /// <summary>Number of distinct retail graphics-set identities, including empty sets and separately addressed sets with matching content.</summary>
     internal const int ListCount = 301;

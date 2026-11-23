@@ -7,8 +7,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// and its timer, the figure-eight, the swoop, the round of vulnerability, the casual flames, the fade on his body, the
 /// wave, whether his body shows, and his death.
 /// </summary>
-[ArchitectureReview("context-bag", "Phantoon's encounter state: every member is a part or sub-state of his own fight that he owns for the room (his four parts, phases, flames, fades, wave and visibility, #2252), not a service carried through.")]
-public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => Body.Position.Whole;
@@ -17,23 +16,55 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     bool SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyHidden => false;
 
     /// <summary>Begins the encounter of the body at <paramref name="body"/> and the parts his room lists with it.</summary>
+    /// <param name="bodyOccupant">The enemy holding <paramref name="body"/>.</param>
     /// <param name="body">The place his body occupies.</param>
     /// <param name="eye">The place his eye occupies.</param>
     /// <param name="tentacles">The place his tentacles occupy.</param>
     /// <param name="mouth">The place his mouth occupies.</param>
-    internal PhantoonEnemyState(RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
+    internal PhantoonEnemyState(RoomEnemyOccupant bodyOccupant, RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tentacles, RoomEnemyPlace mouth)
     {
-        BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.InvulnerableBody);
+        BodyOccupant = bodyOccupant;
+        BodyPart = new PhantoonPart(this, body, PhantoonPartSegment.Body);
         EyePart = new PhantoonPart(this, eye, PhantoonPartSegment.EyeClosed);
         TentaclesPart = new PhantoonPart(this, tentacles, PhantoonPartSegment.Tentacles);
         MouthPart = new PhantoonPart(this, mouth, PhantoonPartSegment.MouthInitial);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Phantoon);
+        CarriedParts = [MouthPart, TentaclesPart, EyePart];
     }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first.
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
+
+    /// <summary>The drawing parts his body carries to its place after its AI pass: his mouth, tentacles and eye.</summary>
+    internal IReadOnlyList<PhantoonPart> CarriedParts { get; }
 
     /// <summary>Phantoon's body's and his room's colours (#1512).</summary>
     internal PhantoonColours Colours { get; } = new();
 
     /// <summary>His body, whose health and position are his; it runs first.</summary>
     public PhantoonPart BodyPart { get; }
+
+    /// <summary>
+    /// The hit area his body's picture has live, which his hitboxes test: it takes the hit area his fight last asked for
+    /// as the body's picture shows again, so a change waits for the picture, as the frame it is shown with does.
+    /// </summary>
+    internal PhantoonBodyHitArea BodyHitArea { get; private set; } = PhantoonBodyHitArea.SolidifyingCentre;
+
+    /// <summary>The hit area his fight last asked his body for, live from the update its picture shows.</summary>
+    private PhantoonBodyHitArea RequestedBodyHitArea { get; set; } = PhantoonBodyHitArea.SolidifyingCentre;
+
+    /// <summary>Restarts his body's still picture with <paramref name="area"/> live from the update it shows.</summary>
+    internal void ShowBody(PhantoonBodyHitArea area)
+    {
+        RequestedBodyHitArea = area;
+        BodyPart.StartAnimation(PhantoonPartSegment.Body);
+    }
+
+    /// <summary>Makes the hit area his fight asked for live as his body's animation plays its picture.</summary>
+    internal void BodyPictureShown() => BodyHitArea = RequestedBodyHitArea;
 
     /// <summary>His eye, which shares the body's position while keeping its own animation and colour counters.</summary>
     public PhantoonPart EyePart { get; }
@@ -46,6 +77,9 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
 
     /// <summary>Gets the place his body occupies.</summary>
     public RoomEnemyPlace Body => BodyPart.Place;
+
+    /// <summary>The enemy holding his body's place, whose sheet his flames draw from (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>Gets the place his eye occupies.</summary>
     public RoomEnemyPlace Eye => EyePart.Place;
@@ -89,7 +123,7 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// <summary>The burst of casual flames his mouth spits.</summary>
     public PhantoonCasualFlameBurst CasualFlames { get; } = new();
 
-    /// <summary>The flame waves his rage has sent, zero through eight; each rage starts from none.</summary>
+    /// <summary>The flame waves his rage has sent, up to <see cref="PhantoonRageDefinitions.WaveCount"/>; each rage starts from none.</summary>
     public int RageWaveCount { get; internal set => field = Ensure.AtLeastZero(value); }
 
     /// <summary>How far the fade on his body has run.</summary>
@@ -113,7 +147,9 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
 
     /// <summary>
     /// Whether Phantoon's body shows translucent; <see cref="PhantoonBodyVisibilityEffect"/> shows him so whatever
-    /// <see cref="BodyVisibilityRequest"/> asks.
+    /// <see cref="BodyVisibilityRequest"/> asks. It is a setting of its own, not a member of the request's choice (#2560): his
+    /// patterns turn it on and off while the request stands beneath it, and the request governs his body again from the
+    /// update it ends, so folding the two into one value would lose the request the translucency covers.
     /// </summary>
     public bool Translucent { get; internal set; }
 
@@ -127,9 +163,9 @@ public sealed class PhantoonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IB
     /// <summary>Gets whether the final death step has published the persistent area-boss defeat flag.</summary>
     public bool BossDefeatPersisted { get; internal set; }
 
-    /// <summary>Gets the encounter's lazily created wave of his body, which advances separately from display latching.</summary>
-    public PhantoonBodyWaveEffect BodyWave => field ??= new();
+    /// <summary>Gets the encounter's wave of his body, which advances separately from display latching.</summary>
+    public PhantoonBodyWaveEffect BodyWave { get; } = new();
 
-    /// <summary>Gets the encounter's lazily created visibility effect: whether his body shows, hidden or translucent, live and as the display latched it with his body's pixelation.</summary>
-    public PhantoonBodyVisibilityEffect BodyVisibility => field ??= new();
+    /// <summary>Gets the encounter's visibility effect: whether his body shows, hidden or translucent, live and as the display latched it with his body's pixelation.</summary>
+    public PhantoonBodyVisibilityEffect BodyVisibility { get; } = new();
 }

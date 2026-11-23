@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Animation;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Colours;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -13,7 +12,7 @@ internal static class SamusFullBodyCycleAccess
 {
     /// <summary>The Screw Attack glow, whose six shades number the shared steps.</summary>
     private static Animation<SamusGlowSegment> ScrewAttack =>
-        SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.ScrewAttackPower];
+        SamusGlowAnimationDefinitions.Animations[SamusGlowSegment.In(SamusGlow.ScrewAttack, SamusSuit.Power)];
 
     /// <summary>Reads and sets the shared glow.</summary>
     extension(SamusHorizontalSpeedState self)
@@ -36,8 +35,7 @@ internal static class SamusFullBodyCycleAccess
         internal int CycleShadeTimer
         {
             get => self.FullBodyGlow.UpdatesLeft;
-            set => PrivateState.Set(self.FullBodyGlow,
-                nameof(AnimationPlayer<SamusGlowSegment, PictureShade, NoAnimationCue>.UpdatesLeft), value);
+            set => self.FullBodyGlow.UpdatesLeft = value;
         }
     }
 }

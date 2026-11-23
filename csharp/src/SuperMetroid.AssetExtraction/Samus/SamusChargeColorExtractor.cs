@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.AssetExtraction.Video;
 using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -6,7 +8,7 @@ using SuperMetroid.AssetExtraction.Artwork;
 namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Exports charge-body and Hyper-shot colors in native playback order.</summary>
-public static class SamusChargeColorExtractor
+public static partial class SamusChargeColorExtractor
 {
     /// <summary>Exports charged-beam and pseudo-Screw body palettes by suit, plus Hyper-shot flash palettes in native playback order.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for bank-$91 suit/phase pointer lists and their bank-$9B sixteen-color payloads.</param>
@@ -17,21 +19,16 @@ public static class SamusChargeColorExtractor
     public static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
-        var charged = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
-        var pseudo = new PaletteRgb5[SamusChargeColorFormat.SuitCount][][];
-        for (int suit = 0; suit < SamusChargeColorFormat.SuitCount; suit++)
-        {
-            charged[suit] = ReadSixPhaseList(
-                SamusSourceDefinitions.BeamChargePointers.Value, suit);
-            pseudo[suit] = ReadSixPhaseList(
-                SamusSourceDefinitions.PseudoScrewPointers.Value, suit);
-        }
+        Dictionary<string, PaletteRgb5[][]> charged = SamusSuitListLayout.BySuit(place => ReadSixPhaseList(
+            SamusSourceDefinitions.BeamChargePointers.Value, place));
+        Dictionary<string, PaletteRgb5[][]> pseudo = SamusSuitListLayout.BySuit(place => ReadSixPhaseList(
+            SamusSourceDefinitions.PseudoScrewPointers.Value, place));
         var hyper = new PaletteRgb5[SamusChargeColorFormat.HyperFrameCount][];
         for (int frame = 0; frame < hyper.Length; frame++)
         {
             // The list is read backward from its last pointer, skipping the padding word before its first.
             int tableOffset = (SamusChargeColorFormat.HyperFrameCount - frame) * sizeof(ushort);
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int pointer = RomDataReader.ReadWordFixedBank(bus,
                 SamusSourceDefinitions.HyperBeamShotPointers.Value + tableOffset);
             hyper[frame] = ReadColors(pointer);
         }
@@ -45,12 +42,12 @@ public static class SamusChargeColorExtractor
 
         PaletteRgb5[][] ReadSixPhaseList(int topAddress, int suit)
         {
-            int list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            int list = RomDataReader.ReadWordFixedBank(bus,
                 topAddress + suit * sizeof(ushort));
             var phases = new PaletteRgb5[SamusChargeColorFormat.PhasesPerSuit][];
             for (int phase = 0; phase < phases.Length; phase++)
             {
-                int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+                int pointer = RomDataReader.ReadWordFixedBank(bus,
                     SamusSourceDefinitions.PoseBank.Value | (list + phase * sizeof(ushort)));
                 phases[phase] = ReadColors(pointer);
             }
@@ -59,19 +56,14 @@ public static class SamusChargeColorExtractor
 
         PaletteRgb5[] ReadColors(int pointer)
         {
-            byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
+            byte[] source = RomDataReader.ReadFixedBank(bus,
                 SamusSourceDefinitions.PaletteBank.Value | pointer,
                 SamusChargeColorFormat.ColorsPerPalette * sizeof(ushort));
             var result = new PaletteRgb5[SamusChargeColorFormat.ColorsPerPalette];
             for (int index = 0; index < result.Length; index++)
             {
                 int word = LittleEndianBytes.Word(source[index * 2], source[index * 2 + 1]);
-                result[index] = new PaletteRgb5
-                {
-                    Red = word & 31,
-                    Green = word >> 5 & 31,
-                    Blue = word >> 10 & 31,
-                };
+                result[index] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(word));
             }
             return result;
         }

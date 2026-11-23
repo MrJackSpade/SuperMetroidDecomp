@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// The pre-coloured sheet of Samus's suit explosion as she dies (#1392): each explosion frame facing right and left,
 /// which Samus's death drawing shows over her death pose.
 /// </summary>
-public static class SamusDeathSheetDefinitions
+public static partial class SamusDeathSheetDefinitions
 {
     /// <summary>
     /// The explosion's pictures in the order its animation shows them (#2285, #2388): the suit glowing, cracking and
@@ -19,7 +19,6 @@ public static class SamusDeathSheetDefinitions
     ];
 
     /// <summary>The explosion's picture <paramref name="frame"/>, facing <paramref name="facing"/>.</summary>
-    [InstalledKey]
     public static string ExplosionFrame(HorizontalDirection facing, F frame) =>
         $"Explosion.{HorizontalDirectionKeys.Installed.Of(facing)}.{SamusDeathExplosionFrameKeys.Installed.Of(frame)}";
 }

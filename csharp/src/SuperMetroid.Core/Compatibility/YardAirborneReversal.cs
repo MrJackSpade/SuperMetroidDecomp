@@ -17,8 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// speeds, so retail flights reach both forms. The Yard airborne reversal check compares every whole word and every
 /// fraction with that arithmetic.
 /// </remarks>
-[CompatibilityService("a Yard in the air reverses a speed by negating its whole pixels and fraction each on their own, leaving a speed with a fraction a pixel an update short of its reversal")]
-internal static class YardAirborneReversal
+internal static partial class YardAirborneReversal
 {
     /// <summary>The speed a Yard in the air leaves with after reversing <paramref name="speed"/>.</summary>
     /// <param name="speed">The speed the Yard reverses.</param>

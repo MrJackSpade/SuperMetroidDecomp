@@ -31,7 +31,7 @@ internal static class BlueBrinstarFaceBlockGlowVerification
     /// </summary>
     internal static void VerifyBlueBrinstarFaceBlockGlow(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         IReadOnlyList<FaceBlockGlowLevel> cycle = FaceBlockGlowAnimations.Cycle;
         ushort[][] records = [.. Enumerable.Range(0, cycle.Count).Select(step => Enumerable.Range(0, RecordColours)
             .Select(colour => cartridge.ReadCartridgeWord(GlowColourRecords + 2 * (RecordColours * step + colour))).ToArray())];
@@ -45,22 +45,14 @@ internal static class BlueBrinstarFaceBlockGlowVerification
         }
 
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-        place.Bind(EnemyDefinitionId.FaceBlock, place.Definition);
-        place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-        place.SetSpawnParameter1(EnemyDefinitionId.FaceBlock, 64);
-        place.SetSpawnParameter2(EnemyDefinitionId.FaceBlock, 0);
-        place.Position = place.Position.WithWhole(new(256, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.InitializeBlueBrinstarFaceBlock(place, RoomEnemyFrameFixtures.StandaloneSamus());
-        BlueBrinstarFaceBlockEnemyState state = enemies.BlueBrinstarFaceBlockStates[0]
-            ?? throw new InvalidOperationException("The face block has no state.");
+        RoomEnemyPlace place = BlueBrinstarFaceBlockPlacing.Place(enemies, new(256, 256));
         // Samus has the Morph Ball but stands far from the block, which starts the glow and does not wake.
         var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), InstalledFixtures.SamusArtwork())
         {
             CollectedItems = SamusEquipmentFlags.MorphBall,
             Position = FixedPosition<RoomPixels>.FromWhole(new(512, 256)),
         };
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
+        AssertTrue(!BlueBrinstarFaceBlockPlacing.RunMainAiWakes(place, samus), "the face block rests with Samus far from it");
         AssertEqual(Shaded(cycle[^1]), place.Shading, "a started glow shows its last step's level");
 
         int updates = 0;
@@ -76,8 +68,7 @@ internal static class BlueBrinstarFaceBlockGlowVerification
         enemies.BlueBrinstarFaceBlockBehavior.StepGlow();
         enemies.BlueBrinstarFaceBlockBehavior.StepGlow();
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new(224, 256));
-        enemies.BlueBrinstarFaceBlockBehavior.RunBlueBrinstarFaceBlockMain(place, state, samus);
-        AssertTrue(state.Activated, "the face block wakes for Samus beside it");
+        AssertTrue(BlueBrinstarFaceBlockPlacing.RunMainAiWakes(place, samus), "the face block wakes for Samus beside it");
         AssertEqual(Shaded(cycle[^1]), place.Shading, "a waking block keeps the glow's level");
         StepUntilLevelChanges(enemies, place, ref updates, FaceBlockGlowDefinitions.FrameDuration - 1);
         enemies.BlueBrinstarFaceBlockBehavior.StepGlow();

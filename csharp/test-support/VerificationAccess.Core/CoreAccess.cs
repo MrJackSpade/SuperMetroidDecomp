@@ -8,7 +8,6 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Pause;
@@ -39,7 +38,7 @@ internal static class CoreAccess
     internal static bool KraidMouthHitboxOverlapsShot(RoomEnemyPlace body, ushort hitboxPointer, SamusProjectile shot)
     {
         KraidPassBounds bounds = KraidBehaviorConstants.PlaceKraidPassBounds(body, hitboxPointer);
-        return KraidCombat.OverlapsKraidMouth(bounds, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage, IsPlacedBomb: false));
+        return KraidCombat.OverlapsKraidMouth(bounds, new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.HeldShot().Type, shot.HeldShot().Damage, IsPlacedBomb: false));
     }
 
     /// <summary>Exposes frontend-owned gameplay runtime, attract timing, audio, and Samus observations for verification.</summary>
@@ -49,8 +48,6 @@ internal static class CoreAccess
         internal SuperMetroidRuntime? RuntimeForVerification => game.Session.Runtime;
         /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
         internal SuperMetroidRuntime GameplayRuntimeForVerification => game.Session.GameplayRuntime;
-        /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
-        internal int AttractDemoHoldFramesRemaining => game.Session.Demo.Hold.UpdatesLeft;
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
@@ -84,28 +81,19 @@ internal static class CoreAccess
         internal ushort GameplaySamusY => game.RuntimeForVerification?.Player.Samus?.Position.Y.Whole ?? 0;
     }
 
-    /// <summary>Reads private projectile, Samus, and Mother Brain state during the intro flashback.</summary>
+    /// <summary>Reads the intro flashback's private shot system.</summary>
     extension(IntroCinematicState intro)
     {
         /// <summary>Native projectile counter for the intro flashback's private shot system.</summary>
         internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.Pool.ShotCount.Count;
-        /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
-        /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
-        /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
-        internal int MotherBrainHitCount =>
-            intro.CurrentFlashbackMotherBrain is { } motherBrain ? PrivateState.Field<IntroMotherBrainSpriteState, int>(motherBrain, "hitCount") : 0;
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
     extension(EndingCreditsState ending)
     {
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
-        internal int Brightness => ending.Stage.Brightness;
-        /// <summary>Cinematic calls the ending has made so far.</summary>
-        internal int CinematicFrame => PrivateState.Field<EndingCreditsState, int>(ending, "cinematicFrame");
+        internal int Brightness => ending.Stage.Brightness.StepsAboveBlack;
         /// <summary>Whole-pixel vertical credits scroll position while the staff credits show, or zero in every other scene.</summary>
         internal int CreditsVerticalScroll => ending.Scene is EndingCreditsRollScene { Scroll: var scroll } ? scroll.ScrolledPixels : 0;
     }
@@ -114,9 +102,26 @@ internal static class CoreAccess
     extension(PauseMenuState pause)
     {
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
-        internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
-        /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
-        internal Offset16<MapPixels> MapScroll => pause.MapScrollPosition;
+        internal bool PageTransitionActive => pause.Transition is not null;
+        /// <summary>
+        /// The map-space scroll the pause menu's map page shows (#2554), read from the scene it draws: the map grid's scroll
+        /// less the frame's, which places the frame's opening (<see cref="SuperMetroid.Core.Frontend.Map.MapFrameOpening"/>).
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The menu draws no map seen through the frame's opening.</exception>
+        internal Offset16<MapPixels> MapScroll
+        {
+            get
+            {
+                SuperMetroid.Core.Rendering.LayeredScene scene = pause.ComposeScene();
+                SuperMetroid.Core.Rendering.PictureGridLayer map = scene.Layers.ToArray()
+                    .OfType<SuperMetroid.Core.Rendering.PictureGridLayer>().Single();
+                if (map.Window is not { Shapes: [SuperMetroid.Core.Rendering.WindowRectangle opening] })
+                    throw new InvalidOperationException("The pause menu's map shows through no single frame opening.");
+                Position16<PlanePixels> corner = SuperMetroid.Core.Frontend.Map.MapFrameDefinitions.OpeningCorner;
+                return Offset16<MapPixels>.Wrapped(map.Scroll.X - (corner.X - opening.TopLeft.X),
+                    map.Scroll.Y - (corner.Y - opening.TopLeft.Y));
+            }
+        }
 
         /// <summary>The map cell the pause screen's map shows at <paramref name="cell"/>, in the shade it shows it in (#1513).</summary>
         internal ShownMapCell ReadDisplayedMapCell(Position16<MapTiles> cell) =>
@@ -126,15 +131,16 @@ internal static class CoreAccess
     /// <summary>Reads the shooting-star array in its native update order.</summary>
     extension(EndingShootingStars shootingStars)
     {
-        /// <summary>Current private star array in its native update order.</summary>
-        internal ReadOnlySpan<EndingShootingStar> Stars => shootingStars.stars;
+        /// <summary>Current private star array in its native update order, which a check may place a star in.</summary>
+        internal Span<EndingShootingStar> Stars => shootingStars.stars;
     }
 
     /// <summary>Observes canonical sample totals and source mappings after audio extraction.</summary>
     extension(ExtractedAudioAssetCatalog catalog)
     {
         /// <summary>Number of unique samples retained after canonicalization.</summary>
-        internal int CanonicalSampleCount => catalog.canonicalSampleCount;
+        internal int CanonicalSampleCount => catalog.sampleBanks.Values
+            .SelectMany(bank => bank.Samples.Values).Distinct(ReferenceEqualityComparer.Instance).Count();
         /// <summary>Total source-sample mappings across installed audio banks.</summary>
         internal int SourceMappingCount => catalog.sampleBanks
             .Values.Sum(bank => bank.Samples.Count);
@@ -158,7 +164,7 @@ internal static class CoreAccess
     extension(ColourEffectSystem fx)
     {
         /// <summary>The colour effects running.</summary>
-        internal int ActiveCount => fx.effects.Count;
+        internal int ActiveCount => fx.RunningEffects.Count;
     }
 
 
@@ -184,15 +190,9 @@ internal static class CoreAccess
     /// <summary>Rebinds enemy fixtures and inspects Kraid collision, statue requests, and pirate slot state.</summary>
     extension(RoomEnemySystem enemies)
     {
-        /// <summary>The room objects the Chozo statue has asked for and the room has still to spawn, in the order it asked.</summary>
+        /// <summary>The room objects the Chozo statue has asked for since the pass or the load began, in the order it asked (#2562).</summary>
         internal IReadOnlyList<RoomObjectSpawnRequest<ChozoStatueRoomObject>> ChozoStatueObjectRequests =>
-            PrivateState.Field<ChozoStatueBehavior, List<RoomObjectSpawnRequest<ChozoStatueRoomObject>>>(enemies.ChozoStatueBehavior, "_objectRequests");
-        /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
-        internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => place.SpeciesState<ChozoStatueState>())];
-        /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
-        internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
-            [.. enemies.Places.InUpdateOrder.Select(place => place.EntityState<NinjaSpacePirateEntity, NinjaSpacePirateEnemyState>())];
+            [.. enemies.PassEvents.Published.OfType<ChozoStatueObjectAsked>().Select(asked => asked.Request)];
     }
 
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>
@@ -200,10 +200,10 @@ internal static class CoreAccess
     {
         /// <summary>The moving pad's actor, which lowers Samus.</summary>
         internal CeresElevatorArrivalState.CeresElevatorArrivalActor Pad =>
-            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorPad>(arrival, "pad").Actor;
+            arrival.pad.Actor;
         /// <summary>The stationary platform behind the pad.</summary>
         internal CeresElevatorArrivalState.CeresElevatorArrivalActor Platform =>
-            PrivateState.Field<CeresElevatorArrivalState, CeresElevatorArrivalState.CeresElevatorArrivalActor>(arrival, "platform");
+            arrival.platform;
         /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
         internal Position16<RoomPixels> PadPosition => arrival.Pad.Position;
         /// <summary>Whole room position of the Ceres elevator's level-data platform.</summary>
@@ -241,7 +241,7 @@ internal static class CoreAccess
                         SaveStationObject save => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
                             Kind: null, save.SavePhase == SaveStationPhase.Touched, save.SavePhase, lockedOut)],
                         AccessStationObject station => [new StationObjectSnapshot(entry.Index, entry.Place.Block, entry.Place.NativeRoomArgument,
-                            station.Kind, station.OperationPhase is StationOperationPhase.TouchAccepted, SaveStationPhase.Idle, lockedOut)],
+                            station.Rule.Kind, station.OperationPhase is StationOperationPhase.TouchAccepted, SaveStationPhase.Idle, lockedOut)],
                         _ => Array.Empty<StationObjectSnapshot>(),
                     })
                     .ToArray();

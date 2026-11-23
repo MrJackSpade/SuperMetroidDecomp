@@ -148,9 +148,9 @@ internal static class TorizoProjectileAnimationsVerification
     /// <summary>Every projectile animation matches the native lists it plays, and every native list is played by some animation.</summary>
     internal static void VerifyTorizoProjectileAnimations(CartridgeImportAddressSpace rom)
     {
-        IImportCartridgeSource cartridge = CartridgeImportSource.Require(rom);
+        IImportCartridgeSource cartridge = rom;
         int steps = NativeEnemyProjectileProgramOracle.CompareByEntry(cartridge, ProjectileLists, ProjectileAnimationEntries,
-            TorizoProjectileAnimations.Segments, TorizoProjectileAnimations.StartingAt,
+            TorizoProjectileAnimations.Segments.Beats, TorizoProjectileAnimations.StartingAt,
             EnemyProjectileProgramFrameOperands.KeyOf, CueRules, named: NamedProjectileAnimationEntries);
 
         int frames = 0;
@@ -161,8 +161,6 @@ internal static class TorizoProjectileAnimationsVerification
                 .Where(animation => TorizoProjectileAnimationsConstants.Family(animation) == family)
                 .SelectMany(animation => TorizoProjectileAnimations.Segments.Beats(animation))
                 .Select(beat => beat.ShownFrame).OfType<EnemyProjectileFrameId>().ToHashSet();
-            // The drool's delays and the eye beam's floor impact show the blank frame, which is installed nowhere (#2431).
-            shown.Remove(EnemyProjectileFrameId.Blank);
             AssertTrue(shown.SetEquals(installed), $"the {family} animations show exactly the installed frames");
             ushort[] keys = [.. installed.Select(EnemyProjectileProgramFrameSources.Operand)];
             AssertTrue(keys.Zip(keys.Skip(1), (first, second) => first < second).All(ascends => ascends), $"the {family} frames install in native operand order");
@@ -184,7 +182,7 @@ internal static class TorizoProjectileAnimationsVerification
                 (TorizoProjectileSegment.EggBouncingRight, TorizoProjectileSegment.EggHatchingRight),
             })
         {
-            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingWith(rolling).End, $"{rolling} holds");
+            AssertEqual(AnimationEnd.Holds, TorizoProjectileAnimations.StartingAt[rolling].End, $"{rolling} holds");
             ushort sleep = unchecked((ushort)(ProjectileEntry(rolling) + 4));
             AssertEqual(ProjectileWord.Sleep, Words[(NativeEnemyProjectileInstruction)cartridge.ReadCartridgeWord(NativeEnemyProjectileListDefinitions.ProjectileBank | sleep)].Word,
                 $"{rolling}'s sleep follows its frame");
@@ -201,7 +199,7 @@ internal static class TorizoProjectileAnimationsVerification
         if (SoundCommands.TryGetValue(instruction, out var sound))
         {
             var playSound = AssertIs<TorizoProjectileCue.PlaySound>(cue, $"{at}: cue");
-            AssertEqual(SoundEffectCommands.Decode(sound.Library, operands[0]), playSound.Sound, $"{at}: sound");
+            AssertEqual(SoundEffectCommands.DecodeCartridge(sound.Library, operands[0]), playSound.Sound, $"{at}: sound");
             AssertEqual(sound.Priority, playSound.Priority, $"{at}: sound queue limit");
             return;
         }
@@ -209,7 +207,7 @@ internal static class TorizoProjectileAnimationsVerification
         {
             case TorizoProjectileCue.Signal signal when StartedMotion.TryGetValue(signal.Kind, out TorizoProjectileMotion started):
                 // Setting a movement routine is the cue that starts the motion that routine stands for.
-                AssertEqual<Enum?>(started, EnemyProjectileMotionAccess.FromWord(Word(0)), $"{at}: movement routine");
+                AssertTrue(EnemyProjectileMotionAccess.StandsFor(Word(0), started), $"{at}: movement routine");
                 return;
             case TorizoProjectileCue.Signal signal when PropertiesSet.TryGetValue(signal.Kind, out var set):
                 // The behaviours the cue turns on, encoded by the import's property-word bits, are the OR operand the
@@ -240,8 +238,8 @@ internal static class TorizoProjectileAnimationsVerification
                 return;
             case TorizoProjectileCue.Scatter scatter:
                 // Each range field reads exactly the bits of its native mask operand.
-                AssertEqual<int>(operands[0], (scatter.Spread.XRange.Outcomes - 1) << scatter.Spread.XRange.Shift, $"{at}: scatter X range");
-                AssertEqual<int>(operands[2], (scatter.Spread.YRange.Outcomes - 1) << scatter.Spread.YRange.Shift, $"{at}: scatter Y range");
+                AssertEqual<int>(operands[0], scatter.Spread.Span.X - 1, $"{at}: scatter X range");
+                AssertEqual<int>(operands[2], scatter.Spread.Span.Y - 1, $"{at}: scatter Y range");
                 AssertEqual(new Extent16<RoomPixels>(operands[1], operands[3]), scatter.Spread.Center, $"{at}: scatter center");
                 return;
             case TorizoProjectileCue.Signal { Kind: TorizoProjectileCueKind.StopMoving or TorizoProjectileCueKind.AimSuperMissileTowardSamus or

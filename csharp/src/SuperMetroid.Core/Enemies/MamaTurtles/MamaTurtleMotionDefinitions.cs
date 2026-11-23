@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>How the Mama Turtle and her babies move, wait and touch Samus (#2043).</summary>
-internal static class MamaTurtleMotionDefinitions
+internal static partial class MamaTurtleMotionDefinitions
 {
     /// <summary>Half the Mama Turtle's height once she has left her shell, in pixels.</summary>
     internal const int AwakeHalfHeight = 16;
@@ -13,7 +13,7 @@ internal static class MamaTurtleMotionDefinitions
     internal static readonly SuperMetroid.Core.Earthquakes.EarthquakeShake WallQuake = new(
         SuperMetroid.Core.Earthquakes.EarthquakeStrength.Light,
         SuperMetroid.Core.Earthquakes.EarthquakeDirection.Horizontal,
-        SuperMetroid.Core.Earthquakes.EarthquakeReach.Foreground);
+        SuperMetroid.Core.Earthquakes.EarthquakeReach.RoomBlocks);
 
     /// <summary>The fastest the hovering Mama Turtle carries a landing Samus leftward: sixteen pixels an update.</summary>
     internal static readonly SignedSixteenSixteen LargestLeftwardCarry = SignedSixteenSixteen.FromWholePixels(16);
@@ -44,9 +44,6 @@ internal static class MamaTurtleMotionDefinitions
 
     /// <summary>How fast a baby crawls along its heading, in whole pixels an update (#2338).</summary>
     internal const int BabyCrawlSpeed = 1;
-
-    /// <summary>How many babies crawl on the Mama Turtle's shell; the room lists them right after her.</summary>
-    internal const int BabyCount = 4;
 
     /// <summary>How far a baby crawls from where it spawned before it turns back, in pixels.</summary>
     internal const int BabyTravelDistance = 48;

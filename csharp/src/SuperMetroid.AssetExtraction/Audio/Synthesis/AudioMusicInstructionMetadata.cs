@@ -11,7 +11,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <param name="Opcode">The command's opcode byte.</param>
 /// <param name="Timing">The timing prefix bytes, none, one or two.</param>
 /// <param name="Arguments">The effect operand bytes; none for any other command.</param>
-public sealed record AudioMusicInstructionMetadata(
+public sealed partial record AudioMusicInstructionMetadata(
     AudioMusicInstructionKind Kind,
     int Opcode,
     IReadOnlyList<byte> Timing,

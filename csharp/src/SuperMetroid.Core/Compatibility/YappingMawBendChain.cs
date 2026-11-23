@@ -15,8 +15,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// reached on most bends. The bend chain
 /// check compares the chain with that chained addition over every offset and correction class.
 /// </remarks>
-[CompatibilityService("a Yapping Maw's bend corrects its link offsets in one chain, an offset passing the coordinate space's end moving the next one pixel further")]
-internal struct YappingMawBendChain
+internal partial struct YappingMawBendChain
 {
     /// <summary>The coordinates one offset counts through before it continues from the other end.</summary>
     private const int CoordinateCount = 65536;

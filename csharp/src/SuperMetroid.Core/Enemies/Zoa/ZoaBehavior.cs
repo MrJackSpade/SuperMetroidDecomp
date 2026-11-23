@@ -1,25 +1,24 @@
-﻿using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies.Zoa;
 
 /// <summary>The Zoa species owner: its per-room state, behaviour and the interactions it registers.</summary>
-[RoomLifetime]
-internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed partial class ZoaBehavior : IEnemySpecies, IEnemySpawnFactory<EnemySpawnSettings>
 {
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zoa];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemyPlace place, EnemyCommonParticipation common) => new ZoaEntity(place, common);
+    public EnemyOccupant Create(RoomEnemyOccupant occupant, EnemySpawnSettings settings, RoomEnemyPlace place, EnemyCommonParticipation common) => EnemyOccupant.Running(new ZoaEntity(occupant, place, common));
 
     /// <summary>Advances Zoa's typed animation (#641) in place of the shared enemy animation.</summary>
-    internal static void AdvanceZoaAnimation(RoomEnemyPlace place)
+    internal static void AdvanceZoaAnimation(RoomEnemyPlace place, ZoaEnemyState state)
     {
         if (!place.AnimationClock.Expire())
             return;
-        ZoaEnemyState state = place.RequireSpeciesState<ZoaEnemyState>();
         AnimationPlayback<ZoaSegment> playback = state.Playback;
         EnemyAnimationPlayback.Play(place, ZoaAnimations.Segments, ref playback,
             cue =>
@@ -34,7 +33,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ApplyZoaCue(ZoaEnemyState state, ZoaCue cue) => state.LaunchSpeed = cue.LaunchSpeed;
 
     /// <summary>Initializes the Zoa, saving the population coordinate and hiding the idle actor.</summary>
-    internal static void InitializeZoa(RoomEnemyPlace place)
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal static ZoaEnemyState InitializeZoa(RoomEnemyPlace place)
     {
         var state = new ZoaEnemyState(ZoaAction.WaitForSamus)
         {
@@ -42,13 +42,21 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             LaunchSpeed = SignedSixteenSixteen.Zero,
             SpawnPosition = place.Position.Whole,
         };
-        place.SetSpeciesState(state);
 
-        // The setup starts the left-facing shooting animation directly, leaving the frame timer as the spawn set it,
-        // so asking for it again at rest starts nothing.
+        // A resting Zoa holds the left-facing shooting animation it starts with, so asking for it again at rest starts
+        // nothing.
         state.Playback = new(ZoaAnimations.StartingWith(ZoaSegment.FacingLeftShooting), AnimationPlace.StartOfAnimation);
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
+        return state;
     }
+
+    /// <summary>What <see cref="RunZoaMain"/> does for each <see cref="ZoaAction"/> member, each member's own arm.</summary>
+    private static IdentityTable<ZoaAction, Action<RoomEnemyPlace, ZoaEnemyState, SamusState, Position16<RoomPixels>>> RunZoaMainForZoaAction => field ??= new(new Dictionary<ZoaAction, Action<RoomEnemyPlace, ZoaEnemyState, SamusState, Position16<RoomPixels>>>
+    {
+        [ZoaAction.WaitForSamus] = static (place, state, samus, camera) => RunZoaWait(place, state, samus),
+        [ZoaAction.Rising] = static (place, state, samus, camera) => RunZoaRising(place, state, samus),
+        [ZoaAction.Shooting] = static (place, state, samus, camera) => RunZoaShooting(place, state, camera),
+    });
 
     /// <summary>Runs a Zoa for one update: its proximity wait, rise or horizontal shot, from the room state.</summary>
     private static void RunZoaMain(
@@ -57,24 +65,10 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         Position16<RoomPixels> camera)
     {
-        switch (state.Action)
-        {
-            case ZoaAction.WaitForSamus:
-                RunZoaWait(place, state, samus);
-                return;
-            case ZoaAction.Rising:
-                RunZoaRising(place, state, samus);
-                return;
-            case ZoaAction.Shooting:
-                RunZoaShooting(place, state, camera);
-                return;
-            default:
-                throw new InvalidDataException(
-                    $"Zoa has no behaviour for action {state.Action}.");
-        }
+        RunZoaMainForZoaAction[state.Action](place, state, samus, camera);
     }
 
-    /// <summary>Wakes when Samus enters the 128-pixel column and rises facing her.</summary>
+    /// <summary>Wakes when Samus comes within its activation distance across and rises facing her.</summary>
     internal static void RunZoaWait(
         RoomEnemyPlace place,
         ZoaEnemyState state,
@@ -100,7 +94,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         place.Presence = place.Presence.Without(EnemyPresence.Hidden);
         if (samus.Position.Y.Whole < place.Position.Y.Whole)
         {
-            // The Zoa rises half a pixel each update.
+            // The Zoa rises by its rising speed each update.
             place.Position = place.Position.AdvanceY(-ZoaSpeedDefinitions.RisingSpeed);
             return;
         }
@@ -117,8 +111,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SignedSixteenSixteen speed = state.LaunchSpeed;
 
-        // The shot travels the way the Zoa faces. The shooting animation's cues set the speed as it starts and after 64
-        // and 72 updates.
+        // The shot travels the way the Zoa faces. The shooting animation's cues set the speed as it starts and at its later
+        // beats.
         SignedSixteenSixteen xDisplacement = speed.Toward(state.Facing);
         place.Position = place.Position.AdvanceX(xDisplacement);
         if (EnemyProcessingWindow.EnemyCenterIsOnScreen(place, camera))
@@ -127,7 +121,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        // Once its center leaves the inclusive 256x256 camera square, Zoa teleports to the
+        // Once its center leaves the camera's inclusive view, Zoa teleports to the
         // saved population coordinate and becomes invisible until the next proximity wake.
         place.Presence = place.Presence.With(EnemyPresence.Hidden);
         place.Position = place.Position.WithWhole(state.SpawnPosition);
@@ -141,8 +135,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Playback = EnemyAnimationPlayback.StartUnlessPlaying(place, state.Playback, ZoaAnimations.StartingWith(segment));
 
     /// <summary>Runs Zoa's main AI.</summary>
-    internal static void RunZoaMainAi(RoomEnemyPlace place, IEnemyAiFrame frame)
+    internal static void RunZoaMainAi(RoomEnemyPlace place, ZoaEnemyState zoaEnemyState, IEnemyAiFrame frame)
     {
-        RunZoaMain(place, place.RequireSpeciesState<ZoaEnemyState>(), frame.Samus, frame.Camera);
+        RunZoaMain(place, zoaEnemyState, frame.Samus, frame.Camera);
     }
 }

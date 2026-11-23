@@ -1,5 +1,5 @@
 using static SuperMetroid.Verification.Rooms.RoomObjects.RoomObjectRunHeaderAssertions;
-using static SuperMetroid.Verification.Harness.RetailAreaNumbers;
+using SuperMetroid.AssetExtraction.Progression;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.AssetExtraction;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -72,12 +72,10 @@ internal static class SpeedBoosterObjectProgramsVerification
         SpeedBoosterObjectProgramsEntry[] entries =
             [new SpeedBoosterObjectProgramsEntry(0x0e,-1,0x949155),new SpeedBoosterObjectProgramsEntry(0x0f,-1,0x949157),new SpeedBoosterObjectProgramsEntry(0x82,1,0x9491fd),
              new SpeedBoosterObjectProgramsEntry(0x83,1,0x9491ff),new SpeedBoosterObjectProgramsEntry(0x84,1,0x949201),new SpeedBoosterObjectProgramsEntry(0x85,1,0x949203)];
-        for (int area = 0; area <= byte.MaxValue; area++)
+        for (int area = 0; area < AreaNumberCodec.Count; area++)
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
-            AreaId retail = RetailArea(area);
-            if (retail == UnknownArea)
-                continue;
+            AreaId retail = AreaNumberCodec.At(area);
             int tableAddress = 0;
             foreach (var entry in entries)
                 if (entry.Bts == bts && (entry.Area < 0 || entry.Area == area))
@@ -121,7 +119,7 @@ internal static class SpeedBoosterObjectProgramsVerification
                 int blockIndex) = CreateSpeedBoosterBlockFixture(bts, area);
             var guarded = NewSpeedBoosterObjectReadGuard(bus);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-            BlockMoveResult contact = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, RoomObjects = roomObjects }, samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
+            BlockMoveResult contact = SamusBlockCollision.MoveVertical(new RoomTerrain(level, roomObjects), samus.Kinematics, samus, samus.Pose, new VerticalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(4), ScanLeftToRight = true });
             AssertTrue(!contact.Collided,
                 $"boosted contact with BTS ${RoomBlockBehaviorCodec.Encode(bts):X2} admits the real PLM");
             for (int frame = 0; frame < 100 && roomObjects.Places.ActiveCount != 0; frame++)
@@ -141,9 +139,12 @@ internal static class SpeedBoosterObjectProgramsVerification
             CreateSpeedBoosterBlockFixture(RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82),
                 AreaId.Brinstar);
         var bombGuard = NewSpeedBoosterObjectReadGuard(bombBus);
-        AssertTrue(bombObjects.BlockReactions.TrySpawnBombedSpecialBlock(bombLevel, bombLevel.BlockAt(bombBlock),
-                RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82), SamusProjectileType.Of(SamusProjectileFamily.Bomb)),
-            "normal bomb allocates the Speed Booster reveal PLM");
+        int activeBeforeBomb = bombObjects.Places.ActiveCount;
+        bombObjects.BlockReactions.SpawnBombedSpecialBlock(bombLevel, bombLevel.BlockAt(bombBlock),
+            RoomBlockBehaviorCodec.Decode(AreaId.Brinstar, 0x82).Special
+                ?? throw new InvalidDataException("Brinstar's speed block behaviour gives a special block no reaction."),
+            SamusProjectileType.Of(SamusProjectileFamily.Bomb));
+        AssertEqual(activeBeforeBomb + 1, bombObjects.Places.ActiveCount, "normal bomb allocates the Speed Booster reveal PLM");
         bombObjects.Step(bombLevel);
         AssertEqual(RoomTerrainBlock.Of(0x0b6, BlockMirroring.None, RoomCollisionType.SpecialBlock),
             bombLevel.GetCollisionBlockByIndex(bombBlock).Terrain,

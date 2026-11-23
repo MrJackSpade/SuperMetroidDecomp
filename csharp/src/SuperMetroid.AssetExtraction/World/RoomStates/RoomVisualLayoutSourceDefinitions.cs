@@ -3,7 +3,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.AssetExtraction.World.RoomStates;
 
 /// <summary>Derives the complete level identity domain from compiled retail room states.</summary>
-public static class RoomVisualLayoutSourceDefinitions
+public static partial class RoomVisualLayoutSourceDefinitions
 {
     /// <summary>
     /// Distinct room levels, including alternate event/boss states' shared ones, in the order the room-state catalogs

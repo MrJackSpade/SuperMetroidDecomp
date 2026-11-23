@@ -47,6 +47,9 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     /// <summary>The source frame of <see cref="pendingUpdate"/>'s input.</summary>
     private int pendingSourceFrame;
 
+    /// <inheritdoc/>
+    public MovieReplayPosition? Position { get; private set; }
+
     /// <summary>Starts a replay of <paramref name="movie"/> from its native first input boundary.</summary>
     /// <param name="movie">The recorded movie whose starting state and controller timeline are replayed.</param>
     /// <param name="checkpoints">The movie's native checkpoints; the replay takes ownership.</param>
@@ -57,8 +60,6 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     internal ConvertedTimelineReplay(ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate,
         IConvertedMovieChecks? movieChecks, IMovieRecorder? video)
     {
-        if (video is not null && movie.Snapshot is not null)
-            throw new NotSupportedException("Video export covers power-on movies only.");
         this.movie = movie;
         this.checkpoints = checkpoints;
         this.traceFromUpdate = traceFromUpdate;
@@ -94,25 +95,19 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         var uploadNmis = new EvidencedDoorMusicLoadFrames();
         var loaderProgress = new EvidencedRoomLoadProgress();
         var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
-        var hostServices = new SuperMetroidGameHostServices
-        {
-            DoorMusicLoadFrames = uploadNmis,
-            RoomLoadProgress = loaderProgress,
-            SoundAcceptance = soundAcknowledgements,
-            GameplayFrames = CapturedGameplayFrames.Instance,
-        };
+        var hostServices = SuperMetroidGameHostServicesFixtures.With(uploadNmis, loaderProgress, soundAcknowledgements, CapturedGameplayFrames.Instance);
+
         if (movie.Snapshot is not null)
         {
             // The first input boundary completes the snapshot's frame. Its WRAM is the movie's
             // one initial-state import, alongside the snapshot's own cartridge SRAM.
-            Game = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), movie.InitialSaveRam, hostServices).Game;
+            Game = NativeSnapshotImport.ImportNativeSnapshot(memory.ToWorkRam(), movie.InitialSaveRam, hostServices,
+                renderGameplayFrames: video is not null).Game;
         }
         else
         {
             _ = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            Game = InstalledFixtures.CreateGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps),
-                renderGameplayFrames: video is not null, hostServices: hostServices);
-            video?.Attach(Game);
+            Game = NewGame(SuperMetroid.Diagnostics.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, InstalledFixtures.Maps), hostServices);
         }
 
         Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
@@ -145,6 +140,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
             // The host runs this update's input; a production failure in it is named after the update.
             pendingUpdate = update;
             pendingSourceFrame = step.SourceFrame;
+            Position = new MovieReplayPosition(update, step.SourceFrame);
             yield return ControllerWordCodec.FromJoypadWord(step.Input, $"movie update {update}");
             pendingUpdate = null;
             uploadNmis.AssertSettled();
@@ -176,6 +172,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
                 {
                     // The previous frame is complete; the host runs the box's next frame.
                     yield return null;
+                    Position = new MovieReplayPosition(update, frame);
                     yield return ControllerWordCodec.FromJoypadWord(frameInputs[frame], $"movie frame {frame}");
                 }
                 if (step.MessageBoxEndFrame is { } nativeEnd)
@@ -213,6 +210,15 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
     }
 
     /// <summary>
+    /// A new game over <paramref name="saves"/>, as the movie starts it or a console reset rebuilds it: one the recorder
+    /// records is built with its audio and composites its gameplay frames.
+    /// </summary>
+    private SuperMetroidGame NewGame(SuperMetroid.Core.Saves.SaveSlotStore saves, SuperMetroidGameHostServices hostServices) =>
+        video is null
+            ? InstalledFixtures.CreateGame(saves, renderGameplayFrames: false, hostServices: hostServices)
+            : InstalledFixtures.CreateGameWithAudio(saves, video.Audio, renderGameplayFrames: true, hostServices: hostServices);
+
+    /// <summary>
     /// Completes update <paramref name="update"/> after its frames ran: a console reset the movie pressed before the next
     /// update's read, and the comparison with the native checkpoint that follows the update.
     /// </summary>
@@ -227,8 +233,7 @@ internal sealed class ConvertedTimelineReplay : IConvertedMovieReplay
         bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
         if (consoleReset)
         {
-            Game = InstalledFixtures.CreateGame(Game.Saves, renderGameplayFrames: video is not null, hostServices: hostServices);
-            video?.Attach(Game);
+            Game = NewGame(Game.Saves, hostServices);
             Console.WriteLine($"{movie.Name} movie: console reset before update {update + 1} " +
                 $"(source frame {updates[update].SourceFrame}); the port reboots on the same cartridge.");
         }

@@ -21,7 +21,7 @@ internal static class ElevatubeScrollingVerification
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
             runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
             runtime.RoomLoader.InitializeStartingCeresRoom();
-            runtime.RoomLoader.InitializeCeresStartSamus();
+            runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
             var door = SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, fromNorth
                 ? DoorPointers.MaridiaElevatubeFromNorth : DoorPointers.MaridiaElevatubeFromSouth);
             // Clear the constructor's Ceres arrival fixture before applying the real
@@ -29,7 +29,7 @@ internal static class ElevatubeScrollingVerification
             runtime.LoadCartridgeRoomForDebug(door.DestinationRoom);
             runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
-            var samus = runtime.Player.IntroducedSamus;
+            var samus = runtime.Player.Samus;
             var camera = runtime.Room.LoadedCamera;
             samus.Position = samus.Position.WithWholeX(MaridiaElevatubeDefinitions.SamusCenterX);
             samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeDefinitions.FromNorth.StartingY
@@ -44,7 +44,7 @@ internal static class ElevatubeScrollingVerification
                 runtime.StepFrame(0);
                 AssertEqual(SixteenSixteenWords.ToCoordinate(expectedY), samus.Kinematics.Position.Y,
                     "tube displacement contains only room-main velocity, not ordinary falling");
-                var checkpoint = (camera.PreviousSamusPoint ?? throw new InvalidOperationException("Verification requires camera.PreviousSamusPoint."));
+                var checkpoint = camera.PreviousSamusPoint is SuperMetroid.Core.Samus.Movement.SamusScrolledCheckpoint { Point: var scrolled } ? scrolled : throw new InvalidOperationException("Verification requires a scrolled camera.PreviousSamusPoint.");
                 uint savedY = SixteenSixteenWords.Compose(checkpoint.Y);
                 AssertEqual(beforeY, savedY, "scroll checkpoint precedes elevatube room-main movement");
                 AssertTrue(samus.Kinematics.Position.Y != checkpoint.Y,

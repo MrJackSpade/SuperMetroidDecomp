@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -6,8 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Bosses.Ridley;
 
 /// <summary>Ceres Ridley's flight: liftoff, hovering, fireballs, lunges, swoops, the fake retreat and taking the baby, and the movement integration they share.</summary>
-[RoomLifetime]
-internal sealed class CeresRidleyFlight
+internal sealed partial class CeresRidleyFlight
 {
     /// <summary>Sets up the enemies Ridley's flight spawns and runs their initialization.</summary>
     private readonly IEnemyLifecycle _lifecycle;
@@ -21,6 +21,8 @@ internal sealed class CeresRidleyFlight
     private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Shows Ridley's colours over the room once he has begun his encounter.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Builds the walls of the getaway chamber the flight spawns.</summary>
+    private readonly CeresDoorFactory _getawayWalls;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CeresRidleyFlight(CeresRidleyFlightDependencies dependencies)
@@ -31,6 +33,7 @@ internal sealed class CeresRidleyFlight
         _places = dependencies.Places;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _presentation = dependencies.Presentation;
+        _getawayWalls = dependencies.GetawayWalls;
     }
 
     /// <summary>
@@ -38,7 +41,10 @@ internal sealed class CeresRidleyFlight
     /// Ridley sets himself up. A Ceres Ridley whose boss is already dead never spawns: the room's state once its boss is
     /// dead places no Ridley, only its door.
     /// </summary>
-    internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place)
+    /// <param name="place">His body.</param>
+    /// <param name="warning">The room's foreground warning, which the self-destruct his getaway starts writes.</param>
+    /// <returns>The state the enemy holds from its setup.</returns>
+    internal CeresRidleyState InitializeCeresRidley(RoomEnemyPlace place, RoomWarning warning)
     {
         // Ceres Ridley starts with a fresh encounter, below, and the minimap stays off, which the room's load sees to once
         // the enemies are loaded; Ceres has no arena to mark explored.
@@ -50,8 +56,7 @@ internal sealed class CeresRidleyFlight
         place.Position = place.Position.WithWhole(CeresRidleyArenaDefinitions.Spawn);
         _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
 
-        var ridley = new CeresRidleyState(place.Position.Whole);
-        place.SetSpeciesState(ridley);
+        var ridley = new CeresRidleyState(place.Position.Whole, warning);
         _ridleyEncounter.BeginCeres(place, ridley);
         RidleyFlight.StartAnimation(ridley.Flight, place, RidleyAnimations.Standing);
         // Ceres Ridley's setup ends by stopping the music.
@@ -68,7 +73,7 @@ internal sealed class CeresRidleyFlight
     internal static void LiftOff(CeresRidleyState state) => Ensure.NotNull(state).Phase = CeresRidleyPhase.LiftoffAccelerating;
 
     /// <summary>
-    /// Ceres Ridley cuts his fireballing short when Samus has under 30 energy: his hover lasts only the cut's updates
+    /// Ceres Ridley cuts his fireballing short when Samus's energy is low (<see cref="CeresRidleyFightDefinitions.SamusLowEnergy"/>): his hover lasts only the cut's updates
     /// (<see cref="CeresRidleyFlightDefinitions.FireballingCutShortUpdates"/>), and he
     /// continues in the fireballing's end for the way he faces, which nothing in the fireballing turns.
     /// </summary>
@@ -82,13 +87,13 @@ internal sealed class CeresRidleyFlight
         return RidleyAnimations.FireballingEnd.For(state.Flight.FacingDirection);
     }
 
-    /// <summary>Slows Ridley's rise by five sixty-fourths of a pixel an update until he climbs past line 80, where he starts hovering.</summary>
+    /// <summary>Slows Ridley's rise by its slowing step each update until he climbs past his hover line, where he starts hovering.</summary>
     internal static void TickCeresRidleyLiftoffDecelerating(
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // On the update the rise starts slowing, his speed takes both the rise's -16 and the slowing's +20.
-        // The rise carries Ridley past line 80, 32 pixels above where the slowing starts, within a few updates.
+        // On the update the rise starts slowing, his speed takes both the rise's step and the slowing's.
+        // The rise carries Ridley past his hover line, above where the slowing starts, within a few updates.
         state.Flight.Velocity = state.Flight.Velocity.WithY(state.Flight.Velocity.Y + CeresRidleyFlightDefinitions.LiftoffSlowingStep);
         if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.HoverLineY)
         {
@@ -111,7 +116,7 @@ internal sealed class CeresRidleyFlight
         SamusState samus)
     {
         // Ceres Ridley never loses health. Each shot that hits him counts here, and the fight ends in the fake
-        // retreat once 100 have.
+        // retreat once enough have.
         if (state.HitCounter >= CeresRidleyFightDefinitions.HitsToDriveOff)
         {
             state.FightMode = RidleyFightMode.NotFighting;
@@ -120,7 +125,7 @@ internal sealed class CeresRidleyFlight
             return;
         }
 
-        // The fight's other end is Samus's energy falling below 30: the real retreat starts and takes its first
+        // The fight's other end is Samus's energy falling low: the real retreat starts and takes its first
         // acceleration in this same update.
         if (samus.Health < CeresRidleyFightDefinitions.SamusLowEnergy)
         {
@@ -144,7 +149,7 @@ internal sealed class CeresRidleyFlight
         state.FireballMoveWait.LastFor(CeresRidleyFlightDefinitions.FireballMoveGiveUpUpdates);
     }
 
-    /// <summary>Steers Ridley into his fireball position and installs the mouth/fireball animation.</summary>
+    /// <summary>Steers Ridley into his fireball position, where he starts his fireballing animation.</summary>
     internal void TickCeresRidleyFireballMove(RoomEnemyPlace place, CeresRidleyState state)
     {
         state.Flight.Velocity = state.Flight.Velocity.WithY(
@@ -207,11 +212,11 @@ internal sealed class CeresRidleyFlight
         {
             state.Phase = CeresRidleyPhase.SwoopDescendingAimingDown;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.SwoopDiveUpdates);
-            state.Flight.SwoopAngleAccumulator = RotationAngle.Zero;
+            state.Flight.SwoopHeading = RotationAngle.Zero;
         }
     }
 
-    /// <summary>Runs the swoop arc and publishes the one-frame tail-fling request at its bottom.</summary>
+    /// <summary>Turns his swoop toward its aim and moves to the swoop's next stage when the stage's timer runs out.</summary>
     internal static void TickCeresRidleySwoopPhase(
         CeresRidleyState state,
         TurnStep turn,
@@ -235,31 +240,31 @@ internal sealed class CeresRidleyFlight
         state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CeresRidleyArenaDefinitions.RetreatMovementTop);
     }
 
-    /// <summary>Moves the 100-shot retreat toward the Baby retrieval staging point.</summary>
+    /// <summary>Moves the fake retreat his hits bring on toward the Baby retrieval staging point.</summary>
     internal static void TickCeresRidleyFakeRetreatMoveToPosition(
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // Ridley steers toward the fake retreat's point. Only the fake retreat after 100 hits takes the Baby back; the retreat
+        // Ridley steers toward the fake retreat's point. Only the fake retreat his hits bring on takes the Baby back; the retreat
         // at Samus's low energy leaves without it.
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.FakeRetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
         if (RidleyFlight.SignedPlace(place).X >= CeresRidleyArenaDefinitions.FakeRetreatPoint.X)
             state.Phase = CeresRidleyPhase.FakeRetreatRising;
     }
 
-    /// <summary>Raises Ridley above Y=32 before releasing the Baby into its independent fall.</summary>
+    /// <summary>Raises Ridley above the Baby's drop line (<see cref="CeresRidleyArenaDefinitions.BabyDropLineY"/>) before releasing the Baby into its independent fall.</summary>
     internal static void TickCeresRidleyFakeRetreatRising(
         RoomEnemyPlace place,
         CeresRidleyState state)
     {
-        // Ridley rises past Y=32 while the Baby still follows his original hand
+        // Ridley rises past the drop line while the Baby still follows his original hand
         // anchor. Crossing that line starts the Baby's independent fall and the wait
         // before Ridley changes to the retrieval pose.
         state.Flight.MovementMinimum = state.Flight.MovementMinimum.WithY(CeresRidleyArenaDefinitions.RetreatMovementTop);
         AccelerateRidleyToward(place, state.Flight, CeresRidleyArenaDefinitions.RetreatPoint, CeresRidleyFlightDefinitions.SweepDivisor);
         if (RidleyFlight.SignedPlace(place).Y < CeresRidleyArenaDefinitions.BabyDropLineY)
         {
-            state.Baby.Action = CeresBabyAction.Drop;
+            state.Baby.Drop();
             state.Phase = CeresRidleyPhase.WaitBeforeRetrievingBaby;
             state.PhaseTimer.LastFor(CeresRidleyFlightDefinitions.BabyRetrievalDelayUpdates);
         }
@@ -347,8 +352,7 @@ internal sealed class CeresRidleyFlight
     /// <summary>
     /// One axis of Ridley's seek (Y and X): one run of steps toward the target, three while reversing
     /// and one otherwise, in which a step that crosses zero makes the next one a unit larger
-    /// (<see cref="SeekingVelocityRun"/>). The velocity stays within a few thousand units of rest (each update clamps it
-    /// to five pixels and a step is at most the arena's width), so the clamps compare signed velocities.
+    /// (<see cref="SeekingVelocityRun"/>). Each update clamps the velocity to five pixels an update either way.
     /// </summary>
     /// <param name="run">The run of steps from the axis velocity toward the target from Ridley's place on the axis.</param>
     /// <param name="difference">Ridley's displacement from the target on the axis.</param>
@@ -358,7 +362,7 @@ internal sealed class CeresRidleyFlight
         SignedEightEight velocity = run.Velocity;
         if (difference == 0)
             return velocity;
-        // The distance divided by the inertia, at most 32768; a step that divides to zero is raised to one.
+        // The distance divided by the inertia, at least one.
         SignedEightEight step = SeekingVelocityRun.StepFor(Math.Max(1, Math.Abs(difference) / divisor));
 
         if (difference < 0)
@@ -395,20 +399,22 @@ internal sealed class CeresRidleyFlight
     /// <summary>Initializes one wall actor at its place, on its side of the chamber, drawing nothing.</summary>
     private void SpawnCeresRidleyGetawayWall(Position16<RoomPixels> position, HorizontalDirection side)
     {
-        RoomEnemyPlace wall = _places.FindFreePlace() ??
-            throw new InvalidOperationException("Ceres Ridley getaway has no free enemy place for a turning-floor wall.");
+        // A full pool spawns no wall.
+        if (_places.FindFreePlace() is not { } wall)
+            return;
 
         RoomEnemyDefinition definition = _room.Definitions.ReadEnemyDefinition(EnemyDefinitionId.CeresGetawayChamberWall);
+        var settings = new CeresGetawayChamberWallSpawnSettings(side);
         RoomEnemyPlacement population = new(
             EnemyDefinitionId.CeresGetawayChamberWall,
-            Position: position,
+            Placing: EnemyPlacing.At(position),
             Contact: EnemyContact.None,
             Processing: EnemyProcessing.Animates | EnemyProcessing.OffScreen,
             Presence: EnemyPresence.Hidden,
             CollidesByFrameHitboxes: false,
-            SpawnSettings: new CeresGetawayChamberWallSpawnSettings(side));
-        _lifecycle.InitializePlaceFromDefinition(wall, population, definition);
-        _lifecycle.SetUpSpawnedEnemy(wall);
+            SpawnSettings: settings);
+        var spawn = new OrdinaryEnemySpawn<CeresGetawayChamberWallSpawnSettings>(population, settings, _getawayWalls.CreateGetawayChamberWall);
+        _lifecycle.SetUpSpawnedEnemy(_lifecycle.InitializePlaceFromDefinition(wall, spawn, definition), spawn);
         _places.CoverSpawn(wall);
     }
 }

@@ -17,8 +17,7 @@ namespace SuperMetroid.Core.Compatibility;
 /// </remarks>
 /// <typeparam name="TBeams">A beam combination.</typeparam>
 /// <typeparam name="TProjectile">The projectile a shot fires: its damage and animation.</typeparam>
-[CompatibilityService("a Spazer and Plasma beam fires the projectile selected past the beam selectors")]
-public sealed class UnauthoredBeamShots<TBeams, TProjectile>
+public sealed partial class UnauthoredBeamShots<TBeams, TProjectile>
     where TBeams : notnull
     where TProjectile : struct
 {

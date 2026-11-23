@@ -11,8 +11,7 @@ namespace SuperMetroid.Core.World;
 /// before it back to its own. Completion is reported only by the following update that observes an already aligned
 /// coordinate.
 /// </remarks>
-[IndependentFlag("whether the camera alignment completed, a fact of the step")]
-internal readonly record struct DoorCameraAlignmentState(
+internal readonly partial record struct DoorCameraAlignmentState(
     Position16<RoomPixels> CameraPosition,
     bool Completed)
 {

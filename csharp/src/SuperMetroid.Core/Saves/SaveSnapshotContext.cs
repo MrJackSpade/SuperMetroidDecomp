@@ -4,7 +4,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>The save location, timer, bindings and options a save snapshot records with Samus and system state (#633).</summary>
-public sealed record SaveSnapshotContext
+public sealed partial record SaveSnapshotContext
 {
     /// <summary>The load station the save resumes at.</summary>
     public required LoadStation Checkpoint { get; init; }
@@ -22,5 +22,5 @@ public sealed record SaveSnapshotContext
     public required bool IconCancelEnabled { get; init; }
 
     /// <summary>Whether to persist the alternate Japanese text setting.</summary>
-    public required bool JapaneseText { get; init; }
+    public required TextLanguage Language { get; init; }
 }

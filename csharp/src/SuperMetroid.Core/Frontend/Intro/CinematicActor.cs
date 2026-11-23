@@ -4,8 +4,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197)
-/// where every cinematic sprite's update ran its animation.
+/// A cinematic actor: its position and colouring, playing one of its family's typed animations (#641, #1600, #2197).
 /// </summary>
 /// <remarks>
 /// The actor's motion belongs to the owner that steps it (#1903): every cue goes to that owner, and an owner-less cue
@@ -14,7 +13,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <typeparam name="TAnimation">The family's animation identity.</typeparam>
 /// <typeparam name="TFrame">What the family's actors show.</typeparam>
 /// <typeparam name="TCue">The cues the family's animations publish.</typeparam>
-internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor<TCue>
+internal sealed partial class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor<TCue>
     where TAnimation : struct, Enum
     where TFrame : struct
     where TCue : notnull
@@ -28,8 +27,11 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// </summary>
     private readonly UpdateCountdown frameHold = UpdateCountdown.LastingOneUpdate();
 
-    /// <summary>Whether the animation has come to rest for good, so it plays on no further until its owner starts another.</summary>
-    private bool held;
+    /// <summary>
+    /// Whether the actor plays, rests for good until its owner starts another animation, or is deleted (#2560): one value
+    /// where it kept a held flag beside its active one.
+    /// </summary>
+    private CinematicActorPlay play = CinematicActorPlay.Playing;
 
     /// <summary>
     /// Creates an actor at a whole-pixel screen place with the drawn shade of the colouring it starts drawing in (#1512),
@@ -49,7 +51,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>Cleared when the animation's end retires the actor.</summary>
-    public bool IsActive { get; private set; } = true;
+    public bool IsActive => play != CinematicActorPlay.Deleted;
 
     /// <summary>
     /// Where the actor stands on the screen, to a fraction of a pixel, measured from the screen's top-left corner
@@ -68,7 +70,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     }
 
     /// <summary>The drawn shade of the colouring the current frame's recolourable parts draw in (#1512).</summary>
-    public PictureShade Colouring { get; private set; }
+    internal PictureShade Colouring { get; set; }
 
     /// <summary>Applies a cinematic cue's change of the colours the actor draws in.</summary>
     public void SetColouring(PictureShade colouring) => Colouring = colouring;
@@ -77,7 +79,7 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     internal TFrame? Shown { get; private set; }
 
     /// <summary>The actor's animation and where it stands in it (#1600).</summary>
-    internal AnimationPlayback<TAnimation> Playback { get; private set; }
+    internal AnimationPlayback<TAnimation> Playback { get; set; }
 
     /// <summary>Starts <paramref name="animation"/> on the actor's next update, discarding the old frame countdown.</summary>
     /// <exception cref="ArgumentOutOfRangeException">No actor of the family starts <paramref name="animation"/>.</exception>
@@ -85,7 +87,8 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     {
         Playback = new AnimationPlayback<TAnimation>(animations.StartingWith(animation), AnimationPlace.StartOfAnimation);
         frameHold.Restart(1);
-        held = false;
+        if (play == CinematicActorPlay.Resting)
+            play = CinematicActorPlay.Playing;
     }
 
     /// <summary>
@@ -102,71 +105,83 @@ internal sealed class CinematicActor<TAnimation, TFrame, TCue> : ICinematicActor
     /// <summary>Retires the actor and clears its visible frame.</summary>
     public void Delete()
     {
-        IsActive = false;
+        play = CinematicActorPlay.Deleted;
         Shown = null;
     }
 
     /// <summary>
-    /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
-    /// ends. Owner cues go to <paramref name="ownerCue"/>; an animation that raises one with no owner fails.
+    /// Advances an actor whose animations raise no cue for an owner by one update, as <see cref="Step(Action{TCue})"/>
+    /// does; an animation that raises one fails.
     /// </summary>
-    public void Step(Action<TCue>? ownerCue = null)
+    public void Step() => Step(cue => throw new InvalidOperationException(
+        $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."));
+
+    /// <summary>
+    /// Advances the actor by one update: when the frame expires, plays the animation on until it shows a frame, holds or
+    /// ends. Owner cues go to <paramref name="ownerCue"/>.
+    /// </summary>
+    public void Step(Action<TCue> ownerCue)
     {
-        if (!IsActive || held || !frameHold.Step())
+        Ensure.NotNull(ownerCue);
+        if (play != CinematicActorPlay.Playing || !frameHold.Step())
             return;
 
         Animation<TAnimation> animation = Playback.Animation;
         AnimationPlace place = Playback.Place;
-        AnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
-            animation, ref place, cue => ApplyCue(cue, ownerCue));
+        IHidingAnimationShown<TAnimation, TFrame> shown = animations.Segments.PlayToNextFrame(
+            animation, ref place, ownerCue);
         Playback = new AnimationPlayback<TAnimation>(animation, place);
-        switch (shown)
-        {
-            case AnimationShown<TAnimation, TFrame>.Frame frame:
-                frameHold.Restart(frame.Duration);
-                Shown = frame.Shown;
-                return;
-            case AnimationShown<TAnimation, TFrame>.HeldFrame rested:
-                // A held frame shows from now on: the animation plays on no further until its owner starts another.
-                Shown = rested.Shown;
-                held = true;
-                return;
-            case AnimationShown<TAnimation, TFrame>.Held:
-                // A held animation rests on its last frame for good: playing it on again would only hold again.
-                held = true;
-                return;
-            case AnimationShown<TAnimation, TFrame>.Ended:
-                Delete();
-                return;
-            default:
-                throw new InvalidOperationException($"A cinematic sprite animation ended an update with {shown}.");
-        }
+        shown.React(StepHidingReactions, new StepContext(this));
     }
 
-    /// <summary>Hands the cue to the actor's owner.</summary>
-    private void ApplyCue(TCue cue, Action<TCue>? ownerCue)
-    {
-        (ownerCue ?? throw new InvalidOperationException(
-            $"Cinematic sprite animation in {Playback.PlayingSegment} raised {cue} with no owner to act on it."))(cue);
-    }
+    /// <summary>What <c>Step</c> does on each <see cref="AnimationShown{TAnimation, TFrame}"/>, built once (#2553).</summary>
+    private static AnimationShownReactions<TAnimation, TFrame, StepContext> StepReactions { get; } = new(
+        Frame: static (frame, context) =>
+        {
+            context.Owner.frameHold.Restart(frame.Duration);
+            context.Owner.Shown = frame.Shown;
+        },
+        HeldFrame: static (rested, context) =>
+        {
+            // A held frame shows from now on: the animation plays on no further until its owner starts another.
+            context.Owner.Shown = rested.Shown;
+            context.Owner.play = CinematicActorPlay.Resting;
+        },
+        Paused: static (paused, context) => context.Owner.frameHold.Restart(paused.Duration),
+        Held: static (_, context) => context.Owner.play = CinematicActorPlay.Resting,
+        Ended: static (_, context) => context.Owner.Delete());
+
+    /// <summary>
+    /// What <c>Step</c> does on a hidden stretch, which shows no pose for its updates (#2558), and on every other outcome,
+    /// built once.
+    /// </summary>
+    private static HidingAnimationShownReactions<TAnimation, TFrame, StepContext> StepHidingReactions { get; } = new(
+        Shown: static (shown, context) => shown.React(StepReactions, context),
+        Hidden: static (hidden, context) =>
+        {
+            context.Owner.frameHold.Restart(hidden.Duration);
+            context.Owner.Shown = null;
+        });
+
+    /// <summary>What the cases read besides the case (#2553), handed to them so they are built once.</summary>
+    /// <param name="Owner">The <see cref="CinematicActor{TAnimation, TFrame, TCue}"/> reacting.</param>
+    private readonly partial record struct StepContext(CinematicActor<TAnimation, TFrame, TCue> Owner);
 
     /// <summary>
     /// The width, in pixels, of the loop the actor drifts round, or null for an actor that drifts round none. The loop's
     /// first half is the screen and its second half an equally wide stretch of space left of the screen, so an actor that
-    /// drifts off the screen's right edge (<see cref="DriftRoundLoop"/>) comes back into view across its left edge.
+    /// drifts off the screen's right edge (<see cref="Drift"/>) comes back into view across its left edge.
     /// </summary>
     internal int? DriftLoopWidth { get; init; }
 
     /// <summary>
-    /// Moves a looping actor by <paramref name="horizontalDelta"/> and carries it round its loop
-    /// (<see cref="DriftLoopWidth"/>): its whole pixels stay within the loop, from zero up to the loop's width.
+    /// Moves the actor by <paramref name="horizontalDelta"/>; a looping actor is carried round its loop
+    /// (<see cref="DriftLoopWidth"/>), its whole pixels staying within the loop, from zero up to the loop's width.
     /// </summary>
-    /// <exception cref="InvalidOperationException">The actor travels no loop.</exception>
-    internal void DriftRoundLoop(SignedSixteenSixteen horizontalDelta)
+    internal void Drift(SignedSixteenSixteen horizontalDelta)
     {
-        int loop = DriftLoopWidth ?? throw new InvalidOperationException("A cinematic actor with no loop drifted round one.");
         SignedSixteenSixteen x = Position.X + horizontalDelta;
-        Position = Position.WithX(x.WithWholePixels(AlongLoop(x.WholePixels, loop)));
+        Position = Position.WithX(DriftLoopWidth is int loop ? x.WithWholePixels(AlongLoop(x.WholePixels, loop)) : x);
     }
 
     /// <summary>Where <paramref name="x"/> lies along a loop <paramref name="loop"/> pixels wide, from zero up to the width.</summary>

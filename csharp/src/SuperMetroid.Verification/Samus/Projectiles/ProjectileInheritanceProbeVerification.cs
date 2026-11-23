@@ -49,7 +49,7 @@ internal static class ProjectileInheritanceProbeVerification
     internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = new Action<ProjectileLaunchInheritance, SamusProjectile>((launchRecords, launched) =>
-            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched, InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
+            BeamFiring.InitializePowerBeamVelocity(launchRecords, launched.HeldShot(), InstalledFixtures.SamusOverreads.Projectiles.UnauthoredBeamFiring));
         var inheritance = new ProjectileLaunchInheritance();
         var records = new ProjectileInheritanceRecordsAccess(inheritance);
         int failures = 0;
@@ -63,7 +63,9 @@ internal static class ProjectileInheritanceProbeVerification
             for (ushort direction = 0; direction < 10; direction++)
             {
                 int baseSpeed = direction is 1 or 3 or 6 or 8 ? DiagonalBaseSpeed : StraightBaseSpeed;
-                var slot = new SamusProjectile(0) { Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction) };
+                var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+                slot.HeldShot().Direction = SuperMetroid.AssetExtraction.Samus.SamusProjectileWordCodec.DecodeDirection(direction);
+                // The launched beam holds its place as an uncharged Power beam, whose speed rows the probe reads.
                 initialize(inheritance, slot);
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
                 // Do not replace these overlapping reads with idealized fixed-point math.
@@ -122,10 +124,22 @@ internal static class ProjectileInheritanceProbeVerification
                     3 or 4 or 5 or 6 => speed + LittleEndianBytes.Word(LittleEndianBytes.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
                     _ => 0,
                 }));
-                AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(x), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(y)), BeamFiring.LaunchVelocity(inheritance, SamusProjectileDirectionCodec.FromAimIndex(direction), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed)),
+                AssertEqual(new PixelVelocity<RoomPixels>(SignedEightEight.FromTwoHundredFiftySixthsOfPixel(x), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(y)), Launched(inheritance, SamusProjectileDirectionCodec.FromAimIndex(direction), SignedEightEight.FromTwoHundredFiftySixthsOfPixel(speed)),
                     "projectile inheritance preserves each directional overlapping word");
             }
         }
+    }
+
+    /// <summary>
+    /// The velocity a shot fired in <paramref name="direction"/> at <paramref name="baseSpeed"/> takes from
+    /// <paramref name="inheritance"/>, as the shot's velocity setup gives it.
+    /// </summary>
+    private static PixelVelocity<RoomPixels> Launched(ProjectileLaunchInheritance inheritance, SamusProjectileDirection direction, SignedEightEight baseSpeed)
+    {
+        var slot = SuperMetroid.Core.Samus.Projectiles.SamusProjectileFixtureOccupancy.ShotPlace(SuperMetroid.Core.Progression.SamusProjectileType.Beam(SuperMetroid.Core.Progression.SamusBeamCombination.Power, charged: false));
+        slot.HeldShot().Direction = direction;
+        BeamFiring.InitializeDirectionalVelocity(inheritance, slot.HeldShot(), baseSpeed);
+        return slot.Velocity;
     }
 
     /// <summary>Checks directional displacement writes, wall clipping, camera subspeed, and alpha reset behavior.</summary>
@@ -136,31 +150,31 @@ internal static class ProjectileInheritanceProbeVerification
         samus.Kinematics.Radius = new(5, 5);
         var level = CreateRoom(new(16, 16), new RoomTerrainBlock[256], new RoomBlockBehavior[256]);
         samus.ProjectileInheritance.ClearMovement();
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(3, 4660) });
-        AssertEqual(0x0300, BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(3, 4660) });
+        AssertEqual(0x0300, Launched(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Live movement publishes right integer displacement");
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(-2, 32768) });
-        AssertEqual(unchecked((short)0xfe00), BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromParts(-2, 32768) });
+        AssertEqual(unchecked((short)0xfe00), Launched(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Negative movement preserves two's-complement integer half");
-        AssertEqual(0x0380, BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        AssertEqual(0x0380, Launched(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Opposite direction fraction leaks into rightward velocity, not net displacement");
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
-        AssertEqual(0x0280, BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
+        SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(2) });
+        AssertEqual(0x0280, Launched(samus.ProjectileInheritance, SamusProjectileDirection.Right, SignedEightEight.Zero).X.InTwoHundredFiftySixthsOfPixel,
             "Second move overwrites one directional record instead of accumulating");
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         byte[] beforeProbe = records.Capture();
-        SamusBlockCollision.ProbeWallHorizontal(level, samus.Kinematics, samus, samus.Pose, SignedSixteenSixteen.FromParts(1, 0), roomObjects: SamusRoomObjectFixtures.Uninstalled);
+        SamusBlockCollision.ProbeWallHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, SignedSixteenSixteen.FromParts(1, 0));
         AssertTrue(beforeProbe.SequenceEqual(records.Capture()),
             "Wall observation cannot replace live movement inheritance");
         level.SetTerrain(4 * 16 + 5, RoomTerrainBlock.Of(0, BlockMirroring.None, RoomCollisionType.SolidBlock));
-        var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(20) });
+        var clipped = SamusBlockCollision.MoveHorizontal(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus.Kinematics, samus, samus.Pose, new HorizontalBlockMove { Displacement = SignedSixteenSixteen.FromWholePixels(20) });
         AssertTrue(clipped.Collided, "Inheritance fixture actually reaches its solid wall");
         AssertEqual(clipped.AcceptedDisplacement.UnsignedWholePixels,
             records.DistanceInteger(SamusCollisionDirection.Right),
             "Collision publishes clipped displacement, not the twenty-pixel request");
         samus.ProjectileInheritance.CameraVerticalSpeed = SignedSixteenSixteen.FromParts(0, 0xabcd);
         samus.ProjectileInheritance.ClearMovement();
-        AssertEqual(unchecked((short)0xfcab), BeamFiring.LaunchVelocity(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x400)).X.InTwoHundredFiftySixthsOfPixel,
+        AssertEqual(unchecked((short)0xfcab), Launched(samus.ProjectileInheritance, SamusProjectileDirection.Left, SignedEightEight.FromTwoHundredFiftySixthsOfPixel(0x400)).X.InTwoHundredFiftySixthsOfPixel,
             "Alpha reset preserves camera fractional high byte");
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),
             "Alpha reset clears exactly all eight directional words");
@@ -179,7 +193,7 @@ internal static class ProjectileInheritanceProbeVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.LandingSite);
         var level = runtime.Room.LoadedLevelData;
         for (int y = 16; y < 36; y++)
@@ -190,12 +204,12 @@ internal static class ProjectileInheritanceProbeVerification
                 y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air));
             level.SetBehavior(index, RoomBlockBehavior.None);
         }
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.Control.Unlock();
         samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(0);
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
-        samus.Pose = SamusPoseId.FacingRightNormalPose;
+        samus.ChangePoseKeepingAnimation(SamusPoseId.FacingRightNormalPose);
         samus.Position = samus.Position.WithWhole(new(512, 490));
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         SamusPoseMetadata.RefreshCollisionRadii(samus);
@@ -205,7 +219,7 @@ internal static class ProjectileInheritanceProbeVerification
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
         AssertTrue((LittleEndianBytes.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
         byte[] captured = SuperMetroid.Verification.Harness.GraphDigestVerification.SerializeGraph(runtime, InstalledFixtures.BoundContent);
-        runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings.Shoot));
+        runtime.StepFrame((ControllerButton.Right | runtime.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
         AssertEqual(unchecked((short)(inherited + ReadPowerBeamLaunchSpeedSum(bus))), runtime.Projectiles.Shots.First(slot => slot.IsActive).Velocity.X.InTwoHundredFiftySixthsOfPixel,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
         AssertEqual(runtime.Room.LoadedCamera.Speed.Y.Fraction, records.CameraYSubspeed,
@@ -231,10 +245,10 @@ internal static class ProjectileInheritanceProbeVerification
             var restored = SuperMetroid.Verification.Harness.GraphDigestVerification.RestoreGraph<SuperMetroidRuntime>(captured, InstalledFixtures.BoundContent);
             // The host binds a restored runtime to its content as it binds a new one.
             BindRetailRuntimeFixture(restored);
-            restored.Player.IntroducedSamus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
-            restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings.Shoot));
+            restored.Player.Samus.SelectedHudItem = SuperMetroid.Diagnostics.Saves.SaveSlotNumbering.SavedHudItem(weapon);
+            restored.StepFrame((ControllerButton.Right | restored.Options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot]));
             var shot = restored.Projectiles.Shots.First(slot => slot.IsActive);
-            AssertEqual(family, shot.Type.Family, "Each resumed runtime fires the weapon it selected");
+            AssertEqual(family, shot.HeldShot().Type.Family, "Each resumed runtime fires the weapon it selected");
             AssertEqual(unchecked((short)(inherited + launchSpeed)), shot.Velocity.X.InTwoHundredFiftySixthsOfPixel,
                 "Debugger graph round trip retains native WRAM inheritance for resumed launch");
         }
@@ -243,7 +257,7 @@ internal static class ProjectileInheritanceProbeVerification
     /// <summary>The two retail speed words the uncharged power beam adds to inherited launch velocity.</summary>
     private static int ReadPowerBeamLaunchSpeedSum(ISnesAddressSpace rom)
     {
-        return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);
+        return rom.ReadCartridgeWord(0x90c2d1) + rom.ReadCartridgeWord(0x90c357);
     }
 
     /// <summary>Runs the projectile velocity inheritance verification command.</summary>

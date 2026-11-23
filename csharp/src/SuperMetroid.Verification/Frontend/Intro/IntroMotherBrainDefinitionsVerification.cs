@@ -30,7 +30,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         {
             (ushort pointer, Enum actual) = actors[index];
             int address = IntroMotherBrainDefinitions.NativeBank | pointer;
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual),
+            AssertEqual(retail.ReadCartridgeWord((address + 4)), CinematicSpriteNativeListAddresses.Start(actual),
                 $"intro Mother Brain actor {index} instruction list");
         }
 
@@ -40,22 +40,22 @@ internal static class IntroMotherBrainDefinitionsVerification
         for (int index = 0; index < IntroMotherBrainDefinitions.BigExplosions.Count; index++)
         {
             IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.BigExplosions[index];
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigXOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.BigXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain big explosion {index} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2))),
                 actual.Offset.Y, $"intro Mother Brain big explosion {index} Y offset");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigTimerReferenceAddress + index * 2)),
+            AssertEqual(retail.ReadCartridgeWord((IntroMotherBrainDefinitions.BigTimerReferenceAddress + index * 2)),
                 actual.StartDelayFrames, $"intro Mother Brain big explosion {index} timer");
         }
 
         for (int index = 0; index < IntroMotherBrainDefinitions.SmallExplosions.Count; index++)
         {
             IntroMotherBrainExplosionPlacement actual = IntroMotherBrainDefinitions.SmallExplosions[index];
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallXOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.SmallXOffsetReferenceAddress + index * 2))),
                 actual.Offset.X, $"intro Mother Brain small explosion {index} X offset");
-            AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2))),
+            AssertEqual(unchecked((short)retail.ReadCartridgeWord((IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2))),
                 actual.Offset.Y, $"intro Mother Brain small explosion {index} Y offset");
-            AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallTimerReferenceAddress + index * 2)),
+            AssertEqual(retail.ReadCartridgeWord((IntroMotherBrainDefinitions.SmallTimerReferenceAddress + index * 2)),
                 actual.StartDelayFrames, $"intro Mother Brain small explosion {index} timer");
         }
 
@@ -70,7 +70,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             motherBrain.Step();
             int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.Pulsing) +
                 ((frame / 16) % 4) * 4;
-            ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
+            ushort expected = retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain normal frame {frame} selects its native spritemap");
         }
@@ -95,7 +95,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             // Page two's list follows the page-two start's owner instruction and cross-fade install, six bytes in, and loops by itself.
             int record = CinematicSpriteNativeListAddresses.Start(IntroMotherBrainAnimation.StartingNextPage) + 6 +
                 (((frame + 1) / 16) % 4) * 4;
-            ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
+            ushort expected = retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain page-two frame {frame} preserves native loop");
         }
@@ -104,8 +104,7 @@ internal static class IntroMotherBrainDefinitionsVerification
         AssertTrue(!motherBrain.IsVisible,
             "intro Mother Brain page-two crossfade deletes the actor at timer zero");
 
-        var explosions = new IntroMotherBrainExplosionSystem();
-        explosions.SpawnFourthHitExplosions();
+        var explosions = IntroMotherBrainExplosionSystem.SpawnFourthHitExplosions();
         AssertEqual(8, explosions.ActiveCount, "intro Mother Brain allocates all explosion actors");
         var explosionActors = explosions.actors;
         for (int frame = 0; frame < 192; frame++)
@@ -114,12 +113,12 @@ internal static class IntroMotherBrainDefinitionsVerification
             int smallPhase = frame % LoopFrames(IntroMotherBrainExplosionAnimation.Small);
             int bigPhase = frame % LoopFrames(IntroMotherBrainExplosionAnimation.Big);
             ushort expectedSmall = smallPhase < 18
-                ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
+                ? retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
                     (CinematicSpriteNativeListAddresses.Start(IntroMotherBrainExplosionAnimation.Small) +
                         (smallPhase / 3) * 4 + 2)))
                 : (ushort)0;
             ushort expectedBig = bigPhase < 36
-                ? CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
+                ? retail.ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank |
                     (CinematicSpriteNativeListAddresses.Start(IntroMotherBrainExplosionAnimation.Big) +
                         (bigPhase / 6) * 4 + 2)))
                 : (ushort)0;
@@ -161,16 +160,19 @@ internal static class IntroMotherBrainDefinitionsVerification
         var motherBrain = new IntroMotherBrainSpriteState();
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
-        SamusProjectile missile = shots.Shots[0];
         for (int hit = 1; hit <= 5; hit++)
         {
-            missile.Type = SamusProjectileType.Of(SamusProjectileFamily.Missile);
-            missile.Position = missile.Position.WithWhole(new(0x40, 0x80));
+            // Each missile takes a place no projectile holds, as a fired missile does: a killed missile's explosion keeps
+            // its place until its animation ends, and the cartridge's test ($8B:B786) passes over it as no missile. The
+            // missile holds its place with its type and damage (#2558).
+            SamusProjectile missile = shots.Shots[hit - 1];
+            missile.Occupy(SamusProjectileType.Of(SamusProjectileFamily.Missile), SamusProjectileDamage.Read(SamusProjectileSelection.Missile(super: false)));
+            missile.HeldShot().Position = missile.Position.WithWhole(new(0x40, 0x80));
             bool fourth = motherBrain.TakeMissileHit(shots.EnemyImpacts, bombs);
             AssertEqual(hit == 4, fourth, $"missile {hit} starts the explosion only on the fourth hit");
-            AssertEqual(hit <= 4, missile.Type.IsFamily(SamusProjectileFamily.MissileExplosion),
+            AssertEqual(hit <= 4, missile.HeldShot().Type.IsFamily(SamusProjectileFamily.MissileExplosion),
                 $"missile {hit} is killed only while $8B:B786 tests missiles");
-            AssertEqual(Math.Min(hit, 4), PrivateState.Field<IntroMotherBrainSpriteState, int>(motherBrain, "hitCount"), $"missile {hit} leaves the hit count at most four");
+            AssertEqual(Math.Min(hit, 4), motherBrain.HitCount, $"missile {hit} leaves the hit count at most four");
         }
         Console.WriteLine("Intro Mother Brain: four missiles hit and the fourth starts the explosion; a fifth passes through uncounted.");
     }
@@ -186,5 +188,12 @@ internal static class IntroMotherBrainDefinitionsVerification
 
     /// <summary>The updates one pass of looping <paramref name="program"/> lasts: the sum of its frames' durations.</summary>
     private static int LoopFrames(IntroMotherBrainExplosionAnimation program) =>
-        IntroMotherBrainAnimations.Explosions.Segments.Beats(program).OfType<AnimationBeat<CinematicSpritePose, NoAnimationCue>.Frame>().Sum(frame => frame.Duration);
+        IntroMotherBrainAnimations.Explosions.Segments.Beats(program).Sum(beat => beat switch
+        {
+            // A loop lasts its shown frames, its pauses and the updates it hides the actor; a cue takes no update.
+            AnimationBeat<CinematicSpritePose, NoAnimationCue>.Frame frame => frame.Duration,
+            AnimationHiddenBeat<CinematicSpritePose, NoAnimationCue> hidden => hidden.Duration,
+            AnimationBeat<CinematicSpritePose, NoAnimationCue>.Pause pause => pause.Duration,
+            _ => 0,
+        });
 }

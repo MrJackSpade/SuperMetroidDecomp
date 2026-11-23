@@ -32,21 +32,21 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         var random = new SharedRandom();
         var progress = new CameraReachedLoaderProgress(0x038c);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { RoomLoadProgress = progress }, random: random);
+            hostServices: global::SuperMetroid.Core.Frontend.SuperMetroidGameHostServicesFixtures.With(roomLoadProgress: progress), random: random);
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true, random: random, audio: game.AudioForVerification);
         progress.Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.RinkaShaft);
-        var samus = runtime.Player.IntroducedSamus;
+        var samus = runtime.Player.Samus;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.Control.LockOutPlayer();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         game.AdoptRuntime(runtime);
-        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = (global::SuperMetroid.Core.World.RoomStates.RoomStateSettings?)(runtime.Room.LoadedRoom.State);
 
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
@@ -62,14 +62,15 @@ internal static class MotherBrainRinkaDoorSpawnVerification
             selected = true;
         }
         AssertTrue(selected, "the shaft has a door into Mother Brain's room");
-        game.Session.Enter(DoorTransitionStep.EnteringDoor);
+        game.Session.EnterDoor(runtime.RoomObjects.DoorContacts.EnteredDoor
+            ?? throw new InvalidOperationException("Verification requires the shaft's door to be entered."));
         for (int guard = 0; game.GameState != SuperMetroidGameState.MainGameplay && guard < 600; guard++)
             game.Step(0);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the door transition completes");
         AssertEqual(RoomDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
 
         RoomEnemyPlace[] rinkas = runtime.Enemies.Places.InUpdateOrder
-            .Where(place => place.DefinitionId == EnemyDefinitionId.Rinka && place.SpawnSettings<RinkaSpawnSettings>().SharedSpawnPoint is not null)
+            .Where(place => place.Holds(EnemyDefinitionId.Rinka) && place.HeldOccupant().SpawnSettings<RinkaSpawnSettings>() is RinkaSpawnSettings.SharingPoints)
             .OrderBy(place => place.Ordinal)
             .ToArray();
         AssertEqual(3, rinkas.Length, "Mother Brain's room has three special Rinkas");
@@ -79,11 +80,10 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         {
             AssertEqual(expected[index].X, rinkas[index].Position.X.Whole, $"Rinka {index} X follows the loader's camera");
             AssertEqual(expected[index].Y, rinkas[index].Position.Y.Whole, $"Rinka {index} Y follows the loader's camera");
-            // The point a Rinka moves to becomes the spawn point it respawns at; its population entry is never rewritten (#2256).
-            RinkaSpawnPoint point = rinkas[index].SpeciesState<RinkaEnemyState>()?.SpawnPoint
-                ?? throw new InvalidOperationException($"Special Rinka {index} holds no spawn point.");
-            AssertEqual(rinkas[index].Position.Whole, RinkaSpawnReservations.Centre(point), $"Rinka {index} respawns at the point it moved to");
-            AssertEqual(populated[index], rinkas[index].Spawn.Population.Position, $"Rinka {index}'s population entry keeps its placement");
+            // A Rinka moves to one of the shared spawn points, where it respawns; its population entry is never rewritten (#2256).
+            AssertTrue(Enum.GetValues<RinkaSpawnPoint>().Any(point => RinkaSpawnReservations.Centre(point) == rinkas[index].Position.Whole),
+                $"Rinka {index} stands at the centre of a shared spawn point");
+            AssertEqual(EnemyPlacing.At(populated[index]), rinkas[index].HeldOccupant().Spawn.Placing, $"Rinka {index}'s population entry keeps its placement");
         }
         Console.WriteLine("Mother Brain Rinka door spawn: spawn points are chosen against the loader's scrolling camera.");
     }

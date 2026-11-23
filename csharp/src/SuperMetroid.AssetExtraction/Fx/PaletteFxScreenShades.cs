@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Fx;
 /// The screen's composer places each group's first ink, as <c>PaletteFXObject_Handler</c> writes a record's colours from
 /// the object's colour pointer, skipping those it skips.
 /// </summary>
-internal static class PaletteFxScreenShades
+internal static partial class PaletteFxScreenShades
 {
     /// <summary>
     /// The shades of every record of <paramref name="group"/> that <paramref name="objects"/>' programs show, over
@@ -22,8 +22,8 @@ internal static class PaletteFxScreenShades
     /// From the sheet's ink the group's first written colour is to the ink after the last the group may write: the end of
     /// its colour group.
     /// </param>
-    /// <param name="colours">The records' installed colours.</param>
-    /// <exception cref="InvalidDataException">A record has no installed colour, or writes at or past the end of <paramref name="inks"/>.</exception>
+    /// <param name="colours">The import's palette-effect colours of the records.</param>
+    /// <exception cref="InvalidDataException">A record has no colour in the import's palette-effect colours, or writes at or past the end of <paramref name="inks"/>.</exception>
     internal static IReadOnlyList<SheetShade> Of(IEnumerable<ColourEffectId> objects, ColourEffectColours group, InkRange inks,
         IPaletteFxColorSource colours) =>
         [.. PaletteFxRecordShades.ShownBy(objects).Where(entry => entry.Colours == group)

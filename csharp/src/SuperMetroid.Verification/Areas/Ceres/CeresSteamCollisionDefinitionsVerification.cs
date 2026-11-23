@@ -31,10 +31,11 @@ internal static class CeresSteamCollisionDefinitionsVerification
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(stock.Enemies), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null), installedBosses: stock.Bosses);
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.CeresSteam, place.Definition);
-            place.Bind(place.DefinitionId, default(RoomEnemyDefinition));
-            place.SetSpawnParameter1(EnemyDefinitionId.CeresSteam, (ushort)variant);
-            ((IEnemyInitialization)(place.Entity ?? throw new InvalidOperationException("The vent bound no entity."))).Initialize();
+            place.Bind(EnemyDefinitionId.SteamVent, place.KeptDefinition);
+            place.Bind(place.HeldOccupant().DefinitionId, EnemyDefinitionFixtures.Blank);
+            place.SetSpawnParameter1(EnemyDefinitionId.SteamVent, (ushort)variant);
+            // The vent is set up as the population load sets it up, its species building its entity.
+            _ = enemies.LoadAuthoredPopulation();
             object?[] arguments =
                 [place, null, null, Position16<RoomPixels>.Zero, default(GameplayAction)];
             for (int frame = 0; frame < 90; frame++)
@@ -64,11 +65,13 @@ internal static class CeresSteamCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewCeresSteamCollisionNoReadBus();
         var compiled = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var nativePlace = new RoomEnemyPlace(0, EnemyPlaceFixtures.Registry, new RemovedEnemyLeftovers<EnemyOccupantStates>());
+        var nativePlace = new RoomEnemyPlace(0, new RemovedEnemyLeftovers<IEnemyEntity>());
         RoomEnemyPlace compiledPlace = compiled.Places.InUpdateOrder[0];
-        compiledPlace.Bind(compiledPlace.DefinitionId, default(RoomEnemyDefinition));
+        compiledPlace.Bind(EnemyDefinitionId.SteamVent, EnemyDefinitionFixtures.Blank);
 
-        compiledPlace.Bind(EnemyDefinitionId.CeresSteam, compiledPlace.Definition);
+        compiledPlace.Bind(EnemyDefinitionId.SteamVent, compiledPlace.KeptDefinition);
+        // The steam answers for its own frames' hitboxes, as the population load builds it (#2554).
+        compiled.SetUpAsPopulated(compiledPlace);
         AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),

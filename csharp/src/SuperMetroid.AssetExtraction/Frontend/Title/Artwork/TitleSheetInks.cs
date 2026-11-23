@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Frontend.Title.Artwork;
 /// the copyright's two glyph colours within its set, the floor inks each console light recolours and the sprite inks the
 /// logo's and copyright's fades recolour (#1714). An ink is its colour group's place times sixteen plus its colour.
 /// </summary>
-internal static class TitleSheetInks
+internal static partial class TitleSheetInks
 {
     /// <summary>The colours of one colour group.</summary>
     internal const int GroupColours = 16;

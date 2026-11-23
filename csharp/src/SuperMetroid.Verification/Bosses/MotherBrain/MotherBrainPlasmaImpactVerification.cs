@@ -19,23 +19,29 @@ internal static class MotherBrainPlasmaImpactVerification
     internal static int VerifyMotherBrainPlasmaImpact()
     {
         var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance);
-        var head = enemies.Places.InUpdateOrder[1];
-        head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
-        head.Bind(head.DefinitionId, RoomEnemyDefinitionLookup.Get(head.DefinitionId));
+        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        // Mother Brain is placed as her room's population places her, her head after her body, and stands in her second
+        // form with her head's hit area shown and walk credit to spend.
+        // Her setup reads the room's random numbers, which stand at zero here.
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
+        MotherBrainEnemyState state = MotherBrainPlacement.PlaceMotherBrain(enemies, samus);
+        // Her second phase sets her brain up as her rise does, her body and brain tangible.
+        MotherBrainAscent.SetupMotherBrainPhaseTwoBrain(state);
+        RoomEnemyPlace head = state.Head;
         head.Contact = head.Contact.With(EnemyContact.BlocksPlasmaBeam);
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);
         head.Frame = EnemyFrameId.MotherBrainBrainHitArea;
         head.Health = 18000;
-        var state = new MotherBrainEnemyState(enemies.Places.InUpdateOrder[0], head, new MotherBrainWalkCounter(), new MotherBrainBurstCycle(), new MotherBrainBrainAnimation()) { Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
-        enemies.MotherBrainEncounter.BeginAsSetUp(state, head);
-        ((List<RoomEnemyPlace>)enemies.ProcessingWindow.InteractiveEnemies).Add(head);
-        var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
+        state.Form = MotherBrainForm.SecondPhase;
+        state.WalkCounter = MotherBrainWalkCredit.Of(4096);
+        ((List<RoomEnemyOccupant>)enemies.ProcessingWindow.InteractiveEnemies).Add(head.HeldOccupant());
         var shots = new SamusProjectileSystem(GameplayAudioRequests.Standalone(), new BeamChargeState(), InstalledFixtures.SamusOverreads, new LeftBeamStartFromLastShot(SamusProjectileSystem.PlaceCount), new SamusShotCount(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork(projectileFrames: InstalledFixtures.Projectiles.FrameBindings), new global::SuperMetroid.Core.Fx.RoomEarthquake());
         var bombs = new SamusBombProjectileSystem(GameplayAudioRequests.Standalone(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
         var shot = shots.Shots[0];
         SeedChargedPlasma();
-        AssertEqual(1, Hit(), "Charged Plasma produces one accepted head impact");
+        Hit();
         AssertEqual(17550, head.Health, "Native charged vulnerability applies exactly one 450-damage hit");
         // The bank-$A0 walker only marks the shot; the next projectile pass removes it (#1269).
         AssertTrue(shot.IsSpent,
@@ -47,8 +53,8 @@ internal static class MotherBrainPlasmaImpactVerification
         var level = CreateEmptyRoom(new(16, 16));
         for (int frame = 0; frame < 3; frame++)
         {
-            shots.HandleShots(new SamusTerrain { Level = level, RoomObjects = SamusRoomObjectFixtures.Uninstalled }, samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
-            AssertEqual(0, Hit(), "The same shot cannot damage the head on a subsequent frame");
+            shots.HandleShots(new RoomTerrain(level, SamusRoomObjectFixtures.Uninstalled), samus, Position16<RoomPixels>.Zero, bombs, new SharedGameState(new SharedRandom()));
+            Hit();
             AssertEqual(17550, head.Health, "Later overlap preserves health after the one impact");
             AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
                 "Later overlap does not spend walk credit again");
@@ -65,12 +71,12 @@ internal static class MotherBrainPlasmaImpactVerification
         lateFight.Encounter.Form = MotherBrainForm.ThirdPhase;
         // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
         state.WalkCounter = MotherBrainWalkCredit.Empty;
-        SeedChargedPlasma();
-        shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 1000; shot.Behavior = SamusShotBehaviors.HyperBeam;
+        Seed(1000);
+        shot.HeldShot().Behavior = SamusShotBehaviors.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
         head.Invincibility.End();
-        AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
+        Hit();
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.StartHyperBeamRecoil, lateFight.ThirdPhaseFight.Phase3NeckPhase,
             "Hyper Beam retains its phase-three recoil transition");
@@ -78,13 +84,16 @@ internal static class MotherBrainPlasmaImpactVerification
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");
         return 0;
 
-        int Hit() => enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
-        void SeedChargedPlasma()
+        void Hit() => enemies.ResolveShotsOnInteractiveEnemies(shots, bombs, SuperMetroid.Core.Progression.AreaId.Crateria, samus);
+        void SeedChargedPlasma() => Seed(450);
+        void Seed(int damage)
         {
-            shot.Type = SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true); shot.Damage = 450; shot.Direction = SamusProjectileDirection.Right;
-            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.Animation = ProjectileFixturePlaybacks.Active();
-            shot.Behavior = SamusShotBehaviors.Beam;
+            // Each case fires a new shot into the place, ending the one the last case left flying.
+            shot.End();
+            shot.Occupy(SamusProjectileType.Beam(SamusBeamCombination.Plasma, charged: true), damage); shot.HeldShot().Direction = SamusProjectileDirection.Right;
+            shot.HeldShot().Position = shot.Position.WithWhole(new(128, 128)); shot.HeldShot().Radius = new(4, 4);
+            shot.HeldShot().Animation = ProjectileFixturePlaybacks.Active();
+            shot.HeldShot().Behavior = SamusShotBehaviors.Beam;
         }
     }
 

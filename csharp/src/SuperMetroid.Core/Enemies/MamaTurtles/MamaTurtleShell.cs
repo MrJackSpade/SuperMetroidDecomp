@@ -3,18 +3,25 @@ using static SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleShellContourDefinit
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>Where a dormant Mama Turtle's shell surface is above an actor beside its origin.</summary>
-internal static class MamaTurtleShell
+internal static partial class MamaTurtleShell
 {
     /// <summary>
     /// The shell's surface above an actor whose X is <paramref name="parentMinusActorX"/> pixels from the Mama Turtle's
-    /// origin, measured from her origin back to the actor: the contour of the actor's side, at its distance, which must
-    /// be below <see cref="HalfWidth"/>.
+    /// origin, measured from her origin back to the actor: the contour of the actor's side, at its distance, when the
+    /// actor stands within <see cref="HalfWidth"/> of her origin; an actor at that distance or beyond has no shell above it.
     /// </summary>
-    internal static int GetOffset(int parentMinusActorX)
+    /// <param name="parentMinusActorX">The Mama Turtle's X less the actor's.</param>
+    /// <param name="surface">The contour above the actor, when it stands over the shell.</param>
+    internal static bool TryGetSurface(int parentMinusActorX, out int surface)
     {
         int distance = Math.Abs(parentMinusActorX);
         if (distance >= HalfWidth)
-            throw new ArgumentOutOfRangeException(nameof(parentMinusActorX));
-        return parentMinusActorX < 0 ? RightOfOrigin[distance - 1] : LeftOfOrigin[distance];
+        {
+            surface = 0;
+            return false;
+        }
+
+        surface = parentMinusActorX < 0 ? RightOfOrigin[distance - 1] : LeftOfOrigin[distance];
+        return true;
     }
 }

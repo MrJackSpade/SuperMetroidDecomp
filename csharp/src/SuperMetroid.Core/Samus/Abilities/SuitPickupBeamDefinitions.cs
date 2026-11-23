@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// The suit pickup's light beam: when it starts, the order of its stages, its authored edges, the speeds its edges move
 /// at, and its rounded sides.
 /// </summary>
-public static class SuitPickupBeamDefinitions
+public static partial class SuitPickupBeamDefinitions
 {
     /// <summary>The updates the pickup waits before the light beam's first stage runs: the beam starts on its third update.</summary>
     public const int UpdatesBeforeLightBeam = 2;
@@ -19,7 +19,7 @@ public static class SuitPickupBeamDefinitions
         SamusSuitPickupStage.LightBeamDissipates,
         SamusSuitPickupStage.Finish,
     ];
-    /// <summary>Collapsed beam with both edges at X=120.</summary>
+    /// <summary>Collapsed beam with both edges together at the beam's centre.</summary>
     public static readonly SuitPickupBeamEdges NarrowBeamEdges = new(120, 120);
     /// <summary>The screen's rightmost column, the furthest right a beam edge reaches.</summary>
     public const int RightmostColumn = ScreenGeometry.ScreenWidthPixels - 1;

@@ -17,7 +17,7 @@ internal static class CeresRidleyWallVerification
         var runtime = CreateRetailRuntimeFixture();
         runtime.HudSetup.InitializeHud(HudSnapshot.NewGame);
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.RoomLoader.InitializeCeresStartSamus(runtime.Room.LoadedScope);
         runtime.LoadCartridgeRoomForDebug(RoomDefinitions.CeresRidley);
         var ridley = runtime.Enemies.CeresRidley();
         var body = runtime.Enemies.Places.InUpdateOrder[0];
@@ -25,11 +25,11 @@ internal static class CeresRidleyWallVerification
         // attack dispatcher still calculates acceleration and the shared mover clips X.
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Phase = CeresRidleyPhase.LungeMain;
         ridley.PhaseTimer.LastFor(101);
-        ridley.MovementAnimationEnabled = true;
+        ridley.Motion = RidleyMotion.Running;
         ridley.Flight.Velocity = ridley.Flight.Velocity.WithX(new SignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);
-        runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(168);
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeX(20);
+        runtime.Player.Samus.Position = runtime.Player.Samus.Position.WithWholeY(168);
         runtime.StepFrame(0);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(40, body.Position.X.Whole, "Ceres lunge clips at native left bound");

@@ -10,7 +10,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports the cutscene Baby's initial and displayed fade-to-black RGB5 images.</summary>
-public static class BabyMetroidCutsceneColorExtractor
+public static partial class BabyMetroidCutsceneColorExtractor
 {
     /// <summary>Reads the initial Baby palette and every authored fade row, rejects colors with the native high bit set, and serializes the versioned RGB5 document.</summary>
     /// <param name="bus">Supported-cartridge address space containing the compiled cutscene palette tables.</param>
@@ -20,7 +20,7 @@ public static class BabyMetroidCutsceneColorExtractor
         Ensure.NotNull(bus);
         var fade = new PaletteRgb5[BabyMetroidCutsceneColorDefinitions.FadeFrameCount][];
         for (int frame = 0; frame < fade.Length; frame++)
-            fade[frame] = Read(MotherBrainSourceDefinitions.BabyMetroid.FadeColors(frame + 1),
+            fade[frame] = Read(MotherBrainSourceDefinitions.BabyMetroid.FadeColors(frame),
                 BabyMetroidCutsceneColorFormat.FadeColorCount);
         return BabyMetroidCutsceneColorFile.Write(new BabyMetroidCutsceneColorDocument
         {
@@ -36,16 +36,11 @@ public static class BabyMetroidCutsceneColorExtractor
             for (int color = 0; color < count; color++)
             {
                 int address = source + color * MotherBrainSourceDefinitions.ColorWordBytes;
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Cutscene Baby color ${address:X6} has an unrepresentable high bit.");
-                colors[color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

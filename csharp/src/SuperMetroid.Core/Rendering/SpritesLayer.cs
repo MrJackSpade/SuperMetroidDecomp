@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 /// each side of the planet. Every draw is drawn whole at the layer's place; no part of a draw is placed among the layers
 /// on its own.
 /// </summary>
-public sealed record SpritesLayer : DisplayLayer
+public sealed partial record SpritesLayer : DisplayLayer
 {
     /// <summary>Keeps the layer's draws, how they show and their tint.</summary>
     /// <param name="draws">The draws, frontmost first, each naming the shading it shows in.</param>
@@ -23,7 +23,7 @@ public sealed record SpritesLayer : DisplayLayer
     /// The draw list is missing or holds a missing draw, or a tint is given for sprites that glow.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="blend"/> is not a defined blend.</exception>
-    public SpritesLayer(ImmutableArray<ImageSpriteDraw> draws, SpriteBlend blend = SpriteBlend.Drawn, RgbColor? tint = null)
+    public SpritesLayer(ImmutableArray<ImageSpriteDraw> draws, SpriteBlend blend = SpriteBlend.Drawn, ShownColour? tint = null)
     {
         if (draws.IsDefault)
             throw new ArgumentException("A sprite layer needs its draws.", nameof(draws));
@@ -32,11 +32,7 @@ public sealed record SpritesLayer : DisplayLayer
             if (draw is null)
                 throw new ArgumentException("Each of a sprite layer's draws needs an entry.", nameof(draws));
         }
-        Blend = blend switch
-        {
-            SpriteBlend.Drawn or SpriteBlend.Glows => blend,
-            _ => throw new ArgumentOutOfRangeException(nameof(blend), blend, "Undefined sprite blend."),
-        };
+        Blend = blend;
         if (tint is not null && blend != SpriteBlend.Drawn)
             throw new ArgumentException("A tint brightens drawn sprites, not sprites that glow.", nameof(tint));
         Draws = draws;
@@ -50,7 +46,7 @@ public sealed record SpritesLayer : DisplayLayer
     public SpriteBlend Blend { get; }
 
     /// <summary>The colour added to each of the layer's sprite pixels that take part in blends, or null for none.</summary>
-    public RgbColor? Tint { get; }
+    public ShownColour? Tint { get; }
 
     /// <summary>Whether <paramref name="other"/> shows the same draws, in the same order, blended and tinted alike.</summary>
     /// <param name="other">The layer compared, or null.</param>

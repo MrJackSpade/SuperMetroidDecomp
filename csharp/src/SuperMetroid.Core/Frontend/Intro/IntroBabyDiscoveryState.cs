@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -12,8 +11,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>
 /// Setup and first actor phase of the SR388 baby-Metroid discovery scene.
 /// </summary>
-[RoomScopeBoundary("A cinematic scene that owns its own level for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class IntroBabyDiscoveryState
+internal sealed partial class IntroBabyDiscoveryState
 {
 
     /// <summary>Receives the egg-hatch and baby-cry sound requests.</summary>
@@ -32,8 +30,13 @@ internal sealed class IntroBabyDiscoveryState
     private readonly ShellFragmentFallPastCurve shellFallPastCurve;
     /// <summary>The egg actor whose animation controls the hatch sequence.</summary>
     internal readonly CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> egg;
-    /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then page three's cross-fade.</summary>
+    /// <summary>What the egg waits for: Samus's approach, then nothing while it hatches, then the cross-fade back to the narration.</summary>
     private MetroidEggBehavior eggBehavior = MetroidEggBehavior.WaitsForSamus;
+    /// <summary>
+    /// Whether the egg's shell has burst: set by the hatching's cue that spawns the shell pieces, on the update the egg
+    /// first shows its sagging dome, from which the confused Baby rises.
+    /// </summary>
+    private bool eggShellBurst;
     /// <summary>How the confused baby moves: waiting for the hatch, rising out of the egg, idling, then dancing.</summary>
     private ConfusedBabyMotion babyMotion = ConfusedBabyMotion.WaitingForHatch;
     /// <summary>The baby actor that waits for the egg's completed frame before moving.</summary>
@@ -57,18 +60,17 @@ internal sealed class IntroBabyDiscoveryState
 
         // Scene setup reuses Samus's state, including transition history: the intro carries the flashback's Samus forward.
         Samus = Ensure.NotNull(existingSamus);
-        Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(IntroBabyDiscoveryDefinitions.SamusStart);
         Samus.SelectedHudItem = HudItem.Beam;
-        SamusPoseMetadata.RefreshCollisionRadii(Samus);
         // The flashback leaves Samus standing facing left already, so her animation
         // keeps running rather than restarting.
-        SamusPresentation.SetAnimationFrameIfPoseChanged(Samus);
+        Samus.ChangePoseRestartingIfChanged(SamusPoseId.FacingLeftNormalPose);
+        SamusPoseMetadata.RefreshCollisionRadii(Samus);
         Samus.CommitPoseHistory();
 
-        // The discovery room is 32x16 blocks, of which the authored terrain fills twelve rows.
-        // The final four rows are empty, and no block has a behaviour.
-        Level = CreateLevel();
+        // The discovery room's authored terrain fills its upper rows (IntroBabyDiscoveryCollisionDefinitions).
+        // The rows below are empty, and no block has a behaviour.
+        Terrain = CreateTerrain();
 
         demo.Clear();
         demo.Enable();
@@ -78,8 +80,8 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>
     public SamusState Samus { get; }
 
-    /// <summary>The 32 by 16 discovery room's collision: its two authored strips and air elsewhere.</summary>
-    public RoomLevelData Level { get; }
+    /// <summary>The discovery room's collision: its two authored strips and air elsewhere.</summary>
+    private PlainTerrain Terrain { get; }
 
     /// <summary>Signals the outer cinematic owner to start the next page's colour transition.</summary>
     /// <remarks>
@@ -114,7 +116,7 @@ internal sealed class IntroBabyDiscoveryState
             // input phase, ahead of her pose input and movement.
             if (demo.IsPlaying)
                 CheckDemoPhase(crossfadeFinishing);
-            demo.Step(HandleDemoCue);
+            demo.Step();
             // The input phase ends by resetting the movement and pose-change state,
             // before this update's movement records new distances.
             SamusAerialPoseTransitions.DropTransitionShot(Samus);
@@ -128,8 +130,7 @@ internal sealed class IntroBabyDiscoveryState
                 // before input/movement, rather than requiring pose setters to publish early.
                 SamusPoseMetadata.RefreshCollisionRadii(Samus);
                 IntroSamusDemoMovement.StepGroundedLeft(
-
-                    Level,
+                    Terrain,
                     Samus,
                     demo.Held,
                     demo.NewlyPressed,
@@ -147,8 +148,8 @@ internal sealed class IntroBabyDiscoveryState
             eggBehavior = MetroidEggBehavior.Hatches;
         }
 
-        // The egg is gone from the update page three's crossfade reaches its final update. The egg's animation starts the wait
-        // after starting page three.
+        // The egg is gone from the update the crossfade back to the narration reaches its final update. The egg's animation
+        // starts the wait after starting that page.
         if (eggBehavior == MetroidEggBehavior.WaitsForCrossFadeEnd && crossfadeFinishing)
         {
             egg.Delete();
@@ -173,8 +174,8 @@ internal sealed class IntroBabyDiscoveryState
         IIntroCinematicSpritePresentation eggEffectArt,
         IIntroCinematicSpritePresentation actorArt)
     {
-        // With objects drawn first, the cinematic actors draw before Samus. The egg
-        // was spawned before the confused-baby object and retains its own animation and timer.
+        // In this scene the actors draw before Samus. The egg came before the confused baby and keeps its own animation
+        // and timer.
         egg.Draw(screenSprites, installedArt: actorArt);
         confusedBaby.Draw(screenSprites, installedArt: actorArt);
         foreach (IntroEggParticle particle in eggParticles)
@@ -183,116 +184,108 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Draw(screenSprites, eggEffectArt);
     }
 
+    /// <summary>What <see cref="CheckDemoPhase"/> does for each <see cref="IntroBabyDiscoveryDemoPhase"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroBabyDiscoveryDemoPhase, Action<bool>> CheckDemoPhaseForIntroBabyDiscoveryDemoPhase => field ??= new(new Dictionary<IntroBabyDiscoveryDemoPhase, Action<bool>>
+    {
+        [IntroBabyDiscoveryDemoPhase.RunningLeft] = crossfadeFinishing =>
+        {
+            if (Samus.Position.X.Whole < IntroBabyDiscoveryDefinitions.DemoRunStopX)
+            {
+                DemoPhase = IntroBabyDiscoveryDemoPhase.StoppedAndLooking;
+                demo.Load(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook);
+            }
+        },
+        [IntroBabyDiscoveryDemoPhase.StoppedAndLooking] = crossfadeFinishing =>
+        {
+            if (crossfadeFinishing)
+            {
+                DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
+                demo.Load(DemoSignallingRecordingId.IntroBabyDiscoveryEnd, HandleDemoCue);
+            }
+        },
+        [IntroBabyDiscoveryDemoPhase.Ending] = crossfadeFinishing => { },
+    });
+
     /// <summary>
     /// Moves the scripted input from running to stopping and looking once Samus passes her scripted place, and from
     /// looking to its ending once the crossfade finishes. Runs before the input's step, in the same step.
     /// </summary>
     private void CheckDemoPhase(bool crossfadeFinishing)
     {
-        switch (DemoPhase)
-        {
-            case IntroBabyDiscoveryDemoPhase.RunningLeft:
-                if (Samus.Position.X.Whole < IntroBabyDiscoveryDefinitions.DemoRunStopX)
-                {
-                    DemoPhase = IntroBabyDiscoveryDemoPhase.StoppedAndLooking;
-                    demo.Load(DemoInputRecordingId.IntroBabyDiscoveryStopAndLook);
-                }
-                return;
-
-            case IntroBabyDiscoveryDemoPhase.StoppedAndLooking:
-                if (crossfadeFinishing)
-                {
-                    DemoPhase = IntroBabyDiscoveryDemoPhase.Ending;
-                    demo.Load(DemoInputRecordingId.IntroBabyDiscoveryEnd);
-                }
-                return;
-
-            case IntroBabyDiscoveryDemoPhase.Ending:
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroBabyDiscoveryDemoPhase)} {DemoPhase}.");
-        }
+        CheckDemoPhaseForIntroBabyDiscoveryDemoPhase[DemoPhase](crossfadeFinishing);
     }
 
     /// <summary>Runs the discovery demo recording's end cue, disabling input and both phases of Samus's frame for the frames that follow.</summary>
-    private void HandleDemoCue(DemoInputCue cue)
+    /// <remarks>The discovery demo's end recording runs it as its signal (<see cref="DemoInputCue.EndIntroBabyDiscovery"/>).</remarks>
+    private void HandleDemoCue()
     {
-        if (cue != DemoInputCue.EndIntroBabyDiscovery)
-            throw new InvalidOperationException($"The Baby-discovery demo handles no {cue} cue.");
-
-        // The scene's end makes both phases of Samus's frame do nothing, disables demo input, and
-        // returns into the following shared delete step. Samus is never processed again.
+        // The scene's end stops Samus moving and animating for the rest of the scene and stops the demo's input.
         demo.Disable();
         Samus.Control.LockOutPlayer();
         samusUpdateStopped = true;
     }
 
+    /// <summary>What <see cref="HandleEggCue"/> does for each <see cref="IntroDiscoveryCue"/> member, each member's own arm.</summary>
+    private IdentityTable<IntroDiscoveryCue, Action> HandleEggCueForIntroDiscoveryCue => field ??= new(new Dictionary<IntroDiscoveryCue, Action>
+    {
+        [IntroDiscoveryCue.SpawnShellPieces] = () =>
+        {
+            eggShellBurst = true;
+            // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
+            foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
+                eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
+            audio.QueueSound(
+                IntroCinematicDefinitions.Sounds.EggHatch,
+                priority: IntroCinematicDefinitions.Sounds.SoundPriority);
+        },
+        [IntroDiscoveryCue.StartNextPage] = () =>
+        {
+            // This cue switches the outer cinematic phase to the narration page after the discovery. The state
+            // owner performs the colour transition; the actor merely reports the request.
+            NextPageRequested = true;
+        },
+        [IntroDiscoveryCue.DeleteEggAfterCrossFade] = () =>
+        {
+            // Page three's cross-fade deletes the egg once it ends.
+            eggBehavior = MetroidEggBehavior.WaitsForCrossFadeEnd;
+        },
+    });
+
     /// <summary>Spawns hatch particles or requests the page-three transition from the egg's animation.</summary>
     private void HandleEggCue(IntroDiscoveryCue cue)
     {
-        switch (cue)
-        {
-            case IntroDiscoveryCue.SpawnShellPieces:
-                // The six pieces of the shell spawn in their spawn order, which is the order they update and draw in.
-                foreach (IntroEggShellFragment fragment in IntroEggEffectDefinitions.ShellFragments)
-                    eggParticles.Add(new IntroEggParticle(fragment, shellFallPastCurve));
-                audio.QueueSound(
-                    IntroCinematicDefinitions.Sounds.EggHatch,
-                    priority: IntroCinematicDefinitions.Sounds.SoundPriority);
-                return;
-
-            case IntroDiscoveryCue.StartNextPage:
-                // This cue switches the outer cinematic phase to page three. The state
-                // owner performs the colour transition; the actor merely reports the request.
-                NextPageRequested = true;
-                return;
-
-            case IntroDiscoveryCue.DeleteEggAfterCrossFade:
-                // Page three's cross-fade deletes the egg once it ends.
-                eggBehavior = MetroidEggBehavior.WaitsForCrossFadeEnd;
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(IntroDiscoveryCue)} {cue}.");
-        }
+        HandleEggCueForIntroDiscoveryCue[cue]();
     }
+
+    /// <summary>What <see cref="StepConfusedBaby"/> does for each <see cref="ConfusedBabyMotion"/> member, each member's own arm.</summary>
+    private IdentityTable<ConfusedBabyMotion, Action<bool>> StepConfusedBabyForConfusedBabyMotion => field ??= new(new Dictionary<ConfusedBabyMotion, Action<bool>>
+    {
+        [ConfusedBabyMotion.WaitingForHatch] = crossfadeFinishing =>
+        {
+            // The confused baby starts rising on the update the egg's shell bursts, after this update's egg step.
+            if (eggShellBurst)
+            {
+                babyMotion = ConfusedBabyMotion.Rising;
+                BabyVelocity = BabyVelocity.WithY(default);
+            }
+        },
+        [ConfusedBabyMotion.Rising] = crossfadeFinishing => StepHatchedBaby(),
+        [ConfusedBabyMotion.Idling] = crossfadeFinishing =>
+        {
+            if (BabyIdleTimer.Step())
+            {
+                babyMotion = ConfusedBabyMotion.Dancing;
+                BabyVelocity = BabyVelocity.WithY(default);
+                BabyCryingDance = UpdateCountdown.Lasting(IntroBabyDiscoveryDefinitions.CryingDanceUpdates);
+            }
+        },
+        [ConfusedBabyMotion.Dancing] = crossfadeFinishing => StepDancingBaby(crossfadeFinishing),
+    });
 
     /// <summary>Advances the baby from hatch wait through rise, idle, and crossfade dance phases.</summary>
     private void StepConfusedBaby(bool crossfadeFinishing)
     {
-        switch (babyMotion)
-        {
-            case ConfusedBabyMotion.WaitingForHatch:
-                // The confused baby starts rising on the update the egg first shows its burst shell, after this
-                // update's egg step.
-                if (egg.Shown is { } eggPose && IntroEggPoses.BurstShell.Contains(eggPose))
-                {
-                    babyMotion = ConfusedBabyMotion.Rising;
-                    BabyVelocity = BabyVelocity.WithY(default);
-                }
-                return;
-
-            case ConfusedBabyMotion.Rising:
-                StepHatchedBaby();
-                return;
-
-            case ConfusedBabyMotion.Idling:
-                if (BabyIdleTimer.Step())
-                {
-                    babyMotion = ConfusedBabyMotion.Dancing;
-                    BabyVelocity = BabyVelocity.WithY(default);
-                    BabyCryingDance = UpdateCountdown.Lasting(IntroBabyDiscoveryDefinitions.CryingDanceUpdates);
-                }
-                return;
-
-            case ConfusedBabyMotion.Dancing:
-                StepDancingBaby(crossfadeFinishing);
-                return;
-
-            default:
-                throw new InvalidOperationException($"Undefined {nameof(ConfusedBabyMotion)} {babyMotion}.");
-        }
+        StepConfusedBabyForConfusedBabyMotion[babyMotion](crossfadeFinishing);
     }
 
     /// <summary>The velocity of the baby's rise and two-axis dance.</summary>
@@ -302,8 +295,8 @@ internal sealed class IntroBabyDiscoveryState
     private UpdateCountdown BabyIdleTimer { get; set; } = UpdateCountdown.Ended();
 
     /// <summary>
-    /// The crying stretch of the baby's dance, its first 128 updates, counted once each: it cries as its age reaches 64 and
-    /// 128, and dances on silently once it is over.
+    /// The crying stretch of the baby's dance, counted once each update: it cries at its cry cadence's places, the last as
+    /// the stretch ends, and dances on silently once it is over.
     /// </summary>
     private UpdateCountdown BabyCryingDance { get; set; } = UpdateCountdown.Ended();
 
@@ -319,7 +312,7 @@ internal sealed class IntroBabyDiscoveryState
             // The hatched baby publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
             audio.QueueSound(
-                IntroCinematicDefinitions.Sounds.BabyCry1,
+                IntroCinematicDefinitions.Sounds.BabyHighCry,
                 priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 
@@ -347,7 +340,7 @@ internal sealed class IntroBabyDiscoveryState
         if (crossfadeFinishing)
         {
             confusedBaby.Delete();
-            // The dancing baby's drift.
+            // The crossfade's end deletes the baby and hides Samus.
             SamusDisplay = IntroSamusDisplay.Hidden;
             return;
         }
@@ -355,10 +348,10 @@ internal sealed class IntroBabyDiscoveryState
         if (BabyCryingDance.IsRunning)
         {
             BabyCryingDance.Count();
-            // The dancing baby cries when its count of frames danced reaches 64 and 128.
-            if (IntroCadenceDefinitions.BabyCriesEverySixtyFourthDanceUpdate.IsDue(BabyCryingDance.Age))
+            // The dancing baby cries when its count of frames danced reaches its cry cadence's places.
+            if (IntroCadenceDefinitions.BabyCriesInDance.IsDue(BabyCryingDance.Age))
                 audio.QueueSound(
-                    IntroCinematicDefinitions.Sounds.BabyCry1,
+                    IntroCinematicDefinitions.Sounds.BabyHighCry,
                     priority: IntroCinematicDefinitions.Sounds.SoundPriority);
         }
 
@@ -384,9 +377,8 @@ internal sealed class IntroBabyDiscoveryState
 
 
     /// <summary>
-    /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either
-    /// way; every step keeps the speed within the limit, so the step stays far inside the velocity's range. The baby and its
-    /// targets lie on the screen near Samus, so their places compare directly (#1974).
+    /// Adjusts a velocity toward a target by one acceleration step without passing <paramref name="limit"/> either way.
+    /// The baby and its targets lie on the screen near Samus, so their places compare directly (#1974).
     /// </summary>
     private static SignedEightEight AccelerateToward(
         int position,
@@ -407,8 +399,8 @@ internal sealed class IntroBabyDiscoveryState
     private static CinematicActor<IntroBabyAnimation, CinematicSpritePose, IntroDiscoveryCue> CreateActor(IntroBabyActorDefinition definition) =>
         new(definition.Position, IntroShades.Drawn(definition.Colouring), IntroBabyAnimations.Discovery, definition.Animation);
 
-    /// <summary>Creates the discovery room: collision only, which the scene's own pictures show.</summary>
-    private static RoomLevelData CreateLevel() => RoomLevelData.CollisionOnly(
+    /// <summary>Creates the discovery room: a plain terrain, which the scene's own pictures show.</summary>
+    private static PlainTerrain CreateTerrain() => new(
         new Extent16<RoomBlocks>(IntroBabyDiscoveryCollisionDefinitions.Columns, IntroBabyDiscoveryCollisionDefinitions.RoomRows),
         IntroBabyDiscoveryCollision.CreateCollision());
 }

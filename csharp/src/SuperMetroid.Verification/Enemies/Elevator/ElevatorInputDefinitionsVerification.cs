@@ -24,23 +24,26 @@ internal static class ElevatorInputDefinitionsVerification
         for (ushort direction = 0; direction < 2; direction++)
         {
             ushort tableByteOffset = (ushort)(direction * 2);
-            ElevatorTravelDirection travel = direction == 0 ? ElevatorTravelDirection.Down : ElevatorTravelDirection.Up;
-            GameplayAction native = GameplayActionWordCodec.FromJoypadWord(CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
+            VerticalDirection travel = direction == 0 ? VerticalDirection.Down : VerticalDirection.Up;
+            GameplayAction native = GameplayActionWordCodec.FromJoypadWord(rom.ReadCartridgeWord(inputTable + tableByteOffset), "native elevator departure mask");
 
             var enemies = EnemySystemFixtures.New(EnemySessionFixtures.WithInstalledServices(), RoomEnemyCompatibilityFixtures.ForNewRoom(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.VerificationServices().IsAreaBossDefeated = () => true;
-            Action<RoomEnemyPlace, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
+            // The elevator is set up as the population load sets it up, and waits for its input as its main AI runs once Samus
+            // stands at its door.
+            Action<RoomEnemyPlace, SamusState> initialize = (fixturePlace, fixtureArg1) => _ = enemies.LoadAuthoredPopulation(fixtureArg1, RoomEnemyFrameFixtures.OpenRoom(new(64, 64)));
             Action<RoomEnemyPlace, SamusState, GameplayAction,
-                    SamusProjectileSystem> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
+                    SamusProjectileSystem> wait = (fixturePlace, fixtureArg1, fixtureArg2, fixtureArg3) =>
+                fixturePlace.RunMainAi(PlacedEnemyAccess.AiFrame(fixtureArg1, fixtureArg2, fixtureArg3));
 
             RoomEnemyPlace place = enemies.Places.InUpdateOrder[0];
-            place.Bind(EnemyDefinitionId.Elevator, place.Definition);
+            place.Bind(EnemyDefinitionId.Elevator, place.KeptDefinition);
             place.SetSpawnParameter1(EnemyDefinitionId.Elevator, direction);
             place.Position = place.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState(GameplayAudioRequests.Standalone(), InstalledFixtures.FramesBeyondAnimation, new SuperMetroid.Core.Compatibility.UnauthoredBoostCadence(), SuperMetroid.Core.Samus.SamusCompatibility.ForNewSamus(), new SuperMetroid.Core.Samus.Projectiles.BeamChargeState(), global::SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.SamusArtwork());
             samus.BindBodyFixture(bodyArtwork);
             initialize(place, samus);
-            AssertEqual(travel, place.SpawnSettings<ElevatorSpawnSettings>().Direction,
+            AssertEqual(travel, place.HeldOccupant().SpawnSettings<ElevatorSpawnSettings>().Direction,
                 $"elevator parameter {direction} travels {travel}");
 
             GameplayAction opposite = GameplayActionWordCodec.FromJoypadWord(LittleEndianBytes.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))), "native opposite elevator mask");
@@ -53,7 +56,7 @@ internal static class ElevatorInputDefinitionsVerification
             wait(place, samus, native, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateProjectileSystem());
             AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
-            AssertTrue(enemies.LastEnemyFrame.Reports(ElevatorFrameEvent.DepartureStarted),
+            AssertTrue(enemies.LastEnemyFrame.Reports(new ElevatorEvent(ElevatorFrameEvent.DepartureStarted)),
                 $"elevator departure event {direction}");
             AssertEqual(travel, enemies.ElevatorBehavior.ElevatorTravel, $"elevator departure {direction} sets the ride's way (#2531)");
             AssertEqual(true, samus.Control.InputLocked, $"elevator Samus input lock {direction}");
@@ -67,10 +70,10 @@ internal static class ElevatorInputDefinitionsVerification
     /// <summary>Checks both directions' inputs against the two-entry mask table at $A3:94E2.</summary>
     private static void VerifyElevatorDirectionInputMapping(CartridgeImportAddressSpace rom)
     {
-        ElevatorTravelDirection[] tableOrder = [ElevatorTravelDirection.Down, ElevatorTravelDirection.Up];
+        VerticalDirection[] tableOrder = [VerticalDirection.Down, VerticalDirection.Up];
         for (int entry = 0; entry < tableOrder.Length; entry++)
         {
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa394e2 + entry * 2);
+            ushort native = rom.ReadCartridgeWord(0xa394e2 + entry * 2);
             AssertEqual(GameplayActionWordCodec.FromJoypadWord(native, "native elevator direction mask"), ElevatorActorDefinitions.RequiredDirectionInputs[tableOrder[entry]], "elevator named direction matches native mask");
         }
     }

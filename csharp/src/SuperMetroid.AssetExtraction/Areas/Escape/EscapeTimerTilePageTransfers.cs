@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.Core;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
@@ -8,10 +7,10 @@ namespace SuperMetroid.AssetExtraction.Areas.Escape;
 /// at, and the installed characters it carries. Only the import pipeline resolves the pages; the game draws the timer's
 /// pre-coloured sheet.
 /// </summary>
-public static class EscapeTimerTilePageTransfers
+public static partial class EscapeTimerTilePageTransfers
 {
     /// <summary>The page's upload size in bytes.</summary>
-    public static ushort ByteCountOf(EscapeTimerTilePage page) => page switch
+    public static int ByteCountOf(EscapeTimerTilePage page) => page switch
     {
         EscapeTimerTilePage.First => EscapeTimerTileAtlasFormat.FirstByteCount,
         EscapeTimerTilePage.Second => EscapeTimerTileAtlasFormat.SecondByteCount,
@@ -27,48 +26,12 @@ public static class EscapeTimerTilePageTransfers
     };
 
     /// <summary>Resolves one page of <paramref name="atlas"/> without combining or retiming its original transfer record.</summary>
-    /// <param name="atlas">The installed timer characters.</param>
-    /// <param name="asset">One of the two escape-timer page identities.</param>
-    /// <exception cref="InvalidDataException"><paramref name="asset"/> names no escape-timer page.</exception>
-    public static ReadOnlyMemory<byte> Resolve(EscapeTimerCharacters atlas, InstalledArtworkId asset)
+    /// <param name="atlas">The installed timer characters, laid out from the first page's first character in transfer order.</param>
+    /// <param name="page">The page to slice: its characters from its first character, its byte count long.</param>
+    public static ReadOnlyMemory<byte> Resolve(EscapeTimerCharacters atlas, EscapeTimerTilePage page)
     {
         ReadOnlySpan<byte> characters = Ensure.NotNull(atlas).characters;
-        return asset switch
-        {
-            InstalledArtworkId.EscapeTimerFirstTiles => characters[..EscapeTimerTileAtlasFormat.FirstByteCount].ToArray(),
-            InstalledArtworkId.EscapeTimerSecondTiles => characters.Slice(EscapeTimerTileAtlasFormat.FirstByteCount, EscapeTimerTileAtlasFormat.SecondByteCount).ToArray(),
-            InstalledArtworkId.StandardHudTiles or
-                InstalledArtworkId.BeamPowerTiles or
-                InstalledArtworkId.BeamWaveTiles or
-                InstalledArtworkId.BeamIceTiles or
-                InstalledArtworkId.BeamIceWaveTiles or
-                InstalledArtworkId.BeamSpazerTiles or
-                InstalledArtworkId.BeamSpazerWaveTiles or
-                InstalledArtworkId.BeamSpazerIceTiles or
-                InstalledArtworkId.BeamSpazerIceWaveTiles or
-                InstalledArtworkId.BeamPlasmaTiles or
-                InstalledArtworkId.BeamPlasmaWaveTiles or
-                InstalledArtworkId.BeamPlasmaIceTiles or
-                InstalledArtworkId.BeamPlasmaIceWaveTiles or
-                InstalledArtworkId.ProjectileIceWaveTrailTiles or
-                InstalledArtworkId.ProjectileMissileTrailTiles or
-                InstalledArtworkId.GrapplePointFirstTiles or
-                InstalledArtworkId.GrapplePointSecondTiles or
-                InstalledArtworkId.GrapplePointThirdTiles or
-                InstalledArtworkId.GrapplePointFourthTiles or
-                InstalledArtworkId.GrappleHorizontalSegmentTiles or
-                InstalledArtworkId.GrappleDiagonalSegmentTiles or
-                InstalledArtworkId.GrappleVerticalSegmentTiles or
-                InstalledArtworkId.GunshipLiftoffFirstTiles or
-                InstalledArtworkId.GunshipLiftoffSecondTiles or
-                InstalledArtworkId.GunshipLiftoffThirdTiles or
-                InstalledArtworkId.GunshipLiftoffFourthTiles or
-                InstalledArtworkId.GunshipLiftoffFifthTiles or
-                InstalledArtworkId.BeamChainsawTiles or
-                InstalledArtworkId.BeamSpacetimeTiles or
-                InstalledArtworkId.StandardObjectTiles or
-                InstalledArtworkId.HudTopRowTilemap => throw new InvalidDataException($"Escape timer artwork cannot resolve tile asset {asset}."),
-            _ => throw new InvalidDataException($"Escape timer artwork cannot resolve tile asset {asset}."),
-        };
+        int firstByte = (FirstCharacterOf(page) - EscapeTimerTileAtlasFormat.FirstCharacter) * EscapeTimerTileAtlasFormat.CharacterByteCount;
+        return characters.Slice(firstByte, ByteCountOf(page)).ToArray();
     }
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 /// A Hibashi's invisible collision part, placed right after its flame: it takes no action of its own and holds its
 /// one-frame hitbox animation; the flame moves and sizes it.
 /// </summary>
-public sealed class HibashiCollisionPartState
+public sealed partial class HibashiCollisionPartState
 {
     /// <summary>The hitbox animation the part holds.</summary>
     internal AnimationPlayback<HibashiSegment> Playback { get; set; }

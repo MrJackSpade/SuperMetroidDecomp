@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Earthquakes;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.RoomObjects;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -9,10 +10,10 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// rises, the limits of her walks, the wall sealed behind Samus, her body's push and the touch that hurts, where her mouth,
 /// laser, bomb and breath leave her head, her drool, and the stages of her drain by the Baby.
 /// </summary>
-internal static class MotherBrainFightDefinitions
+internal static partial class MotherBrainFightDefinitions
 {
-    /// <summary>The parts her room lists after her body: her head, right after it (#2218).</summary>
-    internal const int PartsAfterBody = 1;
+    /// <summary>How her room lists her (#2218): her body, then her head.</summary>
+    internal static EnemyComposite<EnemyDefinitionId> Listing { get; } = new([EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead]);
 
     /// <summary>The health of her brain in the glass, her first phase.</summary>
     internal const int FirstPhaseHealth = 3000;
@@ -21,7 +22,6 @@ internal static class MotherBrainFightDefinitions
     internal const int SecondPhaseHealth = 18000;
 
     /// <summary>The health her brain takes once the Baby has drained her to grey, for her third phase.</summary>
-    [SuppressMessage("Design", "SME6447", Justification = "Her third phase's health, a count of hit points; only its size makes this rule flag it (owner ruling, 2026-11-16).")]
     internal const int ThirdPhaseHealth = 36000;
 
     /// <summary>The health at or above which her second phase chooses its moves at full strength.</summary>
@@ -144,21 +144,21 @@ internal static class MotherBrainFightDefinitions
 
     /// <summary>The shake each planted step of her walk starts.</summary>
     internal static readonly EarthquakeShake FootstepShake =
-        new(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Light, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
 
     /// <summary>The updates each footstep's shake lasts.</summary>
     internal const int FootstepShakeUpdates = 4;
 
     /// <summary>The shake her rise through the floor starts.</summary>
     internal static readonly EarthquakeShake RiseShake =
-        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Light, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The updates her rise's shake is started for; it stops once she has risen.</summary>
     internal const int RiseShakeUpdates = 256;
 
     /// <summary>The shake an onion ring bursting against the arena's edge, or a hand beam leaving the arena, starts.</summary>
     internal static readonly EarthquakeShake ProjectileExplosionShake =
-        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.Foreground);
+        new(EarthquakeStrength.Medium, EarthquakeDirection.Diagonal, EarthquakeReach.RoomBlocks);
 
     /// <summary>The updates each such shake lasts.</summary>
     internal const int ProjectileExplosionShakeUpdates = 10;

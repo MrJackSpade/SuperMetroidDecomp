@@ -39,7 +39,7 @@ internal static class AreaBlockAnimationDefinitionsVerification
     /// of the objects it names while guarding immutable bank-$83 sources.
     /// </summary>
     private static void VerifyCompiledAreaSelection(
-        ISnesAddressSpace rom,
+        CartridgeImportAddressSpace rom,
         AreaId area,
         byte animatedTileBits,
         int expectedSand,
@@ -50,7 +50,7 @@ internal static class AreaBlockAnimationDefinitionsVerification
         AssertEqual(animatedTileBits, rom.ReadCartridgeByte(0x839e52), "Native fixture animation bitset");
         byte[] native = [.. Enumerable.Range(0, RoomFxToolingRomData.Record.ByteCount)
             .Select(offset => rom.ReadCartridgeByte(0x839e44 + offset))];
-        var fx = new RoomFxSelection($"$83:{fxRecord:X4} in {area}", [],
+        var fx = new RoomFxSelection([],
             RoomFxRecordCodec.Decode(area, native, $"room-FX record $83:{fxRecord:X4}"));
         var guarded = NewAreaAnimatedTileSelectionForbiddenBus(rom);
         IReadOnlyList<BlockAnimation> started = new RoomBlockAnimations(fx, door: null).EffectAnimations;

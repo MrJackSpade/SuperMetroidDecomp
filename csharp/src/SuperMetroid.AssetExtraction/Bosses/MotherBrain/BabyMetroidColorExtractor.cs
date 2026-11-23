@@ -9,7 +9,7 @@ using SuperMetroid.AssetExtraction.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 
 /// <summary>Exports the live Baby Metroid's normal cycle and three initialization targets.</summary>
-public static class BabyMetroidColorExtractor
+public static partial class BabyMetroidColorExtractor
 {
     /// <summary>Exports the live Baby Metroid encounter's eight four-color innard-pulse images and three complete initialization/transition target palettes.</summary>
     /// <param name="bus">Non-null import-capable cartridge source for the normal cycle at $A9:F6D1 and dead-sidehopper, sidehopper, and Baby Metroid targets at $A9:F8A6/F8C6/F8E6.</param>
@@ -44,16 +44,11 @@ public static class BabyMetroidColorExtractor
             for (int color = 0; color < count; color++)
             {
                 int address = source + color * sizeof(ushort);
-                int native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
+                int native = RomDataReader.ReadWordFixedBank(bus, address);
                 if (!RgbColor.IsColorWord(checked((ushort)native)))
                     throw new InvalidDataException(
                         $"Shitroid color ${address:X6} has an unrepresentable high bit.");
-                colors[color] = new PaletteRgb5
-                {
-                    Red = native & 31,
-                    Green = native >> 5 & 31,
-                    Blue = native >> 10 & 31,
-                };
+                colors[color] = PaletteRgb5.From(RgbColor.FromWordIgnoringTopBit(native));
             }
             return colors;
         }

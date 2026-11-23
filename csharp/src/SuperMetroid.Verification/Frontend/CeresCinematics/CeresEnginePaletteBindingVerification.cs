@@ -24,7 +24,7 @@ internal static class CeresEnginePaletteBindingVerification
         ImportIntroCinematicArtwork artwork = InstalledFixtures.IntroArtwork;
         InstalledSpriteSheets sheets = InstalledFixtures.SpriteSheets;
         RgbColor[] nativeColors = [RgbColor.White, RgbColor.Black]; // Pinned $8D:C880/$C886, not runtime ROM reads.
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
+        var game = SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.CreateGame(new SuperMetroid.Core.Saves.SaveSlotStore(SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps));
         game.BindArtwork(InstalledFixtures.GameArtwork with
         {
             ScreenContent = stock,
@@ -34,7 +34,7 @@ internal static class CeresEnginePaletteBindingVerification
         });
         // Both ways into the destruction run with a selected game's runtime loaded.
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped);
+        game.Session.BeginCeresDestruction(CeresDestructionOutcome.SamusEscaped, game.Session.GameplayRuntime);
 
         // Enter via the real frontend constructor call, then select exactly the
         // phase reported by the player. No preceding controller playthrough is needed.

@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Enemies.EnemyEffectsFixtureVerification;
 using SuperMetroid.AssetExtraction.Bosses;
-using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.BossBodies;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -67,7 +66,7 @@ internal static class EnemyEffectMechanicsVerification
         foreach (CrocomireMeltingIllustration pass in Enum.GetValues<CrocomireMeltingIllustration>())
         {
             fixture.InitializeMap(pass);
-            fixture.Call(c => state => c.Melting.BeginCrocomireMeltPass(state, pass));
+            fixture.Call(_ => state => CrocomireMelting.BeginCrocomireMeltPass(state, pass));
             int bands = CrocomireMelting.BandRound(pass);
             ListStep<CrocomireDeathStage> phase = fixture.Actor.DeathStage;
             for (int band = 0; band <= bands; band++)
@@ -115,7 +114,7 @@ internal static class EnemyEffectMechanicsVerification
                 AssertTrue(fixture.Enemies.Presentation.RequireBossBody().Publish().Frames.Any(frame => frame.Name == meltImage && frame.Hidden is not null),
                     $"melt dissolve call {call} shows his body as {meltImage}, through the dissolve's hidden columns");
             }
-            fixture.Call(c => c.Melting.FinishCrocomireMeltingPass);
+            fixture.Call(c => CrocomireMelting.FinishCrocomireMeltingPass);
         }
         Console.WriteLine("  Crocomire melt: band selection per update, 54 calls per dissolve, erase/HDMA/smoke/phase timing pass.");
     }
@@ -148,7 +147,7 @@ internal static class EnemyEffectMechanicsVerification
                 AssertEqual(2 * index + Math.Max(1, (index + 1) / 2), call, "exact per-row completion call");
                 AssertEqual(unchecked((ushort)(100 + (seed & 31) - 16)), dust.Position.X, "native dust X and sampled RNG");
                 AssertEqual((ushort)136, dust.Position.Y, "native dust Y");
-                AssertEqual((call & 7) == 0, dust.SoundEffectQueued, "native dust sound cadence");
+                AssertEqual((call & 7) == 0, dust.Sound is not null, "native dust sound cadence");
                 finished++;
             }
         }

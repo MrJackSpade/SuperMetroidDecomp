@@ -69,8 +69,7 @@ internal static class CrocomireArenaObjectsVerification
         RoomTerrainBlock[] terrain = Enumerable.Repeat(Untouched, width * height).ToArray();
         RoomLevelData level = CreateRoom(new(width, height), terrain, new RoomBlockBehavior[terrain.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.BossRoomMutations.CrocomireArena.TrySpawn(level, new(new(5, 3), mutation)),
-            $"Crocomire mutation {mutation} allocates");
+        roomObjects.BossRoomMutations.CrocomireArena.Spawn(level, new(new(5, 3), mutation));
         var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         roomObjects.Step(level);
         AssertEqual(1, roomObjects.Places.ActiveCount,
@@ -95,7 +94,7 @@ internal static class CrocomireArenaObjectsVerification
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     (BossRoomObjectNativeListAddresses.IsTypedProgramByte(pointer) ||
-                     (pointer >= RoomObjectDrawAddressCodec.Of(CrocomireArenaDraws.Family.Of(CrocomireArenaDraw.ClearBridge)) &&
+                     (pointer >= RoomObjectDrawAddressCodec.Of(CrocomireArenaDraws.Family.Of(CrocomireArenaMutation.ClearBridge)) &&
                       pointer < CrocomireArenaObjectDrawDefinitions.EndExclusive));
             }, address => $"Crocomire PLM reread compiled source ${address:X6}.");
 

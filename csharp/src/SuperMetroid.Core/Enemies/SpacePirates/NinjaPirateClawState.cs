@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// </summary>
 /// <param name="launchSpeed">The claw's launch speed.</param>
 /// <param name="thrown">The way the claw is thrown: it flies out that way and comes back the other.</param>
-internal sealed class NinjaPirateClawState(ReturningClawSpeed launchSpeed, HorizontalDirection thrown) : EnemyProjectileState
+internal sealed partial class NinjaPirateClawState(ReturningClawSpeed launchSpeed, HorizontalDirection thrown) : EnemyProjectileState
 {
     /// <summary>The way the claw is thrown, which its pirate chose: it flies out that way and comes back the other.</summary>
     internal HorizontalDirection Thrown { get; } = thrown;
@@ -20,7 +20,7 @@ internal sealed class NinjaPirateClawState(ReturningClawSpeed launchSpeed, Horiz
     internal ReturningClawSpeed Speed { get; private set; } = launchSpeed;
 
     /// <summary>The half of its throw the claw is in: it flies out first, and comes back once its outward speed has run out.</summary>
-    internal NinjaPirateClawFlight Flight { get; private set; } = NinjaPirateClawFlight.FlyingOut;
+    internal NinjaPirateClawFlight Flight { get; set; } = NinjaPirateClawFlight.FlyingOut;
 
     /// <summary>
     /// One update of the claw's flight: the whole pixels it moves along its throw, positive while it flies out and negative

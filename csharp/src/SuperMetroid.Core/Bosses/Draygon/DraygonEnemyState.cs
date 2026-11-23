@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// enemy made with the encounter by his body's setup and keeping its own animation (#2298); the eye's tracking lives in
 /// <see cref="EyeTracking"/>.
 /// </summary>
-public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
+public sealed partial class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing
 {
     /// <inheritdoc />
     Position16<RoomPixels>? SuperMetroid.Core.Enemies.BossBodies.IBossBodyShowing.BodyPlacement => BodyPlacement;
@@ -20,18 +20,26 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// Begins the encounter of the body at <paramref name="body"/> and the parts his room lists with it, each playing the
     /// animation its setup starts, in the health band his health starts in (#2304).
     /// </summary>
-    /// <param name="body">The place his body occupies.</param>
+    /// <param name="body">The enemy holding his body's place, which begins the encounter as it sets up.</param>
     /// <param name="eye">The place his eye occupies.</param>
     /// <param name="tail">The place his tail occupies.</param>
     /// <param name="arms">The place his arms occupy.</param>
-    internal DraygonEnemyState(RoomEnemyPlace body, RoomEnemyPlace eye, RoomEnemyPlace tail, RoomEnemyPlace arms)
+    internal DraygonEnemyState(RoomEnemyOccupant body, RoomEnemyPlace eye, RoomEnemyPlace tail, RoomEnemyPlace arms)
     {
-        BodyPart = new DraygonPart(this, body, DraygonSegment.BodyFacingLeftIdle);
+        BodyOccupant = Ensure.NotNull(body);
+        BodyPart = new DraygonPart(this, body.Place, DraygonSegment.BodyFacingLeftIdle);
         EyePart = new DraygonPart(this, eye, DraygonSegment.EyeFacingLeftIdle);
         TailPart = new DraygonPart(this, tail, DraygonSegment.TailFacingLeftInitialFakeWhip);
         ArmsPart = new DraygonPart(this, arms, DraygonSegment.ArmsFacingLeftIdle);
-        HealthBand = DraygonHealthBand.Of(body.Health);
+        HealthBand = DraygonHealthBand.Of(body.Place.Health);
+        BodyParts = new(SuperMetroid.Core.Enemies.BossBodies.BossBodyOwner.Draygon);
     }
+
+    /// <summary>
+    /// The parts his body layer shows (#1466, #1515), which his setup attaches to the room's display and his parts' frames
+    /// show on: nothing at first. The room keeps showing it, hidden, once his body is deleted (#2194).
+    /// </summary>
+    internal SuperMetroid.Core.Enemies.BossBodies.BossBodyParts BodyParts { get; }
 
     /// <summary>Draygon's body layer's and sprites' colours (#1512).</summary>
     internal DraygonColours Colours { get; } = new();
@@ -44,6 +52,9 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
         Tail.Shading = sprites;
         Arms.Shading = sprites;
     }
+
+    /// <summary>The enemy holding his body's place, whose definition's damage his tail's whip deals (#2558).</summary>
+    public RoomEnemyOccupant BodyOccupant { get; }
 
     /// <summary>His body, which owns encounter movement, health, and the body's phases, and runs first.</summary>
     public DraygonPart BodyPart { get; }
@@ -70,7 +81,7 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public RoomEnemyPlace Arms => ArmsPart.Place;
 
     /// <summary>His eye's tracking: inert until his body publishes the way he faces, then tracking Samus.</summary>
-    internal DraygonEyeState EyeTracking { get; } = new(DraygonEyeAction.Inert);
+    internal DraygonEyeState EyeTracking { get; } = new();
 
 
 
@@ -82,17 +93,25 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     public Position16<RoomPixels> LeftSideReset { get; internal set; }
 
     /// <summary>
-    /// The X of the off-screen place at the right (#2221), 672 pixels right of <see cref="LeftSideReset"/>, wrapping: a
+    /// The X of the off-screen place at the right (#2221), <see cref="DraygonArenaDefinitions.RightSideResetDistance"/> right of <see cref="LeftSideReset"/>, wrapping: a
     /// leftward swoop aims from it and a leftward goop pass starts there.
     /// </summary>
     public int RightSideResetX { get; internal set; }
 
     /// <summary>
-    /// The downward acceleration a swoop path is built with, in pixels per update per update (#2221). It starts at
-    /// 24/256, each eye hit adds 8/256 while the result stays below 160/256, and a tail-whip hit on grabbed Samus restores
-    /// 24/256.
+    /// The downward acceleration a swoop path is built with, in pixels per update per update (#2221). It starts at its
+    /// starting value, each eye hit adds its step while the result stays below its limit, and a tail-whip hit on grabbed
+    /// Samus restores the starting value (<see cref="DraygonSwoopDefinitions"/>). It is always above zero, which a swoop
+    /// path's climb needs to end.
     /// </summary>
-    public SignedEightEight SwoopAcceleration { get; internal set; }
+    /// <exception cref="ArgumentOutOfRangeException">The acceleration set is not above zero.</exception>
+    public SignedEightEight SwoopAcceleration
+    {
+        get;
+        internal set => field = value > SignedEightEight.Zero
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "Draygon's swoop acceleration is above zero.");
+    } = DraygonSwoopDefinitions.InitialAcceleration;
 
     /// <summary>The Evirs the intro spawned for its dance, in the order they spawned, each with its own start delay.</summary>
     internal List<DraygonIntroDancer> IntroDancers { get; } = [];
@@ -104,16 +123,10 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// How far the tail whip shifts the body's picture against the body, in room pixels, without moving the body or its
     /// parts (#1940): his body is placed this far from his position (#2031).
     /// </summary>
-    public Offset16<RoomPixels> BodyPictureShift { get; internal set; }
+    internal Offset16<RoomPixels> BodyPictureShift { get; set; }
 
     /// <summary>Where his body is placed (#2031): his position, shifted by <see cref="BodyPictureShift"/>.</summary>
     public Position16<RoomPixels> BodyPlacement => Body.Position.Whole + BodyPictureShift;
-
-    /// <summary>
-    /// The path of the swoop Draygon is flying or last flew: none until he plans his first swoop, then the heights from
-    /// the swoop's lowest point up toward the reset height and the height he started it at.
-    /// </summary>
-    internal DraygonSwoopPath? SwoopPath { get; set; }
 
     /// <summary>The way Draygon faces: left until his first rightward pass turns him.</summary>
     public HorizontalDirection Facing { get; internal set; }
@@ -125,27 +138,27 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     public RotationAngle GoopYOscillationAngle { get; internal set; }
 
-    /// <summary>The goop shots left in a firing pass, sixteen when the pass begins; the pass ends on the last of them.</summary>
+    /// <summary>The goop shots left in a firing pass, <see cref="DraygonArenaDefinitions.GoopsPerPass"/> when the pass begins; the pass ends on the last of them.</summary>
     public BossCountdown GoopShotsLeft { get; } = new();
 
 
     /// <summary>
     /// Horizontal radius of the carry spiral; the vertical radius is a quarter of its whole pixels. A grab clears it and
-    /// each spiral frame grows it by one eighth of a pixel, so its whole pixels grow every eighth frame; the spiral ends
-    /// when they reach 160.
+    /// each spiral frame grows it by <see cref="DraygonGrabDefinitions.SpiralRadiusGrowth"/>; the spiral ends when its whole
+    /// pixels reach <see cref="DraygonGrabDefinitions.MaximumSpiralRadius"/>.
     /// </summary>
     public SignedSixteenSixteen SpiralXRadius { get; internal set; }
 
     /// <summary>
-    /// Center point of the carry spiral, initialized to (256, 384).
-    /// The Y axis carries its fractional part: each spiral frame lifts it a quarter pixel, the center rising one pixel
-    /// every four. X has no fractional part and
+    /// Center point of the carry spiral, initialized to <see cref="DraygonGrabDefinitions.SpiralTarget"/>.
+    /// The Y axis carries its fractional part: each spiral frame lifts it by <see cref="DraygonGrabDefinitions.SpiralCenterLift"/>.
+    /// X has no fractional part and
     /// stays whole. A grab keeps the part of a pixel the last spiral left (<see cref="DraygonRegrabSpiralLift"/>).
     /// </summary>
     public DraygonRegrabSpiralLift SpiralCenter { get; internal set; }
 
     /// <summary>
-    /// Draygon's position around the carry spiral: three quarters of a turn when a grab starts, advanced by
+    /// Draygon's position around the carry spiral: <see cref="DraygonGrabDefinitions.InitialSpiralAngle"/> when a grab starts, advanced by
     /// the whole steps of <see cref="SpiralAngleDelta"/> each spiral frame and wrapping around the turn.
     /// </summary>
     public RotationAngle SpiralAngle { get; internal set; }
@@ -169,15 +182,12 @@ public sealed class DraygonEnemyState : SuperMetroid.Core.Enemies.BossBodies.IBo
     /// </summary>
     public DraygonHealthBand HealthBand { get; internal set => field = Ensure.NotNull(value); }
 
-    /// <summary>True after terminal burial records the area boss as defeated; prevents repeating that persistence write.</summary>
-    public bool BossDefeatPersisted { get; internal set; }
-
 
     /// <summary>
-    /// The body's phase; the body runs it each update before its three parts take the body's position. The fight starts
-    /// in its opening delay.
+    /// The step the body runs each update before its three parts take the body's position, holding what its phase needs
+    /// (<see cref="DraygonPhaseStep"/>). The fight starts in its opening delay.
     /// </summary>
-    public DraygonPhase Phase { get; internal set; } = DraygonPhase.IntroInitialDelay;
+    internal DraygonPhaseStep Step { get; set => field = Ensure.NotNull(value); } = DraygonPhaseSteps.IntroInitialDelay();
 
     /// <summary>The way Draygon's swoop or goop pass travels (#2165).</summary>
     public HorizontalDirection PassDirection { get; internal set; }

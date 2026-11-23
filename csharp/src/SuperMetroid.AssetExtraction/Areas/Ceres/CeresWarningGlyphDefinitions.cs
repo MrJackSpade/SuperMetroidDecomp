@@ -5,7 +5,7 @@ namespace SuperMetroid.AssetExtraction.Areas.Ceres;
 /// room's characters. The pages' entries are the original's packed tile placements, so the document is import data (#1638):
 /// extraction composes the pages' pictures from it, the installation holds those pictures, and gameplay writes them by page.
 /// </summary>
-internal static class CeresWarningGlyphDefinitions
+internal static partial class CeresWarningGlyphDefinitions
 {
     /// <summary>Supported warning-overlay schema revision; 3 holds each Japanese subtitle line as one page of two rows (#2425).</summary>
     internal const int Version = 3;

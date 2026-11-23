@@ -3,7 +3,7 @@ using SuperMetroid.Core.Fx.ColourEffects;
 namespace SuperMetroid.Core.Enemies.Gunship;
 
 /// <summary>The gunship's lights (#1733).</summary>
-internal static class GunshipLightDefinitions
+internal static partial class GunshipLightDefinitions
 {
     /// <summary>
     /// The colour effect the top hull's placement starts, on every placement: its lights' glow over the colour every piece

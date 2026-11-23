@@ -3,12 +3,11 @@ using SuperMetroid.AssetExtraction.Fx;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Fx.LookupAnimatedFramesVerification;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Verification.Harness;
 
 namespace SuperMetroid.Verification.Fx;
 
 /// <summary>Checks every authored simple animated-tile frame operand against
-/// the cartridge and rejects non-frame cursors across the ushort domain.</summary>
+/// the cartridge and rejects every non-frame cursor of each loop's program.</summary>
 internal static class LookupAnimatedArtworkSourcesVerification
 {
     /// <summary>Compares compiled artwork source addresses with original bank-$87
@@ -26,11 +25,12 @@ internal static class LookupAnimatedArtworkSourcesVerification
                 expected.Add((ushort)cursor, 0x870000 | ReadVerificationWord(rom, 0x870000 | (cursor + 2)));
                 total++;
             }
-            // The artwork source of a cursor is a pure function of the immutable loop, so the whole cursor domain is
-            // swept across the cores. Each cursor is classified through the lookup's own frame test; the lookup rejects
-            // exactly the cursors that test refuses, which the odd cursor after the first frame confirms once per loop
-            // instead of raising an exception for each of the domain's non-frame cursors.
-            ParallelSweep.For(0, ushort.MaxValue + 1, value =>
+            // A loop's cursor only ever stands inside its own program, so every cursor of the program is classified: its
+            // frames, their source operands, the odd cursors between them and the terminal goto's opcode and target words.
+            // Each is classified through the lookup's own frame test; the lookup rejects exactly the cursors that test
+            // refuses, which the odd cursor after the first frame confirms once per loop instead of raising an exception
+            // for each non-frame cursor.
+            for (int value = original.First; value < original.End + 4; value++)
             {
                 ushort cursor = (ushort)value;
                 bool resolved = AnimatedTileImageSources.TryOfCursor(loop, cursor, out int resolvedSource);
@@ -43,7 +43,7 @@ internal static class LookupAnimatedArtworkSourcesVerification
                 {
                     AssertTrue(!resolved, "Non-frame cursor rejects including odd/source/loop words");
                 }
-            });
+            }
             AssertThrows<InvalidDataException>(
                 () => AnimatedTileImageSources.OfCursor(loop, (ushort)(original.First + 1)),
                 "Non-frame cursor rejects including odd/source/loop words");

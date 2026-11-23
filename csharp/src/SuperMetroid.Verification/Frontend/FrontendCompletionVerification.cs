@@ -1,13 +1,11 @@
 using SuperMetroid.AssetExtraction.Artwork;
 using SuperMetroid.AssetExtraction.Frontend.Options.Artwork;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Rooms.Doors.DoorAlignmentVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.CeresDestructionVerification;
-using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
 using SuperMetroid.Core.Frontend.Ending;
 using SuperMetroid.Core.Frontend.Options;
@@ -55,8 +53,8 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
         action: ControllerAction.Shoot,
         physicalButton: ControllerButton.R);
-    AssertEqual(ControllerButton.R, swapped.Shoot, "controller swap assigns requested button");
-    AssertEqual(ControllerButton.X, swapped.AimUp, "controller swap preserves permutation");
+    AssertEqual(ControllerButton.R, swapped[ControllerAction.Shoot], "controller swap assigns requested button");
+    AssertEqual(ControllerButton.X, swapped[ControllerAction.AimUp], "controller swap preserves permutation");
     GameplayAction actions = swapped.ToActions(
         ControllerButton.R | ControllerButton.X | ControllerButton.Left | ControllerButton.Right | ControllerButton.Start);
     AssertEqual(
@@ -78,53 +76,53 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerEnglish].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.English)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.ControllerJapanese].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Controller, TextLanguage.Japanese)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialEnglish].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.English)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
     WriteRepeatedCompressedStream(
         rom,
-        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.SpecialJapanese].Address,
+        GameOptionsSourceDefinitions.Pages[GameOptionsScreen.Settings(GameOptionsPage.Special, TextLanguage.Japanese)].Address,
         GameOptionsSourceDefinitions.TilemapByteCount,
         0);
-    var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, japaneseText: false);
-    StepOptionsUntil(options, GameOptionsPhase.Main);
+    var options = new GameOptionsMenuState(AudioQueues.Standalone(), screenContent: RetailPresentationFixture(), spriteSheets: MenuSheetFixtures.For(RetailPresentationFixture()), controllerBindings: SuperMetroid.Core.Input.ControllerBindings.Default, iconCancelEnabled: false, moonwalkEnabled: false, language: TextLanguage.English);
+    StepOptionsUntil(options, GameOptionsPage.Primary);
 
     for (int row = 0; row < 3; row++)
         PressOptions(options, ControllerButton.Down);
     AssertEqual<GameOptionsRow>(new GameOptionsRow.OnPrimaryPage(GameOptionsPrimaryRow.ControllerSettings), options.SelectedRow, "primary options selects controller settings");
     PressOptions(options, ControllerButton.A);
-    StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
+    StepOptionsUntil(options, GameOptionsPage.Controller);
 
     PressOptions(options, ControllerButton.R);
-    AssertEqual(ControllerButton.R, options.ControllerBindings.Shoot,
+    AssertEqual(ControllerButton.R, options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.Shoot],
         "controller page assigns physical R to Shoot");
-    AssertEqual(ControllerButton.X, options.ControllerBindings.AimUp,
+    AssertEqual(ControllerButton.X, options.ControllerBindings[SuperMetroid.Core.Input.ControllerAction.AimUp],
         "controller page swaps displaced Shoot button into Aim Up");
 
     for (int row = 0; row < 7; row++)
     {
         PressOptions(options, ControllerButton.Down);
         if (options.Phase == GameOptionsPhase.ScrollControllerDown)
-            StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
+            StepOptionsUntil(options, GameOptionsPage.Controller);
     }
     AssertEqual<GameOptionsRow>(new GameOptionsRow.OnControllerPage(GameOptionsControllerRow.Exit.Instance), options.SelectedRow, "controller page reaches Exit after native scroll");
     PressOptions(options, ControllerButton.A);
-    StepOptionsUntil(options, GameOptionsPhase.Main);
+    StepOptionsUntil(options, GameOptionsPage.Primary);
 
     for (int row = 0; row < 4; row++)
         PressOptions(options, ControllerButton.Down);
     PressOptions(options, ControllerButton.A);
-    StepOptionsUntil(options, GameOptionsPhase.SpecialSettings);
+    StepOptionsUntil(options, GameOptionsPage.Special);
     PressOptions(options, ControllerButton.A);
     AssertTrue(options.IconCancelEnabled, "special page toggles Icon Cancel");
     PressOptions(options, ControllerButton.Down);
@@ -351,65 +349,12 @@ internal static void VerifyCreditsObjectInterpreter()
         "  Credits: half-pixel scroll and completion agree.");
 }
 
-/// <summary>Runs the retail ending state through escape, rewards, percentage, and final hold when its ROM oracle is available.</summary>
+/// <summary>
+/// The ending's item percentage counts a full inventory to 100% and shows its digits and sign in place. The ending's run
+/// through escape, rewards and final hold is the ending snapshots' (<see cref="SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification.VerifyEndingRenderSnapshots"/>).
+/// </summary>
 internal static void VerifyEndingCreditsState()
 {
-    string romPath = Path.GetFullPath("Super Metroid.smc");
-    if (!File.Exists(romPath))
-    {
-        Console.WriteLine("  Ending: retail-ROM state-$27 smoke test skipped (ROM not present).");
-        return;
-    }
-
-    byte[] rom = File.ReadAllBytes(romPath);
-    if (rom.Length != SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount)
-    {
-        throw new InvalidDataException(
-            $"Ending smoke-test ROM is ${rom.Length:X} bytes; expected headerless retail size " +
-            $"${SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount:X}.");
-    }
-
-    var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    var audio = SuperMetroid.Core.Audio.AudioQueues.Standalone();
-    var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
-    EndingCreditsPhase previous = ending.Phase;
-    var reached = new HashSet<EndingCreditsPhase> { previous };
-    int renderedTransitions = 0;
-
-    for (int frame = 0; frame < 60_000 && ending.Phase != EndingCreditsPhase.SeeYouNextMission; frame++)
-    {
-        ending.Step();
-        audio.AdvanceFrame(default);
-        if (ending.Phase != previous)
-        {
-            previous = ending.Phase;
-            reached.Add(previous);
-            RgbaPixel[] pixels = ending.Render();
-            AssertEqual(SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels * SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels, pixels.Length,
-                $"ending {previous} frame size");
-            renderedTransitions++;
-        }
-    }
-
-    AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase,
-        "ending reaches the retail final hold state");
-    AssertTrue(reached.Contains(EndingCreditsPhase.ZebesExplosionAnimation),
-        "ending executes the sprite-opcode-driven Zebes explosion");
-    AssertTrue(reached.Contains(EndingCreditsPhase.OperationSuccessfulText),
-        "ending executes the cartridge clear-time text chain");
-    AssertTrue(reached.Contains(EndingCreditsPhase.Credits),
-        "ending executes the ROM credits row stream");
-    AssertTrue(reached.Contains(EndingCreditsPhase.PostCreditsReward),
-        "ending executes the time-selected reward screen");
-    AssertTrue(renderedTransitions >= 20,
-        "ending renders each materially different cartridge phase");
-
-    var middle = CreateRetailEndingFixture(audio, gameTimeHours: 3, gameTimeMinutes: 0);
-    var slow = CreateRetailEndingFixture(audio, gameTimeHours: 10, gameTimeMinutes: 0);
-    AssertEqual(EndingReward.Suitless, ending.Stage.EndingReward, "under-three-hour ending branch");
-    AssertEqual(EndingReward.Helmetless, middle.Stage.EndingReward, "three-to-ten-hour ending branch");
-    AssertEqual(EndingReward.Armored, slow.Stage.EndingReward, "ten-hour ending branch");
-
     var percentage = new EndingTypewriter(new EndingTypewriterSetup { Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
@@ -417,7 +362,7 @@ internal static void VerifyEndingCreditsState()
             MaxSuperMissiles: 50,
             MaxPowerBombs: 50,
             CollectedItems: (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.SpringBall | SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.GrappleBeam | SamusEquipmentFlags.XrayScope),
-            CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), JapaneseText = false, Text = RetailPresentationFixture().EndingText }, EndingTextSequence.ItemPercentage);
+            CollectedBeams: SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma), Language = TextLanguage.English, Text = RetailPresentationFixture().EndingText }, EndingTextSequence.ItemPercentage);
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step();
     AssertTrue(percentage.Completed && percentage.TypesItemPercentage,
@@ -432,7 +377,7 @@ internal static void VerifyEndingCreditsState()
         "100% places its glyphs one glyph apart from the hundreds digit");
 
     Console.WriteLine(
-        "  Ending: escape, explosion, clear time, credits, rewards, 100% count, and final hold agree.");
+        "  Ending: the 100% count agrees.");
 }
 
 /// <summary>Presses and releases an options button so successive menu inputs have distinct edges.</summary>
@@ -445,12 +390,12 @@ private static void PressOptions(GameOptionsMenuState options, ControllerButton 
 /// <summary>Advances neutral options frames until the expected phase or fails at the bounded frame limit.</summary>
 private static void StepOptionsUntil(
     GameOptionsMenuState options,
-    GameOptionsPhase expected,
+    GameOptionsPage expected,
     int maximumFrames = 80)
 {
-    for (int frame = 0; frame < maximumFrames && options.Phase != expected; frame++)
+    for (int frame = 0; frame < maximumFrames && !(options.Phase == GameOptionsPhase.Browsing && options.Page == expected); frame++)
         options.Step(0);
-    AssertEqual(expected, options.Phase, $"options reaches {expected}");
+    AssertTrue(options.Phase == GameOptionsPhase.Browsing && options.Page == expected, $"options browses the {expected} page");
 }
 
     /// <summary>Runs door opening trajectory and alignment parity suites from the verification command line.</summary>

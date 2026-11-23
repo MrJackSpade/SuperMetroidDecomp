@@ -94,7 +94,7 @@ internal static class TourianAccessObjectProgramsVerification
             for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
             {
                 RoomObjectDrawLists.Run run = draw.Runs.Span[runIndex];
-                AssertRunHeader(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor), run,
+                AssertRunHeader(rom.ReadCartridgeWordFixedBank(0x840000 | cursor), run,
                     $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} run header at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
                 foreach (RoomCollisionType collision in run.Collisions.Span)
@@ -113,7 +113,7 @@ internal static class TourianAccessObjectProgramsVerification
 
             void AssertTourianDrawCollision(RoomCollisionType expected)
             {
-                AssertEqual(RoomLevelWordCodec.Decode(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
+                AssertEqual(RoomLevelWordCodec.Decode(rom.ReadCartridgeWordFixedBank(0x840000 | cursor)).Collision,
                     expected, $"Tourian draw ${RoomObjectDrawAddressCodec.Of(draw.Draw):X4} collision at +{cursor - RoomObjectDrawAddressCodec.Of(draw.Draw)} decodes from the ROM word");
 
                 cursor += 2;
@@ -134,8 +134,7 @@ internal static class TourianAccessObjectProgramsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new RoomBlockBehavior[words.Length]);
         var roomObjects = RoomObjectFixtures.Unbound();
-        AssertTrue(roomObjects.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
-            $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
+        roomObjects.Tourian.SpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
         var bus = NewTourianAccessSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;
         for (int frame = 0; frame < 120 && roomObjects.Places.ActiveCount != 0; frame++)

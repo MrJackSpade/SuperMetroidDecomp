@@ -3,11 +3,10 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 
 /// <summary>
-/// The shades the Chozo statues' and the n00b tube's pictures are pre-coloured in (#1512): each statue's own colours,
-/// which its setup installs, and the glass tube's crack colours, which the tube room's crack setup installs.
-/// The import colours them from the installed Chozo-and-tube colours.
+/// The shades the Chozo statues' and the n00b tube's pictures are pre-coloured in (#1512): each statue's own colours
+/// and the glass tube's crack colours.
 /// </summary>
-internal static class ChozoAndTubeShades
+internal static partial class ChozoAndTubeShades
 {
     /// <summary>The Wrecked Ship statue's colours.</summary>
     internal static PictureShade WreckedShipStatue { get; } = new("chozo-statue-wrecked-ship", 0);

@@ -61,23 +61,20 @@ internal static class DraygonCannonObjectsVerification
             "pre-destroyed cannon immediately writes its bank-$A5 control word");
         AssertDestroyedCannon(level, preDestroyedBlock, roomWidth, "pre-destroyed cannon");
 
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightBlock), SamusProjectileType.None),
-            "beam collision reaches the right cannon PLM");
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(rightBlock), BlockStrike.GrappleTouch.Instance);
         StepDraygonCannonObjects(roomObjects, level);
         AssertEqual(1, disabledWords.Count, "beam cannot damage a Draygon cannon");
 
         for (int hit = 0; hit < 3; hit++)
         {
-            AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(rightBlock), SamusProjectileType.Of(SamusProjectileFamily.Missile)),
-                $"missile hit {hit + 1} reaches right cannon");
+            roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(rightBlock), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.Missile)));
             SettleDraygonCannonHit(roomObjects, level);
         }
         AssertTrue(disabledWords.Contains(DraygonWallCannon.LowerLeft),
             "third missile disables the lower-left firing word");
         AssertDestroyedCannon(level, rightBlock, roomWidth, "right cannon");
 
-        AssertTrue(roomObjects.ProjectileTriggers.TryNotifyResidentProjectileHit(level.BlockAt(upperLeftBlock), SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)),
-            "Super Missile collision reaches left cannon");
+        roomObjects.ProjectileTriggers.NotifyResidentProjectileHit(level.BlockAt(upperLeftBlock), BlockStrike.By(SamusProjectileType.Of(SamusProjectileFamily.SuperMissile)));
         SettleDraygonCannonHit(roomObjects, level);
         AssertTrue(disabledWords.Contains(DraygonWallCannon.UpperRight),
             "one Super Missile disables the upper-right firing word");

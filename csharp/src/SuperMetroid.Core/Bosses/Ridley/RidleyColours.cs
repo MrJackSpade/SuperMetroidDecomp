@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// later effect over the earlier ones where it colours the same part. The getaway floor's zoom and the self-destruct
 /// warning's alarm are the Ceres escape's (<see cref="CeresEscape"/>, #2228).
 /// </summary>
-internal sealed class RidleyColours : IGameplayShadingSource
+internal sealed partial class RidleyColours : IGameplayShadingSource
 {
     /// <summary>The colours his encounter's arrival shows on the door, the container and the Baby, or null before it.</summary>
     private PictureShade? arrival;

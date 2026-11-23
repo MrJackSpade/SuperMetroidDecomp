@@ -7,7 +7,7 @@ namespace SuperMetroid.AssetExtraction.Rooms;
 /// character artwork, named for what it is rather than where the cartridge stores it. Each kind is its own record,
 /// carrying only what that kind names. Extraction maps each source to its cartridge or work-RAM location.
 /// </summary>
-public abstract record LibraryBackgroundSource
+public abstract partial record LibraryBackgroundSource
 {
     /// <summary>Only the nested kinds derive.</summary>
     private LibraryBackgroundSource()
@@ -17,8 +17,6 @@ public abstract record LibraryBackgroundSource
     /// <summary>The source's name in diagnostics and artwork identities.</summary>
     public abstract string Name { get; }
 
-    /// <summary>No source: a clear command's.</summary>
-    public static LibraryBackgroundSource None { get; } = new NothingRead();
 
     /// <summary>The tilemap the list staged.</summary>
     public static LibraryBackgroundSource TilemapStaging { get; } = new StagedTilemap();
@@ -32,9 +30,6 @@ public abstract record LibraryBackgroundSource
     /// <summary>The HUD's characters.</summary>
     public static LibraryBackgroundSource HudCharacters { get; } = new HudCharacterSet();
 
-    /// <summary>The compressed tilemap <paramref name="tilemap"/>.</summary>
-    public static LibraryBackgroundSource Compressed(RoomBackgroundTilemap tilemap) => new CompressedTilemap(tilemap);
-
     /// <summary>Scrolling-sky page <paramref name="page"/>, 0 through 6.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not a sky page.</exception>
     public static LibraryBackgroundSource Sky(int page) => new SkyPage(page);
@@ -42,36 +37,30 @@ public abstract record LibraryBackgroundSource
     /// <inheritdoc cref="Name"/>
     public sealed override string ToString() => Name;
 
-    /// <summary>A clear command, which reads nothing.</summary>
-    public sealed record NothingRead : LibraryBackgroundSource
-    {
-        /// <inheritdoc/>
-        public override string Name => "None";
-    }
 
     /// <summary>The tilemap the list staged.</summary>
-    public sealed record StagedTilemap : LibraryBackgroundSource
+    public sealed partial record StagedTilemap : LibraryBackgroundSource
     {
         /// <inheritdoc/>
         public override string Name => "TilemapStaging";
     }
 
     /// <summary>The tilemap the room's enemies staged.</summary>
-    public sealed record StagedEnemyTilemap : LibraryBackgroundSource
+    public sealed partial record StagedEnemyTilemap : LibraryBackgroundSource
     {
         /// <inheritdoc/>
         public override string Name => "EnemyTilemapStaging";
     }
 
     /// <summary>The Tourian entrance statue ghost's characters.</summary>
-    public sealed record StatueGhostCharacters : LibraryBackgroundSource
+    public sealed partial record StatueGhostCharacters : LibraryBackgroundSource
     {
         /// <inheritdoc/>
         public override string Name => "TourianStatueGhostCharacters";
     }
 
     /// <summary>The HUD's characters.</summary>
-    public sealed record HudCharacterSet : LibraryBackgroundSource
+    public sealed partial record HudCharacterSet : LibraryBackgroundSource
     {
         /// <inheritdoc/>
         public override string Name => "HudCharacters";
@@ -79,14 +68,14 @@ public abstract record LibraryBackgroundSource
 
     /// <summary>A compressed background tilemap.</summary>
     /// <param name="Tilemap">The tilemap decompressed.</param>
-    public sealed record CompressedTilemap(RoomBackgroundTilemap Tilemap) : LibraryBackgroundSource
+    public sealed partial record CompressedTilemap(RoomBackgroundTilemap Tilemap) : LibraryBackgroundSource
     {
         /// <inheritdoc/>
         public override string Name => $"tilemap {Tilemap}";
     }
 
     /// <summary>One scrolling-sky page.</summary>
-    public sealed record SkyPage : LibraryBackgroundSource
+    public sealed partial record SkyPage : LibraryBackgroundSource
     {
         /// <summary>Sky page <paramref name="page"/>, 0 through 6.</summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="page"/> is not a sky page.</exception>

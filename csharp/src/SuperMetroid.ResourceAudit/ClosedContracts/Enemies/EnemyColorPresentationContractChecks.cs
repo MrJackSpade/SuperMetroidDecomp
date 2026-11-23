@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
-using SuperMetroid.AssetExtraction.Bosses.Botwoon.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 
@@ -47,13 +46,13 @@ internal static class EnemyColorPresentationContractChecks
                     auxiliary.Resolve(EnemyAuxiliaryPalette.GoldenTorizoBody, 7, 15);
                     kraid.Resolve(KraidPaletteSource.Health, KraidPalettes.HealthBandCount * KraidPalettes.BandColors - 1);
                     kraid.Resolve(KraidPaletteSource.RoomBackdrop, KraidPalettes.BandColors);
-                    botwoon.HealthColor(BotwoonColorFormat.HealthBandCount - 1, BotwoonColorFormat.ColorsPerPalette - 1);
-                    botwoon.HealthColor(BotwoonColorFormat.HealthBandCount, 0);
+                    botwoon.HealthColor(BotwoonHealthBandDefinitions.BelowFull, BotwoonColorFormat.ColorsPerPalette - 1);
+                    botwoon.HealthColor(BotwoonHealthBandDefinitions.BelowFull, BotwoonColorFormat.ColorsPerPalette);
                     baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount - 1);
                     baby.InitialColor(BabyMetroidCutsceneColorFormat.InitialColorCount);
-                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount - 1);
-                    baby.FadeColor(0, 0);
-                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, BabyMetroidCutsceneColorFormat.FadeColorCount);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1, BabyMetroidCutsceneColorFormat.FadeColorCount - 1);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount, 0);
+                    baby.FadeColor(BabyMetroidCutsceneColorDefinitions.FadeFrameCount - 1, BabyMetroidCutsceneColorFormat.FadeColorCount);
                     shitroid.NormalColor(BabyMetroidColorDefinitions.NormalFrameCount - 1, BabyMetroidColorDefinitions.NormalColorsPerFrame - 1);
                     shitroid.NormalColor(0, BabyMetroidColorDefinitions.NormalColorsPerFrame);
                     shitroid.TargetColor(BabyMetroidColorTarget.DeadSidehopper, BabyMetroidColorDefinitions.TargetColorCount - 1);
@@ -67,7 +66,7 @@ internal static class EnemyColorPresentationContractChecks
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("EnemyColorProviderFixture", trees,
-            platforms.Append(typeof(SuperMetroid.Core.Assets.RgbColor).Assembly.Location).Append(typeof(BotwoonColorCatalog).Assembly.Location).Distinct()
+            platforms.Append(FixtureAssemblies.Core).Append(FixtureAssemblies.AssetExtraction).Distinct()
                 .Select(path => MetadataReference.CreateFromFile(path)),
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         FixtureConsumerBinding.Require(compilation, calls, "EnemyColorPresentationContractChecks");

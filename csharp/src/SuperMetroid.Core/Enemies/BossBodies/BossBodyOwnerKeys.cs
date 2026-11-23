@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.BossBodies;
 /// The installed key of each <see cref="BossBodyOwner"/> (#2520), written out so renaming a member never changes a name
 /// the installation, an installed document or a save spells it by.
 /// </summary>
-internal static class BossBodyOwnerKeys
+internal static partial class BossBodyOwnerKeys
 {
     /// <summary>Each BossBodyOwner member's installed key.</summary>
     internal static InstalledKeys<BossBodyOwner> Installed { get; } = new(new Dictionary<BossBodyOwner, string>

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rooms.Artwork;
 /// How a picture's name and the installed artwork spell each appearance input (#1466); the import reads the spellings
 /// back.
 /// </summary>
-public static class AppearanceInputTokens
+public static partial class AppearanceInputTokens
 {
     /// <summary>Kraid's backdrop's spelling.</summary>
     internal const string KraidBackdrop = "kraid-backdrop";

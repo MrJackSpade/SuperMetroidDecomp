@@ -43,7 +43,7 @@ internal static class EndingCloudPlacementVerification
         // The live clouds draw from their installed sheet, so no cloud character reaches the shown VRAM (#1463, #1467). The
         // native objects are drawn over the characters $8B:D4D1 decompresses from the cartridge to the OBJ name base (#1497).
         byte[] nativeCloudCharacters = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(
-                SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus),
+                bus,
                 SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions.Artwork.EscapeCloudCharacters,
                 SuperMetroid.AssetExtraction.CartridgeTables.EndingSourceDefinitions.Artwork.DecompressionLimit)
             .AsSpan(0, SuperMetroid.AssetExtraction.Frontend.Ending.Artwork.EndingObjectArtworkFormat.CloudByteCount).ToArray();
@@ -62,8 +62,7 @@ internal static class EndingCloudPlacementVerification
         for (int frame = 0; frame < 200; frame++)
         {
             ending.Step();
-            if (ending.Phase is not (EndingCreditsPhase.FadeInTopAndBottomCloudEscape or
-                EndingCreditsPhase.TopAndBottomCloudEscape or EndingCreditsPhase.FadeOutTopAndBottomCloudEscape))
+            if (!(ending.Phase == EndingCreditsPhase.FadeInTopAndBottomCloudEscape || ending.Phase == EndingCreditsPhase.TopAndBottomCloudEscape || ending.Phase == EndingCreditsPhase.FadeOutTopAndBottomCloudEscape))
                 break;
             steppedFrames++;
             for (int index = 0; index < actors.Length; index++)

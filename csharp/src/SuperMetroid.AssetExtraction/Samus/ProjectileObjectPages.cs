@@ -9,7 +9,7 @@ namespace SuperMetroid.AssetExtraction.Samus;
 /// The OBJ pages Samus's projectile sheets are composed over: a base OBJ page with a beam combination's characters and
 /// the trail characters where their uploads place them, one page per combination.
 /// </summary>
-public sealed class ProjectileObjectPages
+public sealed partial class ProjectileObjectPages
 {
     /// <summary>The page the beam and trail characters are placed over.</summary>
     private readonly SpriteArtwork basePage;
@@ -32,14 +32,18 @@ public sealed class ProjectileObjectPages
     }
 
 
+    /// <summary>A projectile page, distinguished by the beam combination it is composed for.</summary>
+    /// <param name="Beam">The beam combination.</param>
+    private sealed partial record BeamPageVariant(SamusBeamCombination Beam) : SpriteArtworkVariant;
+
     /// <summary>The page bound for a beam combination.</summary>
     public SpriteArtwork For(SamusBeamCombination beam) => pages.GetOrAdd(beam, Compose);
 
     /// <summary>Places the combination's beam characters and both trail sheets over the base page.</summary>
     private SpriteArtwork Compose(SamusBeamCombination beam)
     {
-        var id = new SpriteArtworkId(SpriteArtworkKind.ProjectileObjects, beam.TableIndex);
-        SpriteArtwork page = ObjCharacterPage.With(id, basePage, beams.Resolve(BeamTileCatalog.AssetFor(beam)).Span,
+        var id = new SpriteArtworkId(SpriteArtworkKind.ProjectileObjects, new BeamPageVariant(beam));
+        SpriteArtwork page = ObjCharacterPage.With(id, basePage, beams.Resolve(beam).Span,
             ProjectileObjectPageDefinitions.BeamFirstCharacter);
         page = ObjCharacterPage.With(id, page, trails.IceAndWave.Span, ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter);
         return ObjCharacterPage.With(id, page, trails.Missile.Span, ProjectileObjectPageDefinitions.MissileTrailFirstCharacter);

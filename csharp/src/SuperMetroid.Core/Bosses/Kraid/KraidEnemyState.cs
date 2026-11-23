@@ -232,6 +232,12 @@ public sealed partial class KraidEnemyState
     /// <exception cref="InvalidOperationException">His body is not behind the sprites.</exception>
     internal void BringBodyInFront() => Body = Body.InFront();
 
+    /// <summary>
+    /// His death redraws his body behind the sprites (#2646), grown or not: his sinking arm, behind the room's front tiles,
+    /// shows in front of it.
+    /// </summary>
+    internal void RedrawBodyForDeath() => Body = Body.ShownBehindSprites();
+
     /// <summary>His body is hidden from now on, as a defeated room and his sunk body hide it.</summary>
     internal void HideBody() => Body = KraidBodyShowing.Hidden;
 

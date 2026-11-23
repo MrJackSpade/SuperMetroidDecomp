@@ -74,14 +74,14 @@ internal sealed partial class KraidDeath
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropSettledColours.Black))
                 {
                     dying.Phase = KraidDeathPhase.ShowBody;
-                    state.ShowBody();
+                    state.RedrawBodyForDeath();
                 }
                 return;
 
             case KraidDeathPhase.ShowBody:
                 _head.AdvanceKraidHeadAnimation(state, dying.Head);
                 dying.Phase = KraidDeathPhase.StartSinking;
-                state.ShowBody();
+                state.RedrawBodyForDeath();
                 return;
 
             case KraidDeathPhase.StartSinking:

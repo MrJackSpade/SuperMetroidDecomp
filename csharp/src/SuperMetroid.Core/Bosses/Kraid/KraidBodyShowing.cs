@@ -21,6 +21,12 @@ internal abstract partial record KraidBodyShowing
     /// <exception cref="InvalidOperationException">The body is not behind the sprites.</exception>
     internal abstract KraidBodyShowing InFront();
 
+    /// <summary>
+    /// The body shown behind the sprites from now on, grown or not, as his death redraws it (#2646): the cartridge shows his
+    /// sinking arm, which the room's front tiles cover, in front of his grown body. A hidden body stays hidden.
+    /// </summary>
+    internal abstract KraidBodyShowing ShownBehindSprites();
+
     /// <summary>His appearance at <paramref name="depth"/>.</summary>
     private static KraidBodyAppearance AppearanceAt(BossBodyDepth depth) => depth switch
     {
@@ -43,6 +49,9 @@ internal abstract partial record KraidBodyShowing
         internal override KraidBodyShowing InFront() => Depth == BossBodyDepth.BehindSprites
             ? new Readied(BossBodyDepth.InFrontOfSprites)
             : throw new InvalidOperationException($"Kraid's growth reached a body readied {Depth}.");
+
+        /// <inheritdoc/>
+        internal override KraidBodyShowing ShownBehindSprites() => new ShownBody(BossBodyDepth.BehindSprites);
     }
 
     /// <summary>A body shown at <paramref name="Depth"/>, his whole body at once with his head at its current pose over it.</summary>
@@ -59,6 +68,9 @@ internal abstract partial record KraidBodyShowing
         internal override KraidBodyShowing InFront() => Depth == BossBodyDepth.BehindSprites
             ? new ShownBody(BossBodyDepth.InFrontOfSprites)
             : throw new InvalidOperationException($"Kraid's growth reached a body shown {Depth}.");
+
+        /// <inheritdoc/>
+        internal override KraidBodyShowing ShownBehindSprites() => new ShownBody(BossBodyDepth.BehindSprites);
     }
 
     /// <summary>A hidden body, which shows nothing whatever shows it.</summary>
@@ -73,5 +85,8 @@ internal abstract partial record KraidBodyShowing
         /// <inheritdoc/>
         internal override KraidBodyShowing InFront() =>
             throw new InvalidOperationException("Kraid's growth reached a hidden body.");
+
+        /// <inheritdoc/>
+        internal override KraidBodyShowing ShownBehindSprites() => this;
     }
 }

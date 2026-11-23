@@ -54,6 +54,7 @@ public sealed class Escape : ISessionService
     }
 
     private (string Room, string EntryPoint)? _leavingFor;
+    private bool _leftZebes;
     private Phase _phase;
     private int _wait;
     private PixelPosition _place;
@@ -88,6 +89,9 @@ public sealed class Escape : ISessionService
         (_phase, _wait) = (Phase.InitialDelay, InitialDelay);
     }
 
+    /// <summary>Samus has left Zebes: the countdown stops, and after this update the ending follows.</summary>
+    public void LeaveZebes() => _leftZebes = true;
+
     /// <summary>
     /// Samus has left Ceres: the countdown stops, and after this update the screen goes dark and the station is seen
     /// blowing up behind her, before play goes on in <paramref name="room"/>, entered at <paramref name="entryPoint"/>.
@@ -106,6 +110,7 @@ public sealed class Escape : ISessionService
     {
         _phase = Phase.Inactive;
         _leavingFor = null;
+        _leftZebes = false;
         Remaining = 0;
     }
 
@@ -159,6 +164,22 @@ public sealed class Escape : ISessionService
             _leavingFor = null;
             Stop();
             return new CeresDeparture(playing) { LandingRoom = landing.Room, LandingEntry = landing.EntryPoint };
+        }
+
+        if (_leftZebes)
+        {
+            // What the ending tells of her is taken down now, while she is still here to be asked.
+            _leftZebes = false;
+            Stop();
+            GameSession session = playing.Room.Session;
+            long minutes = session.Progress.PlayUpdates / 3600;
+            return new Ending
+            {
+                ClearHours = (int)Math.Min(99, minutes / 60),
+                ClearMinutes = (int)(minutes % 60),
+                ItemsFound = Ending.CountItems(playing.Room.Player.Inventory),
+                AnimalsEscaped = session.Progress.Has(Data.StoryEvents.AnimalsEscaped),
+            };
         }
 
         if (!IsExpired)

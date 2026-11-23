@@ -946,7 +946,12 @@ explosions and shaking in each escape room (`EscapeRoom`).
   (`Intro`, written across three files: its pages, the scenes between them, and the flight to the colony) is what a
   new game begins with. Its two flashbacks are rooms played by Samus herself from recorded input, each with the
   thing she met there in it: `IntroMotherBrain` (an enemy) and `IntroEgg` (a room object), both in
-  `game/cinematics/` because they exist only for the intro.
+  `game/cinematics/` because they exist only for the intro. The ending and the credits are one cinematic
+  (`Ending`, written across four files: its order of events and what it shows, the escape and explosion, the
+  credits and Samus waiting, and her reward and sign-off). It follows the gunship leaving Zebes: the ship tells the
+  room's `ZebesDeparture` sequence, which darkens the screen and tells the `Escape` service she has left, and the
+  service takes down the clear time, the share of items found and whether the animals escaped for the ending to
+  show. The ending does not end; the game is left on her sign-off.
 - The pause screen's map and equipment pages, the HUD, the minimap and message boxes: section 8.
 
 ### Not carried over

@@ -37,6 +37,13 @@ public sealed partial record ImageSpriteDraw : SpriteDraw
     /// </summary>
     public CorpseRotPicture? CorpseRot { get; init; }
 
+    /// <summary>
+    /// Whether the draw shows at half strength over what lies behind it at its depth (#2642): the steady equivalent of a
+    /// picture the game shows only every other update, which a display whose refresh does not match the game's would
+    /// otherwise show pulsing on and off.
+    /// </summary>
+    public bool Translucent { get; init; }
+
     /// <summary>The sheet frame shown.</summary>
     public SpriteSheetFrame Image { get; }
 

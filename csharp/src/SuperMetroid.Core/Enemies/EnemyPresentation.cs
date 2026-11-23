@@ -129,7 +129,7 @@ internal sealed partial class EnemyPresentation
     /// </exception>
     /// <param name="layering">Where the frame shows among the actors drawn so far: in draw order, or in front of them all.</param>
     internal void PublishSpawnedFrame(SpriteFrameBuffer sprites, SpriteSource source, string frame, Offset16<ScreenPixels> origin,
-        SpriteGraphics graphics, CorpseRotRows? rows = null, ActorLayering layering = ActorLayering.InDrawOrder)
+        SpriteGraphics graphics, CorpseRotRows? rows = null, ActorLayering layering = ActorLayering.InDrawOrder, bool translucent = false)
     {
         EnemyArtworkVariant<SpawnedObjectSheet> variant = Artwork.Spawned(graphics.Owner);
         SpawnedObjectSheet sheet = variant.Sheet;
@@ -142,6 +142,7 @@ internal sealed partial class EnemyPresentation
         {
             Shading = graphics.Shading,
             CorpseRot = CorpseRot(variant.CorpsePlacement(picture), rows, image),
+            Translucent = translucent,
         }, layering);
     }
 

@@ -96,6 +96,8 @@ static const uint FloorSheetShift = 20;
 static const uint FloorBlendsNot = 0, FloorSubtractsSprites = 1, FloorAddsOwnColour = 2;
 RWTexture2D<uint> Output : register(u0);
 RWTexture2D<uint2> SpriteLayer : register(u1);
+// The translucent sprite layer (#2642): as the sprite layer, for the draws shown at half strength.
+RWTexture2D<uint2> TranslucentLayer : register(u2);
 
 // Where `v` lands within a span that repeats every `period` pixels, for any `v`; only unsigned remainders are taken, as
 // HLSL leaves a negative remainder undefined.
@@ -745,6 +747,14 @@ void Main(uint3 id : SV_DispatchThreadID)
                 Output[id.xy] = blends ? Pack((color << 3) | (color >> 2), 255) : winner.x;
             }
             else Output[id.xy] = winner.x;
+        }
+        // A translucent draw at a depth this pass inserts shows at half strength over what the screen holds there by now,
+        // the room behind it and the opaque sprites at its depth among it (#2642).
+        uint2 glass = TranslucentLayer[id.xy];
+        if (glass.y != NoSprite && (DrawnDepth == 0 || ((DrawnDepth >> (glass.y & 3)) & 1) != 0))
+        {
+            uint3 mixed = (Unpack(Output[id.xy]) + Unpack(glass.x) + 1) / 2;
+            Output[id.xy] = Pack(mixed, 255);
         }
         return;
     }

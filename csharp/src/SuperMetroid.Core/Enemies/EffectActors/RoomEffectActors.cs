@@ -113,6 +113,16 @@ internal sealed partial class RoomEffectActors
             // animation has shown no frame yet shows neither.
             if (spawned.Frame.HitBurst is { } burst)
                 hitBursts.Draw(sprites, burst, screen);
+            // A translucent object shows its last picture at half strength on every update, through the empty frames its
+            // animation flickers between (#2642).
+            else if (spawned.IsTranslucent)
+            {
+                if (spawned.LastPictured is { } pictured)
+                {
+                    _presentation.PublishSpawnedFrame(sprites, new SpriteSource(SpriteSourceKind.RoomEffectActor),
+                        EnemySheetDefinitions.EffectActorFrameName(pictured), screen, spawned.Graphics, translucent: true);
+                }
+            }
             // The empty frame, between a Metroid's crackles and its shell's flashes, draws nothing.
             else if (spawned.Frame.EnemyFrame is { } shown && !CommonEnemyEmptyFrames.DrawsNothing(shown))
             {

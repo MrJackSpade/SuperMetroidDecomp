@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 
 namespace SuperMetroid.Core.Enemies.EffectActors;
 
@@ -50,7 +52,25 @@ public sealed partial class RoomEffectActor
     public EnemyAnimationClock AnimationClock { get; } = new();
 
     /// <summary>The frame the object shows; nothing before its animation shows one.</summary>
-    internal RoomEffectActorPicture Frame { get; private set; }
+    internal RoomEffectActorPicture Frame
+    {
+        get;
+        private set
+        {
+            field = value;
+            if (value.EnemyFrame is { } shown && !CommonEnemyEmptyFrames.DrawsNothing(shown))
+                LastPictured = shown;
+        }
+    }
+
+    /// <summary>
+    /// The last enemy-sheet frame the object showed that draws a picture (#2642): what a translucent object keeps showing
+    /// through the empty frames its animation flickers between, or nothing before it has shown one.
+    /// </summary>
+    internal EnemyFrameId? LastPictured { get; private set; }
+
+    /// <summary>Whether the object shows translucent rather than flickering (<see cref="RoomEffectActorTranslucencyDefinitions"/>).</summary>
+    internal bool IsTranslucent => RoomEffectActorTranslucencyDefinitions.Translucent.Contains(Kind);
 
     /// <summary>Ends the object: it stops running and showing.</summary>
     internal void End() => Playback = null;

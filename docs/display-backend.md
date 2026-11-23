@@ -21,6 +21,7 @@ to the WARP reference.
 | Sprite draws (`D3D11SpriteDrawBuffer`) | `SpriteDraws`, t1 | One record per whole-frame sprite draw (position, size, mirroring, depth among the room's layers, image place, colours), front to back: the paint's draws in emission order, then each sprite layer's. |
 | Room levels (`D3D11RoomLevelBuffer`) | `RoomLevels`, t3 | The layers' block grids, each picture's place, size and colour slot, the pictures written over the layers and the HUD's at the pixels they show at, the effect overlay's placed picture, a boss body's placed pieces, the sky's bands, the door window and the floor's sheets (#1514). |
 | Sprite layer | `SpriteLayer`, u1 / render target | Per pixel, the frontmost sprite pixel's colour and its draw's depth, with whether it blends. |
+| Translucent sprite layer | `TranslucentLayer`, u2 / render target | As the sprite layer, for the draws shown at half strength (#2642). |
 | Output | `Output`, u0 | The composed 256 by 224 frame, eight bits a channel. |
 
 ## Colour
@@ -52,7 +53,11 @@ Each pass runs over the screen, or over a band of lines, in the order the scene 
 - **Sprite layer** (`Sprites.hlsl`). Each sprite draw is an instanced quad over its image, drawn back to front into the
   sprite layer, so each pixel keeps the frontmost draw's opaque pixel. A gameplay frame's draws are packed in emission
   order, frontmost first (#2620): where actors overlap, the one the game draws in front shows, whatever its depth, and each
-  pixel records its draw's depth: a whole draw sits at one depth among the room's layers.
+  pixel records its draw's depth: a whole draw sits at one depth among the room's layers. A translucent draw (#2642) goes
+  into the translucent sprite layer instead, by a second pass over the same records; inserting the sprites at a depth then
+  shows each translucent pixel at that depth at half strength over what the screen holds there by then, the room behind it
+  and the opaque sprites at its depth among it. A Metroid's shell is drawn so, the steady equivalent of the game showing it
+  every other update.
 - **Backdrop.** Fills the screen with the backdrop colour.
 - **Layer.** Draws a tile layer: a room plane through its block grid, the sky's rows, the effect overlay, a boss body, the
   X-ray reveal, a library background, or a frontend layer's cells. Each pixel of the layer shows its picture's pixel at

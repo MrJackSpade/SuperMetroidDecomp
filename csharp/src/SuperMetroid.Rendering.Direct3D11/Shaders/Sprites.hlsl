@@ -6,9 +6,11 @@
 StructuredBuffer<uint> SpriteDraws : register(t1);
 // The run of draws this pass draws (#1514): a sprite layer's own, or every draw of the frame. FirstDraw counts from the
 // frontmost packed draw; D3D11FrameRenderer.DrawSpriteLayer uploads both.
+// DrawsTranslucent says which draws this pass keeps (#2642): the opaque ones for the sprite layer, or the translucent ones
+// for the translucent sprite layer.
 cbuffer SpriteRun : register(b0)
 {
-    uint FirstDraw, DrawCount;
+    uint FirstDraw, DrawCount, DrawsTranslucent;
 };
 // Each texel: the image's pixel, then its key word (D3D11ImageAtlas.KeyWords): the place of the pixel's colour key among
 // its image's in the low sixteen bits (#1633), then whether it is clear and whether it blends.
@@ -24,6 +26,8 @@ static const uint SpriteClearedRow = 0xffffffffu;
 // A record flag marking a draw whose shading blends over every part, so each of its pixels blends whether or not its
 // image marks it as blending (#1512).
 static const uint SpriteShadingBlends = 1024;
+// A record flag marking a translucent draw (#2642), which only the translucent layer's pass draws.
+static const uint SpriteTranslucent = 2048;
 // A key word's bits: the place of the pixel's colour key, the mark on a clear pixel, whose alpha is zero, and the mark on
 // a pixel that blends, as its frame or its sheet's blend map says (#1514, #1633).
 static const uint KeyPlaceMask = 65535, KeyClear = 65536, KeyBlends = 131072;
@@ -57,6 +61,8 @@ uint2 SpritePixel(SpriteVertex vertex) : SV_Target
     uint position = SpriteDraws[record];
     uint extent = SpriteDraws[record + 1];
     uint flags = SpriteDraws[record + 2];
+    // Each layer's pass draws only its own draws.
+    if (((flags & SpriteTranslucent) != 0) != (DrawsTranslucent != 0)) discard;
     uint place = SpriteDraws[record + 3];
     int2 origin = int2(((int)(position << 16)) >> 16, ((int)position) >> 16);
     uint2 size = uint2(extent & 65535, extent >> 16);

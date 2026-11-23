@@ -156,6 +156,7 @@ internal static class NativeColouredPictures
             {
                 Shading = PictureShading.Standard,
                 CorpseRot = image.CorpseRot,
+                Translucent = image.Translucent,
             });
         }
         return shown.MoveToImmutable();

@@ -32,6 +32,8 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
     private const uint RecolourFlag = 1 << 9;
     /// <summary>Flags bit marking a draw whose shading blends over every part (#1512).</summary>
     private const uint ShadingBlendsFlag = 1 << 10;
+    /// <summary>A record flag marking a translucent draw (#2642), which draws into the translucent sprite layer; Sprites.hlsl's SpriteTranslucent.</summary>
+    private const uint TranslucentFlag = 1 << 11;
     /// <summary>Where the flags keep the draw's depth among the room's layers (#1514), two bits; Sprites.hlsl's SpriteDepthShift.</summary>
     private const int DepthShift = 3;
 
@@ -138,7 +140,7 @@ internal sealed class D3D11SpriteDrawBuffer : IDisposable
         record[0] = D3D11ConstantPacking.Halves(unchecked((ushort)corner.X), unchecked((ushort)corner.Y));
         record[1] = D3D11ConstantPacking.Halves(frame.Size.X, frame.Size.Y);
         record[2] = ((draw.Mirror & SpriteMirror.Horizontal) != 0 ? FlipXFlag : 0) | ((draw.Mirror & SpriteMirror.Vertical) != 0 ? FlipYFlag : 0)
-            | (colourWords != 0 ? RecolourFlag : 0) | (ShadingBlends(draw) ? ShadingBlendsFlag : 0)
+            | (colourWords != 0 ? RecolourFlag : 0) | (ShadingBlends(draw) ? ShadingBlendsFlag : 0) | (draw.Translucent ? TranslucentFlag : 0)
             | D3D11FrameRenderer.DepthWord(depth) << DepthShift;
         record[3] = place;
         record[4] = (uint)colourWords;

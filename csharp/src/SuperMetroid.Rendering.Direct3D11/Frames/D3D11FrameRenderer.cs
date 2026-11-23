@@ -67,6 +67,12 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly ID3D11UnorderedAccessView objectView;
     /// <summary>The sprite quads' target view of the sprite layer.</summary>
     private readonly ID3D11RenderTargetView spriteTarget;
+    /// <summary>The translucent sprite layer (#2642): per pixel, the frontmost translucent draw's colour and depth.</summary>
+    private readonly ID3D11Texture2D translucentLayer;
+    /// <summary>The tile shader's view of the translucent sprite layer.</summary>
+    private readonly ID3D11UnorderedAccessView translucentView;
+    /// <summary>The sprite pass's target for the translucent sprite layer.</summary>
+    private readonly ID3D11RenderTargetView translucentTarget;
     /// <summary>Places each sprite draw's quad.</summary>
     private readonly ID3D11VertexShader spriteVertexShader;
     /// <summary>Draws each sprite draw's image into the sprite layer.</summary>
@@ -148,6 +154,10 @@ public sealed class D3D11FrameRenderer : IDisposable
                 ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.RenderTarget)));
             objectView = Own(owner.Device.CreateUnorderedAccessView(spriteLayer));
             spriteTarget = Own(owner.Device.CreateRenderTargetView(spriteLayer));
+            translucentLayer = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
+                ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.RenderTarget)));
+            translucentView = Own(owner.Device.CreateUnorderedAccessView(translucentLayer));
+            translucentTarget = Own(owner.Device.CreateRenderTargetView(translucentLayer));
             spriteVertexShader = Own(owner.Device.CreateVertexShader(LoadShaderBytes(D3D11ShaderLayout.SpriteVertexResourceName)));
             spritePixelShader = Own(owner.Device.CreatePixelShader(LoadShaderBytes(D3D11ShaderLayout.SpritePixelResourceName)));
             spriteRasterizer = Own(owner.Device.CreateRasterizerState(new RasterizerDescription(CullMode.None, FillMode.Solid)));
@@ -228,7 +238,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.PSSetConstantBuffer(0, null);
         owner.Context.CSSetConstantBuffer(0, null);
         owner.Context.CSSetShaderResource(0, null);
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         DisposeResources();
         disposed = true;
     }
@@ -316,7 +326,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[2] = viewport.Size.X; data[3] = viewport.Size.Y;
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetUnorderedAccessView(0, null);
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         owner.Context.OMSetRenderTargets(target);
         owner.Context.RSSetViewport(0, 0, client.X, client.Y);
         owner.Context.IASetInputLayout(null);
@@ -884,7 +894,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShaderResource(4, images.View);
         owner.Context.CSSetShaderResource(5, floorImage.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
-        owner.Context.CSSetUnorderedAccessView(1, objectView);
+        BindSpriteLayers();
         shownSprites = null;
         ShowSprites(allSprites);
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
@@ -983,6 +993,20 @@ public sealed class D3D11FrameRenderer : IDisposable
         DispatchTile(D3D11TileOperation.Brightness, new D3D11TileDispatch { Level = (uint)packet.Brightness.StepsAboveBlack });
     }
 
+    /// <summary>Binds the opaque and translucent sprite layers for the tile shader (#2642).</summary>
+    private void BindSpriteLayers()
+    {
+        owner.Context.CSSetUnorderedAccessView(1, objectView);
+        owner.Context.CSSetUnorderedAccessView(2, translucentView);
+    }
+
+    /// <summary>Unbinds both sprite layers from the tile shader, so the sprite pass or the display can use them.</summary>
+    private void UnbindSpriteLayers()
+    {
+        owner.Context.CSSetUnorderedAccessView(1, null);
+        owner.Context.CSSetUnorderedAccessView(2, null);
+    }
+
     /// <summary>Draws <paramref name="run"/> into the sprite layer unless it holds that run already (#1514).</summary>
     private void ShowSprites(SpriteRun run)
     {
@@ -993,22 +1017,38 @@ public sealed class D3D11FrameRenderer : IDisposable
     }
 
     /// <summary>
-    /// Draws the sprite layer (#1408, #1514): clears it to no sprite, then draws each quad of <paramref name="run"/>'s draws
-    /// back to front, so each pixel keeps the frontmost draw's opaque pixel. The run's first draw and count go to the
-    /// vertex shader in the constant buffer. Leaves the composition's bindings as it found them.
+    /// Draws the sprite layers (#1408, #1514, #2642): clears both to no sprite, then draws each quad of
+    /// <paramref name="run"/>'s draws back to front, the opaque draws into the sprite layer and the translucent ones into the
+    /// translucent layer, so each pixel of each keeps its frontmost draw's opaque pixel. Leaves the composition's bindings as
+    /// it found them.
     /// </summary>
-    private unsafe void DrawSpriteLayer(SpriteRun run)
+    private void DrawSpriteLayer(SpriteRun run)
     {
         const uint noSprite = 255;
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         owner.Context.ClearUnorderedAccessView(objectView, new Int4(0, (int)noSprite, 0, 0));
+        owner.Context.ClearUnorderedAccessView(translucentView, new Int4(0, (int)noSprite, 0, 0));
         if (run.Count != 0)
         {
+            DrawSpriteRun(run, spriteTarget, translucent: false);
+            DrawSpriteRun(run, translucentTarget, translucent: true);
+        }
+        BindSpriteLayers();
+    }
+
+    /// <summary>
+    /// Draws <paramref name="run"/>'s opaque or <paramref name="translucent"/> draws into <paramref name="target"/>: the run's
+    /// first draw, its count and which draws it keeps go to the shaders in the constant buffer.
+    /// </summary>
+    private unsafe void DrawSpriteRun(SpriteRun run, ID3D11RenderTargetView target, bool translucent)
+    {
+        {
             var data = ClearUploadConstants();
-            data[0] = (uint)run.First; data[1] = (uint)run.Count;
+            data[0] = (uint)run.First; data[1] = (uint)run.Count; data[2] = translucent ? 1u : 0u;
             fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
             owner.Context.VSSetConstantBuffer(0, constants);
-            owner.Context.OMSetRenderTargets(spriteTarget);
+            owner.Context.PSSetConstantBuffer(0, constants);
+            owner.Context.OMSetRenderTargets(target);
             owner.Context.RSSetViewport(0, 0, ScreenGeometry.ScreenWidthPixels, ScreenGeometry.ScreenHeightPixels);
             owner.Context.RSSetState(spriteRasterizer);
             owner.Context.IASetInputLayout(null);
@@ -1020,13 +1060,13 @@ public sealed class D3D11FrameRenderer : IDisposable
             owner.Context.PSSetShaderResource(4, images.View);
             owner.Context.DrawInstanced(4, (uint)run.Count, 0, 0);
             owner.Context.VSSetConstantBuffer(0, null);
+            owner.Context.PSSetConstantBuffer(0, null);
             owner.Context.VSUnsetShaderResource(1);
             owner.Context.PSUnsetShaderResource(1);
             owner.Context.PSUnsetShaderResource(4);
             owner.Context.RSSetState(null);
             owner.Context.OMSetRenderTargets(Array.Empty<ID3D11RenderTargetView>());
         }
-        owner.Context.CSSetUnorderedAccessView(1, objectView);
     }
 
     /// <summary>Packs one tile operation's full constant buffer and dispatches the native screen grid.</summary>
@@ -1238,7 +1278,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var childPacket = new DisplayPacket(packet.FrameNumber, window.Scene);
         childRenderer.DrawLayers(childPacket, window.Scene);
         owner.Context.CSSetUnorderedAccessView(0, null);
-        owner.Context.CSSetUnorderedAccessView(1, null);
+        UnbindSpriteLayers();
         owner.Context.CopySubresourceRegion(output, 0, (uint)window.Left, (uint)window.Top, 0,
             childRenderer.output, 0, new Box(window.Left, window.Top, 0, window.Right, window.Bottom, 1));
         // The immediate context is shared but every scene's resources are separate.
@@ -1251,6 +1291,6 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShaderResource(4, images.View);
         owner.Context.CSSetShaderResource(5, floorImage.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
-        owner.Context.CSSetUnorderedAccessView(1, objectView);
+        BindSpriteLayers();
     }
 }

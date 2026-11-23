@@ -180,7 +180,7 @@ public partial class CeresGetaway : RoomSequence
 
                 // The station is now going to blow up, and the way out is open.
                 room.Session.Progress.Record(StoryEvents.CeresSelfDestructStarted);
-                room.Session.Progress.Record(Bosses.CeresRidley);
+                room.Session.Progress.Record(Bosses.Defeated(Bosses.CeresRidley));
                 room.Session.Service<Escape>().Begin(Escape.CeresTime);
                 foreach (NodePath path in ToldWhenCountdownBegins)
                 {

@@ -238,7 +238,7 @@ public partial class TourianStatueHall : RoomSequence
 
                 // At the end of each round of its glow, one whose boss has been beaten is let go, unless another is
                 // part-way through being let go, in which case it glows another round and asks again.
-                if (!room.Session.Progress.Has(guardian.Boss))
+                if (!room.Session.Progress.Has(Bosses.Defeated(guardian.Boss)))
                 {
                     _firstGlow.Remove(guardian);
                     StartGlowing(guardian);

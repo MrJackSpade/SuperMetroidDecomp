@@ -8,6 +8,7 @@
 // and frame-N.apu, the four bytes the CPU last wrote to the sound processor's ports ($2140-$2143) by the frame's end,
 // which hold the sound requests of each sound library the frame sent.
 // and frame-N.aram, the sound processor's 64 KiB of RAM after the frame: its driver, samples, instruments and sounds.
+// and frame-N.vram, the console's 64 KiB of video memory after the frame: the characters and tile maps it drew from.
 // An optional audio range FIRST-LAST writes audio.wav, the console's stereo output while those frames play.
 #include <windows.h>
 #include <crtdbg.h>
@@ -177,6 +178,9 @@ int main(int argc,char** argv) {
     std::ofstream sound(output/("frame-"+std::to_string(frame)+".aram"),std::ios::binary);
     sound.exceptions(std::ios::failbit|std::ios::badbit);
     sound.write((const char*)SNES::smp.apuram,0x10000);
+    std::ofstream video(output/("frame-"+std::to_string(frame)+".vram"),std::ios::binary);
+    video.exceptions(std::ios::failbit|std::ios::badbit);
+    video.write((const char*)Memory.VRAM,0x10000);
     fprintf(stderr,"Captured frame %u, room %04X\n",frame,Memory.RAM[0x79b]|Memory.RAM[0x79c]<<8);
    }
    if(++loops>length+300) throw std::runtime_error("Movie playback did not terminate");

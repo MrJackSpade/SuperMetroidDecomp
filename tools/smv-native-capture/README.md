@@ -35,7 +35,8 @@ stepped: `1200,1300-1400,2000-3000/50`. Source frames are the `MOVIE` numbers th
 picture it writes `frame-N.cgram`, the console's 256 colour words after that frame, little-endian, to read which colours
 a picture showed, `frame-N.apu`, the four bytes the CPU last wrote to the sound processor's ports (music, then sound
 libraries 1-3), to read which sounds a frame requested, and `frame-N.aram`, the sound processor's 64 KiB of RAM, to read
-the instruments and samples loaded. An optional fifth argument `FIRST-LAST` writes `audio.wav`, the console's stereo
+the instruments and samples loaded, and `frame-N.vram`, the 64 KiB of video memory, to read the characters a picture was
+drawn from. An optional fifth argument `FIRST-LAST` writes `audio.wav`, the console's stereo
 output while those source frames play.
 
 Observed instruction boundaries, cross-checked against the pinned disassembly:

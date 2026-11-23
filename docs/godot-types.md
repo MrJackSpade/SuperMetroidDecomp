@@ -508,7 +508,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | --- | --- | --- |
 | `RoomExit` | Above. | Have a body or a look, or know what stands in front of it. |
 | `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". | Apply physics or damage. The player and enemies ask it and act on the answer. |
-| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base and the earthquake; each other one is the game's. | Reach into the player or enemies. |
+| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake, `OverlayEffect` (a picture tiled over the view and drifting: fog, rain, spores, heat's shimmer) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
 | `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. | Affect play. |
 | `Camera` | Following the player within the room's limits. One per session. | Affect play. |
 | `CameraZone` | A region with its own scrolling limits, which can be opened or closed. | Anything else. |
@@ -886,7 +886,10 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 ### Room conditions
 
 - `Liquid`: water, lava, acid, including the rising acid of the escape.
-- `RoomEffect`: heat, rain, fog, spores, fireflea darkness, Ceres haze, earthquake, and room-wide colour changes.
+- `RoomEffect`: heat, rain, fog, spores and Ceres haze are the engine's `OverlayEffect` with settings (heat with
+  ongoing damage as well); room-wide colour changes are its `TintEffect`; the earthquake is the engine's. The
+  Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
+  that dies.
 - `Backdrop`: room backgrounds, the scrolling sky, the Ceres rotating floor.
 - `CameraZone` and `Trigger`: every scroll region and scroll change.
 - Room versions: every case where the old code had more than one "state" of a room.

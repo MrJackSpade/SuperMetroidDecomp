@@ -1,0 +1,121 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.Cacatac;
+using SuperMetroid.Core.Enemies.Evir;
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Hibashi;
+using SuperMetroid.Core.Enemies.Kzan;
+using SuperMetroid.Core.Enemies.Polyp;
+
+namespace SuperMetroid.AssetExtraction.Engine;
+
+/// <summary>The enemies whose old cues carry something with them: a way to throw, a place to reach.</summary>
+public sealed partial class EngineAssetWriter
+{
+    /// <summary>Writes the enemies that spit, throw and erupt by their animations.</summary>
+    private void WriteSpittingEnemies()
+    {
+        // The Alcoon: its leap out looks up, and coming down it looks ahead. Its fire is thrown up, level or down.
+        Enemy("enemies/alcoon.json", "Alcoon", EnemyDefinitionId.Alcoon).BodyColliders(Ordinary)
+            .Value("emerge_sound", EngineNames.Sound(EnemySoundEffectDefinitions.AlcoonEmergeSound))
+            .Looks(AlcoonAnimations.Segments, AlcoonAnimations.StartingWith,
+                static (AlcoonCue cue) => cue switch
+                {
+                    AlcoonCue.Fire fire => fire.Launch.YVelocity.Pixels switch { < 0 => "fire:up", > 0 => "fire:down", _ => "fire:level" },
+                    AlcoonCue.Signal { Kind: AlcoonCueKind.Move } => "move",
+                    AlcoonCue.Signal { Kind: AlcoonCueKind.StartWalking } => "start_walking",
+                    AlcoonCue.Signal { Kind: AlcoonCueKind.CompleteWalkCycle } => "walk_cycle",
+                    _ => throw new InvalidDataException($"An Alcoon's animation raises {cue}, which this does not know."),
+                },
+                ("walking_left", AlcoonSegment.WalkingLeft), ("walking_right", AlcoonSegment.WalkingRight),
+                ("fire_left", AlcoonSegment.FireLeft), ("fire_right", AlcoonSegment.FireRight),
+                ("leap_left", AlcoonSegment.AirborneLeftLookingUp), ("leap_right", AlcoonSegment.AirborneRightLookingUp),
+                ("airborne_left", AlcoonSegment.AirborneLeftLookingForward), ("airborne_right", AlcoonSegment.AirborneRightLookingForward))
+            .Write();
+
+        // The Cacatac: each spike of its attack is thrown one way.
+        Enemy("enemies/cacatac.json", "Cacatac", EnemyDefinitionId.Cacatac).BodyColliders(Ordinary)
+            .Looks(CacatacAnimations.Segments, CacatacAnimations.StartingWith,
+                static (CacatacCue cue) => cue switch
+                {
+                    CacatacCue.SpawnSpike spike => "spike:" + spike.Direction switch
+                    {
+                        CacatacSpikeDirection.LeftFacingUp or CacatacSpikeDirection.LeftFacingDown => "left",
+                        CacatacSpikeDirection.RightFacingUp or CacatacSpikeDirection.RightFacingDown => "right",
+                        CacatacSpikeDirection.UpLeft => "up_left",
+                        CacatacSpikeDirection.Up => "up",
+                        CacatacSpikeDirection.UpRight => "up_right",
+                        CacatacSpikeDirection.DownLeft => "down_left",
+                        CacatacSpikeDirection.Down => "down",
+                        CacatacSpikeDirection.DownRight => "down_right",
+                        _ => throw new InvalidDataException($"A Cacatac throws a spike {spike.Direction}, which this does not know."),
+                    },
+                    CacatacCue.Signal { Kind: CacatacCueKind.PlaySpikeSound } => EngineNames.SoundCue(EnemySoundEffectDefinitions.CacatacSpikeSound),
+                    CacatacCue.Signal { Kind: CacatacCueKind.RestorePatrol } => "patrol",
+                    _ => throw new InvalidDataException($"A Cacatac's animation raises {cue}, which this does not know."),
+                },
+                ("idle", CacatacSegment.OnFloorIdle), ("attack", CacatacSegment.OnFloorAttack),
+                ("idle_ceiling", CacatacSegment.OnCeilingIdle), ("attack_ceiling", CacatacSegment.OnCeilingAttack))
+            .Write();
+
+        // The Fune and the Namihe: one Godot type, each with its own pictures.
+        static string? FuneCue(FuneNamiheCue cue) => cue switch
+        {
+            FuneNamiheCue.Fire => "fire",
+            FuneNamiheCue.Signal { Kind: FuneNamiheCueKind.FinishActivity } => "done",
+            FuneNamiheCue.Signal { Kind: FuneNamiheCueKind.SpitSound } => EngineNames.SoundCue(FuneNamiheDefinitions.SpitSoundEffect),
+            _ => throw new InvalidDataException($"A Fune's animation raises {cue}, which this does not know."),
+        };
+        Enemy("enemies/fune.json", "Fune", EnemyDefinitionId.Fune).BodyColliders(Ordinary)
+            .Looks(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingWith, FuneCue,
+                ("idle_left", FuneNamiheSegment.FuneIdleLeft), ("idle_right", FuneNamiheSegment.FuneIdleRight),
+                ("active_left", FuneNamiheSegment.FuneActiveLeft), ("active_right", FuneNamiheSegment.FuneActiveRight))
+            .Write();
+        Enemy("enemies/namihe.json", "Fune", EnemyDefinitionId.Namihe).BodyColliders(Ordinary)
+            .Looks(FuneNamiheAnimations.Segments, FuneNamiheAnimations.StartingWith, FuneCue,
+                ("idle_left", FuneNamiheSegment.NamiheIdleLeft), ("idle_right", FuneNamiheSegment.NamiheIdleRight),
+                ("active_left", FuneNamiheSegment.NamiheActiveLeft), ("active_right", FuneNamiheSegment.NamiheActiveRight))
+            .Write();
+
+        // The Hibashi: each step of its eruption says how high the part of the flame that burns has climbed.
+        Enemy("enemies/hibashi.json", "Hibashi", EnemyDefinitionId.Hibashi)
+            .Looks(HibashiAnimations.Segments, HibashiAnimations.StartingWith,
+                static (HibashiCue cue) => cue switch
+                {
+                    HibashiCue.EruptionStep step => $"reach:{step.Step.YOffset}:{step.Step.YRadius}",
+                    HibashiCue.Signal { Kind: HibashiCueKind.FinishActivity } => "done",
+                    HibashiCue.Signal { Kind: HibashiCueKind.PlayEruptionSound } => EngineNames.SoundCue(HibashiDefinitions.EruptionSoundEffect),
+                    _ => throw new InvalidDataException($"A Hibashi's animation raises {cue}, which this does not know."),
+                },
+                ("flame", HibashiSegment.Flame))
+            .Write();
+
+        // The Evir, and the spine ball it holds, which is an enemy of its own.
+        Enemy("enemies/evir.json", "Evir", EnemyDefinitionId.Evir).BodyColliders(Ordinary)
+            .Looks(EvirAnimations.Segments, EvirAnimations.StartingWith,
+                static (EvirCue cue) => cue.Kind == EvirCueKind.PlaySpitSound ? EngineNames.SoundCue(EnemySoundEffectDefinitions.EvirSpitSound) : null,
+                ("body_left", EvirSegment.BodyFacingLeft), ("body_right", EvirSegment.BodyFacingRight),
+                ("arms_left", EvirSegment.ArmsFacingLeft), ("arms_right", EvirSegment.ArmsFacingRight))
+            .Write();
+        Enemy("enemies/evir_spit.json", "EvirSpit", EnemyDefinitionId.EvirProjectile).BodyColliders(Ordinary)
+            .Looks(EvirAnimations.Segments, EvirAnimations.StartingWith,
+                static (EvirCue cue) => cue.Kind switch
+                {
+                    EvirCueKind.SetInitialRegenerationOffset => "regrow_start",
+                    EvirCueKind.AdvanceRegenerationOffset => "regrow_step",
+                    EvirCueKind.FinishRegeneration => "regrown",
+                    EvirCueKind.PlaySpitSound => EngineNames.SoundCue(EnemySoundEffectDefinitions.EvirSpitSound),
+                    _ => throw new InvalidDataException($"An Evir's animation raises {cue.Kind}, which this does not know."),
+                },
+                ("idle", EvirSegment.ProjectileIdle), ("regrowing", EvirSegment.ProjectileRegenerating))
+            .Write();
+
+        // The Kzan's top is what Samus stands on and its underside what hurts; both are sized as the old game sizes it.
+        Enemy("enemies/kzan.json", "Kzan", EnemyDefinitionId.KzanTop).BodyColliders("Solid", "Hitbox")
+            .Looks(KzanAnimations.Segments, KzanAnimations.StartingWith, ("idle", KzanSegment.Idle))
+            .Write();
+        Enemy("enemies/polyp.json", "Polyp", EnemyDefinitionId.Polyp)
+            .Looks(PolypAnimations.Segments, PolypAnimations.StartingWith, ("stationary", PolypSegment.Stationary))
+            .Write();
+    }
+}

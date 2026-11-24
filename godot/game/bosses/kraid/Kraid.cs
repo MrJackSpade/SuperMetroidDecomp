@@ -25,13 +25,20 @@ namespace Game.Enemies;
 /// "foot_lunge_forward" and "foot_walking_backward", with the cues "step_left", "step_right", "raise_body",
 /// "lower_body", "walk_end", "walk_on" and "place:" with where the foot is drawn from its usual place. Any of them may
 /// give "sound:" and a sound.</para>
-/// <para>Its hurtbox "Mouth" is the only place it can be hurt; its other hurtboxes are its body, and its hitboxes
-/// "Arm" and "Foot" hurt to touch. Its data gives "mouth_rects", the mouth's rectangle for each way it is open;
-/// "body_edge", the left edge of its body from its place for each height at or above "from"; "ceiling_rocks" and
-/// "sink_crumbles", each with a terrain "patch" and where a rock falls; "walks", for each place it may stand the
-/// places it may walk to next, each with a "weight", a "to" and how many "updates" it then thinks; and the names of
-/// its other terrain patches. Its shots are "spit_rock", "rising_rock" and "ceiling_rock". All its places are in the
-/// room's own pixels.</para>
+/// <para>Its hurtbox "Mouth" is the only place it can be hurt; "HeadShell" and "Body1" through "Body6" are the rest of
+/// it, which turn shots away; its hitboxes "Arm1" through "Arm10" hurt to touch and knock Samus back. Its data gives
+/// "head_poses", where "Mouth", "HeadShell" and the body's pieces are for each way its mouth is open, and "arm_poses",
+/// where the arm's pieces are for each of the arm's pictures, taken on the arm timelines' cue "pose:" and a name
+/// (<see cref="ColliderPoses"/>); "body_edge", the left edge of its body from its place for each height at or above
+/// "from"; "ceiling_rocks" and "sink_crumbles", each with where a rock falls and the "crumble" of the terrain there,
+/// and "death_spikes", the crumbling of the spikes as it dies (<see cref="PatchSequence"/>); "walks", for each place
+/// it may stand the places it may walk to next, each with a "weight", a "to" and how many "updates" it then thinks;
+/// "spit", where its rocks leave it from, how fast they rise and the eight speeds across that chance picks from;
+/// "health_shades", most health first, the set of its pictures it shows at each least "health" and how many updates
+/// its eye takes to glow there; and "hurt_flash", the "wait" and then the steps, each so many "updates" and "hurt" or
+/// not, of the flash a hit in the mouth sets off. A picture's path holds "{shade}" where the set's name goes. Its
+/// shots are "spit_rock", "rising_rock", "rising_rock_small" and "ceiling_rock". All its places are in the room's own
+/// pixels.</para>
 /// </remarks>
 public partial class Kraid : Enemy
 {
@@ -87,9 +94,9 @@ public partial class Kraid : Enemy
     [Export, DataValue("thinking_step_updates")]
     public int ThinkingStepUpdates { get; set; } = 64;
 
-    /// <summary>How many updates its eye takes to glow, and again to dim.</summary>
-    [Export, DataValue("eye_glow_updates")]
-    public int EyeGlowUpdates { get; set; } = 16;
+    /// <summary>How many updates apart the rocks leave its wide-open mouth.</summary>
+    [Export, DataValue("spit_cadence_updates")]
+    public int SpitCadenceUpdates { get; set; } = 16;
 
     /// <summary>How many steps the room's backdrop takes to fade.</summary>
     [Export, DataValue("backdrop_fade_steps")]
@@ -103,13 +110,25 @@ public partial class Kraid : Enemy
     [Export, DataValue("dud_effect")]
     public string DudEffect { get; set; } = "";
 
+    /// <summary>The effect of a super missile or a power bomb that does it no harm.</summary>
+    [Export, DataValue("big_dud_effect")]
+    public string BigDudEffect { get; set; } = "";
+
+    /// <summary>The sound of a shot that does it no harm, by name.</summary>
+    [Export, DataValue("dud_sound")]
+    public string DudSound { get; set; } = "";
+
+    /// <summary>The set of its pictures that shows it flashing from a hit in the mouth.</summary>
+    [Export, DataValue("hurt_shade")]
+    public string HurtShade { get; set; } = "";
+
+    /// <summary>The set of its body's pictures that shows it dying.</summary>
+    [Export, DataValue("death_shade")]
+    public string DeathShade { get; set; } = "";
+
     /// <summary>The sound of a rock flying, and of its rumbling as it sinks, by name.</summary>
     [Export, DataValue("rock_sound")]
     public string RockSound { get; set; } = "";
-
-    /// <summary>The terrain patch of the spikes crumbling as it dies.</summary>
-    [Export, DataValue("death_spikes_patch")]
-    public string DeathSpikesPatch { get; set; } = "";
 
     private enum Stage
     {
@@ -194,12 +213,25 @@ public partial class Kraid : Enemy
         PastPause,
     }
 
-    private sealed record Crumble(int At, int RockX, string Patch);
+    private sealed record Crumble(int At, int RockX, PatchSequence Change);
 
     private sealed record Walk(int Weight, int To, int Updates);
 
-    private readonly Dictionary<string, PixelRect> _mouthRects = new(StringComparer.Ordinal);
     private readonly List<(int From, int Left)> _bodyEdge = [];
+    private readonly List<(int Health, string Shade, int EyeGlowUpdates)> _healthShades = [];
+    private readonly List<(bool Hurt, int Updates)> _hurtFlash = [];
+    private readonly List<Pixels> _spitSpeeds = [];
+    private readonly List<PatchSequence> _changes = [];
+    private ColliderPoses? _headPoses;
+    private ColliderPoses? _armPoses;
+    private PatchSequence? _deathSpikes;
+    private PixelOffset _spitFrom;
+    private Pixels _spitRise;
+    private int _hurtFlashWait;
+    private int _flashStep = -1;
+    private int _flashLeft;
+    private bool _flashShowsHurt;
+    private int _glowUpdates = 1;
     private readonly List<Crumble> _ceilingRocks = [];
     private readonly List<Crumble> _sinkCrumbles = [];
     private readonly Dictionary<int, List<Walk>> _walks = [];
@@ -244,6 +276,15 @@ public partial class Kraid : Enemy
     /// <summary>The count that moves on each time its spikes are set back at their heights; they follow it.</summary>
     public int LintsPlaced { get; private set; }
 
+    /// <summary>Whether it has begun to rise to its full height: its spikes are out of sight from then until each next comes out.</summary>
+    public bool HasBegunGrowing { get; private set; }
+
+    /// <summary>The set of its pictures its parts show: how hurt it is, or the flash of a hit in the mouth.</summary>
+    public string Shade { get; private set; } = "";
+
+    /// <summary>A picture's path with the name of a set of its pictures put where the path leaves room for one.</summary>
+    public static string Shaded(string picture, string shade) => picture.Replace("{shade}", shade, StringComparison.Ordinal);
+
     /// <summary>The left edge of its body, in the room's pixels, at a height in the room.</summary>
     public int LeftEdgeAt(int y)
     {
@@ -267,17 +308,32 @@ public partial class Kraid : Enemy
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        _mouthRects.Clear();
-        foreach ((string name, DataNode rect) in data.Get("mouth_rects").Entries())
-            _mouthRects[name] = new PixelRect(rect.Int("left"), rect.Int("top"), rect.Int("right") - rect.Int("left"), rect.Int("bottom") - rect.Int("top"));
+        _headPoses = ColliderPoses.Read(data.Get("head_poses"), this);
+        _armPoses = ColliderPoses.Read(data.Get("arm_poses"), this);
+        _healthShades.Clear();
+        _healthShades.AddRange(data.List("health_shades").Select(band => (band.Int("health"), band.Text("shade"), band.Int("eye_glow_updates"))));
+        if (_healthShades.Count == 0)
+            throw data.Problem("must give at least one of its health shades");
+        DataNode flash = data.Get("hurt_flash");
+        _hurtFlashWait = flash.Int("wait");
+        _hurtFlash.Clear();
+        _hurtFlash.AddRange(flash.List("steps").Select(step => (step.Flag("hurt"), step.Int("updates"))));
+        DataNode spit = data.Get("spit");
+        _spitFrom = PixelOffset.FromWhole(spit.Int("x"), spit.Int("y"));
+        _spitRise = spit.Distance("rise");
+        _spitSpeeds.Clear();
+        _spitSpeeds.AddRange(spit.List("speeds").Select(speed => speed.AsPixels()));
+        if (_spitSpeeds.Count != 8)
+            throw spit.Problem("must give the eight speeds its roll of eight picks from");
+        _deathSpikes = PatchSequence.Read(data.Get("death_spikes"));
         _bodyEdge.Clear();
         _bodyEdge.AddRange(data.List("body_edge").Select(row => (row.Int("from"), row.Int("left"))));
         if (_bodyEdge.Count == 0)
             throw data.Problem("must give at least one row of its body's edge");
         _ceilingRocks.Clear();
-        _ceilingRocks.AddRange(data.List("ceiling_rocks").Select(rock => new Crumble(0, rock.Int("x"), rock.Text("patch"))));
+        _ceilingRocks.AddRange(data.List("ceiling_rocks").Select(rock => new Crumble(0, rock.Int("x"), PatchSequence.Read(rock.Get("crumble")))));
         _sinkCrumbles.Clear();
-        _sinkCrumbles.AddRange(data.List("sink_crumbles").Select(step => new Crumble(step.Int("y"), step.Int("x"), step.Text("patch"))));
+        _sinkCrumbles.AddRange(data.List("sink_crumbles").Select(step => new Crumble(step.Int("y"), step.Int("x"), PatchSequence.Read(step.Get("crumble")))));
         _walks.Clear();
         foreach (DataNode row in data.List("walks"))
             _walks[row.Int("from")] = [.. row.List("to").Select(walk => new Walk(walk.Int("weight"), walk.Int("to"), walk.Int("updates")))];
@@ -295,8 +351,14 @@ public partial class Kraid : Enemy
             hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Ice), new HitKind(HitKinds.Wave), new HitKind(HitKinds.Spazer), new HitKind(HitKinds.Plasma)]))
             return HitResult.Ignored;
         HitResult result = base.TakeHit(hit, part);
-        if (part.Name == "Mouth" && result is HitResult.Hurt or HitResult.Destroyed && _mouthReopens > 0)
-            _mouthReopenMarked = true;
+        if (part.Name == "Mouth" && result is HitResult.Hurt or HitResult.Destroyed)
+        {
+            // A hit in the mouth sets its colours flashing.
+            (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
+            if (_mouthReopens > 0)
+                _mouthReopenMarked = true;
+        }
+
         return result;
     }
 
@@ -313,8 +375,10 @@ public partial class Kraid : Enemy
         if (part.Name == "Mouth")
             return;
         // A shot at its body does no harm, but makes its eye glow and its mouth open; a charged one, three times over.
-        if (DudEffect.Length > 0 && hit.Source is Node2D shot)
-            LeaveEffect(DudEffect, PixelPosition.FromWhole((int)shot.Position.X, (int)shot.Position.Y));
+        string dud = hit.CarriesAny([new HitKind(HitKinds.SuperMissile), new HitKind(HitKinds.PowerBomb)]) ? BigDudEffect : DudEffect;
+        if (dud.Length > 0 && hit.Source is Node2D shot)
+            LeaveEffect(dud, PixelPosition.FromWhole((int)shot.Position.X, (int)shot.Position.Y));
+        Sound(DudSound);
         if (_stage != Stage.Fighting || _fight != Fight.FirstThinking)
             return;
         _fight = Fight.BeginEyeGlow;
@@ -338,13 +402,9 @@ public partial class Kraid : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        if (IsFinished || (part.Name == "Arm" && _armHarmless))
+        // Only the pieces of its arm touch; its body pushes Samus out of itself by its own rule.
+        if (IsFinished || _armHarmless)
             return;
-        if (part.Name != "Arm")
-        {
-            base.Touch(part);
-            return;
-        }
 
         // Its arm knocks Samus back, and sets off the lowest spike.
         ShiftPlayer(PixelOffset.FromWhole(4, -8));
@@ -368,7 +428,9 @@ public partial class Kraid : Enemy
         PlayPart("Head", "head_roar");
         _headOver = true;
         _foot = FootDoing.Resting;
-        ShowMouth("closed");
+        _armPoses?.TakeNone();
+        ShowMouth("closed", 0);
+        Shade = BandShade().Shade;
         if (GetNodeOrNull<ActorVisual>("Arm") is { } arm)
             arm.Position = new Vector2(0, -44);
         if (GetNodeOrNull<ActorVisual>("Foot") is { } foot)
@@ -379,6 +441,10 @@ public partial class Kraid : Enemy
     protected override void Behave()
     {
         Player samus = Room.Player;
+        foreach (PatchSequence change in _changes)
+            change.Step(Room);
+        _changes.RemoveAll(change => change.IsOver);
+        StepColours();
         if (_stage is Stage.Fighting or Stage.Growing)
             PushSamusOut(samus);
 
@@ -511,13 +577,10 @@ public partial class Kraid : Enemy
                     break;
                 }
 
-                // While its mouth is wide open a rock comes out every sixteenth update.
-                if (_mouth == "open" && _openLeft > 0 && _openLeft-- % 16 == 0)
-                {
-                    RandomDraw draw = Random.Draw();
-                    Pixels[] speeds = [Pixels.FromWhole(-4), Pixels.FromNumber(-3.75), Pixels.FromNumber(-4.75), Pixels.FromNumber(-4.5), Pixels.FromNumber(-4.75), Pixels.FromWhole(-4), Pixels.FromNumber(-4.5), Pixels.FromNumber(-3.75)];
-                    Fire("spit_rock", Position + PixelOffset.FromWhole(16, -96), new PixelVelocity(speeds[draw.Part(0, 3)], Pixels.FromWhole(-4)));
-                }
+                // While its mouth is wide open a rock comes out every so many updates, from the update it opens. How
+                // fast it flies across is read from the second through fourth digits of the number last drawn.
+                if (_mouth == "open" && _openLeft > 0 && _openLeft-- % SpitCadenceUpdates == 0)
+                    Fire("spit_rock", Position + _spitFrom, new PixelVelocity(_spitSpeeds[Random.Last.Part(1, 3)], _spitRise));
 
                 break;
 
@@ -537,22 +600,30 @@ public partial class Kraid : Enemy
             case Fight.BeginEyeGlow:
                 _fight = Fight.GlowEye;
                 _glow = 0;
+                // Its eye glows for as long as its colours, as hurt as it is, take to reach their brightest.
+                _glowUpdates = BandShade().EyeGlowUpdates;
                 PlayPart("Head", "head_eye_glow", restart: true);
                 StepHead();
                 ShowEyeGlow(++_glow);
+                if (_glow >= _glowUpdates)
+                    _fight = Fight.UnglowEye;
                 break;
 
             case Fight.GlowEye:
                 StepHead();
                 ShowEyeGlow(++_glow);
-                if (_glow >= EyeGlowUpdates)
+                if (_glow >= _glowUpdates)
                     _fight = Fight.UnglowEye;
                 break;
 
             case Fight.UnglowEye:
-                ShowEyeGlow(--_glow);
+                // It dims as long as it glowed, and roars on the update after it has dimmed.
                 if (_glow > 0)
+                {
+                    ShowEyeGlow(--_glow);
                     break;
+                }
+
                 _fight = Fight.MouthOpenReaction;
                 PlayPart("Head", "head_roar", restart: true);
                 break;
@@ -588,7 +659,7 @@ public partial class Kraid : Enemy
                 {
                     Crumble rock = _ceilingRocks[_nextCeilingRock++];
                     DropCeilingRock(rock.RockX);
-                    Room.Terrain.ApplyPatch(rock.Patch);
+                    _changes.Add(rock.Change.FromStart());
                 }
 
                 if (Position.Y.Whole < GrownY)
@@ -640,8 +711,8 @@ public partial class Kraid : Enemy
                 PlayPart("Arm", "arm_dying_or_preparing_to_lunge", restart: true);
                 PlayPart("Head", "head_death", restart: true);
                 _fade = 0;
-                if (DeathSpikesPatch.Length > 0)
-                    Room.Terrain.ApplyPatch(DeathSpikesPatch);
+                if (_deathSpikes is { } spikes)
+                    _changes.Add(spikes.FromStart());
                 _death = Death.FadeOut;
                 break;
 
@@ -678,7 +749,7 @@ public partial class Kraid : Enemy
                 if (_sinkCrumbles.FirstOrDefault(step => step.At == Position.Y.Whole) is { } crumble)
                 {
                     DropCeilingRock(crumble.RockX);
-                    Room.Terrain.ApplyPatch(crumble.Patch);
+                    _changes.Add(crumble.Change.FromStart());
                 }
 
                 Position += PixelOffset.FromWhole(0, 1);
@@ -886,7 +957,8 @@ public partial class Kraid : Enemy
     {
         if (!_walks.TryGetValue(from, out List<Walk>? choices) && !_walks.TryGetValue(352, out choices))
             throw new InvalidOperationException($"Kraid's data gives it nowhere to walk to from {from}.");
-        int roll = Random.Draw().Part(0, 3) % choices.Sum(choice => choice.Weight);
+        // The roll of eight is the third through fifth digits of the number last drawn.
+        int roll = Random.Last.Part(2, 3) % choices.Sum(choice => choice.Weight);
         foreach (Walk choice in choices)
         {
             if (roll < choice.Weight)
@@ -909,6 +981,7 @@ public partial class Kraid : Enemy
         _foot = FootDoing.Resting;
         PlayPart("Arm", "arm_normal", restart: true);
         _armHarmless = true;
+        HasBegunGrowing = true;
         return true;
     }
 
@@ -956,19 +1029,21 @@ public partial class Kraid : Enemy
     /// <summary>Throws a rock up out of the floor near it.</summary>
     private void ThrowRisingRock()
     {
-        RandomDraw draw = Random.Draw();
+        // Everything about it is read from the number last drawn: how far from Kraid it starts and on which side, how
+        // fast it sets off to the right, in sixteenths of a pixel, and which of the two rocks it looks like.
+        RandomDraw draw = Random.Last;
         int across = draw.Part(0, 6);
         if (draw.Part(0, 1) == 0)
             across = -(across + 1);
-        Pixels side = Pixels.FromNumber(draw.Part(8, 4) / 16.0);
-        Fire("rising_rock", PixelPosition.FromWhole(Position.X.Whole + across, 432), new PixelVelocity(draw.Part(12, 1) == 1 ? side : -side, Pixels.FromWhole(-5)));
+        Pixels side = Pixels.FromNumber(draw.Part(4, 6) / 16.0);
+        Fire(draw.Part(4, 1) == 1 ? "rising_rock_small" : "rising_rock", PixelPosition.FromWhole(Position.X.Whole + across, 432), new PixelVelocity(side, Pixels.FromWhole(-5)));
         Sound(RockSound);
     }
 
     /// <summary>Lets a rock fall from the ceiling.</summary>
     private void DropCeilingRock(int x)
     {
-        Pixels fall = Pixels.FromNumber(0.25 + Random.Draw().Part(0, 6) / 256.0);
+        Pixels fall = Pixels.FromNumber(0.25 + Random.Last.Part(0, 6) / 256.0);
         Fire("ceiling_rock", PixelPosition.FromWhole(x, 312), new PixelVelocity(Pixels.Zero, fall));
     }
 
@@ -979,20 +1054,63 @@ public partial class Kraid : Enemy
     private void ShowEyeGlow(int glow)
     {
         if (GetNodeOrNull<ActorVisual>("Head") is { } head)
-            head.Tint(Colors.White.Lerp(new Color(1f, 0.6f, 0.6f), Math.Clamp((float)glow / Math.Max(1, EyeGlowUpdates), 0f, 1f)));
+            head.Tint(Colors.White.Lerp(new Color(1f, 0.6f, 0.6f), Math.Clamp((float)glow / Math.Max(1, _glowUpdates), 0f, 1f)));
     }
 
-    /// <summary>Sets how far its mouth is open: where it can be hurt goes with it.</summary>
-    private void ShowMouth(string mouth)
+    /// <summary>
+    /// Sets how far its mouth is open: where it can be hurt, and where its head and body turn shots away, go with it.
+    /// Wide open, it stays so for <paramref name="updates"/> updates.
+    /// </summary>
+    private void ShowMouth(string mouth, int updates)
     {
         _mouth = mouth;
         if (mouth == "open")
-            _openLeft = 64;
-        if (GetNodeOrNull<Collider>("Mouth") is not { } collider)
-            return;
-        collider.Enabled = _mouthRects.TryGetValue(mouth, out PixelRect rect);
-        if (collider.Enabled)
-            collider.Rect = rect;
+            _openLeft = updates;
+        (_headPoses ?? throw new InvalidOperationException("Kraid's data has not been read.")).Take(mouth);
+    }
+
+    /// <summary>The set of its pictures that shows it as hurt as it is, and how long its eye takes to glow there.</summary>
+    private (int Health, string Shade, int EyeGlowUpdates) BandShade()
+    {
+        foreach ((int Health, string Shade, int EyeGlowUpdates) band in _healthShades)
+        {
+            if (Health.Current >= band.Health)
+                return band;
+        }
+
+        return _healthShades[^1];
+    }
+
+    /// <summary>Moves the flash of a hit in the mouth on, and settles which set of its pictures it shows.</summary>
+    private void StepColours()
+    {
+        if (Health.IsEmpty)
+        {
+            // Dying, it flashes no more.
+            (_flashStep, _flashShowsHurt) = (-1, false);
+        }
+        else if (_flashStep >= 0 && --_flashLeft <= 0)
+        {
+            if (_flashStep < _hurtFlash.Count)
+                (_flashShowsHurt, _flashLeft) = _hurtFlash[_flashStep++];
+            else
+                (_flashStep, _flashShowsHurt) = (-1, false);
+        }
+
+        Shade = _flashShowsHurt ? HurtShade : BandShade().Shade;
+    }
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => Shaded(step.Picture, BodyShade);
+
+    /// <summary>The set of its pictures its body and head show: as its parts do, until it is dying.</summary>
+    private string BodyShade => IsFinished ? DeathShade : Shade;
+
+    /// <summary>Shows one of its parts as its timeline has it, in the colours it is in.</summary>
+    private void ShowPart(string part)
+    {
+        TimelineStep step = _parts[part].Current;
+        GetNodeOrNull<ActorVisual>(part)?.Show(step with { Picture = Shaded(step.Picture, part == "Head" ? BodyShade : Shade) });
     }
 
     /// <summary>Moves its head's timeline on by one update.</summary>
@@ -1011,7 +1129,7 @@ public partial class Kraid : Enemy
             return;
         _partPlaying[part] = timeline;
         _parts[part] = new TimelinePlayer(Timelines.Get(timeline));
-        GetNodeOrNull<ActorVisual>(part)?.Show(_parts[part].Current);
+        ShowPart(part);
         if (part == "Head")
             _headOver = false;
         if (part == "Foot")
@@ -1033,7 +1151,10 @@ public partial class Kraid : Enemy
                     Sound(parts[1]);
                     break;
                 case "mouth":
-                    ShowMouth(parts[1]);
+                    ShowMouth(parts[1], player.Current.Updates);
+                    break;
+                case "pose":
+                    (_armPoses ?? throw new InvalidOperationException("Kraid's data has not been read.")).Take(parts[1]);
                     break;
                 case "swing_begins":
                     _swing = Swing.BeforePause;
@@ -1080,6 +1201,6 @@ public partial class Kraid : Enemy
             }
         }
 
-        GetNodeOrNull<ActorVisual>(part)?.Show(player.Current);
+        ShowPart(part);
     }
 }

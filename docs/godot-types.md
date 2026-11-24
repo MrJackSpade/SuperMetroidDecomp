@@ -143,6 +143,9 @@ something that leaves the room.
 - An oddity that belongs to one enemy, item or object of this game is not compatibility; it is ordinary code in
   that thing, which is already in `game/`.
 - If removing `game/compatibility/` would leave dead code in the engine, that code was in the wrong layer.
+- What is there now: `CartridgeRandom`, the cartridge's own sequence of random numbers, and `FrameRandom`, a session
+  service that draws one number every update of play and uses none, as the cartridge did every frame: much of this
+  game reads the number last drawn (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
 
 **Why, and extending it.** The layers exist so the game can be thrown away and the engine kept. Everything else
 here follows from that. When unsure which layer something goes in, imagine the fork: the new game has a different
@@ -443,6 +446,11 @@ there. Anything may tell `Terrain` to apply a patch or take it back by name: a b
 sequence opening a wall, a bridge giving way. Nothing edits tiles one at a time, and nothing but `Terrain` holds
 tile data. A patch applied for good is remembered like anything else.
 
+**Terrain that changes over some updates.** A change that plays out, such as a wall crumbling through several
+pictures before it is gone, is a `PatchSequence`: named patches applied one after another, each standing its own
+number of updates, with a sound a step may ask for. It is data of whoever plays it, who steps it once an update for
+as long as it runs; the patch that is left is the one a room that begins after the change is given.
+
 ### RoomObject (base)
 
 A placed, interactive fixture of a room that is not an enemy. One folder per kind: `engine/world/objects/<name>/`
@@ -645,6 +653,8 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   judging a hit itself (`TakeHit` can be overridden, part by part); firing its data's shots; leaving effects and
   drops; moving by the shared `Mover` or carrying the player with it; flashing for a set time; and asking whether
   the player rests against its solid.
+- **An enemy's own visual** is its `ActorVisual` child named "Visual", wherever it stands among its visuals, so a
+  part drawn behind the body can come before it in the scene; with none of that name, its first.
 - **A boss is an `Enemy`.** One scene. Its parts are child nodes with their own hurtboxes, and the boss decides what
   a hit on each part does. There is no boss base class.
 - A part that comes off and then only falls or fades is an `Effect`. One that can still hit the player is a
@@ -738,6 +748,8 @@ drawn where the timeline's offset puts it; one shown by a lone picture has it ce
 | `TimelinePlayer` | Stepping a `FrameTimeline` once per update when its owner says, and reporting the step and any cue reached. The owner acts on the cue. |
 | `ActorVisual` | Showing the frame gameplay selects, hurt flashes, glows, colour changes and dissolves. It can show its picture row by row, each row naming the row of the picture drawn there. Never advances gameplay. |
 | `RowCrumble` | Working out which rows of a picture show where as it crumbles away from the bottom up, after an optional wait. An `ActorVisual` shows them. |
+| `ColliderPoses` | Where a thing's collider nodes are in each of its named poses, from its data. Taking a pose moves the colliders it names and switches off the others any pose names. A timeline's cue takes the pose that goes with the picture it shows; the owner decides what else a pose means. |
+| `PatchSequence` | Playing a change to the room's terrain that takes some updates: each of its named patches in turn (section 5, "Terrain that changes over some updates"). |
 
 **Why, and extending it.** The base classes are the engine's answer to "what is one of these?", written so the
 fork gets a working player, enemy and projectile by supplying only what is its own. So the pressure is always
@@ -883,7 +895,12 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   each spore go; its ceiling crumbles through a list of patches before the one that opens it; and the view is kept
   below a `CameraZone` over its chamber, which it opens as it dies); its spore (a `Projectile` that, shot, goes on
   drifting while it bursts and leaves its drop as the burst ends);
-  Fake Kraid; Kraid (arm, foot and belly spikes are parts; thrown nails and spikes are `Projectile`s); Crocomire
+  Fake Kraid; Kraid (its head, arm and foot are visuals of the one enemy; where shots meet its mouth, head and the
+  ledges of its body, and where its arm touches, are `ColliderPoses` taken as its head and arm change picture; how
+  hurt it is, the flash of a hit in the mouth and its dying are sets of its pictures; what it does to its room, the
+  ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
+  its two nails are enemies of their own the room places, there until it is beaten; its rocks are `Projectile`s; the
+  screens it keeps the view from until it has grown are `CameraZone`s it opens); Crocomire
   (tongue is a part); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and
   a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s); Mother Brain (her brain, the joints of her neck

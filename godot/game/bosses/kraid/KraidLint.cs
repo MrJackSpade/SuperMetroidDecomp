@@ -81,6 +81,7 @@ public partial class KraidLint : Enemy
     private bool _harmless;
     private bool _shown = true;
     private bool _begun;
+    private bool _hiddenForGrowth;
 
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => false;
@@ -97,6 +98,9 @@ public partial class KraidLint : Enemy
     {
         // Its point hurts by its own rule; the rest of it is only a platform.
     }
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => Kraid.Shaded(step.Picture, _kraid?.Shade ?? "");
 
     /// <inheritdoc/>
     protected override void Behave()
@@ -120,6 +124,13 @@ public partial class KraidLint : Enemy
         {
             _placedAt = kraid.LintsPlaced;
             Position = new PixelPosition(Position.X, Pixels.FromWhole(kraid.Position.Y.Whole + Height));
+        }
+
+        if (kraid.HasBegunGrowing && !_hiddenForGrowth)
+        {
+            // As Kraid begins to rise to its full height its spikes go out of sight, until each next comes out.
+            _hiddenForGrowth = true;
+            SetShown(false);
         }
 
         if (kraid.HasGrown && !_begun)

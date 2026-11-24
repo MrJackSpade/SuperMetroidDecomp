@@ -47,6 +47,20 @@ internal sealed partial class EngineEnemy
     };
 
     /// <summary>
+    /// Cuts another set of its pictures, in one of its sheets' shades, into the folder named as its own with
+    /// <paramref name="after"/> added: the sheets named by <paramref name="keys"/>, the old enemies whose sheets they
+    /// are, cut together as its own pictures were.
+    /// </summary>
+    internal EngineEnemy ShadedSetOf(string after, string shade, params ReadOnlySpan<string> keys)
+    {
+        var named = new List<string>();
+        foreach (string key in keys)
+            named.Add(_sheets.EnemySheet(key));
+        _sheets.CutShadeOf(_tree, Installation.GameInstallationLayout.EnemySheetDirectoryName, Folder + after, shade, [.. named]);
+        return this;
+    }
+
+    /// <summary>
     /// Cuts the pictures of one of its timelines of what it spawns (<see cref="SpawnedLook{TFrame, TEvent}"/>) again
     /// in one of their sheet's shades, into the folder a set of its pictures named <paramref name="after"/> keeps them in.
     /// </summary>

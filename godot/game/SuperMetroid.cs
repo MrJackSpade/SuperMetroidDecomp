@@ -30,8 +30,8 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>After a death comes the game over screen.</summary>
     public override GameMode CreateModeAfterDeath() => new Menus.GameOverMode();
 
-    /// <summary>This game adds the escape countdown.</summary>
-    public override IReadOnlyList<ISessionService> CreateServices() => [new Escape()];
+    /// <summary>This game adds the escape countdown, and the random number the cartridge drew every frame.</summary>
+    public override IReadOnlyList<ISessionService> CreateServices() => [new Escape(), new Compatibility.FrameRandom()];
 
     /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
     public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();

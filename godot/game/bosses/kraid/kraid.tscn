@@ -24,14 +24,70 @@ script = ExtResource("3")
 script = ExtResource("2")
 Role = 1
 
-[node name="Body" type="Node2D" parent="."]
+[node name="HeadShell" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
 
-[node name="Arm" type="Node2D" parent="."]
+[node name="Body1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Body2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Body3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Body4" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Body5" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Body6" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Arm1" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 2
 
-[node name="Foot" type="Node2D" parent="."]
+[node name="Arm2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm4" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm5" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm6" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm7" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm8" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm9" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Arm10" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 2

@@ -27,6 +27,14 @@ public partial class KraidNail : Enemy
     [Export, DataValue("below_arm")]
     public int BelowArm { get; set; } = 128;
 
+    /// <summary>How far left of Kraid's place it sets off from beside the body, in pixels, before it is put on a block's edge.</summary>
+    [Export, DataValue("launch_reach")]
+    public int LaunchReach { get; set; } = 64;
+
+    /// <summary>The left edge of Kraid's body that turns back one above every ledge, from Kraid's place, in pixels.</summary>
+    [Export, DataValue("past_ledges_left")]
+    public int PastLedgesLeft { get; set; }
+
     /// <summary>Where one that starts from the far left waits, in the room's pixels.</summary>
     [Export]
     public Vector2I FarLeftStart { get; set; } = new(50, 240);
@@ -83,6 +91,9 @@ public partial class KraidNail : Enemy
 
     /// <inheritdoc/>
     protected override void OnTouchedPlayer() => Die();
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => Kraid.Shaded(step.Picture, _kraid?.Shade ?? "");
 
     /// <inheritdoc/>
     protected override void Behave()
@@ -151,9 +162,8 @@ public partial class KraidNail : Enemy
         {
             // It starts beside Kraid's body, on a block's edge, below the arm.
             StartedFarLeft = false;
-            int halfWidth = Body is { } body ? body.Rect.Width / 2 : 0;
             int y = kraid.ArmPosition.Y.Whole + BelowArm;
-            int x = (kraid.LeftEdgeAt(y) - halfWidth) / 16 * 16;
+            int x = (kraid.Position.X.Whole - LaunchReach) / 16 * 16;
             Position = PixelPosition.FromWhole(x, y);
             return;
         }
@@ -174,7 +184,7 @@ public partial class KraidNail : Enemy
                 return left;
         }
 
-        return _ledges[^1].Left;
+        return PastLedgesLeft;
     }
 
     /// <summary>Puts it out of play, unseen and untouchable, or brings it back.</summary>

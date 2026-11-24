@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,8 +7,10 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/bosses/kraid/kraid.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="PackedScene" path="res://game/bosses/kraid/kraid_lint.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/bosses/kraid/kraid_nail.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -20,6 +22,7 @@ script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/brinstar/kraid_in_kraid.json"
 KeepsMusic = true
+Patches = PackedStringArray("ceiling_clear", "spikes_clear")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
@@ -64,6 +67,7 @@ position = Vector2(256, 536)
 FightMusic = "kraid_and_phantoon_battle"
 VictoryMusic = "elevator"
 AlwaysActive = true
+ToldWhenGrown = Array[NodePath]([NodePath("../KraidScreen0x0"), NodePath("../KraidScreen0x0Foot"), NodePath("../KraidScreen1x0"), NodePath("../KraidScreen1x0Foot"), NodePath("../KraidScreen1x1")])
 PresentWhen = SubResource("r4")
 
 [node name="Encounter" type="Node2D" parent="."]
@@ -73,14 +77,88 @@ Size = Vector2i(512, 512)
 RememberedAs = "kraid_defeated"
 Boss = NodePath("../Kraid")
 
-[node name="GreyCap" parent="." instance=ExtResource("8")]
+[node name="KraidScreen0x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+StartsOpen = false
+PresentWhen = SubResource("r4")
+
+[node name="KraidScreen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+PresentWhen = SubResource("r4")
+
+[node name="KraidScreen1x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 0)
+StartsOpen = false
+PresentWhen = SubResource("r4")
+
+[node name="KraidScreen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+PresentWhen = SubResource("r4")
+
+[node name="KraidScreen1x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 256)
+StartsOpen = false
+PresentWhen = SubResource("r4")
+
+[node name="KraidLintTop" parent="." instance=ExtResource("9")]
+position = Vector2(200, 528)
+Height = -20
+EmergeOffset = 0
+InitialDelay = 288
+FiresWhenArmTouched = false
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="KraidLintMiddle" parent="." instance=ExtResource("9")]
+position = Vector2(176, 592)
+Height = 46
+EmergeOffset = -16
+InitialDelay = 160
+FiresWhenArmTouched = false
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="KraidLintBottom" parent="." instance=ExtResource("9")]
+position = Vector2(178, 648)
+Height = 112
+EmergeOffset = -16
+InitialDelay = 64
+FiresWhenArmTouched = true
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="KraidFirstNail" parent="." instance=ExtResource("10")]
+position = Vector2(232, 488)
+FirstLaunchDelay = 64
+AlwaysActive = true
+RespawnsWhenKilled = true
+PresentWhen = SubResource("r4")
+
+[node name="KraidSecondNail" parent="." instance=ExtResource("10")]
+position = Vector2(232, 488)
+FirstLaunchDelay = 128
+DataFile = "bosses/kraid_second_nail.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+PresentWhen = SubResource("r4")
+
+[node name="GreyCap" parent="." instance=ExtResource("11")]
 position = Vector2(16, 352)
 DataFile = "objects/door_cap_grey_right.json"
 HeldShutBy = SubResource("r1")
 RememberedAs = "kraid_grey_door_facing_right"
 Remembered = 1
 
-[node name="GreyCap2" parent="." instance=ExtResource("8")]
+[node name="GreyCap2" parent="." instance=ExtResource("11")]
 position = Vector2(480, 352)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r1")
@@ -88,13 +166,13 @@ RememberedAs = "kraid_grey_door_facing_left"
 Remembered = 1
 
 [node name="Screen0x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("8")
 position = Vector2(0, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen1x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("8")
 position = Vector2(256, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false

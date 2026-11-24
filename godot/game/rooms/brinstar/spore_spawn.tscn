@@ -62,8 +62,6 @@ ArrivalOffset = Vector2i(-24, 40)
 
 [node name="SporeSpawn" parent="." instance=ExtResource("6")]
 position = Vector2(128, 624)
-CeilingCrumblePatches = Array[String](["ceiling_crumbles_1", "ceiling_crumbles_2", "ceiling_crumbles_3"])
-CeilingPatch = "ceiling_open"
 AlwaysActive = true
 ArenaView = NodePath("../AboveSporeSpawn")
 PresentWhen = SubResource("r4")

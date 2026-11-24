@@ -41,6 +41,8 @@ class Placed:
     children: list[tuple[str, str, dict[str, str]]] = field(default_factory=list)
     # For a boss: the name its defeat is recorded under.
     boss: str = ''
+    # For something that is there only until a boss is beaten: the name that boss's defeat is recorded under.
+    until_beaten: str = ''
     # For a Chozo statue that comes to life: which of the two it is.
     chozo: str = ''
 
@@ -133,10 +135,46 @@ RULES['FakeKraid'] = plain(B + 'kraid/fake_kraid.tscn')
 
 # Parts another placement answers for.
 for kind in ('KihunterGreenWings', 'KihunterRedWings', 'KihunterYellowWings', 'KzanBottom', 'EvirProjectile',
-             'CrocomireTongue', 'KraidArm', 'KraidFirstNail', 'KraidSecondNail', 'KraidFoot', 'KraidLintTop',
-             'KraidLintMiddle', 'KraidLintBottom', 'PhantoonEye', 'PhantoonMouth', 'PhantoonTentacles',
+             'CrocomireTongue', 'KraidArm', 'KraidFoot', 'PhantoonEye', 'PhantoonMouth', 'PhantoonTentacles',
              'DraygonArms', 'DraygonEye', 'DraygonTail', 'MotherBrainHead', 'ShipBottomEntrance'):
     RULES[kind] = part
+
+
+def kraid_number(file: str, pattern: str) -> int:
+    """One of the old Kraid's numbers, read from its own definitions."""
+    found = re.search(pattern, legacy.read('Bosses', 'Kraid', file))
+    if found is None:
+        raise ValueError(f'The old Kraid file {file} has nothing like {pattern}.')
+    return int(found.group(1))
+
+
+def kraid_lint(part: str) -> Rule:
+    """One of the spikes of Kraid's belly: its height on Kraid, how far left it comes out, and when it first does."""
+    arena = 'KraidArenaDefinitions.cs'
+    emergence = re.search(rf'\[KraidLintPart\.{part}\] = KraidLintEmergence\.(\w+)', legacy.read('Bosses', 'Kraid', arena)).group(1)
+    properties = {
+        'Height': str(kraid_number(arena, rf'\[KraidLintPart\.{part}\] = (-?\d+),')),
+        'EmergeOffset': str(kraid_number(arena, rf'\[KraidLintEmergence\.{emergence}\] = (-?\d+),')),
+        'InitialDelay': str(kraid_number('KraidLintInitializationDefinitions.cs', rf'\[KraidLintPart\.{part}\] = (\d+),')),
+        # A touch of Kraid's arm sets off the lowest.
+        'FiresWhenArmTouched': truth(part == 'Bottom'),
+    }
+
+    def place(p: legacy.Placement, index: int, listed: list[legacy.Placement]) -> Placed:
+        return Placed(B + 'kraid/kraid_lint.tscn', p.enemy, dict(properties), until_beaten='kraid')
+    return place
+
+
+def kraid_nail(order: int, data: str | None) -> Rule:
+    """One of Kraid's two nails: each waits one launch delay longer than the one before it."""
+    delay = kraid_number('KraidArenaDefinitions.cs', r'NailLaunchDelayUpdates = (\d+);')
+    properties = {'FirstLaunchDelay': str(delay * order)}
+    if data:
+        properties['DataFile'] = quoted(data)
+
+    def place(p: legacy.Placement, index: int, listed: list[legacy.Placement]) -> Placed:
+        return Placed(B + 'kraid/kraid_nail.tscn', p.enemy, dict(properties), until_beaten='kraid')
+    return place
 
 
 def crawl_start(surface: str, block_side: str) -> dict[str, str]:
@@ -643,9 +681,7 @@ BOSSES = {
         'FightMusic': '"kraid_and_phantoon_battle"', 'VictoryMusic': '"elevator"'}),
     'DraygonBody': ('draygon/draygon.tscn', 'draygon', {'VictoryMusic': '"elevator"'}),
     'Ridley': ('ridley/ridley.tscn', 'ridley', {'FightMusic': '"ridley_and_draygon_battle"'}),
-    'SporeSpawn': ('spore_spawn/spore_spawn.tscn', 'spore_spawn', {
-        'CeilingCrumblePatches': 'Array[String](["ceiling_crumbles_1", "ceiling_crumbles_2", "ceiling_crumbles_3"])',
-        'CeilingPatch': '"ceiling_open"'}),
+    'SporeSpawn': ('spore_spawn/spore_spawn.tscn', 'spore_spawn', {}),
     'Botwoon': ('botwoon/botwoon.tscn', 'botwoon', {'WallPatch': '"wall_down"', 'VictoryMusic': '"elevator"'}),
     'BombTorizo': ('torizo/torizo.tscn', 'bomb_torizo', {
         'AwakeningMusic': '"torizo_awakening"', 'FightMusic': '"ridley_and_draygon_battle"', 'VictoryMusic': '"elevator"'}),
@@ -658,7 +694,13 @@ BOSSES = {
 # The terrain patches a boss's room keeps once the boss is beaten: what its death did to the room.
 BEATEN_PATCHES = {
     'crocomire': ['bridge_collapsed', 'spike_wall_open'], 'spore_spawn': ['ceiling_open'], 'botwoon': ['wall_down'],
+    'kraid': ['ceiling_clear', 'spikes_clear'],
 }
+
+for part_name in ('Top', 'Middle', 'Bottom'):
+    RULES['KraidLint' + part_name] = kraid_lint(part_name)
+RULES['KraidFirstNail'] = kraid_nail(1, None)
+RULES['KraidSecondNail'] = kraid_nail(2, 'bosses/kraid_second_nail.json')
 
 
 def boss(kind: str) -> Rule:

@@ -395,6 +395,27 @@ class Generator:
                 at=(0, 0), enemy=False, only_when=ctx.none_of([defeated]))
             links[id(boss)]['ArenaView'] = above
             extras.append(above)
+        if boss.boss == 'kraid':
+            # The old Kraid shuts some of its room's screens as it is set up, and opens them as it grows. Each is a
+            # zone, and the rows under one that opens wholly are a zone too; Kraid tells them all as it grows.
+            cameras = legacy.read('Bosses', 'Kraid', 'KraidCameraDefinitions.cs')
+
+            def screens(name: str) -> dict[tuple[int, int], str]:
+                listed = re.search(name + r' =\s*\[(.*?)\];', cameras, re.S).group(1)
+                return {(int(x), int(y)): state for x, y, state in re.findall(r'new\(new\((\d+), (\d+)\), RoomScrollState\.(\w+)\)', listed)}
+            before, after = screens('InitialScrolls'), screens('GrownScrolls')
+            told = []
+            for (x, y), state in before.items():
+                if state != 'Closed' or after[(x, y)] == 'Closed':
+                    continue
+                told.append(enemies.Placed(camera.ZONE, f'KraidScreen{x}x{y}', {'StartsOpen': 'false'},
+                                           at=(x * SCREEN, y * SCREEN), enemy=False, only_when=ctx.none_of([defeated])))
+                if after[(x, y)] == 'Open':
+                    told.append(enemies.Placed(camera.ZONE, f'KraidScreen{x}x{y}Foot', {
+                        'Size': f'Vector2i({SCREEN}, {SCREEN - camera.VIEW_HEIGHT})', 'StartsOpen': 'false'},
+                        at=(x * SCREEN, y * SCREEN + camera.VIEW_HEIGHT), enemy=False, only_when=ctx.none_of([defeated])))
+            links[id(boss)]['ToldWhenGrown'] = told
+            extras.extend(told)
         return extras
 
     def place_things(self, key: str, scene: Scene, room: legacy.Room) -> None:
@@ -418,6 +439,8 @@ class Generator:
             for placed in by_index.values():
                 things.append(placed)
                 links[id(placed)] = {name: by_index[target] for name, target in placed.refers.items()}
+                if placed.until_beaten:
+                    placed.only_when = ctx.none_of([ctx.fact(placed.until_beaten + '_defeated')])
                 if placed.boss:
                     things.extend(self.boss_extras(ctx, room, placed, links))
                 if placed.chozo == 'WreckedShip':

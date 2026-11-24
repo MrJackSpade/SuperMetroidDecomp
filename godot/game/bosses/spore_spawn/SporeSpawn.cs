@@ -21,8 +21,9 @@ namespace Game.Enemies;
 /// Their cues are "movement:&lt;idle|descending|moving|setup_death|dying&gt;"; "sway:&lt;radius&gt;:&lt;steps&gt;",
 /// which sets how wide it swings and how many angle steps a swing turns each update, backwards when below nothing;
 /// "spores:&lt;on|off&gt;"; "pose:&lt;name&gt;", which puts its parts where its data's "poses" have them under that
-/// name; "shade:&lt;name&gt;", which shows it in the set of its pictures of that name; "widen", "reopen", "harden",
-/// "drops", "hardening_dust" and "dying_explosion".
+/// name (<see cref="ColliderPoses"/>); "shade:&lt;name&gt;", which shows it in the set of its pictures of that name;
+/// "widen", "reopen", "harden", "drops", "hardening_dust" and "dying_explosion". "ceiling_crumble" is the change to
+/// the terrain that brings the ceiling above it down as it dies (<see cref="PatchSequence"/>).
 /// <code>
 /// "poses": { "spore_spawn_ajar": { "core_takes_shots": true,
 ///            "colliders": { "UpperShell": { "left": -45, "top": -38, "width": 89, "height": 29 }, "Core": { ... } } } },
@@ -43,14 +44,6 @@ public partial class SporeSpawn : Enemy
     /// <summary>Whether this is the husk left after the fight: solid, still and harmless.</summary>
     [Export]
     public bool Husk { get; set; }
-
-    /// <summary>The terrain patch that opens the ceiling above it when it dies.</summary>
-    [Export]
-    public string CeilingPatch { get; set; } = "";
-
-    /// <summary>The terrain patches the ceiling crumbles through before it opens, in order.</summary>
-    [Export]
-    public Godot.Collections.Array<string> CeilingCrumblePatches { get; set; } = [];
 
     /// <summary>The camera zone above its chamber, kept shut until it dies; empty for none.</summary>
     [Export]
@@ -120,18 +113,6 @@ public partial class SporeSpawn : Enemy
     [Export, DataValue("explosion_sound")]
     public string ExplosionSound { get; set; } = "";
 
-    /// <summary>How many updates after it dies the ceiling begins to crumble.</summary>
-    [Export, DataValue("ceiling_crumble_delay")]
-    public int CeilingCrumbleDelay { get; set; } = 1;
-
-    /// <summary>How many updates each step of the ceiling's crumbling shows.</summary>
-    [Export, DataValue("ceiling_crumble_updates")]
-    public int CeilingCrumbleUpdates { get; set; } = 4;
-
-    /// <summary>The sound of the ceiling beginning to crumble, by name.</summary>
-    [Export, DataValue("ceiling_crumble_sound")]
-    public string CeilingCrumbleSound { get; set; } = "";
-
     private const int Emitters = 4;
 
     /// <summary>Its hurtboxes, in the order a shot meets them.</summary>
@@ -146,13 +127,13 @@ public partial class SporeSpawn : Enemy
         Dying,
     }
 
-    /// <summary>Where its parts are in one of its poses, and whether its core takes shots in it.</summary>
-    private sealed record Pose(bool CoreTakesShots, IReadOnlyDictionary<string, PixelRect> Colliders);
-
     private readonly int[] _emitterWait = new int[Emitters];
     private readonly TimelinePlayer?[] _emitterPlayers = new TimelinePlayer?[Emitters];
     private readonly List<(PixelOffset Place, bool DriftsLeft)> _emitters = [];
-    private readonly Dictionary<string, Pose> _poses = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, bool> _coreTakesShotsIn = new(StringComparer.Ordinal);
+    private ColliderPoses? _poses;
+    private PatchSequence? _ceilingCrumble;
+    private PatchSequence? _ceiling;
     private readonly List<(int Health, string Shade)> _healthShades = [];
     private Moving _moving;
     private PixelPosition _centre;
@@ -165,10 +146,6 @@ public partial class SporeSpawn : Enemy
     private bool _coreTakesShots;
     private string _shade = "";
     private TimelinePlayer? _stalk;
-
-    /// <summary>The step of the ceiling's crumbling that comes next; below nothing when it is not crumbling.</summary>
-    private int _crumbleStep = -1;
-    private int _crumbleWait;
 
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => !Husk && !_dying && base.IsHitBy(side);
@@ -188,19 +165,11 @@ public partial class SporeSpawn : Enemy
         if (_emitters.Count != Emitters)
             throw data.Problem($"must list {Emitters} emitters");
 
-        _poses.Clear();
+        _poses = ColliderPoses.Read(data.Get("poses"), this);
+        _coreTakesShotsIn.Clear();
         foreach ((string name, DataNode pose) in data.Get("poses").Entries())
-        {
-            var colliders = new Dictionary<string, PixelRect>(StringComparer.Ordinal);
-            foreach ((string part, DataNode rect) in pose.Get("colliders").Entries())
-            {
-                if (!Parts.Contains(part))
-                    throw rect.Problem($"names a part Spore Spawn does not have; it has: {string.Join(", ", Parts)}");
-                colliders[part] = new PixelRect(rect.Int("left"), rect.Int("top"), rect.Int("width"), rect.Int("height"));
-            }
-
-            _poses[name] = new Pose(pose.Flag("core_takes_shots"), colliders);
-        }
+            _coreTakesShotsIn[name] = pose.Flag("core_takes_shots");
+        _ceilingCrumble = PatchSequence.Read(data.Get("ceiling_crumble"));
 
         _healthShades.Clear();
         _healthShades.AddRange(data.List("health_shades").Select(shade => (shade.Int("health"), shade.Text("shade"))));
@@ -290,8 +259,7 @@ public partial class SporeSpawn : Enemy
         Room.MarkGone(Name);
         if (!ArenaView.IsEmpty)
             GetNode<CameraZone>(ArenaView).Triggered("open");
-        _crumbleStep = 0;
-        _crumbleWait = CeilingCrumbleDelay;
+        _ceiling = _ceilingCrumble?.FromStart();
         return false;
     }
 
@@ -368,16 +336,8 @@ public partial class SporeSpawn : Enemy
     /// <summary>Puts its parts where a pose has them, and switches off those the pose does not name.</summary>
     private void TakePose(string name)
     {
-        if (!_poses.TryGetValue(name, out Pose? pose))
-            throw new InvalidOperationException($"Spore Spawn's data gives it no pose named \"{name}\".");
-        _coreTakesShots = pose.CoreTakesShots;
-        foreach (string part in Parts)
-        {
-            Collider collider = GetNode<Collider>(part);
-            collider.Enabled = pose.Colliders.TryGetValue(part, out PixelRect rect);
-            if (collider.Enabled)
-                collider.Rect = rect;
-        }
+        (_poses ?? throw new InvalidOperationException("Spore Spawn's data has not been read.")).Take(name);
+        _coreTakesShots = _coreTakesShotsIn[name];
     }
 
     /// <inheritdoc/>
@@ -420,30 +380,10 @@ public partial class SporeSpawn : Enemy
                 break;
         }
 
-        CrumbleCeiling();
+        _ceiling?.Step(Room);
         if (!Husk && !_dying)
             ReleaseSpores();
         ShowParts();
-    }
-
-    /// <summary>Moves the ceiling's crumbling on: each of its steps in turn, and then the ceiling open.</summary>
-    private void CrumbleCeiling()
-    {
-        if (_crumbleStep < 0 || --_crumbleWait > 0)
-            return;
-        if (_crumbleStep < CeilingCrumblePatches.Count)
-        {
-            if (_crumbleStep == 0)
-                Sound(CeilingCrumbleSound);
-            Room.Terrain.ApplyPatch(CeilingCrumblePatches[_crumbleStep]);
-            _crumbleStep++;
-            _crumbleWait = CeilingCrumbleUpdates;
-            return;
-        }
-
-        if (CeilingPatch.Length > 0)
-            Room.Terrain.ApplyPatch(CeilingPatch);
-        _crumbleStep = -1;
     }
 
     /// <summary>Leaves an effect at a random place about itself: a fresh number gives how far across and down, within the given bit widths, less the centring.</summary>

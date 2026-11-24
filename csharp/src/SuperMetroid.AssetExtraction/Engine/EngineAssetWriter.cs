@@ -50,6 +50,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteAnimals();
         writer.WriteGlassTube();
         writer.WriteSporeSpawn();
+        writer.WriteKraid();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

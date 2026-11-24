@@ -21,10 +21,12 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/draygon_goop.json` | `DraygonGoop` | chamber_size, most_stuck, reach_across, reach_down, stack_spacing, stack_top, stuck_timeline, stuck_updates |
 | `bosses/golden_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
 | `bosses/golden_torizo_orb.json` | `TorizoOrb` | bounce_drag, bounces, gravity |
-| `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, contact_damage, death_drops, death_spikes_patch, dud_effect, eye_glow_updates, health, lunge_delay_updates, rise_wait_updates, rock_sound, thinking_step_updates |
+| `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, big_dud_effect, contact_damage, death_drops, death_shade, dud_effect, dud_sound, health, hurt_shade, lunge_delay_updates, rise_wait_updates, rock_sound, spit_cadence_updates, thinking_step_updates |
+| `bosses/kraid_ceiling_rock.json` | `KraidRock` | drift, drift_limit, gravity |
 | `bosses/kraid_lint.json` | `KraidLint` | charge_updates, contact_damage, emerge_pixels, fire_sound, fire_speed, harmless_x, health, point_x, reload_updates, return_x |
-| `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay |
+| `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left |
 | `bosses/kraid_rock.json` | `KraidRock` | drift, drift_limit, gravity |
+| `bosses/kraid_second_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left |
 | `bosses/mother_brain.json` | `MotherBrain` | ascent_dust_sound, attack_cry_sound, big_breath_effect, big_explosion_effect, charge_sound, charge_stop_sound, contact_damage, corpse_dust_effect, corpse_dust_sound, door_fragment_effect, drained_grey_step_updates, dust_effect, explosion_effect, explosion_sound, fake_death_grey_step_updates, finish_off_energy, first_phase_health, footstep_sound, from_grey_step_updates, full_strength_health, grey_steps, hand_beam_sound, health, hurt_sound, laser_sound, rainbow_beam_sound, rainbow_beam_stop_sound, samus_stands_energy, second_phase_health, small_breath_effect, smoke_effect, third_phase_health |
 | `bosses/mother_brain_baby.json` | `MotherBrainBaby` | contact_damage, cry_sound, death_sound, dust_effect, explosion_effect, explosion_sound, heal_sound, health, remorse_cry_sound, shielding_health |
 | `bosses/mother_brain_bomb.json` | `MotherBrainBomb` | dust_effect, explosion_effect, explosion_sound, flare, floor, right_wall |
@@ -40,7 +42,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/ridley_fireball.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ridley_flame.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ridley_flare.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
-| `bosses/spore_spawn.json` | `SporeSpawn` | ceiling_above, ceiling_crumble_delay, ceiling_crumble_sound, ceiling_crumble_updates, ceiling_dust_effect, contact_damage, death_drops, descent_speed, dust_effect, explosion_effect, explosion_sound, fast_sway_step, fast_swing_below, hardening_sound, health, stalk_anchor_above, stalk_body_gap, start_rise, sway_widening, vertical_sway_narrowing, widened_sway_limit |
+| `bosses/spore_spawn.json` | `SporeSpawn` | ceiling_above, ceiling_dust_effect, contact_damage, death_drops, descent_speed, dust_effect, explosion_effect, explosion_sound, fast_sway_step, fast_swing_below, hardening_sound, health, stalk_anchor_above, stalk_body_gap, start_rise, sway_widening, vertical_sway_narrowing, widened_sway_limit |
 | `bosses/spore_spawn_spore.json` | `SporeSpawnSpore` | burst_timeline, fall_distance |
 | `bosses/torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
 | `bosses/torizo_egg.json` | `TorizoEgg` | bounce_drag, hatch_updates, quickening |
@@ -243,7 +245,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `rooms/brinstar/hellway_in_red_brinstar_kraid.json` |  |
 | `rooms/brinstar/hopper_energy_tank_in_green_blue_brinstar.json` |  |
 | `rooms/brinstar/kraid_eye_door_in_red_brinstar_kraid.json` |  |
-| `rooms/brinstar/kraid_in_kraid.json` |  |
+| `rooms/brinstar/kraid_in_kraid.json` | ceiling_clear, spikes_clear |
 | `rooms/brinstar/kraid_refill_in_yellow_refill.json` |  |
 | `rooms/brinstar/map_station_room_door_on_right_in_map_statues.json` |  |
 | `rooms/brinstar/mini_kraid_in_red_brinstar_kraid.json` |  |
@@ -258,7 +260,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `rooms/brinstar/skree_boost_in_red_brinstar_kraid.json` |  |
 | `rooms/brinstar/spazer_in_red_brinstar_kraid.json` |  |
 | `rooms/brinstar/spore_spawn_farming_in_green_blue_brinstar.json` |  |
-| `rooms/brinstar/spore_spawn_in_green_blue_brinstar.json` | ceiling_crumbles_1, ceiling_crumbles_2, ceiling_crumbles_3, ceiling_open |
+| `rooms/brinstar/spore_spawn_in_green_blue_brinstar.json` | ceiling_open |
 | `rooms/brinstar/spore_spawn_kihunters_in_green_blue_brinstar.json` |  |
 | `rooms/brinstar/spore_spawn_super_in_green_blue_brinstar.json` |  |
 | `rooms/brinstar/varia_suit_in_red_brinstar_kraid.json` |  |

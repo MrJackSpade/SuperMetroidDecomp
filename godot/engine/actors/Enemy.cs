@@ -181,10 +181,12 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         Body = EntityNode.ColliderOf(this, ColliderRole.Body);
         Solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
         _solidWhenNotFrozen = Solid is { Enabled: true };
+        // Its own visual is the one named "Visual", wherever among its visuals that stands; failing that, the first.
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
         {
             visual.Bind(room.Content);
-            Visual ??= visual;
+            if (Visual is null || (visual.Name == "Visual" && Visual.Name != "Visual"))
+                Visual = visual;
         }
 
         OnEnterRoom();

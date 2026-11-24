@@ -28,33 +28,16 @@ public sealed partial class EngineAssetWriter
         const string sporeScene = "res://game/bosses/spore_spawn/spore_spawn_spore.tscn", sporeFile = "bosses/spore_spawn_spore.json";
         EngineEnemy boss = Enemy("bosses/spore_spawn.json", "SporeSpawn", EnemyDefinitionId.SporeSpawn);
 
-        // The ceiling crumbles through each frame of the old change and is left as its last, which every state of
-        // the room that holds Spore Spawn must have.
-        TerrainChange crumble = SporeSpawnCeilingMutationDefinitions.Changes[SporeSpawnCeilingMutation.Crumble];
-        if (crumble.Frames.Any(frame => frame.Updates != SporeSpawnCeilingMutationDefinitions.FrameDuration))
-            throw new InvalidDataException("A step of the crumbling of Spore Spawn's ceiling shows for a time of its own, which its data's one time cannot say.");
-        if (crumble.Frames.Skip(1).Any(frame => frame.SoundBefore is not null) || crumble.Frames[0].SoundBefore is not { } crumbleSound)
-            throw new InvalidDataException("The crumbling of Spore Spawn's ceiling does not sound once, as it begins.");
-        bool placed = false;
-        foreach ((RoomDefinition room, RoomStateSettings state) in EngineLayouts.States())
-        {
-            if (!state.EnemyPopulation.Placements.ToArray().Any(placement => placement.DefinitionId == EnemyDefinitionId.SporeSpawn))
-                continue;
-            placed = true;
-            for (int step = 0; step < crumble.Frames.Count; step++)
-            {
-                SporeSpawnCeilingDraw draw = crumble.Frames[step].Draw is RoomObjectFrameDraw<SporeSpawnCeilingDraw> framed
-                    ? framed.Frame
-                    : throw new InvalidDataException("Spore Spawn's ceiling shows something that is not one of its own frames.");
-                string name = step == crumble.Frames.Count - 1 ? SporeSpawnCeilingOpenPatch : $"ceiling_crumbles_{step + 1}";
-                Layouts.Patch(room, state, name, SporeSpawnCeilingMutationDefinitions.Block, Layouts.PatchCells(
-                    GameInstallationLayout.RoomObjectSporeSpawnCeilingVisualDirectoryName,
-                    (SporeSpawnCeilingDrawKeys.Installed.Of(draw), SporeSpawnCeilingDraws.Family.Shape(draw))));
-            }
-        }
-
-        if (!placed)
-            throw new InvalidDataException("No room holds Spore Spawn.");
+        // The ceiling crumbles through each frame of the old change and is left as its last, the patch a room where
+        // it has been beaten begins with.
+        JsonObject ceiling = TerrainChangeAt(
+            StatesHolding(EnemyDefinitionId.SporeSpawn), "ceiling_crumbles", SporeSpawnCeilingMutationDefinitions.Block,
+            SporeSpawnCeilingMutationDefinitions.Changes[SporeSpawnCeilingMutation.Crumble],
+            GameInstallationLayout.RoomObjectSporeSpawnCeilingVisualDirectoryName,
+            static draw => draw is RoomObjectFrameDraw<SporeSpawnCeilingDraw> framed
+                ? (SporeSpawnCeilingDrawKeys.Installed.Of(framed.Frame), SporeSpawnCeilingDraws.Family.Shape(framed.Frame))
+                : throw new InvalidDataException("Spore Spawn's ceiling shows something that is not one of its own frames."),
+            leaves: SporeSpawnCeilingOpenPatch);
 
         // The spores: where each emitter is from where Spore Spawn hangs, and how far below it a spore is gone.
         int[] emitterHeights = [.. SporeSpawnProjectileDefinitions.Emitters.Select(emitter => emitter.Place.Y).Distinct()];
@@ -112,9 +95,7 @@ public sealed partial class EngineAssetWriter
             .Value("explosion_effect", EffectFile(RoomEffectActorKind.SmallExplosion))
             .Value("hardening_sound", EngineNames.Sound(SporeSpawnSoundDefinitions.HardeningDust))
             .Value("explosion_sound", EngineNames.Sound(SporeSpawnSoundDefinitions.DyingExplosion))
-            .Value("ceiling_crumble_delay", crumble.FirstFrameDelay)
-            .Value("ceiling_crumble_updates", SporeSpawnCeilingMutationDefinitions.FrameDuration)
-            .Value("ceiling_crumble_sound", EngineNames.Sound(crumbleSound))
+            .Group("ceiling_crumble", ceiling)
             .Group("emitters", EngineNames.List(SporeSpawnProjectileDefinitions.Emitters.Select(emitter => (JsonNode)new JsonObject
             {
                 ["x"] = emitter.Place.X - SporeSpawnArenaDefinitions.CentreX,

@@ -221,6 +221,8 @@ public sealed partial class EngineAssetWriter
             ["pictures"] = new JsonArray(
                 Sprite("Title.SuperMetroidLogo", TitleSequenceDefinitions.Sprites.LogoOrigin, TitleSequenceDefinitions.Sprites.LogoColouring, "logo"),
                 Sprite("Title.NintendoCopyright", TitleSequenceDefinitions.Sprites.CopyrightOrigin, TitleSequenceDefinitions.Sprites.CopyrightColouring, "copyright")),
+            ["opening"] = TitleOpening(folder),
+            ["baby"] = TitleBaby(folder),
             ["demo_after_updates"] = TitleSequenceDefinitions.Timing.TitleScreenIdleTimeoutFrames,
             ["demo_sets"] = sets,
         });

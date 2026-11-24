@@ -92,13 +92,13 @@ public partial class AttractDemoMode : PlayingMode
     {
         string? next = Session.Service<DemoSchedule>().AfterDemo();
         Session.BeginAgain();
-        return next is null ? new TitleMode() : Of(Session.Content, next);
+        return next is null ? new TitleMode(atRestAtOnce: true) : Of(Session.Content, next);
     }
 
     private GameMode BackToTitle()
     {
         Session.BeginAgain();
-        return new TitleMode();
+        return new TitleMode(atRestAtOnce: true);
     }
 
     /// <summary>Gives Samus what the demo says she has.</summary>

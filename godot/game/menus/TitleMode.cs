@@ -1,28 +1,99 @@
 using Engine.Content;
 using Engine.Core;
 using Engine.Input;
+using Engine.Shared;
+using Engine.Ui;
 using Engine.World;
 using Godot;
 
 namespace Game.Menus;
 
 /// <summary>
-/// The title screen. It shows the title over its backdrop, with its music, until confirm is pressed, and then goes
-/// to the choice of saved game. Left alone for a while it shows its demos, a set of them at a time, and comes back.
+/// The title. It opens with cards of words typed a letter at a time, each followed by a move across its backdrop
+/// seen from close to, the last by the backdrop drawing back to its own size; then the title fades in over it and the
+/// copyright under that, and it rests. A press during the opening cuts it short. At rest, confirm goes to the choice
+/// of saved game; left alone for a while it shows its demos, a set of them at a time, and comes back, straight to its
+/// rest. The larva in its tube on the backdrop pulses throughout.
 /// </summary>
 /// <remarks>
-/// Its data names its "music"; its "backdrop" colour; its "floor", the picture behind the title, with how much of it
-/// there is to each pixel of the screen ("floor_per_pixel"), the point of it that stays put ("floor_centre") and how
-/// far it is moved ("floor_scroll"); its "pictures", each with where its corner goes; how many updates it is left
-/// alone before it shows a demo ("demo_after_updates"); and its "demo_sets", each a list of the files of its demos.
+/// Its data names its "music" at rest; its "backdrop" colour; its "floor", the picture behind the title, with how
+/// much of it there is to each pixel of the screen at rest ("floor_per_pixel"), the point of it that stays put
+/// ("floor_centre") and how far it is moved at rest ("floor_scroll"); the "baby" on the floor (where, and its
+/// "timeline"); its "pictures" at rest, each with where its corner goes; how many updates it is left alone before it
+/// shows a demo ("demo_after_updates"); its "demo_sets", each a list of the files of its demos; and its "opening":
+/// its "music"; how long each letter of a card but the last shows before the next is typed ("letter_updates") and
+/// how far the letters typed move as each further one is ("letter_scroll"); its "steps" in turn, each a "card" (the
+/// updates before its first letter, "opening_updates"; how long its last shows, "hold_updates"; and its "letters",
+/// each a picture and where its corner goes as it is typed, a space having no picture), a "pan" (how much of the
+/// floor there is to a pixel, "floor_per_pixel"; where it starts, "x" and "y"; how far it moves each update,
+/// "move_x" and "move_y"; and when it "ends": "x_below" or "y_at_least" the number "at") or a "zoom" (the same
+/// start, and how much more of the floor there is to a pixel, "grows_by", on every so many updates, "every", until
+/// the floor is its own size); the "logo" and the "copyright" as they fade in (each a place and a "timeline") and
+/// how long each is given ("logo_hold", "copyright_hold"); and how long the fades take when the opening is cut
+/// short ("skip_fade_updates") and when the title is left ("leave_fade_updates").
 /// </remarks>
 public partial class TitleMode : GameMode
 {
+    private readonly bool _atRestAtOnce;
+
+    /// <summary>The title, from its opening.</summary>
+    public TitleMode()
+    {
+    }
+
+    /// <summary>The title, from its opening or, when <paramref name="atRestAtOnce"/>, straight at its rest, as it comes back from a demo.</summary>
+    public TitleMode(bool atRestAtOnce) => _atRestAtOnce = atRestAtOnce;
+
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "menus/title.json";
 
+    /// <summary>What the title is doing.</summary>
+    private enum Doing
+    {
+        /// <summary>Typing a card.</summary>
+        Card,
+
+        /// <summary>Moving across the floor.</summary>
+        Pan,
+
+        /// <summary>Drawing back from the floor.</summary>
+        Zoom,
+
+        /// <summary>The title is fading in.</summary>
+        Logo,
+
+        /// <summary>The copyright is fading in.</summary>
+        Copyright,
+
+        /// <summary>The opening has been cut short, and the screen is going dark.</summary>
+        Skipping,
+
+        /// <summary>At rest.</summary>
+        Resting,
+
+        /// <summary>Going dark on the way to the choice of saved game.</summary>
+        ToSavedGames,
+
+        /// <summary>Going dark on the way to a demo.</summary>
+        ToDemo,
+    }
+
     private DataNode? _data;
+    private TurningFloor? _floor;
+    private CinematicSprite? _baby;
+    private Node2D? _card;
+    private CinematicSprite? _logo;
+    private CinematicSprite? _copyright;
+    private Node2D? _resting;
+    private ScreenFade? _fade;
+    private Doing _doing;
+    private int _step;
+    private int _age;
+    private int _typed;
+    private int _hold;
+    private double _perPixel;
+    private Vector2 _pan;
     private int _idle;
 
     /// <inheritdoc/>
@@ -34,35 +105,281 @@ public partial class TitleMode : GameMode
         var backdrop = new ColorRect { Name = "Backdrop", Color = new Color(_data.Text("backdrop")) };
         backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         layer.AddChild(backdrop);
-        var floor = new TurningFloor { Name = "Floor", Repeats = false, Picture = _data.Text("floor") };
-        layer.AddChild(floor);
-        floor.Setup(Session.Content, new Vector2I(256, 224));
-        floor.Turn(0, _data.Get("floor_per_pixel").AsPixels().ToDisplay(), Place(_data.Get("floor_centre")), Place(_data.Get("floor_scroll")));
+        _floor = new TurningFloor { Name = "Floor", Repeats = false, Picture = _data.Text("floor") };
+        layer.AddChild(_floor);
+        _floor.Setup(Session.Content, new Vector2I(256, 224));
+        DataNode baby = _data.Get("baby");
+        _baby = CinematicSprite.Of(Session.Content, FrameTimeline.Read(baby.Get("timeline")), PixelPosition.FromWhole(baby.Int("x"), baby.Int("y")));
+        _baby.Name = "Baby";
+        _floor.AddChild(_baby);
+        _card = new Node2D { Name = "Card" };
+        layer.AddChild(_card);
+        DataNode opening = _data.Get("opening");
+        _logo = Fading("Logo", opening.Get("logo"));
+        layer.AddChild(_logo);
+        _copyright = Fading("Copyright", opening.Get("copyright"));
+        layer.AddChild(_copyright);
+        _resting = new Node2D { Name = "Resting", Visible = false };
+        layer.AddChild(_resting);
         foreach (DataNode picture in _data.List("pictures"))
         {
-            layer.AddChild(new Sprite2D
+            _resting.AddChild(new Sprite2D
             {
                 Texture = Session.Content.LoadTexture(picture.Text("picture")), Centered = false, Position = Place(picture),
                 TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
             });
         }
 
-        Session.Sounds.RequestMusic(_data.Text("music"));
+        _fade = new ScreenFade { Name = "Fade", Layer = 20 };
+        AddChild(_fade);
+        if (_atRestAtOnce)
+        {
+            Rest();
+            _fade.FadeIn(opening.Int("skip_fade_updates"));
+            return;
+        }
 
-        static Vector2 Place(DataNode at) => new(at.Int("x"), at.Int("y"));
+        Session.Sounds.RequestMusic(opening.Text("music"));
+        Begin(0);
     }
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        DataNode data = _data ?? throw new InvalidOperationException("The title has not been shown.");
-        if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause))
-            return new FileSelectMode();
-        IReadOnlyList<DataNode> sets = data.List("demo_sets");
-        if (sets.Count == 0 || ++_idle < data.Int("demo_after_updates"))
-            return this;
-        string demo = Session.Service<DemoSchedule>().FromTitle([.. sets.Select(set => (IReadOnlyList<string>)[.. set.Items().Select(file => file.AsText())])]);
-        Session.BeginAgain();
-        return AttractDemoMode.Of(Session.Content, demo);
+        DataNode data = Data();
+        DataNode opening = data.Get("opening");
+        ScreenFade fade = _fade ?? throw NotShown();
+        (_baby ?? throw NotShown()).Step();
+        bool pressed = input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause) || input.WasPressed(GameAction.Cancel);
+        switch (_doing)
+        {
+            case Doing.Card:
+                StepCard(opening);
+                break;
+            case Doing.Pan:
+                StepPan();
+                break;
+            case Doing.Zoom:
+                StepZoom(opening);
+                break;
+            case Doing.Logo:
+                (_logo ?? throw NotShown()).Step();
+                if (--_hold <= 0)
+                {
+                    _doing = Doing.Copyright;
+                    _hold = opening.Int("copyright_hold");
+                    (_copyright ?? throw NotShown()).Visible = true;
+                }
+
+                return this;
+            case Doing.Copyright:
+                (_logo ?? throw NotShown()).Step();
+                (_copyright ?? throw NotShown()).Step();
+                if (--_hold <= 0)
+                    Rest();
+                return this;
+            case Doing.Skipping:
+                fade.Step();
+                if (!fade.IsDone)
+                    return this;
+                Rest();
+                fade.FadeIn(opening.Int("skip_fade_updates"));
+                return this;
+            case Doing.Resting:
+                if (!fade.IsDone)
+                {
+                    fade.Step();
+                    return this;
+                }
+
+                // Being left alone long enough wins over a press on the same update.
+                IReadOnlyList<DataNode> sets = data.List("demo_sets");
+                if (sets.Count > 0 && ++_idle >= data.Int("demo_after_updates"))
+                    (_doing, pressed) = (Doing.ToDemo, false);
+                else if (pressed)
+                    _doing = Doing.ToSavedGames;
+                else
+                    return this;
+                fade.FadeOut(opening.Int("leave_fade_updates"));
+                return this;
+            case Doing.ToSavedGames:
+                fade.Step();
+                return fade.IsDone ? new FileSelectMode() : this;
+            case Doing.ToDemo:
+                fade.Step();
+                if (!fade.IsDone)
+                    return this;
+                string demo = Session.Service<DemoSchedule>().FromTitle(
+                    [.. data.List("demo_sets").Select(set => (IReadOnlyList<string>)[.. set.Items().Select(file => file.AsText())])]);
+                Session.BeginAgain();
+                return AttractDemoMode.Of(Session.Content, demo);
+            default:
+                throw new InvalidOperationException($"The title has nothing to do called {_doing}.");
+        }
+
+        // A press while the cards, the moves or the drawing back are going on cuts the opening short.
+        if (pressed && _doing is Doing.Card or Doing.Pan or Doing.Zoom)
+        {
+            _doing = Doing.Skipping;
+            fade.FadeOut(opening.Int("skip_fade_updates"));
+        }
+
+        return this;
     }
+
+    /// <summary>Begins a step of the opening; past the last of them the title fades in.</summary>
+    private void Begin(int step)
+    {
+        DataNode opening = Data().Get("opening");
+        IReadOnlyList<DataNode> steps = opening.List("steps");
+        _step = step;
+        _age = 0;
+        ClearCard();
+        TurningFloor floor = _floor ?? throw NotShown();
+        if (step >= steps.Count)
+        {
+            _doing = Doing.Logo;
+            _hold = opening.Int("logo_hold");
+            (_logo ?? throw NotShown()).Visible = true;
+            return;
+        }
+
+        DataNode now = steps[step];
+        if (now.Has("card"))
+        {
+            // A card stands alone on the backdrop's colour.
+            _doing = Doing.Card;
+            _typed = 0;
+            floor.Visible = false;
+            return;
+        }
+
+        DataNode scene = now.Has("pan") ? now.Get("pan") : now.Get("zoom");
+        _doing = now.Has("pan") ? Doing.Pan : Doing.Zoom;
+        _perPixel = scene.Get("floor_per_pixel").AsPixels().ToDisplay();
+        _pan = new Vector2(scene.Int("x"), scene.Int("y"));
+        floor.Visible = true;
+        TurnFloor();
+    }
+
+    /// <summary>Plays one update of a card: nothing at first, then its letters one after another, the last staying a while.</summary>
+    private void StepCard(DataNode opening)
+    {
+        DataNode card = opening.List("steps")[_step].Get("card");
+        IReadOnlyList<DataNode> letters = card.List("letters");
+        int each = opening.Int("letter_updates");
+        int since = _age++ - card.Int("opening_updates");
+        if (since < 0)
+            return;
+        if (since >= (letters.Count - 1) * each + card.Int("hold_updates"))
+        {
+            Begin(_step + 1);
+            return;
+        }
+
+        int typed = Math.Min(letters.Count, since / each + 1);
+        if (typed == _typed)
+            return;
+        _typed = typed;
+        ClearCard();
+        Node2D shown = _card ?? throw NotShown();
+        DataNode scroll = opening.Get("letter_scroll");
+
+        // Each letter typed after a letter has moved it along once more.
+        for (int letter = 0; letter < typed; letter++)
+        {
+            string picture = letters[letter].Text("picture");
+            if (picture.Length == 0)
+                continue;
+            int moved = typed - 1 - letter;
+            shown.AddChild(new Sprite2D
+            {
+                Texture = Session.Content.LoadTexture(picture), Centered = false, TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+                Position = new Vector2(letters[letter].Int("x") + scroll.Int("x") * moved, letters[letter].Int("y") + scroll.Int("y") * moved),
+            });
+        }
+    }
+
+    /// <summary>Plays one update of a move across the floor, which ends where its step says.</summary>
+    private void StepPan()
+    {
+        DataNode pan = Data().Get("opening").List("steps")[_step].Get("pan");
+        _pan += new Vector2((float)pan.Get("move_x").AsPixels().ToDisplay(), (float)pan.Get("move_y").AsPixels().ToDisplay());
+        bool ended = pan.Text("ends") switch
+        {
+            "x_below" => Mathf.FloorToInt(_pan.X) < pan.Int("at"),
+            "y_at_least" => Mathf.FloorToInt(_pan.Y) >= pan.Int("at"),
+            _ => throw pan.Get("ends").Problem("must be \"x_below\" or \"y_at_least\""),
+        };
+        if (ended)
+            Begin(_step + 1);
+        else
+            TurnFloor();
+    }
+
+    /// <summary>Plays one update of the floor drawing back: a little on every so many updates, and on the first such update that finds it at its own size the title begins to fade in.</summary>
+    private void StepZoom(DataNode opening)
+    {
+        DataNode zoom = opening.List("steps")[_step].Get("zoom");
+        if (_age++ % zoom.Int("every") != 0)
+            return;
+        if (_perPixel >= 1)
+        {
+            Begin(_step + 1);
+            return;
+        }
+
+        _perPixel = Math.Min(1, _perPixel + zoom.Get("grows_by").AsPixels().ToDisplay());
+        TurnFloor();
+    }
+
+    /// <summary>Lays the floor as the step under way has it: only whole pixels of a move count.</summary>
+    private void TurnFloor()
+    {
+        (_floor ?? throw NotShown()).Turn(
+            0, _perPixel, Place(Data().Get("floor_centre")), new Vector2(Mathf.FloorToInt(_pan.X), Mathf.FloorToInt(_pan.Y)));
+    }
+
+    /// <summary>Puts the title at its rest: the floor at its own size, the title and the copyright over it, and its music.</summary>
+    private void Rest()
+    {
+        DataNode data = Data();
+        _doing = Doing.Resting;
+        _idle = 0;
+        ClearCard();
+        TurningFloor floor = _floor ?? throw NotShown();
+        floor.Visible = true;
+        floor.Turn(0, data.Get("floor_per_pixel").AsPixels().ToDisplay(), Place(data.Get("floor_centre")), Place(data.Get("floor_scroll")));
+        (_logo ?? throw NotShown()).Visible = false;
+        (_copyright ?? throw NotShown()).Visible = false;
+        (_resting ?? throw NotShown()).Visible = true;
+        Session.Sounds.RequestMusic(data.Text("music"));
+    }
+
+    /// <summary>Takes the letters of a card away.</summary>
+    private void ClearCard()
+    {
+        Node2D card = _card ?? throw NotShown();
+        foreach (Node letter in card.GetChildren())
+        {
+            card.RemoveChild(letter);
+            letter.QueueFree();
+        }
+    }
+
+    /// <summary>A picture that fades in where the data puts it, unseen until its turn.</summary>
+    private CinematicSprite Fading(string name, DataNode placed)
+    {
+        CinematicSprite sprite = CinematicSprite.Of(
+            Session.Content, FrameTimeline.Read(placed.Get("timeline")), PixelPosition.FromWhole(placed.Int("x"), placed.Int("y")));
+        sprite.Name = name;
+        sprite.Visible = false;
+        return sprite;
+    }
+
+    private static Vector2 Place(DataNode at) => new(at.Int("x"), at.Int("y"));
+
+    private DataNode Data() => _data ?? throw NotShown();
+
+    private static InvalidOperationException NotShown() => new("The title has not been shown.");
 }

@@ -531,7 +531,9 @@ public partial class Botwoon : Enemy
                 int across = Position.X.Whole - oldest.X, down = Position.Y.Whole - oldest.Y;
                 if (across != 0 || down != 0)
                 {
-                    ZIndex = _insideHole ? -1 : 1;
+                    // Only its head goes behind everything inside the wall and in front of Samus out of it; its body
+                    // stays behind her.
+                    SetHeadDepth(_insideHole ? -1 : 1);
                     Play(_insideHole ? "hidden" : $"moving_{WayOf(across, down)}");
                 }
 
@@ -541,7 +543,7 @@ public partial class Botwoon : Enemy
                 break;
 
             case HeadDoing.Aiming:
-                ZIndex = 1;
+                SetHeadDepth(1);
                 PixelOffset toSamus = Target - Position;
                 _spitAngle = Turns.AngleOf(toSamus.X.Whole, toSamus.Y.Whole);
                 Play($"spitting_{WayOf(toSamus.X.Whole, toSamus.Y.Whole, nearest: true)}");
@@ -566,6 +568,13 @@ public partial class Botwoon : Enemy
                     _head = HeadDoing.FollowingMovement;
                 break;
         }
+    }
+
+    /// <summary>Puts its head in front of or behind the rest of what is drawn; its body keeps its own place.</summary>
+    private void SetHeadDepth(int depth)
+    {
+        if (Visual is { } head)
+            head.ZIndex = depth;
     }
 
     /// <summary>Lets its body fall, each segment after its own wait, the one nearest the head first.</summary>

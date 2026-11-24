@@ -9,10 +9,18 @@ public sealed class FallingState : PlayerState
     /// <summary>The stance the player last held in this fall, and the one this update's input asks for.</summary>
     private int _stance = -1, _stanceAsked;
 
+    private readonly bool _offFloor;
+
+    /// <summary>A fall.</summary>
+    /// <param name="offFloor">Whether the player has walked off a floor, and so falls from rest unless they are rising.</param>
+    public FallingState(bool offFloor = false) => _offFloor = offFloor;
+
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         owner.TrySetForm(owner.FormOr(Player.Falling), aroundMiddle: true);
+        if (_offFloor && !owner.IsRising)
+            owner.FallFromRest();
         owner.SteerAfresh();
     }
 

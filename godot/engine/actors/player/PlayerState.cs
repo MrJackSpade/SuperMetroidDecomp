@@ -44,6 +44,9 @@ public abstract class PlayerState : State<Player>
     /// <summary>The name of the move values the low form steers through the air by.</summary>
     public const string CrawlingInAirMoves = "crawling_in_air";
 
+    /// <summary>The name of the move values the low form steers a jump of its own by.</summary>
+    public const string CrawlingJumpingMoves = "crawling_jumping";
+
     /// <summary>The name of the move values the player is thrown by when knocked back.</summary>
     public const string KnockedBackMoves = "knocked_back";
 

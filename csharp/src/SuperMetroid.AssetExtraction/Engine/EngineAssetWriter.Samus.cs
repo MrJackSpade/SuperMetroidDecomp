@@ -36,6 +36,7 @@ public sealed partial class EngineAssetWriter
         ("standing", M.Standing), ("running", M.Running), ("turning", M.TurningOnGround), ("crouching", M.Crouching), ("jumping", M.NormalJumping),
         ("falling", M.Falling), ("wall_jumping", M.WallJumping), ("crawling", M.MorphBallGround), ("crawling_in_air", M.MorphBallFalling),
         ("knocked_back", M.Knockback), ("spin_jumping", M.SpinJumping), ("moonwalking", M.Moonwalking), ("damage_boost", M.DamageBoost),
+        ("crawling_jumping", M.SpringBallInAir),
     ];
 
     /// <summary>The ways she aims, as her data names them, with the old direction of each facing right and facing left.</summary>
@@ -194,6 +195,14 @@ public sealed partial class EngineAssetWriter
             .Value("wall_jump_across_speed", 0)
             .Value("wall_jump_ready_updates", SamusSegmentUpdates(P.SpinJumpRightPose, Seg.WallJumpReady))
 
+            // Crouching, standing up, curling up and uncurling each last as long as the pose between is shown, and a
+            // jump from a plain crouch starts lifted.
+            .Value("crouch_updates", SamusSegmentUpdates(P.CrouchingTransitionRightPose, Seg.Main))
+            .Value("stand_updates", SamusSegmentUpdates(P.StandingTransitionRightPose, Seg.Main))
+            .Value("crawl_enter_updates", SamusSegmentUpdates(P.MorphingTransitionRightPose, Seg.Main))
+            .Value("crawl_leave_updates", SamusSegmentUpdates(P.UnmorphingTransitionRightPose, Seg.Main))
+            .Value("crouch_jump_lift", SamusPoseCollisionDefinitions.CrouchJumpLift)
+
             // A jump from standing is gathered for as long as its first pose is shown. A jump held for fewer updates
             // than the old limit as she lands or finishes a turn counts as pressed afresh.
             .Value("jump_start_updates", SamusSegmentUpdates(P.NeutralJumpTransitionRightPose, Seg.Main))
@@ -202,6 +211,7 @@ public sealed partial class EngineAssetWriter
             // Letting go of the jump while she rises stops her rise at once.
             .Value("jump_cut_speed", Number(SamusVerticalVelocity.FallFromRest.Speed))
             .Value("crawl_bounce_speed", Number(SamusVerticalMotionDefinitions.BallBounceSpeed))
+            .Value("crawl_second_bounce_speed", Number(SamusVerticalMotionDefinitions.SecondBallBounceSpeed))
             .Value("crawl_bounce_fall_speed", SamusMovementDefinitions.FirstBallBounceMinimumSpeed)
             .Value("dash_acceleration", Number(SamusMovementDefinitions.HorizontalMotion.ExtraRunAcceleration))
             .Value("dash_cap", Number(SamusHorizontalSpeedDefinitions.UnboostedExtraRunSpeedCap))

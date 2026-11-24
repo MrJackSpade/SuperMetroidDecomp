@@ -149,6 +149,22 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("wall_jump_needs_steering_away")]
     public bool WallJumpNeedsSteeringAway { get; set; }
 
+    /// <summary>How many updates crouching down takes; zero crouches at once.</summary>
+    [Export, DataValue("crouch_updates")]
+    public int CrouchUpdates { get; set; }
+
+    /// <summary>How many updates standing up from a crouch takes; zero stands at once.</summary>
+    [Export, DataValue("stand_updates")]
+    public int StandUpdates { get; set; }
+
+    /// <summary>How many updates taking the low form takes; zero takes it at once.</summary>
+    [Export, DataValue("crawl_enter_updates")]
+    public int CrawlEnterUpdates { get; set; }
+
+    /// <summary>How many updates leaving the low form takes; zero leaves it at once.</summary>
+    [Export, DataValue("crawl_leave_updates")]
+    public int CrawlLeaveUpdates { get; set; }
+
     /// <summary>How many updates a jump from the ground gathers itself for, moving nothing, before it rises.</summary>
     [Export, DataValue("jump_start_updates")]
     public int JumpStartUpdates { get; set; }
@@ -167,6 +183,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>The upward speed the low form bounces with on landing from a fast fall; zero for no bounce.</summary>
     [Export, DataValue("crawl_bounce_speed")]
     public double CrawlBounceSpeed { get; set; }
+
+    /// <summary>The upward speed of the low form's second bounce, which follows its first.</summary>
+    [Export, DataValue("crawl_second_bounce_speed")]
+    public double CrawlSecondBounceSpeed { get; set; }
 
     /// <summary>The least falling speed, in whole pixels, at which the low form bounces on landing.</summary>
     [Export, DataValue("crawl_bounce_fall_speed")]
@@ -213,6 +233,22 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>Whether the player's jumps start with their boosted speeds now.</summary>
     public bool JumpsAreBoosted => JumpBoostNeeds.Length > 0 && Inventory.IsOn(JumpBoostNeeds);
+
+    /// <summary>The state that crouches the player down: the crouch, by way of the change into it where that takes time.</summary>
+    public PlayerState Crouch() => Changing(Crouching, new CrouchingState(), CrouchUpdates, fallsInAir: false);
+
+    /// <summary>The state that stands the player up from a crouch.</summary>
+    public PlayerState StandUp() => Changing(Standing, new StandingState(), StandUpdates, fallsInAir: false);
+
+    /// <summary>The state that puts the player into the low form.</summary>
+    public PlayerState TakeLowForm() => Changing(Crawling, new CrawlingState(), CrawlEnterUpdates, fallsInAir: true);
+
+    /// <summary>The state that brings the player out of the low form, into a crouch.</summary>
+    public PlayerState LeaveLowForm() => Changing(Crouching, new CrouchingState(), CrawlLeaveUpdates, fallsInAir: true);
+
+    /// <summary>A posture's state, by way of the change into it where that takes time.</summary>
+    private static PlayerState Changing(string form, PlayerState then, int updates, bool fallsInAir) =>
+        updates > 0 ? new ChangingPostureState(form, then, updates, fallsInAir) : then;
 
     /// <summary>Whether the equipment a mechanic needs is switched on; a mechanic that needs none always has it.</summary>
     private bool HasWhatItNeeds(string equipment) => equipment.Length == 0 || Inventory.IsOn(equipment);
@@ -902,39 +938,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Changes the player's speed across by steering with <paramref name="moves"/> the plain way: toward the way they
-    /// steer, up to the top speed; against the way they are going, slowing; and with no steering, as the values say.
-    /// </summary>
-    public void SteerPlainly(MoveValues moves)
-    {
-        ArgumentNullException.ThrowIfNull(moves);
-        int intent = Intent;
-        Pixels speed = Velocity.X;
-        if (intent != 0 && (speed.IsZero || speed.IsNegative == intent < 0))
-        {
-            Pixels faster = speed + moves.Gain * intent;
-            speed = faster.Abs() > moves.Top ? moves.Top * intent : faster;
-            Facing = intent > 0 ? Facing.Right : Facing.Left;
-        }
-        else if (intent != 0)
-        {
-            speed = speed.Toward(Pixels.Zero, moves.Loss);
-        }
-        else
-        {
-            speed = moves.WhenNotSteering switch
-            {
-                MoveValues.NotSteering.Slows => speed.Toward(Pixels.Zero, moves.Loss),
-                MoveValues.NotSteering.Stops => Pixels.Zero,
-                MoveValues.NotSteering.Coasts => speed,
-                _ => throw new InvalidOperationException($"Undefined answer {moves.WhenNotSteering} to not steering."),
-            };
-        }
-
-        Velocity = Velocity.WithX(speed);
-    }
-
-    /// <summary>
     /// Builds or keeps the player's dash for one update. While <paramref name="building"/>, which a state says when
     /// the player is running freely with the dash action held, the dash gains speed up to its cap and becomes
     /// momentum. Otherwise a dash that became momentum is kept, and one that did not is lost.
@@ -995,6 +998,16 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         ComeToRest();
         LoseMomentum();
+    }
+
+    /// <summary>
+    /// Brings the player's own speed across to rest, makes them steered and leaves no dash speed. Their momentum is
+    /// left as it is, for whatever ends it.
+    /// </summary>
+    public void ClearSpeedAcross()
+    {
+        ComeToRest();
+        DashSpeed = Pixels.Zero;
     }
 
     /// <summary>

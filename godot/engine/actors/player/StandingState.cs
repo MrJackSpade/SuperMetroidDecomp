@@ -18,7 +18,7 @@ public sealed class StandingState : PlayerState
         if (owner.JumpPressed)
             return new JumpingState();
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
-            return new CrouchingState();
+            return owner.Crouch();
         if (owner.Intent == 0)
             return owner.Aim == Shared.Aim.Forward ? null : this;
         if ((owner.Intent > 0) == (owner.Facing == Shared.Facing.Right))
@@ -37,6 +37,6 @@ public sealed class StandingState : PlayerState
         owner.ComeToRest();
         owner.MoveAcross();
         owner.StopAcross();
-        return owner.IsOnGround ? null : new FallingState();
+        return owner.IsOnGround ? null : new FallingState(offFloor: true);
     }
 }

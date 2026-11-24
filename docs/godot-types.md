@@ -574,9 +574,9 @@ in `engine/actors/player/`.
   `Inventory`, the `Weapons`, health, hurt and invincibility, ongoing damage, colliders, and the `ActorVisual`.
 - **Manages:** turning input into movement and actions, moving with the shared `Mover`, firing, taking a `Hit`,
   collecting pickups and items, and applying to itself what the room reports.
-- **Provides the standard states**, each working and tunable: standing, running, crouching, crawling, turning,
-  jumping, falling, turning in the air, wall jumping, knocked back, held, carried, pushed, using a station,
-  scripted, dying.
+- **Provides the standard states**, each working and tunable: standing, running, crouching, crawling, changing
+  posture, turning, jumping, falling, turning in the air, wall jumping, knocked back, held, carried, pushed, using
+  a station, scripted, dying.
 - **Standard mechanics are properties of the controller**, switched and tuned by the game, not code the game
   writes: whether the player can wall jump, crouch, crawl, or jump while crawling, and each one's numbers. Crawling
   is the low form: a smaller body that fits low gaps, with its own movement on the ground and in the air, and the
@@ -649,6 +649,27 @@ in `engine/actors/player/`.
   the turn's move values for as long as a turn lasts, ending their momentum each update; the turn cannot land, is
   not cut short, keeps its upward speed against a ceiling, and gives way to the jump or the fall it came from. A
   landing ends standing whatever is held.
+- **Postures.** Crouching down, standing up, taking the low form and leaving it each take the updates the game
+  gives them (`crouch_updates`, `stand_updates`, `crawl_enter_updates`, `crawl_leave_updates`; none is at once). For
+  that long the player is in `ChangingPostureState`: the body has its new form from the first update, the input is
+  not asked, they cannot attack, and they move across only as far as a dash carries them, their own speed kept; a
+  change into or out of the low form made in the air goes on rising and falling. The low form is taken as from a
+  crouch wherever the player is: the body shrinks about its middle and the middle drops by as much as a crouch is
+  taller, or as far as there is room. Leaving it leads to a crouch even in the air, which then walks off into a fall
+  from rest. **Crouching** keeps no speed across: a dash still carries the player for the update and is then spent,
+  while their momentum lasts until an update whose input asks nothing of the crouch. A press of the direction
+  behind turns them round crouched (`TurningState`, crouched, which ends in a crouch and listens only for whether
+  anything is held); the direction ahead held stands them at once, with no change between. A fall entered by
+  walking off a floor starts from rest unless the player is rising.
+- **The low form** rolls on the ground while a direction is held, by the ground rule, turning by reversal; let go,
+  it loses everything across after that update's move and sits still. Rolled off a floor it falls from rest. In the
+  air, steered with no direction held it loses everything across; where it cannot jump it otherwise keeps falling
+  unsteered once an update has asked nothing of it. Coming down at `crawl_bounce_fall_speed` or faster it bounces
+  at `crawl_bounce_speed`, and on its next landing once more at `crawl_second_bounce_speed`, and is on the ground
+  at the landing after; slower, it is on the ground at once, at rest across. Where it can jump, the jump is a rise
+  cut short like any jump and steered by its own move values (`crawling_jumping`) for the whole jump, and landing
+  with the jump held jumps again at once. Up leaves the low form, and so does the jump for a player who cannot jump
+  in it.
 - **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
   updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
   the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
@@ -699,6 +720,10 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **The morph ball is the engine's crawl**, shown as a ball; the morph ball item switches it on, and spring ball
   switches on jumping while crawling. Wall jumping and crouching are the engine's, switched on for her. Her scene
   says so: crawling needs `morph_ball`, jumping while crawling needs `spring_ball`.
+- **Her crouch and her ball.** Crouching out of a run at full boost stores a shine, as the crouch begins; the dash
+  then slides her through the change and the first update of the crouch, and her boost lasts while the crouch is
+  held aiming. A jump from a crouch with her arm level starts `crouch_jump_lift` pixels off the ground. In the air a
+  press of down while already aiming down, or in a wall jump, curls her up.
 - **Her jumps.** A jump from standing or a crouch is a plain jump whatever is held, gathered for one update; a jump
   from a run is a spin, and so is a turn on the ground while the jump and the way she then faces are held. A spin
   keeps her own speed across only while its top speed capped it this update, while she is reversing, or while the

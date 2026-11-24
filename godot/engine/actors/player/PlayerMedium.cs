@@ -95,6 +95,7 @@ public partial class PlayerMedium : Resource
         medium.Moves[PlayerState.WallJumpingMoves] = Values(0.25, 2, 0.5);
         medium.Moves[PlayerState.CrawlingMoves] = Values(0.25, 1.5, 0.5);
         medium.Moves[PlayerState.CrawlingInAirMoves] = Values(0.25, 1.5, 0.5);
+        medium.Moves[PlayerState.CrawlingJumpingMoves] = Values(0.25, 1.5, 0.5);
         medium.Moves[PlayerState.KnockedBackMoves] = Values(1.5, 1.5, 0.5);
         return medium;
     }

@@ -1,8 +1,12 @@
 using Engine.Input;
+using Engine.Shared;
 
 namespace Engine.Actors;
 
-/// <summary>Crouched on the ground: shorter, and not moving. Down again takes the low form; up stands.</summary>
+/// <summary>
+/// Crouched on the ground: shorter, and keeping no speed across. Down again takes the low form; up stands; a press of
+/// the direction behind turns the player round, still crouched; the direction ahead held stands them at once.
+/// </summary>
 public sealed class CrouchingState : PlayerState
 {
     /// <inheritdoc/>
@@ -12,24 +16,37 @@ public sealed class CrouchingState : PlayerState
     public override PlayerState? Asked(Player owner)
     {
         owner.AimFromInput();
-        if (owner.MayCrawl && owner.Input.WasPressed(GameAction.Down))
-            return new CrawlingState();
-        if (owner.Input.WasPressed(GameAction.Up) && owner.CanTakeForm(Player.Standing))
-            return new StandingState();
+        GameInput input = owner.Input;
+        if (input.WasPressed(GameAction.Up) && owner.CanTakeForm(Player.Standing))
+            return owner.StandUp();
+        if (input.WasPressed(owner.Facing == Facing.Right ? GameAction.Left : GameAction.Right))
+            return new TurningState(crouched: true);
+        if (owner.MayCrawl && input.WasPressed(GameAction.Down))
+            return owner.TakeLowForm();
         if (owner.JumpPressed && owner.CanTakeForm(owner.FormOr(Player.Jumping), aroundMiddle: true))
             return new JumpingState();
-        if (owner.Intent != 0)
-            owner.Facing = owner.Intent > 0 ? Shared.Facing.Right : Shared.Facing.Left;
-        return this;
+        if (input.IsHeld(owner.Facing == Facing.Right ? GameAction.Right : GameAction.Left) && owner.CanTakeForm(Player.Standing))
+            return new StandingState();
+        return owner.Aim == Aim.Forward ? null : this;
     }
 
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
+        // A crouch keeps no speed across: a dash still carries the player this update, and is then spent. Their
+        // momentum is left for the input to end.
         owner.ComeToRest();
         owner.MoveAcross();
-        owner.StopAcross();
+        owner.ClearSpeedAcross();
         bool falls = !owner.IsOnGround && owner.CanTakeForm(owner.FormOr(Player.Falling), aroundMiddle: true);
-        return falls ? new FallingState() : null;
+        return falls ? new FallingState(offFloor: true) : null;
+    }
+
+    /// <summary>With nothing asked, the momentum a crouch was still holding ends.</summary>
+    public override PlayerState? Unasked(Player owner)
+    {
+        owner.Steering = Steering.Steered;
+        owner.EndMomentum();
+        return null;
     }
 }

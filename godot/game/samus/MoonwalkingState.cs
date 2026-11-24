@@ -29,7 +29,7 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
         owner.Aim = owner.Input.IsHeld(Actions.AngleUp) ? Aim.DiagonalUp
             : owner.Input.IsHeld(Actions.AngleDown) ? Aim.DiagonalDown : Aim.Forward;
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
-            return new CrouchingState();
+            return owner.Crouch();
         if (owner.JumpPressed)
             return new TurningState();
         int backward = Backward(owner);
@@ -57,6 +57,6 @@ public sealed class MoonwalkingState : PlayerState, ISamusLook
 
         // Walking off a floor, she falls facing the way she was going.
         owner.Facing = owner.Facing.Opposite();
-        return new FallingState();
+        return new FallingState(offFloor: true);
     }
 }

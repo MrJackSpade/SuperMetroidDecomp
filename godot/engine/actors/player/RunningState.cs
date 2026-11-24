@@ -21,7 +21,7 @@ public sealed class RunningState : PlayerState
         owner.AimFromInput();
         _hadSpeed = !owner.Velocity.X.IsZero;
         if (owner.MayCrouch && owner.CrouchWhileRunning && owner.Input.WasPressed(GameAction.Down))
-            return new CrouchingState();
+            return owner.Crouch();
         if (owner.JumpPressed)
             return new JumpingState();
         if (owner.Intent == 0)
@@ -42,7 +42,7 @@ public sealed class RunningState : PlayerState
         owner.Steer(owner.Moves(RunningMoves));
         MoveResult across = owner.MoveAcross();
         if (!owner.IsOnGround)
-            return new FallingState();
+            return new FallingState(offFloor: true);
 
         // A wall has already brought everything across to rest: the runner stands against it.
         return across.Blocked ? new StandingState() : null;

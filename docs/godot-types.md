@@ -823,7 +823,7 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | `MapView` | `engine/ui/` | Drawing an `Area`'s map from what `Progress` says is explored and revealed. The minimap, the pause map and the file-select map are all this, at different sizes. An unexplored cell and the cell the player is in (`Here`) are drawn from the area's own sheets for them where it has them. | Decide what is explored.  |
 | `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, smoothly or in a set number of even steps, and reporting when it is done; or showing the screen covered so many parts of so many, for whoever paces a fade of its own. | Know why it was asked. |
 | `PixelText` | `engine/ui/` | Drawing words in a `PixelFont`, a character to a cell and line under line; showing only the first so many characters; laying each line at the left, middle or right of its width. Every word the game shows is drawn by one. | Hold the words, or draw in anything but its font: with none, words given it cannot be drawn. |
-| `TypedText` | `engine/ui/` | A `PixelText` showing its words one character at a time with its sound, for every letter or every so many; going on to the next line takes no time. | Hold the words; they come from `GameText`. |
+| `TypedText` | `engine/ui/` | A `PixelText` showing its words one character at a time with its sound, for every letter or every so many; going on to the next line takes no time, and a set number of characters at the start may each be followed by the next at once. It says when all of it shows, and when the wait after its last character has passed as well. | Hold the words; they come from `GameText`. |
 | `Cinematic` | base in `engine/ui/`, each one in `game/cinematics/` | A scripted sequence with no gameplay. Each is a `GameMode`. One that waits on the player reads what they are doing this update; one that shows remembered play steps a room of its own from recorded input. | Run gameplay rules of its own. |
 | `CinematicSprite` | `engine/ui/` | One thing shown in a cinematic: a picture at a place on the screen that plays a timeline, drifts at a speed (round a loop, if it has one), and is over when its timeline has played out. Its cinematic steps it and acts on the cues it reports. | Decide what its cues mean. |
 | `MosaicPicture` | `engine/ui/` | A picture that can be shown in coarse blocks, each taking the colour of its top-left pixel. | Anything else. |
@@ -1027,9 +1027,11 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 A sequence is told "start", and one that knows other words acts on them. Each lives beside its room, under
 `game/rooms/<area>/`; one that rooms of several areas use (`TypedWarning`, `EscapeRoom`) lives in `game/rooms/`.
 `TypedWarning` types
-a warning across the screen and tells what is listed when it is over; Mother Brain's room uses it. How a typed
-warning is laid out (its font, where its words begin, and the pictures of a second wording) is a data file named
-for it under `text/typed/`.
+a warning across the screen, from the update after it is started, and tells what is listed once the wait after its
+last letter has passed; the words stay written. Mother Brain's room uses it. How a typed
+warning is laid out and typed (its font, where its words begin, how long a letter takes, how many letters at the
+start are followed at once, how many letters go to a sound, and the pictures of a second wording) is a data file
+named for it under `text/typed/`.
 
 Ceres: the elevator arrival (`CeresArrival`: the pad that sets Samus down); Ridley's getaway
 (`CeresGetaway`: he flies off over the turning floor and throws Samus aside, then the self-destruct's warning comes

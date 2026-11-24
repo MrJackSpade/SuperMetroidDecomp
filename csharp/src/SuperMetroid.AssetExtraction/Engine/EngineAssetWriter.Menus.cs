@@ -120,7 +120,17 @@ public sealed partial class EngineAssetWriter
                 ["line_height"] = apart,
             });
 
-            var layout = new JsonObject { ["font"] = font + ".json", ["x"] = left, ["y"] = top };
+            // A letter takes the update it is typed on and the wait after it; the first letters of all are followed
+            // at once; and the click comes with every so many letters typed, counted from the first.
+            if (EscapeTypewriterDefinitions.GlyphClick.Phase != 0)
+                throw new InvalidDataException("The typed warnings click on other than every so many letters counted from the first, which the Godot game does not do.");
+            var layout = new JsonObject
+            {
+                ["font"] = font + ".json", ["x"] = left, ["y"] = top,
+                ["updates_per_letter"] = EscapeTypewriterDefinitions.CharacterDelayFrames + 1,
+                ["undelayed_letters"] = EscapeTypewriterDefinitions.UndelayedOpeningCharacters,
+                ["letters_per_sound"] = EscapeTypewriterDefinitions.GlyphClick.Period,
+            };
             if (id == EscapeTypewriterMessageId.Ceres)
             {
                 var lines = new JsonArray();

@@ -141,6 +141,9 @@ public sealed partial class EngineAssetWriter
             ["places"] = places,
             ["move_sound"] = EngineNames.Sound(SamusSound.MenuCursor),
             ["select_sound"] = EngineNames.Sound(SamusSound.MenuConfirm),
+            ["entry_black_updates"] = GameOptionsDefinitions.BlackHoldUpdates,
+            // It fades a level of brightness an update.
+            ["fade_levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
             ["timelines"] = new JsonObject
             {
                 ["cursor"] = new JsonObject { ["steps"] = cursorSteps, ["loops_to"] = 0, ["offset"] = At(cursorPictures.OffsetX, cursorPictures.OffsetY) },

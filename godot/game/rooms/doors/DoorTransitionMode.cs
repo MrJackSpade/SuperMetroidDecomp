@@ -241,6 +241,10 @@ public partial class DoorTransitionMode : GameMode
                     // and the nudge as moves of hers on the first update of play.
                     Session.Camera.TakePlayerToHaveStoodAtX(_stoodAtX);
                     Session.Camera.TakePlayerToHaveStoodAtY(_stoodAtY);
+
+                    // The spin's sound, stopped as the door was entered, is asked for again as play resumes.
+                    if (samus.State is SpinJumpingState spin)
+                        Session.Sounds.Request(spin.ShownSound, channel: "samus");
                     return _playing;
                 }
 

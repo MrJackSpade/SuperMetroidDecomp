@@ -69,6 +69,9 @@ public sealed partial class EngineAssetWriter
             .Value("fastest_chase", MetroidBehaviorDefinitions.FastestChase)
             .Value("frozen_updates", MetroidBehaviorDefinitions.FrozenDuration)
             .Value("feeding_sound_least_energy", MetroidBehaviorDefinitions.DrainSoundLeastHealth)
+            // What it drains from Samus in her first suit; her other suits lessen it.
+            .Value("drain_hundredths", Hundredths(MetroidBehaviorDefinitions.PowerSuitDrainFraction))
+            .Value("feeding_sound_every", MetroidCadenceDefinitions.DrainSound.Period)
             .Value("drop_count", MetroidBehaviorDefinitions.FrozenDeathDropCount)
             .Value("feeding_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
             .Value("recoil_sound", EngineNames.Sound(EnemySoundEffectDefinitions.MetroidRecoilSoundEffect))
@@ -102,6 +105,7 @@ public sealed partial class EngineAssetWriter
             .Value("grab_cooldown", YappingMawAttackDefinitions.GrabCooldown)
             .Value("retracted_hold", YappingMawAttackDefinitions.RetractedHold)
             .Value("root_distance", YappingMawAttackDefinitions.RootDistance)
+            .Value("longest_reach", YappingMawAttackGeometry.MaximumTargetDistance)
             .Value("bite_sound", EngineNames.Sound(EnemySoundEffectDefinitions.YappingMawAttackSound))
             .Group("held_offsets", heldOffsets);
         foreach (YappingMawAim aim in Enum.GetValues<YappingMawAim>())
@@ -134,6 +138,8 @@ public sealed partial class EngineAssetWriter
             .Value("inflation_updates", PowampMotionDefinitions.InflationDuration)
             .Value("death_delay", PowampMotionDefinitions.DeathDelay)
             .Value("wiggle_step_updates", PowampMotionDefinitions.WiggleStepDuration)
+            .Value("rise_speed", EngineNames.Number(-PowampMotionDefinitions.RiseVelocity))
+            .Value("sink_speed", EngineNames.Number(PowampMotionDefinitions.SinkVelocity))
             .Value("spike_quickening", EngineNames.Number(PowampMotionDefinitions.SpikeAccelerations[CompassDirection.Right].X))
             .Group("balloon_heights", balloonHeights)
             .Group("wiggle", EngineNames.List(PowampMotionDefinitions.WiggleOffsets))
@@ -209,6 +215,7 @@ public sealed partial class EngineAssetWriter
 
         EngineEnemy robot = Enemy("enemies/work_robot.json", "WorkRobot", EnemyDefinitionId.WorkRobot, "WorkRobot", "UnpoweredWorkRobot")
             .BodyColliders("Body", "Solid", "Hurtbox")
+            .Value("gravity", EngineNames.Number(WorkRobotMotionDefinitions.Gravity))
             .Value("laser_cooldown", WorkRobotLaserDefinitions.CooldownBase)
             .Value("turn_delay", WorkRobotLaserDefinitions.TurnDelay)
             .Value("recoil_delay", WorkRobotLaserDefinitions.RecoilDelay)
@@ -221,5 +228,16 @@ public sealed partial class EngineAssetWriter
         foreach ((WorkRobotSegment segment, SuperMetroid.Core.Animation.Animation<WorkRobotSegment> animation) in WorkRobotAnimations.StartingAt)
             robot.Timeline(RobotLook(segment), WorkRobotAnimations.Segments, animation, RobotCue);
         robot.Write();
+    }
+
+    /// <summary>An amount of energy as a whole number of hundredths of a point.</summary>
+    /// <exception cref="InvalidDataException">The amount is no whole number of hundredths.</exception>
+    private static int Hundredths(SuperMetroid.Core.Compatibility.EnergyAmount amount)
+    {
+        const int partsOfPoint = 1 << 16;
+        int parts = amount.FractionParts * 100;
+        return parts % partsOfPoint == 0
+            ? amount.WholeEnergy * 100 + parts / partsOfPoint
+            : throw new InvalidDataException("An amount of energy is no whole number of hundredths of a point.");
     }
 }

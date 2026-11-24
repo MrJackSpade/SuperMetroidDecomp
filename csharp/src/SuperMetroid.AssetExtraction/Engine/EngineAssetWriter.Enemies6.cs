@@ -63,6 +63,8 @@ public sealed partial class EngineAssetWriter
             .Value("visible_updates", WreckedShipGhostAppearanceDefinitions.VisibleDuration)
             .Value("still_updates", WreckedShipGhostAppearanceDefinitions.StillPositionDuration)
             .Value("steady_course_updates", WreckedShipGhostAppearanceDefinitions.SteadyFacingDuration)
+            // How far ahead of Samus it appears: what the old table gives for one moving down and to the right.
+            .Value("lead_distance", (int)WreckedShipGhostAppearanceDefinitions.SpawnOffsets[new(SamusAxisMotion.TowardLarger, SamusAxisMotion.TowardLarger)].X)
             .Value("bob_start_speed", EngineNames.Number(WreckedShipGhostAppearanceDefinitions.BobStartSpeed))
             .Value("bob_quickening", EngineNames.Number(WreckedShipGhostAppearanceDefinitions.BobAcceleration))
             .Group("flicker", EngineNames.List(WreckedShipGhostAppearanceDefinitions.FlickerTimings.Select(step => (JsonNode)new JsonObject

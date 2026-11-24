@@ -59,6 +59,10 @@ public partial class Samus : Player
     [Export, DataValue("stored_shine_updates")]
     public int StoredShineUpdates { get; set; } = 180;
 
+    /// <summary>How many pixels a shinespark begun out of a jump lifts her as its windup starts.</summary>
+    [Export, DataValue("shinespark_lift")]
+    public int ShinesparkLift { get; set; } = 1;
+
     /// <summary>How many updates a shinespark winds up for before it launches straight up by itself.</summary>
     [Export, DataValue("shinespark_windup_updates")]
     public int ShinesparkWindupUpdates { get; set; } = 30;
@@ -450,6 +454,26 @@ public partial class Samus : Player
             Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), BodyMoves);
         }
 
+        if (to is JumpingState jump)
+        {
+            if (ReferenceEquals(from, to))
+            {
+                // A stance taken up within a jump spends the shine, and the windup starts lifted.
+                if (jump.TookUpStance && SpendsShine(jump.Stance))
+                    return new ShinesparkState(lifted: true);
+            }
+            else if (jump.FromGround)
+            {
+                Aim = FirstJumpAim(from);
+            }
+            else if (from is SpinJumpingState or WallJumpingState or DamageBoostState && SpendsShine(jump.Stance) &&
+                CanTakeForm(FormOr(Jumping), aroundMiddle: true))
+            {
+                // Straightened out of a spin or a wall jump where the taller body fits, or let go of a damage boost.
+                return new ShinesparkState(lifted: false);
+            }
+        }
+
         if (to is not RunningState)
             return to;
         bool alreadyRunning = from is RunningState;
@@ -468,6 +492,32 @@ public partial class Samus : Player
             return to;
         return from is StandingState ? from : new StandingState();
     }
+
+    /// <summary>
+    /// The aim of the first pose of a jump from the ground, as the cartridge chooses it on the press: from standing,
+    /// up with up held, else diagonally up with the angle-up action held, else diagonally down with the angle-down
+    /// action held, else level; from anything else, level.
+    /// </summary>
+    private Aim FirstJumpAim(PlayerState from)
+    {
+        if (from is not StandingState)
+            return Aim.Forward;
+        return Input.IsHeld(GameAction.Up) ? Aim.Up
+            : Input.IsHeld(Actions.AngleUp) ? Aim.DiagonalUp
+            : Input.IsHeld(Actions.AngleDown) ? Aim.DiagonalDown
+            : Aim.Forward;
+    }
+
+    /// <summary>
+    /// Whether taking up <paramref name="stance"/> in a jump spends a stored shine on a shinespark: aiming level with
+    /// her arm at rest, aiming up, or aiming diagonally up.
+    /// </summary>
+    private bool SpendsShine(AirStance stance) =>
+        HasStoredShine && (stance.Aim is Aim.Up or Aim.DiagonalUp || stance == new AirStance(Aim.Forward));
+
+    /// <summary>The first pose of a jump from the ground spends a stored shine as it is taken up, and the windup starts lifted.</summary>
+    protected override PlayerState? JumpGathered(JumpingState jump) =>
+        SpendsShine(jump.Stance) ? new ShinesparkState(lifted: true) : null;
 
     /// <summary>Selects one of the things she can select; given nothing, the beam alone.</summary>
     /// <exception cref="ArgumentException">She cannot select it now.</exception>
@@ -541,9 +591,6 @@ public partial class Samus : Player
             case StandingState or RunningState or CrouchingState:
                 if (JumpPressed)
                 {
-                    if (HasStoredShine)
-                        return new ShinesparkState();
-
                     // A jump from a run is a spin; from standing or a crouch it is a plain jump, whatever is held. A
                     // press of down in the same update crouches her instead.
                     if (current is RunningState && !(MayCrouch && CrouchWhileRunning && input.WasPressed(GameAction.Down)))
@@ -576,18 +623,20 @@ public partial class Samus : Player
                 return towardFacing && jumps ? new SpinJumpingState() : null;
 
             case WallJumpingState:
-                // A press of down curls her up; steering the other way turns the wall jump into a spin that way; an
-                // angle held or the attack makes it a jump; the jump held keeps it; anything else lets it go into a spin.
+                // The first of these that holds, as the cartridge has it: a press of down curls her up; the direction
+                // behind her turns the wall jump into a spin that way; the angle-up action makes it a jump aiming
+                // diagonally up, the angle-down action one aiming diagonally down, the attack one with her arm held
+                // out level; the jump held keeps it; anything else lets it go into a spin.
                 if (input.WasPressed(GameAction.Down) && MayCrawl)
                     return TakeLowForm();
-                if (Intent != 0 && Intent > 0 != (Facing == Facing.Right))
+                if (input.IsHeld(Facing == Facing.Right ? GameAction.Left : GameAction.Right))
                     return new SpinJumpingState(SpinJumpingState.Start.Turning);
-                if (input.IsHeld(Actions.AngleUp) || input.IsHeld(Actions.AngleDown) || input.IsHeld(GameAction.Attack))
-                {
-                    AimFromInput();
-                    return new JumpingState(keepsSpeed: true);
-                }
-
+                if (input.IsHeld(Actions.AngleUp))
+                    return new JumpingState(new AirStance(Aim.DiagonalUp));
+                if (input.IsHeld(Actions.AngleDown))
+                    return new JumpingState(new AirStance(Aim.DiagonalDown));
+                if (input.IsHeld(GameAction.Attack))
+                    return new JumpingState(new AirStance(Aim.Forward, AirArm.Out));
                 return input.IsHeld(GameAction.Jump) ? current : new SpinJumpingState(SpinJumpingState.Start.AfterWallJump);
 
             case JumpingState or FallingState or SpinJumpingState:

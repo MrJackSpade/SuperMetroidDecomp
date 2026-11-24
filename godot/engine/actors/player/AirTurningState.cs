@@ -5,7 +5,8 @@ namespace Engine.Actors;
 /// <summary>
 /// Turning around in the air. The player faces the new way from the start and goes on moving the old way, reversing,
 /// by the turn's move values; each update of the turn ends their momentum. The turn does not land, is not cut short,
-/// and does not lose its upward speed against a ceiling; when its time is up the jump or the fall it came from goes on.
+/// and does not lose its upward speed against a ceiling; when its time is up the jump or the fall it came from goes on,
+/// a jump aiming level in the stance of steering the way the player now faces.
 /// </summary>
 public sealed class AirTurningState : PlayerState
 {
@@ -57,7 +58,9 @@ public sealed class AirTurningState : PlayerState
     {
         if (_left.IsRunning)
             return null;
-        return FromJump ? new JumpingState(keepsSpeed: true) : new FallingState();
+        if (!FromJump)
+            return new FallingState();
+        return new JumpingState(owner.Aim == Aim.Forward ? new AirStance(Aim.Forward, AirArm.Forward) : new AirStance(owner.Aim));
     }
 
     /// <inheritdoc/>

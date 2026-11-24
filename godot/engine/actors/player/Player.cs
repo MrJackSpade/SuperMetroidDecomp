@@ -742,6 +742,16 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
     internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked) => Entering(from, to, unasked);
 
+    /// <summary>
+    /// Called as a jump from the ground has gathered itself and is about to rise in the stance it began in. A game
+    /// whose player does something else at that moment returns the state to be in instead, which takes effect as a
+    /// state's own end does; null to jump.
+    /// </summary>
+    protected virtual PlayerState? JumpGathered(JumpingState jump) => null;
+
+    /// <summary>Tells the game's player that a jump has gathered itself, and gives the state to be in instead, if any.</summary>
+    internal PlayerState? AfterGathering(JumpingState jump) => JumpGathered(jump);
+
     /// <summary>What the player's input asks of <paramref name="state"/>: the game's own answer, and failing that the state's.</summary>
     internal PlayerState? AskedOf(PlayerState state) => ChooseState(state) ?? state.Asked(this);
 

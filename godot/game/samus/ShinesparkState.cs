@@ -7,10 +7,11 @@ using Game.Data;
 namespace Game;
 
 /// <summary>
-/// A shinespark: with a shine stored, a jump winds her up and then launches her in a straight line, across, up or
-/// diagonally, faster and faster, hurting what she passes through and costing her energy as she goes. It ends against
-/// something solid, or when her energy runs low. There she is held while two echoes of her circle out, round and
-/// back in; then, after a moment, the echoes are let go and fly off, and she is free.
+/// A shinespark: with a shine stored, a jump taken up aiming level with her arm at rest, up or diagonally up winds
+/// her up and then launches her in a straight line, across, up or diagonally, faster and faster, hurting what she
+/// passes through and costing her energy as she goes. It ends against something solid, or when her energy runs low.
+/// There she is held while two echoes of her circle out, round and back in; then, after a moment, the echoes are let
+/// go and fly off, and she is free.
 /// </summary>
 public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
 {
@@ -31,6 +32,13 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
 
     /// <summary>How far the echoes move out or in each update, how far out they circle from, how far each turns an update, and how far they circle in all.</summary>
     private const int CrashRadiusStep = 4, CrashCirclingRadius = 12, CrashTurn = 4, CrashTravel = 128;
+
+    /// <summary>Whether the windup starts lifted, as one begun out of a jump does.</summary>
+    private readonly bool _lifted;
+
+    /// <summary>A shinespark.</summary>
+    /// <param name="lifted">Whether its windup starts lifted off where she is, as one begun out of a jump does.</param>
+    public ShinesparkState(bool lifted) => _lifted = lifted;
 
     private Stage _stage;
     private Crash _crash;
@@ -66,6 +74,10 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         owner.StopAcross();
         owner.Velocity = PixelVelocity.Zero;
         owner.Weapons.DropCharge();
+
+        // The lift moves her as she is, whatever is above her, as the cartridge's does.
+        if (_lifted)
+            owner.Position += PixelOffset.FromWhole(0, -samus.ShinesparkLift);
         owner.TrySetForm(owner.FormOr(Player.Jumping), aroundMiddle: true);
         samus.BoostFully();
         _stage = Stage.WindingUp;

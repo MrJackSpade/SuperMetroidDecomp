@@ -11,6 +11,13 @@ namespace Game;
 /// off walls, jumps again in mid-air with the space jump, and hurts what it touches with the screw attack, or with a
 /// fully charged beam. Aiming or firing straightens her out of it into a jump; steering the other way turns the spin.
 /// </summary>
+/// <remarks>
+/// What the input asks of a spin is the first of these that holds, as the cartridge has it: the attack pressed afresh
+/// straightens her out with her arm held out level, whatever else is held; the attack held with up, with down, with
+/// the angle-up action or with the angle-down action straightens her out aiming up, down, diagonally up or diagonally
+/// down; the jump and the way she faces held keep the spin; up, the angle-up action, the angle-down action or down
+/// straightens her out aiming so; the way she faces keeps the spin; the other way turns it.
+/// </remarks>
 public sealed class SpinJumpingState : PlayerState, ISamusLook
 {
     /// <summary>The name of the move values a spin jump is steered by.</summary>
@@ -93,23 +100,41 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     public override PlayerState? Asked(Player owner)
     {
         GameInput input = owner.Input;
-        owner.AimFromInput();
-        bool aims = owner.Aim != Aim.Forward;
-        bool forward = owner.Intent != 0 && (owner.Intent > 0) == (owner.Facing == Facing.Right);
+        bool attack = input.IsHeld(GameAction.Attack), up = input.IsHeld(GameAction.Up), down = input.IsHeld(GameAction.Down);
+        bool angleUp = input.IsHeld(Actions.AngleUp), angleDown = input.IsHeld(Actions.AngleDown);
+        bool forward = input.IsHeld(owner.Facing == Facing.Right ? GameAction.Right : GameAction.Left);
+        bool backward = input.IsHeld(owner.Facing == Facing.Right ? GameAction.Left : GameAction.Right);
         _turnAsked = false;
 
-        // Firing, or aiming with the attack held, straightens her out into a jump once this update is done; so does
-        // aiming alone, unless the jump and the way she faces are both held.
-        if (input.WasPressed(GameAction.Attack) || (aims && input.IsHeld(GameAction.Attack)))
-            return new JumpingState(keepsSpeed: true);
+        // Straightened out, she is in a jump once this update is done.
+        if (input.WasPressed(GameAction.Attack))
+            return new JumpingState(new AirStance(Aim.Forward, AirArm.Out));
+        if (attack && up)
+            return new JumpingState(new AirStance(Aim.Up));
+        if (attack && down)
+            return new JumpingState(new AirStance(Aim.Down));
+        if (attack && angleUp)
+            return new JumpingState(new AirStance(Aim.DiagonalUp));
+        if (attack && angleDown)
+            return new JumpingState(new AirStance(Aim.DiagonalDown));
         if (forward && input.IsHeld(GameAction.Jump))
             return Spinning(owner);
-        if (aims)
-            return new JumpingState(keepsSpeed: true);
+        if (up)
+            return new JumpingState(new AirStance(Aim.Up));
+        if (angleUp)
+            return new JumpingState(new AirStance(Aim.DiagonalUp));
+        if (angleDown)
+            return new JumpingState(new AirStance(Aim.DiagonalDown));
+        if (down)
+            return new JumpingState(new AirStance(Aim.Down));
         if (forward)
             return Spinning(owner);
-        if (owner.Intent == 0)
+        if (!backward)
+        {
+            owner.Aim = Aim.Forward;
             return null;
+        }
+
         _turnAsked = true;
         return Spinning(owner);
     }

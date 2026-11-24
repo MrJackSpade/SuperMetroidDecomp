@@ -13,6 +13,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -241,6 +242,9 @@ public sealed partial class EngineAssetWriter
             // Its backdrop's fade takes a step an update while its count stands at or below its last step, and is done on the update after.
             .Value("backdrop_fade_steps", KraidBackgroundDefinitions.BackdropFadeLastStep + 1)
             .Value("death_drops", KraidArenaDefinitions.DeathDropCount)
+            // Where its fight keeps Samus in the view, by the way she faces: the boss's place.
+            .Value("samus_in_view_facing_right", HorizontalCameraTargets.Offset(CameraDistanceMode.BossTracking, HorizontalDirection.Right))
+            .Value("samus_in_view_facing_left", HorizontalCameraTargets.Offset(CameraDistanceMode.BossTracking, HorizontalDirection.Left))
             .Value("dud_effect", DustFile(DustExplosionAnimation.DudShotTinyExplosion))
             .Value("big_dud_effect", DustFile(DustExplosionAnimation.BigExplosion))
             .Value("mouth_dud_effect", EffectFile(RoomEffectActorKind.DudShot))

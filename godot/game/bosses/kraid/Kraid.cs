@@ -109,6 +109,14 @@ public partial class Kraid : Enemy
     [Export, DataValue("death_drops")]
     public int DeathDrops { get; set; } = 16;
 
+    /// <summary>How many pixels from the view's left edge its fight keeps Samus while she faces right.</summary>
+    [Export, DataValue("samus_in_view_facing_right")]
+    public int SamusInViewFacingRight { get; set; } = 64;
+
+    /// <summary>How many pixels from the view's left edge its fight keeps Samus while she faces left.</summary>
+    [Export, DataValue("samus_in_view_facing_left")]
+    public int SamusInViewFacingLeft { get; set; } = 80;
+
     /// <summary>The effect of a shot that does it no harm, by the data file of its timeline.</summary>
     [Export, DataValue("dud_effect")]
     public string DudEffect { get; set; } = "";
@@ -459,6 +467,8 @@ public partial class Kraid : Enemy
     protected override void OnEnterRoom()
     {
         AlwaysActive = true;
+        // Its fight keeps Samus where a boss's does in the view, from its setup until it has sunk.
+        Room.KeepPlayerInViewAt(SamusInViewFacingRight, SamusInViewFacingLeft);
         _initialHealth = Health.Current;
         Position = PixelPosition.FromWhole(RiseStart.X, RiseStart.Y);
         _stage = Stage.Rising;
@@ -802,6 +812,8 @@ public partial class Kraid : Enemy
                 Position += PixelOffset.FromWhole(0, 1);
                 if (Position.Y.Whole < SunkY)
                     break;
+                // Sunk, it gives the room back its own place for Samus in the view, before its drops.
+                Room.KeepPlayerInViewAt(Room.PlayerInView.X, Room.PlayerInView.Y);
                 for (int drop = 0; drop < DeathDrops; drop++)
                 {
                     RandomDraw draw = Random.Draw();

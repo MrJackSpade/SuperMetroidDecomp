@@ -75,7 +75,14 @@ public sealed partial class EngineAssetWriter
 
         const string family = GameInstallationLayout.BossBodySheetDirectoryName;
         string sheet = _sheets.SheetNamed(family, BossBodySheetPrefix + body.Boss);
-        JsonObject Tint(PhantoonBodyLook look) => TorizoTint(_sheets.ShadeTint(family, sheet, PhantoonShades.Body(look).Key));
+        // Its pictures of each band of its health, as that band colours them.
+        IReadOnlyList<PhantoonHealthBand> bands = PhantoonHealthBandDefinitions.HighestFirst;
+        for (int band = 0; band < bands.Count; band++)
+        {
+            _sheets.CutShade(_tree, family, file[..file.LastIndexOf('.')] + "_health_" + band.ToString(System.Globalization.CultureInfo.InvariantCulture), sheet,
+                PhantoonShades.Body(PhantoonBodyLook.Health(bands[band])).Key);
+        }
+
         static JsonObject Field(RandomSampleField field) => new() { ["from"] = field.Shift, ["digits"] = field.Width };
 
         if (PhantoonSoundDefinitions.StartingFlame != PhantoonSoundDefinitions.CasualFlame)
@@ -100,12 +107,9 @@ public sealed partial class EngineAssetWriter
                 ["y"] = (int)rain.BodyPosition.Y,
             })))
             .Group("appear_sounds", new JsonArray([.. PhantoonSoundDefinitions.MaterializationSounds.Select(sound => (JsonNode)EngineNames.SoundOrSilence(sound))]))
-            // Its colours change as it is worn down; each is the tint nearest the old colours.
-            .Group("health_tints", EngineNames.List(PhantoonHealthBandDefinitions.HighestFirst.Select(band => (JsonNode)new JsonObject
-            {
-                ["health"] = band.MinimumHealth,
-                ["tint"] = Tint(PhantoonBodyLook.Health(band)),
-            })))
+            // Its colours change as it is worn down: its pictures are kept once for each band of its health.
+            .Group("health_bands", EngineNames.List(bands.Select(band => band.MinimumHealth)))
+            .PictureSets("{health}")
             .Group("scattered_drops", Drops(phantoon.Definition.Drops) ?? throw new InvalidDataException("Phantoon scatters nothing when it is gone."))
             .Group("drop_scatter", new JsonObject
             {

@@ -22,8 +22,9 @@ namespace Game.Enemies;
 /// cue "flame" drops a flame; "Tentacles" plays "tentacles". The cue "appear_sound" asks for the next of its
 /// "appear_sounds" in turn. Its colliders whose names begin "Eye" are its eye; the rest are its body and its three
 /// tentacles, each a hurtbox for shots and a hitbox for its touch. Its data gives its figure of eight under "path",
-/// a digit a step as on a number pad; the places its rains fall from under "rain_patterns"; under "health_tints" how
-/// much of the red, green and blue of its pictures shows ("r", "g", "b") at each least "health", highest first;
+/// a digit a step as on a number pad; the places its rains fall from under "rain_patterns"; under "health_bands" the
+/// least health of each band of its health, highest first: the names of its pictures may hold "{health}", which
+/// stands for "_health_" and which band its health is in, from nothing up, its pictures being kept once for each;
 /// "scattered_drops", the table of what it scatters when it is gone, and "drop_scatter", where: a corner of the room
 /// ("x", "y") and, across and down, how many binary digits of a number drawn are added and from which digit up. Its
 /// shots are "flame" and "starting_flame". All its places are in the room's own pixels: its room is a single
@@ -136,7 +137,7 @@ public partial class Phantoon : Enemy
     private readonly List<(int Place, int X, int Y)> _rainPatterns = [];
     private readonly Dictionary<string, TimelinePlayer> _parts = new(StringComparer.Ordinal);
     private readonly List<string> _appearSounds = [];
-    private readonly List<(int Health, Color Tint)> _healthTints = [];
+    private readonly List<int> _healthBands = [];
     private DropTable _scatteredDrops = DropTable.Nothing;
     private Vector2I _dropCorner;
     private (int From, int Digits) _dropAcross, _dropDown;
@@ -199,11 +200,10 @@ public partial class Phantoon : Enemy
         static (int From, int Digits) Field(DataNode field) => (field.Int("from"), field.Int("digits"));
         _appearSounds.Clear();
         _appearSounds.AddRange(data.List("appear_sounds").Select(sound => sound.AsText()));
-        _healthTints.Clear();
-        _healthTints.AddRange(data.List("health_tints").Select(band => (band.Int("health"), new Color(
-            (float)band.Get("tint").Distance("r").ToNumber(), (float)band.Get("tint").Distance("g").ToNumber(), (float)band.Get("tint").Distance("b").ToNumber()))));
-        if (_appearSounds.Count == 0 || _healthTints.Count == 0)
-            throw data.Problem("must give at least one sound of its appearing and one tint");
+        _healthBands.Clear();
+        _healthBands.AddRange(data.List("health_bands").Select(band => band.AsInt()));
+        if (_appearSounds.Count == 0 || _healthBands.Count == 0)
+            throw data.Problem("must give at least one sound of its appearing and one band of its health");
         _scatteredDrops = DropTable.Read(data.Get("scattered_drops"));
         DataNode scatter = data.Get("drop_scatter");
         _dropCorner = new Vector2I(scatter.Int("x"), scatter.Int("y"));
@@ -211,20 +211,27 @@ public partial class Phantoon : Enemy
         _dropDown = Field(scatter.Get("down"));
     }
 
-    /// <summary>The colours it shows for the health it has left: it changes as it is worn down.</summary>
-    private Color HealthTint
+    /// <summary>Which band of its health it is in, from nothing up: it changes colour as it is worn down.</summary>
+    private int HealthBand
     {
         get
         {
-            foreach ((int health, Color tint) in _healthTints)
+            for (int band = 0; band < _healthBands.Count; band++)
             {
-                if (Health.Current >= health)
-                    return tint;
+                if (Health.Current >= _healthBands[band])
+                    return band;
             }
 
-            return _healthTints[^1].Tint;
+            return _healthBands.Count - 1;
         }
     }
+
+    /// <summary>One of its pictures, in the colours of the health it has left.</summary>
+    private string Coloured(string picture) =>
+        picture.Replace("{health}", "_health_" + HealthBand.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => Coloured(step.Picture);
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -858,14 +865,14 @@ public partial class Phantoon : Enemy
     }
 
     /// <inheritdoc/>
-    protected override Color RestingTint => HealthTint with { A = _alpha };
+    protected override Color RestingTint => new(1, 1, 1, _alpha);
 
     /// <summary>Shows it as solid as <paramref name="alpha"/>, parts and all.</summary>
     private void SetVisible(float alpha)
     {
         _alpha = Math.Clamp(alpha, 0f, 1f);
         foreach (string part in _parts.Keys)
-            GetNodeOrNull<ActorVisual>(part)?.Tint(HealthTint with { A = _alpha });
+            GetNodeOrNull<ActorVisual>(part)?.Tint(new Color(1, 1, 1, _alpha));
     }
 
     /// <summary>Says which of it shots can land on, and whether its touch hurts.</summary>
@@ -916,7 +923,8 @@ public partial class Phantoon : Enemy
                 }
             }
 
-            GetNodeOrNull<ActorVisual>(part)?.Show(player.Current);
+            TimelineStep step = player.Current;
+            GetNodeOrNull<ActorVisual>(part)?.Show(step with { Picture = Coloured(step.Picture) });
         }
     }
 }

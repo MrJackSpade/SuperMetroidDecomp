@@ -2,8 +2,10 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Earthquakes;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Yard;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Engine;
@@ -54,6 +56,8 @@ public sealed partial class EngineAssetWriter
             .Value("fall_speed_limit", fallLimit)
             .Value("air_drag", EngineNames.Number(drag))
             .Value("shot_launch_speed", YardMotionDefinitions.BeamLaunchWholeSpeed)
+            // It is shaken off by the quake of a super missile striking a wall; the Godot game counts a shake's strength from one, the lightest.
+            .Value("falls_at_shake", (int)SuperMissileDefinitions.WallImpactEarthquake.Strength - (int)EarthquakeStrength.Light + 1)
             .Value("bounce_sound", EngineNames.Sound(EnemySoundEffectDefinitions.YardBounceSound))
             // The speed down a kick gives it, by the whole pixels an update Samus was running at.
             .Group("kick_speeds", EngineNames.List(YardKickDefinitions.Kicks.Select(EngineNames.Number)));

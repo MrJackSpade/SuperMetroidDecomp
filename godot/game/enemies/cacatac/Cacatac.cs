@@ -82,7 +82,8 @@ public partial class Cacatac : Enemy
             "down_right" => new(diagonal, diagonal),
             _ => throw new InvalidOperationException($"The Cacatac's timeline throws a spike \"{cue}\", which is no direction it has."),
         };
-        Fire("spike", Position, velocity);
+        // A spike thrown from the ceiling is a shot of its own: the ones thrown sideways point the other way up.
+        Fire(OnCeiling ? "spike_from_ceiling" : "spike", Position, velocity);
     }
 
     /// <inheritdoc/>

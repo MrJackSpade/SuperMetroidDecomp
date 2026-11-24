@@ -1011,7 +1011,7 @@ public partial class Kraid : Enemy
             return;
         _partPlaying[part] = timeline;
         _parts[part] = new TimelinePlayer(Timelines.Get(timeline));
-        GetNodeOrNull<ActorVisual>(part)?.Show(_parts[part].Current.Picture);
+        GetNodeOrNull<ActorVisual>(part)?.Show(_parts[part].Current);
         if (part == "Head")
             _headOver = false;
         if (part == "Foot")
@@ -1080,6 +1080,6 @@ public partial class Kraid : Enemy
             }
         }
 
-        GetNodeOrNull<ActorVisual>(part)?.Show(player.Current.Picture);
+        GetNodeOrNull<ActorVisual>(part)?.Show(player.Current);
     }
 }

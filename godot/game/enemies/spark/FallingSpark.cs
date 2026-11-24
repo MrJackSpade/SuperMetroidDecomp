@@ -9,7 +9,7 @@ namespace Game.Enemies;
 
 /// <summary>
 /// A falling spark, dripped by a Spark: it falls, drifting a little to one side and leaving a trail, and where it
-/// meets the floor it skips up and skitters off sideways, four times as fast, until its timeline ends.
+/// meets the floor it skips up and skitters off sideways, four times as fast, until the timeline it skitters by ends.
 /// </summary>
 public partial class FallingSpark : Projectile, IHasValues
 {
@@ -41,6 +41,10 @@ public partial class FallingSpark : Projectile, IHasValues
     [Export, DataValue("trail_every")]
     public int TrailEvery { get; set; } = 4;
 
+    /// <summary>The data file of the timeline it is shown by once it has met the floor, which ends it; empty to go on as it was.</summary>
+    [Export, DataValue("skitter_timeline")]
+    public string SkitterTimeline { get; set; } = "";
+
     /// <summary>The data file of the timeline of each piece of its trail.</summary>
     [Export, DataValue("trail_effect")]
     public string TrailEffect { get; set; } = "";
@@ -69,6 +73,8 @@ public partial class FallingSpark : Projectile, IHasValues
                 _skipped = true;
                 Velocity = new PixelVelocity(Velocity.X * SkitterTimes, -Pixels.FromNumber(SkipSpeed));
                 Position -= PixelOffset.FromWhole(0, SkipLift);
+                if (SkitterTimeline.Length > 0)
+                    PlayTimeline(SkitterTimeline);
                 return;
             }
 

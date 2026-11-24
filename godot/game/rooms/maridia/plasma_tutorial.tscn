@@ -1,0 +1,86 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/plasma_tutorial_in_sandless_maridia.json"
+KeepsMusic = true
+
+[node name="PlasmaTutorial" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(26, 1)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/plasma_tutorial_in_sandless_maridia.json"
+
+[node name="ToKassiuz" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/kassiuz.tscn"
+LeadsToExit = "ToPlasmaTutorial"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToPlasma" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/plasma.tscn"
+LeadsToExit = "ToPlasmaTutorial"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Puyo" parent="." instance=ExtResource("5")]
+position = Vector2(87, 156)
+HopCooldown = 3840
+BigHopDistance = 0
+
+[node name="Puyo2" parent="." instance=ExtResource("5")]
+position = Vector2(98, 156)
+HopCooldown = 3840
+BigHopDistance = 0
+
+[node name="Puyo3" parent="." instance=ExtResource("5")]
+position = Vector2(105, 156)
+HopCooldown = 3840
+BigHopDistance = 0
+
+[node name="Puyo4" parent="." instance=ExtResource("5")]
+position = Vector2(91, 152)
+HopCooldown = 3584
+BigHopDistance = 0
+
+[node name="Puyo5" parent="." instance=ExtResource("5")]
+position = Vector2(101, 152)
+HopCooldown = 3584
+BigHopDistance = 0
+
+[node name="Puyo6" parent="." instance=ExtResource("5")]
+position = Vector2(97, 148)
+HopCooldown = 3328
+BigHopDistance = 0
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false

@@ -55,6 +55,7 @@ public partial class Room : Node2D
     private readonly List<Projectile> _projectiles = [];
     private readonly List<Pickup> _pickups = [];
     private readonly List<Effect> _effects = [];
+    private readonly List<Remains> _remains = [];
 
     /// <summary>Things waiting to be added to the room: each once what it waits for has gone, and then after its count of updates.</summary>
     private readonly List<(Node2D Node, List<Node> After, int Updates)> _arriving = [];
@@ -66,13 +67,22 @@ public partial class Room : Node2D
     private readonly List<RoomSequence> _sequences = [];
     private readonly List<Backdrop> _backdrops = [];
     private readonly List<IRoomEntity> _leaving = [];
+
+    /// <summary>
+    /// The exit the player arrived at, until they have been in control and clear of it once. It takes no one until
+    /// then, so that a player something brings in through it, as an elevator does, is not taken straight back.
+    /// </summary>
+    private RoomExit? _arrivedAt;
     private readonly HashSet<string> _gone = new(StringComparer.Ordinal);
 
     /// <summary>The session the room is being played in.</summary>
     public GameSession Session => _session ?? throw NotSetUp();
 
     /// <summary>Where the room's assets are loaded from.</summary>
-    public ContentLibrary Content => Session.Content;
+    public ContentLibrary Content => _content ?? Session.Content;
+
+    /// <summary>The game's files as this room reads them: with pictures for its own set of graphics.</summary>
+    private ContentLibrary? _content;
 
     /// <summary>The player.</summary>
     public Player Player => _player ?? throw NotSetUp();
@@ -110,6 +120,12 @@ public partial class Room : Node2D
     /// <summary>The room's exits.</summary>
     public IReadOnlyList<RoomExit> Exits => _exits;
 
+    /// <summary>How many enemies have been killed in the room since it was set up, counting each time one that comes back is killed.</summary>
+    public int EnemiesKilled { get; private set; }
+
+    /// <summary>Counts an enemy's death.</summary>
+    internal void CountKilled() => EnemiesKilled++;
+
     /// <summary>Whether any enemy in the room is alive.</summary>
     public bool HasLiveEnemies => _enemies.Any(enemy => !enemy.IsDead && !_leaving.Contains(enemy));
 
@@ -125,6 +141,9 @@ public partial class Room : Node2D
         _session = session;
         _player = player;
         _gone.Clear();
+        EnemiesKilled = 0;
+        Entry = entry;
+        ShownTurn = null;
         ExitEntered = null;
 
         _terrain = GetChildren().OfType<Terrain>().SingleOrDefault()
@@ -136,7 +155,9 @@ public partial class Room : Node2D
         Version = Versions.FirstOrDefault(version => version.When is null || version.When.IsTrue(this));
         if (Version is not null && Version.LayoutFile.Length > 0)
             _terrain.LayoutFile = Version.LayoutFile;
-        _terrain.Load(Content);
+        _terrain.Load(Session.Content);
+        // What stands in the room is drawn with the graphics the room's layout is drawn with.
+        _content = Session.Content.DrawnWith(_terrain.Graphics);
         foreach (string patch in Version?.Patches ?? [])
             _terrain.ApplyPatch(patch);
 
@@ -203,8 +224,8 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Plays one update of the room, in a fixed order: the player, triggers and exits, enemies, projectiles and
-    /// pickups, room objects and the room itself, then effects. Groups named in <paramref name="stopped"/> do not run.
+    /// Plays one update of the room, in a fixed order: the player, triggers and exits, enemies, projectiles,
+    /// pickups and the remains of the destroyed, room objects and the room itself, then effects. Groups named in <paramref name="stopped"/> do not run.
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
@@ -214,7 +235,9 @@ public partial class Room : Node2D
             PixelRect body = Player.BodyRect;
             foreach (Trigger trigger in _triggers.ToList())
                 trigger.Step(this, body);
-            ExitEntered ??= _exits.FirstOrDefault(exit => exit.Area.Overlaps(body));
+            if (_arrivedAt is not null && Player.State.InControl && !_arrivedAt.Area.Overlaps(body))
+                _arrivedAt = null;
+            ExitEntered ??= _exits.FirstOrDefault(exit => exit != _arrivedAt && exit.Area.Overlaps(body));
         }
 
         if (!stopped.HasFlag(Stopped.Enemies))
@@ -238,6 +261,13 @@ public partial class Room : Node2D
             {
                 if (!_leaving.Contains(pickup))
                     pickup.Step();
+            }
+
+            // After the pickups, so that a drop the remains leave is first stepped in the update after it appears.
+            foreach (Remains remains in _remains.ToList())
+            {
+                if (!_leaving.Contains(remains))
+                    remains.Step();
             }
         }
 
@@ -323,6 +353,15 @@ public partial class Room : Node2D
     /// <summary>Whether something has been taken out of the room during this update.</summary>
     public bool IsLeaving(IRoomEntity entity) => _leaving.Contains(entity);
 
+    /// <summary>How the room was entered this time.</summary>
+    public RoomEntry? Entry { get; private set; }
+
+    /// <summary>
+    /// The turn the room is shown with, or null while it is level. The player and the room's objects are drawn where
+    /// the turn puts them; where they are, and everything that acts on it, is unchanged.
+    /// </summary>
+    public RoomTurn? ShownTurn { get; set; }
+
     /// <summary>Records that the thing placed in the room under <paramref name="name"/> is gone: dead, or opened.</summary>
     public void MarkGone(string name) => _gone.Add(name);
 
@@ -374,7 +413,7 @@ public partial class Room : Node2D
     public int ShakeStrength => _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.Strength ?? 0;
 
     /// <summary>Starts the room shaking. A room with no earthquake of its own is given one.</summary>
-    public void Shake(int strength, int updates)
+    public void Shake(int strength, int updates, ShakeWay way = ShakeWay.Across)
     {
         Earthquake? quake = _roomEffects.OfType<Earthquake>().FirstOrDefault();
         if (quake is null)
@@ -385,7 +424,7 @@ public partial class Room : Node2D
             _roomEffects.Add(quake);
         }
 
-        quake.Shake(strength, updates);
+        quake.Shake(strength, updates, way);
     }
 
     /// <summary>
@@ -433,6 +472,9 @@ public partial class Room : Node2D
             case Effect effect:
                 _effects.Add(effect);
                 break;
+            case Remains remains:
+                _remains.Add(remains);
+                break;
             case RoomObject roomObject:
                 _objects.Add(roomObject);
                 break;
@@ -449,6 +491,7 @@ public partial class Room : Node2D
     {
         Node point = GetNodeOrNull(entry.EntryPoint)
             ?? throw new InvalidOperationException($"The room \"{Name}\" has no entry point named \"{entry.EntryPoint}\".");
+        _arrivedAt = point as RoomExit;
         PixelPosition place = point switch
         {
             RoomExit exit => exit.ArrivalPoint,
@@ -481,6 +524,9 @@ public partial class Room : Node2D
                 case Effect effect:
                     _effects.Remove(effect);
                     break;
+                case Remains remains:
+                    _remains.Remove(remains);
+                    break;
                 case RoomObject roomObject:
                     _objects.Remove(roomObject);
                     break;
@@ -507,9 +553,14 @@ public partial class Room : Node2D
     {
         Session.Camera.Follow(Player.Position, Terrain.WidthInPixels, Terrain.HeightInPixels, _zones);
         var viewTopLeft = new Vector2I(Session.Camera.Left, Session.Camera.Top);
+
+        // The room is put on screen where the view has it, thrown about by any shaking. The player is not thrown about
+        // with it: they are shown where they would be were the room still.
+        Vector2I shake = _roomEffects.OfType<Earthquake>().FirstOrDefault(quake => quake.IsActive)?.ViewOffset ?? Vector2I.Zero;
+        Position = new Vector2(shake.X - viewTopLeft.X, shake.Y - viewTopLeft.Y);
         foreach (Backdrop backdrop in _backdrops)
             backdrop.Follow(viewTopLeft);
-        Player.ShowPosition();
+        EntityNode.Show(Player, (ShownTurn is { } turn ? turn.Turned(Player.Position) : Player.Position) - PixelOffset.FromWhole(shake.X, shake.Y));
         foreach (Enemy enemy in _enemies)
             enemy.ShowPosition();
         foreach (Projectile projectile in _projectiles)
@@ -518,8 +569,14 @@ public partial class Room : Node2D
             pickup.ShowPosition();
         foreach (Effect effect in _effects)
             effect.ShowPosition();
+        foreach (Remains remains in _remains)
+            remains.ShowPosition();
         foreach (RoomObject roomObject in _objects)
+        {
             roomObject.ShowPosition();
+            if (ShownTurn is { } turned)
+                EntityNode.Show(roomObject, turned.Turned(roomObject.Position));
+        }
     }
 
     /// <summary>The error for using a room before it is set up.</summary>

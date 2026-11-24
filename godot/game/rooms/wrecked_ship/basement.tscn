@@ -1,0 +1,457 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/work_robot/work_robot.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="PackedScene" path="res://game/enemies/atomic/atomic.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://game/enemies/spark/spark.tscn" id="14"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "phantoon_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/wrecked_ship/basement_in_wrecked_ship_power_on.json"
+Music = "wrecked_ship_powered_up"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/wrecked_ship/basement_in_wrecked_ship_power_off.json"
+Music = "wrecked_ship_powered_down"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 0
+About = "basement_eye_door_facing_left"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r4")])
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r6"), SubResource("r5")])
+
+[node name="Basement" type="Node2D"]
+script = ExtResource("3")
+Area = "wrecked_ship"
+MapCell = Vector2i(14, 20)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/wrecked_ship/basement_in_wrecked_ship_power_off.json"
+
+[node name="ToPhantoon" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(1264, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/phantoon.tscn"
+LeadsToExit = "ToBasement"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToWreckedShipMainShaft" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(608, 0)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_main_shaft.tscn"
+LeadsToExit = "ToBasement"
+Style = 1
+ArrivalOffset = Vector2i(32, 40)
+
+[node name="ToWreckedShipMap" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/wrecked_ship_map.tscn"
+LeadsToExit = "ToBasement"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Sbug" parent="." instance=ExtResource("6")]
+position = Vector2(875, 187)
+Speed = 3
+Heading = 194
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug2" parent="." instance=ExtResource("6")]
+position = Vector2(880, 184)
+Speed = 4
+Heading = 220
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug3" parent="." instance=ExtResource("6")]
+position = Vector2(880, 188)
+Speed = 3
+Heading = 222
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug4" parent="." instance=ExtResource("6")]
+position = Vector2(872, 195)
+Speed = 2
+Heading = 196
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug5" parent="." instance=ExtResource("6")]
+position = Vector2(882, 201)
+Speed = 3
+Heading = 216
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug6" parent="." instance=ExtResource("6")]
+position = Vector2(78, 170)
+Speed = 2
+Heading = 136
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug7" parent="." instance=ExtResource("6")]
+position = Vector2(81, 173)
+Speed = 3
+Heading = 140
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug8" parent="." instance=ExtResource("6")]
+position = Vector2(72, 200)
+Speed = 2
+Heading = 112
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug9" parent="." instance=ExtResource("6")]
+position = Vector2(82, 194)
+Speed = 4
+Heading = 144
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug10" parent="." instance=ExtResource("6")]
+position = Vector2(41, 170)
+Speed = 2
+Heading = 136
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug11" parent="." instance=ExtResource("6")]
+position = Vector2(45, 185)
+Speed = 2
+Heading = 152
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug12" parent="." instance=ExtResource("6")]
+position = Vector2(48, 191)
+Speed = 2
+Heading = 146
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug13" parent="." instance=ExtResource("6")]
+position = Vector2(482, 218)
+Speed = 2
+Heading = 184
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug14" parent="." instance=ExtResource("6")]
+position = Vector2(477, 227)
+Speed = 3
+Heading = 136
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug15" parent="." instance=ExtResource("6")]
+position = Vector2(504, 227)
+Speed = 3
+Heading = 224
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug16" parent="." instance=ExtResource("6")]
+position = Vector2(1011, 175)
+Speed = 3
+Heading = 208
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug17" parent="." instance=ExtResource("6")]
+position = Vector2(1007, 179)
+Speed = 2
+Heading = 200
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug18" parent="." instance=ExtResource("6")]
+position = Vector2(1002, 203)
+Speed = 2
+Heading = 208
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug19" parent="." instance=ExtResource("6")]
+position = Vector2(972, 222)
+Speed = 4
+Heading = 200
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="Sbug20" parent="." instance=ExtResource("6")]
+position = Vector2(974, 222)
+Speed = 2
+Heading = 196
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r6")
+
+[node name="UnpoweredWorkRobot" parent="." instance=ExtResource("7")]
+position = Vector2(77, 192)
+Powered = false
+Pose = "no_power_leaning_left"
+AlwaysActive = true
+PresentWhen = SubResource("r6")
+
+[node name="UnpoweredWorkRobot2" parent="." instance=ExtResource("7")]
+position = Vector2(880, 192)
+Powered = false
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r6")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(608, 32)
+DataFile = "objects/door_cap_blue_down.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="EyeCap" parent="." instance=ExtResource("8")]
+position = Vector2(1248, 96)
+DataFile = "objects/door_cap_eye_left.json"
+HeldShutBy = SubResource("r4")
+PresentWhen = SubResource("r6")
+
+[node name="EyeDoorEye" parent="." instance=ExtResource("9")]
+position = Vector2(1248, 112)
+StartsFacing = 0
+DestroyedFact = "basement_eye_door_facing_left"
+AlwaysActive = true
+PresentWhen = SubResource("r7")
+
+[node name="Screen3x0" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(768, 0)
+StartsOpen = true
+
+[node name="Screen4x0" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(1024, 0)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(1024, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 192)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen3x0")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 192)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen3x0Foot")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 192)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen4x0")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 192)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen4x0Foot")
+
+[node name="Scroll5" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1120, 192)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen3x0")
+
+[node name="Scroll6" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1120, 192)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen3x0Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToPhantoon"
+What = "close"
+Target = NodePath("../Screen3x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToPhantoon"
+What = "close"
+Target = NodePath("../Screen3x0Foot")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToPhantoon"
+What = "open"
+Target = NodePath("../Screen4x0")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToPhantoon"
+What = "close"
+Target = NodePath("../Screen4x0Foot")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/wrecked_ship_columns_tubes.png"
+ScrollShare = Vector2(0.75, 0.75)
+PresentWhen = SubResource("r6")
+
+[node name="WorkRobot" parent="." instance=ExtResource("7")]
+position = Vector2(77, 176)
+Powered = true
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="WorkRobot2" parent="." instance=ExtResource("7")]
+position = Vector2(880, 176)
+Powered = true
+Pose = "no_power_neutral"
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Atomic" parent="." instance=ExtResource("13")]
+position = Vector2(152, 77)
+Spin = "up_right_turning"
+Speed = 0.5
+PresentWhen = SubResource("r1")
+
+[node name="Atomic2" parent="." instance=ExtResource("13")]
+position = Vector2(638, 168)
+Spin = "up_right_turning_back"
+Speed = 0.5
+PresentWhen = SubResource("r1")
+
+[node name="Atomic3" parent="." instance=ExtResource("13")]
+position = Vector2(852, 73)
+Spin = "up_right_turning_back"
+Speed = 0.5
+PresentWhen = SubResource("r1")
+
+[node name="Spark" parent="." instance=ExtResource("14")]
+position = Vector2(1145, 106)
+Does = 1
+SpellUpdates = 32
+PresentWhen = SubResource("r1")
+
+[node name="BlueCap3" parent="." instance=ExtResource("8")]
+position = Vector2(1248, 96)
+DataFile = "objects/door_cap_blue_left.json"
+PresentWhen = SubResource("r1")
+
+[node name="Backdrop2" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/wrecked_ship_columns_tubes.png"
+ScrollShare = Vector2(0.75, 0)
+PresentWhen = SubResource("r1")

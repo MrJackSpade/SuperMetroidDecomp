@@ -1,0 +1,137 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/swooper/swooper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="11"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/cathedral_in_heated_norfair.json"
+KeepsMusic = true
+
+[node name="Cathedral" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(14, 4)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/cathedral_in_heated_norfair.json"
+
+[node name="ToCathedralEntrance" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/cathedral_entrance.tscn"
+LeadsToExit = "ToCathedral"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToRisingTide" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/rising_tide.tscn"
+LeadsToExit = "ToCathedral"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Geruta" parent="." instance=ExtResource("5")]
+position = Vector2(161, 83)
+DataFile = "enemies/geruta.json"
+
+[node name="Geruta2" parent="." instance=ExtResource("5")]
+position = Vector2(478, 321)
+DataFile = "enemies/geruta.json"
+
+[node name="Geruta3" parent="." instance=ExtResource("5")]
+position = Vector2(548, 125)
+DataFile = "enemies/geruta.json"
+
+[node name="Sova" parent="." instance=ExtResource("6")]
+position = Vector2(320, 229)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sova2" parent="." instance=ExtResource("6")]
+position = Vector2(110, 278)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sova3" parent="." instance=ExtResource("6")]
+position = Vector2(216, 184)
+DataFile = "enemies/sova.json"
+StartsOn = 3
+PressesLeft = false
+PressesUp = true
+CrawlSpeed = 0.75
+
+[node name="Sova4" parent="." instance=ExtResource("6")]
+position = Vector2(668, 244)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="MissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(552, 456)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "cathedral_shot_block_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="GreenCap" parent="." instance=ExtResource("8")]
+position = Vector2(736, 352)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "cathedral_green_door_facing_left"
+Remembered = 1
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+TypeFile = "liquids/lava.json"
+LowSurface = 433
+HighSurface = 433
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25

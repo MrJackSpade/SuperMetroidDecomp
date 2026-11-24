@@ -1,0 +1,197 @@
+[gd_scene load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="10"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "escape_started"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
+Music = "escape"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("1")
+Kind = 0
+About = "bomb_torizo_defeated"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("2")
+When = SubResource("r3")
+LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
+Music = "lower_crateria"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("2")
+LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
+Music = "lower_crateria"
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r7")])
+
+[sub_resource type="Resource" id="r9"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3")])
+
+[sub_resource type="Resource" id="r10"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r8"), SubResource("r9")])
+
+[node name="Flyway" type="Node2D"]
+script = ExtResource("3")
+Area = "crateria"
+MapCell = Vector2i(22, 7)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubResource("r5")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
+
+[node name="ToBombTorizo" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(752, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/bomb_torizo.tscn"
+LeadsToExit = "ToFlyway"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToParlor" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/parlor.tscn"
+LeadsToExit = "ToFlyway"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Mellow" parent="." instance=ExtResource("6")]
+position = Vector2(237, 97)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow2" parent="." instance=ExtResource("6")]
+position = Vector2(350, 92)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow3" parent="." instance=ExtResource("6")]
+position = Vector2(283, 96)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow4" parent="." instance=ExtResource("6")]
+position = Vector2(306, 73)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow5" parent="." instance=ExtResource("6")]
+position = Vector2(314, 101)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow6" parent="." instance=ExtResource("6")]
+position = Vector2(234, 66)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow7" parent="." instance=ExtResource("6")]
+position = Vector2(458, 107)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow8" parent="." instance=ExtResource("6")]
+position = Vector2(256, 118)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow9" parent="." instance=ExtResource("6")]
+position = Vector2(410, 88)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow10" parent="." instance=ExtResource("6")]
+position = Vector2(400, 126)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow11" parent="." instance=ExtResource("6")]
+position = Vector2(383, 62)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="Mellow12" parent="." instance=ExtResource("6")]
+position = Vector2(450, 65)
+DataFile = "enemies/mellow.json"
+PresentWhen = SubResource("r10")
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("7")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "flyway_red_door_facing_left"
+Remembered = 1
+PresentWhen = SubResource("r10")
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+Picture = "backdrops/crateria_brick_room_wall_art_dark.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"
+PresentWhen = SubResource("r1")
+
+[node name="Escape" type="Node" parent="."]
+script = ExtResource("10")
+StartsWhen = SubResource("r6")
+PresentWhen = SubResource("r1")

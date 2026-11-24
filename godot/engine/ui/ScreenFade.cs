@@ -12,6 +12,10 @@ public partial class ScreenFade : CanvasLayer
     [Export]
     public Color Colour { get; set; } = Colors.Black;
 
+    /// <summary>How many even steps the fade goes in; zero for one that changes a little every update.</summary>
+    [Export]
+    public int Levels { get; set; }
+
     private ColorRect? _cover;
     private int _updates = 1;
     private int _elapsed = 1;
@@ -63,6 +67,9 @@ public partial class ScreenFade : CanvasLayer
             AddChild(_cover);
         }
 
-        _cover.Color = new Color(Colour.R, Colour.G, Colour.B, (float)Covered / _updates);
+        float covered = (float)Covered / _updates;
+        if (Levels > 0)
+            covered = Mathf.Floor(covered * Levels) / Levels;
+        _cover.Color = new Color(Colour.R, Colour.G, Colour.B, covered);
     }
 }

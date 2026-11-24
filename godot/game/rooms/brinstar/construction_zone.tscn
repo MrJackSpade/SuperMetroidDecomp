@@ -1,0 +1,299 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/face_block/face_block.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="12"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "zebes_awake"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/brinstar/construction_zone_in_green_blue_brinstar.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/brinstar/construction_zone_in_green_blue_brinstar.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="ConstructionZone" type="Node2D"]
+script = ExtResource("3")
+Area = "brinstar"
+MapCell = Vector2i(29, 11)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/brinstar/construction_zone_in_green_blue_brinstar.json"
+
+[node name="ToBlueBrinstarEnergyTank" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/blue_brinstar_energy_tank.tscn"
+LeadsToExit = "ToConstructionZone"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToFirstMissile" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/first_missile.tscn"
+LeadsToExit = "ToConstructionZone"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToMorphBall" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/morph_ball.tscn"
+LeadsToExit = "ToConstructionZone"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Sbug" parent="." instance=ExtResource("6")]
+position = Vector2(46, 192)
+Speed = 3
+Heading = 138
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug2" parent="." instance=ExtResource("6")]
+position = Vector2(222, 179)
+Speed = 3
+Heading = 200
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug3" parent="." instance=ExtResource("6")]
+position = Vector2(219, 183)
+Speed = 2
+Heading = 248
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug4" parent="." instance=ExtResource("6")]
+position = Vector2(217, 177)
+Speed = 2
+Heading = 236
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug5" parent="." instance=ExtResource("6")]
+position = Vector2(215, 193)
+Speed = 3
+Heading = 244
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug6" parent="." instance=ExtResource("6")]
+position = Vector2(179, 467)
+Speed = 2
+Heading = 196
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug7" parent="." instance=ExtResource("6")]
+position = Vector2(185, 475)
+Speed = 3
+Heading = 208
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug8" parent="." instance=ExtResource("6")]
+position = Vector2(187, 490)
+Speed = 3
+Heading = 220
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug9" parent="." instance=ExtResource("6")]
+position = Vector2(174, 476)
+Speed = 2
+Heading = 187
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug10" parent="." instance=ExtResource("6")]
+position = Vector2(213, 496)
+Speed = 3
+Heading = 3
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="FaceBlock" parent="." instance=ExtResource("7")]
+position = Vector2(72, 136)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock2" parent="." instance=ExtResource("7")]
+position = Vector2(184, 136)
+TriggerDistance = 0
+StartsFacing = 1
+PresentWhen = SubResource("r4")
+
+[node name="FaceBlock3" parent="." instance=ExtResource("7")]
+position = Vector2(232, 278)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock4" parent="." instance=ExtResource("7")]
+position = Vector2(232, 358)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="FaceBlock5" parent="." instance=ExtResource("7")]
+position = Vector2(24, 278)
+TriggerDistance = 0
+StartsFacing = 0
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("8")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "construction_zone_red_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 176)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 176)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 176)
+Size = Vector2i(128, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 176)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToFirstMissile"
+What = "open"
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToFirstMissile"
+What = "open"
+Target = NodePath("../Screen0x1")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToFirstMissile"
+What = "close"
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToFirstMissile"
+What = "open"
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Picture = "backdrops/brinstar_small_pattern.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Zoomer" parent="." instance=ExtResource("12")]
+position = Vector2(88, 120)
+DataFile = "enemies/zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+PresentWhen = SubResource("r1")
+
+[node name="Zoomer2" parent="." instance=ExtResource("12")]
+position = Vector2(168, 148)
+DataFile = "enemies/zoomer.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+PresentWhen = SubResource("r1")
+
+[node name="FaceBlock6" parent="." instance=ExtResource("7")]
+position = Vector2(184, 136)
+TriggerDistance = 0
+StartsFacing = 0
+PresentWhen = SubResource("r1")

@@ -1,0 +1,91 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/zoa/zoa.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/butterfly_in_sandy_maridia.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "draygon_defeated"
+
+[node name="Butterfly" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(26, 8)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/butterfly_in_sandy_maridia.json"
+
+[node name="ToPlasmaSpark" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/plasma_spark.tscn"
+LeadsToExit = "ToBugSandHole"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToWestCactusAlley" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/west_cactus_alley.tscn"
+LeadsToExit = "ToButterfly"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Zoa" parent="." instance=ExtResource("6")]
+position = Vector2(152, 216)
+RespawnsWhenKilled = true
+
+[node name="Zoa2" parent="." instance=ExtResource("6")]
+position = Vector2(104, 216)
+RespawnsWhenKilled = true
+
+[node name="Zoa3" parent="." instance=ExtResource("6")]
+position = Vector2(152, 224)
+RespawnsWhenKilled = true
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="GreyCap" parent="." instance=ExtResource("7")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r2")
+RememberedAs = "butterfly_grey_door_facing_left"
+Remembered = 1
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_indigo.json"
+LowSurface = 73
+HighSurface = 73
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125
+
+[node name="FromPlasmaBeachQuicksandToButterfly" type="Marker2D" parent="."]
+position = Vector2(128, 128)

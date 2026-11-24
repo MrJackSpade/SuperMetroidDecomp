@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -10,7 +11,7 @@ namespace Game.Enemies;
 /// "fall" of its timeline, then falls, slowing across as it goes, and splashes on what it meets.
 /// </summary>
 /// <remarks>Its timelines are "wall_impact" and "floor_impact".</remarks>
-public partial class TorizoDrool : TorizoShot
+public partial class TorizoDrool : CuedProjectile
 {
     /// <summary>The downward speed it gains each update, as a number of pixels.</summary>
     [Export, DataValue("gravity")]

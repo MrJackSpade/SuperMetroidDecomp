@@ -18,7 +18,7 @@ namespace Engine.World;
 ///   "regrows_after": 240,
 ///   "hidden_until": ["bomb"],
 ///   "revealed_by_sight": true,
-///   "contact": "nothing",
+///   "contact": "nothing", "contact_hit": 0,
 ///   "pictures": { "intact": "tiles/shot_block.png", "hidden": "tiles/rock.png" }
 /// }
 /// </code>
@@ -58,6 +58,12 @@ public sealed class BlockType
     /// <summary>For a block that hurts, the damage each update, in hundredths of a point; for one that carries or pulls, unused.</summary>
     public int ContactDamageHundredths { get; private init; }
 
+    /// <summary>
+    /// For a block that hurts, the damage of the hit touching it delivers; zero for one that only does ongoing damage.
+    /// What was hit is safe for a moment afterwards, as after any hit, so the block does not hit again at once.
+    /// </summary>
+    public int ContactHit { get; private init; }
+
     /// <summary>For a block that carries or pulls, how far each update; rightward or downward when positive.</summary>
     public Pixels ContactSpeed { get; private init; }
 
@@ -86,6 +92,7 @@ public sealed class BlockType
             RevealedBySight = data.Has("revealed_by_sight") && data.Flag("revealed_by_sight"),
             Contact = data.Has("contact") ? data.Get("contact").AsEnum<BlockContact>() : BlockContact.Nothing,
             ContactDamageHundredths = data.Has("contact_damage_hundredths") ? data.Int("contact_damage_hundredths") : 0,
+            ContactHit = data.Has("contact_hit") ? data.Int("contact_hit") : 0,
             ContactSpeed = data.Has("contact_speed") ? data.Distance("contact_speed") : Pixels.Zero,
             IntactPicture = pictures is not null && pictures.Has("intact") ? pictures.Text("intact") : "",
             HiddenPicture = pictures is not null && pictures.Has("hidden") ? pictures.Text("hidden") : "",

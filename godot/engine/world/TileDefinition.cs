@@ -9,6 +9,15 @@ namespace Engine.World;
 /// <param name="Picture">The picture drawn for it, as a path within the assets tree; empty for none.</param>
 public sealed record TileDefinition(TileKind Kind, SlopeShape? Slope, string Block, int BlockWidth, int BlockHeight, string Picture)
 {
+    /// <summary>The pictures it steps through, for a tile that moves as it is looked at; empty for one picture that stays.</summary>
+    public IReadOnlyList<string> Frames { get; init; } = [];
+
+    /// <summary>How many updates each of those pictures shows for.</summary>
+    public int FrameUpdates { get; init; } = 1;
+
+    /// <summary>The picture it shows <paramref name="updates"/> updates into its room's stay.</summary>
+    public string PictureAt(long updates) => Frames.Count > 0 ? Frames[(int)(updates / FrameUpdates % Frames.Count)] : Picture;
+
     /// <summary>Open space, drawn as nothing.</summary>
     public static TileDefinition Empty { get; } = new(TileKind.Empty, null, "", 1, 1, "");
 }

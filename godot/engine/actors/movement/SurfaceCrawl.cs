@@ -77,6 +77,19 @@ public sealed class SurfaceCrawl
         _misses = 0;
     }
 
+    /// <summary>
+    /// Puts the crawler on a surface pressing a given way across and down, whatever the surface. One that presses away
+    /// from its surface finds nothing there and turns about, a face at a time, until it finds something to cling to.
+    /// </summary>
+    public void Start(Clings side, bool leftward, bool upward)
+    {
+        Side = side;
+        _across = leftward ? -1 : 1;
+        _down = upward ? -1 : 1;
+        IsFalling = false;
+        _misses = 0;
+    }
+
     /// <summary>Makes the crawler let go of its surface and fall, as when the room shakes.</summary>
     public void LetGo()
     {

@@ -37,12 +37,12 @@ public sealed class Inventory
     /// <summary>The names of the amounts that have a capacity, for saving.</summary>
     public IReadOnlyCollection<string> Amounts => _capacities.Keys;
 
-    /// <summary>Gives the player a piece of equipment, switched on.</summary>
+    /// <summary>Gives the player a piece of equipment, switched on. One they already own stays as they have it switched.</summary>
     public void Grant(string equipment)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(equipment);
-        _owned.Add(equipment);
-        _switchedOn.Add(equipment);
+        if (_owned.Add(equipment))
+            _switchedOn.Add(equipment);
     }
 
     /// <summary>Whether the player owns a piece of equipment.</summary>

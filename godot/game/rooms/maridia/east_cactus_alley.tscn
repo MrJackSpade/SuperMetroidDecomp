@@ -1,0 +1,136 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/cacatac/cacatac.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/east_cactus_alley_in_sandy_maridia.json"
+KeepsMusic = true
+
+[node name="EastCactusAlley" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(28, 7)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/east_cactus_alley_in_sandy_maridia.json"
+
+[node name="ToHalfieClimb" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1264, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/halfie_climb.tscn"
+LeadsToExit = "ToEastCactusAlley"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToWestCactusAlley" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/west_cactus_alley.tscn"
+LeadsToExit = "ToEastCactusAlley"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Cacatac" parent="." instance=ExtResource("5")]
+position = Vector2(384, 148)
+StartsFacing = 1
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac2" parent="." instance=ExtResource("5")]
+position = Vector2(656, 164)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac3" parent="." instance=ExtResource("5")]
+position = Vector2(912, 260)
+StartsFacing = 1
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac4" parent="." instance=ExtResource("5")]
+position = Vector2(720, 436)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = false
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac5" parent="." instance=ExtResource("5")]
+position = Vector2(240, 346)
+StartsFacing = 1
+StartsStopped = false
+OnCeiling = true
+TravelDistance = 16
+Speed = 0
+
+[node name="Cacatac6" parent="." instance=ExtResource("5")]
+position = Vector2(720, 362)
+StartsFacing = 0
+StartsStopped = false
+OnCeiling = true
+TravelDistance = 64
+Speed = 0.125
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(1248, 352)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(768, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(1024, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_purple.json"
+LowSurface = 309
+HighSurface = 309

@@ -1,0 +1,106 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/kago/kago.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/crateria/lower_mushrooms_in_lower_crateria.json"
+Music = "lower_crateria"
+
+[node name="LowerMushrooms" type="Node2D"]
+script = ExtResource("2")
+Area = "crateria"
+MapCell = Vector2i(7, 9)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/crateria/lower_mushrooms_in_lower_crateria.json"
+
+[node name="ToGreenBrinstarElevator" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/green_brinstar_elevator.tscn"
+LeadsToExit = "ToLowerMushrooms"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToGreenPiratesShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1008, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/green_pirates_shaft.tscn"
+LeadsToExit = "ToLowerMushrooms"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Kago" parent="." instance=ExtResource("5")]
+position = Vector2(256, 160)
+HitCount = 10
+
+[node name="Kago2" parent="." instance=ExtResource("5")]
+position = Vector2(528, 176)
+HitCount = 10
+
+[node name="ArmoredZoomer" parent="." instance=ExtResource("6")]
+position = Vector2(760, 112)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="ArmoredZoomer2" parent="." instance=ExtResource("6")]
+position = Vector2(424, 112)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+Picture = "backdrops/crateria_purple_rocks.png"
+ScrollShare = Vector2(0.75, 0.75)

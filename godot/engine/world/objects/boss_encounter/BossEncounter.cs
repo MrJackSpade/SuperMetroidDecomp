@@ -84,6 +84,7 @@ public partial class BossEncounter : RoomObject
         _finished = true;
         Remember();
         Room.MarkGone(Name);
-        Room.Session.Sounds.RequestMusic(Room.Version?.Music ?? "");
+        if (Room.Version is not { KeepsMusic: true })
+            Room.Session.Sounds.RequestMusic(Room.Version?.Music ?? "");
     }
 }

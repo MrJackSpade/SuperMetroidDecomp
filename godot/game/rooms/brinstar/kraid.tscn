@@ -1,0 +1,100 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/bosses/kraid/kraid.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "kraid_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/brinstar/kraid_in_kraid.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/brinstar/kraid_in_kraid.json"
+Music = "boss_room_tension"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Kraid" type="Node2D"]
+script = ExtResource("3")
+Area = "brinstar"
+MapCell = Vector2i(55, 19)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/brinstar/kraid_in_kraid.json"
+
+[node name="ToKraidEyeDoor" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/kraid_eye_door.tscn"
+LeadsToExit = "ToKraid"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToVariaSuit" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(496, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/varia_suit.tscn"
+LeadsToExit = "ToKraid"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Kraid" parent="." instance=ExtResource("6")]
+position = Vector2(256, 536)
+FightMusic = "kraid_and_phantoon_battle"
+VictoryMusic = "elevator"
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="Encounter" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+Size = Vector2i(512, 512)
+RememberedAs = "kraid_defeated"
+Boss = NodePath("../Kraid")
+
+[node name="GreyCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "kraid_grey_door_facing_right"
+Remembered = 1
+
+[node name="GreyCap2" parent="." instance=ExtResource("8")]
+position = Vector2(480, 352)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "kraid_grey_door_facing_left"
+Remembered = 1
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false

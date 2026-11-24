@@ -1,0 +1,130 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/cathedral_entrance_in_heated_norfair.json"
+KeepsMusic = true
+
+[node name="CathedralEntrance" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(11, 4)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/cathedral_entrance_in_heated_norfair.json"
+
+[node name="ToBusinessCenter" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/business_center.tscn"
+LeadsToExit = "ToCathedralEntrance"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToCathedral" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/cathedral.tscn"
+LeadsToExit = "ToCathedralEntrance"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Sova" parent="." instance=ExtResource("5")]
+position = Vector2(40, 256)
+DataFile = "enemies/sova.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Sova2" parent="." instance=ExtResource("5")]
+position = Vector2(24, 312)
+DataFile = "enemies/sova.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+AlwaysActive = true
+
+[node name="Sova3" parent="." instance=ExtResource("5")]
+position = Vector2(248, 152)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Sova4" parent="." instance=ExtResource("5")]
+position = Vector2(176, 216)
+DataFile = "enemies/sova.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Dessgeega" parent="." instance=ExtResource("6")]
+position = Vector2(392, 415)
+DataFile = "enemies/dessgeega.json"
+OnCeiling = false
+
+[node name="Dessgeega2" parent="." instance=ExtResource("6")]
+position = Vector2(559, 414)
+DataFile = "enemies/dessgeega.json"
+OnCeiling = false
+
+[node name="RedCap" parent="." instance=ExtResource("7")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "cathedral_entrance_red_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/lava.json"
+LowSurface = 464
+HighSurface = 464
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25

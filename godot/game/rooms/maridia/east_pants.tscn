@@ -1,0 +1,185 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/east_pants_in_sandy_maridia.json"
+KeepsMusic = true
+
+[node name="EastPants" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(27, 15)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/east_pants_in_sandy_maridia.json"
+
+[node name="ToPants" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/pants.tscn"
+LeadsToExit = "ToEastPants"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToShaktool" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/shaktool.tscn"
+LeadsToExit = "ToEastPants"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Puyo" parent="." instance=ExtResource("5")]
+position = Vector2(128, 556)
+HopCooldown = 48
+BigHopDistance = 22
+
+[node name="Puyo2" parent="." instance=ExtResource("5")]
+position = Vector2(192, 476)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo3" parent="." instance=ExtResource("5")]
+position = Vector2(112, 412)
+HopCooldown = 128
+BigHopDistance = 22
+
+[node name="Puyo4" parent="." instance=ExtResource("5")]
+position = Vector2(80, 752)
+HopCooldown = 16
+BigHopDistance = 8
+
+[node name="Puyo5" parent="." instance=ExtResource("5")]
+position = Vector2(176, 752)
+HopCooldown = 8
+BigHopDistance = 8
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("6")]
+position = Vector2(224, 352)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen0x2" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 512)
+StartsOpen = true
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(80, 544)
+Size = Vector2i(80, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(80, 544)
+Size = Vector2i(80, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(80, 432)
+Size = Vector2i(48, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(80, 432)
+Size = Vector2i(48, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Scroll5" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(80, 432)
+Size = Vector2i(48, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x2")
+
+[node name="Scroll6" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(80, 432)
+Size = Vector2i(48, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x2Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToShaktool"
+What = "open"
+Target = NodePath("../Screen0x1")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToShaktool"
+What = "open"
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToShaktool"
+What = "close"
+Target = NodePath("../Screen0x2")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToShaktool"
+What = "close"
+Target = NodePath("../Screen0x2Foot")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_green.json"
+LowSurface = 176
+HighSurface = 176
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

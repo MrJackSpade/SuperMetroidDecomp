@@ -1,0 +1,60 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/objects/station/energy_station.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/upper_norfair_refill_in_blue_refill.json"
+KeepsMusic = true
+
+[node name="UpperNorfairRefill" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(20, 10)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/upper_norfair_refill_in_blue_refill.json"
+
+[node name="ToAcidSnakesTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/acid_snakes_tunnel.tscn"
+LeadsToExit = "ToUpperNorfairRefill"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToSpikyAcidSnakesTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/spiky_acid_snakes_tunnel.tscn"
+LeadsToExit = "ToUpperNorfairRefill"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="EnergyStation" parent="." instance=ExtResource("5")]
+position = Vector2(96, 160)
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("6")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false

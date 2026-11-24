@@ -1,0 +1,226 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/owtch/owtch.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/northwest_maridia_bug_in_sandless_maridia.json"
+KeepsMusic = true
+
+[node name="NorthwestMaridiaBug" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(14, 5)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/northwest_maridia_bug_in_sandless_maridia.json"
+
+[node name="ToPseudoPlasmaSpark" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1008, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/pseudo_plasma_spark.tscn"
+LeadsToExit = "ToNorthwestMaridiaBug"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToWateringHole" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/watering_hole.tscn"
+LeadsToExit = "ToNorthwestMaridiaBug"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Owtch" parent="." instance=ExtResource("5")]
+position = Vector2(64, 456)
+StartsBy = 1
+UndergroundWait = 64
+Speed = 0.25
+TravelDistance = 16
+
+[node name="Owtch2" parent="." instance=ExtResource("5")]
+position = Vector2(184, 456)
+StartsBy = 0
+UndergroundWait = 64
+Speed = 0.5
+TravelDistance = 32
+
+[node name="Owtch3" parent="." instance=ExtResource("5")]
+position = Vector2(368, 456)
+StartsBy = 0
+UndergroundWait = 64
+Speed = 0.5
+TravelDistance = 64
+
+[node name="Owtch4" parent="." instance=ExtResource("5")]
+position = Vector2(408, 456)
+StartsBy = 1
+UndergroundWait = 128
+Speed = 0.25
+TravelDistance = 32
+
+[node name="Owtch5" parent="." instance=ExtResource("5")]
+position = Vector2(656, 440)
+StartsBy = 1
+UndergroundWait = 64
+Speed = 0.5
+TravelDistance = 16
+
+[node name="Owtch6" parent="." instance=ExtResource("5")]
+position = Vector2(776, 456)
+StartsBy = 0
+UndergroundWait = 192
+Speed = 0.25
+TravelDistance = 32
+
+[node name="Owtch7" parent="." instance=ExtResource("5")]
+position = Vector2(888, 456)
+StartsBy = 1
+UndergroundWait = 192
+Speed = 0.5
+TravelDistance = 32
+
+[node name="MaridiaFly" parent="." instance=ExtResource("6")]
+position = Vector2(32, 272)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly2" parent="." instance=ExtResource("6")]
+position = Vector2(24, 320)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly3" parent="." instance=ExtResource("6")]
+position = Vector2(16, 368)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly4" parent="." instance=ExtResource("6")]
+position = Vector2(752, 352)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="MaridiaFly5" parent="." instance=ExtResource("6")]
+position = Vector2(864, 320)
+DataFile = "enemies/maridia_fly.json"
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(992, 352)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen1x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 0)
+StartsOpen = false
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 256)
+StartsOpen = false
+
+[node name="Screen2x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 0)
+StartsOpen = false
+
+[node name="Screen3x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 0)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 352)
+Size = Vector2i(16, 64)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x1")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 352)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x1Foot")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(240, 352)
+Size = Vector2i(16, 64)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x1")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(240, 352)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x1Foot")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_indigo.json"
+LowSurface = 437
+HighSurface = 437
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

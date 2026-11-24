@@ -1,0 +1,128 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/kzan/kzan.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "phantoon_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/wrecked_ship/spiky_death_in_wrecked_ship_power_on.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/wrecked_ship/spiky_death_in_wrecked_ship_power_off.json"
+KeepsMusic = true
+
+[node name="SpikyDeath" type="Node2D"]
+script = ExtResource("3")
+Area = "wrecked_ship"
+MapCell = Vector2i(19, 16)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/wrecked_ship/spiky_death_in_wrecked_ship_power_off.json"
+
+[node name="ToElectricDeath" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/electric_death.tscn"
+LeadsToExit = "ToSpikyDeath"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToSpongeBath" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/sponge_bath.tscn"
+LeadsToExit = "ToSpikyDeath"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(480, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+Picture = "backdrops/wrecked_ship_columns_tubes.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Kzan" parent="." instance=ExtResource("9")]
+position = Vector2(80, 96)
+FallSpeed = 4
+FallWait = 16
+FallDistance = 104
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Kzan2" parent="." instance=ExtResource("9")]
+position = Vector2(160, 96)
+FallSpeed = 4
+FallWait = 12
+FallDistance = 104
+PresentWhen = SubResource("r1")
+
+[node name="Kzan3" parent="." instance=ExtResource("9")]
+position = Vector2(256, 96)
+FallSpeed = 4
+FallWait = 17
+FallDistance = 104
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Kzan4" parent="." instance=ExtResource("9")]
+position = Vector2(352, 96)
+FallSpeed = 4
+FallWait = 10
+FallDistance = 104
+PresentWhen = SubResource("r1")
+
+[node name="Kzan5" parent="." instance=ExtResource("9")]
+position = Vector2(432, 96)
+FallSpeed = 4
+FallWait = 20
+FallDistance = 104
+AlwaysActive = true
+PresentWhen = SubResource("r1")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+TypeFile = "liquids/water.json"
+LowSurface = 168
+HighSurface = 168
+PresentWhen = SubResource("r1")

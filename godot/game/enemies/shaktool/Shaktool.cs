@@ -234,7 +234,7 @@ public partial class Shaktool : Enemy
             if (part != Head && player is not null && GetNodeOrNull<ActorVisual>($"Part{part + 1}") is { } visual)
             {
                 visual.Position = offset;
-                visual.Show(player.Current.Picture);
+                visual.Show(player.Current);
             }
 
             if (saw && GetNodeOrNull<Collider>(part == 0 ? "Saw1" : "Saw2") is { } hitbox)

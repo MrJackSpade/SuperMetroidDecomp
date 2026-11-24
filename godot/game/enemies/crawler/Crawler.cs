@@ -18,12 +18,22 @@ public partial class Crawler : Enemy
     [Export]
     public SurfaceCrawl.Clings StartsOn { get; set; } = SurfaceCrawl.Clings.Below;
 
-    /// <summary>Whether it goes round clockwise: rightward along a floor, down a wall on its left.</summary>
+    /// <summary>
+    /// Whether it starts pressing left, not right: the way it crawls along a floor or ceiling, or the wall it presses
+    /// into.
+    /// </summary>
     [Export]
-    public bool Clockwise { get; set; } = true;
+    public bool PressesLeft { get; set; }
+
+    /// <summary>
+    /// Whether it starts pressing up, not down: the way it crawls along a wall, or the ceiling it presses into. One
+    /// placed pressing away from its surface turns about until it finds something to cling to, as on the cartridge.
+    /// </summary>
+    [Export]
+    public bool PressesUp { get; set; }
 
     /// <summary>How far it crawls each update, as a number of pixels; zero to stay put until it has fallen and landed once.</summary>
-    [Export, DataValue("crawl_speed")]
+    [Export]
     public double CrawlSpeed { get; set; } = 0.5;
 
     /// <summary>The speed it takes on landing from a fall when it was placed with none.</summary>
@@ -45,7 +55,7 @@ public partial class Crawler : Enemy
     {
         _crawl.Speed = Pixels.FromNumber(CrawlSpeed);
         _crawl.SpeedOnLanding = CrawlSpeed == 0 ? Pixels.FromNumber(LandingSpeed) : null;
-        _crawl.Start(StartsOn, Clockwise);
+        _crawl.Start(StartsOn, PressesLeft, PressesUp);
         ShowSurface();
     }
 

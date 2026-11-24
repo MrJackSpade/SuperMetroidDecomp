@@ -1,0 +1,181 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "draygon_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/maridia/the_precious_in_sandy_maridia.json"
+Music = "east_maridia"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/maridia/the_precious_in_sandy_maridia.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 0
+About = "the_precious_eye_door_facing_right"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r4")])
+
+[node name="ThePrecious" type="Node2D"]
+script = ExtResource("3")
+Area = "maridia"
+MapCell = Vector2i(41, 8)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/maridia/the_precious_in_sandy_maridia.json"
+
+[node name="ToColosseum" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/colosseum.tscn"
+LeadsToExit = "ToThePrecious"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToDraygon" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/draygon.tscn"
+LeadsToExit = "ToThePrecious"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="MissileTank" parent="." instance=ExtResource("6")]
+position = Vector2(456, 104)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "the_precious_shot_block_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="EyeCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_eye_right.json"
+HeldShutBy = SubResource("r4")
+
+[node name="EyeDoorEye" parent="." instance=ExtResource("8")]
+position = Vector2(16, 624)
+StartsFacing = 1
+DestroyedFact = "the_precious_eye_door_facing_right"
+AlwaysActive = true
+PresentWhen = SubResource("r5")
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 256)
+StartsOpen = false
+
+[node name="Screen1x2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 512)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x2Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 224)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 224)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 224)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(64, 224)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_purple.json"
+LowSurface = 191
+HighSurface = 191
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

@@ -36,6 +36,7 @@ public sealed class GameSession
         Saves = saves;
         Options = options;
         Random = new GameRandom(definition.CreateRandomSequence());
+        Services = definition.CreateServices();
         Camera = new Camera(
             ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(),
             ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32());
@@ -45,6 +46,16 @@ public sealed class GameSession
 
     /// <summary>The game being played.</summary>
     public GameDefinition Definition { get; }
+
+    /// <summary>The session-long services the game adds.</summary>
+    public IReadOnlyList<ISessionService> Services { get; }
+
+    /// <summary>The game's service of type <typeparamref name="T"/>.</summary>
+    /// <exception cref="InvalidOperationException">The game has no such service.</exception>
+    public T Service<T>()
+        where T : class, ISessionService =>
+        Services.OfType<T>().FirstOrDefault()
+        ?? throw new InvalidOperationException($"The game has no session service of type {typeof(T).Name}.");
 
     /// <summary>Where the game's assets are loaded from.</summary>
     public ContentLibrary Content { get; }
@@ -92,6 +103,8 @@ public sealed class GameSession
         _player = null;
         _messages.Clear();
         SaveRequested = null;
+        foreach (ISessionService service in Services)
+            service.BeginAgain();
     }
 
     /// <summary>The view onto the room being played.</summary>
@@ -107,17 +120,59 @@ public sealed class GameSession
     public Node Host => _host;
 
     /// <summary>The messages asked for and not yet shown, by name, in the order they were asked for.</summary>
-    private readonly Queue<string> _messages = new();
+    private readonly Queue<(string Message, string Fanfare, int HoldUpdates)> _messages = new();
 
     /// <summary>Asks for a message to be shown. The mode in control shows it.</summary>
-    public void RequestMessage(string message)
+    /// <param name="message">The message, by name.</param>
+    /// <param name="fanfare">Music played while it shows, by name, after which the music there was comes back; empty for none.</param>
+    /// <param name="holdUpdates">How many updates it stays up before it can be dismissed.</param>
+    public void RequestMessage(string message, string fanfare = "", int holdUpdates = 0)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
-        _messages.Enqueue(message);
+        ArgumentNullException.ThrowIfNull(fanfare);
+        ArgumentOutOfRangeException.ThrowIfNegative(holdUpdates);
+        _messages.Enqueue((message, fanfare, holdUpdates));
     }
 
-    /// <summary>Takes the next message waiting to be shown, or null when none is.</summary>
-    public string? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
+    /// <summary>Takes the next message waiting to be shown, with its fanfare and how long it is held, or null when none is.</summary>
+    public (string Message, string Fanfare, int HoldUpdates)? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
+
+    private bool _pauseRequested;
+
+    /// <summary>Asks for the game to be paused, on its pause screen, as soon as no message is waiting to be shown.</summary>
+    public void RequestPause() => _pauseRequested = true;
+
+    /// <summary>Whether a pause was asked for; asking takes the request.</summary>
+    public bool TakePauseRequest()
+    {
+        bool requested = _pauseRequested;
+        _pauseRequested = false;
+        return requested;
+    }
+
+    /// <summary>The question asked and not yet shown, with who is to be given its answer.</summary>
+    private (string Message, Action<bool> Answered)? _question;
+
+    /// <summary>
+    /// Asks for a message that is answered yes or no to be shown. The mode in control shows it and gives the answer to
+    /// <paramref name="answered"/>.
+    /// </summary>
+    public void RequestQuestion(string message, Action<bool> answered)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(message);
+        ArgumentNullException.ThrowIfNull(answered);
+        if (_question is not null)
+            throw new InvalidOperationException($"The question \"{message}\" was asked while \"{_question.Value.Message}\" was still waiting to be shown.");
+        _question = (message, answered);
+    }
+
+    /// <summary>Takes the question waiting to be shown, or null when none is.</summary>
+    public (string Message, Action<bool> Answered)? TakeQuestion()
+    {
+        (string, Action<bool>)? question = _question;
+        _question = null;
+        return question;
+    }
 
     /// <summary>Where the game was last asked to be saved: the room's scene and the entry point in it. Null until it is asked.</summary>
     public (string Room, string EntryPoint)? SaveRequested { get; private set; }

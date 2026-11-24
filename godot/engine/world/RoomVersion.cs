@@ -21,6 +21,10 @@ public partial class RoomVersion : Resource
     [Export]
     public string Music { get; set; } = "";
 
+    /// <summary>Whether this version asks for no music of its own: whatever is playing as the room is entered goes on.</summary>
+    [Export]
+    public bool KeepsMusic { get; set; }
+
     /// <summary>The names of the layout's patches in place in this version.</summary>
     [Export]
     public string[] Patches { get; set; } = [];

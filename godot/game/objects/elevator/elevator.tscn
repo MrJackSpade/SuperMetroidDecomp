@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/world/objects/carrier/Carrier.cs" id="1"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="2"]
+
+[node name="Elevator" type="Node2D"]
+script = ExtResource("1")
+DataFile = "objects/elevator.json"
+Speed = 1.5
+Size = Vector2i(32, 48)
+HoldsAt = Vector2i(16, 22)
+DepartureSound = "room_elevator"
+ArrivalSound = "silence"
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("2")
+position = Vector2(16, 48)

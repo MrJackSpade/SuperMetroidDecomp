@@ -1,0 +1,145 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/bosses/draygon/draygon.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
+[ext_resource type="PackedScene" path="res://game/bosses/draygon/draygon_cannon.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "draygon_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/maridia/draygon_in_draygon.json"
+Music = "elevator"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/maridia/draygon_in_draygon.json"
+Music = "ridley_and_draygon_battle"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r4"), SubResource("r4")])
+
+[node name="Draygon" type="Node2D"]
+script = ExtResource("3")
+Area = "maridia"
+MapCell = Vector2i(39, 10)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/maridia/draygon_in_draygon.json"
+
+[node name="ToSpaceJump" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/space_jump.tscn"
+LeadsToExit = "ToDraygon"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToThePrecious" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/the_precious.tscn"
+LeadsToExit = "ToDraygon"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Draygon" parent="." instance=ExtResource("6")]
+position = Vector2(-80, -80)
+VictoryMusic = "elevator"
+AlwaysActive = true
+PresentWhen = SubResource("r5")
+
+[node name="Encounter" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+Size = Vector2i(512, 512)
+RememberedAs = "draygon_defeated"
+Boss = NodePath("../Draygon")
+PresentWhen = SubResource("r4")
+
+[node name="UpperLeftCannon" parent="." instance=ExtResource("8")]
+position = Vector2(32, 176)
+Slot = 0
+StartsFacing = 1
+StartsBroken = true
+AlwaysActive = true
+
+[node name="LowerLeftCannon" parent="." instance=ExtResource("8")]
+position = Vector2(32, 288)
+Slot = 1
+StartsFacing = 1
+StartsBroken = false
+AlwaysActive = true
+
+[node name="UpperRightCannon" parent="." instance=ExtResource("8")]
+position = Vector2(464, 240)
+Slot = 2
+StartsFacing = 0
+StartsBroken = false
+AlwaysActive = true
+
+[node name="LowerRightCannon" parent="." instance=ExtResource("8")]
+position = Vector2(464, 336)
+Slot = 3
+StartsFacing = 0
+StartsBroken = false
+AlwaysActive = true
+
+[node name="GreyCap" parent="." instance=ExtResource("9")]
+position = Vector2(480, 96)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "draygon_grey_door_facing_left"
+Remembered = 1
+
+[node name="GreyCap2" parent="." instance=ExtResource("9")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "draygon_grey_door_facing_right"
+Remembered = 1
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_indigo.json"
+LowSurface = 16
+HighSurface = 16
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

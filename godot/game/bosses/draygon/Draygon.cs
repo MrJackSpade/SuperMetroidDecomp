@@ -811,7 +811,7 @@ public partial class Draygon : Enemy
                 }
             }
 
-            GetNodeOrNull<ActorVisual>(part)?.Show(player.Current.Picture);
+            GetNodeOrNull<ActorVisual>(part)?.Show(player.Current);
         }
     }
 }

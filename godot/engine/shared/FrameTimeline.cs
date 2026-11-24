@@ -10,8 +10,11 @@ namespace Engine.Shared;
 /// <remarks>
 /// <code>
 /// { "steps": [ { "picture": "a.png", "updates": 4 }, { "picture": "b.png", "updates": 4, "cues": ["fire"] } ],
-///   "loops_to": 0 }
+///   "loops_to": 0, "offset": { "x": -8, "y": -8 } }
 /// </code>
+/// "offset" is where the top-left corner of each of its pictures lies from the place of the thing shown; when not
+/// given the pictures lie where the thing itself puts them. A step may have an "offset" of its own, which is added
+/// to the timeline's for that step: a picture that moves about as the timeline plays.
 /// </remarks>
 public sealed class FrameTimeline
 {
@@ -38,10 +41,16 @@ public sealed class FrameTimeline
     /// <summary>Reads a timeline from a data file.</summary>
     public static FrameTimeline Read(DataNode data)
     {
+        (int X, int Y) offset = data.Has("offset") ? (data.Get("offset").Int("x"), data.Get("offset").Int("y")) : (0, 0);
         var steps = data.List("steps").Select(step => new TimelineStep(
             step.Has("picture") ? step.Text("picture") : "",
             step.Int("updates"),
-            step.Has("cues") ? step.List("cues").Select(cue => cue.AsText()).ToList() : [])).ToList();
+            step.Has("cues") ? step.List("cues").Select(cue => cue.AsText()).ToList() : [])
+        {
+            Offset = step.Has("offset")
+                ? (offset.X + step.Get("offset").Int("x"), offset.Y + step.Get("offset").Int("y"))
+                : offset,
+        }).ToList();
         int? loopsTo = data.Has("loops_to") ? data.Int("loops_to") : null;
         try
         {

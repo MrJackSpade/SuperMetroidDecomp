@@ -70,6 +70,10 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("dying_updates")]
     public int DyingUpdates { get; set; } = 120;
 
+    /// <summary>The effect left at the player's feet on landing, by the data file of its timeline; empty for none.</summary>
+    [Export(PropertyHint.File)]
+    public string LandEffect { get; set; } = "";
+
     /// <summary>The most pixels climbed for each pixel walked across a slope.</summary>
     [Export, DataValue("climb_per_pixel")]
     public int ClimbPerPixel { get; set; } = 2;
@@ -408,6 +412,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Position = place;
         Velocity = velocity;
         Facing = facing;
+
+        // Arriving is neither a landing nor a crossing of a surface.
+        (_wasOnGround, _feetWereInLiquid) = (true, null);
     }
 
     /// <summary>
@@ -434,12 +441,46 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         DeliverBodyPowers();
         if (State is not DyingState)
         {
-            if (IsOnGround)
+            bool onGround = IsOnGround;
+            if (onGround)
                 Room.Terrain.StandOn(BodyRect);
+            if (onGround && !_wasOnGround)
+                OnLanded();
+            _wasOnGround = onGround;
+            Splash();
             TakeOngoingDamage();
         }
 
         AfterState();
+    }
+
+    /// <summary>Whether the player's feet were on the ground, and in the room's liquid, at the end of the last update.</summary>
+    private bool _wasOnGround = true;
+    private bool? _feetWereInLiquid;
+
+    /// <summary>
+    /// Called as the player comes down onto the ground. The engine's player leaves its landing effect at its feet, if
+    /// its scene names one.
+    /// </summary>
+    protected virtual void OnLanded()
+    {
+        if (LandEffect.Length > 0)
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(LandEffect)), Feet));
+    }
+
+    /// <summary>Leaves the liquid's splash, and asks for its sound, as the player's feet cross its surface either way.</summary>
+    private void Splash()
+    {
+        Liquid? liquid = Room.Liquid;
+        bool inLiquid = liquid is not null && liquid.IsSubmerged(Feet);
+        bool crossed = _feetWereInLiquid is bool before && before != inLiquid;
+        _feetWereInLiquid = inLiquid;
+        if (!crossed || liquid is null)
+            return;
+        if (liquid.Type.SplashEffect.Length > 0)
+            Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(liquid.Type.SplashEffect)), new PixelPosition(Position.X, liquid.Surface)));
+        if (liquid.Type.SplashSound.Length > 0)
+            Room.Session.Sounds.Request(liquid.Type.SplashSound, channel: "liquid");
     }
 
     /// <summary>Called at the start of each update, before the player's state runs.</summary>
@@ -477,7 +518,8 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public void Push(PixelVelocity velocity, int updates) => ChangeState(new PushedState(velocity, updates));
 
     /// <summary>Holds the player at a station until released.</summary>
-    public void UseStation() => ChangeState(new UsingStationState());
+    /// <param name="facingOut">Whether the player turns to face out of the screen while held.</param>
+    public void UseStation(bool facingOut = false) => ChangeState(new UsingStationState { FacingOut = facingOut });
 
     /// <summary>Takes control from the player for a scripted sequence, until released.</summary>
     public ScriptedState Script()
@@ -543,6 +585,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (Inventory.Amount(Inventory.Energy) == 0 && !SurvivesEmptyEnergy())
             Die();
     }
+
+    /// <summary>The energy <paramref name="hit"/> would take from the player as they are equipped now.</summary>
+    public int EnergyLostTo(Hit hit) => DamageFrom(hit);
 
     /// <summary>Whether a hit can land on the player at the moment. A game with states in which the player cannot be hit says so here.</summary>
     protected virtual bool AcceptsHit(Hit hit) => true;
@@ -895,11 +940,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
                 hundredths += amount;
         }
 
+        int blockHit = 0;
         foreach (Block block in Room.Terrain.BlocksIn(BodyRect, touchingCounts: true))
         {
-            if (block.Type.Contact == BlockContact.Hurts && !IsCancelled("blocks"))
-                hundredths += block.Type.ContactDamageHundredths;
+            if (block.Type.Contact != BlockContact.Hurts || IsCancelled("blocks"))
+                continue;
+            hundredths += block.Type.ContactDamageHundredths;
+            blockHit = Math.Max(blockHit, block.Type.ContactHit);
         }
+
+        // A block that hits, as a spike does, lands the hardest hit of those touched.
+        if (blockHit > 0)
+            TakeHit(new Hit(blockHit, HitSide.Neutral, HitKind.Hazard), Hurtbox);
 
         hundredths = OngoingDamageTaken(hundredths);
         if (hundredths == 0)

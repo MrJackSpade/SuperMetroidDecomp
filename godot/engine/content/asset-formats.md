@@ -44,7 +44,8 @@ level:
 - **Hidden items.** Where the old code hides an item in a shot block, the layout has that block.
 - **Patches.** Every change the old code made to a room's blocks during play is a patch of the layout, by the name
   the manifest lists for it: a bridge collapsing, a wall coming down, the way the animals leave by.
-- **Backgrounds.** A room whose old background is part of its level is drawn by its layout. One with a background
+- **Backgrounds.** A background picture is coloured by its room's set of graphics, so it is kept once for each set
+  that shows it, as `backdrops/{graphics}/<name>.png`. A room whose old background is part of its level is drawn by its layout. One with a background
   picture of its own has a backdrop in its scene, and the picture is an asset.
 
 ## Pictures for a set of graphics

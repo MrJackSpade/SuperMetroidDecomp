@@ -351,7 +351,7 @@ PresentWhen = SubResource("r16")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/scrolling_sky_landing_site.png"
+Picture = "backdrops/{graphics}/scrolling_sky_landing_site.png"
 ScrollShare = Vector2(0.5, 0)
 
 [node name="Landing" type="Node" parent="."]

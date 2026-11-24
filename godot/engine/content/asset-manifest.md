@@ -317,7 +317,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `rooms/crateria/red_brinstar_elevator_in_lower_crateria.json` |  |
 | `rooms/crateria/save_room_door_on_right_in_save_station.json` |  |
 | `rooms/crateria/statues_hallway_in_statues_hall.json` |  |
-| `rooms/crateria/statues_in_map_statues.json` | floor_clear, floor_crumbling |
+| `rooms/crateria/statues_in_map_statues.json` | floor_clear |
 | `rooms/crateria/terminator_in_lower_crateria.json` |  |
 | `rooms/crateria/west_ocean_in_upper_crateria.json` |  |
 | `rooms/maridia/aqueduct_in_sandy_maridia.json` |  |
@@ -506,67 +506,67 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 
 | File | Named in |
 | --- | --- |
-| `backdrops/brinstar_blue_grid_blocks.png` | `game/rooms/brinstar/alpha_power_bomb.tscn`, `game/rooms/brinstar/spazer.tscn` |
-| `backdrops/brinstar_dark_pattern.png` | `game/rooms/brinstar/big_pink.tscn` |
-| `backdrops/brinstar_horizontal_glow_patches.png` | `game/rooms/brinstar/etecoon_energy_tank.tscn`, `game/rooms/brinstar/etecoon_super.tscn`, `game/rooms/brinstar/green_brinstar_beetoms.tscn` and 2 more |
-| `backdrops/brinstar_large_horizontal_pattern.png` | `game/rooms/brinstar/brinstar_reserve_tank.tscn` |
-| `backdrops/brinstar_mechanical_room.png` | `game/rooms/brinstar/warehouse_entrance.tscn` |
-| `backdrops/brinstar_mechanical_room_spike_floor.png` | `game/rooms/brinstar/xray_scope.tscn` |
-| `backdrops/brinstar_medium_horizontal_pattern.png` | `game/rooms/brinstar/brinstar_pre_map.tscn` |
-| `backdrops/brinstar_narrow_vertical_tower_brick.png` | `game/rooms/brinstar/beta_power_bomb.tscn`, `game/rooms/brinstar/skree_boost.tscn` |
-| `backdrops/brinstar_narrow_vertical_tower_brick_vines.png` | `game/rooms/brinstar/mini_kraid.tscn` |
-| `backdrops/brinstar_small_pattern.png` | `game/rooms/brinstar/construction_zone.tscn`, `game/rooms/brinstar/first_missile.tscn`, `game/rooms/brinstar/spore_spawn_super.tscn` |
-| `backdrops/brinstar_spheres_pattern.png` | `game/rooms/brinstar/green_hill_zone.tscn` |
-| `backdrops/brinstar_thin_horizontal_pattern.png` | `game/rooms/brinstar/early_supers.tscn`, `game/rooms/brinstar/pink_brinstar_hoppers.tscn`, `game/rooms/brinstar/pink_brinstar_power_bombs.tscn` and 1 more |
-| `backdrops/brinstar_varied_small_pattern.png` | `game/rooms/brinstar/billy_mays.tscn`, `game/rooms/brinstar/blue_brinstar_boulders.tscn`, `game/rooms/brinstar/blue_brinstar_energy_tank.tscn` and 1 more |
-| `backdrops/brinstar_vertical_brick.png` | `game/rooms/brinstar/below_spazer.tscn` |
-| `backdrops/brinstar_vertical_glow_patches.png` | `game/rooms/brinstar/green_brinstar_main_shaft.tscn` |
-| `backdrops/brinstar_vertical_tower.png` | `game/rooms/brinstar/hellway.tscn` |
-| `backdrops/brinstar_wide_vertical_tower_brick.png` | `game/rooms/brinstar/red_tower.tscn` |
-| `backdrops/ceres_capsule_hall.png` | `game/rooms/ceres/ceres_ridley_hallway.tscn`, `game/rooms/ceres/falling_tile.tscn`, `game/rooms/ceres/magnet_stairs.tscn` |
 | `backdrops/ceres_elevator_shaft.png` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `backdrops/ceres_ridley_floor.png` | `game/rooms/ceres/ceres_ridley.tscn` |
-| `backdrops/crateria_brick_room.png` | `game/rooms/crateria/final_missile_bombway.tscn`, `game/rooms/crateria/green_pirates_shaft.tscn` |
-| `backdrops/crateria_brick_room_wall_art.png` | `game/rooms/crateria/pre_map_flyway.tscn` |
-| `backdrops/crateria_brick_room_wall_art_dark.png` | `game/rooms/crateria/flyway.tscn` |
-| `backdrops/crateria_elevator.png` | `game/rooms/crateria/forgotten_highway_elevator.tscn`, `game/rooms/crateria/red_brinstar_elevator.tscn` |
-| `backdrops/crateria_horizontal_pattern_rocks.png` | `game/rooms/crateria/bowling_alley_path.tscn`, `game/rooms/crateria/gauntlet_energy_tank.tscn`, `game/rooms/crateria/gauntlet_entrance.tscn` |
-| `backdrops/crateria_mechanical.png` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/crateria_super.tscn` and 2 more |
-| `backdrops/crateria_purple_rocks.png` | `game/rooms/crateria/lower_mushrooms.tscn`, `game/rooms/crateria/terminator.tscn` |
-| `backdrops/crateria_rocks.png` | `game/rooms/crateria/crab_maze.tscn`, `game/rooms/crateria/crateria_kihunter.tscn`, `game/rooms/crateria/crateria_power_bombs.tscn` and 2 more |
-| `backdrops/crateria_vertical_pattern_rocks.png` | `game/rooms/crateria/forgotten_highway_elbow.tscn`, `game/rooms/crateria/forgotten_highway_kagos.tscn` |
-| `backdrops/maridia_brown_wall.png` | `game/rooms/maridia/crab_tunnel.tscn` |
-| `backdrops/maridia_green_wall.png` | `game/rooms/maridia/east_sand_hall.tscn`, `game/rooms/maridia/west_sand_hall.tscn` |
-| `backdrops/norfair_bubbles.png` | `game/rooms/norfair/bubble_mountain.tscn`, `game/rooms/norfair/green_bubbles_missiles.tscn` |
-| `backdrops/norfair_cavern_horizontal_ruins.png` | `game/rooms/norfair/worst_room_in_the_game.tscn` |
-| `backdrops/norfair_cavern_room_pillars.png` | `game/rooms/norfair/acid_statue.tscn`, `game/rooms/norfair/lower_norfair_escape_power_bombs.tscn`, `game/rooms/norfair/ridley.tscn` and 3 more |
-| `backdrops/norfair_cavern_stalactites.png` | `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/grapple_tutorial1.tscn`, `game/rooms/norfair/lower_norfair_elevator.tscn` and 7 more |
-| `backdrops/norfair_cavern_vertical.png` | `game/rooms/norfair/business_center.tscn`, `game/rooms/norfair/crumble_shaft.tscn`, `game/rooms/norfair/grapple_beam.tscn` and 3 more |
-| `backdrops/norfair_cavern_vertical_ruins.png` | `game/rooms/norfair/fast_ripper.tscn`, `game/rooms/norfair/main_hall.tscn`, `game/rooms/norfair/pillar.tscn` |
-| `backdrops/norfair_purple_patches.png` | `game/rooms/norfair/lower_norfair_spring_ball_maze.tscn`, `game/rooms/norfair/mickey_mouse.tscn`, `game/rooms/norfair/norfair_reserve_tank.tscn` and 3 more |
-| `backdrops/norfair_room_statues.png` | `game/rooms/norfair/lower_norfair_farming.tscn`, `game/rooms/norfair/metal_pirates.tscn`, `game/rooms/norfair/plowerhouse.tscn` |
-| `backdrops/norfair_small_pattern_brown_purple.png` | `game/rooms/norfair/amphitheatre.tscn`, `game/rooms/norfair/crocomire_speedway.tscn`, `game/rooms/norfair/grapple_tutorial3.tscn` and 6 more |
-| `backdrops/norfair_small_pattern_brown_purple_bright.png` | `game/rooms/norfair/frog_speedway.tscn`, `game/rooms/norfair/hi_jump_boots.tscn`, `game/rooms/norfair/ice_beam_acid.tscn` and 2 more |
-| `backdrops/norfair_vertical_pattern_brick.png` | `game/rooms/norfair/fast_pillars_setup.tscn` |
-| `backdrops/scrolling_sky_east_ocean.png` | `game/rooms/crateria/east_ocean.tscn` |
-| `backdrops/scrolling_sky_landing_site.png` | `game/rooms/crateria/landing_site.tscn` |
-| `backdrops/scrolling_sky_pre_bowling.png` | `game/rooms/crateria/pre_bowling.tscn` |
-| `backdrops/scrolling_sky_west_ocean.png` | `game/rooms/crateria/west_ocean.tscn` |
-| `backdrops/statues_hallway_grey_tower_brick.png` | `game/rooms/crateria/statues_hallway.tscn` |
-| `backdrops/tourian_mechanical_room.png` | `game/rooms/tourian/metroids2.tscn`, `game/rooms/tourian/metroids4.tscn`, `game/rooms/tourian/tourian_first.tscn` |
-| `backdrops/tourian_mechanical_room_letterbox.png` | `game/rooms/tourian/metroids1.tscn`, `game/rooms/tourian/metroids3.tscn` |
-| `backdrops/tourian_pipe_room.png` | `game/rooms/tourian/tourian_escape3.tscn`, `game/rooms/tourian/tourian_escape4.tscn` |
-| `backdrops/tourian_pipe_room_dark.png` | `game/rooms/tourian/mother_brain.tscn` |
-| `backdrops/tourian_pipe_room_letterbox.png` | `game/rooms/tourian/tourian_escape1.tscn` |
-| `backdrops/tourian_pipe_room_vertical_separation.png` | `game/rooms/tourian/rinka_shaft.tscn`, `game/rooms/tourian/tourian_escape2.tscn` |
-| `backdrops/tourian_statues.png` | `game/rooms/crateria/statues.tscn` |
-| `backdrops/tourian_vertical_structures.png` | `game/rooms/tourian/big_boy.tscn`, `game/rooms/tourian/blue_hopper.tscn`, `game/rooms/tourian/dust_torizo.tscn` and 2 more |
-| `backdrops/wrecked_ship_columns_tubes.png` | `game/rooms/wrecked_ship/basement.tscn`, `game/rooms/wrecked_ship/spiky_death.tscn` |
-| `backdrops/wrecked_ship_entrance_hall.png` | `game/rooms/wrecked_ship/wrecked_ship_entrance.tscn` |
-| `backdrops/wrecked_ship_experiment_room.png` | `game/rooms/wrecked_ship/attic.tscn` |
-| `backdrops/wrecked_ship_panels_vents.png` | `game/rooms/wrecked_ship/gravity_suit.tscn`, `game/rooms/wrecked_ship/sponge_bath.tscn`, `game/rooms/wrecked_ship/wrecked_ship_east_super.tscn` and 1 more |
-| `backdrops/wrecked_ship_panels_vents_horizontal.png` | `game/rooms/wrecked_ship/electric_death.tscn`, `game/rooms/wrecked_ship/wrecked_ship_east_super.tscn`, `game/rooms/wrecked_ship/wrecked_ship_main_shaft.tscn` |
-| `backdrops/wrecked_ship_panels_vents_vertical.png` | `game/rooms/wrecked_ship/assembly_line.tscn` |
+| `backdrops/{graphics}/brinstar_blue_grid_blocks.png` | `game/rooms/brinstar/alpha_power_bomb.tscn`, `game/rooms/brinstar/spazer.tscn` |
+| `backdrops/{graphics}/brinstar_dark_pattern.png` | `game/rooms/brinstar/big_pink.tscn` |
+| `backdrops/{graphics}/brinstar_horizontal_glow_patches.png` | `game/rooms/brinstar/etecoon_energy_tank.tscn`, `game/rooms/brinstar/etecoon_super.tscn`, `game/rooms/brinstar/green_brinstar_beetoms.tscn` and 2 more |
+| `backdrops/{graphics}/brinstar_large_horizontal_pattern.png` | `game/rooms/brinstar/brinstar_reserve_tank.tscn` |
+| `backdrops/{graphics}/brinstar_mechanical_room.png` | `game/rooms/brinstar/warehouse_entrance.tscn` |
+| `backdrops/{graphics}/brinstar_mechanical_room_spike_floor.png` | `game/rooms/brinstar/xray_scope.tscn` |
+| `backdrops/{graphics}/brinstar_medium_horizontal_pattern.png` | `game/rooms/brinstar/brinstar_pre_map.tscn` |
+| `backdrops/{graphics}/brinstar_narrow_vertical_tower_brick.png` | `game/rooms/brinstar/beta_power_bomb.tscn`, `game/rooms/brinstar/skree_boost.tscn` |
+| `backdrops/{graphics}/brinstar_narrow_vertical_tower_brick_vines.png` | `game/rooms/brinstar/mini_kraid.tscn` |
+| `backdrops/{graphics}/brinstar_small_pattern.png` | `game/rooms/brinstar/construction_zone.tscn`, `game/rooms/brinstar/first_missile.tscn`, `game/rooms/brinstar/spore_spawn_super.tscn` |
+| `backdrops/{graphics}/brinstar_spheres_pattern.png` | `game/rooms/brinstar/green_hill_zone.tscn` |
+| `backdrops/{graphics}/brinstar_thin_horizontal_pattern.png` | `game/rooms/brinstar/early_supers.tscn`, `game/rooms/brinstar/pink_brinstar_hoppers.tscn`, `game/rooms/brinstar/pink_brinstar_power_bombs.tscn` and 1 more |
+| `backdrops/{graphics}/brinstar_varied_small_pattern.png` | `game/rooms/brinstar/billy_mays.tscn`, `game/rooms/brinstar/blue_brinstar_boulders.tscn`, `game/rooms/brinstar/blue_brinstar_energy_tank.tscn` and 1 more |
+| `backdrops/{graphics}/brinstar_vertical_brick.png` | `game/rooms/brinstar/below_spazer.tscn` |
+| `backdrops/{graphics}/brinstar_vertical_glow_patches.png` | `game/rooms/brinstar/green_brinstar_main_shaft.tscn` |
+| `backdrops/{graphics}/brinstar_vertical_tower.png` | `game/rooms/brinstar/hellway.tscn` |
+| `backdrops/{graphics}/brinstar_wide_vertical_tower_brick.png` | `game/rooms/brinstar/red_tower.tscn` |
+| `backdrops/{graphics}/ceres_capsule_hall.png` | `game/rooms/ceres/ceres_ridley_hallway.tscn`, `game/rooms/ceres/falling_tile.tscn`, `game/rooms/ceres/magnet_stairs.tscn` |
+| `backdrops/{graphics}/crateria_brick_room.png` | `game/rooms/crateria/final_missile_bombway.tscn`, `game/rooms/crateria/green_pirates_shaft.tscn` |
+| `backdrops/{graphics}/crateria_brick_room_wall_art.png` | `game/rooms/crateria/pre_map_flyway.tscn` |
+| `backdrops/{graphics}/crateria_brick_room_wall_art_dark.png` | `game/rooms/crateria/flyway.tscn` |
+| `backdrops/{graphics}/crateria_elevator.png` | `game/rooms/crateria/forgotten_highway_elevator.tscn`, `game/rooms/crateria/red_brinstar_elevator.tscn` |
+| `backdrops/{graphics}/crateria_horizontal_pattern_rocks.png` | `game/rooms/crateria/bowling_alley_path.tscn`, `game/rooms/crateria/gauntlet_energy_tank.tscn`, `game/rooms/crateria/gauntlet_entrance.tscn` |
+| `backdrops/{graphics}/crateria_mechanical.png` | `game/rooms/crateria/bomb_torizo.tscn`, `game/rooms/crateria/climb.tscn`, `game/rooms/crateria/crateria_super.tscn` and 2 more |
+| `backdrops/{graphics}/crateria_purple_rocks.png` | `game/rooms/crateria/lower_mushrooms.tscn`, `game/rooms/crateria/terminator.tscn` |
+| `backdrops/{graphics}/crateria_rocks.png` | `game/rooms/crateria/crab_maze.tscn`, `game/rooms/crateria/crateria_kihunter.tscn`, `game/rooms/crateria/crateria_power_bombs.tscn` and 2 more |
+| `backdrops/{graphics}/crateria_vertical_pattern_rocks.png` | `game/rooms/crateria/forgotten_highway_elbow.tscn`, `game/rooms/crateria/forgotten_highway_kagos.tscn` |
+| `backdrops/{graphics}/maridia_brown_wall.png` | `game/rooms/maridia/crab_tunnel.tscn` |
+| `backdrops/{graphics}/maridia_green_wall.png` | `game/rooms/maridia/east_sand_hall.tscn`, `game/rooms/maridia/west_sand_hall.tscn` |
+| `backdrops/{graphics}/norfair_bubbles.png` | `game/rooms/norfair/bubble_mountain.tscn`, `game/rooms/norfair/green_bubbles_missiles.tscn` |
+| `backdrops/{graphics}/norfair_cavern_horizontal_ruins.png` | `game/rooms/norfair/worst_room_in_the_game.tscn` |
+| `backdrops/{graphics}/norfair_cavern_room_pillars.png` | `game/rooms/norfair/acid_statue.tscn`, `game/rooms/norfair/lower_norfair_escape_power_bombs.tscn`, `game/rooms/norfair/ridley.tscn` and 3 more |
+| `backdrops/{graphics}/norfair_cavern_stalactites.png` | `game/rooms/norfair/acid_snakes_tunnel.tscn`, `game/rooms/norfair/grapple_tutorial1.tscn`, `game/rooms/norfair/lower_norfair_elevator.tscn` and 7 more |
+| `backdrops/{graphics}/norfair_cavern_vertical.png` | `game/rooms/norfair/business_center.tscn`, `game/rooms/norfair/crumble_shaft.tscn`, `game/rooms/norfair/grapple_beam.tscn` and 3 more |
+| `backdrops/{graphics}/norfair_cavern_vertical_ruins.png` | `game/rooms/norfair/fast_ripper.tscn`, `game/rooms/norfair/main_hall.tscn`, `game/rooms/norfair/pillar.tscn` |
+| `backdrops/{graphics}/norfair_purple_patches.png` | `game/rooms/norfair/lower_norfair_spring_ball_maze.tscn`, `game/rooms/norfair/mickey_mouse.tscn`, `game/rooms/norfair/norfair_reserve_tank.tscn` and 3 more |
+| `backdrops/{graphics}/norfair_room_statues.png` | `game/rooms/norfair/lower_norfair_farming.tscn`, `game/rooms/norfair/metal_pirates.tscn`, `game/rooms/norfair/plowerhouse.tscn` |
+| `backdrops/{graphics}/norfair_small_pattern_brown_purple.png` | `game/rooms/norfair/amphitheatre.tscn`, `game/rooms/norfair/crocomire_speedway.tscn`, `game/rooms/norfair/grapple_tutorial3.tscn` and 6 more |
+| `backdrops/{graphics}/norfair_small_pattern_brown_purple_bright.png` | `game/rooms/norfair/frog_speedway.tscn`, `game/rooms/norfair/hi_jump_boots.tscn`, `game/rooms/norfair/ice_beam_acid.tscn` and 2 more |
+| `backdrops/{graphics}/norfair_vertical_pattern_brick.png` | `game/rooms/norfair/fast_pillars_setup.tscn` |
+| `backdrops/{graphics}/scrolling_sky_east_ocean.png` | `game/rooms/crateria/east_ocean.tscn` |
+| `backdrops/{graphics}/scrolling_sky_landing_site.png` | `game/rooms/crateria/landing_site.tscn` |
+| `backdrops/{graphics}/scrolling_sky_pre_bowling.png` | `game/rooms/crateria/pre_bowling.tscn` |
+| `backdrops/{graphics}/scrolling_sky_west_ocean.png` | `game/rooms/crateria/west_ocean.tscn` |
+| `backdrops/{graphics}/statues_hallway_grey_tower_brick.png` | `game/rooms/crateria/statues_hallway.tscn` |
+| `backdrops/{graphics}/tourian_mechanical_room.png` | `game/rooms/tourian/metroids2.tscn`, `game/rooms/tourian/metroids4.tscn`, `game/rooms/tourian/tourian_first.tscn` |
+| `backdrops/{graphics}/tourian_mechanical_room_letterbox.png` | `game/rooms/tourian/metroids1.tscn`, `game/rooms/tourian/metroids3.tscn` |
+| `backdrops/{graphics}/tourian_pipe_room.png` | `game/rooms/tourian/tourian_escape3.tscn`, `game/rooms/tourian/tourian_escape4.tscn` |
+| `backdrops/{graphics}/tourian_pipe_room_dark.png` | `game/rooms/tourian/mother_brain.tscn` |
+| `backdrops/{graphics}/tourian_pipe_room_letterbox.png` | `game/rooms/tourian/tourian_escape1.tscn` |
+| `backdrops/{graphics}/tourian_pipe_room_vertical_separation.png` | `game/rooms/tourian/rinka_shaft.tscn`, `game/rooms/tourian/tourian_escape2.tscn` |
+| `backdrops/{graphics}/tourian_statues.png` | `game/rooms/crateria/statues.tscn` |
+| `backdrops/{graphics}/tourian_vertical_structures.png` | `game/rooms/tourian/big_boy.tscn`, `game/rooms/tourian/blue_hopper.tscn`, `game/rooms/tourian/dust_torizo.tscn` and 2 more |
+| `backdrops/{graphics}/wrecked_ship_columns_tubes.png` | `game/rooms/wrecked_ship/basement.tscn`, `game/rooms/wrecked_ship/spiky_death.tscn` |
+| `backdrops/{graphics}/wrecked_ship_entrance_hall.png` | `game/rooms/wrecked_ship/wrecked_ship_entrance.tscn` |
+| `backdrops/{graphics}/wrecked_ship_experiment_room.png` | `game/rooms/wrecked_ship/attic.tscn` |
+| `backdrops/{graphics}/wrecked_ship_panels_vents.png` | `game/rooms/wrecked_ship/gravity_suit.tscn`, `game/rooms/wrecked_ship/sponge_bath.tscn`, `game/rooms/wrecked_ship/wrecked_ship_east_super.tscn` and 1 more |
+| `backdrops/{graphics}/wrecked_ship_panels_vents_horizontal.png` | `game/rooms/wrecked_ship/electric_death.tscn`, `game/rooms/wrecked_ship/wrecked_ship_east_super.tscn`, `game/rooms/wrecked_ship/wrecked_ship_main_shaft.tscn` |
+| `backdrops/{graphics}/wrecked_ship_panels_vents_vertical.png` | `game/rooms/wrecked_ship/assembly_line.tscn` |
 | `cinematics/ceres_destruction.json` | `game/cinematics/CeresDestruction.cs` |
 | `cinematics/ending.json` | `game/cinematics/Ending.cs` |
 | `cinematics/intro.json` | `game/cinematics/Intro.cs` |

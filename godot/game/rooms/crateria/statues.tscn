@@ -85,11 +85,14 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/tourian_statues.png"
+Picture = "backdrops/{graphics}/tourian_statues.png"
 ScrollShare = Vector2(0.5, 0)
 
 [node name="Statue" type="Node2D" parent="."]
-position = Vector2(120, 184)
+position = Vector2(0, 0)
+
+[node name="Base" type="Node2D" parent="Statue"]
+script = ExtResource("10")
 
 [node name="Kraid" type="Node2D" parent="Statue"]
 script = ExtResource("10")
@@ -119,9 +122,9 @@ script = ExtResource("10")
 script = ExtResource("11")
 DataFile = "rooms/tourian_statue_hall.json"
 StartsWhen = SubResource("r3")
-CrumblePatch = "floor_crumbling"
 ClearPatch = "floor_clear"
 Statue = NodePath("../Statue")
+Backdrop = NodePath("../Backdrop")
 LowerView = NodePath("../Screen0x1")
 
 [node name="AtStatuesElevator" type="Marker2D" parent="."]

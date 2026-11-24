@@ -158,7 +158,7 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/tourian_pipe_room.png"
+Picture = "backdrops/{graphics}/tourian_pipe_room.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Escape" type="Node" parent="."]

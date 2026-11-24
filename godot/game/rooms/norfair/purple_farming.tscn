@@ -99,5 +99,5 @@ DamageHundredths = 25
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/norfair_purple_patches.png"
+Picture = "backdrops/{graphics}/norfair_purple_patches.png"
 ScrollShare = Vector2(0, 0)

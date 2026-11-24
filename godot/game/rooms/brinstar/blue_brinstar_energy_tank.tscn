@@ -251,7 +251,7 @@ Target = NodePath("../Screen2x0Foot")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_varied_small_pattern.png"
+Picture = "backdrops/{graphics}/brinstar_varied_small_pattern.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Zoomer" parent="." instance=ExtResource("13")]

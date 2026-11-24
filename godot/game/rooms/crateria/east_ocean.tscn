@@ -501,5 +501,5 @@ HighSurface = 1264
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/scrolling_sky_east_ocean.png"
+Picture = "backdrops/{graphics}/scrolling_sky_east_ocean.png"
 ScrollShare = Vector2(0.5, 0)

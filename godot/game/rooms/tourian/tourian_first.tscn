@@ -88,7 +88,7 @@ HighSurface = 956
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-Picture = "backdrops/tourian_mechanical_room.png"
+Picture = "backdrops/{graphics}/tourian_mechanical_room.png"
 ScrollShare = Vector2(0, 0.75)
 
 [node name="MapKnown" type="Node" parent="."]

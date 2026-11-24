@@ -1030,7 +1030,8 @@ Norfair: the Dachora shaft camera (`DachoraShaftCamera`: once the shaft's top is
 it is closed), Crocomire's room shaking (`CrocomireRoomShaking`: the terrain is shown shifted by as much as he
 rattles his wall). Maridia: the transport tube ride, which is a `Carrier` that gains speed. Tourian: the entrance
 statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once its boss is beaten, and the
-statue's descent), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
+statue's descent; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
+guardian's eyes and for each turned grey, and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
 (`SpeedBoosterLavaquake`). The escape:

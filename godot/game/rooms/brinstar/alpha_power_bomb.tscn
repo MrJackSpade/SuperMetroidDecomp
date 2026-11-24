@@ -131,5 +131,5 @@ Target = NodePath("../Screen0x0Foot")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_blue_grid_blocks.png"
+Picture = "backdrops/{graphics}/brinstar_blue_grid_blocks.png"
 ScrollShare = Vector2(0.75, 0.75)

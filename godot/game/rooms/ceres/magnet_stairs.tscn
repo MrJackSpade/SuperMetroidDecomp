@@ -83,7 +83,7 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-Picture = "backdrops/ceres_capsule_hall.png"
+Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0, 0.25)
 PresentWhen = SubResource("r5")
 
@@ -125,6 +125,6 @@ PresentWhen = SubResource("r1")
 [node name="Backdrop2" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-Picture = "backdrops/ceres_capsule_hall.png"
+Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0, 0.75)
 PresentWhen = SubResource("r1")

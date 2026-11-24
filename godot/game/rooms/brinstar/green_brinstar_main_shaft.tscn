@@ -841,7 +841,7 @@ Target = NodePath("../Screen1x7Foot")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("15")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_vertical_glow_patches.png"
+Picture = "backdrops/{graphics}/brinstar_vertical_glow_patches.png"
 ScrollShare = Vector2(1, 0.75)
 
 [node name="AtGreenBrinstarMainShaftElevator" type="Marker2D" parent="."]

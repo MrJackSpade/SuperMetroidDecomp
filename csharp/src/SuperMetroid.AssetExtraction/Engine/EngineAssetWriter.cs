@@ -67,6 +67,9 @@ public sealed partial class EngineAssetWriter
         writer.WriteDraygon();
         writer.WriteRidley();
         writer.WriteSamus();
+        writer.WriteRoomPatches();
+        writer.WriteBackdrops();
+        writer.WriteStatueHall();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

@@ -318,7 +318,7 @@ PresentWhen = SubResource("r6")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-Picture = "backdrops/wrecked_ship_experiment_room.png"
+Picture = "backdrops/{graphics}/wrecked_ship_experiment_room.png"
 ScrollShare = Vector2(0.75, 0.9921875)
 
 [node name="KihunterYellow" parent="." instance=ExtResource("11")]

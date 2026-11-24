@@ -465,5 +465,5 @@ PresentWhen = SubResource("r4")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("14")
 position = Vector2(0, 0)
-Picture = "backdrops/norfair_cavern_room_pillars.png"
+Picture = "backdrops/{graphics}/norfair_cavern_room_pillars.png"
 ScrollShare = Vector2(0.75, 0.75)

@@ -151,7 +151,7 @@ DataFile = "objects/door_cap_blue_up.json"
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-Picture = "backdrops/tourian_pipe_room_letterbox.png"
+Picture = "backdrops/{graphics}/tourian_pipe_room_letterbox.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Escape" type="Node" parent="."]

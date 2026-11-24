@@ -67,5 +67,5 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_small_pattern.png"
+Picture = "backdrops/{graphics}/brinstar_small_pattern.png"
 ScrollShare = Vector2(0, 0)

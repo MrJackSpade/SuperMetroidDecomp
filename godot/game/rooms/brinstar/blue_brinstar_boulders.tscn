@@ -100,5 +100,5 @@ TideTurnBelow = 1.125
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_varied_small_pattern.png"
+Picture = "backdrops/{graphics}/brinstar_varied_small_pattern.png"
 ScrollShare = Vector2(0.75, 0)

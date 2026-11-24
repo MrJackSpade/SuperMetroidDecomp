@@ -73,7 +73,8 @@ class Sequences:
         if state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties:
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
-                'Picture': quoted(f'backdrops/{snake(state.background)}.png'),
+                # A background is coloured by the room's set of graphics, so its picture is kept once for each set.
+                'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
                 'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
 
         if state.main in ESCAPES:
@@ -161,13 +162,15 @@ class Sequences:
                                             children=[('Pad', VISUAL, {}), ('Platform', VISUAL, {})]))
 
     def statue_hall(self, ctx, named: dict[str, Placed]) -> None:
-        # The statue is a plain thing the hall's sequence moves and shows: a visual for each guardian, and a grey one over each.
-        statue = Placed('', 'Statue', {}, at=(120, 184), enemy=False,
-                        children=[(guardian + grey, VISUAL, {}) for guardian in GUARDIANS for grey in ('', 'Grey')])
+        # The statue is a plain thing the hall's sequence moves and shows: its base, a visual for each guardian, and a
+        # grey one over each. It stands at the corner of the room's backdrop, which is the picture the statue is part
+        # of and sinks with it; the hall's data says where each picture lies from there.
+        statue = Placed('', 'Statue', {}, at=(0, 0), enemy=False,
+                        children=[('Base', VISUAL, {})] + [(guardian + grey, VISUAL, {}) for guardian in GUARDIANS for grey in ('', 'Grey')])
         hall = sequence('crateria/TourianStatueHall.cs', 'StatueHall', {
-            'DataFile': quoted('rooms/tourian_statue_hall.json'), 'StartsWhen': ctx.always(),
-            'CrumblePatch': quoted('floor_crumbling'), 'ClearPatch': quoted('floor_clear')})
+            'DataFile': quoted('rooms/tourian_statue_hall.json'), 'StartsWhen': ctx.always(), 'ClearPatch': quoted('floor_clear')})
         self.placed += [statue, hall]
         self.links.append((hall, 'Statue', statue))
+        self.links.append((hall, 'Backdrop', next(placed for placed in self.placed if placed.name == 'Backdrop')))
         if 'Screen0x1' in named:
             self.links.append((hall, 'LowerView', named['Screen0x1']))

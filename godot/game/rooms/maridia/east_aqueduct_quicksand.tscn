@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/bull/bull.tscn" id="5"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="6"]
 
@@ -35,6 +35,10 @@ LeadsToRoom = "res://game/rooms/maridia/east_sand_hole.tscn"
 LeadsToExit = "FromEastAqueductQuicksandToEastSandHole"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+Travel = 2
+ToScreen = Vector2i(0, 0)
+SamusStep = 1.5
+Scrolls = true
 
 [node name="Bull" parent="." instance=ExtResource("5")]
 position = Vector2(56, 216)

@@ -16,4 +16,10 @@ public sealed record RoomEntry(string EntryPoint, PixelVelocity Velocity, Facing
     /// middle of a room. Null for an arrival at <see cref="EntryPoint"/>.
     /// </summary>
     public PixelPosition? At { get; init; }
+
+    /// <summary>
+    /// Whether the view is left as it stands, with what it was tracking, for whoever brings the player in to place:
+    /// a passage that scrolls the room in. Otherwise the room places the view on the player as it is set up.
+    /// </summary>
+    public bool KeepsView { get; init; }
 }

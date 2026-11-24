@@ -60,6 +60,12 @@ public sealed class SoundRequests
     /// <summary>Asks for the music to be <paramref name="music"/>, by name; empty for silence.</summary>
     public void RequestMusic(string music) => Music = music;
 
+    /// <summary>Whether a sound that was asked for is still waiting to be played. Nothing waits here: what is accepted is played at once.</summary>
+    public bool HasQueuedSounds => false;
+
+    /// <summary>Whether music that was asked for is still waiting to be played. Nothing waits here: the music asked for is the music.</summary>
+    public bool HasQueuedMusic => false;
+
     /// <summary>Whether <paramref name="sound"/> is still sounding, as gameplay sees it.</summary>
     public bool IsSounding(string sound) => _channels.Values.Any(sounding => sounding.Sound == sound && sounding.UpdatesLeft > 0);
 

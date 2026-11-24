@@ -124,6 +124,16 @@ public sealed class GameSession
     /// <summary>The view onto the room being played.</summary>
     public Camera Camera { get; }
 
+    /// <summary>
+    /// Opens an update: each session service that opens one plays its part (<see cref="IUpdateOpener"/>). A room opens
+    /// its own updates with this; a mode whose update is no room's calls it where its update opens as one does.
+    /// </summary>
+    public void OpenUpdate()
+    {
+        foreach (IUpdateOpener opener in Services.OfType<IUpdateOpener>())
+            opener.OpenUpdate(this);
+    }
+
     /// <summary>How each screen of the room being played lets the view in.</summary>
     public IScrollCells ScrollCells { get; }
 

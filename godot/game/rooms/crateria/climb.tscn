@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
@@ -111,6 +111,10 @@ LeadsToRoom = "res://game/rooms/crateria/crateria_super.tscn"
 LeadsToExit = "ToClimbLower"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 7)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToCrateriaSuperUpper" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -120,6 +124,10 @@ LeadsToRoom = "res://game/rooms/crateria/crateria_super.tscn"
 LeadsToExit = "ToClimbUpper"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToParlor" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -129,6 +137,10 @@ LeadsToRoom = "res://game/rooms/crateria/parlor.tscn"
 LeadsToExit = "ToClimb"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+Travel = 3
+ToScreen = Vector2i(1, 4)
+SamusStep = 1.75
+Scrolls = true
 
 [node name="ToPit" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -138,6 +150,10 @@ LeadsToRoom = "res://game/rooms/crateria/pit.tscn"
 LeadsToExit = "ToClimb"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToTourianEscape4" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -147,6 +163,10 @@ LeadsToRoom = "res://game/rooms/tourian/tourian_escape4.tscn"
 LeadsToExit = "ToClimb"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(2, 1)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="Sbug" parent="." instance=ExtResource("6")]
 position = Vector2(276, 76)

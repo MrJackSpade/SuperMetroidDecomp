@@ -41,6 +41,22 @@ GODOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', 'go
 INSTALLED = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'SuperMetroid', 'game')
 BLOCK = 16
 SCREEN = 256
+# The ways through a door, in the order of the game's Door.Way.
+DOOR_WAYS = ['Right', 'Left', 'Down', 'Up']
+
+
+def samus_step(door: legacy.Door) -> float:
+    """How far a door moves Samus on each update of its scroll: its own speed, or the default of its axis."""
+    speed = door.speed.strip()
+    if speed.endswith('AxisDefault'):
+        # Twenty-five thirty-seconds of a pixel across, a pixel and a half up or down.
+        return 25 / 32 if door.direction in ('Left', 'Right') else 1.5
+    if speed.endswith('None'):
+        return 0.0
+    parts = [int(part) for part in re.search(r'PixelsPerStep\(([^)]*)\)', speed).group(1).split(',')]
+    whole, numerator, denominator = (parts + [0, 1])[:3] if len(parts) == 1 else parts
+    # The old speed is kept to 256ths of a pixel.
+    return whole + (numerator * 256 // denominator) / 256
 # How far above Samus the view's top makes for, by the name of a room's camera lead: while she moves any way but up,
 # and while she moves up.
 CAMERA_LEADS = {name: (int(falling), int(rising)) for name, falling, rising in re.findall(
@@ -633,6 +649,13 @@ class Generator:
             settings['ScrollLayout'] = quoted(layout)
         return settings
 
+    def rides(self, key: str, direction: str) -> bool:
+        """Whether a room has an elevator that travels the way a door goes, or is Maridia's tube."""
+        state = self.states[self.choices[key][0]]
+        if state.main == 'MaridiaElevatube':
+            return True
+        return direction in ('Up', 'Down') and any(placed.enemy == 'Elevator' for placed in self.populations[state.enemies])
+
     def write_room(self, key: str) -> str:
         room = self.rooms[key]
         scene = Scene()
@@ -713,6 +736,8 @@ class Generator:
                 # Someone arriving in Maridia's tube is put where its ride from that end begins.
                 arrives = sequences.TUBE_ARRIVES_ABOVE if y == 0 else sequences.TUBE_ARRIVES_BELOW
                 offset_x, offset_y = arrives[0] - x, arrives[1] - y
+            # A door whose arrival an elevator or the tube makes, at either end, is not passed by the door's own scroll.
+            carried = self.rides(key, door.direction) or self.rides(target_key, door.direction)
             scene.node(self.exit_name(room, name), '.', {
                 'position': f'Vector2({x}, {y})',
                 'Size': f'Vector2i({width}, {height})',
@@ -720,7 +745,11 @@ class Generator:
                 'LeadsToExit': quoted(arrives_at),
                 'Style': '0' if across else '1',
                 'ArrivalOffset': f'Vector2i({offset_x}, {offset_y})',
-            }, script='res://engine/world/RoomExit.cs')
+                'Travel': str(DOOR_WAYS.index(door.direction)),
+                'ToScreen': f'Vector2i({door.to_screen[0]}, {door.to_screen[1]})',
+                'SamusStep': repr(samus_step(door)),
+                'Scrolls': 'false' if carried else 'true',
+            }, script='res://game/rooms/doors/Door.cs')
             entries.append((name, x, y))
 
         self.place_things(key, scene, room)

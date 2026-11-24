@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/elevator/elevator.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="7"]
@@ -65,6 +65,10 @@ LeadsToRoom = "res://game/rooms/brinstar/brinstar_pre_map.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(2, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToDachora" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -74,6 +78,10 @@ LeadsToRoom = "res://game/rooms/brinstar/dachora.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToEarlySupers" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -83,6 +91,10 @@ LeadsToRoom = "res://game/rooms/brinstar/early_supers.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 1)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToEtecoonEnergyTank" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -92,6 +104,10 @@ LeadsToRoom = "res://game/rooms/brinstar/etecoon_energy_tank.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(4, 1)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToGreenBrinstarBeetoms" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -101,6 +117,10 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_beetoms.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToGreenBrinstarElevator" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -110,6 +130,10 @@ LeadsToRoom = "res://game/rooms/crateria/green_brinstar_elevator.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 1
 ArrivalOffset = Vector2i(16, -2)
+Travel = 3
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.0
+Scrolls = false
 
 [node name="ToGreenBrinstarFirefleas" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -119,6 +143,10 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_firefleas.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(2, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToGreenBrinstarSave" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -128,6 +156,10 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_save.tscn"
 LeadsToExit = "ToGreenBrinstarMainShaft"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToItsLeftSide" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -137,6 +169,10 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_main_shaft.tscn"
 LeadsToExit = "ToItsRightSide"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(0, 7)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToItsRightSide" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -146,6 +182,10 @@ LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_main_shaft.tscn"
 LeadsToExit = "ToItsLeftSide"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(1, 7)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="Elevator" parent="." instance=ExtResource("6")]
 position = Vector2(112, 658)

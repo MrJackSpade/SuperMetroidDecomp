@@ -36,6 +36,10 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
     public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();
 
+    /// <summary>A door that scrolls is passed through as the cartridge passes Samus through it; any other way out is the engine's plain change of rooms.</summary>
+    public override GameMode CreateRoomTransition(PlayingMode playing, Engine.World.RoomExit exit) =>
+        exit is Door { Scrolls: true } door ? new DoorTransitionMode(playing, door) : base.CreateRoomTransition(playing, exit);
+
     /// <summary>The room's scroll cells are the cartridge's fifty, which outlive each room.</summary>
     public override Engine.World.IScrollCells CreateScrollCells() => new Compatibility.KeptScrollCells();
 

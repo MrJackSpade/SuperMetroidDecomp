@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/bosses/spore_spawn/spore_spawn.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
 [ext_resource type="Script" path="res://engine/world/ViewFloor.cs" id="8"]
@@ -62,6 +62,10 @@ LeadsToRoom = "res://game/rooms/brinstar/spore_spawn_kihunters.tscn"
 LeadsToExit = "ToSporeSpawn"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+Travel = 2
+ToScreen = Vector2i(3, 0)
+SamusStep = 1.5
+Scrolls = true
 
 [node name="ToSporeSpawnSuper" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -71,6 +75,10 @@ LeadsToRoom = "res://game/rooms/brinstar/spore_spawn_super.tscn"
 LeadsToExit = "ToSporeSpawn"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="SporeSpawn" parent="." instance=ExtResource("6")]
 position = Vector2(128, 624)

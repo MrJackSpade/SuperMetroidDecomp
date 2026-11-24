@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/polyp/polyp.tscn" id="7"]
@@ -53,6 +53,10 @@ LeadsToRoom = "res://game/rooms/norfair/kronic_boost.tscn"
 LeadsToExit = "ToVolcano"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(1, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToSpikyPlatformsTunnel" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -62,6 +66,10 @@ LeadsToRoom = "res://game/rooms/norfair/spiky_platforms_tunnel.tscn"
 LeadsToExit = "ToVolcano"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(3, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="Fune" parent="." instance=ExtResource("6")]
 position = Vector2(464, 640)

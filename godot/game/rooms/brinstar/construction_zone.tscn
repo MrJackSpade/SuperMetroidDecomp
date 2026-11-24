@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/face_block/face_block.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
@@ -65,6 +65,10 @@ LeadsToRoom = "res://game/rooms/brinstar/blue_brinstar_energy_tank.tscn"
 LeadsToExit = "ToConstructionZone"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 2)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToFirstMissile" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -74,6 +78,10 @@ LeadsToRoom = "res://game/rooms/brinstar/first_missile.tscn"
 LeadsToExit = "ToConstructionZone"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToMorphBall" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -83,6 +91,10 @@ LeadsToRoom = "res://game/rooms/brinstar/morph_ball.tscn"
 LeadsToExit = "ToConstructionZone"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(7, 2)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="Sbug" parent="." instance=ExtResource("6")]
 position = Vector2(46, 192)

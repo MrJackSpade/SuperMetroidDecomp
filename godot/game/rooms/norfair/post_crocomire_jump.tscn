@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/tripper/tripper.tscn" id="7"]
@@ -42,6 +42,10 @@ LeadsToRoom = "res://game/rooms/norfair/grapple_beam.tscn"
 LeadsToExit = "ToPostCrocomireJump"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(0, 2)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToPostCrocomireShaft" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -51,6 +55,10 @@ LeadsToRoom = "res://game/rooms/norfair/post_crocomire_shaft.tscn"
 LeadsToExit = "ToPostCrocomireJump"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+Travel = 3
+ToScreen = Vector2i(0, 4)
+SamusStep = 1.75
+Scrolls = true
 
 [node name="Mella" parent="." instance=ExtResource("5")]
 position = Vector2(1475, 595)

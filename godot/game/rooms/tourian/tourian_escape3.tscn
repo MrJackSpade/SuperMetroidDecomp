@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
@@ -48,6 +48,10 @@ LeadsToRoom = "res://game/rooms/tourian/tourian_escape2.tscn"
 LeadsToExit = "ToTourianEscape3"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(0, 1)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToTourianEscape4" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -57,6 +61,10 @@ LeadsToRoom = "res://game/rooms/tourian/tourian_escape4.tscn"
 LeadsToExit = "ToTourianEscape3"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 3)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="PirateSilverWalking" parent="." instance=ExtResource("6")]
 position = Vector2(192, 352)

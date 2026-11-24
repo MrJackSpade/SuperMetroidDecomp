@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
@@ -57,6 +57,10 @@ LeadsToRoom = "res://game/rooms/brinstar/kraid.tscn"
 LeadsToExit = "ToKraidEyeDoor"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 1)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToKraidRefill" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -66,6 +70,10 @@ LeadsToRoom = "res://game/rooms/brinstar/kraid_refill.tscn"
 LeadsToExit = "ToKraidEyeDoor"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToMiniKraid" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -75,6 +83,10 @@ LeadsToRoom = "res://game/rooms/brinstar/mini_kraid.tscn"
 LeadsToExit = "ToKraidEyeDoor"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(5, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="Zeb" parent="." instance=ExtResource("6")]
 position = Vector2(144, 456)

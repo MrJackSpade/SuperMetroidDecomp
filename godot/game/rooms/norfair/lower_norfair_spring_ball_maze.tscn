@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/alcoon/alcoon.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
@@ -41,6 +41,10 @@ LeadsToRoom = "res://game/rooms/norfair/lower_norfair_escape_power_bombs.tscn"
 LeadsToExit = "ToLowerNorfairSpringBallMaze"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+Travel = 2
+ToScreen = Vector2i(0, 0)
+SamusStep = 1.5
+Scrolls = true
 
 [node name="ToLowerNorfairFireflea" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -50,6 +54,10 @@ LeadsToRoom = "res://game/rooms/norfair/lower_norfair_fireflea.tscn"
 LeadsToExit = "ToLowerNorfairSpringBallMaze"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToThreeMusketeers" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -59,6 +67,10 @@ LeadsToRoom = "res://game/rooms/norfair/three_musketeers.tscn"
 LeadsToExit = "ToLowerNorfairSpringBallMaze"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(3, 2)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="Alcoon" parent="." instance=ExtResource("5")]
 position = Vector2(256, 512)

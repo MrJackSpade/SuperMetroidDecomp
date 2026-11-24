@@ -430,6 +430,9 @@ public partial class Samus : Player
     /// </summary>
     public override PixelPosition MuzzlePoint => Origin(_muzzles);
 
+    /// <summary>Whether a charge has been held long enough to have begun to sound.</summary>
+    public bool ChargeIsSounding => Weapons.ChargedFor >= ChargeSoundUpdates;
+
     /// <summary>The view also leads the other way while she moonwalks, and through a damage boost, which the knockback still carries.</summary>
     public override Facing ViewFacing =>
         State is MoonwalkingState or DamageBoostState ? Facing.Opposite() : base.ViewFacing;

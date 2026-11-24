@@ -154,6 +154,12 @@ public partial class GameDefinition : Resource
     /// </summary>
     public virtual IScrollCells CreateScrollCells() => new RoomScrollCells();
 
+    /// <summary>
+    /// Makes the mode that takes the player from the room being played through <paramref name="exit"/> to the room it
+    /// leads to. The engine's plain change of rooms, a fade, unless the game has a passage of its own.
+    /// </summary>
+    public virtual GameMode CreateRoomTransition(PlayingMode playing, RoomExit exit) => new RoomTransitionMode(playing, exit);
+
     /// <summary>Makes the session-long services this game adds, one of each. None, unless the game says.</summary>
     public virtual IReadOnlyList<ISessionService> CreateServices() => [];
 

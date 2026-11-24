@@ -193,7 +193,10 @@ public partial class Room : Node2D
         // The player is put where they arrive before anything else enters, so that what enters finds them there.
         PlacePlayer(entry);
         _playerAtUpdateStart = Player.Position;
-        Session.Camera.Place(Player.Position.X.Whole - Session.Camera.Width / 2, Player.Position.Y.Whole - Session.Camera.Height / 2);
+
+        // Whoever brings the player in keeping the view puts the view where it belongs.
+        if (!entry.KeepsView)
+            Session.Camera.Place(Player.Position.X.Whole - Session.Camera.Width / 2, Player.Position.Y.Whole - Session.Camera.Height / 2);
         if (ViewHeld)
             Session.Camera.MoveTo(ViewHeldAt.X, ViewHeldAt.Y);
         foreach (Node child in GetChildren())
@@ -255,24 +258,7 @@ public partial class Room : Node2D
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
         _playerAtUpdateStart = Player.Position;
-        if (!stopped.HasFlag(Stopped.Room))
-        {
-            Liquid?.Move();
-            foreach (RoomSequence sequence in _sequences)
-                sequence.OpenUpdate(this);
-        }
-
-        if (!stopped.HasFlag(Stopped.Projectiles))
-        {
-            foreach (Projectile projectile in _projectiles.ToList())
-            {
-                if (projectile is IOpeningStep opening && !_leaving.Contains(projectile))
-                    opening.StepOpening(this);
-            }
-        }
-
-        foreach (IUpdateOpener opener in Session.Services.OfType<IUpdateOpener>())
-            opener.OpenUpdate(Session);
+        OpenUpdate(movesLiquid: !stopped.HasFlag(Stopped.Room), opensProjectiles: !stopped.HasFlag(Stopped.Projectiles));
 
         // The room's conditions play on before anyone acts: one that is started or told something during an update
         // first shows it in the next. The shaking is not among them: it is stepped once all that may start it has run.
@@ -374,6 +360,82 @@ public partial class Room : Node2D
         Follow();
         ShowAll();
     }
+
+    /// <summary>
+    /// Opens an update of the room without playing it: the liquid moves and the sequences and projectiles with a part
+    /// in the opening play that part, unless told not to, and then the session's services that open an update play
+    /// theirs. <see cref="Step"/> opens its own update; this is for a mode that plays only some of a room's update,
+    /// as a passage between rooms does.
+    /// </summary>
+    public void OpenUpdate(bool movesLiquid = true, bool opensProjectiles = true)
+    {
+        if (movesLiquid)
+        {
+            Liquid?.Move();
+            foreach (RoomSequence sequence in _sequences)
+                sequence.OpenUpdate(this);
+        }
+
+        if (opensProjectiles)
+        {
+            foreach (Projectile projectile in _projectiles.ToList())
+            {
+                if (projectile is IOpeningStep opening && !_leaving.Contains(projectile))
+                    opening.StepOpening(this);
+            }
+        }
+
+        Session.OpenUpdate();
+    }
+
+    /// <summary>
+    /// Plays the parts of an update a passage between rooms asks for, with the player and the view left where they
+    /// are: the terrain's own changes, the enemies, the enemies' projectiles, the room's objects, each only when
+    /// asked. What left or arrived is settled and everything is shown where it stands.
+    /// </summary>
+    public void StepForTransition(bool terrain = false, bool enemies = false, bool enemyProjectiles = false, bool objects = false)
+    {
+        if (terrain)
+        {
+            Terrain.Step(rect => Collision.Overlapping(rect, ColliderRole.Body).Count > 0);
+            foreach (string sound in Terrain.TakeBreakSounds())
+                Session.Sounds.Request(sound, channel: "room");
+        }
+
+        if (enemies)
+        {
+            foreach (Enemy enemy in _enemies.ToList())
+            {
+                if (!_leaving.Contains(enemy) && IsActive(enemy))
+                    enemy.Step();
+            }
+        }
+
+        if (enemyProjectiles)
+        {
+            foreach (Projectile projectile in _projectiles.ToList())
+            {
+                if (projectile.Side != HitSide.Player && !_leaving.Contains(projectile))
+                    projectile.Step();
+            }
+        }
+
+        if (objects)
+        {
+            foreach (RoomObject roomObject in _objects.ToList())
+            {
+                if (!_leaving.Contains(roomObject))
+                    roomObject.Step();
+            }
+        }
+
+        RemoveLeaving();
+        AddArriving();
+        ShowAll();
+    }
+
+    /// <summary>Shows everything where it stands, with the room where the view has it: for whoever has moved the view or the player outside an update.</summary>
+    public void ShowNow() => ShowAll();
 
     /// <summary>
     /// Adds something to the room later: once everything in <paramref name="after"/> has left the room, and then
@@ -577,7 +639,8 @@ public partial class Room : Node2D
     {
         if (entry.At is { } at)
         {
-            _arrivedAt = null;
+            // Put at a place of their own, the player has still come in by the exit the entry names, if it names one.
+            _arrivedAt = entry.EntryPoint.Length > 0 ? GetNodeOrNull(entry.EntryPoint) as RoomExit : null;
             Player.Arrive(at, entry.Velocity, entry.Facing);
             return;
         }

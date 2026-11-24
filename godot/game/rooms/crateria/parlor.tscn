@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
@@ -114,6 +114,10 @@ LeadsToRoom = "res://game/rooms/crateria/climb.tscn"
 LeadsToExit = "ToParlor"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+Travel = 2
+ToScreen = Vector2i(1, 0)
+SamusStep = 1.5
+Scrolls = true
 
 [node name="ToCrateriaSave" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -123,6 +127,10 @@ LeadsToRoom = "res://game/rooms/crateria/crateria_save.tscn"
 LeadsToExit = "ToParlor"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToFinalMissileBombway" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -132,6 +140,10 @@ LeadsToRoom = "res://game/rooms/crateria/final_missile_bombway.tscn"
 LeadsToExit = "ToParlor"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(1, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToFlyway" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -141,6 +153,10 @@ LeadsToRoom = "res://game/rooms/crateria/flyway.tscn"
 LeadsToExit = "ToParlor"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToLandingSite" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -150,6 +166,10 @@ LeadsToRoom = "res://game/rooms/crateria/landing_site.tscn"
 LeadsToExit = "ToParlor"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 4)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToPreMapFlyway" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -159,6 +179,10 @@ LeadsToRoom = "res://game/rooms/crateria/pre_map_flyway.tscn"
 LeadsToExit = "ToParlor"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToTerminator" type="Node2D" parent="."]
 script = ExtResource("5")
@@ -168,6 +192,10 @@ LeadsToRoom = "res://game/rooms/crateria/terminator.tscn"
 LeadsToExit = "ToParlor"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(5, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="Sbug" parent="." instance=ExtResource("6")]
 position = Vector2(1214, 192)

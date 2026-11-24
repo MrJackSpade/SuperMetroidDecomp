@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
-[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://game/rooms/doors/Door.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/enemies/powamp/powamp.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
@@ -39,6 +39,10 @@ LeadsToRoom = "res://game/rooms/maridia/crab_shaft.tscn"
 LeadsToExit = "ToMtEverest"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
+Travel = 0
+ToScreen = Vector2i(0, 2)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToFishTankLeft" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -48,6 +52,10 @@ LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
 LeadsToExit = "ToMtEverestLeft"
 Style = 1
 ArrivalOffset = Vector2i(32, -24)
+Travel = 2
+ToScreen = Vector2i(0, 0)
+SamusStep = 1.5
+Scrolls = true
 
 [node name="ToFishTankRight" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -57,6 +65,10 @@ LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
 LeadsToExit = "ToMtEverestRight"
 Style = 1
 ArrivalOffset = Vector2i(160, 472)
+Travel = 2
+ToScreen = Vector2i(3, 0)
+SamusStep = 1.5
+Scrolls = true
 
 [node name="ToMainStreetLower" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -66,6 +78,10 @@ LeadsToRoom = "res://game/rooms/maridia/main_street.tscn"
 LeadsToExit = "ToMtEverestLower"
 Style = 0
 ArrivalOffset = Vector2i(40, -8)
+Travel = 1
+ToScreen = Vector2i(2, 2)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToMainStreetUpper" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -75,6 +91,10 @@ LeadsToRoom = "res://game/rooms/maridia/main_street.tscn"
 LeadsToExit = "ToMtEverestUpper"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
+Travel = 1
+ToScreen = Vector2i(1, 0)
+SamusStep = 0.78125
+Scrolls = true
 
 [node name="ToRedFish" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -84,6 +104,10 @@ LeadsToRoom = "res://game/rooms/maridia/red_fish.tscn"
 LeadsToExit = "ToMtEverest"
 Style = 1
 ArrivalOffset = Vector2i(32, 40)
+Travel = 3
+ToScreen = Vector2i(2, 1)
+SamusStep = 1.75
+Scrolls = true
 
 [node name="Powamp" parent="." instance=ExtResource("5")]
 position = Vector2(512, 384)

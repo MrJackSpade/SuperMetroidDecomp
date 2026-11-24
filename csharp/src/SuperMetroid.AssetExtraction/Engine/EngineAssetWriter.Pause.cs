@@ -158,6 +158,30 @@ public sealed partial class EngineAssetWriter
             });
         }
 
+        // The bar of her reserves: a little tank for each she has, full, empty or part filled, and a cap after the last.
+        string Bar(PauseReserveTankVisual visual) => _sheets.WriteSprite(
+            _tree, SpriteSheetId.PauseSprites, PauseReserveTankParts.SheetFrameName(PauseReserveTankDefinitions.InstalledNames.Of(visual)),
+            $"pause/reserve_bar_{Named(visual)}.png");
+        var barPlaces = new JsonArray();
+        for (int place = 0; place < PauseReserveTankDefinitions.AnchorCount; place++)
+        {
+            var anchor = screens.PauseReserveTanks.Anchor(place);
+            barPlaces.Add(At(anchor.X, anchor.Y));
+        }
+
+        var bar = new JsonObject
+        {
+            ["full"] = Bar(PauseReserveTankVisual.Full),
+            ["end_cap"] = Bar(PauseReserveTankVisual.EndCap),
+            // A tank by how many steps full it is, from none.
+            ["fills"] = new JsonArray([.. PauseReserveTankDefinitions.FillLevels.Select(level => (JsonNode)Bar(level))]),
+            ["places"] = barPlaces,
+            ["energy_per_tank"] = SamusEnergyDefinitions.EnergyPerTank,
+            ["energy_per_step"] = PauseReserveEnergyDefinitions.EnergyPerFillStep,
+            ["flicker_below_steps"] = PauseReserveEnergyDefinitions.FlickerFillStepLimit,
+            ["flicker_updates"] = PauseCadenceDefinitions.ReserveFlickerStepHidden.CountsEachWay,
+        };
+
         MapFraming framing = MapFramingDefinitions.Pause;
         const int cell = GameplayHudDefinitions.MinimapSquarePixels;
         _tree.WriteData("pause/pause.json", new JsonObject
@@ -194,6 +218,7 @@ public sealed partial class EngineAssetWriter
                     ["arrow_none"] = Placed(PauseEquipmentPictures.ReserveArrowFrame(ShownReserveArrow.NoReserves)),
                     ["tank"] = Placed(PauseEquipmentPictures.ReserveTankFrame),
                     ["arrow"] = Placed(PauseEquipmentPictures.ReserveArrowFrame(ShownReserveArrow.Dim)),
+                    ["bar"] = bar,
                     ["auto"] = Placed(PauseEquipmentPictures.ReserveModeFrame(ReserveTankMode.Auto)),
                     ["manual"] = Placed(PauseEquipmentPictures.ReserveModeFrame(ReserveTankMode.Manual)),
                     ["digits"] = digits,

@@ -28,7 +28,11 @@ namespace Game;
 /// switches, the "side" of the page it is on, its picture switched "on" and "off" with where that goes, and its
 /// "selector" picture and place), the "wireframes" of her suit by whether she wears the Varia suit and the high
 /// jump boots ("plain", "hi_jump", "varia", "varia_hi_jump"), and her "reserve": the pictures shown with none
-/// ("absent", "arrow_none"), and with some the "tank", the "arrow", the mode ("auto", "manual"), three "digits"
+/// ("absent", "arrow_none"), and with some the "tank", the "arrow", the "bar" (a little tank for each she has:
+/// the pictures of a "full" one, of one by how many steps full it is ("fills", from none), and of the "end_cap"
+/// after the last; their "places"; the energy a tank holds ("energy_per_tank") and a step is ("energy_per_step");
+/// and that a tank fewer than "flicker_below_steps" steps full shows its next step on and off, "flicker_updates"
+/// each way), the mode ("auto", "manual"), three "digits"
 /// (each a place and ten pictures) and the selectors of its two lines ("mode_selector", "transfer_selector").
 /// Every picture is given with where its corner goes.
 /// </remarks>
@@ -57,6 +61,8 @@ public partial class PauseScreen : GameMode
     private bool _showsMap = true;
     private int _chosen;
     private int _pouring;
+    private int _updates;
+    private int _flickerEvery;
 
     /// <summary>The pause screen, laid over <paramref name="playing"/>.</summary>
     public PauseScreen(PlayingMode playing)
@@ -119,6 +125,10 @@ public partial class PauseScreen : GameMode
     /// <summary>Plays one update of the equipment page: the selector moves, and confirm switches or pours.</summary>
     private void StepEquipment(GameInput input)
     {
+        // A tank of her reserves that is nearly empty flickers, and the page is shown again each time it changes.
+        _updates++;
+        if (_flickerEvery > 0 && _updates % _flickerEvery == 0)
+            ShowEquipment();
         if (_controls.Count == 0)
             return;
         Line chosen = _controls[_chosen];
@@ -260,6 +270,33 @@ public partial class PauseScreen : GameMode
                 Show(digit, digit.List("pictures")[held / divisor % 10].AsText(), equipment);
                 divisor /= 10;
             }
+
+            // The bar: the full tanks, the one part filled, the empty ones, and the cap after the last.
+            DataNode bar = reserve.Get("bar");
+            IReadOnlyList<DataNode> places = bar.List("places");
+            IReadOnlyList<DataNode> fills = bar.List("fills");
+            int perTank = bar.Int("energy_per_tank"), perStep = bar.Int("energy_per_step");
+            int tank = 0;
+            for (; tank < held / perTank; tank++)
+                Show(places[tank], bar.Text("full"), equipment);
+            int rest = held % perTank;
+            _flickerEvery = 0;
+            if (rest != 0)
+            {
+                int steps = rest / perStep;
+                if (steps < bar.Int("flicker_below_steps") && rest % perStep != 0)
+                {
+                    _flickerEvery = bar.Int("flicker_updates");
+                    if (_updates / _flickerEvery % 2 == 0)
+                        steps++;
+                }
+
+                Show(places[tank++], fills[steps].AsText(), equipment);
+            }
+
+            for (; tank < inventory.Capacity(Amounts.ReserveEnergy) / perTank; tank++)
+                Show(places[tank], fills[0].AsText(), equipment);
+            Show(places[tank], bar.Text("end_cap"), equipment);
 
             _controls.Add(new Line(ReserveMode, "left", null, reserve.Get("mode_selector")));
             if (!auto)

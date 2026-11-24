@@ -10,7 +10,7 @@ namespace Game.Menus;
 /// <summary>
 /// The game over screen. It comes up out of black: its page, with the larva crying over its egg, and a cursor
 /// beside yes or no. Up and down move the cursor; confirming fades the screen out, the larva holding its look, and
-/// yes goes back to the saved game, no to the title. Its fades go a level of brightness an update.
+/// yes goes back to the saved game by the map of where it was saved, no to the title. Its fades go a level of brightness an update.
 /// </summary>
 /// <remarks>
 /// Its data names its "music", its "backdrop" colour, its "page" picture, the sound of the cursor moving
@@ -77,7 +77,11 @@ public partial class GameOverMode : GameMode
             fade.Cover(_levels - _lit, _levels);
             if (_lit > 0)
                 return this;
-            return continues ? new LoadingMode() : new TitleMode();
+            if (!continues)
+                return new TitleMode();
+
+            // A saved game shows where it was saved before it starts again, as from the options.
+            return SaveMapMode.Of(Session) is { } map ? map : new LoadingMode();
         }
 
         if (_lit < _levels)

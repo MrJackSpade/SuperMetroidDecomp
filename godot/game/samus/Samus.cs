@@ -868,7 +868,15 @@ public partial class Samus : Player
             Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
         }
 
-        if (weapon.Length == 0 || Weapons.All.All(owned => owned.Name != weapon))
+        // With the grapple beam chosen, or the X-ray scope with the run held, the beam's own input does not run, so its
+        // charge stands as it is, as the cartridge has it.
+        if (weapon.Length == 0)
+        {
+            Weapons.StepCooldown();
+            return;
+        }
+
+        if (Weapons.All.All(owned => owned.Name != weapon))
         {
             Weapons.StepCooldown();
             Weapons.DropCharge();
@@ -997,7 +1005,11 @@ public partial class Samus : Player
         (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds) = (false, 0, false, false);
     }
 
-    /// <summary>The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected.</summary>
+    /// <summary>
+    /// The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected. The grapple
+    /// beam fires none; the X-ray scope fires the beam while the run is let go, as the cartridge's does, and none while
+    /// the run is held.
+    /// </summary>
     private string WeaponInHand()
     {
         if (Form == Crawling)
@@ -1006,7 +1018,8 @@ public partial class Samus : Player
         {
             Amounts.Missiles => Arsenal.Missile,
             Amounts.SuperMissiles => Arsenal.SuperMissile,
-            Equipment.GrappleBeam or Equipment.XrayScope => "",
+            Equipment.GrappleBeam => "",
+            Equipment.XrayScope => Input.IsHeld(Actions.Run) ? "" : Arsenal.Beam,
             _ => Arsenal.Beam,
         };
     }

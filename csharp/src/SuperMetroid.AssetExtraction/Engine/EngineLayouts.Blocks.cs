@@ -66,6 +66,12 @@ internal sealed partial class EngineLayouts
         if (named.EndsWith("^front", StringComparison.Ordinal))
             named = named[..^"^front".Length];
         string[] inputs = [.. named.Split('|').Skip(1).Select(part => part[..part.IndexOf('=', StringComparison.Ordinal)])];
+
+        // A block whose picture changes with something other than the animations a room's effect sets going is shown by
+        // whatever changes it, and the layout draws nothing for it.
+        string[] animations = [.. Enum.GetValues<BlockAnimation>().Select(InputOf)];
+        if (inputs.Any(input => !animations.Contains(input, StringComparer.Ordinal)))
+            return null;
         List<BlockAnimation> going = [.. _moving.Where(animation => inputs.Contains(InputOf(animation), StringComparer.Ordinal))];
 
         // The frames every animation that moves it steps through, which must keep time for the block to have one picture at a time.

@@ -949,7 +949,8 @@ public partial class Samus : Player
     /// <summary>
     /// Handles the item actions: cancel selects the beam alone; select moves on to the next thing she can use. An item
     /// chosen while cancel is held is put away again once it has been used. The X-ray scope leaves her the choice, as
-    /// the cartridge's HUD goes on taking it while the X-ray holds time still.
+    /// the cartridge's HUD goes on taking it while the X-ray holds time still. Either press drops the charge, even one
+    /// that leaves the choice as it was, unless it lands on the grapple beam while the line is out.
     /// </summary>
     private void ChooseItem()
     {
@@ -958,20 +959,26 @@ public partial class Samus : Player
         if (Input.WasPressed(Actions.ItemCancel))
         {
             SelectBeam();
+        }
+        else if (Input.WasPressed(Actions.ItemSelect))
+        {
+            string[] ring = ["", Amounts.Missiles, Amounts.SuperMissiles, Amounts.PowerBombs, Equipment.GrappleBeam, Equipment.XrayScope];
+            int at = Array.IndexOf(ring, Selected);
+            do
+            {
+                at = (at + 1) % ring.Length;
+            }
+            while (!CanSelect(ring[at]));
+            Selected = ring[at];
+            _autoCancel = Selected.Length > 0 && Input.IsHeld(Actions.ItemCancel);
+        }
+        else
+        {
             return;
         }
 
-        if (!Input.WasPressed(Actions.ItemSelect))
-            return;
-        string[] ring = ["", Amounts.Missiles, Amounts.SuperMissiles, Amounts.PowerBombs, Equipment.GrappleBeam, Equipment.XrayScope];
-        int at = Array.IndexOf(ring, Selected);
-        do
-        {
-            at = (at + 1) % ring.Length;
-        }
-        while (!CanSelect(ring[at]));
-        Selected = ring[at];
-        _autoCancel = Selected.Length > 0 && Input.IsHeld(Actions.ItemCancel);
+        if (Selected != Equipment.GrappleBeam || Grapple is not { IsOut: true })
+            Weapons.DropCharge();
     }
 
     /// <summary>

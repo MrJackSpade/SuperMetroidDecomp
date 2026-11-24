@@ -42,6 +42,13 @@ public sealed class DemoSchedule : ISessionService
         return null;
     }
 
+    /// <summary>As the game starts or starts again, the first demo of the first set is the one due.</summary>
+    public void StartOver()
+    {
+        _set = 0;
+        _begun = 0;
+    }
+
     /// <summary>A demo starts the session's game afresh; which demo is due is not forgotten for that.</summary>
     public void BeginAgain()
     {

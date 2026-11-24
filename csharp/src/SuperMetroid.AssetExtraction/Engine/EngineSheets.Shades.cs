@@ -67,7 +67,20 @@ internal sealed partial class EngineSheets
     /// <param name="owner">The boss, as the installation names its body.</param>
     /// <param name="sheets">The enemy's sheets.</param>
     /// <exception cref="InvalidDataException">The installation has no such body or sheet.</exception>
-    internal EngineSheetPictures CutWithBossBody(EngineAssetTree tree, string content, string folder, string owner, params ReadOnlySpan<string> sheets)
+    internal EngineSheetPictures CutWithBossBody(EngineAssetTree tree, string content, string folder, string owner, params ReadOnlySpan<string> sheets) =>
+        CutBossBodyLayers(tree, content, folder, owner, null, sheets.ToArray());
+
+    /// <summary>
+    /// As <see cref="CutWithBossBody"/>, for an enemy whose sheets keep a part of each frame apart, to be drawn behind
+    /// the rest: the frame named as the frame is with <paramref name="behind"/> before it. That part is laid down
+    /// first, the frame's own sprites over it and the body over both, and it is no picture of its own.
+    /// </summary>
+    internal EngineSheetPictures CutWithBossBodyAndBehind(
+        EngineAssetTree tree, string content, string folder, string owner, string behind, params ReadOnlySpan<string> sheets) =>
+        CutBossBodyLayers(tree, content, folder, owner, behind, sheets.ToArray());
+
+    /// <summary>Cuts the frames of an enemy's sheets with what lies behind and over each.</summary>
+    private EngineSheetPictures CutBossBodyLayers(EngineAssetTree tree, string content, string folder, string owner, string? behind, string[] sheets)
     {
         const string bodyFamily = GameInstallationLayout.BossBodySheetDirectoryName;
         string list = Path.Combine(content, bodyFamily, BossBodySheetFiles.ManifestFileName);
@@ -122,23 +135,40 @@ internal sealed partial class EngineSheets
             {
                 if (paths.ContainsKey(name))
                     continue;
+                // A part kept apart to lie behind a frame is no frame of its own.
+                if (behind is not null && name.StartsWith(behind, StringComparison.Ordinal))
+                    continue;
                 (int X, int Y, InstalledSheetFrameDocument Frame)? over = BodyOf(name);
-                if (frame.Picture is null && over is not { Frame.Picture: not null })
+                InstalledSheetFrameDocument? under = behind is not null && document.Frames.TryGetValue(behind + name, out InstalledSheetFrameDocument? kept)
+                    ? kept
+                    : null;
+                if (frame.Picture is null && under is not { Picture: not null } && over is not { Frame.Picture: not null })
                 {
                     paths[name] = "";
                     continue;
                 }
 
                 Array.Clear(canvas);
-                if (frame.Picture is not null)
+                // Lays one of the sheet's frames on the canvas: only where it shows something does it cover what is there.
+                void Lay(InstalledSheetFrameDocument laid)
                 {
-                    int across = -frame.Origin.X - left, down = -frame.Origin.Y - top;
-                    for (int y = 0; y < frame.Size.Y; y++)
+                    if (laid.Picture is null)
+                        return;
+                    int across = -laid.Origin.X - left, down = -laid.Origin.Y - top;
+                    for (int y = 0; y < laid.Size.Y; y++)
                     {
-                        image.Pixels.AsSpan((frame.Corner.Y + y) * document.Size.X + frame.Corner.X, frame.Size.X)
-                            .CopyTo(canvas.AsSpan((down + y) * width + across, frame.Size.X));
+                        int from = (laid.Corner.Y + y) * document.Size.X + laid.Corner.X, to = (down + y) * width + across;
+                        for (int x = 0; x < laid.Size.X; x++)
+                        {
+                            if (image.Pixels[from + x].A != 0)
+                                canvas[to + x] = image.Pixels[from + x];
+                        }
                     }
                 }
+
+                if (under is not null)
+                    Lay(under);
+                Lay(frame);
 
                 if (over is { Frame.Picture: not null } body)
                 {

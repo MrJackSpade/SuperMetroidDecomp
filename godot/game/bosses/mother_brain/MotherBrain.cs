@@ -295,7 +295,9 @@ public partial class MotherBrain : Enemy
                 break;
 
             case "shape":
-                Shapes.Take(parts[1]);
+                // Once she is dying nothing of her stops a shot any more.
+                if (_stage != Stage.LateFight || _late != Late.Dying)
+                    Shapes.Take(parts[1]);
                 break;
 
             case "fire_hand_beam":

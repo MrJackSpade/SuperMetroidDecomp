@@ -50,10 +50,15 @@ public sealed partial class EngineAssetWriter
         const string scenes = "res://game/bosses/mother_brain/";
         const string family = GameInstallationLayout.EnemySheetDirectoryName;
 
-        // A frame of her body is the old game's sprites with the frame of her body's sheet of the same name over
-        // them. She is hurt as her head is, which is the part of her that can be.
-        EngineSheetPictures pictures = _sheets.CutWithBossBody(_tree, _installation.ContentDirectory, folder, "MotherBrain",
-            _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainBody)));
+        // A frame of her body is her far leg, which the installed sheet keeps apart, the rest of the old game's
+        // sprites over it, and the frame of her body's sheet of the same name over both. She is hurt as her head is,
+        // which is the part of her that can be.
+        string standing = EnemySheetDefinitions.FrameName(EnemyFrameId.MotherBrainBodyStanding);
+        string farLegOfStanding = MotherBrainBodyVisualDefinitions.SecondPictureName(EnemyFrameId.MotherBrainBodyStanding);
+        if (!farLegOfStanding.EndsWith(standing, StringComparison.Ordinal) || farLegOfStanding.Length == standing.Length)
+            throw new InvalidDataException($"Mother Brain's far leg is kept as {farLegOfStanding}, which is not her frame's name with something before it.");
+        EngineSheetPictures pictures = _sheets.CutWithBossBodyAndBehind(_tree, _installation.ContentDirectory, folder, "MotherBrain",
+            farLegOfStanding[..^standing.Length], _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainBody)));
         var mother = new EngineEnemy(_tree, _sheets, file, "MotherBrain", EnemyDefinitionId.MotherBrainHead, pictures);
         EngineSheetPictures head = _sheets.Cut(_tree, family, $"{folder}/head",
             _sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.MotherBrainHead)));
@@ -211,7 +216,8 @@ public sealed partial class EngineAssetWriter
         mother.Shot("bomb_flare", RoomEnemyProjectileKind.RidleyAfterburnCenter, (owner, shot, projectile) =>
         {
             shot["scene"] = "res://game/bosses/ridley/ridley_flare.tscn";
-            projectile["timeline"] = owner.SpawnedTimeline("bomb_flare", RidleyFireballAnimations.Segments,
+            // The shot is written to a file named for it; its timeline has a name of its own.
+            projectile["timeline"] = owner.SpawnedTimeline("bomb_fire", RidleyFireballAnimations.Segments,
                 RidleyFireballAnimations.StartingAt[RidleyFireballSegment.HorizontalCenter], FireCue);
             projectile["picture_offset"] = EngineEnemy.NoOffset();
             projectile["meeting_terrain"] = "passes_through";

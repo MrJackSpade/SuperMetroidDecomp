@@ -69,6 +69,20 @@ internal sealed partial class EngineSheets
         return _enemyLooks["spawnedVariants"]![look]!.AsObject();
     }
 
+    /// <summary>
+    /// The look of the shared things that the most rooms holding <paramref name="spawner"/> show. What every room
+    /// shares is not drawn alike in every room, and some of it is drawn only where the enemy that leaves it is.
+    /// </summary>
+    private JsonObject SharedLookBeside(string spawner)
+    {
+        string look = MostCommon(_enemyLooks["populations"]!.AsObject()
+            .Where(population => population.Value!["spawned"]![spawner] is not null)
+            .Select(population => population.Value!["spawned"]![SharedSpawner]?.GetValue<string>())
+            .OfType<string>())
+            ?? throw new InvalidDataException($"The installation lists no room that draws what {spawner} spawns.");
+        return _enemyLooks["spawnedVariants"]![look]!.AsObject();
+    }
+
     /// <summary>The look of the shared things in a room that holds no enemies, which has some pictures no other look has.</summary>
     private JsonObject StandardLook() =>
         _enemyLooks["spawnedVariants"]![_enemyLooks["standard"]!["spawned"]![SharedSpawner]!.GetValue<string>()]!.AsObject();
@@ -96,16 +110,17 @@ internal sealed partial class EngineSheets
     /// <summary>
     /// Cuts named pictures of what an enemy spawns, or of what every room shares, into one picture each, all on one
     /// canvas of their own, under <paramref name="folder"/>. A picture is looked for among the spawner's own, then
-    /// among the shared ones as most rooms show them, then among those of a room that holds no enemies.
+    /// among the shared ones as the rooms that hold the spawner show them, then among the shared ones as most rooms
+    /// show them, then among those of a room that holds no enemies.
     /// </summary>
     /// <exception cref="InvalidDataException">A picture is on no sheet.</exception>
     internal EngineSheetPictures CutSpawned(EngineAssetTree tree, string folder, string spawner, IEnumerable<string> frames)
     {
-        JsonObject own = SpawnedLook(spawner), shared = SpawnedLook(SharedSpawner), standard = StandardLook();
+        JsonObject own = SpawnedLook(spawner), beside = SharedLookBeside(spawner), shared = SpawnedLook(SharedSpawner), standard = StandardLook();
         var placed = new List<(string Name, string Sheet)>();
         foreach (string frame in frames.Distinct(StringComparer.Ordinal))
         {
-            string sheet = SheetOfSpawned(own, frame) ?? SheetOfSpawned(shared, frame) ?? SheetOfSpawned(standard, frame)
+            string sheet = SheetOfSpawned(own, frame) ?? SheetOfSpawned(beside, frame) ?? SheetOfSpawned(shared, frame) ?? SheetOfSpawned(standard, frame)
                 ?? throw new InvalidDataException($"No sheet of what {spawner} spawns holds the picture {frame}.");
             placed.Add((frame, sheet));
         }

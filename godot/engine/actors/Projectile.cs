@@ -169,14 +169,27 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             _visual?.Show(_timeline.Current);
         }
 
-        BeforeTravel(room);
-        if (HasEnded)
-            return;
-        Steer(room);
-        Travel(room);
-        if (HasEnded)
-            return;
-        GainSpeed();
+        if (Age <= _settings.LaunchDelayUpdates)
+        {
+            // It waits where it was launched, meeting whatever is there, before it sets off.
+            PixelVelocity launched = Velocity;
+            Velocity = PixelVelocity.Zero;
+            Travel(room);
+            if (HasEnded)
+                return;
+            Velocity = launched;
+        }
+        else
+        {
+            BeforeTravel(room);
+            if (HasEnded)
+                return;
+            Steer(room);
+            Travel(room);
+            if (HasEnded)
+                return;
+            GainSpeed();
+        }
 
         if (_settings.LastsUpdates > 0)
         {

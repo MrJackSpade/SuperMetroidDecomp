@@ -132,6 +132,12 @@ public sealed record ProjectileSettings
     public int ViewMargin { get; init; } = 64;
 
     /// <summary>
+    /// How many updates it waits where it was launched before it sets off, as a shot that gathers at a muzzle does.
+    /// Its timeline plays and it can hit all the while.
+    /// </summary>
+    public int LaunchDelayUpdates { get; init; }
+
+    /// <summary>
     /// How far below the view it may go before it is taken away, where that is not <see cref="ViewMargin"/>; below
     /// zero for the same. With a <see cref="ViewMargin"/> below zero, it is taken away only for falling this far below.
     /// </summary>
@@ -196,6 +202,7 @@ public sealed record ProjectileSettings
             HitsEachUpdate = data.Has("hits_each_update") && data.Flag("hits_each_update"),
             LastsUpdates = data.Has("lasts_updates") ? data.Int("lasts_updates") : 0,
             ViewMargin = data.Has("view_margin") ? data.Int("view_margin") : plain.ViewMargin,
+            LaunchDelayUpdates = data.Has("launch_delay_updates") ? data.Int("launch_delay_updates") : 0,
             ViewMarginBelow = data.Has("view_margin_below") ? data.Int("view_margin_below") : plain.ViewMarginBelow,
             Picture = data.Has("picture") ? data.Text("picture") : "",
             PictureOffset = data.Has("picture_offset") ? (data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y")) : null,

@@ -60,6 +60,40 @@ internal sealed partial class EngineRoomObjects
         return pixels;
     }
 
+    /// <summary>
+    /// Writes one named picture of the sets of graphics, a block in size, for every set that has it, under
+    /// <paramref name="folder"/>, and returns the one path that names them all. Not every set has every such picture:
+    /// an item's own is only in the sets of the rooms that hold the item.
+    /// </summary>
+    /// <param name="picture">The picture's name on the sets' sheets.</param>
+    /// <param name="folder">The folder of the asset tree its pictures go under.</param>
+    /// <param name="name">The name of the picture's file.</param>
+    /// <exception cref="InvalidDataException">No set of graphics has the picture.</exception>
+    internal string SheetPicture(string picture, string folder, string name)
+    {
+        const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
+        name = EngineSheets.FileName(name);
+        bool written = false;
+        foreach (string graphicsSet in _graphicsSets)
+        {
+            RgbaPixel[]? behind = _sheets.FramePixels(family, graphicsSet, picture, Block, Block);
+            RgbaPixel[]? front = _sheets.FramePixels(family, graphicsSet, $"{picture}^front", Block, Block);
+            if (behind is null && front is null)
+                continue;
+            var pixels = new RgbaPixel[Block * Block];
+            for (int index = 0; index < pixels.Length; index++)
+                pixels[index] = front is not null && front[index].A != 0 ? front[index] : behind is not null ? behind[index] : default;
+            string path = $"{folder}/{GraphicsName(graphicsSet)}/{name}.png";
+            if (!_tree.Holds(path))
+                _tree.WritePicture(path, Block, Block, pixels);
+            written = true;
+        }
+
+        return written
+            ? $"{folder}/{GraphicsPlaceholder}/{name}.png"
+            : throw new InvalidDataException($"No set of graphics has the picture {picture}.");
+    }
+
     /// <summary>The cells of the frame named <paramref name="frame"/> among those the installation keeps under <paramref name="directory"/>.</summary>
     /// <exception cref="InvalidDataException">The installation keeps no such frame there.</exception>
     private JsonArray Cells(string directory, string frame)

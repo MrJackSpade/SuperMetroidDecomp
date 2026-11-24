@@ -79,8 +79,21 @@ public partial class Item : RoomObject
         Inventory inventory = Room.Player.Inventory;
         if (Type.GrantsEquipment.Length > 0)
             inventory.Grant(Type.GrantsEquipment);
+        foreach (string equipment in Type.SwitchesOff)
+        {
+            if (inventory.Owns(equipment))
+                inventory.Switch(equipment, false);
+        }
+
         if (Type.Expands.Length > 0)
-            inventory.Expand(Type.Expands, Type.ExpandsBy);
+        {
+            inventory.SetCapacity(Type.Expands, inventory.Capacity(Type.Expands) + Type.ExpandsBy);
+            if (Type.Fills)
+                inventory.Fill(Type.Expands);
+            else
+                inventory.Add(Type.Expands, Type.Adds);
+        }
+
         Remember();
         Room.MarkGone(Name);
         if (Type.Sound.Length > 0)

@@ -197,7 +197,7 @@ internal sealed partial class EngineLayouts
     private sealed partial record ReactingBlock(string Name, JsonObject Rules, int Width = 1, int Height = 1);
 
     /// <summary>The hit kinds of the Godot game that are "any weapon" to a block.</summary>
-    private static JsonArray AnyWeapon() => ["beam", "missile", "super_missile", "bomb", "power_bomb"];
+    internal static JsonArray AnyWeapon() => ["beam", "missile", "super_missile", "bomb", "power_bomb"];
 
     /// <summary>What a block of a kind that reacts is, or null for one that does nothing a plain tile does not.</summary>
     private static ReactingBlock? Reacting(RoomCollisionType collision, RoomBlockBehavior behavior)

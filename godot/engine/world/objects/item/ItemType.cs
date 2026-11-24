@@ -8,6 +8,9 @@ namespace Engine.World.Objects;
 /// { "name": "missile tank", "grants_equipment": "", "expands": "missiles", "expands_by": 5,
 ///   "message": "missile_tank", "picture": "items/missile_tank.png" }
 /// </code>
+/// With the capacity it raises it gives as much more of the amount, unless "adds" says how much it gives instead or
+/// "fills" has it fill the amount to its new capacity. "switches_off" lists equipment switched off as it is
+/// collected: what cannot be used together with what it grants.
 /// </remarks>
 public sealed class ItemType
 {
@@ -22,6 +25,15 @@ public sealed class ItemType
 
     /// <summary>How much it raises that capacity by.</summary>
     public int ExpandsBy { get; private init; }
+
+    /// <summary>How much of that amount it gives along with the capacity.</summary>
+    public int Adds { get; private init; }
+
+    /// <summary>Whether it fills that amount to its new capacity.</summary>
+    public bool Fills { get; private init; }
+
+    /// <summary>The equipment switched off as it is collected, by name.</summary>
+    public IReadOnlyList<string> SwitchesOff { get; private init; } = [];
 
     /// <summary>The name of the message shown when it is collected; empty for none.</summary>
     public string Message { get; private init; } = "";
@@ -50,6 +62,9 @@ public sealed class ItemType
             GrantsEquipment = data.Has("grants_equipment") ? data.Text("grants_equipment") : "",
             Expands = data.Has("expands") ? data.Text("expands") : "",
             ExpandsBy = data.Has("expands_by") ? data.Int("expands_by") : 0,
+            Adds = data.Has("adds") ? data.Int("adds") : data.Has("expands_by") ? data.Int("expands_by") : 0,
+            Fills = data.Has("fills") && data.Flag("fills"),
+            SwitchesOff = data.Has("switches_off") ? [.. data.List("switches_off").Select(equipment => equipment.AsText())] : [],
             Message = data.Has("message") ? data.Text("message") : "",
             Picture = data.Has("picture") ? data.Text("picture") : "",
             Timeline = data.Has("timeline") ? data.Text("timeline") : "",
@@ -61,6 +76,8 @@ public sealed class ItemType
             throw data.Problem("is an item that grants nothing");
         if (type.ExpandsBy < 0)
             throw data.Get("expands_by").Problem("is negative");
+        if (type.Adds < 0 || type.Adds > type.ExpandsBy)
+            throw data.Problem("is an item that gives less than nothing, or more than the capacity it raises");
         return type;
     }
 }

@@ -367,7 +367,7 @@ public partial class Samus : Player
     }
 
     /// <summary>
-    /// Sets her aim: the angle actions aim diagonally, and both together straight up; up aims up, or diagonally up
+    /// Sets her aim: the angle actions aim diagonally, and both together straight up on the ground; up aims up, or diagonally up
     /// while she steers; down aims down in the air, or diagonally down while she steers. On the ground down aims only
     /// with a direction. Running with a direction held, she aims level or diagonally and never straight up. In a jump
     /// or a fall an aim straight down stays, with nothing held or only the jump, until something else is asked.
@@ -387,7 +387,8 @@ public partial class Samus : Player
         if (State is RunningState && steering)
             Aim = angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : up ? Aim.DiagonalUp : down ? Aim.DiagonalDown : Aim.Forward;
         else if (angleUp && angleDown)
-            Aim = Aim.Up;
+            // On the ground both angle actions aim straight up; in the air the angle-up action is tested first.
+            Aim = grounded ? Aim.Up : Aim.DiagonalUp;
         else if (angleUp)
             Aim = Aim.DiagonalUp;
         else if (angleDown)
@@ -604,7 +605,11 @@ public partial class Samus : Player
 
                 if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
                     Intent != 0 && Intent > 0 != (Facing == Facing.Right))
+                {
+                    // The moonwalk is taken up aiming as asked, angle-down tested first whichever way she faces.
+                    Aim = MoonwalkingState.AimOf(this, angleDownFirst: true);
                     return new MoonwalkingState();
+                }
 
                 // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
                 if (current is StandingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&

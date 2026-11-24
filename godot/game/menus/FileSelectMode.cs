@@ -150,6 +150,11 @@ public partial class FileSelectMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
+        // Every update of the old choice of saved game draws a random number first, but for one that finishes a wait
+        // for a frame of the display.
+        if (!EntryWaitsOutDisplayFrame)
+            Session.OpenUpdate();
+
         // As the old game's screen is made, it stays black a few updates, nothing moving, before it fades in.
         if (_blackLeft > 0)
         {
@@ -220,6 +225,12 @@ public partial class FileSelectMode : GameMode
 
         return this;
     }
+
+    /// <summary>
+    /// Whether the update finishes a wait for a frame of the display: in the old game the second of the black updates
+    /// (after the screen is blanked) and the last (after it is set up).
+    /// </summary>
+    private bool EntryWaitsOutDisplayFrame => _blackLeft == 1 || _blackLeft == ScreenData().Int("entry_black_updates") - 1;
 
     /// <summary>Moves on the first page: the cursor up and down its rows, and what confirming and cancelling do.</summary>
     private void StepMain(GameInput input)

@@ -125,6 +125,8 @@ public partial class OptionsMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
+        // Every update of the old options draws a random number before anything else of it.
+        Session.OpenUpdate();
         GameMode next = Play(input);
         (_cursor ?? throw NotShown()).Visible = CursorShows;
         return next;

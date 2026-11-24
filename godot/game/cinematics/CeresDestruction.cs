@@ -146,6 +146,10 @@ public partial class CeresDestruction : Cinematic
     /// <inheritdoc/>
     protected override bool Play(int elapsed)
     {
+        // Every update of the old destruction draws a random number first, but for those that finish its opening's waits
+        // for a frame of the display: each after the first, up to and with the one that sets the station up.
+        if (elapsed == 0 || elapsed > OpeningUpdates)
+            Session.OpenUpdate();
         if (elapsed < OpeningUpdates)
             return false;
         if (elapsed == OpeningUpdates)

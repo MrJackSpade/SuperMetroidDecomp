@@ -50,6 +50,11 @@ public partial class TimeUpMode : GameMode
             return this;
         }
 
+        // As in the old game, each update of the fade to black moves the liquid and the statues and then draws a random
+        // number.
+        if (_black is not { IsDone: true })
+            _playing.Room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
+
         if (_black is null)
         {
             _black = new ScreenFade { Name = "BlackOut", Colour = Colors.Black };

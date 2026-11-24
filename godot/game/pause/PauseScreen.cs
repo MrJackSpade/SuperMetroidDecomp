@@ -177,6 +177,8 @@ public partial class PauseScreen : GameMode
             }
 
             case Phase.Preparing:
+                // As in the old game, the liquid and the statues still move before this update's random number is drawn.
+                _playing.Room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 Session.Sounds.StopAll();
                 Prepare();
                 BeginFade(dark: _levels);
@@ -184,12 +186,15 @@ public partial class PauseScreen : GameMode
                 return this;
 
             case Phase.FadingIn:
+                // Each update of the old pause screen, and the one that restores play, draws a random number first.
+                Session.OpenUpdate();
                 StepAnimations(inUse: false);
                 if (StepFade(darker: false))
                     _phase = Phase.InUse;
                 return this;
 
             case Phase.InUse:
+                Session.OpenUpdate();
                 if (StepInUse(input))
                 {
                     BeginFade(dark: 0);
@@ -199,12 +204,14 @@ public partial class PauseScreen : GameMode
                 return this;
 
             case Phase.FadingOut:
+                Session.OpenUpdate();
                 StepAnimations(inUse: false);
                 if (StepFade(darker: true))
                     _phase = Phase.Restoring;
                 return this;
 
             case Phase.Restoring:
+                Session.OpenUpdate();
                 Restore();
                 BeginFade(dark: _levels);
                 _phase = Phase.Brightening;

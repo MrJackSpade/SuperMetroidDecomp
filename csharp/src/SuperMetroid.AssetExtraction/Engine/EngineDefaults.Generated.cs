@@ -299,7 +299,7 @@ internal static partial class EngineDefaults
         ["TorizoSonicBoom"] = [("quickening", "0.0625")],
         ["TorizoSuperMissile"] = [("throw_speed", "4"), ("gravity", "0.0625")],
         ["Tripper"] = [("resting_depth", "1"), ("speed_curve", "\"\"")],
-        ["WalkingPirate"] = [("walk_speed", "0.21875"), ("firing_band", "16"), ("flinch_reach", "32"), ("ledge_reach", "16"), ("muzzle_ahead", "24")],
+        ["WalkingPirate"] = [("walk_speed_left", "0.2187652587890625"), ("walk_speed_right", "0.21875"), ("firing_band", "16"), ("flinch_reach", "32"), ("ledge_reach_left", "17"), ("ledge_reach_right", "16"), ("muzzle_ahead", "24")],
         ["WallPirate"] = [("detection_band", "32"), ("muzzle_above", "16"), ("muzzle_ahead", "24"), ("fast_jump_turn", "4"), ("slow_jump_turn", "2"), ("slow_jump_short_by", "2"), ("block_size", "16")],
         ["Waver"] = [("speed", "1.5"), ("wave_height", "4"), ("wave_step", "2"), ("spins_at", "56")],
         ["WorkRobot"] = [("gravity", "0.5"), ("laser_cooldown", "16"), ("turn_delay", "8"), ("recoil_delay", "64"), ("muzzle_ahead", "4"), ("muzzle_above", "16"), ("laser_slant_speed", "0.5"), ("footstep_sound", "\"\"")],

@@ -724,7 +724,8 @@ in `engine/actors/player/`.
   updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
   the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
   update of the landing is not counted. A player who has stood since landing for as long as a landing takes to
-  settle (`landing_updates`) is given the same chance once more.
+  settle (`landing_updates`) is given the same chance once more. How long a landing takes to settle may differ by
+  the state it ends, which the game's player says (`SettlingUpdatesAfter`, asked by `AirStance.FallAndLand`).
 - A wall jump of the plain kind leaves the wall at a set speed, facing away, with steering locked for a moment, and
   then carries on as a jump. One of the steered kind (`wall_jump_steered`) leaves it with the player's own speed
   across at rest (a dash and momentum kept) and the way they face unchanged, gains speed by the wall jump's own move
@@ -829,7 +830,8 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   the direction behind her makes it a spin that way; the angle-up action makes it a jump aiming diagonally up, the
   angle-down action one aiming diagonally down, the attack one with her arm held out level; the jump held keeps it;
   anything else lets it go into a spin, which keeps what the wall jump gave her across only as a space jump or a
-  screw attack. The wall jump is heard as a landing.
+  screw attack. The wall jump is heard as a landing. A wall jump that lands settles as a spin's landing does
+  (`spin_landing_updates`, by `Samus.SettlingUpdatesAfter`) and is shown by the spin's landing pictures.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
 - **Her run's one pixel.** As the cartridge does, a run about to be taken up in a pose she is not already running

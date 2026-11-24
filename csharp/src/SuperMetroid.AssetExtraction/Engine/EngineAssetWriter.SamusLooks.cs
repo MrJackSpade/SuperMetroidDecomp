@@ -389,6 +389,9 @@ public sealed partial class EngineAssetWriter
             Passing(spin, "morph_ball", P.MorphingTransitionRightPose, P.MorphingTransitionLeftPose);
         }
 
+        // A wall jump lands as a spin does.
+        Passing("wall_jumping", "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
+
         Passing("standing", "crouching", P.CrouchingTransitionRightPose, P.CrouchingTransitionLeftPose);
         Passing("crouching", "standing", P.StandingTransitionRightPose, P.StandingTransitionLeftPose);
         foreach (string from in new[] { "crouching", "falling", "jumping" })

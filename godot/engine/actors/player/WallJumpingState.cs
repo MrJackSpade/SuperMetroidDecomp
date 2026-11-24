@@ -82,7 +82,7 @@ public sealed class WallJumpingState : PlayerState
 
         owner.MoveAcross();
         _locked = _locked.Stepped();
-        return AirStance.FallAndLand(owner);
+        return AirStance.FallAndLand(owner, this);
     }
 
     /// <inheritdoc/>

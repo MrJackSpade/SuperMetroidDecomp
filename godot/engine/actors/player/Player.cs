@@ -174,6 +174,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("landing_updates")]
     public int LandingUpdates { get; set; }
 
+    /// <summary>
+    /// How many updates the player takes to settle after landing on their feet out of <paramref name="from"/>: as
+    /// long as their landings take where they are. A game whose landings differ by what they end says so here.
+    /// </summary>
+    public virtual int SettlingUpdatesAfter(PlayerState from) => InMedium("landing_updates", LandingUpdates);
+
     /// <summary>How many updates a jump from the ground gathers itself for, moving nothing, before it rises.</summary>
     [Export, DataValue("jump_start_updates")]
     public int JumpStartUpdates { get; set; }

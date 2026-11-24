@@ -123,7 +123,7 @@ public sealed class JumpingState : PlayerState
 
         CutShort(owner);
         owner.SteerAndMoveInAir(owner.Moves(JumpingMoves));
-        return AirStance.FallAndLand(owner);
+        return AirStance.FallAndLand(owner, this);
     }
 
     /// <summary>As the gathering ends the game's player is told, and may be in another state instead of rising.</summary>

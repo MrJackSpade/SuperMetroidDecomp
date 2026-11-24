@@ -161,7 +161,7 @@ public partial class Samus : Player
     [Export, DataValue("crouch_jump_lift")]
     public int CrouchJumpLift { get; set; } = 10;
 
-    /// <summary>How many updates she takes to settle after landing from a spin.</summary>
+    /// <summary>How many updates she takes to settle after landing from a spin or a wall jump.</summary>
     [Export, DataValue("spin_landing_updates")]
     public int SpinLandingUpdates { get; set; } = 10;
 
@@ -302,6 +302,10 @@ public partial class Samus : Player
         base.OnLanded();
         Room.Session.Sounds.Request(hard ? Sounds.HardLand : Sounds.Land, channel: "samus");
     }
+
+    /// <summary>A landing out of a spin or a wall jump takes a spin's landing to settle.</summary>
+    public override int SettlingUpdatesAfter(PlayerState from) =>
+        from is SpinJumpingState or WallJumpingState ? InMedium("spin_landing_updates", SpinLandingUpdates) : base.SettlingUpdatesAfter(from);
 
     /// <summary>
     /// Throws the morph ball as a bomb of her own lies against it: straight up when the bomb was beneath her middle,

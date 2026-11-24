@@ -47,7 +47,7 @@ public sealed class FallingState : PlayerState
         // The fall moves by the speed it had, and gravity adds to it afterwards: a fall from rest moves nothing in its
         // first update.
         owner.TurnAtTop();
-        return AirStance.FallAndLand(owner);
+        return AirStance.FallAndLand(owner, this);
     }
 
     /// <summary>A change of stance sets the steering afresh, and the body takes the form of the stance where it fits.</summary>

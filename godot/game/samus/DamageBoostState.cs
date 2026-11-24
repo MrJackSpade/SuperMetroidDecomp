@@ -76,7 +76,7 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
         owner.StepDash(building: false);
         JumpingState.CutShort(owner);
         owner.SteerAndMoveInAir(owner.Moves(Moves));
-        PlayerState? landed = AirStance.FallAndLand(owner);
+        PlayerState? landed = AirStance.FallAndLand(owner, this);
 
         // The knockback she left still runs out, and as it does her rise is over.
         if (landed is null && _knockbackLeft.IsRunning)

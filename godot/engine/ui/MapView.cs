@@ -31,6 +31,7 @@ public partial class MapView : Node2D
     private Texture2D? _sheet;
     private Texture2D? _unexploredSheet;
     private Texture2D? _hereSheet;
+    private readonly Dictionary<AreaLabel, Texture2D> _labels = [];
 
     /// <summary>Shows <paramref name="area"/>'s map as <paramref name="progress"/> has it, with pictures from <paramref name="content"/>.</summary>
     public void Present(Area area, Progress progress, ContentLibrary content)
@@ -43,6 +44,9 @@ public partial class MapView : Node2D
         _sheet = content.LoadTexture(area.Sheet);
         _unexploredSheet = area.UnexploredSheet.Length > 0 ? content.LoadTexture(area.UnexploredSheet) : null;
         _hereSheet = area.HereSheet.Length > 0 ? content.LoadTexture(area.HereSheet) : null;
+        _labels.Clear();
+        foreach (AreaLabel label in area.Labels)
+            _labels[label] = content.LoadTexture(label.Picture);
         QueueRedraw();
     }
 
@@ -77,6 +81,16 @@ public partial class MapView : Node2D
             .ToList();
     }
 
+    /// <summary>The labels drawn at the moment: those whose fact is held, whose hiding fact is not, and whose corner is in the window.</summary>
+    public IReadOnlyList<AreaLabel> LabelsDrawn()
+    {
+        (Area area, Progress progress) = Shown();
+        return area.Labels
+            .Where(label => (label.When.Length == 0 || progress.Has(label.When)) && (label.Unless.Length == 0 || !progress.Has(label.Unless))
+                && IsInWindow(new Vector2I(Mathf.FloorToInt((float)label.Place.X / area.TileSize), Mathf.FloorToInt((float)label.Place.Y / area.TileSize))))
+            .ToList();
+    }
+
     /// <inheritdoc/>
     public override void _Draw()
     {
@@ -96,6 +110,9 @@ public partial class MapView : Node2D
 
         foreach (AreaCell marker in MarkersDrawn())
             DrawCell(marker, _sheet, Colors.White);
+        Vector2I first = Window.X <= 0 || Window.Y <= 0 ? Vector2I.Zero : Centre - Window / 2;
+        foreach (AreaLabel label in LabelsDrawn())
+            DrawTexture(_labels[label], label.Place - first * _area.TileSize);
     }
 
     /// <summary>Draws one cell's or marker's small picture, from one of the area's sheets, at its place in the window.</summary>

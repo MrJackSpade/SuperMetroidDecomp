@@ -18,7 +18,9 @@ namespace Engine.World;
 /// </code>
 /// A secret cell shows only once explored, never because the map was revealed. An area may give two more sheets
 /// laid out as "sheet" is: "unexplored_sheet", the pictures of cells that show but have not been explored, and
-/// "here_sheet", the pictures of the cell the player is in.
+/// "here_sheet", the pictures of the cell the player is in. It may give "labels": pictures of their own laid over
+/// the map at a place in its pixels, each an "x", a "y", a "picture" file, and optionally "when", a fact that must
+/// be held for it to show, and "unless", a fact that hides it.
 /// </remarks>
 public sealed class Area
 {
@@ -53,6 +55,9 @@ public sealed class Area
     /// <summary>The map's markers, in the order the file gives them.</summary>
     public IReadOnlyList<AreaCell> Markers { get; private init; } = [];
 
+    /// <summary>The pictures laid over the map at places of their own, in the order the file gives them.</summary>
+    public IReadOnlyList<AreaLabel> Labels { get; private init; } = [];
+
     /// <summary>Reads an area from its data file.</summary>
     public static Area Read(DataNode data)
     {
@@ -66,6 +71,7 @@ public sealed class Area
             TileSize = data.Int("tile_size"),
             Cells = data.List("cells").Select(ReadCell).ToList(),
             Markers = data.Has("markers") ? data.List("markers").Select(ReadCell).ToList() : [],
+            Labels = data.Has("labels") ? data.List("labels").Select(ReadLabel).ToList() : [],
         };
         if (area.TileSize <= 0)
             throw data.Get("tile_size").Problem("must be a positive number of pixels");
@@ -97,6 +103,11 @@ public sealed class Area
     }
 
     /// <summary>Reads one cell or marker.</summary>
+    /// <summary>Reads one label.</summary>
+    private static AreaLabel ReadLabel(DataNode data) => new(
+        new Vector2I(data.Int("x"), data.Int("y")), data.Text("picture"), data.Has("when") ? data.Text("when") : "",
+        data.Has("unless") ? data.Text("unless") : "");
+
     private static AreaCell ReadCell(DataNode data) =>
         new(new Vector2I(data.Int("column"), data.Int("row")), data.Text("shows"), data.Has("secret") && data.Flag("secret"));
 }

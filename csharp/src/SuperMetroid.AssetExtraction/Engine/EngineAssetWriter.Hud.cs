@@ -135,10 +135,10 @@ public sealed partial class EngineAssetWriter
         WriteAreaMaps(
             screens, folder + "/areas", SpriteSheetId.PauseHud,
             cell => new HudMinimapCellImage(cell, MinimapShade.Explored).FrameName, cell => new HudMinimapCellImage(cell, MinimapShade.Unexplored).FrameName,
-            cell => new HudMinimapCellImage(cell, MinimapShade.SamusLocation).FrameName);
+            cell => new HudMinimapCellImage(cell, MinimapShade.SamusLocation).FrameName, null);
         WriteAreaMaps(
             screens, "areas", SpriteSheetId.RoomMapPictures, cell => RoomMapCellFrame(cell, MapCellShade.Explored), cell => RoomMapCellFrame(cell, MapCellShade.Unexplored),
-            null);
+            null, (area, revealedBy) => AreaMapLabels(screens, area, revealedBy));
     }
 
     /// <summary>The name of the picture of a cell of an area's map, as the pause screen shows it.</summary>
@@ -150,7 +150,8 @@ public sealed partial class EngineAssetWriter
     /// picture, as the cell Samus is in.
     /// </summary>
     private void WriteAreaMaps(
-        InstalledScreenContent screens, string folder, SpriteSheetId sheet, Func<MapCell, string> explored, Func<MapCell, string> unexplored, Func<MapCell, string>? here)
+        InstalledScreenContent screens, string folder, SpriteSheetId sheet, Func<MapCell, string> explored, Func<MapCell, string> unexplored, Func<MapCell, string>? here,
+        Func<AreaId, string, JsonArray>? labels)
     {
         foreach (AreaId id in AreaIds.All)
         {
@@ -201,11 +202,12 @@ public sealed partial class EngineAssetWriter
                 return path;
             }
 
+            // The fact the Godot engine's map station records for the area it is in.
+            string revealedBy = $"map revealed: {name}";
             var data = new JsonObject
             {
                 ["name"] = name,
-                // The fact the Godot engine's map station records for the area it is in.
-                ["revealed_by"] = $"map revealed: {name}",
+                ["revealed_by"] = revealedBy,
                 ["sheet"] = Sheet("explored", explored),
                 ["unexplored_sheet"] = Sheet("unexplored", unexplored),
             };
@@ -214,6 +216,8 @@ public sealed partial class EngineAssetWriter
             data["tile_size"] = size;
             data["tiles"] = tiles;
             data["cells"] = cells;
+            if (labels?.Invoke(id, revealedBy) is { Count: > 0 } laid)
+                data["labels"] = laid;
             _tree.WriteData($"{folder}/{name}.json", data);
         }
     }

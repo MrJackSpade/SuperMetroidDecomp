@@ -461,8 +461,9 @@ def kzan(p, index, listed):
 def magdollite(p, index, listed):
     if p.settings_type != 'MagdolliteHeadSpawnSettings':
         return None
+    # Its pillar is listed straight after its head.
     return Placed(E + 'magdollite/magdollite.tscn', 'Magdollite', {
-        'Speed': number(p.settings['Speed']), 'Range': p.settings['Range']})
+        'Speed': number(p.settings['Speed']), 'Range': p.settings['Range'], 'ListedAt': str(index + 1)})
 
 
 @rule('Metroid')
@@ -703,11 +704,16 @@ RULES['KraidFirstNail'] = kraid_nail(1, None)
 RULES['KraidSecondNail'] = kraid_nail(2, 'bosses/kraid_second_nail.json')
 
 
+# Where a boss stands that the old code moves as it sets it up, whatever its room's list says: the Golden Torizo
+# starts high above the floor it drops to.
+BOSS_STARTS = {'GoldenTorizo': (424, 144)}
+
+
 def boss(kind: str) -> Rule:
     scene, name, properties = BOSSES[kind]
 
     def place(p: legacy.Placement, index: int, listed: list[legacy.Placement]) -> Placed:
-        return Placed(B + scene, kind.removesuffix('Body'), dict(properties), boss=name)
+        return Placed(B + scene, kind.removesuffix('Body'), dict(properties), boss=name, at=BOSS_STARTS.get(kind))
     return place
 
 

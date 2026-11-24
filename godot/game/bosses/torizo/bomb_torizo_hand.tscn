@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://game/bosses/torizo/BombTorizoHand.cs" id="1"]
 [ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="2"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="3"]
 
 [node name="BombTorizoHand" type="Node2D"]
 script = ExtResource("1")
@@ -9,3 +10,11 @@ DataFile = "bosses/bomb_torizo_hand.json"
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")
+
+[node name="Fingers" type="Node2D" parent="."]
+script = ExtResource("3")
+Role = 3
+
+[node name="Palm" type="Node2D" parent="."]
+script = ExtResource("3")
+Role = 3

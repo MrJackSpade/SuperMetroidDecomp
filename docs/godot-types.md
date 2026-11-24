@@ -442,8 +442,9 @@ lava's surface, spikes, a treadmill. That changes only what is drawn.
 changes nothing about where it is.
 
 **Terrain that changes.** A layout file may hold named patches: a rectangle of tiles to put in place of what is
-there. Anything may tell `Terrain` to apply a patch or take it back by name: a boss dropping the ceiling, a
-sequence opening a wall, a bridge giving way. Nothing edits tiles one at a time, and nothing but `Terrain` holds
+there. Anything may tell `Terrain` to apply a patch or take it back by name, and may ask whether the layout has
+one of a name: a boss dropping the ceiling, a sequence opening a wall, a bridge giving way, a statue's feet
+breaking through one block after another (a patch for each block that can be broken). Nothing edits tiles one at a time, and nothing but `Terrain` holds
 tile data. A patch applied for good is remembered like anything else.
 
 **Terrain that changes over some updates.** A change that plays out, such as a wall crumbling through several
@@ -651,7 +652,8 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
 - **Colour and strength variants** are one scene with different data files.
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue
   that starts another timeline taking effect in the same update; marking its place in a timeline and resuming there;
-  judging a hit itself (`TakeHit` can be overridden, part by part); firing its data's shots; leaving effects and
+  judging a hit itself (`TakeHit` can be overridden, part by part); keeping health part by part (`HealthOf` says
+  which health a hit on a part is taken from); firing its data's shots; leaving effects and
   drops; moving by the shared `Mover` or carrying the player with it; flashing for a set time; and asking whether
   the player rests against its solid.
 - **An enemy's own visual** is its `ActorVisual` child named "Visual", wherever it stands among its visuals, so a
@@ -672,7 +674,7 @@ decides what to do about it.
 
 | Component | Moves its owner by |
 | --- | --- |
-| Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. |
+| Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. It can feel for its surface some way ahead of itself, so that it meets a corner early; its owner can ask which way it presses. |
 | Hop | Jumping in arcs, with settings for height, distance and the wait between. |
 | Wave flight | Travelling in a direction while rising and falling in a wave. |
 | Dive | Waiting, then dropping or swooping at a target and returning or not. |
@@ -709,7 +711,7 @@ How a projectile behaves is settings, not code:
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). |
 
 A projectile needs its own class only for behaviour no setting gives it. One whose timelines drive it (its harm
-turned on and off, stopped, shifted, scattered, ended, each by a cue) and that moves its own way is a
+turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, each by a cue) and that moves its own way is a
 `CuedProjectile`, the engine's: by itself a burst that plays out where it is, and the base of those that fly.
 
 ### Pickup (base), Effect (base) and Remains
@@ -727,6 +729,10 @@ turned on and off, stopped, shifted, scattered, ended, each by a cue) and that m
 
 **A shot meets what is solid and hittable.** A projectile that reaches something solid that is not terrain, such as
 a door's cap or a frozen enemy, delivers its hit to what is there before the solid stops it. Terrain stops it first.
+
+**A shot's harm is its own, unless its launcher settles it.** A `ShotType` launches its projectile with the damage
+its data gives (`Launch`). Fire that does the harm of what it came of is launched with that harm in its place
+(`LaunchDoing`): a flame of Ridley's does what the fireball it came of does, which differs between its two fights.
 
 **Pictures for a room's graphics.** A layout names the set of graphics it is drawn with. A picture's path may hold
 `{graphics}`; a room loads such a picture from the folder named for its own set, so that something the old game
@@ -910,9 +916,13 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   (its head is the enemy, sized by a cue for the way it points, and the thirteen segments of its body are visuals
   with hurtboxes that stop shots and are not hurt; how hurt it is is a set of its pictures; its wall falls as a
   `PatchSequence` the room goes on playing after it is gone, and the `CameraZone` its wall kept shut is opened as
-  the wall begins to fall); Draygon (eye, tail, arms are parts);
+  the wall begins to fall); Draygon (eye, tail, arms are parts; its body's pictures are kept once for each band of its health; its data, not
+  its cannons, says which cannon fires on which of its turns and from where, and each cannon in the room says which
+  it is);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and
-  a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s); Mother Brain (her brain, the joints of her neck
+  a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s; its pictures are kept once
+  for each of the colours it is in, the dark it waits in, each step of its eyes' and body's showing and each look
+  of its health, and its data says which parts of it can be touched and shot in each pose); Mother Brain (her brain, the joints of her neck
   and her beam are parts of one enemy written across several files, one per part of her fight; her glass and her
   turrets are enemies; her rings, bombs, drool and the glow at her hand are `Projectile`s of their own).
 - What a boss does to the room (the camera's limits, doors, lights, the alarm and its countdown) is not in the

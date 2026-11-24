@@ -168,7 +168,7 @@ internal sealed partial class EngineSheets
 
     /// <summary>Cuts named frames, each from the sheet given for it or showing nothing where no sheet is given, onto one canvas.</summary>
     private EngineSheetPictures CutFrames(
-        EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames, string? shade = null)
+        EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames, IReadOnlyList<string>? shades = null)
     {
         InstalledSheetFrameDocument FrameOf((string Name, string Sheet) frame) =>
             _documents[(family, frame.Sheet)].Frames.TryGetValue(frame.Name, out InstalledSheetFrameDocument? found)
@@ -201,7 +201,7 @@ internal sealed partial class EngineSheets
                 _images[(family, frame.Sheet)] = image = _store.Assemble(frame.Sheet, document);
             Array.Clear(canvas);
             int across = -placed.Origin.X - left, down = -placed.Origin.Y - top;
-            Dictionary<(int Colour, int Region), RgbaPixel>? shown = shade is null ? null : ShadeOf(frame.Sheet, document, shade);
+            Dictionary<(int Colour, int Region), RgbaPixel>? shown = shades is null ? null : ShadesOf(frame.Sheet, document, shades);
             for (int y = 0; y < placed.Size.Y; y++)
             {
                 int from = (placed.Corner.Y + y) * document.Size.X + placed.Corner.X, to = (down + y) * width + across;
@@ -236,7 +236,7 @@ internal sealed partial class EngineSheets
         InstalledSheetDocument document = _documents.TryGetValue((family, sheet), out InstalledSheetDocument? found)
             ? found
             : throw new InvalidDataException($"The installation has no sheet {sheet} in {family}.");
-        return CutFrames(tree, family, folder, [.. document.Frames.Keys.Select(name => (name, sheet))], shade);
+        return CutFrames(tree, family, folder, [.. document.Frames.Keys.Select(name => (name, sheet))], [shade]);
     }
 
     /// <summary>

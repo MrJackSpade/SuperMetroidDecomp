@@ -9,9 +9,11 @@ script = ExtResource("1")
 DataFile = "enemies/eye_door_eye.json"
 
 [node name="Middle" type="Node2D" parent="."]
+position = Vector2(0, -16)
 script = ExtResource("3")
 
 [node name="Bottom" type="Node2D" parent="."]
+position = Vector2(0, 32)
 script = ExtResource("3")
 
 [node name="Visual" type="Node2D" parent="."]

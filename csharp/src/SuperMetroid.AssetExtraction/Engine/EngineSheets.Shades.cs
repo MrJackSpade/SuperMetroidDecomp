@@ -24,7 +24,7 @@ internal sealed partial class EngineSheets
             frames.AddRange(document.Frames.Keys.Select(name => (name, sheet)));
         }
 
-        return CutFrames(tree, family, folder, frames, shade);
+        return CutFrames(tree, family, folder, frames, [shade]);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ internal sealed partial class EngineSheets
         foreach ((string name, JsonNode? frame) in frames)
         {
             string picture = frame!["picture"]!.GetValue<string>();
-            EngineSheetPictures one = CutFrames(tree, family, folder, [(picture, sheet)], shade);
+            EngineSheetPictures one = CutFrames(tree, family, folder, [(picture, sheet)], shade is null ? null : [shade]);
             cut[name] = new EngineBodyFrame(one.Of(picture), frame["anchor"]!["x"]!.GetValue<int>() + one.OffsetX, frame["anchor"]!["y"]!.GetValue<int>() + one.OffsetY);
         }
 
@@ -194,20 +194,6 @@ internal sealed partial class EngineSheets
         }
 
         return new EngineSheetPictures(left, top, width, height, paths);
-    }
-
-    /// <summary>
-    /// Cuts named pictures of what an enemy spawns as one of their sheets' shades shows them, under
-    /// <paramref name="folder"/>. Given the same pictures as <see cref="CutSpawned"/>, they are of the same size and
-    /// lie in the same place as the ones it cuts.
-    /// </summary>
-    /// <exception cref="InvalidDataException">A picture is on no sheet, or its sheet has no such shade.</exception>
-    internal EngineSheetPictures CutSpawnedShade(EngineAssetTree tree, string folder, string spawner, IEnumerable<string> frames, string shade)
-    {
-        var placed = new List<(string Name, string Sheet)>();
-        foreach (string frame in frames.Distinct(StringComparer.Ordinal))
-            placed.Add((frame, SheetHolding(spawner, frame)));
-        return CutFrames(tree, EnemyFamily, folder, placed, shade);
     }
 }
 

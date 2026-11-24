@@ -4,18 +4,25 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
 
 /// <summary>
-/// A Yard: a snail that crawls round whatever it clings to. When Samus looks its way it shuts itself in its shell.
-/// She can stand on it; running into it kicks it flying, and a shot knocks it into the air too. Kicked, it bounces to
-/// rest and then comes after her in a temper, crawling fast, until it has touched her.
+/// A Yard: a snail that crawls round whatever it clings to, stopping at each corner to turn. When Samus looks its way
+/// it shuts itself in its shell. She can stand on it; running into it kicks it flying, and a shot knocks it into the
+/// air too. Kicked, it bounces to rest and then comes after her in a temper, crawling fast, until it has touched her.
 /// </summary>
 /// <remarks>
-/// Its timelines are "floor", "ceiling", "left_wall" and "right_wall" for crawling, the same with "hiding_" before
-/// them for its shut shell, and "airborne_left" and "airborne_right". Its solid collider is what Samus stands on.
+/// A way of crawling is a surface and a way along it: "floor_left", "floor_right", "ceiling_left", "ceiling_right",
+/// "left_wall_up", "left_wall_down", "right_wall_up" and "right_wall_down". Its timelines, for each:
+/// "crawl_" and the way; "outside_turn_" and "inside_turn_" and the way, which lead into the crawl beyond the corner;
+/// "hide_" and the way, its legs tucking, its shell shut and then coming out again; and "shell_" and the way, which is
+/// the same from the shut shell on. "airborne_left" and "airborne_right" show it in the air, and "landed_left" and
+/// "landed_right" its shell on the floor before it comes out. Its cues: "crawl" sets it crawling; "turn" holds it
+/// still, unable to hide; "hide" stops it to hide; "shell_closed" is where it may shut its shell again;
+/// "move:&lt;x&gt;:&lt;y&gt;" shifts it round a corner. Its solid collider is what Samus stands on.
 /// </remarks>
 public partial class Yard : Enemy
 {
@@ -39,9 +46,20 @@ public partial class Yard : Enemy
     [Export, DataValue("hiding_reach_above")]
     public int HidingReachAbove { get; set; } = 96;
 
-    /// <summary>How many updates it keeps its shell shut at a time once nobody is looking; by chance it shuts it again.</summary>
-    [Export, DataValue("shell_closed_updates")]
-    public int ShellClosedUpdates { get; set; } = 16;
+    /// <summary>How far beyond a crawling step it feels for what it clings to while it hides, in pixels; finding nothing, it falls.</summary>
+    [Export, DataValue("hiding_probe_reach")]
+    public int HidingProbeReach { get; set; } = 7;
+
+    /// <summary>How far ahead of itself it feels for a corner, in pixels.</summary>
+    [Export, DataValue("turn_lookahead")]
+    public int TurnLookahead { get; set; } = 7;
+
+    /// <summary>
+    /// How many updates of plain crawling follow a turn before it feels ahead along a floor or ceiling again; until
+    /// then it goes round a corner there without stopping.
+    /// </summary>
+    [Export, DataValue("turn_rest_updates")]
+    public int TurnRestUpdates { get; set; } = 16;
 
     /// <summary>The fastest it can be falling, in whole pixels an update, and still come to rest rather than bounce.</summary>
     [Export, DataValue("landing_speed_limit")]
@@ -51,13 +69,17 @@ public partial class Yard : Enemy
     [Export, DataValue("gravity")]
     public double Gravity { get; set; } = 0.125;
 
+    /// <summary>The whole pixels an update its fall never reaches.</summary>
+    [Export, DataValue("fall_speed_limit")]
+    public int FallSpeedLimit { get; set; } = 4;
+
     /// <summary>The speed across it loses each update in the air.</summary>
     [Export, DataValue("air_drag")]
-    public double AirDrag { get; set; } = 0.03125;
+    public double AirDrag { get; set; } = 0.0625;
 
-    /// <summary>The speed, across and upward, a shot knocks it into the air with.</summary>
+    /// <summary>The speed, across and upward, a shot knocks it into the air with, in whole pixels an update.</summary>
     [Export, DataValue("shot_launch_speed")]
-    public double ShotLaunchSpeed { get; set; } = 1;
+    public int ShotLaunchSpeed { get; set; } = 1;
 
     /// <summary>How hard the room must be shaking to shake it off what it clings to.</summary>
     [Export, DataValue("falls_at_shake")]
@@ -77,18 +99,47 @@ public partial class Yard : Enemy
         Launched,
     }
 
+    private enum Doing
+    {
+        Still,
+        Hiding,
+        Crawling,
+        Airborne,
+    }
+
     private readonly SurfaceCrawl _crawl = new();
     private readonly List<Pixels> _kicks = [];
     private Mood _mood;
-    private bool _airborne;
-    private bool _still;
-    private Countdown _shellShut;
+    private Doing _doing;
+
+    /// <summary>The speed it next takes up crawling at.</summary>
+    private Pixels _speed;
+
+    /// <summary>Its speed through the air.</summary>
+    private PixelVelocity _flight;
+
+    /// <summary>The way its shell faces: the way it is shown in the air, and the way it sets off on landing.</summary>
+    private Facing _faces;
+
+    /// <summary>The timeline it hides with; empty while it cannot hide.</summary>
+    private string _hide = "";
+
+    /// <summary>The timeline it lands with.</summary>
+    private string _landing = "";
+
+    /// <summary>
+    /// Whether, hiding, it feels across for what it clings to rather than down. Until its first crawl has begun it
+    /// feels across whatever it is on, as the original does, so one hidden as its room is set up may fall.
+    /// </summary>
+    private bool _feelsAcross = true;
+
+    private Countdown _turnRest;
 
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        // The upward speed a kick gives it, by how fast Samus was running, in whole pixels an update.
+        // The speed down a kick gives it, which is upward and so below nought, by how fast Samus was running, in whole pixels an update.
         _kicks.Clear();
         _kicks.AddRange(data.List("kick_speeds").Select(speed => speed.AsPixels()));
         if (_kicks.Count == 0)
@@ -98,39 +149,93 @@ public partial class Yard : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        _crawl.Speed = Pixels.FromNumber(CrawlSpeed);
+        _speed = Pixels.FromNumber(CrawlSpeed);
+        _crawl.Speed = _speed;
         _crawl.Start(StartsOn, Clockwise);
-        Play(SurfaceName);
+        _faces = Clockwise ? Facing.Right : Facing.Left;
+        _hide = $"hide_{Way}";
+        Play($"crawl_{Way}");
+    }
+
+    /// <summary>The way it crawls: the surface it is on and the way along it.</summary>
+    private string Way => _crawl.Side switch
+    {
+        SurfaceCrawl.Clings.Below => Clockwise ? "floor_right" : "floor_left",
+        SurfaceCrawl.Clings.Above => Clockwise ? "ceiling_left" : "ceiling_right",
+        SurfaceCrawl.Clings.Left => Clockwise ? "left_wall_down" : "left_wall_up",
+        SurfaceCrawl.Clings.Right => Clockwise ? "right_wall_up" : "right_wall_down",
+        _ => throw new InvalidOperationException($"Undefined side {_crawl.Side}."),
+    };
+
+    /// <summary>Whether a hit is a shot, which only knocks its shell into the air: bombs alone do it harm.</summary>
+    private static bool KnocksShell(Hit hit) =>
+        hit.CarriesAny([new HitKind(HitKinds.Beam), new HitKind(HitKinds.Missile), new HitKind(HitKinds.SuperMissile)]);
+
+    /// <inheritdoc/>
+    protected override Reaction ReactionTo(Hit hit, Collider part) =>
+        KnocksShell(hit) ? Reaction.FullDamage with { DamageTimes = 0 } : base.ReactionTo(hit, part);
+
+    /// <inheritdoc/>
+    protected override void OnAbsorbed(Hit hit, Collider part)
+    {
+        if (KnocksShell(hit))
+            KnockedByShot();
     }
 
     /// <inheritdoc/>
-    protected override void OnHurt(Hit hit, Collider part) => KnockedByShot();
-
-    /// <inheritdoc/>
-    protected override void OnAbsorbed(Hit hit, Collider part) => KnockedByShot();
+    protected override void OnCue(string cue)
+    {
+        string[] parts = cue.Split(':');
+        switch (parts[0])
+        {
+            case "crawl":
+                _doing = Doing.Crawling;
+                _hide = $"hide_{Way}";
+                _feelsAcross = _crawl.Side is SurfaceCrawl.Clings.Left or SurfaceCrawl.Clings.Right;
+                _faces = Clockwise ? Facing.Right : Facing.Left;
+                break;
+            case "turn":
+                _doing = Doing.Still;
+                _hide = "";
+                break;
+            case "hide":
+                _doing = Doing.Hiding;
+                break;
+            case "shell_closed":
+                // While Samus watches it stays shut; after that, by chance, an update at a time.
+                if (_mood == Mood.Hiding || Random.Draw().Part(0, 1) != 0)
+                    Play($"shell_{Way}", restart: true);
+                break;
+            case "move":
+                Position += new PixelOffset(Pixels.FromWhole(int.Parse(parts[1])), Pixels.FromWhole(int.Parse(parts[2])));
+                break;
+            default:
+                throw new InvalidOperationException($"The Yard \"{Name}\" does not know the cue \"{cue}\".");
+        }
+    }
 
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
         Player samus = Room.Player;
-        bool towardIt = samus.Input.IsHeld(GameAction.Right) && !samus.Input.IsHeld(GameAction.Left) ? Facing == Facing.Left : Facing == Facing.Right;
-        bool shrugsOff = _mood == Mood.Angry && !_still && towardIt;
-        if (!shrugsOff && (_airborne || samus.HasMomentum))
+        bool towardIt = samus.Input.IsHeld(GameAction.Right) && !samus.Input.IsHeld(GameAction.Left) ? _faces == Facing.Left : _faces == Facing.Right;
+        bool shrugsOff = _mood == Mood.Angry && _doing != Doing.Still && towardIt;
+        if (!shrugsOff && (_doing == Doing.Airborne || samus.HasMomentum))
         {
             // Kicked: it flies off the way Samus faces, higher the faster she was going.
             _mood = Mood.Kicked;
             TakeOff();
             Pixels speed = samus.Velocity.X.Abs();
             Pixels across = speed + Pixels.FromWhole(1);
-            Velocity = new PixelVelocity(samus.Facing == Facing.Left ? -across : across, -_kicks[Math.Min(speed.Whole, _kicks.Count - 1)]);
+            _flight = new PixelVelocity(samus.Facing == Facing.Left ? Reversed(across) : across, _kicks[Math.Min(speed.Whole, _kicks.Count - 1)]);
             Sound(BounceSound);
             return;
         }
 
-        if (_still || _mood is Mood.Dropped or Mood.Kicked)
+        if (_doing == Doing.Still || _mood is Mood.Dropped or Mood.Kicked)
             return;
         base.Touch(part);
-        _crawl.Speed = Pixels.FromNumber(CrawlSpeed);
+        _speed = Pixels.FromNumber(CrawlSpeed);
         if (_mood != Mood.Calm)
             TurnRound();
         _mood = Mood.Calm;
@@ -140,33 +245,45 @@ public partial class Yard : Enemy
     protected override void Behave()
     {
         Player samus = Room.Player;
-        if (!_airborne && Room.ShakeStrength >= FallsAtShake)
+        if (_doing != Doing.Airborne && Room.ShakeStrength >= FallsAtShake)
             Drop();
         WatchSamus(samus);
         if (Solid is { } shell)
         {
-            shell.Enabled = !_airborne && (_mood == Mood.Angry
-                ? !samus.HasMomentum && _still
+            shell.Enabled = _doing != Doing.Airborne && (_mood == Mood.Angry
+                ? !samus.HasMomentum && _doing == Doing.Still
                 : !samus.HasMomentum && _mood is Mood.Calm or Mood.Hiding);
         }
 
-        if (_airborne)
+        switch (_doing)
         {
-            Fly();
-            return;
+            case Doing.Still:
+                break;
+            case Doing.Hiding:
+                if (!StillClings())
+                    Drop();
+                break;
+            case Doing.Airborne:
+                Fly();
+                break;
+            case Doing.Crawling:
+                Crawl();
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined doing {_doing}.");
         }
+    }
 
-        if (_mood == Mood.Hiding || _still)
-        {
-            if (_shellShut.IsRunning)
-                _shellShut = _shellShut.Stepped();
-            else if (_mood != Mood.Hiding && Random.Draw().Part(0, 1) == 0)
-                ComeOut();
-            else
-                _shellShut = Countdown.Of(ShellClosedUpdates);
-            return;
-        }
-
+    /// <summary>
+    /// Crawls one update. At a corner it stops and plays its turn, which leads into the crawl beyond; along a floor or
+    /// ceiling, soon after a turn, it does not feel ahead and goes round without stopping.
+    /// </summary>
+    private void Crawl()
+    {
+        bool alongWall = _crawl.Side is SurfaceCrawl.Clings.Left or SurfaceCrawl.Clings.Right;
+        bool stopsToTurn = alongWall || _turnRest.IsOver;
+        _crawl.Lookahead = stopsToTurn ? TurnLookahead : 0;
+        string before = Way;
         MoveReport report = _crawl.Step(this);
         if (_crawl.IsFalling)
         {
@@ -174,19 +291,27 @@ public partial class Yard : Enemy
             return;
         }
 
-        if (report.ReachedEdge || report.Finished)
-            Play(SurfaceName);
+        if (!report.ReachedEdge)
+        {
+            _turnRest = _turnRest.Stepped();
+            return;
+        }
+
+        // Something in its way is an inside corner; its surface ending is an outside one.
+        bool inside = report.HitWall || report.HitFloor || report.HitCeiling;
+        Play(stopsToTurn ? $"{(inside ? "inside" : "outside")}_turn_{before}" : $"crawl_{Way}", restart: true);
+        _turnRest = Countdown.Of(TurnRestUpdates);
     }
 
-    /// <summary>The name of the surface it is on, which is also the name of its crawling timeline there.</summary>
-    private string SurfaceName => _crawl.Side switch
+    /// <summary>Whether what it clings to is still there, a little beyond a crawling step away.</summary>
+    private bool StillClings()
     {
-        SurfaceCrawl.Clings.Below => "floor",
-        SurfaceCrawl.Clings.Above => "ceiling",
-        SurfaceCrawl.Clings.Left => "left_wall",
-        SurfaceCrawl.Clings.Right => "right_wall",
-        _ => throw new InvalidOperationException($"Undefined side {_crawl.Side}."),
-    };
+        PixelPosition from = Position;
+        Pixels reach = _crawl.Speed + Pixels.FromWhole(HidingProbeReach);
+        bool clings = _feelsAcross ? MoveAcrossBy(reach * _crawl.PressesAcross) : MoveDownBy(reach * _crawl.PressesDown);
+        Position = from;
+        return clings;
+    }
 
     /// <summary>Shuts it in its shell while Samus is level with it, or below, and looking its way.</summary>
     private void WatchSamus(Player samus)
@@ -199,31 +324,30 @@ public partial class Yard : Enemy
         {
             if (_mood == Mood.Hiding)
                 return;
-            Play($"hiding_{SurfaceName}", restart: true);
-            _mood = Mood.Hiding;
-            _shellShut = Countdown.Of(ShellClosedUpdates);
-            return;
+            if (_hide.Length > 0)
+            {
+                Play(_hide, restart: true);
+                _mood = Mood.Hiding;
+                return;
+            }
         }
 
         _mood = Mood.Calm;
     }
 
-    /// <summary>Brings it out of its shell and sets it crawling.</summary>
-    private void ComeOut()
-    {
-        _still = false;
-        Play(SurfaceName, restart: true);
-    }
-
     /// <summary>Turns it to crawl the other way round.</summary>
     private void TurnRound()
     {
-        if (_mood == Mood.Hiding || _still)
+        if (_mood == Mood.Hiding || _doing == Doing.Still)
             return;
         Clockwise = !Clockwise;
+        _crawl.Speed = _speed;
         _crawl.Start(_crawl.Side, Clockwise);
-        Facing = Facing.Opposite();
-        Play(SurfaceName, restart: true);
+        _faces = Clockwise ? Facing.Right : Facing.Left;
+        _hide = $"hide_{Way}";
+        _doing = Doing.Crawling;
+        _turnRest = Countdown.Of(TurnRestUpdates);
+        Play($"crawl_{Way}", restart: true);
     }
 
     /// <summary>Lets it fall off what it clings to.</summary>
@@ -233,31 +357,58 @@ public partial class Yard : Enemy
             return;
         _mood = Mood.Dropped;
         TakeOff();
-        Velocity = PixelVelocity.Zero;
+        _flight = PixelVelocity.Zero;
     }
 
-    /// <summary>Puts it in the air, shown the way it faces.</summary>
+    /// <summary>Puts it in the air, shown the way its shell faces.</summary>
     private void TakeOff()
     {
-        _airborne = true;
-        _still = false;
-        Play(Facing == Facing.Left ? "airborne_left" : "airborne_right", restart: true);
+        _doing = Doing.Airborne;
+        string side = _faces == Facing.Left ? "left" : "right";
+        _landing = $"landed_{side}";
+        _hide = _landing;
+        Play($"airborne_{side}", restart: true);
     }
 
-    /// <summary>Answers a shot: one that could hurt it knocks it into the air, the way Samus faces.</summary>
+    /// <summary>Answers a shot: it is knocked into the air, the way Samus faces, unless it is falling or kicked already.</summary>
     private void KnockedByShot()
     {
         if (_mood is Mood.Calm or Mood.Angry or Mood.Hiding or Mood.Launched)
         {
             _mood = Mood.Launched;
             TakeOff();
-            Pixels launch = Pixels.FromNumber(ShotLaunchSpeed);
-            Velocity = new PixelVelocity(
-                Velocity.X.WithWhole(0) + (Room.Player.Facing == Facing.Left ? -launch : launch),
-                Velocity.Y.WithWhole(0) - launch);
+            // Only the whole pixels of its speed are set; what fraction it had it keeps.
+            _flight = new PixelVelocity(
+                _flight.X.WithWhole(Room.Player.Facing == Facing.Left ? -ShotLaunchSpeed : ShotLaunchSpeed),
+                _flight.Y.WithWhole(-ShotLaunchSpeed));
         }
 
         Sound(BounceSound);
+    }
+
+    /// <summary>A speed turned back, as the original turns it: its whole pixels and its fraction each negated on their own.</summary>
+    private static Pixels Reversed(Pixels speed) =>
+        Pixels.FromParts(-speed.Whole, (Pixels.FractionsPerPixel - speed.Fraction) % Pixels.FractionsPerPixel);
+
+    /// <summary>
+    /// Its speed across after an update of drag. The original never lets the whole pixels of it reach nought: there
+    /// the drag changes only the fraction.
+    /// </summary>
+    private Pixels Slowed(Pixels speed)
+    {
+        Pixels drag = Pixels.FromNumber(AirDrag);
+        Pixels slowed = speed.IsNegative ? speed + drag : speed - drag;
+        return slowed.Whole != 0 ? slowed : speed.WithFraction(slowed.Fraction);
+    }
+
+    /// <summary>
+    /// Its falling speed after an update of gravity. The original never lets the whole pixels of it reach the limit:
+    /// there gravity changes only the fraction.
+    /// </summary>
+    private Pixels Fallen(Pixels speed)
+    {
+        Pixels faster = speed + Pixels.FromNumber(Gravity);
+        return faster.Whole < FallSpeedLimit ? faster : speed.WithFraction(faster.Fraction);
     }
 
     /// <summary>Moves it one update through the air: bouncing off walls, and off the floor until it lands gently enough.</summary>
@@ -265,33 +416,41 @@ public partial class Yard : Enemy
     {
         if (_mood != Mood.Dropped)
         {
-            if (MoveAcrossBy(Velocity.X))
+            if (MoveAcrossBy(_flight.X))
             {
-                Velocity = Velocity.WithX(-Velocity.X);
+                _flight = _flight.WithX(Reversed(_flight.X));
                 Sound(BounceSound);
             }
             else
             {
-                Velocity = Velocity.WithX(Velocity.X.Toward(Pixels.Zero, Pixels.FromNumber(AirDrag)));
+                _flight = _flight.WithX(Slowed(_flight.X));
             }
         }
 
-        if (!MoveDownBy(Velocity.Y))
+        if (!MoveDownBy(_flight.Y))
         {
-            Velocity = Velocity.WithY(Velocity.Y + Pixels.FromNumber(Gravity));
+            _flight = _flight.WithY(Fallen(_flight.Y));
             return;
         }
 
-        int falling = Velocity.Y.Whole;
+        int falling = _flight.Y.Whole;
         if (falling < 0 || falling >= LandingSpeedLimit)
         {
-            Velocity = Velocity.WithY(-Velocity.Y);
+            _flight = _flight.WithY(Reversed(_flight.Y));
             return;
         }
 
-        // Landed: after a plain fall it is calm; after a kick or a shot it is angry, and faces Samus.
-        Velocity = PixelVelocity.Zero;
-        _airborne = false;
+        Land();
+    }
+
+    /// <summary>
+    /// Brings it to rest on the floor in its shut shell: after a plain fall it is calm; after a kick or a shot it is
+    /// angry, and turns its shell to face Samus. It comes out crawling the way its shell faces.
+    /// </summary>
+    private void Land()
+    {
+        _flight = PixelVelocity.Zero;
+        _turnRest = Countdown.Of(TurnRestUpdates);
         if (_mood == Mood.Dropped)
         {
             _mood = Mood.Calm;
@@ -299,14 +458,19 @@ public partial class Yard : Enemy
         else
         {
             _mood = Mood.Angry;
-            _crawl.Speed = Pixels.FromNumber(AggressiveCrawlSpeed);
-            Facing = TowardPlayer;
+            _speed = Pixels.FromNumber(AggressiveCrawlSpeed);
+            int x = Position.X.Whole, samusX = Room.Player.Position.X.Whole;
+            if (_faces == Facing.Right ? x >= samusX : x < samusX)
+                _faces = _faces.Opposite();
+            string side = _faces == Facing.Left ? "left" : "right";
+            _landing = $"landed_{side}";
+            _hide = _landing;
         }
 
-        Clockwise = Facing == Facing.Left;
+        Clockwise = _faces == Facing.Right;
+        _crawl.Speed = _speed;
         _crawl.Start(SurfaceCrawl.Clings.Below, Clockwise);
-        _still = true;
-        _shellShut = Countdown.Of(ShellClosedUpdates);
-        Play("hiding_floor", restart: true);
+        _doing = Doing.Still;
+        Play(_landing, restart: true);
     }
 }

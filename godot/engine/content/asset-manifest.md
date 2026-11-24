@@ -14,13 +14,15 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/bomb_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
 | `bosses/bomb_torizo_hand.json` | `BombTorizoHand` | debris_look |
 | `bosses/botwoon.json` | `Botwoon` | contact_damage, explosion_effect, explosion_sound, floor_y, health, opening_delay, pre_fall_wait, smoke_effect, speed_curve, wall_drops, wall_explosion_effect, wall_updates, wall_x |
-| `bosses/ceres_ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, fade_updates, health, hit_flash_updates, hits_to_drive_off, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, wounded_health |
+| `bosses/ceres_ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, body_fade_step_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, eye_fade_step_updates, eye_hold_updates, fade_steps, health, hit_flash_updates, hits_to_drive_off, piece_end_effect, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, tail_tip_arc_start, wounded_health |
 | `bosses/crocomire.json` | `Crocomire` | acid_sound, acid_sound_updates, big_dud_effect, break_through_patch, bridge_approach_x, bridge_collapse_x, bridge_sound, bridge_wall_patch, charged_beam_steps, claw_push, contact_damage, crumble_sound, death_drops, dud_effect, dust_effect, explosion_sound, fall_delay, health, melt_updates, missile_steps, mouth_shot_flash, mouth_shot_hold, mouth_shot_screen_reach, power_bomb_flash, power_bomb_steps, risen_y, rumble_sound, shake_sound, skeleton_wall_patch, spike_wall_breaking_patch, spike_wall_charge_x, spiked_wall_updates, spit_sound, step_back_screen_reach, submerged_pause, sunken_y, super_missile_steps, tongue_across, wake_distance, wall_approach_x, wall_break_sound |
-| `bosses/draygon.json` | `Draygon` | bubble_effect, chase_speed, contact_damage, dancer_effect, death_drops, dust_effect, escape_presses, foam_effect, goop_range, goops_per_pass, grapple_shock_damage, health, intro_dance_updates, intro_updates, right_side_distance, smoke_effect, swim_line_y, swoop_quickening, swoop_quickening_limit, swoop_quickening_per_hit, whip_shake_strength |
+| `bosses/draygon.json` | `Draygon` | bubble_effect, chase_speed, contact_damage, dancer_effect, death_drops, dust_effect, escape_presses, eye_bubble_effect, foam_effect, goop_range, goops_per_pass, grapple_shock_damage, health, intro_dance_updates, intro_updates, right_side_distance, smoke_effect, swim_line_y, swoop_quickening, swoop_quickening_limit, swoop_quickening_per_hit, whip_shake_strength |
 | `bosses/draygon_cannon.json` | `DraygonCannon` | contact_damage, grapple_drain, health |
 | `bosses/draygon_goop.json` | `DraygonGoop` | chamber_size, most_stuck, reach_across, reach_down, stack_spacing, stack_top, stuck_timeline, stuck_updates |
 | `bosses/golden_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
+| `bosses/golden_torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
 | `bosses/golden_torizo_orb.json` | `TorizoOrb` | bounce_drag, bounces, gravity |
+| `bosses/golden_torizo_sonic_boom.json` | `TorizoSonicBoom` | quickening |
 | `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, big_dud_effect, contact_damage, death_drops, death_shade, dud_effect, dud_sound, health, hurt_shade, lunge_delay_updates, rise_wait_updates, rock_sound, spit_cadence_updates, thinking_step_updates |
 | `bosses/kraid_ceiling_rock.json` | `KraidRock` | drift, drift_limit, gravity |
 | `bosses/kraid_lint.json` | `KraidLint` | charge_updates, contact_damage, emerge_pixels, fire_sound, fire_speed, harmless_x, health, point_x, reload_updates, return_x |
@@ -36,9 +38,9 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/mother_brain_glass.json` | `MotherBrainGlass` | burst_updates, contact_damage, health, shard_arcs, shard_drop, shatter_sound, shatter_updates, shattered_patch |
 | `bosses/mother_brain_ring.json` | `MotherBrainRing` | floor, mouth_updates, top, view_right |
 | `bosses/mother_brain_turret.json` | `MotherBrainTurret` | contact_damage, health, least_fire_wait, least_turn_wait, smoke_effect, view_across, view_down, view_height, view_width |
-| `bosses/phantoon.json` | `Phantoon` | big_explosion_effect, contact_damage, death_drops, dying_cry, explosion_sound, fade_steps, flame_sound, health, rage_sound, round_damage, shot_cry, small_explosion_effect |
-| `bosses/phantoon_flame.json` | `PhantoonFlame` | burning_timeline, drift_speed, gravity, landing_drop, landing_pause, landing_timeline, leap_speed, rain_impact_timeline, rain_sound, resting_timeline, ring_hold_updates, ring_radius |
-| `bosses/ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, fade_updates, health, hit_flash_updates, hits_to_drive_off, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, wounded_health |
+| `bosses/phantoon.json` | `Phantoon` | big_explosion_effect, big_explosion_sound, contact_damage, death_drops, dying_cry, fade_steps, flame_sound, health, rage_sound, round_damage, shot_cry, small_explosion_effect, small_explosion_sound |
+| `bosses/phantoon_flame.json` | `PhantoonFlame` | burning_timeline, drift_speed, falling_timeline, gravity, landing_drop, landing_pause, landing_timeline, leap_speed, rain_impact_timeline, rain_sound, resting_timeline, ring_hold_updates, ring_radius |
+| `bosses/ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, body_fade_step_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, eye_fade_step_updates, eye_hold_updates, fade_steps, health, hit_flash_updates, hits_to_drive_off, piece_end_effect, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, tail_tip_arc_start, wounded_health |
 | `bosses/ridley_fireball.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ridley_flame.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ridley_flare.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
@@ -66,8 +68,8 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/bull.json` | `Bull` | acceleration_step, contact_damage, health, kick_acceleration, kick_guard_updates, kick_speed, off_target_turn, wait_updates |
 | `enemies/cacatac.json` | `Cacatac` | attack_chances, contact_damage, diagonal_spike_speed, health, spike_speed |
 | `enemies/choot.json` | `Choot` | ascent_step, contact_damage, health, reach, speed_curve |
-| `enemies/chozo_statue_lower_norfair.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, way_patch |
-| `enemies/chozo_statue_wrecked_ship.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, way_patch |
+| `enemies/chozo_statue_lower_norfair.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_patches, shut_patch, way_patch |
+| `enemies/chozo_statue_wrecked_ship.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_patches, shut_patch, way_patch |
 | `enemies/corpse_ripper_level.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_ripper_tilted.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_skree.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
@@ -82,7 +84,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/evir.json` | `Evir` | arms_across, arms_down, contact_damage, grip_across, grip_down, health |
 | `enemies/evir_spit.json` | `EvirSpit` | contact_damage, health, regrow_distance, regrow_margin, speed, throw_distance |
 | `enemies/eye_door_eye.json` | `EyeDoorEye` | contact_damage, dud_sound, health, hit_sound, hits_to_destroy, puff_effect, smoke_effect, spit_sound |
-| `enemies/eye_door_spit.json` | `EyeDoorSpit` | burst_timeline |
+| `enemies/eye_door_spit.json` | `EyeDoorSpit` | burst_timeline, shot_effect |
 | `enemies/face_block.json` | `FaceBlock` | contact_damage, glow_levels, glow_updates, health, wakes_with |
 | `enemies/fake_kraid.json` | `FakeKraid` | contact_damage, cry_sound, death_drops, health, spike_sound, step_pixels |
 | `enemies/falling_spark.json` | `FallingSpark` | fall_speed_limit, gravity, skip_lift, skip_speed, skitter_timeline, skitter_times, trail_effect, trail_every |
@@ -96,14 +98,14 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/holtz.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, lift, reach, return_sound, return_speed, slow_dive_speed |
 | `enemies/jet_ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/kago.json` | `Kago` | contact_damage, health, shake_strength, shake_updates |
-| `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, gravity, health, homing_distance, jump_speed, shortest_wait |
+| `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, first_sound_after, gravity, health, homing_distance, jump_speed, shortest_wait, sound |
 | `enemies/kamer.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/ki_hunter_acid.json` | `KiHunterAcid` | fastest_fall, gravity, launch_shift, splash_timeline |
 | `enemies/ki_hunter_green.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
 | `enemies/ki_hunter_red.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
 | `enemies/ki_hunter_yellow.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
 | `enemies/kzan.json` | `Kzan` | contact_damage, fall_quickening, fastest_fall, health, landing_sound, rise_speed, rise_wait |
-| `enemies/magdollite.json` | `Magdollite` | attack_cooldown, contact_damage, health, hidden_depth, maximum_rise, most_lengths, pillar_length, smallest_reach, sunk_depth, surfaced_depth, throw_sound |
+| `enemies/magdollite.json` | `Magdollite` | attack_cooldown, attack_poll_updates, contact_damage, glow_steps, glow_updates, health, hidden_depth, lava_drop, maximum_rise, most_lengths, pillar_length, reach_past_hand, smallest_reach, sunk_depth, surfaced_depth, throw_sound |
 | `enemies/mama_turtle.json` | `MamaTurtle` | awake_half_height, contact_damage, fall_quickening, fastest_fall, fastest_hover, health, hover_quickening, peak_pause, ridden_climb_speed, ridden_peak, rise_updates, wall_shake_strength, wall_shake_updates, wall_sound |
 | `enemies/maridia_fly.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |
 | `enemies/mella.json` | `Fly` | contact_damage, dive_across_speed, dive_down_speed, health, reach, rest_updates, wheel_step |
@@ -115,7 +117,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/namihe.json` | `Fune` | contact_damage, health, mouth_drop |
 | `enemies/ninja_pirate_gold.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
 | `enemies/ninja_pirate_silver.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
-| `enemies/nuclear_waffle.json` | `NuclearWaffle` | contact_damage, health, left_burst_effect, link_half_size, link_spacing, right_burst_effect, splash_effect, surface_reach, surface_sound, sweep_middle, sweep_reach |
+| `enemies/nuclear_waffle.json` | `NuclearWaffle` | contact_damage, health, left_burst_effect, link_damage, link_half_size, link_spacing, right_burst_effect, splash_effect, surface_reach, surface_sound, sweep_middle, sweep_reach |
 | `enemies/orange_zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
 | `enemies/oum.json` | `Oum` | attack_cooldown, attack_reach, bounce_step, contact_damage, fastest_fall_mark, health, impact_loss_marks, pushing_reach_across, pushing_reach_down, roll_speed, settling_bounces, shove_distance, speed_curve |
 | `enemies/owtch.json` | `Owtch` | burial_depth, contact_damage, health, sink_chance |
@@ -129,7 +131,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/sbug.json` | `Sbug` | contact_damage, dash_updates, health, zigzag_leg_updates |
 | `enemies/sciser.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
-| `enemies/shaktool.json` | `Shaktool` | contact_damage, health, link_length, saw_half_size, straighten_at, straighten_restart |
+| `enemies/shaktool.json` | `Shaktool` | contact_damage, convergence_shares, health, part_half_size, straighten_at, straighten_restart, straightening_turn |
 | `enemies/shutter_destroyable.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/shutter_growing.json` | `GrowingShutter` | activation_sound, contact_damage, health |
 | `enemies/shutter_shootable.json` | `Shutter` | activation_sound, contact_damage, health |
@@ -157,7 +159,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/waver.json` | `Waver` | contact_damage, health, speed, spins_at, wave_height, wave_step |
 | `enemies/work_robot.json` | `WorkRobot` | contact_damage, footstep_sound, gravity, health, laser_cooldown, laser_slant_speed, muzzle_above, muzzle_ahead, recoil_delay, turn_delay |
 | `enemies/yapping_maw.json` | `YappingMaw` | bite_sound, contact_damage, grab_cooldown, health, longest_reach, retracted_hold, root_distance, safety_distance, speed_curve |
-| `enemies/yard.json` | `Yard` | aggressive_crawl_speed, air_drag, bounce_sound, contact_damage, falls_at_shake, gravity, health, hiding_reach_above, landing_speed_limit, shell_closed_updates, shot_launch_speed |
+| `enemies/yard.json` | `Yard` | aggressive_crawl_speed, air_drag, bounce_sound, contact_damage, fall_speed_limit, falls_at_shake, gravity, health, hiding_probe_reach, hiding_reach_above, landing_speed_limit, shot_launch_speed, turn_lookahead, turn_rest_updates |
 | `enemies/zeb.json` | `PipeBug` | contact_damage, emergence_height, flight_step, health, respawn_wait, trigger_top, trigger_width |
 | `enemies/zebbo.json` | `PipeBug` | contact_damage, emergence_height, flight_step, health, respawn_wait, trigger_top, trigger_width |
 | `enemies/zebetite.json` | `Zebetite` | contact_damage, fall_effect, health, pair_offset, shot_sound |

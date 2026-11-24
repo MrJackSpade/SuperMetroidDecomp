@@ -14,8 +14,9 @@ namespace Game.Enemies;
 /// <remarks>
 /// Its data says what it "is": a "fireball", a "flare" or a "flame", and names the shots it leaves, "flare_across",
 /// "flare_down" and "flame". A flare's timeline gives the cue "flames" to send its flames off; a flame's gives "next"
-/// to leave another behind it, and its data names its "final_timeline". The cues "stop" and "end" bring any of them
-/// to rest and take it away.
+/// to leave another behind it, and its data names its "final_timeline". The cue "stop" brings any of them to rest,
+/// "fly" sets a fireball off again, and "end" takes any of them away. A flame leaps one step along its surface as
+/// it appears and burns there. A flame does the harm of the fireball it came of; a flare does its own shot's.
 /// </remarks>
 public partial class RidleyFireball : Projectile, IHasValues
 {
@@ -49,6 +50,8 @@ public partial class RidleyFireball : Projectile, IHasValues
 
     private PixelVelocity _speed;
     private bool _stopped;
+    private bool _leapt;
+    private int _flameDamage;
 
     /// <summary>How many more flames follow from it, one after another.</summary>
     public int Afterburns { get; set; }
@@ -71,6 +74,8 @@ public partial class RidleyFireball : Projectile, IHasValues
         // It moves itself, and meets terrain its own way.
         _speed = Velocity;
         Velocity = PixelVelocity.Zero;
+        if (Is == "fireball")
+            _flameDamage = Hit.Damage;
     }
 
     /// <inheritdoc/>
@@ -81,17 +86,20 @@ public partial class RidleyFireball : Projectile, IHasValues
             case "stop":
                 _stopped = true;
                 break;
+            case "fly":
+                _stopped = false;
+                break;
             case "end":
                 Leave(room);
                 break;
             case "flames":
                 Pixels speed = Pixels.FromWhole(FlameSpeed);
                 foreach (Pixels way in new[] { speed, -speed })
-                    LeaveFire(room, Flame, RunsAcross ? new PixelVelocity(way, Pixels.Zero) : new PixelVelocity(Pixels.Zero, -way), Afterburns, RunsAcross);
+                    LeaveFire(room, Flame, RunsAcross ? new PixelVelocity(way, Pixels.Zero) : new PixelVelocity(Pixels.Zero, -way), Afterburns, RunsAcross, _flameDamage);
                 break;
             case "next":
                 if (Afterburns > 0)
-                    LeaveFire(room, Flame, _speed, Afterburns - 1, RunsAcross);
+                    LeaveFire(room, Flame, _speed, Afterburns - 1, RunsAcross, _flameDamage);
                 Afterburns = Math.Max(0, Afterburns - 1);
                 break;
             default:
@@ -102,6 +110,18 @@ public partial class RidleyFireball : Projectile, IHasValues
     /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
     {
+        if (Is == "flame")
+        {
+            // It leaps one step along its surface as it appears, and dies there if that is inside terrain.
+            if (_leapt)
+                return;
+            _leapt = true;
+            Position += _speed.OverOneUpdate;
+            if (room.Terrain.IsSolidIn(Area, Engine.Collision.SlopeTreatment.Wall))
+                PlayTimeline(FinalTimeline);
+            return;
+        }
+
         if (_stopped)
             return;
         switch (Is)
@@ -113,22 +133,11 @@ public partial class RidleyFireball : Projectile, IHasValues
                     break;
                 // Where it strikes a wall its flames run up and down; on a floor or ceiling, across.
                 if (Afterburns > 0)
-                    LeaveFire(room, struckWall ? FlareDown : FlareAcross, PixelVelocity.Zero, Afterburns, !struckWall);
+                    LeaveFire(room, struckWall ? FlareDown : FlareAcross, PixelVelocity.Zero, Afterburns, !struckWall, null);
                 Leave(room);
                 break;
 
             case "flare":
-                break;
-
-            case "flame":
-                // It races along its surface, and dies where it runs into terrain.
-                Position += _speed.OverOneUpdate;
-                if (room.Terrain.IsSolidIn(Area, Engine.Collision.SlopeTreatment.Wall))
-                {
-                    _stopped = true;
-                    PlayTimeline(FinalTimeline);
-                }
-
                 break;
 
             default:
@@ -136,11 +145,12 @@ public partial class RidleyFireball : Projectile, IHasValues
         }
     }
 
-    /// <summary>Leaves another piece of fire where it is.</summary>
-    private void LeaveFire(Room room, string shotFile, PixelVelocity speed, int afterburns, bool runsAcross)
+    /// <summary>Leaves another piece of fire where it is, doing the harm given, or its own shot's when none is.</summary>
+    private void LeaveFire(Room room, string shotFile, PixelVelocity speed, int afterburns, bool runsAcross, int? damage)
     {
-        var fire = (RidleyFireball)ShotType.Read(room.Content.ReadData(shotFile)).Launch(Position, speed, Side, Launcher, Hit.Source);
-        (fire.Afterburns, fire.RunsAcross) = (afterburns, runsAcross);
+        ShotType shot = ShotType.Read(room.Content.ReadData(shotFile));
+        var fire = (RidleyFireball)shot.LaunchDoing(damage ?? shot.Damage, Position, speed, Side, Launcher, Hit.Source);
+        (fire.Afterburns, fire.RunsAcross, fire._flameDamage) = (afterburns, runsAcross, _flameDamage);
         room.Spawn(fire);
     }
 }

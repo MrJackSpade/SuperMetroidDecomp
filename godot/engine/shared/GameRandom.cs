@@ -31,6 +31,32 @@ public sealed class GameRandom
     /// </summary>
     public RandomDraw Draw() => new(_sequence.Next());
 
+    /// <summary>
+    /// A chance offset about a place, for something thrown a little way from where it is. One number is drawn to
+    /// settle which way it goes, by its two highest digits of sixteen: leftward and upward. Then a distance is drawn
+    /// across and another down, each a number below the spread less how far into the spread the middle lies, drawn
+    /// again for as long as it falls short of the middle. The spreads are powers of two.
+    /// </summary>
+    public PixelOffset Scatter(int width, int height, int middleX, int middleY)
+    {
+        RandomDraw signs = Draw();
+        int across = ScatterDistance(width, middleX), down = ScatterDistance(height, middleY);
+        return PixelOffset.FromWhole(signs.Part(15, 1) == 1 ? -across : across, signs.Part(14, 1) == 1 ? -down : down);
+    }
+
+    /// <summary>A chance distance within a spread, measured from its middle; a draw short of the middle is drawn again.</summary>
+    private int ScatterDistance(int span, int middle)
+    {
+        if (span <= 0 || (span & (span - 1)) != 0 || middle < 0 || middle >= span)
+            throw new ArgumentOutOfRangeException(nameof(span), span, "A scatter's spread is a power of two with its middle inside it.");
+        while (true)
+        {
+            int distance = (int)(Draw().Number % (uint)span) - middle;
+            if (distance >= 0)
+                return distance;
+        }
+    }
+
     /// <summary>A number from 0 up to, not including, <paramref name="count"/>.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The count is not positive.</exception>
     public int NextBelow(int count)

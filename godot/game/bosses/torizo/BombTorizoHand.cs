@@ -15,7 +15,8 @@ namespace Game.Enemies;
 /// <remarks>
 /// Its data lists its "crumble": each step's "picture", how many "updates" it shows for, and the "fragment" thrown as
 /// it begins, which may be empty; and its "fragments" by name, each with where it starts from the hand's place ("x",
-/// "y") and the data file of its "shot". The hand's place is the top left of the block it fills.
+/// "y") and the data file of its "shot". The hand's place is the top left of the block it fills. Its solid
+/// colliders "Fingers" and "Palm" are what Samus can stand on until it has gone.
 /// </remarks>
 public partial class BombTorizoHand : RoomObject
 {

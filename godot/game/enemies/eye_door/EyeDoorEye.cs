@@ -12,13 +12,25 @@ namespace Game.Enemies;
 /// <summary>
 /// The eye that guards an eye door. It stays shut until Samus comes near, then opens and watches her, spitting at
 /// her three times before it blinks; right in front of it, it keeps its lid down. Only missiles hurt it, and only
-/// once it has opened: three, or one super missile, destroy it. Its door's cap is held shut for as long as it lives.
+/// while its lid is up: three, or one super missile, destroy it. Its door's cap is held shut for as long as it lives.
 /// </summary>
 /// <remarks>
+/// <code>
+/// "wake_reach": { "x": 6, "y": 4 }, "in_front_reach": { "x": 1, "y": 4 }, "pulse_reach": { "x": 6, "y": 16 },
+/// "spit_from": { "left": { "x": -8, "y": 16 }, "right": { "x": 24, "y": 16 } }, "sweat_from": { "x": -8, "y": 16 },
+/// "sweat_launch": { "left": { "x": -0.25, "y": 2 }, "right": { "x": 0.25, "y": 2 } },
+/// "smoke": { "x": 0, "y": -8, "across": { "from": 0, "digits": 4 }, "down": { "from": 8, "digits": 5 } },
+/// "puff_at": { "x": 8, "y": 8 }
+/// </code>
+/// It stands on the top-left corner of the upper of its two blocks, and everything is measured from there. The
+/// reaches are in blocks, across and down, counted between Samus's block and its own. Smoke is left at "smoke" plus,
+/// across and down, so many binary digits of the number last drawn, starting so many digits up.
 /// Its timelines are "closed", "opening", "watching", whose cue "shoot" spits, "blinking", "flinching", whose cues
-/// "smoke" and "sweat" leave those, and "destroyed"; each ends with the cue "done". "part_still" and "part_pulse"
-/// are for its visuals "Middle" and "Bottom", the rest of the growth around its door. Its shots are "spit" and
-/// "sweat". It faces the way its door opens from: left or right.
+/// "smoke" and "sweat" leave those, and "destroyed"; each ends with the cue "done". The cues "open" and "shut" say
+/// whether its lid is up, which is when a shot can land on it. "part_still", "part_pulse_left" and
+/// "part_pulse_right" are for its visuals "Middle" and "Bottom", the rest of the growth around its door, in whose
+/// pictures' paths "{part}" is "middle" or "bottom". In every picture's path "{side}" is "left" or "right", the way
+/// it faces: the way its door opens from. Its shots are "spit" and "sweat".
 /// </remarks>
 public partial class EyeDoorEye : Enemy
 {
@@ -29,26 +41,6 @@ public partial class EyeDoorEye : Enemy
     /// <summary>How many missiles destroy it.</summary>
     [Export, DataValue("hits_to_destroy")]
     public int HitsToDestroy { get; set; } = 3;
-
-    /// <summary>How near Samus must be for it to open, in blocks across and down.</summary>
-    [Export]
-    public Vector2I WakeReach { get; set; } = new(6, 4);
-
-    /// <summary>How near Samus must be for it to keep its lid down, in blocks across and down.</summary>
-    [Export]
-    public Vector2I InFrontReach { get; set; } = new(1, 4);
-
-    /// <summary>How near Samus must be for the growth around it to pulse, in blocks across and down.</summary>
-    [Export]
-    public Vector2I PulseReach { get; set; } = new(6, 16);
-
-    /// <summary>Where its spit leaves from when it faces left, from its middle, in pixels; mirrored when it faces right.</summary>
-    [Export]
-    public Vector2I SpitFrom { get; set; } = new(-16, 8);
-
-    /// <summary>Where its sweat drips from, from its middle, in pixels.</summary>
-    [Export]
-    public Vector2I SweatFrom { get; set; } = new(-16, 8);
 
     /// <summary>The sound of a missile hurting it.</summary>
     [Export, DataValue("hit_sound")]
@@ -85,14 +77,45 @@ public partial class EyeDoorEye : Enemy
 
     private Doing _doing;
     private bool _takesShots;
+    private bool _lidUp;
     private int _hits;
     private TimelinePlayer? _parts;
-    private bool _pulsing;
+    private Vector2I _wakeReach, _inFrontReach, _pulseReach;
+    private PixelOffset _spitFromLeft, _spitFromRight, _sweatFrom, _smokeAt, _puffAt;
+    private PixelVelocity _sweatLeft, _sweatRight;
+    private (int From, int Digits) _smokeAcross, _smokeDown;
+
+    /// <summary>The way it faces, as its pictures' paths name it.</summary>
+    private string Side => Facing == Facing.Left ? "left" : "right";
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        static Vector2I Blocks(DataNode at) => new(at.Int("x"), at.Int("y"));
+        static PixelOffset Offset(DataNode at) => PixelOffset.FromWhole(at.Int("x"), at.Int("y"));
+        static PixelVelocity Speed(DataNode at) => new(at.Distance("x"), at.Distance("y"));
+        static (int From, int Digits) Field(DataNode field) => (field.Int("from"), field.Int("digits"));
+        _wakeReach = Blocks(data.Get("wake_reach"));
+        _inFrontReach = Blocks(data.Get("in_front_reach"));
+        _pulseReach = Blocks(data.Get("pulse_reach"));
+        _spitFromLeft = Offset(data.Get("spit_from").Get("left"));
+        _spitFromRight = Offset(data.Get("spit_from").Get("right"));
+        _sweatFrom = Offset(data.Get("sweat_from"));
+        _sweatLeft = Speed(data.Get("sweat_launch").Get("left"));
+        _sweatRight = Speed(data.Get("sweat_launch").Get("right"));
+        DataNode smoke = data.Get("smoke");
+        _smokeAt = Offset(smoke);
+        _smokeAcross = Field(smoke.Get("across"));
+        _smokeDown = Field(smoke.Get("down"));
+        _puffAt = Offset(data.Get("puff_at"));
+    }
 
     /// <inheritdoc/>
     public override HitResult TakeHit(Hit hit, Collider part)
     {
-        if (!_takesShots)
+        // With its lid down it is as solid as the wall: a shot stops on it and that is all.
+        if (!_takesShots || !_lidUp)
             return HitResult.Absorbed;
         bool super = hit.Carries(new HitKind(HitKinds.SuperMissile));
         if (!super && !hit.Carries(new HitKind(HitKinds.Missile)))
@@ -116,8 +139,8 @@ public partial class EyeDoorEye : Enemy
         _takesShots = false;
         if (DestroyedFact.Length > 0)
             Room.Session.Progress.Record(DestroyedFact);
-        Leave(PuffEffect, Position);
-        Leave(PuffEffect, Position);
+        LeavePuff();
+        LeavePuff();
         LeaveSmoke();
         LeaveSmoke();
         LeaveSmoke();
@@ -125,6 +148,9 @@ public partial class EyeDoorEye : Enemy
         Begin(Doing.Destroyed, "destroyed");
         return HitResult.Hurt;
     }
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => step.Picture.Replace("{side}", Side, StringComparison.Ordinal);
 
     /// <inheritdoc/>
     protected override void Touch(Collider part)
@@ -135,7 +161,7 @@ public partial class EyeDoorEye : Enemy
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
-        (_takesShots, _hits, _pulsing) = (false, 0, false);
+        (_takesShots, _lidUp, _hits) = (false, false, 0);
         Begin(Doing.Closed, "closed");
         _parts = new TimelinePlayer(Timelines.Get("part_still"));
     }
@@ -145,16 +171,22 @@ public partial class EyeDoorEye : Enemy
     {
         switch (cue)
         {
+            case "open":
+                _lidUp = true;
+                break;
+            case "shut":
+                _lidUp = false;
+                break;
             case "shoot":
-                Spit();
+                Fire("spit", Position + (Facing == Facing.Left ? _spitFromLeft : _spitFromRight), PixelVelocity.Zero);
+                Sound(SpitSound);
                 break;
             case "smoke":
                 LeaveSmoke();
                 LeaveSmoke();
                 break;
             case "sweat":
-                Fire("sweat", Position + PixelOffset.FromWhole(SweatFrom.X, SweatFrom.Y),
-                    new PixelVelocity(Pixels.FromNumber(Facing == Facing.Left ? -0.25 : 0.25), Pixels.FromWhole(2)));
+                Fire("sweat", Position + _sweatFrom, Facing == Facing.Left ? _sweatLeft : _sweatRight);
                 break;
             case "done":
                 OnTimelineDone();
@@ -173,7 +205,7 @@ public partial class EyeDoorEye : Enemy
         switch (_doing)
         {
             case Doing.Closed:
-                if (IsSamusWithin(WakeReach))
+                if (IsSamusWithin(_wakeReach))
                 {
                     _takesShots = true;
                     Begin(Doing.Opening, "opening");
@@ -186,7 +218,7 @@ public partial class EyeDoorEye : Enemy
                 break;
 
             case Doing.Watching:
-                if (IsSamusWithin(WakeReach))
+                if (IsSamusWithin(_wakeReach))
                     Watch();
                 else
                     Begin(Doing.Closed, "closed");
@@ -199,7 +231,8 @@ public partial class EyeDoorEye : Enemy
                 break;
 
             case Doing.Destroyed:
-                Die();
+                // It was part of the door, not something killed: it is simply gone.
+                Vanish();
                 break;
 
             default:
@@ -210,7 +243,7 @@ public partial class EyeDoorEye : Enemy
     /// <summary>It watches Samus, unless she is right in front of it, when it keeps its lid down.</summary>
     private void Watch()
     {
-        if (IsSamusWithin(InFrontReach))
+        if (IsSamusWithin(_inFrontReach))
             Begin(Doing.Blinking, "blinking");
         else
             Begin(Doing.Watching, "watching");
@@ -222,19 +255,19 @@ public partial class EyeDoorEye : Enemy
         Play(timeline, restart: true);
     }
 
-    private void Spit()
-    {
-        var from = PixelOffset.FromWhole(Facing == Facing.Left ? SpitFrom.X : -SpitFrom.X, SpitFrom.Y);
-        Fire("spit", Position + from, PixelVelocity.Zero);
-        Sound(SpitSound);
-    }
-
-    /// <summary>Leaves a puff of smoke somewhere about it.</summary>
+    /// <summary>Leaves a puff of smoke somewhere about it: where the number last drawn puts it. Another number is then drawn.</summary>
     private void LeaveSmoke()
     {
         RandomDraw roll = Random.Last;
         Random.Draw();
-        Leave(SmokeEffect, Position + PixelOffset.FromWhole(-8 + roll.Part(0, 4), -16 + roll.Part(8, 5)));
+        Leave(SmokeEffect, Position + _smokeAt + PixelOffset.FromWhole(roll.Part(_smokeAcross.From, _smokeAcross.Digits), roll.Part(_smokeDown.From, _smokeDown.Digits)));
+    }
+
+    /// <summary>Leaves the puff of its destruction on its middle. A number is drawn for it too, as for any smoke of its.</summary>
+    private void LeavePuff()
+    {
+        Random.Draw();
+        Leave(PuffEffect, Position + _puffAt);
     }
 
     private void Leave(string effect, PixelPosition at)
@@ -251,19 +284,26 @@ public partial class EyeDoorEye : Enemy
             && Math.Abs((samus.Y.Whole >> 4) - (Position.Y.Whole >> 4)) <= blocks.Y;
     }
 
-    /// <summary>The growth around its door pulses while Samus is anywhere near, a beat at a time.</summary>
+    /// <summary>
+    /// The growth around its door pulses while Samus is anywhere near, a beat at a time. It goes the moment the eye
+    /// is destroyed.
+    /// </summary>
     private void StepParts()
     {
         if (_parts is null)
             return;
         _parts.Step();
         if (_parts.IsOver)
-        {
-            _pulsing = IsSamusWithin(PulseReach);
-            _parts = new TimelinePlayer(Timelines.Get(_pulsing ? "part_pulse" : "part_still"));
-        }
+            _parts = new TimelinePlayer(Timelines.Get(IsSamusWithin(_pulseReach) ? $"part_pulse_{Side}" : "part_still"));
 
         foreach (string name in new[] { "Middle", "Bottom" })
-            GetNodeOrNull<ActorVisual>(name)?.Show(_parts.Current.Picture.Replace("{part}", name.ToLowerInvariant(), StringComparison.Ordinal));
+        {
+            if (GetNodeOrNull<ActorVisual>(name) is not { } visual)
+                continue;
+            visual.SetShown(_doing != Doing.Destroyed);
+            visual.Show(_parts.Current.Picture
+                .Replace("{part}", name.ToLowerInvariant(), StringComparison.Ordinal)
+                .Replace("{side}", Side, StringComparison.Ordinal));
+        }
     }
 }

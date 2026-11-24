@@ -13,8 +13,8 @@ namespace Game.Enemies;
 /// whether shots put it out and what it may leave.
 /// </summary>
 /// <remarks>
-/// Its data names the timelines it changes to: "landing_timeline", "burning_timeline", "resting_timeline" and
-/// "rain_impact_timeline". Its settings let it through terrain, which it meets itself.
+/// Its data names the timelines it changes to: "falling_timeline", "landing_timeline", "burning_timeline",
+/// "resting_timeline" and "rain_impact_timeline". Its settings let it through terrain, which it meets itself.
 /// </remarks>
 public partial class PhantoonFlame : Projectile, IHasValues
 {
@@ -49,6 +49,10 @@ public partial class PhantoonFlame : Projectile, IHasValues
     /// <summary>How fast a leaping flame drifts across, as a number of pixels an update.</summary>
     [Export, DataValue("drift_speed")]
     public double DriftSpeed { get; set; } = 0.5;
+
+    /// <summary>The timeline of a flame falling from Phantoon's mouth.</summary>
+    [Export, DataValue("falling_timeline")]
+    public string FallingTimeline { get; set; } = "";
 
     /// <summary>The timeline of a dropped flame hitting the ground.</summary>
     [Export, DataValue("landing_timeline")]
@@ -115,7 +119,11 @@ public partial class PhantoonFlame : Projectile, IHasValues
     public void Rage(Phantoon phantoon, int angle, int turn) => (_phantoon, _angle, _turn, _radius, _doing) = (phantoon, angle, turn, 0, Doing.Raging);
 
     /// <summary>Lets it fall from Phantoon's mouth; it cannot hurt until it has landed.</summary>
-    public void Fall() => _doing = Doing.Falling;
+    public void Fall()
+    {
+        _doing = Doing.Falling;
+        PlayTimeline(FallingTimeline);
+    }
 
     /// <summary>Hangs it in the air for some updates, and then lets it fall.</summary>
     public void Rain(int hangUpdates) => (_wait, _doing) = (hangUpdates, Doing.Hanging);

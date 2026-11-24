@@ -18,12 +18,33 @@ script = ExtResource("3")
 script = ExtResource("3")
 
 [node name="Arms" type="Node2D" parent="."]
+z_index = 1
 script = ExtResource("3")
-
-[node name="Body" type="Node2D" parent="."]
-script = ExtResource("2")
-Role = 2
 
 [node name="Belly" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
+
+[node name="Shell1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Shell1Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Shell2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Shell2Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Shell3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Shell3Touch" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2

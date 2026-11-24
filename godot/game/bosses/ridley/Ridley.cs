@@ -23,8 +23,15 @@ namespace Game.Enemies;
 /// "move:" with pixels across and down, "aim", "fireball:afterburn", "fireball:plain", "cut_short" and "lift_off".</para>
 /// <para>Its visual "Wings" shows the pictures its data lists as "wing_pictures", in turn. The visuals "Tail0" to
 /// "Tail6" are its tail's links, with the pictures its data lists as "tail_pictures" and, for the tip, one of
-/// "tail_tip_pictures" by the way it points, the first pointing straight down and the rest in turn toward the
-/// right. Its hurtboxes "TailTip" and "TailJoint" stop shots. Its shot is "fireball".</para>
+/// "tail_tip_pictures" by the way it points: the turn is shared out evenly among them from the angle
+/// "tail_tip_arc_start", in turn toward the right. Its hurtboxes "TailTip" and "TailJoint" stop shots. Its shot is
+/// "fireball".</para>
+/// <para>The names of its pictures may hold "{look}", which stands for the colours it is in: "_hidden" until its
+/// eyes show, "_eyes_" and a step as they come out of the dark, "_body_" and a step as the rest of it does, and
+/// then the look of its health, nothing when it is unhurt. Under "pose_boxes" its data gives, for each picture of
+/// its body, the parts of it that can be touched and shot in that pose, each from its place; they are its colliders
+/// "Part1" and on, which shots meet, and "Part1Touch" and on, which hurt. "flight_bounds" gives the least and
+/// greatest places its middle may be ("left", "top", "right", "bottom"), in the room's pixels.</para>
 /// </remarks>
 public partial class Ridley : Enemy
 {
@@ -37,16 +44,31 @@ public partial class Ridley : Enemy
     public string FightMusic { get; set; } = "";
 
     /// <summary>The least and greatest places its middle may be, in the room's pixels.</summary>
-    [Export]
-    public Rect2I FlightBounds { get; set; } = new(64, 64, 160, 352);
+    private Rect2I FlightBounds { get; set; }
 
     /// <summary>How many updates pass, once Samus is in the room, before its eyes show.</summary>
     [Export, DataValue("reveal_delay")]
     public int RevealDelay { get; set; } = 171;
 
-    /// <summary>How many updates its eyes, and then its body, take to come out of the dark.</summary>
-    [Export, DataValue("fade_updates")]
-    public int FadeUpdates { get; set; } = 16;
+    /// <summary>How many steps its eyes, and then its body, take to come out of the dark.</summary>
+    [Export, DataValue("fade_steps")]
+    public int FadeSteps { get; set; } = 16;
+
+    /// <summary>How many updates each step of its eyes' showing lasts.</summary>
+    [Export, DataValue("eye_fade_step_updates")]
+    public int EyeFadeStepUpdates { get; set; } = 1;
+
+    /// <summary>How many updates its eyes glow alone before the rest of it begins to show.</summary>
+    [Export, DataValue("eye_hold_updates")]
+    public int EyeHoldUpdates { get; set; } = 48;
+
+    /// <summary>How many updates each step of its body's showing lasts.</summary>
+    [Export, DataValue("body_fade_step_updates")]
+    public int BodyFadeStepUpdates { get; set; } = 2;
+
+    /// <summary>The angle the first of its tail tip's pictures begins at, in 256ths of a turn from straight down toward the right.</summary>
+    [Export, DataValue("tail_tip_arc_start")]
+    public int TailTipArcStart { get; set; } = -8;
 
     /// <summary>How many updates pass between its body showing and its roar.</summary>
     [Export, DataValue("before_roar_updates")]
@@ -86,6 +108,10 @@ public partial class Ridley : Enemy
     private readonly List<string> _wingPictures = [];
     private readonly List<string> _tailPictures = [];
     private readonly List<string> _tailTipPictures = [];
+    private readonly Dictionary<string, List<PixelRect>> _poseBoxes = new(StringComparer.Ordinal);
+    private string _fadeLook = "_hidden";
+    private string _pose = "";
+    private string _posed = "";
     private int _wingPose;
     private int _wingCount = 32;
     private int _wait;
@@ -142,8 +168,49 @@ public partial class Ridley : Enemy
 
         if (_wingPictures.Count == 0 || _tailPictures.Count != Tail.Links.Count - 1 || _tailTipPictures.Count == 0)
             throw data.Problem("must list its wing pictures, a picture for each link of its tail but the tip, and the tip's pictures");
+        _poseBoxes.Clear();
+        foreach ((string picture, DataNode boxes) in data.Get("pose_boxes").Entries())
+            _poseBoxes[picture] = [.. boxes.Items().Select(box => new PixelRect(box.Int("left"), box.Int("top"), box.Int("width"), box.Int("height")))];
+        DataNode bounds = data.Get("flight_bounds");
+        FlightBounds = new Rect2I(bounds.Int("left"), bounds.Int("top"), bounds.Int("right") - bounds.Int("left"), bounds.Int("bottom") - bounds.Int("top"));
         if (!OnCeres)
             ReadNorfairValues(data);
+    }
+
+    /// <summary>The colours it is in, as the names of its pictures say them.</summary>
+    private string Look => _fadeLook.Length > 0 ? _fadeLook : OnCeres ? "" : _band.Look;
+
+    /// <summary>One of its pictures, in the colours it is in.</summary>
+    private string Coloured(string picture) => picture.Replace("{look}", Look, StringComparison.Ordinal);
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step)
+    {
+        _pose = step.Picture;
+        return Coloured(step.Picture);
+    }
+
+    /// <summary>Puts the parts of it that can be touched and shot where the pose it shows has them.</summary>
+    private void PlacePose()
+    {
+        if (_pose == _posed)
+            return;
+        _posed = _pose;
+        if (!_poseBoxes.TryGetValue(_pose, out List<PixelRect>? boxes))
+            throw new InvalidOperationException($"Ridley's data gives no parts to touch and shoot for its picture \"{_pose}\".");
+        foreach (Collider collider in EntityNode.CollidersOf(this))
+        {
+            string name = collider.Name.ToString();
+            if (!name.StartsWith("Part", StringComparison.Ordinal))
+                continue;
+            string number = name["Part".Length..];
+            if (number.EndsWith("Touch", StringComparison.Ordinal))
+                number = number[..^"Touch".Length];
+            int part = int.Parse(number, System.Globalization.CultureInfo.InvariantCulture) - 1;
+            collider.Enabled = part < boxes.Count;
+            if (part < boxes.Count)
+                collider.Rect = boxes[part];
+        }
     }
 
     /// <inheritdoc/>
@@ -177,7 +244,6 @@ public partial class Ridley : Enemy
         Revealing = Reveal.Delay;
         _wait = RevealDelay;
         Play($"standing_{Side}", restart: true);
-        ShowFade(0, 0);
         if (OnCeres)
             EnterCeres();
         else
@@ -187,6 +253,7 @@ public partial class Ridley : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
+        PlacePose();
         if (OnCeres)
             BehaveOnCeres();
         else
@@ -228,17 +295,24 @@ public partial class Ridley : Enemy
                 break;
 
             case Reveal.FadeInEyes:
-                ShowFade(++_fade, 0);
-                if (_fade < FadeUpdates)
+                // Its eyes brighten a step at a time, and then glow alone a while.
+                _fadeLook = "_eyes_" + Math.Min(FadeSteps - 1, _fade / EyeFadeStepUpdates).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                if (++_fade < FadeSteps * EyeFadeStepUpdates + EyeHoldUpdates)
                     break;
                 (Revealing, _fade) = (Reveal.FadeInBody, 0);
                 IsInMotion = true;
                 break;
 
             case Reveal.FadeInBody:
-                ShowFade(FadeUpdates, ++_fade);
-                if (_fade < FadeUpdates)
+                // The rest of it brightens a step at a time; its last step is its own colours.
+                if (_fade / BodyFadeStepUpdates < FadeSteps - 1)
+                {
+                    _fadeLook = "_body_" + (_fade / BodyFadeStepUpdates).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    _fade++;
                     break;
+                }
+
+                _fadeLook = "";
                 IsIntangible = false;
                 Revealing = Reveal.WaitBeforeRoar;
                 _wait = BeforeRoarUpdates;
@@ -513,8 +587,11 @@ public partial class Ridley : Enemy
 
         if (GetNodeOrNull<ActorVisual>("Wings") is { } wings)
         {
-            wings.Show(_wingPictures[_wingPose].Replace("{side}", Side, StringComparison.Ordinal));
+            wings.Show(Coloured(_wingPictures[_wingPose].Replace("{side}", Side, StringComparison.Ordinal)));
             wings.SetShown(!IsTurning);
+            // Its wings flash with its body.
+            if (Visual is { } body)
+                wings.Tint(body.Modulate);
         }
     }
 
@@ -597,9 +674,10 @@ public partial class Ridley : Enemy
                 continue;
             PixelOffset from = link.Position - Position;
             visual.Position = new Vector2(from.X.Whole, from.Y.Whole);
-            visual.Show(index < _tailPictures.Count
-                ? _tailPictures[index]
-                : _tailTipPictures[link.Pointing * _tailTipPictures.Count / Turns.PerTurn]);
+            visual.Show(Coloured(index < _tailPictures.Count ? _tailPictures[index] : _tailTipPictures[TailTipPicture]));
+            // Its tail flashes with its body.
+            if (Visual is { } shown)
+                visual.Tint(shown.Modulate);
         }
 
         PlaceArmour("TailTip", Tail.Tip.Position, 14);
@@ -615,6 +693,9 @@ public partial class Ridley : Enemy
         samus.TakeHit(new Hit(TailDamage, HitSide.Enemies, HitKind.Contact) { Direction = away, Source = this }, samus.Hurtbox);
     }
 
+    /// <summary>Which of its tail tip's pictures shows, by the way the tip points.</summary>
+    private int TailTipPicture => Turns.Wrap(Tail.Tip.Pointing - TailTipArcStart) * _tailTipPictures.Count / Turns.PerTurn;
+
     /// <summary>Puts one of the armoured places of its tail where the tail is.</summary>
     private void PlaceArmour(string name, PixelPosition at, int reach)
     {
@@ -622,14 +703,5 @@ public partial class Ridley : Enemy
             return;
         PixelOffset from = at - Position;
         collider.Rect = new PixelRect(from.X.Whole - reach, from.Y.Whole - reach, reach * 2, reach * 2);
-    }
-
-    /// <summary>Shows how far its eyes and its body have come out of the dark, each out of the updates that takes.</summary>
-    private void ShowFade(int eyes, int body)
-    {
-        float shown = Math.Clamp((float)body / Math.Max(1, FadeUpdates), 0f, 1f);
-        float glint = Math.Clamp((float)eyes / Math.Max(1, FadeUpdates), 0f, 1f);
-        // Until its body shows, only a glint of it does.
-        Modulate = new Color(shown, shown, shown, Math.Max(shown, glint * 0.25f));
     }
 }

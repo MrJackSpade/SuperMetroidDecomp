@@ -55,6 +55,17 @@ public sealed partial class EngineAssetWriter
         writer.WriteBotwoon();
         writer.WriteBabyMetroid();
         writer.WriteMotherBrain();
+        writer.WriteYard();
+        writer.WriteMagdollite();
+        writer.WriteShaktool();
+        writer.WriteNuclearWaffle();
+        writer.WriteKagoBug();
+        writer.WriteEyeDoorEye();
+        writer.WriteChozoStatues();
+        writer.WriteTorizos();
+        writer.WritePhantoon();
+        writer.WriteDraygon();
+        writer.WriteRidley();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

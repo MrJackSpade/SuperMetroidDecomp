@@ -75,12 +75,13 @@ internal sealed partial class SetCharacters
     /// <param name="frame">The frame.</param>
     /// <param name="drawings">Which looks of each encounter the frame is drawn in.</param>
     /// <param name="showsCorpse">Whether the frame is one the game shows a rotting corpse in, over the corpse's rows it reads.</param>
+    /// <param name="drawRow">The palette bits the frame's draw ORs into every part's own (<see cref="SheetFrameSource.DrawRow"/>).</param>
     /// <exception cref="InvalidDataException">
     /// A corpse's frame reads the rows of two corpses, or does not say where its corpse lies in it; a frame whose artwork is its
     /// look's own is drawn in more than one look; or the looks of an encounter gameplay never shows the looks of leave the
     /// frame otherwise.
     /// </exception>
-    internal FramePictures Pictures(string name, SpriteFrame frame, FrameDrawings drawings, bool showsCorpse = false)
+    internal FramePictures Pictures(string name, SpriteFrame frame, FrameDrawings drawings, bool showsCorpse = false, int drawRow = 0)
     {
         ArgumentException.ThrowIfNullOrEmpty(name);
         Ensure.NotNull(frame);
@@ -136,7 +137,7 @@ internal sealed partial class SetCharacters
                 blank.Add(picture);
                 continue;
             }
-            sources.Add(new SheetFrameSource(picture, frame, Page(combination)));
+            sources.Add(new SheetFrameSource(picture, frame, Page(combination), DrawRow: drawRow));
             if (corpse is not null)
                 placements.Add(picture, CorpseRowPictures.PlacementOf(picture, frame, corpse));
         }

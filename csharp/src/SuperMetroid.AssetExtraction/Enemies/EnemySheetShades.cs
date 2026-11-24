@@ -190,7 +190,7 @@ internal sealed partial class EnemySheetShades
         var recolouredBy = new Dictionary<int, string>();
         foreach (FramePictures pictures in frames)
         {
-            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? SheetRow) | paletteBits))];
+            HashSet<int> rows = [.. pictures.Sources.SelectMany(source => source.Frame.Parts.Select(part => (part.Palette ?? source.Palette ?? SheetRow) | source.DrawRow | paletteBits))];
             if (FrameColourings.Value.TryGetValue(pictures.Name, out FrameColouring? colouring))
                 Lay([.. colouring.Shades.Select(name => EffectOf(colouring.Owner, name))], rows, $"frame {pictures.Name}'s family colouring");
             else

@@ -93,6 +93,12 @@ public partial class Samus : Player
     [Export, DataValue("special_attacks", ReadByOwner = true)]
     public Godot.Collections.Dictionary<string, string> SpecialAttackShots { get; set; } = [];
 
+    /// <summary>
+    /// The special attacks whose last two lights are shots of their own, by the beam: the data file of that shot.
+    /// </summary>
+    [Export, DataValue("special_attack_trails", ReadByOwner = true)]
+    public Godot.Collections.Dictionary<string, string> SpecialAttackTrailShots { get; set; } = [];
+
     /// <summary>How many updates into a charge its sound begins.</summary>
     [Export, DataValue("charge_sound_updates")]
     public int ChargeSoundUpdates { get; set; } = 16;
@@ -277,6 +283,10 @@ public partial class Samus : Player
             foreach ((string beam, DataNode shot) in data.Get("special_attacks").Entries())
                 SpecialAttackShots[beam] = shot.AsText();
         }
+
+        SpecialAttackTrailShots = [];
+        foreach ((string beam, DataNode shot) in data.Get("special_attack_trails").Entries())
+            SpecialAttackTrailShots[beam] = shot.AsText();
     }
 
     /// <inheritdoc/>
@@ -707,7 +717,7 @@ public partial class Samus : Player
             _spreadCharged = true;
 
         if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
-            Selected == Amounts.PowerBombs && SpecialAttackShot() is { } special)
+            Selected == Amounts.PowerBombs && SpecialAttackBeam() is { } special)
         {
             LetLooseSpecialAttack(special);
             return;
@@ -768,24 +778,28 @@ public partial class Samus : Player
     ];
 
     /// <summary>
-    /// The shot of the special attack she can let loose: she must carry just one of the wave, ice, spazer and plasma
+    /// The beam whose special attack she can let loose: she must carry just one of the wave, ice, spazer and plasma
     /// beams. Null when she carries none of them or more than one.
     /// </summary>
-    private string? SpecialAttackShot()
+    private string? SpecialAttackBeam()
     {
         string[] carried = [.. new[] { Equipment.WaveBeam, Equipment.IceBeam, Equipment.Spazer, Equipment.PlasmaBeam }.Where(Inventory.IsOn)];
-        return carried.Length == 1 && SpecialAttackShots.TryGetValue(carried[0], out string? shot) ? shot : null;
+        return carried.Length == 1 && SpecialAttackShots.ContainsKey(carried[0]) ? carried[0] : null;
     }
 
-    /// <summary>Spends a power bomb on a special attack: its four lights are let loose about her.</summary>
-    private void LetLooseSpecialAttack(string file)
+    /// <summary>
+    /// Spends a power bomb on a special attack: its four lights are let loose about her. An attack with a trailing
+    /// pair lets its last two loose as that shot.
+    /// </summary>
+    private void LetLooseSpecialAttack(string beam)
     {
         Inventory.Spend(Amounts.PowerBombs, 1);
-        ShotType shot = ShotType.Read(Room.Content.ReadData(file));
+        ShotType shot = ShotType.Read(Room.Content.ReadData(SpecialAttackShots[beam]));
+        ShotType trailing = SpecialAttackTrailShots.TryGetValue(beam, out string? trail) ? ShotType.Read(Room.Content.ReadData(trail)) : shot;
         for (int part = 0; part < 4; part++)
         {
-            var light = shot.Launch(Position, PixelVelocity.Zero, HitSide.Player, this, this) as SpecialAttack
-                ?? throw new InvalidOperationException($"The shot \"{file}\" is not a special attack's.");
+            var light = (part < 2 ? shot : trailing).Launch(Position, PixelVelocity.Zero, HitSide.Player, this, this) as SpecialAttack
+                ?? throw new InvalidOperationException($"The special attack of \"{beam}\" has a shot that is not a special attack's.");
             light.Begin(part, Facing == Facing.Right);
             Room.Spawn(light);
         }

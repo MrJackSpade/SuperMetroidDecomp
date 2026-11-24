@@ -353,6 +353,12 @@ public sealed partial class EngineAssetWriter
             specialAttacks[SamusBeams.Single(one => one.Beam == beam).Equipment] = SpecialAttackFile(kind);
         file.Group("special_attacks", specialAttacks);
 
+        // The spazer attack's trailing pair of lights are a shot of their own.
+        file.Group("special_attack_trails", new JsonObject
+        {
+            [SamusBeams.Single(one => one.Beam == SamusBeamFlags.Spazer).Equipment] = SpazerAttackTrailFile,
+        });
+
         var timelines = new JsonObject();
         var heights = new JsonObject();
         WriteSamusLooks(timelines, heights);

@@ -520,6 +520,45 @@ public sealed partial class EngineAssetWriter
     /// <summary>The data file of the shot of one of the special attacks' lights.</summary>
     private static string SpecialAttackFile(SamusComboKind kind) => $"samus/shots/special_attack_{EngineSheets.FileName(kind.ToString())}.json";
 
+    /// <summary>The data file of the shot of the spazer special attack's trailing pair of lights.</summary>
+    private const string SpazerAttackTrailFile = "samus/shots/special_attack_spazer_trail.json";
+
+    /// <summary>
+    /// Writes the shot of the spazer special attack's trailing pair: from the start they are the spazer echo, an
+    /// uncharged spazer shot with its own damage and pictures, the lights' pictures facing down and left.
+    /// </summary>
+    private void WriteSpazerAttackTrail(EngineSheetPictures pictures)
+    {
+        SamusProjectileKind trail = SamusProjectileSelection.Echo(SamusBeamEcho.SpazerComboTrail);
+        SamusBeamCombination beams = SamusProjectileType.EchoOf(SamusBeamEcho.SpazerComboTrail).BeamCombination;
+        Segment segment = SamusProjectileKinds.Animation(trail, SamusProjectileDirection.DownFacingLeft);
+        string timeline = SpazerAttackTrailFile[..SpazerAttackTrailFile.LastIndexOf('.')] + "_timeline.json";
+        _tree.WriteData(timeline, ShotTimeline(pictures, segment, sized: true));
+        (int width, int height) = FirstShotSize(segment);
+        var kinds = new JsonArray("beam");
+        foreach ((SamusBeamFlags one, string _, string named) in SamusBeams)
+        {
+            if ((beams.Components & one) != SamusBeamFlags.None)
+                kinds.Add(named);
+        }
+
+        _tree.WriteData(SpazerAttackTrailFile, new JsonObject
+        {
+            ["damage"] = SamusProjectileDamage.Read(trail),
+            ["kinds"] = kinds,
+            ["scene"] = $"res://game/samus/special_attack_{EngineSheets.FileName(nameof(SamusComboKind.Spazer))}.tscn",
+            ["projectile"] = new JsonObject
+            {
+                ["width"] = width,
+                ["height"] = height,
+                ["meeting_terrain"] = "passes_through",
+                ["meeting_target"] = beams.HasPlasma ? "passes_through_and_rehits" : "ends",
+                ["view_margin"] = -1,
+                ["timeline"] = timeline,
+            },
+        });
+    }
+
     /// <summary>Writes the shots of the four special attacks and of a shinespark's echoes.</summary>
     private void WriteSamusSpecialShots()
     {
@@ -562,6 +601,9 @@ public sealed partial class EngineAssetWriter
                     ["timeline"] = timeline,
                 },
             });
+
+            if (kind == SamusComboKind.Spazer)
+                WriteSpazerAttackTrail(pictures);
         }
 
         // A shinespark's echoes hit as a plasma and wave beam's shot of their own great damage. The old game draws

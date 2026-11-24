@@ -365,14 +365,16 @@ public partial class Kraid : Enemy
             return HitResult.Ignored;
         HitResult result = base.TakeHit(hit, part);
         if (part.Name == "Mouth" && result is HitResult.Hurt or HitResult.Destroyed)
-        {
-            // A hit in the mouth sets its colours flashing.
-            (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
-            if (_mouthReopens > 0)
-                _mouthReopenMarked = true;
-        }
-
+            MarkMouthHit();
         return result;
+    }
+
+    /// <summary>A hit in the mouth, harmful or not, sets its colours flashing and marks an opening yet to come.</summary>
+    private void MarkMouthHit()
+    {
+        (_flashStep, _flashLeft, _flashShowsHurt) = (0, _hurtFlashWait, false);
+        if (_mouthReopens > 0)
+            _mouthReopenMarked = true;
     }
 
     /// <inheritdoc/>
@@ -386,7 +388,11 @@ public partial class Kraid : Enemy
     protected override void OnAbsorbed(Hit hit, Collider part)
     {
         if (part.Name == "Mouth")
+        {
+            MarkMouthHit();
             return;
+        }
+
         // A shot at its arm or its body does no harm and leaves its explosion; one at its body also makes its eye glow
         // and its mouth open, and a charged one, three times over.
         string dud = hit.CarriesAny([new HitKind(HitKinds.SuperMissile), new HitKind(HitKinds.PowerBomb)]) ? BigDudEffect : DudEffect;

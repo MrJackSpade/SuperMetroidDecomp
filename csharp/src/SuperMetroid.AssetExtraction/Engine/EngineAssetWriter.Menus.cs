@@ -303,6 +303,9 @@ public sealed partial class EngineAssetWriter
             ["backdrop"] = Colour(screens.Backdrops.Menus),
             ["page"] = _sheets.WriteSprite(_tree, SpriteSheetId.MenuPictures, GameOverPresentationDefinitions.PageFrame, folder + "/page.png"),
             ["move_sound"] = EngineNames.Sound(SamusSound.MenuCursor),
+            // It fades a level of brightness an update.
+            ["fade_levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
+            ["answer_hold_updates"] = GameOverMenuDefinitions.AcceptedAnswerHoldDuration,
             ["places"] = new JsonObject
             {
                 ["baby"] = At(placed.BabyAnchor.X, placed.BabyAnchor.Y),

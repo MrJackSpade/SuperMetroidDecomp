@@ -11,9 +11,6 @@ DataFile = "enemies/baby_metroid.json"
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Membrane" type="Node2D" parent="."]
-script = ExtResource("3")
-
 [node name="Body" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 0

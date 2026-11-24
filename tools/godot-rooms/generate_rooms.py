@@ -484,6 +484,16 @@ class Generator:
                     for zone in zones:
                         zone.only_when = ctx.none_of([ctx.fact('botwoon_defeated')])
                     links[id(placed)]['ToldWhenWallFalls'] = zones
+            for placed in list(things):
+                if placed.name == 'BabyMetroid':
+                    # The old one shuts two of its room's screens to the view as it wakes, and opens them once it has fed.
+                    fight = legacy.read('Bosses', 'MotherBrain', 'BabyMetroidFightDefinitions.cs')
+                    shut = re.search(r'ClosingScreens \{ get; \} = \[(.*?)\];', fight).group(1)
+                    zones = [enemies.Placed(camera.ZONE, f'BabyMetroidScreen{x}x{y}', {'StartsOpen': 'true'},
+                                            at=(int(x) * SCREEN, int(y) * SCREEN), enemy=False)
+                             for x, y in re.findall(r'new\((\d+), (\d+)\)', shut)]
+                    things.extend(zones)
+                    links[id(placed)]['ToldOfRoom'] = zones
             chosen_on = conditional[version][0] if version < len(conditional) else ''
             played = sequences.Sequences(room, state, chosen_on, ctx, by_name, (room_scene(self.rooms['LandingSite']), 'AtZebesArrival'))
             things.extend(played.placed)

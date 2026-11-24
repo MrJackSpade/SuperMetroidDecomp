@@ -18,8 +18,9 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// Its timelines are "normal", "latched_on", "finish_draining" and "remorse", whose cue "maybe_cry" starts it again
-/// as often as not and otherwise sounds its cry. Its visual "Membrane" glows and dims with each beat. Its data names
-/// the terrain patches that close and open its room.
+/// as often as not and otherwise sounds its cry. A picture's path holds "{shade}" where the name of a set of its
+/// pictures goes: there is a set for each beat of its membrane, named with an underscore and the beat's number from
+/// nought. Its data names the terrain patches that close and open its room.
 /// </remarks>
 public partial class BabyMetroid : Enemy
 {
@@ -75,6 +76,18 @@ public partial class BabyMetroid : Enemy
     [Export, DataValue("feeding_pulse_updates")]
     public int FeedingPulseUpdates { get; set; } = 2;
 
+    /// <summary>How many beats its membrane goes round.</summary>
+    [Export, DataValue("pulse_beats")]
+    public int PulseBeats { get; set; } = 8;
+
+    /// <summary>The beat, counted from nought, on which it may cry.</summary>
+    [Export, DataValue("cry_beat")]
+    public int CryBeat { get; set; } = 5;
+
+    /// <summary>How many times its membrane comes to that beat for each cry.</summary>
+    [Export, DataValue("beats_a_cry")]
+    public int BeatsACry { get; set; } = 4;
+
     private enum Doing
     {
         Dormant,
@@ -106,9 +119,6 @@ public partial class BabyMetroid : Enemy
     private static readonly Pixels Kick = Pixels.FromWhole(4);
     private static readonly Pursuit Flight = new();
 
-    /// <summary>How many beats of its membrane there are, and on which it may cry.</summary>
-    private const int PulseBeats = 8, CryBeat = 5;
-
     private Doing _doing;
     private int _timer;
     private bool _reactsToSamus;
@@ -116,7 +126,7 @@ public partial class BabyMetroid : Enemy
     private bool _feeding;
     private int _pulseWait;
     private int _pulseBeat;
-    private int _criesWait = 4;
+    private int _criesWait;
     private int _lock;
     private int _hover;
     private bool _besideLeft;
@@ -128,11 +138,12 @@ public partial class BabyMetroid : Enemy
         if (!_reactsToSamus)
             return HitResult.Absorbed;
         StopFollowing();
-        // A shot knocks it on the way the shot was going, harder the more it would have hurt.
-        if (hit.Direction.X.IsZero && hit.Direction.Y.IsZero)
+        // Whatever hit it, it is knocked away from the first of Samus's shots still in the room, harder the more the
+        // hit would have hurt.
+        if (Room.Projectiles.FirstOrDefault(shot => shot.Side == HitSide.Player) is not { } first)
             return HitResult.Absorbed;
         double strength = Math.Min(hit.Damage / 32.0, 15 / 16.0);
-        PushAwayFrom(new PixelOffset(-hit.Direction.X, -hit.Direction.Y), Pixels.FromNumber(strength));
+        PushAwayFrom(first.Position - Position, Pixels.FromNumber(strength));
         return HitResult.Absorbed;
     }
 
@@ -170,7 +181,7 @@ public partial class BabyMetroid : Enemy
         AlwaysActive = true;
         Velocity = PixelVelocity.Zero;
         (_doing, _reactsToSamus, _cries, _feeding) = (Doing.WaitForView, false, false, false);
-        (_pulseWait, _pulseBeat, _criesWait, _lock, _hover) = (1, 0, 4, 0, 0);
+        (_pulseWait, _pulseBeat, _criesWait, _lock, _hover) = (1, 0, BeatsACry, 0, 0);
         Play("normal");
     }
 
@@ -184,6 +195,9 @@ public partial class BabyMetroid : Enemy
         else
             Sound(RemorseCrySound);
     }
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => step.Picture.Replace("{shade}", $"_{_pulseBeat}", StringComparison.Ordinal);
 
     /// <inheritdoc/>
     protected override void Behave()
@@ -213,8 +227,7 @@ public partial class BabyMetroid : Enemy
                 if (Room.Session.Camera.View.Left > ArenaLeft)
                     return false;
                 TellRoom("close");
-                if (WallsUpPatch.Length > 0)
-                    Room.Terrain.ApplyPatch(WallsUpPatch);
+                Room.Terrain.ApplyPatch(WallsUpPatch);
                 (_doing, _cries) = (Doing.BeginEntranceDelay, true);
                 return false;
 
@@ -275,8 +288,7 @@ public partial class BabyMetroid : Enemy
                     return false;
                 (_doing, _reactsToSamus) = (Doing.HoverNearSamus, true);
                 TellRoom("open");
-                if (WallsDownPatch.Length > 0)
-                    Room.Terrain.ApplyPatch(WallsDownPatch);
+                Room.Terrain.ApplyPatch(WallsDownPatch);
                 return false;
 
             case Doing.HoverNearSamus:
@@ -391,9 +403,13 @@ public partial class BabyMetroid : Enemy
 
         samus.Weapons.WaitAtLeast(8);
         samus.SpeedHalvings = 2;
-        if (samus.Velocity.Y.Whole >= 4)
-            samus.Velocity = samus.Velocity.WithY(samus.Velocity.Y.WithWhole(2));
-        Position = samus.Position + shake + PixelOffset.FromWhole(0, -20);
+        // Rising or falling, a speed of four pixels or more an update is cut to two, and for that update it sits a
+        // pixel to the right.
+        Pixels speed = samus.Velocity.Y.Abs();
+        bool fast = speed.Whole >= 4;
+        if (fast)
+            samus.Velocity = samus.Velocity.WithY(samus.Velocity.Y.IsNegative ? -speed.WithWhole(2) : speed.WithWhole(2));
+        Position = samus.Position + shake + PixelOffset.FromWhole(fast ? 1 : 0, -20);
         int taken = inventory.IsOn(Equipment.VariaSuit) ? 2 : 4;
         inventory.Lose(Inventory.Energy, taken >= energy ? energy - 1 : taken);
     }
@@ -441,11 +457,9 @@ public partial class BabyMetroid : Enemy
             return;
         _pulseWait = _feeding ? FeedingPulseUpdates : CalmPulseUpdates;
         _pulseBeat = (_pulseBeat + 1) % PulseBeats;
-        float glow = 1f + 0.5f * MathF.Sin(MathF.Tau * _pulseBeat / PulseBeats);
-        GetNodeOrNull<ActorVisual>("Membrane")?.Tint(new Color(glow, glow, glow));
         if (_pulseBeat != CryBeat || !_cries || --_criesWait > 0)
             return;
-        _criesWait = 4;
+        _criesWait = BeatsACry;
         Sound(_feeding ? FeedingCrySound : CrySound);
     }
 

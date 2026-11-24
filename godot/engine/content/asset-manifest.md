@@ -58,7 +58,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/alcoon_fireball.json` | `AlcoonFireball` | slowing, steady_speed |
 | `enemies/armored_zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
 | `enemies/atomic.json` | `Atomic` | contact_damage, health |
-| `enemies/baby_metroid.json` | `BabyMetroid` | calm_pulse_updates, contact_damage, cry_sound, feeding_cry_sound, feeding_pulse_updates, fly_away_cry_sound, health, remorse_cry_sound, walls_down_patch, walls_up_patch |
+| `enemies/baby_metroid.json` | `BabyMetroid` | beats_a_cry, calm_pulse_updates, contact_damage, cry_beat, cry_sound, feeding_cry_sound, feeding_pulse_updates, fly_away_cry_sound, health, pulse_beats, remorse_cry_sound, walls_down_patch, walls_up_patch |
 | `enemies/baby_turtle.json` | `BabyTurtle` | contact_damage, crawl_speed, health, hide_updates, rider_left_delay, spin_fall_speed, spin_speed, travel_distance |
 | `enemies/beetom.json` | `Beetom` | bite_every, cling_above, contact_damage, crawl_speed, crawl_updates, drop_speed, fastest_mark, feeding_sound, feeding_sound_every, feeding_sound_least_energy, flung_marks, flung_speed, health, hop_speed, idle_updates, ledge_reach, long_hop_height, long_hop_marks, lunge_aim_marks, lunge_distance, lunge_falling_marks, lunge_height, lunge_rising_marks, lunge_speed, shake_off_count, short_hop_height, short_hop_marks, speed_curve, thrown_distance |
 | `enemies/boulder.json` | `Boulder` | bouncing_travel_step, break_effect, break_sound, contact_damage, fastest_bouncing_mark, fastest_rolling_mark, first_rebound_mark, ground_reach, health, impact_sound, rolling_travel_step, speed_curve |

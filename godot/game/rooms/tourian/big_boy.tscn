@@ -67,6 +67,7 @@ AttackMusic = "kraid_and_phantoon_battle"
 AfterwardMusic = "baby_metroid_theme"
 AlwaysActive = true
 Victim = NodePath("../Sidehopper")
+ToldOfRoom = Array[NodePath]([NodePath("../BabyMetroidScreen1x0"), NodePath("../BabyMetroidScreen3x0")])
 
 [node name="Sidehopper" parent="." instance=ExtResource("7")]
 position = Vector2(552, 160)
@@ -136,6 +137,16 @@ script = ExtResource("10")
 position = Vector2(768, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
+
+[node name="BabyMetroidScreen1x0" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 0)
+StartsOpen = true
+
+[node name="BabyMetroidScreen3x0" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(768, 0)
+StartsOpen = true
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")

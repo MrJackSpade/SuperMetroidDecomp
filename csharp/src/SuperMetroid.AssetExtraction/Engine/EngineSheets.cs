@@ -239,19 +239,26 @@ internal sealed partial class EngineSheets
         return CutFrames(tree, family, folder, [.. document.Frames.Keys.Select(name => (name, sheet))], shade);
     }
 
-    /// <summary>What each colour of a sheet shows as in one of its shades, by the colour and the region of the picture it is in.</summary>
+    /// <summary>
+    /// What each colour of a sheet shows as in one of its shades, by the colour and the region of the picture it is in.
+    /// Several shades named with a plus sign between them are laid one over another as the old game laid them: each
+    /// says what some of the sheet's own colours show as, and a later one's word stands over an earlier one's.
+    /// </summary>
     private static Dictionary<(int Colour, int Region), RgbaPixel> ShadeOf(string sheet, InstalledSheetDocument document, string shade)
     {
-        if (document.Shades is null || !document.Shades.TryGetValue(shade, out InstalledSheetShadeDocument? listed) || listed?.Substitutions is not { } substitutions)
-            throw new InvalidDataException($"The sheet {sheet} has no shade {shade}.");
         static int Colour(string text) => text.Length == 7 && text[0] == '#'
             ? Convert.ToInt32(text[1..], 16)
             : throw new InvalidDataException($"A shade names the colour {text}, which is not written as #rrggbb.");
         var shown = new Dictionary<(int Colour, int Region), RgbaPixel>();
-        foreach (InstalledColourSubstitutionDocument substitution in substitutions)
+        foreach (string laid in shade.Split('+'))
         {
-            int to = Colour(substitution.Shows);
-            shown[(Colour(substitution.Colour), substitution.Region)] = new RgbaPixel((byte)(to >> 16), (byte)(to >> 8), (byte)to);
+            if (document.Shades is null || !document.Shades.TryGetValue(laid, out InstalledSheetShadeDocument? listed) || listed?.Substitutions is not { } substitutions)
+                throw new InvalidDataException($"The sheet {sheet} has no shade {laid}.");
+            foreach (InstalledColourSubstitutionDocument substitution in substitutions)
+            {
+                int to = Colour(substitution.Shows);
+                shown[(Colour(substitution.Colour), substitution.Region)] = new RgbaPixel((byte)(to >> 16), (byte)(to >> 8), (byte)to);
+            }
         }
 
         return shown;

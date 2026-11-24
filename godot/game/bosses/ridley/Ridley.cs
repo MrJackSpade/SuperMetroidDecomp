@@ -304,11 +304,14 @@ public partial class Ridley : Enemy
                 break;
 
             case Reveal.FadeInBody:
-                // The rest of it brightens a step at a time; its last step is its own colours.
-                if (_fade / BodyFadeStepUpdates < FadeSteps - 1)
+                // The rest of it brightens a step at a time; its last step is its own colours. Each step, the first
+                // too, shows on the last of its updates, as the old game's fade starts a step's length late.
+                if (++_fade % BodyFadeStepUpdates != 0)
+                    break;
+                int bodyStep = _fade / BodyFadeStepUpdates - 1;
+                if (bodyStep < FadeSteps - 1)
                 {
-                    _fadeLook = "_body_" + (_fade / BodyFadeStepUpdates).ToString(System.Globalization.CultureInfo.InvariantCulture);
-                    _fade++;
+                    _fadeLook = "_body_" + bodyStep.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     break;
                 }
 

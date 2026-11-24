@@ -201,6 +201,9 @@ public sealed partial class EngineAssetWriter
             ["tank_column"] = FileSelectEnergyTankDefinitions.ColumnOffset,
             ["tank_row"] = FileSelectEnergyTankDefinitions.RowOffset,
             ["tanks_per_row"] = FileSelectEnergyTankDefinitions.TanksPerRow,
+            // Black before it fades in: blanking, waiting out that update, the black hold, setting up its fades and
+            // waiting out that update.
+            ["entry_black_updates"] = FileSelectLayout.BlackHoldUpdates + 4,
             ["move_sound"] = EngineNames.Sound(SamusSound.MenuCursor),
             ["select_sound"] = EngineNames.Sound(SamusSound.FileSelected),
             ["confirm_sound"] = EngineNames.Sound(SamusSound.MenuConfirm),

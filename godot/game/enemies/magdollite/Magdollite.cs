@@ -351,8 +351,11 @@ public partial class Magdollite : Enemy
         switch (parts[0])
         {
             case "throw_sound":
+                // Heard by the old game's enemies' view: a square as wide as the screen from its corner, far edges
+                // included, so reaching further below the screen than the camera's view does.
                 PixelRect view = Room.Session.Camera.View;
-                if (view.Contains(_handAt.X, _handAt.Y))
+                int across = _handAt.X - view.Left, down = _handAt.Y - view.Top;
+                if (across >= 0 && across <= view.Width && down >= 0 && down <= view.Width)
                     Sound(ThrowSound);
                 break;
             case "cooldown":

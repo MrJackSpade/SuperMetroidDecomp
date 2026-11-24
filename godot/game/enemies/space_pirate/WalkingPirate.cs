@@ -33,9 +33,13 @@ public partial class WalkingPirate : Enemy
     [Export]
     public bool FlinchesFromShots { get; set; }
 
-    /// <summary>How far it walks each update, as a number of pixels.</summary>
-    [Export, DataValue("walk_speed")]
-    public double WalkSpeed { get; set; } = 0.21875;
+    /// <summary>How far it walks each update to the left, as a number of pixels.</summary>
+    [Export, DataValue("walk_speed_left")]
+    public double WalkSpeedLeft { get; set; } = 0.2187652587890625;
+
+    /// <summary>How far it walks each update to the right, as a number of pixels.</summary>
+    [Export, DataValue("walk_speed_right")]
+    public double WalkSpeedRight { get; set; } = 0.21875;
 
     /// <summary>How near Samus's height must be to its own, in pixels, for it to fire.</summary>
     [Export, DataValue("firing_band")]
@@ -45,9 +49,13 @@ public partial class WalkingPirate : Enemy
     [Export, DataValue("flinch_reach")]
     public int FlinchReach { get; set; } = 32;
 
-    /// <summary>How far ahead of itself it feels for floor, in pixels.</summary>
-    [Export, DataValue("ledge_reach")]
-    public int LedgeReach { get; set; } = 16;
+    /// <summary>How far ahead of itself it feels for floor walking left, in pixels.</summary>
+    [Export, DataValue("ledge_reach_left")]
+    public int LedgeReachLeft { get; set; } = 17;
+
+    /// <summary>How far ahead of itself it feels for floor walking right, in pixels.</summary>
+    [Export, DataValue("ledge_reach_right")]
+    public int LedgeReachRight { get; set; } = 16;
 
     /// <summary>How far in front of its middle its lasers leave from, in pixels.</summary>
     [Export, DataValue("muzzle_ahead")]
@@ -123,9 +131,10 @@ public partial class WalkingPirate : Enemy
         // It settles a pixel toward the floor each update, and walks only once it stands on it.
         if (!MoveDownBy(Pixels.FromWhole(1)) || Body is not { } body)
             return;
+        // Left and right are not mirrors in the old game: each way has its own reach for a ledge and its own step.
         bool left = Facing == Facing.Left;
-        bool floorAhead = Room.Terrain.IsSolidIn(body.RoomRect.MovedBy(left ? -LedgeReach - 1 : LedgeReach, 1), SlopeTreatment.Wall);
-        if (floorAhead && !MoveAcrossBy(Facing.Toward(Pixels.FromNumber(WalkSpeed))))
+        bool floorAhead = Room.Terrain.IsSolidIn(body.RoomRect.MovedBy(left ? -LedgeReachLeft : LedgeReachRight, 1), SlopeTreatment.Wall);
+        if (floorAhead && !MoveAcrossBy(left ? -Pixels.FromNumber(WalkSpeedLeft) : Pixels.FromNumber(WalkSpeedRight)))
         {
             bool withinBeat = left ? Position.X.Whole >= _leftPost : Position.X.Whole < _rightPost;
             if (withinBeat)

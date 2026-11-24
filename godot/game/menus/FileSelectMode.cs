@@ -30,6 +30,7 @@ namespace Game.Menus;
 /// ("glyph_width"), how many digits along the colon of a time stands ("colon_column"), the most a part of a time
 /// shows ("largest_time_part"), the energy a tank holds ("energy_per_tank"), a tank's "tank_size", the column and
 /// row of the first from the word energy ("tank_column", "tank_row") and how many make a row ("tanks_per_row");
+/// the updates it stays black, nothing moving, as it is come to before it fades in ("entry_black_updates");
 /// the sounds of the cursor moving, of a saved game chosen and of an answer given ("move_sound", "select_sound",
 /// "confirm_sound"); and the timelines "cursor", "helmet_away", "helmet_turn" (which ends by staying on its last
 /// picture) and the arrows'.
@@ -102,6 +103,7 @@ public partial class FileSelectMode : GameMode
     private int _to;
     private bool _yes = true;
     private int _turnLeft;
+    private int _blackLeft;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -142,6 +144,7 @@ public partial class FileSelectMode : GameMode
         _row = Math.Clamp(Session.Slot, 1, SavedGames) - 1;
         ShowMain();
         _fade.FadeIn(FadeUpdates);
+        _blackLeft = _data.Int("entry_black_updates");
         Session.Sounds.RequestMusic(Music);
     }
 
@@ -151,12 +154,20 @@ public partial class FileSelectMode : GameMode
         // Back from the options: the first page again, out of black.
         ShowMain();
         (_fade ?? throw NotShown()).FadeIn(FadeUpdates);
+        _blackLeft = ScreenData().Int("entry_black_updates");
     }
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
         ScreenFade fade = _fade ?? throw NotShown();
+        // As the old game's screen is made, it stays black a few updates, nothing moving, before it fades in.
+        if (_blackLeft > 0)
+        {
+            _blackLeft--;
+            return this;
+        }
+
         (_cursor ?? throw NotShown()).Step();
         foreach (CinematicSprite shown in _helmets)
             shown.Step();
@@ -237,6 +248,8 @@ public partial class FileSelectMode : GameMode
 
         if (input.WasPressed(GameAction.Cancel))
         {
+            // The old game asks for the cursor's sound twice as cancel leaves.
+            MoveSound();
             MoveSound();
             FadeOutTo(static () => new TitleMode());
             return;

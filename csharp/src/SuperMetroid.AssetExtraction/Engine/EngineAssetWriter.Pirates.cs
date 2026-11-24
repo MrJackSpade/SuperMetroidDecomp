@@ -18,10 +18,12 @@ public sealed partial class EngineAssetWriter
         {
             Enemy($"enemies/walking_pirate_{colour.ToLowerInvariant()}.json", "WalkingPirate", Enum.Parse<EnemyDefinitionId>($"Pirate{colour}Walking"))
                 .BodyColliders(Ordinary)
-                .Value("walk_speed", EngineNames.Number(SpacePirateMotionDefinitions.WalkingRightStep))
+                .Value("walk_speed_left", EngineNames.Number(-SpacePirateMotionDefinitions.WalkingLeftStep))
+                .Value("walk_speed_right", EngineNames.Number(SpacePirateMotionDefinitions.WalkingRightStep))
                 .Value("firing_band", SpacePirateMotionDefinitions.WalkingFiringBand)
                 .Value("flinch_reach", SpacePirateMotionDefinitions.WalkingFlinchReach)
-                .Value("ledge_reach", SpacePirateMotionDefinitions.WalkingRightLedgeProbe)
+                .Value("ledge_reach_left", SpacePirateMotionDefinitions.WalkingLeftLedgeProbe)
+                .Value("ledge_reach_right", SpacePirateMotionDefinitions.WalkingRightLedgeProbe)
                 .Value("muzzle_ahead", SpacePirateMotionDefinitions.WalkingLaserMuzzleAhead)
                 .Looks(WalkingSpacePirateAnimations.Segments, WalkingSpacePirateAnimations.StartingWith,
                     static (WalkingSpacePirateCue cue) => cue switch

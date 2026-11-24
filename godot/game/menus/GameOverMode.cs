@@ -9,24 +9,21 @@ namespace Game.Menus;
 
 /// <summary>
 /// The game over screen. It comes up out of black: its page, with the larva crying over its egg, and a cursor
-/// beside yes or no. Up and down move the cursor; confirming fades the screen out, and yes goes back to the saved
-/// game, no to the title.
+/// beside yes or no. Up and down move the cursor; confirming fades the screen out, the larva holding its look, and
+/// yes goes back to the saved game, no to the title. Its fades go a level of brightness an update.
 /// </summary>
 /// <remarks>
 /// Its data names its "music", its "backdrop" colour, its "page" picture, the sound of the cursor moving
-/// ("move_sound"), its timelines "baby" (which gives the cues "sound:" and a sound's name), "egg" and "cursor", and
-/// the "places" of the "baby" (the egg lies there too) and of the cursor beside each answer ("cursor_yes",
-/// "cursor_no").
+/// ("move_sound"), the levels of brightness its fades go through ("fade_levels"), the updates the larva holds its
+/// look once an answer is given ("answer_hold_updates"), its timelines "baby" (which gives the cues "sound:" and a
+/// sound's name), "egg" and "cursor", and the "places" of the "baby" (the egg lies there too) and of the cursor
+/// beside each answer ("cursor_yes", "cursor_no").
 /// </remarks>
 public partial class GameOverMode : GameMode
 {
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "menus/game_over.json";
-
-    /// <summary>How many updates it takes to fade in, and to fade out.</summary>
-    [Export]
-    public int FadeUpdates { get; set; } = 32;
 
     private const string SoundCue = "sound:";
 
@@ -37,6 +34,9 @@ public partial class GameOverMode : GameMode
     private ScreenFade? _fade;
     private bool _yes = true;
     private bool? _continues;
+    private int _levels;
+    private int _lit;
+    private int _holdLeft;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -60,7 +60,9 @@ public partial class GameOverMode : GameMode
         layer.AddChild(_cursor);
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
-        _fade.FadeIn(FadeUpdates);
+        _levels = _data.Int("fade_levels");
+        _lit = 0;
+        _fade.Cover(_levels, _levels);
         Session.Sounds.RequestMusic(_data.Text("music"));
     }
 
@@ -71,15 +73,17 @@ public partial class GameOverMode : GameMode
         StepSprites();
         if (_continues is { } continues)
         {
-            fade.Step();
-            if (!fade.IsDone)
+            _lit--;
+            fade.Cover(_levels - _lit, _levels);
+            if (_lit > 0)
                 return this;
             return continues ? new LoadingMode() : new TitleMode();
         }
 
-        if (!fade.IsDone)
+        if (_lit < _levels)
         {
-            fade.Step();
+            _lit++;
+            fade.Cover(_levels - _lit, _levels);
             return this;
         }
 
@@ -94,7 +98,7 @@ public partial class GameOverMode : GameMode
         else if (input.WasPressed(GameAction.Confirm))
         {
             _continues = _yes;
-            fade.FadeOut(FadeUpdates);
+            _holdLeft = Data().Int("answer_hold_updates");
         }
 
         return this;
@@ -103,8 +107,9 @@ public partial class GameOverMode : GameMode
     /// <summary>Plays one update of the larva, its egg and the cursor; the larva's cries are heard as its timeline reaches them.</summary>
     private void StepSprites()
     {
-        // Once an answer is given the larva holds the look it has while the screen fades.
-        IReadOnlyList<string> cues = _continues is null ? (_baby ?? throw NotShown()).Step() : [];
+        // Once an answer is given the larva holds the look it has for the old game's hold, through the fade.
+        bool holds = _continues is not null && _holdLeft-- > 0;
+        IReadOnlyList<string> cues = holds ? [] : (_baby ?? throw NotShown()).Step();
         foreach (string cue in cues)
         {
             if (!cue.StartsWith(SoundCue, StringComparison.Ordinal))

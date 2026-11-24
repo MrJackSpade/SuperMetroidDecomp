@@ -18,8 +18,9 @@ namespace Game.Cinematics;
 /// shot ("shot_floor") and its sound ("shot_sound"), the emblem's timelines ("logo_upper_s", "logo_lower_s", "logo_upper_circle", which gives the
 /// cue "grey_out", and "logo_lower_circle") and picture ("logo"), and her "last_words": by the name of each
 /// ("ending_item_percentage", "ending_final_message") the font it is typed in and how far down the screen its first
-/// line is, each line lying in the middle of the screen; and under "percentage" the font and place of the figures
-/// of the share of items found, which end in a per cent sign three cells along.
+/// line is, each line lying in the middle of the screen; under "percentage" the font and place of the figures
+/// of the share of items found, which end in a per cent sign three cells along; and under "japanese_subtitle" the
+/// picture shown, where its corner lies, under those figures while they are held, in the "languages" that show it.
 /// </remarks>
 public partial class Ending
 {
@@ -56,6 +57,7 @@ public partial class Ending
     private int _logoFade = -1;
     private PixelText? _lastWords;
     private PixelText? _percentage;
+    private Sprite2D? _subtitle;
     private bool _percentageShown;
 
     /// <summary>Which reward the clear time has earned.</summary>
@@ -164,12 +166,19 @@ public partial class Ending
                     PixelText percentage = _percentage ?? throw NotEntered();
                     percentage.Text = $"{ItemsFound,3}%";
                     percentage.Visible = true;
+                    (_subtitle ?? throw NotEntered()).Visible = Data().Get("last_words").Get("japanese_subtitle").List("languages")
+                        .Any(language => language.AsText() == Session.Options.Language);
                     (_percentageShown, _wait) = (true, PercentageUpdates);
                     break;
                 }
 
                 if (--_wait <= 0)
+                {
+                    // The line under the share goes as its hold ends.
+                    (_subtitle ?? throw NotEntered()).Visible = false;
                     (_phase, _wait) = (Phase.ItemPercentageDrop, 40);
+                }
+
                 break;
 
             case Phase.ItemPercentageDrop:
@@ -418,6 +427,14 @@ public partial class Ending
             Name = "Percentage", Font = PixelFont.Read(Session.Content, figures.Text("font")), Position = new Vector2(figures.Int("x"), figures.Int("y")), Visible = false,
         };
         picture.AddChild(_percentage);
+        _subtitle?.QueueFree();
+        DataNode subtitle = lastWords.Get("japanese_subtitle");
+        _subtitle = new Sprite2D
+        {
+            Name = "Subtitle", Centered = false, Texture = Session.Content.LoadTexture(subtitle.Text("picture")),
+            Position = new Vector2(subtitle.Int("x"), subtitle.Int("y")), TextureFilter = CanvasItem.TextureFilterEnum.Nearest, Visible = false,
+        };
+        picture.AddChild(_subtitle);
         (_typed, _typeWait, _percentageShown, _phase) = (0, TypingDelay, false, phase);
     }
 

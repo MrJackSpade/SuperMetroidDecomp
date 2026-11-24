@@ -751,9 +751,10 @@ public partial class PauseScreen : GameMode
         _chosen = ReserveMode;
         if (inventory.Capacity(Amounts.ReserveEnergy) > 0)
             return;
+        // As in the old game it may start on a beam she has though the hyper beam closes the beams.
         foreach (DataNode control in Data().Get("equipment").List("controls"))
         {
-            if (!Has(control))
+            if (!inventory.Owns(control.Text("equipment")))
                 continue;
             _chosen = control.Text("equipment");
             return;
@@ -908,11 +909,13 @@ public partial class PauseScreen : GameMode
             string name = control.Text("equipment"), group = control.Text("group");
             if (!_columns.TryGetValue(group, out List<(string Equipment, bool Had)>? column))
                 _columns[group] = column = [];
-            bool has = Has(control);
-            column.Add((name, has));
-            if (!has)
+            // A beam the hyper beam closes is not shown and no search finds it, but the selector may start on it.
+            bool owns = inventory.Owns(name);
+            column.Add((name, owns));
+            if (!owns)
                 continue;
-            Show(control, control.Text(inventory.IsOn(name) ? "on" : "off"), equipment);
+            if (Has(control))
+                Show(control, control.Text(inventory.IsOn(name) ? "on" : "off"), equipment);
             _controls.Add(new Line(name, group, control.Get("selector")));
         }
 

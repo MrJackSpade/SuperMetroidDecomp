@@ -18,7 +18,7 @@ internal sealed partial class TorizoMovement
     /// <summary>Receives the impact quake when a falling or jumping statue lands.</summary>
     private readonly RoomEarthquake _earthquake;
     /// <summary>The medium up-and-down foreground shake a landing statue starts.</summary>
-    private static readonly EarthquakeShake LandingShake =
+    internal static readonly EarthquakeShake LandingShake =
         new(EarthquakeStrength.Medium, EarthquakeDirection.Vertical, EarthquakeReach.RoomBlocks);
     /// <summary>Bomb and Golden Torizo's body, which shows the Torizo's colouring and drips its low-health drool.</summary>
     private readonly TorizoBody _body;

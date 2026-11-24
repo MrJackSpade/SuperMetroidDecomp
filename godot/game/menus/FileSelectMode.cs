@@ -38,10 +38,6 @@ namespace Game.Menus;
 /// </remarks>
 public partial class FileSelectMode : GameMode
 {
-    /// <summary>The music of the screen, by name.</summary>
-    [Export]
-    public string Music { get; set; } = Data.Music.TitleScreen;
-
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "menus/file_select.json";
@@ -149,7 +145,6 @@ public partial class FileSelectMode : GameMode
         _fade.Cover(_levels, _levels);
         BeginFade(brightening: true);
         _blackLeft = _data.Int("entry_black_updates");
-        Session.Sounds.RequestMusic(Music);
     }
 
     /// <inheritdoc/>

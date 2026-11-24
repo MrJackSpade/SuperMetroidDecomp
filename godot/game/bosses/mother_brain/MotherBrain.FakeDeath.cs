@@ -169,6 +169,7 @@ public partial class MotherBrain
                 if (--_timer > 0)
                     break;
                 Room.Session.Sounds.RequestMusic("");
+                Compatibility.CartridgeSounds.Of(Room.Session).AskMusicSet("mother_brain");
                 (_descent, _timer) = (Descent.PauseBeforeUnlock, 13);
                 goto case Descent.PauseBeforeUnlock;
 

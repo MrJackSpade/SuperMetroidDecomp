@@ -436,6 +436,7 @@ public partial class MotherBrain : ITriggerTarget
                     return false;
                 _headShown = false;
                 Room.Session.Sounds.RequestMusic("");
+                Compatibility.CartridgeSounds.Of(Room.Session).AskMusicSet("ridley_and_draygon_battles");
                 (_death, _timer) = (Death.PauseBeforeEscape, 21);
                 return true;
 

@@ -39,7 +39,6 @@ public partial class TimeUpMode : GameMode
         _white = new ScreenFade { Name = "WhiteOut", Colour = Colors.White };
         AddChild(_white);
         _white.FadeOut(WhiteOutUpdates);
-        Session.Sounds.RequestMusic("");
     }
 
     /// <inheritdoc/>

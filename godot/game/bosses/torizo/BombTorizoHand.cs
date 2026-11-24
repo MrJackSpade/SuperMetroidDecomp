@@ -94,6 +94,8 @@ public partial class BombTorizoHand : RoomObject
             case Stage.Crumbling:
                 if (++_step >= _crumble.Count)
                 {
+                    // The hand asks for the waking music as it goes; the Torizo asks for it again when it sees the hand gone.
+                    Room.Session.Sounds.RequestMusic(Music.TorizoAwakening);
                     Room.Remove(this);
                     return;
                 }

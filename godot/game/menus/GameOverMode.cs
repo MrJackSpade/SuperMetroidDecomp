@@ -9,9 +9,9 @@ using Godot;
 namespace Game.Menus;
 
 /// <summary>
-/// The game over screen. It stays black while the room's sounds stop, it is set up (the larva starting and the music
-/// stopping) and the music is changed, and then it comes up out of black with its own music: its page, with the
-/// larva crying over its egg, and a cursor beside yes or no. Item select, up and down move the cursor; confirming fades the
+/// The game over screen. It stays black while the room's sounds stop, it is set up (the larva starting, the music
+/// stopping and the title's set of music loading) and the music is changed, and then it comes up out of black with
+/// its own music: its page, with the larva crying over its egg, and a cursor beside yes or no. Item select, up and down move the cursor; confirming fades the
 /// screen out, the larva holding its look, and yes goes back to the saved game by the map of where it was saved,
 /// no to the title. A yes for a game saved where the map marks nothing starts it at once, with no fade. Its fades go a level of brightness an update.
 /// </summary>
@@ -91,9 +91,11 @@ public partial class GameOverMode : GameMode
 
         if (!_setUp)
         {
-            // Its set-up stops the music and starts the larva, this update counting as the first of its first look.
+            // Its set-up stops the music, loads the title's set and starts the larva, this update counting as the first
+            // of its first look.
             _setUp = true;
             Session.Sounds.RequestMusic("");
+            Compatibility.CartridgeSounds.Of(Session).AskMusicSet("title_sequence");
             StepBaby();
             return this;
         }

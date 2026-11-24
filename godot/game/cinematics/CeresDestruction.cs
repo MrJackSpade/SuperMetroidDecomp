@@ -56,8 +56,11 @@ public partial class CeresDestruction : Cinematic
         Finished,
     }
 
-    /// <summary>How many updates pass before anything shows, and before the music starts.</summary>
-    private const int OpeningUpdates = 9, MusicUpdates = 14;
+    /// <summary>How many updates pass before the station is set up.</summary>
+    private const int OpeningUpdates = 9;
+
+    /// <summary>How many turns of the music's queue the station's piece of music waits once at its front.</summary>
+    private const int MusicWait = 14;
 
     /// <summary>How many updates a fade takes, and how many steps it goes in.</summary>
     private const int FadeUpdates = 30, FadeLevels = 15;
@@ -168,7 +171,9 @@ public partial class CeresDestruction : Cinematic
         Spawn(_spaceThings, "small_asteroids", Pixels.FromNumber(0.03125), loops: true);
         Spawn(_spaceThings, "vortex", Pixels.Zero, loops: false);
         Session.Sounds.RequestMusic("");
-        (_phase, _wait, _spawnerUpdates) = (Phase.WaitingForMusic, MusicUpdates, 0);
+        Compatibility.CartridgeSounds.Of(Session).AskMusicSet("ceres");
+        Session.Sounds.RequestMusic(SamusAboard ? Music.CeresExplosionWithSamusAboard : Music.CeresExplosion, MusicWait);
+        (_phase, _spawnerUpdates) = (Phase.WaitingForMusic, 0);
     }
 
     private void StepPhase()
@@ -178,9 +183,9 @@ public partial class CeresDestruction : Cinematic
         switch (_phase)
         {
             case Phase.WaitingForMusic:
-                if (--_wait > 0)
+                // The station fades in once the music asked for has all been carried out.
+                if (Session.Sounds.HasQueuedMusic)
                     break;
-                Session.Sounds.RequestMusic(SamusAboard ? Music.CeresExplosionWithSamusAboard : Music.CeresExplosion);
                 fade.FadeIn(FadeUpdates);
                 _phase = Phase.FadingInAndDrifting;
                 break;

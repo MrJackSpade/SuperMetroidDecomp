@@ -31,6 +31,7 @@ public partial class Intro : Cinematic
     private enum Phase
     {
         Initial,
+        WaitingForCardMusic,
         FadingInCard,
         CaptivityLine,
         PeaceLine,
@@ -53,8 +54,8 @@ public partial class Intro : Cinematic
     /// <summary>How many updates a fade of the whole screen takes, and how many steps it goes in.</summary>
     private const int FadeUpdates = 30, FadeLevels = 15;
 
-    /// <summary>How long music takes to come in once asked for.</summary>
-    private const int MusicUpdates = 14;
+    /// <summary>How many turns of the music's queue a scene's piece of music waits once at its front.</summary>
+    private const int SceneMusicWait = 14;
 
     /// <summary>How long the card is held before each of its two pieces of music, and after the second.</summary>
     private const int FirstLineUpdates = 60, CaptivityUpdates = 200, PeaceUpdates = 240;
@@ -149,6 +150,14 @@ public partial class Intro : Cinematic
         {
             case Phase.Initial:
                 Session.Sounds.RequestMusic("");
+                Compatibility.CartridgeSounds.Of(Session).AskMusicSet("last_metroid_in_captivity");
+                _phase = Phase.WaitingForCardMusic;
+                break;
+
+            case Phase.WaitingForCardMusic:
+                // The card comes up once the music asked for has all been carried out.
+                if (Session.Sounds.HasQueuedMusic)
+                    break;
                 fade.FadeIn(FadeUpdates);
                 _phase = Phase.FadingInCard;
                 break;
@@ -170,13 +179,15 @@ public partial class Intro : Cinematic
                 if (--_wait > 0)
                     break;
                 Session.Sounds.RequestMusic("");
-                (_phase, _wait) = (Phase.WaitingForPeaceMusic, MusicUpdates);
+                Compatibility.CartridgeSounds.Of(Session).AskMusicSet("galaxy_at_peace");
+                Session.Sounds.RequestMusic(Music.GalaxyAtPeace, SceneMusicWait);
+                _phase = Phase.WaitingForPeaceMusic;
                 break;
 
             case Phase.WaitingForPeaceMusic:
-                if (--_wait > 0)
+                // The card is held from when the music asked for has all been carried out.
+                if (Session.Sounds.HasQueuedMusic)
                     break;
-                Session.Sounds.RequestMusic(Music.GalaxyAtPeace);
                 (_phase, _wait) = (Phase.HoldingCard, PeaceUpdates);
                 break;
 
@@ -197,13 +208,15 @@ public partial class Intro : Cinematic
                 (_card ?? throw NotEntered()).Visible = false;
                 (_narration ?? throw NotEntered()).Visible = true;
                 Session.Sounds.RequestMusic("");
-                (_phase, _wait) = (Phase.WaitingForPageMusic, MusicUpdates);
+                Compatibility.CartridgeSounds.Of(Session).AskMusicSet("intro");
+                Session.Sounds.RequestMusic(Music.Introduction, SceneMusicWait);
+                _phase = Phase.WaitingForPageMusic;
                 break;
 
             case Phase.WaitingForPageMusic:
-                if (--_wait > 0)
+                // The first page comes up once the music asked for has all been carried out.
+                if (Session.Sounds.HasQueuedMusic)
                     break;
-                Session.Sounds.RequestMusic(Music.Introduction);
                 StartPage(0, restoresCaret: false);
                 fade.FadeIn(FadeUpdates);
                 _phase = Phase.FadingInFirstPage;

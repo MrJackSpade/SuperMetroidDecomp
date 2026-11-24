@@ -99,8 +99,11 @@ public partial class Ending : Cinematic
         public Pixels Speed { get; set; }
     }
 
-    /// <summary>How many updates pass before anything shows, and how long music takes to come in once asked for.</summary>
-    private const int SetupUpdates = 9, MusicUpdates = 14;
+    /// <summary>How many updates pass before anything shows.</summary>
+    private const int SetupUpdates = 9;
+
+    /// <summary>How many turns of the music's queue each of its pieces of music waits once at its front.</summary>
+    private const int MusicWait = 14;
 
     /// <summary>How many updates a quick fade of the whole screen takes, and how many steps it goes in.</summary>
     private const int FadeUpdates = 30, FadeLevels = 15;
@@ -195,7 +198,9 @@ public partial class Ending : Cinematic
                 return false;
             SetUpSideClouds();
             Session.Sounds.RequestMusic("");
-            (_phase, _wait) = (Phase.WaitingForEscapeMusic, MusicUpdates);
+            Compatibility.CartridgeSounds.Of(Session).AskMusicSet("zebes_explosion");
+            Session.Sounds.RequestMusic(Music.ZebesExplosion, MusicWait);
+            _phase = Phase.WaitingForEscapeMusic;
             return false;
         }
 

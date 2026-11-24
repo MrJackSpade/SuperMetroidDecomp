@@ -6,6 +6,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Spatial;
@@ -69,6 +70,57 @@ public sealed partial class EngineAssetWriter
         WriteCeresDoors();
         WriteCeresSteam();
         WriteMorphBallEye();
+        WriteGunship();
+    }
+
+    /// <summary>The gunship: its two halves, its hatch opening and closing, and the dust its engines raise.</summary>
+    private void WriteGunship()
+    {
+        const string folder = "objects/gunship";
+        EngineSheetPictures pictures = EnemyPictures(
+            folder, EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.ShipTop), EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.ShipBottomEntrance));
+        string Pad(string name, GunshipSegment segment)
+        {
+            string file = $"{folder}/{name}.json";
+            _tree.WriteData(file, EngineTimelines.Of(
+                GunshipAnimations.Segments, GunshipAnimations.StartingWith(segment), frame => PictureOf(pictures, frame), static (NoAnimationCue _) => null));
+            return file;
+        }
+
+        static EnemyFrameId Held(GunshipSegment segment) =>
+            GunshipAnimations.Segments.Beats(segment).Select(beat => beat.ShownFrame).FirstOrDefault(frame => frame.HasValue)
+            ?? throw new InvalidDataException($"The gunship's {segment} shows nothing.");
+
+        // The dust clouds, in the order of the places they rise from.
+        var dust = new JsonArray();
+        foreach (GunshipDustPlacement cloud in GunshipDustDefinitions.LiftoffClouds)
+        {
+            (List<IAnimationBeat<EnemyProjectileFrameId, GunshipDustCue>> lead, List<IAnimationBeat<EnemyProjectileFrameId, GunshipDustCue>>? cycle) =
+                EngineTimelines.Played(GunshipDustAnimations.Segments, GunshipDustAnimations.StartingWith(cloud.Animation));
+            string file = $"{folder}/dust_{EngineSheets.FileName(cloud.Animation.ToString())}.json";
+            IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue)
+                .Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value));
+            EngineSheetPictures clouds = _sheets.CutSpawned(_tree, file[..file.LastIndexOf('.')], EnemyDefinitionIdKeys.Installed.Of(EnemyDefinitionId.ShipTop), frames);
+            JsonObject timeline = EngineTimelines.Of(lead, cycle, frame => clouds.Of(EnemySheetDefinitions.ProjectileFrameName(frame)), static (GunshipDustCue _) => null);
+            timeline["offset"] = new JsonObject { ["x"] = clouds.OffsetX, ["y"] = clouds.OffsetY };
+            _tree.WriteData(file, timeline);
+            dust.Add(file);
+        }
+
+        new EngineObjectFile(_tree, "objects/gunship.json", "Gunship")
+            .PictureOffset(pictures)
+            .Value("top", PictureOf(pictures, Held(GunshipSegment.TopHull)))
+            .Value("bottom", PictureOf(pictures, Held(GunshipSegment.BottomHull)))
+            .Value("bottom_below_top", GunshipMotionDefinitions.TopHullAboveSamus + GunshipMotionDefinitions.BottomHullBelowSamus)
+            .Value("pad_above_top", GunshipMotionDefinitions.PadAboveTopHull)
+            .Value("pad_closed", Pad("pad_closed", GunshipSegment.BottomEntrancePad))
+            .Value("pad_opening", Pad("pad_opening", GunshipSegment.EntrancePadOpening))
+            .Value("pad_closing", Pad("pad_closing", GunshipSegment.EntrancePadClosing))
+            .Value("hover_sound", EngineNames.SoundOrSilence(EnemySound.GunshipHover))
+            .Value("pad_opening_sound", EngineNames.SoundOrSilence(RoomSound.GunshipPadOpening))
+            .Value("pad_closing_sound", EngineNames.SoundOrSilence(RoomSound.GunshipPadClosing))
+            .Group("dust_effects", dust)
+            .Write();
     }
 
     /// <summary>The eye in the wall by the Morph Ball: shut, opening and closing for each way it faces, its looks round the turn, and its sockets.</summary>

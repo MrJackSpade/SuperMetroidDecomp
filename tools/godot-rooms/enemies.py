@@ -694,10 +694,16 @@ def ceres_ridley(p, index, listed):
         'DataFile': quoted('bosses/ceres_ridley.json'), 'OnCeres': 'true', 'FightMusic': quoted('ridley_and_draygon_battle')})
 
 
+# How far above where the old code places it the gunship's top half rests, in pixels.
+GUNSHIP_TOP_RAISE = 25
+
+
 @rule('ShipTop')
 def gunship(p, index, listed):
+    # The gunship stands where its top half rests.
     return Placed(O + 'gunship/gunship.tscn', 'Gunship', {
-        'SaveQuestion': quoted('save_question'), 'SavedMessage': quoted('save_completed')}, enemy=False)
+        'SaveQuestion': quoted('save_question'), 'SavedMessage': quoted('save_completed')},
+        at=(p.at[0], p.at[1] - GUNSHIP_TOP_RAISE), enemy=False)
 
 
 @rule('MorphBallEye')

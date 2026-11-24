@@ -231,7 +231,7 @@ internal static partial class EngineDefaults
         ["Geega"] = [("trigger_distance", "192"), ("trigger_height", "48"), ("emergence_delay", "24"), ("swoop_distance", "48"), ("swoop_start_mark", "40"), ("speed_curve", "\"\"")],
         ["GlassTube"] = [("intact", "\"\""), ("cracking", "\"\""), ("shattered", "\"\""), ("crack", "\"\""), ("bubble", "\"\""), ("open_patch", "\"\""), ("break_sound", "\"\""), ("dud_sound", "\"\"")],
         ["GrowingShutter"] = [("activation_sound", "\"\"")],
-        ["Gunship"] = [("pad_closed", "\"\""), ("pad_opening", "\"\""), ("pad_closing", "\"\""), ("dust_effect", "\"\""), ("hover_sound", "\"\""), ("pad_opening_sound", "\"\""), ("pad_closing_sound", "\"\"")],
+        ["Gunship"] = [("pad_closed", "\"\""), ("pad_opening", "\"\""), ("pad_closing", "\"\""), ("top", "\"\""), ("bottom", "\"\""), ("bottom_below_top", "0"), ("pad_above_top", "0"), ("hover_sound", "\"\""), ("pad_opening_sound", "\"\""), ("pad_closing_sound", "\"\"")],
         ["Hazard"] = [("hit_damage", "0"), ("hits_without_damage", "false"), ("ongoing_hundredths", "0"), ("hold_updates", "0"), ("bite_damage", "0"), ("release_invincible_updates", "0")],
         ["Hibashi"] = [("first_wait", "1"), ("half_width", "8")],
         ["Hopper"] = [("speed_curve", "\"\""), ("across_speed", "3"), ("small_hop_height", "16"), ("small_hop_step", "768"), ("big_hop_height", "48"), ("big_hop_step", "1024"), ("fastest_mark", "64")],

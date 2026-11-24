@@ -16,9 +16,11 @@ namespace Game.Objects;
 /// leaves the planet.
 /// </summary>
 /// <remarks>
-/// Its visuals are "Top" and "Bottom", its two halves, and "Pad", its hatch, which plays the timelines its data
-/// names "pad_closed", "pad_opening" and "pad_closing". The hull she stands on is the room's own terrain; where
-/// the gunship stands is the place of its top half at rest.
+/// Its visuals are "Top" and "Bottom", its two halves, which show the pictures its data names "top" and "bottom",
+/// and "Pad", its hatch, which plays the timelines its data names "pad_closed", "pad_opening" and "pad_closing".
+/// Its data also says how far its bottom half lies below its top one and its hatch above it, and lists the
+/// "dust_effects" its engines raise, one for each place they rise from. The hull she stands on is the room's own
+/// terrain; where the gunship stands is the place of its top half at rest.
 /// </remarks>
 public partial class Gunship : RoomObject, ITriggerTarget
 {
@@ -50,9 +52,21 @@ public partial class Gunship : RoomObject, ITriggerTarget
     [Export, DataValue("pad_closing")]
     public string PadClosing { get; set; } = "";
 
-    /// <summary>The effect of the dust its engines raise, by the data file of its timeline.</summary>
-    [Export, DataValue("dust_effect")]
-    public string DustEffect { get; set; } = "";
+    /// <summary>The picture of its top half.</summary>
+    [Export, DataValue("top")]
+    public string TopPicture { get; set; } = "";
+
+    /// <summary>The picture of its bottom half.</summary>
+    [Export, DataValue("bottom")]
+    public string BottomPicture { get; set; } = "";
+
+    /// <summary>How far its bottom half lies below its top one, in pixels.</summary>
+    [Export, DataValue("bottom_below_top")]
+    public int BottomBelowTop { get; set; }
+
+    /// <summary>How far its hatch lies above its top half, in pixels.</summary>
+    [Export, DataValue("pad_above_top")]
+    public int PadAboveTop { get; set; }
 
     /// <summary>The sound of it hovering, by name.</summary>
     [Export, DataValue("hover_sound")]
@@ -112,12 +126,32 @@ public partial class Gunship : RoomObject, ITriggerTarget
     private Pixels _escapeSpeed;
     private bool? _answer;
     private TimelinePlayer? _pad;
+    private readonly List<string> _dustEffects = [];
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _dustEffects.Clear();
+        _dustEffects.AddRange(data.List("dust_effects").Select(effect => effect.AsText()));
+        if (_dustEffects.Count != DustAcross.Length)
+            throw data.Problem($"must name {DustAcross.Length} dust effects, one for each place its engines raise dust");
+    }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         _restY = Position.Y.Whole;
         (_phase, _bob, _bobWait, _hoverWait, _answer) = (Phase.Idle, 0, 1, 71, null);
+        GetNodeOrNull<ActorVisual>("Top")?.Show(TopPicture);
+        if (GetNodeOrNull<ActorVisual>("Bottom") is { } bottom)
+        {
+            bottom.Position = new Vector2(0, BottomBelowTop);
+            bottom.Show(BottomPicture);
+        }
+
+        if (GetNodeOrNull<ActorVisual>("Pad") is { } pad)
+            pad.Position = new Vector2(0, -PadAboveTop);
         ShowPad(PadClosed);
     }
 
@@ -279,10 +313,10 @@ public partial class Gunship : RoomObject, ITriggerTarget
                 // It shakes on the ground, harder as its engines catch, and raises dust.
                 int shake = (_rumble >= 64 ? 2 : 1) * (_rumble % 2 == 1 ? 1 : -1);
                 MoveWithSamus(samus, Pixels.FromWhole(shake));
-                if (++_rumble == 64 && DustEffect.Length > 0)
+                if (++_rumble == 64)
                 {
-                    foreach (int across in DustAcross)
-                        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(DustEffect)), samus.Position + PixelOffset.FromWhole(across, 80)));
+                    for (int cloud = 0; cloud < DustAcross.Length; cloud++)
+                        Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(_dustEffects[cloud])), samus.Position + PixelOffset.FromWhole(DustAcross[cloud], 80)));
                 }
 
                 if (_rumble >= 128)

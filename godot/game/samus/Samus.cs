@@ -691,11 +691,11 @@ public partial class Samus : Player
         _crystalFlashColouring = CrystalFlashColouring.None;
     }
 
-    /// <summary>Uses up the stored shine, and with it any crystal flash's colouring that read as one.</summary>
+    /// <summary>
+    /// Ends the stored shine, and with it any crystal flash's colouring that read as one: used up by a shinespark or a
+    /// crystal flash, or ended as the X-ray's colouring of her takes their place.
+    /// </summary>
     public void SpendShine() => (_shine, _crystalFlashColouring) = (Countdown.Over, CrystalFlashColouring.None);
-
-    /// <summary>Another colouring of her takes the place of a crystal flash's, as the X-ray's does.</summary>
-    public void EndCrystalFlashColouring() => _crystalFlashColouring = CrystalFlashColouring.None;
 
     /// <summary>Brings her straight to full boost, as a shinespark does.</summary>
     public void BoostFully() => _boostStage = FullBoostStage;
@@ -933,7 +933,7 @@ public partial class Samus : Player
 
         if (shot.Sound.Length > 0)
             Room.Session.Sounds.Request(shot.Sound, channel: "weapons");
-        Weapons.DropCharge();
+        ForgetCharge();
         Weapons.WaitAtLeast(Weapons.Named(Arsenal.Beam).CooldownFor(Inventory, charged: true));
         if (Inventory.Amount(Amounts.PowerBombs) == 0)
             SelectBeam();
@@ -987,8 +987,11 @@ public partial class Samus : Player
         ForgetCharge();
     }
 
-    /// <summary>Throws the beam's charge away, and everything that remembers it.</summary>
-    private void ForgetCharge()
+    /// <summary>
+    /// Throws the beam's charge away, and everything that remembers it: a charge dropped so is never hushed later, as
+    /// the cartridge hushes only a charge let go that fires nothing.
+    /// </summary>
+    public void ForgetCharge()
     {
         Weapons.DropCharge();
         (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds) = (false, 0, false, false);
@@ -1098,8 +1101,8 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void OnHurt(Hit hit, Facing from)
     {
+        // A hurt keeps her charge, as the cartridge's does: a knockback neither counts it on nor lets it go.
         Room.Session.Sounds.Request(Sounds.SamusHurt, channel: "samus");
-        Weapons.DropCharge();
         if (State is RefillingFromReservesState)
             return;
         if (!hit.Carries(HitKind.Hazard))
@@ -1167,7 +1170,10 @@ public partial class Samus : Player
         // The stored shine is heard a while after it is stored, as the cartridge's colouring of her asks for it.
         if (HasStoredShine && _shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
             Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
-        StopEndedSounds();
+
+        // Once she is dying the cartridge no longer shows her the usual way, so a spin or a boost her death ends asks for no stop.
+        if (State is not DyingState)
+            StopEndedSounds();
         _crystalFlashColouring = _crystalFlashColouring switch
         {
             CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,

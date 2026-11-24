@@ -23,7 +23,7 @@ public sealed class FacingForwardState : PlayerState, ISamusLook
     {
         owner.Velocity = PixelVelocity.Zero;
         owner.LoseMomentum();
-        owner.Weapons.DropCharge();
+        ((Samus)owner).ForgetCharge();
         owner.TrySetForm(Player.Standing);
     }
 

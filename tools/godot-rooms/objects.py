@@ -25,8 +25,8 @@ COMES_BACK_AT_ONCE = '3'
 # How a barrier that was opened and remembered is set up afterwards: as a plain one any hit opens.
 REMEMBERED_PLAIN = '1'
 
-# Each station the old code's access rules name: its scene, and how far to the left and right of its block Samus
-# can use it from, in blocks.
+# Each station the old code's access rules name: its scene, and how far to the left and right of its block its
+# arms are, in blocks. Samus uses it by running against an arm.
 STATIONS = {'Map': ('map_station', -2, 1), 'Energy': ('energy_station', -1, 1), 'Missile': ('missile_station', -1, 1)}
 
 # The cannons in the walls of Draygon's chamber, in the order Draygon has them fire.
@@ -150,15 +150,16 @@ class Objects:
 
     def save_station_setup(self, block, setup, gates) -> None:
         station = named(setup, 'LoadStationDefinitions')
-        # Samus stands on it; it reaches three blocks up from its pad.
+        # Samus stands on its pad, which is two blocks wide, with her middle within half a block of the pad's. The
+        # station is that block-wide strip, three blocks up from the pad.
         self.placed.append(Placed(O + 'station/save_station.tscn', 'SaveStation', {'ResumesAt': quoted('At' + station)},
-                                  at=(block[0] * BLOCK, (block[1] - 3) * BLOCK), enemy=False))
+                                  at=(block[0] * BLOCK + BLOCK // 2, (block[1] - 3) * BLOCK), enemy=False))
 
     def access_station_setup(self, block, setup, gates) -> None:
         scene, left, right = STATIONS[named(setup, 'StationAccessRuleDefinitions')]
-        self.placed.append(Placed(O + f'station/{scene}.tscn', scene.title().replace('_', ''), {
-            'Size': f'Vector2i({(right - left + 1) * BLOCK}, {3 * BLOCK})'},
-            at=((block[0] + left) * BLOCK, (block[1] - 1) * BLOCK), enemy=False))
+        # The station is the row of blocks from its left arm to its right arm: its scene is that wide.
+        self.placed.append(Placed(O + f'station/{scene}.tscn', scene.title().replace('_', ''), {},
+                                  at=((block[0] + left) * BLOCK, block[1] * BLOCK), enemy=False))
 
     def downward_gate_shot_block_setup(self, block, setup, gates) -> None:
         colour = named(setup, 'DownwardGateTriggerColor').lower()

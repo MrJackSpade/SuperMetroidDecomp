@@ -348,7 +348,8 @@ select, options, game over, time up, and one per cinematic.
   everything it was laid over.
 - **Asking, not reaching.** A room object does not start a mode. It asks the session: `RequestMessage` for a
   message, `RequestQuestion` for one answered yes or no (the answer comes back to whoever asked), `RequestSave`
-  for a save. The mode in control takes the request and acts on it.
+  for a save, `RequestPause` for the pause screen once the messages asked for with it have been shown. The mode in
+  control takes the request and acts on it.
 - **Death.** There is no death mode in the engine: the player plays its own dying, and when it is over
   `PlayingMode` hands to whatever the `GameDefinition` makes for after a death. The engine's default reloads; this
   game's is its game-over screen.
@@ -456,7 +457,7 @@ for a kind any game would use, `game/objects/<name>/` for one only this game has
 | --- | --- | --- |
 | `Barrier` | A solid object with health that only certain damage wears down, or that opens when told to. | Below. |
 | `Item` | Granting its `ItemType` when the player touches it, recording it in `Progress`, showing its message. | `ItemType`; remembered as. |
-| `Station` | Holding the player while it works, then granting or recording the result. | What it does: save (and the entry point a game saved there resumes at); reveal the area's map; refill listed inventory amounts. Which way the player must face; a question it asks first; the message it shows when done; how it looks at rest and at work, an effect it leaves as it starts, and its sounds. |
+| `Station` | Holding the player while it works, then granting or recording the result. | What it does: save (and the entry point a game saved there resumes at); reveal the area's map; refill listed inventory amounts. How it is used: by standing in it (it puts the player at its middle, facing out; used or refused, it waits for the room to be entered anew, as it does when the game resumed at it), or by running against either side of it, facing it and aiming ahead (it is then solid over its own area, by the solid collider of its scene). Which way the player must face; a question it asks first; the message it shows when done, how long that is held, and whether the game then pauses on its pause screen; how it looks at rest, at work, and at rest once it has nothing more to do (a map station whose area's map is revealed, which cannot be used again); an effect it leaves as it starts, which may be another for its right side; and its sounds. A refill station does nothing for a player who is full. |
 | `Carrier` | Taking hold of the player and moving them along a path, then letting go. A player who arrives where its path ends is brought back along it to where it rests. Its data's timelines show it at rest and moving. | Path; speed, and how much it gains each update up to what limit; what starts it (standing in its region, or a press of a named action there); where it holds the player; its sounds. |
 | `Platform` | A solid surface that moves, and so carries what stands on it. | Path; whether it reacts to weight. |
 | `Spawner` | Producing enemies at a place by a rule. | What it spawns; how often; how many at once. |
@@ -722,8 +723,9 @@ drew with the room's blocks looks as that room's graphics draw it.
 
 **Where a timeline's pictures lie.** A timeline's data may give an offset: where the top-left corner of each of its
 pictures lies from the place of the thing shown. It is added to whatever offset the thing has of its own, so
-pictures cut to one shared size need no thing to know that size. A pickup shown by a timeline is drawn where the
-timeline's offset puts it; one shown by a lone picture has it centred.
+pictures cut to one shared size need no thing to know that size. A step may give an offset of its own, added to
+the timeline's for that step: a picture that moves about as the timeline plays. A pickup shown by a timeline is
+drawn where the timeline's offset puts it; one shown by a lone picture has it centred.
 
 ### Components (`engine/actors/components/`, `engine/collision/`)
 

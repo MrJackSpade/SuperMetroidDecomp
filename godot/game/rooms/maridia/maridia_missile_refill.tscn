@@ -34,8 +34,7 @@ Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
 [node name="MissileStation" parent="." instance=ExtResource("5")]
-position = Vector2(112, 144)
-Size = Vector2i(48, 48)
+position = Vector2(112, 160)
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]
 position = Vector2(16, 96)

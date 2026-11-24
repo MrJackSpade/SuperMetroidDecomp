@@ -156,7 +156,7 @@ Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="SaveStation" parent="." instance=ExtResource("10")]
-position = Vector2(112, 128)
+position = Vector2(120, 128)
 ResumesAt = "AtWreckedShipSave"
 PresentWhen = SubResource("r1")
 

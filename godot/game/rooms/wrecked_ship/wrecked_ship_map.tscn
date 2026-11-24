@@ -132,6 +132,5 @@ Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="MapStation" parent="." instance=ExtResource("10")]
-position = Vector2(48, 144)
-Size = Vector2i(64, 48)
+position = Vector2(48, 160)
 PresentWhen = SubResource("r1")

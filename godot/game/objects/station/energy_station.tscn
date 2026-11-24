@@ -1,16 +1,27 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://engine/world/objects/station/Station.cs" id="1"]
 [ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="2"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="3"]
 
 [node name="EnergyStation" type="Node2D"]
 script = ExtResource("1")
 RestTimeline = "objects/energy_station_rest.json"
 WorkingTimeline = "objects/energy_station_working.json"
 Kind = 2
+HowUsed = 1
+Size = Vector2i(48, 16)
+WorkUpdates = 102
 Refills = PackedStringArray("energy")
 DoneMessage = "energy_recharge_completed"
-StartSound = "refill_station"
+MessageHoldUpdates = 10
+WorkingEffect = "objects/energy_station_arm_left.json"
+WorkingEffectOnRight = "objects/energy_station_arm_right.json"
+StartSound = "enemy_station_engaged"
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")
+
+[node name="Solid" type="Node2D" parent="."]
+script = ExtResource("3")
+Role = 3

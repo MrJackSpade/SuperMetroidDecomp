@@ -81,9 +81,9 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/evir_spit.json` | `EvirSpit` | contact_damage, health, regrow_distance, regrow_margin, speed, throw_distance |
 | `enemies/eye_door_eye.json` | `EyeDoorEye` | contact_damage, dud_sound, health, hit_sound, hits_to_destroy, puff_effect, smoke_effect, spit_sound |
 | `enemies/eye_door_spit.json` | `EyeDoorSpit` | burst_timeline |
-| `enemies/face_block.json` | `FaceBlock` | contact_damage, glow_updates, health, wakes_with |
+| `enemies/face_block.json` | `FaceBlock` | contact_damage, glow_levels, glow_updates, health, wakes_with |
 | `enemies/fake_kraid.json` | `FakeKraid` | contact_damage, cry_sound, death_drops, health, spike_sound, step_pixels |
-| `enemies/falling_spark.json` | `FallingSpark` | fall_speed_limit, gravity, skip_lift, skip_speed, skitter_times, trail_effect, trail_every |
+| `enemies/falling_spark.json` | `FallingSpark` | fall_speed_limit, gravity, skip_lift, skip_speed, skitter_timeline, skitter_times, trail_effect, trail_every |
 | `enemies/fireflea.json` | `Fireflea` | contact_damage, health |
 | `enemies/fune.json` | `Fune` | contact_damage, health, mouth_drop |
 | `enemies/gamet.json` | `Gamet` | contact_damage, health, rise_speed |
@@ -111,8 +111,8 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/mochtroid.json` | `Mochtroid` | attached_speed, bite_every, contact_damage, fastest_flight, feeding_sound, feeding_sound_every, feeding_sound_least_energy, health |
 | `enemies/multiviola.json` | `Multiviola` | contact_damage, health |
 | `enemies/namihe.json` | `Fune` | contact_damage, health, mouth_drop |
-| `enemies/ninja_pirate_gold.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, spin_climb_step, spin_speed_change |
-| `enemies/ninja_pirate_silver.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, spin_climb_step, spin_speed_change |
+| `enemies/ninja_pirate_gold.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
+| `enemies/ninja_pirate_silver.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
 | `enemies/nuclear_waffle.json` | `NuclearWaffle` | contact_damage, health, left_burst_effect, link_half_size, link_spacing, right_burst_effect, splash_effect, surface_reach, surface_sound, sweep_middle, sweep_reach |
 | `enemies/orange_zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
 | `enemies/oum.json` | `Oum` | attack_cooldown, attack_reach, bounce_step, contact_damage, fastest_fall_mark, health, impact_loss_marks, pushing_reach_across, pushing_reach_down, roll_speed, settling_bounces, shove_distance, speed_curve |
@@ -164,47 +164,47 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/zoa.json` | `Zoa` | contact_damage, health, reach, rise_speed |
 | `enemies/zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
 | `hud/hud.json` | `Hud` | area_folder, select_sound |
-| `objects/ceres_door_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/ceres_door_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
+| `objects/ceres_door_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/ceres_door_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/ceres_elevator_door.json` | `CeresElevatorDoor` | blocked, explosion, explosion_sound, smoke |
-| `objects/ceres_ridley_room_door.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
+| `objects/ceres_ridley_room_door.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/ceres_steam_down.json` | `Hazard` | bite_damage, hit_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/ceres_steam_left.json` | `Hazard` | bite_damage, hit_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/ceres_steam_right.json` | `Hazard` | bite_damage, hit_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/ceres_steam_up.json` | `Hazard` | bite_damage, hit_damage, hold_updates, ongoing_hundredths, release_invincible_updates |
 | `objects/dachora.json` | `Dachora` | activation_sound, ceiling_sound, charge_sound, echo_effect, launch_sound, speed_sound, speed_stop_sound |
-| `objects/door_cap_blue_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_blue_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_eye_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_eye_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_green_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_green_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_grey_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_grey_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_grey_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_grey_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_red_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_red_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_yellow_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_yellow_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_yellow_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/door_cap_yellow_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
+| `objects/door_cap_blue_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_blue_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_eye_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_eye_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_green_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_green_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_grey_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_grey_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_grey_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_grey_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_red_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_red_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_down.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/door_cap_yellow_up.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/elevator.json` | `Carrier` |  |
 | `objects/escape_dachora.json` | `EscapeDachora` |  |
 | `objects/escape_etecoon.json` | `EscapeEtecoon` |  |
 | `objects/etecoon.json` | `Etecoon` | jump_sound, wake_sound, wall_sound |
-| `objects/gate.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/gate_switch_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/gate_switch_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/gate_switch_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
-| `objects/gate_switch_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
+| `objects/gate.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/gate_switch_blue_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/gate_switch_blue_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/gate_switch_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
+| `objects/gate_switch_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/glass_tube.json` | `GlassTube` | break_sound, bubble, crack, cracking, dud_sound, intact, open_patch, shattered |
 | `objects/gunship.json` | `Gunship` | dust_effect, hover_sound, pad_closed, pad_closing, pad_closing_sound, pad_opening, pad_opening_sound |
-| `objects/item_shell.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, sealed_sound |
+| `objects/item_shell.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/morph_ball_eye.json` | `MorphBallEye` | activation_sound, beam_stop_sound, transition_updates |
 | `rooms/tourian_statue_hall.json` | `TourianStatueHall` |  |
 | `samus/power_bomb.json` | `PowerBomb` | first_reach, first_spread, fuse_updates, height_parts, last_reach, spread_gain, width_parts |
@@ -602,12 +602,20 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `liquids/water_teal.json` | `game/rooms/maridia/crab_hole.tscn`, `game/rooms/maridia/crab_shaft.tscn`, `game/rooms/maridia/crab_tunnel.tscn` and 9 more |
 | `menus/game_over.png` | `game/menus/GameOverMode.cs` |
 | `menus/title.png` | `game/menus/TitleMode.cs` |
+| `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
+| `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_rest.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_working.json` | `game/objects/station/energy_station.tscn` |
+| `objects/map_station_arm_left.json` | `game/objects/station/map_station.tscn` |
+| `objects/map_station_arm_right.json` | `game/objects/station/map_station.tscn` |
+| `objects/map_station_done.json` | `game/objects/station/map_station.tscn` |
 | `objects/map_station_rest.json` | `game/objects/station/map_station.tscn` |
 | `objects/map_station_working.json` | `game/objects/station/map_station.tscn` |
+| `objects/missile_station_arm_left.json` | `game/objects/station/missile_station.tscn` |
+| `objects/missile_station_arm_right.json` | `game/objects/station/missile_station.tscn` |
 | `objects/missile_station_rest.json` | `game/objects/station/missile_station.tscn` |
 | `objects/missile_station_working.json` | `game/objects/station/missile_station.tscn` |
+| `objects/save_station_electricity.json` | `game/objects/station/save_station.tscn` |
 | `objects/save_station_rest.json` | `game/objects/station/save_station.tscn` |
 | `objects/save_station_working.json` | `game/objects/station/save_station.tscn` |
 | `text/emergency.png` | `game/rooms/ceres/ceres_ridley.tscn` |

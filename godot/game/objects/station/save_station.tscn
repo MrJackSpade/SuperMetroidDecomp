@@ -8,9 +8,13 @@ script = ExtResource("1")
 RestTimeline = "objects/save_station_rest.json"
 WorkingTimeline = "objects/save_station_working.json"
 Kind = 0
+Size = Vector2i(16, 48)
+WorkUpdates = 168
 AsksFirst = "save_question"
 DoneMessage = "save_completed"
-StartSound = "save_station"
+MessageHoldUpdates = 10
+WorkingEffect = "objects/save_station_electricity.json"
+StartSound = "samus_saving"
 
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("2")

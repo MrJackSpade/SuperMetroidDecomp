@@ -137,6 +137,19 @@ public sealed class GameSession
     /// <summary>Takes the next message waiting to be shown, with its fanfare and how long it is held, or null when none is.</summary>
     public (string Message, string Fanfare, int HoldUpdates)? TakeMessage() => _messages.Count > 0 ? _messages.Dequeue() : null;
 
+    private bool _pauseRequested;
+
+    /// <summary>Asks for the game to be paused, on its pause screen, as soon as no message is waiting to be shown.</summary>
+    public void RequestPause() => _pauseRequested = true;
+
+    /// <summary>Whether a pause was asked for; asking takes the request.</summary>
+    public bool TakePauseRequest()
+    {
+        bool requested = _pauseRequested;
+        _pauseRequested = false;
+        return requested;
+    }
+
     /// <summary>The question asked and not yet shown, with who is to be given its answer.</summary>
     private (string Message, Action<bool> Answered)? _question;
 

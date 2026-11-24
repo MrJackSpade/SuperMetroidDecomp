@@ -82,6 +82,9 @@ public partial class PlayingMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
+        // A pause that play asked for comes once the messages asked for with it have been shown, before play goes on.
+        if (Session.TakePauseRequest())
+            return Session.Definition.CreatePauseMode(this);
         Room.Step(input, WhatIsStopped());
         Session.Progress.CountPlayUpdate();
 

@@ -43,7 +43,7 @@ Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 
 [node name="SaveStation" parent="." instance=ExtResource("5")]
-position = Vector2(112, 128)
+position = Vector2(120, 128)
 ResumesAt = "AtFrogSave"
 
 [node name="BlueCap" parent="." instance=ExtResource("6")]

@@ -13,7 +13,8 @@ namespace Engine.Shared;
 ///   "loops_to": 0, "offset": { "x": -8, "y": -8 } }
 /// </code>
 /// "offset" is where the top-left corner of each of its pictures lies from the place of the thing shown; when not
-/// given the pictures lie where the thing itself puts them.
+/// given the pictures lie where the thing itself puts them. A step may have an "offset" of its own, which is added
+/// to the timeline's for that step: a picture that moves about as the timeline plays.
 /// </remarks>
 public sealed class FrameTimeline
 {
@@ -44,7 +45,12 @@ public sealed class FrameTimeline
         var steps = data.List("steps").Select(step => new TimelineStep(
             step.Has("picture") ? step.Text("picture") : "",
             step.Int("updates"),
-            step.Has("cues") ? step.List("cues").Select(cue => cue.AsText()).ToList() : []) { Offset = offset }).ToList();
+            step.Has("cues") ? step.List("cues").Select(cue => cue.AsText()).ToList() : [])
+        {
+            Offset = step.Has("offset")
+                ? (offset.X + step.Get("offset").Int("x"), offset.Y + step.Get("offset").Int("y"))
+                : offset,
+        }).ToList();
         int? loopsTo = data.Has("loops_to") ? data.Int("loops_to") : null;
         try
         {

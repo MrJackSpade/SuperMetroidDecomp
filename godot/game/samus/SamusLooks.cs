@@ -12,6 +12,7 @@ public static class SamusLooks
     public static string Of(Samus samus) => samus.State switch
     {
         ISamusLook own => own.Look,
+        UsingStationState { FacingOut: true } => "facing_forward",
         StandingState => "standing",
         RunningState => "running",
         TurningState => "turning",

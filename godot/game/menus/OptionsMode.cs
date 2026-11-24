@@ -23,8 +23,9 @@ namespace Game.Menus;
 /// the toggles of the special page in the order of its rows ("special_rows"); under "places" the cursor beside
 /// each row ("cursor_start_game", "cursor_english_text", "cursor_japanese_text", "cursor_controller_settings",
 /// "cursor_special_settings", "cursor_special_" and a toggle's name, "cursor_special_exit") and where the list of
-/// "buttons" starts; the sounds of the cursor moving and of a row confirmed ("move_sound", "select_sound"); and the
-/// timeline "cursor". The words of its list of buttons are "options_action_" and an action's name (with {button}),
+/// "buttons" starts; the sounds of the cursor moving and of a row confirmed ("move_sound", "select_sound"); the updates
+/// it holds black as it is come to before it fades in ("entry_black_updates"); the levels of brightness its fades go
+/// through, a level an update ("fade_levels"); and the timeline "cursor". The words of its list of buttons are "options_action_" and an action's name (with {button}),
 /// "options_press_a_button" and "options_exit".
 /// </remarks>
 public partial class OptionsMode : GameMode
@@ -58,14 +59,15 @@ public partial class OptionsMode : GameMode
     private int _row;
     private string? _binding;
     private string? _pressed;
+    private int _blackUpdates;
+    private int _levels;
+    private int _lit;
+    private bool _brightening;
+    private bool _starting;
 
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "menus/options.json";
-
-    /// <summary>How many updates it takes to fade in, and to fade out.</summary>
-    [Export]
-    public int FadeUpdates { get; set; } = 32;
 
     /// <summary>The languages the game's words come in, the first being the one its first language row names.</summary>
     public string[] Languages { get; set; } = ["english", "japanese"];
@@ -101,7 +103,9 @@ public partial class OptionsMode : GameMode
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
         Show(Page.Primary);
-        _fade.FadeIn(FadeUpdates);
+        (_levels, _lit) = (_data.Int("fade_levels"), 0);
+        _fade.Cover(_levels, _levels);
+        _brightening = true;
     }
 
     /// <inheritdoc/>
@@ -119,23 +123,39 @@ public partial class OptionsMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        ScreenFade fade = _fade ?? throw NotShown();
-        (_cursor ?? throw NotShown()).Step();
+        CinematicSprite cursor = _cursor ?? throw NotShown();
+
+        // As the old game's options are come to, they hold black a few updates before fading in, the cursor still on
+        // the first of them.
+        if (_blackUpdates < ScreenData().Int("entry_black_updates"))
+        {
+            if (_blackUpdates++ > 0)
+                cursor.Step();
+            return this;
+        }
+
+        cursor.Step();
+        if (_starting)
+        {
+            Session.Options.Save();
+            return SaveMapMode.Of(Session) is { } map ? map : new LoadingMode();
+        }
+
         if (_afterFade is { } then)
         {
-            fade.Step();
-            if (!fade.IsDone)
+            StepFade();
+            if (!FadeDone)
                 return this;
             _afterFade = null;
             if (then() is { } next)
                 return next;
-            fade.FadeIn(FadeUpdates);
+            _brightening = true;
             return this;
         }
 
-        if (!fade.IsDone)
+        if (!FadeDone)
         {
-            fade.Step();
+            StepFade();
             return this;
         }
 
@@ -174,12 +194,13 @@ public partial class OptionsMode : GameMode
         switch (PrimaryRows[_row])
         {
             case "start_game":
-                // A saved game shows where it was saved before it starts; anything else starts at once.
-                FadeOutTo(() =>
-                {
-                    Session.Options.Save();
-                    return SaveMapMode.Of(Session) is { } map ? map : new LoadingMode();
-                });
+                // As in the old game, a saved game starts on the next update with no fade; a new game fades out first and
+                // starts on the update after the screen is black. A saved game shows where it was saved before it
+                // starts; anything else starts at once.
+                if (Session.Saves.Has(Session.Slot))
+                    _starting = true;
+                else
+                    FadeOutTo(Start);
                 break;
             case "english_text" or "japanese_text":
                 // Either row changes the language to the other one, and the cursor goes back to the top.
@@ -277,11 +298,31 @@ public partial class OptionsMode : GameMode
         return true;
     }
 
-    /// <summary>Fades the screen out, and then does <paramref name="then"/>: the mode to go to, or none to stay and fade back in.</summary>
+    /// <summary>
+    /// Fades the screen out, and then does <paramref name="then"/>: the mode to go to (itself to stay black), or none to
+    /// stay and fade back in.
+    /// </summary>
     private void FadeOutTo(Func<GameMode?> then)
     {
         _afterFade = then;
-        (_fade ?? throw NotShown()).FadeOut(FadeUpdates);
+        _brightening = false;
+    }
+
+    /// <summary>Whether the fade begun last has reached full brightness, or black.</summary>
+    private bool FadeDone => _lit == (_brightening ? _levels : 0);
+
+    /// <summary>Plays one update of the fade: as in the old game, a level of brightness an update.</summary>
+    private void StepFade()
+    {
+        _lit += _brightening ? 1 : -1;
+        (_fade ?? throw NotShown()).Cover(_levels - _lit, _levels);
+    }
+
+    /// <summary>Starts the game on the next update, staying black until then.</summary>
+    private GameMode Start()
+    {
+        _starting = true;
+        return this;
     }
 
     /// <summary>Shows <paramref name="page"/> from its top, and stays.</summary>

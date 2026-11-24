@@ -43,6 +43,27 @@
 - This does not open the recorded movies. They stay off limits until the owner opens testing
   (v1.0.0 manifesto, section 4); until then parity is reached by reading the old code.
 
+## Which model takes a ticket
+
+- The owner's standing rule: anything that requires architecture, design or new building, or
+  that affects many systems, is for the newest Fable only. Anything that is isolated and has
+  a clear fix may be taken by the newest Opus.
+- The concern is not whether a fix turns out right without testing. It is changes that could
+  poison the architecture: a quirk put in the engine, an engine member, format or order added
+  to make one thing work, a structure copied from the old code, a second way of doing
+  something the type system already does one way.
+- Every ticket carries one of two labels, `high` or `low`, and is given it when it is created.
+  - `low`: the whole fix lies inside one thing of the game (its own files, its writer in the
+    extractor, its place in the room generator), what the old game does there is stated or is
+    found by a short read, and nothing new is asked of the engine.
+  - `high`: everything else. That includes any ticket that needs an engine change however
+    small, a decision about where something belongs, something new built, a reading of
+    unknown size, or that waits on a `high` ticket. When in doubt, `high`.
+- A model that is not the newest Fable takes only `low` tickets. If a `low` ticket turns out
+  to need anything of the `high` kind, it stops there: it does not make that change, it says
+  on the ticket what it found, and the ticket is relabelled `high`.
+- The list of what the newest Opus may take is the open tickets labelled `low`.
+
 ## Rules come from the owner
 
 - Do not change a rule, weaken or reinterpret one, or add a rule of a new kind (a check, a

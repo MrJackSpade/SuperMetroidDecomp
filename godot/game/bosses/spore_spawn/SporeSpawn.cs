@@ -5,6 +5,7 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
@@ -215,7 +216,18 @@ public partial class SporeSpawn : Enemy
     }
 
     /// <inheritdoc/>
-    protected override void OnHurt(Hit hit, Collider part)
+    protected override void OnHurt(Hit hit, Collider part) => ReactWhileFlashing();
+
+    /// <inheritdoc/>
+    protected override void OnAbsorbed(Hit hit, Collider part)
+    {
+        // A bomb on the open core, which does it no harm, still shuts it while an earlier hit's flash shows.
+        if (part.Name == "Core" && _coreTakesShots && IsFlashing && hit.Carries(new HitKind(HitKinds.Bomb)))
+            ReactWhileFlashing();
+    }
+
+    /// <summary>What a hit on its core does while it flashes hurt: it swings, faster once weak, and the first of an opening shuts it.</summary>
+    private void ReactWhileFlashing()
     {
         _moving = Moving.Swinging;
         if (Health.Current < FastSwingBelow)

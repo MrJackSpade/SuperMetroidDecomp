@@ -266,12 +266,17 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void OnEnteredRoom(Room room) => GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
 
-    /// <summary>Her landing leaves its dust and makes its sound, a harder one from a fast fall.</summary>
+    /// <summary>
+    /// Her landing leaves its dust and makes its sound, a harder one from a fast fall, on her feet or as a ball. A
+    /// landing that is not a hard one and came down at a whole number of pixels an update, none included, does neither.
+    /// </summary>
     protected override void OnLanded()
     {
+        bool hard = LandingSpeed.Whole >= HardLandingSpeed;
+        if (!hard && LandingSpeed.Fraction == 0)
+            return;
         base.OnLanded();
-        if (Form != Crawling)
-            Room.Session.Sounds.Request(LandingSpeed.Whole >= HardLandingSpeed ? Sounds.HardLand : Sounds.Land, channel: "samus");
+        Room.Session.Sounds.Request(hard ? Sounds.HardLand : Sounds.Land, channel: "samus");
     }
 
     /// <summary>
@@ -360,6 +365,9 @@ public partial class Samus : Player
         else
             Aim = Aim.Forward;
     }
+
+    /// <summary>The name of the liquid type that ends a boosted run.</summary>
+    private const string LavaName = "lava";
 
     /// <summary>The poses she runs in. Each is the same run; changing from one to another is what moves her a pixel on.</summary>
     private enum RunPose
@@ -833,6 +841,9 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override void AfterState()
     {
+        // Lava ends a run the speed booster has begun to boost, and the dash with it, whatever suit she wears.
+        if (_boostStage >= 0 && Room.Liquid is { } liquid && liquid.Type.Name == LavaName && FeetAreInLiquid)
+            LoseMomentum();
         StepBoost();
         WarnOfLowEnergy();
         Grapple?.Step(this);

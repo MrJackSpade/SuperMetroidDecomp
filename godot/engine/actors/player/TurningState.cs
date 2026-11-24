@@ -29,7 +29,7 @@ public sealed class TurningState : PlayerState
     public override void Enter(Player owner)
     {
         owner.TurnAround();
-        _left = Countdown.Of(owner.TurnUpdates);
+        _left = Countdown.Of(owner.InMedium("turn_updates", owner.TurnUpdates));
     }
 
     /// <summary>

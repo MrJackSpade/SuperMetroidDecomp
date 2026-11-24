@@ -31,7 +31,7 @@ public sealed class AirTurningState : PlayerState
     public override void Enter(Player owner)
     {
         owner.TurnAround();
-        _left = Countdown.Of(owner.TurnUpdates);
+        _left = Countdown.Of(owner.InMedium("turn_updates", owner.TurnUpdates));
     }
 
     /// <summary>Anything held keeps the turn as it is; with nothing held at all the player stops reversing.</summary>

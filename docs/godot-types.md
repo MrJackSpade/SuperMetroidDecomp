@@ -670,6 +670,11 @@ in `engine/actors/player/`.
   cut short like any jump and steered by its own move values (`crawling_jumping`) for the whole jump, and landing
   with the jump held jumps again at once. Up leaves the low form, and so does the jump for a player who cannot jump
   in it.
+- **In a liquid.** The player is in a liquid when the pixel row tested (their feet's, or their head's) lies below
+  its surface line, not on it (`Player.IsUnder`). Their medium is found afresh each update, before they move. A
+  medium may give its own lengths for the timed changes (`"updates"`, by the name of the value that gives the length
+  elsewhere: a turn, a change of posture, a jump's gathering), which a state reads as the change begins
+  (`Player.InMedium`).
 - **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
   updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
   the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
@@ -736,6 +741,9 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   then slides her through the change and the first update of the crouch, and her boost lasts while the crouch is
   held aiming. A jump from a crouch with her arm level starts `crouch_jump_lift` pixels off the ground. In the air a
   press of down while already aiming down, or in a wall jump, curls her up.
+- **Her liquids.** Her feet in lava end a run the speed booster has begun to boost, and its dash, whatever suit she
+  wears. Her landing, on her feet or as a ball, leaves its dust and makes its sound only if it is a hard one or came
+  down at other than a whole number of pixels an update.
 - **Her damage boost.** In a knockback, the jump and the direction behind her held together turn her that way and
   carry her off steered like a jump by the boost's own move values, with the speed and the rise the knockback gave
   her. It lasts while both stay held; let go, she faces as she did and is in a plain jump. When the knockback she

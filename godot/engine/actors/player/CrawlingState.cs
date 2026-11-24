@@ -183,6 +183,7 @@ public sealed class CrawlingState : PlayerState
     /// </summary>
     private void Land(Player owner)
     {
+        owner.CameDownAt(owner.Velocity.Y);
         if (owner.MayJumpWhileCrawling && owner.Input.IsHeld(GameAction.Jump))
         {
             _bounces = 0;

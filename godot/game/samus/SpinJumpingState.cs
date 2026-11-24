@@ -202,7 +202,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             return false;
         if (ready)
             return owner.JumpPressed;
-        _ready = Countdown.Of(samus.WallJumpReadyUpdates);
+        _ready = Countdown.Of(samus.InMedium("wall_jump_ready_updates", samus.WallJumpReadyUpdates));
         return false;
     }
 

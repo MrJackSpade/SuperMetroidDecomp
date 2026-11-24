@@ -41,7 +41,7 @@ public sealed class JumpingState : PlayerState
         }
 
         owner.Rise(owner.LaunchSpeed(offWall: false));
-        _gathering = Countdown.Of(owner.JumpStartUpdates);
+        _gathering = Countdown.Of(owner.InMedium("jump_start_updates", owner.JumpStartUpdates));
     }
 
     /// <inheritdoc/>

@@ -52,6 +52,19 @@ public sealed partial class EngineAssetWriter
     /// <summary>How long one segment of a pose's animation lasts.</summary>
     private static int SamusSegmentUpdates(P pose, Seg segment) => SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Sum();
 
+    /// <summary>How long one segment of a pose's animation lasts where each of its pictures is held <paramref name="longer"/> updates more, as in a liquid.</summary>
+    private static int SamusSegmentUpdates(P pose, Seg segment, int longer) =>
+        SamusSegmentUpdates(pose, segment) + SamusPoseTraits.Of(pose).Animation.Segment(segment).Delays.Count * longer;
+
+    /// <summary>The timed changes of hers that an animation times, by the name of the value that gives each one's length, with the old pose and segment.</summary>
+    private static readonly (string Value, P Pose, Seg Segment)[] SamusTimedChanges =
+    [
+        ("turn_updates", P.TurningRightToLeftPose, Seg.Main), ("crouch_updates", P.CrouchingTransitionRightPose, Seg.Main),
+        ("stand_updates", P.StandingTransitionRightPose, Seg.Main), ("crawl_enter_updates", P.MorphingTransitionRightPose, Seg.Main),
+        ("crawl_leave_updates", P.UnmorphingTransitionRightPose, Seg.Main), ("jump_start_updates", P.NeutralJumpTransitionRightPose, Seg.Main),
+        ("wall_jump_ready_updates", P.SpinJumpRightPose, Seg.WallJumpReady),
+    ];
+
     /// <summary>A speed the old game keeps unsigned, as a plain number of pixels.</summary>
     private static double Number(UnsignedSixteenSixteen speed) => speed.RawValue / (double)UnsignedSixteenSixteen.FromWholePixels(1).RawValue;
 
@@ -104,6 +117,17 @@ public sealed partial class EngineAssetWriter
             moves["bomb_jumping"] = Moves(SamusHorizontalSpeedDefinitions.DiagonalBombJump);
             bool liquid = medium != SamusLiquidMedium.Air;
             int share = liquid ? GrappleBeamDefinitions.Physics.SubmergedShare : 1;
+
+            // In a liquid every picture of her animations is held longer, so the changes they time last longer.
+            var updates = new JsonObject();
+            if (liquid)
+            {
+                int longer = medium == SamusLiquidMedium.Water
+                    ? SamusAnimationDelayDefinitions.WaterAnimationDelay
+                    : SamusAnimationDelayDefinitions.LavaOrAcidAnimationDelay;
+                foreach ((string value, P pose, Seg segment) in SamusTimedChanges)
+                    updates[value] = SamusSegmentUpdates(pose, segment, longer);
+            }
             mediums[name] = new JsonObject
             {
                 ["gravity"] = Number(SamusVerticalMotionDefinitions.Gravities[medium]),
@@ -114,6 +138,7 @@ public sealed partial class EngineAssetWriter
                 ["boosted_wall_jump_speed"] = Number(SamusVerticalMotionDefinitions.HighJumpLaunchSpeeds[medium][SamusLaunchKind.WallJump]),
                 ["knockback_up_speed"] = Number(SamusVerticalMotionDefinitions.KnockbackSpeeds[medium]),
                 ["moves"] = moves,
+                ["updates"] = updates,
                 ["speeds"] = new JsonObject
                 {
                     ["bomb_jump"] = Number(SamusVerticalMotionDefinitions.BombJumpSpeeds[medium]),

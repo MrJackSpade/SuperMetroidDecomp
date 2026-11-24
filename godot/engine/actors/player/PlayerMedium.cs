@@ -6,15 +6,17 @@ namespace Engine.Actors;
 
 /// <summary>
 /// How the player moves in one medium: air, or a liquid that hinders them. It holds the pull of gravity, the speeds a
-/// jump starts with, and the move values of each thing the player can be doing. A player with no medium of a liquid's
-/// name moves in that liquid as in air, slowed by the liquid's own share.
+/// jump starts with, and the move values of each thing the player can be doing. It may give its own lengths, in
+/// updates, for the player's timed changes (a turn, a change of posture), by the name of the value that gives the
+/// length elsewhere. A player with no medium of a liquid's name moves in that liquid as in air, slowed by the liquid's
+/// own share.
 /// </summary>
 /// <remarks>
 /// <code>
 /// "air": { "gravity": 0.109375, "fall_speed_limit": 5, "jump_speed": 4.875, "boosted_jump_speed": 6,
 ///          "wall_jump_speed": 4.625, "boosted_wall_jump_speed": 5.5, "knockback_up_speed": 5,
 ///          "moves": { "running": { "acceleration": 0.1875, "top_speed": 2.75, "deceleration": 0.5 } },
-///          "speeds": { "bounce": 1 } }
+///          "speeds": { "bounce": 1 }, "updates": { "turn_updates": 15 } }
 /// </code>
 /// </remarks>
 [GlobalClass]
@@ -62,6 +64,10 @@ public partial class PlayerMedium : Resource
     /// <summary>Any further speeds a game's own states use in this medium, by name.</summary>
     [Export]
     public Godot.Collections.Dictionary<string, double> Speeds { get; set; } = [];
+
+    /// <summary>The medium's own lengths, in updates, of the player's timed changes, by the name of the value that gives the length elsewhere.</summary>
+    [Export]
+    public Godot.Collections.Dictionary<string, int> Updates { get; set; } = [];
 
     /// <summary>The move values of the state named <paramref name="state"/>.</summary>
     /// <exception cref="InvalidOperationException">The medium has no move values for that state.</exception>
@@ -120,6 +126,12 @@ public partial class PlayerMedium : Resource
         {
             foreach ((string speed, DataNode value) in data.Get("speeds").Entries())
                 medium.Speeds[speed] = value.AsPixels().ToNumber();
+        }
+
+        if (data.Has("updates"))
+        {
+            foreach ((string change, DataNode value) in data.Get("updates").Entries())
+                medium.Updates[change] = value.AsInt();
         }
 
         return medium;

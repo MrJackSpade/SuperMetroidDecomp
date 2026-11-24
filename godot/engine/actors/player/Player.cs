@@ -161,6 +161,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export, DataValue("crawl_leave_updates")]
     public int CrawlLeaveUpdates { get; set; }
 
+    /// <summary>
+    /// How many updates the player takes to settle after landing on their feet. Settled, a jump already held may once
+    /// more count as pressed afresh, where the game gives the player that.
+    /// </summary>
+    [Export, DataValue("landing_updates")]
+    public int LandingUpdates { get; set; }
+
     /// <summary>How many updates a jump from the ground gathers itself for, moving nothing, before it rises.</summary>
     [Export, DataValue("jump_start_updates")]
     public int JumpStartUpdates { get; set; }

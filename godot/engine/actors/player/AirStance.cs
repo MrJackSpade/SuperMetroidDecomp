@@ -40,16 +40,17 @@ public static class AirStance
 
     /// <summary>
     /// Moves the player down under gravity and lands them when a fall is stopped by ground: their speed across comes
-    /// to rest, they are steered, a held jump may count as pressed afresh, and they stand.
+    /// to rest, they are steered, a held jump may count as pressed afresh, and they stand, settling for as long as the
+    /// player's landings take unless <paramref name="settlingUpdates"/> says how long.
     /// </summary>
-    public static PlayerState? FallAndLand(Player owner)
+    public static PlayerState? FallAndLand(Player owner, int? settlingUpdates = null)
     {
         bool falling = !owner.Velocity.Y.IsNegative;
         MoveResult down = owner.MoveDownUnderGravity(keepsSpeedWhenStopped: true);
         if (falling && (down.Blocked || owner.IsOnGround))
         {
             owner.Land(owner.Velocity.Y);
-            return new StandingState();
+            return new StandingState(settlingUpdates ?? owner.InMedium("landing_updates", owner.LandingUpdates));
         }
 
         // A ceiling ends a rise.

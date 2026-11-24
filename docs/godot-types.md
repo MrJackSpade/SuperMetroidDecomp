@@ -693,7 +693,8 @@ in `engine/actors/player/`.
 - **A jump held a little early.** Where the game sets `jump_buffer_updates`, a jump that has been held for fewer
   updates than that as the player lands on their feet, or as a turn on the ground ends, counts as pressed afresh on
   the next update (`Player.JumpPressed`, which every state asks instead of the input). A jump pressed on the very
-  update of the landing is not counted.
+  update of the landing is not counted. A player who has stood since landing for as long as a landing takes to
+  settle (`landing_updates`) is given the same chance once more.
 - A wall jump of the plain kind leaves the wall at a set speed, facing away, with steering locked for a moment, and
   then carries on as a jump. One of the steered kind (`wall_jump_steered`) leaves it with the player's own speed
   across at rest (a dash and momentum kept) and the way they face unchanged, gains speed by the wall jump's own move

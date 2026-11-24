@@ -145,6 +145,10 @@ public partial class Samus : Player
     [Export, DataValue("crouch_jump_lift")]
     public int CrouchJumpLift { get; set; } = 10;
 
+    /// <summary>How many updates she takes to settle after landing from a spin.</summary>
+    [Export, DataValue("spin_landing_updates")]
+    public int SpinLandingUpdates { get; set; } = 10;
+
     /// <summary>How many updates a spin that has found a wall to jump from stays ready to jump off it.</summary>
     [Export, DataValue("wall_jump_ready_updates")]
     public int WallJumpReadyUpdates { get; set; } = 8;

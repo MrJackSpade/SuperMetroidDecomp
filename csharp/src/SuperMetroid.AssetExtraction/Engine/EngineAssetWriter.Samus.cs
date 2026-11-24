@@ -63,7 +63,8 @@ public sealed partial class EngineAssetWriter
         ("turn_updates", P.TurningRightToLeftPose, Seg.Main), ("crouch_updates", P.CrouchingTransitionRightPose, Seg.Main),
         ("stand_updates", P.StandingTransitionRightPose, Seg.Main), ("crawl_enter_updates", P.MorphingTransitionRightPose, Seg.Main),
         ("crawl_leave_updates", P.UnmorphingTransitionRightPose, Seg.Main), ("jump_start_updates", P.NeutralJumpTransitionRightPose, Seg.Main),
-        ("wall_jump_ready_updates", P.SpinJumpRightPose, Seg.WallJumpReady),
+        ("wall_jump_ready_updates", P.SpinJumpRightPose, Seg.WallJumpReady), ("landing_updates", P.NormalLandingRightPose, Seg.Main),
+        ("spin_landing_updates", P.SpinLandingRightPose, Seg.Main),
     ];
 
     /// <summary>
@@ -255,6 +256,8 @@ public sealed partial class EngineAssetWriter
             // than the old limit as she lands or finishes a turn counts as pressed afresh.
             .Value("jump_start_updates", SamusSegmentUpdates(P.NeutralJumpTransitionRightPose, Seg.Main))
             .Value("jump_buffer_updates", SamusAutoJumpDefinitions.TimerComparisonLimit)
+            .Value("landing_updates", SamusSegmentUpdates(P.NormalLandingRightPose, Seg.Main))
+            .Value("spin_landing_updates", SamusSegmentUpdates(P.SpinLandingRightPose, Seg.Main))
 
             // Letting go of the jump while she rises stops her rise at once.
             .Value("jump_cut_speed", Number(SamusVerticalVelocity.FallFromRest.Speed))

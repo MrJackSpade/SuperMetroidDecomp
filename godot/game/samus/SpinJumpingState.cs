@@ -185,7 +185,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             return new WallJumpingState();
         }
 
-        return AirStance.FallAndLand(owner);
+        return AirStance.FallAndLand(owner, samus.InMedium("spin_landing_updates", samus.SpinLandingUpdates));
     }
 
     /// <summary>

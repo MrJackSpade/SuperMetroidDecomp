@@ -1,4 +1,5 @@
 using Engine.Input;
+using Engine.Shared;
 
 namespace Engine.Actors;
 
@@ -8,6 +9,16 @@ namespace Engine.Actors;
 /// </summary>
 public sealed class StandingState : PlayerState
 {
+    /// <summary>The updates left in which the player is still settling from a landing.</summary>
+    private Countdown _settling;
+
+    /// <summary>Standing.</summary>
+    /// <param name="settlingUpdates">
+    /// How many updates the player takes to settle, having just landed: when they have stood that long, a jump
+    /// already held may once more count as pressed afresh.
+    /// </param>
+    public StandingState(int settlingUpdates = 0) => _settling = Countdown.Of(settlingUpdates);
+
     /// <inheritdoc/>
     public override void Enter(Player owner) => owner.TrySetForm(Player.Standing);
 
@@ -38,6 +49,13 @@ public sealed class StandingState : PlayerState
         owner.MoveAcross();
         bool grounded = owner.PressToGround();
         owner.StopAcross();
+        if (_settling.IsRunning)
+        {
+            _settling = _settling.Stepped();
+            if (_settling.IsOver)
+                owner.ArmJumpBuffer();
+        }
+
         return grounded ? null : new FallingState(offFloor: true);
     }
 }

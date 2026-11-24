@@ -1,3 +1,4 @@
+using Engine.Core;
 using Engine.Ui;
 using Engine.World;
 
@@ -30,6 +31,7 @@ public partial class ZebesDeparture : RoomSequence
         if (!dark.IsDone)
             return false;
         room.Session.Sounds.RequestMusic("");
+        room.Session.Sounds.StopAll(SoundPriority.Essential);
         room.Session.Service<Escape>().LeaveZebes();
         return true;
     }

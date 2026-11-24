@@ -307,7 +307,17 @@ public partial class Samus : Player
     /// A power bomb of hers lying at <paramref name="at"/> has ended its blast as this update opens: a crystal flash
     /// may start this update, if she lies exactly there.
     /// </summary>
-    public void PowerBombBlastEnded(PixelPosition at) => _blastEnded = (at, Room.Session.Clock.Updates);
+    public void PowerBombBlastEnded(PixelPosition at)
+    {
+        _blastEnded = (at, Room.Session.Clock.Updates);
+
+        // The blast turned every sound away, so as it ends her spin's sound is asked for again, or else a charge's
+        // that had begun to sound. A wall jump asks for neither here: which of the spin's sounds is its own is not kept.
+        if (State is SpinJumpingState spin)
+            Room.Session.Sounds.Request(spin.ShownSound, channel: "samus", priority: SoundPriority.High);
+        else if (State is not WallJumpingState && ChargeIsSounding)
+            Room.Session.Sounds.Request(Sounds.ChargingResumed, channel: "weapons", priority: SoundPriority.High);
+    }
 
     /// <summary>
     /// Starts a crystal flash if a power bomb's blast ended where she lies as this update opened, as the cartridge

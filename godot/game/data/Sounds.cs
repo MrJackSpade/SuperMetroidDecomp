@@ -67,6 +67,9 @@ public static class Sounds
     /// <summary>The beam charging.</summary>
     public const string Charging = "samus_charging_beam";
 
+    /// <summary>The beam's charge going on sounding after something silenced it.</summary>
+    public const string ChargingResumed = "samus_resume_charging_beam";
+
     /// <summary>The selected item changing.</summary>
     public const string ItemSelect = "samus_hud_weapon_select";
 
@@ -159,6 +162,6 @@ public static class Sounds
         CrystalFlash, EnergyRefill, Splash, SplashOut, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
         BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
         BigExplosion, MenuMove, MenuAccept, Typing, SamusStop, SpinJumpStop, EnemyStop, RoomStop, PowerBombExplosion,
-        SpeedBoosterStop,
+        SpeedBoosterStop, ChargingResumed,
     ];
 }

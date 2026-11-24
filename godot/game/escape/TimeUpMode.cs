@@ -62,6 +62,10 @@ public partial class TimeUpMode : GameMode
         if (!_black.IsDone)
         {
             _black.Step();
+
+            // Once black, every library is told to stop, and no number of sounds waiting turns that away.
+            if (_black.IsDone)
+                Session.Sounds.StopAll(SoundPriority.Essential);
             return this;
         }
 

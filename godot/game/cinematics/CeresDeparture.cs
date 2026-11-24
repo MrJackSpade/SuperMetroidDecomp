@@ -50,6 +50,7 @@ public partial class CeresDeparture : Cinematic
         if (!dark.IsDone)
             return false;
         Session.Sounds.RequestMusic("");
+        Session.Sounds.StopAll(SoundPriority.Essential);
         return true;
     }
 

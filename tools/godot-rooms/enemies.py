@@ -728,7 +728,9 @@ for kind in ('NoobTubeCrack', 'CeresElevatorRoomWall', 'TourianStatue'):
 
 @rule('CeresElevatorDoor')
 def ceres_elevator_door(p, index, listed):
-    return Placed(O + 'ceres_elevator_door/ceres_elevator_door.tscn', 'ElevatorDoor', {}, enemy=False)
+    # It lights the elevator's pad on the floor, by turns light and dark.
+    pad = ', '.join(quoted(f'backdrops/{{graphics}}/ceres_elevator_{look}.png') for look in ('light', 'dark'))
+    return Placed(O + 'ceres_elevator_door/ceres_elevator_door.tscn', 'ElevatorDoor', {'PlatformPictures': f'Array[String]([{pad}])'}, enemy=False)
 
 
 @rule('CeresRidleyRoomDoor')

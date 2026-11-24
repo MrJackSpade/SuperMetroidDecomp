@@ -75,6 +75,13 @@ def share(scroll: str) -> str:
     return '0' if 'Fixed' in scroll else '1'
 
 
+# Where on a turning floor the old game lays the pictures it shows there: the elevator's pad, the capsule Ridley
+# carries, and his wings.
+FLOOR_PLATFORM_AT = (112, 96)
+FLOOR_CAPSULE_AT = (32, 80)
+FLOOR_WINGS_AT = (0, 0)
+
+
 def floor_picture(name: str) -> str:
     """One of the pictures shown on a turning floor, which is kept once for each set of graphics it is coloured by."""
     return f'backdrops/{{graphics}}/ceres_{name}.png'
@@ -176,7 +183,9 @@ class Sequences:
                 'StartsWhen': ctx.fact('ceres_self_destruct_started'),
                 'LightPiece': quoted('effects/ceres_debris_light.json'), 'DarkPiece': quoted('effects/ceres_debris_dark.json')}))
         if state.main == 'CeresRidleyGetaway':
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png')}, at=(0, 0), enemy=False)
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png')}, at=(0, 0), enemy=False,
+                           children=[('Capsule', VISUAL, {'position': f'Vector2{FLOOR_CAPSULE_AT}'}),
+                                     ('Wings', VISUAL, {'position': f'Vector2{FLOOR_WINGS_AT}'})])
             getaway = sequence('ceres/CeresGetaway.cs', 'Getaway', {
                 # The capsule tumbles and his wings beat through the old game's own pictures, in its order.
                 'CapsulePictures': strings([floor_picture(name) for name in ('baby_vertical', 'baby_round', 'baby_horizontal', 'baby_round')]),
@@ -190,7 +199,7 @@ class Sequences:
                 self.links.append((named['Ridley'], 'ToldWhenGone', [getaway]))
         if state.main == 'CeresElevatorShaft':
             floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png')}, at=(0, 0), enemy=False,
-                           children=[('Platform', VISUAL, {})])
+                           children=[('Platform', VISUAL, {'position': f'Vector2{FLOOR_PLATFORM_AT}'})])
             self.placed.append(floor)
             if 'ElevatorDoor' in named:
                 self.links.append((named['ElevatorDoor'], 'Floor', floor))

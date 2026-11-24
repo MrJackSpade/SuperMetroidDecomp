@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -12,7 +12,8 @@
 [ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="11"]
 [ext_resource type="Script" path="res://engine/world/TurningFloor.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/ceres/CeresGetaway.cs" id="13"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="13"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresGetaway.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -106,8 +107,16 @@ script = ExtResource("12")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_ridley_floor.png"
 
-[node name="Getaway" type="Node" parent="."]
+[node name="Capsule" type="Node2D" parent="Floor"]
 script = ExtResource("13")
+position = Vector2(32, 80)
+
+[node name="Wings" type="Node2D" parent="Floor"]
+script = ExtResource("13")
+position = Vector2(0, 0)
+
+[node name="Getaway" type="Node" parent="."]
+script = ExtResource("14")
 CapsulePictures = Array[String](["backdrops/{graphics}/ceres_baby_vertical.png", "backdrops/{graphics}/ceres_baby_round.png", "backdrops/{graphics}/ceres_baby_horizontal.png", "backdrops/{graphics}/ceres_baby_round.png"])
 WingPictures = Array[String](["backdrops/{graphics}/ceres_wings_raised.png", "backdrops/{graphics}/ceres_wings_lowered.png"])
 HeadingPicture = "text/emergency.png"

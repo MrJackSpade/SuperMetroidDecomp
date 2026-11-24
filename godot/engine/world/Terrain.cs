@@ -80,8 +80,10 @@ public partial class Terrain : Node2D, ITerrainShape
         ArgumentNullException.ThrowIfNull(content);
         if (LayoutFile.Length == 0)
             throw new InvalidOperationException($"The terrain \"{Name}\" names no layout file.");
-        _content = content;
         _layout = TerrainLayout.Read(content.ReadData(LayoutFile));
+
+        // A block type shared by every set of graphics names its pictures with the set left out: the layout's is put in.
+        _content = content.DrawnWith(_layout.Graphics);
         _updates = 0;
         _hasMovingTiles = _layout.Tiles.Any(row => row.Any(tile => tile.Frames.Count > 0));
         _tiles = _layout.Tiles.Select(row => row.ToArray()).ToArray();

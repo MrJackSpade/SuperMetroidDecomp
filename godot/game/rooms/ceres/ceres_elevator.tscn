@@ -63,6 +63,7 @@ ArrivalOffset = Vector2i(-24, 40)
 
 [node name="ElevatorDoor" parent="." instance=ExtResource("6")]
 position = Vector2(232, 631)
+PlatformPictures = Array[String](["backdrops/{graphics}/ceres_elevator_light.png", "backdrops/{graphics}/ceres_elevator_dark.png"])
 Floor = NodePath("../Floor")
 
 [node name="CeresDoor" parent="." instance=ExtResource("7")]
@@ -94,6 +95,7 @@ Picture = "backdrops/{graphics}/ceres_elevator_shaft.png"
 
 [node name="Platform" type="Node2D" parent="Floor"]
 script = ExtResource("12")
+position = Vector2(112, 96)
 
 [node name="Arrival" type="Node" parent="."]
 script = ExtResource("13")

@@ -411,7 +411,7 @@ public partial class Room : Node2D
         RemoveLeaving();
         AddArriving();
         MarkExplored();
-        Follow();
+        Follow(frozen: stopped.HasFlag(Stopped.Room));
         ShowAll();
     }
 
@@ -808,7 +808,7 @@ public partial class Room : Node2D
     public void KeepPlayerInViewAt(int facingRight, int facingLeft) => _playerInView = new Vector2I(facingRight, facingLeft);
 
     /// <summary>Moves the view to follow the player, as far as the room's screens let it, and brings it down to any floor that holds it.</summary>
-    private void Follow()
+    private void Follow(bool frozen)
     {
         if (ViewHeld)
         {
@@ -821,7 +821,7 @@ public partial class Room : Node2D
         var tracking = new ViewTracking(
             Player.ViewFacing == Facing.Right ? _playerInView.X : _playerInView.Y,
             Player.Velocity.Y.IsNegative, ViewAboveWhileRising, ViewAboveOtherwise);
-        Session.Camera.Track(_playerAtUpdateStart, Player.Position, tracking, frozen: false);
+        Session.Camera.Track(_playerAtUpdateStart, Player.Position, tracking, frozen);
         foreach (ViewFloor floor in _viewFloors)
         {
             if (floor.IsHolding)

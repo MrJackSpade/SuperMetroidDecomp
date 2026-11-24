@@ -184,6 +184,9 @@ public partial class PlayingMode : GameMode
         return this;
     }
 
-    /// <summary>The groups of things in the room that do not run this update. Nothing, unless a game says otherwise.</summary>
-    protected virtual Stopped WhatIsStopped() => Stopped.Nothing;
+    /// <summary>
+    /// The groups of things in the room that do not run this update: what the state the player is in holds still
+    /// (<see cref="PlayerState.Stops"/>), unless a game's own play says otherwise.
+    /// </summary>
+    protected virtual Stopped WhatIsStopped() => Session.Player.State.Stops;
 }

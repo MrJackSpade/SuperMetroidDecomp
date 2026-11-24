@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Core;
+using Engine.World;
 using Game.Data;
 
 namespace Game;
@@ -20,6 +21,9 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
 
     /// <inheritdoc/>
     public override bool InControl => false;
+
+    /// <summary>Time stands still for everything but her: the enemies, every shot and pickup, and the room itself wait.</summary>
+    public override Stopped Stops => Stopped.Enemies | Stopped.Projectiles | Stopped.Room;
 
     /// <inheritdoc/>
     public override void Enter(Player owner) =>

@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Input;
+using Engine.World;
 using Game.Data;
 
 namespace Game;
@@ -24,6 +25,9 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
 
     /// <inheritdoc/>
     public override bool InControl => false;
+
+    /// <summary>Time stands still for everything but her: the enemies, every shot and pickup, and the room itself wait.</summary>
+    public override Stopped Stops => Stopped.Enemies | Stopped.Projectiles | Stopped.Room;
 
     /// <inheritdoc/>
     public override void Enter(Player owner)

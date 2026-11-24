@@ -57,6 +57,12 @@ public abstract class PlayerState : State<Player>
     public virtual bool InControl => true;
 
     /// <summary>
+    /// What of the room waits while the player is in this state: nothing, unless the state says otherwise, as one in
+    /// which time stands still for everything but the player does. Play asks as each update begins.
+    /// </summary>
+    public virtual World.Stopped Stops => World.Stopped.Nothing;
+
+    /// <summary>
     /// Whether an interruption has to wait while the player is in this state: it stays waiting, growing older, until
     /// a state that does not hold it off has moved.
     /// </summary>

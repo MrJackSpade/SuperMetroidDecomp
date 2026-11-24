@@ -84,7 +84,9 @@ public partial class Intro
         AddChild(_flash);
 
         (_flightScrollX, _flightScrollY, _flightSize, _flightAngle, _starsSpeed) = (-72, -104, 512, 224, -4);
-        (_flight, _wait) = (Flight.WaitingForMusic, MusicUpdates);
+        Compatibility.CartridgeSounds.Of(Session).AskMusicSet("ceres");
+        Session.Sounds.RequestMusic(Music.CeresFlight, SceneMusicWait);
+        _flight = Flight.WaitingForMusic;
         ShowGunship();
     }
 
@@ -96,9 +98,9 @@ public partial class Intro
         switch (_flight)
         {
             case Flight.WaitingForMusic:
-                if (--_wait > 0)
+                // The flight is shown once the music asked for has all been carried out.
+                if (Session.Sounds.HasQueuedMusic)
                     break;
-                Session.Sounds.RequestMusic(Music.CeresFlight);
                 fade.FadeIn(1);
                 fade.Step();
                 _flight = Flight.FlyingIntoCamera;

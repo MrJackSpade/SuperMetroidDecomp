@@ -16,8 +16,8 @@ namespace Game.Menus;
 /// rest. The larva in its tube on the backdrop pulses throughout.
 /// </summary>
 /// <remarks>
-/// Its data names its "music" at rest; its "backdrop" colour; its "floor", the picture behind the title, with how
-/// much of it there is to each pixel of the screen at rest ("floor_per_pixel"), the point of it that stays put
+/// Its data names its "music" at rest, asked for when the opening is cut short; its "backdrop" colour; its "floor",
+/// the picture behind the title, with how much of it there is to each pixel of the screen at rest ("floor_per_pixel"), the point of it that stays put
 /// ("floor_centre") and how far it is moved at rest ("floor_scroll"); the "baby" on the floor (where, and its
 /// "timeline"); its "pictures" at rest, each with where its corner goes; the copyright in the colours it is shown in at
 /// rest once the opening has been cut short or a demo has come back ("restored_copyright", with where its corner
@@ -153,6 +153,7 @@ public partial class TitleMode : GameMode
         // The cartridge starts its random numbers over as the title starts, from its power-on number, and draws one.
         Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
         Session.Random.Next();
+        Compatibility.CartridgeSounds.Of(Session).AskMusicSet("title_sequence");
         Session.Sounds.RequestMusic(opening.Text("music"));
         Begin(0);
     }
@@ -196,6 +197,9 @@ public partial class TitleMode : GameMode
                 fade.Step();
                 if (!fade.IsDone)
                     return this;
+
+                // Only a skip asks for the music at rest; the opening's own music runs on into it otherwise.
+                Session.Sounds.RequestMusic(data.Text("music"));
                 Rest(restoredCopyright: true);
                 fade.FadeIn(opening.Int("skip_fade_updates"));
                 return this;
@@ -355,7 +359,7 @@ public partial class TitleMode : GameMode
     }
 
     /// <summary>
-    /// Puts the title at its rest: the floor at its own size, the title and the copyright over it, and its music. The
+    /// Puts the title at its rest: the floor at its own size, and the title and the copyright over it. The
     /// old game rebuilds the title after a skip, or as a demo comes back, with the copyright's colours restored.
     /// </summary>
     private void Rest(bool restoredCopyright)
@@ -371,7 +375,6 @@ public partial class TitleMode : GameMode
         (_copyright ?? throw NotShown()).Visible = false;
         (_resting ?? throw NotShown()).Visible = true;
         (_restoredCopyright ?? throw NotShown()).Visible = restoredCopyright;
-        Session.Sounds.RequestMusic(data.Text("music"));
     }
 
     /// <summary>Takes the letters of a card away.</summary>

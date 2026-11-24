@@ -406,6 +406,7 @@ public partial class MotherBrainBaby : Enemy
             case Phase.PlaySamusTheme:
                 if (--_timer > 0)
                     return false;
+                Compatibility.CartridgeSounds.Of(Room.Session).AskMusicSet("samus_theme_upper_crateria");
                 if (SamusThemeMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(SamusThemeMusic);
                 (_phase, _timer) = (Phase.PrepareSamus, 13);

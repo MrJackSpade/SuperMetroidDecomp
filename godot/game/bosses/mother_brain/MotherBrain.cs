@@ -360,7 +360,7 @@ public partial class MotherBrain : Enemy
         foreach (RinkaSpawner source in Room.GetChildren().OfType<RinkaSpawner>())
             source.Triggered("stop");
         _form = Form.FakeDeath;
-        Room.Session.Sounds.RequestMusic("");
+        Room.Session.Sounds.RequestMusic(Music.SilentSong);
         BeginDescent();
     }
 

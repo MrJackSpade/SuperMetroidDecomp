@@ -37,9 +37,9 @@ public partial class Ending
         switch (_phase)
         {
             case Phase.WaitingForEscapeMusic:
-                if (--_wait > 0)
+                // The clouds fade in once the music asked for has all been carried out.
+                if (Session.Sounds.HasQueuedMusic)
                     break;
-                Session.Sounds.RequestMusic(Music.ZebesExplosion);
                 fade.FadeIn(FadeUpdates);
                 _phase = Phase.FadingInSideClouds;
                 break;
@@ -120,14 +120,16 @@ public partial class Ending
                 if (--_wait > 0)
                     break;
                 Session.Sounds.RequestMusic("");
-                (_phase, _wait) = (Phase.WaitingForCreditsMusicToCome, MusicUpdates);
+                Compatibility.CartridgeSounds.Of(Session).AskMusicSet("credits");
+                Session.Sounds.RequestMusic(Music.Credits, MusicWait);
+                _phase = Phase.WaitingForCreditsMusicToCome;
                 break;
 
             case Phase.WaitingForCreditsMusicToCome:
+                // The gunship is seen flying away once the music asked for has all been carried out.
                 StepActors();
-                if (--_wait > 0)
+                if (Session.Sounds.HasQueuedMusic)
                     break;
-                Session.Sounds.RequestMusic(Music.Credits);
                 SetUpPlanetEscape();
                 _phase = Phase.PlanetEscapeFast;
                 break;

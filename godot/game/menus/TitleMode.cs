@@ -82,9 +82,6 @@ public partial class TitleMode : GameMode
         /// <summary>The copyright is fading in.</summary>
         Copyright,
 
-        /// <summary>The opening has been cut short, and the screen is going dark.</summary>
-        Skipping,
-
         /// <summary>The skip has gone dark, and the title is put at its rest.</summary>
         Rebuilding,
 
@@ -108,6 +105,7 @@ public partial class TitleMode : GameMode
     private Sprite2D? _restoredCopyright;
     private ScreenFade? _fade;
     private Doing _doing;
+    private bool _skipping;
     private int _step;
     private int _age;
     private int _typed;
@@ -210,22 +208,13 @@ public partial class TitleMode : GameMode
                     (_copyright ?? throw NotShown()).Visible = true;
                 }
 
-                return this;
+                break;
             case Doing.Copyright:
                 (_logo ?? throw NotShown()).Step();
                 (_copyright ?? throw NotShown()).Step();
                 if (--_hold <= 0)
                     Rest(restoredCopyright: false);
-                return this;
-            case Doing.Skipping:
-                fade.Step();
-                if (!fade.IsDone)
-                    return this;
-
-                // Only a skip asks for the music at rest; the opening's own music runs on into it otherwise.
-                Session.Sounds.RequestMusic(data.Text("music"));
-                _doing = Doing.Rebuilding;
-                return this;
+                break;
             case Doing.Rebuilding:
                 // The old game rebuilds the title at rest on the update after the skip's fade reaches black.
                 Rest(restoredCopyright: true);
@@ -263,16 +252,26 @@ public partial class TitleMode : GameMode
                 throw new InvalidOperationException($"The title has nothing to do called {_doing}.");
         }
 
-        // A press while the cards, the moves or the drawing back are going on cuts the opening short.
-        if (pressed && _doing is Doing.Card or Doing.Pan or Doing.Zoom)
+        // A press while the cards, the moves or the drawing back are going on cuts the opening short, unless it is
+        // already cut short; the step this update ends in decides.
+        if (pressed && !_skipping && _doing is Doing.Card or Doing.Pan or Doing.Zoom)
         {
-            _doing = Doing.Skipping;
+            _skipping = true;
             fade.FadeOut(opening.Int("skip_fade_updates"));
-
-            // The skip's first step darker falls on the update of the press.
-            fade.Step();
         }
 
+        if (!_skipping)
+            return this;
+
+        // The opening goes on beneath the skip's fade, which steps after it, the first time on the update of the press.
+        fade.Step();
+        if (!fade.IsDone)
+            return this;
+
+        // Only a skip asks for the music at rest; the opening's own music runs on into it otherwise.
+        Session.Sounds.RequestMusic(data.Text("music"));
+        _skipping = false;
+        _doing = Doing.Rebuilding;
         return this;
     }
 

@@ -49,9 +49,17 @@ def main() -> None:
     always = {'health', 'contact_damage', 'speed_curve'}
     unset: list[str] = []
     written: set[str] = set()
+    words: set[str] = set()
+    endings: set[str] = set()
+    members: set[str] = set()
     problems = 0
     for path in sorted(glob.glob(os.path.join(ENGINE, '*.cs'))):
         text = open(path, encoding='utf-8').read()
+        # Every word a writer has in quotes, in lower case: what the part of a file's name it fills in could be. A
+        # part may also be a member a writer names, turned to words, with an ending it has in quotes after it.
+        words |= {word.lower() for word in re.findall(r'"(\w+)"', text)}
+        endings |= set(re.findall(r'"(_\w+)"', text))
+        members |= {re.sub(r'(?<=[a-z0-9])(?=[A-Z])', '_', member).lower() for member in re.findall(r'\.(\w+)\b', text)}
         # Any data file a writer names is one it writes: an object's, a projectile's.
         written |= set(re.findall(r'"((?:enemies|bosses|objects|samus|cinematics)/[^"]+\.json)"', text))
         for start in re.finditer(r'Enemy\(\$?"([^"]+)", "(\w+)"', text):
@@ -90,8 +98,20 @@ def main() -> None:
     manifest = open(os.path.join(REPO, 'godot', 'engine', 'content', 'asset-manifest.md'), encoding='utf-8').read()
     wanted = re.findall(r'^\| `((?:enemies|bosses|objects|samus|cinematics)/[^`]+\.json)` \|', manifest, re.M)
     # A writer that writes several kinds names its file with a part to be filled in.
-    patterns = [re.compile('^' + re.sub(r'\\{[^}]*\\}', '[a-z_]+', re.escape(file)) + '$') for file in written]
-    missing = [file for file in wanted if not any(pattern.match(file) for pattern in patterns)]
+    # A file is counted as such a writer's only where what fills the part in is a word some writer has.
+    patterns = [re.compile('^' + re.sub(r'\\{[^}]*\\}', '([a-z_]+)', re.escape(file)) + '$') for file in written]
+
+    def known(part: str) -> bool:
+        return part in words or any(part.endswith(ending) and part[:-len(ending)] in members for ending in endings)
+
+    def has_writer(file: str) -> bool:
+        for pattern in patterns:
+            found = pattern.match(file)
+            if found and all(known(part) for part in found.groups()):
+                return True
+        return False
+
+    missing = [file for file in wanted if not has_writer(file)]
     # A writer of several kinds is counted for every file its name could be, so this is the most that are written.
     print(f'{problems} problems; at most {len(wanted) - len(missing)} of {len(wanted)} data files the project names have a writer')
     print('not written yet: ' + ', '.join(missing))

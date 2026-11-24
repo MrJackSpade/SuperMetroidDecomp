@@ -38,7 +38,10 @@ public partial class CeresShaft : RoomSequence
     /// <summary>How many updates Samus stands on the elevator before it takes her.</summary>
     private const int DepartureUpdates = 60;
 
-    /// <summary>How many updates the shaft holds each tilt, by how many steps from level it is.</summary>
+    /// <summary>
+    /// How many updates the shaft holds each tilt, by how many steps from level it is, the update that turns it there
+    /// the first: the old game's table, entry for entry.
+    /// </summary>
     private static readonly int[] HoldUpdates =
     [
         2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8,

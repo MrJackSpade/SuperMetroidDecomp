@@ -282,7 +282,7 @@ public partial class Crocomire : Enemy
     private int _spitFirstStep;
 
     /// <summary>The fire spat in the last update, with the speed each is aimed at from its second update on.</summary>
-    private readonly List<(Projectile Fire, PixelVelocity Aimed)> _justSpat = [];
+    private readonly List<(CrocomireFire Fire, PixelVelocity Aimed)> _justSpat = [];
     private int _fragmentY;
     private Pixels _fragmentSlowestFall;
     private PixelPosition _spikeWallTop;
@@ -693,7 +693,8 @@ public partial class Crocomire : Enemy
         int bearing = Turns.AngleOf(-_volleyReach, gradient);
         Pixels speed = Shot("fire").Speed;
         // The old fire first moves straight across once, and takes its aimed speed only from its next update.
-        Projectile fire = Fire("fire", Position + _spitFrom, new PixelVelocity(Pixels.FromWhole(_spitFirstStep), Pixels.Zero));
+        CrocomireFire fire = Fire("fire", Position + _spitFrom, new PixelVelocity(Pixels.FromWhole(_spitFirstStep), Pixels.Zero)) as CrocomireFire
+            ?? throw new InvalidOperationException("Crocomire's shot \"fire\" is not a ball of its fire.");
         _justSpat.Add((fire, new PixelVelocity(Turns.Cosine(bearing, speed), Turns.Sine(bearing, speed))));
         Sound(SpitSound);
     }
@@ -701,10 +702,10 @@ public partial class Crocomire : Enemy
     /// <summary>Gives the fire spat in the last update the speed it is aimed at.</summary>
     private void AimJustSpat()
     {
-        foreach ((Projectile fire, PixelVelocity aimed) in _justSpat)
+        foreach ((CrocomireFire fire, PixelVelocity aimed) in _justSpat)
         {
             if (!fire.HasEnded)
-                fire.Velocity = aimed;
+                fire.Aim(aimed);
         }
 
         _justSpat.Clear();

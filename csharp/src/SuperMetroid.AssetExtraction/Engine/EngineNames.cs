@@ -21,6 +21,15 @@ internal static partial class EngineNames
         _ => null,
     };
 
+    /// <summary>
+    /// The sound that is no sound. A channel of the Godot game sounds one thing at a time, so asking for this on the
+    /// channel of a sound that goes on and on is how that sound is stopped.
+    /// </summary>
+    internal const string Silence = "silence";
+
+    /// <summary>The name of one of the old game's sounds, or <see cref="Silence"/> for a request that only stops one.</summary>
+    internal static string SoundOrSilence(SoundEffectId sound) => Sound(sound) ?? Silence;
+
     /// <summary>The cue that asks for one of the old game's sounds, or none for a request that only stops one.</summary>
     internal static string? SoundCue(SoundEffectId sound) => Sound(sound) is { } name ? "sound:" + name : null;
 

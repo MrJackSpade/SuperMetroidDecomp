@@ -10,10 +10,12 @@ namespace Game.Objects;
 /// blown the wall open it finishes its lap and runs out. Everything it does is in its timelines.
 /// </summary>
 /// <remarks>
-/// Its timelines are "running_around_low_tide", "high_tide_after_left_lap", "high_tide_after_right_lap",
-/// "escape_after_left_lap" and "escape_after_right_lap". Their cues are "low_tide_lap_ends:" and "left" or "right",
-/// where its laps turn to the high-tide ones if the acid has risen; "lap_ends:" and "left" or "right", where its
-/// laps turn to its way out if the wall is open; "move:" with pixels across; and "gone", which takes it away.
+/// Its timelines are "running_around_low_tide", one "high_tide_after_" a lap for each lap of the low-tide ones,
+/// "escape_after_left_lap" and "escape_after_right_lap". Their cues are "low_tide_lap_ends:" and the lap that has
+/// ended, where its laps turn to the high-tide ones if the acid has risen; "lap_ends:" and "left" or "right", where
+/// its laps turn to its way out if the wall is open; "move:" with pixels across; and "gone", which takes it away.
+/// The lap a "low_tide_lap_ends:" names is what stands for it in the name of the high-tide timeline it turns to:
+/// "left_3" turns to "high_tide_after_left_3_lap", the high-tide laps going on from its third lap to the left.
 /// </remarks>
 public partial class EscapeDachora : Creature
 {

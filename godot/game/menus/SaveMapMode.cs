@@ -159,6 +159,7 @@ public partial class SaveMapMode : GameMode
     private int _look;
     private int _lookLeft;
     private bool _showsBacking = true;
+    private bool _loadsNext;
 
     private SaveMapMode(GameMode returnsTo, SaveData save, DataNode data)
     {
@@ -338,6 +339,14 @@ public partial class SaveMapMode : GameMode
     /// <summary>Plays one update of the screen.</summary>
     private GameMode StepScreen(GameInput input)
     {
+        // Once the load's wait is over, the old game waits out one more update in black, the map no longer moving,
+        // before it begins loading.
+        if (_loadsNext)
+        {
+            Session.Options.Save();
+            return new LoadingMode();
+        }
+
         DataNode entry = _data.Get("entry");
         if (_phase == Phase.BlackHold)
         {
@@ -441,8 +450,8 @@ public partial class SaveMapMode : GameMode
 
                 if (_waitLeft > 0)
                     return this;
-                Session.Options.Save();
-                return new LoadingMode();
+                _loadsNext = true;
+                return this;
 
             default:
                 return this;

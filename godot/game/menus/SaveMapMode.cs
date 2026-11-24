@@ -167,8 +167,9 @@ public partial class SaveMapMode : GameMode
     }
 
     /// <summary>
-    /// The map of the saved game in <paramref name="session"/>'s slot, laid over <paramref name="returnsTo"/>; or
-    /// null when the slot holds no game, or holds one saved at no place the map marks, which starts with no map.
+    /// The map of the saved game in <paramref name="session"/>'s slot, laid over <paramref name="returnsTo"/>, the
+    /// choice of saved game the options it goes back to are laid over; or null when the slot holds no game, or holds
+    /// one saved at no place the map marks, which starts with no map.
     /// </summary>
     public static SaveMapMode? Of(GameSession session, GameMode returnsTo)
     {
@@ -422,9 +423,10 @@ public partial class SaveMapMode : GameMode
                 return this;
 
             case Phase.OptionsRequested:
-                // The screen darkens a level an update, and at black the options come back.
+                // The screen darkens a level an update, and at black the options come back, made anew as the old
+                // game makes them.
                 _dark++;
-                return _dark == _data.Int("fade_levels") ? _returnsTo : this;
+                return _dark == _data.Int("fade_levels") ? new OptionsMode(_returnsTo) : this;
 
             case Phase.LoadRequested:
                 if (_waitLeft > 0)

@@ -661,7 +661,7 @@ decides what to do about it.
 
 | Component | Moves its owner by |
 | --- | --- |
-| Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. |
+| Surface crawl | Following the surface it is on, around corners, in a set direction. It can be started pressing any way across and down; one started pressing away from its surface turns about until it finds something to cling to. It can feel for its surface some way ahead of itself, so that it meets a corner early; its owner can ask which way it presses. |
 | Hop | Jumping in arcs, with settings for height, distance and the wait between. |
 | Wave flight | Travelling in a direction while rising and falling in a wave. |
 | Dive | Waiting, then dropping or swooping at a target and returning or not. |

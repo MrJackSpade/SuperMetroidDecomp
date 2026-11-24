@@ -42,6 +42,18 @@ public sealed class SurfaceCrawl
     /// <summary>The speed along its surface a crawler takes on landing from a fall; null keeps the speed it had.</summary>
     public Pixels? SpeedOnLanding { get; set; }
 
+    /// <summary>
+    /// How far ahead of itself, along the way it crawls, it feels for its surface, in pixels: one that feels ahead
+    /// finds the end of its surface, or the start of one in its way, that much sooner.
+    /// </summary>
+    public int Lookahead { get; set; }
+
+    /// <summary>The way it presses across, as 1 for rightward or -1: toward the wall it clings to, or the way it crawls along a floor or ceiling.</summary>
+    public int PressesAcross => _across;
+
+    /// <summary>The way it presses down, as 1 for downward or -1: toward the floor or ceiling it clings to, or the way it crawls along a wall.</summary>
+    public int PressesDown => _down;
+
     /// <summary>The way it presses across: toward the wall it clings to, or the way it crawls along a floor or ceiling.</summary>
     private int _across = 1;
 
@@ -117,7 +129,12 @@ public sealed class SurfaceCrawl
         Mover room = mover.Room.Mover;
         Collider body = mover.MovingBody;
         MoveOptions crawl = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
-        if (room.MoveAcross(body, (Speed + Pixels.FromWhole(1)) * _across, crawl).Blocked)
+        // It feels for the wall from where it will be, and keeps however far that pressed it.
+        var ahead = new PixelOffset(Pixels.Zero, Pixels.FromWhole(Lookahead * _down));
+        mover.Position += ahead;
+        bool found = room.MoveAcross(body, (Speed + Pixels.FromWhole(1)) * _across, crawl).Blocked;
+        mover.Position -= ahead;
+        if (found)
         {
             _misses = 0;
             if (room.MoveDown(body, Speed * _down, crawl).Blocked)
@@ -154,7 +171,11 @@ public sealed class SurfaceCrawl
         MoveOptions press = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
         // Along a floor it climbs and follows slopes as anything walking does.
         MoveOptions along = Side == Clings.Below ? MoveOptions.Plain with { ClimbPerPixel = 2, FollowGroundDown = 2 } : press;
-        if (room.MoveDown(body, (Speed + Pixels.FromWhole(1)) * _down, press).Blocked)
+        var ahead = new PixelOffset(Pixels.FromWhole(Lookahead * _across), Pixels.Zero);
+        mover.Position += ahead;
+        bool found = room.MoveDown(body, (Speed + Pixels.FromWhole(1)) * _down, press).Blocked;
+        mover.Position -= ahead;
+        if (found)
         {
             _misses = 0;
             if (room.MoveAcross(body, Speed * _across, along).Blocked)

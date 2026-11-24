@@ -30,7 +30,8 @@ namespace Game.Menus;
 /// ("glyph_width"), how many digits along the colon of a time stands ("colon_column"), the most a part of a time
 /// shows ("largest_time_part"), the energy a tank holds ("energy_per_tank"), a tank's "tank_size", the column and
 /// row of the first from the word energy ("tank_column", "tank_row") and how many make a row ("tanks_per_row");
-/// the updates it stays black, nothing moving, as it is come to before it fades in ("entry_black_updates");
+/// the updates it stays black, nothing moving, as it is come to before it fades in ("entry_black_updates"); the
+/// levels of brightness its fades go through ("fade_levels") and the updates each level lasts ("fade_updates_per_level");
 /// the sounds of the cursor moving, of a saved game chosen and of an answer given ("move_sound", "select_sound",
 /// "confirm_sound"); and the timelines "cursor", "helmet_away", "helmet_turn" (which ends by staying on its last
 /// picture) and the arrows'.
@@ -44,10 +45,6 @@ public partial class FileSelectMode : GameMode
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
     public string DataFile { get; set; } = "menus/file_select.json";
-
-    /// <summary>How many updates it takes to fade in, and to fade out.</summary>
-    [Export]
-    public int FadeUpdates { get; set; } = 32;
 
     /// <summary>How many saved games its pages are drawn for.</summary>
     private const int SavedGames = 3;
@@ -104,6 +101,11 @@ public partial class FileSelectMode : GameMode
     private bool _yes = true;
     private int _turnLeft;
     private int _blackLeft;
+    private int _levels;
+    private int _updatesPerLevel;
+    private int _lit;
+    private int _fadeUpdates;
+    private bool _brightening;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -143,7 +145,9 @@ public partial class FileSelectMode : GameMode
         AddChild(_fade);
         _row = Math.Clamp(Session.Slot, 1, SavedGames) - 1;
         ShowMain();
-        _fade.FadeIn(FadeUpdates);
+        (_levels, _updatesPerLevel, _lit) = (_data.Int("fade_levels"), _data.Int("fade_updates_per_level"), 0);
+        _fade.Cover(_levels, _levels);
+        BeginFade(brightening: true);
         _blackLeft = _data.Int("entry_black_updates");
         Session.Sounds.RequestMusic(Music);
     }
@@ -151,7 +155,6 @@ public partial class FileSelectMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        ScreenFade fade = _fade ?? throw NotShown();
         // As the old game's screen is made, it stays black a few updates, nothing moving, before it fades in.
         if (_blackLeft > 0)
         {
@@ -164,19 +167,19 @@ public partial class FileSelectMode : GameMode
             shown.Step();
         if (_afterFade is { } then)
         {
-            fade.Step();
-            if (!fade.IsDone)
+            StepFade();
+            if (!FadeDone)
                 return this;
             _afterFade = null;
             if (then() is { } next)
                 return next;
-            fade.FadeIn(FadeUpdates);
+            BeginFade(brightening: true);
             return this;
         }
 
-        if (!fade.IsDone)
+        if (!FadeDone)
         {
-            fade.Step();
+            StepFade();
             return this;
         }
 
@@ -404,7 +407,22 @@ public partial class FileSelectMode : GameMode
     private void FadeOutTo(Func<GameMode?> then)
     {
         _afterFade = then;
-        (_fade ?? throw NotShown()).FadeOut(FadeUpdates);
+        BeginFade(brightening: false);
+    }
+
+    /// <summary>Starts the screen brightening to full, or darkening to black, from the level it is at.</summary>
+    private void BeginFade(bool brightening) => (_brightening, _fadeUpdates) = (brightening, 0);
+
+    /// <summary>Whether the fade begun last has reached full brightness, or black.</summary>
+    private bool FadeDone => _lit == (_brightening ? _levels : 0);
+
+    /// <summary>Plays one update of the fade: as in the old game, it moves a level every so many updates, the first on the last of them.</summary>
+    private void StepFade()
+    {
+        if (++_fadeUpdates % _updatesPerLevel != 0)
+            return;
+        _lit += _brightening ? 1 : -1;
+        (_fade ?? throw NotShown()).Cover(_levels - _lit, _levels);
     }
 
     /// <summary>Shows the first page, and stays.</summary>

@@ -33,7 +33,7 @@ namespace Game.Enemies;
 /// knocks back, "plain" for one that only hurts, and "none"; and under "mouth" how far its mouth is open,
 /// "fully_open", "partially_open" or "not_open", which picks how it answers a power bomb.</para>
 /// <para>Its data also gives "volley", how far down each ball of fire of a volley is aimed over the "reach" to the
-/// left; "spit", where its fire leaves it; "rumbles", the shakes of the hidden wall, each between a "return" and an
+/// left; "spit", where its fire leaves it and the "first_step" it moves straight across before it takes its aim; "rumbles", the shakes of the hidden wall, each between a "return" and an
 /// "extreme" height so many "repeats" times at a "speed"; "acid_script", what it does in the acid in order: "sink",
 /// "pause", "rise", "wait:&lt;updates&gt;", "melt:&lt;shake&gt;:&lt;half period&gt;" with the "melt_updates" a melt
 /// lasts, "sound:&lt;name&gt;" and "body:&lt;whole or a name in melt_looks&gt;"; "melt_looks", for each melting body
@@ -279,6 +279,10 @@ public partial class Crocomire : Enemy
     private ColliderPoses? _poses;
     private int _volleyReach = 64;
     private PixelOffset _spitFrom;
+    private int _spitFirstStep;
+
+    /// <summary>The fire spat in the last update, with the speed each is aimed at from its second update on.</summary>
+    private readonly List<(Projectile Fire, PixelVelocity Aimed)> _justSpat = [];
     private int _fragmentY;
     private Pixels _fragmentSlowestFall;
     private PixelPosition _spikeWallTop;
@@ -333,6 +337,7 @@ public partial class Crocomire : Enemy
         _volley.Clear();
         _volley.AddRange(volley.List("gradients").Select(gradient => gradient.AsInt()));
         _spitFrom = PixelOffset.FromWhole(data.Get("spit").Int("x"), data.Get("spit").Int("y"));
+        _spitFirstStep = data.Get("spit").Int("first_step");
         _rumbles.Clear();
         _rumbles.AddRange(data.List("rumbles").Select(rumble => (rumble.Int("return"), rumble.Int("extreme"), rumble.Int("repeats"), rumble.Int("speed"))));
         _acidScript.Clear();
@@ -567,6 +572,7 @@ public partial class Crocomire : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
+        AimJustSpat();
         // A shot in the mouth holds its timeline where it is for a moment.
         if (_hold > 0)
             _hold--;
@@ -687,8 +693,22 @@ public partial class Crocomire : Enemy
     {
         int bearing = Turns.AngleOf(-_volleyReach, gradient);
         Pixels speed = Shot("fire").Speed;
-        Fire("fire", Position + _spitFrom, new PixelVelocity(Turns.Cosine(bearing, speed), Turns.Sine(bearing, speed)));
+        // The old fire first moves straight across once, and takes its aimed speed only from its next update.
+        Projectile fire = Fire("fire", Position + _spitFrom, new PixelVelocity(Pixels.FromWhole(_spitFirstStep), Pixels.Zero));
+        _justSpat.Add((fire, new PixelVelocity(Turns.Cosine(bearing, speed), Turns.Sine(bearing, speed))));
         Sound(SpitSound);
+    }
+
+    /// <summary>Gives the fire spat in the last update the speed it is aimed at.</summary>
+    private void AimJustSpat()
+    {
+        foreach ((Projectile fire, PixelVelocity aimed) in _justSpat)
+        {
+            if (!fire.HasEnded)
+                fire.Velocity = aimed;
+        }
+
+        _justSpat.Clear();
     }
 
     /// <summary>Raises a puff of dust at its feet, a way across from its middle and up to 7 pixels further right by the number last drawn.</summary>

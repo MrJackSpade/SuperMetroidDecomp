@@ -286,7 +286,14 @@ public sealed partial class EngineAssetWriter
                 ["gradients"] = EngineNames.List(CrocomireProjectileDefinitions.AuthoredGradients
                     .Append(_installation.LoadBossAndIntroOverreads().CrocomireLastShotGradient.Gradient)),
             })
-            .Group("spit", new JsonObject { ["x"] = CrocomireFightDefinitions.SpitOffset.X, ["y"] = CrocomireFightDefinitions.SpitOffset.Y })
+            .Group("spit", new JsonObject
+            {
+                ["x"] = CrocomireFightDefinitions.SpitOffset.X, ["y"] = CrocomireFightDefinitions.SpitOffset.Y,
+                // Its fire moves across by its first speed once, before it takes the speed it is aimed at.
+                ["first_step"] = CrocomireFightDefinitions.SpitVelocity.X.FractionSubpixels == 0
+                    ? CrocomireFightDefinitions.SpitVelocity.X.WholePixels
+                    : throw new InvalidDataException("Crocomire's fire first moves by part of a pixel, which its data's whole first step cannot say."),
+            })
             .Group("rumbles", EngineNames.List(CrocomireRumbleDefinitions.Oscillations.Select(rumble => (JsonNode)new JsonObject
             {
                 ["return"] = rumble.ReturnOffset,

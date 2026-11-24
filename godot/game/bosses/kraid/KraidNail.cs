@@ -7,7 +7,8 @@ using Godot;
 namespace Game.Enemies;
 
 /// <summary>
-/// One of the two nails Kraid flicks off once it stands at its full height. It drifts across the room on a slant,
+/// One of the two nails Kraid flicks off. It sets off a while after it is placed, even while Kraid is still rising,
+/// and again a while after Kraid has grown to its full height. It drifts across the room on a slant,
 /// turning back from the walls, the floor and ceiling, and Kraid's own body. As likely as not one starts from the far
 /// left instead, waiting there unseen until the top spike has passed. It can be shot down, and breaks on Samus when
 /// it hits her; another follows.
@@ -15,7 +16,7 @@ namespace Game.Enemies;
 /// <remarks>It plays "spinning". Its data gives "ledges": the left edge of Kraid's body it turns back from, for each height below "top".</remarks>
 public partial class KraidNail : Enemy
 {
-    /// <summary>How many updates after Kraid has grown it first sets off.</summary>
+    /// <summary>How many updates after Kraid has grown it sets off again.</summary>
     [Export]
     public int FirstLaunchDelay { get; set; } = 64;
 
@@ -41,7 +42,6 @@ public partial class KraidNail : Enemy
 
     private enum Phase
     {
-        WaitForKraid,
         WaitBeforeLaunch,
         Launch,
         WaitForSpike,
@@ -53,6 +53,7 @@ public partial class KraidNail : Enemy
     private Phase _phase;
     private int _wait;
     private bool _away = true;
+    private bool _kraidHadGrown;
 
     /// <summary>Whether it started from the far left this time.</summary>
     public bool StartedFarLeft { get; private set; }
@@ -79,7 +80,9 @@ public partial class KraidNail : Enemy
         AlwaysActive = true;
         Play("spinning");
         SetAway(true);
-        _phase = Phase.WaitForKraid;
+        // Its wait to set off starts as it is placed, whether or not Kraid has grown: as in the old game, it may fly
+        // while Kraid is still rising, out of the view.
+        (_phase, _wait) = (Phase.WaitBeforeLaunch, LaunchDelay);
     }
 
     /// <inheritdoc/>
@@ -98,8 +101,13 @@ public partial class KraidNail : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        _kraid ??= Room.Enemies.OfType<Kraid>().FirstOrDefault()
-            ?? throw new InvalidOperationException($"The nail \"{Name}\" is in a room with no Kraid.");
+        if (_kraid is null)
+        {
+            _kraid = Room.Enemies.OfType<Kraid>().FirstOrDefault()
+                ?? throw new InvalidOperationException($"The nail \"{Name}\" is in a room with no Kraid.");
+            _kraidHadGrown = _kraid.HasGrown;
+        }
+
         Kraid kraid = _kraid;
         if (!IsInstanceValid(kraid) || kraid.IsFinished)
         {
@@ -109,15 +117,15 @@ public partial class KraidNail : Enemy
             return;
         }
 
+        if (kraid.HasGrown && !_kraidHadGrown)
+        {
+            // As Kraid finishes growing, each nail stops where it is and waits its own time before it sets off again.
+            _kraidHadGrown = true;
+            (_phase, _wait) = (Phase.WaitBeforeLaunch, FirstLaunchDelay);
+        }
+
         switch (_phase)
         {
-            case Phase.WaitForKraid:
-                if (!kraid.HasGrown)
-                    break;
-                // One that has waited for Kraid to grow waits its own time more; one that follows another, the usual time.
-                (_phase, _wait) = (Phase.WaitBeforeLaunch, Updates <= 1 ? LaunchDelay : FirstLaunchDelay);
-                break;
-
             case Phase.WaitBeforeLaunch:
                 if (--_wait <= 0)
                     _phase = Phase.Launch;

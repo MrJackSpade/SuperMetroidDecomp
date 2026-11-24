@@ -60,6 +60,10 @@ public partial class Samus : Player
     [Export, DataValue("stored_shine_updates")]
     public int StoredShineUpdates { get; set; } = 180;
 
+    /// <summary>How many updates after a shine is stored its sound is heard.</summary>
+    [Export, DataValue("stored_shine_sound_updates")]
+    public int StoredShineSoundUpdates { get; set; } = 10;
+
     /// <summary>How many pixels a shinespark begun out of a jump lifts her as its windup starts.</summary>
     [Export, DataValue("shinespark_lift")]
     public int ShinesparkLift { get; set; } = 1;
@@ -230,9 +234,12 @@ public partial class Samus : Player
     private int _boostStage = -1;
     private int _strideAt, _strideLeft, _stridesLeft;
     private bool _ranFromStart;
+    private bool _spunAtStart;
+    private bool _boostSounding;
     private bool _autoCancel;
     private bool _spreadCharged;
     private int _spreadHeld;
+    private bool _ballCharge;
     private bool _aimedDownLastUpdate;
     private bool _woreVaria;
     private bool _woreGravity;
@@ -672,7 +679,6 @@ public partial class Samus : Player
     {
         _shine = Countdown.Of(StoredShineUpdates);
         _crystalFlashColouring = CrystalFlashColouring.None;
-        Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
     }
 
     /// <summary>Uses up the stored shine, and with it any crystal flash's colouring that read as one.</summary>
@@ -704,6 +710,7 @@ public partial class Samus : Player
     {
         StartCrystalFlashIfOffered();
         _ranFromStart = State is RunningState;
+        _spunAtStart = State is SpinJumpingState or WallJumpingState;
         _aimAtUpdateStart = Aim;
         _shine = _shine.Stepped();
         ChooseItem();
@@ -821,6 +828,9 @@ public partial class Samus : Player
         else if (beamCharged)
             _spreadCharged = true;
 
+        // A beam charge carried into the morph ball stays there until the ball uses it up.
+        _ballCharge = Form == Crawling && (_ballCharge || (Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor > 0));
+
         if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
             Selected == Amounts.PowerBombs && SpecialAttackBeam() is { } special)
         {
@@ -840,6 +850,12 @@ public partial class Samus : Player
 
             ThrowBombSpread();
             return;
+        }
+
+        if (BallUsesUpCharge(held))
+        {
+            ForgetCharge();
+            Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
         }
 
         if (weapon.Length == 0 || Weapons.All.All(owned => owned.Name != weapon))
@@ -930,7 +946,42 @@ public partial class Samus : Player
         }
 
         Weapons.WaitAtLeast(bomb.CooldownFor(Inventory, charged: false));
-        (_spreadCharged, _spreadHeld) = (false, 0);
+        ForgetCharge();
+        Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
+    }
+
+    /// <summary>
+    /// Whether the morph ball uses up the beam charge carried into it this update, as the cartridge has it: letting the
+    /// attack go does; with it held, a bomb refused for want of a fresh press does, unless she has no bombs to lay or a
+    /// power bomb of hers is still out.
+    /// </summary>
+    private bool BallUsesUpCharge(bool held)
+    {
+        if (!_ballCharge)
+            return false;
+        if (!held)
+            return true;
+        if (Selected == Amounts.PowerBombs)
+            return !Weapons.LiveOf(Arsenal.PowerBomb).Any(bomb => !bomb.HasEnded);
+        return Inventory.IsOn(Equipment.Bombs);
+    }
+
+    /// <summary>
+    /// A shinespark's windup uses up her charge; one that had begun to sound stops her sounds, at a priority that
+    /// gives way late, as the cartridge does.
+    /// </summary>
+    public void SpendChargeOnShinespark()
+    {
+        if (ChargeIsSounding)
+            Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
+        ForgetCharge();
+    }
+
+    /// <summary>Throws the beam's charge away, and everything that remembers it.</summary>
+    private void ForgetCharge()
+    {
+        Weapons.DropCharge();
+        (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds) = (false, 0, false, false);
     }
 
     /// <summary>The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected.</summary>
@@ -1102,6 +1153,11 @@ public partial class Samus : Player
         WarnOfLowEnergy();
         Grapple?.Step(this);
         ShowSelection();
+
+        // The stored shine is heard a while after it is stored, as the cartridge's colouring of her asks for it.
+        if (HasStoredShine && _shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
+            Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
+        StopEndedSounds();
         _crystalFlashColouring = _crystalFlashColouring switch
         {
             CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,
@@ -1109,6 +1165,25 @@ public partial class Samus : Player
             _ => _crystalFlashColouring,
         };
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
+    }
+
+    /// <summary>
+    /// As the cartridge does once she has been shown: on the update her boost ends the speed booster's sound is
+    /// stopped, and on the update a spin or a wall jump ends the spin's is. Quicksand that stops her momentum forgets
+    /// the boost's sound without stopping it.
+    /// </summary>
+    private void StopEndedSounds()
+    {
+        if (Room.Terrain.BlocksIn(BodyRect).Any(block => block.Type.Contact == BlockContact.PullsDown && block.Type.StopsMomentum))
+            _boostSounding = false;
+        if (_boostSounding && !IsBoosting)
+        {
+            _boostSounding = false;
+            Room.Session.Sounds.Request(Sounds.SpeedBoosterStop, channel: "samus", priority: SoundPriority.Essential);
+        }
+
+        if (_spunAtStart && State is not (SpinJumpingState or WallJumpingState))
+            Room.Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
     }
 
     /// <summary>
@@ -1160,6 +1235,7 @@ public partial class Samus : Player
             if (IsBoosting)
             {
                 Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
+                _boostSounding = true;
                 pace = 0;
             }
         }

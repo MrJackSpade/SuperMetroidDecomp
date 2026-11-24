@@ -279,6 +279,7 @@ public sealed partial class EngineAssetWriter
             .Value("boost_stride_updates", EngineNames.List(boostStrides))
             .Value("boost_stride_counts", EngineNames.List(boostCounts))
             .Value("stored_shine_updates", ShinesparkDefinitions.StoredShineFrames)
+            .Value("stored_shine_sound_updates", ShinesparkDefinitions.StoredShineSoundDelayFrames)
             .Value("shinespark_windup_updates", ShinesparkDefinitions.WindupFrames)
 
             // A windup begun out of a jump takes the old lift off her place: that far up.

@@ -74,7 +74,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         samus.SpendShine();
         owner.StopAcross();
         owner.Velocity = PixelVelocity.Zero;
-        owner.Weapons.DropCharge();
+        samus.SpendChargeOnShinespark();
 
         // The lift moves her as she is, whatever is above her, as the cartridge's does.
         if (_lifted)

@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Shared;
 using Engine.World;
 using Godot;
@@ -80,7 +81,7 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
         // The fuse is out: the bomb is gone, and its blast takes its first step as the next update opens.
         _blasting = true;
         StopShowing();
-        room.Session.Sounds.Request(Data.Sounds.PowerBombExplosion, channel: "explosions");
+        room.Session.Sounds.Request(Data.Sounds.PowerBombExplosion, channel: "explosions", priority: SoundPriority.Essential);
     }
 
     /// <summary>

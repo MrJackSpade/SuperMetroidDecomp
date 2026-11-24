@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Actors.Movement;
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Shared;
 using Engine.World;
 using Game.Data;
@@ -323,7 +324,7 @@ public partial class MotherBrainBaby : Enemy
                 Position = samus.Position + shake + OnSamus;
                 Inventory inventory = samus.Inventory;
                 if (inventory.Amount(Inventory.Energy) >= 81 && Room.Session.Clock.Updates % 8 == 0 && HealSound.Length > 0)
-                    Room.Session.Sounds.Request(HealSound, channel: "pickups");
+                    Room.Session.Sounds.Request(HealSound, channel: "pickups", priority: SoundPriority.Low);
                 inventory.Add(Inventory.Energy, 1);
                 if (!inventory.IsFull(Inventory.Energy))
                     return false;

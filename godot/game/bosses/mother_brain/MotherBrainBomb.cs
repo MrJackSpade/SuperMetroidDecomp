@@ -1,6 +1,7 @@
 using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Shared;
 using Engine.World;
 using Game.Data;
@@ -137,7 +138,7 @@ public partial class MotherBrainBomb : Projectile, IHasValues
         if (ExplosionEffect.Length > 0)
             room.Spawn(Effect.Of(FrameTimeline.Read(room.Content.ReadData(ExplosionEffect)), Position));
         if (ExplosionSound.Length > 0)
-            room.Session.Sounds.Request(ExplosionSound);
+            room.Session.Sounds.Request(ExplosionSound, priority: SoundPriority.Low);
         Leave(room);
     }
 }

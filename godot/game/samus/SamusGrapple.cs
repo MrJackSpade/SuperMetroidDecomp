@@ -1,5 +1,6 @@
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
@@ -77,14 +78,14 @@ public partial class SamusGrapple : Node2D
         _length = Pixels.Zero;
         _reached = Pixels.Zero;
         _extending = true;
-        samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons");
+        samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons", priority: SoundPriority.WhenIdle);
     }
 
     /// <summary>Lets go of whatever the line holds and draws it in.</summary>
     public void Release()
     {
         if (IsLatched && _samus is not null)
-            _samus.Room.Session.Sounds.Request(Sounds.GrappleRelease, channel: "weapons");
+            _samus.Room.Session.Sounds.Request(Sounds.GrappleRelease, channel: "weapons", priority: SoundPriority.Essential);
         _held?.Unlatched();
         _held = null;
         if (_heldBlock is not null && _samus is not null)

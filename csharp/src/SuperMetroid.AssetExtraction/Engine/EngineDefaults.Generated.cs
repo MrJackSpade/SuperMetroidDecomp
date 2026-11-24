@@ -54,6 +54,8 @@ internal static partial class EngineDefaults
         ["DeadSidehopper"] = "Enemy",
         ["DeadTorizo"] = "Enemy",
         ["Diver"] = "Enemy",
+        ["Door"] = "RoomExit",
+        ["DoorTransitionMode"] = "GameMode",
         ["Dragon"] = "Enemy",
         ["Draygon"] = "Enemy",
         ["DraygonCannon"] = "Enemy",

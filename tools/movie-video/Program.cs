@@ -8,7 +8,10 @@ namespace SuperMetroid.MovieVideo;
 /// The replay compares every frame with the native recording as it goes, so a video only exists for a replay that
 /// matched. <c>tools/render-movie-videos.ps1</c> runs one of these per movie side by side.
 /// </summary>
-/// <remarks>Usage: <c>SuperMetroid.MovieVideo &lt;movie&gt; &lt;output.mp4&gt;</c>, run from the repository root.</remarks>
+/// <remarks>
+/// Usage: <c>SuperMetroid.MovieVideo &lt;movie&gt; &lt;output.mp4&gt;</c>, or <c>SuperMetroid.MovieVideo &lt;movie&gt;
+/// &lt;output directory&gt; --frames &lt;frames&gt;</c> for PNGs of only the chosen movie frames, run from the repository root.
+/// </remarks>
 internal static class Program
 {
     /// <summary>Renders the movie behind the no-dialog process boundary and returns a failing exit code on error.</summary>
@@ -17,9 +20,15 @@ internal static class Program
         NativeConsoleErrors.DisableDialogs();
         try
         {
+            if (args is [var movie, var directory, "--frames", var frames])
+            {
+                Shoot(Movie(movie), new MovieFrameShots(directory, MovieFrameShots.Parse(frames)));
+                return 0;
+            }
             if (args.Length != 2)
             {
                 Console.Error.WriteLine($"Usage: SuperMetroid.MovieVideo <{string.Join('|', Enum.GetNames<ReplayMovieId>())}> <output.mp4>");
+                Console.Error.WriteLine("   or: SuperMetroid.MovieVideo <movie> <output directory> --frames <FIRST-LAST/STEP,FRAME,...>");
                 return 2;
             }
             Render(Movie(args[0]), args[1]);
@@ -56,6 +65,28 @@ internal static class Program
         }
         Console.WriteLine(session.Finish());
         video.Complete();
+    }
+
+    /// <summary>Replays <paramref name="movie"/> until <paramref name="shots"/> has every chosen frame's picture.</summary>
+    private static void Shoot(ReplayMovieId movie, MovieFrameShots shots)
+    {
+        using var session = ConvertedMovieSession.Open(movie, ReplayMovieFixture.Of(movie).TraceDirectory, video: shots);
+        while (!shots.Done && session.NextInput() is { } input)
+        {
+            MovieReplayPosition position = session.Position
+                ?? throw new InvalidOperationException("The replay handed a frame without saying where it comes from.");
+            try
+            {
+                shots.Step(session.Game, input, position);
+            }
+            catch (Exception exception) when (session.NamedProductionFailure(exception) is { } named)
+            {
+                throw named;
+            }
+            session.FrameCompleted();
+        }
+        if (!shots.Done)
+            throw new InvalidOperationException("The movie ended before every chosen frame was pictured.");
     }
 
     private static ReplayMovieId Movie(string name) =>

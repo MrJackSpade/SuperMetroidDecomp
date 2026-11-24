@@ -79,8 +79,9 @@ internal static partial class SpawnedObjectSheetComposer
         {
             int tileBase = layout.TileBaseOf(enemy);
             // The objects' sheet is coloured in the row the set holds their spawner's colours in, whatever its character
-            // index: spawning with the spawner's graphics ORs its palette bits into the objects' parts (#1513).
-            int palette = rowOf(enemy);
+            // index: spawning with the spawner's graphics ORs its palette bits into the objects' parts (#1513), the bits
+            // its palette holds as it spawns them (#2657).
+            int palette = EnemySheetRowDefinitions.SpawnRows.TryGetValue(enemy, out int spawnRow) ? spawnRow : rowOf(enemy);
             // A projectile draws at its spawner's index's place in its page, an effect actor at the index itself.
             plans.Add(new SpawnedObjectSheetPlan(SpawnedObjectOwner.Of(enemy), tileBase % ProjectilePageCharacters, tileBase, palette,
                 [enemy], [], [], []));

@@ -147,6 +147,9 @@ or one global pause flag (including `SceneTree.paused`) for them.
 
 A state that stops all of play (a message, the pause screen, a room transition) is a `GameMode` laid over the
 playing mode: it names the mode it keeps, that mode stays on screen and is not stepped, and control returns to it.
+Where play is to go on beneath such a mode for a while (this game's pause screen darkens the screen over play
+that is still running, and brightens it again the same way), the mode laid over steps the playing mode itself for
+those updates, without the action that brought it up, and hands over at once to whatever play names instead.
 A state that stops only some things while play goes on is the playing mode's answer to "what is stopped this
 update", which the room is given with the update's input.
 

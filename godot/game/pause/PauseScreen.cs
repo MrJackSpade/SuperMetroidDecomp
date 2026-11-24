@@ -11,38 +11,56 @@ using Godot;
 namespace Game;
 
 /// <summary>
-/// The pause screen, laid over play. It has two pages. The map page shows the map of the area Samus is in, which
-/// the directions scroll. The equipment page shows what she owns, each thing lit when it is switched on, with a
-/// selector on one of them: up and down move it within its side of the page, left and right take it to the other
-/// side, and confirm switches the thing on or off. Her reserves are there too: whether they refill by themselves,
-/// and, when they do not, a line on which holding confirm pours them into her energy. The angle buttons turn the
-/// pages and pause goes back to play.
+/// The pause screen, laid over play. Play goes on while the screen darkens for it and again while the screen
+/// brightens after it: through both this steps play itself, without the pause button, and gives way at once to
+/// whatever play hands over to. Between them every sound stops, the screen is black for an update, the pause
+/// screen brightens, is used, and darkens, and the screen is black for an update more. The strip across the top of
+/// play stays over it throughout.
+/// It has two pages. The map page shows the map of the area Samus is in, through the opening of the page's frame;
+/// the directions move it. The equipment page shows what she owns, each thing lit when it is switched on, with a
+/// selector on one of them that the directions move, and confirm switches the thing the selector is on once it has
+/// moved, so a press on the update it moves switches what it moved onto. Her reserves are there too: whether they
+/// refill by themselves, and, when they do not, a line on which confirm starts them pouring into her energy, which
+/// then goes on by itself until she is full or they are empty and leaves them empty either way. Angle up turns from
+/// the map to the equipment, angle down back, and pause leaves, each once it has been held a while.
 /// </summary>
 /// <remarks>
 /// Its data gives its "backdrop" colour; the picture behind everything for each area ("backdrops"); the pictures
-/// of its "frame"; its three "buttons" ("map", "exit", "samus"), each "lit" or "dim"; its "map", a plane behind the
-/// page that the directions move: the size of a "cell" and of the screen ("screen_width", "screen_height"); the edges of the part of the screen its bounds are kept
+/// of its "frame"; its three "buttons" ("map", "exit", "samus"), each "lit" or "dim"; its "fade" (how many "levels"
+/// of darkness there are, the updates it waits before each step of a fade ("wait"), and before each step of the
+/// fade out of a page ("page_out_wait")); "held_repeat_delay", the updates the buttons held must stay the same
+/// before one of them turns the page or leaves, on the update after; its "map", a plane behind the
+/// page that the directions move: the size of a "cell" and of the screen ("screen_width", "screen_height"); the
+/// "opening" of the frame it shows through ("x", "y", "width", "height", in the backdrop's picture); the edges of the part of the screen its bounds are kept
 /// to ("left_edge", "right_edge", "top_edge", "bottom_edge"); how it first lies ("centre_column", across which the
 /// middle of what shows is put; "centre_line" and "row_middle_above_centre", down; "here_leftmost",
 /// "here_rightmost" and "here_top", which the sign of where Samus is must not lie beyond; "lowest_map_top"); the
 /// cells its bounds are taken to be while none of it shows ("unrevealed"); how far a press moves it
 /// ("scroll_step"), how many updates that takes ("scroll_updates") and on which of them it moves
-/// ("scroll_moves_at"); the "arrows" that show which ways it can be moved ("left", "right", "up", "down", each a
-/// place and a "timeline"); and "indicator", the timeline of the sign of where Samus is, its pictures placed from
-/// the corner of her cell; the "area_folder" of the areas' maps; its "sounds" ("move", "switch", "page", "scroll",
-/// "pour", and "pour_every", the updates from one pouring sound to the next); and its
+/// ("scroll_moves_at"); the "highlight" its arrows are coloured by (the "updates" each of its looks lasts, the
+/// first of them "first_updates" the first time; it goes round on every update the screen is in use, and sounds
+/// each time it comes round); the "arrows" that show which ways it can be moved ("left", "right", "up", "down",
+/// each a place and its "pictures", one for each look of the highlight); and "indicator", the timeline of the sign of where Samus is, its pictures placed from
+/// the corner of her cell; the "area_folder" of the areas' maps; its "sounds" ("move", "switch", "mode", "page",
+/// "leave", "scroll", "highlight", "pour", and "pour_every", the updates from one pouring sound to the next); and its
 /// "equipment" page: the "base" picture, the "hyper" beam's picture, the "controls" (each the "equipment" it
 /// switches, the "side" of the page it is on, the "group" it is in ("beams", "suits" or "boots", each a column the
-/// selector moves along, in the order given), its picture switched "on" and "off" with where that goes, and its
-/// "selector" picture and place), the suit the selector goes to from the beams when it is sent right
+/// selector moves along, in the order given), its picture switched "on" and "off" with where that goes, and the
+/// place of its "selector"), the "selector" (the "updates" each of its looks lasts, the first of them
+/// "first_updates" each time the page is come to, and its "looks" for "reserves", "beams", "suits" and "boots":
+/// for each look a picture and where its corner lies from the selector's place), the suit the selector goes to
+/// from the beams when it is sent right
 /// ("beams_right_enters"), the "wireframes" of her suit by whether she wears the Varia suit and the high
 /// jump boots ("plain", "hi_jump", "varia", "varia_hi_jump"), and her "reserve": the pictures shown with none
-/// ("absent", "arrow_none"), and with some the "tank", the "arrow", the "bar" (a little tank for each she has:
+/// ("absent", "arrow_none"), and with some the "tank", the "arrow" (dim; "arrow_lit" while the selector is on the
+/// pouring line; and "arrow_pulse" while it is on the line of how they refill and they refill by themselves: its
+/// place and "pictures", each shown "updates_each" updates of the game's clock in turn), the "bar" (a little tank for each she has:
 /// the pictures of a "full" one, of one by how many steps full it is ("fills", from none), and of the "end_cap"
 /// after the last; their "places"; the energy a tank holds ("energy_per_tank") and a step is ("energy_per_step");
 /// and that a tank fewer than "flicker_below_steps" steps full shows its next step on and off, "flicker_updates"
 /// each way), the mode ("auto", "manual"), three "digits"
-/// (each a place and ten pictures) and the selectors of its two lines ("mode_selector", "transfer_selector").
+/// (each a place and ten pictures), the places of the selector on its two lines ("mode_selector",
+/// "transfer_selector") and how much pours an update ("pour_per_update").
 /// Every picture is given with where its corner goes.
 /// </remarks>
 public partial class PauseScreen : GameMode
@@ -50,28 +68,74 @@ public partial class PauseScreen : GameMode
     /// <summary>The data file of what it shows.</summary>
     public string DataFile { get; set; } = "pause/pause.json";
 
-    /// <summary>How much of her reserves pours into her energy each update she holds confirm on that line.</summary>
-    public int ReservePourPerUpdate { get; set; } = 1;
+    /// <summary>What the pause is doing.</summary>
+    private enum Phase
+    {
+        Darkening,
+        Preparing,
+        FadingIn,
+        InUse,
+        FadingOut,
+        Restoring,
+        Brightening,
+    }
+
+    /// <summary>How far a turn from one page to the other has got.</summary>
+    private enum PageTurn
+    {
+        None,
+        FadingOut,
+        Loading,
+        FadingIn,
+    }
+
+    /// <summary>Which of the buttons along the bottom are lit besides the way out.</summary>
+    private enum Lit
+    {
+        OnMapPage,
+        OnEquipmentPage,
+        Leaving,
+    }
 
     /// <summary>One thing the selector can rest on: a piece of equipment, or one of the two lines of her reserves.</summary>
-    private sealed record Line(string Equipment, string Side, string Group, DataNode? Data, DataNode Selector);
+    private sealed record Line(string Equipment, string Group, DataNode Selector);
 
-    private const string ReserveMode = "reserve_mode", ReserveTransfer = "reserve_transfer";
+    private const string ReserveMode = "reserve_mode", ReserveTransfer = "reserve_transfer", ReserveGroup = "reserves";
 
     private readonly PlayingMode _playing;
     private readonly List<Line> _controls = [];
     private DataNode? _data;
+    private ScreenFade? _fade;
     private CanvasLayer? _layer;
+    private Node2D? _frame;
     private Node2D? _page;
+    private Node2D? _marks;
     private MapView? _map;
     private CinematicSprite? _indicator;
+    private Sprite2D? _selector;
+    private Sprite2D? _reserveArrow;
+    private int _hudLayer;
+    private Phase _phase;
+    private PageTurn _turn;
+    private Lit _lit;
+    private int _levels;
+    private int _dark;
+    private int _pageDark;
+    private int _fadeWaitLeft;
     private Vector2I _here;
     private int _mapCellSize;
-    private readonly Dictionary<string, CinematicSprite> _arrows = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Sprite2D> _arrows = new(StringComparer.Ordinal);
     private Rect2I _mapBounds;
     private Vector2I _scroll;
     private string? _scrolling;
     private int _scrollAge;
+    private int _look;
+    private int _lookLeft;
+    private int _selectorLook;
+    private int _selectorLeft;
+    private HashSet<GameAction> _heldBefore = [];
+    private HashSet<GameAction> _repeating = [];
+    private int? _repeatWait;
 
     /// <summary>The ways the map can be moved, in the order they are tried when several are held.</summary>
     private static readonly (string Name, GameAction Action, Vector2I Step)[] ScrollWays =
@@ -80,12 +144,10 @@ public partial class PauseScreen : GameMode
         ("up", GameAction.Up, new Vector2I(0, -1)), ("down", GameAction.Down, new Vector2I(0, 1)),
     ];
     private bool _showsMap = true;
-    private int _chosen;
-    private int _pouring;
-    private readonly Dictionary<string, List<(string Equipment, int Control)>> _columns = new(StringComparer.Ordinal);
+    private string _chosen = "";
+    private int? _pourLeft;
+    private readonly Dictionary<string, List<(string Equipment, bool Had)>> _columns = new(StringComparer.Ordinal);
     private bool _beamsClosed;
-    private int _updates;
-    private int _flickerEvery;
 
     /// <summary>The pause screen, laid over <paramref name="playing"/>.</summary>
     public PauseScreen(PlayingMode playing)
@@ -103,83 +165,442 @@ public partial class PauseScreen : GameMode
     protected override void Enter()
     {
         _data = Session.Content.ReadData(DataFile);
-        _layer = new CanvasLayer { Name = "Screen", Layer = 10 };
-        AddChild(_layer);
-        var backdrop = new ColorRect { Name = "Backdrop", Color = new Color(_data.Text("backdrop")) };
-        backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        _layer.AddChild(backdrop);
-        Room room = _playing.Room;
-        ShowPage(map: room.Area.Length > 0);
+        _fade = new ScreenFade { Name = "Fade", Layer = 20 };
+        AddChild(_fade);
+        _levels = _data.Get("fade").Int("levels");
+        BeginFade(dark: 0);
+        _phase = Phase.Darkening;
     }
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        if (input.WasPressed(GameAction.Pause))
-            return _playing;
-        if (input.WasPressed(Actions.AngleUp) || input.WasPressed(Actions.AngleDown))
+        switch (_phase)
         {
-            Sound("page");
-            ShowPage(map: !_showsMap && _playing.Room.Area.Length > 0);
-            return this;
+            case Phase.Darkening:
+            {
+                GameMode next = _playing.Step(input.Without(GameAction.Pause));
+                if (!ReferenceEquals(next, _playing))
+                    return next;
+                if (StepFade(darker: true))
+                    _phase = Phase.Preparing;
+                return this;
+            }
+
+            case Phase.Preparing:
+                Session.Sounds.StopAll();
+                Prepare();
+                BeginFade(dark: _levels);
+                _phase = Phase.FadingIn;
+                return this;
+
+            case Phase.FadingIn:
+                StepAnimations(inUse: false);
+                if (StepFade(darker: false))
+                    _phase = Phase.InUse;
+                return this;
+
+            case Phase.InUse:
+                if (StepInUse(input))
+                {
+                    BeginFade(dark: 0);
+                    _phase = Phase.FadingOut;
+                }
+
+                return this;
+
+            case Phase.FadingOut:
+                StepAnimations(inUse: false);
+                if (StepFade(darker: true))
+                    _phase = Phase.Restoring;
+                return this;
+
+            case Phase.Restoring:
+                Restore();
+                BeginFade(dark: _levels);
+                _phase = Phase.Brightening;
+                return this;
+
+            case Phase.Brightening:
+            {
+                GameMode next = _playing.Step(input.Without(GameAction.Pause));
+                if (!ReferenceEquals(next, _playing))
+                    return next;
+                return StepFade(darker: false) ? _playing : this;
+            }
+
+            default:
+                throw new InvalidOperationException($"The pause is doing {_phase}, which is nothing it can do.");
+        }
+    }
+
+    /// <summary>Sets the screen so dark, with the wait before the first step of the fade from there.</summary>
+    private void BeginFade(int dark)
+    {
+        (_dark, _fadeWaitLeft) = (dark, Data().Get("fade").Int("wait"));
+        ShowDarkness();
+    }
+
+    /// <summary>Plays one update of the fade of the whole screen, a level at a time after its wait, and says whether it is done.</summary>
+    private bool StepFade(bool darker)
+    {
+        if (_fadeWaitLeft > 0)
+        {
+            _fadeWaitLeft--;
+        }
+        else
+        {
+            _fadeWaitLeft = Data().Get("fade").Int("wait");
+            _dark = Math.Clamp(_dark + (darker ? 1 : -1), 0, _levels);
+            ShowDarkness();
         }
 
+        return _dark == (darker ? _levels : 0);
+    }
+
+    /// <summary>Shows the screen as dark as the fade of the whole screen and the turn of a page have it, whichever is darker.</summary>
+    private void ShowDarkness() => (_fade ?? throw NotShown()).Cover(Math.Max(_dark, _pageDark), _levels);
+
+    /// <summary>Builds the pause screen under the black, on its map page, and puts the strip across the top of play over it.</summary>
+    private void Prepare()
+    {
+        DataNode data = Data();
+        _layer = new CanvasLayer { Name = "Screen", Layer = 10 };
+        AddChild(_layer);
+        var backdrop = new ColorRect { Name = "Backdrop", Color = new Color(data.Text("backdrop")) };
+        backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        _layer.AddChild(backdrop);
+        _frame = new Node2D { Name = "Frame" };
+        _layer.AddChild(_frame);
+        _page = new Node2D { Name = "Page" };
+        _layer.AddChild(_page);
+        _marks = new Node2D { Name = "Marks" };
+        _layer.AddChild(_marks);
+        if (_playing.Hud is { } hud)
+        {
+            _hudLayer = hud.Layer;
+            hud.Layer = _layer.Layer + 1;
+        }
+
+        DataNode map = data.Get("map");
+        (_look, _lookLeft) = (0, map.Get("highlight").Int("first_updates"));
+        foreach ((string way, _, _) in ScrollWays)
+        {
+            DataNode arrow = map.Get("arrows").Get(way);
+            var sprite = new Sprite2D
+            {
+                Name = $"Arrow{way}", Centered = false, Position = new Vector2(arrow.Int("x"), arrow.Int("y")), Visible = false,
+                TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+            };
+            _marks.AddChild(sprite);
+            _arrows[way] = sprite;
+        }
+
+        ShowHighlight();
+
+        // The sign of where Samus is shows its first look from the start.
+        _indicator = CinematicSprite.Of(Session.Content, FrameTimeline.Read(map.Get("indicator")), PixelPosition.Origin);
+        _indicator.Name = "Here";
+        _marks.AddChild(_indicator);
+        _indicator.Step();
+
+        // A room that is in no area has no map to show, and the screen is then its equipment page alone.
+        bool hasMap = _playing.Room.Area.Length > 0;
+        _lit = hasMap ? Lit.OnMapPage : Lit.OnEquipmentPage;
+        ShowFrame();
+        ChooseFirst();
+        ShowPage(hasMap);
+    }
+
+    /// <summary>Takes the pause screen away under the black, and puts the strip across the top of play back where it was.</summary>
+    private void Restore()
+    {
+        if (_playing.Hud is { } hud)
+            hud.Layer = _hudLayer;
+        CanvasLayer layer = _layer ?? throw NotShown();
+        RemoveChild(layer);
+        layer.QueueFree();
+        (_layer, _frame, _page, _marks, _map, _indicator, _selector, _reserveArrow) = (null, null, null, null, null, null, null, null);
+        _arrows.Clear();
+    }
+
+    /// <summary>
+    /// Plays one update of the screen in use, and says whether it is being left. A page being turned takes nothing
+    /// from the player. The map page looks for the turn to the equipment, then for leaving, then moves the map; the
+    /// equipment page plays its selector and switches first, then looks for the turn to the map and for leaving.
+    /// </summary>
+    private bool StepInUse(GameInput input)
+    {
+        StepAnimations(inUse: true);
+        StepHeldRepeat(input);
+        if (_showsMap && _turn == PageTurn.None)
+        {
+            foreach ((string way, _, _) in ScrollWays)
+                _arrows[way].Visible = CanScroll(way);
+        }
+
+        if (StepPageTurn())
+            return false;
         if (_showsMap)
         {
-            StepMap(input);
-            return this;
+            if (_repeating.Contains(Actions.AngleUp))
+                BeginPageTurn(Lit.OnEquipmentPage);
+            bool leaving = Leaves();
+            StepMapScroll(input);
+            return leaving;
         }
 
         StepEquipment(input);
-        return this;
+        if (_repeating.Contains(Actions.AngleDown) && _playing.Room.Area.Length > 0)
+            BeginPageTurn(Lit.OnMapPage);
+        return Leaves();
+    }
+
+    /// <summary>
+    /// Works out which of the actions held count as repeating this update: those held, and not newly pressed, once
+    /// what is held so has stayed the same for more updates than the delay, and on every update after until it changes.
+    /// </summary>
+    private void StepHeldRepeat(GameInput input)
+    {
+        HashSet<GameAction> held = [.. GameAction.Standard.Concat(Actions.All).Where(action => input.IsHeld(action) && !input.WasPressed(action))];
+        bool unchanged = held.SetEquals(_heldBefore);
+        _heldBefore = held;
+        if (!unchanged)
+            _repeatWait = null;
+        else if ((_repeatWait ??= Data().Int("held_repeat_delay") + 1) > 0)
+            _repeatWait--;
+        _repeating = _repeatWait == 0 ? held : [];
+    }
+
+    /// <summary>Whether pause, held long enough, leaves the screen; the buttons then show only the way out lit.</summary>
+    private bool Leaves()
+    {
+        if (!_repeating.Contains(GameAction.Pause))
+            return false;
+        Sound("leave");
+        _lit = Lit.Leaving;
+        ShowFrame();
+        return true;
+    }
+
+    /// <summary>Begins the turn to the other page: its button is lit at once, and the page showing begins to darken.</summary>
+    private void BeginPageTurn(Lit lit)
+    {
+        Sound("page");
+        _lit = lit;
+        ShowFrame();
+        _turn = PageTurn.FadingOut;
+        (_pageDark, _fadeWaitLeft) = (0, Data().Get("fade").Int("page_out_wait"));
+    }
+
+    /// <summary>
+    /// Plays one update of a page being turned, and says whether one was: the page showing darkens a level after each
+    /// wait, the other page is put in its place over one black update, and that brightens a level after each wait.
+    /// </summary>
+    private bool StepPageTurn()
+    {
+        DataNode fade = Data().Get("fade");
+        switch (_turn)
+        {
+            case PageTurn.None:
+                return false;
+
+            case PageTurn.FadingOut:
+                if (StepPageFade(darker: true, fade.Int("page_out_wait")))
+                    _turn = PageTurn.Loading;
+                return true;
+
+            case PageTurn.Loading:
+                if (_lit == Lit.OnEquipmentPage)
+                    ChooseFirst();
+                ShowPage(map: _lit == Lit.OnMapPage);
+                _turn = PageTurn.FadingIn;
+                _fadeWaitLeft = fade.Int("wait");
+                return true;
+
+            case PageTurn.FadingIn:
+                if (StepPageFade(darker: false, fade.Int("wait")))
+                    _turn = PageTurn.None;
+                return true;
+
+            default:
+                throw new InvalidOperationException($"A page of the pause screen is being turned as {_turn}, which is no way to turn one.");
+        }
+    }
+
+    /// <summary>Plays one update of the fade of a page being turned, and says whether it is done.</summary>
+    private bool StepPageFade(bool darker, int wait)
+    {
+        if (_fadeWaitLeft > 0)
+        {
+            _fadeWaitLeft--;
+        }
+        else
+        {
+            _fadeWaitLeft = wait;
+            _pageDark = Math.Clamp(_pageDark + (darker ? 1 : -1), 0, _levels);
+            ShowDarkness();
+        }
+
+        return _pageDark == (darker ? _levels : 0);
+    }
+
+    /// <summary>
+    /// Moves on what the screen shows moving, once an update. The highlight goes round only while the screen is in
+    /// use, and sounds as it comes round; the arrows hide, to be shown again by the map page in use; the sign of
+    /// where Samus is plays on the map page, the selector on the equipment page.
+    /// </summary>
+    private void StepAnimations(bool inUse)
+    {
+        foreach (Sprite2D arrow in _arrows.Values)
+            arrow.Visible = false;
+        if (inUse)
+            StepHighlight();
+        if (_showsMap)
+        {
+            _indicator?.Step();
+            return;
+        }
+
+        StepSelector();
+        ShowReserveArrow();
+
+        // A tank of her reserves that is nearly empty flickers, and the page is shown again each time it changes.
+        DataNode bar = Data().Get("equipment").Get("reserve").Get("bar");
+        if (FlickeringSteps(bar) is not null && Session.Clock.Updates % bar.Int("flicker_updates") == 0)
+            ShowEquipment();
+    }
+
+    /// <summary>Moves the highlight on by an update: each look lasts its own while, and it sounds as it comes round to the first.</summary>
+    private void StepHighlight()
+    {
+        if (--_lookLeft > 0)
+            return;
+        IReadOnlyList<DataNode> updates = Data().Get("map").Get("highlight").List("updates");
+        _look++;
+        if (_look == updates.Count)
+        {
+            _look = 0;
+            Sound("highlight");
+        }
+
+        _lookLeft = updates[_look].AsInt();
+        ShowHighlight();
+    }
+
+    /// <summary>Shows every arrow in the highlight's look.</summary>
+    private void ShowHighlight()
+    {
+        DataNode arrows = Data().Get("map").Get("arrows");
+        foreach ((string way, Sprite2D arrow) in _arrows)
+            arrow.Texture = Session.Content.LoadTexture(arrows.Get(way).List("pictures")[_look].AsText());
     }
 
     /// <summary>Plays one update of the equipment page: the selector moves, and confirm switches or pours.</summary>
     private void StepEquipment(GameInput input)
     {
-        // A tank of her reserves that is nearly empty flickers, and the page is shown again each time it changes.
-        _updates++;
-        if (_flickerEvery > 0 && _updates % _flickerEvery == 0)
-            ShowEquipment();
         if (_controls.Count == 0)
             return;
-        Line chosen = _controls[_chosen];
-        if (MoveSelector(input, chosen))
+        Line chosen = Chosen();
+        bool confirm = input.WasPressed(GameAction.Confirm);
+        string before = _chosen;
+        bool changed = false;
+        if (chosen.Group == ReserveGroup)
         {
+            // Her reserves answer to confirm before the selector moves off them.
+            changed = StepReserves(confirm, chosen);
+            MoveSelector(input, Chosen());
+        }
+        else
+        {
+            // Anything else is switched after the selector has moved: a press on the update it moves switches what it
+            // moved onto, by the rules of the column it came from.
+            MoveSelector(input, chosen);
+            if (confirm && !(chosen.Group == "beams" && _columns["beams"].All(beam => !beam.Had)))
+            {
+                Line target = Chosen();
+                Sound("switch");
+                if (target.Group != ReserveGroup)
+                {
+                    Switch(target.Equipment, keepsBeamsApart: chosen.Group == "beams");
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed)
+            _playing.Hud?.Refresh(Session, _playing.Room);
+        if (changed || _chosen != before)
             ShowEquipment();
-            return;
-        }
-
-        if (chosen.Equipment == ReserveTransfer)
-        {
-            if (input.IsHeld(GameAction.Confirm))
-                PourReserves();
-            else
-                _pouring = 0;
-            return;
-        }
-
-        if (!input.WasPressed(GameAction.Confirm))
-            return;
-        Switch(chosen.Equipment);
-        Sound("switch");
-        ShowEquipment();
     }
 
     /// <summary>
-    /// Moves the selector as the directions pressed send it, and says whether it moved. It goes up and down its own
+    /// Plays one update of her reserves under the selector, and says whether anything of hers changed. On the line of
+    /// how they refill, confirm changes it. On the pouring line, confirm starts the pouring, which then goes on every
+    /// update the selector is there: a part of her reserves goes into her energy, with a sound every so often, until
+    /// she is full or they have run out; either way they are then empty and the selector goes back to the line above.
+    /// </summary>
+    private bool StepReserves(bool confirm, Line chosen)
+    {
+        Inventory inventory = Samus.Inventory;
+        if (chosen.Equipment == ReserveMode)
+        {
+            if (!confirm || inventory.Capacity(Amounts.ReserveEnergy) == 0)
+                return false;
+            Sound("mode");
+            inventory.Switch(Equipment.ReserveTank, !inventory.IsOn(Equipment.ReserveTank));
+            return true;
+        }
+
+        DataNode sounds = Data().Get("sounds");
+        int every = sounds.Int("pour_every");
+        if (_pourLeft is not { } left)
+        {
+            if (!confirm)
+                return false;
+            left = (inventory.Amount(Amounts.ReserveEnergy) + every - 1) / every * every;
+        }
+
+        if (left % every == 0)
+            Sound("pour");
+        _pourLeft = Math.Max(0, left - 1);
+
+        int pour = Data().Get("equipment").Get("reserve").Int("pour_per_update");
+        int energy = inventory.Amount(Inventory.Energy) + pour, most = inventory.Capacity(Inventory.Energy);
+        if (energy < most)
+        {
+            // Her reserves may fall short of a whole pouring; what they lack comes back off her energy.
+            int reserves = inventory.Amount(Amounts.ReserveEnergy) - pour;
+            if (reserves > 0)
+            {
+                inventory.Restore(Inventory.Energy, energy);
+                inventory.Restore(Amounts.ReserveEnergy, reserves);
+                return true;
+            }
+
+            energy += reserves;
+        }
+
+        inventory.Restore(Inventory.Energy, Math.Min(energy, most));
+        inventory.Restore(Amounts.ReserveEnergy, 0);
+        _pourLeft = null;
+        _chosen = ReserveMode;
+        return true;
+    }
+
+    /// <summary>
+    /// Moves the selector as the directions pressed send it. It goes up and down its own
     /// column, passing what she has not got; off the end of a column, or sent across, it goes where the page has that
     /// column lead: from the beams up to her reserves and right to the suits or, failing them, the boots; from the
     /// suits down to the boots and left to her reserves or the beams; from the boots up to the suits and left to the
     /// last beam or her reserves; from her reserves down to the beams and right to the suits or the boots.
     /// </summary>
-    private bool MoveSelector(GameInput input, Line chosen)
+    private void MoveSelector(GameInput input, Line chosen)
     {
         bool left = input.WasPressed(GameAction.Left), right = input.WasPressed(GameAction.Right);
         bool up = input.WasPressed(GameAction.Up), down = input.WasPressed(GameAction.Down);
         Inventory inventory = Samus.Inventory;
-        int before = _chosen;
-        if (chosen.Equipment is ReserveMode or ReserveTransfer)
+        if (chosen.Group == ReserveGroup)
         {
             if (right)
             {
@@ -189,28 +610,28 @@ public partial class PauseScreen : GameMode
             else if (up)
             {
                 if (chosen.Equipment != ReserveMode)
-                    Select(_controls.FindIndex(line => line.Equipment == ReserveMode));
+                    Select(ReserveMode);
             }
             else if (down)
             {
-                int transfer = _controls.FindIndex(line => line.Equipment == ReserveTransfer);
-                if (chosen.Equipment == ReserveTransfer || transfer < 0)
+                // The pouring line is there only while her reserves do not refill by themselves.
+                if (chosen.Equipment == ReserveTransfer || inventory.IsOn(Equipment.ReserveTank))
                 {
                     SelectFrom("beams", 0, 1);
                 }
                 else if (inventory.Amount(Amounts.ReserveEnergy) == 0)
                 {
                     // With nothing to pour, the selector only passes the pouring line on its way to the beams.
-                    _chosen = transfer;
+                    _chosen = ReserveTransfer;
                     SelectFrom("beams", 0, 1);
                 }
                 else
                 {
-                    Select(transfer);
+                    Select(ReserveTransfer);
                 }
             }
 
-            return _chosen != before;
+            return;
         }
 
         string group = chosen.Group;
@@ -269,8 +690,6 @@ public partial class PauseScreen : GameMode
             default:
                 throw new InvalidOperationException($"The pause screen's equipment has no column \"{group}\".");
         }
-
-        return _chosen != before;
     }
 
     /// <summary>
@@ -280,19 +699,19 @@ public partial class PauseScreen : GameMode
     /// </summary>
     private bool SelectFrom(string group, int start, int step)
     {
-        List<(string Equipment, int Control)> column = _columns[group];
+        List<(string Equipment, bool Had)> column = _columns[group];
         if (group == "beams" && _beamsClosed)
             return false;
         for (int place = start; place >= 0 && place < column.Count; place += step)
         {
-            if (column[place].Control < 0)
+            if (!column[place].Had)
             {
                 if (group == "suits" && step > 0 && place + step >= column.Count - 1)
                     return false;
                 continue;
             }
 
-            Select(column[place].Control);
+            Select(column[place].Equipment);
             return true;
         }
 
@@ -304,67 +723,98 @@ public partial class PauseScreen : GameMode
     {
         if (Samus.Inventory.Capacity(Amounts.ReserveEnergy) == 0)
             return false;
-        Select(_controls.FindIndex(line => line.Equipment == ReserveMode));
+        Select(ReserveMode);
         return true;
     }
 
     /// <summary>Puts the selector on a line, with the sound of it moving.</summary>
-    private void Select(int control)
+    private void Select(string line)
     {
-        _chosen = control;
+        _chosen = line;
         Sound("move");
+    }
+
+    /// <summary>The line the selector is on.</summary>
+    private Line Chosen() => _controls.Find(line => line.Equipment == _chosen)
+        ?? throw new InvalidOperationException($"The pause screen's selector is on \"{_chosen}\", which the page does not show.");
+
+    /// <summary>Puts the selector where it lies as the equipment page is come to: on her reserves if she has any, else on the first thing she has.</summary>
+    private void ChooseFirst()
+    {
+        Inventory inventory = Samus.Inventory;
+        _chosen = ReserveMode;
+        if (inventory.Capacity(Amounts.ReserveEnergy) > 0)
+            return;
+        foreach (DataNode control in Data().Get("equipment").List("controls"))
+        {
+            if (!Has(control))
+                continue;
+            _chosen = control.Text("equipment");
+            return;
+        }
+    }
+
+    /// <summary>Whether she has what a control switches, and it can be switched: the beams cannot while she has the hyper beam.</summary>
+    private bool Has(DataNode control)
+    {
+        Inventory inventory = Samus.Inventory;
+        DataNode page = Data().Get("equipment");
+        bool closed = inventory.IsOn(Equipment.HyperBeam) && control.Text("side") == page.Text("hyper_side") && control.Flag("beam");
+        return inventory.Owns(control.Text("equipment")) && !closed;
+    }
+
+    /// <summary>Shows the backdrop of the area, the page's frame and its buttons, lit as they now are.</summary>
+    private void ShowFrame()
+    {
+        DataNode data = Data();
+        Node2D frame = _frame ?? throw NotShown();
+        foreach (Node child in frame.GetChildren())
+        {
+            frame.RemoveChild(child);
+            child.QueueFree();
+        }
+
+        Room room = _playing.Room;
+        if (room.Area.Length > 0)
+            Show(data.Get("backdrops").Get(room.Area), parent: frame);
+        foreach (DataNode picture in data.List("frame"))
+            Show(picture, parent: frame);
+
+        // The way out is always lit; the button of the page that is not showing is lit until the screen is left.
+        string other = _lit switch { Lit.OnMapPage => "samus", Lit.OnEquipmentPage => "map", _ => "" };
+        foreach ((string name, DataNode button) in data.Get("buttons").Entries())
+            Show(button, button.Text(name == "exit" || name == other ? "lit" : "dim"), frame);
     }
 
     /// <summary>Shows one of the two pages.</summary>
     private void ShowPage(bool map)
     {
         DataNode data = Data();
-        CanvasLayer layer = _layer ?? throw NotShown();
+        Node2D page = _page ?? throw NotShown();
         _showsMap = map;
-        _page?.QueueFree();
-        _map = null;
-        _indicator = null;
-        _page = new Node2D { Name = "Page" };
-        layer.AddChild(_page);
-        Room room = _playing.Room;
-        if (room.Area.Length > 0)
-            Show(data.Get("backdrops").Get(room.Area));
-        _arrows.Clear();
-        if (map)
-            ShowMap(data.Get("map"), room);
-        foreach (DataNode picture in data.List("frame"))
-            Show(picture);
-
-        // The button of the page that is not showing is lit, and the way out always is.
-        foreach ((string name, DataNode button) in data.Get("buttons").Entries())
+        foreach (Node child in page.GetChildren())
         {
-            bool lit = name == "exit" || name == (map ? "samus" : "map");
-            Show(button, button.Text(lit ? "lit" : "dim"));
+            page.RemoveChild(child);
+            child.QueueFree();
         }
 
-        if (!map)
+        (_map, _selector, _reserveArrow) = (null, null, null);
+        (_marks ?? throw NotShown()).Visible = map;
+        if (map)
         {
-            _chosen = 0;
-            ShowEquipment();
+            ShowMap(data.Get("map"), _playing.Room);
             return;
         }
 
-        // The arrows lie over the page's frame.
-        foreach ((string way, _, _) in ScrollWays)
-        {
-            DataNode arrow = data.Get("map").Get("arrows").Get(way);
-            CinematicSprite sprite = CinematicSprite.Of(
-                Session.Content, FrameTimeline.Read(arrow.Get("timeline")), PixelPosition.FromWhole(arrow.Int("x"), arrow.Int("y")));
-            sprite.Name = $"Arrow{way}";
-            sprite.Visible = false;
-            _page.AddChild(sprite);
-            _arrows[way] = sprite;
-        }
+        // The selector begins again on its first look each time the page is come to.
+        (_selectorLook, _selectorLeft) = (0, data.Get("equipment").Get("selector").Int("first_updates"));
+        ShowEquipment();
     }
 
     /// <summary>
-    /// Lays the map behind the page: the whole of the area's map, as much of it as shows, moved so that the middle of
-    /// what shows lies about the middle of the screen and the sign of where Samus is lies within the page.
+    /// Lays the map behind the page's frame, showing through its opening: the whole of the area's map, as much of it
+    /// as shows. The first time, it is moved so that the middle of what shows lies about the middle of the screen and
+    /// the sign of where Samus is lies within the page; after that it lies where it was left.
     /// </summary>
     private void ShowMap(DataNode at, Room room)
     {
@@ -373,15 +823,32 @@ public partial class PauseScreen : GameMode
         int cell = at.Int("cell");
         if (area.TileSize != cell)
             throw new InvalidOperationException($"The pause screen's map is laid out for cells of {cell} pixels, and the map of {room.Area} has cells of {area.TileSize}.");
+        bool first = _mapCellSize == 0;
         _mapCellSize = cell;
-        _here = new Vector2I(
-            room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
-            room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y);
+
+        // The opening is a part of the backdrop's picture, and the map lies in the plane of that picture.
+        DataNode opening = at.Get("opening");
+        Vector2I plane = PlaneCorner(room);
+        var window = new Control
+        {
+            Name = "Opening", ClipContents = true, MouseFilter = Control.MouseFilterEnum.Ignore,
+            Position = new Vector2(plane.X + opening.Int("x"), plane.Y + opening.Int("y")), Size = new Vector2(opening.Int("width"), opening.Int("height")),
+        };
+        page.AddChild(window);
 
         // Enough cells to cover the screen wherever the map lies under it, and one more each way for a part cell.
         _map = new MapView { Name = "Map", Window = new Vector2I(at.Int("screen_width") / cell + 1, at.Int("screen_height") / cell + 1) };
-        page.AddChild(_map);
+        window.AddChild(_map);
         _map.Present(area, Session.Progress, Session.Content);
+        if (!first)
+        {
+            PlaceMap();
+            return;
+        }
+
+        _here = new Vector2I(
+            room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
+            room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y);
 
         // Its bounds are those of what the area's map shows once had, or of what has been explored while it is not.
         bool had = area.RevealedBy.Length > 0 && Session.Progress.Has(area.RevealedBy);
@@ -408,11 +875,16 @@ public partial class PauseScreen : GameMode
             down = Math.Max(down - (at.Int("here_top") - hereDown), -at.Int("lowest_map_top"));
         _scroll = new Vector2I(across, down);
         (_scrolling, _scrollAge) = (null, 0);
-
-        _indicator = CinematicSprite.Of(Session.Content, FrameTimeline.Read(at.Get("indicator")), PixelPosition.Origin);
-        _indicator.Name = "Here";
-        page.AddChild(_indicator);
         PlaceMap();
+    }
+
+    /// <summary>Where the corner of the backdrop's picture lies on the screen: the map lies in that picture's plane.</summary>
+    private Vector2I PlaneCorner(Room room)
+    {
+        if (room.Area.Length == 0)
+            return Vector2I.Zero;
+        DataNode backdrop = Data().Get("backdrops").Get(room.Area);
+        return new Vector2I(backdrop.Int("x"), backdrop.Int("y"));
     }
 
     /// <summary>Whether the map can be moved a way: what shows of it still lies past that edge of the page.</summary>
@@ -430,21 +902,13 @@ public partial class PauseScreen : GameMode
     }
 
     /// <summary>
-    /// Plays one update of the map page. Each arrow shows while the map can be moved its way. A direction held
+    /// Plays one update of the map's moving. A direction held
     /// starts a move, which takes its while and moves the map part way through; once started it runs on though the
     /// direction is let go, and only a move down is stopped short, when the map can go no further down.
     /// </summary>
-    private void StepMap(GameInput input)
+    private void StepMapScroll(GameInput input)
     {
         DataNode at = Data().Get("map");
-        foreach ((string way, _, _) in ScrollWays)
-        {
-            CinematicSprite arrow = _arrows[way];
-            arrow.Visible = CanScroll(way);
-            arrow.Step();
-        }
-
-        _indicator?.Step();
         if (_scrolling is null)
         {
             foreach ((string way, GameAction action, _) in ScrollWays)
@@ -478,20 +942,16 @@ public partial class PauseScreen : GameMode
     {
         MapView map = _map ?? throw NotShown();
         var first = new Vector2I(Mathf.FloorToInt((float)_scroll.X / _mapCellSize), Mathf.FloorToInt((float)_scroll.Y / _mapCellSize));
-        map.Position = first * _mapCellSize - _scroll;
+
+        // The map is drawn within the opening, whose corner its own place is measured from.
+        DataNode opening = Data().Get("map").Get("opening");
+        map.Position = first * _mapCellSize - _scroll - new Vector2I(opening.Int("x"), opening.Int("y"));
         map.Centre = first + map.Window / 2;
         map.QueueRedraw();
-        PlaceIndicator();
-    }
-
-    /// <summary>Puts the sign of where Samus is over her cell of the map, and hides it while that cell is out of the window.</summary>
-    private void PlaceIndicator()
-    {
-        if (_map is not { } map || _indicator is not { } indicator)
+        if (_indicator is not { } indicator)
             return;
-        Vector2I cell = _here - (map.Centre - map.Window / 2);
-        indicator.Visible = map.IsInWindow(_here);
-        indicator.Place = PixelPosition.FromWhole((int)map.Position.X + cell.X * _mapCellSize, (int)map.Position.Y + cell.Y * _mapCellSize);
+        Vector2I here = _here * _mapCellSize - _scroll;
+        indicator.Place = PixelPosition.FromWhole(here.X, here.Y);
         indicator.ShowPlace();
     }
 
@@ -518,14 +978,12 @@ public partial class PauseScreen : GameMode
         if (inventory.Capacity(Amounts.ReserveEnergy) == 0)
         {
             Show(reserve.Get("absent"), parent: equipment);
-            Show(reserve.Get("arrow_none"), parent: equipment);
         }
         else
         {
             bool auto = inventory.IsOn(Equipment.ReserveTank);
             Show(reserve.Get(auto ? "auto" : "manual"), parent: equipment);
             Show(reserve.Get("tank"), parent: equipment);
-            Show(reserve.Get("arrow"), parent: equipment);
             IReadOnlyList<DataNode> digits = reserve.List("digits");
             int divisor = 1;
             for (int place = 1; place < digits.Count; place++)
@@ -544,18 +1002,12 @@ public partial class PauseScreen : GameMode
             int tank = 0;
             for (; tank < held / perTank; tank++)
                 Show(places[tank], bar.Text("full"), equipment);
-            int rest = held % perTank;
-            _flickerEvery = 0;
-            if (rest != 0)
+            if (held % perTank != 0)
             {
-                int steps = rest / perStep;
-                if (steps < bar.Int("flicker_below_steps") && rest % perStep != 0)
-                {
-                    _flickerEvery = bar.Int("flicker_updates");
-                    if (_updates / _flickerEvery % 2 == 0)
-                        steps++;
-                }
-
+                // One that is nearly empty shows its next step for a while and hides it for as long, by the game's clock.
+                int steps = held % perTank / perStep;
+                if (FlickeringSteps(bar) is { } flickering)
+                    steps = flickering;
                 Show(places[tank++], fills[steps].AsText(), equipment);
             }
 
@@ -563,9 +1015,9 @@ public partial class PauseScreen : GameMode
                 Show(places[tank], fills[0].AsText(), equipment);
             Show(places[tank], bar.Text("end_cap"), equipment);
 
-            _controls.Add(new Line(ReserveMode, "left", "", null, reserve.Get("mode_selector")));
+            _controls.Add(new Line(ReserveMode, ReserveGroup, reserve.Get("mode_selector")));
             if (!auto)
-                _controls.Add(new Line(ReserveTransfer, "left", "", null, reserve.Get("transfer_selector")));
+                _controls.Add(new Line(ReserveTransfer, ReserveGroup, reserve.Get("transfer_selector")));
         }
 
         // The hyper beam stands in the place of the beams, which cannot then be switched.
@@ -577,17 +1029,14 @@ public partial class PauseScreen : GameMode
         foreach (DataNode control in page.List("controls"))
         {
             string name = control.Text("equipment"), group = control.Text("group");
-            if (!_columns.TryGetValue(group, out List<(string Equipment, int Control)>? column))
+            if (!_columns.TryGetValue(group, out List<(string Equipment, bool Had)>? column))
                 _columns[group] = column = [];
-            if (!inventory.Owns(name) || (hyper && control.Text("side") == page.Text("hyper_side") && control.Flag("beam")))
-            {
-                column.Add((name, -1));
+            bool has = Has(control);
+            column.Add((name, has));
+            if (!has)
                 continue;
-            }
-
             Show(control, control.Text(inventory.IsOn(name) ? "on" : "off"), equipment);
-            column.Add((name, _controls.Count));
-            _controls.Add(new Line(name, control.Text("side"), group, control, control.Get("selector")));
+            _controls.Add(new Line(name, group, control.Get("selector")));
         }
 
         string wireframe = (inventory.IsOn(Equipment.VariaSuit), inventory.IsOn(Equipment.HiJumpBoots)) switch
@@ -598,52 +1047,113 @@ public partial class PauseScreen : GameMode
             (true, true) => "varia_hi_jump",
         };
         Show(page.Get("wireframes").Get(wireframe), parent: equipment);
-        if (_controls.Count == 0)
-            return;
-        _chosen = Math.Min(_chosen, _controls.Count - 1);
-        Show(_controls[_chosen].Selector, parent: equipment);
+
+        // The arrow of her reserves and the selector lie over the rest, and are shown anew as they change.
+        _reserveArrow = new Sprite2D { Name = "ReserveArrow", Centered = false, TextureFilter = CanvasItem.TextureFilterEnum.Nearest };
+        equipment.AddChild(_reserveArrow);
+        _selector = new Sprite2D { Name = "Selector", Centered = false, TextureFilter = CanvasItem.TextureFilterEnum.Nearest };
+        equipment.AddChild(_selector);
+
+        // A line that is no longer shown, as the pouring line is not once her reserves refill by themselves, gives the selector to the first.
+        if (_controls.Count > 0 && _controls.All(line => line.Equipment != _chosen))
+            _chosen = _controls[0].Equipment;
+        ShowReserveArrow();
+        ShowSelector();
     }
 
     /// <summary>
-    /// Switches a piece of equipment on or off, or her reserves between refilling by themselves and not. The spazer
-    /// and the plasma beam do not go together: one on turns the other off.
+    /// How many steps full the part-filled tank of her reserves shows now, when it is one that flickers: its next
+    /// step for a while, then not for as long, by the game's clock. Null when no tank flickers.
     /// </summary>
-    private void Switch(string equipment)
+    private int? FlickeringSteps(DataNode bar)
     {
         Inventory inventory = Samus.Inventory;
-        if (equipment == ReserveMode)
-        {
-            inventory.Switch(Equipment.ReserveTank, !inventory.IsOn(Equipment.ReserveTank));
-            return;
-        }
-
-        bool on = !inventory.IsOn(equipment);
-        inventory.Switch(equipment, on);
-        if (!on)
-            return;
-        if (equipment == Equipment.Spazer && inventory.Owns(Equipment.PlasmaBeam))
-            inventory.Switch(Equipment.PlasmaBeam, false);
-        else if (equipment == Equipment.PlasmaBeam && inventory.Owns(Equipment.Spazer))
-            inventory.Switch(Equipment.Spazer, false);
+        if (inventory.Capacity(Amounts.ReserveEnergy) == 0)
+            return null;
+        int rest = inventory.Amount(Amounts.ReserveEnergy) % bar.Int("energy_per_tank"), perStep = bar.Int("energy_per_step");
+        int steps = rest / perStep;
+        if (rest == 0 || rest % perStep == 0 || steps >= bar.Int("flicker_below_steps"))
+            return null;
+        return Session.Clock.Updates / bar.Int("flicker_updates") % 2 == 0 ? steps + 1 : steps;
     }
 
-    /// <summary>Pours a little of her reserves into her energy, sounding every so often as it goes.</summary>
-    private void PourReserves()
+    /// <summary>
+    /// Shows the arrow of her reserves: as the page has it with none; pulsing while the selector is on the line of
+    /// how they refill and they refill by themselves; lit while it is on the pouring line; dim otherwise.
+    /// </summary>
+    private void ShowReserveArrow()
     {
-        Inventory inventory = Samus.Inventory;
-        int room = inventory.Capacity(Inventory.Energy) - inventory.Amount(Inventory.Energy);
-        int pour = Math.Min(ReservePourPerUpdate, Math.Min(room, inventory.Amount(Amounts.ReserveEnergy)));
-        if (pour <= 0)
-        {
-            _pouring = 0;
+        if (_reserveArrow is not { } arrow)
             return;
+        DataNode reserve = Data().Get("equipment").Get("reserve");
+        Inventory inventory = Samus.Inventory;
+        DataNode placed;
+        string picture;
+        if (inventory.Capacity(Amounts.ReserveEnergy) == 0)
+        {
+            placed = reserve.Get("arrow_none");
+            picture = placed.Text("picture");
+        }
+        else if (_chosen == ReserveMode && inventory.IsOn(Equipment.ReserveTank))
+        {
+            placed = reserve.Get("arrow_pulse");
+            IReadOnlyList<DataNode> pictures = placed.List("pictures");
+            picture = pictures[(int)(Session.Clock.Updates / placed.Int("updates_each") % pictures.Count)].AsText();
+        }
+        else
+        {
+            placed = reserve.Get(_chosen == ReserveTransfer ? "arrow_lit" : "arrow");
+            picture = placed.Text("picture");
         }
 
-        inventory.Lose(Amounts.ReserveEnergy, pour);
-        inventory.Add(Inventory.Energy, pour);
-        if (_pouring++ % Data().Get("sounds").Int("pour_every") == 0)
-            Sound("pour");
-        ShowEquipment();
+        arrow.Visible = picture.Length > 0;
+        if (!arrow.Visible)
+            return;
+        arrow.Texture = Session.Content.LoadTexture(picture);
+        arrow.Position = new Vector2(placed.Int("x"), placed.Int("y"));
+    }
+
+    /// <summary>Moves the selector's look on by an update, while there is anything for it to be on.</summary>
+    private void StepSelector()
+    {
+        if (_controls.Count == 0 || --_selectorLeft > 0)
+            return;
+        IReadOnlyList<DataNode> updates = Data().Get("equipment").Get("selector").List("updates");
+        _selectorLook = (_selectorLook + 1) % updates.Count;
+        _selectorLeft = updates[_selectorLook].AsInt();
+        ShowSelector();
+    }
+
+    /// <summary>Shows the selector on the line it is on, in the look it has come to for that line's column.</summary>
+    private void ShowSelector()
+    {
+        if (_selector is not { } selector)
+            return;
+        selector.Visible = _controls.Count > 0;
+        if (!selector.Visible)
+            return;
+        Line chosen = Chosen();
+        DataNode look = Data().Get("equipment").Get("selector").Get("looks").List(chosen.Group)[_selectorLook];
+        selector.Texture = Session.Content.LoadTexture(look.Text("picture"));
+        selector.Position = new Vector2(chosen.Selector.Int("x") + look.Int("x"), chosen.Selector.Int("y") + look.Int("y"));
+    }
+
+    /// <summary>
+    /// Switches a piece of equipment on or off. Switched from the beams' own column, the spazer and the plasma beam
+    /// do not go together: one on turns the other off. Switched on the update the selector came onto it from another
+    /// column, they are left as they are.
+    /// </summary>
+    private void Switch(string equipment, bool keepsBeamsApart)
+    {
+        Inventory inventory = Samus.Inventory;
+        bool on = !inventory.IsOn(equipment);
+        inventory.Switch(equipment, on);
+        if (!on || !keepsBeamsApart)
+            return;
+        if (equipment == Equipment.Spazer && inventory.IsOn(Equipment.PlasmaBeam))
+            inventory.Switch(Equipment.PlasmaBeam, false);
+        else if (equipment == Equipment.PlasmaBeam && inventory.IsOn(Equipment.Spazer))
+            inventory.Switch(Equipment.Spazer, false);
     }
 
     /// <summary>Shows a picture the data places, or another picture at that place; an empty picture shows nothing.</summary>

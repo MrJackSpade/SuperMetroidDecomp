@@ -33,6 +33,12 @@ public partial class AudioDirector : Node
     /// <summary>Plays what was accepted since the last update, and follows the music asked for.</summary>
     public void Step()
     {
+        if (_session.Sounds.TakeStop())
+        {
+            foreach (AudioStreamPlayer player in _channels.Values)
+                player.Stop();
+        }
+
         foreach (AcceptedSound accepted in _session.Sounds.TakeAccepted())
         {
             AudioStreamPlayer player = ChannelPlayer(accepted.Channel);

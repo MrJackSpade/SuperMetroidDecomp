@@ -36,6 +36,9 @@ public sealed class GameInput
     /// <summary>Whether the action was pressed since the update before, even if it has been let go again.</summary>
     public bool WasPressed(GameAction action) => _pressed.Contains(action);
 
+    /// <summary>This input with <paramref name="action"/> neither held nor pressed, as for something that must not see it.</summary>
+    public GameInput Without(GameAction action) => new(_held.Remove(action), _pressed.Remove(action));
+
     /// <summary>Whether exactly the same actions are held in this input as in <paramref name="other"/>.</summary>
     public bool HoldsSameAs(GameInput other)
     {

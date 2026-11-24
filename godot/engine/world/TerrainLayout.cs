@@ -15,7 +15,8 @@ namespace Engine.World;
 ///     "#": { "kind": "solid", "picture": "tiles/rock.png" },
 ///     "/": { "kind": "slope", "solid": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] },
 ///     "S": { "kind": "block", "block": "blocks/shot.json" },
-///     "~": { "kind": "empty", "pictures": ["tiles/lava_1.png", "tiles/lava_2.png"], "updates": 10 }
+///     "~": { "kind": "empty", "pictures": ["tiles/lava_1.png", "tiles/lava_2.png"], "updates": 10 },
+///     "w": { "kind": "empty", "picture": "tiles/rock.png", "seen": "" }
 ///   },
 ///   "rows": [
 ///     "........",
@@ -82,6 +83,10 @@ public sealed class TerrainLayout
                     throw tile.Problem("names pictures to step through, but none, or no positive number of updates for each");
                 read = read with { Frames = frames, FrameUpdates = updates };
             }
+
+            // A tile may look otherwise to a revealing ability: a wall that is air shows as nothing.
+            if (tile.Has("seen"))
+                read = read with { SeenPicture = tile.Text("seen") };
 
             legend[letter[0]] = read;
         }

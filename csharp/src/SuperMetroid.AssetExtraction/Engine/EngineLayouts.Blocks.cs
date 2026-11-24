@@ -338,26 +338,7 @@ internal sealed partial class EngineLayouts
     /// <exception cref="InvalidDataException">The scope's pictures are not one for each tile, or differ from what a bomb shows.</exception>
     private List<int> AddSight(JsonObject rules, RoomCollisionType collision, string reaction, int width, int height)
     {
-        if (_sight is null)
-        {
-            _sight = [];
-            string file = Path.Combine(_content, GameInstallationLayout.XrayRevealVisualDirectoryName, "reveals.json");
-            JsonArray entries = JsonNode.Parse(File.ReadAllText(file))?["entries"]?.AsArray()
-                ?? throw new InvalidDataException($"The file {file} lists nothing the X-ray scope shows.");
-            foreach (JsonNode? entry in entries)
-            {
-                JsonObject blocks = entry!["blocks"]!.AsObject();
-                // The parts of a block are named for where they lie; these are the names in the order of its tiles.
-                string[] places = ["block", "left", "top", "topLeft", "right", "topRight", "bottom", "bottomLeft", "bottomRight"];
-                int[] shown = [.. places.Where(blocks.ContainsKey).Select(place => blocks[place]!.GetValue<int>())];
-                if (shown.Length != blocks.Count)
-                    throw new InvalidDataException($"The file {file} names a part of a block this does not know.");
-                foreach (JsonNode? named in entry["reactions"]!.AsArray())
-                    _sight[(entry["collisionType"]!.GetValue<string>(), named!.GetValue<string>())] = shown;
-            }
-        }
-
-        if (!_sight.TryGetValue((collision.ToString(), reaction), out int[]? parts))
+        if (!Sight().TryGetValue((collision.ToString(), reaction), out int[]? parts))
             return [];
         if (parts.Length != width * height)
             throw new InvalidDataException($"The X-ray scope shows the {collision} block {reaction} with {parts.Length} pictures, and it has {width * height} tiles.");
@@ -375,6 +356,61 @@ internal sealed partial class EngineLayouts
         if (parts.Length == 1)
             rules["hides_again"] = true;
         return [.. parts];
+    }
+
+    /// <summary>
+    /// What the X-ray scope shows each kind of block as, read once from the installation. A kind the old game lists
+    /// with no reaction is kept under an empty one.
+    /// </summary>
+    private Dictionary<(string Collision, string Reaction), int[]> Sight()
+    {
+        if (_sight is not null)
+            return _sight;
+        _sight = [];
+        string file = Path.Combine(_content, GameInstallationLayout.XrayRevealVisualDirectoryName, "reveals.json");
+        JsonArray entries = JsonNode.Parse(File.ReadAllText(file))?["entries"]?.AsArray()
+            ?? throw new InvalidDataException($"The file {file} lists nothing the X-ray scope shows.");
+        foreach (JsonNode? entry in entries)
+        {
+            JsonObject blocks = entry!["blocks"]!.AsObject();
+
+            // The parts of a block are named for where they lie; these are the names in the order of its tiles.
+            string[] places = ["block", "left", "top", "topLeft", "right", "topRight", "bottom", "bottomLeft", "bottomRight"];
+            int[] shown = [.. places.Where(blocks.ContainsKey).Select(place => blocks[place]!.GetValue<int>())];
+            if (shown.Length != blocks.Count)
+                throw new InvalidDataException($"The file {file} names a part of a block this does not know.");
+            string collision = entry["collisionType"]!.GetValue<string>();
+            JsonArray reactions = entry["reactions"]!.AsArray();
+            if (reactions.Count == 0)
+                _sight[(collision, "")] = shown;
+            foreach (JsonNode? named in reactions)
+                _sight[(collision, named!.GetValue<string>())] = shown;
+        }
+
+        return _sight;
+    }
+
+    /// <summary>
+    /// The picture a tile that is no reacting block shows to the X-ray scope in place of its own: nothing for a wall
+    /// that is air, the old game's own picture for the few solid kinds it marks. Null for a tile the scope shows as
+    /// it always is.
+    /// </summary>
+    private string? SeenAs(RoomTerrainBlock terrain, RoomBlockBehavior behavior, string tileset, string? own)
+    {
+        string reaction = terrain.Collision switch
+        {
+            RoomCollisionType.ShootableBlock or RoomCollisionType.ShootableAir => $"{behavior.Shootable}",
+            RoomCollisionType.BombableBlock or RoomCollisionType.BombableAir => $"{behavior.Bombable}",
+            RoomCollisionType.SpecialBlock => $"{behavior.Special}",
+            RoomCollisionType.SpecialAir => $"{behavior.SpecialAir}",
+            RoomCollisionType.SpikeBlock or RoomCollisionType.SpikeAir => $"{behavior.Spike}",
+            RoomCollisionType.GrappleBlock => $"{behavior.Grapple}",
+            _ => "",
+        };
+        if (!Sight().TryGetValue((terrain.Collision.ToString(), reaction), out int[]? parts) || parts.Length != 1)
+            return null;
+        string seen = Picture(tileset, parts[0], BlockMirroring.None) ?? "";
+        return seen == (own ?? "") ? null : seen;
     }
 
     /// <summary>The frames of a change to a block that undoes itself.</summary>

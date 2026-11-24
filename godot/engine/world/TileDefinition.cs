@@ -12,6 +12,12 @@ public sealed record TileDefinition(TileKind Kind, SlopeShape? Slope, string Blo
     /// <summary>The pictures it steps through, for a tile that moves as it is looked at; empty for one picture that stays.</summary>
     public IReadOnlyList<string> Frames { get; init; } = [];
 
+    /// <summary>
+    /// The picture it shows in place of its own while a revealing ability sees it, empty for nothing; null for a tile
+    /// that looks the same seen or not.
+    /// </summary>
+    public string? SeenPicture { get; init; }
+
     /// <summary>How many updates each of those pictures shows for.</summary>
     public int FrameUpdates { get; init; } = 1;
 

@@ -504,6 +504,9 @@ internal sealed partial class EngineLayouts
             }
         }
 
+        // What the X-ray scope shows of a tile that is no reacting block, where that is not what it always shows.
+        if (tile["kind"]!.GetValue<string>() != "block" && SeenAs(terrain, behavior, tileset, tile["picture"]?.GetValue<string>()) is { } seen)
+            tile["seen"] = seen;
         return tile;
     }
 

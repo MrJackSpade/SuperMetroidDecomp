@@ -43,6 +43,9 @@ public partial class Terrain : Node2D, ITerrainShape
     /// <summary>The sounds of the blocks that have broken and not yet been heard.</summary>
     private readonly List<string> _breakSounds = [];
 
+    /// <summary>The tiles a revealing ability sees, by row and column, with how many more updates each is shown as seen.</summary>
+    private readonly Dictionary<(int Row, int Column), int> _seenTiles = [];
+
     /// <summary>Every block, in reading order of its top-left tile.</summary>
     private readonly List<Block> _blocks = [];
 
@@ -84,6 +87,7 @@ public partial class Terrain : Node2D, ITerrainShape
 
         // A block type shared by every set of graphics names its pictures with the set left out: the layout's is put in.
         _content = content.DrawnWith(_layout.Graphics);
+        _seenTiles.Clear();
         _updates = 0;
         _hasMovingTiles = _layout.Tiles.Any(row => row.Any(tile => tile.Frames.Count > 0));
         _tiles = _layout.Tiles.Select(row => row.ToArray()).ToArray();
@@ -259,6 +263,24 @@ public partial class Terrain : Node2D, ITerrainShape
     }
 
     /// <summary>
+    /// Shows the tile at a point of the room as a revealing ability sees it, through this update, if it looks
+    /// otherwise seen: a tile that names a picture for that. Returns whether it does.
+    /// </summary>
+    public bool SeeTileAt(int x, int y)
+    {
+        int size = TileSize;
+        if (x < 0 || y < 0 || x >= WidthInPixels || y >= HeightInPixels)
+            return false;
+        (int row, int column) = (y / size, x / size);
+        if (_tiles[row][column].SeenPicture is null)
+            return false;
+        if (!_seenTiles.ContainsKey((row, column)))
+            QueueRedraw();
+        _seenTiles[(row, column)] = 2;
+        return true;
+    }
+
+    /// <summary>
     /// Moves every block's timers on by one update: blocks being stood on give way, and broken ones regrow once their
     /// space is clear.
     /// </summary>
@@ -267,6 +289,17 @@ public partial class Terrain : Node2D, ITerrainShape
     {
         _updates++;
         bool changed = _hasMovingTiles;
+
+        // A tile seen this update is shown so through it; unseen the next, it looks as it always does again.
+        foreach ((int Row, int Column) seen in _seenTiles.Keys.ToList())
+        {
+            if (--_seenTiles[seen] <= 0)
+            {
+                _seenTiles.Remove(seen);
+                changed = true;
+            }
+        }
+
         foreach (Block block in _blocks)
         {
             changed |= block.Step(spaceIsClear: !isOccupied(block.Rect));
@@ -359,7 +392,7 @@ public partial class Terrain : Node2D, ITerrainShape
             {
                 TileDefinition tile = _tiles[row][column];
                 // A block is drawn at every tile it covers, as it is now.
-                string picture = tile.PictureAt(_updates);
+                string picture = tile.SeenPicture is { } seen && _seenTiles.ContainsKey((row, column)) ? seen : tile.PictureAt(_updates);
                 if (_blockAt[row][column] is { } block)
                 {
                     int part = (row - block.Rect.Top / size) * (block.Rect.Width / size) + column - block.Rect.Left / size;

@@ -79,6 +79,17 @@ public partial class SamusXray : Node2D
                 terrain.RevealBySight(block.Rect);
         }
 
+        // The plain tiles the scope looks through too: those whose middles its cone covers.
+        int size = terrain.TileSize;
+        for (int y = Math.Max(0, sweep.Top / size * size); y < sweep.Bottom; y += size)
+        {
+            for (int x = Math.Max(0, sweep.Left / size * size); x < sweep.Right; x += size)
+            {
+                if (IsInCone((long)(x + size / 2 - eye.X.Whole) * forward, y + size / 2 - eye.Y.Whole))
+                    terrain.SeeTileAt(x, y);
+            }
+        }
+
         QueueRedraw();
     }
 

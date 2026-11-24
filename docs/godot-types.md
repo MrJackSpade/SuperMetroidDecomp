@@ -441,7 +441,7 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   other (section 6, "The body as a weapon").
 
 **Tiles that move as they are looked at.** A layout's tile may name several pictures and how long each shows:
-lava's surface, spikes, a treadmill. That changes only what is drawn.
+lava's surface, spikes, a treadmill. That changes only what is drawn. A tile may also name the picture it shows, or that it shows nothing, for as long as a revealing ability sees it: a wall that is air shows as nothing to the X-ray scope. `Terrain` is told which tiles are seen each update, as it is for blocks.
 
 **Terrain shown shifted.** `Terrain` can be shown a few pixels from where it is, for a wall that rattles; that
 changes nothing about where it is.

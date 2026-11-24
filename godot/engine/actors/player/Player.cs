@@ -74,7 +74,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     [Export(PropertyHint.File), DataValue("land_effect")]
     public string LandEffect { get; set; } = "";
 
-    /// <summary>The most pixels climbed for each pixel walked across a slope.</summary>
+    /// <summary>The most pixels climbed for each pixel moved across a slope.</summary>
     [Export, DataValue("climb_per_pixel")]
     public int ClimbPerPixel { get; set; } = 2;
 
@@ -410,10 +410,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public int Intent => (_input.IsHeld(GameAction.Right) ? 1 : 0) - (_input.IsHeld(GameAction.Left) ? 1 : 0);
 
     /// <summary>
-    /// How the player's body meets terrain: stopped by terrain and solids, and held up by sloped ground under its
-    /// middle column where the slope's tile says it holds things so. Every move and test of the player's body uses it.
+    /// How the player's body meets terrain: stopped by terrain and solids, held up by sloped ground under its middle
+    /// column where the slope's tile says it holds things so, and climbing such ground as steeply as the player can,
+    /// on the ground and in the air alike. Every move and test of the player's body uses it.
     /// </summary>
-    public MoveOptions BodyMoves { get; } = MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle };
+    public MoveOptions BodyMoves => MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle, ClimbPerPixel = ClimbPerPixel };
 
     /// <summary>Whether the player stands on terrain or a solid.</summary>
     public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
@@ -1109,8 +1110,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <param name="byDashAlone">Whether only a dash's speed carries the player this update, their own speed left as it is.</param>
     public MoveResult MoveAcross(bool byDashAlone = false)
     {
-        bool grounded = IsOnGround;
-        MoveOptions options = BodyMoves with { ClimbPerPixel = grounded ? ClimbPerPixel : 1 };
+        MoveOptions options = BodyMoves;
         Pixels distance = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
         _reachAcross = distance.Abs();
         distance = OverSlopes(distance);

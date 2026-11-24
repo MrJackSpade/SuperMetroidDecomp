@@ -12,8 +12,9 @@ namespace Game.Menus;
 /// The title. It opens with cards of words typed a letter at a time, each followed by a move across its backdrop
 /// seen from close to, the last by the backdrop drawing back to its own size; then the title fades in over it and the
 /// copyright under that, and it rests. A press during the opening cuts it short. At rest, confirm goes to the choice
-/// of saved game; left alone for a while it shows its demos, a set of them at a time, and comes back, straight to its
-/// rest. The larva in its tube on the backdrop pulses throughout.
+/// of saved game; left alone for a while it shows its demos, a set of them at a time, and comes back from its
+/// opening once a set has played through, or straight to its rest when a demo is cut short. The larva in its tube on
+/// the backdrop pulses throughout.
 /// </summary>
 /// <remarks>
 /// Its data names its "music" at rest, asked for when the opening is cut short; its "backdrop" colour; its "floor",
@@ -36,15 +37,28 @@ namespace Game.Menus;
 /// </remarks>
 public partial class TitleMode : GameMode
 {
-    private readonly bool _atRestAtOnce;
+    private readonly Beginning _beginning;
 
-    /// <summary>The title, from its opening.</summary>
+    /// <summary>The title, from its opening, as the game starts or starts again.</summary>
     public TitleMode()
     {
     }
 
-    /// <summary>The title, from its opening or, when <paramref name="atRestAtOnce"/>, straight at its rest, as it comes back from a demo.</summary>
-    public TitleMode(bool atRestAtOnce) => _atRestAtOnce = atRestAtOnce;
+    /// <summary>The title, begun as <paramref name="beginning"/> says.</summary>
+    public TitleMode(Beginning beginning) => _beginning = beginning;
+
+    /// <summary>How the title begins.</summary>
+    public enum Beginning
+    {
+        /// <summary>From its opening, as the game starts or starts again: the random numbers start over.</summary>
+        Afresh,
+
+        /// <summary>From its opening, once a set of demos has played through: the random numbers run on.</summary>
+        AfterDemos,
+
+        /// <summary>Straight at its rest, as a demo comes back cut short.</summary>
+        AtRest,
+    }
 
     /// <summary>The data file of what it shows.</summary>
     [Export(PropertyHint.File)]
@@ -70,6 +84,9 @@ public partial class TitleMode : GameMode
 
         /// <summary>The opening has been cut short, and the screen is going dark.</summary>
         Skipping,
+
+        /// <summary>The skip has gone dark, and the title is put at its rest.</summary>
+        Rebuilding,
 
         /// <summary>At rest.</summary>
         Resting,
@@ -143,16 +160,20 @@ public partial class TitleMode : GameMode
 
         _fade = new ScreenFade { Name = "Fade", Layer = 20 };
         AddChild(_fade);
-        if (_atRestAtOnce)
+        if (_beginning == Beginning.AtRest)
         {
             Rest(restoredCopyright: true);
             _fade.FadeIn(opening.Int("skip_fade_updates"));
             return;
         }
 
-        // The cartridge starts its random numbers over as the title starts, from its power-on number, and draws one.
-        Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
-        Session.Random.Next();
+        // The cartridge starts its random numbers over as the game starts or starts again, from its power-on number,
+        // and draws one; the title it rebuilds after a set of demos does not.
+        if (_beginning == Beginning.Afresh)
+        {
+            Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
+            Session.Random.Next();
+        }
         Compatibility.CartridgeSounds.Of(Session).AskMusicSet("title_sequence");
         Session.Sounds.RequestMusic(opening.Text("music"));
         Begin(0);
@@ -200,6 +221,10 @@ public partial class TitleMode : GameMode
 
                 // Only a skip asks for the music at rest; the opening's own music runs on into it otherwise.
                 Session.Sounds.RequestMusic(data.Text("music"));
+                _doing = Doing.Rebuilding;
+                return this;
+            case Doing.Rebuilding:
+                // The old game rebuilds the title at rest on the update after the skip's fade reaches black.
                 Rest(restoredCopyright: true);
                 fade.FadeIn(opening.Int("skip_fade_updates"));
                 return this;
@@ -240,6 +265,9 @@ public partial class TitleMode : GameMode
         {
             _doing = Doing.Skipping;
             fade.FadeOut(opening.Int("skip_fade_updates"));
+
+            // The skip's first step darker falls on the update of the press.
+            fade.Step();
         }
 
         return this;

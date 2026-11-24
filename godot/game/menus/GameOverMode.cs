@@ -10,15 +10,14 @@ namespace Game.Menus;
 
 /// <summary>
 /// The game over screen. It stays black while the room's sounds stop, it is set up (the larva starting, the music
-/// stopping and the title's set of music loading) and the music is changed, and then it comes up out of black with
+/// stopping and the title's set of music loading) and the music's queue empties, and then it comes up out of black with
 /// its own music: its page, with the larva crying over its egg, and a cursor beside yes or no. Item select, up and down move the cursor; confirming fades the
 /// screen out, the larva holding its look, and yes goes back to the saved game by the map of where it was saved,
 /// no to the title. A yes for a game saved where the map marks nothing starts it at once, with no fade. Its fades go a level of brightness an update.
 /// </summary>
 /// <remarks>
 /// Its data names its "music", its "backdrop" colour, its "page" picture, the sound of the cursor moving
-/// ("move_sound"), the updates it stays black before it is set up ("entry_black_updates"), the updates after that
-/// it waits for the music to be changed ("music_wait_updates"), the levels of brightness its fades go through
+/// ("move_sound"), the updates it stays black before it is set up ("entry_black_updates"), the levels of brightness its fades go through
 /// ("fade_levels"), the updates the larva holds its
 /// look once an answer is given ("answer_hold_updates"), its timelines "baby" (which gives the cues "sound:" and a
 /// sound's name), "egg" and "cursor", and the "places" of the "baby" (the egg lies there too) and of the cursor
@@ -45,7 +44,8 @@ public partial class GameOverMode : GameMode
     private int _holdLeft;
     private int _blackUpdates;
     private bool _setUp;
-    private int _musicLeft;
+    private bool _setUpWaitedOut;
+    private bool _musicAsked;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -72,9 +72,6 @@ public partial class GameOverMode : GameMode
         _levels = _data.Int("fade_levels");
         _lit = 0;
         _fade.Cover(_levels, _levels);
-        _musicLeft = _data.Int("music_wait_updates");
-        if (_musicLeft <= 0)
-            throw _data.Problem("waits no updates for the music to be changed");
     }
 
     /// <inheritdoc/>
@@ -100,11 +97,20 @@ public partial class GameOverMode : GameMode
             return this;
         }
 
-        if (_musicLeft > 0)
+        if (!_setUpWaitedOut)
         {
-            // Nothing moves while the music is changed; once it has been, the screen asks for its own and fades in.
-            if (--_musicLeft == 0)
-                Session.Sounds.RequestMusic(Data().Text("music"));
+            // The old game waits out the set-up's update before it looks at the music.
+            _setUpWaitedOut = true;
+            return this;
+        }
+
+        if (!_musicAsked)
+        {
+            // Nothing moves while the music's queue empties; once it has, the screen asks for its own and fades in.
+            if (Session.Sounds.HasQueuedMusic)
+                return this;
+            _musicAsked = true;
+            Session.Sounds.RequestMusic(Data().Text("music"));
             return this;
         }
 

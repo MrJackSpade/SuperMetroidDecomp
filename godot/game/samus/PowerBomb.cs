@@ -18,7 +18,7 @@ namespace Game;
 /// they are done.
 /// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
 /// </remarks>
-public partial class PowerBomb : Projectile, IHasValues
+public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
 {
     /// <inheritdoc/>
     [Export(PropertyHint.File)]
@@ -70,18 +70,27 @@ public partial class PowerBomb : Projectile, IHasValues
     /// <inheritdoc/>
     protected override void BeforeTravel(Room room)
     {
-        if (!_blasting)
-        {
-            Bomb.ThrowBall(this, FuseUpdates - Age);
-            if (Age < FuseUpdates)
-                return;
-
-            // The fuse is out: the bomb is gone, and its blast takes its first step on the next update.
-            _blasting = true;
-            StopShowing();
-            room.Session.Sounds.Request(Data.Sounds.PowerBombExplosion, channel: "explosions");
+        if (_blasting)
             return;
-        }
+
+        Bomb.ThrowBall(this, FuseUpdates - Age);
+        if (Age < FuseUpdates)
+            return;
+
+        // The fuse is out: the bomb is gone, and its blast takes its first step as the next update opens.
+        _blasting = true;
+        StopShowing();
+        room.Session.Sounds.Request(Data.Sounds.PowerBombExplosion, channel: "explosions");
+    }
+
+    /// <summary>
+    /// Plays one update of the blast as the update opens, before anyone acts: it reaches further, its hit lands on what
+    /// it reaches and on the terrain it covers, and once its reaches are done the bomb leaves.
+    /// </summary>
+    public void StepOpening(Room room)
+    {
+        if (!_blasting)
+            return;
 
         if (_blastUpdate >= BlastReaches.Length)
         {

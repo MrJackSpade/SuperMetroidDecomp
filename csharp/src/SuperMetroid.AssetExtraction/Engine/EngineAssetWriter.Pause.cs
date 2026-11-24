@@ -108,6 +108,8 @@ public sealed partial class EngineAssetWriter
                 },
                 ["side"] = beam ? "left" : "right",
                 ["beam"] = beam,
+                // The column of the page it is in, which the selector moves along and between.
+                ["group"] = Named(control.Category),
                 ["on"] = on["picture"]!.GetValue<string>(),
                 ["off"] = off["picture"]!.GetValue<string>(),
                 ["x"] = on["x"]!.GetValue<int>(),
@@ -210,6 +212,8 @@ public sealed partial class EngineAssetWriter
                 ["base"] = Placed(PauseEquipmentPictures.BaseFrame),
                 ["hyper"] = Placed(PauseEquipmentPictures.HyperBeamsFrame),
                 ["hyper_side"] = "left",
+                // The suit the selector goes to from the beams when it is sent right.
+                ["beams_right_enters"] = EquipmentName(((ItemPauseUpgrade)PauseEquipmentControls.BeamsRightSuitEntry.Upgrade).Item),
                 ["controls"] = controls,
                 ["wireframes"] = wireframes,
                 ["reserve"] = new JsonObject

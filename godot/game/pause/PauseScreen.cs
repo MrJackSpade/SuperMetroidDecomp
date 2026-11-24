@@ -25,8 +25,10 @@ namespace Game;
 /// is, its pictures placed from the corner of her cell), with the "area_folder" of the areas' maps; its "sounds"
 /// ("move", "switch", "page", "pour", and "pour_every", the updates from one pouring sound to the next); and its
 /// "equipment" page: the "base" picture, the "hyper" beam's picture, the "controls" (each the "equipment" it
-/// switches, the "side" of the page it is on, its picture switched "on" and "off" with where that goes, and its
-/// "selector" picture and place), the "wireframes" of her suit by whether she wears the Varia suit and the high
+/// switches, the "side" of the page it is on, the "group" it is in ("beams", "suits" or "boots", each a column the
+/// selector moves along, in the order given), its picture switched "on" and "off" with where that goes, and its
+/// "selector" picture and place), the suit the selector goes to from the beams when it is sent right
+/// ("beams_right_enters"), the "wireframes" of her suit by whether she wears the Varia suit and the high
 /// jump boots ("plain", "hi_jump", "varia", "varia_hi_jump"), and her "reserve": the pictures shown with none
 /// ("absent", "arrow_none"), and with some the "tank", the "arrow", the "bar" (a little tank for each she has:
 /// the pictures of a "full" one, of one by how many steps full it is ("fills", from none), and of the "end_cap"
@@ -45,7 +47,7 @@ public partial class PauseScreen : GameMode
     public int ReservePourPerUpdate { get; set; } = 1;
 
     /// <summary>One thing the selector can rest on: a piece of equipment, or one of the two lines of her reserves.</summary>
-    private sealed record Line(string Equipment, string Side, DataNode? Data, DataNode Selector);
+    private sealed record Line(string Equipment, string Side, string Group, DataNode? Data, DataNode Selector);
 
     private const string ReserveMode = "reserve_mode", ReserveTransfer = "reserve_transfer";
 
@@ -61,6 +63,8 @@ public partial class PauseScreen : GameMode
     private bool _showsMap = true;
     private int _chosen;
     private int _pouring;
+    private readonly Dictionary<string, List<(string Equipment, int Control)>> _columns = new(StringComparer.Ordinal);
+    private bool _beamsClosed;
     private int _updates;
     private int _flickerEvery;
 
@@ -132,26 +136,8 @@ public partial class PauseScreen : GameMode
         if (_controls.Count == 0)
             return;
         Line chosen = _controls[_chosen];
-        int move = (input.WasPressed(GameAction.Down) ? 1 : 0) - (input.WasPressed(GameAction.Up) ? 1 : 0);
-        if (move != 0)
+        if (MoveSelector(input, chosen))
         {
-            // Up and down stay on the selector's side of the page, going round at its ends.
-            List<int> side = [.. Enumerable.Range(0, _controls.Count).Where(index => _controls[index].Side == chosen.Side)];
-            _chosen = side[(side.IndexOf(_chosen) + move + side.Count) % side.Count];
-            Sound("move");
-            ShowEquipment();
-            return;
-        }
-
-        if (input.WasPressed(GameAction.Left) || input.WasPressed(GameAction.Right))
-        {
-            // Across goes to the other side, to the thing as far down it as the selector was down this one.
-            List<int> here = [.. Enumerable.Range(0, _controls.Count).Where(index => _controls[index].Side == chosen.Side)];
-            List<int> there = [.. Enumerable.Range(0, _controls.Count).Where(index => _controls[index].Side != chosen.Side)];
-            if (there.Count == 0)
-                return;
-            _chosen = there[Math.Min(here.IndexOf(_chosen), there.Count - 1)];
-            Sound("move");
             ShowEquipment();
             return;
         }
@@ -170,6 +156,155 @@ public partial class PauseScreen : GameMode
         Switch(chosen.Equipment);
         Sound("switch");
         ShowEquipment();
+    }
+
+    /// <summary>
+    /// Moves the selector as the directions pressed send it, and says whether it moved. It goes up and down its own
+    /// column, passing what she has not got; off the end of a column, or sent across, it goes where the page has that
+    /// column lead: from the beams up to her reserves and right to the suits or, failing them, the boots; from the
+    /// suits down to the boots and left to her reserves or the beams; from the boots up to the suits and left to the
+    /// last beam or her reserves; from her reserves down to the beams and right to the suits or the boots.
+    /// </summary>
+    private bool MoveSelector(GameInput input, Line chosen)
+    {
+        bool left = input.WasPressed(GameAction.Left), right = input.WasPressed(GameAction.Right);
+        bool up = input.WasPressed(GameAction.Up), down = input.WasPressed(GameAction.Down);
+        Inventory inventory = Samus.Inventory;
+        int before = _chosen;
+        if (chosen.Equipment is ReserveMode or ReserveTransfer)
+        {
+            if (right)
+            {
+                if (down || !SelectFrom("suits", 0, 1))
+                    SelectFrom("boots", 0, 1);
+            }
+            else if (up)
+            {
+                if (chosen.Equipment != ReserveMode)
+                    Select(_controls.FindIndex(line => line.Equipment == ReserveMode));
+            }
+            else if (down)
+            {
+                int transfer = _controls.FindIndex(line => line.Equipment == ReserveTransfer);
+                if (chosen.Equipment == ReserveTransfer || transfer < 0)
+                {
+                    SelectFrom("beams", 0, 1);
+                }
+                else if (inventory.Amount(Amounts.ReserveEnergy) == 0)
+                {
+                    // With nothing to pour, the selector only passes the pouring line on its way to the beams.
+                    _chosen = transfer;
+                    SelectFrom("beams", 0, 1);
+                }
+                else
+                {
+                    Select(transfer);
+                }
+            }
+
+            return _chosen != before;
+        }
+
+        string group = chosen.Group;
+        int place = _columns[group].FindIndex(entry => entry.Equipment == chosen.Equipment);
+        switch (group)
+        {
+            case "beams":
+                if (right)
+                {
+                    int entry = up ? 0 : _columns["suits"].FindIndex(suit => suit.Equipment == Data().Get("equipment").Text("beams_right_enters"));
+                    if (!SelectFrom("suits", entry, 1) && !up)
+                        SelectFrom("boots", 0, 1);
+                }
+                else if (down)
+                {
+                    SelectFrom(group, place + 1, 1);
+                }
+                else if (up && !SelectFrom(group, place - 1, -1))
+                {
+                    SelectReserves();
+                }
+
+                break;
+            case "suits":
+                if (left)
+                {
+                    if (down || !SelectReserves())
+                        SelectFrom("beams", 0, 1);
+                }
+                else if (up)
+                {
+                    SelectFrom(group, place - 1, -1);
+                }
+                else if (down && !SelectFrom(group, place + 1, 1))
+                {
+                    SelectFrom("boots", 0, 1);
+                }
+
+                break;
+            case "boots":
+                if (left)
+                {
+                    if (up || !SelectFrom("beams", _columns["beams"].Count - 1, -1))
+                        SelectReserves();
+                }
+                else if (down)
+                {
+                    SelectFrom(group, place + 1, 1);
+                }
+                else if (up && !SelectFrom(group, place - 1, -1))
+                {
+                    SelectFrom("suits", _columns["suits"].Count - 1, -1);
+                }
+
+                break;
+            default:
+                throw new InvalidOperationException($"The pause screen's equipment has no column \"{group}\".");
+        }
+
+        return _chosen != before;
+    }
+
+    /// <summary>
+    /// Puts the selector on the first thing she has in a column, looking from a place in it up or down, and says
+    /// whether there was one. The beams are closed while she has the hyper beam. Looking down the suits past one she
+    /// has not got never finds the last of them, as the old game's search does not.
+    /// </summary>
+    private bool SelectFrom(string group, int start, int step)
+    {
+        List<(string Equipment, int Control)> column = _columns[group];
+        if (group == "beams" && _beamsClosed)
+            return false;
+        for (int place = start; place >= 0 && place < column.Count; place += step)
+        {
+            if (column[place].Control < 0)
+            {
+                if (group == "suits" && step > 0 && place + step >= column.Count - 1)
+                    return false;
+                continue;
+            }
+
+            Select(column[place].Control);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>Puts the selector on the first line of her reserves, if she has any, and says whether she has.</summary>
+    private bool SelectReserves()
+    {
+        if (Samus.Inventory.Capacity(Amounts.ReserveEnergy) == 0)
+            return false;
+        Select(_controls.FindIndex(line => line.Equipment == ReserveMode));
+        return true;
+    }
+
+    /// <summary>Puts the selector on a line, with the sound of it moving.</summary>
+    private void Select(int control)
+    {
+        _chosen = control;
+        Sound("move");
     }
 
     /// <summary>Shows one of the two pages.</summary>
@@ -298,22 +433,31 @@ public partial class PauseScreen : GameMode
                 Show(places[tank], fills[0].AsText(), equipment);
             Show(places[tank], bar.Text("end_cap"), equipment);
 
-            _controls.Add(new Line(ReserveMode, "left", null, reserve.Get("mode_selector")));
+            _controls.Add(new Line(ReserveMode, "left", "", null, reserve.Get("mode_selector")));
             if (!auto)
-                _controls.Add(new Line(ReserveTransfer, "left", null, reserve.Get("transfer_selector")));
+                _controls.Add(new Line(ReserveTransfer, "left", "", null, reserve.Get("transfer_selector")));
         }
 
         // The hyper beam stands in the place of the beams, which cannot then be switched.
         bool hyper = inventory.IsOn(Equipment.HyperBeam);
         if (hyper)
             Show(page.Get("hyper"), parent: equipment);
+        _beamsClosed = hyper;
+        _columns.Clear();
         foreach (DataNode control in page.List("controls"))
         {
-            string name = control.Text("equipment");
+            string name = control.Text("equipment"), group = control.Text("group");
+            if (!_columns.TryGetValue(group, out List<(string Equipment, int Control)>? column))
+                _columns[group] = column = [];
             if (!inventory.Owns(name) || (hyper && control.Text("side") == page.Text("hyper_side") && control.Flag("beam")))
+            {
+                column.Add((name, -1));
                 continue;
+            }
+
             Show(control, control.Text(inventory.IsOn(name) ? "on" : "off"), equipment);
-            _controls.Add(new Line(name, control.Text("side"), control, control.Get("selector")));
+            column.Add((name, _controls.Count));
+            _controls.Add(new Line(name, control.Text("side"), group, control, control.Get("selector")));
         }
 
         string wireframe = (inventory.IsOn(Equipment.VariaSuit), inventory.IsOn(Equipment.HiJumpBoots)) switch

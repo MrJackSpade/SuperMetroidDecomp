@@ -289,7 +289,14 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public int Intent => (_input.IsHeld(GameAction.Right) ? 1 : 0) - (_input.IsHeld(GameAction.Left) ? 1 : 0);
 
     /// <summary>Whether the player stands on terrain or a solid.</summary>
-    public bool IsOnGround => Room.Mover.IsOnGround(Body, MoveOptions.Plain);
+    public bool IsOnGround => Room.Mover.IsOnGround(Body, MoveOptions.Plain) || StandsInBlockThatHoldsUp();
+
+    /// <summary>Whether the player's feet are in a block that pulls down and yet holds up what stands in it, as quicksand does.</summary>
+    private bool StandsInBlockThatHoldsUp() =>
+        Room.Terrain.BlocksIn(FeetRect).Any(block => block.Type.Contact == BlockContact.PullsDown && block.Type.HoldsUp);
+
+    /// <summary>The bottom row of the player's body.</summary>
+    private PixelRect FeetRect => new(BodyRect.Left, BodyRect.Bottom - 1, BodyRect.Width, 1);
 
     /// <summary>
     /// The medium the player is moving in this update: the liquid their feet are in, when it hinders them and they
@@ -953,9 +960,25 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
                 if ((speed.IsNegative ? -speed : speed) > (across.IsNegative ? -across : across))
                     across = speed;
             }
-            else if (block.Type.Contact == BlockContact.PullsDown && speed > down)
+            else if (block.Type.Contact == BlockContact.PullsDown)
             {
-                down = speed;
+                BlockType sand = block.Type;
+                if (sand.StopsMomentum && HasMomentum)
+                    LoseMomentum();
+                if (sand.PullsFeetOnly && !block.Rect.Overlaps(FeetRect))
+                    continue;
+                bool eased = sand.EasedBy.Count > 0 && Inventory.IsAnyOn(sand.EasedBy);
+                Pixels limit = eased ? sand.Eased.RiseLimit : sand.RiseLimit;
+                bool moving = Velocity.Y != Pixels.Zero;
+                if (limit > Pixels.Zero && Velocity.Y < -limit)
+                    Velocity = Velocity.WithY(-limit);
+                if (sand.HoldsUp && Velocity.Y > Pixels.Zero)
+                    Velocity = Velocity.WithY(Pixels.Zero);
+                Pixels pull = moving
+                    ? (eased ? sand.Eased.MovingContactSpeed : sand.MovingContactSpeed)
+                    : (eased ? sand.Eased.ContactSpeed : speed);
+                if (pull > down)
+                    down = pull;
             }
         }
 

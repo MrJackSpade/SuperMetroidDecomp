@@ -158,6 +158,34 @@ internal sealed partial class EngineLayouts
     }
 
     /// <summary>
+    /// The rules of the surface of quicksand, from the old game's own: one whose feet are in it stands there and is
+    /// drawn down, faster while rising or falling; it lets her rise only so fast and takes her momentum; and the
+    /// Gravity Suit eases it.
+    /// </summary>
+    private static JsonObject QuicksandSurface()
+    {
+        QuicksandSurfacePhysics plain = QuicksandDefinitions.WithoutGravitySuit, eased = QuicksandDefinitions.WithGravitySuit;
+        return new JsonObject
+        {
+            ["solid"] = false,
+            ["contact"] = "pulls_down",
+            ["contact_speed"] = EngineNames.Number(plain.StationaryDisplacement),
+            ["moving_contact_speed"] = EngineNames.Number(plain.MovingDisplacement),
+            ["rise_limit"] = EngineNames.Number(plain.UpwardSpeedLimit),
+            ["holds_up"] = true,
+            ["feet_only"] = true,
+            ["stops_momentum"] = true,
+            ["eased"] = new JsonObject
+            {
+                ["by"] = new JsonArray("gravity_suit"),
+                ["contact_speed"] = EngineNames.Number(eased.StationaryDisplacement),
+                ["moving_contact_speed"] = EngineNames.Number(eased.MovingDisplacement),
+                ["rise_limit"] = EngineNames.Number(eased.UpwardSpeedLimit),
+            },
+        };
+    }
+
+    /// <summary>
     /// The rules of a conveyor's block, from the old game's own: which way and how fast it carries, and whether only
     /// what is on foot. One that carries only where there is power is a conveyor in the rooms whose effect sets its
     /// belt going, and plain air in the others: null.

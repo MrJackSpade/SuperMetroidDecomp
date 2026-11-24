@@ -650,11 +650,16 @@ internal sealed partial class EngineLayouts
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SlowSandfallDisplacement) },
                     SpecialAirReaction.FastSandfall =>
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.FastSandfallDisplacement) },
-                    // The surface draws her down at the rate it does one who is not moving up or down and wears no Gravity Suit.
-                    SpecialAirReaction.QuicksandSurface =>
-                        new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.WithoutGravitySuit.StationaryDisplacement) },
-                    SpecialAirReaction.SubmergingQuicksand =>
-                        new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SubmergingSinkDisplacement) },
+                    SpecialAirReaction.QuicksandSurface => QuicksandSurface(),
+
+                    // Sand she sinks through: it stops her fall, and takes her down at its own pace.
+                    SpecialAirReaction.SubmergingQuicksand => new JsonObject
+                    {
+                        ["solid"] = false,
+                        ["contact"] = "pulls_down",
+                        ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SubmergingSinkDisplacement),
+                        ["holds_up"] = SpecialAirReactions.CollisionOf(air).StopsFall,
+                    },
                     _ => null,
                 };
                 return rules is null ? null : new ReactingBlock($"air_{EngineSheets.FileName(air.ToString())}", rules);

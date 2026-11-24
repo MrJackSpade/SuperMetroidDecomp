@@ -33,6 +33,9 @@ namespace Engine.World;
 /// One that "hides_again" comes back from breaking looking like plain terrain once more. "breaking" is the timeline shown,
 /// at each of its tiles, from the moment it breaks, and "regrowing" the one whose end is the moment it comes back;
 /// "regrows_after" counts from the break to the return and takes in both. "break_sound" is heard as it breaks.
+/// A block that pulls down may say more, as quicksand does: "moving_contact_speed" for what is rising or falling in
+/// it, "rise_limit", "holds_up", "feet_only", "stops_momentum", and under "eased" the equipment ("by") that eases
+/// it with the three numbers it has for one who wears it.
 /// </remarks>
 public sealed class BlockType
 {
@@ -90,6 +93,27 @@ public sealed class BlockType
     /// <summary>For a block that carries: whether it carries only what is not rising or falling by a whole pixel or more an update.</summary>
     public bool CarriesOnlyLevel { get; private init; }
 
+    /// <summary>For a block that pulls: how far each update it pulls what is rising or falling in it; what stands still it pulls by <see cref="ContactSpeed"/>.</summary>
+    public Pixels MovingContactSpeed { get; private init; }
+
+    /// <summary>For a block that pulls: the fastest it lets what is in it rise; zero for no limit.</summary>
+    public Pixels RiseLimit { get; private init; }
+
+    /// <summary>For a block that pulls: whether what has its feet in it stands there as on ground, and does not fall through it.</summary>
+    public bool HoldsUp { get; private init; }
+
+    /// <summary>For a block that pulls: whether it pulls only what has its feet in it.</summary>
+    public bool PullsFeetOnly { get; private init; }
+
+    /// <summary>For a block that pulls: whether what is in it loses its momentum.</summary>
+    public bool StopsMomentum { get; private init; }
+
+    /// <summary>For a block that pulls: the equipment that eases it; empty for none.</summary>
+    public IReadOnlyList<string> EasedBy { get; private init; } = [];
+
+    /// <summary>What <see cref="ContactSpeed"/>, <see cref="MovingContactSpeed"/> and <see cref="RiseLimit"/> are for one whose equipment eases it.</summary>
+    public (Pixels ContactSpeed, Pixels MovingContactSpeed, Pixels RiseLimit) Eased { get; private init; }
+
     /// <summary>
     /// The pictures shown while intact and revealed: one for every tile of it, or one for each of its tiles, row by
     /// row; none for the pictures of the tiles it lies on.
@@ -126,6 +150,7 @@ public sealed class BlockType
             data.Has(name) ? [.. data.List(name).Select(kind => new HitKind(kind.AsText()))] : [];
 
         DataNode? pictures = data.Has("pictures") ? data.Get("pictures") : null;
+        DataNode? eased = data.Has("eased") ? data.Get("eased") : null;
         var type = new BlockType
         {
             File = data.File,
@@ -142,6 +167,15 @@ public sealed class BlockType
             ContactHit = data.Has("contact_hit") ? data.Int("contact_hit") : 0,
             ContactSpeed = data.Has("contact_speed") ? data.Distance("contact_speed") : Pixels.Zero,
             CarriesOnlyLevel = data.Has("carries_only_level") && data.Flag("carries_only_level"),
+            MovingContactSpeed = data.Has("moving_contact_speed") ? data.Distance("moving_contact_speed")
+                : data.Has("contact_speed") ? data.Distance("contact_speed") : Pixels.Zero,
+            RiseLimit = data.Has("rise_limit") ? data.Distance("rise_limit") : Pixels.Zero,
+            HoldsUp = data.Has("holds_up") && data.Flag("holds_up"),
+            PullsFeetOnly = data.Has("feet_only") && data.Flag("feet_only"),
+            StopsMomentum = data.Has("stops_momentum") && data.Flag("stops_momentum"),
+            EasedBy = eased is null ? [] : [.. eased.List("by").Select(item => item.AsText())],
+            Eased = eased is null ? default
+                : (eased.Distance("contact_speed"), eased.Distance("moving_contact_speed"), eased.Distance("rise_limit")),
             IntactPictures = pictures is null ? []
                 : pictures.Has("intact_parts") ? [.. pictures.List("intact_parts").Select(picture => picture.AsText())]
                 : pictures.Has("intact") ? [pictures.Text("intact")] : [],

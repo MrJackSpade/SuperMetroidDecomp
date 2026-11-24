@@ -15,6 +15,16 @@ public sealed class KnockedBackState : PlayerState
     /// <summary>A knockback throwing the player <paramref name="toward"/>.</summary>
     public KnockedBackState(Facing toward) => _toward = toward;
 
+    /// <summary>A knockback throwing the player <paramref name="toward"/> for <paramref name="updates"/> updates, whatever knockbacks usually last.</summary>
+    public KnockedBackState(Facing toward, int updates)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(updates);
+        (_toward, _updates) = (toward, updates);
+    }
+
+    /// <summary>How long this knockback lasts, where that is not as long as the player's knockbacks usually do.</summary>
+    private readonly int? _updates;
+
     /// <inheritdoc/>
     public override bool CanAttack => false;
 
@@ -26,7 +36,7 @@ public sealed class KnockedBackState : PlayerState
     {
         owner.LoseMomentum();
         owner.Velocity = new PixelVelocity(Pixels.Zero, -Pixels.FromNumber(owner.Medium.KnockbackUpSpeed));
-        _left = Countdown.Of(owner.KnockbackUpdates);
+        _left = Countdown.Of(_updates ?? owner.KnockbackUpdates);
     }
 
     /// <inheritdoc/>

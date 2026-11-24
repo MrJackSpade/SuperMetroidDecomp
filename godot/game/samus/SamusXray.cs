@@ -15,16 +15,16 @@ public partial class SamusXray : Node2D
     [Export]
     public int EyeHeight { get; set; } = 12;
 
-    /// <summary>The widest the cone opens to each side of its middle, in 256ths of a turn.</summary>
-    [Export]
-    public int WidestHalfWidth { get; set; } = 10;
-
     /// <summary>The furthest the cone's middle swings up or down from level, in 256ths of a turn.</summary>
     [Export]
     public int WidestSwing { get; set; } = 54;
 
-    private int _openedFor;
+    private Pixels _widening;
+    private Pixels _opened;
     private int _swing;
+
+    /// <summary>How far the cone's middle has swung from level, in 256ths of a turn: up when negative.</summary>
+    public int Swing => _swing;
     private int _halfWidth;
     private Vector2 _eye;
     private bool _facingLeft;
@@ -36,7 +36,8 @@ public partial class SamusXray : Node2D
     public void Open(Samus samus)
     {
         IsOpen = true;
-        _openedFor = 0;
+        _widening = Pixels.Zero;
+        _opened = Pixels.Zero;
         _swing = 0;
         _halfWidth = 0;
         QueueRedraw();
@@ -55,8 +56,10 @@ public partial class SamusXray : Node2D
     /// </summary>
     public void Look(Samus samus, int swing)
     {
-        _openedFor++;
-        _halfWidth = Math.Min(WidestHalfWidth, WidestHalfWidth * _openedFor / Math.Max(1, samus.XrayOpeningUpdates));
+        // The cone opens faster each update until it is as wide as it gets.
+        _widening += Pixels.FromNumber(samus.XrayWideningStep);
+        _opened += _widening;
+        _halfWidth = Math.Min(samus.XrayWidestHalfWidth, _opened.Whole);
         _swing = Math.Clamp(_swing + swing, -WidestSwing, WidestSwing);
         _facingLeft = samus.Facing == Facing.Left;
         var eye = new PixelPosition(samus.Position.X, samus.Position.Y - Pixels.FromWhole(EyeHeight));

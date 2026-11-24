@@ -66,6 +66,7 @@ public sealed partial class EngineAssetWriter
         writer.WritePhantoon();
         writer.WriteDraygon();
         writer.WriteRidley();
+        writer.WriteSamus();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

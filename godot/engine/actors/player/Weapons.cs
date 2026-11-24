@@ -89,8 +89,9 @@ public sealed class Weapons
     }
 
     /// <summary>
-    /// Plays one update: the cooldown moves on, and the selected weapon fires on a press of the attack; when it charges,
-    /// as a held attack that has charged is let go; and when holding repeats it, every so often while held.
+    /// Plays one update: the cooldown moves on, and the selected weapon fires. One that charges fires a plain shot on
+    /// the first update its attack is held, and as the attack is let go a charged one, or a plain one where it had not
+    /// charged and the weapon says so. One that does not charge fires on a press, and while held as its data says.
     /// </summary>
     public void Step(Player player, GameInput input)
     {
@@ -102,31 +103,43 @@ public sealed class Weapons
             return;
         }
 
+        bool held = input.IsHeld(GameAction.Attack);
+        if (weapon.Charges(player.Inventory))
+        {
+            _heldFor = 0;
+            if (held)
+            {
+                _chargedFor++;
+                if (_chargedFor == 1)
+                    Fire(player, weapon, charged: false);
+                return;
+            }
+
+            if (_chargedFor == 0)
+                return;
+            bool charged = _chargedFor >= weapon.ChargeUpdates;
+            _chargedFor = 0;
+            if (charged || weapon.PartChargeFires)
+                Fire(player, weapon, charged);
+            return;
+        }
+
+        _chargedFor = 0;
         if (input.WasPressed(GameAction.Attack))
         {
-            _chargedFor = 0;
             _heldFor = 0;
             Fire(player, weapon, charged: false);
             return;
         }
 
-        bool held = input.IsHeld(GameAction.Attack);
-        if (weapon.Charges(player.Inventory))
+        int heldCooldown = weapon.HeldCooldownFor(player.Inventory);
+        if (held && heldCooldown > 0)
         {
-            if (held)
-            {
-                _chargedFor++;
-                return;
-            }
-
-            bool charged = _chargedFor >= weapon.ChargeUpdates;
-            _chargedFor = 0;
-            if (charged)
-                Fire(player, weapon, charged: true);
+            if (Fire(player, weapon, charged: false))
+                _cooldown = Countdown.Of(heldCooldown);
             return;
         }
 
-        _chargedFor = 0;
         if (!held || weapon.RepeatsEvery == 0)
         {
             _heldFor = 0;
@@ -195,7 +208,7 @@ public sealed class Weapons
             live.Add(projectile);
         }
 
-        string sound = charged && weapon.ChargedSound.Length > 0 ? weapon.ChargedSound : weapon.Sound;
+        string sound = weapon.SoundFor(player.Inventory, charged);
         if (sound.Length > 0)
             player.Room.Session.Sounds.Request(sound, channel: "weapons");
         _cooldown = Countdown.Of(weapon.CooldownFor(player.Inventory, charged));

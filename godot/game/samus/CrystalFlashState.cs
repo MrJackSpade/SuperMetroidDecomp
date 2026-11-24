@@ -60,7 +60,6 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
         samus.SpendShine();
         _rising = RiseUpdates;
         _wait = Countdown.Of(samus.CrystalFlashDrainEvery);
-        owner.Room.Session.Sounds.Request(Sounds.CrystalFlash, channel: "samus");
     }
 
     /// <inheritdoc/>

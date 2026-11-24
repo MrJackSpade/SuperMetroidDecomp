@@ -71,7 +71,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public int DyingUpdates { get; set; } = 120;
 
     /// <summary>The effect left at the player's feet on landing, by the data file of its timeline; empty for none.</summary>
-    [Export(PropertyHint.File)]
+    [Export(PropertyHint.File), DataValue("land_effect")]
     public string LandEffect { get; set; } = "";
 
     /// <summary>The most pixels climbed for each pixel walked across a slope.</summary>
@@ -137,6 +137,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Whether a wall jump can start from any jump or fall; when not, only from a state of the game's that allows it.</summary>
     [Export, DataValue("wall_jump_from_any_jump")]
     public bool WallJumpFromAnyJump { get; set; } = true;
+
+    /// <summary>
+    /// Whether the player steers a wall jump from its start, by the wall jump's move values; when not, they leave the
+    /// wall at the set speed and cannot steer until the lock is over.
+    /// </summary>
+    [Export, DataValue("wall_jump_steered")]
+    public bool WallJumpSteered { get; set; }
 
     /// <summary>Whether a wall jump needs the player to be steering away from the wall.</summary>
     [Export, DataValue("wall_jump_needs_steering_away")]
@@ -507,6 +514,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>Knocks the player back, away from <paramref name="from"/>.</summary>
     public void KnockBack(Facing from) => ChangeState(new KnockedBackState(from.Opposite()));
+
+    /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates.</summary>
+    public void KnockBack(Facing from, int updates) => ChangeState(new KnockedBackState(from.Opposite(), updates));
 
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());

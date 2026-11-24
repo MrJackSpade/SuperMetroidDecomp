@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Actors.Components;
+using Engine.Content;
 using Engine.Shared;
 using Game.Data;
 using Godot;
@@ -13,8 +14,15 @@ namespace Game;
 /// </summary>
 /// <remarks>
 /// Her timelines are named for her look, then the way she faces, then her aim: "standing_right_up". Where she has no
-/// timeline of the whole name, the one without the aim is used, and failing that the one of the look alone. In a
-/// picture's path, "{suit}" stands for the suit she wears: "power", "varia" or "gravity".
+/// timeline of the whole name, the one without the aim is used, and failing that the one of the look alone. While
+/// her energy is low, a timeline of any of those names with "_low" after it is used before them. In a
+/// picture's path, "{suit}" stands for the suit she wears: "power", "varia" or "gravity". A step's own offset places
+/// its picture, as in any timeline.
+/// <para>
+/// As her look changes from one to another, a timeline named for both, then the way she faces, is played once
+/// between them if her data has one: "falling_to_standing_right" is her landing. It is only shown; what she is doing
+/// has already changed.
+/// </para>
 /// </remarks>
 public partial class SamusVisual : Node2D
 {
@@ -51,6 +59,9 @@ public partial class SamusVisual : Node2D
 
     private TimelinePlayer? _player;
     private string _playing = "";
+    private string _look = "";
+    private bool _passing;
+    private TimelineStep? _shown;
     private readonly PixelPosition?[] _echoes = new PixelPosition?[2];
     private int _nextEcho;
     private int _echoesLeaving;
@@ -62,9 +73,29 @@ public partial class SamusVisual : Node2D
         if (picture is null)
             return;
 
-        string name = TimelineFor(samus);
+        string look = SamusLooks.Of(samus);
+        string name = TimelineFor(samus, look);
+        if (look != _look)
+        {
+            // A change of look may pass through a picture or two of its own before the new look's are shown.
+            string passing = $"{_look}_to_{look}_{(samus.Facing == Facing.Right ? "right" : "left")}";
+            _passing = _look.Length > 0 && samus.Timelines.Has(passing);
+            _look = look;
+            if (_passing)
+                name = passing;
+            _playing = "";
+        }
+        else if (_passing)
+        {
+            if (_player is { IsOver: false })
+                name = _playing;
+            else
+                _passing = false;
+        }
+
         if (name.Length == 0)
         {
+            _shown = null;
             picture.Show("");
             return;
         }
@@ -77,13 +108,30 @@ public partial class SamusVisual : Node2D
         else
         {
             _player.Step();
+            if (_passing && _player.IsOver)
+            {
+                // The passing pictures are done within this update: the look's own begin at once.
+                _passing = false;
+                _playing = TimelineFor(samus, look);
+                if (_playing.Length == 0)
+                {
+                    _shown = null;
+                    picture.Show("");
+                    return;
+                }
+
+                _player = new TimelinePlayer(samus.Timelines.Get(_playing));
+            }
         }
 
         string suit = samus.Inventory.IsOn(Equipment.GravitySuit) ? "gravity" : samus.Inventory.IsOn(Equipment.VariaSuit) ? "varia" : "power";
-        picture.Show(_player.Current.Picture.Replace("{suit}", suit, StringComparison.Ordinal));
+        TimelineStep step = _player.Current;
+        _shown = step with { Picture = step.Picture.Replace("{suit}", suit, StringComparison.Ordinal) };
+        picture.Show(_shown);
 
-        // After a hit she flickers: shown on one update and hidden on the next.
-        picture.SetShown(!samus.IsInvincible || samus.InvincibleUpdatesLeft % 2 == 0);
+        // After a hit she flickers, shown on one update and hidden on the next, but not while she is thrown back or
+        // has a shine stored.
+        picture.SetShown(!samus.IsInvincible || samus.InvincibleUpdatesLeft % 2 == 0 || samus.State is KnockedBackState || samus.HasStoredShine);
         StepEchoes(samus, picture);
         picture.Tint(
             samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)
@@ -91,6 +139,13 @@ public partial class SamusVisual : Node2D
             : samus.HasStoredShine ? StoredShineTint
             : samus.Weapons.IsCharged ? ChargedTint
             : Colors.White);
+    }
+
+    /// <summary>Gives her pictures where they are loaded from. Called as she enters a room.</summary>
+    public void Bind(ContentLibrary content)
+    {
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+            visual.Bind(content);
     }
 
     /// <summary>
@@ -147,7 +202,10 @@ public partial class SamusVisual : Node2D
                 continue;
             }
 
-            shown.Show(picture.Picture);
+            if (_shown is null)
+                shown.Show("");
+            else
+                shown.Show(_shown);
             shown.Tint(EchoTint);
             shown.Position = new Vector2(at.X.Whole - samus.Position.X.Whole, at.Y.Whole - samus.Position.Y.Whole);
         }
@@ -158,12 +216,15 @@ public partial class SamusVisual : Node2D
         Color.FromHsv((float)(step % GlowSteps) / GlowSteps, GlowStrength, 1f) * new Color(GlowBrightness, GlowBrightness, GlowBrightness);
 
     /// <summary>The name of the timeline that shows her now, or empty when her data has none for it.</summary>
-    private static string TimelineFor(Samus samus)
+    private static string TimelineFor(Samus samus, string look)
     {
-        string look = SamusLooks.Of(samus);
         string facing = samus.Facing == Facing.Right ? "right" : "left";
         string aim = Samus.AimName(samus.Aim);
         string[] candidates = [$"{look}_{facing}_{aim}", $"{look}_{facing}", look];
+
+        // Short of energy, a look that has a timeline of its own for that shows it: she breathes faster.
+        if (samus.Inventory.Amount(Amounts.Energy) <= samus.LowEnergy)
+            candidates = [.. candidates.Select(name => name + "_low"), .. candidates];
         return candidates.FirstOrDefault(samus.Timelines.Has) ?? "";
     }
 }

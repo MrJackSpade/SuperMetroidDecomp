@@ -42,13 +42,14 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     private Countdown _left;
     private int _across;
     private int _down;
-    private Pixels _speed;
+    private Pixels _acrossSpeed;
+    private Pixels _riseSpeed;
+    private Pixels _riseGain;
 
     /// <inheritdoc/>
     public string Look => _stage switch
     {
         Stage.WindingUp => "shinespark_windup",
-        Stage.Crashed => "shinespark_crash",
         _ => _across == 0 ? "shinespark_vertical" : _down == 0 ? "shinespark_horizontal" : "shinespark_diagonal",
     };
 
@@ -124,7 +125,9 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
     {
         _across = across;
         _down = down;
-        _speed = Pixels.FromNumber(samus.ShinesparkSpeed);
+        _acrossSpeed = Pixels.FromNumber(samus.ShinesparkSpeed);
+        _riseSpeed = Pixels.Zero;
+        _riseGain = Pixels.FromNumber(samus.ShinesparkRiseGain);
         _stage = Stage.Flying;
         if (across != 0)
             samus.Facing = across > 0 ? Facing.Right : Facing.Left;
@@ -138,14 +141,29 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
             power.IsActive = true;
 
         MoveOptions options = MoveOptions.Plain with { Slopes = SlopeTreatment.Wall };
-        bool stoppedAcross = _across != 0 && samus.Room.Mover.MoveAcross(samus.Body, _speed * _across, options).Blocked;
-        bool stoppedDown = _down != 0 && samus.Room.Mover.MoveDown(samus.Body, _speed * _down, options).Blocked;
+        Pixels gravity = Pixels.FromNumber(samus.Medium.Gravity);
+        bool stoppedAcross = false, stoppedDown = false;
+        if (_across != 0)
+        {
+            // Across, it gains the pull of gravity each update, up to its top speed, and then moves.
+            Pixels faster = _acrossSpeed + gravity;
+            Pixels top = Pixels.FromNumber(samus.ShinesparkTopSpeed);
+            _acrossSpeed = faster >= top ? top : faster;
+            stoppedAcross = samus.Room.Mover.MoveAcross(samus.Body, _acrossSpeed * _across, options).Blocked;
+        }
+
+        if (_down != 0)
+        {
+            // Upward its gain itself grows by gravity each update. Its speed goes on growing, but it rises no more
+            // whole pixels in an update than its most.
+            _riseGain += gravity;
+            _riseSpeed += _riseGain;
+            Pixels rise = _riseSpeed.Whole > samus.ShinesparkMostRise ? _riseSpeed.WithWhole(samus.ShinesparkMostRise) : _riseSpeed;
+            stoppedDown = samus.Room.Mover.MoveDown(samus.Body, rise * _down, options).Blocked;
+        }
+
         // A diagonal spark slides up a wall it meets, and ends only when it can rise no further.
         bool stopped = _down != 0 ? stoppedDown : stoppedAcross;
-
-        Pixels faster = _speed + Pixels.FromNumber(samus.ShinesparkAcceleration);
-        Pixels top = Pixels.FromNumber(samus.ShinesparkTopSpeed);
-        _speed = faster > top ? top : faster;
 
         int energy = samus.Inventory.Amount(Amounts.Energy);
         bool spent = energy < samus.ShinesparkLeastEnergy;

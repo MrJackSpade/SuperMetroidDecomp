@@ -578,12 +578,16 @@ in `engine/actors/player/`.
 | --- | --- | --- |
 | States | The state machine, the standard states, and the rule that a state holds its own data. | Extra states of its own. |
 | `Inventory` | Equipment owned and switched on, energy and reserves, ammunition and capacities; saving and loading. | Which equipment and ammunition kinds exist. |
-| `Weapons` | The selected weapon, charge, cooldown, cost, the limit on live projectiles, combining switched-on properties into one `Hit`, and spawning the `Projectile`. | Each weapon and each property. |
+| `Weapons` | The selected weapon, charge, cooldown, cost, the limit on live projectiles, combining switched-on properties into one `Hit`, and spawning the `Projectile`. A weapon that charges fires a plain shot on the first update its attack is held and counts the hold from there; let go, it fires charged, or plain where its data says a part charge fires. One that does not charge fires on a press, and while held where its data gives a wait for that. A variant may have its own sounds and waits, and may say the weapon does not charge while it applies. | Each weapon and each property. |
 | Abilities | Equipment changing what a state does, and an ability with its own lifetime running as a child of the player. | Each ability. |
 | Body powers | Below. | Each power. |
 | Ongoing damage | Below. | Which equipment cancels which source. |
 | Being moved | Anything that moves the player against their will asks for the matching state and passes its data. Nothing sets flags or velocities on the player. | Extra such states. |
 
+- A wall jump leaves the wall at a set speed with steering locked for a moment, or, where the game says it is
+  steered, is steered by its own move values from its start for as long as the lock lasts.
+- A knockback lasts as long as the player's knockbacks do, unless whoever knocks them back says how long.
+- The effect left at the player's feet on landing may come from their data.
 - Facing and aim are separate values, never part of a state's name.
 - Something that has hold of the player can ask what a hit would cost them as equipped (`EnergyLostTo`), make them
   wait before their next shot (`Weapons.WaitAtLeast`), and halve their speed across a number of times
@@ -628,6 +632,26 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
   spin.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
+- **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
+  back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
+  look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a
+  landing, a crouch, curling up). Her pictures are written once for each suit; `{suit}` in a path names the folder.
+  Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
+  equipment; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
+  `_up`, `_raised`, `_level`, `_lowered` or `_down` for how the scope is swung.
+- **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
+  `shot_heights` of her look (and of her look and aim where an aim has its own). In the morph ball what she lays is
+  laid where she is.
+- **Her bombs.** A bomb throws the morph ball lying against it when its fuse has `bomb_jump_fuse_left` updates left,
+  and its burst strikes the block it lies in and the four beside that one. A power bomb's blast reaches as far on
+  each update as its data lists (`blast_reaches`), and can hit the same thing again after `rehit_after` updates.
+- **A special attack** is let loose while the attack is still held, once it has been held `special_attack_updates`.
+- **A shinespark** gains the pull of gravity across each update up to its top speed; rising, its gain itself grows
+  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update.
+- **Hurts.** A hit from the room itself (a spike) has its own invincibility and knockback lengths. The low-energy
+  warning is started once as her energy falls low and stopped once as it recovers.
+- **A jump with the speed booster on** adds half the dash's whole pixels and all of its fraction to the jump's
+  speed, each on its own with no carry, as the cartridge does.
 - **Grabbed** is being seized and carried by something that still lets her aim and fire (Draygon, Ridley). The
   holder says how many fresh presses of a direction free her, or none.
 - **Drained** is what Mother Brain's beam and the giant Metroid leave her in. Whatever drains her puts her in a
@@ -709,6 +733,9 @@ How a projectile behaves is settings, not code:
 | Motion | Straight; accelerating; in a wave; homing; does not travel (a bomb); with gravity. |
 | Lifetime | Until it leaves the view by a margin; a set number of updates; until its animation ends. |
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). |
+| Size | Its settings' own; a step of its timeline may give it another with the cue `size:<width>:<height>`, so a shot can swell or spread as it flies. |
+| Gaining speed | One gain along each axis; one launched diagonally may have its own. |
+| Shaking the room | A `RoomShake` (strength, length, way) started as terrain or a solid ends it, and one started the first time its hit lands. |
 
 A projectile needs its own class only for behaviour no setting gives it. One whose timelines drive it (its harm
 turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, each by a cue) and that moves its own way is a

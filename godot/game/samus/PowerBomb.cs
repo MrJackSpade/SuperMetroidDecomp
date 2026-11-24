@@ -9,9 +9,15 @@ namespace Game;
 
 /// <summary>
 /// One of Samus's power bombs: it lies where it was laid until its fuse runs out, and then its blast spreads out from
-/// it, faster and faster, as an oval wider than it is tall, until it has passed the edges of the view. The blast's hit
-/// lands once on everything it reaches, and on the terrain it passes over.
+/// it as an oval wider than it is tall. On every update of the blast its hit lands on everything the blast reaches
+/// that it has not hit lately, and on the terrain it covers; so what stays inside a blast long enough is hit twice.
 /// </summary>
+/// <remarks>
+/// Its data gives how far the blast reaches across on each of its updates, one after another, from the update after
+/// the fuse runs out; nought is an update on which it reaches nothing, as while it gathers. The blast is over when
+/// they are done.
+/// <code>{ "fuse_updates": 60, "blast_reaches": [0, 0, 4, 4, 5, 6], "height_parts": 3, "width_parts": 4, "rehit_after": 48 }</code>
+/// </remarks>
 public partial class PowerBomb : Projectile, IHasValues
 {
     /// <inheritdoc/>
@@ -22,37 +28,29 @@ public partial class PowerBomb : Projectile, IHasValues
     [Export, DataValue("fuse_updates")]
     public int FuseUpdates { get; set; } = 60;
 
-    /// <summary>How far the blast reaches across as it begins, as a number of pixels.</summary>
-    [Export, DataValue("first_reach")]
-    public double FirstReach { get; set; } = 4;
-
-    /// <summary>How fast the blast's reach grows as it begins.</summary>
-    [Export, DataValue("first_spread")]
-    public double FirstSpread { get; set; } = 1;
-
-    /// <summary>How much faster the blast spreads each update.</summary>
-    [Export, DataValue("spread_gain")]
-    public double SpreadGain { get; set; } = 0.1875;
-
-    /// <summary>The reach across at which the blast is over.</summary>
-    [Export, DataValue("last_reach")]
-    public int LastReach { get; set; } = 320;
+    /// <summary>How far the blast reaches across on each of its updates, in pixels.</summary>
+    [Export, DataValue("blast_reaches")]
+    public int[] BlastReaches { get; set; } = [];
 
     /// <summary>The blast reaches this many parts up and down…</summary>
     [Export, DataValue("height_parts")]
     public int HeightParts { get; set; } = 3;
 
-    /// <summary>…for every this many parts it reaches across.</summary>
+    /// <summary>…for every this many parts it reaches across, to the nearest pixel.</summary>
     [Export, DataValue("width_parts")]
     public int WidthParts { get; set; } = 4;
+
+    /// <summary>How many updates after the blast's hit has landed on something it can land on it again.</summary>
+    [Export, DataValue("rehit_after")]
+    public int RehitAfter { get; set; } = 48;
 
     /// <summary>The colour the blast is drawn in.</summary>
     [Export]
     public Color Colour { get; set; } = new(1f, 1f, 0.6f, 0.6f);
 
-    private readonly HashSet<IHittable> _reached = [];
-    private Pixels _reach;
-    private Pixels _spread;
+    private readonly Dictionary<IHittable, int> _reachedAt = [];
+    private int _blastUpdate;
+    private int _reach;
     private bool _blasting;
 
     /// <summary>Whether the blast has begun.</summary>
@@ -74,34 +72,52 @@ public partial class PowerBomb : Projectile, IHasValues
     {
         if (!_blasting)
         {
-            if (Age <= FuseUpdates)
+            Bomb.ThrowBall(this, FuseUpdates - Age);
+            if (Age < FuseUpdates)
                 return;
+
+            // The fuse is out: the bomb is gone, and its blast takes its first step on the next update.
             _blasting = true;
-            _reach = Pixels.FromNumber(FirstReach);
-            _spread = Pixels.FromNumber(FirstSpread);
-            room.Session.Sounds.Request(Data.Sounds.BigExplosion, channel: "explosions");
+            StopShowing();
+            room.Session.Sounds.Request(Data.Sounds.PowerBombExplosion, channel: "explosions");
+            return;
         }
 
-        int across = _reach.Whole, down = across * HeightParts / Math.Max(1, WidthParts);
-        var blast = PixelRect.Around(Position.X.Whole, Position.Y.Whole, across, down);
-        _reached.Add(this);
-        foreach ((IHittable target, HitResult _) in room.DeliverHit(Hit, blast, from: Launcher, skipping: _reached))
-            _reached.Add(target);
-        room.Terrain.TakeHit(Hit, blast);
-
-        _reach += _spread;
-        _spread += Pixels.FromNumber(SpreadGain);
-        QueueRedraw();
-        if (_reach.Whole >= LastReach)
+        if (_blastUpdate >= BlastReaches.Length)
+        {
             Leave(room);
+            return;
+        }
+
+        _reach = BlastReaches[_blastUpdate];
+        _blastUpdate++;
+        QueueRedraw();
+        if (_reach <= 0)
+            return;
+        int parts = Math.Max(1, WidthParts);
+        var blast = PixelRect.Around(Position.X.Whole, Position.Y.Whole, _reach, (_reach * HeightParts + (parts - 1) / 2) / parts);
+        var lately = new HashSet<IHittable> { this };
+        foreach ((IHittable reached, int at) in _reachedAt)
+        {
+            if (_blastUpdate - at < RehitAfter)
+                lately.Add(reached);
+        }
+
+        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit, blast, from: Launcher, skipping: lately))
+        {
+            if (result != HitResult.Ignored)
+                _reachedAt[target] = _blastUpdate;
+        }
+
+        room.Terrain.TakeHit(Hit, blast);
     }
 
     /// <inheritdoc/>
     public override void _Draw()
     {
-        if (!_blasting)
+        if (!_blasting || _reach <= 0)
             return;
-        float across = _reach.ToDisplay(), down = across * HeightParts / Math.Max(1, WidthParts);
+        float across = _reach, down = across * HeightParts / Math.Max(1, WidthParts);
         var points = new Vector2[32];
         for (int point = 0; point < points.Length; point++)
         {

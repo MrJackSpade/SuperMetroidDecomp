@@ -1,5 +1,6 @@
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 
 namespace Engine.Actors;
 
@@ -11,8 +12,10 @@ namespace Engine.Actors;
 /// <remarks>
 /// <code>
 /// { "width": 8, "height": 8, "meeting_terrain": "ends", "meeting_target": "ends", "met_by_shot": "ignored",
-///   "motion": "straight", "lasts_updates": 0, "view_margin": 64, "view_margin_below": 96, "picture": "shots/beam.png" }
+///   "motion": "straight", "lasts_updates": 0, "view_margin": 64, "view_margin_below": 96, "picture": "shots/beam.png",
+///   "terrain_shake": { "strength": 1, "updates": 30, "way": "both" } }
 /// </code>
+/// A step of its timeline may give the cue "size:&lt;width&gt;:&lt;height&gt;", which makes it that size from then on.
 /// </remarks>
 public sealed record ProjectileSettings
 {
@@ -110,6 +113,15 @@ public sealed record ProjectileSettings
     /// </summary>
     public Pixels SpeedLimit { get; init; }
 
+    /// <summary>
+    /// For one that accelerates, launched diagonally: the speed it gains each update along each axis, where that is
+    /// not <see cref="Acceleration"/>; null for the same.
+    /// </summary>
+    public Pixels? DiagonalAcceleration { get; init; }
+    /// <summary>The shake of the room it starts as terrain or something solid ends it; null for none.</summary>
+    public RoomShake? TerrainShake { get; init; }
+    /// <summary>The shake of the room it starts the first time its hit lands on anything; null for none.</summary>
+    public RoomShake? TargetShake { get; init; }
     /// <summary>For one that moves in a wave: how far it swings to each side.</summary>
     public Pixels WaveSize { get; init; }
 
@@ -198,6 +210,9 @@ public sealed record ProjectileSettings
             Motion = data.Has("motion") ? data.Get("motion").AsEnum<Moves>() : plain.Motion,
             Acceleration = data.Has("acceleration") ? data.Distance("acceleration") : Pixels.Zero,
             SpeedLimit = data.Has("speed_limit") ? data.Distance("speed_limit") : Pixels.Zero,
+            DiagonalAcceleration = data.Has("diagonal_acceleration") ? data.Distance("diagonal_acceleration") : null,
+            TerrainShake = data.Has("terrain_shake") ? RoomShake.Read(data.Get("terrain_shake")) : null,
+            TargetShake = data.Has("target_shake") ? RoomShake.Read(data.Get("target_shake")) : null,
             WaveSize = data.Has("wave_size") ? data.Distance("wave_size") : Pixels.Zero,
             WaveStep = data.Has("wave_step") ? data.Int("wave_step") : plain.WaveStep,
             WaveStart = data.Has("wave_start") ? data.Int("wave_start") : 0,

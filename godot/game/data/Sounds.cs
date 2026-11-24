@@ -7,76 +7,82 @@ namespace Game.Data;
 public static class Sounds
 {
     /// <summary>A jump leaving the ground.</summary>
+    /// <summary>The sound that is no sound: asked for on a channel, it stops what the channel was sounding.</summary>
+    public const string Silence = "silence";
+
+    /// <summary>A power bomb's blast.</summary>
+    public const string PowerBombExplosion = "samus_power_bomb_explosion";
+
     public const string Jump = "jump";
 
     /// <summary>A spin jump turning over.</summary>
-    public const string SpinJump = "spin_jump";
+    public const string SpinJump = "samus_spin_jump";
 
     /// <summary>A spin jump with the space jump.</summary>
-    public const string SpaceJump = "space_jump";
+    public const string SpaceJump = "samus_space_jump";
 
     /// <summary>A spin jump with the screw attack.</summary>
-    public const string ScrewAttack = "screw_attack";
+    public const string ScrewAttack = "samus_screw_attack";
 
     /// <summary>A spin jump under water.</summary>
-    public const string UnderwaterSpinJump = "underwater_spin_jump";
+    public const string UnderwaterSpinJump = "samus_underwater_space_jump";
 
     /// <summary>A jump off a wall.</summary>
     public const string WallJump = "wall_jump";
 
     /// <summary>Landing on the ground.</summary>
-    public const string Land = "land";
+    public const string Land = "room_landing";
 
     /// <summary>Landing hard from a long fall.</summary>
-    public const string HardLand = "hard_land";
+    public const string HardLand = "room_hard_landing";
 
     /// <summary>Samus being hurt.</summary>
-    public const string SamusHurt = "samus_hurt";
+    public const string SamusHurt = "samus_samus_damaged";
 
     /// <summary>The warning while energy is low.</summary>
-    public const string LowEnergy = "low_energy";
+    public const string LowEnergy = "room_low_health_beep";
 
     /// <summary>The speed booster reaching full speed.</summary>
-    public const string SpeedBooster = "speed_booster";
+    public const string SpeedBooster = "room_speed_booster";
 
     /// <summary>A shine being stored.</summary>
-    public const string StoredShine = "stored_shine";
+    public const string StoredShine = "room_stored_shinespark";
 
     /// <summary>A shinespark launching.</summary>
-    public const string Shinespark = "shinespark";
+    public const string Shinespark = "room_shinespark";
 
     /// <summary>A shinespark ending against something.</summary>
-    public const string ShinesparkEnd = "shinespark_end";
+    public const string ShinesparkEnd = "room_shinespark_end";
 
     /// <summary>Changing into the morph ball.</summary>
     public const string Morph = "morph";
 
     /// <summary>The beam charging.</summary>
-    public const string Charging = "charging";
+    public const string Charging = "samus_charging_beam";
 
     /// <summary>The selected item changing.</summary>
-    public const string ItemSelect = "item_select";
+    public const string ItemSelect = "samus_hud_weapon_select";
 
     /// <summary>The grapple beam firing.</summary>
-    public const string GrappleFire = "grapple_fire";
+    public const string GrappleFire = "samus_grapple_start";
 
     /// <summary>The grapple beam latching on.</summary>
-    public const string GrappleLatch = "grapple_latch";
+    public const string GrappleLatch = "samus_grappling";
 
     /// <summary>The grapple beam letting go.</summary>
-    public const string GrappleRelease = "grapple_release";
+    public const string GrappleRelease = "samus_grapple_end";
 
     /// <summary>The X-ray scope switching on.</summary>
-    public const string Xray = "xray";
+    public const string Xray = "samus_xray_start";
 
     /// <summary>The X-ray scope switching off.</summary>
-    public const string XrayEnd = "xray_end";
+    public const string XrayEnd = "silence";
 
     /// <summary>A crystal flash.</summary>
     public const string CrystalFlash = "crystal_flash";
 
     /// <summary>Energy being refilled a point at a time.</summary>
-    public const string EnergyRefill = "energy_refill";
+    public const string EnergyRefill = "room_incremental_energy";
 
     /// <summary>Plunging into a liquid, or leaving one.</summary>
     public const string Splash = "splash";
@@ -154,6 +160,7 @@ public static class Sounds
         StoredShine, Shinespark, ShinesparkEnd, Morph, Charging, ItemSelect, GrappleFire, GrappleLatch, GrappleRelease, Xray, XrayEnd,
         CrystalFlash, EnergyRefill, Splash, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, BigEnemyKilled, EnemyFrozen,
         PickupCollected, BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
+        Silence, PowerBombExplosion,
         BigExplosion, MenuMove, MenuAccept, MenuCancel, Typing, Siren,
     ];
 }

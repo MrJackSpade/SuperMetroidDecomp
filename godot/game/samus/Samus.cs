@@ -327,6 +327,11 @@ public partial class Samus : Player
         // A room with no liquid forgets the medium she was last in; one with a liquid keeps it, as the cartridge does.
         if (!room.GetChildren().OfType<Liquid>().Any())
             _liquidLastEntered = null;
+
+        // Unless the player has chosen to put items away themselves, a new room finds her with the beam alone
+        // selected: the old option of icon cancel, whose one effect this is.
+        if (!room.Session.Options.IsOn(Toggles.ManualItemCancel))
+            SelectBeam();
     }
 
     /// <summary>

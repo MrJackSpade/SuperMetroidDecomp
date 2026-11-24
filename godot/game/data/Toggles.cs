@@ -6,7 +6,7 @@ public static class Toggles
     /// <summary>Walking backwards while firing is allowed.</summary>
     public const string Moonwalk = "moonwalk";
 
-    /// <summary>The selected item stays selected until cancelled, instead of cancelling itself.</summary>
+    /// <summary>The selected item stays selected through a door, instead of the beam alone being selected again.</summary>
     public const string ManualItemCancel = "manual_item_cancel";
 
     /// <summary>Every one of them.</summary>

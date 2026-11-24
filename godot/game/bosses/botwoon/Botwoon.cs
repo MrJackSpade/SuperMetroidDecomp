@@ -18,7 +18,7 @@ namespace Game.Enemies;
 /// Its head plays "hidden", and "moving_" and "spitting_" followed by one of the eight ways it can point; the cue
 /// "spit_frame" of a spitting timeline lets the volley go, and "radius:" with a half-width and a half-height sizes
 /// its head for the way it points. The visuals "Body1" through "Body13", tail first, play "body_" or "tail_" and a
-/// way, and the hurtboxes "BodyHit1" through "BodyHit13" are those segments, which stop shots and are not hurt. Its
+/// way, and the hurtboxes "BodyHit1" through "BodyHit13" are those segments, which stop shots and are not hurt, and touched hurt Samus by "segment_damage". Its
 /// data gives its four holes under "holes", in the room's own pixels, and its paths under "paths": where each runs
 /// from and to, whether through the open or inside the wall, and its steps as one digit each, 0 for up and on round
 /// clockwise; "health_shades", in the order it shows them, the set of its pictures it shows once its health is
@@ -43,6 +43,10 @@ public partial class Botwoon : Enemy
     /// <summary>How many updates pass before it first moves.</summary>
     [Export, DataValue("opening_delay")]
     public int OpeningDelay { get; set; } = 256;
+
+    /// <summary>The damage a segment of its body does to Samus when it touches her.</summary>
+    [Export, DataValue("segment_damage")]
+    public int SegmentDamage { get; set; } = 128;
 
     /// <summary>How far down the room its floor is, in pixels: where its pieces land.</summary>
     [Export, DataValue("floor_y")]
@@ -249,8 +253,26 @@ public partial class Botwoon : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        if (_death == Death.Alive && !(part.Name == "Hurtbox" && _insideHole))
+        if (part.Name != "Hurtbox")
+        {
+            TouchWithSegment(part);
+            return;
+        }
+
+        if (_death == Death.Alive && !_insideHole)
             base.Touch(part);
+    }
+
+    /// <summary>
+    /// A segment of its body out of the wall hurts Samus by its own damage, not the head's, until it has landed: the
+    /// old game's segments were things it launched, harmful only while out of the wall.
+    /// </summary>
+    private void TouchWithSegment(Collider segment)
+    {
+        PixelRect at = segment.RoomRect;
+        int middle = at.Left + at.Width / 2;
+        var away = PixelOffset.FromWhole(Room.Player.Position.X.Whole >= middle ? 1 : -1, 0);
+        Room.Player.TakeHit(new Hit(SegmentDamage, HitSide.Enemies, HitKind.Contact) { Direction = away, Source = this }, Room.Player.Hurtbox);
     }
 
     /// <inheritdoc/>
@@ -657,7 +679,8 @@ public partial class Botwoon : Enemy
 
             if (GetNodeOrNull<Collider>($"BodyHit{segment + 1}") is { } hitbox)
             {
-                hitbox.Enabled = !hidden && _death == Death.Alive;
+                // A segment out of the wall goes on touching Samus as it falls, until it lands.
+                hitbox.Enabled = !hidden;
                 hitbox.Rect = new PixelRect((int)offset.X - hitbox.Size.X / 2, (int)offset.Y - hitbox.Size.Y / 2, hitbox.Size.X, hitbox.Size.Y);
             }
         }

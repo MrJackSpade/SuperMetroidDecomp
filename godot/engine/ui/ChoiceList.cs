@@ -35,6 +35,10 @@ public partial class ChoiceList : VBoxContainer
     [Export]
     public string Mark { get; set; } = "> ";
 
+    /// <summary>The tint of the lines that are not chosen; white leaves them as the chosen one is.</summary>
+    [Export]
+    public Color UnchosenTint { get; set; } = Colors.White;
+
     /// <summary>Which line is marked, counted from nought.</summary>
     public int Chosen { get; private set; }
 
@@ -86,6 +90,9 @@ public partial class ChoiceList : VBoxContainer
     {
         string blank = new(' ', Mark.Length);
         for (int line = 0; line < _lines.Count; line++)
+        {
             _labels[line].Text = (line == Chosen ? Mark : blank) + _lines[line];
+            _labels[line].Modulate = line == Chosen ? Colors.White : UnchosenTint;
+        }
     }
 }

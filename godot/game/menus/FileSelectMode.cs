@@ -34,7 +34,7 @@ public partial class FileSelectMode : GameMode
     }
 
     private ChoiceList? _list;
-    private Label? _heading;
+    private PixelText? _heading;
     private Asking _asking;
     private int _copyFrom;
 
@@ -48,9 +48,9 @@ public partial class FileSelectMode : GameMode
         var column = new VBoxContainer { Name = "Column" };
         column.SetAnchorsPreset(Control.LayoutPreset.Center);
         layer.AddChild(column);
-        _heading = new Label { Name = "Heading" };
+        _heading = new PixelText { Name = "Heading", Font = Session.Font };
         column.AddChild(_heading);
-        _list = new ChoiceList { Name = "List" };
+        _list = new ChoiceList { Name = "List", Font = Session.Font, Mark = "", UnchosenTint = new Color(0.5f, 0.5f, 0.5f) };
         column.AddChild(_list);
         Session.Sounds.RequestMusic(Music);
         Ask(Asking.WhichGame, 0);

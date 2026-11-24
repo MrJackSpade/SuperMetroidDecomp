@@ -48,6 +48,25 @@ internal sealed partial class EngineSheets
             ? [.. (document.Shades?.Keys.AsEnumerable() ?? []).Where(shade => shade.StartsWith(prefix, StringComparison.Ordinal))]
             : throw new InvalidDataException($"The installation has no sheet {SheetOf(sheet)} in {SpriteFamily}.");
 
+    /// <summary>Whether a sheet of any family has a frame named <paramref name="frame"/> that shows something.</summary>
+    internal bool Shows(string family, string sheet, string frame) =>
+        _documents.TryGetValue((family, sheet), out InstalledSheetDocument? document)
+        && document.Frames.TryGetValue(frame, out InstalledSheetFrameDocument? placed) && placed.Picture is not null;
+
+    /// <summary>The pixels of one frame of a sheet of any family, row by row, at the frame's own size and in the sheet's own colours.</summary>
+    /// <exception cref="InvalidDataException">The sheet or the frame is not there, or the frame shows nothing.</exception>
+    internal (RgbaPixel[] Pixels, int Width, int Height) PictureOf(string family, string sheet, string frame)
+    {
+        InstalledSheetDocument document = _documents.TryGetValue((family, sheet), out InstalledSheetDocument? found)
+            ? found
+            : throw new InvalidDataException($"The installation has no sheet {sheet} in {family}.");
+        if (!document.Frames.TryGetValue(frame, out InstalledSheetFrameDocument? placed) || placed.Picture is null)
+            throw new InvalidDataException($"The sheet {sheet} has no frame {frame} that shows anything.");
+        RgbaPixel[] pixels = FramePixels(family, sheet, frame, placed.Size.X, placed.Size.Y)
+            ?? throw new InvalidDataException($"The frame {frame} of the sheet {sheet} shows nothing.");
+        return (pixels, placed.Size.X, placed.Size.Y);
+    }
+
     /// <summary>The size of a sprite sheet's frame, and the point of it that is the place of what it shows.</summary>
     internal (int Width, int Height, int OriginX, int OriginY) SpriteSize(SpriteSheetId sheet, string frame)
     {

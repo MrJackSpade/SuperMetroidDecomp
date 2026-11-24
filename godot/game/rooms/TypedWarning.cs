@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Ui;
 using Engine.World;
 using Godot;
@@ -8,15 +9,27 @@ namespace Game.Rooms;
 /// A warning typed out across the screen a letter at a time, as when a self-destruct begins. Once it is all there
 /// and has been held a moment, it is taken away and what is listed is told so.
 /// </summary>
+/// <remarks>
+/// How a warning is laid out is a data file named for it in <see cref="LayoutFolder"/>: the "font" its words are
+/// typed in, and where their first letter's cell lies on the screen ("x", "y").
+/// </remarks>
 public partial class TypedWarning : RoomSequence
 {
     /// <summary>The warning, by its name in the game's words.</summary>
     [Export]
     public string Message { get; set; } = "";
 
+    /// <summary>The folder, within the assets tree, of the files that say how each warning is laid out.</summary>
+    [Export]
+    public string LayoutFolder { get; set; } = "text/typed";
+
     /// <summary>How many updates each letter takes.</summary>
     [Export]
-    public int UpdatesPerLetter { get; set; } = 2;
+    public int UpdatesPerLetter { get; set; } = 3;
+
+    /// <summary>How many letters appear for each sound.</summary>
+    [Export]
+    public int LettersPerSound { get; set; } = 2;
 
     /// <summary>The sound of a letter appearing, by name.</summary>
     [Export]
@@ -44,8 +57,12 @@ public partial class TypedWarning : RoomSequence
         {
             var layer = new CanvasLayer { Name = "Warning", Layer = 5 };
             AddChild(layer);
-            _text = new TypedText { Name = "Words", UpdatesPerCharacter = UpdatesPerLetter, Sound = LetterSound };
-            _text.SetAnchorsPreset(Control.LayoutPreset.CenterBottom);
+            DataNode layout = room.Session.Content.ReadData($"{LayoutFolder}/{Message}.json");
+            _text = new TypedText
+            {
+                Name = "Words", Font = PixelFont.Read(room.Session.Content, layout.Text("font")), Position = new Vector2(layout.Int("x"), layout.Int("y")),
+                UpdatesPerCharacter = UpdatesPerLetter, Sound = LetterSound, LettersPerSound = LettersPerSound,
+            };
             layer.AddChild(_text);
             _text.Type(room.Session.Text.Get(Message));
             _held = 0;

@@ -262,7 +262,7 @@ it settled, and new code follows them.
 | `HitKind` | A named kind of damage | The engine provides contact and hazard. The game names the rest (here: each beam property, missile, super missile, bomb, power bomb, each special attack, each body power). |
 | `Hit` | One hit being delivered | A damage amount, the set of `HitKind`s it carries, its direction, and who caused it. |
 | `Condition` | A yes-or-no question about the game's state, held as data | One of: a named fact in `Progress` is set; this room has no live enemies; the player owns a named piece of equipment; the player can carry some of a named amount; at least so many enemies have been killed in this room since it was set up; the room was entered at a named entry point; a named thing placed in this room is dead or open; or all, any or none of a list of conditions. |
-| `RoomEntry` | How the player arrives in a room | Which room, through which exit or station, and what the player carries in (speed, state). The room transition builds it; the room and the player read it. |
+| `RoomEntry` | How the player arrives in a room | Which room, through which exit or station, and what the player carries in (speed, state). The room transition builds it; the room and the player read it. An arrival by no way in gives the place itself (`At`): a demonstration that begins in the middle of a room. |
 
 **Hits carry several kinds.** One shot can be several things at once. A hit carries every kind that is true of it,
 general and particular together: a charged beam that is ice, wave and plasma carries beam, plasma, ice, wave and
@@ -302,7 +302,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `PickupType` | A kind of drop | Which inventory amount it adds to, and how much. |
 | `BlockType` | A reactive tile | Its rules (section 5). |
 | `LiquidType` | A kind of liquid | How it slows movement, the ongoing damage it does, which equipment cancels each, how it looks. |
-| `Area` | An area of the world as its map shows it | Its name, the fact that reveals its map, the cells of the map and the small picture each shows, which cells are secret, its markers, and the sheet the pictures come from. A room says which area it is in and which cell its top-left corner is. |
+| `Area` | An area of the world as its map shows it | Its name, the fact that reveals its map, the cells of the map and the small picture each shows, which cells are secret, its markers, and the sheet the pictures come from. A room says which area it is in and which cell its top-left corner is. It may give a second sheet for cells that show but are not explored and a third for the cell the player is in; without them such cells are the explored pictures, dimmed. |
 | `FrameTimeline` | A timed sequence gameplay follows | Ordered steps, each with a picture to show, how many updates it lasts, and optional named cues; and where it loops or ends. |
 | `DemoRecording` | One title-screen demo | The room it plays in, the entry point the player starts at, and the actions held for each stretch of updates. An action is newly pressed when it is first held; a stretch may say otherwise ("pressed": one pressed again without being let go, or held and never pressed). A recording may end "holding" its last stretch for good. `RecordedInputSource` plays it, giving each update's input. |
 | `PixelFont` | One font | A picture of its characters, each one cell of the same size, in the order the font lists them. The game definition names the font the game's words are drawn in (`FontFile`); anything with a font of its own names it in its data. |
@@ -340,7 +340,7 @@ select, options, game over, time up, and one per cinematic.
 
 | Mode | Does | Hands over to |
 | --- | --- | --- |
-| `PlayingMode` | Owns the room being played and steps it. Writes a save when one was asked for. A game says what is stopped while the rest runs by overriding one method. | The mode after death when the player has died; a `MessageBoxMode` when a message was asked for; a `RoomTransitionMode` when the player entered an exit; the pause mode when pause is pressed while the player is in control. |
+| `PlayingMode` | Owns the room being played and steps it. Writes a save when one was asked for. A game says what is stopped while the rest runs by overriding one method. It can be started in a room at a given `RoomEntry`. | The mode after death when the player has died; a `MessageBoxMode` when a message was asked for; a `RoomTransitionMode` when the player entered an exit; the pause mode when pause is pressed while the player is in control.  |
 | `RoomTransitionMode` | Fades out, takes the old room down and sets the next up with the player arriving at the exit the old one led to, fades in. Neither room is stepped meanwhile. | The same `PlayingMode`. |
 | `PausedMode` | Nothing; play is still beneath it. A game's pause screen is its own mode doing the same. | The same `PlayingMode`, on pause. |
 | `MessageBoxMode` | Shows a message from `GameText`; one that asks yes or no gives the answer to whoever asked. A message may come with a fanfare, after which the music there was comes back, and may be held up a set time before it can be dismissed. | The mode it was laid over, on confirm. |
@@ -786,8 +786,8 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 
 | Type | Lives in | Job | Does not |
 | --- | --- | --- | --- |
-| `MessageBox` | `engine/ui/` | Showing a message, waiting for it to be dismissed, and returning the answer when it asks yes or no. | Grant the item it announces or perform the save it asks about. |
-| `MapView` | `engine/ui/` | Drawing an `Area`'s map from what `Progress` says is explored and revealed. The minimap, the pause map and the file-select map are all this, at different sizes. | Decide what is explored. |
+| `MessageBox` | `engine/ui/` | Showing a message, waiting for it to be dismissed, and returning the answer when it asks yes or no. A game that keeps its messages as pictures (`GameDefinition.MessagePictureFolder`) has each shown as its picture, drawn for the room's set of graphics, across the middle of the screen; a question has a picture of each answer chosen. | Grant the item it announces or perform the save it asks about.  |
+| `MapView` | `engine/ui/` | Drawing an `Area`'s map from what `Progress` says is explored and revealed. The minimap, the pause map and the file-select map are all this, at different sizes. An unexplored cell and the cell the player is in (`Here`) are drawn from the area's own sheets for them where it has them. | Decide what is explored.  |
 | `ScreenFade` | `engine/ui/` | Fading, flashing or whiting out the whole screen over a set number of updates, smoothly or in a set number of even steps, and reporting when it is done. | Know why it was asked. |
 | `PixelText` | `engine/ui/` | Drawing words in a `PixelFont`, a character to a cell and line under line; showing only the first so many characters; laying each line at the left, middle or right of its width. Every word the game shows is drawn by one. | Hold the words, or draw in anything but its font: with none, words given it cannot be drawn. |
 | `TypedText` | `engine/ui/` | A `PixelText` showing its words one character at a time with its sound, for every letter or every so many; going on to the next line takes no time. | Hold the words; they come from `GameText`. |
@@ -795,10 +795,10 @@ the non-default choice is supplied from `game/compatibility/`. The architecture 
 | `CinematicSprite` | `engine/ui/` | One thing shown in a cinematic: a picture at a place on the screen that plays a timeline, drifts at a speed (round a loop, if it has one), and is over when its timeline has played out. Its cinematic steps it and acts on the cues it reports. | Decide what its cues mean. |
 | `MosaicPicture` | `engine/ui/` | A picture that can be shown in coarse blocks, each taking the colour of its top-left pixel. | Anything else. |
 | `GameHud` (base) | `engine/ui/` | Being what is shown over play: kept on screen by `PlayingMode`, presented once as play begins and told to show things as they are as each room is set up and after each update. The `GameDefinition` names a game's scene of one. | Know what a particular game shows. |
-| `Hud` | `game/hud/` | Showing energy, ammunition, the selected weapon, the minimap and, during an escape, the countdown; its places and pictures come from its data file. | Change any of them. |
+| `Hud` | `game/hud/` | Showing energy, ammunition, the selected weapon, the minimap and, during an escape, the countdown; its places and pictures come from its data file. Under the minimap lies the picture of a cell that shows nothing; the countdown is its label and three pairs of digits about one place. | Change any of them.  |
 | `PauseScreen` | `game/pause/` | The map and equipment screens; switching equipment through the player's `Inventory`. | Hold inventory state. |
-| `ChoiceList` | `engine/ui/` | A list of lines with one marked: up and down move the mark, and confirm and cancel are reported to whoever steps it. | Hold words or act on a choice. |
-| Menus | `game/menus/` | Title (`TitleMode`), file select (`FileSelectMode`), options (`OptionsMode`), game over (`GameOverMode`). Each is a `GameMode`; their words come from `GameText`. The game starts on the title, and the game over screen is what follows a death. | Touch a running session. |
+| `ChoiceList` | `engine/ui/` | A list of lines with one marked: up and down move the mark, and confirm and cancel are reported to whoever steps it. The lines not chosen may be tinted (`UnchosenTint`), for a font with no mark to write before the chosen one. | Hold words or act on a choice.  |
+| Menus | `game/menus/` | Title (`TitleMode`), file select (`FileSelectMode`), options (`OptionsMode`), game over (`GameOverMode`). Each is a `GameMode`; their words come from `GameText`. The game starts on the title, and the game over screen is what follows a death. The title reads its backdrop, pictures and sets of demos from `menus/title.json`; `DemoSchedule`, a session service, keeps which set is due. A demo (`AttractDemoMode`) starts Samus at a place in a room with what its file gives her. The game over screen reads its page, the crying larva and the cursor from `menus/game_over.json`. File select and options list their lines in the game's font. | Touch a running session.  |
 | `AudioDirector` | `engine/audio/` | Playing the music a room or event asks for and the sounds `SoundRequests` accepted. | Affect gameplay by its timing. |
 | `InputSampler` | `engine/input/` | Producing one `GameInput` of actions per update from the player's devices and bindings, or from a recorded demo. | Let anything else read devices. |
 | `ContentLibrary` | `engine/content/` | Loading art, audio, layouts and data files, by their path in the assets tree. | Read the ROM or reference the extractor. |
@@ -994,7 +994,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 A sequence is told "start", and one that knows other words acts on them. Each lives beside its room, under
 `game/rooms/<area>/`; one that rooms of several areas use (`TypedWarning`, `EscapeRoom`) lives in `game/rooms/`.
 `TypedWarning` types
-a warning across the screen and tells what is listed when it is over; Mother Brain's room uses it.
+a warning across the screen and tells what is listed when it is over; Mother Brain's room uses it. How a typed
+warning is laid out (its font, where its words begin, and the pictures of a second wording) is a data file named
+for it under `text/typed/`.
 
 Ceres: the elevator arrival (`CeresArrival`: the pad that sets Samus down); Ridley's getaway
 (`CeresGetaway`: he flies off over the turning floor and throws Samus aside, then the self-destruct's warning comes

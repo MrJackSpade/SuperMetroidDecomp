@@ -604,8 +604,8 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `liquids/water_indigo.json` | `game/rooms/maridia/aqueduct_save.tscn`, `game/rooms/maridia/bug_sand_hole.tscn`, `game/rooms/maridia/butterfly.tscn` and 7 more |
 | `liquids/water_purple.json` | `game/rooms/maridia/aqueduct.tscn`, `game/rooms/maridia/below_botwoon_energy_tank.tscn`, `game/rooms/maridia/botwoon.tscn` and 11 more |
 | `liquids/water_teal.json` | `game/rooms/maridia/crab_hole.tscn`, `game/rooms/maridia/crab_shaft.tscn`, `game/rooms/maridia/crab_tunnel.tscn` and 9 more |
-| `menus/game_over.png` | `game/menus/GameOverMode.cs` |
-| `menus/title.png` | `game/menus/TitleMode.cs` |
+| `menus/game_over.json` | `game/menus/GameOverMode.cs` |
+| `menus/title.json` | `game/menus/TitleMode.cs` |
 | `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_rest.json` | `game/objects/station/energy_station.tscn` |

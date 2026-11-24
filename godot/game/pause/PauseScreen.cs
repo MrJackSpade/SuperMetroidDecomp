@@ -21,7 +21,7 @@ namespace Game;
 public partial class PauseScreen : GameMode
 {
     private readonly PlayingMode _playing;
-    private Label? _heading;
+    private PixelText? _heading;
     private MapView? _map;
     private ChoiceList? _list;
     private bool _showsMap = true;
@@ -56,12 +56,12 @@ public partial class PauseScreen : GameMode
         var backdrop = new ColorRect { Name = "Backdrop", Color = new Color(0f, 0f, 0f, 0.9f) };
         backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         layer.AddChild(backdrop);
-        _heading = new Label { Name = "Heading" };
+        _heading = new PixelText { Name = "Heading", Font = Session.Font };
         _heading.SetAnchorsPreset(Control.LayoutPreset.CenterTop);
         layer.AddChild(_heading);
         _map = new MapView { Name = "Map", Window = MapWindow, Position = new Vector2(8, 24) };
         layer.AddChild(_map);
-        _list = new ChoiceList { Name = "Equipment" };
+        _list = new ChoiceList { Name = "Equipment", Font = Session.Font, Mark = "", UnchosenTint = new Color(0.5f, 0.5f, 0.5f) };
         _list.SetAnchorsPreset(Control.LayoutPreset.Center);
         layer.AddChild(_list);
 

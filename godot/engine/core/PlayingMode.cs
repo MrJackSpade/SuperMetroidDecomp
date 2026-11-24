@@ -15,6 +15,7 @@ public partial class PlayingMode : GameMode
 {
     private readonly string _firstRoom;
     private readonly string _firstEntryPoint;
+    private readonly RoomEntry? _firstEntry;
     private Room? _room;
     private string _roomScene = "";
 
@@ -30,6 +31,15 @@ public partial class PlayingMode : GameMode
     {
         _firstRoom = room;
         _firstEntryPoint = entryPoint;
+    }
+
+    /// <summary>Play starting in <paramref name="room"/> with the player arriving as <paramref name="entry"/> says.</summary>
+    public PlayingMode(string room, RoomEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        _firstRoom = room;
+        _firstEntryPoint = entry.EntryPoint;
+        _firstEntry = entry;
     }
 
     private GameHud? _hud;
@@ -57,7 +67,7 @@ public partial class PlayingMode : GameMode
             _hud.Present(Session);
         }
 
-        ChangeRoom(room, new RoomEntry(entryPoint, PixelVelocity.Zero, Facing.Right));
+        ChangeRoom(room, _firstEntry ?? new RoomEntry(entryPoint, PixelVelocity.Zero, Facing.Right));
     }
 
     /// <summary>Leaves the room being played, if any, and sets up the room at <paramref name="scene"/> for the player's arrival.</summary>
@@ -102,9 +112,9 @@ public partial class PlayingMode : GameMode
         }
 
         if (Session.TakeQuestion() is { } question)
-            return new MessageBoxMode(this, question.Message, question.Answered);
+            return new MessageBoxMode(this, question.Message, question.Answered) { Pictures = Room.Content };
         if (Session.TakeMessage() is { } message)
-            return new MessageBoxMode(this, message.Message) { Fanfare = message.Fanfare, HoldUpdates = message.HoldUpdates };
+            return new MessageBoxMode(this, message.Message) { Fanfare = message.Fanfare, HoldUpdates = message.HoldUpdates, Pictures = Room.Content };
         if (Room.ExitEntered is { } exit)
             return new RoomTransitionMode(this, exit);
         if (input.WasPressed(GameAction.Pause) && Session.Player.State.InControl)

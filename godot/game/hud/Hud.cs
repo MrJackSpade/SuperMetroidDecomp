@@ -19,10 +19,12 @@ namespace Game;
 /// fourteen goes. "energy_at" is where the two digits of her energy go. "counters" gives, for "missiles",
 /// "super_missiles" and "power_bombs", where its digits go ("x", "y") and how many "digits". "icons" gives, for each
 /// of those three, "grapple_beam" and "xray_scope", where it goes and its "picture" and "selected_picture".
-/// "auto_reserve" gives where the reserves' sign goes and its "full" and "empty" pictures. "minimap_at" is the
-/// top-left of the map, whose areas' files are in "area_folder". "timer" gives the ten "digits" of the countdown
-/// and its "minutes_mark" and "seconds_mark", each as wide as "width". Its child "Canvas" draws them; its child
-/// "Minimap" is the map.
+/// "auto_reserve" gives where the reserves' sign goes and its "full" and "empty" pictures, and "cleared", shown
+/// when she has reserves that do not refill by themselves. "minimap_at" is the top-left of the map, whose areas'
+/// files are in "area_folder"; "minimap_backing" is the picture of a cell of it that shows nothing, which lies under
+/// every cell. "timer" gives the countdown: its "label" and the ten "digits", and where each lies from the
+/// countdown's place ("label_at", "minutes_at", "seconds_at", "hundredths_at": the first of each pair of digits,
+/// the second "digit_spacing" to its right). Its child "Canvas" draws them; its child "Minimap" is the map.
 /// </remarks>
 public partial class Hud : GameHud, IHasValues
 {
@@ -66,10 +68,12 @@ public partial class Hud : GameHud, IHasValues
     private Vector2I _reserveAt;
     private string _reserveFull = "";
     private string _reserveEmpty = "";
+    private string _reserveCleared = "";
     private Vector2I _minimapAt;
-    private string _minutesMark = "";
-    private string _secondsMark = "";
-    private int _timerWidth = DigitWidth;
+    private string _minimapBacking = "";
+    private string _timerLabel = "";
+    private Vector2I _timerLabelAt, _minutesAt, _secondsAt, _hundredthsAt;
+    private int _timerSpacing = DigitWidth;
     private string _lastSelected = "";
     private ContentLibrary? _content;
 
@@ -93,11 +97,12 @@ public partial class Hud : GameHud, IHasValues
         foreach ((string selects, DataNode icon) in data.Get("icons").Entries())
             _icons.Add(new Icon(selects, Place(icon), icon.Text("picture"), icon.Text("selected_picture")));
         DataNode reserve = data.Get("auto_reserve");
-        (_reserveAt, _reserveFull, _reserveEmpty) = (Place(reserve), reserve.Text("full"), reserve.Text("empty"));
-        _minimapAt = Place(data.Get("minimap_at"));
+        (_reserveAt, _reserveFull, _reserveEmpty, _reserveCleared) = (Place(reserve), reserve.Text("full"), reserve.Text("empty"), reserve.Text("cleared"));
+        (_minimapAt, _minimapBacking) = (Place(data.Get("minimap_at")), data.Text("minimap_backing"));
         DataNode timer = data.Get("timer");
         Fill(_timerDigits, timer, "digits");
-        (_minutesMark, _secondsMark, _timerWidth) = (timer.Text("minutes_mark"), timer.Text("seconds_mark"), timer.Int("width"));
+        (_timerLabel, _timerLabelAt, _timerSpacing) = (timer.Text("label"), Place(timer.Get("label_at")), timer.Int("digit_spacing"));
+        (_minutesAt, _secondsAt, _hundredthsAt) = (Place(timer.Get("minutes_at")), Place(timer.Get("seconds_at")), Place(timer.Get("hundredths_at")));
 
         static void Fill(List<string> pictures, DataNode from, string name)
         {
@@ -175,22 +180,31 @@ public partial class Hud : GameHud, IHasValues
                 DrawNumber(inventory.Amount(counter.Amount), counter.At, counter.Digits, _ammoDigits, DigitWidth);
         }
 
-        // Reserves that refill by themselves show their sign, full or empty.
+        // Reserves that refill by themselves show their sign, full or empty; reserves that do not show its place cleared.
         if (inventory.IsOn(Equipment.ReserveTank))
             Draw(inventory.Amount(Amounts.ReserveEnergy) > 0 ? _reserveFull : _reserveEmpty, _reserveAt);
+        else if (inventory.Capacity(Amounts.ReserveEnergy) > 0)
+            Draw(_reserveCleared, _reserveAt);
 
-        ShowMinimap(session, room, marks);
+        // Under the map lies a cell that shows nothing, in every place of it.
+        Texture2D backing = content.LoadTexture(_minimapBacking);
+        for (int row = 0; row < MinimapCells.Y; row++)
+        {
+            for (int column = 0; column < MinimapCells.X; column++)
+                pictures.Add((backing, _minimapAt + new Vector2I(column * backing.GetWidth(), row * backing.GetHeight()), Colors.White));
+        }
+
+        ShowMinimap(session, room);
 
         Escape escape = session.Service<Escape>();
         if (escape.IsRunning)
         {
             (int x, int y) = escape.ScreenPlace;
             var at = new Vector2I(x, y);
-            DrawNumber(escape.Minutes, at, 2, _timerDigits, _timerWidth);
-            Draw(_minutesMark, at + new Vector2I(_timerWidth * 2, 0));
-            DrawNumber(escape.Seconds, at + new Vector2I(_timerWidth * 3, 0), 2, _timerDigits, _timerWidth);
-            Draw(_secondsMark, at + new Vector2I(_timerWidth * 5, 0));
-            DrawNumber(escape.Hundredths, at + new Vector2I(_timerWidth * 6, 0), 2, _timerDigits, _timerWidth);
+            Draw(_timerLabel, at + _timerLabelAt);
+            DrawNumber(escape.Minutes, at + _minutesAt, 2, _timerDigits, _timerSpacing);
+            DrawNumber(escape.Seconds, at + _secondsAt, 2, _timerDigits, _timerSpacing);
+            DrawNumber(escape.Hundredths, at + _hundredthsAt, 2, _timerDigits, _timerSpacing);
         }
 
         GetNode<HudCanvas>("Canvas").Show(pictures, marks);
@@ -208,8 +222,8 @@ public partial class Hud : GameHud, IHasValues
         }
     }
 
-    /// <summary>Shows the map around the cell Samus is in, with a mark on that cell that comes and goes.</summary>
-    private void ShowMinimap(GameSession session, Room room, List<(Rect2I, Color)> marks)
+    /// <summary>Shows the map around the cell Samus is in, that cell shown as hers every other while.</summary>
+    private void ShowMinimap(GameSession session, Room room)
     {
         if (GetNodeOrNull<MapView>("Minimap") is not { } minimap)
             return;
@@ -222,11 +236,7 @@ public partial class Hud : GameHud, IHasValues
         minimap.Centre = new Vector2I(
             room.MapCell.X + samus.Position.X.Whole / room.MapCellSize.X,
             room.MapCell.Y + samus.Position.Y.Whole / room.MapCellSize.Y);
+        minimap.Here = session.Clock.Updates / BlinkUpdates % 2 == 0 ? minimap.Centre : null;
         minimap.Present(area, session.Progress, session.Content);
-        if (session.Clock.Updates / BlinkUpdates % 2 == 0)
-        {
-            Vector2I cell = MinimapCells / 2 * area.TileSize;
-            marks.Add((new Rect2I(_minimapAt + cell, new Vector2I(area.TileSize, area.TileSize)), new Color(1f, 1f, 1f, 0.6f)));
-        }
     }
 }

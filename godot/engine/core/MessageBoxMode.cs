@@ -38,6 +38,12 @@ public partial class MessageBoxMode : GameMode
     /// <summary>How many updates the message stays up before it can be dismissed.</summary>
     public int HoldUpdates { get; init; }
 
+    /// <summary>
+    /// Where the message's picture is loaded from, for a game that keeps its messages as pictures: the room's own
+    /// pictures, since a message is drawn as the room's set of graphics draws it.
+    /// </summary>
+    public Content.ContentLibrary? Pictures { get; init; }
+
     private string _musicBefore = "";
     private int _shownFor;
 
@@ -55,12 +61,33 @@ public partial class MessageBoxMode : GameMode
     {
         _box = new MessageBox { Name = "MessageBox", Font = Session.Font };
         AddChild(_box);
-        _box.Present(Session.Text.Get(_message), asksYesOrNo: _answered is not null);
+        ShowMessage();
         if (Fanfare.Length > 0)
         {
             _musicBefore = Session.Sounds.Music;
             Session.Sounds.RequestMusic(Fanfare);
         }
+    }
+
+    /// <summary>
+    /// Shows the message as it now stands. A game that names a folder of message pictures has a picture for each
+    /// message, named as the message is, and for one that asks yes or no a picture of each answer chosen, with
+    /// "_yes" and "_no" after the name; any other game's messages are their words.
+    /// </summary>
+    private void ShowMessage()
+    {
+        MessageBox box = _box ?? throw new InvalidOperationException("The message has not been shown.");
+        string folder = Session.Definition.MessagePictureFolder;
+        if (folder.Length == 0)
+        {
+            box.Present(Session.Text.Get(_message), asksYesOrNo: _answered is not null);
+            box.Choose(_yes);
+            return;
+        }
+
+        string answer = _answered is null ? "" : _yes ? "_yes" : "_no";
+        Content.ContentLibrary pictures = Pictures ?? Session.Content;
+        box.Present(pictures.LoadTexture($"{folder}/{Content.ContentLibrary.GraphicsPlaceholder}/{_message}{answer}.png"), Session.Definition.MessageCentreY);
     }
 
     /// <inheritdoc/>
@@ -69,7 +96,7 @@ public partial class MessageBoxMode : GameMode
         if (_answered is not null && (input.WasPressed(GameAction.Left) || input.WasPressed(GameAction.Right)))
         {
             _yes = !_yes;
-            _box?.Choose(_yes);
+            ShowMessage();
         }
 
         if (_shownFor < HoldUpdates)

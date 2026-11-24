@@ -2,25 +2,29 @@ using Engine.Actors;
 using Engine.Content;
 using Engine.Core;
 using Engine.Input;
+using Engine.Shared;
+using Engine.World;
 
 namespace Game.Menus;
 
 /// <summary>
 /// One of the demos the title screen shows when it is left alone: play in a room, with the buttons pressed by a
-/// recording. It ends when the recording does, when Samus dies, or as soon as the player presses confirm or pause,
-/// and goes back to the title.
+/// recording. It ends when the recording does or its time is up, and the next demo of its set follows, or the title
+/// when it was the last; it goes back to the title at once when Samus dies or the player presses confirm or pause.
 /// </summary>
 /// <remarks>
-/// A demo's file is a recording, with the room and entry point it plays in; it may also list the "equipment" Samus
-/// has switched on in it and the "amounts" she carries, each amount's name with how much.
+/// A demo's file is a recording, with the room it plays in; it gives where in the room Samus starts ("start": "x",
+/// "y" and the way she is "facing"), how long it lasts ("lasts_updates"), and may list the "equipment" she has, which
+/// of it is switched "off", how much of each thing she can carry ("capacities") and how much she has ("amounts").
 /// </remarks>
 public partial class AttractDemoMode : PlayingMode
 {
     private readonly DataNode _data;
     private readonly RecordedInputSource _recording;
     private bool _equipped;
+    private int _played;
 
-    private AttractDemoMode(DataNode data, DemoRecording recording) : base(recording.Room, recording.EntryPoint)
+    private AttractDemoMode(DataNode data, DemoRecording recording) : base(recording.Room, StartOf(data))
     {
         _data = data;
         _recording = new RecordedInputSource(recording);
@@ -43,14 +47,38 @@ public partial class AttractDemoMode : PlayingMode
             Equip(Session.Player.Inventory);
         }
 
-        if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause) || _recording.IsOver)
+        if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Pause))
             return BackToTitle();
+        if (_recording.IsOver || _played >= _data.Int("lasts_updates"))
+            return PlayedOut();
+        _played++;
         GameMode next = base.Step(_recording.Next());
 
         // Nothing a demo leads to is followed but the change from one room to the next.
         if (ReferenceEquals(next, this) || next is RoomTransitionMode)
             return next;
         return BackToTitle();
+    }
+
+    /// <summary>Where Samus starts, as the demo's file says.</summary>
+    private static RoomEntry StartOf(DataNode data)
+    {
+        DataNode start = data.Get("start");
+        Facing facing = start.Text("facing") switch
+        {
+            "left" => Facing.Left,
+            "right" => Facing.Right,
+            _ => throw start.Get("facing").Problem("must be \"left\" or \"right\""),
+        };
+        return new RoomEntry("", PixelVelocity.Zero, facing) { At = PixelPosition.FromWhole(start.Int("x"), start.Int("y")) };
+    }
+
+    /// <summary>The demo has played to its end: the next of its set follows, or the title after the last.</summary>
+    private GameMode PlayedOut()
+    {
+        string? next = Session.Service<DemoSchedule>().AfterDemo();
+        Session.BeginAgain();
+        return next is null ? new TitleMode() : Of(Session.Content, next);
     }
 
     private GameMode BackToTitle()
@@ -66,6 +94,18 @@ public partial class AttractDemoMode : PlayingMode
         {
             foreach (DataNode equipment in _data.List("equipment"))
                 inventory.Grant(equipment.AsText());
+        }
+
+        if (_data.Has("off"))
+        {
+            foreach (DataNode equipment in _data.List("off"))
+                inventory.Switch(equipment.AsText(), false);
+        }
+
+        if (_data.Has("capacities"))
+        {
+            foreach ((string amount, DataNode quantity) in _data.Get("capacities").Entries())
+                inventory.SetCapacity(amount, quantity.AsInt());
         }
 
         if (!_data.Has("amounts"))

@@ -503,6 +503,13 @@ public partial class Room : Node2D
     /// <summary>Puts the player where their way in says.</summary>
     private void PlacePlayer(RoomEntry entry)
     {
+        if (entry.At is { } at)
+        {
+            _arrivedAt = null;
+            Player.Arrive(at, entry.Velocity, entry.Facing);
+            return;
+        }
+
         Node point = GetNodeOrNull(entry.EntryPoint)
             ?? throw new InvalidOperationException($"The room \"{Name}\" has no entry point named \"{entry.EntryPoint}\".");
         _arrivedAt = point as RoomExit;

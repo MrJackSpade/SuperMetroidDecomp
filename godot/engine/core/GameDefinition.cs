@@ -93,6 +93,18 @@ public partial class GameDefinition : Resource
     [Export]
     public string FontFile { get; set; } = "";
 
+    /// <summary>
+    /// The folder, within the assets tree, of the pictures of the game's messages, for a game that shows a message
+    /// as a picture and not as words: one folder in it for each set of graphics, and in that a picture named as each
+    /// message is. Empty for a game whose messages are their words.
+    /// </summary>
+    [Export]
+    public string MessagePictureFolder { get; set; } = "";
+
+    /// <summary>How far down the screen the middle of a message's picture lies, in pixels.</summary>
+    [Export]
+    public int MessageCentreY { get; set; } = 112;
+
     /// <summary>The folder, within the assets tree, of the game's sounds: one file per sound, named for it.</summary>
     [Export]
     public string SoundFolder { get; set; } = "sounds";

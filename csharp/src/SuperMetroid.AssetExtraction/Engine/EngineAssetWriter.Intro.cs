@@ -139,11 +139,7 @@ public sealed partial class EngineAssetWriter
         _sheets.WriteFont(_tree, folder + "/caption_font.json", SpriteSheetId.CeresCinematicPictures, captionLetters);
 
         // Typed letters glow and settle; the font is the colour they settle to.
-        var letters = new List<(char, string)>();
-        string letterPrefix = IntroNarrationPictures.Letter('A')[..^1];
-        foreach (string frame in _sheets.SpriteNames(SpriteSheetId.IntroNarrationPictures).Where(frame => frame.StartsWith(letterPrefix, StringComparison.Ordinal)))
-            letters.Add((frame[letterPrefix.Length..].Single(), frame));
-        _sheets.WriteFont(_tree, folder + "/narration_font.json", SpriteSheetId.IntroNarrationPictures, letters, null, IntroShades.Glow(IntroTextGlowStep.All[^1]).Key);
+        _sheets.WriteFont(_tree, folder + "/narration_font.json", SpriteSheetId.IntroNarrationPictures, NarrationGlyphs(), null, IntroShades.Glow(IntroTextGlowStep.All[^1]).Key);
 
         _tree.WriteData("cinematics/demos/intro_mother_brain.json", Flashback(
             DemoInputRecordings.Of(DemoSignallingRecordingId.IntroMotherBrainFlashback).Recording, IntroMotherBrainRoomScene));
@@ -222,7 +218,7 @@ public sealed partial class EngineAssetWriter
     {
         JsonObject data = Recording(recording, room, IntroRoomEntry);
         data["amounts"] = new JsonObject { ["missiles"] = IntroCinematicDefinitions.Flashback.Missiles };
-        data["selected"] = "missile";
+        data["selected"] = "missiles";
         return data;
     }
 

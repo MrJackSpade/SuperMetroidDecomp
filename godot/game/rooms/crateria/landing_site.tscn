@@ -147,7 +147,7 @@ ArrivalOffset = Vector2i(40, 40)
 
 [node name="Gunship" parent="." instance=ExtResource("6")]
 position = Vector2(1152, 1119)
-SaveQuestion = "save_question"
+SaveQuestion = "gunship_save_confirmation"
 SavedMessage = "save_completed"
 ToldWhenAway = Array[NodePath]([NodePath("../Departure")])
 

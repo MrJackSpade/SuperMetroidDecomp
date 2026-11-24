@@ -16,7 +16,9 @@ namespace Engine.World;
 ///   "cells": [ { "column": 3, "row": 2, "shows": "corridor" }, { "column": 4, "row": 2, "shows": "corridor", "secret": true } ],
 ///   "markers": [ { "column": 3, "row": 2, "shows": "save" } ] }
 /// </code>
-/// A secret cell shows only once explored, never because the map was revealed.
+/// A secret cell shows only once explored, never because the map was revealed. An area may give two more sheets
+/// laid out as "sheet" is: "unexplored_sheet", the pictures of cells that show but have not been explored, and
+/// "here_sheet", the pictures of the cell the player is in.
 /// </remarks>
 public sealed class Area
 {
@@ -36,6 +38,12 @@ public sealed class Area
     /// <summary>The picture, in the assets tree, holding the map's small pictures in a grid.</summary>
     public string Sheet { get; private init; } = "";
 
+    /// <summary>The picture holding the small pictures of cells not yet explored; empty when those are the explored ones, dimmed.</summary>
+    public string UnexploredSheet { get; private init; } = "";
+
+    /// <summary>The picture holding the small pictures of the cell the player is in; empty when that cell is not shown differently.</summary>
+    public string HereSheet { get; private init; } = "";
+
     /// <summary>The width and height of one small picture, in pixels.</summary>
     public int TileSize { get; private init; }
 
@@ -53,6 +61,8 @@ public sealed class Area
             Name = data.Text("name"),
             RevealedBy = data.Has("revealed_by") ? data.Text("revealed_by") : "",
             Sheet = data.Text("sheet"),
+            UnexploredSheet = data.Has("unexplored_sheet") ? data.Text("unexplored_sheet") : "",
+            HereSheet = data.Has("here_sheet") ? data.Text("here_sheet") : "",
             TileSize = data.Int("tile_size"),
             Cells = data.List("cells").Select(ReadCell).ToList(),
             Markers = data.Has("markers") ? data.List("markers").Select(ReadCell).ToList() : [],

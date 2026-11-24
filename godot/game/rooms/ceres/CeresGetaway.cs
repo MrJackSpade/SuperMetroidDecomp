@@ -1,3 +1,4 @@
+using Engine.Content;
 using Engine.Ui;
 using Engine.World;
 using Game.Data;
@@ -49,17 +50,17 @@ public partial class CeresGetaway : RoomSequence
     [Export]
     public string Message { get; set; } = "";
 
-    /// <summary>Where the words begin on the screen.</summary>
+    /// <summary>
+    /// The folder, within the assets tree, of the files that say how each warning is laid out: the "font" its words
+    /// are typed in, where their first letter's cell lies ("x", "y"), and its "second_wordings", each under a name
+    /// with the "languages" it is shown in and its "pictures", each with where it goes.
+    /// </summary>
     [Export]
-    public Vector2I MessageAt { get; set; }
+    public string LayoutFolder { get; set; } = "text/typed";
 
-    /// <summary>The warning's second wording, shown beneath a moment into the typing; by name, empty for none.</summary>
+    /// <summary>The warning's second wording, shown beneath a moment into the typing; by its name in the warning's layout, empty for none.</summary>
     [Export]
     public string Subtitle { get; set; } = "";
-
-    /// <summary>Where the second wording goes on the screen.</summary>
-    [Export]
-    public Vector2I SubtitleAt { get; set; } = new(80, 160);
 
     /// <summary>The sound of a letter appearing, by name.</summary>
     [Export]
@@ -126,7 +127,7 @@ public partial class CeresGetaway : RoomSequence
     private int _typedFor;
     private CanvasLayer? _warning;
     private TypedText? _words;
-    private Label? _subtitle;
+    private Node2D? _subtitle;
 
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
@@ -300,14 +301,31 @@ public partial class CeresGetaway : RoomSequence
 
     private void BeginTyping(Room room)
     {
-        _words = new TypedText { Name = "Words", UpdatesPerCharacter = 3, Sound = LetterSound, LettersPerSound = 2, Position = MessageAt };
+        DataNode layout = room.Session.Content.ReadData($"{LayoutFolder}/{Message}.json");
+        _words = new TypedText
+        {
+            Name = "Words", Font = PixelFont.Read(room.Session.Content, layout.Text("font")), UpdatesPerCharacter = 3, Sound = LetterSound, LettersPerSound = 2,
+            Position = new Vector2(layout.Int("x"), layout.Int("y")),
+        };
         Warning().AddChild(_words);
         _words.Type(room.Session.Text.Get(Message));
         _typedFor = 0;
-        string second = Subtitle.Length > 0 ? room.Session.Text.Get(Subtitle) : "";
-        if (second.Length == 0)
+        if (Subtitle.Length == 0)
             return;
-        _subtitle = new Label { Name = "Subtitle", Text = second, Position = SubtitleAt, Visible = false };
+
+        // The second wording is pictures, shown only in the languages that have one.
+        DataNode second = layout.Get("second_wordings").Get(Subtitle);
+        if (!second.List("languages").Any(language => language.AsText() == room.Session.Options.Language))
+            return;
+        _subtitle = new Node2D { Name = "Subtitle", Visible = false };
+        foreach (DataNode line in second.List("pictures"))
+        {
+            _subtitle.AddChild(new Sprite2D
+            {
+                Texture = room.Content.LoadTexture(line.Text("picture")), Centered = false, Position = new Vector2(line.Int("x"), line.Int("y")),
+            });
+        }
+
         Warning().AddChild(_subtitle);
     }
 

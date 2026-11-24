@@ -752,7 +752,7 @@ GUNSHIP_TOP_RAISE = 25
 def gunship(p, index, listed):
     # The gunship stands where its top half rests.
     return Placed(O + 'gunship/gunship.tscn', 'Gunship', {
-        'SaveQuestion': quoted('save_question'), 'SavedMessage': quoted('save_completed')},
+        'SaveQuestion': quoted('gunship_save_confirmation'), 'SavedMessage': quoted('save_completed')},
         at=(p.at[0], p.at[1] - GUNSHIP_TOP_RAISE), enemy=False)
 
 

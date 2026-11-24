@@ -45,7 +45,7 @@ public partial class OptionsMode : GameMode
         var backdrop = new ColorRect { Name = "Backdrop", Color = Colors.Black };
         backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         layer.AddChild(backdrop);
-        _list = new ChoiceList { Name = "List" };
+        _list = new ChoiceList { Name = "List", Font = Session.Font, Mark = "", UnchosenTint = new Color(0.5f, 0.5f, 0.5f) };
         _list.SetAnchorsPreset(Control.LayoutPreset.Center);
         layer.AddChild(_list);
         ShowLines(0);
@@ -116,6 +116,16 @@ public partial class OptionsMode : GameMode
         return this;
     }
 
+    /// <summary>
+    /// A name the options hold, as the game's font can show it: the font has capitals, figures and a few marks, so
+    /// small letters are shown as capitals and any other mark as a space.
+    /// </summary>
+    private string Shown(string name)
+    {
+        PixelFont font = Session.Font ?? throw new InvalidOperationException("The game has no font to show its options in.");
+        return string.Concat(name.ToUpperInvariant().Select(character => font.Has(character) ? character : ' '));
+    }
+
     private GameMode Leave()
     {
         Session.Options.Save();
@@ -126,7 +136,7 @@ public partial class OptionsMode : GameMode
     {
         Options options = Session.Options;
         Engine.Shared.GameText text = Session.Text;
-        var lines = new List<string> { text.Get("options_language").Replace("{language}", options.Language, StringComparison.Ordinal) };
+        var lines = new List<string> { text.Get("options_language").Replace("{language}", Shown(options.Language), StringComparison.Ordinal) };
         foreach (string toggle in Data.Toggles.All)
         {
             lines.Add(text.Get($"options_toggle_{toggle}")
@@ -137,7 +147,7 @@ public partial class OptionsMode : GameMode
         {
             string button = action == _binding
                 ? text.Get("options_press_a_button")
-                : string.Join(", ", options.Bindings.GetValueOrDefault(action) ?? []);
+                : Shown(string.Join(", ", options.Bindings.GetValueOrDefault(action) ?? []));
             lines.Add(text.Get($"options_action_{action}").Replace("{button}", button, StringComparison.Ordinal));
         }
 

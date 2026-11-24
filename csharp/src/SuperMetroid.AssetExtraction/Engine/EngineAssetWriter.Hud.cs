@@ -6,6 +6,7 @@ using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
@@ -132,17 +133,53 @@ public sealed partial class EngineAssetWriter
         _tree.WriteData("hud/hud.json", data);
 
         // The map as the HUD shows it, and as the pause screen does.
+        CheckMapsNeverWrap(screens);
         WriteAreaMaps(
             screens, folder + "/areas", SpriteSheetId.PauseHud,
             cell => new HudMinimapCellImage(cell, MinimapShade.Explored).FrameName, cell => new HudMinimapCellImage(cell, MinimapShade.Unexplored).FrameName,
-            cell => new HudMinimapCellImage(cell, MinimapShade.SamusLocation).FrameName, null);
+            cell => new HudMinimapCellImage(cell, MinimapShade.SamusLocation).FrameName, null, null);
+
+        // The pause screen's own pictures of the cells are in its own colours.
         WriteAreaMaps(
-            screens, "areas", SpriteSheetId.RoomMapPictures, cell => RoomMapCellFrame(cell, MapCellShade.Explored), cell => RoomMapCellFrame(cell, MapCellShade.Unexplored),
-            null, (area, revealedBy) => AreaMapLabels(screens, area, revealedBy));
+            screens, "areas", SpriteSheetId.PausePictures, cell => RoomMapCellFrame(cell, MapCellShade.Explored), cell => RoomMapCellFrame(cell, MapCellShade.Unexplored),
+            null, (area, revealedBy) => AreaMapLabels(screens, area, revealedBy, MapSpriteScreen.Pause, "areas/labels"), null);
     }
 
-    /// <summary>The name of the picture of a cell of an area's map, as the pause screen shows it.</summary>
+    /// <summary>The name of the picture of a cell of an area's map, as the pause screen and the map of a saved game show it.</summary>
     private static string RoomMapCellFrame(MapCell cell, MapCellShade shade) => $"Map.Cell.{cell.Name}.{MapCellShadeKeys.Installed.Of(shade)}";
+
+    /// <summary>
+    /// Checks that nothing of the old game's maps reaches across their left and right edges. The old map wraps: a
+    /// column past its right edge is the column as far from its left, in what is explored and in the little map of
+    /// the HUD. The Godot maps do not, and need not while no room's screens pass the map's edges and no cell of a
+    /// map lies within the little map's reach of the left or right edge, which is so of the game's own maps.
+    /// </summary>
+    /// <exception cref="InvalidDataException">A room or a cell of a map would be seen across the map's edge.</exception>
+    private static void CheckMapsNeverWrap(InstalledScreenContent screens)
+    {
+        foreach (SuperMetroid.Core.Rooms.RoomDefinition room in EngineLayouts.States().Select(state => state.Room).Distinct())
+        {
+            if (room.MapPosition.X < 0 || room.MapPosition.Y < 0 || room.MapPosition.X + room.Size.X > AreaMapSize.WidthInMapTiles
+                || room.MapPosition.Y + room.Size.Y > AreaMapSize.HeightInMapTiles)
+            {
+                throw new InvalidDataException($"The room {room.Name} runs past the edge of its area's map, where the old map wraps and the Godot map does not.");
+            }
+        }
+
+        int reach = MinimapGrid.Reach.X;
+        foreach (AreaId id in AreaIds.All)
+        {
+            IAreaMapView map = screens.Get(id);
+            for (int row = 0; row < AreaMapSize.HeightInMapTiles; row++)
+            {
+                foreach (int column in Enumerable.Range(0, reach).Concat(Enumerable.Range(AreaMapSize.WidthInMapTiles - reach, reach)))
+                {
+                    if (map.Cell(new Position16<MapTiles>(column, row)) != MapCell.Empty)
+                        throw new InvalidDataException($"The map of {id} has a cell in column {column}, which the old little map shows from across the map's edge and the Godot one does not.");
+                }
+            }
+        }
+    }
 
     /// <summary>
     /// Writes every area's map: its cells and what each shows, which of them the area's map station does not reveal,
@@ -151,7 +188,7 @@ public sealed partial class EngineAssetWriter
     /// </summary>
     private void WriteAreaMaps(
         InstalledScreenContent screens, string folder, SpriteSheetId sheet, Func<MapCell, string> explored, Func<MapCell, string> unexplored, Func<MapCell, string>? here,
-        Func<AreaId, string, JsonArray>? labels)
+        Func<AreaId, string, JsonArray>? labels, Func<AreaId, JsonArray>? markers)
     {
         foreach (AreaId id in AreaIds.All)
         {
@@ -216,6 +253,8 @@ public sealed partial class EngineAssetWriter
             data["tile_size"] = size;
             data["tiles"] = tiles;
             data["cells"] = cells;
+            if (markers?.Invoke(id) is { Count: > 0 } marked)
+                data["markers"] = marked;
             if (labels?.Invoke(id, revealedBy) is { Count: > 0 } laid)
                 data["labels"] = laid;
             _tree.WriteData($"{folder}/{name}.json", data);

@@ -4,16 +4,54 @@ using Engine.Ui;
 namespace Engine.Core;
 
 /// <summary>
-/// A message being shown. The mode it was asked for in is kept beneath it and does not run. Confirming dismisses a
-/// plain message; a message that asks yes or no is answered by choosing and confirming, and the answer is given to
-/// whoever asked.
+/// A message being shown. The mode it was asked for in is kept beneath it and does not run. A game whose messages
+/// are their words shows one at once: confirming dismisses a plain message, and one that asks yes or no is answered
+/// by choosing and confirming. A game that names how its messages are shown
+/// (<see cref="GameDefinition.MessageBoxFile"/>) shows each as a picture through a window that opens and closes, as
+/// its <see cref="MessageBoxStyle"/> says. Either way the answer is given to whoever asked as the mode beneath
+/// comes back.
 /// </summary>
+/// <remarks>
+/// With a style, a message goes through these, an update at a time: nothing showing for the style's updates before
+/// opening; the window opening from nothing by the style's step, the first update of it showing nothing, until it
+/// is fully open; for a message that is held, its hold; then waiting. A plain message waits until any action at all
+/// is held, a new press or not. A question looks at the player's presses only every so many updates, and a press
+/// is new if it was not held at the look before (at first, on the update the message was asked for): confirm
+/// answers with the choice showing, cancel answers no whatever shows, and otherwise one of the style's move actions
+/// shows the other choice, whose sound is heard on the next update, which looks at nothing. The window then closes
+/// from fully open, beginning on the update the message was dismissed, to nothing; and after the style's updates
+/// after closing, the mode beneath comes back. A question that names what follows a yes (<see cref="AfterYes"/>)
+/// and is answered yes sounds its sound on the update its window shows nothing, waits, and brings up its second
+/// message the same way before the mode beneath comes back.
+/// </remarks>
 public partial class MessageBoxMode : GameMode
 {
+    /// <summary>What a message shown through a window is doing.</summary>
+    private enum Phase
+    {
+        BeforeOpening,
+        Opening,
+        Held,
+        Waiting,
+        Closing,
+        BeforeFollowing,
+        AfterClosing,
+    }
+
     private readonly GameMode _returnsTo;
     private readonly string _message;
     private readonly Action<bool>? _answered;
+
+    /// <summary>The message showing now: the one asked for, or the one that follows a yes to it.</summary>
+    private string _shown;
+
+    /// <summary>Whether the message showing now asks yes or no.</summary>
+    private bool _asks;
+
+    /// <summary>How many updates the message showing now stays up before it can be dismissed.</summary>
+    private int _hold;
     private MessageBox? _box;
+    private MessageBoxStyle? _style;
     private bool _yes = true;
 
     /// <summary>A plain message, named <paramref name="message"/> in the game's words, laid over <paramref name="returnsTo"/>.</summary>
@@ -23,6 +61,7 @@ public partial class MessageBoxMode : GameMode
         ArgumentException.ThrowIfNullOrWhiteSpace(message);
         _returnsTo = returnsTo;
         _message = message;
+        _shown = message;
     }
 
     /// <summary>A message that asks yes or no, giving the answer to <paramref name="answered"/> as it is dismissed.</summary>
@@ -30,6 +69,7 @@ public partial class MessageBoxMode : GameMode
     {
         ArgumentNullException.ThrowIfNull(answered);
         _answered = answered;
+        _asks = true;
     }
 
     /// <summary>Music played while the message shows, by name; the music there was comes back after. Empty for none.</summary>
@@ -38,14 +78,30 @@ public partial class MessageBoxMode : GameMode
     /// <summary>How many updates the message stays up before it can be dismissed.</summary>
     public int HoldUpdates { get; init; }
 
+    /// <summary>For a question, what follows a yes before the mode beneath comes back; null for nothing.</summary>
+    public MessageAfterYes? AfterYes { get; init; }
+
     /// <summary>
     /// Where the message's picture is loaded from, for a game that keeps its messages as pictures: the room's own
     /// pictures, since a message is drawn as the room's set of graphics draws it.
     /// </summary>
     public Content.ContentLibrary? Pictures { get; init; }
 
+    /// <summary>
+    /// What the player held on the update the message was asked for. A question shown through a window takes a
+    /// press as new against it at its first look.
+    /// </summary>
+    public GameInput HeldBefore { get; init; } = GameInput.None;
+
     private string _musicBefore = "";
     private int _shownFor;
+    private Phase _phase;
+    private int _wait;
+    private int _radius;
+    private int _nextRadius;
+    private bool _choiceMoved;
+    private bool _answer;
+    private HashSet<GameAction> _heldAtLastLook = [];
 
     /// <inheritdoc/>
     public override GameMode? Keeps => _returnsTo;
@@ -61,6 +117,15 @@ public partial class MessageBoxMode : GameMode
     {
         _box = new MessageBox { Name = "MessageBox", Font = Session.Font };
         AddChild(_box);
+        _hold = HoldUpdates;
+        string file = Session.Definition.MessageBoxFile;
+        if (file.Length > 0)
+        {
+            _style = MessageBoxStyle.Read(Session.Content.ReadData(file));
+            _heldAtLastLook = HeldOf(HeldBefore, _style);
+            BeginOpening(_style.BeforeOpeningUpdates);
+        }
+
         ShowMessage();
         if (Fanfare.Length > 0)
         {
@@ -70,36 +135,44 @@ public partial class MessageBoxMode : GameMode
     }
 
     /// <summary>
-    /// Shows the message as it now stands. A game that names a folder of message pictures has a picture for each
-    /// message, named as the message is, and for one that asks yes or no a picture of each answer chosen, with
-    /// "_yes" and "_no" after the name; any other game's messages are their words.
+    /// Shows the message as it now stands: its words, or for a game with a style its picture, of the answer chosen
+    /// and of the button bound, through the window as far as it is open.
     /// </summary>
     private void ShowMessage()
     {
         MessageBox box = _box ?? throw new InvalidOperationException("The message has not been shown.");
-        string folder = Session.Definition.MessagePictureFolder;
-        if (folder.Length == 0)
+        if (_style is null)
         {
-            box.Present(Session.Text.Get(_message), asksYesOrNo: _answered is not null);
+            box.Present(Session.Text.Get(_shown), asksYesOrNo: _asks);
             box.Choose(_yes);
             return;
         }
 
-        string answer = _answered is null ? "" : _yes ? "_yes" : "_no";
         Content.ContentLibrary pictures = Pictures ?? Session.Content;
-        box.Present(pictures.LoadTexture($"{folder}/{Content.ContentLibrary.GraphicsPlaceholder}/{_message}{answer}.png"), Session.Definition.MessageCentreY);
+        string picture = _style.PicturePath(_shown, _asks ? _yes : null, Session.Options.Bindings);
+        box.Present(pictures.LoadTexture(picture), _style.CentreY, _radius);
     }
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        if (_answered is not null && (input.WasPressed(GameAction.Left) || input.WasPressed(GameAction.Right)))
+        if (_style is not null)
+            return StepWindow(input, _style);
+        if (_wait > 0)
+        {
+            // Between a question answered yes and the message that follows it.
+            if (--_wait == 0)
+                ShowMessage();
+            return this;
+        }
+
+        if (_asks && (input.WasPressed(GameAction.Left) || input.WasPressed(GameAction.Right)))
         {
             _yes = !_yes;
             ShowMessage();
         }
 
-        if (_shownFor < HoldUpdates)
+        if (_shownFor < _hold)
         {
             _shownFor++;
             return this;
@@ -107,9 +180,167 @@ public partial class MessageBoxMode : GameMode
 
         if (!input.WasPressed(GameAction.Confirm))
             return this;
+        if (_asks)
+            _answer = _yes;
+        if (!_asks || !_yes || AfterYes is not { } after)
+        {
+            RestoreMusic();
+            return Finish();
+        }
+
+        Follow(after);
+        _shownFor = 0;
+        _wait = after.WaitUpdates;
+        if (_wait == 0)
+            ShowMessage();
+        return this;
+    }
+
+    /// <summary>Turns from the question answered yes to the message that follows it, sounding its sound.</summary>
+    private void Follow(MessageAfterYes after)
+    {
+        if (after.Sound.Length > 0)
+            Session.Sounds.Request(after.Sound, channel: "menu");
+        (_shown, _asks, _hold) = (after.Message, false, after.HoldUpdates);
+    }
+
+    /// <summary>One update of a message shown through a window.</summary>
+    private GameMode StepWindow(GameInput input, MessageBoxStyle style)
+    {
+        switch (_phase)
+        {
+            case Phase.BeforeOpening:
+                if (--_wait == 0)
+                    _phase = Phase.Opening;
+                return this;
+
+            case Phase.Opening:
+                _radius = _nextRadius;
+                ShowMessage();
+                if (_radius < style.FullRadius)
+                    _nextRadius += style.RadiusStep;
+                else if (_hold > 0)
+                    (_phase, _wait) = (Phase.Held, _hold);
+                else
+                    (_phase, _wait) = (Phase.Waiting, style.FirstReadUpdates);
+                return this;
+
+            case Phase.Held:
+                if (--_wait == 0)
+                    (_phase, _wait) = (Phase.Waiting, style.FirstReadUpdates);
+                return this;
+
+            case Phase.Waiting:
+                if (!_asks)
+                    return input.AnyHeld ? BeginClosing(style) : this;
+                if (_choiceMoved)
+                {
+                    _choiceMoved = false;
+                    if (style.MoveSound.Length > 0)
+                        Session.Sounds.Request(style.MoveSound, channel: "menu");
+                    return this;
+                }
+
+                if (_wait > 0)
+                {
+                    _wait--;
+                    return this;
+                }
+
+                _wait = style.UpdatesBetweenReads;
+                HashSet<GameAction> held = HeldOf(input, style);
+                var pressed = new HashSet<GameAction>(held.Where(action => !_heldAtLastLook.Contains(action)));
+                _heldAtLastLook = held;
+                if (pressed.Contains(GameAction.Confirm))
+                {
+                    _answer = _yes;
+                    return BeginClosing(style);
+                }
+
+                if (pressed.Contains(GameAction.Cancel))
+                {
+                    _answer = false;
+                    return BeginClosing(style);
+                }
+
+                if (style.MoveActions.Any(pressed.Contains))
+                {
+                    _yes = !_yes;
+                    _choiceMoved = true;
+                    ShowMessage();
+                }
+
+                return this;
+
+            case Phase.Closing:
+                return StepClosing(style);
+
+            case Phase.BeforeFollowing:
+                if (--_wait == 0)
+                    BeginOpening(AfterYes?.BeforeOpeningUpdates ?? throw new InvalidOperationException("Nothing follows this question."));
+                return this;
+
+            case Phase.AfterClosing:
+                return --_wait > 0 ? this : Finish();
+
+            default:
+                throw new InvalidOperationException($"A message is doing {_phase}, which is nothing it can do.");
+        }
+    }
+
+    /// <summary>The actions a question looks at that <paramref name="input"/> holds.</summary>
+    private static HashSet<GameAction> HeldOf(GameInput input, MessageBoxStyle style) =>
+        [.. style.MoveActions.Append(GameAction.Confirm).Append(GameAction.Cancel).Where(input.IsHeld)];
+
+    /// <summary>Begins a message from a shut window, with so many updates of nothing before it begins to open.</summary>
+    private void BeginOpening(int updatesBefore)
+    {
+        (_radius, _nextRadius) = (0, 0);
+        (_phase, _wait) = updatesBefore > 0 ? (Phase.BeforeOpening, updatesBefore) : (Phase.Opening, 0);
+    }
+
+    /// <summary>Begins closing the window; its first closing update is this one.</summary>
+    private GameMode BeginClosing(MessageBoxStyle style)
+    {
+        RestoreMusic();
+        _nextRadius = style.FullRadius;
+        _phase = Phase.Closing;
+        return StepClosing(style);
+    }
+
+    /// <summary>Shows the window one step further closed; once it has shown nothing, the wait after closing begins.</summary>
+    private GameMode StepClosing(MessageBoxStyle style)
+    {
+        _radius = _nextRadius;
+        ShowMessage();
+        _nextRadius -= style.RadiusStep;
+        if (_nextRadius >= 0)
+            return this;
+        if (_asks && _answer && AfterYes is { } after)
+        {
+            Follow(after);
+            if (after.WaitUpdates > 0)
+                (_phase, _wait) = (Phase.BeforeFollowing, after.WaitUpdates);
+            else
+                BeginOpening(after.BeforeOpeningUpdates);
+            return this;
+        }
+
+        (_phase, _wait) = (Phase.AfterClosing, style.AfterClosingUpdates);
+        return this;
+    }
+
+    /// <summary>Brings back the music there was before the message's fanfare.</summary>
+    private void RestoreMusic()
+    {
         if (Fanfare.Length > 0)
             Session.Sounds.RequestMusic(_musicBefore);
-        _answered?.Invoke(_yes);
+    }
+
+    /// <summary>Gives the answer to whoever asked, and control back to the mode beneath.</summary>
+    private GameMode Finish()
+    {
+        _answered?.Invoke(_answer);
         return _returnsTo;
     }
 }

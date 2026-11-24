@@ -207,7 +207,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `objects/gate_switch_green_left.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/gate_switch_green_right.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/glass_tube.json` | `GlassTube` | break_sound, bubble, crack, cracking, dud_sound, intact, open_patch, shattered |
-| `objects/gunship.json` | `Gunship` | bottom, bottom_below_top, hover_sound, pad_above_top, pad_closed, pad_closing, pad_closing_sound, pad_opening, pad_opening_sound, top |
+| `objects/gunship.json` | `Gunship` | bottom, bottom_below_top, hover_sound, pad_above_top, pad_closed, pad_closing, pad_closing_sound, pad_opening, pad_opening_sound, saved_message_before_opening_updates, saved_message_hold_updates, saving_sound, saving_updates, top |
 | `objects/item_shell.json` | `Barrier` | any_hit, close_sound, health, hurt_sound, open_sound, refused_sound, sealed_sound |
 | `objects/morph_ball_eye.json` | `MorphBallEye` | activation_sound, beam_stop_sound, transition_updates |
 | `objects/samus_eater.json` | `SamusEaters` |  |
@@ -715,6 +715,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `menus/file_select.json` | `game/menus/FileSelectMode.cs` |
 | `menus/game_over.json` | `game/menus/GameOverMode.cs` |
 | `menus/options.json` | `game/menus/OptionsMode.cs` |
+| `menus/save_map.json` | `game/menus/SaveMapMode.cs` |
 | `menus/title.json` | `game/menus/TitleMode.cs` |
 | `objects/ceres_arrival_pad.json` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `objects/ceres_arrival_platform.json` | `game/rooms/ceres/ceres_elevator.tscn` |

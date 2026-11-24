@@ -20,7 +20,10 @@ namespace Engine.World;
 /// laid out as "sheet" is: "unexplored_sheet", the pictures of cells that show but have not been explored, and
 /// "here_sheet", the pictures of the cell the player is in. It may give "labels": pictures of their own laid over
 /// the map at a place in its pixels, each an "x", a "y", a "picture" file, and optionally "when", a fact that must
-/// be held for it to show, and "unless", a fact that hides it.
+/// be held for it to show, and "unless", a fact that hides it. A marker may have a picture of its own in place of
+/// one of the sheet's ("picture" for "shows"), with where its corner lies on the map in pixels ("x", "y"); and any
+/// marker may say "when" it shows: "with_cell" (while its cell shows, which is so when it does not say), "explored"
+/// (only once its cell has been explored) or "always".
 /// </remarks>
 public sealed class Area
 {
@@ -53,7 +56,7 @@ public sealed class Area
     public IReadOnlyList<AreaCell> Cells { get; private init; } = [];
 
     /// <summary>The map's markers, in the order the file gives them.</summary>
-    public IReadOnlyList<AreaCell> Markers { get; private init; } = [];
+    public IReadOnlyList<AreaMarker> Markers { get; private init; } = [];
 
     /// <summary>The pictures laid over the map at places of their own, in the order the file gives them.</summary>
     public IReadOnlyList<AreaLabel> Labels { get; private init; } = [];
@@ -70,7 +73,7 @@ public sealed class Area
             HereSheet = data.Has("here_sheet") ? data.Text("here_sheet") : "",
             TileSize = data.Int("tile_size"),
             Cells = data.List("cells").Select(ReadCell).ToList(),
-            Markers = data.Has("markers") ? data.List("markers").Select(ReadCell).ToList() : [],
+            Markers = data.Has("markers") ? data.List("markers").Select(ReadMarker).ToList() : [],
             Labels = data.Has("labels") ? data.List("labels").Select(ReadLabel).ToList() : [],
         };
         if (area.TileSize <= 0)
@@ -83,10 +86,10 @@ public sealed class Area
                 throw data.Get("cells").Problem($"gives the cell at column {cell.Place.X}, row {cell.Place.Y} twice");
         }
 
-        foreach (AreaCell cell in area.Cells.Concat(area.Markers))
+        foreach (string shows in area.Cells.Select(cell => cell.Shows).Concat(area.Markers.Where(marker => marker.Picture.Length == 0).Select(marker => marker.Shows)))
         {
-            if (!area._tiles.ContainsKey(cell.Shows))
-                throw data.Get("tiles").Problem($"has no picture named \"{cell.Shows}\"");
+            if (!area._tiles.ContainsKey(shows))
+                throw data.Get("tiles").Problem($"has no picture named \"{shows}\"");
         }
 
         return area;
@@ -102,12 +105,24 @@ public sealed class Area
         return new Rect2I(tile.X * TileSize, tile.Y * TileSize, TileSize, TileSize);
     }
 
-    /// <summary>Reads one cell or marker.</summary>
+    /// <summary>Reads one marker: one that shows a small picture of the sheet, or one with a picture of its own and its place.</summary>
+    private static AreaMarker ReadMarker(DataNode data)
+    {
+        var place = new Vector2I(data.Int("column"), data.Int("row"));
+        AreaMarkerShows when = data.Has("when") ? data.Get("when").AsEnum<AreaMarkerShows>() : AreaMarkerShows.WithCell;
+        if (data.Has("picture") == data.Has("shows"))
+            throw data.Problem("is a marker that must give either the small picture it \"shows\" or a \"picture\" of its own");
+        return data.Has("picture")
+            ? new AreaMarker(place, "", data.Text("picture"), new Vector2I(data.Int("x"), data.Int("y")), when)
+            : new AreaMarker(place, data.Text("shows"), "", Vector2I.Zero, when);
+    }
+
     /// <summary>Reads one label.</summary>
     private static AreaLabel ReadLabel(DataNode data) => new(
         new Vector2I(data.Int("x"), data.Int("y")), data.Text("picture"), data.Has("when") ? data.Text("when") : "",
         data.Has("unless") ? data.Text("unless") : "");
 
+    /// <summary>Reads one cell.</summary>
     private static AreaCell ReadCell(DataNode data) =>
         new(new Vector2I(data.Int("column"), data.Int("row")), data.Text("shows"), data.Has("secret") && data.Flag("secret"));
 }

@@ -1,0 +1,131 @@
+using Engine.Content;
+using Engine.Input;
+
+namespace Engine.Ui;
+
+/// <summary>
+/// How a game shows its messages when each is a picture: where the picture lies, the window about its middle line
+/// that opens before it is read and closes after, when a question reads the player's answer, and which of a
+/// message's pictures names the button the player has bound to an action.
+/// </summary>
+/// <remarks>
+/// The data file is a group of:
+/// <list type="bullet">
+/// <item><c>pictures</c>: the folder of the messages' pictures, with one folder in it for each set of graphics; a
+/// message's picture there is named as the message is, with <c>_yes</c> or <c>_no</c> after it for the answer a
+/// question shows chosen.</item>
+/// <item><c>centre_y</c>: how far down the screen the window's middle line is, which the picture's own middle lies
+/// on.</item>
+/// <item><c>full_radius</c>, <c>radius_step</c>: how many lines above and below its middle the open window shows,
+/// and by how many it grows or shrinks an update.</item>
+/// <item><c>before_opening_updates</c>, <c>after_closing_updates</c>: how long nothing shows before the window
+/// begins to open and after it has closed; play goes on after the last of the second.</item>
+/// <item><c>first_read_updates</c>, <c>updates_between_reads</c>: for a question, how many updates pass between the
+/// window being open and the first look at what the player presses, and between one look and the next.</item>
+/// <item><c>move_actions</c>: the actions that move a question's choice to the other answer.</item>
+/// <item><c>move_sound</c>: the sound of the choice moving, heard the update after it moves.</item>
+/// <item><c>names_action</c>: a group giving, for each message that names a button, the action whose button it
+/// names. Such a message has a picture for each button of <c>buttons</c>, named with <c>_</c> and that button's
+/// <c>picture</c> after the message's name, and one for no such button, with <c>_</c> and <c>unbound</c>.</item>
+/// <item><c>buttons</c>: the buttons a message can name, each a group of <c>button</c> (written as a binding is,
+/// such as <c>pad:0</c>) and <c>picture</c>. The first of them the action is bound to is the one shown.</item>
+/// <item><c>unbound</c>: the name's ending for the picture shown when the action is bound to none of them.</item>
+/// </list>
+/// </remarks>
+public sealed class MessageBoxStyle
+{
+    private readonly List<(string Button, string Picture)> _buttons = [];
+    private readonly Dictionary<string, string> _namesAction = [];
+
+    private MessageBoxStyle()
+    {
+    }
+
+    /// <summary>The folder of the messages' pictures.</summary>
+    public string PictureFolder { get; private init; } = "";
+
+    /// <summary>How far down the screen the window's middle line is, in pixels.</summary>
+    public int CentreY { get; private init; }
+
+    /// <summary>How many lines above and below its middle the open window shows.</summary>
+    public int FullRadius { get; private init; }
+
+    /// <summary>By how many lines the window grows or shrinks an update.</summary>
+    public int RadiusStep { get; private init; }
+
+    /// <summary>How many updates nothing shows before the window begins to open.</summary>
+    public int BeforeOpeningUpdates { get; private init; }
+
+    /// <summary>How many updates nothing shows after the window has closed; play goes on after the last.</summary>
+    public int AfterClosingUpdates { get; private init; }
+
+    /// <summary>How many updates pass between a question's window being open and the first look at the player's presses.</summary>
+    public int FirstReadUpdates { get; private init; }
+
+    /// <summary>How many updates pass between one look at the player's presses and the next.</summary>
+    public int UpdatesBetweenReads { get; private init; }
+
+    /// <summary>The actions that move a question's choice to the other answer.</summary>
+    public IReadOnlyList<GameAction> MoveActions { get; private init; } = [];
+
+    /// <summary>The sound of a question's choice moving.</summary>
+    public string MoveSound { get; private init; } = "";
+
+    /// <summary>The name's ending for the picture of a message whose action is bound to no button a picture names.</summary>
+    public string UnboundPicture { get; private init; } = "";
+
+    /// <summary>Reads a style from its data file.</summary>
+    /// <exception cref="ContentException">A value is missing or cannot be what it must be.</exception>
+    public static MessageBoxStyle Read(DataNode data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        var style = new MessageBoxStyle
+        {
+            PictureFolder = data.Text("pictures"),
+            CentreY = data.Int("centre_y"),
+            FullRadius = data.Int("full_radius"),
+            RadiusStep = data.Int("radius_step"),
+            BeforeOpeningUpdates = data.Int("before_opening_updates"),
+            AfterClosingUpdates = data.Int("after_closing_updates"),
+            FirstReadUpdates = data.Int("first_read_updates"),
+            UpdatesBetweenReads = data.Int("updates_between_reads"),
+            MoveActions = [.. data.List("move_actions").Select(action => new GameAction(action.AsText()))],
+            MoveSound = data.Text("move_sound"),
+            UnboundPicture = data.Text("unbound"),
+        };
+        if (style.FullRadius <= 0 || style.RadiusStep <= 0 || style.FullRadius % style.RadiusStep != 0)
+            throw data.Problem("has a window that does not open to its full height in whole steps");
+        if (style.AfterClosingUpdates <= 0)
+            throw data.Problem("has no update after its window has closed for play to go on after");
+        foreach (DataNode button in data.List("buttons"))
+            style._buttons.Add((button.Text("button"), button.Text("picture")));
+        foreach ((string message, DataNode action) in data.Get("names_action").Entries())
+            style._namesAction.Add(message, action.AsText());
+        return style;
+    }
+
+    /// <summary>
+    /// The path of the picture of <paramref name="message"/> as it shows now, within the assets tree, with the
+    /// placeholder for the set of graphics in it.
+    /// </summary>
+    /// <param name="message">The message, by name.</param>
+    /// <param name="answer">For a question, the answer that shows chosen; null for a message that asks nothing.</param>
+    /// <param name="bindings">The buttons bound to each action, by the action's name.</param>
+    /// <exception cref="InvalidOperationException">The message names an action that has no bindings.</exception>
+    public string PicturePath(string message, bool? answer, IReadOnlyDictionary<string, List<string>> bindings)
+    {
+        ArgumentNullException.ThrowIfNull(bindings);
+        string name = message;
+        if (_namesAction.TryGetValue(message, out string? action))
+        {
+            if (!bindings.TryGetValue(action, out List<string>? bound))
+                throw new InvalidOperationException($"The message \"{message}\" names the button of the action \"{action}\", which the player's bindings do not hold.");
+            int shown = _buttons.FindIndex(button => bound.Contains(button.Button));
+            name += "_" + (shown < 0 ? UnboundPicture : _buttons[shown].Picture);
+        }
+
+        if (answer is { } yes)
+            name += yes ? "_yes" : "_no";
+        return $"{PictureFolder}/{ContentLibrary.GraphicsPlaceholder}/{name}.png";
+    }
+}

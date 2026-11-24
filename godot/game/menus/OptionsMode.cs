@@ -117,6 +117,14 @@ public partial class OptionsMode : GameMode
     }
 
     /// <inheritdoc/>
+    protected internal override void Resume()
+    {
+        // Back from the map of the saved game: the first page again, out of black.
+        Show(Page.Primary);
+        (_fade ?? throw NotShown()).FadeIn(FadeUpdates);
+    }
+
+    /// <inheritdoc/>
     public override void _Input(InputEvent @event)
     {
         // While an action waits to be bound, the next button pressed is its button.
@@ -186,10 +194,11 @@ public partial class OptionsMode : GameMode
         switch (PrimaryRows[_row])
         {
             case "start_game":
+                // A saved game shows where it was saved before it starts; anything else starts at once.
                 FadeOutTo(() =>
                 {
                     Session.Options.Save();
-                    return new LoadingMode();
+                    return SaveMapMode.Of(Session, this) is { } map ? map : new LoadingMode();
                 });
                 break;
             case "english_text" or "japanese_text":

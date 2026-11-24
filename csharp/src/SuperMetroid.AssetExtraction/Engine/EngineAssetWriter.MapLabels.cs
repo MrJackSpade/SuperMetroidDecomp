@@ -10,20 +10,22 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction.Engine;
 
 /// <summary>
-/// What the old pause screen lays over an area's map beside its cells: a sign where each great boss is, crossed out
+/// What the old map screens lay over an area's map beside its cells: a sign where each great boss is, crossed out
 /// once it is beaten, and the name of the area each elevator leads to.
 /// </summary>
 public sealed partial class EngineAssetWriter
 {
-    /// <summary>The folder the pictures laid over the maps are written under.</summary>
-    private const string MapLabelFolder = "areas/labels";
-
     /// <summary>
     /// The labels of <paramref name="area"/>'s map. A boss's sign shows once the area's map is had, as
     /// <paramref name="revealedBy"/> records, until the boss is beaten; then its cross and its sign in other colours
     /// show. An elevator's destination shows once the map is had.
     /// </summary>
-    private JsonArray AreaMapLabels(InstalledScreenContent screens, AreaId area, string revealedBy)
+    /// <param name="screens">The installed screens.</param>
+    /// <param name="area">The area.</param>
+    /// <param name="revealedBy">The fact that the area's map is had.</param>
+    /// <param name="screen">The screen the map is shown on, whose colours the labels are in.</param>
+    /// <param name="folder">The folder the labels' pictures are written under.</param>
+    private JsonArray AreaMapLabels(InstalledScreenContent screens, AreaId area, string revealedBy, MapSpriteScreen screen, string folder)
     {
         MapLandmarkPositions places = screens.Maps.Landmarks;
         var labels = new JsonArray();
@@ -34,8 +36,8 @@ public sealed partial class EngineAssetWriter
             string frame = MapSpriteDefinitions.Names[sprite];
             (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MapSprites, frame);
             string picture = _sheets.WriteSprite(
-                _tree, SpriteSheetId.MapSprites, frame, $"{MapLabelFolder}/{EngineSheets.FileName(frame)}_{Named(colouring)}.png",
-                MapSpriteShades.Drawn(MapSpriteScreen.Pause, colouring).Key);
+                _tree, SpriteSheetId.MapSprites, frame, $"{folder}/{EngineSheets.FileName(frame)}_{Named(colouring)}.png",
+                MapSpriteShades.Drawn(screen, colouring).Key);
             return new JsonObject { ["x"] = at.X - originX, ["y"] = at.Y - originY, ["picture"] = picture };
         }
 

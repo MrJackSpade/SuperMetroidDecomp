@@ -26,12 +26,21 @@ public partial class MapView : Node2D
     /// <summary>The cell the player is in, shown with the area's picture for that where it has one; null to show none so.</summary>
     public Vector2I? Here { get; set; }
 
+    /// <summary>Whether the map's cells are drawn. A view may draw only what lies over them, as where the cells show through an opening and the rest does not.</summary>
+    [Export]
+    public bool DrawsCells { get; set; } = true;
+
+    /// <summary>Whether the map's markers and labels are drawn.</summary>
+    [Export]
+    public bool DrawsSigns { get; set; } = true;
+
     private Area? _area;
     private Progress? _progress;
     private Texture2D? _sheet;
     private Texture2D? _unexploredSheet;
     private Texture2D? _hereSheet;
     private readonly Dictionary<AreaLabel, Texture2D> _labels = [];
+    private readonly Dictionary<AreaMarker, Texture2D> _markers = [];
 
     /// <summary>Shows <paramref name="area"/>'s map as <paramref name="progress"/> has it, with pictures from <paramref name="content"/>.</summary>
     public void Present(Area area, Progress progress, ContentLibrary content)
@@ -47,6 +56,9 @@ public partial class MapView : Node2D
         _labels.Clear();
         foreach (AreaLabel label in area.Labels)
             _labels[label] = content.LoadTexture(label.Picture);
+        _markers.Clear();
+        foreach (AreaMarker marker in area.Markers.Where(marker => marker.Picture.Length > 0))
+            _markers[marker] = content.LoadTexture(marker.Picture);
         QueueRedraw();
     }
 
@@ -72,13 +84,20 @@ public partial class MapView : Node2D
     /// <summary>The cells drawn at the moment, in the map's order.</summary>
     public IReadOnlyList<AreaCell> CellsDrawn() => Shown().Area.Cells.Where(cell => IsInWindow(cell.Place) && Shows(cell)).ToList();
 
-    /// <summary>The markers drawn at the moment: those on a cell that shows.</summary>
-    public IReadOnlyList<AreaCell> MarkersDrawn()
+    /// <summary>
+    /// The markers drawn at the moment: each by its own rule, on a cell that shows, on a cell that has been explored,
+    /// or always.
+    /// </summary>
+    public IReadOnlyList<AreaMarker> MarkersDrawn()
     {
-        Area area = Shown().Area;
-        return area.Markers
-            .Where(marker => IsInWindow(marker.Place) && area.CellAt(marker.Place.X, marker.Place.Y) is { } cell && Shows(cell))
-            .ToList();
+        (Area area, Progress progress) = Shown();
+        return area.Markers.Where(marker => IsInWindow(marker.Place) && marker.When switch
+        {
+            AreaMarkerShows.Always => true,
+            AreaMarkerShows.Explored => progress.IsExplored(area.Name, marker.Place.X, marker.Place.Y),
+            AreaMarkerShows.WithCell => area.CellAt(marker.Place.X, marker.Place.Y) is { } cell && Shows(cell),
+            _ => throw new InvalidOperationException($"A marker shows {marker.When}, which is no rule a marker has."),
+        }).ToList();
     }
 
     /// <summary>The labels drawn at the moment: those whose fact is held, whose hiding fact is not, and whose corner is in the window.</summary>
@@ -96,32 +115,43 @@ public partial class MapView : Node2D
     {
         if (_area is null || _sheet is null)
             return;
-        foreach (AreaCell cell in CellsDrawn())
+        if (DrawsCells)
         {
-            if (Here == cell.Place && _hereSheet is not null)
-                DrawCell(cell, _hereSheet, Colors.White);
-            else if (IsExplored(cell))
-                DrawCell(cell, _sheet, Colors.White);
-            else if (_unexploredSheet is not null)
-                DrawCell(cell, _unexploredSheet, Colors.White);
-            else
-                DrawCell(cell, _sheet, RevealedTint);
+            foreach (AreaCell cell in CellsDrawn())
+            {
+                if (Here == cell.Place && _hereSheet is not null)
+                    DrawSmallPicture(cell.Place, cell.Shows, _hereSheet, Colors.White);
+                else if (IsExplored(cell))
+                    DrawSmallPicture(cell.Place, cell.Shows, _sheet, Colors.White);
+                else if (_unexploredSheet is not null)
+                    DrawSmallPicture(cell.Place, cell.Shows, _unexploredSheet, Colors.White);
+                else
+                    DrawSmallPicture(cell.Place, cell.Shows, _sheet, RevealedTint);
+            }
         }
 
-        foreach (AreaCell marker in MarkersDrawn())
-            DrawCell(marker, _sheet, Colors.White);
+        if (!DrawsSigns)
+            return;
         Vector2I first = Window.X <= 0 || Window.Y <= 0 ? Vector2I.Zero : Centre - Window / 2;
+        foreach (AreaMarker marker in MarkersDrawn())
+        {
+            if (marker.Picture.Length > 0)
+                DrawTexture(_markers[marker], marker.At - first * _area.TileSize);
+            else
+                DrawSmallPicture(marker.Place, marker.Shows, _sheet, Colors.White);
+        }
+
         foreach (AreaLabel label in LabelsDrawn())
             DrawTexture(_labels[label], label.Place - first * _area.TileSize);
     }
 
-    /// <summary>Draws one cell's or marker's small picture, from one of the area's sheets, at its place in the window.</summary>
-    private void DrawCell(AreaCell cell, Texture2D sheet, Color tint)
+    /// <summary>Draws one of the map's small pictures, from one of the area's sheets, over a cell's place in the window.</summary>
+    private void DrawSmallPicture(Vector2I place, string shows, Texture2D sheet, Color tint)
     {
         Area area = Shown().Area;
         Vector2I first = Window.X <= 0 || Window.Y <= 0 ? Vector2I.Zero : Centre - Window / 2;
-        Vector2I at = (cell.Place - first) * area.TileSize;
-        DrawTextureRectRegion(sheet, new Rect2(at, new Vector2(area.TileSize, area.TileSize)), area.PictureOf(cell.Shows), tint);
+        Vector2I at = (place - first) * area.TileSize;
+        DrawTextureRectRegion(sheet, new Rect2(at, new Vector2(area.TileSize, area.TileSize)), area.PictureOf(shows), tint);
     }
 
     /// <summary>The area and progress being shown.</summary>

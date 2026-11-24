@@ -63,14 +63,38 @@ public sealed partial class EngineAssetWriter
             return at;
         }
 
-        // A selector lies with its own point at the anchor of what it selects.
-        JsonObject Selector(PauseEquipmentControl control)
+        // A picture of the screen in one of the shades the installation colours it in, placed the same way.
+        JsonObject Shaded(string frame, PictureShade shade)
         {
-            string frame = PauseSelectorAnchors.SheetFrameName(screens.PauseSelectors.Looks[0].FrameOf(control.Category));
-            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.PauseSprites, frame);
-            JsonObject at = At(screens.PauseSelectors.Anchor(control).X - originX, screens.PauseSelectors.Anchor(control).Y - originY);
-            at["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.PauseSprites, frame, $"{folder}/{EngineSheets.FileName(frame)}.png");
+            (int _, int _, int originX, int originY) = _sheets.SpriteSize(sheet, frame);
+            JsonObject at = At(-originX, -originY);
+            at["picture"] = _sheets.WriteSprite(
+                _tree, sheet, frame, $"{folder}/{EngineSheets.FileName(frame)}_{EngineSheets.FileName(shade.Effect)}_{shade.Step}.png", shade.Key);
             return at;
+        }
+
+        // The selector lies with its own point at the anchor of what it selects: a control gives the anchor, and each
+        // look of the selector where its picture's corner lies from there.
+        JsonObject Selector(PauseEquipmentControl control) => At(screens.PauseSelectors.Anchor(control).X, screens.PauseSelectors.Anchor(control).Y);
+        PauseSelectorPresentation selectors = screens.PauseSelectors;
+        var selectorSteps = selectors.Segments.Beats(PauseSelectorSegment.Cycle)
+            .Select(beat => beat as SuperMetroid.Core.Animation.AnimationBeat<PauseSelectorLook, SuperMetroid.Core.Animation.NoAnimationCue>.Frame
+                ?? throw new InvalidDataException("The pause screen's selector does something other than show a look, which this does not know."))
+            .ToList();
+        var selectorLooks = new JsonObject();
+        foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
+        {
+            var looks = new JsonArray();
+            foreach (var step in selectorSteps)
+            {
+                string frame = PauseSelectorAnchors.SheetFrameName(step.Shown.FrameOf(category));
+                (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.PauseSprites, frame);
+                JsonObject look = At(-originX, -originY);
+                look["picture"] = _sheets.WriteSprite(_tree, SpriteSheetId.PauseSprites, frame, $"{folder}/{EngineSheets.FileName(frame)}.png");
+                looks.Add(look);
+            }
+
+            selectorLooks[Named(category)] = looks;
         }
 
         var backdrops = new JsonObject();
@@ -142,24 +166,6 @@ public sealed partial class EngineAssetWriter
             wireframes[name] = Placed(PauseEquipmentPictures.WireframeFrame(wireframe));
         }
 
-        // The sign of where Samus is on the map: a ring that swells and shrinks, about the cell she is in.
-        var pulse = new JsonArray();
-        foreach (SuperMetroid.Core.Animation.AnimationBeat<MapSpriteId, MapIndicatorCue> beat in PauseMapIndicatorAnimation.Segments.Beats(MapIndicatorSegment.Pulse))
-        {
-            if (beat is not SuperMetroid.Core.Animation.AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame shown)
-                continue;
-            string frame = MapSpriteDefinitions.Names[shown.Shown];
-            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MapSprites, frame);
-            pulse.Add(new JsonObject
-            {
-                ["picture"] = _sheets.WriteSprite(
-                    _tree, SpriteSheetId.MapSprites, frame, $"pause/map_{EngineSheets.FileName(frame)}.png",
-                    MapSpriteShades.Drawn(MapSpriteScreen.Pause, MapSpriteColouring.Markers).Key),
-                ["updates"] = shown.Duration,
-                ["offset"] = At(-originX, -originY),
-            });
-        }
-
         // The bar of her reserves: a little tank for each she has, full, empty or part filled, and a cap after the last.
         string Bar(PauseReserveTankVisual visual) => _sheets.WriteSprite(
             _tree, SpriteSheetId.PauseSprites, PauseReserveTankParts.SheetFrameName(PauseReserveTankDefinitions.InstalledNames.Of(visual)),
@@ -184,76 +190,49 @@ public sealed partial class EngineAssetWriter
             ["flicker_updates"] = PauseCadenceDefinitions.ReserveFlickerStepHidden.CountsEachWay,
         };
 
-        MapFraming framing = MapFramingDefinitions.Pause;
-        const int cell = GameplayHudDefinitions.MinimapSquarePixels;
+        // The arrow of her reserves while they refill by themselves and the selector is on that line: one picture
+        // for each count of the old game's clock, round and round.
+        string litArrow = PauseEquipmentPictures.ReserveArrowFrame(ShownReserveArrow.Lit);
+        JsonObject arrowPulse = Shaded(litArrow, PauseReserveArrowShades.Solid);
+        arrowPulse.Remove("picture");
+        arrowPulse["updates_each"] = PauseCadenceDefinitions.ReserveArrowPulseFrame.CountsPerStep;
+        arrowPulse["pictures"] = new JsonArray(
+            [.. PauseReserveArrowPulseFrame.All.Select(pulseFrame => (JsonNode)Shaded(litArrow, PauseReserveArrowShades.Pulse(pulseFrame))["picture"]!.GetValue<string>())]);
+        if (PauseReserveArrowPulseFrame.All.Count != PauseCadenceDefinitions.ReserveArrowPulseFrame.Steps)
+            throw new InvalidDataException("The pause screen's reserve arrow has other than one picture for each step of its pulse.");
 
-        // The arrows that say which ways the map can be moved, their colours going round as the old highlight does.
-        var arrows = new JsonObject();
-        foreach (MapScrollDirection direction in MapScrollControls.Directions)
-        {
-            string frame = MapSpriteDefinitions.Names[MapArrowDefinitions.ArrowPictures[direction]];
-            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MapSprites, frame);
-            var looks = new JsonArray();
-            foreach (MapHighlightFrame look in screens.Maps.HighlightCycle.Frames)
-            {
-                looks.Add(new JsonObject
-                {
-                    ["picture"] = _sheets.WriteSprite(
-                        _tree, SpriteSheetId.MapSprites, frame, $"pause/map_{EngineSheets.FileName(frame)}_{look.Frame}.png", MapSpriteShades.Highlight(look).Key),
-                    ["updates"] = screens.Maps.HighlightCycle.Duration(look),
-                });
-            }
-
-            var at = screens.Maps.Arrows.Get(direction).Position;
-            arrows[Named(direction)] = new JsonObject
-            {
-                ["x"] = at.X,
-                ["y"] = at.Y + framing.ArrowDrop,
-                ["timeline"] = new JsonObject { ["steps"] = looks, ["loops_to"] = 0, ["offset"] = At(-originX, -originY) },
-            };
-        }
+        // The map is a plane behind the page, moved under it; over it lie the arrows that say which ways it can be
+        // moved, their colours going round as the old highlight does, and the sign of where Samus is.
+        JsonObject map = MapFramingData(MapFramingDefinitions.Pause);
+        map["highlight"] = MapHighlightData(screens);
+        map["arrows"] = MapArrowData(screens, MapFramingDefinitions.Pause, folder);
+        map["indicator"] = MapIndicatorPulse(MapSpriteScreen.Pause, folder, null);
         _tree.WriteData("pause/pause.json", new JsonObject
         {
             ["backdrop"] = Colour(screens.Backdrops.Pause),
             ["backdrops"] = backdrops,
             ["frame"] = new JsonArray(Placed(PauseFramePictures.ButtonRowsFrame)),
             ["buttons"] = buttons,
-            ["map"] = new JsonObject
+            ["fade"] = new JsonObject
             {
-                // The map is a plane behind the page, moved under it. These say where it first lies and how far it moves.
-                ["cell"] = cell,
-                ["screen_width"] = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenWidthPixels,
-                ["screen_height"] = SuperMetroid.Core.Spatial.ScreenGeometry.ScreenHeightPixels,
-                ["centre_line"] = framing.CentreLine,
-                ["left_edge"] = framing.LeftEdge,
-                ["right_edge"] = framing.RightEdge,
-                ["top_edge"] = framing.TopEdge,
-                ["bottom_edge"] = framing.BottomEdge,
-                ["centre_column"] = MapFramingDefinitions.CentreColumn,
-                ["row_middle_above_centre"] = MapFramingDefinitions.RowMiddleAboveCentredLine,
-                ["here_leftmost"] = MapFramingDefinitions.MarkerLeftmostColumn,
-                ["here_rightmost"] = MapFramingDefinitions.MarkerRightmostColumn,
-                ["here_top"] = MapFramingDefinitions.MarkerTopLine,
-                ["lowest_map_top"] = MapFramingDefinitions.LowestMapTop,
-                // The cells its bounds are taken to be while none of it shows.
-                ["unrevealed"] = new JsonObject
-                {
-                    ["left"] = MapFramingDefinitions.UnrevealedLeftColumn, ["right"] = MapFramingDefinitions.UnrevealedRightColumn,
-                    ["top"] = MapFramingDefinitions.UnrevealedTopRow, ["bottom"] = MapFramingDefinitions.UnrevealedBottomRow,
-                },
-                ["scroll_step"] = MapScrollDefinitions.StepPixels,
-                ["scroll_updates"] = MapScrollDefinitions.StepTicks,
-                ["scroll_moves_at"] = MapScrollDefinitions.PulseTick,
-                ["arrows"] = arrows,
-                ["indicator"] = new JsonObject { ["steps"] = pulse, ["loops_to"] = 0 },
+                ["levels"] = SuperMetroid.Core.Rendering.DisplayBrightness.StepsFromBlackToFull,
+                ["wait"] = PauseFadeTiming.WaitBeforeEachStep,
+                // The page being left darkens a level every update: the old game restarts its fade with no wait.
+                ["page_out_wait"] = 0,
             },
+            ["held_repeat_delay"] = PauseCadenceDefinitions.HeldInputRepeatDelay,
+            ["map"] = map,
             ["area_folder"] = "areas",
             ["sounds"] = new JsonObject
             {
                 ["move"] = EngineNames.Sound(SamusSound.MenuCursor),
                 ["scroll"] = EngineNames.Sound(SamusSound.MapScroll),
                 ["switch"] = EngineNames.Sound(SamusSound.MenuConfirm),
+                // Changing how her reserves refill sounds as the selector moving does.
+                ["mode"] = EngineNames.Sound(SamusSound.MenuCursor),
                 ["page"] = EngineNames.Sound(SamusSound.MenuConfirm),
+                ["leave"] = EngineNames.Sound(SamusSound.MenuConfirm),
+                ["highlight"] = EngineNames.Sound(RoomSound.PauseBeep),
                 ["pour"] = EngineNames.Sound(PauseReserveEnergyDefinitions.RefillSound),
                 ["pour_every"] = PauseReserveEnergyDefinitions.RefillSoundInterval,
             },
@@ -265,13 +244,22 @@ public sealed partial class EngineAssetWriter
                 // The suit the selector goes to from the beams when it is sent right.
                 ["beams_right_enters"] = EquipmentName(((ItemPauseUpgrade)PauseEquipmentControls.BeamsRightSuitEntry.Upgrade).Item),
                 ["controls"] = controls,
+                ["selector"] = new JsonObject
+                {
+                    ["first_updates"] = selectors.InitialDurationTicks,
+                    ["updates"] = new JsonArray([.. selectorSteps.Select(step => (JsonNode)step.Duration)]),
+                    ["looks"] = selectorLooks,
+                },
                 ["wireframes"] = wireframes,
                 ["reserve"] = new JsonObject
                 {
                     ["absent"] = Placed(PauseEquipmentPictures.ReserveAbsentFrame),
                     ["arrow_none"] = Placed(PauseEquipmentPictures.ReserveArrowFrame(ShownReserveArrow.NoReserves)),
                     ["tank"] = Placed(PauseEquipmentPictures.ReserveTankFrame),
-                    ["arrow"] = Placed(PauseEquipmentPictures.ReserveArrowFrame(ShownReserveArrow.Dim)),
+                    ["arrow"] = Shaded(PauseEquipmentPictures.ReserveArrowFrame(ShownReserveArrow.Dim), PauseReserveArrowShades.Solid),
+                    ["arrow_lit"] = Shaded(litArrow, PauseReserveArrowShades.Solid),
+                    ["arrow_pulse"] = arrowPulse,
+                    ["pour_per_update"] = PauseEquipmentRules.ReserveEnergyPerFrame,
                     ["bar"] = bar,
                     ["auto"] = Placed(PauseEquipmentPictures.ReserveModeFrame(ReserveTankMode.Auto)),
                     ["manual"] = Placed(PauseEquipmentPictures.ReserveModeFrame(ReserveTankMode.Manual)),
@@ -281,7 +269,5 @@ public sealed partial class EngineAssetWriter
                 },
             },
         });
-        if (PauseEquipmentRules.ReserveEnergyPerFrame != 1)
-            throw new InvalidDataException("The old game pours more than one of her reserves an update, where the Godot pause screen pours one.");
     }
 }

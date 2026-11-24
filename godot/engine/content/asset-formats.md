@@ -23,9 +23,10 @@ with comments allowed.
 | An overlay's look | `effects/` | `OverlayEffect` | The pictures laid over the whole view, how they move and how they are laid over the room. |
 | A speed curve | wherever it is named | `SpeedCurve` | The marks of a curve of speeds. |
 | Drops and pickups | wherever they are named | `DropTable`, `PickupType` | What an enemy leaves and what each pickup gives. |
-| An area | `areas/` | `Area` | An area's name and map. |
+| An area | `areas/`, and wherever a screen with a map of its own names | `Area` | An area's name and map: its cells, its markers and the labels laid over it. One area may have a file for each screen that draws it in colours of its own. |
 | The game's words | the text folder the game definition names, one file for each language | `GameText` | Every message and label by name. |
 | A demo | wherever it is named | `DemoRecording` | Recorded input. |
+| How messages are shown | the file the game definition names | `MessageBoxStyle` | For a game whose messages are pictures: their folder, the line the window opens about, its size and step, the waits before and after, when a question looks at the player's presses, and the buttons a message's picture can name. |
 | A font | wherever it is named | `PixelFont` | A picture of a font's characters, each one cell, and the list of them. |
 | A picture | anywhere | `ContentLibrary.LoadTexture` | A PNG, at the size it is drawn. |
 | Sounds and music | the sound and music folders the game definition names | the audio player | One WAV file for each name the game asks for. One that goes on and on says in the file where it loops from, and goes on until something else is asked for on its channel. |

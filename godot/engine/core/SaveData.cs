@@ -53,20 +53,37 @@ public sealed class SaveData
         };
     }
 
-    /// <summary>Puts this saved game into <paramref name="session"/>: its progress and its player's inventory.</summary>
-    public void ApplyTo(GameSession session)
+    /// <summary>The fact recorded when a game is saved to resume at <paramref name="entryPoint"/>: that it has been saved there.</summary>
+    public static string SavedAtFact(string entryPoint) => $"saved at: {entryPoint}";
+
+    /// <summary>What this saved game remembers, as progress of its own: for showing a saved game without loading it.</summary>
+    public Progress Remembered()
+    {
+        var progress = new Progress();
+        Restore(progress);
+        return progress;
+    }
+
+    /// <summary>Puts what this saved game remembers into <paramref name="progress"/>.</summary>
+    private void Restore(Progress progress)
     {
         foreach (string fact in Facts)
-            session.Progress.Record(fact);
+            progress.Record(fact);
         foreach (string cell in Explored)
         {
             string[] parts = cell.Split('|');
             if (parts.Length != 3 || !int.TryParse(parts[1], out int column) || !int.TryParse(parts[2], out int row))
                 throw new InvalidDataException($"The save holds an explored cell it cannot read: \"{cell}\".");
-            session.Progress.MarkExplored(parts[0], column, row);
+            progress.MarkExplored(parts[0], column, row);
         }
 
-        session.Progress.RestorePlayUpdates(PlayUpdates);
+        progress.RestorePlayUpdates(PlayUpdates);
+    }
+
+    /// <summary>Puts this saved game into <paramref name="session"/>: its progress and its player's inventory.</summary>
+    public void ApplyTo(GameSession session)
+    {
+        Restore(session.Progress);
         Inventory inventory = session.Player.Inventory;
         foreach (string equipment in Owned)
             inventory.Grant(equipment);

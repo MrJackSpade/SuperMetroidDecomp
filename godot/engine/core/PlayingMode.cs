@@ -99,7 +99,11 @@ public partial class PlayingMode : GameMode
         Session.Progress.CountPlayUpdate();
 
         if (Session.TakeSaveRequest() is { } save)
+        {
+            // That the game has been saved at this place is itself remembered, and is in the save.
+            Session.Progress.Record(SaveData.SavedAtFact(save.EntryPoint));
             Session.Saves.Write(Session.Slot, SaveData.Capture(Session, save.Room.Length > 0 ? save.Room : _roomScene, save.EntryPoint));
+        }
         foreach (ISessionService service in Session.Services)
             service.Step(Session);
         _hud?.Refresh(Session, Room);
@@ -112,9 +116,9 @@ public partial class PlayingMode : GameMode
         }
 
         if (Session.TakeQuestion() is { } question)
-            return new MessageBoxMode(this, question.Message, question.Answered) { Pictures = Room.Content };
+            return new MessageBoxMode(this, question.Message, question.Answered) { AfterYes = question.AfterYes, Pictures = Room.Content, HeldBefore = input };
         if (Session.TakeMessage() is { } message)
-            return new MessageBoxMode(this, message.Message) { Fanfare = message.Fanfare, HoldUpdates = message.HoldUpdates, Pictures = Room.Content };
+            return new MessageBoxMode(this, message.Message) { Fanfare = message.Fanfare, HoldUpdates = message.HoldUpdates, Pictures = Room.Content, HeldBefore = input };
         if (Room.ExitEntered is { } exit)
             return new RoomTransitionMode(this, exit);
         if (input.WasPressed(GameAction.Pause) && Session.Player.State.InControl)

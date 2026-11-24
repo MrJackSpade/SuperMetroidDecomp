@@ -3,12 +3,15 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.AssetExtraction.Engine;
@@ -119,6 +122,10 @@ public sealed partial class EngineAssetWriter
             .Value("hover_sound", EngineNames.SoundOrSilence(EnemySound.GunshipHover))
             .Value("pad_opening_sound", EngineNames.SoundOrSilence(RoomSound.GunshipPadOpening))
             .Value("pad_closing_sound", EngineNames.SoundOrSilence(RoomSound.GunshipPadClosing))
+            .Value("saving_sound", EngineNames.Sound(SamusSound.Saving))
+            .Value("saving_updates", MessageBoxPauses.UpdatesBeforeGunshipSavingWait + GameplayMessageBoxDefinitions.Timing.GunshipSavingSoundFrames)
+            .Value("saved_message_hold_updates", MessageHold(GameplayMessageId.SaveCompleted))
+            .Value("saved_message_before_opening_updates", UpdatesOf(pauses => pauses.BeginBeforeCompletionNotice()))
             .Group("dust_effects", dust)
             .Write();
     }

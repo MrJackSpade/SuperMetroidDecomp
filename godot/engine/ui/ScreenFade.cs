@@ -39,6 +39,19 @@ public partial class ScreenFade : CanvasLayer
     /// <summary>Starts uncovering the screen over <paramref name="updates"/> updates.</summary>
     public void FadeIn(int updates) => Begin(updates, towardCovered: false);
 
+    /// <summary>
+    /// Shows the screen covered <paramref name="covered"/> parts out of <paramref name="steps"/>, with no fade in
+    /// progress: for whoever paces a fade of its own.
+    /// </summary>
+    public void Cover(int covered, int steps)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(steps);
+        if (covered < 0 || covered > steps)
+            throw new ArgumentOutOfRangeException(nameof(covered), covered, $"The screen is covered from none to {steps} parts.");
+        (_updates, _elapsed, _towardCovered) = (steps, covered, true);
+        Show();
+    }
+
     /// <summary>Plays one update of the fade.</summary>
     public void Step()
     {

@@ -36,6 +36,27 @@ public sealed class SoundRequests
         return true;
     }
 
+    /// <summary>
+    /// Asks for every channel to fall silent at once, whatever it is sounding, as when the game is paused. What was
+    /// asked for earlier in the update is not heard; what is asked for after is. The music plays on.
+    /// </summary>
+    public void StopAll()
+    {
+        _channels.Clear();
+        _accepted.Clear();
+        _stopAsked = true;
+    }
+
+    /// <summary>Whether every channel was asked to fall silent since this was last asked; asking takes the request.</summary>
+    public bool TakeStop()
+    {
+        bool asked = _stopAsked;
+        _stopAsked = false;
+        return asked;
+    }
+
+    private bool _stopAsked;
+
     /// <summary>Asks for the music to be <paramref name="music"/>, by name; empty for silence.</summary>
     public void RequestMusic(string music) => Music = music;
 

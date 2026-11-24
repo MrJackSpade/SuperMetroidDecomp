@@ -5,8 +5,8 @@ using Game.Data;
 namespace Game;
 
 /// <summary>
-/// Looking through the X-ray scope: while the run action is held with the scope selected she stands, or crouches,
-/// still; up and down swing the scope's cone, and what the cone passes over is shown for what it is. Everything else
+/// Looking through the X-ray scope: taken up with the scope selected, while the run action is held she stands, or
+/// crouches, still; up and down swing the scope's cone, and what the cone passes over is shown for what it is. Everything else
 /// in the room waits.
 /// </summary>
 public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
@@ -41,7 +41,8 @@ public sealed class XrayState : PlayerState, IUntouchable, ISamusLook
     public override PlayerState? Move(Player owner)
     {
         var samus = (Samus)owner;
-        if (!owner.Input.IsHeld(Actions.Run) || samus.Selected != Equipment.XrayScope || !owner.IsOnGround)
+        // Only letting go of the run ends it; choosing another item meanwhile does not, as on the cartridge.
+        if (!owner.Input.IsHeld(Actions.Run) || !owner.IsOnGround)
             return owner.Form == Player.Crouching ? new CrouchingState() : owner.StateAtRest();
         int swing = (owner.Input.IsHeld(GameAction.Down) ? 1 : 0) - (owner.Input.IsHeld(GameAction.Up) ? 1 : 0);
         samus.Xray?.Look(samus, swing);

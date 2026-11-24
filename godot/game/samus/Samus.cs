@@ -941,11 +941,12 @@ public partial class Samus : Player
 
     /// <summary>
     /// Handles the item actions: cancel selects the beam alone; select moves on to the next thing she can use. An item
-    /// chosen while cancel is held is put away again once it has been used.
+    /// chosen while cancel is held is put away again once it has been used. The X-ray scope leaves her the choice, as
+    /// the cartridge's HUD goes on taking it while the X-ray holds time still.
     /// </summary>
     private void ChooseItem()
     {
-        if (!State.InControl)
+        if (!State.InControl && State is not XrayState)
             return;
         if (Input.WasPressed(Actions.ItemCancel))
         {

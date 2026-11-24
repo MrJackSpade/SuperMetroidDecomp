@@ -175,12 +175,16 @@ public partial class Botwoon : Enemy
     private int _largeIn = 1;
     private int _smallIn = 1;
     private int? _dudSoundAt;
+    private bool _headTangible;
 
     /// <summary>
-    /// Whether its head meets shots and Samus: not inside the wall, and not once it is dead. The segments of its body
-    /// out of the wall meet shots all the same, the old game's segments being things of their own.
+    /// Whether its head meets shots and Samus. It starts hidden and out of reach; its head is put in reach or out of it
+    /// as it moves outside the wall or inside it, put in reach as it stops to spit, and put out of reach by any hit that
+    /// finds it at no health and as it lands dead. Dying, its head can so be hit again whenever it moves outside the wall,
+    /// until the next hit, as on the cartridge. The segments of its body out of the wall meet shots all the same, the old
+    /// game's segments being things of their own.
     /// </summary>
-    private bool HeadIsTangible => _death == Death.Alive && !_insideHole;
+    private bool HeadIsTangible => _headTangible;
 
     /// <summary>Switches its head's hurtbox on or off as its head meets shots or not.</summary>
     private void ShowHeadTangible() => GetNode<Collider>("Hurtbox").Enabled = HeadIsTangible;
@@ -217,7 +221,11 @@ public partial class Botwoon : Enemy
     public override HitResult TakeHit(Hit hit, Collider part)
     {
         if (part.Name == "Hurtbox")
-            return base.TakeHit(hit, part);
+        {
+            HitResult result = base.TakeHit(hit, part);
+            PutHeadOutOfReachIfDead();
+            return result;
+        }
 
         // A segment of its body is met only by her beams and missiles: never by a bomb, nor by what she strikes with
         // her body.
@@ -274,8 +282,16 @@ public partial class Botwoon : Enemy
         // Dead, it carries on until the last of it is out of the wall, and only then falls.
         if (_death == Death.Alive)
             _death = Death.AwaitingTailExit;
-        ShowHeadTangible();
         return false;
+    }
+
+    /// <summary>Puts its head out of reach after a hit or a touch that finds it at no health.</summary>
+    private void PutHeadOutOfReachIfDead()
+    {
+        if (Health.Current != 0)
+            return;
+        _headTangible = false;
+        ShowHeadTangible();
     }
 
     /// <inheritdoc/>
@@ -287,8 +303,10 @@ public partial class Botwoon : Enemy
             return;
         }
 
-        if (HeadIsTangible)
-            base.Touch(part);
+        if (!HeadIsTangible)
+            return;
+        base.Touch(part);
+        PutHeadOutOfReachIfDead();
     }
 
     /// <summary>
@@ -380,6 +398,7 @@ public partial class Botwoon : Enemy
                 Position = new PixelPosition(Position.X, Position.Y.WithWhole(FloorY));
                 _phase = Phase.WaitingForBody;
                 Explode(Position);
+                _headTangible = false;
                 Visual?.SetShown(false);
                 break;
 
@@ -440,6 +459,7 @@ public partial class Botwoon : Enemy
         {
             _phase = Phase.Spitting;
             _head = HeadDoing.Aiming;
+            _headTangible = true;
         }
     }
 
@@ -562,6 +582,7 @@ public partial class Botwoon : Enemy
                     // Only its head goes behind everything inside the wall and in front of Samus out of it; its body
                     // stays behind her.
                     SetHeadDepth(_insideHole ? -1 : 1);
+                    _headTangible = !_insideHole;
                     Play(_insideHole ? "hidden" : $"moving_{WayOf(across, down)}");
                 }
 

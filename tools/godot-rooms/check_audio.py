@@ -2,7 +2,8 @@
 
 The audio writer writes one sound file for each of the old game's sounds, named for the library it is in and its
 name there ("samus_", "enemy_" or "room_" and the old name in lower case with underscores), one file of nothing for each of its requests that only stop sounds ("stop" after the library), and
-one music file for each of the old game's tracks, named likewise. A set of music a room's version or the game's code
+one music file for each of the old game's tracks, named likewise. A sound's name may say the request's priority after
+a colon ("enemy_cry:low"), which must be one the game knows. A set of music a room's version or the game's code
 names must be one of the old game's sets, named likewise. This reads the sources as text: the Godot game's
 code and scenes, the room generator's rules and the extractor's writers, and lists every name asked for that is
 none of those.
@@ -51,7 +52,9 @@ asked_music: dict[str, str] = {}
 asked_sets: dict[str, str] = {}
 problems: list[str] = []
 
-NAME = r'"([a-z0-9_]*)"'
+# A sound's name may say its priority after a colon.
+NAME = r'"([a-z0-9_]*(?::[a-z_]*)?)"'
+PRIORITIES = {'when_idle', 'low', 'normal', 'high', 'essential'}
 
 # The Godot game's code: the names its constants hold, the names it asks for outright, and the names its
 # properties of sounds and music start with.
@@ -106,16 +109,19 @@ for path in glob.glob(os.path.join(ROOT, 'tools', 'godot-rooms', '*.py')):
 for path in glob.glob(os.path.join(ENGINE, '*.cs')):
     where = os.path.relpath(path, ROOT)
     text = read(path)
-    for name in re.findall(r'"sound:([a-z0-9_]+)"', text):
+    for name in re.findall(r'"sound:([a-z0-9_]+(?::[a-z_]*)?)"', text):
         asked_sounds[name] = where
     for name in re.findall(r'\["\w*sound\w*"\] = ' + NAME, text):
         asked_sounds[name] = where
     for name in re.findall(r'\["\w*(?:music|fanfare)\w*"\] = ' + NAME, text):
         asked_music[name] = where
 
-for name, where in sorted(asked_sounds.items()):
+for asked, where in sorted(asked_sounds.items()):
+    name, said, priority = asked.partition(':')
     if name and name not in SOUNDS:
         problems.append(f'{where} asks for the sound "{name}", which is none of the old game\'s sounds')
+    if said and priority not in PRIORITIES:
+        problems.append(f'{where} asks for the sound "{asked}", whose priority is none of {", ".join(sorted(PRIORITIES))}')
 for name, where in sorted(asked_music.items()):
     if name and name not in MUSIC:
         problems.append(f'{where} asks for the music "{name}", which is none of the old game\'s tracks')

@@ -36,14 +36,31 @@ public sealed class SoundRequests
     public bool HasQueuedMusic => Flow.HasWaitingMusic;
 
     /// <summary>Asks for a sound, and says what became of the request.</summary>
-    /// <param name="sound">The sound, by name.</param>
+    /// <param name="sound">
+    /// The sound, by name. A name may say its own priority after a colon ("enemy_cry:low"), as a sound named in a
+    /// data file or in a timeline's cue does when its priority is not the usual one; it is then asked with that.
+    /// </param>
     /// <param name="channel">The channel it sounds on.</param>
-    /// <param name="priority">How readily it gives way when sounds are waiting.</param>
+    /// <param name="priority">How readily it gives way when sounds are waiting, for a name that does not say.</param>
     public SoundAdmission Request(string sound, string channel = "", SoundPriority priority = SoundPriority.Normal)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sound);
-        return Flow.Ask(sound, channel, priority);
+        int colon = sound.IndexOf(':');
+        return colon < 0
+            ? Flow.Ask(sound, channel, priority)
+            : Flow.Ask(sound[..colon], channel, PriorityNamed(sound[(colon + 1)..], sound));
     }
+
+    /// <summary>The priority a sound's name says after its colon.</summary>
+    private static SoundPriority PriorityNamed(string name, string sound) => name switch
+    {
+        "when_idle" => SoundPriority.WhenIdle,
+        "low" => SoundPriority.Low,
+        "normal" => SoundPriority.Normal,
+        "high" => SoundPriority.High,
+        "essential" => SoundPriority.Essential,
+        _ => throw new InvalidOperationException($"The sound \"{sound}\" names a priority that is none: when_idle, low, normal, high or essential."),
+    };
 
     /// <summary>
     /// Asks for every sound to stop, as when the game is paused, with the priority of a sound asked for. The music

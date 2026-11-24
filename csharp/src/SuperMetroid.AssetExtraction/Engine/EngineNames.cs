@@ -44,6 +44,27 @@ internal static partial class EngineNames
     /// <summary>The cue that asks for one of the old game's sounds, or for one of its stops of sounds.</summary>
     internal static string SoundCue(SoundEffectId sound) => "sound:" + SoundOrStop(sound);
 
+    /// <summary>
+    /// The name of a sound, or of a stop of sounds, as it is asked for with <paramref name="priority"/>: where that
+    /// is not the usual one the name says it after a colon, which the Godot game reads as the request's priority.
+    /// </summary>
+    internal static string Sound(SoundEffectId sound, SuperMetroid.Core.Compatibility.SoundRequestPriority priority) =>
+        SoundOrStop(sound) + priority.Requests switch
+        {
+            1 => ":when_idle",
+            3 => ":low",
+            6 => "",
+            9 => ":high",
+            15 => ":essential",
+            _ => throw new InvalidDataException($"The sound {sound} is asked for with a priority this does not know: {priority}."),
+        };
+
+    /// <summary>The name of an old request's sound, saying its priority where that is not the usual one.</summary>
+    internal static string Sound(SoundRequest request) => Sound(request.SoundEffect, request.Priority);
+
+    /// <summary>The cue that asks for a sound with <paramref name="priority"/>.</summary>
+    internal static string SoundCue(SoundEffectId sound, SuperMetroid.Core.Compatibility.SoundRequestPriority priority) => "sound:" + Sound(sound, priority);
+
     /// <summary>The cue that makes an enemy go on behaving however far from the view it is.</summary>
     internal const string AlwaysActive = "always_active";
 

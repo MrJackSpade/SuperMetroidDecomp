@@ -545,6 +545,7 @@ internal sealed partial class EngineLayouts
                     pictures.AddRange(AddBreakup(rules, Frames(weapon.Break)));
                 }
 
+                pictures.AddRange(AddSight(rules, collision, reaction, width, height));
                 return new ReactingBlock($"shot_{body}_{EngineSheets.FileName(reaction)}", rules, width, height, pictures);
             }
 
@@ -562,6 +563,7 @@ internal sealed partial class EngineLayouts
                 };
                 // The breaking a bomb sets off, which is silent under the bomb's own blast.
                 List<int> pictures = AddBreakup(rules, Frames(BlockReactionChangeDefinitions.BombBreak[bombable]));
+                pictures.AddRange(AddSight(rules, collision, reaction, width, height));
                 return new ReactingBlock($"bomb_{body}_{EngineSheets.FileName(reaction)}", rules, width, height, pictures);
             }
 
@@ -594,6 +596,7 @@ internal sealed partial class EngineLayouts
 
                 // A bomb shows each of these for what it is; one of them only looks like a block that speed breaks.
                 pictures.Add(AddReveal(rules, BombSpecialBlockReactions.ChangeFor(special), width, height));
+                pictures.AddRange(AddSight(rules, collision, reaction, width, height));
                 return new ReactingBlock($"special_{EngineSheets.FileName(reaction)}", rules, width, height, pictures);
             }
 
@@ -620,11 +623,12 @@ internal sealed partial class EngineLayouts
                     return null;
                 bool breaks = grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor;
                 var rules = new JsonObject { ["solid"] = true, ["contact"] = breaks ? "latch_once" : "latch" };
-                List<int>? pictures = breaks
+                List<int> pictures = breaks
                     ? AddBreakup(rules, GrappleFrames(grapple == GrappleReaction.RespawningBreakableAnchor
                         ? BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock
                         : BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock))
-                    : null;
+                    : [];
+                pictures.AddRange(AddSight(rules, collision, grapple.ToString(), 1, 1));
                 return new ReactingBlock($"grapple_{EngineSheets.FileName(grapple.ToString())}", rules, Pictures: pictures);
             }
 

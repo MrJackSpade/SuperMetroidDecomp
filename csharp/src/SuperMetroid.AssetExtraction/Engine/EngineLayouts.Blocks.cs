@@ -237,6 +237,57 @@ internal sealed partial class EngineLayouts
         return new BreakupFrame(false, block);
     }
 
+    /// <summary>The blocks the X-ray scope shows a reacting block as, by the kind of block and what it does: one for each of its tiles, row by row.</summary>
+    private Dictionary<(string Collision, string Reaction), int[]>? _sight;
+
+    /// <summary>
+    /// Adds to a block's rules that the X-ray scope shows it for what it is, with the pictures the installation keeps
+    /// for the scope, and what it looks like when it comes back from breaking: a block of one tile is as the level
+    /// has it again, and a larger one shows what it is. Gives the blocks whose pictures those are; none for a kind
+    /// of block the scope shows nothing for.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The scope's pictures are not one for each tile, or differ from what a bomb shows.</exception>
+    private List<int> AddSight(JsonObject rules, RoomCollisionType collision, string reaction, int width, int height)
+    {
+        if (_sight is null)
+        {
+            _sight = [];
+            string file = Path.Combine(_content, GameInstallationLayout.XrayRevealVisualDirectoryName, "reveals.json");
+            JsonArray entries = JsonNode.Parse(File.ReadAllText(file))?["entries"]?.AsArray()
+                ?? throw new InvalidDataException($"The file {file} lists nothing the X-ray scope shows.");
+            foreach (JsonNode? entry in entries)
+            {
+                JsonObject blocks = entry!["blocks"]!.AsObject();
+                // The parts of a block are named for where they lie; these are the names in the order of its tiles.
+                string[] places = ["block", "left", "top", "topLeft", "right", "topRight", "bottom", "bottomLeft", "bottomRight"];
+                int[] shown = [.. places.Where(blocks.ContainsKey).Select(place => blocks[place]!.GetValue<int>())];
+                if (shown.Length != blocks.Count)
+                    throw new InvalidDataException($"The file {file} names a part of a block this does not know.");
+                foreach (JsonNode? named in entry["reactions"]!.AsArray())
+                    _sight[(entry["collisionType"]!.GetValue<string>(), named!.GetValue<string>())] = shown;
+            }
+        }
+
+        if (!_sight.TryGetValue((collision.ToString(), reaction), out int[]? parts))
+            return [];
+        if (parts.Length != width * height)
+            throw new InvalidDataException($"The X-ray scope shows the {collision} block {reaction} with {parts.Length} pictures, and it has {width * height} tiles.");
+        rules["revealed_by_sight"] = true;
+        JsonObject pictures = rules["pictures"]?.AsObject() ?? [];
+        if (pictures["intact"]?.GetValue<string>() is { } bombed && parts.Any(part => SharedPicture(part) != bombed))
+            throw new InvalidDataException($"The X-ray scope and a bomb show the {collision} block {reaction} differently.");
+        pictures.Remove("intact");
+        if (parts.Distinct().Count() == 1)
+            pictures["intact"] = SharedPicture(parts[0]);
+        else
+            pictures["intact_parts"] = new JsonArray([.. parts.Select(part => (JsonNode)SharedPicture(part))]);
+        if (rules["pictures"] is null)
+            rules["pictures"] = pictures;
+        if (parts.Length == 1)
+            rules["hides_again"] = true;
+        return [.. parts];
+    }
+
     /// <summary>The frames of a change to a block that undoes itself.</summary>
     private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> Frames(BlockReactionChange change) =>
         change.Frames.Select(frame => (Shown(frame.Image), frame.Updates, frame.SoundBefore));

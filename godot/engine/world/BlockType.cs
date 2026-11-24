@@ -20,6 +20,7 @@ namespace Engine.World;
 ///   "revealed_by_sight": true,
 ///   "contact": "nothing", "contact_hit": 0,
 ///   "pictures": { "intact": "tiles/{graphics}/87.png" },
+///   "hides_again": true,
 ///   "breaking": { "steps": [ { "picture": "tiles/{graphics}/83.png", "updates": 4 } ] },
 ///   "regrowing": { "steps": [ { "picture": "tiles/{graphics}/85.png", "updates": 4 } ] },
 ///   "break_sound": "enemy_block_crumble"
@@ -27,7 +28,9 @@ namespace Engine.World;
 /// </code>
 /// A block is drawn with the picture of the tile it lies on, at each tile it covers. One whose type gives an "intact"
 /// picture starts hidden and shows that picture, at each of its tiles, once it has been revealed or has broken and
-/// come back; a "hidden" picture is shown in place of its tiles' own until then. "breaking" is the timeline shown,
+/// come back; a "hidden" picture is shown in place of its tiles' own until then. A block of several tiles whose
+/// tiles differ once it is known gives, in place of "intact", "intact_parts": a picture for each tile, row by row.
+/// One that "hides_again" comes back from breaking looking like plain terrain once more. "breaking" is the timeline shown,
 /// at each of its tiles, from the moment it breaks, and "regrowing" the one whose end is the moment it comes back;
 /// "regrows_after" counts from the break to the return and takes in both. "break_sound" is heard as it breaks.
 /// </remarks>
@@ -78,8 +81,22 @@ public sealed class BlockType
     /// <summary>For a block that carries or pulls, how far each update; rightward or downward when positive.</summary>
     public Pixels ContactSpeed { get; private init; }
 
-    /// <summary>The picture shown while intact and revealed; empty for the pictures of the tiles it lies on.</summary>
-    public string IntactPicture { get; private init; } = "";
+    /// <summary>
+    /// The pictures shown while intact and revealed: one for every tile of it, or one for each of its tiles, row by
+    /// row; none for the pictures of the tiles it lies on.
+    /// </summary>
+    public IReadOnlyList<string> IntactPictures { get; private init; } = [];
+
+    /// <summary>The picture the first of its tiles shows while intact and revealed; empty for the picture of the tile it lies on.</summary>
+    public string IntactPicture => IntactPictures.Count > 0 ? IntactPictures[0] : "";
+
+    /// <summary>The picture one of its tiles shows while intact and revealed, by the tile's place in it, row by row.</summary>
+    public string IntactPictureOf(int part) => IntactPictures.Count == 0 ? "" : IntactPictures.Count == 1 ? IntactPictures[0]
+        : part >= 0 && part < IntactPictures.Count ? IntactPictures[part]
+        : throw new ContentException(File, $"gives {IntactPictures.Count} pictures for the tiles of a block that has more of them");
+
+    /// <summary>Whether it is hidden again when it comes back from breaking.</summary>
+    public bool HidesAgain { get; private init; }
 
     /// <summary>The picture shown while hidden; empty for the pictures of the tiles it lies on.</summary>
     public string HiddenPicture { get; private init; } = "";
@@ -114,7 +131,10 @@ public sealed class BlockType
             ContactDamageHundredths = data.Has("contact_damage_hundredths") ? data.Int("contact_damage_hundredths") : 0,
             ContactHit = data.Has("contact_hit") ? data.Int("contact_hit") : 0,
             ContactSpeed = data.Has("contact_speed") ? data.Distance("contact_speed") : Pixels.Zero,
-            IntactPicture = pictures is not null && pictures.Has("intact") ? pictures.Text("intact") : "",
+            IntactPictures = pictures is null ? []
+                : pictures.Has("intact_parts") ? [.. pictures.List("intact_parts").Select(picture => picture.AsText())]
+                : pictures.Has("intact") ? [pictures.Text("intact")] : [],
+            HidesAgain = data.Has("hides_again") && data.Flag("hides_again"),
             HiddenPicture = pictures is not null && pictures.Has("hidden") ? pictures.Text("hidden") : "",
             Breaking = data.Has("breaking") ? FrameTimeline.Read(data.Get("breaking")) : null,
             Regrowing = data.Has("regrowing") ? FrameTimeline.Read(data.Get("regrowing")) : null,

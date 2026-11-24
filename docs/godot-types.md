@@ -428,8 +428,8 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 | Solid or passable | Solid; passable. |
 | Broken by | Nothing; a `Hit` carrying a listed kind; being stood on (crumble). |
 | After breaking | Gone until the room is next set up; regrows after a set time. |
-| Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability. A block with a picture of its own for what it is starts hidden whether or not anything reveals it, and shows that picture once it has broken and come back. |
-| How it looks | The pictures of the tiles it lies on; a picture of its own once revealed; a timeline of pictures from the moment it breaks; a timeline of pictures up to the moment it comes back. |
+| Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability. A block with a picture of its own for what it is starts hidden whether or not anything reveals it, and shows that picture once it has broken and come back, unless its type says it hides again. |
+| How it looks | The pictures of the tiles it lies on; a picture of its own once revealed, or one for each of its tiles; a timeline of pictures from the moment it breaks; a timeline of pictures up to the moment it comes back. |
 | Heard | Nothing; a sound as it breaks. |
 | On contact | Nothing; hurts, by a hit that is not repeated while its victim is still safe from the last (spike), by ongoing damage, or both; carries sideways (conveyor); pulls down (sand); can be latched onto; can be latched onto once and then breaks. |
 

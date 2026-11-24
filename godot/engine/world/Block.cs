@@ -65,14 +65,15 @@ public sealed class Block
     }
 
     /// <summary>
-    /// The picture each of its tiles shows now, given the tile's own: the tile's own or its type's while it stands, and
-    /// while it is broken the pictures of its breaking and then, as it is about to come back, of its regrowing.
+    /// The picture one of its tiles shows now, given the tile's own and its place in the block, row by row: the tile's
+    /// own or its type's while it stands, and while it is broken the pictures of its breaking and then, as it is about
+    /// to come back, of its regrowing.
     /// </summary>
-    public string PictureNow(string tilePicture)
+    public string PictureNow(string tilePicture, int part)
     {
         if (!Broken)
         {
-            string own = Hidden ? Type.HiddenPicture : Type.IntactPicture;
+            string own = Hidden ? Type.HiddenPicture : Type.IntactPictureOf(part);
             return own.Length > 0 ? own : tilePicture;
         }
 
@@ -150,6 +151,7 @@ public sealed class Block
         if (!spaceIsClear)
             return false;
         Broken = false;
+        Hidden = Type.HidesAgain && Type.StartsHidden;
         return true;
     }
 }

@@ -352,7 +352,10 @@ public partial class Terrain : Node2D, ITerrainShape
                 // A block is drawn at every tile it covers, as it is now.
                 string picture = tile.PictureAt(_updates);
                 if (_blockAt[row][column] is { } block)
-                    picture = block.PictureNow(picture);
+                {
+                    int part = (row - block.Rect.Top / size) * (block.Rect.Width / size) + column - block.Rect.Left / size;
+                    picture = block.PictureNow(picture, part);
+                }
 
                 if (picture.Length > 0)
                     DrawTexture(_content.LoadTexture(picture), new Vector2(column * size, row * size));

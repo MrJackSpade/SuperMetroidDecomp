@@ -13,13 +13,16 @@ namespace Game.Rooms.Ceres;
 /// <remarks>Its visuals "Pad" and "Platform" are shown while it plays and put away when it ends.</remarks>
 public partial class CeresArrival : RoomSequence
 {
-    /// <summary>The pad's two pictures, which it flickers between.</summary>
-    [Export]
-    public Godot.Collections.Array<string> PadPictures { get; set; } = [];
-
-    /// <summary>The picture of the platform she is lowered to.</summary>
+    /// <summary>The pad's look, by the data file of its timeline: it flickers.</summary>
     [Export(PropertyHint.File)]
-    public string PlatformPicture { get; set; } = "";
+    public string PadTimeline { get; set; } = "";
+
+    /// <summary>The look of the platform she is lowered to, by the data file of its timeline.</summary>
+    [Export(PropertyHint.File)]
+    public string PlatformTimeline { get; set; } = "";
+
+    private TimelinePlayer? _pad;
+    private TimelinePlayer? _platform;
 
     /// <summary>How many updates she waits before the pad starts down.</summary>
     private const int WaitUpdates = 60;
@@ -37,14 +40,19 @@ public partial class CeresArrival : RoomSequence
             samus.ChangeState(new FacingForwardState());
             pad.Bind(room.Content);
             platform.Bind(room.Content);
-            platform.Show(PlatformPicture);
+            _pad = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(PadTimeline)));
+            _platform = new TimelinePlayer(FrameTimeline.Read(room.Content.ReadData(PlatformTimeline)));
             platform.Position = new Vector2(samus.Position.X.Whole, PlatformY);
             pad.SetShown(true);
             platform.SetShown(true);
         }
 
-        if (PadPictures.Count > 0)
-            pad.Show(PadPictures[elapsed % PadPictures.Count]);
+        TimelinePlayer padLook = _pad ?? throw new InvalidOperationException("The arrival has not begun.");
+        TimelinePlayer platformLook = _platform ?? throw new InvalidOperationException("The arrival has not begun.");
+        pad.Show(padLook.Current);
+        platform.Show(platformLook.Current);
+        padLook.Step();
+        platformLook.Step();
         pad.Position = new Vector2(samus.Position.X.Whole, samus.Position.Y.Whole + PadBelow);
         if (elapsed < WaitUpdates)
             return false;

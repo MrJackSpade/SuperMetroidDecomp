@@ -73,6 +73,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteLiquidsAndOverlays();
         writer.WriteCeresFloors();
         writer.WriteCeresDebris();
+        writer.WriteCeresArrival();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

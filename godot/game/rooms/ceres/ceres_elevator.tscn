@@ -100,8 +100,8 @@ position = Vector2(112, 96)
 [node name="Arrival" type="Node" parent="."]
 script = ExtResource("13")
 StartsAtEntry = "AtCeresElevator"
-PadPictures = Array[String](["backdrops/{graphics}/ceres_elevator_light.png", "backdrops/{graphics}/ceres_elevator_dark.png"])
-PlatformPicture = "backdrops/{graphics}/ceres_elevator_dark.png"
+PadTimeline = "objects/ceres_arrival_pad.json"
+PlatformTimeline = "objects/ceres_arrival_platform.json"
 PresentWhen = SubResource("r5")
 
 [node name="Pad" type="Node2D" parent="Arrival"]

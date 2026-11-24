@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Enemies.Artwork;
 using System.Text.Json.Nodes;
@@ -52,6 +53,30 @@ public sealed partial class EngineAssetWriter
                 (RgbaPixel[] own, int ownWidth, int ownHeight) = _sheets.FrameShown(RoomBlockFamily, sheet, RoomFloorSheet.PictureNameOf(picture));
                 _tree.WritePicture(shown, ownWidth, ownHeight, own);
             }
+        }
+    }
+
+    /// <summary>
+    /// Writes the looks of what sets Samus down in the station: the pad under her feet, which flickers, and the
+    /// platform she is lowered to.
+    /// </summary>
+    private void WriteCeresArrival()
+    {
+        foreach ((CeresElevatorArrivalSegment segment, string name) in new[]
+                 {
+                     (CeresElevatorArrivalSegment.Pad, "pad"), (CeresElevatorArrivalSegment.Platform, "platform"),
+                 })
+        {
+            (List<IAnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>> lead, List<IAnimationBeat<CeresElevatorArrivalPose, NoAnimationCue>>? cycle) =
+                EngineTimelines.Played(CeresElevatorArrivalAnimations.Segments, CeresElevatorArrivalAnimations.StartingWith(segment));
+            string file = $"objects/ceres_arrival_{name}.json";
+            IEnumerable<string> frames = lead.Concat(cycle ?? []).Select(beat => beat.ShownFrame).Where(frame => frame.HasValue)
+                .Select(frame => CeresElevatorArrivalPictures.SheetName(frame!.Value)).Distinct(StringComparer.Ordinal);
+            EngineSheetPictures pictures = _sheets.CutSpawnedShades(
+                _tree, file[..file.LastIndexOf('.')], EngineSheets.SharedSpawner, frames, CeresElevatorShades.ConcealerCleared.Key);
+            JsonObject timeline = EngineTimelines.Of(lead, cycle, pose => pictures.Of(CeresElevatorArrivalPictures.SheetName(pose)), static (NoAnimationCue _) => null);
+            timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
+            _tree.WriteData(file, timeline);
         }
     }
 

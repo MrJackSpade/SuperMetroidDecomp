@@ -713,6 +713,8 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `liquids/water_teal.json` | `game/rooms/maridia/crab_hole.tscn`, `game/rooms/maridia/crab_shaft.tscn`, `game/rooms/maridia/crab_tunnel.tscn` and 9 more |
 | `menus/game_over.png` | `game/menus/GameOverMode.cs` |
 | `menus/title.png` | `game/menus/TitleMode.cs` |
+| `objects/ceres_arrival_pad.json` | `game/rooms/ceres/ceres_elevator.tscn` |
+| `objects/ceres_arrival_platform.json` | `game/rooms/ceres/ceres_elevator.tscn` |
 | `objects/energy_station_arm_left.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_arm_right.json` | `game/objects/station/energy_station.tscn` |
 | `objects/energy_station_rest.json` | `game/objects/station/energy_station.tscn` |

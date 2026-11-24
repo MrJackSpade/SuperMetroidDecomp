@@ -211,8 +211,8 @@ class Sequences:
             else:
                 self.placed.append(sequence('ceres/CeresArrival.cs', 'Arrival', {
                     'StartsAtEntry': quoted('AtCeresElevator'),
-                    'PadPictures': strings([floor_picture('elevator_light'), floor_picture('elevator_dark')]),
-                    'PlatformPicture': quoted(floor_picture('elevator_dark'))},
+                    'PadTimeline': quoted('objects/ceres_arrival_pad.json'),
+                    'PlatformTimeline': quoted('objects/ceres_arrival_platform.json')},
                                             children=[('Pad', VISUAL, {}), ('Platform', VISUAL, {})]))
 
     def statue_hall(self, ctx, named: dict[str, Placed]) -> None:

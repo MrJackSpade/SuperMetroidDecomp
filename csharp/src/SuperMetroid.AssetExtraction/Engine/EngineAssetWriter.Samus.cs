@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Spatial;
 using System.Text.Json.Nodes;
@@ -161,6 +162,11 @@ public sealed partial class EngineAssetWriter
             .Value("invincible_updates", EnemyCollisionDefinitions.SamusTouchInvincibilityUpdates)
             .Value("hazard_knockback_updates", SpikeHazardDefinitions.KnockbackFrames)
             .Value("hazard_invincible_updates", SpikeHazardDefinitions.InvincibilityFrames)
+
+            // The old game sounds heat and a liquid's harm alike: the same sound, on the same updates, above the same energy.
+            .Value("room_damage_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
+            .Value("room_damage_sound_every", SamusCadenceDefinitions.LiquidDamageSound.Period)
+            .Value("room_damage_sound_least_energy", SamusLiquidDamageDefinitions.DamageSoundLeastEnergy)
             .Value("turn_updates", SamusSegmentUpdates(P.TurningRightToLeftPose, Seg.Main))
             .Value("dying_updates", SamusDyingUpdates())
             .Value("land_effect", SamusParticleFile(SamusParticleKind.Dust))

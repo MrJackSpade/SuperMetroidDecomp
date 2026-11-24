@@ -92,6 +92,18 @@ public partial class Samus : Player
     [Export, DataValue("hazard_invincible_updates")]
     public int HazardInvincibleUpdates { get; set; } = 60;
 
+    /// <summary>The sound of the room's heat or liquid wearing her down, by name; empty for none.</summary>
+    [Export, DataValue("room_damage_sound")]
+    public string RoomDamageSound { get; set; } = "";
+
+    /// <summary>That sound is heard on every so many updates of the game's clock.</summary>
+    [Export, DataValue("room_damage_sound_every")]
+    public int RoomDamageSoundEvery { get; set; } = 8;
+
+    /// <summary>The least energy she must have for that sound to be heard.</summary>
+    [Export, DataValue("room_damage_sound_least_energy")]
+    public int RoomDamageSoundLeastEnergy { get; set; } = 71;
+
     /// <summary>How many updates such a hurt throws her back for.</summary>
     [Export, DataValue("hazard_knockback_updates")]
     public int HazardKnockbackUpdates { get; set; } = 10;
@@ -637,6 +649,14 @@ public partial class Samus : Player
 
     /// <inheritdoc/>
     protected override int OngoingDamageTaken(int hundredths) => hundredths / SuitDivisor;
+
+    /// <inheritdoc/>
+    protected override void OnRoomDamage()
+    {
+        if (RoomDamageSound.Length > 0 && RoomDamageSoundEvery > 0 && Room.Session.Clock.Updates % RoomDamageSoundEvery == 0
+            && Inventory.Amount(Inventory.Energy) >= RoomDamageSoundLeastEnergy)
+            Room.Session.Sounds.Request(RoomDamageSound, channel: "samus");
+    }
 
     /// <summary>What her suit divides damage by.</summary>
     private int SuitDivisor =>

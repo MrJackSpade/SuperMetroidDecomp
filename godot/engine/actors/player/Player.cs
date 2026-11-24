@@ -996,13 +996,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         int hundredths = _addedOngoing;
         _addedOngoing = 0;
+        int fromRoom = 0;
         foreach ((string source, int amount) in Room.OngoingDamageAt(Position))
         {
             if (Room.Liquid is { } liquid && source == liquid.Type.Name && Inventory.IsAnyOn(liquid.Type.DamageCancelledBy))
                 continue;
             if (!IsCancelled(source))
-                hundredths += amount;
+                fromRoom += amount;
         }
+
+        hundredths += fromRoom;
+        if (fromRoom > 0)
+            OnRoomDamage();
 
         int blockHit = 0;
         foreach (Block block in Room.Terrain.BlocksIn(BodyRect, touchingCounts: true))
@@ -1035,6 +1040,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// whose equipment lessens it says so here.
     /// </summary>
     protected virtual int OngoingDamageTaken(int hundredths) => hundredths;
+
+    /// <summary>Called on each update the room itself does the player ongoing damage: its heat, or its liquid. The engine's player does nothing.</summary>
+    protected virtual void OnRoomDamage()
+    {
+    }
 
     /// <summary>Whether switched-on equipment cancels ongoing damage from a source.</summary>
     private bool IsCancelled(string source) =>

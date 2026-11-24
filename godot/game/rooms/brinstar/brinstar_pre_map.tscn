@@ -1,0 +1,127 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/brinstar_pre_map_in_green_blue_brinstar.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 8
+About = "4"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
+
+[node name="BrinstarPreMap" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(6, 5)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/brinstar_pre_map_in_green_blue_brinstar.json"
+
+[node name="ToGreenBrinstarMainShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_main_shaft.tscn"
+LeadsToExit = "ToBrinstarPreMap"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToGreenBrinstarMap" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/green_brinstar_map.tscn"
+LeadsToExit = "ToBrinstarPreMap"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Sidehopper" parent="." instance=ExtResource("6")]
+position = Vector2(580, 59)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true
+
+[node name="Zeela" parent="." instance=ExtResource("7")]
+position = Vector2(376, 88)
+DataFile = "enemies/zeela.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Zeela2" parent="." instance=ExtResource("7")]
+position = Vector2(424, 88)
+DataFile = "enemies/zeela.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true
+
+[node name="Zeela3" parent="." instance=ExtResource("7")]
+position = Vector2(73, 64)
+DataFile = "enemies/zeela.json"
+StartsOn = 1
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.25
+
+[node name="GreyCap" parent="." instance=ExtResource("8")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r2")
+RememberedAs = "brinstar_pre_map_grey_door_facing_left"
+Remembered = 1
+
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("9")
+StartsWhen = SubResource("r3")
+Until = SubResource("r2")
+Records = PackedStringArray("zebes_awake")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Picture = "backdrops/brinstar_medium_horizontal_pattern.png"
+ScrollShare = Vector2(0.75, 0.75)

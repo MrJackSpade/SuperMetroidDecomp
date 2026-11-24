@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -13,7 +14,7 @@ namespace Game.Enemies;
 /// Its timelines are "hatching_left", "hatching_right", "hatched_left", "hatched_right", "break_left" and
 /// "break_right". The cue "hatch" of a hatching timeline brings the hatchling out, and "charge" sets it off.
 /// </remarks>
-public partial class TorizoEgg : TorizoShot
+public partial class TorizoEgg : CuedProjectile
 {
     /// <summary>How many updates it bounces before it hatches.</summary>
     [Export, DataValue("hatch_updates")]

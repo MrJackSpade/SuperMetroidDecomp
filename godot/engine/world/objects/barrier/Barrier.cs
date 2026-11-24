@@ -1,3 +1,4 @@
+using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
@@ -8,8 +9,16 @@ namespace Engine.World.Objects;
 /// <summary>
 /// A solid object with health that only certain damage wears down, or that opens when told to. It stands wherever
 /// something must be got through and knows nothing about exits. Door caps, gates, shutters, breakable walls and the
-/// shell around a held item are all barriers with different settings. It can be told to "open" and "close".
+/// shell around a held item are all barriers with different settings. It can be told to "open" and "close", and can
+/// tell others when it opens.
 /// </summary>
+/// <remarks>
+/// Its data may name the timelines that show it: "closed", "sealed" (while its condition holds it shut), "hurt"
+/// (played once when a hit wears it down without opening it), "opening", "open" and "closing", and "sealing"
+/// (played once as the room is entered while it is held shut, before "sealed"). One with an "opening" timeline goes
+/// on blocking until that has played. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
+/// "sealed_sound".
+/// </remarks>
 public partial class Barrier : RoomObject, IHittable, ITriggerTarget
 {
     /// <summary>What an open barrier does.</summary>
@@ -59,9 +68,44 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     [Export]
     public RememberedAsWhat Remembered { get; set; }
 
+    /// <summary>The things told when it opens.</summary>
+    [Export]
+    public Godot.Collections.Array<NodePath> TellsWhenOpened { get; set; } = [];
+
+    /// <summary>What they are told.</summary>
+    [Export]
+    public string TellsWhat { get; set; } = "open";
+
+    /// <summary>
+    /// How near the player must come, in pixels both across and down from where it stands, for it to open by itself;
+    /// it closes again once they are farther. Zero for one that does not. One held shut stays shut however near they are.
+    /// </summary>
+    [Export]
+    public int OpensWhenNear { get; set; }
+
+    /// <summary>The sound of it opening, by name; empty for none.</summary>
+    [Export, DataValue("open_sound")]
+    public string OpenSound { get; set; } = "";
+
+    /// <summary>The sound of it closing, by name; empty for none.</summary>
+    [Export, DataValue("close_sound")]
+    public string CloseSound { get; set; } = "";
+
+    /// <summary>The sound of a hit wearing it down, by name; empty for none.</summary>
+    [Export, DataValue("hurt_sound")]
+    public string HurtSound { get; set; } = "";
+
+    /// <summary>The sound of a hit on it while it is held shut, by name; empty for none.</summary>
+    [Export, DataValue("sealed_sound")]
+    public string SealedSound { get; set; } = "";
+
     private int _health;
     private bool _plain;
     private bool _playerWasInside;
+    private TimelineSet _timelines = TimelineSet.None;
+    private TimelinePlayer? _showing;
+    private string _showingName = "";
+    private bool _opening;
 
     /// <summary>Whether the barrier is open.</summary>
     public bool IsOpen { get; private set; }
@@ -76,6 +120,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
+        _timelines = TimelineSet.ReadFrom(data);
         if (!data.Has("damaged_by"))
             return;
         DamagedBy = [];
@@ -89,20 +134,25 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         _health = MaxHealth;
         IsOpen = false;
         _plain = false;
+        (_showing, _showingName, _opening) = (null, "", false);
         SetSolid(true);
-        if (!IsRemembered)
-            return;
-        if (Remembered == RememberedAsWhat.Open)
+        if (IsRemembered)
         {
-            IsOpen = true;
-            SetSolid(false);
-            Room.MarkGone(Name);
+            if (Remembered == RememberedAsWhat.Open)
+            {
+                IsOpen = true;
+                SetSolid(false);
+                Room.MarkGone(Name);
+            }
+            else
+            {
+                _plain = true;
+                _health = 1;
+            }
         }
-        else
-        {
-            _plain = true;
-            _health = 1;
-        }
+
+        // One that is held shut as the room is entered may show itself shutting first.
+        Show(IsOpen ? "open" : IsSealed ? _timelines.Has("sealing") ? "sealing" : "sealed" : "closed");
     }
 
     /// <inheritdoc/>
@@ -114,13 +164,22 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         if (IsOpen)
             return HitResult.Ignored;
         if (IsSealed)
+        {
+            Sound(SealedSound);
             return HitResult.Absorbed;
+        }
+
         int damage = _plain ? 1 : DamageFrom(hit);
         if (damage <= 0)
             return HitResult.Absorbed;
         _health -= damage;
         if (_health > 0)
+        {
+            Sound(HurtSound);
+            Show("hurt");
             return HitResult.Hurt;
+        }
+
         Open();
         return HitResult.Destroyed;
     }
@@ -132,9 +191,25 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             return;
         IsOpen = true;
         _playerWasInside = false;
-        SetSolid(false);
         Room.MarkGone(Name);
         Remember();
+        Sound(OpenSound);
+        // One that shows itself opening goes on blocking until it has.
+        _opening = _timelines.Has("opening");
+        if (_opening)
+            Show("opening");
+        else
+        {
+            SetSolid(false);
+            Show("open");
+        }
+
+        foreach (NodePath path in TellsWhenOpened)
+        {
+            (GetNode(path) as ITriggerTarget
+                ?? throw new InvalidOperationException($"The barrier \"{Name}\" is to tell \"{path}\" that it has opened, but that is nothing that can be told."))
+                .Triggered(TellsWhat);
+        }
     }
 
     /// <summary>Closes the barrier at full strength.</summary>
@@ -143,13 +218,23 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         if (!IsOpen)
             return;
         IsOpen = false;
+        _opening = false;
         _health = _plain ? 1 : MaxHealth;
         SetSolid(true);
+        Sound(CloseSound);
+        Show(_timelines.Has("closing") ? "closing" : "closed");
     }
 
     /// <inheritdoc/>
     protected override void OnStep()
     {
+        StepLook();
+        if (OpensWhenNear > 0)
+        {
+            StepNearness();
+            return;
+        }
+
         if (!IsOpen || ComesBack != ComesBackWhen.AfterPassing)
             return;
         Collider? solid = EntityNode.ColliderOf(this, ColliderRole.Solid);
@@ -159,6 +244,32 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         if (_playerWasInside && !inside)
             Close();
         _playerWasInside = inside;
+    }
+
+    /// <summary>Opens it while the player is near and closes it when they are not.</summary>
+    private void StepNearness()
+    {
+        PixelOffset apart = Room.Player.Position - Position;
+        bool near = apart.X.Abs().Whole < OpensWhenNear && apart.Y.Abs().Whole < OpensWhenNear;
+        if (IsOpen)
+        {
+            if (!near && !_opening)
+                Close();
+        }
+        else if (near && !IsSealed && _showingName is "closed" or "sealed")
+        {
+            // It opens for now, not for good: nothing is remembered and nothing is told.
+            IsOpen = true;
+            Sound(OpenSound);
+            _opening = _timelines.Has("opening");
+            if (_opening)
+                Show("opening");
+            else
+            {
+                SetSolid(false);
+                Show("open");
+            }
+        }
     }
 
     /// <inheritdoc/>
@@ -191,6 +302,73 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
         }
 
         return listed ? most : AnyHit;
+    }
+
+    /// <summary>Moves what shows it on by one update, and goes on to what follows a look that has played out.</summary>
+    private void StepLook()
+    {
+        if (_showing is null)
+            return;
+        _showing.Step();
+        if (_showingName is "closed" or "sealed")
+        {
+            // Shut and held shut may look different, and it changes between them as its condition does.
+            string wanted = IsSealed && _timelines.Has("sealed") ? "sealed" : "closed";
+            if (wanted != _showingName)
+                Show(wanted);
+        }
+        else if (_showing.IsOver)
+        {
+            switch (_showingName)
+            {
+                case "opening":
+                    _opening = false;
+                    SetSolid(false);
+                    Show("open");
+                    break;
+                case "closing":
+                case "hurt":
+                case "sealing":
+                    Show(IsSealed ? "sealed" : "closed");
+                    break;
+            }
+        }
+
+        if (_showing is not null)
+        {
+            foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+                visual.Show(_showing.Current);
+        }
+    }
+
+    /// <summary>Shows the timeline of that name, if its data has one; a look it has none for falls back to "closed" or shows nothing.</summary>
+    private void Show(string name)
+    {
+        string shown = _timelines.Has(name) ? name : name is "sealed" or "hurt" && _timelines.Has("closed") ? "closed" : "";
+        if (name == "open" && shown.Length == 0)
+        {
+            // With no look for being open it simply is not there.
+            (_showing, _showingName) = (null, name);
+            foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+                visual.Show("");
+            return;
+        }
+
+        if (shown.Length == 0)
+        {
+            (_showing, _showingName) = (null, name);
+            return;
+        }
+
+        (_showing, _showingName) = (new TimelinePlayer(_timelines.Get(shown)), shown);
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+            visual.Show(_showing.Current);
+    }
+
+    private void Sound(string sound)
+    {
+        if (sound.Length > 0)
+            Room.Session.Sounds.Request(sound, channel: "objects");
     }
 
     /// <summary>Turns the barrier's solid and its hurtboxes on or off together.</summary>

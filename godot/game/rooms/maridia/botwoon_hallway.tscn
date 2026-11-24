@@ -1,0 +1,86 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/metroid/mochtroid.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/botwoon_hallway_in_sandy_maridia.json"
+Music = "east_maridia"
+
+[node name="BotwoonHallway" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(20, 9)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/botwoon_hallway_in_sandy_maridia.json"
+
+[node name="ToAqueduct" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 240)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/aqueduct.tscn"
+LeadsToExit = "ToBotwoonHallway"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToBotwoon" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1008, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/botwoon.tscn"
+LeadsToExit = "ToBotwoonHallway"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Mochtroid" parent="." instance=ExtResource("5")]
+position = Vector2(48, 72)
+
+[node name="Mochtroid2" parent="." instance=ExtResource("5")]
+position = Vector2(192, 144)
+
+[node name="Mochtroid3" parent="." instance=ExtResource("5")]
+position = Vector2(368, 72)
+
+[node name="Mochtroid4" parent="." instance=ExtResource("5")]
+position = Vector2(664, 152)
+
+[node name="Mochtroid5" parent="." instance=ExtResource("5")]
+position = Vector2(752, 1920)
+
+[node name="Puyo" parent="." instance=ExtResource("6")]
+position = Vector2(608, 88)
+HopCooldown = 32
+BigHopDistance = 8
+
+[node name="Puyo2" parent="." instance=ExtResource("6")]
+position = Vector2(864, 88)
+HopCooldown = 32
+BigHopDistance = 8
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(96, 208)
+DataFile = "objects/door_cap_blue_up.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_purple.json"
+LowSurface = 16
+HighSurface = 16
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

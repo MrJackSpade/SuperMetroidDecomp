@@ -35,6 +35,12 @@ public sealed class LiquidType
     /// <summary>The picture its surface is drawn with; empty for none.</summary>
     public string Picture { get; private init; } = "";
 
+    /// <summary>The effect left where something crosses its surface, by the data file of its timeline; empty for none.</summary>
+    public string SplashEffect { get; private init; } = "";
+
+    /// <summary>The sound of something crossing its surface, by name; empty for none.</summary>
+    public string SplashSound { get; private init; } = "";
+
     /// <summary>Reads a liquid type from its data file.</summary>
     public static LiquidType Read(DataNode data)
     {
@@ -48,6 +54,8 @@ public sealed class LiquidType
             DamageHundredths = data.Has("damage_hundredths") ? data.Int("damage_hundredths") : 0,
             DamageCancelledBy = Names("damage_cancelled_by"),
             Picture = data.Has("picture") ? data.Text("picture") : "",
+            SplashEffect = data.Has("splash") ? data.Text("splash") : "",
+            SplashSound = data.Has("splash_sound") ? data.Text("splash_sound") : "",
         };
         if (type.SpeedOver <= 0 || type.SpeedTimes < 0 || type.DamageHundredths < 0)
             throw data.Problem("gives a speed share or a damage that is not a sensible number");

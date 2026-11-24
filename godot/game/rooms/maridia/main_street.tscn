@@ -1,0 +1,325 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/skultera/skultera.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/main_street_in_sandless_maridia.json"
+Music = "west_maridia"
+
+[node name="MainStreet" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(10, 10)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/main_street_in_sandless_maridia.json"
+
+[node name="ToCrabTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 1888)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/crab_tunnel.tscn"
+LeadsToExit = "ToMainStreet"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToFishTank" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
+LeadsToExit = "ToMainStreet"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToGlassTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(352, 2032)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/glass_tunnel.tscn"
+LeadsToExit = "ToMainStreet"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToMtEverestLower" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 656)
+Size = Vector2i(16, 16)
+LeadsToRoom = "res://game/rooms/maridia/mt_everest.tscn"
+LeadsToExit = "ToMainStreetLower"
+Style = 0
+ArrivalOffset = Vector2i(-24, -8)
+
+[node name="ToMtEverestUpper" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/mt_everest.tscn"
+LeadsToExit = "ToMainStreetUpper"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Skultera" parent="." instance=ExtResource("5")]
+position = Vector2(256, 416)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera2" parent="." instance=ExtResource("5")]
+position = Vector2(240, 984)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+AlwaysActive = true
+
+[node name="Skultera3" parent="." instance=ExtResource("5")]
+position = Vector2(288, 1264)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera4" parent="." instance=ExtResource("5")]
+position = Vector2(208, 1440)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Skultera5" parent="." instance=ExtResource("5")]
+position = Vector2(256, 1828)
+Speed = 1
+StartsFacing = 1
+Radius = 16
+AngleStep = 2
+
+[node name="Sciser" parent="." instance=ExtResource("6")]
+position = Vector2(144, 280)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser2" parent="." instance=ExtResource("6")]
+position = Vector2(240, 664)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1
+
+[node name="Sciser3" parent="." instance=ExtResource("6")]
+position = Vector2(248, 1159)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser4" parent="." instance=ExtResource("6")]
+position = Vector2(264, 1624)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser5" parent="." instance=ExtResource("6")]
+position = Vector2(360, 599)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser6" parent="." instance=ExtResource("6")]
+position = Vector2(352, 71)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser7" parent="." instance=ExtResource("6")]
+position = Vector2(151, 1952)
+DataFile = "enemies/sciser.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+AlwaysActive = true
+
+[node name="MissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(232, 856)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "main_street_exposed_missile_tank"
+
+[node name="SuperMissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(360, 648)
+TypeFile = "items/super_missile_tank.json"
+RememberedAs = "main_street_exposed_super_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(352, 2000)
+DataFile = "objects/door_cap_blue_up.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(736, 1632)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="RedCap" parent="." instance=ExtResource("8")]
+position = Vector2(480, 1888)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "main_street_red_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap3" parent="." instance=ExtResource("8")]
+position = Vector2(480, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen1x3" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 768)
+StartsOpen = true
+
+[node name="Screen2x0" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 0)
+StartsOpen = false
+
+[node name="Screen2x1" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 256)
+StartsOpen = false
+
+[node name="Screen2x3" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 768)
+StartsOpen = false
+
+[node name="Screen2x4" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1024)
+StartsOpen = false
+
+[node name="Screen2x5" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1280)
+StartsOpen = false
+
+[node name="Screen2x7" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1792)
+StartsOpen = false
+
+[node name="Screen1x2Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 736)
+Size = Vector2i(256, 32)
+StartsOpen = true
+
+[node name="Screen1x3Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 992)
+Size = Vector2i(256, 32)
+StartsOpen = true
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x2Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x3Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x4Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x5Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x7Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 2016)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(592, 656)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x2Foot")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(592, 656)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x3")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(592, 656)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x3Foot")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(592, 656)
+Size = Vector2i(16, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x2Foot")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_teal.json"
+LowSurface = 16
+HighSurface = 16
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

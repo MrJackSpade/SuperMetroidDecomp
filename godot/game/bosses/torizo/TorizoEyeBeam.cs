@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Shared;
 using Engine.World;
 
@@ -8,7 +9,7 @@ namespace Game.Enemies;
 /// flames follow if the Torizo is letting them burn when the cue "floor_flames" of its timeline comes.
 /// </summary>
 /// <remarks>Its timelines are "wall_impact", "floor_impact" and "floor_flames".</remarks>
-public partial class TorizoEyeBeam : TorizoShot
+public partial class TorizoEyeBeam : CuedProjectile
 {
     private Torizo? _torizo;
 
@@ -39,7 +40,7 @@ public partial class TorizoEyeBeam : TorizoShot
         else if (MoveDownMeetingTerrain(room, Speed.Y))
         {
             Moving = false;
-            Position = PixelPosition.FromWhole(Position.X.Whole, FloorBurstY);
+            Position = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole / 16 * 16 + 6);
             ShowTimeline("floor_impact");
         }
     }

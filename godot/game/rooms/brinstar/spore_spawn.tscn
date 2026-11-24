@@ -1,0 +1,88 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/bosses/spore_spawn/spore_spawn.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "spore_spawn_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
+Music = "elevator"
+Patches = PackedStringArray("ceiling_open")
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
+Music = "mini_boss_battle"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="SporeSpawn" type="Node2D"]
+script = ExtResource("3")
+Area = "brinstar"
+MapCell = Vector2i(22, 2)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
+
+[node name="ToSporeSpawnKihunters" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(96, 752)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/brinstar/spore_spawn_kihunters.tscn"
+LeadsToExit = "ToSporeSpawn"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToSporeSpawnSuper" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/spore_spawn_super.tscn"
+LeadsToExit = "ToSporeSpawn"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="SporeSpawn" parent="." instance=ExtResource("6")]
+position = Vector2(128, 624)
+CeilingPatch = "ceiling_open"
+AlwaysActive = true
+PresentWhen = SubResource("r4")
+
+[node name="Encounter" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+Size = Vector2i(256, 768)
+RememberedAs = "spore_spawn_defeated"
+Boss = NodePath("../SporeSpawn")
+
+[node name="SporeSpawnHusk" parent="." instance=ExtResource("6")]
+position = Vector2(128, 624)
+Husk = true
+PresentWhen = SubResource("r1")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="GreenCap" parent="." instance=ExtResource("8")]
+position = Vector2(96, 736)
+DataFile = "objects/door_cap_green_up.json"
+RememberedAs = "spore_spawn_green_door_facing_up"
+Remembered = 1

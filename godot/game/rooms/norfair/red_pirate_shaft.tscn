@@ -1,0 +1,114 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/red_pirate_shaft_in_heated_norfair.json"
+KeepsMusic = true
+
+[node name="RedPirateShaft" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(19, 7)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/red_pirate_shaft_in_heated_norfair.json"
+
+[node name="ToAcidSnakesTunnel" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 752)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/norfair/acid_snakes_tunnel.tscn"
+LeadsToExit = "ToRedPirateShaft"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToUpperNorfairFarming" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/upper_norfair_farming.tscn"
+LeadsToExit = "ToRedPirateShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="PirateRedWalking" parent="." instance=ExtResource("5")]
+position = Vector2(80, 512)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="PirateRedWalking2" parent="." instance=ExtResource("5")]
+position = Vector2(176, 384)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="PirateRedWalking3" parent="." instance=ExtResource("5")]
+position = Vector2(80, 256)
+DataFile = "enemies/walking_pirate_red.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 8
+
+[node name="ArmoredZoomer" parent="." instance=ExtResource("6")]
+position = Vector2(128, 616)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="ArmoredZoomer2" parent="." instance=ExtResource("6")]
+position = Vector2(128, 472)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="ArmoredZoomer3" parent="." instance=ExtResource("6")]
+position = Vector2(128, 344)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="ArmoredZoomer4" parent="." instance=ExtResource("6")]
+position = Vector2(128, 216)
+DataFile = "enemies/armored_zoomer.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(96, 720)
+DataFile = "objects/door_cap_blue_up.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+Picture = "backdrops/norfair_cavern_vertical.png"
+ScrollShare = Vector2(0, 0.75)

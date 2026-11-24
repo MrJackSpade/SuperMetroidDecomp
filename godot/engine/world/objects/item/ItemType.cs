@@ -29,6 +29,18 @@ public sealed class ItemType
     /// <summary>Its picture, as a path within the assets tree; empty for none.</summary>
     public string Picture { get; private init; } = "";
 
+    /// <summary>The data file of the timeline that shows it, in place of its one picture; empty for none.</summary>
+    public string Timeline { get; private init; } = "";
+
+    /// <summary>The music played while its message shows, by name; empty for none.</summary>
+    public string Fanfare { get; private init; } = "";
+
+    /// <summary>How many updates its message stays up before it can be dismissed.</summary>
+    public int MessageHoldUpdates { get; private init; }
+
+    /// <summary>The sound of it being collected, by name; empty for none.</summary>
+    public string Sound { get; private init; } = "";
+
     /// <summary>Reads an item type from its data file.</summary>
     public static ItemType Read(DataNode data)
     {
@@ -40,6 +52,10 @@ public sealed class ItemType
             ExpandsBy = data.Has("expands_by") ? data.Int("expands_by") : 0,
             Message = data.Has("message") ? data.Text("message") : "",
             Picture = data.Has("picture") ? data.Text("picture") : "",
+            Timeline = data.Has("timeline") ? data.Text("timeline") : "",
+            Fanfare = data.Has("fanfare") ? data.Text("fanfare") : "",
+            MessageHoldUpdates = data.Has("message_hold_updates") ? data.Int("message_hold_updates") : 0,
+            Sound = data.Has("sound") ? data.Text("sound") : "",
         };
         if (type.GrantsEquipment.Length == 0 && type.Expands.Length == 0)
             throw data.Problem("is an item that grants nothing");

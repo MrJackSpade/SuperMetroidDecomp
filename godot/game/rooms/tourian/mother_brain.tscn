@@ -1,0 +1,184 @@
+[gd_scene load_steps=26 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/bosses/mother_brain/mother_brain.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/zebetite/zebetite.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/rinka/rinka.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/enemies/rinka/rinka_spawner.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/bosses/mother_brain/mother_brain_glass.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="12"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="13"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="15"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "mother_brain_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
+Music = "elevator"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("1")
+Kind = 0
+About = "mother_brain_glass_destroyed"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("2")
+When = SubResource("r3")
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("2")
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r6")])
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3")])
+
+[sub_resource type="Resource" id="r9"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r7"), SubResource("r8")])
+
+[sub_resource type="Resource" id="r10"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r9"), SubResource("r6")])
+
+[node name="MotherBrain" type="Node2D"]
+script = ExtResource("3")
+Area = "tourian"
+MapCell = Vector2i(13, 19)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubResource("r5")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/tourian/mother_brain_in_mother_brain.json"
+
+[node name="ToRinkaShaft" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(1008, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/rinka_shaft.tscn"
+LeadsToExit = "ToMotherBrain"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="MotherBrain" parent="." instance=ExtResource("6")]
+position = Vector2(129, 111)
+FightMusic = "mother_brain_battle"
+AlwaysActive = true
+PresentWhen = SubResource("r10")
+
+[node name="Encounter" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+Size = Vector2i(1024, 256)
+RememberedAs = "mother_brain_defeated"
+Boss = NodePath("../MotherBrain")
+PresentWhen = SubResource("r9")
+
+[node name="Zebetite" parent="." instance=ExtResource("8")]
+position = Vector2(0, 0)
+AlwaysActive = true
+PresentWhen = SubResource("r9")
+
+[node name="RinkaSource" parent="." instance=ExtResource("10")]
+position = Vector2(823, 54)
+EnemyScene = ExtResource("9")
+IntervalUpdates = 1
+Places = Array[Vector2i]([Vector2i(999, 38), Vector2i(999, 166), Vector2i(823, 54), Vector2i(823, 166), Vector2i(631, 28), Vector2i(631, 182), Vector2i(439, 54), Vector2i(439, 166), Vector2i(247, 28), Vector2i(247, 182), Vector2i(128, 168)])
+OwnPlace = 2
+PresentWhen = SubResource("r9")
+
+[node name="RinkaSource2" parent="." instance=ExtResource("10")]
+position = Vector2(823, 166)
+EnemyScene = ExtResource("9")
+IntervalUpdates = 1
+Places = Array[Vector2i]([Vector2i(999, 38), Vector2i(999, 166), Vector2i(823, 54), Vector2i(823, 166), Vector2i(631, 28), Vector2i(631, 182), Vector2i(439, 54), Vector2i(439, 166), Vector2i(247, 28), Vector2i(247, 182), Vector2i(128, 168)])
+OwnPlace = 3
+PresentWhen = SubResource("r9")
+
+[node name="RinkaSource3" parent="." instance=ExtResource("10")]
+position = Vector2(631, 28)
+EnemyScene = ExtResource("9")
+IntervalUpdates = 1
+Places = Array[Vector2i]([Vector2i(999, 38), Vector2i(999, 166), Vector2i(823, 54), Vector2i(823, 166), Vector2i(631, 28), Vector2i(631, 182), Vector2i(439, 54), Vector2i(439, 166), Vector2i(247, 28), Vector2i(247, 182), Vector2i(128, 168)])
+OwnPlace = 4
+PresentWhen = SubResource("r9")
+
+[node name="MotherBrainGlass" parent="." instance=ExtResource("11")]
+position = Vector2(144, 80)
+AlwaysActive = true
+
+[node name="BlueCap" parent="." instance=ExtResource("12")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("12")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("14")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 232
+HighSurface = 232
+PresentWhen = SubResource("r9")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("15")
+position = Vector2(0, 0)
+Picture = "backdrops/tourian_pipe_room_dark.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="FromTourianEscape1ToMotherBrain" type="Marker2D" parent="."]
+position = Vector2(128, 128)

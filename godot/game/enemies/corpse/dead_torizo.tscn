@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://game/enemies/corpse/DeadTorizo.cs" id="1"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="2"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="3"]
+
+[node name="DeadTorizo" type="Node2D"]
+script = ExtResource("1")
+DataFile = "enemies/dead_torizo.json"
+
+[node name="Sand" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("3")
+
+[node name="Body" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 0
+
+[node name="Hurtbox" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Solid" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 3

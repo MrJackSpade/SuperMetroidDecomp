@@ -54,6 +54,12 @@ public static class Equipment
     /// <summary>The reserve tanks. Switched on, they refill Samus's energy by themselves when it runs out.</summary>
     public const string ReserveTank = "reserve_tank";
 
+    /// <summary>
+    /// The hyper beam, which Samus is given in her last fight and never collects or switches herself; her beam's data
+    /// says what it fires while this is on.
+    /// </summary>
+    public const string HyperBeam = "hyper_beam";
+
     /// <summary>Every one of them.</summary>
-    public static IReadOnlyList<string> All { get; } = [VariaSuit, GravitySuit, MorphBall, Bombs, SpringBall, ScrewAttack, HiJumpBoots, SpaceJump, SpeedBooster, GrappleBeam, XrayScope, ChargeBeam, IceBeam, WaveBeam, Spazer, PlasmaBeam, ReserveTank];
+    public static IReadOnlyList<string> All { get; } = [VariaSuit, GravitySuit, MorphBall, Bombs, SpringBall, ScrewAttack, HiJumpBoots, SpaceJump, SpeedBooster, GrappleBeam, XrayScope, ChargeBeam, IceBeam, WaveBeam, Spazer, PlasmaBeam, ReserveTank, HyperBeam];
 }

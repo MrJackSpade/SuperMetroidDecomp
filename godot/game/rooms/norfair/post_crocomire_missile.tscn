@@ -1,0 +1,140 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/diver/diver.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/gamet.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/post_crocomire_missile_in_unheated_norfair.json"
+KeepsMusic = true
+
+[node name="PostCrocomireMissile" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(11, 16)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/post_crocomire_missile_in_unheated_norfair.json"
+
+[node name="ToPostCrocomireShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/post_crocomire_shaft.tscn"
+LeadsToExit = "ToPostCrocomireMissile"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Metaree" parent="." instance=ExtResource("5")]
+position = Vector2(280, 56)
+DataFile = "enemies/metaree.json"
+
+[node name="Metaree2" parent="." instance=ExtResource("5")]
+position = Vector2(248, 64)
+DataFile = "enemies/metaree.json"
+
+[node name="Gamet" parent="." instance=ExtResource("6")]
+position = Vector2(688, 224)
+TriggerWidth = 48
+Speed = 3
+SpreadDown = 0
+DepartureWait = 104
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Gamet2" parent="." instance=ExtResource("6")]
+position = Vector2(688, 224)
+Speed = 3
+SpreadDown = -16
+DepartureWait = 96
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet3" parent="." instance=ExtResource("6")]
+position = Vector2(688, 224)
+Speed = 3
+SpreadDown = -32
+DepartureWait = 88
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet4" parent="." instance=ExtResource("6")]
+position = Vector2(688, 224)
+Speed = 3
+SpreadDown = 16
+DepartureWait = 112
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="Gamet5" parent="." instance=ExtResource("6")]
+position = Vector2(688, 224)
+Speed = 3
+SpreadDown = 32
+DepartureWait = 120
+AlwaysActive = true
+RespawnsWhenKilled = true
+Leader = NodePath("../Gamet")
+
+[node name="MissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(968, 152)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "post_crocomire_missile_exposed_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 200
+HighSurface = 200
+TideReach = 32
+TideTurnAbove = 0.5
+TideTurnBelow = 0.875
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Picture = "backdrops/norfair_cavern_stalactites.png"
+ScrollShare = Vector2(0.75, 0.75)

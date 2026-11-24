@@ -116,6 +116,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             _visual = new ActorVisual { Picture = picture, PictureOffset = new Vector2I(x, y) };
             AddChild(_visual);
             _visual.Bind(room.Content);
+            if (_timeline is not null)
+                _visual.Show(_timeline.Current);
         }
 
         OnLaunched(room);
@@ -133,7 +135,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     protected void PlayTimeline(string file)
     {
         _timeline = new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(Named(file))));
-        _visual?.Show(_timeline.Current.Picture);
+        _visual?.Show(_timeline.Current);
     }
 
     /// <summary>Called once as the projectile enters its room.</summary>
@@ -164,16 +166,17 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 return;
             }
 
-            _visual?.Show(_timeline.Current.Picture);
+            _visual?.Show(_timeline.Current);
         }
 
         BeforeTravel(room);
         if (HasEnded)
             return;
-        ChangeSpeed(room);
+        Steer(room);
         Travel(room);
         if (HasEnded)
             return;
+        GainSpeed();
 
         if (_settings.LastsUpdates > 0)
         {
@@ -189,8 +192,16 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         {
             PixelRect view = room.Session.Camera.View;
             int margin = _settings.ViewMargin;
-            var allowed = new PixelRect(view.Left - margin, view.Top - margin, view.Width + margin * 2, view.Height + margin * 2);
+            int below = _settings.ViewMarginBelow >= 0 ? _settings.ViewMarginBelow : margin;
+            var allowed = new PixelRect(view.Left - margin, view.Top - margin, view.Width + margin * 2, view.Height + margin + below);
             if (!allowed.Overlaps(Area))
+                Leave(room);
+        }
+        else if (_settings.ViewMarginBelow >= 0)
+        {
+            // It may go anywhere but too far below the view.
+            PixelRect view = room.Session.Camera.View;
+            if (Area.Top >= view.Top + view.Height + _settings.ViewMarginBelow)
                 Leave(room);
         }
     }
@@ -260,17 +271,36 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         };
     }
 
-    /// <summary>Changes the projectile's speed for this update, as its motion says.</summary>
-    private void ChangeSpeed(Room room)
+    /// <summary>Sets the way the projectile goes this update, for a motion that decides it before moving.</summary>
+    private void Steer(Room room)
     {
         switch (_settings.Motion)
         {
             case ProjectileSettings.Moves.Straight:
             case ProjectileSettings.Moves.Wave:
+            case ProjectileSettings.Moves.Accelerating:
+            case ProjectileSettings.Moves.Falling:
                 break;
             case ProjectileSettings.Moves.Still:
                 Velocity = PixelVelocity.Zero;
                 break;
+            case ProjectileSettings.Moves.Homing:
+                PixelPosition target = Side == HitSide.Player ? NearestEnemy(room) ?? Position : room.Player.Position;
+                Velocity = new PixelVelocity(Toward(Velocity.X, target.X - Position.X), Toward(Velocity.Y, target.Y - Position.Y));
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined projectile motion {_settings.Motion}.");
+        }
+    }
+
+    /// <summary>
+    /// Changes the projectile's speed once it has moved this update, for a motion that gains speed: it leaves at the
+    /// speed it was launched with, and the change is felt from the next update.
+    /// </summary>
+    private void GainSpeed()
+    {
+        switch (_settings.Motion)
+        {
             case ProjectileSettings.Moves.Accelerating:
                 Velocity = new PixelVelocity(Faster(Velocity.X), Faster(Velocity.Y));
                 break;
@@ -280,12 +310,6 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 if (wasRising && !Velocity.Y.IsNegative && _settings.FallingTimeline.Length > 0 && _visual is not null)
                     PlayTimeline(_settings.FallingTimeline);
                 break;
-            case ProjectileSettings.Moves.Homing:
-                PixelPosition target = Side == HitSide.Player ? NearestEnemy(room) ?? Position : room.Player.Position;
-                Velocity = new PixelVelocity(Toward(Velocity.X, target.X - Position.X), Toward(Velocity.Y, target.Y - Position.Y));
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined projectile motion {_settings.Motion}.");
         }
     }
 

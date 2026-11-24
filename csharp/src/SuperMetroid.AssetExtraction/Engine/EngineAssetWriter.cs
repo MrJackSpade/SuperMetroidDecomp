@@ -1,0 +1,62 @@
+using System.Text.Json.Nodes;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.AssetExtraction.Engine;
+
+/// <summary>
+/// Writes the Godot game's assets from an installation: its pictures cut from the installed sheets, and its data
+/// files, whose values and timelines come from the old game's own definitions. The Godot project names every file
+/// it wants; what is written here is written under those names.
+/// </summary>
+public sealed partial class EngineAssetWriter
+{
+    private readonly EngineAssetTree _tree;
+    private readonly EngineSheets _sheets;
+    private readonly GameInstallation _installation;
+
+    private EngineAssetWriter(GameInstallation installation, string assets)
+    {
+        _tree = new EngineAssetTree(assets);
+        _sheets = new EngineSheets(installation.ContentDirectory);
+        _installation = installation;
+    }
+
+    /// <summary>
+    /// Writes the assets of the installation at <paramref name="installationRoot"/> into the directory
+    /// <paramref name="assets"/>, which is the Godot project's <c>assets</c> folder.
+    /// </summary>
+    public static void Write(string installationRoot, string assets)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(installationRoot);
+        ArgumentException.ThrowIfNullOrWhiteSpace(assets);
+        var installation = new GameInstallation(installationRoot);
+        var writer = new EngineAssetWriter(installation, assets);
+        writer.WriteShared();
+        new EngineLayouts(writer._tree, writer._sheets, installation.LoadRoomLevelStreams()).WriteAll();
+        writer.WriteEnemies();
+    }
+
+    /// <summary>
+    /// Starts an enemy's data file: its pictures are cut from the installed sheet named for the old enemy, into a
+    /// folder beside the file named as the file is.
+    /// </summary>
+    /// <param name="file">The data file, as the Godot project names it.</param>
+    /// <param name="type">The Godot type that reads the file.</param>
+    /// <param name="id">The old game's enemy.</param>
+    /// <param name="sheets">
+    /// The installed sheets its pictures are on, where they are not the one sheet named as the old enemy is: the
+    /// sheets of each of its parts.
+    /// </param>
+    internal EngineEnemy Enemy(string file, string type, EnemyDefinitionId id, params ReadOnlySpan<string> sheets)
+    {
+        const string family = GameInstallationLayout.EnemySheetDirectoryName;
+        string folder = file[..file.LastIndexOf('.')];
+        var named = new List<string>();
+        foreach (string sheet in sheets)
+            named.Add(_sheets.EnemySheet(sheet));
+        if (named.Count == 0)
+            named.Add(_sheets.EnemySheet(EnemyDefinitionIdKeys.Installed.Of(id)));
+        return new EngineEnemy(_tree, _sheets, file, type, id, _sheets.Cut(_tree, family, folder, [.. named]));
+    }
+}

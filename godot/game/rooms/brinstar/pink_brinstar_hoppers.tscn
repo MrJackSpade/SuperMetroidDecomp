@@ -1,0 +1,197 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
+[ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/pink_brinstar_hoppers_in_green_blue_brinstar.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 8
+About = "3"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
+
+[node name="PinkBrinstarHoppers" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(19, 8)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/pink_brinstar_hoppers_in_green_blue_brinstar.json"
+
+[node name="ToBigPink" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/big_pink.tscn"
+LeadsToExit = "ToPinkBrinstarHoppers"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToHopperEnergyTank" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/hopper_energy_tank.tscn"
+LeadsToExit = "ToPinkBrinstarHoppers"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="SidehopperLarge" parent="." instance=ExtResource("6")]
+position = Vector2(181, 437)
+DataFile = "enemies/sidehopper_large.json"
+OnCeiling = false
+
+[node name="Sidehopper" parent="." instance=ExtResource("6")]
+position = Vector2(248, 416)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Sidehopper2" parent="." instance=ExtResource("6")]
+position = Vector2(106, 449)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="ShutterShootable" parent="." instance=ExtResource("7")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 64
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable2" parent="." instance=ExtResource("7")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 128
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable3" parent="." instance=ExtResource("7")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 192
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable4" parent="." instance=ExtResource("7")]
+position = Vector2(344, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 3
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0.5
+Travel = 240
+RestAfterUp = -1
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable5" parent="." instance=ExtResource("7")]
+position = Vector2(328, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 0
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0
+Travel = 0
+RestAfterUp = 0
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="ShutterShootable6" parent="." instance=ExtResource("7")]
+position = Vector2(360, 480)
+DataFile = "enemies/shutter_shootable.json"
+Trigger = 0
+TriggerAmount = 0
+MovesUpFirst = true
+Speed = 0
+Travel = 0
+RestAfterUp = 0
+RestAfterDown = 0
+AlwaysActive = true
+
+[node name="Gate" parent="." instance=ExtResource("8")]
+position = Vector2(272, 64)
+
+[node name="GateSwitch" parent="." instance=ExtResource("9")]
+position = Vector2(272, 64)
+DataFile = "objects/gate_switch_blue_right.json"
+TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
+
+[node name="GreyCap" parent="." instance=ExtResource("10")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r2")
+RememberedAs = "pink_brinstar_hoppers_grey_door_facing_right"
+Remembered = 1
+
+[node name="ZebesWakes" type="Node" parent="."]
+script = ExtResource("11")
+StartsWhen = SubResource("r3")
+Until = SubResource("r2")
+Records = PackedStringArray("zebes_awake")
+
+[node name="GreyCap2" parent="." instance=ExtResource("10")]
+position = Vector2(480, 352)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r2")
+RememberedAs = "pink_brinstar_hoppers_grey_door_facing_left"
+Remembered = 1
+
+[node name="ZebesWakes2" type="Node" parent="."]
+script = ExtResource("11")
+StartsWhen = SubResource("r3")
+Until = SubResource("r2")
+Records = PackedStringArray("zebes_awake")
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 0)
+Picture = "backdrops/brinstar_thin_horizontal_pattern.png"
+ScrollShare = Vector2(0.75, 0.75)

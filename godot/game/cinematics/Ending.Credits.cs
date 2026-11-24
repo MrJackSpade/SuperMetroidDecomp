@@ -1,0 +1,291 @@
+using Engine.Ui;
+using Godot;
+
+namespace Game.Cinematics;
+
+/// <summary>
+/// The middle of the ending: the credits rolling up the screen, and then, among shooting stars, Samus seen waiting,
+/// first as a wavering glow, then still, while the result of the mission is shown and she is revealed.
+/// </summary>
+/// <remarks>
+/// The data names the credits' picture ("credits_roll") and how far it scrolls before it is done ("credits_scroll"),
+/// the pictures "waiting_backdrop", "wavy_samus", "result_panel" and "copyright_panel", and the four pictures of a
+/// "shooting_star" from faintest to fullest.
+/// </remarks>
+public partial class Ending
+{
+    private const string WaveCode = """
+        shader_type canvas_item;
+        render_mode blend_add;
+        uniform sampler2D picture : repeat_enable, filter_nearest;
+        uniform float reach = 0.0;
+        uniform float turn = 0.0;
+        uniform float period = 128.0;
+        uniform float scroll = 0.0;
+        void fragment() {
+            vec2 size = vec2(textureSize(picture, 0));
+            float line = UV.y * 224.0;
+            float across = UV.x * 256.0 + reach * sin(6.2831853 * (line / period + turn));
+            COLOR = texture(picture, vec2(across, line + scroll) / size);
+        }
+        """;
+
+    /// <summary>How long the screen stays dark after the credits, and how long it takes to come up again.</summary>
+    private const int BlankUpdates = 60, PostCreditsFadeUpdates = 60;
+
+    /// <summary>How long the waiting backdrop takes to come in, how long it is watched, and how long the result is shown.</summary>
+    private const int BackdropFadeUpdates = 32, BackdropUpdates = 180, ResultUpdates = 180;
+
+    /// <summary>How long each half of Samus's reveal lasts, and how long the copyright is held between them.</summary>
+    private const int RevealHalfUpdates = 64, CopyrightUpdates = 180;
+
+    /// <summary>
+    /// The shooting stars: how much speed each gains across and down every update, in 256ths of a pixel; how long each
+    /// of its looks lasts as it brightens, or zero for one that stays faint; and how long it waits before it first sets out.
+    /// </summary>
+    private static readonly (int Across, int Down, int Period, int Delay)[] ShootingStars =
+    [
+        (16, -16, 6, 8), (12, -1, 6, 0), (13, -10, 6, 6), (8, -16, 6, 0), (2, -14, 6, 8), (16, -8, 6, 0), (2, -1, 0, 0), (1, -2, 0, 0),
+        (0, -3, 0, 0), (2, -5, 32, 4), (15, 16, 6, 8), (2, 9, 8, 0), (12, 8, 6, 0), (16, 4, 6, 8), (8, 12, 8, 0), (2, 8, 8, 0),
+        (2, 4, 0, 0), (2, 1, 0, 0), (-13, 13, 4, 8), (-14, 8, 4, 0), (-7, 14, 6, 0), (-5, 16, 4, 8), (-4, 5, 32, 0), (-2, 3, 0, 0),
+        (-2, 4, 0, 0), (-3, 1, 0, 0), (-12, 2, 4, 0), (-6, 5, 32, 0), (-3, 8, 32, 0), (-14, -9, 4, 8), (-8, -12, 4, 0), (-6, -14, 6, 0),
+        (-12, -16, 4, 8), (-8, -4, 32, 0), (-3, -6, 32, 0), (-7, -8, 32, 0), (-2, -3, 0, 0), (-4, -4, 0, 0), (-8, -2, 0, 0), (-8, -4, 0, 0),
+    ];
+
+    /// <summary>How long a shooting star flies unseen before it shows.</summary>
+    private const int StarLeadIn = 32;
+
+    private readonly List<(int X, int Y, int SpeedX, int SpeedY, int Age, int Delay)> _stars = [];
+    private readonly List<Sprite2D> _starSprites = [];
+    private Sprite2D? _credits;
+    private Sprite2D? _waitingBackdrop;
+    private ColorRect? _wavySamus;
+    private Sprite2D? _panel;
+    private double _scrolled;
+    private int _age;
+    private int _revealStep;
+    private bool _copyrightShown;
+    private bool _copyrightHolds;
+
+    /// <summary>The credits begin: everything of the flight is put away and the roll starts from below the screen.</summary>
+    private void SetUpCredits()
+    {
+        ClearActors();
+        (_floor ?? throw NotEntered()).Visible = false;
+        (_completionText ?? throw NotEntered()).Visible = false;
+        (_clearTimeText ?? throw NotEntered()).Visible = false;
+        (_backdrop ?? throw NotEntered()).Color = Colors.Black;
+        CanvasLayer picture = _picture ?? throw NotEntered();
+        _credits = new Sprite2D { Name = "Credits", Centered = false, Position = new Vector2(0, 256), Texture = Session.Content.LoadTexture(Data().Text("credits_roll")) };
+        picture.AddChild(_credits);
+        _scrolled = 0;
+        ScreenFade fade = Fade();
+        fade.FadeIn(1);
+        fade.Step();
+        _phase = Phase.Credits;
+    }
+
+    /// <summary>Plays one update of the credits and of Samus waiting.</summary>
+    private void StepCreditsAndWaiting()
+    {
+        ScreenFade fade = Fade();
+        switch (_phase)
+        {
+            case Phase.Credits:
+                _scrolled += 0.5;
+                (_credits ?? throw NotEntered()).Position = new Vector2(0, 256 - (int)_scrolled);
+                if ((int)_scrolled < Data().Int("credits_scroll"))
+                    break;
+                SetUpPostCredits(fade);
+                (_phase, _wait) = (Phase.PostCreditsBlank, BlankUpdates);
+                break;
+
+            case Phase.PostCreditsBlank:
+                if (--_wait > 0)
+                    break;
+                fade.FadeIn(PostCreditsFadeUpdates);
+                _phase = Phase.PostCreditsFadeIn;
+                break;
+
+            case Phase.PostCreditsFadeIn:
+                fade.Step();
+                if (!fade.IsDone)
+                    break;
+                (_waitingBackdrop ?? throw NotEntered()).Visible = true;
+                (_phase, _age) = (Phase.ShootingStars, 0);
+                break;
+
+            case Phase.ShootingStars:
+                _age++;
+                (_waitingBackdrop ?? throw NotEntered()).Modulate = new Color(1, 1, 1, (float)_age / BackdropFadeUpdates);
+                if (_age >= BackdropFadeUpdates)
+                    (_phase, _age) = (Phase.WaitingBackdrop, 0);
+                break;
+
+            case Phase.WaitingBackdrop:
+                // Samus wavers over the backdrop like something seen through heat, sliding up all the while.
+                _age++;
+                ShowWavySamus(_age);
+                if (_age < BackdropUpdates)
+                    break;
+                (_wavySamus ?? throw NotEntered()).Visible = false;
+                ShowPanel("result_panel", 72);
+                (_phase, _wait) = (Phase.WaitingSamus, ResultUpdates);
+                break;
+
+            case Phase.WaitingSamus:
+                if (--_wait > 0)
+                    break;
+                SpawnIdleSamus();
+                (_phase, _wait, _revealStep, _age, _copyrightShown, _copyrightHolds) = (Phase.RewardReveal, RevealHalfUpdates, 0, 0, false, false);
+                ShowReveal();
+                break;
+
+            case Phase.RewardReveal:
+                StepReveal();
+                break;
+
+            default:
+                throw new InvalidOperationException($"The ending's credits have no phase {_phase}.");
+        }
+    }
+
+    /// <summary>Sets up what follows the credits, in the dark: the stars, the backdrop Samus waits against, and her wavering picture.</summary>
+    private void SetUpPostCredits(ScreenFade fade)
+    {
+        (_credits ?? throw NotEntered()).Visible = false;
+        fade.FadeOut(1);
+        fade.Step();
+        CanvasLayer picture = _picture ?? throw NotEntered();
+        _waitingBackdrop = new Sprite2D
+        {
+            Name = "WaitingBackdrop", Centered = false, Visible = false, Modulate = new Color(1, 1, 1, 0),
+            Texture = Session.Content.LoadTexture(Data().Text("waiting_backdrop")),
+        };
+        picture.AddChild(_waitingBackdrop);
+        var wave = new ShaderMaterial { Shader = new Shader { Code = WaveCode } };
+        wave.SetShaderParameter("picture", Session.Content.LoadTexture(Data().Text("wavy_samus")));
+        _wavySamus = new ColorRect { Name = "WavySamus", Size = new Vector2(256, 224), Visible = false, Material = wave };
+        picture.AddChild(_wavySamus);
+        _panel = new Sprite2D { Name = "Panel", Centered = false, Visible = false };
+        picture.AddChild(_panel);
+
+        _stars.Clear();
+        _starSprites.Clear();
+        foreach ((_, _, _, int delay) in ShootingStars)
+        {
+            _stars.Add((128 * 256, 128 * 256, 0, 0, 0, delay));
+            var sprite = new Sprite2D { Name = "ShootingStar", Visible = false, ZIndex = -2 };
+            (_sprites ?? throw NotEntered()).AddChild(sprite);
+            _starSprites.Add(sprite);
+        }
+    }
+
+    private void ShowWavySamus(int age)
+    {
+        ColorRect samus = _wavySamus ?? throw NotEntered();
+        samus.Visible = true;
+        var wave = (ShaderMaterial)samus.Material;
+        wave.SetShaderParameter("reach", age < 2 ? 0f : 64f);
+        wave.SetShaderParameter("turn", (-1 + 8 * (age - 1)) / 256f);
+        wave.SetShaderParameter("scroll", age * 2f);
+    }
+
+    private void ShowPanel(string picture, int y)
+    {
+        Sprite2D panel = _panel ?? throw NotEntered();
+        panel.Visible = picture.Length > 0;
+        if (!panel.Visible)
+            return;
+        panel.Texture = Session.Content.LoadTexture(Data().Text(picture));
+        panel.Position = new Vector2(0, y);
+    }
+
+    /// <summary>
+    /// Plays one update of Samus's reveal: she comes in over the backdrop a step every fourth update; half-way the
+    /// copyright comes up and everything is held; then the rest, and she is ready to move.
+    /// </summary>
+    private void StepReveal()
+    {
+        StepActors();
+        if (_copyrightHolds)
+        {
+            if (--_wait > 0)
+                return;
+            (_copyrightHolds, _wait) = (false, RevealHalfUpdates);
+            return;
+        }
+
+        if (++_age % 4 == 0 && _revealStep < 32)
+        {
+            _revealStep++;
+            ShowReveal();
+        }
+
+        if (--_wait > 0)
+            return;
+        if (!_copyrightShown)
+        {
+            ShowPanel("copyright_panel", 96);
+            (_copyrightShown, _copyrightHolds, _wait) = (true, true, CopyrightUpdates);
+            return;
+        }
+
+        BeginGesture();
+    }
+
+    /// <summary>Shows the reveal as far as it has got. Samus in her armour is there from the first, with nothing behind her.</summary>
+    private void ShowReveal()
+    {
+        Sprite2D backdrop = _waitingBackdrop ?? throw NotEntered();
+        if (Reward == RewardKind.Armoured)
+        {
+            backdrop.Visible = false;
+            return;
+        }
+
+        float shown = _revealStep / 32f;
+        backdrop.Modulate = new Color(1, 1, 1, 1 - shown);
+        foreach (Actor actor in _actors)
+            actor.Sprite.Tint(new Color(1, 1, 1, shown));
+    }
+
+    /// <summary>
+    /// Plays one update of the shooting stars: each waits its turn, then flies from the middle of the screen, gaining
+    /// speed and brightening, and starts again from the middle when it has left the screen.
+    /// </summary>
+    private void StepShootingStars()
+    {
+        for (int index = 0; index < _stars.Count; index++)
+        {
+            (int x, int y, int speedX, int speedY, int age, int delay) = _stars[index];
+            (int across, int down, int period, _) = ShootingStars[index];
+            Sprite2D sprite = _starSprites[index];
+            if (delay > 0)
+            {
+                _stars[index] = (x, y, speedX, speedY, age, delay - 1);
+                continue;
+            }
+
+            // Its look by its age: unseen, faint, and for one that brightens, bright, dim and full.
+            int look = age < StarLeadIn ? -1 : period == 0 ? 0 : Math.Min(3, (age - StarLeadIn) / period);
+            int gain = look <= 0 ? 1 : 2;
+            (speedX, speedY) = (speedX + across * gain, speedY + down * gain);
+            (x, y) = (x + speedX, y + speedY);
+            int shownX = x >> 8, shownY = y >> 8;
+            if (shownX is < 4 or > 255 || shownY is < 4 or > 255)
+            {
+                _stars[index] = (128 * 256, 128 * 256, 0, 0, 0, 0);
+                sprite.Visible = false;
+                continue;
+            }
+
+            _stars[index] = (x, y, speedX, speedY, age + 1, 0);
+            sprite.Visible = look >= 0;
+            if (look < 0)
+                continue;
+            sprite.Texture = Session.Content.LoadTexture(Data().List("shooting_star")[look].AsText());
+            sprite.Position = new Vector2(shownX, shownY);
+        }
+    }
+}

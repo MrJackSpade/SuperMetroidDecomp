@@ -1,0 +1,207 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/crateria/green_pirates_shaft_in_lower_crateria.json"
+Music = "lower_crateria"
+
+[node name="GreenPiratesShaft" type="Node2D"]
+script = ExtResource("2")
+Area = "crateria"
+MapCell = Vector2i(11, 3)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/crateria/green_pirates_shaft_in_lower_crateria.json"
+
+[node name="ToGauntletEnergyTank" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/gauntlet_energy_tank.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToLowerMushrooms" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/lower_mushrooms.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToStatuesHallway" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 1632)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/statues_hallway.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToTerminator" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/terminator.tscn"
+LeadsToExit = "ToGreenPiratesShaft"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="PirateGreenWalking" parent="." instance=ExtResource("5")]
+position = Vector2(128, 1232)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking2" parent="." instance=ExtResource("5")]
+position = Vector2(141, 1312)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking3" parent="." instance=ExtResource("5")]
+position = Vector2(139, 1392)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking4" parent="." instance=ExtResource("5")]
+position = Vector2(132, 1472)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 1
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="PirateGreenWalking5" parent="." instance=ExtResource("5")]
+position = Vector2(150, 1552)
+DataFile = "enemies/walking_pirate_green.json"
+StartsFacing = 0
+LaserSpeed = 2
+FlinchesFromShots = true
+PatrolReach = 24
+
+[node name="Beetom" parent="." instance=ExtResource("6")]
+position = Vector2(184, 984)
+
+[node name="Beetom2" parent="." instance=ExtResource("6")]
+position = Vector2(72, 984)
+
+[node name="MissileTank" parent="." instance=ExtResource("7")]
+position = Vector2(216, 440)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "green_pirates_shaft_exposed_missile_tank_at13x27"
+
+[node name="MissileTank2" parent="." instance=ExtResource("7")]
+position = Vector2(40, 440)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "green_pirates_shaft_exposed_missile_tank_at2x27"
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(224, 1120)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("8")]
+position = Vector2(16, 1632)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("8")]
+position = Vector2(224, 1632)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "green_pirates_shaft_red_door_facing_left"
+Remembered = 1
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 768)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x6Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 1760)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(112, 1072)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x3")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(112, 1072)
+Size = Vector2i(32, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x3Foot")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(144, 1120)
+Size = Vector2i(32, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x3")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(144, 1120)
+Size = Vector2i(32, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x3Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEnergyTank"
+What = "open"
+Target = NodePath("../Screen0x3")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEnergyTank"
+What = "open"
+Target = NodePath("../Screen0x3Foot")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Picture = "backdrops/crateria_brick_room.png"
+ScrollShare = Vector2(0, 0.75)

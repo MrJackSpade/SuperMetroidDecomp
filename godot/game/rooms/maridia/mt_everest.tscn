@@ -1,0 +1,220 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/powamp/powamp.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/mt_everest_in_sandless_maridia.json"
+KeepsMusic = true
+
+[node name="MtEverest" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(12, 10)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/mt_everest_in_sandless_maridia.json"
+
+[node name="ToCrabShaft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1520, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/crab_shaft.tscn"
+LeadsToExit = "ToMtEverest"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToFishTankLeft" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(352, 1008)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
+LeadsToExit = "ToMtEverestLeft"
+Style = 1
+ArrivalOffset = Vector2i(32, -24)
+
+[node name="ToFishTankRight" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1120, 512)
+Size = Vector2i(320, 512)
+LeadsToRoom = "res://game/rooms/maridia/fish_tank.tscn"
+LeadsToExit = "ToMtEverestRight"
+Style = 1
+ArrivalOffset = Vector2i(160, 472)
+
+[node name="ToMainStreetLower" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 656)
+Size = Vector2i(32, 16)
+LeadsToRoom = "res://game/rooms/maridia/main_street.tscn"
+LeadsToExit = "ToMtEverestLower"
+Style = 0
+ArrivalOffset = Vector2i(40, -8)
+
+[node name="ToMainStreetUpper" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/main_street.tscn"
+LeadsToExit = "ToMtEverestUpper"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToRedFish" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(608, 0)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/maridia/red_fish.tscn"
+LeadsToExit = "ToMtEverest"
+Style = 1
+ArrivalOffset = Vector2i(32, 40)
+
+[node name="Powamp" parent="." instance=ExtResource("5")]
+position = Vector2(512, 384)
+GrappleTravelDistance = 112
+Untouchable = false
+AlwaysActive = true
+
+[node name="Powamp2" parent="." instance=ExtResource("5")]
+position = Vector2(776, 512)
+GrappleTravelDistance = 288
+Untouchable = false
+AlwaysActive = true
+
+[node name="Powamp3" parent="." instance=ExtResource("5")]
+position = Vector2(1024, 560)
+GrappleTravelDistance = 48
+Untouchable = false
+AlwaysActive = true
+
+[node name="Sciser" parent="." instance=ExtResource("6")]
+position = Vector2(752, 903)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.5
+
+[node name="Sciser2" parent="." instance=ExtResource("6")]
+position = Vector2(552, 15200)
+DataFile = "enemies/sciser.json"
+StartsOn = 2
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1.25
+
+[node name="Sciser3" parent="." instance=ExtResource("6")]
+position = Vector2(360, 576)
+DataFile = "enemies/sciser.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser4" parent="." instance=ExtResource("6")]
+position = Vector2(960, 952)
+DataFile = "enemies/sciser.json"
+StartsOn = 0
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Sciser5" parent="." instance=ExtResource("6")]
+position = Vector2(616, 672)
+DataFile = "enemies/sciser.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 1.25
+
+[node name="Sciser6" parent="." instance=ExtResource("6")]
+position = Vector2(1177, 856)
+DataFile = "enemies/sciser.json"
+StartsOn = 1
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(352, 976)
+DataFile = "objects/door_cap_blue_up.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("7")]
+position = Vector2(1120, 976)
+DataFile = "objects/door_cap_blue_up.json"
+
+[node name="BlueCap4" parent="." instance=ExtResource("7")]
+position = Vector2(608, 32)
+DataFile = "objects/door_cap_blue_down.json"
+
+[node name="BlueCap5" parent="." instance=ExtResource("7")]
+position = Vector2(1504, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 512)
+StartsOpen = false
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 768)
+StartsOpen = false
+
+[node name="Screen5x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1280, 512)
+StartsOpen = false
+
+[node name="Screen5x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1280, 768)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1280, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1280, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_teal.json"
+LowSurface = 16
+HighSurface = 16
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

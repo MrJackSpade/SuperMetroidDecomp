@@ -14,7 +14,8 @@ namespace Engine.World;
 ///     ".": { "kind": "empty" },
 ///     "#": { "kind": "solid", "picture": "tiles/rock.png" },
 ///     "/": { "kind": "slope", "solid": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] },
-///     "S": { "kind": "block", "block": "blocks/shot.json" }
+///     "S": { "kind": "block", "block": "blocks/shot.json" },
+///     "~": { "kind": "empty", "pictures": ["tiles/lava_1.png", "tiles/lava_2.png"], "updates": 10 }
 ///   },
 ///   "rows": [
 ///     "........",
@@ -64,7 +65,18 @@ public sealed class TerrainLayout
         {
             if (letter.Length != 1)
                 throw tile.Problem("is named by more than one letter; a tile is named by exactly one");
-            legend[letter[0]] = ReadTile(tile, tileSize);
+            TileDefinition read = ReadTile(tile, tileSize);
+            if (tile.Has("pictures"))
+            {
+                // A tile that moves as it is looked at names its pictures in turn, and how long each shows.
+                int updates = tile.Int("updates");
+                var frames = tile.List("pictures").Select(picture => picture.AsText()).ToList();
+                if (updates <= 0 || frames.Count == 0)
+                    throw tile.Problem("names pictures to step through, but none, or no positive number of updates for each");
+                read = read with { Frames = frames, FrameUpdates = updates };
+            }
+
+            legend[letter[0]] = read;
         }
 
         TileDefinition[][] tiles = ReadRows(data.Get("rows"), legend);

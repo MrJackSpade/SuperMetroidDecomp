@@ -30,8 +30,30 @@ public partial class SamusVisual : Node2D
     [Export]
     public Color ChargedTint { get; set; } = new(1.3f, 1.3f, 1.3f);
 
+    /// <summary>How many colours the glow of the hyper beam runs through before it comes round.</summary>
+    [Export]
+    public int GlowSteps { get; set; } = 12;
+
+    /// <summary>How strongly that glow colours her, from none to wholly.</summary>
+    [Export]
+    public float GlowStrength { get; set; } = 0.6f;
+
+    /// <summary>How bright that glow is.</summary>
+    [Export]
+    public float GlowBrightness { get; set; } = 1.4f;
+
+    /// <summary>The tint of the echoes she leaves behind her at full speed.</summary>
+    [Export]
+    public Color EchoTint { get; set; } = new(1.0f, 1.3f, 1.6f, 0.6f);
+
+    /// <summary>How many updates pass between one echo being left and the next, how fast they close on her when she slows, and how fast they draw level.</summary>
+    private const int EchoEvery = 4, EchoDepartureSpeed = 8, EchoLevelling = 2;
+
     private TimelinePlayer? _player;
     private string _playing = "";
+    private readonly PixelPosition?[] _echoes = new PixelPosition?[2];
+    private int _nextEcho;
+    private int _echoesLeaving;
 
     /// <summary>Shows <paramref name="samus"/> as she is at the end of this update.</summary>
     public void Show(Samus samus)
@@ -62,12 +84,78 @@ public partial class SamusVisual : Node2D
 
         // After a hit she flickers: shown on one update and hidden on the next.
         picture.SetShown(!samus.IsInvincible || samus.InvincibleUpdatesLeft % 2 == 0);
+        StepEchoes(samus, picture);
         picture.Tint(
-            samus.State is ShinesparkState || samus.IsBoosting ? BoostTint
+            samus.State is DrainedState { Glows: true } drained ? GlowTint(drained.GlowStep)
+            : samus.State is ShinesparkState || samus.IsBoosting ? BoostTint
             : samus.HasStoredShine ? StoredShineTint
             : samus.Weapons.IsCharged ? ChargedTint
             : Colors.White);
     }
+
+    /// <summary>
+    /// Leaves and moves her echoes. At full speed one of the two is left where she is every few updates, turn about.
+    /// When she slows they close on her from behind, drawing level as they come, and are gone as they reach her. They
+    /// are shown by the visuals "Echo1" and "Echo2", if her scene has them.
+    /// </summary>
+    private void StepEchoes(Samus samus, ActorVisual picture)
+    {
+        bool boosting = samus.IsBoosting && samus.State is not ShinesparkState;
+        if (samus.State is ShinesparkState)
+        {
+            (_echoes[0], _echoes[1], _nextEcho, _echoesLeaving) = (null, null, 0, 0);
+        }
+        else if (boosting && _echoesLeaving == 0)
+        {
+            if (samus.Room.Session.Clock.Updates % EchoEvery == 0)
+            {
+                _echoes[_nextEcho] = samus.Position;
+                _nextEcho = 1 - _nextEcho;
+            }
+        }
+        else if (_echoes[0] is not null || _echoes[1] is not null)
+        {
+            if (_echoesLeaving == 0)
+                _echoesLeaving = samus.Facing == Facing.Left ? -EchoDepartureSpeed : EchoDepartureSpeed;
+            for (int echo = 0; echo < _echoes.Length; echo++)
+            {
+                if (_echoes[echo] is not { } at)
+                    continue;
+                int y = at.Y.Whole, level = samus.Position.Y.Whole;
+                if (y != level)
+                    y += y < level ? EchoLevelling : -EchoLevelling;
+                int x = at.X.Whole + _echoesLeaving;
+                bool reached = _echoesLeaving < 0 ? x < samus.Position.X.Whole : x >= samus.Position.X.Whole;
+                _echoes[echo] = reached ? null : PixelPosition.FromWhole(x, y);
+            }
+
+            if (_echoes[0] is null && _echoes[1] is null)
+                (_nextEcho, _echoesLeaving) = (0, 0);
+        }
+        else
+        {
+            _echoesLeaving = 0;
+        }
+
+        for (int echo = 0; echo < _echoes.Length; echo++)
+        {
+            if (GetNodeOrNull<ActorVisual>($"Echo{echo + 1}") is not { } shown)
+                continue;
+            if (_echoes[echo] is not { } at)
+            {
+                shown.Show("");
+                continue;
+            }
+
+            shown.Show(picture.Picture);
+            shown.Tint(EchoTint);
+            shown.Position = new Vector2(at.X.Whole - samus.Position.X.Whole, at.Y.Whole - samus.Position.Y.Whole);
+        }
+    }
+
+    /// <summary>The colour of one step of the glow that runs through every colour.</summary>
+    private Color GlowTint(int step) =>
+        Color.FromHsv((float)(step % GlowSteps) / GlowSteps, GlowStrength, 1f) * new Color(GlowBrightness, GlowBrightness, GlowBrightness);
 
     /// <summary>The name of the timeline that shows her now, or empty when her data has none for it.</summary>
     private static string TimelineFor(Samus samus)

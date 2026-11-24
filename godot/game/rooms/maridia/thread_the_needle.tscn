@@ -1,0 +1,187 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/choot/choot.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/thread_the_needle_in_sandless_maridia.json"
+KeepsMusic = true
+
+[node name="ThreadTheNeedle" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(27, 6)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/thread_the_needle_in_sandless_maridia.json"
+
+[node name="ToBugSandHole" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/bug_sand_hole.tscn"
+LeadsToExit = "ToThreadTheNeedle"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToMaridiaElevator" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1776, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/maridia_elevator.tscn"
+LeadsToExit = "ToThreadTheNeedle"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Puyo" parent="." instance=ExtResource("5")]
+position = Vector2(280, 140)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo2" parent="." instance=ExtResource("5")]
+position = Vector2(324, 172)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo3" parent="." instance=ExtResource("5")]
+position = Vector2(708, 140)
+HopCooldown = 64
+BigHopDistance = 22
+
+[node name="Puyo4" parent="." instance=ExtResource("5")]
+position = Vector2(1528, 108)
+HopCooldown = 48
+BigHopDistance = 22
+
+[node name="Puyo5" parent="." instance=ExtResource("5")]
+position = Vector2(1040, 108)
+HopCooldown = 32
+BigHopDistance = 22
+
+[node name="Puyo6" parent="." instance=ExtResource("5")]
+position = Vector2(1136, 140)
+HopCooldown = 64
+BigHopDistance = 22
+
+[node name="Puyo7" parent="." instance=ExtResource("5")]
+position = Vector2(1088, 92)
+HopCooldown = 16
+BigHopDistance = 22
+
+[node name="Choot" parent="." instance=ExtResource("6")]
+position = Vector2(216, 140)
+FallingPath = "very_wide"
+PatternLoops = 1
+JumpDelay = 0
+
+[node name="Choot2" parent="." instance=ExtResource("6")]
+position = Vector2(432, 172)
+FallingPath = "very_wide"
+PatternLoops = 2
+JumpDelay = 0
+
+[node name="Choot3" parent="." instance=ExtResource("6")]
+position = Vector2(792, 108)
+FallingPath = "very_wide"
+PatternLoops = 1
+JumpDelay = 0
+
+[node name="Choot4" parent="." instance=ExtResource("6")]
+position = Vector2(1304, 172)
+FallingPath = "very_wide"
+PatternLoops = 2
+JumpDelay = 0
+
+[node name="Choot5" parent="." instance=ExtResource("6")]
+position = Vector2(1448, 140)
+FallingPath = "wide"
+PatternLoops = 2
+JumpDelay = 0
+
+[node name="Choot6" parent="." instance=ExtResource("6")]
+position = Vector2(632, 172)
+FallingPath = "normal"
+PatternLoops = 3
+JumpDelay = 0
+
+[node name="Choot7" parent="." instance=ExtResource("6")]
+position = Vector2(936, 172)
+FallingPath = "normal"
+PatternLoops = 3
+JumpDelay = 0
+
+[node name="Choot8" parent="." instance=ExtResource("6")]
+position = Vector2(1628, 172)
+FallingPath = "very_wide"
+PatternLoops = 2
+JumpDelay = 0
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(1760, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1024, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1280, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1536, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_indigo.json"
+LowSurface = 181
+HighSurface = 181
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

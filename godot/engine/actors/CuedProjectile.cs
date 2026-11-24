@@ -4,20 +4,21 @@ using Engine.Shared;
 using Engine.World;
 using Godot;
 
-namespace Game.Enemies;
+namespace Engine.Actors;
 
 /// <summary>
-/// Something a Torizo throws, spews or leaves: by itself a burst that plays out where it is, and the base of those
-/// that fly. It moves itself, at its own speed, and meets terrain its own way, so its settings let it through
-/// terrain. Its timelines' cues turn its harm on and off and move it about.
+/// A projectile its timelines drive. By itself it is a burst that plays out where it is; it is also the base of
+/// those that fly their own way. It moves itself, at its own speed, and meets terrain its own way, so its settings
+/// let it through terrain. Its timelines' cues turn its harm on and off and move it about.
 /// </summary>
 /// <remarks>
 /// Its data lists under "timelines" the timelines it changes to, by the names its class uses. The cues it knows are
 /// "harmless", "harmful", "stop", "end", "front", "behind", "origin" (back to where it began, or last came to rest),
-/// "rise" (up four pixels), "scatter:" with the width and height of the spread and how far into it the middle lies
-/// each way, "smoke:" with a timeline it turns to one time in four, and "sound:" with a sound's name.
+/// "shift:" with pixels across and down, "scatter:" with the width and height of the spread and how far into it the
+/// middle lies each way, "sometimes:" with a timeline it turns to one time in four, and "sound:" with a sound's
+/// name.
 /// </remarks>
-public partial class TorizoShot : Projectile, IHasValues
+public partial class CuedProjectile : Projectile, IHasValues
 {
     /// <inheritdoc/>
     [Export(PropertyHint.File)]
@@ -73,7 +74,7 @@ public partial class TorizoShot : Projectile, IHasValues
     {
     }
 
-    /// <summary>Called for a cue that is not one every Torizo shot knows.</summary>
+    /// <summary>Called for a cue that is not one every such projectile knows.</summary>
     protected virtual void OnOwnCue(Room room, string[] cue) =>
         throw new InvalidOperationException($"A {GetType().Name} does not know the cue \"{string.Join(':', cue)}\".");
 
@@ -104,13 +105,13 @@ public partial class TorizoShot : Projectile, IHasValues
             case "origin":
                 Position = Origin;
                 break;
-            case "rise":
-                Position -= PixelOffset.FromWhole(0, 4);
+            case "shift":
+                Position += PixelOffset.FromWhole(Number(parts[1]), Number(parts[2]));
                 break;
             case "scatter":
                 Scatter(room, Number(parts[1]), Number(parts[2]), Number(parts[3]), Number(parts[4]));
                 break;
-            case "smoke":
+            case "sometimes":
                 if (room.Session.Random.Draw().Part(0, 2) == 3)
                     PlayTimeline(parts[1]);
                 break;
@@ -138,9 +139,6 @@ public partial class TorizoShot : Projectile, IHasValues
 
     /// <summary>Whether a speed has run away with it: one so fast is taken out of the room.</summary>
     protected static bool IsRunaway(Pixels speed) => speed >= Pixels.FromWhole(16);
-
-    /// <summary>The height at which something bursts on the floor of the block it is in.</summary>
-    protected int FloorBurstY => Position.Y.Whole / 16 * 16 + 6;
 
     /// <summary>A speed slowed by a drag toward rest, which may carry it past rest.</summary>
     protected static Pixels Dragged(Pixels speed, Pixels drag) => speed.IsNegative ? speed + drag : speed - drag;

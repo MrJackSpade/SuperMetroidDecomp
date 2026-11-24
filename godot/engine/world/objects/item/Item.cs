@@ -22,6 +22,7 @@ public partial class Item : RoomObject
     public Vector2I Size { get; set; } = new(16, 16);
 
     private ItemType? _type;
+    private TimelinePlayer? _timeline;
 
     /// <summary>The item's type.</summary>
     public ItemType Type => _type ?? throw new InvalidOperationException($"The item \"{Name}\" is not in a room.");
@@ -50,20 +51,28 @@ public partial class Item : RoomObject
             return;
         }
 
-        if (_type.Picture.Length > 0 && !GetChildren().OfType<ActorVisual>().Any())
+        if ((_type.Picture.Length > 0 || _type.Timeline.Length > 0) && !GetChildren().OfType<ActorVisual>().Any())
         {
             var visual = new ActorVisual { Picture = _type.Picture, PictureOffset = new Vector2I(-Size.X / 2, -Size.Y / 2) };
             AddChild(visual);
             visual.Bind(Room.Content);
         }
+
+        _timeline = _type.Timeline.Length > 0 ? new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(_type.Timeline))) : null;
     }
 
     /// <inheritdoc/>
     protected override void OnStep()
     {
         bool covered = IsCovered;
+        _timeline?.Step();
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+        {
             visual.SetShown(!covered);
+            if (_timeline is not null)
+                visual.Show(_timeline.Current);
+        }
+
         if (covered || !Area.Overlaps(Room.Player.BodyRect))
             return;
 
@@ -74,8 +83,10 @@ public partial class Item : RoomObject
             inventory.Expand(Type.Expands, Type.ExpandsBy);
         Remember();
         Room.MarkGone(Name);
+        if (Type.Sound.Length > 0)
+            Room.Session.Sounds.Request(Type.Sound, channel: "objects");
         if (Type.Message.Length > 0)
-            Room.Session.RequestMessage(Type.Message);
+            Room.Session.RequestMessage(Type.Message, Type.Fanfare, Type.MessageHoldUpdates);
         Room.Remove(this);
     }
 }

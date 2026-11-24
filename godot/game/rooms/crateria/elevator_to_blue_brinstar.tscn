@@ -1,0 +1,91 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/elevator/elevator.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 2
+About = "morph_ball"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("1")
+Kind = 7
+About = "missiles"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r2")])
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("2")
+When = SubResource("r3")
+LayoutFile = "rooms/crateria/elevator_to_blue_brinstar_in_lower_crateria.json"
+Music = "elevator"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("2")
+LayoutFile = "rooms/crateria/elevator_to_blue_brinstar_in_lower_crateria.json"
+Music = "crateria_arrival"
+
+[node name="ElevatorToBlueBrinstar" type="Node2D"]
+script = ExtResource("3")
+Area = "crateria"
+MapCell = Vector2i(23, 18)
+Versions = Array[ExtResource("2")]([SubResource("r4"), SubResource("r5")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/crateria/elevator_to_blue_brinstar_in_lower_crateria.json"
+
+[node name="ToMorphBall" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(112, 240)
+Size = Vector2i(32, 16)
+LeadsToRoom = "res://game/rooms/brinstar/morph_ball.tscn"
+LeadsToExit = "ToElevatorToBlueBrinstar"
+Style = 1
+ArrivalOffset = Vector2i(16, 54)
+
+[node name="ToPit" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/pit.tscn"
+LeadsToExit = "ToElevatorToBlueBrinstar"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Elevator" parent="." instance=ExtResource("6")]
+position = Vector2(112, 114)
+Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 158)])
+StartsOn = "down"
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(112, 208)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="AtBlueBrinstarElevator" type="Marker2D" parent="."]
+position = Vector2(128, 136)

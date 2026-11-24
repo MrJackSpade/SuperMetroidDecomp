@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -7,7 +8,7 @@ namespace Game.Enemies;
 
 /// <summary>A sonic boom a Torizo throws: it flies level, faster and faster, and breaks on the first wall.</summary>
 /// <remarks>Its timeline is "wall_impact".</remarks>
-public partial class TorizoSonicBoom : TorizoShot
+public partial class TorizoSonicBoom : CuedProjectile
 {
     /// <summary>The speed it gains each update, as a number of pixels.</summary>
     [Export, DataValue("quickening")]

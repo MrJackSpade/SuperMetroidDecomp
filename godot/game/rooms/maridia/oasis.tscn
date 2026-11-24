@@ -13,6 +13,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/maridia/oasis_in_sandy_maridia.json"
+Screens = PackedInt32Array(0, 2)
+ScrollLayout = "Oasis"
 KeepsMusic = true
 
 [node name="Oasis" type="Node2D"]
@@ -20,6 +22,9 @@ script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(22, 16)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -69,25 +74,18 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("6")
 position = Vector2(0, 0)
-StartsOpen = false
+OpensTo = 1
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
+[node name="Screen0x1" type="Node2D" parent="."]
 script = ExtResource("6")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x1Foot" type="Node2D" parent="."]
-script = ExtResource("6")
-position = Vector2(0, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
+position = Vector2(0, 256)
+OpensTo = 2
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("7")
 position = Vector2(48, 320)
 Size = Vector2i(160, 16)
-What = "open"
+What = "open_fully"
 Once = false
 Target = NodePath("../Screen0x0")
 
@@ -95,17 +93,9 @@ Target = NodePath("../Screen0x0")
 script = ExtResource("7")
 position = Vector2(48, 320)
 Size = Vector2i(160, 16)
-What = "open"
+What = "open_fully"
 Once = false
-Target = NodePath("../Screen0x0Foot")
-
-[node name="Scroll3" type="Node2D" parent="."]
-script = ExtResource("7")
-position = Vector2(48, 320)
-Size = Vector2i(160, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen0x1Foot")
+Target = NodePath("../Screen0x1")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("8")

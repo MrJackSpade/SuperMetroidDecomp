@@ -17,6 +17,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/maridia/pseudo_plasma_spark_in_sandless_maridia.json"
+Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0)
+ScrollLayout = "PseudoPlasmaSpark"
 KeepsMusic = true
 
 [node name="PseudoPlasmaSpark" type="Node2D"]
@@ -24,6 +26,9 @@ script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(18, 5)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -131,56 +136,28 @@ DataFile = "objects/door_cap_blue_up.json"
 [node name="Screen2x2" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(512, 512)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Screen3x2" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(768, 512)
-StartsOpen = false
-
-[node name="Screen2x2Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(512, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x2Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(768, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(496, 608)
 Size = Vector2i(16, 64)
-What = "open"
+What = "open_fully"
 Once = false
 Target = NodePath("../Screen2x2")
 
 [node name="Scroll2" type="Node2D" parent="."]
 script = ExtResource("11")
-position = Vector2(496, 608)
-Size = Vector2i(16, 64)
-What = "open"
-Once = false
-Target = NodePath("../Screen2x2Foot")
-
-[node name="Scroll3" type="Node2D" parent="."]
-script = ExtResource("11")
 position = Vector2(464, 608)
 Size = Vector2i(16, 64)
 What = "close"
 Once = false
 Target = NodePath("../Screen2x2")
-
-[node name="Scroll4" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(464, 608)
-Size = Vector2i(16, 64)
-What = "close"
-Once = false
-Target = NodePath("../Screen2x2Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("12")

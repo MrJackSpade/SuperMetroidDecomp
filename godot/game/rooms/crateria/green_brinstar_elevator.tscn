@@ -13,6 +13,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/crateria/green_brinstar_elevator_in_lower_crateria.json"
+Screens = PackedInt32Array(2)
+ScrollLayout = "GreenBrinstarElevator"
 Music = "elevator"
 
 [node name="GreenBrinstarElevator" type="Node2D"]
@@ -20,6 +22,9 @@ script = ExtResource("2")
 Area = "crateria"
 MapCell = Vector2i(6, 9)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -52,19 +57,30 @@ StartsOn = "down"
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
+[node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("7")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+position = Vector2(0, 0)
+OpensTo = 2
+
+[node name="Screen0x2" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 512)
+OpensTo = 1
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(112, 208)
 Size = Vector2i(16, 16)
-What = "open"
+What = "open_fully"
 Once = false
-Target = NodePath("../Screen0x0Foot")
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+AtEntry = "ToGreenBrinstarMainShaft"
+What = "open_fully"
+Target = NodePath("../Screen0x2")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")

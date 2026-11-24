@@ -430,6 +430,10 @@ public partial class Samus : Player
     /// </summary>
     public override PixelPosition MuzzlePoint => Origin(_muzzles);
 
+    /// <summary>The view also leads the other way while she moonwalks, and through a damage boost, which the knockback still carries.</summary>
+    public override Facing ViewFacing =>
+        State is MoonwalkingState or DamageBoostState ? Facing.Opposite() : base.ViewFacing;
+
     /// <summary>Where her grapple beam starts: as a shot does, at the places her data gives the line.</summary>
     public PixelPosition GrapplePoint => Origin(_grappleOrigins);
 

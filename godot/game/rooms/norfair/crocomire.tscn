@@ -23,12 +23,16 @@ About = "crocomire_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/norfair/crocomire_in_crocomire.json"
+Screens = PackedInt32Array(0, 0, 2, 2, 2, 2, 2, 2)
+ScrollLayout = "Crocomire"
 KeepsMusic = true
 Patches = PackedStringArray("bridge_collapsed", "spike_wall_open")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/norfair/crocomire_in_crocomire.json"
+Screens = PackedInt32Array(0, 0, 2, 2, 2, 2, 2, 2)
+ScrollLayout = "Crocomire"
 Music = "kraid_and_phantoon_battle"
 
 [sub_resource type="Resource" id="r4"]
@@ -46,6 +50,9 @@ script = ExtResource("3")
 Area = "norfair"
 MapCell = Vector2i(12, 11)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
@@ -111,88 +118,26 @@ DataFile = "objects/door_cap_blue_right.json"
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(256, 0)
-StartsOpen = false
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(768, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen4x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(1024, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen5x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(1280, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen6x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(1536, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen7x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(1792, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToPostCrocomireFarming"
-What = "open"
+What = "open_to_top"
 Target = NodePath("../Screen0x0")
 
 [node name="Arriving2" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
 AtEntry = "ToPostCrocomireFarming"
-What = "close"
-Target = NodePath("../Screen0x0Foot")
-
-[node name="Arriving3" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(0, 0)
-AtEntry = "ToPostCrocomireFarming"
-What = "open"
+What = "open_to_top"
 Target = NodePath("../Screen1x0")
-
-[node name="Arriving4" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(0, 0)
-AtEntry = "ToPostCrocomireFarming"
-What = "close"
-Target = NodePath("../Screen1x0Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("12")

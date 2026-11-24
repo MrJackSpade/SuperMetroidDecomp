@@ -21,11 +21,15 @@ About = "baby_metroid_music_skipped"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/tourian/big_boy_in_tourian.json"
+Screens = PackedInt32Array(2, 2, 2, 2)
+ScrollLayout = "BigBoy"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/tourian/big_boy_in_tourian.json"
+Screens = PackedInt32Array(2, 2, 2, 2)
+ScrollLayout = "BigBoy"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r4"]
@@ -38,6 +42,9 @@ script = ExtResource("3")
 Area = "tourian"
 MapCell = Vector2i(13, 16)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -114,39 +121,15 @@ position = Vector2(992, 96)
 DataFile = "objects/door_cap_grey_left.json"
 HeldShutBy = SubResource("r4")
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(768, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
 [node name="BabyMetroidScreen1x0" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(256, 0)
-StartsOpen = true
+OpensTo = 2
 
 [node name="BabyMetroidScreen3x0" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(768, 0)
-StartsOpen = true
+OpensTo = 2
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")

@@ -23,11 +23,15 @@ About = "phantoon_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/wrecked_ship/attic_when_area_boss_dead_in_wrecked_ship_power_on.json"
+Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1)
+ScrollLayout = "Attic"
 Music = "wrecked_ship_powered_up"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/wrecked_ship/attic_default_in_wrecked_ship_power_off.json"
+Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1)
+ScrollLayout = "Attic"
 Music = "wrecked_ship_powered_down"
 
 [sub_resource type="Resource" id="r4"]
@@ -50,6 +54,9 @@ script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(12, 11)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 0
+ViewAboveOtherwise = 0
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")

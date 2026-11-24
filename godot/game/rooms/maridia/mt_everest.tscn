@@ -14,6 +14,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/maridia/mt_everest_in_sandless_maridia.json"
+Screens = PackedInt32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0)
+ScrollLayout = "MtEverest"
 KeepsMusic = true
 
 [node name="MtEverest" type="Node2D"]
@@ -21,6 +23,9 @@ script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(12, 10)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 144
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -169,46 +174,22 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="Screen0x2" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 512)
-StartsOpen = false
-
-[node name="Screen0x3" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 768)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Screen5x2" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(1280, 512)
-StartsOpen = false
+OpensTo = 1
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 768)
+OpensTo = 1
 
 [node name="Screen5x3" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(1280, 768)
-StartsOpen = false
-
-[node name="Screen0x2Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x3Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 992)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen5x2Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(1280, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen5x3Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(1280, 992)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")

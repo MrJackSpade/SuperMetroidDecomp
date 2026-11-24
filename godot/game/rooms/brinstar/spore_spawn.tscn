@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/bosses/spore_spawn/spore_spawn.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/ViewFloor.cs" id="8"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
 [ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="11"]
@@ -21,12 +21,14 @@ About = "spore_spawn_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
+Screens = PackedInt32Array(1, 1, 1)
 Music = "elevator"
 Patches = PackedStringArray("ceiling_open")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/brinstar/spore_spawn_in_green_blue_brinstar.json"
+Screens = PackedInt32Array(1, 1, 1)
 Music = "mini_boss_battle"
 
 [sub_resource type="Resource" id="r4"]
@@ -44,6 +46,9 @@ script = ExtResource("3")
 Area = "brinstar"
 MapCell = Vector2i(22, 2)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -87,9 +92,7 @@ PresentWhen = SubResource("r1")
 
 [node name="AboveSporeSpawn" type="Node2D" parent="."]
 script = ExtResource("8")
-position = Vector2(0, 0)
-Size = Vector2i(256, 464)
-StartsOpen = false
+position = Vector2(0, 464)
 PresentWhen = SubResource("r4")
 
 [node name="BlueCap" parent="." instance=ExtResource("9")]

@@ -46,7 +46,7 @@ public partial class SporeSpawn : Enemy
     [Export]
     public bool Husk { get; set; }
 
-    /// <summary>The camera zone above its chamber, kept shut until it dies; empty for none.</summary>
+    /// <summary>The floor the view's top is kept at or below until it dies, so that the view does not rise above its chamber; empty for none.</summary>
     [Export]
     public NodePath ArenaView { get; set; } = new();
 
@@ -277,7 +277,7 @@ public partial class SporeSpawn : Enemy
         // The fight is won from this moment, though what is left of it stays where it is.
         Room.MarkGone(Name);
         if (!ArenaView.IsEmpty)
-            GetNode<CameraZone>(ArenaView).Triggered("open");
+            GetNode<ViewFloor>(ArenaView).Triggered("release");
         if (_ceilingCrumble is { } crumble)
             Room.Play(crumble.FromStart());
         return false;

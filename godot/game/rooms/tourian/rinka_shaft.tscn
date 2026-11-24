@@ -11,6 +11,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/tourian/rinka_shaft_in_tourian.json"
+Screens = PackedInt32Array(1, 1, 1)
+ScrollLayout = "RinkaShaft"
 Music = "tourian"
 
 [node name="RinkaShaft" type="Node2D"]
@@ -18,6 +20,9 @@ script = ExtResource("2")
 Area = "tourian"
 MapCell = Vector2i(17, 17)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")

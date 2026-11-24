@@ -17,6 +17,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/alpha_power_bomb_in_red_brinstar_kraid.json"
+Screens = PackedInt32Array(0, 2, 2)
+ScrollLayout = "AlphaPowerBomb"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r2"]
@@ -39,6 +41,9 @@ script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(34, 12)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -98,41 +103,15 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-StartsOpen = false
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(240, 64)
 Size = Vector2i(16, 144)
-What = "open"
+What = "open_to_top"
 Once = false
 Target = NodePath("../Screen0x0")
-
-[node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(240, 64)
-Size = Vector2i(16, 144)
-What = "close"
-Once = false
-Target = NodePath("../Screen0x0Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")

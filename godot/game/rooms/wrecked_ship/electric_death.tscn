@@ -21,11 +21,15 @@ About = "phantoon_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/wrecked_ship/electric_death_in_wrecked_ship_power_on.json"
+Screens = PackedInt32Array(0, 1, 1)
+ScrollLayout = "ElectricDeath"
 Music = "wrecked_ship_powered_up"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/wrecked_ship/electric_death_in_wrecked_ship_power_off.json"
+Screens = PackedInt32Array(0, 1, 1)
+ScrollLayout = "ElectricDeath"
 Music = "wrecked_ship_powered_down"
 
 [sub_resource type="Resource" id="r4"]
@@ -38,6 +42,9 @@ script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(21, 14)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -86,43 +93,22 @@ PresentWhen = SubResource("r4")
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("7")
 position = Vector2(0, 0)
-StartsOpen = false
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("7")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(112, 256)
 Size = Vector2i(32, 16)
-What = "open"
+What = "open_fully"
 Once = false
 Target = NodePath("../Screen0x0")
-
-[node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(112, 256)
-Size = Vector2i(32, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen0x0Foot")
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
 AtEntry = "ToWreckedShipEnergyTank"
-What = "open"
+What = "open_fully"
 Target = NodePath("../Screen0x0")
-
-[node name="Arriving2" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 0)
-AtEntry = "ToWreckedShipEnergyTank"
-What = "open"
-Target = NodePath("../Screen0x0Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")

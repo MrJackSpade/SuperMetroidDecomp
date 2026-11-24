@@ -1,15 +1,15 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="5"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="6"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="5"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/crateria/crateria_tube_in_upper_crateria.json"
+Screens = PackedInt32Array(2)
 KeepsMusic = true
 
 [node name="CrateriaTube" type="Node2D"]
@@ -17,6 +17,9 @@ script = ExtResource("2")
 Area = "crateria"
 MapCell = Vector2i(32, 5)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -40,14 +43,8 @@ LeadsToExit = "ToCrateriaTube"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("5")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("6")
+script = ExtResource("5")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_crateria_tube.png"
 ScrollShare = Vector2(1, 1)

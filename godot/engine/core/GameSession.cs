@@ -38,9 +38,13 @@ public sealed class GameSession
         Options = options;
         Random = new GameRandom(definition.CreateRandomSequence());
         Services = definition.CreateServices();
-        Camera = new Camera(
-            ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(),
-            ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32());
+        ScrollCells = definition.CreateScrollCells();
+        int viewHeight = ProjectSettings.GetSetting("display/window/size/viewport_height").AsInt32();
+        Camera = new Camera(ProjectSettings.GetSetting("display/window/size/viewport_width").AsInt32(), viewHeight)
+        {
+            LowerRest = Camera.Screen - viewHeight - definition.ViewRestsShortBy,
+            ClosedScreenDrift = definition.ClosedScreenDrift,
+        };
         Mode = definition.CreateFirstMode();
         Show(Mode);
     }
@@ -119,6 +123,9 @@ public sealed class GameSession
 
     /// <summary>The view onto the room being played.</summary>
     public Camera Camera { get; }
+
+    /// <summary>How each screen of the room being played lets the view in.</summary>
+    public IScrollCells ScrollCells { get; }
 
     /// <summary>What gameplay has asked to hear.</summary>
     public SoundRequests Sounds { get; } = new();

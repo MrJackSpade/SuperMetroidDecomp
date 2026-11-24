@@ -17,6 +17,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/kronic_boost_in_heated_norfair.json"
+Screens = PackedInt32Array(0, 1, 0, 1, 0, 2)
+ScrollLayout = "KronicBoost"
 KeepsMusic = true
 
 [node name="KronicBoost" type="Node2D"]
@@ -24,6 +26,9 @@ script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(25, 9)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
@@ -129,122 +134,60 @@ DataFile = "objects/door_cap_blue_right.json"
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Screen0x1" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 256)
-StartsOpen = false
-
-[node name="Screen0x2" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 512)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Screen1x1" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(256, 256)
-StartsOpen = true
+OpensTo = 1
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
+[node name="Screen0x2" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x2Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 480)
-Size = Vector2i(256, 32)
-StartsOpen = true
-
-[node name="Screen1x2Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
+position = Vector2(0, 512)
+OpensTo = 1
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(240, 368)
 Size = Vector2i(16, 16)
-What = "open"
+What = "open_to_top"
 Once = false
 Target = NodePath("../Screen0x1")
 
 [node name="Scroll2" type="Node2D" parent="."]
 script = ExtResource("10")
-position = Vector2(240, 368)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen0x1Foot")
-
-[node name="Scroll3" type="Node2D" parent="."]
-script = ExtResource("10")
 position = Vector2(272, 368)
 Size = Vector2i(16, 16)
 What = "close"
 Once = false
 Target = NodePath("../Screen0x1")
 
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(272, 368)
+Size = Vector2i(16, 16)
+What = "open_fully"
+Once = false
+Target = NodePath("../Screen1x1")
+
 [node name="Scroll4" type="Node2D" parent="."]
 script = ExtResource("10")
-position = Vector2(272, 368)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen0x1Foot")
-
-[node name="Scroll5" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(272, 368)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen1x1")
-
-[node name="Scroll6" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(272, 368)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen1x1Foot")
-
-[node name="Scroll7" type="Node2D" parent="."]
-script = ExtResource("10")
 position = Vector2(128, 336)
 Size = Vector2i(16, 64)
 What = "close"
 Once = false
 Target = NodePath("../Screen1x1")
-
-[node name="Scroll8" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(128, 336)
-Size = Vector2i(16, 64)
-What = "close"
-Once = false
-Target = NodePath("../Screen1x1Foot")
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToSpikyAcidSnakesTunnel"
-What = "open"
+What = "open_to_top"
 Target = NodePath("../Screen0x1")
 
 [node name="Arriving2" type="Node2D" parent="."]
@@ -252,21 +195,7 @@ script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToSpikyAcidSnakesTunnel"
 What = "close"
-Target = NodePath("../Screen0x1Foot")
-
-[node name="Arriving3" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-AtEntry = "ToSpikyAcidSnakesTunnel"
-What = "close"
 Target = NodePath("../Screen1x1")
-
-[node name="Arriving4" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-AtEntry = "ToSpikyAcidSnakesTunnel"
-What = "close"
-Target = NodePath("../Screen1x1Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("11")

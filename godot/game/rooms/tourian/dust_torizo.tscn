@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -8,8 +8,7 @@
 [ext_resource type="PackedScene" path="res://game/enemies/corpse/dead_torizo.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
 [ext_resource type="Script" path="res://game/rooms/RoomWatch.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -20,11 +19,15 @@ About = "baby_metroid_music_skipped"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/tourian/dust_torizo_in_tourian.json"
+Screens = PackedInt32Array(2, 2)
+ScrollLayout = "DustTorizo"
 Music = "tourian"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/tourian/dust_torizo_in_tourian.json"
+Screens = PackedInt32Array(2, 2)
+ScrollLayout = "DustTorizo"
 Music = "baby_metroid_theme"
 
 [sub_resource type="Resource" id="r4"]
@@ -47,6 +50,9 @@ script = ExtResource("3")
 Area = "tourian"
 MapCell = Vector2i(17, 16)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -92,20 +98,8 @@ StartsWhen = SubResource("r6")
 Until = SubResource("r5")
 Records = PackedStringArray("zebes_awake")
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/tourian_vertical_structures.png"
 ScrollShare = Vector2(0.75, 0.75)

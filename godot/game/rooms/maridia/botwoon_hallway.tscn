@@ -13,6 +13,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/maridia/botwoon_hallway_in_sandy_maridia.json"
+Screens = PackedInt32Array(1, 1, 1, 1)
+ScrollLayout = "BotwoonHallway"
 Music = "east_maridia"
 
 [node name="BotwoonHallway" type="Node2D"]
@@ -20,6 +22,9 @@ script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(20, 9)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")

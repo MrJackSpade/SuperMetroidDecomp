@@ -27,6 +27,8 @@ About = "escape_started"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/crateria/parlor_in_upper_crateria.json"
+Screens = PackedInt32Array(0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+ScrollLayout = "Parlor"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
@@ -38,11 +40,15 @@ About = "zebes_awake"
 script = ExtResource("2")
 When = SubResource("r3")
 LayoutFile = "rooms/crateria/parlor_in_upper_crateria.json"
+Screens = PackedInt32Array(0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+ScrollLayout = "Parlor"
 Music = "lower_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
 LayoutFile = "rooms/crateria/parlor_in_upper_crateria.json"
+Screens = PackedInt32Array(0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+ScrollLayout = "Parlor"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r6"]
@@ -92,6 +98,9 @@ script = ExtResource("3")
 Area = "crateria"
 MapCell = Vector2i(18, 5)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubResource("r5")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -358,610 +367,250 @@ PresentWhen = SubResource("r12")
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-StartsOpen = false
-
-[node name="Screen0x1" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 256)
-StartsOpen = false
-
-[node name="Screen0x2" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 512)
-StartsOpen = false
-
-[node name="Screen0x3" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 768)
-StartsOpen = false
-
-[node name="Screen0x4" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 1024)
-StartsOpen = false
-
-[node name="Screen1x1" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(256, 256)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Screen2x0" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(512, 0)
-StartsOpen = true
-
-[node name="Screen2x1" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 256)
-StartsOpen = false
-
-[node name="Screen2x2" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 512)
-StartsOpen = false
-
-[node name="Screen2x3" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 768)
-StartsOpen = false
-
-[node name="Screen2x4" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 1024)
-StartsOpen = false
-
-[node name="Screen3x1" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 256)
-StartsOpen = false
-
-[node name="Screen3x3" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 768)
-StartsOpen = false
-
-[node name="Screen3x4" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 1024)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Screen4x0" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(1024, 0)
-StartsOpen = true
+OpensTo = 2
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 256)
+OpensTo = 1
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 256)
+OpensTo = 1
+
+[node name="Screen2x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 256)
+OpensTo = 1
+
+[node name="Screen3x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 256)
+OpensTo = 1
 
 [node name="Screen4x1" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(1024, 256)
-StartsOpen = false
+OpensTo = 1
+
+[node name="Screen0x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 512)
+OpensTo = 1
+
+[node name="Screen2x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 512)
+OpensTo = 1
 
 [node name="Screen4x2" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(1024, 512)
-StartsOpen = false
+OpensTo = 1
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 768)
+OpensTo = 1
+
+[node name="Screen2x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 768)
+OpensTo = 1
+
+[node name="Screen3x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 768)
+OpensTo = 1
 
 [node name="Screen4x3" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(1024, 768)
-StartsOpen = false
+OpensTo = 1
+
+[node name="Screen0x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1024)
+OpensTo = 1
+
+[node name="Screen2x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1024)
+OpensTo = 1
+
+[node name="Screen3x4" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 1024)
+OpensTo = 1
 
 [node name="Screen4x4" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(1024, 1024)
-StartsOpen = false
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x1Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x2Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x3Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 992)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x4Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 1248)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x1Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(256, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x1Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x2Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x3Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 992)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x4Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 1248)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x1Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x2Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x3Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 992)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x4Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 1248)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen4x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(1024, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen4x1Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(1024, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen4x2Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(1024, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen4x3Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(1024, 992)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen4x4Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(1024, 1248)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(1008, 176)
 Size = Vector2i(16, 16)
-What = "open"
+What = "open_fully"
 Once = false
 Target = NodePath("../Screen3x1")
 
 [node name="Scroll2" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(1008, 176)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen3x1Foot")
-
-[node name="Scroll3" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(1008, 176)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen3x0Foot")
-
-[node name="Scroll4" type="Node2D" parent="."]
-script = ExtResource("9")
 position = Vector2(1072, 176)
 Size = Vector2i(16, 16)
 What = "close"
 Once = false
 Target = NodePath("../Screen3x1")
 
-[node name="Scroll5" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(1072, 176)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen3x1Foot")
-
-[node name="Scroll6" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(1072, 176)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen3x0Foot")
-
-[node name="Scroll7" type="Node2D" parent="."]
+[node name="Scroll3" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(352, 208)
 Size = Vector2i(64, 16)
 What = "close"
+Once = false
+Target = NodePath("../Screen0x0")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(352, 208)
+Size = Vector2i(64, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen2x0")
+
+[node name="Scroll5" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(352, 208)
+Size = Vector2i(64, 16)
+What = "open_fully"
+Once = false
+Target = NodePath("../Screen1x1")
+
+[node name="Scroll6" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(352, 176)
+Size = Vector2i(64, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x1")
+
+[node name="Scroll7" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(224, 112)
+Size = Vector2i(16, 48)
+What = "open_to_top"
 Once = false
 Target = NodePath("../Screen0x0")
 
 [node name="Scroll8" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(352, 208)
-Size = Vector2i(64, 16)
-What = "close"
+position = Vector2(448, 80)
+Size = Vector2i(16, 96)
+What = "open_to_top"
 Once = false
-Target = NodePath("../Screen0x0Foot")
+Target = NodePath("../Screen2x0")
 
 [node name="Scroll9" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(352, 208)
-Size = Vector2i(64, 16)
-What = "close"
+position = Vector2(800, 176)
+Size = Vector2i(16, 16)
+What = "open_to_top"
 Once = false
-Target = NodePath("../Screen2x0")
+Target = NodePath("../Screen4x0")
 
 [node name="Scroll10" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(352, 208)
-Size = Vector2i(64, 16)
-What = "close"
+position = Vector2(960, 176)
+Size = Vector2i(16, 16)
+What = "open_to_top"
 Once = false
-Target = NodePath("../Screen2x0Foot")
+Target = NodePath("../Screen4x0")
 
 [node name="Scroll11" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(352, 208)
-Size = Vector2i(64, 16)
-What = "open"
+position = Vector2(928, 272)
+Size = Vector2i(80, 16)
+What = "close"
 Once = false
-Target = NodePath("../Screen1x1")
+Target = NodePath("../Screen4x0")
 
 [node name="Scroll12" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(352, 208)
-Size = Vector2i(64, 16)
-What = "open"
+position = Vector2(832, 224)
+Size = Vector2i(16, 16)
+What = "close"
 Once = false
-Target = NodePath("../Screen1x1Foot")
+Target = NodePath("../Screen4x0")
 
 [node name="Scroll13" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(352, 208)
-Size = Vector2i(64, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen1x0Foot")
-
-[node name="Scroll14" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(352, 176)
-Size = Vector2i(64, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen1x1")
-
-[node name="Scroll15" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(352, 176)
-Size = Vector2i(64, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen1x1Foot")
-
-[node name="Scroll16" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(352, 176)
-Size = Vector2i(64, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen1x0Foot")
-
-[node name="Scroll17" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(224, 112)
-Size = Vector2i(16, 48)
-What = "open"
-Once = false
-Target = NodePath("../Screen0x0")
-
-[node name="Scroll18" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(224, 112)
-Size = Vector2i(16, 48)
-What = "close"
-Once = false
-Target = NodePath("../Screen0x0Foot")
-
-[node name="Scroll19" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(448, 80)
-Size = Vector2i(16, 96)
-What = "open"
-Once = false
-Target = NodePath("../Screen2x0")
-
-[node name="Scroll20" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(448, 80)
-Size = Vector2i(16, 96)
-What = "close"
-Once = false
-Target = NodePath("../Screen2x0Foot")
-
-[node name="Scroll21" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(800, 176)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen4x0")
-
-[node name="Scroll22" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(800, 176)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen4x0Foot")
-
-[node name="Scroll23" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(960, 176)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen4x0")
-
-[node name="Scroll24" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(960, 176)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen4x0Foot")
-
-[node name="Scroll25" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(928, 272)
-Size = Vector2i(80, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen4x0")
-
-[node name="Scroll26" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(928, 272)
-Size = Vector2i(80, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen4x0Foot")
-
-[node name="Scroll27" type="Node2D" parent="."]
-script = ExtResource("9")
 position = Vector2(832, 224)
 Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen4x0")
-
-[node name="Scroll28" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(832, 224)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen4x0Foot")
-
-[node name="Scroll29" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(832, 224)
-Size = Vector2i(16, 16)
-What = "open"
+What = "open_fully"
 Once = false
 Target = NodePath("../Screen3x1")
-
-[node name="Scroll30" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(832, 224)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen3x1Foot")
-
-[node name="Scroll31" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(832, 224)
-Size = Vector2i(16, 16)
-What = "open"
-Once = false
-Target = NodePath("../Screen3x0Foot")
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToCrateriaSave"
-What = "open"
+What = "open_fully"
 Target = NodePath("../Screen1x1")
 
 [node name="Arriving2" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-AtEntry = "ToCrateriaSave"
-What = "open"
-Target = NodePath("../Screen1x1Foot")
-
-[node name="Arriving3" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToCrateriaSave"
-What = "open"
-Target = NodePath("../Screen1x0Foot")
-
-[node name="Arriving4" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
 AtEntry = "ToClimb"
-What = "open"
+What = "open_fully"
 Target = NodePath("../Screen1x1")
 
-[node name="Arriving5" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToClimb"
-What = "open"
-Target = NodePath("../Screen1x1Foot")
-
-[node name="Arriving6" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToClimb"
-What = "open"
-Target = NodePath("../Screen1x0Foot")
-
-[node name="Arriving7" type="Node2D" parent="."]
+[node name="Arriving3" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToFlyway"
 What = "close"
 Target = NodePath("../Screen4x0")
 
-[node name="Arriving8" type="Node2D" parent="."]
+[node name="Arriving4" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToFlyway"
-What = "close"
-Target = NodePath("../Screen4x0Foot")
-
-[node name="Arriving9" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToFlyway"
-What = "open"
+What = "open_fully"
 Target = NodePath("../Screen3x1")
 
-[node name="Arriving10" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToFlyway"
-What = "open"
-Target = NodePath("../Screen3x1Foot")
-
-[node name="Arriving11" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToFlyway"
-What = "open"
-Target = NodePath("../Screen3x0Foot")
-
-[node name="Arriving12" type="Node2D" parent="."]
+[node name="Arriving5" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToPreMapFlyway"
-What = "open"
+What = "open_fully"
 Target = NodePath("../Screen1x1")
 
-[node name="Arriving13" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToPreMapFlyway"
-What = "open"
-Target = NodePath("../Screen1x1Foot")
-
-[node name="Arriving14" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToPreMapFlyway"
-What = "open"
-Target = NodePath("../Screen1x0Foot")
-
-[node name="Arriving15" type="Node2D" parent="."]
+[node name="Arriving6" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToTerminator"
-What = "open"
+What = "open_to_top"
 Target = NodePath("../Screen0x0")
 
-[node name="Arriving16" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToTerminator"
-What = "close"
-Target = NodePath("../Screen0x0Foot")
-
-[node name="Arriving17" type="Node2D" parent="."]
+[node name="Arriving7" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
 AtEntry = "ToFinalMissileBombway"
-What = "open"
+What = "open_fully"
 Target = NodePath("../Screen1x1")
-
-[node name="Arriving18" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToFinalMissileBombway"
-What = "open"
-Target = NodePath("../Screen1x1Foot")
-
-[node name="Arriving19" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 0)
-AtEntry = "ToFinalMissileBombway"
-What = "open"
-Target = NodePath("../Screen1x0Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("10")

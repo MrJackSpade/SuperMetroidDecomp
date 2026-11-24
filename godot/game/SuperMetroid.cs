@@ -36,6 +36,9 @@ public partial class SuperMetroid : GameDefinition
     /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
     public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();
 
+    /// <summary>The room's scroll cells are the cartridge's fifty, which outlive each room.</summary>
+    public override Engine.World.IScrollCells CreateScrollCells() => new Compatibility.KeptScrollCells();
+
     /// <summary>Samus's speed is read against its limits as the cartridge reads it.</summary>
     public override Engine.Actors.ISpeedReadings CreateSpeedReadings() => new Compatibility.CartridgeSpeedReadings();
 }

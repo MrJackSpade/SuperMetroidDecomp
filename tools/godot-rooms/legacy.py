@@ -186,7 +186,11 @@ def rooms() -> dict[str, Room]:
             inner = inner[inner.index('new('):]
         arguments = call_arguments(inner)
         cell, size = numbers(arguments[2]), numbers(arguments[3])
-        result[name] = Room(arguments[0].strip('"'), last_name(arguments[1]), (cell[0], cell[1]), (size[0], size[1]), initializer_of(inner))
+        properties = initializer_of(inner)
+        if 'WithShallowerFall(' in expression:
+            # The helper gives the room this camera lead.
+            properties.setdefault('CameraLead', 'RoomCameraLeads.ShallowerFall')
+        result[name] = Room(arguments[0].strip('"'), last_name(arguments[1]), (cell[0], cell[1]), (size[0], size[1]), properties)
     return result
 
 

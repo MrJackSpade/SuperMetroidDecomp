@@ -11,6 +11,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/post_crocomire_shaft_in_unheated_norfair.json"
+Screens = PackedInt32Array(1, 1, 1, 1, 1)
+ScrollLayout = "PostCrocomireShaft"
 KeepsMusic = true
 
 [node name="PostCrocomireShaft" type="Node2D"]
@@ -18,6 +20,9 @@ script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(10, 13)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 144
 StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]

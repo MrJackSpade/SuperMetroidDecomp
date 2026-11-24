@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,9 +7,8 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/fly/fly.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
-[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -20,6 +19,7 @@ About = "escape_started"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
+Screens = PackedInt32Array(2, 2, 2)
 Music = "escape"
 
 [sub_resource type="Resource" id="r3"]
@@ -31,11 +31,13 @@ About = "bomb_torizo_defeated"
 script = ExtResource("2")
 When = SubResource("r3")
 LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
+Screens = PackedInt32Array(2, 2, 2)
 Music = "lower_crateria"
 
 [sub_resource type="Resource" id="r5"]
 script = ExtResource("2")
 LayoutFile = "rooms/crateria/flyway_in_lower_crateria.json"
+Screens = PackedInt32Array(2, 2, 2)
 Music = "lower_crateria"
 
 [sub_resource type="Resource" id="r6"]
@@ -68,6 +70,9 @@ script = ExtResource("3")
 Area = "crateria"
 MapCell = Vector2i(22, 7)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubResource("r5")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -162,26 +167,8 @@ RememberedAs = "flyway_red_door_facing_left"
 Remembered = 1
 PresentWhen = SubResource("r10")
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("8")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/crateria_brick_room_wall_art_dark.png"
 ScrollShare = Vector2(0.75, 0.75)
@@ -192,7 +179,7 @@ DataFile = "objects/door_cap_blue_left.json"
 PresentWhen = SubResource("r1")
 
 [node name="Escape" type="Node" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 StartsWhen = SubResource("r6")
 Outdoors = true
 TurnsHarder = false

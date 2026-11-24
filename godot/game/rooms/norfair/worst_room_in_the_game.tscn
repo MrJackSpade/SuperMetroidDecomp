@@ -16,6 +16,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/worst_room_in_the_game_in_heated_norfair.json"
+Screens = PackedInt32Array(0, 1, 1, 1, 1, 2)
+ScrollLayout = "WorstRoomInTheGame"
 KeepsMusic = true
 
 [node name="WorstRoomInTheGame" type="Node2D"]
@@ -23,6 +25,9 @@ script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(30, 10)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
@@ -159,25 +164,18 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-StartsOpen = false
+OpensTo = 1
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
+[node name="Screen0x1" type="Node2D" parent="."]
 script = ExtResource("9")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen0x5Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 1504)
-Size = Vector2i(256, 32)
-StartsOpen = false
+position = Vector2(0, 256)
+OpensTo = 1
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(48, 256)
 Size = Vector2i(160, 16)
-What = "open"
+What = "open_fully"
 Once = false
 Target = NodePath("../Screen0x0")
 
@@ -185,23 +183,16 @@ Target = NodePath("../Screen0x0")
 script = ExtResource("10")
 position = Vector2(48, 256)
 Size = Vector2i(160, 16)
-What = "open"
+What = "open_fully"
 Once = false
-Target = NodePath("../Screen0x0Foot")
+Target = NodePath("../Screen0x1")
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToMickeyMouse"
-What = "open"
+What = "open_fully"
 Target = NodePath("../Screen0x0")
-
-[node name="Arriving2" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-AtEntry = "ToMickeyMouse"
-What = "open"
-Target = NodePath("../Screen0x0Foot")
 
 [node name="Heat" type="Node2D" parent="."]
 script = ExtResource("11")

@@ -40,7 +40,7 @@ public sealed class RoomChecks
     public void ATriggerTellsItsTargetOnceWhenThePlayerEnters()
     {
         using var world = new StandInWorld(OpenRoom).StartAt(40, 80);
-        var zone = world.Place(new CameraZone { Name = "Zone", Size = new Vector2I(64, 64) }, 300, 0);
+        var zone = world.Place(new CameraZone { Name = "Zone" }, 300, 0);
         world.Place(new Trigger { Name = "Trigger", Size = new Vector2I(16, 80), Target = new NodePath("../Zone"), What = "open" }, 100, 0);
         world.Setup();
         Expect.False(zone.IsOpen);
@@ -247,7 +247,7 @@ public sealed class RoomChecks
     {
         string wide = new('.', 64);
         using var world = new StandInWorld(wide, wide, wide, wide, wide, new string('#', 64)).StartAt(40, 80);
-        var zone = world.Place(new CameraZone { Name = "Secret", Size = new Vector2I(512, 96) }, 512, 0);
+        var zone = world.Place(new CameraZone { Name = "Secret" }, 512, 0);
         world.Setup();
         Expect.Equal(0, world.Session.Camera.Left);
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -7,13 +7,14 @@
 [ext_resource type="PackedScene" path="res://game/enemies/zoa/zoa.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://game/enemies/owtch/owtch.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/maridia/below_botwoon_energy_tank_in_sandy_maridia.json"
+Screens = PackedInt32Array(2, 2, 2, 2)
+ScrollLayout = "BelowBotwoonEnergyTank"
 KeepsMusic = true
 
 [node name="BelowBotwoonEnergyTank" type="Node2D"]
@@ -21,6 +22,9 @@ script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(26, 11)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -66,32 +70,8 @@ TravelDistance = 64
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(768, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
 [node name="Liquid" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("8")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_purple.json"
 Drifts = true
@@ -99,7 +79,7 @@ LowSurface = 72
 HighSurface = 72
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/level_below_botwoon_energy_tank.png"
 ScrollShare = Vector2(1, 1)

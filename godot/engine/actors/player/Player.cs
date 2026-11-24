@@ -365,6 +365,12 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>The way a steered speed carries the player: the way they face, or against it while they are reversing.</summary>
     public Facing Travel => Steering == Steering.Reversing ? Facing.Opposite() : Facing;
 
+    /// <summary>
+    /// The way the view leads: the way the player faces, unless they are being carried the other way, by a knockback
+    /// or by the speed a turn has not yet spent. A game with other ways of going backward says so here.
+    /// </summary>
+    public virtual Facing ViewFacing => State is KnockedBackState || Steering == Steering.Reversing ? Facing.Opposite() : Facing;
+
     /// <summary>The speed a dash is adding across, in the way the player is going.</summary>
     public Pixels DashSpeed { get; private set; }
 

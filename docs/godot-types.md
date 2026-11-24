@@ -151,6 +151,11 @@ something that leaves the room.
   which the engine answers plainly with one comparison): whole pixels and fraction each on its own, by the sign of
   their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as
   under it.
+  `KeptScrollCells` is the cartridge's fifty scroll cells, which outlive each room: a room with an explicit scroll
+  layout loads all fifty (its own screens and what the layout's load writes after them, from
+  `rooms/scroll_layouts.json`), a room with none writes only its own, and the camera reads the cells past a room's
+  own screens at its edges. A read past the fifty, which on the cartridge reads the stored maps, is not built and
+  fails.
 
 **Why, and extending it.** The layers exist so the game can be thrown away and the engine kept. Everything else
 here follows from that. When unsure which layer something goes in, imagine the fork: the new game has a different
@@ -172,7 +177,7 @@ Ask these in order and stop at the first yes.
 6. Is it solid, does damage or a signal open it, and does it otherwise do nothing? **`Barrier`.**
 7. Is it part of the tile grid, at most two tiles by two, and is everything it does one of the block rules?
    **A block.**
-8. Is it a region with no body? Scrolling limits: **`CameraZone`.** Leads to another room: **`RoomExit`.** Does one
+8. Is it a region with no body? A screen whose scrolling something changes: **`CameraZone`.** A height the view is kept below: **`ViewFloor`.** Leads to another room: **`RoomExit`.** Does one
    thing on entry: **`Trigger`.** A body of liquid: **`Liquid`.** A room-wide condition: **`RoomEffect`.**
 9. Is it a scripted sequence that belongs to one room? **`RoomSequence`.**
 10. Is it a scripted sequence with no gameplay? **`Cinematic`.**
@@ -568,8 +573,10 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. It is stepped early in an update, before the player and the enemies act, so that what it is told during an update it first shows in the next; the earthquake alone is stepped late, after the enemies and room objects that may start it, and shows a shake on the update it is started in. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
 | `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. A layer may lie at a place in the room, fill only a band of it, and drift by itself, which is how a sky's bands of cloud are made. `TurningFloor` is the backdrop that can be turned and brought nearer or farther about a point, with the visuals under it turning with it. | Affect play. |
 | `RoomTurn` | A turn the room is shown with (`Room.ShownTurn`): the player and the room's objects are drawn where turning them about a point puts them. | Change where anything is. |
-| `Camera` | Following the player within the room's limits. One per session. | Affect play. |
-| `CameraZone` | A region with its own scrolling limits, which can be opened or closed. | Anything else. |
+| `Camera` | The view onto the room. A room is a grid of screens, 256 pixels each way, each closed to the view, open, or open with the view aligned to its top (`ScreenScroll`). Each update, once everything has moved, the view follows the player by how far they moved and a pixel more, toward keeping them at the place in the view the room gives (`Room.PlayerInView` by the way the view leads, `ViewAboveWhileRising`, `ViewAboveOtherwise`); it is stopped by the room's edges and by closed screens, and on an update the player did not move a whole pixel it drifts clear of a closed screen by itself. Its place has a fraction of a pixel. It can be placed (`Place`), moved by a script (`MoveTo`), told where the player is to be taken to have stood (`TakePlayerToHaveStoodAtX`, `...Y`), made to follow slowly (`TrackSlowly`), and kept at or below a height (`ViewFloor`). A room may hold the view at one place instead (`Room.ViewHeld`, `ViewHeldAt`). One per session. | Affect play. |
+| `IScrollCells` | How each screen of the room being played lets the view in: what the camera reads and what zones write. The engine's plain keeper (`RoomScrollCells`) holds the room's own screens, loaded from the room's version (`RoomVersion.Screens`), and every screen outside the room is closed. | Know why a screen changes. |
+| `CameraZone` | One screen of a room, by where it stands, as something that can be told how to let the view in: "close", "open" (the way the zone opens, `OpensTo`), "open_fully", "open_to_top". It may be told something as the room is set up (`ToldAtSetup`). It may stand below the room's last row, for a game that keeps such a screen's state. | Hold the screen's state, which is the room's. |
+| `ViewFloor` | A height the view's top is kept at or below while it holds; told to "release" or "hold". | Anything else. |
 | `Trigger` | A region that calls one named method when the player enters it, optionally only when a `Condition` holds. | Hold logic. |
 | `Relay` | Turning a word it is told into what the room does about it, by its rules: telling another thing a word, putting a terrain patch in place or taking one back, changing the music, shaking the room, putting a thing into the room, recording a fact. A boss that only knows it has woken tells a relay; the relay's rules open the camera zone and close the door. | Hold behaviour, or accept a word it has no rule for. |
 
@@ -1154,7 +1161,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   them, a shot meeting the first of them in the scene's order; how hurt it is and each step of its hardening are
   sets of its pictures, its stalk's with them; the places its spores come from are visuals whose own timeline lets
   each spore go; its ceiling crumbles through a list of patches before the one that opens it; and the view is kept
-  below a `CameraZone` over its chamber, which it opens as it dies); its spore (a `Projectile` that, shot, goes on
+  above a `ViewFloor` at the top of its chamber, which it releases as it dies); its spore (a `Projectile` that, shot, goes on
   drifting while it bursts and leaves its drop as the burst ends);
   Fake Kraid; Kraid (its head, arm and foot are visuals of the one enemy; where shots meet its mouth, head and the
   ledges of its body, and where its arm touches, are `ColliderPoses` taken as its head and arm change picture; how

@@ -137,6 +137,23 @@ public partial class GameDefinition : Resource
             ?? throw new InvalidOperationException($"The HUD scene's root is a {root.GetType().Name}, not a GameHud.");
     }
 
+    /// <summary>
+    /// How many pixels short of a screen's bottom the view's bottom comes to rest in a screen that does not align the
+    /// view to its top. None, plainly.
+    /// </summary>
+    [Export]
+    public int ViewRestsShortBy { get; set; }
+
+    /// <summary>How many pixels more than its speed the view drifts each update out of, or back from, a screen closed to it.</summary>
+    [Export]
+    public int ClosedScreenDrift { get; set; } = 2;
+
+    /// <summary>
+    /// Makes what keeps how each screen of the room being played lets the view in. The engine's plain keeper, which
+    /// knows the room's own screens and nothing else, unless the game needs another.
+    /// </summary>
+    public virtual IScrollCells CreateScrollCells() => new RoomScrollCells();
+
     /// <summary>Makes the session-long services this game adds, one of each. None, unless the game says.</summary>
     public virtual IReadOnlyList<ISessionService> CreateServices() => [];
 

@@ -22,12 +22,16 @@ About = "botwoon_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/maridia/botwoon_in_sandy_maridia.json"
+Screens = PackedInt32Array(2, 0)
+ScrollLayout = "Botwoon"
 Music = "elevator"
 Patches = PackedStringArray("wall_down")
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/maridia/botwoon_in_sandy_maridia.json"
+Screens = PackedInt32Array(2, 0)
+ScrollLayout = "Botwoon"
 Music = "mini_boss_battle"
 
 [sub_resource type="Resource" id="r4"]
@@ -40,6 +44,9 @@ script = ExtResource("3")
 Area = "maridia"
 MapCell = Vector2i(24, 9)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -91,34 +98,14 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(256, 0)
-StartsOpen = false
-PresentWhen = SubResource("r4")
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToBotwoonEnergyTank"
-What = "open"
+What = "open_to_top"
 Target = NodePath("../Screen1x0")
-
-[node name="Arriving2" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-AtEntry = "ToBotwoonEnergyTank"
-What = "close"
-Target = NodePath("../Screen1x0Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("11")
@@ -130,6 +117,18 @@ HighSurface = 16
 TideReach = 8
 TideTurnAbove = 0.75
 TideTurnBelow = 1.125
+
+[node name="BotwoonOpened0x0" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+ToldAtSetup = "open_to_top"
+PresentWhen = SubResource("r1")
+
+[node name="BotwoonOpened1x0" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 0)
+ToldAtSetup = "open_to_top"
+PresentWhen = SubResource("r1")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")

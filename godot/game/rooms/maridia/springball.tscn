@@ -15,6 +15,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/maridia/springball_in_sandy_maridia.json"
+Screens = PackedInt32Array(1, 0, 2, 2)
+ScrollLayout = "Springball"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r2"]
@@ -32,6 +34,9 @@ script = ExtResource("2")
 Area = "maridia"
 MapCell = Vector2i(32, 16)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -62,25 +67,7 @@ DataFile = "objects/door_cap_blue_right.json"
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(256, 0)
-StartsOpen = false
-
-[node name="Screen0x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 480)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 1
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("10")

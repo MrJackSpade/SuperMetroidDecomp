@@ -1,17 +1,17 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="5"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="6"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="7"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="6"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/crateria/statues_hallway_in_statues_hall.json"
+Screens = PackedInt32Array(2, 2, 2, 2, 2)
 Music = "statue_hall"
 
 [node name="StatuesHallway" type="Node2D"]
@@ -19,6 +19,9 @@ script = ExtResource("2")
 Area = "crateria"
 MapCell = Vector2i(12, 9)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -50,44 +53,14 @@ DataFile = "objects/door_cap_blue_right.json"
 position = Vector2(1248, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("6")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("6")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("6")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x0Foot" type="Node2D" parent="."]
-script = ExtResource("6")
-position = Vector2(768, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen4x0Foot" type="Node2D" parent="."]
-script = ExtResource("6")
-position = Vector2(1024, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
 [node name="Fog" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("6")
 position = Vector2(0, 0)
 EffectName = "fog"
 LookFile = "effects/fog.json"
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("7")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/statues_hallway_grey_tower_brick.png"
 ScrollShare = Vector2(0.75, 0.75)

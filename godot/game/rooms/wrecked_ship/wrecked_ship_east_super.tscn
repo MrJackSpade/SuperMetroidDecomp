@@ -26,11 +26,15 @@ About = "phantoon_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/wrecked_ship/wrecked_ship_east_super_when_area_boss_dead_in_wrecked_ship_power_on.json"
+Screens = PackedInt32Array(2, 2, 2, 0)
+ScrollLayout = "WreckedShipEastSuper"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/wrecked_ship/wrecked_ship_east_super_default_in_wrecked_ship_power_off.json"
+Screens = PackedInt32Array(2, 2, 2, 0)
+ScrollLayout = "WreckedShipEastSuper"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r4"]
@@ -43,6 +47,9 @@ script = ExtResource("3")
 Area = "wrecked_ship"
 MapCell = Vector2i(18, 18)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -268,47 +275,15 @@ DataFile = "objects/door_cap_blue_right.json"
 [node name="Screen3x0" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(768, 0)
-StartsOpen = false
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(512, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen3x0Foot" type="Node2D" parent="."]
-script = ExtResource("11")
-position = Vector2(768, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(752, 112)
 Size = Vector2i(16, 16)
-What = "open"
+What = "open_to_top"
 Once = false
 Target = NodePath("../Screen3x0")
-
-[node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("12")
-position = Vector2(752, 112)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen3x0Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("13")

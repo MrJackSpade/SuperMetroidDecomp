@@ -21,11 +21,15 @@ About = "ridley_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/norfair/ridley_in_heated_norfair.json"
+Screens = PackedInt32Array(1, 1)
+ScrollLayout = "Ridley"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/norfair/ridley_in_heated_norfair.json"
+Screens = PackedInt32Array(1, 1)
+ScrollLayout = "Ridley"
 Music = "statue_hall"
 
 [sub_resource type="Resource" id="r4"]
@@ -38,6 +42,9 @@ script = ExtResource("3")
 Area = "norfair"
 MapCell = Vector2i(23, 17)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]

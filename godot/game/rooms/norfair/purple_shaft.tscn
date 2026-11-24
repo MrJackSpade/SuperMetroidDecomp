@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -6,12 +6,15 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="5"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="6"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="7"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/purple_shaft_in_heated_norfair.json"
+Screens = PackedInt32Array(1, 1, 2)
+ScrollLayout = "PurpleShaft"
 KeepsMusic = true
 
 [node name="PurpleShaft" type="Node2D"]
@@ -19,6 +22,9 @@ script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(22, 7)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 160
 StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
@@ -64,20 +70,56 @@ DataFile = "objects/door_cap_blue_left.json"
 position = Vector2(224, 352)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="Screen0x2Foot" type="Node2D" parent="."]
+[node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("6")
-position = Vector2(0, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
+position = Vector2(0, 0)
+OpensTo = 1
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("6")
+position = Vector2(0, 256)
+OpensTo = 1
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(32, 176)
+Size = Vector2i(48, 16)
+What = "open_fully"
+Once = false
+Target = NodePath("../Screen0x0")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(32, 176)
+Size = Vector2i(48, 16)
+What = "open_fully"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(176, 176)
+Size = Vector2i(48, 16)
+What = "open_fully"
+Once = false
+Target = NodePath("../Screen0x0")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(176, 176)
+Size = Vector2i(48, 16)
+What = "open_fully"
+Once = false
+Target = NodePath("../Screen0x1")
 
 [node name="Heat" type="Node2D" parent="."]
-script = ExtResource("7")
+script = ExtResource("8")
 position = Vector2(0, 0)
 EffectName = "heat"
 DamageHundredths = 25
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("9")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/norfair_purple_patches.png"
 ScrollShare = Vector2(0.75, 0.75)

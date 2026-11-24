@@ -17,6 +17,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/norfair/green_bubbles_missiles_in_heated_norfair.json"
+Screens = PackedInt32Array(0, 2)
+ScrollLayout = "GreenBubblesMissiles"
 KeepsMusic = true
 
 [node name="GreenBubblesMissiles" type="Node2D"]
@@ -24,6 +26,9 @@ script = ExtResource("2")
 Area = "norfair"
 MapCell = Vector2i(20, 3)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 StatusUpdates = Dictionary[String, int]({"frozen": 300})
 
 [node name="Terrain" type="Node2D" parent="."]
@@ -92,49 +97,22 @@ DataFile = "objects/door_cap_blue_left.json"
 [node name="Screen0x0" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-StartsOpen = false
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(256, 80)
 Size = Vector2i(16, 16)
-What = "open"
+What = "open_to_top"
 Once = false
 Target = NodePath("../Screen0x0")
-
-[node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(256, 80)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen0x0Foot")
 
 [node name="Arriving" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
 AtEntry = "ToNorfairReserveTank"
-What = "open"
+What = "open_to_top"
 Target = NodePath("../Screen0x0")
-
-[node name="Arriving2" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(0, 0)
-AtEntry = "ToNorfairReserveTank"
-What = "close"
-Target = NodePath("../Screen0x0Foot")
 
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("11")

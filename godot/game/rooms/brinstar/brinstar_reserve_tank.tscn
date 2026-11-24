@@ -16,6 +16,8 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/brinstar_reserve_tank_in_green_blue_brinstar.json"
+Screens = PackedInt32Array(2, 0)
+ScrollLayout = "BrinstarReserveTank"
 Music = "elevator"
 
 [sub_resource type="Resource" id="r2"]
@@ -38,6 +40,9 @@ script = ExtResource("2")
 Area = "brinstar"
 MapCell = Vector2i(13, 5)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")
@@ -78,35 +83,15 @@ DataFile = "objects/door_cap_blue_right.json"
 [node name="Screen1x0" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(256, 0)
-StartsOpen = false
-
-[node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(0, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
-[node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
-position = Vector2(256, 224)
-Size = Vector2i(256, 32)
-StartsOpen = false
+OpensTo = 2
 
 [node name="Scroll" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(224, 176)
 Size = Vector2i(16, 16)
-What = "open"
+What = "open_to_top"
 Once = false
 Target = NodePath("../Screen1x0")
-
-[node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("10")
-position = Vector2(224, 176)
-Size = Vector2i(16, 16)
-What = "close"
-Once = false
-Target = NodePath("../Screen1x0Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")

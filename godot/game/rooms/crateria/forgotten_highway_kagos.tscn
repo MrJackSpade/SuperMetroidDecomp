@@ -11,6 +11,7 @@
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/crateria/forgotten_highway_kagos_in_upper_crateria.json"
+Screens = PackedInt32Array(1, 1, 1, 1)
 KeepsMusic = true
 
 [node name="ForgottenHighwayKagos" type="Node2D"]
@@ -18,6 +19,9 @@ script = ExtResource("2")
 Area = "crateria"
 MapCell = Vector2i(56, 5)
 Versions = Array[ExtResource("1")]([SubResource("r1")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("3")

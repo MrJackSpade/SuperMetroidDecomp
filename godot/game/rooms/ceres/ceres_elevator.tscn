@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,14 +7,13 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/ceres_elevator_door/ceres_elevator_door.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://game/objects/ceres_door/ceres_door.tscn" id="7"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
-[ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/TurningFloor.cs" id="11"]
-[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="12"]
-[ext_resource type="Script" path="res://game/rooms/ceres/CeresArrival.cs" id="13"]
-[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="14"]
-[ext_resource type="Script" path="res://game/rooms/ceres/CeresShaft.cs" id="15"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/TurningFloor.cs" id="10"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresArrival.cs" id="12"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="13"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresShaft.cs" id="14"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -25,11 +24,13 @@ About = "ceres_ridley_defeated"
 script = ExtResource("2")
 When = SubResource("r1")
 LayoutFile = "rooms/ceres/ceres_elevator_in_white_ceres_elevator.json"
+Screens = PackedInt32Array(1, 1, 2)
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r3"]
 script = ExtResource("2")
 LayoutFile = "rooms/ceres/ceres_elevator_in_blue_ceres_elevator.json"
+Screens = PackedInt32Array(1, 1, 2)
 Music = "ceres_station"
 
 [sub_resource type="Resource" id="r4"]
@@ -47,6 +48,9 @@ script = ExtResource("3")
 Area = "ceres"
 MapCell = Vector2i(12, 14)
 Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+PlayerInView = Vector2i(96, 160)
+ViewAboveWhileRising = 160
+ViewAboveOtherwise = 112
 
 [node name="Terrain" type="Node2D" parent="."]
 script = ExtResource("4")
@@ -71,109 +75,103 @@ position = Vector2(224, 639)
 DataFile = "objects/ceres_door_left.json"
 PresentWhen = SubResource("r5")
 
-[node name="Screen0x2Foot" type="Node2D" parent="."]
-script = ExtResource("8")
-position = Vector2(0, 736)
-Size = Vector2i(256, 32)
-StartsOpen = false
-
 [node name="Shaking" type="Node" parent="."]
-script = ExtResource("9")
+script = ExtResource("8")
 StartsWhen = SubResource("r4")
 
 [node name="Haze" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
 LookFile = "effects/ceres_haze.json"
 PresentWhen = SubResource("r5")
 
 [node name="Floor" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("10")
 position = Vector2(0, 0)
 Picture = "backdrops/{graphics}/ceres_elevator_shaft.png"
 
 [node name="Platform" type="Node2D" parent="Floor"]
-script = ExtResource("12")
+script = ExtResource("11")
 position = Vector2(112, 96)
 
 [node name="Arrival" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("12")
 StartsAtEntry = "AtCeresElevator"
 PadTimeline = "objects/ceres_arrival_pad.json"
 PlatformTimeline = "objects/ceres_arrival_platform.json"
 PresentWhen = SubResource("r5")
 
 [node name="Pad" type="Node2D" parent="Arrival"]
-script = ExtResource("12")
+script = ExtResource("11")
 
 [node name="Platform" type="Node2D" parent="Arrival"]
-script = ExtResource("12")
+script = ExtResource("11")
 
-[node name="Steam" parent="." instance=ExtResource("14")]
+[node name="Steam" parent="." instance=ExtResource("13")]
 position = Vector2(94, 108)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam2" parent="." instance=ExtResource("14")]
+[node name="Steam2" parent="." instance=ExtResource("13")]
 position = Vector2(162, 108)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam3" parent="." instance=ExtResource("14")]
+[node name="Steam3" parent="." instance=ExtResource("13")]
 position = Vector2(158, 200)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam4" parent="." instance=ExtResource("14")]
+[node name="Steam4" parent="." instance=ExtResource("13")]
 position = Vector2(98, 200)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam5" parent="." instance=ExtResource("14")]
+[node name="Steam5" parent="." instance=ExtResource("13")]
 position = Vector2(94, 296)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam6" parent="." instance=ExtResource("14")]
+[node name="Steam6" parent="." instance=ExtResource("13")]
 position = Vector2(162, 296)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam7" parent="." instance=ExtResource("14")]
+[node name="Steam7" parent="." instance=ExtResource("13")]
 position = Vector2(158, 392)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam8" parent="." instance=ExtResource("14")]
+[node name="Steam8" parent="." instance=ExtResource("13")]
 position = Vector2(98, 408)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam9" parent="." instance=ExtResource("14")]
+[node name="Steam9" parent="." instance=ExtResource("13")]
 position = Vector2(94, 504)
 DataFile = "objects/ceres_steam_left.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam10" parent="." instance=ExtResource("14")]
+[node name="Steam10" parent="." instance=ExtResource("13")]
 position = Vector2(162, 504)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
-[node name="Steam11" parent="." instance=ExtResource("14")]
+[node name="Steam11" parent="." instance=ExtResource("13")]
 position = Vector2(114, 600)
 DataFile = "objects/ceres_steam_right.json"
 PresentWhen = SubResource("r1")
 
 [node name="Haze2" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
 LookFile = "effects/ceres_haze_escape.json"
 PresentWhen = SubResource("r1")
 
 [node name="Shaft" type="Node" parent="."]
-script = ExtResource("15")
+script = ExtResource("14")
 StartsWhen = SubResource("r4")
 LandingRoom = "res://game/rooms/crateria/landing_site.tscn"
 LandingEntry = "AtZebesArrival"

@@ -41,6 +41,14 @@ GODOT = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..', 'go
 INSTALLED = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'SuperMetroid', 'game')
 BLOCK = 16
 SCREEN = 256
+# How far above Samus the view's top makes for, by the name of a room's camera lead: while she moves any way but up,
+# and while she moves up.
+CAMERA_LEADS = {name: (int(falling), int(rising)) for name, falling, rising in re.findall(
+    r'RoomCameraLead (\w+) \{ get; \} = new\((\d+), (\d+)\);', legacy.read('Rooms', 'RoomCameraLeads.cs'))}
+# How far from the view's left edge Samus is kept while she faces right, and while she faces left: the middle of the
+# view, less and more the old lead.
+_LEAD = int(re.search(r'NormalTrackingLead = (\d+);', legacy.read('Rooms', 'Scrolling', 'HorizontalCameraTargetDefinitions.cs')).group(1))
+PLAYER_IN_VIEW = (SCREEN // 2 - _LEAD, SCREEN // 2 + _LEAD)
 
 # How far inside a room, from the door's blocks, someone who arrives through the door is put, and how far above the
 # door's sill their middle is.
@@ -398,9 +406,8 @@ class Generator:
             extras.append(enemies.Placed(boss.scene, 'SporeSpawnHusk', {'Husk': 'true'}, at=boss.at, only_when=defeated))
             # Until it dies the view is kept from rising above its chamber: the old code's lowest place for the view's top.
             lowest = int(re.search(r'LowestCameraY = (\d+);', legacy.read('Bosses', 'SporeSpawn', 'SporeSpawnArenaDefinitions.cs')).group(1))
-            above = enemies.Placed(camera.ZONE, 'AboveSporeSpawn', {
-                'Size': f'Vector2i({room.screens[0] * SCREEN}, {lowest})', 'StartsOpen': 'false'},
-                at=(0, 0), enemy=False, only_when=ctx.none_of([defeated]))
+            above = enemies.Placed('res://engine/world/ViewFloor.cs', 'AboveSporeSpawn', {}, at=(0, lowest), enemy=False,
+                                   only_when=ctx.none_of([defeated]))
             links[id(boss)]['ArenaView'] = above
             extras.append(above)
         if boss.boss == 'crocomire':
@@ -409,8 +416,8 @@ class Generator:
             extras.append(enemies.Placed(boss.scene, 'CrocomireSkeleton', {'Corpse': 'true'},
                                          at=(int(at.group(1)), int(at.group(2))), only_when=defeated))
         if boss.boss == 'kraid':
-            # The old Kraid shuts some of its room's screens as it is set up, and opens them as it grows. Each is a
-            # zone, and the rows under one that opens wholly are a zone too; Kraid tells them all as it grows.
+            # The old Kraid sets its room's screens as it is set up, and again as it has grown. Each screen it changes
+            # is a zone, told its first state as the room is set up and opened by Kraid as it grows.
             cameras = legacy.read('Bosses', 'Kraid', 'KraidCameraDefinitions.cs')
 
             def screens(name: str) -> dict[tuple[int, int], str]:
@@ -419,14 +426,11 @@ class Generator:
             before, after = screens('InitialScrolls'), screens('GrownScrolls')
             told = []
             for (x, y), state in before.items():
-                if state != 'Closed' or after[(x, y)] == 'Closed':
-                    continue
-                told.append(enemies.Placed(camera.ZONE, f'KraidScreen{x}x{y}', {'StartsOpen': 'false'},
-                                           at=(x * SCREEN, y * SCREEN), enemy=False, only_when=ctx.none_of([defeated])))
-                if after[(x, y)] == 'Open':
-                    told.append(enemies.Placed(camera.ZONE, f'KraidScreen{x}x{y}Foot', {
-                        'Size': f'Vector2i({SCREEN}, {SCREEN - camera.VIEW_HEIGHT})', 'StartsOpen': 'false'},
-                        at=(x * SCREEN, y * SCREEN + camera.VIEW_HEIGHT), enemy=False, only_when=ctx.none_of([defeated])))
+                if after[(x, y)] == 'Closed':
+                    raise ValueError('Kraid leaves a screen closed once grown, which a zone told to open cannot say.')
+                told.append(enemies.Placed(camera.ZONE, f'KraidScreen{x}x{y}', {
+                    'ToldAtSetup': enemies.quoted(camera.WORDS[state]), 'OpensTo': str(camera.STATES.index(after[(x, y)]))},
+                    at=(x * SCREEN, y * SCREEN), enemy=False, only_when=ctx.none_of([defeated])))
             links[id(boss)]['ToldWhenGrown'] = told
             extras.extend(told)
         return extras
@@ -493,14 +497,19 @@ class Generator:
                     opened = re.search(r'OpenedScrollCells \{ get; \} = \[(.*?)\];', walls).group(1)
                     zones = [by_name[f'Screen{x}x{y}'] for x, y in re.findall(r'new\((\d+), (\d+)\)', opened) if f'Screen{x}x{y}' in by_name]
                     for zone in zones:
-                        zone.only_when = ctx.none_of([ctx.fact('botwoon_defeated')])
+                        zone.properties['OpensTo'] = str(camera.STATES.index('OpenAlignedToTop'))
+                    # A room where Botwoon has been beaten has them open from the start.
+                    for x, y in re.findall(r'new\((\d+), (\d+)\)', opened):
+                        things.append(enemies.Placed(camera.ZONE, f'BotwoonOpened{x}x{y}', {
+                            'ToldAtSetup': enemies.quoted(camera.WORDS['OpenAlignedToTop'])},
+                            at=(int(x) * SCREEN, int(y) * SCREEN), enemy=False, only_when=ctx.fact('botwoon_defeated')))
                     links[id(placed)]['ToldWhenWallFalls'] = zones
             for placed in list(things):
                 if placed.name == 'BabyMetroid':
                     # The old one shuts two of its room's screens to the view as it wakes, and opens them once it has fed.
                     fight = legacy.read('Bosses', 'MotherBrain', 'BabyMetroidFightDefinitions.cs')
                     shut = re.search(r'ClosingScreens \{ get; \} = \[(.*?)\];', fight).group(1)
-                    zones = [enemies.Placed(camera.ZONE, f'BabyMetroidScreen{x}x{y}', {'StartsOpen': 'true'},
+                    zones = [enemies.Placed(camera.ZONE, f'BabyMetroidScreen{x}x{y}', {'OpensTo': str(camera.STATES.index('OpenAlignedToTop'))},
                                             at=(int(x) * SCREEN, int(y) * SCREEN), enemy=False)
                              for x, y in re.findall(r'new\((\d+), (\d+)\)', shut)]
                     things.extend(zones)
@@ -522,7 +531,7 @@ class Generator:
                     # The view is shut into her end of the room once the way back is walled off.
                     fight = legacy.read('Bosses', 'MotherBrain', 'MotherBrainFightDefinitions.cs')
                     shut_x, shut_y = (int(part) for part in re.search(r'ArenaClosedScreen = new\((\d+), (\d+)\)', fight).groups())
-                    arena = enemies.Placed(camera.ZONE, f'MotherBrainScreen{shut_x}x{shut_y}', {'StartsOpen': 'true'},
+                    arena = enemies.Placed(camera.ZONE, f'MotherBrainScreen{shut_x}x{shut_y}', {},
                                            at=(shut_x * SCREEN, shut_y * SCREEN), enemy=False)
                     # The warning of her death is written out; she waits for it.
                     warning = sequences.sequence('TypedWarning.cs', 'EscapeWarning', {
@@ -616,6 +625,14 @@ class Generator:
             for child, script, settings in placed.children:
                 scene.node(child, names[mine], settings, script=script)
 
+    def screens_of(self, room: legacy.Room, state: legacy.State) -> dict[str, str]:
+        """How each screen of a version lets the view in, and its layout's name where that is an explicit table."""
+        screens, layout = camera.screens_of(self.scroll_layouts, room, state)
+        settings = {'Screens': 'PackedInt32Array(' + ', '.join(str(screen) for screen in screens) + ')'}
+        if layout:
+            settings['ScrollLayout'] = quoted(layout)
+        return settings
+
     def write_room(self, key: str) -> str:
         room = self.rooms[key]
         scene = Scene()
@@ -628,6 +645,7 @@ class Generator:
             settings = {
                 'When': condition(scene, room, expression),
                 'LayoutFile': quoted(layout_of(room, state)),
+                **self.screens_of(room, state),
                 **music_of(state, self.nearby_music_set(key)),
             }
             patches = []
@@ -647,13 +665,18 @@ class Generator:
         base = self.states[default]
         versions.append(scene.resource('res://engine/world/RoomVersion.cs', {
             'LayoutFile': quoted(layout_of(room, base)),
+            **self.screens_of(room, base),
             **music_of(base, self.nearby_music_set(key)),
         }))
+        falling, rising = CAMERA_LEADS[legacy.last_name(room.properties.get('CameraLead', 'RoomCameraLeads.Standard'))]
 
         room_settings = {
             'Area': quoted(snake(room.area)),
             'MapCell': f'Vector2i({room.map_cell[0]}, {room.map_cell[1]})',
             'Versions': scene.listed('res://engine/world/RoomVersion.cs', versions),
+            'PlayerInView': f'Vector2i({PLAYER_IN_VIEW[0]}, {PLAYER_IN_VIEW[1]})',
+            'ViewAboveWhileRising': str(rising),
+            'ViewAboveOtherwise': str(falling),
         }
         if room.area in FROZEN_UPDATES:
             room_settings['StatusUpdates'] = 'Dictionary[String, int]({"frozen": %d})' % FROZEN_UPDATES[room.area]

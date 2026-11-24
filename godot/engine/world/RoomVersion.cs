@@ -25,6 +25,17 @@ public partial class RoomVersion : Resource
     [Export]
     public bool KeepsMusic { get; set; }
 
+    /// <summary>
+    /// How each screen of the room lets the view in, in this version: a <see cref="ScreenScroll"/> for each, row by row
+    /// and each row from the left. Empty for a room every screen of which is open.
+    /// </summary>
+    [Export]
+    public int[] Screens { get; set; } = [];
+
+    /// <summary>The name of this version's scroll layout, for a game that keeps more about one than the room does; empty when it has none.</summary>
+    [Export]
+    public string ScrollLayout { get; set; } = "";
+
     /// <summary>The names of the layout's patches in place in this version.</summary>
     [Export]
     public string[] Patches { get; set; } = [];

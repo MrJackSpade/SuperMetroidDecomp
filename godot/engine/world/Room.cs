@@ -61,7 +61,9 @@ public partial class Room : Node2D
     private readonly List<(Node2D Node, List<Node> After, int Updates)> _arriving = [];
     private readonly List<RoomObject> _objects = [];
     private readonly List<RoomExit> _exits = [];
-    private readonly List<CameraZone> _zones = [];
+    private readonly List<ViewFloor> _viewFloors = [];
+    private Vector2I _playerInView;
+    private PixelPosition _playerAtUpdateStart;
     private readonly List<Trigger> _triggers = [];
     private readonly List<RoomEffect> _roomEffects = [];
     private readonly List<RoomSequence> _sequences = [];
@@ -157,6 +159,16 @@ public partial class Room : Node2D
         if (Version is not null && Version.LayoutFile.Length > 0)
             _terrain.LayoutFile = Version.LayoutFile;
         _terrain.Load(Session.Content);
+
+        // The view takes up the room's screens and how each lets it in.
+        int columns = Math.Max(1, (_terrain.WidthInPixels + Camera.Screen - 1) / Camera.Screen);
+        int rows = Math.Max(1, (_terrain.HeightInPixels + Camera.Screen - 1) / Camera.Screen);
+        ScreenScroll[] screens = Version is { Screens.Length: > 0 }
+            ? [.. Version.Screens.Select(screen => (ScreenScroll)screen)]
+            : [.. Enumerable.Repeat(ScreenScroll.Open, columns * rows)];
+        Session.ScrollCells.Load(columns, rows, screens, Version?.ScrollLayout ?? "", Session.Content);
+        Session.Camera.EnterRoom(Session.ScrollCells, columns, rows);
+        _playerInView = PlayerInView;
         // What stands in the room is drawn with the graphics the room's layout is drawn with.
         _content = Session.Content.DrawnWith(_terrain.Graphics);
         foreach (string patch in Version?.Patches ?? [])
@@ -180,6 +192,10 @@ public partial class Room : Node2D
         Join(player);
         // The player is put where they arrive before anything else enters, so that what enters finds them there.
         PlacePlayer(entry);
+        _playerAtUpdateStart = Player.Position;
+        Session.Camera.Place(Player.Position.X.Whole - Session.Camera.Width / 2, Player.Position.Y.Whole - Session.Camera.Height / 2);
+        if (ViewHeld)
+            Session.Camera.MoveTo(ViewHeldAt.X, ViewHeldAt.Y);
         foreach (Node child in GetChildren())
         {
             switch (child)
@@ -194,8 +210,11 @@ public partial class Room : Node2D
                     _exits.Add(exit);
                     break;
                 case CameraZone zone:
-                    zone.Setup();
-                    _zones.Add(zone);
+                    zone.Setup(this);
+                    break;
+                case ViewFloor floor:
+                    floor.Setup();
+                    _viewFloors.Add(floor);
                     break;
                 case Trigger trigger:
                     trigger.Setup();
@@ -221,7 +240,7 @@ public partial class Room : Node2D
 
         foreach (RoomSequence sequence in _sequences)
             sequence.Setup(this);
-        FollowAndShow();
+        ShowAll();
     }
 
     /// <summary>
@@ -235,6 +254,7 @@ public partial class Room : Node2D
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
+        _playerAtUpdateStart = Player.Position;
         if (!stopped.HasFlag(Stopped.Room))
         {
             Liquid?.Move();
@@ -351,7 +371,8 @@ public partial class Room : Node2D
         RemoveLeaving();
         AddArriving();
         MarkExplored();
-        FollowAndShow();
+        Follow();
+        ShowAll();
     }
 
     /// <summary>
@@ -620,10 +641,57 @@ public partial class Room : Node2D
             Area, MapCell.X + Player.Position.X.Whole / MapCellSize.X, MapCell.Y + Player.Position.Y.Whole / MapCellSize.Y);
     }
 
-    /// <summary>Moves the view to follow the player and puts every node where its exact place says.</summary>
-    private void FollowAndShow()
+    /// <summary>
+    /// Where in the view the player is kept: how many pixels from its left edge while they face right, and while they
+    /// face left. The room's own until something says otherwise for a while (<see cref="KeepPlayerInViewAt"/>).
+    /// </summary>
+    [Export]
+    public Vector2I PlayerInView { get; set; } = new(128, 128);
+
+    /// <summary>How many pixels above the player the view's top makes for while they move up.</summary>
+    [Export]
+    public int ViewAboveWhileRising { get; set; } = 112;
+
+    /// <summary>How many pixels above the player the view's top makes for while they move any other way.</summary>
+    [Export]
+    public int ViewAboveOtherwise { get; set; } = 112;
+
+    /// <summary>Whether the view stays where the room holds it and does not follow the player.</summary>
+    [Export]
+    public bool ViewHeld { get; set; }
+
+    /// <summary>Where the view's top-left corner stands in a room that holds it.</summary>
+    [Export]
+    public Vector2I ViewHeldAt { get; set; }
+
+    /// <summary>Keeps the player elsewhere in the view until the room is next set up or this is called again: what a boss that fills the view asks for.</summary>
+    public void KeepPlayerInViewAt(int facingRight, int facingLeft) => _playerInView = new Vector2I(facingRight, facingLeft);
+
+    /// <summary>Moves the view to follow the player, as far as the room's screens let it, and brings it down to any floor that holds it.</summary>
+    private void Follow()
     {
-        Session.Camera.Follow(Player.Position, Terrain.WidthInPixels, Terrain.HeightInPixels, _zones);
+        if (ViewHeld)
+        {
+            Session.Camera.MoveTo(ViewHeldAt.X, ViewHeldAt.Y);
+            return;
+        }
+
+        if (Player.State is DyingState)
+            return;
+        var tracking = new ViewTracking(
+            Player.ViewFacing == Facing.Right ? _playerInView.X : _playerInView.Y,
+            Player.Velocity.Y.IsNegative, ViewAboveWhileRising, ViewAboveOtherwise);
+        Session.Camera.Track(_playerAtUpdateStart, Player.Position, tracking, frozen: false);
+        foreach (ViewFloor floor in _viewFloors)
+        {
+            if (floor.IsHolding)
+                Session.Camera.KeepAtOrBelow(floor.LowestTop);
+        }
+    }
+
+    /// <summary>Puts every node where its exact place says, with the room where the view has it.</summary>
+    private void ShowAll()
+    {
         var viewTopLeft = new Vector2I(Session.Camera.Left, Session.Camera.Top);
 
         // The room is put on screen where the view has it, thrown about by any shaking. The player is not thrown about

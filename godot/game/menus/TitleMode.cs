@@ -150,6 +150,9 @@ public partial class TitleMode : GameMode
             return;
         }
 
+        // The cartridge starts its random numbers over as the title starts, from its power-on number, and draws one.
+        Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
+        Session.Random.Next();
         Session.Sounds.RequestMusic(opening.Text("music"));
         Begin(0);
     }

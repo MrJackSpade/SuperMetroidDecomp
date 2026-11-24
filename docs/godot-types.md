@@ -880,7 +880,9 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   while its destroyed fact is not recorded.
 - Mini-bosses and bosses, each one scene: Bomb Torizo, Golden Torizo (one scene, two data files); Spore Spawn;
   Fake Kraid; Kraid (arm, foot and belly spikes are parts; thrown nails and spikes are `Projectile`s); Crocomire
-  (tongue is a part); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts);
+  (tongue is a part); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts; its body's
+  pictures are kept once for each band of its health; its data, not its cannons, says which cannon fires on which
+  of its turns and from where, and each cannon in the room says which it is);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and
   a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s); Mother Brain (her brain, the joints of her neck
   and her beam are parts of one enemy written across several files, one per part of her fight; her glass and her

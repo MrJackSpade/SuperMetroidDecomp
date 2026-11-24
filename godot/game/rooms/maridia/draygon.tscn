@@ -82,28 +82,28 @@ PresentWhen = SubResource("r4")
 
 [node name="UpperLeftCannon" parent="." instance=ExtResource("8")]
 position = Vector2(32, 176)
-Slot = 0
+Which = "UpperLeft"
 StartsFacing = 1
 StartsBroken = true
 AlwaysActive = true
 
 [node name="LowerLeftCannon" parent="." instance=ExtResource("8")]
 position = Vector2(32, 288)
-Slot = 1
+Which = "LowerLeft"
 StartsFacing = 1
 StartsBroken = false
 AlwaysActive = true
 
 [node name="UpperRightCannon" parent="." instance=ExtResource("8")]
 position = Vector2(464, 240)
-Slot = 2
+Which = "UpperRight"
 StartsFacing = 0
 StartsBroken = false
 AlwaysActive = true
 
 [node name="LowerRightCannon" parent="." instance=ExtResource("8")]
 position = Vector2(464, 336)
-Slot = 3
+Which = "LowerRight"
 StartsFacing = 0
 StartsBroken = false
 AlwaysActive = true

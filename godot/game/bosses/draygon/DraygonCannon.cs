@@ -14,28 +14,38 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// It plays "shield_left" or "shield_right", by the way it faces, "hit_flash_left" or "hit_flash_right", whose cue
-/// "shield" puts its shield back, and "sparks_left" or "sparks_right". Its hitbox "Sparks" is what hurts to touch once
-/// it is broken. Its shot is "shot".
+/// "shield" puts its shield back, and "sparks_left" or "sparks_right". Broken, it hurts whoever stands on it or
+/// presses against it. Its data gives under "picture_offsets" where the corner of its pictures lies from its place
+/// when it faces "left" and when it faces "right". Its shot is "shot".
 /// </remarks>
 public partial class DraygonCannon : Enemy, ILatchable
 {
-    /// <summary>Which of Draygon's turns fires it, from nothing up; one with no turn, below nothing, never fires.</summary>
+    /// <summary>Which of the chamber's cannons it is, as Draygon's data names the cannon of each of its turns.</summary>
     [Export]
-    public int Slot { get; set; } = -1;
+    public string Which { get; set; } = "";
 
     /// <summary>Whether it is already broken when Samus arrives.</summary>
     [Export]
     public bool StartsBroken { get; set; }
 
-    /// <summary>Where its shots appear, from its place, in pixels.</summary>
-    [Export]
-    public Vector2I Muzzle { get; set; }
-
     /// <summary>How much energy it drains each update from Samus while her grapple beam holds it, in hundredths.</summary>
     [Export, DataValue("grapple_drain")]
     public int GrappleDrain { get; set; } = 100;
 
+    private readonly Dictionary<Facing, Vector2I> _pictureOffsets = [];
     private bool _latched;
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _pictureOffsets.Clear();
+        foreach ((Facing way, string name) in new[] { (Facing.Left, "left"), (Facing.Right, "right") })
+        {
+            DataNode offset = data.Get("picture_offsets").Get(name);
+            _pictureOffsets[way] = new Vector2I(offset.Int("x"), offset.Int("y"));
+        }
+    }
 
     /// <summary>Whether it is broken.</summary>
     public bool IsBroken { get; private set; }
@@ -55,17 +65,20 @@ public partial class DraygonCannon : Enemy, ILatchable
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => !IsBroken && base.IsHitBy(side);
 
-    /// <summary>Fires at Samus, if it is whole.</summary>
-    public void FireAtSamus()
+    /// <summary>Fires at Samus a shot that appears at <paramref name="from"/>, if it is whole.</summary>
+    public void FireAtSamusFrom(PixelPosition from)
     {
         if (!IsBroken)
-            FireAtPlayer("shot", Position + PixelOffset.FromWhole(Muzzle.X, Muzzle.Y));
+            FireAtPlayer("shot", from);
     }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         AlwaysActive = true;
+        // Its pictures reach out of the wall, to the side it faces.
+        if (Visual is { } visual)
+            visual.PictureOffset = _pictureOffsets[Facing];
         if (StartsBroken)
             Break();
         else
@@ -99,6 +112,8 @@ public partial class DraygonCannon : Enemy, ILatchable
     /// <inheritdoc/>
     protected override void Behave()
     {
+        if (IsBroken && PlayerRestsAgainstIt() && Solid is { } sparking)
+            Touch(sparking);
         if (_latched)
             Room.Player.AddOngoingDamage("draygon_cannon", GrappleDrain);
     }

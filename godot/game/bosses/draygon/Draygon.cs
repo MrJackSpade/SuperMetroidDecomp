@@ -3,6 +3,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -17,16 +18,27 @@ namespace Game.Enemies;
 /// </summary>
 /// <remarks>
 /// Its body plays "body_left", "body_right", "fire_goop_left", "fire_goop_right", "roar_left", "roar_right",
-/// "dying_left", "dying_right" and "rest"; the cue "goop" of a fire-goop timeline lets one go. The visual "Tail"
-/// plays "tail_left", "tail_right", "tail_whip_left", "tail_whip_right", "tail_final_whips_left" and
-/// "tail_final_whips_right", whose cue "whip_hit" lands a blow and "release" lets Samus go; "Arms" plays "arms_left",
-/// "arms_right", "arms_reach_left", "arms_reach_right", "arms_grab_left" and "arms_grab_right"; "Eye" plays
-/// "eye_left_looking_up" and the like for each side and each of the four ways, and "eye_dying_left",
-/// "eye_dying_right", "eye_dead_left" and "eye_dead_right". Its hurtbox "Belly" is where it can be hurt. Its shot is
-/// "goop". Its data lists "intro_dance", the steps each of its brood takes one after another, "intro_dancer_delays",
-/// how many updates into the dance each sets off, and "burial_brood", where each of those that bury it starts ("x",
-/// "y"), the way it drifts ("heading", in turns of 256 from right through down) and the "effect" that shows it. All
-/// its places are in the room's own pixels.
+/// "dying_left", "dying_right" and "rest"; a step with no picture leaves it as it was shown. The cue "goop" of a
+/// fire-goop timeline lets one go; of a dying timeline "dying_effect:" with an effect's data file leaves that effect
+/// somewhere about it, "intangible" ends its touch and "paralyse" stops its tail and arms where they are. The visual
+/// "Tail" plays "tail_left", "tail_right", "tail_whip_left", "tail_whip_right", "tail_final_whips_left" and
+/// "tail_final_whips_right", whose cue "whip_hit" lands a blow, "release" lets Samus go, "shift:" with how far across
+/// and down moves the pictures of its body and eye that far for the lash, and "sound:" with a sound's name asks for
+/// it; "Arms" plays "arms_left", "arms_right", "arms_reach_left", "arms_reach_right", "arms_grab_left" and
+/// "arms_grab_right"; "Eye" plays "eye_left_looking_up" and the like for each side and each of the four ways, and
+/// "eye_dying_left", "eye_dying_right", "eye_dead_left" and "eye_dead_right". The names of the pictures of its body
+/// and eye may hold "{health}", which stands for "_health_" and which of its "health_bands" its health is in, from
+/// nothing up: the least health of each, highest first. Its hurtbox "Belly" is where it can be hurt; the rest of its
+/// colliders are its shell, which stops shots and hurts to touch. "facing_colliders" gives every collider its place
+/// when it faces "left" and when it faces "right". Its shot is "goop". Its data lists "intro_dance", the steps each
+/// of its brood takes one after another, "intro_dancer_delays", how many updates into the dance each sets off, and
+/// "burial_brood", where each of those that bury it starts ("x", "y"), the way it drifts ("heading", in turns of 256
+/// from right through down) and the "effect" that shows it. "cannon_turns" lists, for each number its
+/// "cannon_choice" draws ("from" which binary digit of a number drawn, and how many "digits"), the "cannon" that
+/// fires, or none, and where its shot appears ("x", "y"). "scattered_drops" is the table of what it scatters when it
+/// is gone, and "drop_scatter" where: a corner of the room ("x", "y") and, across and down, how many binary digits of
+/// a number drawn are added and from which digit up. "dying_scatter" places the effects of its dying the same way,
+/// from its own place. All its places are in the room's own pixels.
 /// </remarks>
 public partial class Draygon : Enemy
 {
@@ -102,6 +114,10 @@ public partial class Draygon : Enemy
     [Export, DataValue("bubble_effect")]
     public string BubbleEffect { get; set; } = "";
 
+    /// <summary>The effect of the bubbles that rise from by its eye.</summary>
+    [Export, DataValue("eye_bubble_effect")]
+    public string EyeBubbleEffect { get; set; } = "";
+
     /// <summary>The effect of dust where its tail strikes.</summary>
     [Export, DataValue("dust_effect")]
     public string DustEffect { get; set; } = "";
@@ -148,6 +164,15 @@ public partial class Draygon : Enemy
     private readonly List<(Effect Sprite, PixelOffset Drift)> _burying = [];
     private readonly List<int> _swoopHeights = [];
     private readonly Dictionary<string, TimelinePlayer> _parts = new(StringComparer.Ordinal);
+    private readonly Dictionary<Facing, Dictionary<string, PixelRect>> _boxes = [];
+    private readonly List<int> _healthBands = [];
+    private readonly List<(string Cannon, PixelPosition From)> _cannonTurns = [];
+    private (int From, int Digits) _cannonChoice;
+    private DropTable _scatteredDrops = DropTable.Nothing;
+    private (Vector2I Corner, (int From, int Digits) Across, (int From, int Digits) Down) _dropScatter, _dyingScatter;
+    private string _shown = "";
+    private Vector2I _bodyShift;
+    private bool _intangible;
     private Phase _phase;
     private Phase _afterGoop;
     private Facing _pass = Facing.Right;
@@ -178,6 +203,66 @@ public partial class Draygon : Enemy
         _dancerDelays.AddRange(data.List("intro_dancer_delays").Select(delay => delay.AsInt()));
         _buriers.Clear();
         _buriers.AddRange(data.List("burial_brood").Select(one => new Burier(one.Int("x"), one.Int("y"), one.Int("heading"), one.Text("effect"))));
+        static (int From, int Digits) Field(DataNode field) => (field.Int("from"), field.Int("digits"));
+        static (Vector2I Corner, (int From, int Digits) Across, (int From, int Digits) Down) Scatter(DataNode scatter) =>
+            (new Vector2I(scatter.Int("x"), scatter.Int("y")), Field(scatter.Get("across")), Field(scatter.Get("down")));
+        _boxes.Clear();
+        foreach ((Facing way, string name) in new[] { (Facing.Left, "left"), (Facing.Right, "right") })
+        {
+            _boxes[way] = data.Get("facing_colliders").Get(name).Entries().ToDictionary(
+                box => box.Key,
+                box => new PixelRect(box.Value.Int("left"), box.Value.Int("top"), box.Value.Int("width"), box.Value.Int("height")),
+                StringComparer.Ordinal);
+        }
+
+        _healthBands.Clear();
+        _healthBands.AddRange(data.List("health_bands").Select(band => band.AsInt()));
+        if (_healthBands.Count == 0)
+            throw data.Problem("must give at least one band of its health");
+        _cannonChoice = Field(data.Get("cannon_choice"));
+        _cannonTurns.Clear();
+        _cannonTurns.AddRange(data.List("cannon_turns").Select(turn => (turn.Text("cannon"), PixelPosition.FromWhole(turn.Int("x"), turn.Int("y")))));
+        if (_cannonTurns.Count != 1 << _cannonChoice.Digits)
+            throw data.Problem("must give a cannon's turn for every number its choice of cannon can draw");
+        _scatteredDrops = DropTable.Read(data.Get("scattered_drops"));
+        _dropScatter = Scatter(data.Get("drop_scatter"));
+        _dyingScatter = Scatter(data.Get("dying_scatter"));
+    }
+
+    /// <summary>Which band of its health it is in, from nothing up; its belly reddens from each to the next.</summary>
+    private int HealthBand
+    {
+        get
+        {
+            for (int band = 0; band < _healthBands.Count; band++)
+            {
+                if (Health.Current >= _healthBands[band])
+                    return band;
+            }
+
+            return _healthBands.Count - 1;
+        }
+    }
+
+    /// <summary>A picture of its body or eye, in the colours of the health it has left.</summary>
+    private string Coloured(string picture) =>
+        picture.Replace("{health}", "_health_" + HealthBand.ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
+
+    /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step)
+    {
+        // A step with no picture is a wait: it leaves the body as it was shown.
+        if (step.Picture.Length > 0)
+            _shown = step.Picture;
+        return Coloured(_shown);
+    }
+
+    /// <summary>A place taken by chance: a corner and, added to it each way, some binary digits of a number drawn.</summary>
+    private PixelOffset Scattered((Vector2I Corner, (int From, int Digits) Across, (int From, int Digits) Down) scatter)
+    {
+        RandomDraw draw = Random.Draw();
+        return PixelOffset.FromWhole(
+            scatter.Corner.X + draw.Part(scatter.Across.From, scatter.Across.Digits), scatter.Corner.Y + draw.Part(scatter.Down.From, scatter.Down.Digits));
     }
 
     /// <inheritdoc/>
@@ -219,15 +304,36 @@ public partial class Draygon : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        if (!_dying && !_passesThroughSamus)
+        if (!_intangible && !_passesThroughSamus)
             base.Touch(part);
     }
 
     /// <inheritdoc/>
     protected override void OnCue(string cue)
     {
-        if (cue != "goop")
+        const string dyingEffect = "dying_effect:";
+        if (cue.StartsWith(dyingEffect, StringComparison.Ordinal))
+        {
+            LeaveEffect(cue[dyingEffect.Length..], Position + Scattered(_dyingScatter));
             return;
+        }
+
+        switch (cue)
+        {
+            case "goop":
+                break;
+            case "intangible":
+                _intangible = true;
+                return;
+            case "paralyse":
+                // Its tail and arms stop where they are, and stay as they were shown.
+                _parts.Remove("Tail");
+                _parts.Remove("Arms");
+                return;
+            default:
+                throw new InvalidOperationException($"Draygon's body gives the cue \"{cue}\", which it does not know.");
+        }
+
         // A goop leaves from by its tail, somewhere between straight down and straight ahead.
         PixelPosition from = PixelPosition.FromWhole(Position.X.Whole + (_pass == Facing.Right ? 24 : -28), Position.Y.Whole - 16);
         int scatter = Random.Draw().Part(0, 6);
@@ -260,9 +366,10 @@ public partial class Draygon : Enemy
         Player samus = Room.Player;
         if (CannonsFire && clock % 64 == 0)
         {
-            // One of three cannons, or none, picked by chance, fires at Samus if it is still whole.
-            int turn = Random.Draw().Part(0, 2);
-            Room.Enemies.OfType<DraygonCannon>().FirstOrDefault(cannon => cannon.Slot == turn && !cannon.IsBroken)?.FireAtSamus();
+            // One of its cannons, or none, picked by chance, fires at Samus if it is still whole.
+            (string turn, PixelPosition from) = _cannonTurns[Random.Draw().Part(_cannonChoice.From, _cannonChoice.Digits)];
+            if (turn.Length > 0)
+                Room.Enemies.OfType<DraygonCannon>().FirstOrDefault(cannon => cannon.Which == turn)?.FireAtSamusFrom(from);
         }
 
         if (Breathes && Updates % 128 == 0 && BubbleEffect.Length > 0)
@@ -576,10 +683,7 @@ public partial class Draygon : Enemy
                 if (Position.Y.Whole < 576)
                     break;
                 for (int drop = 0; drop < DeathDrops; drop++)
-                {
-                    RandomDraw draw = Random.Draw();
-                    Drop(Drops, PixelPosition.FromWhole(128 + draw.Part(0, 8), 352 + draw.Part(8, 6)));
-                }
+                    Drop(_scatteredDrops, PixelPosition.Origin + Scattered(_dropScatter));
 
                 foreach ((Effect sprite, _) in _burying)
                     Room.Remove(sprite);
@@ -766,7 +870,11 @@ public partial class Draygon : Enemy
     /// <summary>Turns its eye toward Samus: up, down, left or right, whichever is nearest.</summary>
     private void LookAt(Player samus)
     {
-        PixelOffset to = samus.Position - (Position + PixelOffset.FromWhole(Facing == Facing.Right ? 24 : -24, -32));
+        PixelPosition gaze = Position + PixelOffset.FromWhole(Facing == Facing.Right ? 24 : -24, -32);
+        // Bubbles rise from by its eye all the while it watches her.
+        if (Updates % 128 == 0 && EyeBubbleEffect.Length > 0)
+            LeaveEffect(EyeBubbleEffect, gaze);
+        PixelOffset to = samus.Position - gaze;
         string way = Math.Abs(to.X.Whole) >= Math.Abs(to.Y.Whole) ? (to.X.IsNegative ? "left" : "right") : (to.Y.IsNegative ? "up" : "down");
         PlayPart("Eye", $"eye_{(Facing == Facing.Right ? "right" : "left")}_looking_{way}");
     }
@@ -775,6 +883,14 @@ public partial class Draygon : Enemy
     private void Face(Facing way)
     {
         Facing = way;
+        // Its belly and its shell lie where the way it faces puts them.
+        foreach (Collider collider in EntityNode.CollidersOf(this))
+        {
+            collider.Rect = _boxes[way].TryGetValue(collider.Name.ToString(), out PixelRect box)
+                ? box
+                : throw new InvalidOperationException($"Draygon's data gives its collider \"{collider.Name}\" no place when it faces {way}.");
+        }
+
         string side = way == Facing.Right ? "right" : "left";
         Play($"body_{side}", restart: true);
         PlayPart("Tail", $"tail_{side}");
@@ -785,8 +901,12 @@ public partial class Draygon : Enemy
     private void PlayPart(string part, string timeline, bool restart = false)
     {
         FrameTimeline wanted = Timelines.Get(timeline);
-        if (restart || !_parts.TryGetValue(part, out TimelinePlayer? player) || player.Timeline != wanted)
-            _parts[part] = new TimelinePlayer(wanted);
+        if (!restart && _parts.TryGetValue(part, out TimelinePlayer? player) && player.Timeline == wanted)
+            return;
+        _parts[part] = new TimelinePlayer(wanted);
+        // A lash cut short leaves its body where it belongs.
+        if (part == "Tail")
+            _bodyShift = Vector2I.Zero;
     }
 
     /// <summary>Moves its parts' timelines on, and acts on their cues.</summary>
@@ -801,7 +921,7 @@ public partial class Draygon : Enemy
                     // Its tail lands: Samus is hurt where she hangs, the room shakes, and its swoops lose their edge.
                     _quickening = Pixels.FromNumber(SwoopQuickening);
                     Room.Player.Sap(new Hit(ContactDamage, HitSide.Enemies, HitKind.Contact) { Source = this });
-                    Room.Shake(WhipShakeStrength, 32);
+                    Room.Shake(WhipShakeStrength, 32, ShakeWay.Down);
                     if (DustEffect.Length > 0)
                         LeaveEffect(DustEffect, Room.Player.Position + PixelOffset.FromWhole(0, 16));
                 }
@@ -809,9 +929,39 @@ public partial class Draygon : Enemy
                 {
                     _phase = Phase.Release;
                 }
+                else if (cue.StartsWith("sound:", StringComparison.Ordinal))
+                {
+                    Sound(cue["sound:".Length..]);
+                }
+                else if (cue.StartsWith("shift:", StringComparison.Ordinal))
+                {
+                    string[] by = cue.Split(':');
+                    _bodyShift = new Vector2I(
+                        int.Parse(by[1], System.Globalization.CultureInfo.InvariantCulture), int.Parse(by[2], System.Globalization.CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Draygon's part \"{part}\" gives the cue \"{cue}\", which it does not know.");
+                }
             }
+        }
 
-            GetNodeOrNull<ActorVisual>(part)?.Show(player.Current);
+        // Its parts are shown after all their cues, so that a lash's shift moves the body and eye in the same update.
+        foreach ((string part, TimelinePlayer player) in _parts)
+        {
+            if (GetNodeOrNull<ActorVisual>(part) is not { } visual)
+                continue;
+            TimelineStep step = player.Current;
+            visual.Show(step with { Picture = Coloured(step.Picture) });
+            // Every part of it flashes with its body.
+            if (Visual is { } body)
+                visual.Tint(body.Modulate);
+        }
+
+        foreach (string layer in new[] { "Visual", "Eye" })
+        {
+            if (GetNodeOrNull<ActorVisual>(layer) is { } shifted)
+                shifted.Position = _bodyShift;
         }
     }
 }

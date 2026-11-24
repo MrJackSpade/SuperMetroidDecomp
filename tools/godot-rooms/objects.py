@@ -29,9 +29,6 @@ REMEMBERED_PLAIN = '1'
 # arms are, in blocks. Samus uses it by running against an arm.
 STATIONS = {'Map': ('map_station', -2, 1), 'Energy': ('energy_station', -1, 1), 'Missile': ('missile_station', -1, 1)}
 
-# The cannons in the walls of Draygon's chamber, in the order Draygon has them fire.
-CANNONS = ['UpperLeft', 'LowerLeft', 'UpperRight', 'LowerRight']
-
 # What the old code places that is not a thing here: storage it kept for a room, and platforms that are part of the
 # room's blocks in the new layouts.
 NOT_THINGS = {'EscapeRoomHeldPlaceSetup', 'WreckedShipAtticHeldPlaceSetup', 'ElevatorPlatformSetup', 'MotherBrainEscapeRoomGateSetup'}
@@ -180,7 +177,7 @@ class Objects:
     def draygon_wall_cannon_setup(self, block, setup, gates) -> None:
         which = named(setup, 'DraygonWallCannon')
         self.placed.append(Placed(B + 'draygon/draygon_cannon.tscn', which + 'Cannon', {
-            'Slot': str(CANNONS.index(which)),
+            'Which': quoted(which),
             'StartsFacing': LEFT if named(setup, 'DraygonCannonOrientation') == 'Left' else RIGHT,
             'StartsBroken': truth(named(setup, 'DraygonCannonStart') == 'Destroyed'), 'AlwaysActive': 'true'}, at=corner(block)))
 

@@ -116,7 +116,7 @@ public sealed class KnockedBackState : PlayerState
 
     /// <summary>Moves the player down by as far as they move across this update and one pixel more, with no speed of their own.</summary>
     private static MoveResult PressDown(Player owner) =>
-        owner.Room.Mover.MoveDown(owner.Body, owner.SpeedAcross.Abs() + Pixels.FromWhole(1), MoveOptions.Plain);
+        owner.Room.Mover.MoveDown(owner.Body, owner.SpeedAcross.Abs() + Pixels.FromWhole(1), owner.BodyMoves);
 
     /// <summary>The update after the throw: the player is pressed down once more, and stands if that met ground, or falls.</summary>
     private static PlayerState SetDown(Player owner)

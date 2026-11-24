@@ -409,8 +409,14 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Which way the player is steering: -1 left, 1 right, 0 neither or both.</summary>
     public int Intent => (_input.IsHeld(GameAction.Right) ? 1 : 0) - (_input.IsHeld(GameAction.Left) ? 1 : 0);
 
+    /// <summary>
+    /// How the player's body meets terrain: stopped by terrain and solids, and held up by sloped ground under its
+    /// middle column where the slope's tile says it holds things so. Every move and test of the player's body uses it.
+    /// </summary>
+    public MoveOptions BodyMoves { get; } = MoveOptions.Plain with { Slopes = SlopeTreatment.ClimbUnderMiddle };
+
     /// <summary>Whether the player stands on terrain or a solid.</summary>
-    public bool IsOnGround => Room.Mover.IsOnGround(Body, MoveOptions.Plain) || StandsInBlockThatHoldsUp();
+    public bool IsOnGround => Room.Mover.IsOnGround(Body, BodyMoves) || StandsInBlockThatHoldsUp();
 
     /// <summary>Whether the player's feet are in a block that pulls down and yet holds up what stands in it, as quicksand does.</summary>
     private bool StandsInBlockThatHoldsUp() =>
@@ -882,7 +888,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         PixelPosition[] candidates = IsOnGround && !aroundMiddle ? [keepingFeet] : [Position, keepingFeet, keepingHead];
         foreach (PixelPosition candidate in candidates)
         {
-            if (change <= 0 || Room.Mover.IsFree(BodyRectFor(form).At(candidate), this, MoveOptions.Plain))
+            if (change <= 0 || Room.Mover.IsFree(BodyRectFor(form).At(candidate), this, BodyMoves))
                 return candidate;
         }
 
@@ -1104,7 +1110,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public MoveResult MoveAcross(bool byDashAlone = false)
     {
         bool grounded = IsOnGround;
-        MoveOptions options = MoveOptions.Plain with { ClimbPerPixel = grounded ? ClimbPerPixel : 1 };
+        MoveOptions options = BodyMoves with { ClimbPerPixel = grounded ? ClimbPerPixel : 1 };
         Pixels distance = Slowed(InLiquid(byDashAlone ? Travel.Toward(DashSpeed) : SpeedAcross));
         _reachAcross = distance.Abs();
         distance = OverSlopes(distance);
@@ -1120,7 +1126,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         Pixels distance = InLiquid(Velocity.Y);
         ClearWay(Pixels.Zero, distance);
-        MoveResult result = Room.Mover.MoveDown(Body, distance, MoveOptions.Plain);
+        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
         if (result.Blocked)
             Velocity = Velocity.WithY(Pixels.Zero);
         return result;
@@ -1139,7 +1145,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         if (StandsInBlockThatHoldsUp())
             return true;
-        return Room.Mover.MoveDown(Body, _reachAcross + Pixels.FromWhole(1), MoveOptions.Plain).Blocked;
+        return Room.Mover.MoveDown(Body, _reachAcross + Pixels.FromWhole(1), BodyMoves).Blocked;
     }
 
     /// <summary>
@@ -1180,7 +1186,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Pixels distance = InLiquid(Velocity.Y);
         Fall();
         ClearWay(Pixels.Zero, distance);
-        MoveResult result = Room.Mover.MoveDown(Body, distance, MoveOptions.Plain);
+        MoveResult result = Room.Mover.MoveDown(Body, distance, BodyMoves);
         if (result.Blocked && !keepsSpeedWhenStopped)
             FallFromRest();
         return result;
@@ -1269,14 +1275,17 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Whether the player is against a wall on the given side.</summary>
     public bool IsAgainstWall(Facing side) => IsWithinReachOfWall(side, 1);
 
-    /// <summary>Whether a wall lies within <paramref name="reach"/> pixels of the player's body on the given side.</summary>
+    /// <summary>
+    /// Whether a wall lies within <paramref name="reach"/> pixels of the player's body on the given side. Sloped ground
+    /// that holds things up by their middle is no wall.
+    /// </summary>
     public bool IsWithinReachOfWall(Facing side, int reach)
     {
         PixelRect body = BodyRect;
         var beside = side == Facing.Left
             ? new PixelRect(body.Left - reach, body.Top, reach, body.Height)
             : new PixelRect(body.Right, body.Top, reach, body.Height);
-        return !Room.Mover.IsFree(beside, this, MoveOptions.Plain with { Slopes = SlopeTreatment.Wall });
+        return !Room.Mover.IsFree(beside, this, MoveOptions.Plain with { Slopes = SlopeTreatment.IgnoreMiddleHeld });
     }
 
     /// <summary>Sets the player's aim from what is held: up, down while in the air, and each with steering for a diagonal.</summary>
@@ -1436,9 +1445,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         }
 
         if (across != Pixels.Zero)
-            Room.Mover.MoveAcross(Body, across, MoveOptions.Plain);
+            Room.Mover.MoveAcross(Body, across, BodyMoves);
         if (down != Pixels.Zero)
-            Room.Mover.MoveDown(Body, down, MoveOptions.Plain);
+            Room.Mover.MoveDown(Body, down, BodyMoves);
     }
 
     /// <summary>

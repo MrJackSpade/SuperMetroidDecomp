@@ -49,7 +49,7 @@ public sealed class ChangingPostureState : PlayerState
         // middle then drops by as much as a crouch stands taller than the low form, or as far as there is room.
         int drop = owner.HalfHeightOf(Player.Crouching) - owner.HalfHeightOf(Player.Crawling);
         owner.TrySetForm(Player.Crawling, aroundMiddle: true);
-        owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(drop), MoveOptions.Plain);
+        owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(drop), owner.BodyMoves);
     }
 
     /// <inheritdoc/>

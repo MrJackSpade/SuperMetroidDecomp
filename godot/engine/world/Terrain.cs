@@ -173,7 +173,7 @@ public partial class Terrain : Node2D, ITerrainShape
                     case TileKind.Solid:
                         return true;
                     case TileKind.Slope:
-                        if (slopes != SlopeTreatment.Ignore && SlopeIsSolidIn(tile, column, row, rect))
+                        if (SlopeStops(tile, column, row, rect, slopes))
                             return true;
                         break;
                     default:
@@ -351,6 +351,29 @@ public partial class Terrain : Node2D, ITerrainShape
         Layout.Patches.TryGetValue(name, out TerrainPatch? patch)
             ? patch
             : throw new ArgumentException($"The layout {LayoutFile} has no patch named \"{name}\".", nameof(name));
+
+    /// <summary>Whether a slope tile stops a body covering <paramref name="rect"/>, by the way its mover treats slopes.</summary>
+    private bool SlopeStops(TileDefinition tile, int column, int row, PixelRect rect, SlopeTreatment slopes)
+    {
+        bool holdsMiddle = tile.Slope is { HoldsMiddle: true };
+        switch (slopes)
+        {
+            case SlopeTreatment.Ignore:
+                return false;
+            case SlopeTreatment.IgnoreMiddleHeld when holdsMiddle:
+                return false;
+            case SlopeTreatment.ClimbUnderMiddle when holdsMiddle:
+                // Only the body's middle column meets the slope.
+                return SlopeIsSolidIn(tile, column, row, new PixelRect(rect.Left + rect.Width / 2, rect.Top, 1, rect.Height));
+            case SlopeTreatment.Climb:
+            case SlopeTreatment.Wall:
+            case SlopeTreatment.ClimbUnderMiddle:
+            case SlopeTreatment.IgnoreMiddleHeld:
+                return SlopeIsSolidIn(tile, column, row, rect);
+            default:
+                throw new InvalidOperationException($"Undefined way {slopes} of treating slopes.");
+        }
+    }
 
     /// <summary>Whether a slope tile has a solid pixel inside a rectangle of the room.</summary>
     private bool SlopeIsSolidIn(TileDefinition tile, int column, int row, PixelRect rect)

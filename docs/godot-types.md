@@ -424,7 +424,12 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
   scene never stores its tiles.
 - A plain tile is data: empty, solid, or a slope with a height per pixel column: the pixels of the column that are
   solid, counted up from the tile's bottom, or down from its top for a ceiling. A floor's slope may let only a share
-  of a move across it through (`ground_share`, in 256ths), which the player's movement takes off.
+  of a move across it through (`ground_share`, in 256ths), which the player's movement takes off. A slope may say
+  that it holds things up by their middle (`"holds": "middle"`): to a mover that treats slopes so
+  (`SlopeTreatment.ClimbUnderMiddle`, which the player's body does) only the middle column of the body meets it, so
+  the body's edges pass into it and the mover stands where its surface is under their middle, and such a mover
+  climbs only slopes of that kind; a slope that does not say so is a step or a wall and meets the whole body. To
+  everything else a slope is solid along its surface, whichever kind it is.
 - A **block** is a reactive piece of terrain, one or two tiles wide and high, placed as one unit with a
   `BlockType`. It is not a node. `Terrain` owns whether each block is intact, broken, hidden or regrowing.
 - A `BlockType` is a combination of these rules and nothing else. The rules are the engine's; the hit kinds, powers
@@ -672,7 +677,9 @@ in `engine/actors/player/`.
   cut short like any jump and steered by its own move values (`crawling_jumping`) for the whole jump, and landing
   with the jump held jumps again at once. Up leaves the low form, and so does the jump for a player who cannot jump
   in it.
-- **On the ground.** A move across climbs sloped ground by up to `climb_per_pixel` for each pixel. A player with no
+- **On the ground.** The player's body meets terrain in one way everywhere (`Player.BodyMoves`): sloped ground
+  that holds things up by their middle holds only its middle column, and is no wall to it. A move across climbs
+  such ground by up to `climb_per_pixel` for each pixel. A player with no
   speed up or down who is about to carry the leading edge of their body into sloped ground moves only the share of
   the distance each such slope lets through, counted in 256ths of a pixel with the finer part dropped. Once they
   have moved across, the state they are in presses them to the ground (`PressToGround`): down by as far as they set

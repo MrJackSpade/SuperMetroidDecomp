@@ -416,7 +416,7 @@ public partial class Samus : Player
         if (from is CrouchingState && to is JumpingState && Aim == Aim.Forward)
         {
             int taller = HalfHeightOf(FormOr(Jumping)) - HalfHeight;
-            Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), MoveOptions.Plain);
+            Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), BodyMoves);
         }
 
         if (to is not RunningState)
@@ -428,7 +428,7 @@ public partial class Samus : Player
         if (!stepsOn)
             return to;
         Facing headed = from is MoonwalkingState ? Facing.Opposite() : Facing;
-        MoveResult step = Room.Mover.MoveAcross(Body, headed.Toward(Pixels.FromWhole(1)), MoveOptions.Plain);
+        MoveResult step = Room.Mover.MoveAcross(Body, headed.Toward(Pixels.FromWhole(1)), BodyMoves);
         if (!step.Blocked)
             return to;
         return from is StandingState ? from : new StandingState();

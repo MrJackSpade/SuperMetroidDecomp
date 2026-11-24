@@ -68,7 +68,7 @@ public sealed class CrystalFlashState : PlayerState, IUntouchable, ISamusLook
         if (_rising > 0)
         {
             _rising--;
-            owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(-RiseStep), Engine.Collision.MoveOptions.Plain);
+            owner.Room.Mover.MoveDown(owner.Body, Pixels.FromWhole(-RiseStep), owner.BodyMoves);
             return null;
         }
 

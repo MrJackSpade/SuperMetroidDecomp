@@ -72,6 +72,12 @@ public abstract class PlayerState : State<Player>
     public virtual PlayerState? Ended(Player owner) => null;
 
     /// <summary>
+    /// Whether this state's own end gives way to <paramref name="asked"/>, another state the input asked for on the
+    /// update it ends. A state's end outranks the input unless the state says otherwise here.
+    /// </summary>
+    public virtual bool EndGivesWayTo(PlayerState asked) => false;
+
+    /// <summary>
     /// What the state does on an update whose input asked for nothing, when nothing else changed it: the state to
     /// change to, or null to carry on. Called after the player has moved.
     /// </summary>
@@ -89,8 +95,11 @@ public abstract class PlayerState : State<Player>
             return owner.State;
 
         PlayerState? ended = Ended(owner);
-        if (ended is not null)
+        bool givesWay = asked is not null && !ReferenceEquals(asked, this) && EndGivesWayTo(asked);
+        if (ended is not null && !givesWay)
             return ended;
-        return owner.TakeInterruption() ?? met ?? (asked is null ? Unasked(owner) : asked) ?? this;
+        if ((owner.TakeInterruption() ?? met) is { } forced)
+            return forced;
+        return owner.EnteringFrom(this, (asked is null ? Unasked(owner) : asked) ?? this, unasked: asked is null);
     }
 }

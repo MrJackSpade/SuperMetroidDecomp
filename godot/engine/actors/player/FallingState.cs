@@ -22,7 +22,7 @@ public sealed class FallingState : PlayerState
             return new WallJumpingState();
 
         owner.StepDash(building: false);
-        owner.Steer(owner.Moves(FallingMoves));
+        owner.SteerPlainly(owner.Moves(FallingMoves));
         owner.MoveAcross();
         // The fall moves by the speed it had, and gravity adds to it afterwards: a fall from rest moves nothing in its
         // first update.

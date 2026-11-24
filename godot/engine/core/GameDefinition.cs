@@ -170,4 +170,10 @@ public partial class GameDefinition : Resource
     /// particular one.
     /// </summary>
     public virtual IRandomSequence CreateRandomSequence() => new PlainRandomSequence(RandomSeed);
+
+    /// <summary>
+    /// Makes the way the player's speed across is read against its limits. The engine's plain reading unless the game
+    /// needs a particular one.
+    /// </summary>
+    public virtual ISpeedReadings CreateSpeedReadings() => new PlainSpeedReadings();
 }

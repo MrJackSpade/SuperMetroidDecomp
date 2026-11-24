@@ -40,7 +40,7 @@ public sealed class JumpingState : PlayerState
 
         CutShort(owner);
         owner.StepDash(building: false);
-        owner.Steer(owner.Moves(JumpingMoves));
+        owner.SteerPlainly(owner.Moves(JumpingMoves));
         owner.MoveAcross();
         owner.MoveDown();
         owner.Fall();

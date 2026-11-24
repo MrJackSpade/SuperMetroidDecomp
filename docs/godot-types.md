@@ -146,6 +146,10 @@ something that leaves the room.
 - What is there now: `CartridgeRandom`, the cartridge's own sequence of random numbers, and `FrameRandom`, a session
   service that draws one number every update of play and uses none, as the cartridge did every frame: much of this
   game reads the number last drawn (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
+  `CartridgeSpeedReadings` is how the cartridge reads Samus's speed across against its limits (`ISpeedReadings`,
+  which the engine answers plainly with one comparison): whole pixels and fraction each on its own, by the sign of
+  their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as
+  under it.
 
 **Why, and extending it.** The layers exist so the game can be thrown away and the engine kept. Everything else
 here follows from that. When unsure which layer something goes in, imagine the fork: the new game has a different
@@ -602,6 +606,27 @@ in `engine/actors/player/`.
   game's player asks for states of its own through `ChooseState`, ahead of the state's own asking. Weapons fire and
   body powers are delivered after the change. `ChangeState` is for whatever takes the player over at once (a hold,
   a script, a station) and drops an interruption that was waiting.
+- **Speed across.** A state that steers keeps the player's own speed across as a size, carried the way they
+  travel, with one of three conditions (`Steering`): *steered* (it gains by the state's move values, and the top
+  speed replaces a speed that reads as past it); *unsteered* (nothing drives it: on the ground it slows to rest and
+  is steered again, in the air it carries on as if steered); *reversing* (the player has turned and still moves the
+  old way, against the way they now face, slowing to rest, then steered). A speed slowed exactly to rest keeps its
+  condition one update more. `Player.Steer` and `SteerInAir` are the two rules; how a speed is read against its top
+  and a dash against its cap is the game's to say (`ISpeedReadings`, from the `GameDefinition`; the engine's own is
+  a plain comparison). A dash is a second speed on top, carried the same way, kept through the air while the player
+  has momentum; `FoldDash` adds it into the player's own speed and leaves none. Meeting a wall brings all of it to
+  rest. States that throw the player about (a knockback, a push, a script) set `Velocity` outright.
+- **Standing** keeps no speed: each update a dash's speed alone still carries the player, and then everything across
+  is at rest. **Running** builds the dash while its action is held. A runner whose input asks for nothing still moves
+  that update at full speed; then, if they had speed, they stay running, the dash is folded into their speed, their
+  momentum ends, and they slow, unsteered, each update, even if steered again, until past rest; they then gain one
+  step and stand. A runner who lets the direction go but still aims stands at once. A runner stopped by a wall
+  stands. **Turning** on the ground faces the new way from its first update and reverses by the turn's own move
+  values for as long as the turn lasts, ending the player's momentum on each of its updates; it ends standing, and
+  its end gives way to a jump asked for on its last update. Letting the new direction go during a turn makes the
+  player steered for the rest of it. With no turn time set the player turns at once and runs on, reversing.
+- As a change the input asked for (or the state's unasked carrying on) is about to take effect, the game's player
+  is told (`Entering`) and may do something of its own or name another state.
 - A wall jump leaves the wall at a set speed with steering locked for a moment, or, where the game says it is
   steered, is steered by its own move values from its start for as long as the lock lasts.
 - A knockback lasts as long as the player's knockbacks do, unless whoever knocks them back says how long.
@@ -647,6 +672,18 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
   says so: crawling needs `morph_ball`, jumping while crawling needs `spring_ball`.
 - **Her equipment** changes what a state does; it does not add states. Space jump lets a spin jump again. The suits
   cancel sources of ongoing damage and what liquids do to movement.
+- **Her run's one pixel.** As the cartridge does, a run about to be taken up in a pose she is not already running
+  in first moves her one pixel on, the way she was headed: as a run starts, each time her running pose changes (her
+  arm coming out after a shot, her aim going diagonal or level again: "arm pumping"), and on each update she runs on
+  with nothing asked of her. A wall in that pixel stops the run and she stands against it. It is hers alone, so it
+  is in `Samus.Entering`.
+- **Moonwalking** walks her backwards by its own move values while the attack and the direction behind her are
+  held. A jump turns her (the engine's turn), and the turn becomes a spin jump while the jump and the way she then
+  faces are held; with the attack let go she turns; steering the way she faces she runs; walking off a floor she
+  falls facing the way she was going.
+- **Her aim on the ground.** Running with a direction held she aims level or diagonally, never straight up; down
+  aims diagonally down only with a direction held. Standing with both angle actions held she aims straight up and a
+  direction the way she faces does not start a run.
 - **Her weapons:** the beam, whose switched-on properties (charge, ice, wave, spazer, plasma) combine into one
   `Hit`; missiles, super missiles, bombs, power bombs; the special attacks.
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged

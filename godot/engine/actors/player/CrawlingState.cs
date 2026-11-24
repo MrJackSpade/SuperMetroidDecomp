@@ -54,7 +54,7 @@ public sealed class CrawlingState : PlayerState
             JumpingState.CutShort(owner);
 
         owner.StepDash(building: false);
-        owner.Steer(owner.Moves(grounded ? CrawlingMoves : CrawlingInAirMoves));
+        owner.SteerPlainly(owner.Moves(grounded ? CrawlingMoves : CrawlingInAirMoves));
         owner.MoveAcross();
         if (grounded)
         {

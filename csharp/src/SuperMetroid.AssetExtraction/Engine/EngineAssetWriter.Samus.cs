@@ -174,7 +174,7 @@ public sealed partial class EngineAssetWriter
 
             // What she can do, and the equipment each thing needs: the Godot game's own names.
             .Value("can_crouch", true)
-            .Value("crouch_while_running", false)
+            .Value("crouch_while_running", true)
             .Value("can_crawl", true)
             .Value("crawl_needs", "morph_ball")
             .Value("can_jump_while_crawling", true)

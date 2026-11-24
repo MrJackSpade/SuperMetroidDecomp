@@ -2,7 +2,10 @@ using Engine.Input;
 
 namespace Engine.Actors;
 
-/// <summary>Standing upright on the ground, at rest or coming to rest.</summary>
+/// <summary>
+/// Standing upright on the ground. Standing keeps none of the player's speed across: on each update a dash's speed
+/// alone still carries them, and then everything across is at rest.
+/// </summary>
 public sealed class StandingState : PlayerState
 {
     /// <inheritdoc/>
@@ -17,18 +20,23 @@ public sealed class StandingState : PlayerState
         if (owner.MayCrouch && owner.Input.WasPressed(GameAction.Down))
             return new CrouchingState();
         if (owner.Intent == 0)
-            return null;
-        bool turning = (owner.Intent > 0) != (owner.Facing == Shared.Facing.Right);
-        return turning && owner.TurnUpdates > 0 ? new TurningState() : new RunningState();
+            return owner.Aim == Shared.Aim.Forward ? null : this;
+        if ((owner.Intent > 0) == (owner.Facing == Shared.Facing.Right))
+            return new RunningState();
+        if (owner.TurnUpdates > 0)
+            return new TurningState();
+
+        // A player who turns at once is already running the other way.
+        owner.TurnAround();
+        return new RunningState();
     }
 
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
-        // Standing still ends any momentum a dash had built.
-        owner.LoseMomentum();
-        owner.Slow(owner.Moves(StandingMoves));
+        owner.ComeToRest();
         owner.MoveAcross();
+        owner.StopAcross();
         return owner.IsOnGround ? null : new FallingState();
     }
 }

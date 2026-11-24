@@ -36,7 +36,7 @@ public sealed class DamageBoostState : PlayerState, ISamusLook
     {
         JumpingState.CutShort(owner);
         owner.StepDash(building: false);
-        owner.Steer(owner.Moves(Moves));
+        owner.SteerPlainly(owner.Moves(Moves));
         owner.MoveAcross();
         bool falling = !owner.Velocity.Y.IsNegative;
         MoveResult down = owner.MoveDown();

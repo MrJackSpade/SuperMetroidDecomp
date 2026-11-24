@@ -26,9 +26,9 @@ public sealed class CrouchingState : PlayerState
     /// <inheritdoc/>
     public override PlayerState? Move(Player owner)
     {
-        owner.LoseMomentum();
-        owner.Slow(owner.Moves(CrouchingMoves));
+        owner.ComeToRest();
         owner.MoveAcross();
+        owner.StopAcross();
         bool falls = !owner.IsOnGround && owner.CanTakeForm(owner.FormOr(Player.Falling), aroundMiddle: true);
         return falls ? new FallingState() : null;
     }

@@ -54,7 +54,7 @@ public sealed class WallJumpingState : PlayerState
         JumpingState.CutShort(owner);
         owner.StepDash(building: false);
         if (owner.WallJumpSteered)
-            owner.Steer(owner.Moves(WallJumpingMoves));
+            owner.SteerPlainly(owner.Moves(WallJumpingMoves));
         owner.MoveAcross();
         owner.MoveDown();
         owner.Fall();

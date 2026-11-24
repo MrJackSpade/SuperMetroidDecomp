@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Collision;
 using Engine.Content;
 using Engine.Input;
 using Engine.Shared;
@@ -327,7 +328,8 @@ public partial class Samus : Player
 
     /// <summary>
     /// Sets her aim: the angle actions aim diagonally, and both together straight up; up aims up, or diagonally up
-    /// while she steers; down aims down in the air, or diagonally down while she steers or runs.
+    /// while she steers; down aims down in the air, or diagonally down while she steers. On the ground down aims only
+    /// with a direction. Running with a direction held, she aims level or diagonally and never straight up.
     /// </summary>
     public override void AimFromInput()
     {
@@ -335,7 +337,9 @@ public partial class Samus : Player
         bool angleUp = Input.IsHeld(Actions.AngleUp), angleDown = Input.IsHeld(Actions.AngleDown);
         bool steering = Intent != 0;
         bool grounded = IsOnGround;
-        if (angleUp && angleDown)
+        if (State is RunningState && steering)
+            Aim = angleUp ? Aim.DiagonalUp : angleDown ? Aim.DiagonalDown : up ? Aim.DiagonalUp : down ? Aim.DiagonalDown : Aim.Forward;
+        else if (angleUp && angleDown)
             Aim = Aim.Up;
         else if (angleUp)
             Aim = Aim.DiagonalUp;
@@ -345,10 +349,63 @@ public partial class Samus : Player
             Aim = steering ? Aim.DiagonalUp : Aim.Up;
         else if (down && !grounded)
             Aim = steering ? Aim.DiagonalDown : Aim.Down;
-        else if (down && State is RunningState)
+        else if (down && steering)
             Aim = Aim.DiagonalDown;
         else
             Aim = Aim.Forward;
+    }
+
+    /// <summary>The poses she runs in. Each is the same run; changing from one to another is what moves her a pixel on.</summary>
+    private enum RunPose
+    {
+        /// <summary>Running with her arm at her side.</summary>
+        Plain,
+
+        /// <summary>Running with her arm held out, having fired.</summary>
+        Firing,
+
+        /// <summary>Running aiming diagonally up.</summary>
+        AimedUp,
+
+        /// <summary>Running aiming diagonally down.</summary>
+        AimedDown,
+    }
+
+    /// <summary>The pose she last ran in.</summary>
+    private RunPose _runPose;
+
+    /// <summary>
+    /// The pose she runs in next: as she aims; else with her arm out once she has fired, for as long as she runs on
+    /// without aiming; a run just begun has not fired yet.
+    /// </summary>
+    private RunPose NextRunPose(bool alreadyRunning) => Aim switch
+    {
+        Aim.DiagonalUp => RunPose.AimedUp,
+        Aim.DiagonalDown => RunPose.AimedDown,
+        _ => alreadyRunning && (_runPose == RunPose.Firing || Input.IsHeld(GameAction.Attack)) ? RunPose.Firing : RunPose.Plain,
+    };
+
+    /// <summary>
+    /// As the cartridge does, a run about to be taken up in a pose she is not already running in first moves her one
+    /// pixel on, the way she was headed: as a run starts, as her running pose changes (her arm coming out or her aim
+    /// changing), and on each update she runs on with nothing asked of her. A wall in that pixel stops the run and she
+    /// stands against it.
+    /// </summary>
+    protected override PlayerState Entering(PlayerState from, PlayerState to, bool unasked)
+    {
+        if (to is not RunningState)
+            return to;
+        bool alreadyRunning = from is RunningState;
+        RunPose pose = NextRunPose(alreadyRunning);
+        bool stepsOn = !alreadyRunning || unasked || pose != _runPose;
+        _runPose = pose;
+        if (!stepsOn)
+            return to;
+        Facing headed = from is MoonwalkingState ? Facing.Opposite() : Facing;
+        MoveResult step = Room.Mover.MoveAcross(Body, headed.Toward(Pixels.FromWhole(1)), MoveOptions.Plain);
+        if (!step.Blocked)
+            return to;
+        return from is StandingState ? from : new StandingState();
     }
 
     /// <summary>Selects one of the things she can select; given nothing, the beam alone.</summary>
@@ -438,6 +495,14 @@ public partial class Samus : Player
                 if (current is StandingState && Room.Session.Options.IsOn(Toggles.Moonwalk) && input.IsHeld(GameAction.Attack) &&
                     Intent != 0 && Intent > 0 != (Facing == Facing.Right))
                     return new MoonwalkingState();
+
+                // Standing with both angle actions held she aims straight up, and a direction the way she faces does not start a run.
+                if (current is StandingState && input.IsHeld(Actions.AngleUp) && input.IsHeld(Actions.AngleDown) &&
+                    Intent != 0 && Intent > 0 == (Facing == Facing.Right))
+                {
+                    AimFromInput();
+                    return current;
+                }
                 if (current is CrouchingState && Intent != 0 && Intent > 0 == (Facing == Facing.Right) && TrySetForm(Standing))
                     return new RunningState();
                 if (current is not RunningState && Selected == Equipment.XrayScope && input.IsHeld(Actions.Run))
@@ -445,6 +510,13 @@ public partial class Samus : Player
                 if (Selected == Equipment.GrappleBeam && input.WasPressed(GameAction.Attack) && Grapple is { } grapple)
                     grapple.Fire(this);
                 return null;
+
+            case TurningState:
+                // A turn becomes a spin jump while the jump and the way she now faces are held; a turn begun aiming
+                // needs the jump pressed afresh.
+                bool towardFacing = Intent != 0 && Intent > 0 == (Facing == Facing.Right);
+                bool jumps = Aim == Aim.Forward ? input.IsHeld(GameAction.Jump) : input.WasPressed(GameAction.Jump);
+                return towardFacing && jumps ? new SpinJumpingState() : null;
 
             case JumpingState when wasWallJumping:
                 return new SpinJumpingState(keepsSpeed: true);

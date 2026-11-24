@@ -216,14 +216,24 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     private int _ongoingHundredths;
     private int _addedOngoing;
     private bool _valuesLoaded;
+    private ISpeedReadings _readings = new PlainSpeedReadings();
     private readonly Dictionary<string, IReadOnlyList<string>> _ongoingCancelledBy = new(StringComparer.Ordinal);
     private readonly List<BodyPower> _bodyPowers = [];
 
     /// <inheritdoc/>
     public new PixelPosition Position { get; set; }
 
-    /// <summary>The player's speed, apart from any dash.</summary>
+    /// <summary>
+    /// The player's speed, apart from any dash. Across, a state that steers keeps it as a size carried the way the
+    /// player travels (<see cref="Steer"/>); a state that throws the player about sets it outright.
+    /// </summary>
     public PixelVelocity Velocity { get; set; }
+
+    /// <summary>How the player's own speed across stands to the way they face.</summary>
+    public Steering Steering { get; set; }
+
+    /// <summary>The way a steered speed carries the player: the way they face, or against it while they are reversing.</summary>
+    public Facing Travel => Steering == Steering.Reversing ? Facing.Opposite() : Facing;
 
     /// <summary>The speed a dash is adding across, in the way the player is going.</summary>
     public Pixels DashSpeed { get; private set; }
@@ -369,6 +379,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         if (!_valuesLoaded)
         {
             _valuesLoaded = true;
+            _readings = room.Session.Definition.CreateSpeedReadings();
             DataValues.Fill(this, room.Content);
             if (Mediums.Count == 0)
                 Mediums.Add(PlayerMedium.Plain());
@@ -521,6 +532,20 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// movement is done unless something outranks it, or null to leave the asking to the state itself.
     /// </summary>
     protected virtual PlayerState? ChooseState(PlayerState current) => null;
+
+    /// <summary>
+    /// Called as the player, having moved with nothing ended, interrupting or met, is about to be in
+    /// <paramref name="to"/>: the state their input asked for, the state they do unasked, or
+    /// <paramref name="from"/> itself when they carry on. A game whose player does something of its own at that moment
+    /// does it here, and returns the state to be in.
+    /// </summary>
+    /// <param name="from">The state the player moved as.</param>
+    /// <param name="to">The state they are about to be in.</param>
+    /// <param name="unasked">Whether this update's input asked for nothing.</param>
+    protected virtual PlayerState Entering(PlayerState from, PlayerState to, bool unasked) => to;
+
+    /// <summary>Tells the game's player that they are about to be in a state, and gives the state to be in.</summary>
+    internal PlayerState EnteringFrom(PlayerState from, PlayerState to, bool unasked) => Entering(from, to, unasked);
 
     /// <summary>What the player's input asks of <paramref name="state"/>: the game's own answer, and failing that the state's.</summary>
     internal PlayerState? AskedOf(PlayerState state) => ChooseState(state) ?? state.Asked(this);
@@ -712,10 +737,99 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
-    /// Changes the player's speed across by steering with <paramref name="moves"/>: toward the way they steer, up to
-    /// the top speed; against the way they are going, slowing; and with no steering, as the values say.
+    /// Changes the player's own speed across for one update on the ground by <paramref name="moves"/>. Steered, the
+    /// speed gains, and the top speed replaces a speed that reads as past it. Unsteered or reversing, it slows, and a
+    /// speed slowed past rest is at rest and steered again; one slowed exactly to rest keeps its condition for one
+    /// update more. The speed then carries the player the way they travel.
     /// </summary>
-    public void Steer(MoveValues moves)
+    /// <param name="moves">The move values of what the player is doing.</param>
+    /// <param name="heading">The way the player is headed when that is not the way they face, as walking backwards.</param>
+    public void Steer(MoveValues moves, Facing? heading = null)
+    {
+        ArgumentNullException.ThrowIfNull(moves);
+        Pixels speed = Velocity.X.Abs();
+        if (Steering == Steering.Steered)
+            speed = Gained(speed, moves, out _);
+        else
+            speed = SlowedToRest(speed, moves);
+        CarryAcross(speed, heading);
+    }
+
+    /// <summary>
+    /// Changes the player's own speed across for one update in the air by <paramref name="moves"/>. Only a reversal
+    /// slows there: steered or unsteered, the speed gains. Returns whether the top speed replaced it.
+    /// </summary>
+    public bool SteerInAir(MoveValues moves)
+    {
+        ArgumentNullException.ThrowIfNull(moves);
+        Pixels speed = Velocity.X.Abs();
+        bool capped = false;
+        if (Steering == Steering.Reversing)
+            speed = SlowedToRest(speed, moves);
+        else
+            speed = Gained(speed, moves, out capped);
+        CarryAcross(speed, heading: null);
+        return capped;
+    }
+
+    /// <summary>A speed after one update's gain, the top speed in its place when it reads as past it.</summary>
+    private Pixels Gained(Pixels speed, MoveValues moves, out bool capped)
+    {
+        Pixels faster = speed + moves.Gain;
+        capped = _readings.IsPastTop(faster, moves.Top);
+        return capped ? moves.Top : faster;
+    }
+
+    /// <summary>A speed after one update's slowing; slowed past rest, it is at rest and the player is steered again.</summary>
+    private Pixels SlowedToRest(Pixels speed, MoveValues moves)
+    {
+        Pixels slower = speed - moves.Loss;
+        if (!slower.IsNegative)
+            return slower;
+        Steering = Steering.Steered;
+        return Pixels.Zero;
+    }
+
+    /// <summary>Sets the player's own speed across to a size, carried the way they travel.</summary>
+    private void CarryAcross(Pixels speed, Facing? heading)
+    {
+        Facing way = heading is { } headed ? (Steering == Steering.Reversing ? headed.Opposite() : headed) : Travel;
+        Velocity = Velocity.WithX(way.Toward(speed));
+    }
+
+    /// <summary>Brings the player's own speed across to rest and makes them steered. A dash is left as it is.</summary>
+    public void ComeToRest()
+    {
+        Velocity = Velocity.WithX(Pixels.Zero);
+        Steering = Steering.Steered;
+    }
+
+    /// <summary>Adds the dash's speed into the player's own speed, the way that speed already goes, and leaves no dash.</summary>
+    public void FoldDash()
+    {
+        if (DashSpeed.IsZero)
+            return;
+        Pixels speed = Velocity.X.Abs() + DashSpeed;
+        Velocity = Velocity.WithX(Velocity.X.IsZero ? Travel.Toward(speed) : Velocity.X.IsNegative ? -speed : speed);
+        DashSpeed = Pixels.Zero;
+    }
+
+    /// <summary>
+    /// Turns the player to face the other way. Their dash's speed is added into their own, which goes on carrying
+    /// them the old way, reversing, until it is slowed to rest.
+    /// </summary>
+    public void TurnAround()
+    {
+        FoldDash();
+        Facing = Facing.Opposite();
+        Steering = Steering.Reversing;
+    }
+
+    /// <summary>
+    /// Changes the player's speed across by steering with <paramref name="moves"/> the plain way: toward the way they
+    /// steer, up to the top speed; against the way they are going, slowing; and with no steering, as the values say.
+    /// </summary>
+    public void SteerPlainly(MoveValues moves)
     {
         ArgumentNullException.ThrowIfNull(moves);
         int intent = Intent;
@@ -744,9 +858,6 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         Velocity = Velocity.WithX(speed);
     }
 
-    /// <summary>Slows the player's speed across toward rest by <paramref name="moves"/>' deceleration.</summary>
-    public void Slow(MoveValues moves) => Velocity = Velocity.WithX(Velocity.X.Toward(Pixels.Zero, moves.Loss));
-
     /// <summary>
     /// Builds or keeps the player's dash for one update. While <paramref name="building"/>, which a state says when
     /// the player is running freely with the dash action held, the dash gains speed up to its cap and becomes
@@ -768,7 +879,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
         }
 
         Pixels cap = Pixels.FromNumber(DashBoostNeeds.Length > 0 && Inventory.IsOn(DashBoostNeeds) ? BoostedDashCap : DashCap);
-        DashSpeed = DashSpeed >= cap ? cap : DashSpeed + Pixels.FromNumber(DashAcceleration);
+        DashSpeed = _readings.IsAtCap(DashSpeed, cap) ? cap : DashSpeed + Pixels.FromNumber(DashAcceleration);
     }
 
     /// <summary>Whether the dash action is held.</summary>
@@ -778,6 +889,15 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public void LoseMomentum()
     {
         DashSpeed = Pixels.Zero;
+        EndMomentum();
+    }
+
+    /// <summary>
+    /// Ends the player's momentum and leaves the dash's speed as it is: it still carries them until something that
+    /// keeps a dash only with momentum next looks at it.
+    /// </summary>
+    public void EndMomentum()
+    {
         if (!HasMomentum)
             return;
         HasMomentum = false;
@@ -794,21 +914,24 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
     }
 
-    /// <summary>Stops the player's movement across, dash and momentum included.</summary>
+    /// <summary>Stops the player's movement across, dash and momentum included, and makes them steered.</summary>
     public void StopAcross()
     {
-        Velocity = Velocity.WithX(Pixels.Zero);
+        ComeToRest();
         LoseMomentum();
     }
 
-    /// <summary>How far the player moves across this update: their speed, and their dash on top of it in the way they are going.</summary>
+    /// <summary>
+    /// How far the player moves across this update: their speed, and their dash on top of it in the way they are
+    /// going, which at rest is the way they travel.
+    /// </summary>
     public Pixels SpeedAcross
     {
         get
         {
             if (DashSpeed.IsZero)
                 return Velocity.X;
-            bool leftward = Velocity.X.IsZero ? Facing == Facing.Left : Velocity.X.IsNegative;
+            bool leftward = Velocity.X.IsZero ? Travel == Facing.Left : Velocity.X.IsNegative;
             return Velocity.X + (leftward ? -DashSpeed : DashSpeed);
         }
     }

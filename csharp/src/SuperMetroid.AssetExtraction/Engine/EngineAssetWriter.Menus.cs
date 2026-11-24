@@ -333,9 +333,9 @@ public sealed partial class EngineAssetWriter
     }
 
     /// <summary>
-    /// The words of the Godot game's own screens. The old game's choice of saved game, its options and its pause
-    /// screen are pictures of words, which hold no words to take; the Godot screens that stand for them list their
-    /// lines in the game's font, and these are those lines, in the old screens' own terms where they have them.
+    /// The words of the Godot game's own screens. The old game's choice of saved game and its options are pictures
+    /// of words, which hold no words to take; the Godot screens that stand for them list their lines in the game's
+    /// font, and these are those lines, in the old screens' own terms where they have them.
     /// </summary>
     private void WriteMenuWords()
     {
@@ -363,17 +363,5 @@ public sealed partial class EngineAssetWriter
         ];
         foreach ((string action, string shown) in actions)
             Words("options_action_" + action, shown + "   {button}");
-        Words("pause_map", "MAP");
-        Words("pause_equipment", "SAMUS");
-        Words("pause_use_reserves", "RESERVE TANK");
-        (string Equipment, string Shown)[] equipment =
-        [
-            ("varia_suit", "VARIA SUIT"), ("gravity_suit", "GRAVITY SUIT"), ("morph_ball", "MORPHING BALL"), ("bombs", "BOMBS"), ("spring_ball", "SPRING BALL"),
-            ("screw_attack", "SCREW ATTACK"), ("hi_jump_boots", "HI JUMP BOOTS"), ("space_jump", "SPACE JUMP"), ("speed_booster", "SPEED BOOSTER"),
-            ("grapple_beam", "GRAPPLING BEAM"), ("xray_scope", "X RAY SCOPE"), ("charge_beam", "CHARGE"), ("ice_beam", "ICE"), ("wave_beam", "WAVE"),
-            ("spazer", "SPAZER"), ("plasma_beam", "PLASMA"), ("reserve_tank", "RESERVE TANK AUTO"),
-        ];
-        foreach ((string name, string shown) in equipment)
-            Words("equipment_" + name, shown);
     }
 }

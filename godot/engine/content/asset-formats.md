@@ -27,7 +27,15 @@ with comments allowed.
 | A demo | wherever it is named | `DemoRecording` | Recorded input. |
 | A font | wherever it is named | `PixelFont` | A picture of a font's characters, each one cell, and the list of them. |
 | A picture | anywhere | `ContentLibrary.LoadTexture` | A PNG, at the size it is drawn. |
-| Sounds and music | the sound and music folders the game definition names | the audio player | One file for each name the game asks for. |
+| Sounds and music | the sound and music folders the game definition names | the audio player | One WAV file for each name the game asks for. One that goes on and on says in the file where it loops from, and goes on until something else is asked for on its channel. |
+
+## Sounds
+
+A sound is named for the old game's sound it is: the library it is in ("samus_", "enemy_" or "room_") and its name
+there, in lower case with underscores. A piece of music is named for the old track. The sound "silence" is a
+moment of nothing: a channel sounds one thing at a time, so asking for it on the channel of a sound that goes on and
+on is how that sound is stopped. `tools/godot-rooms/check_audio.py` lists any name the project asks for that is none
+of these, and `check_words.py` does the same for the game's words.
 
 ## Room layouts
 

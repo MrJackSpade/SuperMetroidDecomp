@@ -103,6 +103,6 @@ script = ExtResource("12")
 HeadingPicture = "text/emergency.png"
 Message = "ceres_self_destruct_warning"
 Subtitle = "ceres_self_destruct_subtitle"
-LetterSound = "typing"
+LetterSound = "room_typewriter"
 Floor = NodePath("../Floor")
 ToldWhenCountdownBegins = Array[NodePath]([NodePath("../Shaking")])

@@ -1,159 +1,142 @@
 namespace Game.Data;
 
 /// <summary>
-/// The names of the sounds this game's code asks for, each the name of its file in the sounds folder. A sound a data
+/// The names of the sounds this game's code asks for, each the name of its file in the sounds folder: the old game's
+/// name for the sound, after which of its three libraries it is in ("samus_", "enemy_" or "room_"). A sound a data
 /// file names (a weapon's shot, an enemy's cry) is named there and not here.
 /// </summary>
 public static class Sounds
 {
-    /// <summary>A jump leaving the ground.</summary>
-    public const string Jump = "jump";
-
     /// <summary>A spin jump turning over.</summary>
-    public const string SpinJump = "spin_jump";
+    public const string SpinJump = "samus_spin_jump";
 
     /// <summary>A spin jump with the space jump.</summary>
-    public const string SpaceJump = "space_jump";
+    public const string SpaceJump = "samus_space_jump";
 
     /// <summary>A spin jump with the screw attack.</summary>
-    public const string ScrewAttack = "screw_attack";
+    public const string ScrewAttack = "samus_screw_attack";
 
     /// <summary>A spin jump under water.</summary>
-    public const string UnderwaterSpinJump = "underwater_spin_jump";
+    public const string UnderwaterSpinJump = "samus_underwater_space_jump";
 
     /// <summary>A jump off a wall.</summary>
-    public const string WallJump = "wall_jump";
+    public const string WallJump = "samus_spin_jump";
 
     /// <summary>Landing on the ground.</summary>
-    public const string Land = "land";
+    public const string Land = "room_landing";
 
     /// <summary>Landing hard from a long fall.</summary>
-    public const string HardLand = "hard_land";
+    public const string HardLand = "room_hard_landing";
 
     /// <summary>Samus being hurt.</summary>
-    public const string SamusHurt = "samus_hurt";
+    public const string SamusHurt = "samus_samus_damaged";
 
     /// <summary>The warning while energy is low.</summary>
-    public const string LowEnergy = "low_energy";
+    public const string LowEnergy = "room_low_health_beep";
 
     /// <summary>The speed booster reaching full speed.</summary>
-    public const string SpeedBooster = "speed_booster";
+    public const string SpeedBooster = "room_speed_booster";
 
     /// <summary>A shine being stored.</summary>
-    public const string StoredShine = "stored_shine";
+    public const string StoredShine = "room_stored_shinespark";
 
     /// <summary>A shinespark launching.</summary>
-    public const string Shinespark = "shinespark";
+    public const string Shinespark = "room_shinespark";
 
     /// <summary>A shinespark ending against something.</summary>
-    public const string ShinesparkEnd = "shinespark_end";
-
-    /// <summary>Changing into the morph ball.</summary>
-    public const string Morph = "morph";
+    public const string ShinesparkEnd = "room_shinespark_end";
 
     /// <summary>The beam charging.</summary>
-    public const string Charging = "charging";
+    public const string Charging = "samus_charging_beam";
 
     /// <summary>The selected item changing.</summary>
-    public const string ItemSelect = "item_select";
+    public const string ItemSelect = "samus_hud_weapon_select";
 
     /// <summary>The grapple beam firing.</summary>
-    public const string GrappleFire = "grapple_fire";
+    public const string GrappleFire = "samus_grapple_start";
 
     /// <summary>The grapple beam latching on.</summary>
-    public const string GrappleLatch = "grapple_latch";
+    public const string GrappleLatch = "samus_grappling";
 
     /// <summary>The grapple beam letting go.</summary>
-    public const string GrappleRelease = "grapple_release";
+    public const string GrappleRelease = "samus_grapple_end";
 
     /// <summary>The X-ray scope switching on.</summary>
-    public const string Xray = "xray";
+    public const string Xray = "samus_xray_start";
 
     /// <summary>The X-ray scope switching off.</summary>
-    public const string XrayEnd = "xray_end";
+    public const string XrayEnd = "silence";
 
     /// <summary>A crystal flash.</summary>
-    public const string CrystalFlash = "crystal_flash";
+    public const string CrystalFlash = "samus_power_bomb_explosion";
 
     /// <summary>Energy being refilled a point at a time.</summary>
-    public const string EnergyRefill = "energy_refill";
+    public const string EnergyRefill = "room_incremental_energy";
 
     /// <summary>Plunging into a liquid, or leaving one.</summary>
-    public const string Splash = "splash";
+    public const string Splash = "enemy_splash_in";
 
     /// <summary>Being burnt by lava or acid.</summary>
-    public const string LiquidDamage = "liquid_damage";
+    public const string LiquidDamage = "enemy_liquid_damage";
 
     /// <summary>A door cap opening.</summary>
-    public const string DoorOpen = "door_open";
+    public const string DoorOpen = "room_door_opened";
 
     /// <summary>A door cap closing.</summary>
-    public const string DoorClose = "door_close";
+    public const string DoorClose = "room_door_closed";
 
     /// <summary>A shot stopped by something it cannot hurt.</summary>
-    public const string ShotDeflected = "shot_deflected";
+    public const string ShotDeflected = "enemy_dud_shot";
 
     /// <summary>A small enemy being destroyed.</summary>
-    public const string EnemyKilled = "enemy_killed";
-
-    /// <summary>A large enemy being destroyed.</summary>
-    public const string BigEnemyKilled = "big_enemy_killed";
+    public const string EnemyKilled = "enemy_enemy_killed";
 
     /// <summary>An enemy being frozen.</summary>
-    public const string EnemyFrozen = "enemy_frozen";
-
-    /// <summary>A pickup being collected.</summary>
-    public const string PickupCollected = "pickup_collected";
+    public const string EnemyFrozen = "room_enemy_frozen";
 
     /// <summary>A block crumbling.</summary>
-    public const string BlockCrumble = "block_crumble";
+    public const string BlockCrumble = "enemy_block_crumble";
 
     /// <summary>A block being broken.</summary>
-    public const string BlockBreak = "block_break";
+    public const string BlockBreak = "enemy_contact_block_break";
 
     /// <summary>A save station working.</summary>
-    public const string SaveStation = "save_station";
+    public const string SaveStation = "samus_saving";
 
     /// <summary>A refill station working.</summary>
-    public const string RefillStation = "refill_station";
+    public const string RefillStation = "enemy_station_engaged";
 
     /// <summary>A map station working.</summary>
-    public const string MapStation = "map_station";
+    public const string MapStation = "enemy_station_engaged";
 
     /// <summary>An elevator moving.</summary>
-    public const string Elevator = "elevator";
+    public const string Elevator = "room_elevator";
 
     /// <summary>The ground shaking.</summary>
-    public const string Earthquake = "earthquake";
+    public const string Earthquake = "enemy_lavaquake";
 
     /// <summary>An explosion.</summary>
-    public const string Explosion = "explosion";
+    public const string Explosion = "enemy_small_explosion";
 
     /// <summary>A large explosion.</summary>
-    public const string BigExplosion = "big_explosion";
+    public const string BigExplosion = "enemy_big_explosion";
 
     /// <summary>A menu's cursor moving.</summary>
-    public const string MenuMove = "menu_move";
+    public const string MenuMove = "samus_menu_cursor";
 
     /// <summary>A menu's choice being accepted.</summary>
-    public const string MenuAccept = "menu_accept";
-
-    /// <summary>A menu being backed out of.</summary>
-    public const string MenuCancel = "menu_cancel";
+    public const string MenuAccept = "samus_menu_confirm";
 
     /// <summary>A letter of narration appearing.</summary>
-    public const string Typing = "typing";
-
-    /// <summary>The escape's siren.</summary>
-    public const string Siren = "siren";
+    public const string Typing = "room_typewriter";
 
     /// <summary>Every one of them.</summary>
     public static IReadOnlyList<string> All { get; } =
     [
-        Jump, SpinJump, SpaceJump, ScrewAttack, UnderwaterSpinJump, WallJump, Land, HardLand, SamusHurt, LowEnergy, SpeedBooster,
-        StoredShine, Shinespark, ShinesparkEnd, Morph, Charging, ItemSelect, GrappleFire, GrappleLatch, GrappleRelease, Xray, XrayEnd,
-        CrystalFlash, EnergyRefill, Splash, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, BigEnemyKilled, EnemyFrozen,
-        PickupCollected, BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
-        BigExplosion, MenuMove, MenuAccept, MenuCancel, Typing, Siren,
+        SpinJump, SpaceJump, ScrewAttack, UnderwaterSpinJump, WallJump, Land, HardLand, SamusHurt, LowEnergy, SpeedBooster,
+        StoredShine, Shinespark, ShinesparkEnd, Charging, ItemSelect, GrappleFire, GrappleLatch, GrappleRelease, Xray, XrayEnd,
+        CrystalFlash, EnergyRefill, Splash, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
+        BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
+        BigExplosion, MenuMove, MenuAccept, Typing,
     ];
 }

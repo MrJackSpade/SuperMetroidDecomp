@@ -72,6 +72,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteHud();
         writer.WriteMenus();
         writer.WritePause();
+        writer.WriteAudio();
         writer.WriteWords();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();

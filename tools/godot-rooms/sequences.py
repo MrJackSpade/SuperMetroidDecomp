@@ -139,7 +139,7 @@ class Sequences:
             floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/ceres_ridley_floor.png')}, at=(0, 0), enemy=False)
             getaway = sequence('ceres/CeresGetaway.cs', 'Getaway', {
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
-                'Subtitle': quoted('ceres_self_destruct_subtitle'), 'LetterSound': quoted('typing')})
+                'Subtitle': quoted('ceres_self_destruct_subtitle'), 'LetterSound': quoted('room_typewriter')})
             self.placed += [floor, getaway]
             self.links.append((getaway, 'Floor', floor))
             self.links.append((getaway, 'ToldWhenCountdownBegins', [shaking]))

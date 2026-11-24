@@ -290,7 +290,7 @@ PresentWhen = SubResource("r10")
 [node name="EscapeWarning" type="Node" parent="."]
 script = ExtResource("16")
 Message = "zebes_time_bomb_warning"
-LetterSound = "typing"
+LetterSound = "room_typewriter"
 PresentWhen = SubResource("r10")
 
 [node name="Backdrop" type="Node2D" parent="."]

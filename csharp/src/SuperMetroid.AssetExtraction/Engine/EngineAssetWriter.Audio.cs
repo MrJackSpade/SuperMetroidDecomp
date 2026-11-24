@@ -1,0 +1,138 @@
+using SuperMetroid.AssetExtraction.Audio;
+using SuperMetroid.Core.Audio;
+
+namespace SuperMetroid.AssetExtraction.Engine;
+
+/// <summary>
+/// The game's sounds and music. The Godot game plays one file for each name it asks for: a sound's is the old
+/// sound's name after the library it is in, a piece of music's the old track's name, and "silence" is the sound that
+/// stops what its channel was sounding.
+/// </summary>
+public sealed partial class EngineAssetWriter
+{
+    /// <summary>The folders of the asset tree the Godot game's definition names for its sounds and its music.</summary>
+    private const string SoundFolder = "sounds", MusicFolder = "music";
+
+    /// <summary>Writes every sound, the silence, and every piece of music.</summary>
+    private void WriteAudio()
+    {
+        InstalledClipAudioLibrary audio = _installation.LoadAudioClips();
+        AudioClipManifest manifest = audio.Manifest;
+        string root = _installation.AudioDirectory;
+        short[] Samples(AudioClipFile clip)
+        {
+            string path = Path.Combine(root, clip.Path);
+            PcmSamples read = PcmWaveFile.ReadStereoPcm16(File.ReadAllBytes(path), path);
+            if (read.SampleRate != manifest.SampleRate)
+                throw new InvalidDataException($"The audio clip {path} is at {read.SampleRate} frames a second, not {manifest.SampleRate}.");
+            if (read.Samples.Length != clip.Frames * PcmSampleFormat.StereoChannelCount)
+                throw new InvalidDataException($"The audio clip {path} has {read.Samples.Length / PcmSampleFormat.StereoChannelCount} frames, not {clip.Frames}.");
+            return read.Samples;
+        }
+
+        // One file for each sound, as the old game plays it where no particular set of music is loaded. The old
+        // game plays some sounds differently while certain music is loaded; the Godot game has one of each.
+        var written = new HashSet<string>(StringComparer.Ordinal);
+        foreach (InstalledSoundEffectClip entry in manifest.SoundEffects)
+        {
+            // A request that only stops a sound is no sound: the Godot game asks for the silence in its place.
+            if (EngineNames.Sound(entry.Sound) is not { } name)
+                continue;
+            if (!written.Add(name))
+                throw new InvalidDataException($"The installation keeps the sound {entry.Sound} twice.");
+            string file = $"{SoundFolder}/{name}.wav";
+            switch (entry.Shape)
+            {
+                case InstalledOneShotSoundEffect { Clip: { } clip }:
+                    _tree.WriteSound(file, manifest.SampleRate, Samples(clip), null);
+                    break;
+                case InstalledOneShotSoundEffect:
+                    // A sound the old game plays with nothing to hear.
+                    _tree.WriteSound(file, manifest.SampleRate, new short[PcmSampleFormat.StereoChannelCount], null);
+                    break;
+                case InstalledLoopingSoundEffect looping:
+                    (short[] mixed, long loopStart) = Looped(entry.Sound, [.. looping.Layers.Select(layer => (Samples(layer.Clip), layer.LoopStart))]);
+                    _tree.WriteSound(file, manifest.SampleRate, mixed, loopStart);
+                    break;
+                default:
+                    throw new InvalidDataException($"The sound {entry.Sound} is of a shape this does not know.");
+            }
+        }
+
+        // Every sound the old game can ask for has its file.
+        foreach (SoundEffectId sound in EverySound())
+        {
+            if (!written.Contains(EngineNames.Sound(sound)!))
+                throw new InvalidDataException($"The installation keeps no clip for the sound {sound}.");
+        }
+
+        _tree.WriteSound($"{SoundFolder}/{EngineNames.Silence}.wav", manifest.SampleRate, new short[PcmSampleFormat.StereoChannelCount], null);
+
+        // One file for each track. Where sets of music keep the same track differently, it is the first listed.
+        foreach (MusicTrack track in Enum.GetValues<MusicTrack>())
+        {
+            MusicClipEntry entry = manifest.Music.FirstOrDefault(listed => listed.Track == track)
+                ?? throw new InvalidDataException($"The installation keeps no clip for the music {track}.");
+            _tree.WriteSound($"{MusicFolder}/{MusicName(track)}.wav", manifest.SampleRate, Samples(entry.Clip), entry.LoopStart);
+        }
+    }
+
+    /// <summary>Every sound of the old game's three libraries.</summary>
+    private static IEnumerable<SoundEffectId> EverySound()
+    {
+        foreach (SamusSound sound in Enum.GetValues<SamusSound>())
+            yield return sound;
+        foreach (EnemySound sound in Enum.GetValues<EnemySound>())
+            yield return sound;
+        foreach (RoomSound sound in Enum.GetValues<RoomSound>())
+            yield return sound;
+    }
+
+    /// <summary>
+    /// A sound that goes on and on, as one run of samples that loops. The old game plays such a sound as layers, each
+    /// played through once and then round its own loop for good. Together they repeat once every layer has come
+    /// round to where it was, so they are mixed up to the latest loop start and on through the least stretch that is
+    /// a whole number of every layer's loops, and the mix loops from that start.
+    /// </summary>
+    private static (short[] Samples, long LoopStart) Looped(SoundEffectId sound, IReadOnlyList<(short[] Samples, long LoopStart)> layers)
+    {
+        const int channels = PcmSampleFormat.StereoChannelCount;
+        long start = layers.Max(layer => layer.LoopStart);
+        long loop = 1;
+        foreach ((short[] samples, long loopStart) in layers)
+        {
+            long length = samples.Length / channels - loopStart;
+            if (length <= 0)
+                throw new InvalidDataException($"A layer of the sound {sound} loops from its end.");
+            loop = checked(loop / Gcd(loop, length) * length);
+        }
+
+        long frames = checked(start + loop);
+        var mixed = new short[checked(frames * channels)];
+        for (long frame = 0; frame < frames; frame++)
+        {
+            for (int channel = 0; channel < channels; channel++)
+            {
+                int sum = 0;
+                foreach ((short[] samples, long loopStart) in layers)
+                {
+                    long length = samples.Length / channels;
+                    long at = frame < length ? frame : loopStart + (frame - loopStart) % (length - loopStart);
+                    sum += samples[at * channels + channel];
+                }
+
+                // Voices sounding together add, and what is too loud to hold is held at the loudest there is.
+                mixed[frame * channels + channel] = (short)Math.Clamp(sum, short.MinValue, short.MaxValue);
+            }
+        }
+
+        return (mixed, start);
+
+        static long Gcd(long a, long b)
+        {
+            while (b != 0)
+                (a, b) = (b, a % b);
+            return a;
+        }
+    }
+}

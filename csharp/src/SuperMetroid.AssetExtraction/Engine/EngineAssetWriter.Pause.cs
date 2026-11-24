@@ -4,6 +4,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend.Artwork;
 using SuperMetroid.Core.Frontend.Map;
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Hud;
@@ -139,6 +140,24 @@ public sealed partial class EngineAssetWriter
             wireframes[name] = Placed(PauseEquipmentPictures.WireframeFrame(wireframe));
         }
 
+        // The sign of where Samus is on the map: a ring that swells and shrinks, about the cell she is in.
+        var pulse = new JsonArray();
+        foreach (SuperMetroid.Core.Animation.AnimationBeat<MapSpriteId, MapIndicatorCue> beat in PauseMapIndicatorAnimation.Segments.Beats(MapIndicatorSegment.Pulse))
+        {
+            if (beat is not SuperMetroid.Core.Animation.AnimationBeat<MapSpriteId, MapIndicatorCue>.Frame shown)
+                continue;
+            string frame = MapSpriteDefinitions.Names[shown.Shown];
+            (int _, int _, int originX, int originY) = _sheets.SpriteSize(SpriteSheetId.MapSprites, frame);
+            pulse.Add(new JsonObject
+            {
+                ["picture"] = _sheets.WriteSprite(
+                    _tree, SpriteSheetId.MapSprites, frame, $"pause/map_{EngineSheets.FileName(frame)}.png",
+                    MapSpriteShades.Drawn(MapSpriteScreen.Pause, MapSpriteColouring.Markers).Key),
+                ["updates"] = shown.Duration,
+                ["offset"] = At(-originX, -originY),
+            });
+        }
+
         MapFraming framing = MapFramingDefinitions.Pause;
         const int cell = GameplayHudDefinitions.MinimapSquarePixels;
         _tree.WriteData("pause/pause.json", new JsonObject
@@ -151,6 +170,7 @@ public sealed partial class EngineAssetWriter
             {
                 ["x"] = framing.LeftEdge, ["y"] = framing.TopEdge, ["columns"] = (framing.RightEdge - framing.LeftEdge) / cell,
                 ["rows"] = (framing.BottomEdge - framing.TopEdge) / cell,
+                ["indicator"] = new JsonObject { ["steps"] = pulse, ["loops_to"] = 0 },
             },
             ["area_folder"] = "areas",
             ["sounds"] = new JsonObject

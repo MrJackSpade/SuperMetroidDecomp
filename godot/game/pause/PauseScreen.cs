@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Content;
 using Engine.Core;
 using Engine.Input;
+using Engine.Shared;
 using Engine.Ui;
 using Engine.World;
 using Game.Data;
@@ -20,7 +21,8 @@ namespace Game;
 /// <remarks>
 /// Its data gives its "backdrop" colour; the picture behind everything for each area ("backdrops"); the pictures
 /// of its "frame"; its three "buttons" ("map", "exit", "samus"), each "lit" or "dim"; where the map is and how many
-/// cells of it show ("map": "x", "y", "columns", "rows"), with the "area_folder" of the areas' maps; its "sounds"
+/// cells of it show ("map": "x", "y", "columns", "rows", and "indicator", the timeline of the sign of where Samus
+/// is, its pictures placed from the corner of her cell), with the "area_folder" of the areas' maps; its "sounds"
 /// ("move", "switch", "page", "pour", and "pour_every", the updates from one pouring sound to the next); and its
 /// "equipment" page: the "base" picture, the "hyper" beam's picture, the "controls" (each the "equipment" it
 /// switches, the "side" of the page it is on, its picture switched "on" and "off" with where that goes, and its
@@ -49,6 +51,9 @@ public partial class PauseScreen : GameMode
     private CanvasLayer? _layer;
     private Node2D? _page;
     private MapView? _map;
+    private CinematicSprite? _indicator;
+    private Vector2I _here;
+    private int _mapCellSize;
     private bool _showsMap = true;
     private int _chosen;
     private int _pouring;
@@ -100,8 +105,10 @@ public partial class PauseScreen : GameMode
             {
                 _map.Centre += move;
                 _map.QueueRedraw();
+                PlaceIndicator();
             }
 
+            _indicator?.Step();
             return this;
         }
 
@@ -163,6 +170,7 @@ public partial class PauseScreen : GameMode
         _showsMap = map;
         _page?.QueueFree();
         _map = null;
+        _indicator = null;
         _page = new Node2D { Name = "Page" };
         layer.AddChild(_page);
         Room room = _playing.Room;
@@ -188,10 +196,28 @@ public partial class PauseScreen : GameMode
         DataNode at = data.Get("map");
         _map = new MapView { Name = "Map", Window = new Vector2I(at.Int("columns"), at.Int("rows")), Position = new Vector2(at.Int("x"), at.Int("y")) };
         _page.AddChild(_map);
-        _map.Centre = new Vector2I(
+        _here = new Vector2I(
             room.MapCell.X + Samus.Position.X.Whole / room.MapCellSize.X,
             room.MapCell.Y + Samus.Position.Y.Whole / room.MapCellSize.Y);
-        _map.Present(Area.Read(Session.Content.ReadData($"{data.Text("area_folder")}/{room.Area}.json")), Session.Progress, Session.Content);
+        _map.Centre = _here;
+        Area area = Area.Read(Session.Content.ReadData($"{data.Text("area_folder")}/{room.Area}.json"));
+        _mapCellSize = area.TileSize;
+        _map.Present(area, Session.Progress, Session.Content);
+        _indicator = CinematicSprite.Of(Session.Content, FrameTimeline.Read(at.Get("indicator")), PixelPosition.Origin);
+        _indicator.Name = "Here";
+        _page.AddChild(_indicator);
+        PlaceIndicator();
+    }
+
+    /// <summary>Puts the sign of where Samus is over her cell of the map, and hides it while that cell is out of the window.</summary>
+    private void PlaceIndicator()
+    {
+        if (_map is not { } map || _indicator is not { } indicator)
+            return;
+        Vector2I cell = _here - (map.Centre - map.Window / 2);
+        indicator.Visible = map.IsInWindow(_here);
+        indicator.Place = PixelPosition.FromWhole((int)map.Position.X + cell.X * _mapCellSize, (int)map.Position.Y + cell.Y * _mapCellSize);
+        indicator.ShowPlace();
     }
 
     /// <summary>Shows the equipment page as her inventory now stands, with the selector where it is.</summary>

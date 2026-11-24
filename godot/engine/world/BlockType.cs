@@ -51,6 +51,12 @@ public sealed class BlockType
     /// <summary>How many updates it lasts once stood on, before it breaks.</summary>
     public int StoodOnUpdates { get; private init; }
 
+    /// <summary>
+    /// For a block that can be latched onto once: how many updates after it is first latched onto it breaks, whether
+    /// or not it is still held; zero for one that breaks when it is let go of.
+    /// </summary>
+    public int LatchedUpdates { get; private init; }
+
     /// <summary>How many updates after breaking it regrows; zero means it stays gone until its room is next set up.</summary>
     public int RegrowsAfter { get; private init; }
 
@@ -127,6 +133,7 @@ public sealed class BlockType
             BrokenBy = Kinds("broken_by"),
             BreaksWhenStoodOn = data.Has("breaks_when_stood_on") && data.Flag("breaks_when_stood_on"),
             StoodOnUpdates = data.Has("stood_on_updates") ? data.Int("stood_on_updates") : 0,
+            LatchedUpdates = data.Has("latched_updates") ? data.Int("latched_updates") : 0,
             RegrowsAfter = data.Has("regrows_after") ? data.Int("regrows_after") : 0,
             HiddenUntil = Kinds("hidden_until"),
             RevealedBySight = data.Has("revealed_by_sight") && data.Flag("revealed_by_sight"),
@@ -144,7 +151,7 @@ public sealed class BlockType
             Regrowing = data.Has("regrowing") ? FrameTimeline.Read(data.Get("regrowing")) : null,
             BreakSound = data.Has("break_sound") ? data.Text("break_sound") : "",
         };
-        if (type.RegrowsAfter < 0 || type.StoodOnUpdates < 0)
+        if (type.RegrowsAfter < 0 || type.StoodOnUpdates < 0 || type.LatchedUpdates < 0)
             throw data.Problem("gives a negative number of updates");
         return type;
     }

@@ -103,6 +103,9 @@ public partial class SamusGrapple : Node2D
     {
         if (!_extending)
         {
+            // A block that has broken away holds nothing.
+            if (IsLatched && _heldBlock is { Broken: true })
+                Release();
             if (IsLatched)
                 QueueRedraw();
             return;
@@ -164,6 +167,8 @@ public partial class SamusGrapple : Node2D
         _extending = false;
         IsLatched = true;
         held?.Latched();
+        if (block is not null)
+            samus.Room.Terrain.LatchedOnto(block);
         samus.Room.Session.Sounds.Request(Sounds.GrappleLatch, channel: "weapons");
         // Seized, she holds the line but hangs where she is held; otherwise she swings from it.
         if (samus.State is not GrabbedState)

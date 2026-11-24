@@ -30,7 +30,7 @@ public sealed class Block
     /// <summary>The updates left before a block that is being stood on breaks.</summary>
     private Countdown _giveWay = Countdown.Over;
 
-    /// <summary>Whether the block is giving way under something that stood on it.</summary>
+    /// <summary>Whether the block is giving way under something that stood on it, or since a line latched onto it.</summary>
     private bool _stoodOn;
 
     /// <summary>How many updates it has been broken for.</summary>
@@ -119,6 +119,15 @@ public sealed class Block
             return;
         _stoodOn = true;
         _giveWay = Countdown.Of(Type.StoodOnUpdates);
+    }
+
+    /// <summary>Tells the block a line has latched onto it. One that lasts only so long once latched starts giving way.</summary>
+    internal void LatchOnto()
+    {
+        if (Broken || _stoodOn || Type.Contact != BlockContact.LatchOnce || Type.LatchedUpdates == 0)
+            return;
+        _stoodOn = true;
+        _giveWay = Countdown.Of(Type.LatchedUpdates);
     }
 
     /// <summary>Moves the block's timers on by one update. Returns whether its solidity changed.</summary>

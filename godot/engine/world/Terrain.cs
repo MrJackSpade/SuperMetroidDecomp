@@ -228,14 +228,21 @@ public partial class Terrain : Node2D, ITerrainShape
             block.StandOn();
     }
 
+    /// <summary>Tells the terrain that a line has latched onto <paramref name="block"/>.</summary>
+    public void LatchedOnto(Block block)
+    {
+        ArgumentNullException.ThrowIfNull(block);
+        block.LatchOnto();
+    }
+
     /// <summary>
     /// Tells the terrain that a line latched onto <paramref name="block"/> has let go. A block that can be latched
-    /// onto only once breaks.
+    /// onto only once breaks, unless it is one that breaks so long after it was latched onto.
     /// </summary>
     public void LetGoOf(Block block)
     {
         ArgumentNullException.ThrowIfNull(block);
-        if (block.Type.Contact != BlockContact.LatchOnce || block.Broken)
+        if (block.Type.Contact != BlockContact.LatchOnce || block.Broken || block.Type.LatchedUpdates > 0)
             return;
         block.Break();
         QueueRedraw();

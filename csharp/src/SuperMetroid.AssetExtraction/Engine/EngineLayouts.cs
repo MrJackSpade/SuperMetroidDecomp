@@ -623,11 +623,17 @@ internal sealed partial class EngineLayouts
                     return null;
                 bool breaks = grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor;
                 var rules = new JsonObject { ["solid"] = true, ["contact"] = breaks ? "latch_once" : "latch" };
-                List<int> pictures = breaks
-                    ? AddBreakup(rules, GrappleFrames(grapple == GrappleReaction.RespawningBreakableAnchor
+                var pictures = new List<int>();
+                if (breaks)
+                {
+                    // It holds for so long once the beam has it, and then breaks whether or not the beam still does.
+                    BlockReactionChange change = grapple == GrappleReaction.RespawningBreakableAnchor
                         ? BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock
-                        : BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock))
-                    : [];
+                        : BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock;
+                    rules["latched_updates"] = GrappleHeldUpdates(change);
+                    pictures.AddRange(AddBreakup(rules, GrappleFrames(change)));
+                }
+
                 pictures.AddRange(AddSight(rules, collision, grapple.ToString(), 1, 1));
                 return new ReactingBlock($"grapple_{EngineSheets.FileName(grapple.ToString())}", rules, Pictures: pictures);
             }

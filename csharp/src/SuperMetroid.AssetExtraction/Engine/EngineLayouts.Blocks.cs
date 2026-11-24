@@ -334,7 +334,22 @@ internal sealed partial class EngineLayouts
     /// whole for as long as it holds, which is not part of its breaking.
     /// </summary>
     /// <exception cref="InvalidDataException">The change shows something that is not a picture of a grapple block.</exception>
-    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> GrappleFrames(BlockReactionChange change)
+    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> GrappleFrames(BlockReactionChange change) =>
+        GrappleFrames(change, held => { });
+
+    /// <summary>How many updates the old game shows a block the grapple beam breaks whole, once the beam has it, before it breaks.</summary>
+    /// <exception cref="InvalidDataException">The change does not begin with the block shown whole.</exception>
+    private int GrappleHeldUpdates(BlockReactionChange change)
+    {
+        int held = 0;
+        foreach ((BreakupFrame _, int _, SoundEffectId? _) in GrappleFrames(change, updates => held += updates))
+        {
+        }
+
+        return held > 0 ? held : throw new InvalidDataException("A grapple block that breaks is never shown whole before it does.");
+    }
+
+    private IEnumerable<(BreakupFrame Shown, int Updates, SoundEffectId? Sound)> GrappleFrames(BlockReactionChange change, Action<int> heldFor)
     {
         const string directory = GameInstallationLayout.RoomObjectGrappleBlockVisualDirectoryName;
         bool breaking = false;
@@ -350,6 +365,7 @@ internal sealed partial class EngineLayouts
             {
                 if (breaking)
                     throw new InvalidDataException("A grapple block is shown whole in the middle of its breaking.");
+                heldFor(frame.Updates);
                 continue;
             }
 

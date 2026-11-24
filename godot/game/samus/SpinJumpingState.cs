@@ -107,6 +107,16 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         }
     }
 
+    /// <summary>
+    /// Straightens her out into a jump in <paramref name="stance"/> where the jump's taller body has room. Where it
+    /// has none she spins on as she was, as the cartridge leaves a spin that cannot grow into the pose asked for.
+    /// </summary>
+    private PlayerState Straightened(Player owner, AirStance stance)
+    {
+        string form = stance.Aim == Aim.Down && owner.Forms.ContainsKey(Player.AimingDown) ? Player.AimingDown : owner.FormOr(Player.Jumping);
+        return owner.TrySetForm(form, aroundMiddle: true) ? new JumpingState(stance) : this;
+    }
+
     /// <inheritdoc/>
     public override PlayerState? Asked(Player owner)
     {
@@ -119,25 +129,25 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
 
         // Straightened out, she is in a jump once this update is done.
         if (input.WasPressed(GameAction.Attack))
-            return new JumpingState(new AirStance(Aim.Forward, AirArm.Out));
+            return Straightened(owner, new AirStance(Aim.Forward, AirArm.Out));
         if (attack && up)
-            return new JumpingState(new AirStance(Aim.Up));
+            return Straightened(owner, new AirStance(Aim.Up));
         if (attack && down)
-            return new JumpingState(new AirStance(Aim.Down));
+            return Straightened(owner, new AirStance(Aim.Down));
         if (attack && angleUp)
-            return new JumpingState(new AirStance(Aim.DiagonalUp));
+            return Straightened(owner, new AirStance(Aim.DiagonalUp));
         if (attack && angleDown)
-            return new JumpingState(new AirStance(Aim.DiagonalDown));
+            return Straightened(owner, new AirStance(Aim.DiagonalDown));
         if (forward && input.IsHeld(GameAction.Jump))
             return Spinning(owner);
         if (up)
-            return new JumpingState(new AirStance(Aim.Up));
+            return Straightened(owner, new AirStance(Aim.Up));
         if (angleUp)
-            return new JumpingState(new AirStance(Aim.DiagonalUp));
+            return Straightened(owner, new AirStance(Aim.DiagonalUp));
         if (angleDown)
-            return new JumpingState(new AirStance(Aim.DiagonalDown));
+            return Straightened(owner, new AirStance(Aim.DiagonalDown));
         if (down)
-            return new JumpingState(new AirStance(Aim.Down));
+            return Straightened(owner, new AirStance(Aim.Down));
         if (forward)
             return Spinning(owner);
         if (!backward)

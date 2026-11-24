@@ -40,7 +40,10 @@ public partial class BabyMetroid : Enemy
     [Export]
     public string AfterwardMusic { get; set; } = "";
 
-    /// <summary>How far across the room its arena starts, in pixels; it wakes once the view's left edge is at or left of this.</summary>
+    /// <summary>
+    /// How far across the room its arena starts, in pixels; it wakes once the view's left edge is at or left of this,
+    /// and puts the view's left edge there as it does.
+    /// </summary>
     [Export]
     public int ArenaLeft { get; set; } = 512;
 
@@ -226,6 +229,8 @@ public partial class BabyMetroid : Enemy
             case Doing.WaitForView:
                 if (Room.Session.Camera.View.Left > ArenaLeft)
                     return false;
+                // The old one writes the view's left edge to its arena's edge as it wakes, keeping its fraction.
+                Room.Session.Camera.MoveLeftEdgeTo(ArenaLeft);
                 TellRoom("close");
                 Room.Terrain.ApplyPatch(WallsUpPatch);
                 (_doing, _cries) = (Doing.BeginEntranceDelay, true);

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.RoomObjects;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.World.RoomStates;
 
@@ -255,6 +256,11 @@ public sealed partial class EngineAssetWriter
             .Value("spiked_wall_updates", CrocomireSkeletonDefinitions.SpikedWallUpdates)
             .Value("fall_delay", CrocomireSkeletonDefinitions.FallDelay)
             .Value("death_drops", CrocomireSkeletonDefinitions.DropCount)
+            // Where it keeps Samus in the view, by the way she faces: the boss's place through its fight, the right
+            // edge's as its skeleton breaks out.
+            .Value("samus_in_view_facing_right", HorizontalCameraTargets.Offset(CameraDistanceMode.BossTracking, HorizontalDirection.Right))
+            .Value("samus_in_view_facing_left", HorizontalCameraTargets.Offset(CameraDistanceMode.BossTracking, HorizontalDirection.Left))
+            .Value("samus_in_view_at_break_out", HorizontalCameraTargets.Offset(CameraDistanceMode.RightEdge, HorizontalDirection.Right))
             .Value("step_back_screen_reach", CrocomireFightDefinitions.StepBackScreenReach)
             .Value("mouth_shot_screen_reach", CrocomireFightDefinitions.MouthShotScreenReach)
             .Value("mouth_shot_hold", CrocomireFightDefinitions.MouthShotReactionHoldFrames)

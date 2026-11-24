@@ -118,6 +118,18 @@ public partial class Crocomire : Enemy
     [Export, DataValue("death_drops")]
     public int DeathDrops { get; set; } = 16;
 
+    /// <summary>How many pixels from the view's left edge its fight keeps Samus while she faces right.</summary>
+    [Export, DataValue("samus_in_view_facing_right")]
+    public int SamusInViewFacingRight { get; set; } = 64;
+
+    /// <summary>How many pixels from the view's left edge its fight keeps Samus while she faces left.</summary>
+    [Export, DataValue("samus_in_view_facing_left")]
+    public int SamusInViewFacingLeft { get; set; } = 80;
+
+    /// <summary>How many pixels from the view's left edge its skeleton's break-out keeps Samus, whichever way she faces.</summary>
+    [Export, DataValue("samus_in_view_at_break_out")]
+    public int SamusInViewAtBreakOut { get; set; } = 224;
+
     /// <summary>How far past the left of the view its near edge may be for a step back to move it, in pixels.</summary>
     [Export, DataValue("step_back_screen_reach")]
     public int StepBackScreenReach { get; set; } = 260;
@@ -390,9 +402,14 @@ public partial class Crocomire : Enemy
             return;
         }
 
+        // Its fight keeps Samus where a boss's does in the view, from its setup until its skeleton is carried off.
+        Room.KeepPlayerInViewAt(SamusInViewFacingRight, SamusInViewFacingLeft);
         Play("idle_sway");
         _tongue = new TimelinePlayer(Timelines.Get("tongue"));
     }
+
+    /// <summary>Gives the room back its own place for Samus in the view.</summary>
+    private void ReleaseSamusInView() => Room.KeepPlayerInViewAt(Room.PlayerInView.X, Room.PlayerInView.Y);
 
     /// <inheritdoc/>
     protected override Reaction ReactionTo(Hit hit, Collider part) =>
@@ -799,6 +816,8 @@ public partial class Crocomire : Enemy
                     Room.Session.Sounds.RequestMusic(FightMusic);
                 if (SkeletonWallPatch.Length > 0)
                     Room.Terrain.ApplyPatch(SkeletonWallPatch);
+                // Until the fight is won Samus is kept toward the view's right edge, whichever way she faces.
+                Room.KeepPlayerInViewAt(SamusInViewAtBreakOut, SamusInViewAtBreakOut);
                 (_rumble, _rumbleOffset, _rumbleToExtreme, _rumbleRepeats) = (0, 0, false, _rumbles.Count > 0 ? _rumbles[0].Repeats : 0);
                 _hitPending = false;
                 _dying = Dying.Rumbling;
@@ -877,6 +896,7 @@ public partial class Crocomire : Enemy
                     break;
                 if (TensionMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(TensionMusic);
+                ReleaseSamusInView();
                 RaiseDust(-16);
                 RaiseDust(16);
                 // The fight is won; what is left of it lies where it fell.
@@ -1021,6 +1041,7 @@ public partial class Crocomire : Enemy
             Room.Session.Sounds.RequestMusic(TensionMusic);
         if (BridgeWallPatch.Length > 0)
             Room.Terrain.RevertPatch(BridgeWallPatch);
+        ReleaseSamusInView();
         Play("skeleton_flowing_down_river", restart: true);
         return false;
     }

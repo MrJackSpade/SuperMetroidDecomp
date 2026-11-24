@@ -19,4 +19,10 @@ public sealed class GameClock
 
     /// <summary>Moves the clock on by one update. The game loop does this once, at the end of each update.</summary>
     internal void Advance() => Updates++;
+
+    /// <summary>
+    /// Starts the count over, for a game that starts over within a session: the update this is done on reads zero
+    /// from here on, and the next reads one.
+    /// </summary>
+    public void Restart() => Updates = 0;
 }

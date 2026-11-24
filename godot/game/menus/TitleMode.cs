@@ -187,6 +187,7 @@ public partial class TitleMode : GameMode
             // opening plays from the update after.
             _starting = false;
             Session.Random.Restart(Compatibility.CartridgeRandom.PowerOn);
+            Session.Clock.Restart();
             Session.Random.Next();
             Compatibility.CartridgeSounds.Of(Session).Reset();
             Session.Service<DemoSchedule>().StartOver();

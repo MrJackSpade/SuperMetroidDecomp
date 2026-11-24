@@ -44,6 +44,17 @@ public sealed partial class EngineAssetWriter
         };
         string impact = turret.SpawnedTimeline("bullet_impact", MotherBrainTurretAnimations.Segments,
             MotherBrainTurretAnimations.StartingAt[MotherBrainTurretPose.BulletImpact], Cue);
+        // A bullet that is shot becomes the same smoke, but as itself: it holds still, still harms Samus, and takes
+        // itself away as the smoke ends.
+        static string? SmokeCue(MotherBrainTurretCue cue) => cue switch
+        {
+            MotherBrainTurretCue.StopMoving => null,
+            MotherBrainTurretCue.Delete => "end",
+            _ => throw new InvalidDataException($"A turret's bullet that is shot raises {cue}, which this does not know."),
+        };
+        turret.ProjectileData("bosses/mother_brain_turret_bullet.json", "MotherBrainTurretBullet",
+            ("smoke_timeline", turret.SpawnedTimeline("bullet_smoke", MotherBrainTurretAnimations.Segments,
+                MotherBrainTurretAnimations.StartingAt[MotherBrainTurretPose.BulletImpact], SmokeCue)));
         var muzzles = new JsonArray();
         for (int way = 0; way < ways.Count; way++)
         {
@@ -60,12 +71,13 @@ public sealed partial class EngineAssetWriter
                 if (across != 0 && down != 0 && across != down)
                     throw new InvalidDataException($"A turret's bullet flying {direction} goes at one speed across and another down.");
                 shot["speed"] = JsonValue.Create(Math.Max(across, down));
-                // It moves itself and is gone silently where its middle meets a block; it stops shots every other update.
+                // It moves itself and is gone silently where its middle meets a block; it stops shots every other update,
+                // and shot it becomes its smoke.
                 shot["scene"] = "res://game/bosses/mother_brain/mother_brain_turret_bullet.tscn";
                 projectile["timeline"] = owner.SpawnedTimeline(name, MotherBrainTurretAnimations.Segments,
                     MotherBrainTurretAnimations.StartingAt[MotherBrainTurretPose.Bullet(direction)], Cue);
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
-                // It smokes where it meets Samus or a shot of hers.
+                // It smokes where it meets Samus.
                 projectile["meeting_terrain"] = "passes_through";
                 projectile["meeting_target"] = "ends";
                 projectile["met_by_shot"] = "destroyed";

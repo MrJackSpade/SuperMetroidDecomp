@@ -22,20 +22,35 @@ internal sealed partial class RottingCorpseRows
     }
 
     /// <summary>
-    /// Moves pixel row <paramref name="row"/> as one rot update does: it copies itself onto the row below it, unless it is the
-    /// corpse's last row, which lands nowhere, and a move, rather than a copy, then clears it.
+    /// Moves pixel row <paramref name="row"/> as one rot update does: it copies itself where it lands (<see cref="LandingOf"/>),
+    /// and a move, rather than a copy, then clears it. Landing as the game's does, the rot leaves nothing of the corpse
+    /// behind (#2659); landing always on the row below left every other row of it standing.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The corpse has no such row.</exception>
     internal void MoveRow(int row, CorpseRowOperation operation)
     {
         if (row < 0 || row >= rows.Length)
             throw new ArgumentOutOfRangeException(nameof(row), row, $"The rotting corpse has {rows.Length} pixel rows.");
-        int landing = row + CorpseRotScheduleDefinitions.RowsFallenPerMove;
-        if (landing < rows.Length)
+        if (LandingOf(row) is int landing)
             rows[landing] = rows[row];
         if (operation == CorpseRowOperation.Move)
             rows[row] = null;
         Shown = CorpseRotRows.Of(rows);
+    }
+
+    /// <summary>
+    /// Where a moved or copied pixel row <paramref name="row"/> lands, or none (#2659): on the row below it, or three rows
+    /// down from the last two rows of its band of characters, as the game finds that place; nowhere from the corpse's last
+    /// two rows, or below the corpse.
+    /// </summary>
+    private int? LandingOf(int row)
+    {
+        if (row >= rows.Length - CorpseRotScheduleDefinitions.FootRowsLandingNowhere)
+            return null;
+        int landing = row + (row % CorpseRotScheduleDefinitions.BandRows < CorpseRotScheduleDefinitions.BandRowsLandingInNextBand
+            ? CorpseRotScheduleDefinitions.RowsFallenPerMove
+            : CorpseRotScheduleDefinitions.RowsFallenAcrossBand);
+        return landing < rows.Length ? landing : null;
     }
 
     /// <summary>

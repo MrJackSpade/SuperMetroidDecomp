@@ -19,9 +19,11 @@ namespace SuperMetroid.Verification.Enemies.Corpses;
 /// picture of each corpse frame, drawn through the rows the corpse's own rot leaves and where the sheet says the corpse
 /// lies in it, shows at every pixel the unrotted picture's pixel of the row the authored rot has moved there, across the
 /// whole picture, or nothing where it has cleared it. The authored rot is restated here: each move copies a row onto the
-/// row below it, the corpse's last row landing nowhere, and a move, rather than a copy, then clears it. It covers both dead
-/// Sidehoppers, every dead Zoomer, Ripper and Skree, the dead Torizo's body and its hook's sand heap, and Mother Brain's
-/// corpse; and that two corpses of one kind rot apart.
+/// row below it, or three rows down from the last two rows of a band of eight, the corpse's last two rows landing nowhere,
+/// and a move, rather than a copy, then clears it, as the game's copy and move do ($A9:DBE0, $A9:E470). Each corpse's
+/// finished rot leaves none of its rows showing (#2659). It covers both dead Sidehoppers, every dead Zoomer, Ripper and
+/// Skree, the dead Torizo's body and its hook's sand heap, and Mother Brain's corpse; and that two corpses of one kind rot
+/// apart.
 /// </summary>
 internal static class CorpseRotDrawingVerification
 {
@@ -70,7 +72,15 @@ internal static class CorpseRotDrawingVerification
                     authored, $"{enemy} {frame} after rot call {call}");
             }
         }
+        AssertRotLeavesNothing(rows.Shown, $"{enemy} ({rowCount} rows)");
         return compared;
+    }
+
+    /// <summary>Checks a corpse's finished rot leaves none of its rows showing (#2659): the corpse disintegrates whole.</summary>
+    private static void AssertRotLeavesNothing(CorpseRotRows rows, string corpse)
+    {
+        int[] standing = [.. Enumerable.Range(0, rows.Count).Where(row => rows.Shown(row) is not null)];
+        AssertTrue(standing.Length == 0, $"{corpse}'s finished rot leaves none of its rows; {standing.Length} still show ({string.Join(", ", standing)})");
     }
 
     /// <summary>
@@ -103,6 +113,7 @@ internal static class CorpseRotDrawingVerification
             calls++;
             rotting = state.Rot.Step((row, operation) => { state.Rows.MoveRow(row, operation); authored.Move(row, operation); }, _ => { });
         }
+        AssertRotLeavesNothing(state.Rows.Shown, "the dead Torizo");
         return compared;
     }
 
@@ -128,6 +139,7 @@ internal static class CorpseRotDrawingVerification
             compared += AssertDrawsWhole(sheet.Frame(name), sheets.Under(set).Enemy(EnemyDefinitionId.MotherBrainHead).CorpsePlacement(name), rotting.Shown,
                 authored, $"Mother Brain's corpse after rot call {call}");
         }
+        AssertRotLeavesNothing(rotting.Shown, "Mother Brain's corpse");
         return compared;
     }
 
@@ -239,7 +251,8 @@ internal static class CorpseRotDrawingVerification
 
     /// <summary>
     /// The authored rot, restated apart from Core: for each corpse row, the corpse row it shows, or none. A move copies a row
-    /// onto the row below it, the last row landing nowhere, and a move, rather than a copy, then clears it.
+    /// onto the row below it, or three rows down from the last two rows of a band of eight, the last two rows landing
+    /// nowhere, and a move, rather than a copy, then clears it.
     /// </summary>
     private sealed class AuthoredRot
     {
@@ -262,8 +275,9 @@ internal static class CorpseRotDrawingVerification
         /// <summary>Moves corpse row <paramref name="row"/> by <paramref name="operation"/>.</summary>
         internal void Move(int row, CorpseRowOperation operation)
         {
-            if (row + 1 < shown.Length)
-                shown[row + 1] = shown[row];
+            int landing = row % 8 < 6 ? row + 1 : row + 3;
+            if (row < shown.Length - 2 && landing < shown.Length)
+                shown[landing] = shown[row];
             if (operation == CorpseRowOperation.Move)
                 shown[row] = null;
         }

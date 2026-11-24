@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Collision;
+using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Game.Data;
@@ -150,7 +151,7 @@ public sealed class ShinesparkState : PlayerState, IUntouchable, ISamusLook
         _riseSpeed = Pixels.Zero;
         _riseGain = Pixels.FromNumber(samus.ShinesparkRiseGain);
         _stage = Stage.Flying;
-        samus.Room.Session.Sounds.Request(Sounds.Shinespark, channel: "samus");
+        samus.Room.Session.Sounds.Request(Sounds.Shinespark, channel: "samus", priority: SoundPriority.High);
     }
 
     /// <summary>Flies one update: she moves, hurts what she touches, pays energy, and crashes if stopped or spent.</summary>

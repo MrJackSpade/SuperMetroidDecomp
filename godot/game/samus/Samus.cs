@@ -672,7 +672,7 @@ public partial class Samus : Player
     {
         _shine = Countdown.Of(StoredShineUpdates);
         _crystalFlashColouring = CrystalFlashColouring.None;
-        Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus");
+        Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
     }
 
     /// <summary>Uses up the stored shine, and with it any crystal flash's colouring that read as one.</summary>
@@ -858,7 +858,7 @@ public partial class Samus : Player
         // takes its place; a charge that ends without a shot is hushed.
         if (weapon == Arsenal.Beam && Weapons.ChargedFor == ChargeSoundUpdates)
         {
-            Room.Session.Sounds.Request(Sounds.Charging, channel: "weapons");
+            Room.Session.Sounds.Request(Sounds.Charging, channel: "weapons", priority: SoundPriority.High);
             _chargeSounds = true;
         }
         else if (_chargeSounds && Weapons.ChargedFor < ChargeSoundUpdates)
@@ -1017,7 +1017,7 @@ public partial class Samus : Player
     {
         if (RoomDamageSound.Length > 0 && RoomDamageSoundEvery > 0 && Room.Session.Clock.Updates % RoomDamageSoundEvery == 0
             && Inventory.Amount(Inventory.Energy) >= RoomDamageSoundLeastEnergy)
-            Room.Session.Sounds.Request(RoomDamageSound, channel: "samus");
+            Room.Session.Sounds.Request(RoomDamageSound, channel: "samus", priority: SoundPriority.Low);
     }
 
     /// <summary>What her suit divides damage by.</summary>

@@ -1,4 +1,5 @@
 using Engine.Actors;
+using Engine.Core;
 using Game.Data;
 
 namespace Game;
@@ -36,7 +37,7 @@ public sealed class RefillingFromReservesState : PlayerState, IUntouchable, ISam
         inventory.Spend(Amounts.ReserveEnergy, given);
         inventory.Add(Amounts.Energy, given);
         if (owner.Room.Session.Clock.IsEvery(8))
-            owner.Room.Session.Sounds.Request(Sounds.EnergyRefill, channel: "samus");
+            owner.Room.Session.Sounds.Request(Sounds.EnergyRefill, channel: "samus", priority: SoundPriority.Low);
         return null;
     }
 }

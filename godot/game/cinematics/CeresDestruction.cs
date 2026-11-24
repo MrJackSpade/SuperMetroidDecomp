@@ -377,7 +377,7 @@ public partial class CeresDestruction : Cinematic
         Polygon2D glow = Glow();
         glow.Position = new Vector2(CeresCentre.X - (float)Math.Floor(_scrollX), CeresCentre.Y - (float)Math.Floor(_scrollY));
         glow.Visible = true;
-        Session.Sounds.Request(Data().Text("blast_sound"), channel: "explosions");
+        Session.Sounds.Request(Data().Text("blast_sound"), channel: "explosions", priority: SoundPriority.Essential);
         if (SamusAboard)
             Floor().Visible = false;
         else

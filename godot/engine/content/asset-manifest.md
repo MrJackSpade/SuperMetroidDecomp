@@ -64,8 +64,8 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/bull.json` | `Bull` | acceleration_step, contact_damage, health, kick_acceleration, kick_guard_updates, kick_speed, off_target_turn, wait_updates |
 | `enemies/cacatac.json` | `Cacatac` | attack_chances, contact_damage, diagonal_spike_speed, health, spike_speed |
 | `enemies/choot.json` | `Choot` | ascent_step, contact_damage, health, reach, speed_curve |
-| `enemies/chozo_statue_lower_norfair.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, way_patch |
-| `enemies/chozo_statue_wrecked_ship.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, way_patch |
+| `enemies/chozo_statue_lower_norfair.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_patches, shut_patch, way_patch |
+| `enemies/chozo_statue_wrecked_ship.json` | `ChozoStatue` | contact_damage, footstep_depth, footstep_effect, hand_patch, health, lowering_delay, plug_patches, shut_patch, way_patch |
 | `enemies/corpse_ripper_level.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_ripper_tilted.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |
 | `enemies/corpse_skree.json` | `Corpse` | contact_damage, disturbed_updates, dust_effect, dust_sound, health, look, rows |

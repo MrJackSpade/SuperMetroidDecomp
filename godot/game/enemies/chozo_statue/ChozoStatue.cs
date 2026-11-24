@@ -3,22 +3,27 @@ using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
+using Game.Data;
 using Godot;
 
 namespace Game.Enemies;
 
 /// <summary>
-/// A Chozo statue that comes to life. It sits with a hand held out; when Samus drops into the hand as a ball, and
-/// what it waits for has happened, it wakes. One kind closes its hand on her and carries her off across the room,
-/// its feet breaking through what they tread on, and sets her down. The other lowers the room's liquid. Nothing
-/// hurts it and it hurts nothing; it is solid.
+/// A Chozo statue that comes to life. It sits with a hand held out; when Samus comes down onto the hand as a ball,
+/// and what it waits for has happened, it wakes. One kind closes its hand on her and carries her off across the
+/// room, its feet breaking through what they tread on, and sets her down. The other lowers the room's liquid.
+/// Nothing hurts it and it hurts nothing; it is solid.
 /// </summary>
 /// <remarks>
 /// Its timelines are "idle", whose cue "await_hand" says it is ready, "activated", and "lowered" for one whose work
-/// was done before. The cues of "activated" are "sound:" with a sound's name; "move:" with how far it steps this
-/// update and where it holds Samus from its middle, across and down, both across for a statue facing right;
-/// "footstep:" with how far across from its middle its foot comes down; "lower_liquid"; "unlock", which gives Samus
-/// back her freedom; and "release", which also puts the room back as it was.
+/// was done before. The cues of "activated" are "sound:" with a sound's name; "move:" with how far across it steps
+/// this update and where it holds Samus from its middle, across and down; "footstep:" with how far across from its
+/// middle its foot comes down; "lower_liquid"; "unlock", which gives Samus back her freedom; and "release", which
+/// also puts the room back as it was. Its collider "Hand" is its open hand, which she can stand on until it takes
+/// her: it is there wherever the room's own blocks leave the place free. The data of one that walks gives
+/// "footstep_scatter", how the dust of a footstep is thrown: the width and height of the spread and how far into it
+/// the middle lies.
+/// <code>"footstep_scatter": { "width": 16, "height": 16, "middle_x": 0, "middle_y": 3 }</code>
 /// </remarks>
 public partial class ChozoStatue : Enemy
 {
@@ -29,10 +34,6 @@ public partial class ChozoStatue : Enemy
     /// <summary>What must be true for its hand to notice her at all; null when nothing need be.</summary>
     [Export]
     public Condition? ArmedWhen { get; set; }
-
-    /// <summary>Its open hand, in pixels from its middle.</summary>
-    [Export]
-    public Rect2I Hand { get; set; } = new(-48, -16, 16, 16);
 
     /// <summary>The fact recorded when it wakes; one whose fact is already recorded has done its work. Empty for none.</summary>
     [Export]
@@ -49,6 +50,18 @@ public partial class ChozoStatue : Enemy
     /// <summary>The terrain patch that opens its way as it wakes; it is taken back when it sets Samus down. Empty for none.</summary>
     [Export, DataValue("way_patch")]
     public string WayPatch { get; set; } = "";
+
+    /// <summary>The terrain patch that shuts its way as its room is set up, where the room's layout leaves it part open. Empty for none.</summary>
+    [Export, DataValue("shut_patch")]
+    public string ShutPatch { get; set; } = "";
+
+    /// <summary>
+    /// The terrain patches of what its feet break through, one for each block that can be: this name, "_", the
+    /// block's column, "_" and its row. A foot that comes down in a block with no such patch breaks nothing. Empty
+    /// for none.
+    /// </summary>
+    [Export, DataValue("plug_patches")]
+    public string PlugPatches { get; set; } = "";
 
     /// <summary>How far below its middle its feet come down, in pixels.</summary>
     [Export, DataValue("footstep_depth")]
@@ -67,6 +80,19 @@ public partial class ChozoStatue : Enemy
     private bool _awake;
     private bool _carrying;
     private int _lowerIn;
+    private (int Width, int Height, int MiddleX, int MiddleY) _footstepScatter = (1, 1, 0, 0);
+    private Collider? _hand;
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        // Only a statue that walks throws up dust.
+        if (!data.Has("footstep_scatter"))
+            return;
+        DataNode scatter = data.Get("footstep_scatter");
+        _footstepScatter = (scatter.Int("width"), scatter.Int("height"), scatter.Int("middle_x"), scatter.Int("middle_y"));
+    }
 
     /// <inheritdoc/>
     public override HitResult TakeHit(Hit hit, Collider part) => HitResult.Absorbed;
@@ -82,6 +108,10 @@ public partial class ChozoStatue : Enemy
     {
         AlwaysActive = true;
         (_ready, _handTaken, _awake, _carrying, _lowerIn) = (false, false, false, false, 0);
+        _hand = GetNode<Collider>("Hand");
+        _hand.Enabled = false;
+        if (ShutPatch.Length > 0)
+            Room.Terrain.ApplyPatch(ShutPatch);
         if (RecordsFact.Length > 0 && Room.Session.Progress.Has(RecordsFact))
         {
             // Its work was done before.
@@ -111,7 +141,7 @@ public partial class ChozoStatue : Enemy
                 break;
 
             case "move":
-                Step(samus, Number(parts[1]), Number(parts[2]), Number(parts[3]));
+                Stride(samus, Number(parts[1]), Number(parts[2]), Number(parts[3]));
                 break;
 
             case "footstep":
@@ -146,7 +176,10 @@ public partial class ChozoStatue : Enemy
             Room.Liquid?.Triggered("fall");
         if (_awake)
             return;
-        if (!_handTaken && SamusIsInHand(samus))
+        // Its hand can be stood on wherever the room's own blocks leave the place free, until it has taken her.
+        Collider hand = _hand ?? throw new InvalidOperationException($"The Chozo statue \"{Name}\" is not in a room.");
+        hand.Enabled = !_handTaken && !Room.Terrain.IsSolidIn(hand.RoomRect, SlopeTreatment.Wall);
+        if (hand.Enabled && SamusIsInHand(samus, hand.RoomRect))
             TakeHand(samus);
         if (!_handTaken || !_ready)
             return;
@@ -154,15 +187,18 @@ public partial class ChozoStatue : Enemy
         Play("activated", restart: true);
     }
 
-    /// <summary>Whether Samus has dropped into its hand as a ball, with everything it waits for done.</summary>
-    private bool SamusIsInHand(Player samus)
+    /// <summary>Whether Samus has come down onto its hand as a ball, with everything it waits for done.</summary>
+    private bool SamusIsInHand(Player samus, PixelRect hand)
     {
         if (ArmedWhen is { } armed && !armed.IsTrue(Room))
             return false;
         if (samus.Form != Player.Crawling || samus.Velocity.Y.IsNegative || !samus.State.InControl)
             return false;
-        var hand = new PixelRect(Position.X.Whole + Hand.Position.X, Position.Y.Whole + Hand.Position.Y, Hand.Size.X, Hand.Size.Y);
-        if (!hand.OverlapsOrTouches(samus.BodyRect))
+        // The original does not notice a plain ball that faces left; one with the spring ball it notices either way.
+        if (samus.Facing == Facing.Left && !samus.Inventory.Owns(Equipment.SpringBall))
+            return false;
+        PixelRect body = samus.BodyRect;
+        if (body.Bottom != hand.Top || body.Left >= hand.Right || body.Right <= hand.Left)
             return false;
         return WakesWhen is not { } wakes || wakes.IsTrue(Room);
     }
@@ -172,6 +208,8 @@ public partial class ChozoStatue : Enemy
     {
         _handTaken = true;
         _carrying = true;
+        if (_hand is { } hand)
+            hand.Enabled = false;
         samus.Hold();
         if (RecordsFact.Length > 0)
             Room.Session.Progress.Record(RecordsFact);
@@ -182,30 +220,37 @@ public partial class ChozoStatue : Enemy
         Tell("wake");
     }
 
-    /// <summary>Takes one stride with Samus in its hand, keeping its feet on the ground.</summary>
-    private void Step(Player samus, int stride, int holdAcross, int holdDown)
+    /// <summary>Takes one stride with Samus in its hand, pressing down as far as it strode so that its feet stay on the ground.</summary>
+    private void Stride(Player samus, int stride, int holdAcross, int holdDown)
     {
-        int way = Facing == Facing.Right ? 1 : -1;
         if (stride != 0)
         {
             Collider body = Body ?? throw new InvalidOperationException($"The Chozo statue \"{Name}\" has no body collider to walk with.");
-            Room.Mover.MoveAcross(body, Pixels.FromWhole(stride * way), MoveOptions.Plain);
+            Room.Mover.MoveAcross(body, Pixels.FromWhole(stride), MoveOptions.Plain);
             Room.Mover.MoveDown(body, Pixels.FromWhole(Math.Abs(stride)), MoveOptions.Plain);
         }
 
         if (_carrying)
-            samus.Position = Position + PixelOffset.FromWhole(holdAcross * way, holdDown);
+            samus.Position = Position + PixelOffset.FromWhole(holdAcross, holdDown);
     }
 
-    /// <summary>Its foot comes down: what it treads on that cannot bear it gives way.</summary>
+    /// <summary>
+    /// Its foot comes down: what lies in the block it comes down in, where that can be broken through, gives way, and
+    /// dust is thrown up a chance distance from the foot.
+    /// </summary>
     private void Tread(int across)
     {
-        var foot = new PixelRect(Position.X.Whole + across - 8, Position.Y.Whole + FootstepDepth, 16, 1);
-        if (Room.Terrain.BlocksIn(foot, touchingCounts: true).Count == 0)
+        if (PlugPatches.Length == 0)
             return;
-        Room.Terrain.StandOn(foot);
+        int x = Position.X.Whole + across, y = Position.Y.Whole + FootstepDepth;
+        int size = Room.Terrain.TileSize;
+        string plug = $"{PlugPatches}_{Math.DivRem(x, size).Quotient}_{Math.DivRem(y, size).Quotient}";
+        if (x < 0 || y < 0 || !Room.Terrain.HasPatch(plug))
+            return;
+        Room.Terrain.ApplyPatch(plug);
+        PixelOffset thrown = Random.Scatter(_footstepScatter.Width, _footstepScatter.Height, _footstepScatter.MiddleX, _footstepScatter.MiddleY);
         if (FootstepEffect.Length > 0)
-            LeaveEffect(FootstepEffect, PixelPosition.FromWhole(Position.X.Whole + across, Position.Y.Whole + FootstepDepth));
+            LeaveEffect(FootstepEffect, PixelPosition.FromWhole(x, y) + thrown);
     }
 
     private void LetGo(Player samus)

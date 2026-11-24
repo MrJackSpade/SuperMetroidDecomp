@@ -109,7 +109,7 @@ public partial class CuedProjectile : Projectile, IHasValues
                 Position += PixelOffset.FromWhole(Number(parts[1]), Number(parts[2]));
                 break;
             case "scatter":
-                Scatter(room, Number(parts[1]), Number(parts[2]), Number(parts[3]), Number(parts[4]));
+                Position += room.Session.Random.Scatter(Number(parts[1]), Number(parts[2]), Number(parts[3]), Number(parts[4]));
                 break;
             case "sometimes":
                 if (room.Session.Random.Draw().Part(0, 2) == 3)
@@ -142,25 +142,6 @@ public partial class CuedProjectile : Projectile, IHasValues
 
     /// <summary>A speed slowed by a drag toward rest, which may carry it past rest.</summary>
     protected static Pixels Dragged(Pixels speed, Pixels drag) => speed.IsNegative ? speed + drag : speed - drag;
-
-    /// <summary>Throws it a chance distance from where it is, either way across and up or down.</summary>
-    private void Scatter(Room room, int width, int height, int middleX, int middleY)
-    {
-        RandomDraw signs = room.Session.Random.Draw();
-        int across = ChanceDistance(room, width, middleX), down = ChanceDistance(room, height, middleY);
-        Position += PixelOffset.FromWhole(signs.Part(0, 1) == 1 ? -across : across, signs.Part(8, 1) == 1 ? -down : down);
-    }
-
-    /// <summary>A chance distance within a spread, measured from its middle; a draw short of the middle is drawn again.</summary>
-    private static int ChanceDistance(Room room, int span, int middle)
-    {
-        while (true)
-        {
-            int distance = (int)(room.Session.Random.Draw().Number % (uint)span) - middle;
-            if (distance >= 0)
-                return distance;
-        }
-    }
 
     private static int Number(string text) => int.Parse(text, System.Globalization.CultureInfo.InvariantCulture);
 }

@@ -127,6 +127,9 @@ public partial class Terrain : Node2D, ITerrainShape
         QueueRedraw();
     }
 
+    /// <summary>Whether the layout has a patch of a name.</summary>
+    public bool HasPatch(string name) => Layout.Patches.ContainsKey(name);
+
     /// <summary>Whether a named patch is in place.</summary>
     public bool IsPatchApplied(string name) => _replacedBy.ContainsKey(name);
 

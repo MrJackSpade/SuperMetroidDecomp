@@ -439,8 +439,9 @@ lava's surface, spikes, a treadmill. That changes only what is drawn.
 changes nothing about where it is.
 
 **Terrain that changes.** A layout file may hold named patches: a rectangle of tiles to put in place of what is
-there. Anything may tell `Terrain` to apply a patch or take it back by name: a boss dropping the ceiling, a
-sequence opening a wall, a bridge giving way. Nothing edits tiles one at a time, and nothing but `Terrain` holds
+there. Anything may tell `Terrain` to apply a patch or take it back by name, and may ask whether the layout has
+one of a name: a boss dropping the ceiling, a sequence opening a wall, a bridge giving way, a statue's feet
+breaking through one block after another (a patch for each block that can be broken). Nothing edits tiles one at a time, and nothing but `Terrain` holds
 tile data. A patch applied for good is remembered like anything else.
 
 ### RoomObject (base)
@@ -699,7 +700,7 @@ How a projectile behaves is settings, not code:
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). |
 
 A projectile needs its own class only for behaviour no setting gives it. One whose timelines drive it (its harm
-turned on and off, stopped, shifted, scattered, ended, each by a cue) and that moves its own way is a
+turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, each by a cue) and that moves its own way is a
 `CuedProjectile`, the engine's: by itself a burst that plays out where it is, and the base of those that fly.
 
 ### Pickup (base), Effect (base) and Remains

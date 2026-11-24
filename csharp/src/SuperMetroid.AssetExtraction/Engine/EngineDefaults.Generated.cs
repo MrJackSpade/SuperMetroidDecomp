@@ -203,7 +203,7 @@ internal static partial class EngineDefaults
         ["Cacatac"] = [("spike_speed", "2"), ("diagonal_spike_speed", "1.5"), ("attack_chances", "3")],
         ["CeresElevatorDoor"] = [("blocked", "\"\""), ("explosion", "\"\""), ("smoke", "\"\""), ("explosion_sound", "\"\"")],
         ["Choot"] = [("reach", "80"), ("speed_curve", "\"\""), ("ascent_step", "256")],
-        ["ChozoStatue"] = [("hand_patch", "\"\""), ("way_patch", "\"\""), ("footstep_depth", "28"), ("footstep_effect", "\"\""), ("lowering_delay", "32")],
+        ["ChozoStatue"] = [("hand_patch", "\"\""), ("way_patch", "\"\""), ("shut_patch", "\"\""), ("plug_patches", "\"\""), ("footstep_depth", "28"), ("footstep_effect", "\"\""), ("lowering_delay", "32")],
         ["Corpse"] = [("look", "\"corpse\""), ("rows", "16"), ("disturbed_updates", "16"), ("dust_effect", "\"\""), ("dust_sound", "\"\"")],
         ["Covern"] = [("reappearance_delay", "120"), ("first_extra_delay", "160"), ("visible_updates", "120"), ("still_updates", "64"), ("steady_course_updates", "16"), ("lead_distance", "64"), ("brighten_updates", "16"), ("materialise_updates", "16"), ("vanish_updates", "16"), ("bob_start_speed", "1"), ("bob_quickening", "0.09375")],
         ["Crawler"] = [("landing_speed", "0.5"), ("pursues", "false"), ("falls_at_shake", "2")],

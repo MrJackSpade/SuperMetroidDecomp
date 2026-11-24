@@ -39,14 +39,18 @@ script = ExtResource("3")
 script = ExtResource("2")
 Role = 3
 
-[node name="Hitbox" type="Node2D" parent="."]
+[node name="UpperShell" type="Node2D" parent="."]
 script = ExtResource("2")
-Role = 2
+Role = 1
 
-[node name="Shell" type="Node2D" parent="."]
+[node name="LowerShell" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
 
 [node name="Core" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Crown" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1

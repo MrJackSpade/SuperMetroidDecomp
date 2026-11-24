@@ -876,7 +876,13 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   (`EyeDoorEye`, with the growth around its door as two visuals and its spit a `Projectile` of its own): an enemy
   each. An eye door's cap is a `Barrier` held shut by "the eye placed here is gone", and the eye is placed only
   while its destroyed fact is not recorded.
-- Mini-bosses and bosses, each one scene: Bomb Torizo, Golden Torizo (one scene, two data files); Spore Spawn;
+- Mini-bosses and bosses, each one scene: Bomb Torizo, Golden Torizo (one scene, two data files); Spore Spawn
+  (the pieces of its shell and its core are hurtboxes that its timelines' "pose" cues move to where each frame has
+  them, a shot meeting the first of them in the scene's order; how hurt it is and each step of its hardening are
+  sets of its pictures, its stalk's with them; the places its spores come from are visuals whose own timeline lets
+  each spore go; its ceiling crumbles through a list of patches before the one that opens it; and the view is kept
+  below a `CameraZone` over its chamber, which it opens as it dies); its spore (a `Projectile` that, shot, goes on
+  drifting while it bursts and leaves its drop as the burst ends);
   Fake Kraid; Kraid (arm, foot and belly spikes are parts; thrown nails and spikes are `Projectile`s); Crocomire
   (tongue is a part); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and

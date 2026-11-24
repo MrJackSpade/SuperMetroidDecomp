@@ -643,7 +643,9 @@ BOSSES = {
         'FightMusic': '"kraid_and_phantoon_battle"', 'VictoryMusic': '"elevator"'}),
     'DraygonBody': ('draygon/draygon.tscn', 'draygon', {'VictoryMusic': '"elevator"'}),
     'Ridley': ('ridley/ridley.tscn', 'ridley', {'FightMusic': '"ridley_and_draygon_battle"'}),
-    'SporeSpawn': ('spore_spawn/spore_spawn.tscn', 'spore_spawn', {'CeilingPatch': '"ceiling_open"'}),
+    'SporeSpawn': ('spore_spawn/spore_spawn.tscn', 'spore_spawn', {
+        'CeilingCrumblePatches': 'Array[String](["ceiling_crumbles_1", "ceiling_crumbles_2", "ceiling_crumbles_3"])',
+        'CeilingPatch': '"ceiling_open"'}),
     'Botwoon': ('botwoon/botwoon.tscn', 'botwoon', {'WallPatch': '"wall_down"', 'VictoryMusic': '"elevator"'}),
     'BombTorizo': ('torizo/torizo.tscn', 'bomb_torizo', {
         'AwakeningMusic': '"torizo_awakening"', 'FightMusic': '"ridley_and_draygon_battle"', 'VictoryMusic': '"elevator"'}),

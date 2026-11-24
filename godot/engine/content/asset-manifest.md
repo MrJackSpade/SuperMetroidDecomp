@@ -40,8 +40,8 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/ridley_fireball.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ridley_flame.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ridley_flare.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
-| `bosses/spore_spawn.json` | `SporeSpawn` | ceiling_above, contact_damage, death_drops, descent_speed, dust_effect, explosion_effect, explosion_sound, fast_sway_step, fast_swing_below, hardening_sound, health, stalk_anchor_above, stalk_body_gap, start_rise, sway_widening, vertical_sway_narrowing, widened_sway_limit |
-| `bosses/spore_spawn_spore.json` | `SporeSpawnSpore` | fall_distance |
+| `bosses/spore_spawn.json` | `SporeSpawn` | ceiling_above, ceiling_crumble_delay, ceiling_crumble_sound, ceiling_crumble_updates, ceiling_dust_effect, contact_damage, death_drops, descent_speed, dust_effect, explosion_effect, explosion_sound, fast_sway_step, fast_swing_below, hardening_sound, health, stalk_anchor_above, stalk_body_gap, start_rise, sway_widening, vertical_sway_narrowing, widened_sway_limit |
+| `bosses/spore_spawn_spore.json` | `SporeSpawnSpore` | burst_timeline, fall_distance |
 | `bosses/torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
 | `bosses/torizo_egg.json` | `TorizoEgg` | bounce_drag, hatch_updates, quickening |
 | `bosses/torizo_eye_beam.json` | `TorizoEyeBeam` |  |
@@ -258,7 +258,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `rooms/brinstar/skree_boost_in_red_brinstar_kraid.json` |  |
 | `rooms/brinstar/spazer_in_red_brinstar_kraid.json` |  |
 | `rooms/brinstar/spore_spawn_farming_in_green_blue_brinstar.json` |  |
-| `rooms/brinstar/spore_spawn_in_green_blue_brinstar.json` | ceiling_open |
+| `rooms/brinstar/spore_spawn_in_green_blue_brinstar.json` | ceiling_crumbles_1, ceiling_crumbles_2, ceiling_crumbles_3, ceiling_open |
 | `rooms/brinstar/spore_spawn_kihunters_in_green_blue_brinstar.json` |  |
 | `rooms/brinstar/spore_spawn_super_in_green_blue_brinstar.json` |  |
 | `rooms/brinstar/varia_suit_in_red_brinstar_kraid.json` |  |

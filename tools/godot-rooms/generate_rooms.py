@@ -388,6 +388,13 @@ class Generator:
         extras = [encounter]
         if boss.boss == 'spore_spawn':
             extras.append(enemies.Placed(boss.scene, 'SporeSpawnHusk', {'Husk': 'true'}, at=boss.at, only_when=defeated))
+            # Until it dies the view is kept from rising above its chamber: the old code's lowest place for the view's top.
+            lowest = int(re.search(r'LowestCameraY = (\d+);', legacy.read('Bosses', 'SporeSpawn', 'SporeSpawnArenaDefinitions.cs')).group(1))
+            above = enemies.Placed(camera.ZONE, 'AboveSporeSpawn', {
+                'Size': f'Vector2i({room.screens[0] * SCREEN}, {lowest})', 'StartsOpen': 'false'},
+                at=(0, 0), enemy=False, only_when=ctx.none_of([defeated]))
+            links[id(boss)]['ArenaView'] = above
+            extras.append(above)
         return extras
 
     def place_things(self, key: str, scene: Scene, room: legacy.Room) -> None:

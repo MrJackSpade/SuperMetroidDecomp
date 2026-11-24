@@ -4,6 +4,7 @@ using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
 using Engine.Shared;
+using Engine.World;
 using Godot;
 
 namespace Game.Enemies;
@@ -11,17 +12,31 @@ namespace Game.Enemies;
 /// <summary>
 /// Spore Spawn: a great pod hanging on a stalk from the ceiling of its chamber. It lowers itself, then swings in a
 /// figure of eight, shut tight, while the ceiling rains spores; every so often it stops and opens, and only then can
-/// its core be hurt. Each hurt sends it swinging the other way, faster once it is weak. Killed, it drifts back to
-/// the middle, hardens into a husk Samus can climb, and the ceiling above it crumbles.
+/// its core be hurt. Each hurt sends it swinging the other way, faster once it is weak, and shows how hurt it is in
+/// its colours. Killed, it drifts back to the middle, hardens into a husk Samus can climb, and the ceiling above it
+/// crumbles.
 /// </summary>
 /// <remarks>
 /// Its timelines are "husk", "awaiting_descent", "fight_started", "open_and_stop", "close_and_move" and "death".
 /// Their cues are "movement:&lt;idle|descending|moving|setup_death|dying&gt;"; "sway:&lt;radius&gt;:&lt;steps&gt;",
-/// which sets how wide it swings and how many angle steps a swing turns each update; "spores:&lt;on|off&gt;";
-/// "core:&lt;open|shut&gt;", which says whether its core can be hit; "widen", "reopen", "harden", "drops",
-/// "hardening_dust" and "dying_explosion". Its hurtbox named "Core" is its core; any other part turns shots away.
-/// The visuals "Stalk1" through "Stalk4" are its stalk, ceiling end first, and "Emitter1" through "Emitter4" the
-/// places in the ceiling its spores come from, playing "emitter_closed" and "emitter_release". Its shot is "spore".
+/// which sets how wide it swings and how many angle steps a swing turns each update, backwards when below nothing;
+/// "spores:&lt;on|off&gt;"; "pose:&lt;name&gt;", which puts its parts where its data's "poses" have them under that
+/// name; "shade:&lt;name&gt;", which shows it in the set of its pictures of that name; "widen", "reopen", "harden",
+/// "drops", "hardening_dust" and "dying_explosion".
+/// <code>
+/// "poses": { "spore_spawn_ajar": { "core_takes_shots": true,
+///            "colliders": { "UpperShell": { "left": -45, "top": -38, "width": 89, "height": 29 }, "Core": { ... } } } },
+/// "health_shades": [ { "health": 770, "shade": "_health_unhurt" }, { "health": 0, "shade": "_health_nearly_dead" } ],
+/// "emitters": [ { "x": -96, "y": -104, "drift": "right" } ]
+/// </code>
+/// Its hurtboxes are "UpperShell", "LowerShell", "Core" and "Crown", and a shot that reaches several meets the first of
+/// them in that order. Only "Core" can be hurt, and only in a pose that says so; every other part turns shots away. A
+/// pose that does not name a part leaves it switched off. "health_shades" lists, most health first, the set of its
+/// pictures it shows from the first hurt of an opening on, by the least health it is shown at; a picture's path holds
+/// "{shade}" where the set's name goes. The visuals "Stalk1" through "Stalk4" are its stalk, ceiling end first, shown by
+/// the timeline "stalk" in its own colours, and "Emitter1" through "Emitter4" the places in the ceiling its spores
+/// come from, playing "emitter_closed" and "emitter_release", whose cue "spore" lets the spore go. "emitters" gives
+/// each one's place from where Spore Spawn hangs and the way its spores first drift. Its shot is "spore".
 /// </remarks>
 public partial class SporeSpawn : Enemy
 {
@@ -32,6 +47,14 @@ public partial class SporeSpawn : Enemy
     /// <summary>The terrain patch that opens the ceiling above it when it dies.</summary>
     [Export]
     public string CeilingPatch { get; set; } = "";
+
+    /// <summary>The terrain patches the ceiling crumbles through before it opens, in order.</summary>
+    [Export]
+    public Godot.Collections.Array<string> CeilingCrumblePatches { get; set; } = [];
+
+    /// <summary>The camera zone above its chamber, kept shut until it dies; empty for none.</summary>
+    [Export]
+    public NodePath ArenaView { get; set; } = new();
 
     /// <summary>How far above where it hangs for the fight it waits to begin, in pixels.</summary>
     [Export, DataValue("start_rise")]
@@ -77,9 +100,13 @@ public partial class SporeSpawn : Enemy
     [Export, DataValue("death_drops")]
     public int DeathDrops { get; set; } = 16;
 
-    /// <summary>The effect of the dust that falls as it dies and hardens, by the data file of its timeline.</summary>
+    /// <summary>The effect of the dust that bursts about it as it hardens, by the data file of its timeline.</summary>
     [Export, DataValue("dust_effect")]
     public string DustEffect { get; set; } = "";
+
+    /// <summary>The effect of the dust that falls from the ceiling while it drifts back to the middle.</summary>
+    [Export, DataValue("ceiling_dust_effect")]
+    public string CeilingDustEffect { get; set; } = "";
 
     /// <summary>The effect of the explosions on it as it dies.</summary>
     [Export, DataValue("explosion_effect")]
@@ -93,7 +120,22 @@ public partial class SporeSpawn : Enemy
     [Export, DataValue("explosion_sound")]
     public string ExplosionSound { get; set; } = "";
 
+    /// <summary>How many updates after it dies the ceiling begins to crumble.</summary>
+    [Export, DataValue("ceiling_crumble_delay")]
+    public int CeilingCrumbleDelay { get; set; } = 1;
+
+    /// <summary>How many updates each step of the ceiling's crumbling shows.</summary>
+    [Export, DataValue("ceiling_crumble_updates")]
+    public int CeilingCrumbleUpdates { get; set; } = 4;
+
+    /// <summary>The sound of the ceiling beginning to crumble, by name.</summary>
+    [Export, DataValue("ceiling_crumble_sound")]
+    public string CeilingCrumbleSound { get; set; } = "";
+
     private const int Emitters = 4;
+
+    /// <summary>Its hurtboxes, in the order a shot meets them.</summary>
+    private static readonly string[] Parts = ["UpperShell", "LowerShell", "Core", "Crown"];
 
     private enum Moving
     {
@@ -104,9 +146,14 @@ public partial class SporeSpawn : Enemy
         Dying,
     }
 
+    /// <summary>Where its parts are in one of its poses, and whether its core takes shots in it.</summary>
+    private sealed record Pose(bool CoreTakesShots, IReadOnlyDictionary<string, PixelRect> Colliders);
+
     private readonly int[] _emitterWait = new int[Emitters];
     private readonly TimelinePlayer?[] _emitterPlayers = new TimelinePlayer?[Emitters];
-    private readonly List<PixelOffset> _emitterPlaces = [];
+    private readonly List<(PixelOffset Place, bool DriftsLeft)> _emitters = [];
+    private readonly Dictionary<string, Pose> _poses = new(StringComparer.Ordinal);
+    private readonly List<(int Health, string Shade)> _healthShades = [];
     private Moving _moving;
     private PixelPosition _centre;
     private int _angle;
@@ -115,8 +162,13 @@ public partial class SporeSpawn : Enemy
     private bool _sporesHeldBack;
     private bool _hurtThisOpening;
     private bool _dying;
-    private bool _coreOpen;
+    private bool _coreTakesShots;
+    private string _shade = "";
     private TimelinePlayer? _stalk;
+
+    /// <summary>The step of the ceiling's crumbling that comes next; below nothing when it is not crumbling.</summary>
+    private int _crumbleStep = -1;
+    private int _crumbleWait;
 
     /// <inheritdoc/>
     public override bool IsHitBy(HitSide side) => !Husk && !_dying && base.IsHitBy(side);
@@ -125,11 +177,33 @@ public partial class SporeSpawn : Enemy
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
-        // Where in the ceiling its spores come from, from where it hangs; those left of it drift right, and the others left.
-        _emitterPlaces.Clear();
-        _emitterPlaces.AddRange(data.List("emitters").Select(place => PixelOffset.FromWhole(place.Int("x"), place.Int("y"))));
-        if (_emitterPlaces.Count != Emitters)
+        _emitters.Clear();
+        _emitters.AddRange(data.List("emitters").Select(emitter =>
+            (PixelOffset.FromWhole(emitter.Int("x"), emitter.Int("y")), emitter.Text("drift") switch
+            {
+                "left" => true,
+                "right" => false,
+                _ => throw emitter.Problem("drifts neither \"left\" nor \"right\""),
+            })));
+        if (_emitters.Count != Emitters)
             throw data.Problem($"must list {Emitters} emitters");
+
+        _poses.Clear();
+        foreach ((string name, DataNode pose) in data.Get("poses").Entries())
+        {
+            var colliders = new Dictionary<string, PixelRect>(StringComparer.Ordinal);
+            foreach ((string part, DataNode rect) in pose.Get("colliders").Entries())
+            {
+                if (!Parts.Contains(part))
+                    throw rect.Problem($"names a part Spore Spawn does not have; it has: {string.Join(", ", Parts)}");
+                colliders[part] = new PixelRect(rect.Int("left"), rect.Int("top"), rect.Int("width"), rect.Int("height"));
+            }
+
+            _poses[name] = new Pose(pose.Flag("core_takes_shots"), colliders);
+        }
+
+        _healthShades.Clear();
+        _healthShades.AddRange(data.List("health_shades").Select(shade => (shade.Int("health"), shade.Text("shade"))));
     }
 
     /// <inheritdoc/>
@@ -138,6 +212,9 @@ public partial class SporeSpawn : Enemy
         _centre = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole);
         _stalk = new TimelinePlayer(Timelines.Get("stalk"));
         AlwaysActive = true;
+        // Its parts are nowhere until its first pose puts them.
+        foreach (string part in Parts)
+            GetNode<Collider>(part).Enabled = false;
         if (Husk)
         {
             Play("husk");
@@ -157,10 +234,16 @@ public partial class SporeSpawn : Enemy
     }
 
     /// <inheritdoc/>
+    protected override string PictureOf(TimelineStep step) => Shaded(step.Picture, _shade);
+
+    /// <summary>A picture's path with the name of a set of its pictures put where the path leaves room for one.</summary>
+    private static string Shaded(string picture, string shade) => picture.Replace("{shade}", shade, StringComparison.Ordinal);
+
+    /// <inheritdoc/>
     protected override Reaction ReactionTo(Hit hit, Collider part)
     {
         Reaction reaction = base.ReactionTo(hit, part);
-        return part.Name == "Core" && _coreOpen ? reaction : reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
+        return part.Name == "Core" && _coreTakesShots ? reaction : reaction with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
     }
 
     /// <inheritdoc/>
@@ -171,9 +254,18 @@ public partial class SporeSpawn : Enemy
             _turn = _turn < 0 ? -FastSwayStep : FastSwayStep;
         if (_hurtThisOpening)
             return;
-        // The first hurt of each opening shuts it and sends it swinging the other way.
+        // The first hurt of each opening shuts it, sends it swinging the other way and shows how hurt it now is.
         _turn = -_turn;
         _hurtThisOpening = true;
+        foreach ((int health, string shade) in _healthShades)
+        {
+            if (Health.Current >= health)
+            {
+                _shade = shade;
+                break;
+            }
+        }
+
         Play("close_and_move", restart: true);
     }
 
@@ -182,13 +274,24 @@ public partial class SporeSpawn : Enemy
     {
         _dying = true;
         _sporesHeldBack = false;
+        // Its death begins at once, not when the flash of the hit that killed it is over.
+        FlashFor(0);
         foreach (Projectile spore in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
             Room.Remove(spore);
+        // The places its spores came from go with them.
+        for (int emitter = 0; emitter < Emitters; emitter++)
+        {
+            _emitterPlayers[emitter] = null;
+            GetNode<ActorVisual>($"Emitter{emitter + 1}").Show("");
+        }
+
         Play("death", restart: true);
         // The fight is won from this moment, though what is left of it stays where it is.
         Room.MarkGone(Name);
-        if (CeilingPatch.Length > 0)
-            Room.Terrain.ApplyPatch(CeilingPatch);
+        if (!ArenaView.IsEmpty)
+            GetNode<CameraZone>(ArenaView).Triggered("open");
+        _crumbleStep = 0;
+        _crumbleWait = CeilingCrumbleDelay;
         return false;
     }
 
@@ -223,8 +326,11 @@ public partial class SporeSpawn : Enemy
             case "spores":
                 _sporesHeldBack = parts[1] == "off";
                 break;
-            case "core":
-                _coreOpen = parts[1] == "open";
+            case "pose":
+                TakePose(parts[1]);
+                break;
+            case "shade":
+                _shade = parts[1];
                 break;
             case "widen":
                 if (_radius < WidenedSwayLimit)
@@ -254,6 +360,23 @@ public partial class SporeSpawn : Enemy
                 Scatter(ExplosionEffect, 7, 6, 64, 32);
                 Sound(ExplosionSound);
                 break;
+            default:
+                throw new InvalidOperationException($"Spore Spawn's timeline \"{Playing}\" gives the cue \"{cue}\", which it does not know.");
+        }
+    }
+
+    /// <summary>Puts its parts where a pose has them, and switches off those the pose does not name.</summary>
+    private void TakePose(string name)
+    {
+        if (!_poses.TryGetValue(name, out Pose? pose))
+            throw new InvalidOperationException($"Spore Spawn's data gives it no pose named \"{name}\".");
+        _coreTakesShots = pose.CoreTakesShots;
+        foreach (string part in Parts)
+        {
+            Collider collider = GetNode<Collider>(part);
+            collider.Enabled = pose.Colliders.TryGetValue(part, out PixelRect rect);
+            if (collider.Enabled)
+                collider.Rect = rect;
         }
     }
 
@@ -275,7 +398,7 @@ public partial class SporeSpawn : Enemy
                 Position = PixelPosition.FromWhole(
                     _centre.X.Whole + Turns.Sine(_angle + Turns.PerTurn / 4, Pixels.FromWhole(_radius), Turns.Fineness.Coarse).Whole,
                     _centre.Y.Whole + Turns.Sine(behind * 2 + Turns.PerTurn / 2, Pixels.FromWhole(_radius - VerticalSwayNarrowing), Turns.Fineness.Coarse).Whole);
-                _angle = Turns.Wrap(_angle - _turn);
+                _angle = Turns.Wrap(_angle + _turn);
                 break;
 
             case Moving.SetupDeath:
@@ -288,18 +411,39 @@ public partial class SporeSpawn : Enemy
                 Position += new PixelOffset(Velocity.X, Velocity.Y);
                 if (Math.Abs(Position.X.Whole - _centre.X.Whole) < 8 && Math.Abs(Position.Y.Whole - _centre.Y.Whole) < 8)
                     _moving = Moving.Idle;
-                if (Room.Session.Clock.Updates % 16 == 0 && DustEffect.Length > 0)
+                if (Room.Session.Clock.Updates % 16 == 0 && CeilingDustEffect.Length > 0)
                 {
                     RandomDraw draw = Random.Draw();
-                    LeaveEffect(DustEffect, _centre + PixelOffset.FromWhole(draw.Part(0, 6) - 32, draw.Part(8, 4) - 144));
+                    LeaveEffect(CeilingDustEffect, _centre + PixelOffset.FromWhole(draw.Part(0, 6) - 32, draw.Part(8, 4) - 144));
                 }
 
                 break;
         }
 
+        CrumbleCeiling();
         if (!Husk && !_dying)
             ReleaseSpores();
         ShowParts();
+    }
+
+    /// <summary>Moves the ceiling's crumbling on: each of its steps in turn, and then the ceiling open.</summary>
+    private void CrumbleCeiling()
+    {
+        if (_crumbleStep < 0 || --_crumbleWait > 0)
+            return;
+        if (_crumbleStep < CeilingCrumblePatches.Count)
+        {
+            if (_crumbleStep == 0)
+                Sound(CeilingCrumbleSound);
+            Room.Terrain.ApplyPatch(CeilingCrumblePatches[_crumbleStep]);
+            _crumbleStep++;
+            _crumbleWait = CeilingCrumbleUpdates;
+            return;
+        }
+
+        if (CeilingPatch.Length > 0)
+            Room.Terrain.ApplyPatch(CeilingPatch);
+        _crumbleStep = -1;
     }
 
     /// <summary>Leaves an effect at a random place about itself: a fresh number gives how far across and down, within the given bit widths, less the centring.</summary>
@@ -310,7 +454,7 @@ public partial class SporeSpawn : Enemy
             LeaveEffect(effect, PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + PixelOffset.FromWhole(draw.Part(0, acrossBits) - centreAcross, draw.Part(8, downBits) - centreDown));
     }
 
-    /// <summary>Counts each emitter's wait down, and lets a spore go from any whose wait has run out.</summary>
+    /// <summary>Counts each emitter's wait down, and opens any whose wait has run out.</summary>
     private void ReleaseSpores()
     {
         if (_sporesHeldBack)
@@ -320,8 +464,6 @@ public partial class SporeSpawn : Enemy
             if (_emitterWait[emitter] == 0)
             {
                 _emitterPlayers[emitter] = new TimelinePlayer(Timelines.Get("emitter_release"));
-                PixelPosition from = _centre + _emitterPlaces[emitter];
-                Fire("spore", from, new PixelVelocity(Pixels.FromWhole(_emitterPlaces[emitter].X.IsNegative ? 1 : -1), Pixels.Zero));
                 _emitterWait[emitter] = Random.Draw().Part(0, 9);
             }
 
@@ -330,7 +472,7 @@ public partial class SporeSpawn : Enemy
         }
     }
 
-    /// <summary>Puts its stalk and its emitters where they are.</summary>
+    /// <summary>Puts its stalk and its emitters where they are, and lets go the spore of any emitter that has opened.</summary>
     private void ShowParts()
     {
         _stalk?.Step();
@@ -348,17 +490,28 @@ public partial class SporeSpawn : Enemy
                 _ => (anchor.X + across / 4 + across / 2, anchor.Y + down / 4 + down / 2),
             };
             visual.Position = new Vector2(x - Position.X.Whole, y - Position.Y.Whole);
-            visual.Show(_stalk.Current);
+            // Its stalk is in its own colours.
+            visual.Show(_stalk.Current with { Picture = Shaded(_stalk.Current.Picture, _shade) });
         }
 
         for (int emitter = 0; emitter < Emitters; emitter++)
         {
             if (_emitterPlayers[emitter] is not { } player || GetNodeOrNull<ActorVisual>($"Emitter{emitter + 1}") is not { } visual)
                 continue;
-            player.Step();
-            PixelPosition at = _centre + _emitterPlaces[emitter];
+            (PixelOffset place, bool driftsLeft) = _emitters[emitter];
+            PixelPosition at = _centre + place;
+            foreach (string cue in player.Step())
+            {
+                if (cue != "spore")
+                    throw new InvalidOperationException($"An emitter of Spore Spawn's gives the cue \"{cue}\", which it does not know.");
+                // The speed it is launched with only says which way it drifts.
+                if (!Husk && !_dying)
+                    Fire("spore", at, new PixelVelocity(Pixels.FromWhole(driftsLeft ? -1 : 1), Pixels.Zero));
+            }
+
             visual.Position = new Vector2(at.X.Whole - Position.X.Whole, at.Y.Whole - Position.Y.Whole);
-            visual.Show(player.Current);
+            // An emitter keeps the colours the fight began in.
+            visual.Show(player.Current with { Picture = Shaded(player.Current.Picture, "") });
         }
     }
 }

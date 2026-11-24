@@ -875,7 +875,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <inheritdoc/>
     public HitResult TakeHit(Hit hit, Collider part)
     {
-        if (IsDead || IsInvincible || State is DyingState || !AcceptsHit(hit))
+        if (IsDead || ShrugsOff(hit) || State is DyingState || !AcceptsHit(hit))
             return HitResult.Ignored;
         if (hit.Carries(HitKind.Contact) && hit.Source is IHittable toucher && BodyPowerStops(toucher))
             return HitResult.Ignored;
@@ -907,6 +907,24 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>The energy <paramref name="hit"/> would take from the player as they are equipped now.</summary>
     public int EnergyLostTo(Hit hit) => DamageFrom(hit);
+
+    /// <summary>
+    /// Whether the enemies' shots are tried against the player on this update. The room asks once, when all the
+    /// shots have moved and its objects have played, before any is tried; none is, once the player is dead or dying.
+    /// A game with times at which no shot can reach the player says so here.
+    /// </summary>
+    protected internal virtual bool BeginEnemyShots() => !IsDead && State is not DyingState;
+
+    /// <summary>Called when the enemies' shots have all been tried against the player on this update.</summary>
+    protected internal virtual void EndEnemyShots()
+    {
+    }
+
+    /// <summary>
+    /// Whether a hit is shrugged off because the player was hurt a moment ago. It is while they are invincible,
+    /// unless the game says otherwise.
+    /// </summary>
+    protected virtual bool ShrugsOff(Hit hit) => IsInvincible;
 
     /// <summary>Whether a hit can land on the player at the moment. A game with states in which the player cannot be hit says so here.</summary>
     protected virtual bool AcceptsHit(Hit hit) => true;

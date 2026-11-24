@@ -336,6 +336,30 @@ public partial class Samus : Player
     /// <summary>The body power of the given name, or null when her data gives her none of that name.</summary>
     public BodyPower? Power(string name) => _powers.GetValueOrDefault(name);
 
+    /// <summary>Whether the enemies' shots are being tried against her, all of which land once the trying has begun.</summary>
+    private bool _shotsLand;
+
+    /// <summary>The body powers under which no enemy's shot is tried against her. A charged spin is not one of them.</summary>
+    private static readonly string[] ShotProofPowers = [HitKinds.SpeedBoost, HitKinds.Shinespark, HitKinds.ScrewAttack];
+
+    /// <summary>
+    /// The cartridge looks once at whether she was lately hurt before it tries the enemies' shots against her, and
+    /// tries none while her body is a weapon: speed boosting, shinesparking or screw attacking.
+    /// </summary>
+    protected internal override bool BeginEnemyShots()
+    {
+        if (!base.BeginEnemyShots() || IsInvincible || ShotProofPowers.Any(name => Power(name) is { IsActive: true }))
+            return false;
+        _shotsLand = true;
+        return true;
+    }
+
+    /// <inheritdoc/>
+    protected internal override void EndEnemyShots() => _shotsLand = false;
+
+    /// <summary>Every shot that overlaps her on one update lands: the first does not make her shrug off the rest.</summary>
+    protected override bool ShrugsOff(Hit hit) => !_shotsLand && base.ShrugsOff(hit);
+
     /// <inheritdoc/>
     public override void ReadValues(DataNode data)
     {

@@ -979,6 +979,15 @@ not lifted from a shared routine.
   lifetime, its collider and its visual.
 - **Manages:** moving, hitting what it meets, and removing itself.
 - **Does not:** decide what its target does about the hit, or know its target's type.
+- **When it hits.** The player's shot delivers its hit as it moves, to whatever it comes upon. An enemy's shot does not:
+  it moves, and the room tries each enemy's shot once, where it then stands, at the end of the room's update, after
+  the room's objects have played (and so after a message that suspended the update). The room first asks the player
+  once whether any is tried at all (`Player.BeginEnemyShots`: none once the player is dead or dying, and a game may
+  say more), and tells them when all have been (`EndEnemyShots`); whether a hit is shrugged off for a hurt a moment
+  ago is the player's to say (`ShrugsOff`: while invincible, unless the game says otherwise). Samus says no shot is
+  tried while she is invincible as the trying begins or while she is speed boosting, shinesparking or screw
+  attacking, and that once it has begun every shot that overlaps her lands, as the cartridge reads her
+  invincibility once for them all.
 
 How a projectile behaves is settings, not code:
 

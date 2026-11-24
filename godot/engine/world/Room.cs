@@ -381,6 +381,19 @@ public partial class Room : Node2D
     /// <summary>The end of an update, after the room's objects and its terrain.</summary>
     private void Finish(Stopped stopped)
     {
+        // The enemies' shots are tried against the player only now, each once where it stands: all have moved, and
+        // the room's objects have played. The player says first whether any is tried at all.
+        if (!stopped.HasFlag(Stopped.Projectiles) && Player.BeginEnemyShots())
+        {
+            foreach (Projectile projectile in _projectiles.ToList())
+            {
+                if (projectile.Side == HitSide.Enemies && !_leaving.Contains(projectile))
+                    projectile.MeetTargetsWhereItStands();
+            }
+
+            Player.EndEnemyShots();
+        }
+
         if (!stopped.HasFlag(Stopped.Room))
         {
             foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())

@@ -420,9 +420,32 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         // Something solid that is not terrain may be the very thing the shot is for: a door's cap, a frozen enemy. So
         // what is there is hit first, and only then does the solid stop the shot.
         bool meetsSolid = !passes && room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Count > 0;
-        if (!DeliversHitNow)
-            return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
 
+        // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
+        // all have moved.
+        if (!DeliversHitNow || Side == HitSide.Enemies)
+            return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
+        if (!MeetTargets(room, area))
+            return false;
+        return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
+    }
+
+    /// <summary>
+    /// Tries an enemy's shot against what it harms, where it stands. The room does this for each once all have moved
+    /// and the room's objects have played.
+    /// </summary>
+    internal void MeetTargetsWhereItStands()
+    {
+        if (!HasEnded && DeliversHitNow)
+            MeetTargets(Room, Area);
+    }
+
+    /// <summary>
+    /// Delivers the projectile's hit to what lies in <paramref name="area"/> and does what each answer calls for.
+    /// Returns whether it carries on travelling this update.
+    /// </summary>
+    private bool MeetTargets(Room room, PixelRect area)
+    {
         if (_settings.HitsEachUpdate)
             _alreadyHurt.Clear();
         _alreadyHurt.Add(this);
@@ -470,7 +493,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             }
         }
 
-        return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
+        return true;
     }
 
     /// <summary>

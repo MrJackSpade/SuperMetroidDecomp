@@ -16,6 +16,13 @@
   blueprint. The Godot project lives in its own directory with no references to the old
   code, reuses none of it, and does not copy its structure. The old code is not deleted.
 - The v0.9.0 bugs are still fixed in `csharp/`; after that it is frozen as a reference.
+- The asset extractor still reads the old code's definitions. It is to become self-contained,
+  holding its own definitions, once the Godot game is at parity and the old code is deleted.
+  That is v1.1.0 work (#2910); it is not part of v1.0.0 and cannot be. Until then, whether a
+  value is read from the old definitions or typed does not matter, so long as it is right: a
+  typed value is not a difference from the cartridge and gets no parity ticket, and a small
+  change to the old code made so that the extractor can read a value is not a question of
+  the rules.
 - For Godot work, parity means the same observable results from the same inputs, not the
   same internal order or state (v1.0.0 manifesto, section 4). The recorded movies are off
   limits until the owner opens testing.
@@ -183,8 +190,9 @@ reproducing a reported bug.
 - Minor versions (`0.x.0`) are planned release bands; read each milestone's description
   for its scope. Patch versions (`0.x.y`) are reserved for bugfix releases.
 - `v1.0.0` is the game written new in Godot (umbrella #1393). `v1.1.0` collects low-hanging
-  enhancements on top of the port, widescreen support (#1394) among them; more complex
-  enhancements go to later `1.x` versions.
+  enhancements on top of the port, widescreen support (#1394) among them, and making the
+  asset extractor self-contained (#2910); more complex enhancements go to later `1.x`
+  versions.
 - Work is ordered by milestone: take tickets from the earliest open milestone, subject
   to "Single ticket development".
 

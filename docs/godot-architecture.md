@@ -425,7 +425,10 @@ first.
 
 Each asset format is defined, and documented beside `ContentLibrary`, in the stage that first needs it, and the
 asset extractor is changed to write it in that same stage. That is the one place v1.0.0 work touches the old
-repository's code, and it touches only the extractor's output.
+repository's code: the extractor's output, and whatever small change lets the extractor read a value it needs.
+The extractor reads the old code's definitions only for now. Once the Godot game is at parity the old code is
+deleted and the extractor holds its own definitions; that decoupling is v1.1.0 work, not part of v1.0.0. So a value
+typed where it could have been read from the old code is not a defect, so long as it is right.
 
 Sound is added with each stage's things; `SoundRequests` and `AudioDirector` are built in stage 4.
 

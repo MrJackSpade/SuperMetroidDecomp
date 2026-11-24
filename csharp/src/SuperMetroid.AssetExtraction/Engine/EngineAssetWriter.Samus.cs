@@ -329,8 +329,8 @@ public sealed partial class EngineAssetWriter
         // How each bomb of a spread is thrown, left to right, in pixels an update, upward and leftward below nought.
         file.Group("bomb_spread_throws", EngineNames.List(SamusBombSpreadLaunchDefinitions.LeftToRight.Select(launch => (JsonNode)new JsonObject
         {
-            ["across"] = Number(launch.HorizontalVelocity),
-            ["down"] = Number(launch.VerticalVelocity),
+            ["across"] = EngineNames.Number(launch.HorizontalVelocity),
+            ["down"] = EngineNames.Number(launch.VerticalVelocity),
         })));
 
         // Heat is the one harm of a room itself her suits spare her; a liquid's type says what spares her its own.

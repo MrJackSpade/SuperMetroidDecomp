@@ -23,6 +23,7 @@ public partial class Intro
 {
     private enum Flight
     {
+        AskingForMusic,
         WaitingForMusic,
         FlyingIntoCamera,
         FlyingTowardCeres,
@@ -55,7 +56,7 @@ public partial class Intro
     private int _captionShown;
     private int _captionWait;
 
-    /// <summary>Sets up the flight, in the dark, and asks for its music.</summary>
+    /// <summary>Sets up the flight, in the dark; it asks for its music on its first update.</summary>
     private void BeginFlight()
     {
         var layer = new CanvasLayer { Name = "Flight", Layer = 3 };
@@ -84,9 +85,7 @@ public partial class Intro
         AddChild(_flash);
 
         (_flightScrollX, _flightScrollY, _flightSize, _flightAngle, _starsSpeed) = (-72, -104, 512, 224, -4);
-        Compatibility.CartridgeSounds.Of(Session).AskMusicSet("ceres");
-        Session.Sounds.RequestMusic(Music.CeresFlight, SceneMusicWait);
-        _flight = Flight.WaitingForMusic;
+        _flight = Flight.AskingForMusic;
         ShowGunship();
     }
 
@@ -97,6 +96,13 @@ public partial class Intro
         CinematicSprite stars = _stars ?? throw NotEntered();
         switch (_flight)
         {
+            case Flight.AskingForMusic:
+                // The old flight asks for its music on the update after the opening's fade reaches black, not on that update.
+                Compatibility.CartridgeSounds.Of(Session).AskMusicSet("ceres");
+                Session.Sounds.RequestMusic(Music.CeresFlight, SceneMusicWait);
+                _flight = Flight.WaitingForMusic;
+                break;
+
             case Flight.WaitingForMusic:
                 // The flight is shown once the music asked for has all been carried out; the stars play on while it waits.
                 if (Session.Sounds.HasQueuedMusic)

@@ -1170,7 +1170,10 @@ public partial class Samus : Player
         // The stored shine is heard a while after it is stored, as the cartridge's colouring of her asks for it.
         if (HasStoredShine && _shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
             Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
-        StopEndedSounds();
+
+        // Once she is dying the cartridge no longer shows her the usual way, so a spin or a boost her death ends asks for no stop.
+        if (State is not DyingState)
+            StopEndedSounds();
         _crystalFlashColouring = _crystalFlashColouring switch
         {
             CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,

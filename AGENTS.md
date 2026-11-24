@@ -29,8 +29,7 @@
 - For Godot work, parity means the same observable results from the same inputs, not the
   same internal order or state (v1.0.0 manifesto, section 4). The recorded movies are off
   limits until the owner opens testing.
-- The manifesto does not authorize starting Godot work or switching away from the active
-  ticket.
+- The manifesto does not authorize starting Godot work.
 
 ## Full parity with the cartridge is required
 
@@ -63,6 +62,7 @@
   to make one thing work, a structure copied from the old code, a second way of doing
   something the type system already does one way.
 - Every ticket carries one of two labels, `high` or `low`, and is given it when it is created.
+  An open ticket found with neither is given one before anything else is done with it.
   - `low`: the whole fix lies inside one thing of the game (its own files, its writer in the
     extractor, its place in the room generator), what the old game does there is stated or is
     found by a short read, and nothing new is asked of the engine.
@@ -196,8 +196,7 @@ reproducing a reported bug.
   enhancements on top of the port, widescreen support (#1394) among them, and making the
   asset extractor self-contained (#2910); more complex enhancements go to later `1.x`
   versions.
-- Work is ordered by milestone: take tickets from the earliest open milestone, subject
-  to "Single ticket development".
+- Work is ordered by milestone: take tickets from the earliest open milestone.
 
 ## Issue-fix workflow
 
@@ -217,33 +216,6 @@ reproducing a reported bug.
   can the ticket move to `awaiting-player-validation`. Before labeling any ticket,
   check its comments for unanswered owner questions.
 
-## Single ticket development
-
-- Work on only ONE ticket at a time. The GitHub label `in-progress` is the
-  repository's active development status and must be assigned before beginning
-  a ticket's diagnosis, implementation, or confirmation work.
-- Before starting a ticket, query the repository for open tickets marked
-  `in-progress`. If any exists, continue that ticket; do not start another.
-  If multiple active tickets already exist, report the conflict rather than
-  selecting another ticket or silently clearing their status.
-- While an `in-progress` ticket exists, taking work on any other ticket is
-  FORBIDDEN. Do not investigate, implement, or confirm another ticket, including
-  a related child or follow-up, until the active ticket is development complete.
-  Difficulty, waiting, a blocker, or convenient adjacent work does not permit
-  switching tickets or clearing the active status.
-- Development complete means the requested implementation is finished, its
-  specific change has passed proportionate confirmation, and the completed work
-  is committed and pushed. Do not invent whole-game coverage requirements or
-  use exploratory tests to delay this status.
-- Remove `in-progress` only when development is complete. For a player-facing
-  change awaiting the user's confirmation, replace it with
-  `awaiting-player-validation`; pending player validation does not prevent
-  beginning the next ticket. Closure still follows the existing player-confirmation
-  rule or the user's explicit instruction.
-- Tracking umbrellas and their implementation children are not simultaneous
-  active tickets. Finish the current ticket before taking a different ticket,
-  and keep the status accurate across turns and handoffs.
-
 ## Emulation scope limits
 
 - Techniques and reported behavior that require unbounded memory corruption are
@@ -261,15 +233,43 @@ reproducing a reported bug.
 
 ## Agent use
 
-- At most three agents may run at once. Spawn them only for work that splits intelligently into
-  independent, long-running pieces; never fire off short-lived agents repeatedly.
-- Every agent works in its own git worktree on its own branch and commits its work there. Agents
-  never spawn further agents or forks.
-- Agents do not build and do not run verification, tests, replays or scripts that check behaviour.
-  They only edit code and commit to their branches.
+- An agent is never a model above the newest Opus.
+- Whether work goes to an agent depends on which model is coordinating.
+  - **The newest Fable coordinating.** Even counting an agent's start-up cost and the
+    coordination, the newest Opus doing a piece of work as an agent costs less than the
+    coordinator doing it. So open `low` tickets go to Opus agents and not to the coordinator.
+    Where they block nothing they are batched, about five tickets to an agent. Simple,
+    low-effort boilerplate that has to be done to unblock `high` work may also go to an Opus
+    agent, when it is more than a few files' worth of work and needs no decisions. The
+    coordinator keeps the `high` work for itself. Told to carry on with no ticket named, it
+    first labels any open ticket that has no label, hands out the open `low` tickets that are
+    not awaiting validation, and works `high` tickets itself.
+  - **The newest Opus coordinating.** An agent costs what the coordinator would cost doing the
+    work itself, and its start-up cost and the coordination come on top, so for small tasks
+    agents cost more. Spawn them only for work that splits intelligently into independent,
+    long-running pieces; never fire off short-lived agents repeatedly.
+- An agent never makes an architectural decision ("Which model takes a ticket"). Its prompt
+  says so, and says what that means for the work it is given: nothing under `godot/engine/`
+  changes; no engine member, format or order of update is added; nothing is decided about
+  where something belongs. A ticket that turns out to need any of that is stopped, its
+  changes undone, and what it needs reported.
+- At most three agents may run at once.
+- Every agent works in its own git worktree on its own branch and commits its work there, one
+  commit a ticket, with `Ticket: #<number>` in the message's body. Agents never spawn further
+  agents or forks, never push, and never write to GitHub.
+- Agents do not build and do not run verification, tests, replays, generators or scripts that
+  check behaviour. They only edit code and commit to their branches.
+- An agent's report says, for each ticket: done, stopped or not done; its commit; what now
+  agrees with the old code; exactly what is left; what must be regenerated; and any other
+  difference from the old game it noticed, which it does not fix.
 - While agents are running, the main session acts only as coordinator, not as a developer: it
-  assigns and divides work, merges agent branches (`--no-ff`), builds, runs the focused
-  verification, fixes integration breakage, commits, pushes and drains the Discord queue.
+  assigns and divides work, merges agent branches (`--no-ff`), regenerates what their changes
+  need (`engine_defaults.py`, `generate_rooms.py`, `asset_manifest.py`), builds, runs the
+  focused verification and the text checks in `tools/godot-rooms/`, fixes integration breakage,
+  commits, pushes and drains the Discord queue. It then brings the tickets up to date: on each
+  one, what was done and what is left; `awaiting-player-validation` on one that is finished;
+  `high` in place of `low` on one that was stopped; and a new ticket, labelled, for each
+  difference an agent found.
 - Every agent prompt includes the v1.0.0 manifesto's section 6 rules and this section.
 - Before branching agents off for a ticket, merge that ticket's pre-existing WIP branches into main first, so
   agents start from all existing work.

@@ -868,7 +868,15 @@ public partial class Samus : Player
             Room.Session.Sounds.Request(Sounds.SamusStop, channel: "weapons", priority: SoundPriority.High);
         }
 
-        if (weapon.Length == 0 || Weapons.All.All(owned => owned.Name != weapon))
+        // With the grapple beam chosen, or the X-ray scope with the run held, the beam's own input does not run, so its
+        // charge stands as it is, as the cartridge has it.
+        if (weapon.Length == 0)
+        {
+            Weapons.StepCooldown();
+            return;
+        }
+
+        if (Weapons.All.All(owned => owned.Name != weapon))
         {
             Weapons.StepCooldown();
             Weapons.DropCharge();
@@ -997,7 +1005,11 @@ public partial class Samus : Player
         (_spreadCharged, _spreadHeld, _ballCharge, _chargeSounds) = (false, 0, false, false);
     }
 
-    /// <summary>The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected.</summary>
+    /// <summary>
+    /// The weapon the attack uses right now: bombs in the morph ball, and otherwise what she has selected. The grapple
+    /// beam fires none; the X-ray scope fires the beam while the run is let go, as the cartridge's does, and none while
+    /// the run is held.
+    /// </summary>
     private string WeaponInHand()
     {
         if (Form == Crawling)
@@ -1006,7 +1018,8 @@ public partial class Samus : Player
         {
             Amounts.Missiles => Arsenal.Missile,
             Amounts.SuperMissiles => Arsenal.SuperMissile,
-            Equipment.GrappleBeam or Equipment.XrayScope => "",
+            Equipment.GrappleBeam => "",
+            Equipment.XrayScope => Input.IsHeld(Actions.Run) ? "" : Arsenal.Beam,
             _ => Arsenal.Beam,
         };
     }
@@ -1014,7 +1027,7 @@ public partial class Samus : Player
     /// <summary>
     /// Handles the item actions: cancel selects the beam alone; select moves on to the next thing she can use. An item
     /// chosen while cancel is held is put away again once it has been used. The X-ray scope leaves her the choice, as
-    /// the cartridge's HUD goes on taking it while the X-ray holds time still. Either press drops the charge, even one
+    /// the cartridge's HUD goes on taking it while the X-ray holds time still. Either press forgets the charge, even one
     /// that leaves the choice as it was, unless it lands on the grapple beam while the line is out.
     /// </summary>
     private void ChooseItem()
@@ -1042,12 +1055,10 @@ public partial class Samus : Player
             return;
         }
 
+        // As the cartridge's HUD does, the charge is dropped with no sound, and with it the marks of a charge that a bomb
+        // spread and the morph ball read: its sound is not hushed now or later.
         if (Selected != Equipment.GrappleBeam || Grapple is not { IsOut: true })
-        {
-            // As the cartridge's HUD does, the charge is dropped with no sound: its sound is not hushed now or later.
-            Weapons.DropCharge();
-            _chargeSounds = false;
-        }
+            ForgetCharge();
     }
 
     /// <summary>

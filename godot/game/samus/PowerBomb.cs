@@ -11,7 +11,8 @@ namespace Game;
 /// <summary>
 /// One of Samus's power bombs: it lies where it was laid until its fuse runs out, and then its blast spreads out from
 /// it as an oval wider than it is tall. On every update of the blast its hit lands on everything the blast reaches
-/// that it has not hit lately, and on the terrain it covers; so what stays inside a blast long enough is hit twice.
+/// that it has not hit lately, and on the blocks along the border of its reach; so what stays inside a blast long
+/// enough is hit twice.
 /// </summary>
 /// <remarks>
 /// Its data gives how far the blast reaches across on each of its updates, one after another, from the update after
@@ -37,7 +38,7 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
     [Export, DataValue("height_parts")]
     public int HeightParts { get; set; } = 3;
 
-    /// <summary>…for every this many parts it reaches across, to the nearest pixel.</summary>
+    /// <summary>…for every this many parts it reaches across: to the nearest pixel for what it hits, rounded down for the terrain.</summary>
     [Export, DataValue("width_parts")]
     public int WidthParts { get; set; } = 4;
 
@@ -86,7 +87,7 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
 
     /// <summary>
     /// Plays one update of the blast as the update opens, before anyone acts: it reaches further, its hit lands on what
-    /// it reaches and on the terrain it covers, and once its reaches are done the bomb leaves.
+    /// it reaches and on the terrain along the border of its reach, and once its reaches are done the bomb leaves.
     /// </summary>
     public void StepOpening(Room room)
     {
@@ -107,13 +108,9 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
         QueueRedraw();
         int parts = Math.Max(1, WidthParts);
         int across = Math.Max(0, _reach), down = (across * HeightParts + (parts - 1) / 2) / parts;
-
-        // As the cartridge's does, the blast strikes the terrain on every update it runs, out to its far edges, so a
-        // reach of nought still strikes the block it lies in.
-        var struck = new PixelRect(Position.X.Whole - across, Position.Y.Whole - down, across * 2 + 1, down * 2 + 1);
         if (_reach <= 0)
         {
-            room.Terrain.TakeHit(Hit, struck);
+            StrikeBorder(room, across);
             return;
         }
 
@@ -131,8 +128,36 @@ public partial class PowerBomb : Projectile, IHasValues, IOpeningStep
                 _reachedAt[target] = _blastUpdate;
         }
 
-        room.Terrain.TakeHit(Hit, struck);
+        StrikeBorder(room, across);
     }
+
+    /// <summary>
+    /// As the cartridge's blast does on every update it runs, strikes only the blocks on the border of its reach, held
+    /// to the room: the top row left to right, the left column top to bottom, the bottom row left to right, the right
+    /// column top to bottom, so each corner is struck twice and a reach of nought strikes the block it lies in four
+    /// times. Its reach up and down here is its reach across in proportion, rounded down.
+    /// </summary>
+    private void StrikeBorder(Room room, int across)
+    {
+        Terrain terrain = room.Terrain;
+        int tile = terrain.TileSize, down = across * HeightParts / Math.Max(1, WidthParts);
+        int left = Math.Max(0, Position.X.Whole - across) / tile;
+        int right = Math.Min(terrain.WidthInPixels / tile - 1, (Position.X.Whole + across) / tile);
+        int top = Math.Max(0, Position.Y.Whole - down) / tile;
+        int bottom = Math.Min(terrain.HeightInPixels / tile - 1, (Position.Y.Whole + down) / tile);
+        for (int column = left; column <= right; column++)
+            StrikeTile(terrain, column, top);
+        for (int row = top; row <= bottom; row++)
+            StrikeTile(terrain, left, row);
+        for (int column = left; column <= right; column++)
+            StrikeTile(terrain, column, bottom);
+        for (int row = top; row <= bottom; row++)
+            StrikeTile(terrain, right, row);
+    }
+
+    /// <summary>Lands the blast's hit on whatever block covers the tile at <paramref name="column"/>, <paramref name="row"/>.</summary>
+    private void StrikeTile(Terrain terrain, int column, int row) =>
+        terrain.TakeHit(Hit, new PixelRect(column * terrain.TileSize, row * terrain.TileSize, 1, 1));
 
     /// <inheritdoc/>
     public override void _Draw()

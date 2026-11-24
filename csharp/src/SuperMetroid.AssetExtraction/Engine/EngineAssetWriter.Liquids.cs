@@ -146,7 +146,8 @@ public sealed partial class EngineAssetWriter
     /// <summary>
     /// Writes the pictures of one thing an effect shows, for one state's set of graphics, and gives the timeline that
     /// plays them: the frames of the effect's animation in turn where it has one, and one still picture otherwise. The
-    /// timeline names the pictures with the set of graphics left for the room to put in.
+    /// timeline names the pictures with the set of graphics left for the room to put in, and lays them so that the
+    /// pixel the old game places lies where the thing is: a liquid's strip has its surface a little way down it.
     /// </summary>
     private JsonObject EffectTimeline(RoomStateSettings state, RoomEffectDefinition effect, string subject, string folder, string file, HashSet<string> written)
     {
@@ -154,30 +155,38 @@ public sealed partial class EngineAssetWriter
         string shade = RoomEffectTintShading.Of(effect.Tint).Key;
         string graphics = GraphicsFolder(state);
 
+        (int X, int Y)? placed = null;
+
         string Picture(BlockAnimation? animation, string shown, string suffix)
         {
             string named = $"{folder}/{{0}}/{file}{suffix}.png";
             string path = string.Format(System.Globalization.CultureInfo.InvariantCulture, named, graphics);
+            string frame = EffectFrame(sheet, subject, animation, shown);
+            (int originX, int originY, int _, int _) = _sheets.FramePlace(RoomBlockFamily, sheet,
+                _sheets.HasFrame(RoomBlockFamily, sheet, frame) ? frame : frame + PictureInFront);
+            if ((placed ??= (originX, originY)) != (originX, originY))
+                throw new InvalidDataException($"The pictures of {subject} on the sheet {sheet} are not all placed alike.");
             if (written.Add(path))
             {
-                (RgbaPixel[] pixels, int width, int height) = EffectPicture(sheet, EffectFrame(sheet, subject, animation, shown), shade);
+                (RgbaPixel[] pixels, int width, int height) = EffectPicture(sheet, frame, shade);
                 _tree.WritePicture(path, width, height, pixels);
             }
 
             return string.Format(System.Globalization.CultureInfo.InvariantCulture, named, "{graphics}");
         }
 
-        if (!BlockAnimationLoopDefinitions.EffectOverlayAnimations.TryGetValue(effect.Type, out BlockAnimation animation))
-        {
-            return new JsonObject
+        JsonObject timeline = BlockAnimationLoopDefinitions.EffectOverlayAnimations.TryGetValue(effect.Type, out BlockAnimation animation)
+            ? EngineTimelines.Of<ArtworkFrame, NoAnimationCue>([], BlockAnimationLoopDefinitions.IdleLoops[animation].Select(IAnimationBeat<ArtworkFrame, NoAnimationCue> (beat) => beat),
+                frame => Picture(animation, frame.Name, "_" + EngineSheets.FileName(frame.Name)), _ => null)
+            : new JsonObject
             {
                 ["steps"] = new JsonArray(new JsonObject { ["picture"] = Picture(null, "", ""), ["updates"] = 1 }),
                 ["loops_to"] = 0,
             };
-        }
-
-        return EngineTimelines.Of<ArtworkFrame, NoAnimationCue>([], BlockAnimationLoopDefinitions.IdleLoops[animation].Select(IAnimationBeat<ArtworkFrame, NoAnimationCue> (beat) => beat),
-            frame => Picture(animation, frame.Name, "_" + EngineSheets.FileName(frame.Name)), _ => null);
+        (int placedX, int placedY) = placed ?? throw new InvalidDataException($"The effect {effect.Type} shows no picture of {subject}.");
+        if ((placedX, placedY) != (0, 0))
+            timeline["offset"] = new JsonObject { ["x"] = -placedX, ["y"] = -placedY };
+        return timeline;
     }
 
     /// <summary>

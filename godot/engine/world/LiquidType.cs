@@ -15,8 +15,8 @@ namespace Engine.World;
 ///   "body": { "steps": [ { "picture": "liquids/{graphics}/lava_body_0.png", "updates": 13 } ], "loops_to": 0 },
 ///   "blend": "add", "drift": 0 }
 /// </code>
-/// "surface" is the timeline of the strip drawn along its surface, and "body" that of the picture tiled under the
-/// strip to the bottom of the view; both are needed to draw it, and a liquid with neither is not drawn. "blend" says
+/// "surface" is the timeline of the strip drawn along its surface, whose offset says how far above the surface the
+/// strip's picture starts, and "body" that of the picture tiled under the strip to the bottom of the view; both are needed to draw it, and a liquid with neither is not drawn. "blend" says
 /// how they are drawn over the room, as an overlay's does. "drift" is how far they move across each update in a
 /// room whose liquid drifts.
 /// </remarks>

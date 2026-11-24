@@ -52,6 +52,8 @@ def main() -> None:
     problems = 0
     for path in sorted(glob.glob(os.path.join(ENGINE, '*.cs'))):
         text = open(path, encoding='utf-8').read()
+        # Any data file a writer names is one it writes: an object's, a projectile's.
+        written |= set(re.findall(r'"((?:enemies|bosses|objects|samus|cinematics)/[^"]+\.json)"', text))
         for start in re.finditer(r'Enemy\(\$?"([^"]+)", "(\w+)"', text):
             file, kind = start.group(1), start.group(2)
             end = text.find('.Write();', start.end())

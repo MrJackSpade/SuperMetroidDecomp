@@ -79,7 +79,10 @@ public partial class Room : Node2D
     public GameSession Session => _session ?? throw NotSetUp();
 
     /// <summary>Where the room's assets are loaded from.</summary>
-    public ContentLibrary Content => Session.Content;
+    public ContentLibrary Content => _content ?? Session.Content;
+
+    /// <summary>The game's files as this room reads them: with pictures for its own set of graphics.</summary>
+    private ContentLibrary? _content;
 
     /// <summary>The player.</summary>
     public Player Player => _player ?? throw NotSetUp();
@@ -152,7 +155,9 @@ public partial class Room : Node2D
         Version = Versions.FirstOrDefault(version => version.When is null || version.When.IsTrue(this));
         if (Version is not null && Version.LayoutFile.Length > 0)
             _terrain.LayoutFile = Version.LayoutFile;
-        _terrain.Load(Content);
+        _terrain.Load(Session.Content);
+        // What stands in the room is drawn with the graphics the room's layout is drawn with.
+        _content = Session.Content.DrawnWith(_terrain.Graphics);
         foreach (string patch in Version?.Patches ?? [])
             _terrain.ApplyPatch(patch);
 

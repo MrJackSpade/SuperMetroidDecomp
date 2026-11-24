@@ -56,6 +56,9 @@ public partial class Terrain : Node2D, ITerrainShape
     /// <exception cref="InvalidOperationException">No layout has been loaded.</exception>
     private TerrainLayout Layout => _layout ?? throw new InvalidOperationException("The terrain has no layout loaded.");
 
+    /// <summary>The name of the set of graphics the layout is drawn with; empty when the layout names none.</summary>
+    public string Graphics => Layout.Graphics;
+
     /// <summary>The width and height of a tile, in pixels.</summary>
     public int TileSize => Layout.TileSize;
 

@@ -30,12 +30,19 @@ namespace Engine.World;
 /// </remarks>
 public sealed class TerrainLayout
 {
-    private TerrainLayout(int tileSize, TileDefinition[][] tiles, IReadOnlyDictionary<string, TerrainPatch> patches)
+    private TerrainLayout(int tileSize, TileDefinition[][] tiles, IReadOnlyDictionary<string, TerrainPatch> patches, string graphics)
     {
         TileSize = tileSize;
         Tiles = tiles;
         Patches = patches;
+        Graphics = graphics;
     }
+
+    /// <summary>
+    /// The name of the set of graphics the layout is drawn with, which its data gives as "graphics"; empty when it
+    /// gives none. Things in the room that look different from one set to another are drawn with this one.
+    /// </summary>
+    public string Graphics { get; }
 
     /// <summary>The width and height of a tile, in pixels.</summary>
     public int TileSize { get; }
@@ -96,7 +103,7 @@ public sealed class TerrainLayout
             }
         }
 
-        return new TerrainLayout(tileSize, tiles, patches);
+        return new TerrainLayout(tileSize, tiles, patches, data.Has("graphics") ? data.Text("graphics") : "");
     }
 
     /// <summary>Reads what one letter stands for.</summary>

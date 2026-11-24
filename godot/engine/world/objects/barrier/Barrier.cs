@@ -17,7 +17,9 @@ namespace Engine.World.Objects;
 /// (played once when a hit wears it down without opening it), "opening", "open" and "closing", and "sealing"
 /// (played once as the room is entered while it is held shut, before "sealed"). One with an "opening" timeline goes
 /// on blocking until that has played. Its data may also name its "open_sound", "close_sound", "hurt_sound" and
-/// "sealed_sound".
+/// "sealed_sound". One that is plain, having once been opened and remembered so, shows the timeline named with
+/// "plain_" before each of those names where its data has one, and is opened by the kinds its data lists under
+/// "plain_opened_by", or by any hit where it lists none: a red door's cap comes back as a blue one.
 /// </remarks>
 public partial class Barrier : RoomObject, IHittable, ITriggerTarget
 {
@@ -107,6 +109,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     private string _showingName = "";
     private bool _opening;
 
+    /// <summary>The kinds of hit that open it once it is plain; none listed when any hit does.</summary>
+    private readonly HashSet<HitKind> _plainOpenedBy = [];
+
     /// <summary>Whether the barrier is open.</summary>
     public bool IsOpen { get; private set; }
 
@@ -121,6 +126,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     {
         base.ReadValues(data);
         _timelines = TimelineSet.ReadFrom(data);
+        _plainOpenedBy.Clear();
+        if (data.Has("plain_opened_by"))
+            _plainOpenedBy.UnionWith(data.List("plain_opened_by").Select(kind => new HitKind(kind.AsText())));
         if (!data.Has("damaged_by"))
             return;
         DamagedBy = [];
@@ -169,7 +177,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             return HitResult.Absorbed;
         }
 
-        int damage = _plain ? 1 : DamageFrom(hit);
+        int damage = !_plain ? DamageFrom(hit) : _plainOpenedBy.Count == 0 || hit.CarriesAny(_plainOpenedBy) ? 1 : 0;
         if (damage <= 0)
             return HitResult.Absorbed;
         _health -= damage;
@@ -344,7 +352,9 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
     /// <summary>Shows the timeline of that name, if its data has one; a look it has none for falls back to "closed" or shows nothing.</summary>
     private void Show(string name)
     {
-        string shown = _timelines.Has(name) ? name : name is "sealed" or "hurt" && _timelines.Has("closed") ? "closed" : "";
+        // A plain one has its own timeline for a look, where its data gives one.
+        string Named(string look) => _plain && _timelines.Has("plain_" + look) ? "plain_" + look : look;
+        string shown = _timelines.Has(Named(name)) ? name : name is "sealed" or "hurt" && _timelines.Has(Named("closed")) ? "closed" : "";
         if (name == "open" && shown.Length == 0)
         {
             // With no look for being open it simply is not there.
@@ -360,7 +370,7 @@ public partial class Barrier : RoomObject, IHittable, ITriggerTarget
             return;
         }
 
-        (_showing, _showingName) = (new TimelinePlayer(_timelines.Get(shown)), shown);
+        (_showing, _showingName) = (new TimelinePlayer(_timelines.Get(Named(shown))), shown);
         foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
             visual.Show(_showing.Current);
     }

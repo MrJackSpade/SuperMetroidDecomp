@@ -36,8 +36,9 @@ use it, drawn with that set of graphics; a level several areas use, or one drawn
 each. Beyond the tiles themselves, a layout answers for these things the old code did with objects placed over the
 level:
 
-- **Doors.** The blocks of a door are empty: a room exit's region lies over them, and a door's cap is a barrier
-  placed in the scene.
+- **Doors.** The blocks of a door are empty: a room exit's region lies over them. A door's cap is a barrier placed
+  in the scene, which draws itself shut, opening and open; so the four blocks of the level a cap stands on are
+  empty too, and the layout draws nothing there.
 - **Elevators.** The blocks an elevator's platform rests on are solid: the door blocks the old level marks under a
   platform that leads nowhere, and the blocks of the old elevator-platform object.
 - **Hidden items.** Where the old code hides an item in a shot block, the layout has that block.
@@ -45,6 +46,14 @@ level:
   the manifest lists for it: a bridge collapsing, a wall coming down, the way the animals leave by.
 - **Backgrounds.** A room whose old background is part of its level is drawn by its layout. One with a background
   picture of its own has a backdrop in its scene, and the picture is an asset.
+
+## Pictures for a set of graphics
+
+A layout names the set of graphics it is drawn with, under "graphics". The old game draws some things into a room
+with the room's own blocks: a door's cap, a gate, a station. Such a thing looks as the room's graphics draw those
+blocks, so its pictures are written once for each set, in a folder named for the set, and its data names them all by
+one path with `{graphics}` where the folder's name goes. A room reads its files through a `ContentLibrary` made for
+its set, which puts the set's name there.
 
 ## Where a placed thing stands
 

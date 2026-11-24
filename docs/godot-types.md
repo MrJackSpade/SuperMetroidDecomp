@@ -476,7 +476,9 @@ Every kind here is the engine's except `Gunship`.
   arrived at takes no one until they have been in control and clear of it once, so that a player something brings
   in through it is not taken straight back.
 - A `Barrier` is a solid object with health that only certain damage wears down. It stands wherever something must
-  be got through. It knows nothing about exits.
+  be got through. It knows nothing about exits. One opened and remembered as plain comes back as a plain one: its
+  data may give it other timelines and other kinds of hit that open it for then, as a red door's cap comes back
+  blue.
 
 | Barrier setting | Meaning | In this game |
 | --- | --- | --- |
@@ -708,6 +710,13 @@ turned on and off, stopped, shifted, scattered, ended, each by a cue) and that m
   on the death's "drop" cue, or as it ends, they roll the enemy's `DropTable` and leave the pickup; and they hand
   the enemy that takes its place, if one does, to the room, which adds it once the pickup is gone. So a drop appears after the explosion,
   not under it. An enemy with no death to play leaves its drop at once.
+
+**A shot meets what is solid and hittable.** A projectile that reaches something solid that is not terrain, such as
+a door's cap or a frozen enemy, delivers its hit to what is there before the solid stops it. Terrain stops it first.
+
+**Pictures for a room's graphics.** A layout names the set of graphics it is drawn with. A picture's path may hold
+`{graphics}`; a room loads such a picture from the folder named for its own set, so that something the old game
+drew with the room's blocks looks as that room's graphics draw it.
 
 **Where a timeline's pictures lie.** A timeline's data may give an offset: where the top-left corner of each of its
 pictures lies from the place of the thing shown. It is added to whatever offset the thing has of its own, so

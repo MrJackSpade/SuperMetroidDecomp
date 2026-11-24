@@ -14,6 +14,10 @@ public sealed partial class EngineAssetWriter
     private readonly EngineAssetTree _tree;
     private readonly EngineSheets _sheets;
     private readonly GameInstallation _installation;
+    private EngineRoomObjects? _roomObjects;
+
+    /// <summary>The pictures of the things drawn with a room's own blocks; there once the layouts have said which sets of graphics there are.</summary>
+    private EngineRoomObjects RoomObjects => _roomObjects ?? throw new InvalidOperationException("The room objects' pictures are asked for before the layouts are written.");
 
     private EngineAssetWriter(GameInstallation installation, string assets)
     {
@@ -33,8 +37,11 @@ public sealed partial class EngineAssetWriter
         var installation = new GameInstallation(installationRoot);
         var writer = new EngineAssetWriter(installation, assets);
         writer.WriteShared();
-        new EngineLayouts(writer._tree, writer._sheets, installation.LoadRoomLevelStreams()).WriteAll();
+        var layouts = new EngineLayouts(writer._tree, writer._sheets, installation.LoadRoomLevelStreams());
+        layouts.WriteAll();
+        writer._roomObjects = new EngineRoomObjects(writer._tree, writer._sheets, installation.ContentDirectory, layouts.GraphicsSets);
         writer.WriteEnemies();
+        writer.WriteDoorCaps();
     }
 
     /// <summary>

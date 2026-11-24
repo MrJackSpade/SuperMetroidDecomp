@@ -381,27 +381,14 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         if (passes && hitsTerrain)
             room.Terrain.TakeHit(Hit, area);
 
-        if (!passes && (room.Terrain.IsSolidIn(area, SlopeTreatment.Wall) ||
-                        room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Count > 0))
-        {
-            if (hitsTerrain)
-                room.Terrain.TakeHit(Hit, area);
-            if (_settings.MeetingTerrain == ProjectileSettings.Terrain.Bounces)
-            {
-                bool acrossBlocked = room.Terrain.IsSolidIn(Area.MovedBy(0, previous.Y.Whole - next.Y.Whole), SlopeTreatment.Wall);
-                Velocity = acrossBlocked ? Velocity.WithX(-Velocity.X) : Velocity.WithY(-Velocity.Y);
-                Position = previous;
-                return false;
-            }
+        if (!passes && room.Terrain.IsSolidIn(area, SlopeTreatment.Wall))
+            return StopAgainst(room, previous, next, hitsTerrain);
 
-            Position = previous;
-            OnMetTerrain(room);
-            End(room);
-            return false;
-        }
-
+        // Something solid that is not terrain may be the very thing the shot is for: a door's cap, a frozen enemy. So
+        // what is there is hit first, and only then does the solid stop the shot.
+        bool meetsSolid = !passes && room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Count > 0;
         if (!DeliversHitNow)
-            return true;
+            return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
 
         if (_settings.HitsEachUpdate)
             _alreadyHurt.Clear();
@@ -444,7 +431,29 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             }
         }
 
-        return true;
+        return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
+    }
+
+    /// <summary>
+    /// Stops the projectile against terrain or something solid it has met in moving from <paramref name="previous"/>
+    /// to <paramref name="next"/>: it bounces off, or it ends there. Always returns false: it travels no further this update.
+    /// </summary>
+    private bool StopAgainst(Room room, PixelPosition previous, PixelPosition next, bool hitsTerrain)
+    {
+        if (hitsTerrain)
+            room.Terrain.TakeHit(Hit, Area);
+        if (_settings.MeetingTerrain == ProjectileSettings.Terrain.Bounces)
+        {
+            bool acrossBlocked = room.Terrain.IsSolidIn(Area.MovedBy(0, previous.Y.Whole - next.Y.Whole), SlopeTreatment.Wall);
+            Velocity = acrossBlocked ? Velocity.WithX(-Velocity.X) : Velocity.WithY(-Velocity.Y);
+            Position = previous;
+            return false;
+        }
+
+        Position = previous;
+        OnMetTerrain(room);
+        End(room);
+        return false;
     }
 
     /// <summary>

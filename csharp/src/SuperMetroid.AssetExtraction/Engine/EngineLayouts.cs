@@ -31,6 +31,10 @@ internal sealed partial class EngineLayouts
     private readonly EngineSheets _sheets;
     private readonly InstalledRoomLevelStreams _levels;
     private readonly HashSet<string> _blockTypes = new(StringComparer.Ordinal);
+    private readonly SortedSet<string> _graphicsSets = new(StringComparer.Ordinal);
+
+    /// <summary>Every set of graphics a layout written so far is drawn with, by the old game's name for it.</summary>
+    internal IReadOnlyList<string> GraphicsSets => [.. _graphicsSets];
 
     internal EngineLayouts(EngineAssetTree tree, EngineSheets sheets, InstalledRoomLevelStreams levels)
     {
@@ -53,6 +57,9 @@ internal sealed partial class EngineLayouts
     internal static string PathOf(RoomDefinition room, RoomStateSettings state) =>
         $"rooms/{EngineSheets.FileName(room.Area.ToString())}/{EngineSheets.FileName(state.Level.Name)}_in_{EngineSheets.FileName(state.GraphicsSet.ToString())}.json";
 
+    /// <summary>How many blocks a door's cap is.</summary>
+    internal const int DoorCapBlocks = 4;
+
     /// <summary>Writes the layout of one state of a room, unless another state has already written the same one.</summary>
     private void Write(RoomDefinition room, RoomStateSettings state)
     {
@@ -63,6 +70,32 @@ internal sealed partial class EngineLayouts
         string tileset = state.GraphicsSet.ToString();
         var elevatorBlocks = new HashSet<Position16<RoomBlocks>>(
             _levels.DoorBlocks(room, state.Level).Where(door => door.Exit.IsElevatorRide).Select(door => door.Block));
+
+        // A door's cap is four blocks of the level, a column or a row from the block that answers a shot. The Godot
+        // game's cap is a barrier placed in the room's scene, which draws itself shut, opening and open; so the
+        // layout leaves those blocks open and draws nothing there.
+        var capCells = new HashSet<int>();
+        for (int y = 0; y < level.Size.Y; y++)
+        {
+            for (int x = 0; x < level.Size.X; x++)
+            {
+                int cell = y * level.Size.X + x;
+                if (level.Foreground[cell].Collision != RoomCollisionType.ShootableBlock)
+                    continue;
+                (int across, int down) = level.Behaviors[cell].In(room.Area).Shootable switch
+                {
+                    ShootableReaction.BlueDoorCapLeft or ShootableReaction.BlueDoorCapRight => (0, 1),
+                    ShootableReaction.BlueDoorCapUp or ShootableReaction.BlueDoorCapDown => (1, 0),
+                    _ => (0, 0),
+                };
+                for (int part = 0; part < DoorCapBlocks && (across, down) != (0, 0); part++)
+                {
+                    int capX = x + across * part, capY = y + down * part;
+                    if (capX < level.Size.X && capY < level.Size.Y)
+                        capCells.Add(capY * level.Size.X + capX);
+                }
+            }
+        }
 
         var legend = new JsonObject();
         var letters = new Dictionary<string, char>(StringComparer.Ordinal);
@@ -76,7 +109,9 @@ internal sealed partial class EngineLayouts
                 int cell = y * level.Size.X + x;
                 RoomTerrainBlock terrain = level.Foreground[cell];
                 RoomBlockBehavior behavior = level.Behaviors[cell].In(room.Area);
-                JsonObject tile = Tile(terrain, behavior, elevatorBlocks.Contains(new Position16<RoomBlocks>(x, y)), tileset);
+                JsonObject tile = capCells.Contains(cell)
+                    ? new JsonObject { ["kind"] = "empty" }
+                    : Tile(terrain, behavior, elevatorBlocks.Contains(new Position16<RoomBlocks>(x, y)), tileset);
                 string key = tile.ToJsonString();
                 if (!letters.TryGetValue(key, out char letter))
                 {
@@ -93,7 +128,15 @@ internal sealed partial class EngineLayouts
             rows.Add(row.ToString());
         }
 
-        _tree.WriteData(path, new JsonObject { ["tile_size"] = Block, ["tiles"] = legend, ["rows"] = rows });
+        _graphicsSets.Add(tileset);
+        _tree.WriteData(path, new JsonObject
+        {
+            ["tile_size"] = Block,
+            // What stands in the room and looks as its graphics do is drawn with this set.
+            ["graphics"] = EngineRoomObjects.GraphicsName(tileset),
+            ["tiles"] = legend,
+            ["rows"] = rows,
+        });
     }
 
     /// <summary>What one block of a level is as a tile of a layout.</summary>
@@ -312,23 +355,8 @@ internal sealed partial class EngineLayouts
         string path = $"tiles/{EngineSheets.FileName(tileset)}/{block}{(mirroring.HasFlag(BlockMirroring.Horizontal) ? "_h" : "")}{(mirroring.HasFlag(BlockMirroring.Vertical) ? "_v" : "")}.png";
         if (_tree.Holds(path))
             return path;
-        const string family = GameInstallationLayout.RoomBlockSheetDirectoryName;
-        RgbaPixel[]? behind = _sheets.FramePixels(family, tileset, $"block {block}", Block, Block);
-        RgbaPixel[]? front = _sheets.FramePixels(family, tileset, $"block {block}^front", Block, Block);
-        if (behind is null && front is null)
+        if (EngineRoomObjects.BlockPixels(_sheets, tileset, block, mirroring.HasFlag(BlockMirroring.Horizontal), mirroring.HasFlag(BlockMirroring.Vertical)) is not { } pixels)
             return null;
-        var pixels = new RgbaPixel[Block * Block];
-        for (int y = 0; y < Block; y++)
-        {
-            for (int x = 0; x < Block; x++)
-            {
-                int from = (mirroring.HasFlag(BlockMirroring.Vertical) ? Block - 1 - y : y) * Block
-                    + (mirroring.HasFlag(BlockMirroring.Horizontal) ? Block - 1 - x : x);
-                RgbaPixel pixel = front is not null && front[from].A != 0 ? front[from] : behind is not null ? behind[from] : default;
-                pixels[y * Block + x] = pixel;
-            }
-        }
-
         _tree.WritePicture(path, Block, Block, pixels);
         return path;
     }

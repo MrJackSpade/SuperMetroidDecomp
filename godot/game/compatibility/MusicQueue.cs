@@ -67,6 +67,14 @@ internal sealed class MusicQueue
         _fetched = false;
     }
 
+    /// <summary>Puts the queue back as at power-on: nothing waiting, nothing playing, <paramref name="loadedSet"/> loaded.</summary>
+    public void Reset(string loadedSet)
+    {
+        Clear();
+        Playing = "";
+        LoadedSet = loadedSet;
+    }
+
     /// <summary>
     /// Plays one turn. What is at the front waiting out its wait counts a turn, and on its last is carried out and
     /// leaves the queue. After a piece or a silence, or when nothing was at the front, the next takes its place and

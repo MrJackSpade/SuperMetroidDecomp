@@ -44,6 +44,7 @@ public sealed class CartridgeSounds : ISoundFlow
 
     private readonly SoundProgramClock _clock = new(Libraries);
     private readonly DataNode _themes;
+    private readonly string _setAtPowerOn;
     private readonly MusicQueue _music;
     private readonly List<(string Library, string? Sound)> _askedOfProgram = [];
     private readonly List<AcceptedSound> _started = [];
@@ -57,7 +58,26 @@ public sealed class CartridgeSounds : ISoundFlow
         ArgumentNullException.ThrowIfNull(content);
         DataNode sets = content.ReadData(SetsFile);
         _themes = sets.Get("themes");
-        _music = new MusicQueue(sets.Text("loaded_at_start"));
+        _setAtPowerOn = sets.Text("loaded_at_start");
+        _music = new MusicQueue(_setAtPowerOn);
+    }
+
+    /// <summary>
+    /// Puts the queues back as at power-on, as the game does when it starts over at its title: every sound and
+    /// piece of music waiting is forgotten, each library is ready, the music is stopped with the power-on set taken
+    /// as loaded, and the room last asked about is forgotten. The sound program's own clock goes on; on its next
+    /// update it drops what it was asked for, and the enemies' library withdraws what it asked.
+    /// </summary>
+    public void Reset()
+    {
+        foreach (SoundLibraryQueue queue in _queues.Values)
+            queue.Reset();
+        _music.Reset(_setAtPowerOn);
+        _downtime = 0;
+        _lastRoomAsked = "";
+        _askedOfProgram.Clear();
+        _programDropsAsked = true;
+        _askedOfProgram.Add(("enemy", null));
     }
 
     /// <summary>The flow of <paramref name="session"/>, which is this game's.</summary>

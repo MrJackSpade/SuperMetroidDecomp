@@ -87,6 +87,13 @@ internal sealed class SoundLibraryQueue
         }
     }
 
+    /// <summary>Puts the library back as at power-on: nothing waiting, and ready to ask.</summary>
+    public void Reset()
+    {
+        _waiting.Clear();
+        (_phase, _awaited, _hold) = (Phase.Ready, null, 0);
+    }
+
     /// <summary>
     /// Forgets the sound the exchange awaits, where it stands, as a change of music does: a library awaiting its
     /// sound then waits for the program to report nothing.

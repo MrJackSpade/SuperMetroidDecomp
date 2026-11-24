@@ -92,6 +92,14 @@ Role = 1
 script = ExtResource("2")
 Role = 1
 
+[node name="FootShield1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="FootShield2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
 [node name="Arm1" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 2

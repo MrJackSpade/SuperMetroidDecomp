@@ -171,7 +171,8 @@ public sealed partial class EngineAssetWriter
                 KraidAnimations.Segments, KraidAnimations.StartingWith(segment), pose => ArmPicture(kraid, pose), PartCue)));
         }
 
-        // A step's picture carries where the foot is drawn until the step is given the cue that says it.
+        // A step's picture carries where the foot is drawn until the step is given the cue that says it, ahead of the
+        // cue of the pose its picture has, whose pieces move with it.
         const char placed = '#';
         foreach ((string name, KraidPartSegment segment) in new[]
                  {
@@ -182,12 +183,18 @@ public sealed partial class EngineAssetWriter
         {
             JsonObject timeline = EngineTimelines.Of(KraidAnimations.Segments, KraidAnimations.StartingWith(segment),
                 pose => $"{kraid.Picture(pose.Picture)}{placed}{pose.Placement.X}:{pose.Placement.Y}", PartCue);
+            var placements = new List<string>();
             foreach (JsonNode? step in timeline["steps"]!.AsArray())
             {
                 string[] parts = step!["picture"]!.GetValue<string>().Split(placed);
                 step["picture"] = parts[0];
-                step["cues"] = Prepended("place:" + parts[1], step["cues"]);
+                placements.Add(parts[1]);
             }
+
+            EngineEnemy.WithPoseCues(timeline);
+            JsonArray steps = timeline["steps"]!.AsArray();
+            for (int step = 0; step < steps.Count; step++)
+                steps[step]!["cues"] = Prepended("place:" + placements[step], steps[step]!["cues"]);
 
             kraid.Timeline(name, timeline);
         }
@@ -241,6 +248,7 @@ public sealed partial class EngineAssetWriter
             .Value("death_shade", KraidDeathSet)
             .Group("head_poses", KraidHeadPoses(mouths, kraid.Definition.Radius))
             .Group("arm_poses", KraidArmPoses())
+            .Group("foot_poses", KraidFootPoses())
             .Group("body_edge", EngineNames.List(KraidBodyLedges(kraid.Definition.Radius.Y).AsEnumerable().Reverse().Select(ledge => (JsonNode)new JsonObject
             {
                 ["from"] = ledge.Top,
@@ -436,6 +444,35 @@ public sealed partial class EngineAssetWriter
                     pieces++;
                     colliders[$"Arm{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
                     colliders[$"ArmShield{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
+                }
+            }
+
+            poses[EngineEnemy.PoseName(frame)] = new JsonObject { ["colliders"] = colliders };
+        }
+
+        return poses;
+    }
+
+    /// <summary>
+    /// Where the pieces of Kraid's foot are for each of its pictures, from Kraid's place where its walk first shows the
+    /// picture: "FootShield" and a number, in the order shots meet them. Every piece stops shots and does nothing else.
+    /// </summary>
+    private static JsonObject KraidFootPoses()
+    {
+        var poses = new JsonObject();
+        foreach ((EnemyFrameId frame, Offset16<RoomPixels>[] offsets) in KraidFootCollisionDefinitions.ComponentOffsets)
+        {
+            var colliders = new JsonObject();
+            int pieces = 0;
+            foreach (Offset16<RoomPixels> offset in offsets)
+            {
+                Offset16<RoomPixels> from = KraidArenaDefinitions.FootOffset + offset;
+                foreach (EnemyCollisionHitbox piece in KraidFootCollisionDefinitions.SharedHitboxes)
+                {
+                    if (piece.Shot != EnemyReaction.Ignore)
+                        throw new InvalidDataException($"A piece of Kraid's foot in its frame {frame} meets shots otherwise than by stopping them, which its poses do not say.");
+                    pieces++;
+                    colliders[$"FootShield{pieces}"] = Rect(from.X + piece.Left, from.Y + piece.Top, from.X + piece.Right, from.Y + piece.Bottom);
                 }
             }
 

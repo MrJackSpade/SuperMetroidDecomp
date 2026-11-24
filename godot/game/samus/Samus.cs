@@ -215,6 +215,7 @@ public partial class Samus : Player
     private bool _woreGravity;
     private bool _warningOfLowEnergy;
     private bool _chargeSounds;
+    private string? _liquidLastEntered;
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -288,7 +289,20 @@ public partial class Samus : Player
     }
 
     /// <inheritdoc/>
-    protected override void OnEnteredRoom(Room room) => GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
+    protected override void OnEnteredRoom(Room room)
+    {
+        GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
+
+        // A room with no liquid forgets the medium she was last in; one with a liquid keeps it, as the cartridge does.
+        if (!room.GetChildren().OfType<Liquid>().Any())
+            _liquidLastEntered = null;
+    }
+
+    /// <summary>
+    /// The medium she was in as her last update ended: that of the liquid her feet were then in, whatever her suit
+    /// makes of it, or air. The cartridge remembers it as her animation runs, and her space jump reads it.
+    /// </summary>
+    public PlayerMedium MediumLastEntered => Mediums.First(medium => medium.MediumName == (_liquidLastEntered ?? PlayerMedium.Air));
 
     /// <summary>
     /// Her landing leaves its dust and makes its sound, a harder one from a fast fall, on her feet or as a ball. A
@@ -940,6 +954,7 @@ public partial class Samus : Player
         // Lava ends a run the speed booster has begun to boost, and the dash with it, whatever suit she wears.
         if (_boostStage >= 0 && Room.Liquid is { } liquid && liquid.Type.Name == LavaName && FeetAreInLiquid)
             LoseMomentum();
+        _liquidLastEntered = Room.Liquid is { } around && FeetAreInLiquid ? around.Type.Name : null;
         if (_ranFromStart && State is RunningState)
             StepStride();
         WarnOfLowEnergy();

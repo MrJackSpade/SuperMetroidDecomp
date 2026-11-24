@@ -233,14 +233,15 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
 
     /// <summary>
     /// Jumps again in mid-air when the space jump is on: on a fresh press of jump while she is falling, and only while
-    /// her falling speed is within the medium's window.
+    /// her falling speed is within the window of the medium she was last in.
     /// </summary>
     private static void TrySpaceJump(Player owner)
     {
         if (!owner.Inventory.IsOn(Equipment.SpaceJump) || !owner.JumpPressed || owner.IsRising)
             return;
         Pixels falling = owner.Velocity.Y;
-        if (falling < owner.Medium.Speed(SpaceJumpLeastFall) || falling >= owner.Medium.Speed(SpaceJumpMostFall))
+        // The least speed is the medium's she was in as her last update ended, as the cartridge remembers it.
+        if (falling < ((Samus)owner).MediumLastEntered.Speed(SpaceJumpLeastFall) || falling >= owner.Medium.Speed(SpaceJumpMostFall))
             return;
         owner.Rise(owner.LaunchSpeed(offWall: false));
         owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");

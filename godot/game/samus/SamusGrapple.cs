@@ -81,10 +81,10 @@ public partial class SamusGrapple : Node2D
         samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons", priority: SoundPriority.WhenIdle);
     }
 
-    /// <summary>Lets go of whatever the line holds and draws it in.</summary>
+    /// <summary>Lets go of whatever the line holds and draws it in. Its end is heard whenever it was out, latched or not.</summary>
     public void Release()
     {
-        if (IsLatched && _samus is not null)
+        if (IsOut && _samus is not null)
             _samus.Room.Session.Sounds.Request(Sounds.GrappleRelease, channel: "weapons", priority: SoundPriority.Essential);
         _held?.Unlatched();
         _held = null;

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -11,6 +11,8 @@
 [ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="9"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -26,6 +28,11 @@ About = "kraid_eye_door_eye_door_facing_left"
 script = ExtResource("5")
 Kind = 6
 Parts = Array[ExtResource("5")]([SubResource("r2")])
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="KraidEyeDoor" type="Node2D"]
 script = ExtResource("2")
@@ -225,3 +232,14 @@ position = Vector2(0, 0)
 AtEntry = "ToKraidRefill"
 What = "open"
 Target = NodePath("../Screen0x0Foot")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/{graphics}/level_kraid_eye_door.png"
+ScrollShare = Vector2(1, 1)
+
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("13")
+StartsWhen = SubResource("r4")
+DataFile = "objects/samus_eater.json"

@@ -86,7 +86,7 @@ Target = NodePath("../Screen1x0Foot")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/wrecked_ship_panels_vents.png"
+Picture = "backdrops/{graphics}/wrecked_ship_panels_vents.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="Bull" parent="." instance=ExtResource("10")]
@@ -101,6 +101,7 @@ PresentWhen = SubResource("r1")
 script = ExtResource("11")
 position = Vector2(0, 0)
 TypeFile = "liquids/water.json"
+Drifts = true
 LowSurface = 168
 HighSurface = 168
 PresentWhen = SubResource("r1")

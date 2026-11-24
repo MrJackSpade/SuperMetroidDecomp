@@ -1,21 +1,28 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/geega.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
-[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/beetom/beetom.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/geega.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/red_tower_in_red_brinstar_kraid.json"
 Music = "red_brinstar"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="RedTower" type="Node2D"]
 script = ExtResource("2")
@@ -72,112 +79,112 @@ LeadsToExit = "ToRedTower"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 
-[node name="Ripper" parent="." instance=ExtResource("5")]
+[node name="Ripper" parent="." instance=ExtResource("6")]
 position = Vector2(152, 520)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 0
 
-[node name="Ripper2" parent="." instance=ExtResource("5")]
+[node name="Ripper2" parent="." instance=ExtResource("6")]
 position = Vector2(96, 232)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 1
 
-[node name="Ripper3" parent="." instance=ExtResource("5")]
+[node name="Ripper3" parent="." instance=ExtResource("6")]
 position = Vector2(152, 320)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 0
 
-[node name="Ripper4" parent="." instance=ExtResource("5")]
+[node name="Ripper4" parent="." instance=ExtResource("6")]
 position = Vector2(104, 416)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 1
 
-[node name="Beetom" parent="." instance=ExtResource("6")]
+[node name="Beetom" parent="." instance=ExtResource("7")]
 position = Vector2(207, 1624)
 
-[node name="Ripper5" parent="." instance=ExtResource("5")]
+[node name="Ripper5" parent="." instance=ExtResource("6")]
 position = Vector2(152, 2376)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 0
 
-[node name="Ripper6" parent="." instance=ExtResource("5")]
+[node name="Ripper6" parent="." instance=ExtResource("6")]
 position = Vector2(95, 2280)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 1
 
-[node name="Ripper7" parent="." instance=ExtResource("5")]
+[node name="Ripper7" parent="." instance=ExtResource("6")]
 position = Vector2(157, 2184)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 0
 
-[node name="Ripper8" parent="." instance=ExtResource("5")]
+[node name="Ripper8" parent="." instance=ExtResource("6")]
 position = Vector2(104, 2048)
 DataFile = "enemies/ripper.json"
 Speed = 1
 StartsFacing = 1
 
-[node name="Geega" parent="." instance=ExtResource("7")]
+[node name="Geega" parent="." instance=ExtResource("8")]
 position = Vector2(24, 1328)
 StartsFacing = 1
 Speed = 2
 RespawnsWhenKilled = true
 
-[node name="Geega2" parent="." instance=ExtResource("7")]
+[node name="Geega2" parent="." instance=ExtResource("8")]
 position = Vector2(200, 1360)
 StartsFacing = 0
 Speed = 2
 RespawnsWhenKilled = true
 
-[node name="BlueCap" parent="." instance=ExtResource("8")]
+[node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 1120)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="YellowCap" parent="." instance=ExtResource("8")]
+[node name="YellowCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 1632)
 DataFile = "objects/door_cap_yellow_right.json"
 RememberedAs = "red_tower_yellow_door_facing_right"
 Remembered = 1
 
-[node name="BlueCap2" parent="." instance=ExtResource("8")]
+[node name="BlueCap2" parent="." instance=ExtResource("9")]
 position = Vector2(224, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="BlueCap3" parent="." instance=ExtResource("8")]
+[node name="BlueCap3" parent="." instance=ExtResource("9")]
 position = Vector2(224, 2400)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="GreenCap" parent="." instance=ExtResource("8")]
+[node name="GreenCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 2400)
 DataFile = "objects/door_cap_green_right.json"
 RememberedAs = "red_tower_green_door_facing_right"
 Remembered = 1
 
 [node name="Screen0x7" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 1792)
 StartsOpen = false
 
 [node name="Screen0x6Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 1760)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen0x7Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 2016)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Scroll" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(144, 1696)
 Size = Vector2i(32, 16)
 What = "open"
@@ -185,7 +192,7 @@ Once = false
 Target = NodePath("../Screen0x6Foot")
 
 [node name="Scroll2" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(144, 1696)
 Size = Vector2i(32, 16)
 What = "open"
@@ -193,7 +200,7 @@ Once = false
 Target = NodePath("../Screen0x7")
 
 [node name="Scroll3" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(144, 1696)
 Size = Vector2i(32, 16)
 What = "open"
@@ -201,7 +208,7 @@ Once = false
 Target = NodePath("../Screen0x7Foot")
 
 [node name="Scroll4" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(144, 1696)
 Size = Vector2i(32, 16)
 What = "open"
@@ -209,7 +216,12 @@ Once = false
 Target = NodePath("../Screen0x6Foot")
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("11")
+script = ExtResource("12")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_wide_vertical_tower_brick.png"
+Picture = "backdrops/{graphics}/brinstar_wide_vertical_tower_brick.png"
 ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("13")
+StartsWhen = SubResource("r2")
+DataFile = "objects/samus_eater.json"

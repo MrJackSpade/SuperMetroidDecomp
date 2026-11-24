@@ -63,6 +63,7 @@ ArrivalOffset = Vector2i(-24, 40)
 
 [node name="ElevatorDoor" parent="." instance=ExtResource("6")]
 position = Vector2(232, 631)
+PlatformPictures = Array[String](["backdrops/{graphics}/ceres_elevator_light.png", "backdrops/{graphics}/ceres_elevator_dark.png"])
 Floor = NodePath("../Floor")
 
 [node name="CeresDoor" parent="." instance=ExtResource("7")]
@@ -84,19 +85,23 @@ StartsWhen = SubResource("r4")
 script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
-Picture = "effects/ceres_haze.png"
+LookFile = "effects/ceres_haze.json"
+PresentWhen = SubResource("r5")
 
 [node name="Floor" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/ceres_elevator_shaft.png"
+Picture = "backdrops/{graphics}/ceres_elevator_shaft.png"
 
 [node name="Platform" type="Node2D" parent="Floor"]
 script = ExtResource("12")
+position = Vector2(112, 96)
 
 [node name="Arrival" type="Node" parent="."]
 script = ExtResource("13")
 StartsAtEntry = "AtCeresElevator"
+PadTimeline = "objects/ceres_arrival_pad.json"
+PlatformTimeline = "objects/ceres_arrival_platform.json"
 PresentWhen = SubResource("r5")
 
 [node name="Pad" type="Node2D" parent="Arrival"]
@@ -158,6 +163,13 @@ PresentWhen = SubResource("r1")
 [node name="Steam11" parent="." instance=ExtResource("14")]
 position = Vector2(114, 600)
 DataFile = "objects/ceres_steam_right.json"
+PresentWhen = SubResource("r1")
+
+[node name="Haze2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "ceres_haze"
+LookFile = "effects/ceres_haze_escape.json"
 PresentWhen = SubResource("r1")
 
 [node name="Shaft" type="Node" parent="."]

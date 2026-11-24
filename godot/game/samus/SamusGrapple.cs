@@ -16,9 +16,13 @@ namespace Game;
 /// </summary>
 public partial class SamusGrapple : Node2D
 {
-    /// <summary>How far the line reaches out each update, as a number of pixels.</summary>
+    /// <summary>How far the line reaches out each update, as a number of pixels, fired straight across, up or down.</summary>
     [Export]
     public double ExtendSpeed { get; set; } = 12;
+
+    /// <summary>How far the line reaches out along each axis each update, fired diagonally.</summary>
+    [Export]
+    public double DiagonalExtendSpeed { get; set; } = 8.5;
 
     /// <summary>The furthest the line reaches, in pixels.</summary>
     [Export]
@@ -39,6 +43,7 @@ public partial class SamusGrapple : Node2D
     private int _across;
     private int _down;
     private Pixels _length;
+    private Pixels _reached;
     private ILatchable? _held;
     private Block? _heldBlock;
 
@@ -55,6 +60,7 @@ public partial class SamusGrapple : Node2D
     public void ReadValues(DataNode data)
     {
         ExtendSpeed = data.Distance("extend_speed").ToNumber();
+        DiagonalExtendSpeed = data.Distance("extend_diagonal_speed").ToNumber();
         Reach = data.Int("reach");
         Damage = data.Int("damage");
     }
@@ -66,9 +72,10 @@ public partial class SamusGrapple : Node2D
             return;
         _samus = samus;
         (_across, _down) = samus.AimDirection;
-        _from = samus.MuzzlePoint;
+        _from = samus.GrapplePoint;
         _tip = _from;
         _length = Pixels.Zero;
+        _reached = Pixels.Zero;
         _extending = true;
         samus.Room.Session.Sounds.Request(Sounds.GrappleFire, channel: "weapons");
     }
@@ -96,6 +103,9 @@ public partial class SamusGrapple : Node2D
     {
         if (!_extending)
         {
+            // A block that has broken away holds nothing.
+            if (IsLatched && _heldBlock is { Broken: true })
+                Release();
             if (IsLatched)
                 QueueRedraw();
             return;
@@ -108,8 +118,11 @@ public partial class SamusGrapple : Node2D
         }
 
         Room room = samus.Room;
-        _from = samus.MuzzlePoint;
-        int pixels = (int)Math.Ceiling(ExtendSpeed);
+        _from = samus.GrapplePoint;
+
+        // The line's length is counted along either axis; its fraction of a pixel carries over to the next update.
+        _reached += Pixels.FromNumber(_across != 0 && _down != 0 ? DiagonalExtendSpeed : ExtendSpeed);
+        int pixels = _reached.Whole - _length.Whole;
         for (int step = 0; step < pixels; step++)
         {
             _length += Pixels.FromWhole(1);
@@ -154,6 +167,8 @@ public partial class SamusGrapple : Node2D
         _extending = false;
         IsLatched = true;
         held?.Latched();
+        if (block is not null)
+            samus.Room.Terrain.LatchedOnto(block);
         samus.Room.Session.Sounds.Request(Sounds.GrappleLatch, channel: "weapons");
         // Seized, she holds the line but hangs where she is held; otherwise she swings from it.
         if (samus.State is not GrabbedState)
@@ -167,7 +182,7 @@ public partial class SamusGrapple : Node2D
         if (!IsOut || _samus is null)
             return;
         PixelPosition end = IsLatched ? Anchor : _tip;
-        PixelOffset toMuzzle = _samus.MuzzlePoint - _samus.Position;
+        PixelOffset toMuzzle = _samus.GrapplePoint - _samus.Position;
         var from = new Vector2(toMuzzle.X.ToDisplay(), toMuzzle.Y.ToDisplay());
         PixelOffset toEnd = end - _samus.Position;
         DrawLine(from, new Vector2(toEnd.X.ToDisplay(), toEnd.Y.ToDisplay()), Colour, 2);

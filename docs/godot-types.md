@@ -301,7 +301,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `ItemType` | A permanent upgrade | What it grants, its message, its picture or the timeline that shows it, the sound of collecting it, and the fanfare played while its message shows and how long the message is held. |
 | `PickupType` | A kind of drop | Which inventory amount it adds to, and how much. |
 | `BlockType` | A reactive tile | Its rules (section 5). |
-| `LiquidType` | A kind of liquid | How it slows movement, the ongoing damage it does, which equipment cancels each, how it looks. |
+| `LiquidType` | A kind of liquid | How it slows movement, the ongoing damage it does, which equipment cancels each, and how it looks: the timeline of the strip drawn along its surface and that of the picture tiled under it, whether they brighten, darken or cover what is under them, and how far they move across each update where a room's liquid drifts. Liquids of one kind that are coloured differently are types of their own with one name. |
 | `Area` | An area of the world as its map shows it | Its name, the fact that reveals its map, the cells of the map and the small picture each shows, which cells are secret, its markers, and the sheet the pictures come from. A room says which area it is in and which cell its top-left corner is. It may give a second sheet for cells that show but are not explored and a third for the cell the player is in; without them such cells are the explored pictures, dimmed. It may give labels (`AreaLabel`): pictures of their own laid over the map at a place in its pixels, each showing while one fact is held and another is not. |
 | `FrameTimeline` | A timed sequence gameplay follows | Ordered steps, each with a picture to show, how many updates it lasts, and optional named cues; and where it loops or ends. |
 | `DemoRecording` | One title-screen demo | The room it plays in, the entry point the player starts at, and the actions held for each stretch of updates. An action is newly pressed when it is first held; a stretch may say otherwise ("pressed": one pressed again without being let go, or held and never pressed). A recording may end "holding" its last stretch for good. `RecordedInputSource` plays it, giving each update's input. |
@@ -429,15 +429,20 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 | Solid or passable | Solid; passable. |
 | Broken by | Nothing; a `Hit` carrying a listed kind; being stood on (crumble). |
 | After breaking | Gone until the room is next set up; regrows after a set time. |
-| Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability. |
-| On contact | Nothing; hurts, by a hit that is not repeated while its victim is still safe from the last (spike), by ongoing damage, or both; carries sideways (conveyor); pulls down (sand); can be latched onto; can be latched onto once and then breaks. |
+| Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability, which shows it for what it is only for as long as it sees it. A block with a picture of its own for what it is starts hidden whether or not anything reveals it, and shows that picture once it has broken and come back, unless its type says it hides again. |
+| How it looks | The pictures of the tiles it lies on; a picture of its own once revealed, or one for each of its tiles; a timeline of pictures from the moment it breaks; a timeline of pictures up to the moment it comes back. |
+| Heard | Nothing; a sound as it breaks. |
+| On contact | Nothing; hurts, by a hit that is not repeated while its victim is still safe from the last (spike), by ongoing damage, or both; carries sideways, always or only what is not rising or falling (conveyor); pulls down (sand), and may hold up what has its feet in it as ground does, pull harder what rises or falls in it, cap how fast it lets anything rise, take away momentum, and be eased by equipment (quicksand); the player is moved by the blocks their body is in each update, over and above their own movement; can be latched onto; can be latched onto once and then breaks, when it is let go of or a set time after it was first latched onto. |
 
+- A block is drawn at every tile it covers, and its type's pictures are the same at each. A type's pictures may
+  name the room's set of graphics by its placeholder, so one type serves every set.
+- `Terrain` hands the room the sounds of the blocks that broke each update, and the room asks for them.
 - `Terrain` does not know the player, enemies or weapons by name. It is told "this rectangle touched you" or "this
   `Hit` landed here" and answers from the block's rules. The player's body breaking a block is a `Hit` like any
   other (section 6, "The body as a weapon").
 
 **Tiles that move as they are looked at.** A layout's tile may name several pictures and how long each shows:
-lava's surface, spikes, a treadmill. That changes only what is drawn.
+lava's surface, spikes, a treadmill. That changes only what is drawn. A tile may also name the picture it shows, or that it shows nothing, for as long as a revealing ability sees it: a wall that is air shows as nothing to the X-ray scope. `Terrain` is told which tiles are seen each update, as it is for blocks.
 
 **Terrain shown shifted.** `Terrain` can be shown a few pixels from where it is, for a wall that rattles; that
 changes nothing about where it is.
@@ -535,8 +540,8 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | Type | Owns and manages | Does not |
 | --- | --- | --- |
 | `RoomExit` | Above. | Have a body or a look, or know what stands in front of it. |
-| `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". Its type names the splash and sound of something crossing its surface, which the player leaves as their feet do. It may wait a set time before it moves once told, and may have a tide that lifts and lowers its surface. | Apply physics or damage. The player and enemies ask it and act on the answer. |
-| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (a picture tiled over the view and drifting: fog, rain, spores, heat's shimmer) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
+| `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". Its type names the splash of something crossing its surface and the sounds of going under and of coming out, which the player leaves as their feet do. It may wait a set time before it moves once told, and may have a tide that lifts and lowers its surface. It draws itself across the view as its type says, and says whether its pictures drift. | Apply physics or damage. The player and enemies ask it and act on the answer. |
+| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
 | `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. A layer may lie at a place in the room, fill only a band of it, and drift by itself, which is how a sky's bands of cloud are made. `TurningFloor` is the backdrop that can be turned and brought nearer or farther about a point, with the visuals under it turning with it. | Affect play. |
 | `RoomTurn` | A turn the room is shown with (`Room.ShownTurn`): the player and the room's objects are drawn where turning them about a point puts them. | Change where anything is. |
 | `Camera` | Following the player within the room's limits. One per session. | Affect play. |
@@ -579,12 +584,16 @@ in `engine/actors/player/`.
 | --- | --- | --- |
 | States | The state machine, the standard states, and the rule that a state holds its own data. | Extra states of its own. |
 | `Inventory` | Equipment owned and switched on, energy and reserves, ammunition and capacities; saving and loading. | Which equipment and ammunition kinds exist. |
-| `Weapons` | The selected weapon, charge, cooldown, cost, the limit on live projectiles, combining switched-on properties into one `Hit`, and spawning the `Projectile`. | Each weapon and each property. |
+| `Weapons` | The selected weapon, charge, cooldown, cost, the limit on live projectiles, combining switched-on properties into one `Hit`, and spawning the `Projectile`. A weapon that charges fires a plain shot on the first update its attack is held and counts the hold from there; let go, it fires charged, or plain where its data says a part charge fires. One that does not charge fires on a press, and while held where its data gives a wait for that. A variant may have its own sounds and waits, and may say the weapon does not charge while it applies. | Each weapon and each property. |
 | Abilities | Equipment changing what a state does, and an ability with its own lifetime running as a child of the player. | Each ability. |
 | Body powers | Below. | Each power. |
 | Ongoing damage | Below. | Which equipment cancels which source. |
 | Being moved | Anything that moves the player against their will asks for the matching state and passes its data. Nothing sets flags or velocities on the player. | Extra such states. |
 
+- A wall jump leaves the wall at a set speed with steering locked for a moment, or, where the game says it is
+  steered, is steered by its own move values from its start for as long as the lock lasts.
+- A knockback lasts as long as the player's knockbacks do, unless whoever knocks them back says how long.
+- The effect left at the player's feet on landing may come from their data.
 - Facing and aim are separate values, never part of a state's name.
 - Something that has hold of the player can ask what a hit would cost them as equipped (`EnergyLostTo`), make them
   wait before their next shot (`Weapons.WaitAtLeast`), and halve their speed across a number of times
@@ -599,7 +608,7 @@ active. Nothing else treats the player's body as an attack.
 **Ongoing damage.** Damage that arrives a little every update (heat, a damaging liquid, spikes held against) is
 not a stream of hits. Each source adds its amount to the player's ongoing damage for the update, naming itself;
 equipment cancels sources by name; the total is taken off once, at one point in the update, with fractions carried
-to the next. Enemies that take ongoing damage use the same mechanism.
+to the next. Enemies that take ongoing damage use the same mechanism. On each update the room itself (its heat, its liquid) does the player ongoing damage the player is told so (`OnRoomDamage`), which the game's player answers with its sound.
 
 **Input actions.** The engine names the actions its standard states need: move in four directions, jump, attack,
 aim, crouch, and pause, confirm and cancel for menus. The game adds its own to the `GameDefinition` (here: run,
@@ -629,6 +638,26 @@ This game's player: `Samus : Player`, in `game/samus/`. She is the engine's play
 - **Her body powers:** screw attack while spin jumping, speed boost at full run, the shinespark, and a charged
   spin.
 - **Her own children:** `SamusGrapple`, `SamusXray`, `SamusVisual`.
+- **How she is shown.** `SamusVisual` plays the timeline named for her look, the way she faces and her aim, falling
+  back to the look and facing, then the look alone; with "_low" after any of them while her energy is low. As her
+  look changes, a timeline named `<from>_to_<to>_<facing>` is played once between the two if there is one (a
+  landing, a crouch, curling up). Her pictures are written once for each suit; `{suit}` in a path names the folder.
+  Some looks carry more than the state: the spin is `spin_jumping`, `space_jumping` or `screw_attacking` by her
+  equipment; swinging is `grappling_<n>` for the way the line runs from her, of thirty-two; the X-ray looks end in
+  `_up`, `_raised`, `_level`, `_lowered` or `_down` for how the scope is swung.
+- **Where her shots leave her** is data: `muzzles` and `grapple_origins` by stance, facing and aim, raised by the
+  `shot_heights` of her look (and of her look and aim where an aim has its own). In the morph ball what she lays is
+  laid where she is.
+- **Her bombs.** A bomb throws the morph ball lying against it when its fuse has `bomb_jump_fuse_left` updates left,
+  and its burst strikes the block it lies in and the four beside that one. A power bomb's blast reaches as far on
+  each update as its data lists (`blast_reaches`), and can hit the same thing again after `rehit_after` updates.
+- **A special attack** is let loose while the attack is still held, once it has been held `special_attack_updates`.
+- **A shinespark** gains the pull of gravity across each update up to its top speed; rising, its gain itself grows
+  by gravity and it rises no more than `shinespark_most_rise` whole pixels an update.
+- **Hurts.** A hit from the room itself (a spike) has its own invincibility and knockback lengths. The low-energy
+  warning is started once as her energy falls low and stopped once as it recovers.
+- **A jump with the speed booster on** adds half the dash's whole pixels and all of its fraction to the jump's
+  speed, each on its own with no carry, as the cartridge does.
 - **Grabbed** is being seized and carried by something that still lets her aim and fire (Draygon, Ridley). The
   holder says how many fresh presses of a direction free her, or none.
 - **Drained** is what Mother Brain's beam and the giant Metroid leave her in. Whatever drains her puts her in a
@@ -710,6 +739,9 @@ How a projectile behaves is settings, not code:
 | Motion | Straight; accelerating; in a wave; homing; does not travel (a bomb); with gravity. |
 | Lifetime | Until it leaves the view by a margin; a set number of updates; until its animation ends. |
 | Ending | Nothing; an `Effect`; another `Projectile` (an explosion with its own hit). |
+| Size | Its settings' own; a step of its timeline may give it another with the cue `size:<width>:<height>`, so a shot can swell or spread as it flies. |
+| Gaining speed | One gain along each axis; one launched diagonally may have its own. |
+| Shaking the room | A `RoomShake` (strength, length, way) started as terrain or a solid ends it, and one started the first time its hit lands. |
 
 A projectile needs its own class only for behaviour no setting gives it. One whose timelines drive it (its harm
 turned on and off, stopped, shifted, scattered by `GameRandom.Scatter`, ended, each by a cue) and that moves its own way is a
@@ -914,7 +946,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   each picture, each pose saying what every piece does and how far its mouth is open; what it does in the acid is a
   script in its data; the bridge's blocks, the walls that hold Samus in while it dies and the opened spike wall are
   patches; the pieces of the spike wall are a `Projectile` of their own class, the bridge's pieces and its fire
-  plain ones; a room where it has been beaten places the same scene as its skeleton); Phantoon (eye, tentacles, mouth are parts); Botwoon
+  plain ones; a room where it has been beaten places the same scene as its skeleton); Phantoon (eye, tentacles, mouth are parts; while its fight lasts the door of its room is wall, a patch of the room's terrain, and the door's cap is out of sight); Botwoon
   (its head is the enemy, sized by a cue for the way it points, and the thirteen segments of its body are visuals
   with hurtboxes that stop shots and are not hurt; how hurt it is is a set of its pictures; its wall falls as a
   `PatchSequence` the room goes on playing after it is gone, and the `CameraZone` its wall kept shut is opened as
@@ -980,7 +1012,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 ### Room conditions
 
 - `Liquid`: water, lava, acid, including the rising acid of the escape.
-- `RoomEffect`: heat, rain, fog, spores and Ceres haze are the engine's `OverlayEffect` with settings (heat with
+- `RoomEffect`: heat, rain, fog, spores and Ceres haze are the engine's `OverlayEffect`, each with a look (heat with
   ongoing damage as well); room-wide colour changes are its `TintEffect`; the earthquake is the engine's. The
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
   that dies.
@@ -1007,11 +1039,12 @@ Norfair: the Dachora shaft camera (`DachoraShaftCamera`: once the shaft's top is
 it is closed), Crocomire's room shaking (`CrocomireRoomShaking`: the terrain is shown shifted by as much as he
 rattles his wall). Maridia: the transport tube ride, which is a `Carrier` that gains speed. Tourian: the entrance
 statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once its boss is beaten, and the
-statue's descent), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
+statue's descent; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
+guardian's eyes and for each turned grey, and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster
 (`SpeedBoosterLavaquake`). The escape:
-explosions and shaking in each escape room (`EscapeRoom`).
+explosions and shaking in each escape room (`EscapeRoom`). The plants of Brinstar that seize Samus (`SamusEaters`, in `game/rooms/brinstar/`): one in each Brinstar room finds the blocks of the terrain that are plants, by their block type, and plays each: it holds her, shows its chewing as patches of the terrain named for where the plant is, hurts her at each bite, lets her go and stays shut a while.
 
 ### Projectiles and effects
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -31,6 +31,11 @@ KeepsMusic = true
 script = ExtResource("1")
 Kind = 4
 Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="CeresRidleyHallway" type="Node2D"]
 script = ExtResource("3")
@@ -83,7 +88,7 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-Picture = "backdrops/ceres_capsule_hall.png"
+Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0.75, 0)
 
 [node name="Shaking" type="Node" parent="."]
@@ -94,4 +99,12 @@ StartsWhen = SubResource("r4")
 script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
-Picture = "effects/ceres_haze.png"
+LookFile = "effects/ceres_haze.json"
+PresentWhen = SubResource("r5")
+
+[node name="Haze2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "ceres_haze"
+LookFile = "effects/ceres_haze_escape.json"
+PresentWhen = SubResource("r1")

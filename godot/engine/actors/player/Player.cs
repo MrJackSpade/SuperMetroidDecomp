@@ -71,7 +71,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public int DyingUpdates { get; set; } = 120;
 
     /// <summary>The effect left at the player's feet on landing, by the data file of its timeline; empty for none.</summary>
-    [Export(PropertyHint.File)]
+    [Export(PropertyHint.File), DataValue("land_effect")]
     public string LandEffect { get; set; } = "";
 
     /// <summary>The most pixels climbed for each pixel walked across a slope.</summary>
@@ -137,6 +137,13 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// <summary>Whether a wall jump can start from any jump or fall; when not, only from a state of the game's that allows it.</summary>
     [Export, DataValue("wall_jump_from_any_jump")]
     public bool WallJumpFromAnyJump { get; set; } = true;
+
+    /// <summary>
+    /// Whether the player steers a wall jump from its start, by the wall jump's move values; when not, they leave the
+    /// wall at the set speed and cannot steer until the lock is over.
+    /// </summary>
+    [Export, DataValue("wall_jump_steered")]
+    public bool WallJumpSteered { get; set; }
 
     /// <summary>Whether a wall jump needs the player to be steering away from the wall.</summary>
     [Export, DataValue("wall_jump_needs_steering_away")]
@@ -282,7 +289,14 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     public int Intent => (_input.IsHeld(GameAction.Right) ? 1 : 0) - (_input.IsHeld(GameAction.Left) ? 1 : 0);
 
     /// <summary>Whether the player stands on terrain or a solid.</summary>
-    public bool IsOnGround => Room.Mover.IsOnGround(Body, MoveOptions.Plain);
+    public bool IsOnGround => Room.Mover.IsOnGround(Body, MoveOptions.Plain) || StandsInBlockThatHoldsUp();
+
+    /// <summary>Whether the player's feet are in a block that pulls down and yet holds up what stands in it, as quicksand does.</summary>
+    private bool StandsInBlockThatHoldsUp() =>
+        Room.Terrain.BlocksIn(FeetRect).Any(block => block.Type.Contact == BlockContact.PullsDown && block.Type.HoldsUp);
+
+    /// <summary>The bottom row of the player's body.</summary>
+    private PixelRect FeetRect => new(BodyRect.Left, BodyRect.Bottom - 1, BodyRect.Width, 1);
 
     /// <summary>
     /// The medium the player is moving in this update: the liquid their feet are in, when it hinders them and they
@@ -447,6 +461,7 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             if (onGround && !_wasOnGround)
                 OnLanded();
             _wasOnGround = onGround;
+            BeMovedByBlocks();
             Splash();
             TakeOngoingDamage();
         }
@@ -479,8 +494,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
             return;
         if (liquid.Type.SplashEffect.Length > 0)
             Room.Spawn(Effect.Of(FrameTimeline.Read(Room.Content.ReadData(liquid.Type.SplashEffect)), new PixelPosition(Position.X, liquid.Surface)));
-        if (liquid.Type.SplashSound.Length > 0)
-            Room.Session.Sounds.Request(liquid.Type.SplashSound, channel: "liquid");
+        string sound = inLiquid ? liquid.Type.SplashSound : liquid.Type.SplashOutSound;
+        if (sound.Length > 0)
+            Room.Session.Sounds.Request(sound, channel: "liquid");
     }
 
     /// <summary>Called at the start of each update, before the player's state runs.</summary>
@@ -507,6 +523,9 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
 
     /// <summary>Knocks the player back, away from <paramref name="from"/>.</summary>
     public void KnockBack(Facing from) => ChangeState(new KnockedBackState(from.Opposite()));
+
+    /// <summary>Knocks the player back, away from <paramref name="from"/>, for <paramref name="updates"/> updates.</summary>
+    public void KnockBack(Facing from, int updates) => ChangeState(new KnockedBackState(from.Opposite(), updates));
 
     /// <summary>Takes hold of the player: they stay where they are put until released.</summary>
     public void Hold() => ChangeState(new HeldState());
@@ -925,6 +944,51 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     }
 
     /// <summary>
+    /// Lets the blocks the player is in move them, over and above their own movement: one that carries takes them
+    /// across, and one that pulls takes them down. Of several, the one that moves them furthest does.
+    /// </summary>
+    private void BeMovedByBlocks()
+    {
+        Pixels across = Pixels.Zero, down = Pixels.Zero;
+        foreach (Block block in Room.Terrain.BlocksIn(BodyRect))
+        {
+            Pixels speed = block.Type.ContactSpeed;
+            if (block.Type.Contact == BlockContact.Carries)
+            {
+                if (block.Type.CarriesOnlyLevel && Velocity.Y.Whole != 0)
+                    continue;
+                if ((speed.IsNegative ? -speed : speed) > (across.IsNegative ? -across : across))
+                    across = speed;
+            }
+            else if (block.Type.Contact == BlockContact.PullsDown)
+            {
+                BlockType sand = block.Type;
+                if (sand.StopsMomentum && HasMomentum)
+                    LoseMomentum();
+                if (sand.PullsFeetOnly && !block.Rect.Overlaps(FeetRect))
+                    continue;
+                bool eased = sand.EasedBy.Count > 0 && Inventory.IsAnyOn(sand.EasedBy);
+                Pixels limit = eased ? sand.Eased.RiseLimit : sand.RiseLimit;
+                bool moving = Velocity.Y != Pixels.Zero;
+                if (limit > Pixels.Zero && Velocity.Y < -limit)
+                    Velocity = Velocity.WithY(-limit);
+                if (sand.HoldsUp && Velocity.Y > Pixels.Zero)
+                    Velocity = Velocity.WithY(Pixels.Zero);
+                Pixels pull = moving
+                    ? (eased ? sand.Eased.MovingContactSpeed : sand.MovingContactSpeed)
+                    : (eased ? sand.Eased.ContactSpeed : speed);
+                if (pull > down)
+                    down = pull;
+            }
+        }
+
+        if (across != Pixels.Zero)
+            Room.Mover.MoveAcross(Body, across, MoveOptions.Plain);
+        if (down != Pixels.Zero)
+            Room.Mover.MoveDown(Body, down, MoveOptions.Plain);
+    }
+
+    /// <summary>
     /// Takes this update's ongoing damage: what the room does where the player is, and what blocks they touch do, less
     /// whatever their equipment cancels. Parts of a point carry over to later updates.
     /// </summary>
@@ -932,13 +996,18 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     {
         int hundredths = _addedOngoing;
         _addedOngoing = 0;
+        int fromRoom = 0;
         foreach ((string source, int amount) in Room.OngoingDamageAt(Position))
         {
             if (Room.Liquid is { } liquid && source == liquid.Type.Name && Inventory.IsAnyOn(liquid.Type.DamageCancelledBy))
                 continue;
             if (!IsCancelled(source))
-                hundredths += amount;
+                fromRoom += amount;
         }
+
+        hundredths += fromRoom;
+        if (fromRoom > 0)
+            OnRoomDamage();
 
         int blockHit = 0;
         foreach (Block block in Room.Terrain.BlocksIn(BodyRect, touchingCounts: true))
@@ -971,6 +1040,11 @@ public partial class Player : Node2D, IRoomEntity, IHittable, IHasValues
     /// whose equipment lessens it says so here.
     /// </summary>
     protected virtual int OngoingDamageTaken(int hundredths) => hundredths;
+
+    /// <summary>Called on each update the room itself does the player ongoing damage: its heat, or its liquid. The engine's player does nothing.</summary>
+    protected virtual void OnRoomDamage()
+    {
+    }
 
     /// <summary>Whether switched-on equipment cancels ongoing damage from a source.</summary>
     private bool IsCancelled(string source) =>

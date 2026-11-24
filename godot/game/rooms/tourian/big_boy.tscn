@@ -151,5 +151,5 @@ StartsOpen = true
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/tourian_vertical_structures.png"
+Picture = "backdrops/{graphics}/tourian_vertical_structures.png"
 ScrollShare = Vector2(0.75, 0.75)

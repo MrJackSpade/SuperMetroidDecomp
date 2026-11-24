@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -11,7 +11,8 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="12"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="12"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -30,6 +31,11 @@ LayoutFile = "rooms/brinstar/construction_zone_in_green_blue_brinstar.json"
 KeepsMusic = true
 
 [sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r5"]
 script = ExtResource("1")
 Kind = 6
 Parts = Array[ExtResource("1")]([SubResource("r1")])
@@ -77,7 +83,7 @@ Speed = 3
 Heading = 138
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug2" parent="." instance=ExtResource("6")]
 position = Vector2(222, 179)
@@ -85,7 +91,7 @@ Speed = 3
 Heading = 200
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug3" parent="." instance=ExtResource("6")]
 position = Vector2(219, 183)
@@ -93,7 +99,7 @@ Speed = 2
 Heading = 248
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug4" parent="." instance=ExtResource("6")]
 position = Vector2(217, 177)
@@ -101,7 +107,7 @@ Speed = 2
 Heading = 236
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug5" parent="." instance=ExtResource("6")]
 position = Vector2(215, 193)
@@ -109,7 +115,7 @@ Speed = 3
 Heading = 244
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug6" parent="." instance=ExtResource("6")]
 position = Vector2(179, 467)
@@ -117,7 +123,7 @@ Speed = 2
 Heading = 196
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug7" parent="." instance=ExtResource("6")]
 position = Vector2(185, 475)
@@ -125,7 +131,7 @@ Speed = 3
 Heading = 208
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug8" parent="." instance=ExtResource("6")]
 position = Vector2(187, 490)
@@ -133,7 +139,7 @@ Speed = 3
 Heading = 220
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug9" parent="." instance=ExtResource("6")]
 position = Vector2(174, 476)
@@ -141,7 +147,7 @@ Speed = 2
 Heading = 187
 ActivationDistance = 80
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="Sbug10" parent="." instance=ExtResource("6")]
 position = Vector2(213, 496)
@@ -149,7 +155,7 @@ Speed = 3
 Heading = 3
 ActivationDistance = 128
 Runs = 0
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="FaceBlock" parent="." instance=ExtResource("7")]
 position = Vector2(72, 136)
@@ -160,7 +166,7 @@ StartsFacing = 0
 position = Vector2(184, 136)
 TriggerDistance = 0
 StartsFacing = 1
-PresentWhen = SubResource("r4")
+PresentWhen = SubResource("r5")
 
 [node name="FaceBlock3" parent="." instance=ExtResource("7")]
 position = Vector2(232, 278)
@@ -271,10 +277,15 @@ Target = NodePath("../Screen0x0Foot")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_small_pattern.png"
+Picture = "backdrops/{graphics}/brinstar_small_pattern.png"
 ScrollShare = Vector2(0.75, 0.75)
 
-[node name="Zoomer" parent="." instance=ExtResource("12")]
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("12")
+StartsWhen = SubResource("r4")
+DataFile = "objects/samus_eater.json"
+
+[node name="Zoomer" parent="." instance=ExtResource("13")]
 position = Vector2(88, 120)
 DataFile = "enemies/zoomer.json"
 StartsOn = 0
@@ -283,7 +294,7 @@ PressesUp = false
 CrawlSpeed = 0.75
 PresentWhen = SubResource("r1")
 
-[node name="Zoomer2" parent="." instance=ExtResource("12")]
+[node name="Zoomer2" parent="." instance=ExtResource("13")]
 position = Vector2(168, 148)
 DataFile = "enemies/zoomer.json"
 StartsOn = 2

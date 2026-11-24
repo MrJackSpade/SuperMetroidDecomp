@@ -84,10 +84,10 @@ StartsOpen = false
 script = ExtResource("7")
 position = Vector2(0, 0)
 EffectName = "fog"
-Picture = "effects/fog.png"
+LookFile = "effects/fog.json"
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-Picture = "backdrops/statues_hallway_grey_tower_brick.png"
+Picture = "backdrops/{graphics}/statues_hallway_grey_tower_brick.png"
 ScrollShare = Vector2(0.75, 0.75)

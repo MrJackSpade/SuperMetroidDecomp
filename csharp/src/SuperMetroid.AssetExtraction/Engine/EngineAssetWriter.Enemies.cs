@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Animation;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -72,6 +73,9 @@ public sealed partial class EngineAssetWriter
         foreach ((string file, EnemyDefinitionId id, CrawlerAnimationFamily family) in kinds)
         {
             Enemy($"enemies/{file}.json", "Crawler", id).BodyColliders(Ordinary)
+                // It lets go of its surface when the room shakes as hard as a super missile striking a wall shakes it.
+                .Value("falls_at_shake", ShakeStrength(SuperMissileDefinitions.WallImpactEarthquake))
+                .Value("landing_speed", EngineNames.Number(CrawlerMotionDefinitions.DefaultCrawlSpeed.X))
                 // The orange Zoomer is the one that turns toward Samus.
                 .Value("pursues", id == EnemyDefinitionId.OrangeZoomer)
                 .Looks(CrawlerAnimations.Segments, CrawlerAnimations.StartingWith,
@@ -87,6 +91,12 @@ public sealed partial class EngineAssetWriter
     private void WriteSimpleEnemies()
     {
         Enemy("enemies/boulder.json", "Boulder", EnemyDefinitionId.Boulder).BodyColliders(Ordinary)
+            .Value("first_rebound_mark", EngineNames.Marks(BoulderMotionDefinitions.FirstReboundBounceSpeed))
+            .Value("fastest_bouncing_mark", EngineNames.Marks(BoulderMotionDefinitions.MaximumBouncingSpeed))
+            .Value("bouncing_travel_step", MarkParts(BoulderMotionDefinitions.BouncingTravelSpeedStep))
+            .Value("rolling_travel_step", MarkParts(BoulderMotionDefinitions.RollingTravelSpeedStep))
+            .Value("fastest_rolling_mark", EngineNames.Marks(BoulderMotionDefinitions.MaximumRollingTravelSpeed))
+            .Value("ground_reach", BoulderMotionDefinitions.RollingGroundReach)
             .Value("break_effect", DustFile(BoulderMotionDefinitions.BreakDust))
             .Value("break_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BoulderBreakSound))
             .Value("impact_sound", EngineNames.Sound(EnemySoundEffectDefinitions.BoulderImpactSound))
@@ -95,6 +105,12 @@ public sealed partial class EngineAssetWriter
             .Looks(BoulderAnimations.Segments, BoulderAnimations.StartingWith, ("left", BoulderSegment.Left), ("right", BoulderSegment.Right))
             .Write();
         Enemy("enemies/bull.json", "Bull", EnemyDefinitionId.Bull).BodyColliders(Ordinary)
+            .Value("acceleration_step", EngineNames.Number(BullMovementDefinitions.AccelerationStep))
+            .Value("kick_acceleration", EngineNames.Number(BullMovementDefinitions.ShotKickAcceleration))
+            .Value("kick_speed", EngineNames.Number(BullMovementDefinitions.ShotKickSpeed))
+            .Value("kick_guard_updates", BullMovementDefinitions.ShotReactionGuardDuration)
+            .Value("off_target_turn", (int)BullMovementDefinitions.OffTargetTurn.RawValue)
+            .Value("wait_updates", BullMovementDefinitions.MovementDelay)
             .Looks(BullAnimations.Segments, BullAnimations.StartingWith, ("idle", BullSegment.Idle))
             .Timeline("shot", BullAnimations.Segments, BullAnimations.Shot)
             .Write();
@@ -110,14 +126,27 @@ public sealed partial class EngineAssetWriter
                  })
         {
             Enemy($"enemies/{file}.json", "Fly", id).BodyColliders(Ordinary)
+                .Value("reach", FlyMotionDefinitions.AttackHorizontalRange)
+                .Value("wheel_step", FlyMotionDefinitions.CircleTurnSteps)
+                .Value("rest_updates", FlyMotionDefinitions.AttackCooldown)
+                .Value("dive_across_speed", FlyMotionDefinitions.DiveAcrossSpeed)
+                .Value("dive_down_speed", FlyMotionDefinitions.DiveDownSpeed)
                 .Looks(FlyAnimations.Segments, FlyAnimations.StartingWith, ("flying", FlySegment.Flight))
                 .Write();
         }
 
         Enemy("enemies/kago.json", "Kago", EnemyDefinitionId.Kago).BodyColliders(Ordinary)
+            .Value("shake_strength", ShakeStrength(KagoDefinitions.ShotQuake))
+            .Value("shake_updates", KagoDefinitions.ShotQuakeDuration)
+            .Value("shake_way", ShakeWayName(KagoDefinitions.ShotQuake))
             .Looks(KagoAnimations.Segments, KagoAnimations.StartingWith, ("slow", KagoSegment.Slow), ("fast", KagoSegment.Fast))
             .Write();
         Enemy("enemies/mochtroid.json", "Mochtroid", EnemyDefinitionId.Mochtroid).BodyColliders(Ordinary)
+            .Value("attached_speed", Whole(MochtroidBehaviorDefinitions.AttachedSpeed))
+            .Value("bite_every", MochtroidBehaviorDefinitions.AttachedDrainPeriod)
+            .Value("fastest_flight", Whole(MochtroidBehaviorDefinitions.FastestFlight))
+            .Value("feeding_sound_every", MetroidCadenceDefinitions.DrainSound.Period)
+            .Value("feeding_sound_least_energy", MetroidBehaviorDefinitions.DrainSoundLeastHealth)
             .Value("feeding_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
             .Looks(MochtroidAnimations.Segments, MochtroidAnimations.StartingWith,
                 ("free", MochtroidSegment.FreeFlight), ("attached", MochtroidSegment.Attached))
@@ -149,7 +178,11 @@ public sealed partial class EngineAssetWriter
                 ("tilted_left", PuyoSegment.TiltedLeft), ("tilted_right", PuyoSegment.TiltedRight),
                 ("tilted_far_left", PuyoSegment.TiltedFarLeft), ("tilted_far_right", PuyoSegment.TiltedFarRight))
             .Write();
-        Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+        Enemy("enemies/dead_torizo.json", "DeadTorizo", EnemyDefinitionId.CorpseTorizo).BodyColliders("Body", "Hurtbox", "Solid")
+            .Value("rows", DeadTorizoCorpseDefinitions.RowCount)
+            .Value("sand_rows", DeadTorizoCorpseDefinitions.SandRowCount)
+            .Value("sand_lines", DeadTorizoCorpseDefinitions.SandLines)
+            .Value("sand_line_updates", DeadTorizoCorpseDefinitions.RotUpdatesPerSandLine)
             .Value("dust_effect", DustFile(DustExplosionAnimation.CorpseDustCloud))
             .Value("dust_sound", EngineNames.Sound(EnemySound.LiquidDamage))
             .Group("touch_areas", EngineNames.List(DeadTorizoTouchDefinitions.TouchHitboxes.ToArray().Select(area => (System.Text.Json.Nodes.JsonNode)new System.Text.Json.Nodes.JsonObject
@@ -178,21 +211,37 @@ public sealed partial class EngineAssetWriter
     private void WritePipeBugs()
     {
         Enemy("enemies/zeb.json", "PipeBug", EnemyDefinitionId.Zeb).BodyColliders("Hurtbox")
+            .Value("emergence_height", PipeBugDefinitions.BrinstarEmergenceHeight)
+            .Value("flight_step", PipeBugDefinitions.BrinstarFlightStep)
+            .Value("respawn_wait", PipeBugDefinitions.BrinstarRespawnWait)
+            .Value("trigger_top", PipeBugDefinitions.BrinstarTriggerTop)
+            .Value("trigger_width", PipeBugDefinitions.BrinstarTriggerWidth)
             .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
                 ("rising_left", PipeBugSegment.ZebRisingLeft), ("rising_right", PipeBugSegment.ZebRisingRight),
                 ("shooting_left", PipeBugSegment.ZebShootingLeft), ("shooting_right", PipeBugSegment.ZebShootingRight))
             .Write();
         Enemy("enemies/zebbo.json", "PipeBug", EnemyDefinitionId.Zebbo).BodyColliders("Hurtbox")
+            .Value("emergence_height", PipeBugDefinitions.BrinstarEmergenceHeight)
+            .Value("flight_step", PipeBugDefinitions.BrinstarFlightStep)
+            .Value("respawn_wait", PipeBugDefinitions.BrinstarRespawnWait)
+            .Value("trigger_top", PipeBugDefinitions.BrinstarTriggerTop)
+            .Value("trigger_width", PipeBugDefinitions.BrinstarTriggerWidth)
             .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
                 ("rising_left", PipeBugSegment.ZebboRisingLeft), ("rising_right", PipeBugSegment.ZebboRisingRight),
                 ("shooting_left", PipeBugSegment.ZebboShootingLeft), ("shooting_right", PipeBugSegment.ZebboShootingRight))
             .Write();
         Enemy("enemies/gamet.json", "Gamet", EnemyDefinitionId.Gamet).BodyColliders("Hurtbox")
+            .Value("rise_speed", Whole(PipeBugDefinitions.NorfairRiseSpeed))
             .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
                 ("rising_left", PipeBugSegment.GametRisingLeft), ("rising_right", PipeBugSegment.GametRisingRight),
                 ("flying_left", PipeBugSegment.GametFlyingLeft), ("flying_right", PipeBugSegment.GametFlyingRight))
             .Write();
         Enemy("enemies/geega.json", "Geega", EnemyDefinitionId.Geega).BodyColliders("Hurtbox")
+            .Value("emergence_delay", PipeBugDefinitions.YellowEmergenceDelay)
+            .Value("swoop_distance", PipeBugDefinitions.YellowArcTriggerDistance)
+            .Value("swoop_start_mark", EngineNames.Marks(PipeBugDefinitions.YellowArcStart))
+            .Value("trigger_distance", PipeBugDefinitions.YellowTriggerDistance)
+            .Value("trigger_height", PipeBugDefinitions.YellowTriggerHeight)
             .Looks(PipeBugAnimations.Segments, PipeBugAnimations.StartingWith,
                 ("flying_left", PipeBugSegment.GeegaFlyingLeft), ("flying_right", PipeBugSegment.GeegaFlyingRight),
                 ("arcing_left", PipeBugSegment.GeegaArcingLeft), ("arcing_right", PipeBugSegment.GeegaArcingRight))

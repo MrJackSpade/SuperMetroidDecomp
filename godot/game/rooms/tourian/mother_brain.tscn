@@ -192,7 +192,7 @@ StartsOpen = false
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("14")
 position = Vector2(0, 0)
-TypeFile = "liquids/acid.json"
+TypeFile = "liquids/acid_lava.json"
 LowSurface = 232
 HighSurface = 232
 PresentWhen = SubResource("r10")
@@ -296,5 +296,5 @@ PresentWhen = SubResource("r10")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("17")
 position = Vector2(0, 0)
-Picture = "backdrops/tourian_pipe_room_dark.png"
+Picture = "backdrops/{graphics}/tourian_pipe_room_dark.png"
 ScrollShare = Vector2(0.75, 0.75)

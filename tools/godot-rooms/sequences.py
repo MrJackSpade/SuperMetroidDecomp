@@ -21,11 +21,29 @@ SCREEN = 256
 
 # The routines that are the escape as a room shows it, with how each room's differs.
 ESCAPES = {
-    'ShakeScreenWithRandomExplosions': {},
-    'RandomEscapeExplosions': {},
-    'ScrollingSkyLandWithEscapeExplosions': {'Outdoors': 'true'},
-    'ShakeScreenLightHorizontalAndMediumDiagonal': {'ShakeStrength': '1'},
-    'ShakeScreenMediumHorizontalAndStrongDiagonal': {'ShakeStrength': '2'},
+    'ShakeScreenWithRandomExplosions': {'Outdoors': 'true', 'TurnsHarder': 'false'},
+    'RandomEscapeExplosions': {'TurnsHarder': 'false'},
+    'ScrollingSkyLandWithEscapeExplosions': {'Outdoors': 'true', 'TurnsHarder': 'false'},
+    'ShakeScreenLightHorizontalAndMediumDiagonal': {},
+    'ShakeScreenMediumHorizontalAndStrongDiagonal': {},
+}
+
+# How hard each room of the escape shakes, by the old setup routine of its escape version. The old game starts a
+# shake in some rooms and lets it carry on into the next: the old Tourian shaft keeps the last Tourian room's, and
+# the rooms past the one the animals leave by keep that room's.
+ESCAPE_SHAKES = {
+    'SetZebesTimebombEventAndLightHorizontalShaking': 1, 'SetLightHorizontalRoomShaking': 1,
+    'SetMediumHorizontalRoomShaking': 2, 'MediumHorizontalShakingWithRisingAcid': 2, 'AutoDestroyWallDuringEscape': 2,
+    'OpenRescuedAnimalsPassageAndQuake': 3, 'TurnWallIntoShotBlocksDuringEscape': 3, 'None': 3, 'LandSkyWithLandingSiteQuake': 3,
+}
+
+# What the escape's blasts are shown and heard by: the old game's small blast, puff of smoke, smoke and two clouds of
+# dust, and the sounds of a small blast and of a big one.
+ESCAPE_BLASTS = {
+    'SmallExplosionEffect': 'effects/small_explosion.json', 'DustPuffEffect': 'effects/smoke_puff.json',
+    'SmokeEffect': 'effects/smoke.json', 'ShortDustCloudEffect': 'effects/short_big_dust_cloud.json',
+    'BigDustCloudEffect': 'effects/big_dust_cloud.json',
+    'SmallExplosionSound': 'enemy_small_explosion', 'SmokeSound': 'enemy_big_explosion',
 }
 
 # The terrain patches a room's escape version has in place, by the old setup routine that made the change.
@@ -57,6 +75,23 @@ def share(scroll: str) -> str:
     return '0' if 'Fixed' in scroll else '1'
 
 
+# Where on a turning floor the old game lays the pictures it shows there: the elevator's pad, the capsule Ridley
+# carries, and his wings.
+FLOOR_PLATFORM_AT = (112, 96)
+FLOOR_CAPSULE_AT = (32, 80)
+FLOOR_WINGS_AT = (0, 0)
+
+
+def floor_picture(name: str) -> str:
+    """One of the pictures shown on a turning floor, which is kept once for each set of graphics it is coloured by."""
+    return f'backdrops/{{graphics}}/ceres_{name}.png'
+
+
+def strings(values: list[str]) -> str:
+    """A list of text as a scene writes one."""
+    return 'Array[String]([' + ', '.join(quoted(value) for value in values) + '])'
+
+
 class Sequences:
     """The sequences and backdrops of one version of a room."""
 
@@ -73,11 +108,25 @@ class Sequences:
         if state.background not in NOT_PICTURES and 'TurningFloor' not in state.properties:
             modes = legacy.call_arguments(state.background_scroll)
             self.placed.append(Placed(BACKDROP, 'Backdrop', {
-                'Picture': quoted(f'backdrops/{snake(state.background)}.png'),
+                # A background is coloured by the room's set of graphics, so its picture is kept once for each set.
+                'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
                 'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
 
+        elif state.background == 'null':
+            # What the level draws behind itself, which is kept as one picture for each set of graphics it is drawn in.
+            modes = legacy.call_arguments(state.background_scroll)
+            self.placed.append(Placed(BACKDROP, 'Backdrop', {
+                'Picture': quoted(f'backdrops/{{graphics}}/level_{snake(state.level)}.png'),
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
+
+        if room.area == 'Brinstar':
+            # The plants that seize Samus are blocks of the layout: one watcher finds and plays whichever the room has.
+            self.placed.append(sequence('brinstar/SamusEaters.cs', 'Plants', {
+                'StartsWhen': ctx.always(), 'DataFile': quoted('objects/samus_eater.json')}))
         if state.main in ESCAPES:
-            self.placed.append(sequence('EscapeRoom.cs', 'Escape', {'StartsWhen': ctx.always(), **ESCAPES[state.main]}))
+            self.placed.append(sequence('EscapeRoom.cs', 'Escape', {
+                'StartsWhen': ctx.always(), **ESCAPES[state.main], 'ShakeStrength': str(ESCAPE_SHAKES[state.setup]),
+                **{name: quoted(value) for name, value in ESCAPE_BLASTS.items()}}))
         if state.setup == 'OpenRescuedAnimalsPassageAndQuake':
             # The way the animals left by stands open, and the room shakes, once they have been set free.
             relay = Placed('res://engine/world/Relay.cs', 'AnimalsPassage', {'Rules': 'rules:open:animals_passage_open'},
@@ -129,15 +178,22 @@ class Sequences:
         shaking = sequence('ceres/CeresShaking.cs', 'Shaking', {'StartsWhen': ctx.always()})
         self.placed.append(shaking)
         if 'Haze' in state.setup:
+            # The haze is one colour while Ridley is on the station and another once he is gone.
+            look = 'effects/ceres_haze_escape.json' if ridley_gone else 'effects/ceres_haze.json'
             self.placed.append(Placed(OVERLAY, 'Haze', {
-                'EffectName': quoted('ceres_haze'), 'Picture': quoted('effects/ceres_haze.png')}, at=(0, 0), enemy=False))
+                'EffectName': quoted('ceres_haze'), 'LookFile': quoted(look)}, at=(0, 0), enemy=False))
         if state.main == 'SpawnCeresPreElevatorHallFallingDebris':
             self.placed.append(sequence('ceres/CeresDebris.cs', 'Debris', {
                 'StartsWhen': ctx.fact('ceres_self_destruct_started'),
                 'LightPiece': quoted('effects/ceres_debris_light.json'), 'DarkPiece': quoted('effects/ceres_debris_dark.json')}))
         if state.main == 'CeresRidleyGetaway':
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/ceres_ridley_floor.png')}, at=(0, 0), enemy=False)
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_ridley_floor.png')}, at=(0, 0), enemy=False,
+                           children=[('Capsule', VISUAL, {'position': f'Vector2{FLOOR_CAPSULE_AT}'}),
+                                     ('Wings', VISUAL, {'position': f'Vector2{FLOOR_WINGS_AT}'})])
             getaway = sequence('ceres/CeresGetaway.cs', 'Getaway', {
+                # The capsule tumbles and his wings beat through the old game's own pictures, in its order.
+                'CapsulePictures': strings([floor_picture(name) for name in ('baby_vertical', 'baby_round', 'baby_horizontal', 'baby_round')]),
+                'WingPictures': strings([floor_picture(name) for name in ('wings_raised', 'wings_lowered')]),
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
                 'Subtitle': quoted('ceres_self_destruct_subtitle'), 'LetterSound': quoted('room_typewriter')})
             self.placed += [floor, getaway]
@@ -146,8 +202,8 @@ class Sequences:
             if 'Ridley' in named:
                 self.links.append((named['Ridley'], 'ToldWhenGone', [getaway]))
         if state.main == 'CeresElevatorShaft':
-            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/ceres_elevator_shaft.png')}, at=(0, 0), enemy=False,
-                           children=[('Platform', VISUAL, {})])
+            floor = Placed(TURNING_FLOOR, 'Floor', {'Picture': quoted('backdrops/{graphics}/ceres_elevator_shaft.png')}, at=(0, 0), enemy=False,
+                           children=[('Platform', VISUAL, {'position': f'Vector2{FLOOR_PLATFORM_AT}'})])
             self.placed.append(floor)
             if 'ElevatorDoor' in named:
                 self.links.append((named['ElevatorDoor'], 'Floor', floor))
@@ -157,17 +213,22 @@ class Sequences:
                 self.placed.append(shaft)
                 self.links.append((shaft, 'Floor', floor))
             else:
-                self.placed.append(sequence('ceres/CeresArrival.cs', 'Arrival', {'StartsAtEntry': quoted('AtCeresElevator')},
+                self.placed.append(sequence('ceres/CeresArrival.cs', 'Arrival', {
+                    'StartsAtEntry': quoted('AtCeresElevator'),
+                    'PadTimeline': quoted('objects/ceres_arrival_pad.json'),
+                    'PlatformTimeline': quoted('objects/ceres_arrival_platform.json')},
                                             children=[('Pad', VISUAL, {}), ('Platform', VISUAL, {})]))
 
     def statue_hall(self, ctx, named: dict[str, Placed]) -> None:
-        # The statue is a plain thing the hall's sequence moves and shows: a visual for each guardian, and a grey one over each.
-        statue = Placed('', 'Statue', {}, at=(120, 184), enemy=False,
-                        children=[(guardian + grey, VISUAL, {}) for guardian in GUARDIANS for grey in ('', 'Grey')])
+        # The statue is a plain thing the hall's sequence moves and shows: its base, a visual for each guardian, and a
+        # grey one over each. It stands at the corner of the room's backdrop, which is the picture the statue is part
+        # of and sinks with it; the hall's data says where each picture lies from there.
+        statue = Placed('', 'Statue', {}, at=(0, 0), enemy=False,
+                        children=[('Base', VISUAL, {})] + [(guardian + grey, VISUAL, {}) for guardian in GUARDIANS for grey in ('', 'Grey')])
         hall = sequence('crateria/TourianStatueHall.cs', 'StatueHall', {
-            'DataFile': quoted('rooms/tourian_statue_hall.json'), 'StartsWhen': ctx.always(),
-            'CrumblePatch': quoted('floor_crumbling'), 'ClearPatch': quoted('floor_clear')})
+            'DataFile': quoted('rooms/tourian_statue_hall.json'), 'StartsWhen': ctx.always(), 'ClearPatch': quoted('floor_clear')})
         self.placed += [statue, hall]
         self.links.append((hall, 'Statue', statue))
+        self.links.append((hall, 'Backdrop', next(placed for placed in self.placed if placed.name == 'Backdrop')))
         if 'Screen0x1' in named:
             self.links.append((hall, 'LowerView', named['Screen0x1']))

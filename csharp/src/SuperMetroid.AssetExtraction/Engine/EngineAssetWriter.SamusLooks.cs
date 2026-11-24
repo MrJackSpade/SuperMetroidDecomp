@@ -1,0 +1,484 @@
+using SuperMetroid.Core;
+using SuperMetroid.Core.Spatial;
+using System.Text.Json.Nodes;
+using SuperMetroid.AssetExtraction.Artwork;
+using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.Core.Animation;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Samus.Colours;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Samus.Poses;
+using P = SuperMetroid.Core.Samus.Poses.SamusPoseId;
+using Seg = SuperMetroid.Core.Samus.Poses.SamusAnimationSegmentName;
+
+namespace SuperMetroid.AssetExtraction.Engine;
+
+/// <summary>
+/// How Samus looks: her pictures, cut once for each suit, and a timeline for every look the Godot game gives her,
+/// each the old pose's own animation. The Godot game names a timeline for her look, the way she faces and her aim.
+/// </summary>
+public sealed partial class EngineAssetWriter
+{
+    /// <summary>The family of sheets Samus, her shots and her effects are on.</summary>
+    private const string SpriteFamily = GameInstallationLayout.SpriteSheetDirectoryName;
+
+    /// <summary>What stands in a picture's path for the suit she wears.</summary>
+    private const string SuitPlace = "{suit}";
+
+    /// <summary>Her suits, as her pictures' folders are named for them.</summary>
+    private static readonly (string Name, SamusSuit Suit)[] SamusSuits =
+        [("power", SamusSuit.Power), ("varia", SamusSuit.Varia), ("gravity", SamusSuit.Gravity)];
+
+    /// <summary>The two sides she faces, as her timelines are named for them.</summary>
+    private static readonly string[] SamusSides = ["right", "left"];
+
+    private InstalledSamusBody? _samusBody;
+    private EngineSheetPictures? _samusPictures;
+
+    /// <summary>What the installation holds of Samus's body: which picture each frame of each pose shows, and how high it sits.</summary>
+    private InstalledSamusBody SamusBody => _samusBody ??= _installation.LoadSamusBody();
+
+    /// <summary>The sheet her body's pictures are on.</summary>
+    private static string SamusBodySheet => SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusBody];
+
+    /// <summary>
+    /// The name a body frame's picture is written under. The old game has one pose facing out of the screen for the
+    /// power suit and another for the other two, with the same frames; a picture's path names the suit, so both are
+    /// written under one name.
+    /// </summary>
+    private static string SamusFileName(string frame)
+    {
+        foreach (P pose in new[] { P.ForwardFacingPowerSuitPose, P.ForwardFacingSuitedPose })
+        {
+            string named = SamusPoseIdKeys.Installed.Of(pose) + ".";
+            if (frame.StartsWith(named, StringComparison.Ordinal))
+                return EngineSheets.FileName("ForwardFacing." + frame[named.Length..]);
+        }
+
+        return EngineSheets.FileName(frame);
+    }
+
+    /// <summary>Her body's pictures, cut once for each suit onto canvases that are all alike, by the frame's name; the paths are the first suit's.</summary>
+    private EngineSheetPictures SamusPictures
+    {
+        get
+        {
+            if (_samusPictures is not null)
+                return _samusPictures;
+            string powerOnly = SamusPoseIdKeys.Installed.Of(P.ForwardFacingPowerSuitPose) + ".", suitedOnly = SamusPoseIdKeys.Installed.Of(P.ForwardFacingSuitedPose) + ".";
+            var cuts = new List<EngineSheetPictures>();
+            foreach ((string name, SamusSuit suit) in SamusSuits)
+            {
+                string notWorn = suit == SamusSuit.Power ? suitedOnly : powerOnly;
+                IEnumerable<string> frames = _sheets.FramesOf(SpriteFamily, SamusBodySheet).Where(frame => !frame.StartsWith(notWorn, StringComparison.Ordinal));
+                cuts.Add(_sheets.CutNamed(_tree, SpriteFamily, $"samus/{name}", SamusBodySheet, frames, SamusShades.Suit(suit).Key, SamusFileName));
+            }
+
+            EngineSheetPictures first = cuts[0];
+            if (cuts.Any(cut => cut.OffsetX != first.OffsetX || cut.OffsetY != first.OffsetY || cut.Width != first.Width || cut.Height != first.Height))
+                throw new InvalidDataException("Samus's pictures do not lie alike in each of her suits, which one timeline for all three needs.");
+            return _samusPictures = first;
+        }
+    }
+
+    /// <summary>The picture of one frame of her body's sheet, with <see cref="SuitPlace"/> where the suit's folder goes; empty for a frame that shows nothing.</summary>
+    private string SamusPicture(string frame)
+    {
+        if (_sheets.ShowsNothing(SpriteFamily, SamusBodySheet, frame))
+            return "";
+        string suited = SamusPoseIdKeys.Installed.Of(P.ForwardFacingSuitedPose) + ".";
+        if (frame.StartsWith(suited, StringComparison.Ordinal))
+            frame = SamusPoseIdKeys.Installed.Of(P.ForwardFacingPowerSuitPose) + "." + frame[suited.Length..];
+        string path = SamusPictures.Of(frame);
+        string folder = $"samus/{SamusSuits[0].Name}/";
+        if (path.Length == 0)
+            return "";
+        if (!path.StartsWith(folder, StringComparison.Ordinal))
+            throw new InvalidDataException($"Samus's picture {path} is not in her first suit's folder.");
+        string named = $"samus/{SuitPlace}/{path[folder.Length..]}";
+        foreach ((string name, SamusSuit _) in SamusSuits)
+        {
+            if (!_tree.Holds(named.Replace(SuitPlace, name, StringComparison.Ordinal)))
+                throw new InvalidDataException($"Samus's picture {named} was not written for her {name} suit.");
+        }
+
+        return named;
+    }
+
+    /// <summary>One step of a timeline of hers: a frame of a pose's animation shown for so many updates.</summary>
+    private readonly partial record struct SamusStep(P Pose, SamusAnimationFrame Frame, int Updates);
+
+    /// <summary>One step as a timeline writes it: the picture the frame shows, lifted as the installation lifts it.</summary>
+    private JsonObject SamusStepWritten(SamusStep step)
+    {
+        if (step.Updates <= 0)
+            throw new InvalidDataException($"Samus's pose {step.Pose} shows its frame {step.Frame} for no updates, which a timeline cannot.");
+        if (!SamusBody.ShownFrames.TryPictureFrame(step.Pose, step.Frame, out SamusAnimationFrame picture))
+            throw new InvalidDataException($"The installation has no picture for Samus's pose {step.Pose} at its frame {step.Frame}.");
+        var written = new JsonObject { ["picture"] = SamusPicture(new SamusBodyFrame(step.Pose, picture).Name), ["updates"] = step.Updates };
+
+        // The old game draws the picture so many pixels above her place.
+        int rise = SamusBody.Gameplay.OriginRise(step.Pose, picture);
+        if (rise != 0)
+            written["offset"] = new JsonObject { ["x"] = 0, ["y"] = -rise };
+        return written;
+    }
+
+    /// <summary>A timeline of her body's pictures.</summary>
+    private JsonObject SamusTimeline(IEnumerable<JsonObject> steps, int? loopsTo)
+    {
+        var written = new JsonArray();
+        foreach (JsonObject step in steps)
+            written.Add(step);
+        if (written.Count == 0)
+            throw new InvalidDataException("A timeline of Samus's shows no frame.");
+        var timeline = new JsonObject
+        {
+            ["steps"] = written,
+            ["offset"] = new JsonObject { ["x"] = SamusPictures.OffsetX, ["y"] = SamusPictures.OffsetY },
+        };
+        if (loopsTo is { } to)
+            timeline["loops_to"] = to;
+        return timeline;
+    }
+
+    /// <summary>A timeline of steps of her poses.</summary>
+    private JsonObject SamusTimeline((List<SamusStep> Steps, int? LoopsTo) played) =>
+        SamusTimeline(played.Steps.Select(SamusStepWritten), played.LoopsTo);
+
+    /// <summary>The frames of one segment of a pose's animation, each for its own length.</summary>
+    private static List<SamusStep> SamusSegment(P pose, Seg segment)
+    {
+        SamusAnimationSegment played = SamusPoseTraits.Of(pose).Animation.Segment(segment);
+        var steps = new List<SamusStep>();
+        for (int frame = 0; frame < played.Delays.Count; frame++)
+            steps.Add(new SamusStep(pose, new SamusAnimationFrame(segment, frame), played.Delays[frame]));
+        return steps;
+    }
+
+    /// <summary>
+    /// The steps a pose's animation plays, and the step it comes round to where it goes on for good. It is played from
+    /// its first segment, or from <paramref name="from"/>: each segment's frames, then on as its end says. A segment
+    /// that plays one again comes round to it; breathing comes round while her energy is not low; one that hands on to
+    /// another pose ends the timeline, since what she does next is the Godot game's to say.
+    /// </summary>
+    /// <param name="pose">The pose.</param>
+    /// <param name="from">The segment to begin at; the animation's first when not given.</param>
+    /// <param name="oneSegment">Whether to play that one segment and no more: it comes round only if it plays itself again.</param>
+    private static (List<SamusStep> Steps, int? LoopsTo) SamusPlayed(P pose, Seg? from = null, bool oneSegment = false)
+    {
+        IReadOnlyList<SamusAnimationSegment> segments = SamusPoseTraits.Of(pose).Animation.Segments;
+        int IndexOf(Seg name)
+        {
+            for (int index = 0; index < segments.Count; index++)
+            {
+                if (segments[index].Name == name)
+                    return index;
+            }
+
+            throw new InvalidDataException($"The animation of Samus's pose {pose} has no segment {name}.");
+        }
+
+        var steps = new List<SamusStep>();
+        var firstStep = new Dictionary<Seg, int>();
+        int at = from is { } named ? IndexOf(named) : 0;
+        while (true)
+        {
+            SamusAnimationSegment segment = segments[at];
+            if (firstStep.TryGetValue(segment.Name, out int round))
+                return (steps, round);
+            firstStep[segment.Name] = steps.Count;
+            steps.AddRange(SamusSegment(pose, segment.Name));
+            switch (segment.End)
+            {
+                case SamusAnimationRepeat repeat when firstStep.TryGetValue(repeat.Target.Segment, out int first):
+                    return (steps, first + repeat.Target.Frame);
+                case SamusAnimationRestart when firstStep.TryGetValue(segments[0].Name, out int start):
+                    return (steps, start);
+                case SamusAnimationLoopUnlessLowEnergy:
+                    return (steps, firstStep[segment.Name]);
+                case not null when oneSegment:
+                    return (steps, null);
+                case null when oneSegment:
+                    return (steps, null);
+                case null:
+                    at++;
+                    break;
+                case SamusAnimationRepeat repeat:
+                    if (repeat.Target.Frame != 0)
+                        throw new InvalidDataException($"The animation of Samus's pose {pose} goes on into the middle of a segment it has not played.");
+                    at = IndexOf(repeat.Target.Segment);
+                    break;
+                case SamusAnimationRestart:
+                    at = 0;
+                    break;
+                case SamusAnimationCue cue when cue.ContinuesToNextSegment:
+                    at++;
+                    break;
+                default:
+                    return (steps, null);
+            }
+        }
+    }
+
+    /// <summary>One frame of a pose held for good.</summary>
+    private static (List<SamusStep> Steps, int? LoopsTo) SamusHeld(P pose, SamusAnimationFrame frame) => ([new SamusStep(pose, frame, 1)], 0);
+
+    /// <summary>How far above her middle a pose's shots start; the two sides' poses must agree.</summary>
+    private static int SamusShotHeight(P right, P left)
+    {
+        int height = SamusPoseTraits.Of(right).ProjectileHeight;
+        return SamusPoseTraits.Of(left).ProjectileHeight == height
+            ? height
+            : throw new InvalidDataException($"Samus's poses {right} and {left} start their shots at different heights, which one height for the look cannot say.");
+    }
+
+    /// <summary>
+    /// Writes every timeline of Samus's into <paramref name="timelines"/>, and into <paramref name="heights"/> how far
+    /// above her middle the shots of each look start: by the look's name, and by the look's and the aim's where an aim has
+    /// a pose of its own.
+    /// </summary>
+    private void WriteSamusLooks(JsonObject timelines, JsonObject heights)
+    {
+        void Add(string name, (List<SamusStep> Steps, int? LoopsTo) played) => timelines.Add(name, SamusTimeline(played));
+
+        // A look, or a look with one aim, shown by one old pose for each side.
+        void Look(string look, string? aim, P right, P left, Seg? from = null, bool oneSegment = false, string suffix = "")
+        {
+            Add($"{look}_right{(aim is null ? "" : "_" + aim)}{suffix}", SamusPlayed(right, from, oneSegment));
+            Add($"{look}_left{(aim is null ? "" : "_" + aim)}{suffix}", SamusPlayed(left, from, oneSegment));
+            if (suffix.Length == 0)
+                heights[aim is null ? look : $"{look}_{aim}"] = SamusShotHeight(right, left);
+        }
+
+        // The pictures shown once as one look gives way to another.
+        void Passing(string from, string to, P right, P left)
+        {
+            Add($"{from}_to_{to}_right", SamusPlayed(right));
+            Add($"{from}_to_{to}_left", SamusPlayed(left));
+        }
+
+        Look("standing", null, P.FacingRightNormalPose, P.FacingLeftNormalPose);
+        Look("standing", null, P.FacingRightNormalPose, P.FacingLeftNormalPose, from: Seg.LowEnergyBreathe, suffix: "_low");
+        Look("standing", "up", P.StandingAimUpRightPose, P.StandingAimUpLeftPose);
+        Look("standing", "diagonal_up", P.StandingAimDiagonalUpRightPose, P.StandingAimDiagonalUpLeftPose);
+        Look("standing", "diagonal_down", P.StandingAimDiagonalDownRightPose, P.StandingAimDiagonalDownLeftPose);
+
+        Look("running", null, P.MovingRightNormalPose, P.MovingLeftNormalPose);
+        Look("running", "diagonal_up", P.RunningAimDiagonalUpRightPose, P.RunningAimDiagonalUpLeftPose);
+        Look("running", "diagonal_down", P.RunningAimDiagonalDownRightPose, P.RunningAimDiagonalDownLeftPose);
+
+        // The Godot Samus still faces the way she was until a turn is done; the old turning poses face the way she turns to.
+        Look("turning", null, P.TurningRightToLeftPose, P.TurningLeftToRightPose);
+        Look("turning", "up", P.TurningRightToLeftAimUpPose, P.TurningLeftToRightAimUpPose);
+        Look("turning", "diagonal_up", P.TurningRightToLeftAimDiagonalUpPose, P.TurningLeftToRightAimDiagonalUpPose);
+        Look("turning", "diagonal_down", P.TurningRightToLeftAimDiagonalDownPose, P.TurningLeftToRightAimDiagonalDownPose);
+
+        Look("crouching", null, P.CrouchingRightPose, P.CrouchingLeftPose);
+        Look("crouching", null, P.CrouchingRightPose, P.CrouchingLeftPose, from: Seg.LowEnergyBreathe, suffix: "_low");
+        Look("crouching", "up", P.CrouchingAimUpRightPose, P.CrouchingAimUpLeftPose);
+        Look("crouching", "diagonal_up", P.CrouchingAimDiagonalUpRightPose, P.CrouchingAimDiagonalUpLeftPose);
+        Look("crouching", "diagonal_down", P.CrouchingAimDiagonalDownRightPose, P.CrouchingAimDiagonalDownLeftPose);
+
+        Look("jumping", null, P.NeutralJumpRightPose, P.NeutralJumpLeftPose);
+        Look("jumping", "up", P.NormalJumpAimUpRightPose, P.NormalJumpAimUpLeftPose);
+        Look("jumping", "down", P.NormalJumpAimDownRightPose, P.NormalJumpAimDownLeftPose);
+        Look("jumping", "diagonal_up", P.NormalJumpAimDiagonalUpRightPose, P.NormalJumpAimDiagonalUpLeftPose);
+        Look("jumping", "diagonal_down", P.NormalJumpAimDiagonalDownRightPose, P.NormalJumpAimDiagonalDownLeftPose);
+
+        Look("falling", null, P.FallingRightPose, P.FallingLeftPose);
+        Look("falling", "up", P.FallingAimUpRightPose, P.FallingAimUpLeftPose);
+        Look("falling", "down", P.FallingAimDownRightPose, P.FallingAimDownLeftPose);
+        Look("falling", "diagonal_up", P.FallingAimDiagonalUpRightPose, P.FallingAimDiagonalUpLeftPose);
+        Look("falling", "diagonal_down", P.FallingAimDiagonalDownRightPose, P.FallingAimDiagonalDownLeftPose);
+
+        // The kick off the wall alone: the spin that follows is the spin jump's.
+        Look("wall_jumping", null, P.WallJumpRightPose, P.WallJumpLeftPose, from: Seg.Launch, oneSegment: true);
+        Look("spin_jumping", null, P.SpinJumpRightPose, P.SpinJumpLeftPose);
+        Look("space_jumping", null, P.SpaceJumpRightPose, P.SpaceJumpLeftPose);
+        Look("screw_attacking", null, P.ScrewAttackRightPose, P.ScrewAttackLeftPose);
+        Look("morph_ball", null, P.MorphBallGroundRightPose, P.MorphBallGroundLeftPose);
+        Look("knocked_back", null, P.KnockbackRightPose, P.KnockbackLeftPose);
+        Look("damage_boost", null, P.DamageBoostRightPose, P.DamageBoostLeftPose);
+
+        Look("moonwalking", null, P.MoonwalkFacingRightPose, P.MoonwalkFacingLeftPose);
+        Look("moonwalking", "diagonal_up", P.MoonwalkAimUpRightPose, P.MoonwalkAimUpLeftPose);
+        Look("moonwalking", "diagonal_down", P.MoonwalkAimDownRightPose, P.MoonwalkAimDownLeftPose);
+
+        Look("grabbed", null, P.DraygonGrabbedNeutralRightPose, P.DraygonGrabbedNeutralLeftPose);
+        Look("grabbed", "diagonal_up", P.DraygonGrabbedAimUpRightPose, P.DraygonGrabbedAimUpLeftPose);
+        Look("grabbed", "diagonal_down", P.DraygonGrabbedAimDownRightPose, P.DraygonGrabbedAimDownLeftPose);
+
+        Look("shinespark_windup", null, P.ShinesparkWindupRightPose, P.ShinesparkWindupLeftPose);
+        Look("shinespark_horizontal", null, P.ShinesparkHorizontalRightPose, P.ShinesparkHorizontalLeftPose);
+        Look("shinespark_vertical", null, P.ShinesparkVerticalRightPose, P.ShinesparkVerticalLeftPose);
+        Look("shinespark_diagonal", null, P.ShinesparkDiagonalRightPose, P.ShinesparkDiagonalLeftPose);
+
+        // Swinging, she is shown one of so many ways by the way the line runs from her.
+        for (int way = 0; way < GrappleSwingDirection.Count; way++)
+        {
+            SamusAnimationFrame frame = new GrappleSwingPicture(GrappleSwingDirection.FromNumber(way)).AnimationFrame;
+            Add($"grappling_{way}_right", SamusHeld(P.GrappleSwingRightPose, frame));
+            Add($"grappling_{way}_left", SamusHeld(P.GrappleSwingLeftPose, frame));
+        }
+
+        // Looking through the scope, her head is held one of five ways.
+        (string Name, SamusAnimationFrame Frame)[] scope =
+        [
+            ("up", XrayScopeDefinitions.Aims.Up), ("raised", XrayScopeDefinitions.Aims.Raised), ("level", XrayScopeDefinitions.Aims.Level),
+            ("lowered", XrayScopeDefinitions.Aims.Lowered), ("down", XrayScopeDefinitions.Aims.Down),
+        ];
+        foreach ((string name, SamusAnimationFrame frame) in scope)
+        {
+            Add($"xray_standing_{name}_right", SamusHeld(P.XrayingStandingRightPose, frame));
+            Add($"xray_standing_{name}_left", SamusHeld(P.XrayingStandingLeftPose, frame));
+            Add($"xray_crouching_{name}_right", SamusHeld(P.XrayingCrouchingRightPose, frame));
+            Add($"xray_crouching_{name}_left", SamusHeld(P.XrayingCrouchingLeftPose, frame));
+        }
+
+        // Facing out of the screen: in a station, in the gunship, taking a suit. On a lift the old game draws her on
+        // every other update.
+        SamusAnimationFrame still = new(Seg.Still, 0);
+        Add("facing_forward", SamusHeld(P.ForwardFacingPowerSuitPose, still));
+        Add("collecting_suit", SamusHeld(P.ForwardFacingPowerSuitPose, still));
+        timelines.Add("carried", SamusTimeline(
+            [SamusStepWritten(new SamusStep(P.ForwardFacingPowerSuitPose, still, 1)), new JsonObject { ["picture"] = "", ["updates"] = 1 }], 0));
+
+        // A crystal flash: she rises, glows while her ammunition is taken, and the Godot state ends it.
+        foreach ((string side, P pose) in new[] { ("right", P.CrystalFlashRightPose), ("left", P.CrystalFlashLeftPose) })
+        {
+            List<SamusStep> steps = [.. SamusSegment(pose, Seg.Rise)];
+            int risen = steps.Sum(step => step.Updates);
+            List<SamusStep> rising = SamusSegment(pose, Seg.Rising);
+            while (risen < CrystalFlashDefinitions.RaiseUpdates)
+            {
+                steps.AddRange(rising);
+                risen += rising.Sum(step => step.Updates);
+            }
+
+            int glow = steps.Count;
+            steps.AddRange(SamusSegment(pose, Seg.Glow));
+            Add($"crystal_flash_{side}", (steps, glow));
+        }
+
+        // Drained. The old game shows the left-facing crouch whichever way she faces for all but kneeling and rising,
+        // so those looks are written once, for either side.
+        Add("drained_pinned", SamusPlayed(SamusDrainedAnimationDefinitions.RainbowBeamKnockbackPose));
+        Add("drained_right", SamusPlayed(P.DrainedCrouchingRightPose, Seg.Held));
+        Add("drained_left", SamusPlayed(P.DrainedCrouchingLeftPose, Seg.Held));
+        Add("drained_struggling", SamusPlayed(SamusDrainedAnimationDefinitions.GetUpPose, Seg.FailedStand, oneSegment: true));
+        Add("drained_getting_up_right", SamusPlayed(P.DrainedCrouchingRightPose, Seg.StandUp, oneSegment: true));
+        Add("drained_getting_up_left", SamusPlayed(P.DrainedCrouchingLeftPose, Seg.StandUp, oneSegment: true));
+        Add("drained_standing_right", SamusPlayed(P.DrainedStandingRightPose));
+        Add("drained_standing_left", SamusPlayed(P.DrainedStandingLeftPose));
+        Add("drained_frozen", SamusPlayed(SamusDrainedAnimationDefinitions.GetUpPose, Seg.Frozen));
+
+        WriteSamusDeath(timelines);
+
+        // Landing, crouching and curling up each pass through a picture or two of their own.
+        foreach (string from in new[] { "falling", "jumping" })
+            Passing(from, "standing", P.NormalLandingRightPose, P.NormalLandingLeftPose);
+        foreach (string spin in new[] { "spin_jumping", "space_jumping", "screw_attacking" })
+        {
+            Passing(spin, "standing", P.SpinLandingRightPose, P.SpinLandingLeftPose);
+            Passing(spin, "morph_ball", P.MorphingTransitionRightPose, P.MorphingTransitionLeftPose);
+        }
+
+        Passing("standing", "crouching", P.CrouchingTransitionRightPose, P.CrouchingTransitionLeftPose);
+        Passing("crouching", "standing", P.StandingTransitionRightPose, P.StandingTransitionLeftPose);
+        foreach (string from in new[] { "crouching", "falling", "jumping" })
+            Passing(from, "morph_ball", P.MorphingTransitionRightPose, P.MorphingTransitionLeftPose);
+        foreach (string to in new[] { "crouching", "falling" })
+            Passing("morph_ball", to, P.UnmorphingTransitionRightPose, P.UnmorphingTransitionLeftPose);
+    }
+
+    /// <summary>
+    /// Her death: the death pose held while the old game waits and flashes, and then the pictures of her suit breaking
+    /// up, which are on a sheet of their own.
+    /// </summary>
+    private void WriteSamusDeath(JsonObject timelines)
+    {
+        string sheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusDeath];
+        IReadOnlyList<IAnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>> explosion =
+            [.. SamusDeathAnimations.ExplosionSegments.Beats(SamusDeathExplosionSegment.Explosion)];
+        var cuts = new List<EngineSheetPictures>();
+        foreach ((string name, SamusSuit suit) in SamusSuits)
+        {
+            cuts.Add(_sheets.CutNamed(_tree, SpriteFamily, $"samus/{name}", sheet, _sheets.FramesOf(SpriteFamily, sheet), SamusShades.Suit(suit).Key,
+                frame => EngineSheets.FileName("Death." + frame)));
+        }
+
+        EngineSheetPictures pictures = cuts[0];
+        if (cuts.Any(cut => cut.OffsetX != pictures.OffsetX || cut.OffsetY != pictures.OffsetY))
+            throw new InvalidDataException("The pictures of Samus's death do not lie alike in each of her suits.");
+        string folder = $"samus/{SamusSuits[0].Name}/";
+        foreach ((string side, P pose, HorizontalDirection facing) in new[]
+            { ("right", P.DeathSequenceRightPose, HorizontalDirection.Right), ("left", P.DeathSequenceLeftPose, HorizontalDirection.Left) })
+        {
+            var steps = new List<JsonObject>
+            {
+                SamusStepWritten(new SamusStep(pose, SamusDeathSequenceDefinitions.UprightStart,
+                    SamusDeathSequenceDefinitions.PreFlashFrameCount + SamusDeathSequenceDefinitions.FlashFrameCount)),
+            };
+            foreach (IAnimationBeat<SamusDeathExplosionFrame, NoAnimationCue> beat in explosion)
+            {
+                if (beat is not AnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>.Frame shown)
+                    throw new InvalidDataException($"The breaking up of Samus's suit has a beat this does not know: {beat.GetType().Name}.");
+                string path = pictures.Of(SamusDeathSheetDefinitions.ExplosionFrame(facing, shown.Shown));
+                steps.Add(new JsonObject
+                {
+                    ["picture"] = path.Length == 0 ? "" : $"samus/{SuitPlace}/{path[folder.Length..]}",
+                    ["updates"] = shown.Duration,
+
+                    // These pictures lie on a canvas of their own; the step puts them where that canvas lies.
+                    ["offset"] = new JsonObject { ["x"] = pictures.OffsetX - SamusPictures.OffsetX, ["y"] = pictures.OffsetY - SamusPictures.OffsetY },
+                });
+            }
+
+            timelines.Add($"dying_{side}", SamusTimeline(steps, null));
+        }
+    }
+
+    /// <summary>How many updates her death takes: the wait, the flashing and the breaking up of her suit.</summary>
+    private static int SamusDyingUpdates()
+    {
+        int updates = SamusDeathSequenceDefinitions.PreFlashFrameCount + SamusDeathSequenceDefinitions.FlashFrameCount;
+        foreach (IAnimationBeat<SamusDeathExplosionFrame, NoAnimationCue> beat in SamusDeathAnimations.ExplosionSegments.Beats(SamusDeathExplosionSegment.Explosion))
+        {
+            updates += beat is AnimationBeat<SamusDeathExplosionFrame, NoAnimationCue>.Frame shown
+                ? shown.Duration
+                : throw new InvalidDataException($"The breaking up of Samus's suit has a beat this does not know: {beat.GetType().Name}.");
+        }
+
+        return updates;
+    }
+
+    /// <summary>The data file of the timeline of one of the puffs and splashes Samus raises.</summary>
+    internal static string SamusParticleFile(SamusParticleKind kind) => $"samus/effects/{EngineSheets.FileName(kind.ToString())}.json";
+
+    /// <summary>Writes the puffs and splashes Samus raises: her landing's dust, and what she throws up crossing a liquid's surface.</summary>
+    private void WriteSamusParticles()
+    {
+        string sheet = SpriteSheetDefinitions.FileNames[SpriteSheetId.SamusAtmosphere];
+        foreach ((SamusParticleKind kind, Animation<SamusParticleKind> animation) in SamusParticleAnimations.Animations)
+        {
+            (List<IAnimationBeat<SamusAtmosphereFrame, NoAnimationCue>> lead, List<IAnimationBeat<SamusAtmosphereFrame, NoAnimationCue>>? cycle) =
+                EngineTimelines.Played(SamusParticleAnimations.Segments, animation);
+            if (cycle is not null)
+                throw new InvalidDataException($"Samus's {kind} never ends, which an effect left in a room must.");
+            string file = SamusParticleFile(kind);
+            IEnumerable<string> frames = lead.Select(beat => beat.ShownFrame).Where(frame => frame.HasValue)
+                .Select(frame => SamusAtmosphereSheetDefinitions.FrameName(frame!.Value)).Distinct(StringComparer.Ordinal);
+            EngineSheetPictures pictures = _sheets.CutNamed(_tree, SpriteFamily, file[..file.LastIndexOf('.')], sheet, frames, null, EngineSheets.FileName);
+            JsonObject timeline = EngineTimelines.Of<SamusAtmosphereFrame, NoAnimationCue>(
+                lead, null, frame => pictures.Of(SamusAtmosphereSheetDefinitions.FrameName(frame)), static _ => null);
+            timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
+            _tree.WriteData(file, timeline);
+        }
+    }
+}

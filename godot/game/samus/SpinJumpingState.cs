@@ -33,13 +33,14 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
     /// <summary>A spin jump that carries on with the upward speed she already has, as after a wall jump.</summary>
     public SpinJumpingState(bool keepsSpeed) => _keepsSpeed = keepsSpeed;
 
-    /// <inheritdoc/>
-    public string Look => "spin_jumping";
+    /// <summary>The look of the spin she is in: the screw attack's, the space jump's or the plain one.</summary>
+    public string Look { get; private set; } = "spin_jumping";
 
     /// <inheritdoc/>
     public override void Enter(Player owner)
     {
         owner.TrySetForm(owner.FormOr(Samus.Spinning), aroundMiddle: true);
+        Look = owner.Inventory.IsOn(Equipment.ScrewAttack) ? "screw_attacking" : owner.Inventory.IsOn(Equipment.SpaceJump) ? "space_jumping" : "spin_jumping";
         if (_keepsSpeed)
             return;
         owner.Velocity = owner.Velocity.WithY(-owner.LaunchSpeed(offWall: false));
@@ -55,7 +56,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
             return owner.Velocity.Y.IsNegative ? new JumpingState(keepsSpeed: true) : new FallingState();
         if (WallJumpingState.CanStart(owner))
         {
-            owner.Room.Session.Sounds.Request(Sounds.WallJump, channel: "samus");
+            owner.Room.Session.Sounds.Request(SpinSound(owner), channel: "samus");
             return new WallJumpingState();
         }
 
@@ -78,10 +79,7 @@ public sealed class SpinJumpingState : PlayerState, ISamusLook
         MoveResult down = owner.MoveDown();
         owner.Fall();
         if ((down.Blocked && falling) || (falling && owner.IsOnGround))
-        {
-            owner.Room.Session.Sounds.Request(Sounds.Land, channel: "samus");
             return owner.Intent != 0 ? new RunningState() : new StandingState();
-        }
 
         return this;
     }

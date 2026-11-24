@@ -462,6 +462,9 @@ class Generator:
                     placed.properties.update({'WakesWhen': ctx.owns('space_jump'), 'RecordsFact': quoted('lower_norfair_acid_lowered')})
             placed_objects = objects.Objects(ctx, self.object_lists[state.objects], doors_in)
             things.extend(placed_objects.placed)
+            for boss in [thing for thing in things if thing.boss == 'phantoon']:
+                # The door of Phantoon's room is wall while the fight lasts, so its cap is put out of sight.
+                links.setdefault(id(boss), {})['HiddenInFight'] = [thing for thing in placed_objects.placed if thing.name.endswith('Cap')]
             for teller, name, told in placed_objects.tells:
                 links.setdefault(id(teller), {})[name] = told
             # The camera's zones, and what opens and closes them: blocks Samus touches, and doors she comes in by.

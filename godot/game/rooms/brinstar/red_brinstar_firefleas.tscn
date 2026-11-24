@@ -1,20 +1,28 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/fireflea/fireflea.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/waver/waver.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/enemies/yapping_maw/yapping_maw.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
-[ext_resource type="Script" path="res://game/effects/FirefleaDarkness.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/fireflea/fireflea.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/waver/waver.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/yapping_maw/yapping_maw.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
+[ext_resource type="Script" path="res://game/effects/FirefleaDarkness.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="13"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/red_brinstar_firefleas_in_red_brinstar_kraid.json"
 Music = "red_brinstar"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="RedBrinstarFirefleas" type="Node2D"]
 script = ExtResource("2")
@@ -44,7 +52,7 @@ LeadsToExit = "ToRedBrinstarFirefleas"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="Fireflea" parent="." instance=ExtResource("5")]
+[node name="Fireflea" parent="." instance=ExtResource("6")]
 position = Vector2(1744, 144)
 Radius = 32
 Darkens = NodePath("../Darkness")
@@ -52,167 +60,178 @@ Circles = false
 Speed = 0.375
 StartsUpward = true
 
-[node name="Fireflea2" parent="." instance=ExtResource("5")]
+[node name="Fireflea2" parent="." instance=ExtResource("6")]
 position = Vector2(1808, 112)
 Radius = 48
 Darkens = NodePath("../Darkness")
 Circles = true
 TurnPerUpdate = -1.5
 
-[node name="Fireflea3" parent="." instance=ExtResource("5")]
+[node name="Fireflea3" parent="." instance=ExtResource("6")]
 position = Vector2(1672, 96)
 Radius = 40
 Darkens = NodePath("../Darkness")
 Circles = true
 TurnPerUpdate = 1.5
 
-[node name="Fireflea4" parent="." instance=ExtResource("5")]
+[node name="Fireflea4" parent="." instance=ExtResource("6")]
 position = Vector2(1248, 168)
 Radius = 24
 Darkens = NodePath("../Darkness")
 Circles = true
 TurnPerUpdate = -1
 
-[node name="Fireflea5" parent="." instance=ExtResource("5")]
+[node name="Fireflea5" parent="." instance=ExtResource("6")]
 position = Vector2(1584, 128)
 Radius = 24
 Darkens = NodePath("../Darkness")
 Circles = true
 TurnPerUpdate = 2
 
-[node name="Waver" parent="." instance=ExtResource("6")]
+[node name="Waver" parent="." instance=ExtResource("7")]
 position = Vector2(1861, 80)
 StartsFacing = 0
 AlwaysActive = true
 
-[node name="Waver2" parent="." instance=ExtResource("6")]
+[node name="Waver2" parent="." instance=ExtResource("7")]
 position = Vector2(1680, 96)
 StartsFacing = 0
 AlwaysActive = true
 
-[node name="Waver3" parent="." instance=ExtResource("6")]
+[node name="Waver3" parent="." instance=ExtResource("7")]
 position = Vector2(1536, 96)
 StartsFacing = 1
 AlwaysActive = true
 
-[node name="YappingMaw" parent="." instance=ExtResource("7")]
+[node name="YappingMaw" parent="." instance=ExtResource("8")]
 position = Vector2(408, 200)
 ActivationDistance = 80
 StrikesDown = false
 
-[node name="YappingMaw2" parent="." instance=ExtResource("7")]
+[node name="YappingMaw2" parent="." instance=ExtResource("8")]
 position = Vector2(600, 192)
 ActivationDistance = 80
 StrikesDown = false
 
-[node name="YappingMaw3" parent="." instance=ExtResource("7")]
+[node name="YappingMaw3" parent="." instance=ExtResource("8")]
 position = Vector2(936, 192)
 ActivationDistance = 80
 StrikesDown = false
 
-[node name="BlueCap" parent="." instance=ExtResource("8")]
+[node name="BlueCap" parent="." instance=ExtResource("9")]
 position = Vector2(2016, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
-[node name="RedCap" parent="." instance=ExtResource("8")]
+[node name="RedCap" parent="." instance=ExtResource("9")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_red_right.json"
 RememberedAs = "red_brinstar_firefleas_red_door_facing_right"
 Remembered = 1
 
 [node name="Screen2x1" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(512, 256)
 StartsOpen = false
 
 [node name="Screen3x1" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(768, 256)
 StartsOpen = false
 
 [node name="Screen6x1" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1536, 256)
 StartsOpen = false
 
 [node name="Screen7x1" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1792, 256)
 StartsOpen = false
 
 [node name="Screen0x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen1x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(256, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(512, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen2x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(512, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen3x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(768, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen3x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(768, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen4x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1024, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen5x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1280, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen6x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1536, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen6x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1536, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen7x0Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1792, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen7x1Foot" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(1792, 480)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Darkness" type="Node2D" parent="."]
-script = ExtResource("10")
+script = ExtResource("11")
 position = Vector2(0, 0)
 EffectName = "darkness"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/{graphics}/level_red_brinstar_firefleas.png"
+ScrollShare = Vector2(1, 1)
+
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("13")
+StartsWhen = SubResource("r2")
+DataFile = "objects/samus_eater.json"

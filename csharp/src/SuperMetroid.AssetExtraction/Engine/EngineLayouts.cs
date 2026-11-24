@@ -143,6 +143,7 @@ internal sealed partial class EngineLayouts
         Layout layout = _layouts.TryGetValue(path, out Layout? built)
             ? built
             : throw new InvalidDataException($"The layout {path} has not been built, and is given the patch {name}.");
+        _moving = MovedIn(state);
         // Later blocks of a change lie over earlier ones.
         var last = new Dictionary<(int Across, int Down), PatchCell>();
         foreach (PatchCell cell in cells)
@@ -221,12 +222,22 @@ internal sealed partial class EngineLayouts
                 {
                     // The block looks as the level has it there, and any weapon breaks it for as long as the old
                     // game shows the item.
+                    // It crumbles away and comes back over the item with the old game's own pictures.
+                    var crumbling = new List<int>();
                     var block = new ReactingBlock("hidden_item", new JsonObject
                     {
                         ["solid"] = true,
                         ["broken_by"] = AnyWeapon(),
                         ["regrows_after"] = HiddenItemBlockUpdates(),
-                    });
+                        ["breaking"] = HiddenItemBlockLooks(CollectibleSequence.ShotBlockReveal, crumbling),
+                        ["regrowing"] = HiddenItemBlockLooks(CollectibleSequence.ShotBlockConceal, crumbling),
+                    }, Pictures: crumbling);
+                    foreach (int shared in crumbling)
+                    {
+                        if (Picture(tileset, shared, BlockMirroring.None) is null)
+                            throw new InvalidDataException($"The graphics {tileset} draw nothing for the block {shared}, which the block an item hides in shows.");
+                    }
+
                     var tile = new JsonObject { ["kind"] = "block", ["block"] = BlockType(block) };
                     RoomBlockAppearance shown = level.Foreground[cell].Appearance;
                     if (shown.Shows == RoomBlockShown.Block && Picture(tileset, shown.Block, shown.Mirroring) is { } picture)
@@ -356,6 +367,8 @@ internal sealed partial class EngineLayouts
         string path = PathOf(room, state);
         InstalledRoomLevel level = _levels.Get(state.Level);
         string tileset = state.GraphicsSet.ToString();
+        _moving = MovedIn(state);
+        WriteLevelBackground(state, level, tileset);
         Dictionary<int, JsonObject> placed = PlacedTiles(state, level, tileset, path);
         string placedAs = string.Join('|', placed.OrderBy(tile => tile.Key).Select(tile => $"{tile.Key}:{tile.Value.ToJsonString()}"));
         if (_layouts.TryGetValue(path, out Layout? built))
@@ -396,6 +409,7 @@ internal sealed partial class EngineLayouts
             }
         }
 
+        var plants = new List<(int X, int Y, SpecialAirReaction Kind)>();
         var row = new StringBuilder(level.Size.X);
         for (int y = 0; y < level.Size.Y; y++)
         {
@@ -405,6 +419,8 @@ internal sealed partial class EngineLayouts
                 int cell = y * level.Size.X + x;
                 RoomTerrainBlock terrain = level.Foreground[cell];
                 RoomBlockBehavior behavior = level.Behaviors[cell].In(room.Area);
+                if (terrain.Collision == RoomCollisionType.SpecialAir && behavior.SpecialAir is { } air && PlantOf(air) is not null)
+                    plants.Add((x, y, air));
                 JsonObject tile = capCells.Contains(cell)
                     ? new JsonObject { ["kind"] = "empty" }
                     : placed.TryGetValue(cell, out JsonObject? put)
@@ -417,6 +433,8 @@ internal sealed partial class EngineLayouts
         }
 
         _graphicsSets.Add(tileset);
+        foreach ((int x, int y, SpecialAirReaction kind) in plants)
+            PatchPlant(room, state, x, y, kind);
     }
 
     /// <summary>What one block of a level is as a tile of a layout.</summary>
@@ -455,6 +473,13 @@ internal sealed partial class EngineLayouts
                 {
                     tile["kind"] = "block";
                     tile["block"] = BlockType(block);
+
+                    // What it shows as it breaks, and for what it is, every set of graphics that has it must hold.
+                    foreach (int shared in block.Pictures ?? [])
+                    {
+                        if (Picture(tileset, shared, BlockMirroring.None) is null)
+                            throw new InvalidDataException($"The graphics {tileset} draw nothing for the block {shared}, which the block {block.Name} shows.");
+                    }
                     if (block.Width > 1)
                         tile["width"] = block.Width;
                     if (block.Height > 1)
@@ -468,19 +493,41 @@ internal sealed partial class EngineLayouts
                 break;
         }
 
-        if (terrain.Appearance.Shows == RoomBlockShown.Block && Picture(tileset, terrain.Appearance.Block, terrain.Appearance.Mirroring) is { } picture)
-            tile["picture"] = picture;
+        if (terrain.Appearance.Shows == RoomBlockShown.Block)
+        {
+            if (Picture(tileset, terrain.Appearance.Block, terrain.Appearance.Mirroring) is { } picture)
+            {
+                tile["picture"] = picture;
+            }
+            else if (MovingPictures(tileset, terrain.Appearance.Block, terrain.Appearance.Mirroring) is { } moving)
+            {
+                // A block the room's effect animates: its pictures in turn, or the one it rests on where nothing moves it.
+                if (moving.Pictures.Count == 1)
+                {
+                    tile["picture"] = moving.Pictures[0]!.GetValue<string>();
+                }
+                else
+                {
+                    tile["pictures"] = moving.Pictures;
+                    tile["updates"] = moving.Updates;
+                }
+            }
+        }
+
+        // What the X-ray scope shows of a tile that is no reacting block, where that is not what it always shows.
+        if (tile["kind"]!.GetValue<string>() != "block" && SeenAs(terrain, behavior, tileset, tile["picture"]?.GetValue<string>()) is { } seen)
+            tile["seen"] = seen;
         return tile;
     }
 
     /// <summary>A block that reacts: the rules it follows, by a name, and how many tiles it covers.</summary>
-    private sealed partial record ReactingBlock(string Name, JsonObject Rules, int Width = 1, int Height = 1);
+    private sealed partial record ReactingBlock(string Name, JsonObject Rules, int Width = 1, int Height = 1, IReadOnlyList<int>? Pictures = null);
 
     /// <summary>The hit kinds of the Godot game that are "any weapon" to a block.</summary>
     internal static JsonArray AnyWeapon() => ["beam", "missile", "super_missile", "bomb", "power_bomb"];
 
     /// <summary>What a block of a kind that reacts is, or null for one that does nothing a plain tile does not.</summary>
-    private static ReactingBlock? Reacting(RoomCollisionType collision, RoomBlockBehavior behavior)
+    private ReactingBlock? Reacting(RoomCollisionType collision, RoomBlockBehavior behavior)
     {
         bool solid = collision.ToString().EndsWith("Block", StringComparison.Ordinal);
         string body = solid ? "block" : "air";
@@ -501,9 +548,23 @@ internal sealed partial class EngineLayouts
                 if (brokenBy is null)
                     return null;
                 var rules = new JsonObject { ["solid"] = solid, ["broken_by"] = brokenBy };
-                if (comesBack)
-                    rules["regrows_after"] = RegrowUpdates;
-                return new ReactingBlock($"shot_{body}_{EngineSheets.FileName(reaction)}", rules, width, height);
+                var pictures = new List<int>();
+                if (reaction.Contains("Break", StringComparison.Ordinal))
+                {
+                    pictures.AddRange(AddBreakup(rules, comesBack
+                        ? Frames(BlockReactionChanges.RespawningShot(behavior.Shootable))
+                        : Frames(BlockReactionChanges.PermanentShot(behavior.Shootable))));
+                }
+                else
+                {
+                    // A block only a power bomb or a super missile breaks: a bomb shows it for what it is.
+                    WeaponShotBlock weapon = WeaponBlockReactionDefinitions.WeaponShotBlocks[ShotBlockReactionDefinitions.Handled[behavior.Shootable]];
+                    pictures.Add(AddReveal(rules, weapon.Reveal, width, height));
+                    pictures.AddRange(AddBreakup(rules, Frames(weapon.Break)));
+                }
+
+                pictures.AddRange(AddSight(rules, collision, reaction, width, height));
+                return new ReactingBlock($"shot_{body}_{EngineSheets.FileName(reaction)}", rules, width, height, pictures);
             }
 
             case RoomCollisionType.BombableBlock or RoomCollisionType.BombableAir:
@@ -518,9 +579,10 @@ internal sealed partial class EngineLayouts
                     ["solid"] = solid,
                     ["broken_by"] = new JsonArray("bomb", "power_bomb", "screw_attack", "speed_boost", "shinespark"),
                 };
-                if (reaction.StartsWith("Respawning", StringComparison.Ordinal))
-                    rules["regrows_after"] = RegrowUpdates;
-                return new ReactingBlock($"bomb_{body}_{EngineSheets.FileName(reaction)}", rules, width, height);
+                // The breaking a bomb sets off, which is silent under the bomb's own blast.
+                List<int> pictures = AddBreakup(rules, Frames(BlockReactionChangeDefinitions.BombBreak[bombable]));
+                pictures.AddRange(AddSight(rules, collision, reaction, width, height));
+                return new ReactingBlock($"bomb_{body}_{EngineSheets.FileName(reaction)}", rules, width, height, pictures);
             }
 
             case RoomCollisionType.SpecialBlock:
@@ -529,19 +591,31 @@ internal sealed partial class EngineLayouts
                     return null;
                 string reaction = special.ToString();
                 (int width, int height) = Span(reaction);
-                bool comesBack = reaction.StartsWith("Respawning", StringComparison.Ordinal);
-                JsonObject? rules = reaction switch
+                var rules = new JsonObject { ["solid"] = true };
+                var pictures = new List<int>();
+                if (BlockReactionDefinitions.ContactCrumbles.TryGetMeaning(special, out ContactCrumbleBlock crumble))
                 {
-                    _ when reaction.Contains("Crumble", StringComparison.Ordinal) => new JsonObject { ["solid"] = true, ["breaks_when_stood_on"] = true },
-                    _ when reaction.Contains("SpeedBlock", StringComparison.Ordinal) =>
-                        new JsonObject { ["solid"] = true, ["broken_by"] = new JsonArray("speed_boost", "shinespark") },
-                    _ => null,
-                };
-                if (rules is null)
+                    // It gives way a moment after it is stood on.
+                    BlockReactionChange change = BlockReactionChanges.ContactCrumble(crumble);
+                    rules["breaks_when_stood_on"] = true;
+                    rules["stood_on_updates"] = change.FirstFrameDelay;
+                    pictures.AddRange(AddBreakup(rules, Frames(change)));
+                }
+                else if (SpeedBoosterBlockObjectDefinitions.CommonBlocks.TryGetValue(special, out BlockReactionChange? common)
+                    || SpeedBoosterBlockObjectDefinitions.BrinstarBlocks.TryGetValue(special, out common))
+                {
+                    rules["broken_by"] = new JsonArray("speed_boost", "shinespark");
+                    pictures.AddRange(AddBreakup(rules, Frames(common)));
+                }
+                else if (special != SpecialBlockReaction.BombRevealsSpeedBlock)
+                {
                     return null;
-                if (comesBack)
-                    rules["regrows_after"] = RegrowUpdates;
-                return new ReactingBlock($"special_{EngineSheets.FileName(reaction)}", rules, width, height);
+                }
+
+                // A bomb shows each of these for what it is; one of them only looks like a block that speed breaks.
+                pictures.Add(AddReveal(rules, BombSpecialBlockReactions.ChangeFor(special), width, height));
+                pictures.AddRange(AddSight(rules, collision, reaction, width, height));
+                return new ReactingBlock($"special_{EngineSheets.FileName(reaction)}", rules, width, height, pictures);
             }
 
             case RoomCollisionType.SpikeBlock or RoomCollisionType.SpikeAir:
@@ -567,9 +641,19 @@ internal sealed partial class EngineLayouts
                     return null;
                 bool breaks = grapple is GrappleReaction.RespawningBreakableAnchor or GrappleReaction.PermanentBreakableAnchor;
                 var rules = new JsonObject { ["solid"] = true, ["contact"] = breaks ? "latch_once" : "latch" };
-                if (grapple == GrappleReaction.RespawningBreakableAnchor)
-                    rules["regrows_after"] = RegrowUpdates;
-                return new ReactingBlock($"grapple_{EngineSheets.FileName(grapple.ToString())}", rules);
+                var pictures = new List<int>();
+                if (breaks)
+                {
+                    // It holds for so long once the beam has it, and then breaks whether or not the beam still does.
+                    BlockReactionChange change = grapple == GrappleReaction.RespawningBreakableAnchor
+                        ? BlockReactionChangeDefinitions.RespawningBreakableGrappleBlock
+                        : BlockReactionChangeDefinitions.PermanentBreakableGrappleBlock;
+                    rules["latched_updates"] = GrappleHeldUpdates(change);
+                    pictures.AddRange(AddBreakup(rules, GrappleFrames(change)));
+                }
+
+                pictures.AddRange(AddSight(rules, collision, grapple.ToString(), 1, 1));
+                return new ReactingBlock($"grapple_{EngineSheets.FileName(grapple.ToString())}", rules, Pictures: pictures);
             }
 
             case RoomCollisionType.SpecialAir:
@@ -578,16 +662,25 @@ internal sealed partial class EngineLayouts
                     return null;
                 JsonObject? rules = air switch
                 {
-                    SpecialAirReaction.RightwardConveyor or SpecialAirReaction.RightwardConveyorOnFoot =>
-                        new JsonObject { ["solid"] = false, ["contact"] = "carries", ["contact_speed"] = ConveyorSpeed },
-                    SpecialAirReaction.LeftwardConveyor or SpecialAirReaction.LeftwardConveyorOnFoot =>
-                        new JsonObject { ["solid"] = false, ["contact"] = "carries", ["contact_speed"] = -ConveyorSpeed },
+                    SpecialAirReaction.RightwardConveyor or SpecialAirReaction.RightwardConveyorOnFoot
+                        or SpecialAirReaction.LeftwardConveyor or SpecialAirReaction.LeftwardConveyorOnFoot => Conveyor(air),
                     SpecialAirReaction.SlowSandfall =>
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SlowSandfallDisplacement) },
                     SpecialAirReaction.FastSandfall =>
                         new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.FastSandfallDisplacement) },
-                    SpecialAirReaction.QuicksandSurface or SpecialAirReaction.SubmergingQuicksand =>
-                        new JsonObject { ["solid"] = false, ["contact"] = "pulls_down", ["contact_speed"] = QuicksandSpeed },
+                    SpecialAirReaction.QuicksandSurface => QuicksandSurface(),
+
+                    // A plant that seizes Samus: a block that does nothing of itself, which the room's plants are found by.
+                    SpecialAirReaction.FloorPlant or SpecialAirReaction.CeilingPlant => new JsonObject { ["solid"] = false },
+
+                    // Sand she sinks through: it stops her fall, and takes her down at its own pace.
+                    SpecialAirReaction.SubmergingQuicksand => new JsonObject
+                    {
+                        ["solid"] = false,
+                        ["contact"] = "pulls_down",
+                        ["contact_speed"] = EngineNames.Number(QuicksandDefinitions.SubmergingSinkDisplacement),
+                        ["holds_up"] = SpecialAirReactions.CollisionOf(air).StopsFall,
+                    },
                     _ => null,
                 };
                 return rules is null ? null : new ReactingBlock($"air_{EngineSheets.FileName(air.ToString())}", rules);
@@ -597,18 +690,6 @@ internal sealed partial class EngineLayouts
                 return null;
         }
     }
-
-    /// <summary>
-    /// How many updates a block that grows back stays gone. This number is not yet taken from the old game's block
-    /// objects, which time a block's return by their animations.
-    /// </summary>
-    private const int RegrowUpdates = 300;
-
-    /// <summary>
-    /// How fast a conveyor carries and quicksand pulls, in pixels an update. These numbers are not yet taken from the
-    /// old game, which moves Samus on a conveyor and in quicksand by rules of its own.
-    /// </summary>
-    private const double ConveyorSpeed = 1, QuicksandSpeed = 1;
 
     /// <summary>How many tiles across and down a reaction named for its size covers.</summary>
     private static (int Width, int Height) Span(string reaction) =>

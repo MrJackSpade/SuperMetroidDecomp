@@ -12,6 +12,13 @@ namespace Engine.Actors;
 /// damage and kinds. <c>variants</c> replace it: the variant that applies is the one whose equipment is all switched
 /// on and that names the most of it, and its damage, kinds and projectiles are the shot's. A weapon whose combinations
 /// do not add up lists variants.
+/// <para>
+/// A weapon that charges counts the updates its attack is held, the first included, and fires a plain shot on the
+/// first of them; let go, it fires a charged shot once "charge_updates" were counted, and with "part_charge_fires" a
+/// plain one when fewer were. A weapon that does not charge fires on a press; with a "held_cooldown" it also fires
+/// while the attack stays held, whenever the cooldown allows, and waits that long after such a shot; with
+/// "repeats_every" it fires every so many held updates instead.
+/// </para>
 /// <code>
 /// {
 ///   "name": "beam", "damage": 20, "kinds": ["beam"], "speed": 4, "diagonal_speed": 2.668, "cooldown": 15, "max_live": 5,
@@ -54,6 +61,15 @@ public sealed class WeaponStats
 
     /// <summary>How many updates pass between shots while the attack is held without charging; zero when holding does not repeat.</summary>
     public int RepeatsEvery { get; private init; }
+
+    /// <summary>
+    /// How many updates must pass after a shot fired by holding the attack down, for a weapon that fires for as long as
+    /// it is held; zero for one that does not.
+    /// </summary>
+    public int HeldCooldown { get; private init; }
+
+    /// <summary>Whether letting the attack go before a full charge fires a plain shot.</summary>
+    public bool PartChargeFires { get; private init; }
 
     /// <summary>How many of its shots may be live at once; zero for no limit.</summary>
     public int MaxLive { get; private init; }
@@ -98,7 +114,8 @@ public sealed class WeaponStats
     public ProjectileSettings Projectile { get; private init; } = new();
 
     /// <summary>Whether the weapon charges for a player carrying <paramref name="inventory"/>.</summary>
-    public bool Charges(Inventory inventory) => ChargeUpdates > 0 && (ChargeNeeds.Length == 0 || inventory.IsOn(ChargeNeeds));
+    public bool Charges(Inventory inventory) =>
+        ChargeUpdates > 0 && (ChargeNeeds.Length == 0 || inventory.IsOn(ChargeNeeds)) && (VariantFor(inventory)?.Charges ?? true);
 
     /// <summary>Reads a weapon from its data file.</summary>
     public static WeaponStats Read(DataNode data)
@@ -116,6 +133,8 @@ public sealed class WeaponStats
             Cooldown = data.Has("cooldown") ? data.Int("cooldown") : 0,
             ChargedCooldown = data.Has("charged_cooldown") ? data.Int("charged_cooldown") : data.Has("cooldown") ? data.Int("cooldown") : 0,
             RepeatsEvery = data.Has("repeats_every") ? data.Int("repeats_every") : 0,
+            HeldCooldown = data.Has("held_cooldown") ? data.Int("held_cooldown") : 0,
+            PartChargeFires = data.Has("part_charge_fires") && data.Flag("part_charge_fires"),
             MaxLive = data.Has("max_live") ? data.Int("max_live") : 0,
             Costs = data.Has("costs") ? data.Text("costs") : "",
             Cost = data.Has("cost") ? data.Int("cost") : 0,
@@ -136,7 +155,8 @@ public sealed class WeaponStats
             Variants = data.Has("variants") ? data.List("variants").Select(variant => WeaponVariant.Read(variant, projectile)).ToList() : [],
             Projectile = projectile,
         };
-        if (stats.Damage < 0 || stats.Cooldown < 0 || stats.MaxLive < 0 || stats.Cost < 0 || stats.Kinds.Count == 0 || stats.RepeatsEvery < 0)
+        if (stats.Damage < 0 || stats.Cooldown < 0 || stats.MaxLive < 0 || stats.Cost < 0 || stats.Kinds.Count == 0 || stats.RepeatsEvery < 0 ||
+            stats.HeldCooldown < 0)
             throw data.Problem("gives a negative number, or a weapon whose hit carries no kind");
         return stats;
     }
@@ -197,6 +217,22 @@ public sealed class WeaponStats
     /// <summary>The cooldown after one shot for a player carrying <paramref name="inventory"/>.</summary>
     public int CooldownFor(Inventory inventory, bool charged) =>
         charged ? ChargedCooldown : VariantFor(inventory)?.Cooldown ?? Cooldown;
+
+    /// <summary>
+    /// The cooldown after a shot fired by holding the attack down, for a player carrying <paramref name="inventory"/>;
+    /// zero when holding does not fire the weapon.
+    /// </summary>
+    public int HeldCooldownFor(Inventory inventory) => VariantFor(inventory)?.HeldCooldown ?? HeldCooldown;
+
+    /// <summary>The sound of one shot for a player carrying <paramref name="inventory"/>; empty for none.</summary>
+    public string SoundFor(Inventory inventory, bool charged)
+    {
+        WeaponVariant? variant = VariantFor(inventory);
+        string plain = variant is { Sound.Length: > 0 } ? variant.Sound : Sound;
+        if (!charged)
+            return plain;
+        return variant is { ChargedSound.Length: > 0 } ? variant.ChargedSound : ChargedSound.Length > 0 ? ChargedSound : plain;
+    }
 
     /// <summary>The speed along each axis of a shot fired diagonally at <paramref name="speed"/>.</summary>
     private static Pixels Diagonal(Pixels speed)

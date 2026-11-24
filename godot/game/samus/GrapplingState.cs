@@ -42,7 +42,17 @@ public sealed class GrapplingState : PlayerState, ISamusLook
     private Pixels _length;
 
     /// <inheritdoc/>
-    public string Look => "grappling";
+    public string Look
+    {
+        get
+        {
+            // She is shown one of thirty-two ways by the way the line runs from her: straight down is the first of
+            // them and straight up, as she hangs, the seventeenth, counted round by way of the line running to her left.
+            long step = (128 * Parts - _angle + Parts * 4) / Parts;
+            long way = ((step % Turns.PerTurn + Turns.PerTurn) % Turns.PerTurn) / 8;
+            return $"grappling_{way}";
+        }
+    }
 
     /// <inheritdoc/>
     public override bool CanAttack => false;

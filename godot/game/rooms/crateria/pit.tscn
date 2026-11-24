@@ -332,13 +332,13 @@ Target = NodePath("../Screen0x0Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "fog"
-Picture = "effects/fog.png"
+LookFile = "effects/fog.json"
 PresentWhen = SubResource("r9")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/crateria_mechanical.png"
+Picture = "backdrops/{graphics}/crateria_mechanical.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="PirateGreyWalking" parent="." instance=ExtResource("12")]

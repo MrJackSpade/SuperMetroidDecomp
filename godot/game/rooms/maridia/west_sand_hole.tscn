@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/objects/item_shell/item_shell.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -98,8 +99,15 @@ PresentWhen = SubResource("r3")
 script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_purple.json"
+Drifts = true
 LowSurface = 214
 HighSurface = 214
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+Picture = "backdrops/{graphics}/level_west_sand_hole.png"
+ScrollShare = Vector2(1, 1)
 
 [node name="FromWestAqueductQuicksandToWestSandHole" type="Marker2D" parent="."]
 position = Vector2(384, 128)

@@ -1,3 +1,4 @@
+using Engine.World;
 using Engine.Actors;
 using Engine.Collision;
 using Engine.Content;
@@ -29,6 +30,10 @@ public partial class Kago : Enemy
     [Export, DataValue("shake_updates")]
     public int ShakeUpdates { get; set; } = 16;
 
+    /// <summary>The way each hit shakes the room: "across", "down" or "both".</summary>
+    [Export, DataValue("shake_way")]
+    public string ShakeWayName { get; set; } = "across";
+
     private int _hits;
 
     /// <inheritdoc/>
@@ -48,7 +53,13 @@ public partial class Kago : Enemy
     /// <summary>Answers a hit: the room shakes, a bug comes out, and the hive goes once it has taken enough.</summary>
     private void Struck()
     {
-        Room.Shake(ShakeStrength, ShakeUpdates);
+        Room.Shake(ShakeStrength, ShakeUpdates, ShakeWayName switch
+        {
+            "across" => ShakeWay.Across,
+            "down" => ShakeWay.Down,
+            "both" => ShakeWay.Both,
+            _ => throw new InvalidOperationException($"The Kago \"{Name}\" shakes the room \"{ShakeWayName}\", which is no way a room shakes."),
+        });
         if (_hits == 0)
             Play("fast");
         _hits++;

@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -25,6 +26,11 @@ About = "first_missile_chozo_missile_tank"
 script = ExtResource("5")
 Kind = 6
 Parts = Array[ExtResource("5")]([SubResource("r2")])
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="FirstMissile" type="Node2D"]
 script = ExtResource("2")
@@ -67,5 +73,10 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_small_pattern.png"
+Picture = "backdrops/{graphics}/brinstar_small_pattern.png"
 ScrollShare = Vector2(0, 0)
+
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("11")
+StartsWhen = SubResource("r4")
+DataFile = "objects/samus_eater.json"

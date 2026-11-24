@@ -181,7 +181,7 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/norfair_cavern_vertical.png"
+Picture = "backdrops/{graphics}/norfair_cavern_vertical.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="AtBusinessCenterElevator" type="Marker2D" parent="."]

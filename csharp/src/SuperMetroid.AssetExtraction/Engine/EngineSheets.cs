@@ -168,7 +168,8 @@ internal sealed partial class EngineSheets
 
     /// <summary>Cuts named frames, each from the sheet given for it or showing nothing where no sheet is given, onto one canvas.</summary>
     private EngineSheetPictures CutFrames(
-        EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames, IReadOnlyList<string>? shades = null)
+        EngineAssetTree tree, string family, string folder, IReadOnlyList<(string Name, string Sheet)> frames, IReadOnlyList<string>? shades = null,
+        Func<string, string>? fileName = null)
     {
         InstalledSheetFrameDocument FrameOf((string Name, string Sheet) frame) =>
             _documents[(family, frame.Sheet)].Frames.TryGetValue(frame.Name, out InstalledSheetFrameDocument? found)
@@ -218,7 +219,7 @@ internal sealed partial class EngineSheets
                 }
             }
 
-            string path = $"{folder}/{FileName(frame.Name)}.png";
+            string path = $"{folder}/{(fileName is null ? FileName(frame.Name) : fileName(frame.Name))}.png";
             tree.WritePicture(path, width, height, canvas);
             paths[frame.Name] = path;
         }

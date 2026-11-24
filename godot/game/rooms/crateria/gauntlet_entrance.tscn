@@ -140,5 +140,5 @@ TideTurnBelow = 0.875
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/crateria_horizontal_pattern_rocks.png"
+Picture = "backdrops/{graphics}/crateria_horizontal_pattern_rocks.png"
 ScrollShare = Vector2(0.75, 0.75)

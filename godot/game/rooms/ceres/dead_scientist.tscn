@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
@@ -7,8 +7,9 @@
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
 [ext_resource type="PackedScene" path="res://game/objects/ceres_door/ceres_door.tscn" id="6"]
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
-[ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="8"]
+[ext_resource type="Script" path="res://game/rooms/ceres/CeresShaking.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -30,6 +31,11 @@ KeepsMusic = true
 script = ExtResource("1")
 Kind = 4
 Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
 
 [node name="DeadScientist" type="Node2D"]
 script = ExtResource("3")
@@ -79,12 +85,26 @@ position = Vector2(256, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
-[node name="Shaking" type="Node" parent="."]
+[node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")
+position = Vector2(0, 0)
+Picture = "backdrops/{graphics}/level_dead_scientist.png"
+ScrollShare = Vector2(0.75, 1)
+
+[node name="Shaking" type="Node" parent="."]
+script = ExtResource("9")
 StartsWhen = SubResource("r4")
 
 [node name="Haze" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
-Picture = "effects/ceres_haze.png"
+LookFile = "effects/ceres_haze.json"
+PresentWhen = SubResource("r5")
+
+[node name="Haze2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "ceres_haze"
+LookFile = "effects/ceres_haze_escape.json"
+PresentWhen = SubResource("r1")

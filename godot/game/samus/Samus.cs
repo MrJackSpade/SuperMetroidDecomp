@@ -35,10 +35,6 @@ public partial class Samus : Player
     [Export, DataValue("low_energy")]
     public int LowEnergy { get; set; } = 30;
 
-    /// <summary>How many updates pass between one sounding of the low energy warning and the next.</summary>
-    [Export, DataValue("low_energy_sound_every")]
-    public int LowEnergySoundEvery { get; set; } = 24;
-
     /// <summary>
     /// How many updates of dashing each stage of the speed booster's boost takes, from the first to the last. Having
     /// run through them all, she is boosting.
@@ -54,17 +50,21 @@ public partial class Samus : Player
     [Export, DataValue("shinespark_windup_updates")]
     public int ShinesparkWindupUpdates { get; set; } = 30;
 
-    /// <summary>The speed a shinespark launches at, as a number of pixels.</summary>
+    /// <summary>The speed across a shinespark launches at, as a number of pixels.</summary>
     [Export, DataValue("shinespark_speed")]
     public double ShinesparkSpeed { get; set; } = 8;
 
-    /// <summary>The speed a shinespark gains each update.</summary>
-    [Export, DataValue("shinespark_acceleration")]
-    public double ShinesparkAcceleration { get; set; } = 0.5;
-
-    /// <summary>The most speed a shinespark reaches.</summary>
+    /// <summary>The most speed a shinespark reaches across; it gains the pull of gravity each update.</summary>
     [Export, DataValue("shinespark_top_speed")]
     public double ShinesparkTopSpeed { get; set; } = 15;
+
+    /// <summary>The upward speed a rising shinespark gains in its first update; the gain itself grows by the pull of gravity each update.</summary>
+    [Export, DataValue("shinespark_rise_gain")]
+    public double ShinesparkRiseGain { get; set; } = 7;
+
+    /// <summary>The most whole pixels a shinespark rises in one update.</summary>
+    [Export, DataValue("shinespark_most_rise")]
+    public int ShinesparkMostRise { get; set; } = 14;
 
     /// <summary>The energy below which a shinespark ends.</summary>
     [Export, DataValue("shinespark_least_energy")]
@@ -73,12 +73,48 @@ public partial class Samus : Player
     /// <summary>
     /// The special attacks, by the one beam she must carry for each: the data file of the shot of its four lights.
     /// </summary>
-    [Export]
+    [Export, DataValue("special_attacks", ReadByOwner = true)]
     public Godot.Collections.Dictionary<string, string> SpecialAttackShots { get; set; } = [];
 
+    /// <summary>How many updates into a charge its sound begins.</summary>
+    [Export, DataValue("charge_sound_updates")]
+    public int ChargeSoundUpdates { get; set; } = 16;
+
+    /// <summary>How many updates the attack must be held, with a beam that charges, before a special attack is let loose.</summary>
+    [Export, DataValue("special_attack_updates")]
+    public int SpecialAttackUpdates { get; set; } = 120;
+
     /// <summary>The echoes a shinespark throws off as it ends, by the data file of their shot; empty for none.</summary>
-    [Export(PropertyHint.File)]
+    [Export(PropertyHint.File), DataValue("shinespark_echo_shot")]
     public string ShinesparkEchoShot { get; set; } = "";
+
+    /// <summary>How many updates after something of the room itself hurts her, as a spike does, she cannot be hurt again.</summary>
+    [Export, DataValue("hazard_invincible_updates")]
+    public int HazardInvincibleUpdates { get; set; } = 60;
+
+    /// <summary>The sound of the room's heat or liquid wearing her down, by name; empty for none.</summary>
+    [Export, DataValue("room_damage_sound")]
+    public string RoomDamageSound { get; set; } = "";
+
+    /// <summary>That sound is heard on every so many updates of the game's clock.</summary>
+    [Export, DataValue("room_damage_sound_every")]
+    public int RoomDamageSoundEvery { get; set; } = 8;
+
+    /// <summary>The least energy she must have for that sound to be heard.</summary>
+    [Export, DataValue("room_damage_sound_least_energy")]
+    public int RoomDamageSoundLeastEnergy { get; set; } = 71;
+
+    /// <summary>How many updates such a hurt throws her back for.</summary>
+    [Export, DataValue("hazard_knockback_updates")]
+    public int HazardKnockbackUpdates { get; set; } = 10;
+
+    /// <summary>How many updates of its fuse a bomb she laid has left when it throws the morph ball lying against it.</summary>
+    [Export, DataValue("bomb_jump_fuse_left")]
+    public int BombJumpFuseLeft { get; set; } = 8;
+
+    /// <summary>The least falling speed, in whole pixels, at which her landing is a hard one, with its own sound.</summary>
+    [Export, DataValue("hard_landing_speed")]
+    public int HardLandingSpeed { get; set; } = 5;
 
     /// <summary>How many updates she is held where a shinespark ended.</summary>
     [Export, DataValue("shinespark_crash_updates")]
@@ -108,9 +144,23 @@ public partial class Samus : Player
     [Export, DataValue("charged_spin_updates")]
     public int ChargedSpinUpdates { get; set; } = 60;
 
-    /// <summary>How many updates the X-ray scope's cone takes to open fully.</summary>
-    [Export, DataValue("xray_opening_updates")]
-    public int XrayOpeningUpdates { get; set; } = 64;
+    /// <summary>
+    /// How much faster the X-ray scope's cone opens each update, in 256ths of a turn: it opens by nothing at first,
+    /// and each update by this much more than the update before.
+    /// </summary>
+    [Export, DataValue("xray_widening_step")]
+    public double XrayWideningStep { get; set; } = 0.03125;
+
+    /// <summary>
+    /// The angles of the X-ray scope from straight up, in 256ths of a turn, at which her look changes: from looking up
+    /// to raised, to level, to lowered, to looking down.
+    /// </summary>
+    [Export, DataValue("xray_aim_bands")]
+    public int[] XrayAimBands { get; set; } = [];
+
+    /// <summary>The widest the X-ray scope's cone opens to each side of its middle, in 256ths of a turn.</summary>
+    [Export, DataValue("xray_widest_half_width")]
+    public int XrayWidestHalfWidth { get; set; } = 10;
 
     /// <summary>How many updates collecting a suit holds her for.</summary>
     [Export, DataValue("suit_pickup_updates")]
@@ -122,6 +172,7 @@ public partial class Samus : Player
 
     private readonly Dictionary<string, BodyPower> _powers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _muzzles = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> _grappleOrigins = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _shotHeights = new(StringComparer.Ordinal);
     private Countdown _shine = Countdown.Over;
     private Countdown _boostStageLeft = Countdown.Over;
@@ -133,7 +184,9 @@ public partial class Samus : Player
     private bool _aimedDownLastUpdate;
     private bool _woreVaria;
     private bool _woreGravity;
-    private int _lowEnergySoundWait;
+    private bool _warningOfLowEnergy;
+    private bool _chargeSounds;
+    private int _fallingAt;
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -173,20 +226,8 @@ public partial class Samus : Player
             }
         }
 
-        _muzzles.Clear();
-        if (data.Has("muzzles"))
-        {
-            foreach ((string stance, DataNode facings) in data.Get("muzzles").Entries())
-            {
-                _muzzles[stance] = new(StringComparer.Ordinal);
-                foreach ((string facing, DataNode aims) in facings.Entries())
-                {
-                    _muzzles[stance][facing] = new(StringComparer.Ordinal);
-                    foreach ((string aim, DataNode offset) in aims.Entries())
-                        _muzzles[stance][facing][aim] = new Vector2I(offset.Int("x"), offset.Int("y"));
-                }
-            }
-        }
+        ReadOrigins(data, "muzzles", _muzzles);
+        ReadOrigins(data, "grapple_origins", _grappleOrigins);
 
         _shotHeights.Clear();
         if (data.Has("shot_heights"))
@@ -197,6 +238,13 @@ public partial class Samus : Player
 
         if (data.Has("grapple"))
             Grapple?.ReadValues(data.Get("grapple"));
+
+        SpecialAttackShots = [];
+        if (data.Has("special_attacks"))
+        {
+            foreach ((string beam, DataNode shot) in data.Get("special_attacks").Entries())
+                SpecialAttackShots[beam] = shot.AsText();
+        }
     }
 
     /// <inheritdoc/>
@@ -208,8 +256,19 @@ public partial class Samus : Player
         _woreGravity = Inventory.Owns(Equipment.GravitySuit);
     }
 
+    /// <inheritdoc/>
+    protected override void OnEnteredRoom(Room room) => GetNodeOrNull<SamusVisual>("Visual")?.Bind(room.Content);
+
+    /// <summary>Her landing leaves its dust and makes its sound, a harder one from a fast fall.</summary>
+    protected override void OnLanded()
+    {
+        base.OnLanded();
+        if (Form != Crawling)
+            Room.Session.Sounds.Request(_fallingAt >= HardLandingSpeed ? Sounds.HardLand : Sounds.Land, channel: "samus");
+    }
+
     /// <summary>
-    /// Throws the morph ball as a bomb of her own bursts against it: straight up when the bomb was beneath her middle,
+    /// Throws the morph ball as a bomb of her own lies against it: straight up when the bomb was beneath her middle,
     /// and to the side away from it otherwise. Only the ball at rest in her control is thrown.
     /// </summary>
     public void BombJump(PixelPosition bomb)
@@ -224,17 +283,45 @@ public partial class Samus : Player
     /// Where a shot starts: from her middle, raised by how high the pose she is in holds her arm, at the place her
     /// arm points for the way she faces and aims.
     /// </summary>
-    public override PixelPosition MuzzlePoint
+    public override PixelPosition MuzzlePoint => Origin(_muzzles);
+
+    /// <summary>Where her grapple beam starts: as a shot does, at the places her data gives the line.</summary>
+    public PixelPosition GrapplePoint => Origin(_grappleOrigins);
+
+    /// <summary>
+    /// The place of <paramref name="origins"/> for how she stands, faces and aims, raised by how high her pose holds her
+    /// arm. Her running places hold while she runs, and while she moonwalks aiming diagonally up.
+    /// </summary>
+    private PixelPosition Origin(Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> origins)
     {
-        get
+        // In the morph ball there is no arm to fire from: what she lays, she lays where she is.
+        if (Form == Crawling)
+            return Position;
+        string stance = State is RunningState || (State is MoonwalkingState && Aim == Aim.DiagonalUp) ? "running" : "standing";
+        string facing = Facing == Facing.Right ? "right" : "left";
+        if (!origins.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
+            !aims.TryGetValue(AimName(Aim), out Vector2I offset))
+            return base.MuzzlePoint;
+        string look = SamusLooks.Of(this);
+        int height = _shotHeights.TryGetValue($"{look}_{AimName(Aim)}", out int aimed) ? aimed : _shotHeights.GetValueOrDefault(look, 0);
+        return Position + PixelOffset.FromWhole(offset.X, offset.Y - height);
+    }
+
+    /// <summary>Reads a group of places by stance, the way she faces and her aim.</summary>
+    private static void ReadOrigins(DataNode data, string group, Dictionary<string, Dictionary<string, Dictionary<string, Vector2I>>> into)
+    {
+        into.Clear();
+        if (!data.Has(group))
+            return;
+        foreach ((string stance, DataNode facings) in data.Get(group).Entries())
         {
-            string stance = State is RunningState or MoonwalkingState ? "running" : "standing";
-            string facing = Facing == Facing.Right ? "right" : "left";
-            if (!_muzzles.TryGetValue(stance, out var facings) || !facings.TryGetValue(facing, out var aims) ||
-                !aims.TryGetValue(AimName(Aim), out Vector2I offset))
-                return base.MuzzlePoint;
-            int height = _shotHeights.GetValueOrDefault(SamusLooks.Of(this), 0);
-            return Position + PixelOffset.FromWhole(offset.X, offset.Y - height);
+            into[stance] = new(StringComparer.Ordinal);
+            foreach ((string facing, DataNode aims) in facings.Entries())
+            {
+                into[stance][facing] = new(StringComparer.Ordinal);
+                foreach ((string aim, DataNode offset) in aims.Entries())
+                    into[stance][facing][aim] = new Vector2I(offset.Int("x"), offset.Int("y"));
+            }
         }
     }
 
@@ -399,7 +486,8 @@ public partial class Samus : Player
         else if (beamCharged)
             _spreadCharged = true;
 
-        if (weapon == Arsenal.Beam && beamCharged && !held && Selected == Amounts.PowerBombs && SpecialAttackShot() is { } special)
+        if (weapon == Arsenal.Beam && held && Weapons.Selected?.Name == Arsenal.Beam && Weapons.ChargedFor >= SpecialAttackUpdates &&
+            Selected == Amounts.PowerBombs && SpecialAttackShot() is { } special)
         {
             LetLooseSpecialAttack(special);
             return;
@@ -430,6 +518,20 @@ public partial class Samus : Player
         int liveBefore = Weapons.LiveOf(weapon).Count;
         base.Attack(input);
         bool fired = Weapons.LiveOf(weapon).Count > liveBefore;
+
+        // The charge begins to sound a little way into it, on the weapons' channel, so that the shot's own sound
+        // takes its place; a charge that ends without a shot is hushed.
+        if (weapon == Arsenal.Beam && Weapons.ChargedFor == ChargeSoundUpdates)
+        {
+            Room.Session.Sounds.Request(Sounds.Charging, channel: "weapons");
+            _chargeSounds = true;
+        }
+        else if (_chargeSounds && Weapons.ChargedFor < ChargeSoundUpdates)
+        {
+            if (!fired)
+                Room.Session.Sounds.Request(Sounds.Silence, channel: "weapons");
+            _chargeSounds = false;
+        }
         if (fired && _autoCancel && weapon != Arsenal.Beam)
             SelectBeam();
         if (Amounts.All.Contains(Selected) && Inventory.Amount(Selected) == 0)
@@ -452,7 +554,7 @@ public partial class Samus : Player
     private string? SpecialAttackShot()
     {
         string[] carried = [.. new[] { Equipment.WaveBeam, Equipment.IceBeam, Equipment.Spazer, Equipment.PlasmaBeam }.Where(Inventory.IsOn)];
-        return carried.Length == 1 ? SpecialAttackShots[carried[0]] : null;
+        return carried.Length == 1 && SpecialAttackShots.TryGetValue(carried[0], out string? shot) ? shot : null;
     }
 
     /// <summary>Spends a power bomb on a special attack: its four lights are let loose about her.</summary>
@@ -548,6 +650,14 @@ public partial class Samus : Player
     /// <inheritdoc/>
     protected override int OngoingDamageTaken(int hundredths) => hundredths / SuitDivisor;
 
+    /// <inheritdoc/>
+    protected override void OnRoomDamage()
+    {
+        if (RoomDamageSound.Length > 0 && RoomDamageSoundEvery > 0 && Room.Session.Clock.Updates % RoomDamageSoundEvery == 0
+            && Inventory.Amount(Inventory.Energy) >= RoomDamageSoundLeastEnergy)
+            Room.Session.Sounds.Request(RoomDamageSound, channel: "samus");
+    }
+
     /// <summary>What her suit divides damage by.</summary>
     private int SuitDivisor =>
         Inventory.IsOn(Equipment.GravitySuit) ? GravityDamageOver : Inventory.IsOn(Equipment.VariaSuit) ? VariaDamageOver : 1;
@@ -569,7 +679,16 @@ public partial class Samus : Player
         Weapons.DropCharge();
         if (State is RefillingFromReservesState)
             return;
-        base.OnHurt(hit, from);
+        if (!hit.Carries(HitKind.Hazard))
+        {
+            base.OnHurt(hit, from);
+            return;
+        }
+
+        // A spike's hurt has its own lengths.
+        BeInvincibleFor(HazardInvincibleUpdates);
+        if (State.InControl)
+            KnockBack(from, HazardKnockbackUpdates);
     }
 
     /// <inheritdoc/>
@@ -596,11 +715,17 @@ public partial class Samus : Player
         return speed + Pixels.FromNumber(medium.Gravity);
     }
 
-    /// <summary>A jump's launch speed, raised by half her dash speed while the speed booster is switched on.</summary>
+    /// <summary>
+    /// A jump's launch speed, raised by her dash while the speed booster is switched on. As in the original, half the
+    /// dash's whole pixels, an odd one dropped, are added to the jump's whole pixels, and the dash's fraction to the
+    /// jump's fraction, with nothing carried from the one sum to the other.
+    /// </summary>
     public override Pixels LaunchSpeed(bool offWall)
     {
         Pixels speed = base.LaunchSpeed(offWall);
-        return Inventory.IsOn(Equipment.SpeedBooster) ? speed + DashSpeed.Share(1, 2) : speed;
+        if (!Inventory.IsOn(Equipment.SpeedBooster))
+            return speed;
+        return Pixels.FromParts(speed.Whole + DashSpeed.Whole / 2, (speed.Fraction + DashSpeed.Fraction) % Pixels.FractionsPerPixel);
     }
 
     /// <inheritdoc/>
@@ -610,6 +735,7 @@ public partial class Samus : Player
         if (Power(HitKinds.SpeedBoost) is { } boost && IsBoosting && State is not ShinesparkState)
             boost.IsActive = true;
         WarnOfLowEnergy();
+        _fallingAt = Velocity.Y.IsNegative ? 0 : Velocity.Y.Whole;
         Grapple?.Step(this);
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
     }
@@ -629,18 +755,14 @@ public partial class Samus : Player
             _boostStageLeft = Countdown.Of(BoostStageUpdates[_boostStage]);
     }
 
-    /// <summary>Sounds the warning every so often while her energy is low.</summary>
+    /// <summary>Starts the warning as her energy falls low and stops it as her energy recovers. The warning goes on by itself in between.</summary>
     private void WarnOfLowEnergy()
     {
-        if (Inventory.Amount(Amounts.Energy) > LowEnergy || State is DyingState)
-        {
-            _lowEnergySoundWait = 0;
+        bool low = Inventory.Amount(Amounts.Energy) <= LowEnergy && State is not DyingState;
+        if (low == _warningOfLowEnergy)
             return;
-        }
-
-        if (_lowEnergySoundWait == 0)
-            Room.Session.Sounds.Request(Sounds.LowEnergy, channel: "warning");
-        _lowEnergySoundWait = (_lowEnergySoundWait + 1) % Math.Max(1, LowEnergySoundEvery);
+        _warningOfLowEnergy = low;
+        Room.Session.Sounds.Request(low ? Sounds.LowEnergy : Sounds.Silence, channel: "warning");
     }
 
     /// <summary>The name an aim has in her data file.</summary>

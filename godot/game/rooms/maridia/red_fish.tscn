@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -191,8 +192,15 @@ Target = NodePath("../Screen2x0Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_teal.json"
+Drifts = true
 LowSurface = 384
 HighSurface = 384
 TideReach = 8
 TideTurnAbove = 0.75
 TideTurnBelow = 1.125
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Picture = "backdrops/{graphics}/level_red_fish.png"
+ScrollShare = Vector2(1, 0.75)

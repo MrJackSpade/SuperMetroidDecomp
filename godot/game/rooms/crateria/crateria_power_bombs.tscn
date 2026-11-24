@@ -71,7 +71,7 @@ StartsOpen = false
 [node name="Liquid" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-TypeFile = "liquids/acid.json"
+TypeFile = "liquids/acid_water.json"
 LowSurface = 192
 HighSurface = 192
 TideReach = 32
@@ -81,5 +81,5 @@ TideTurnBelow = 0.875
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("10")
 position = Vector2(0, 0)
-Picture = "backdrops/crateria_rocks.png"
+Picture = "backdrops/{graphics}/crateria_rocks.png"
 ScrollShare = Vector2(0.75, 0.75)

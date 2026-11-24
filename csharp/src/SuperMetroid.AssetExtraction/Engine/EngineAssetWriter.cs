@@ -66,6 +66,15 @@ public sealed partial class EngineAssetWriter
         writer.WritePhantoon();
         writer.WriteDraygon();
         writer.WriteRidley();
+        writer.WriteSamus();
+        writer.WriteRoomPatches();
+        writer.WriteBackdrops();
+        writer.WriteStatueHall();
+        writer.WriteLiquidsAndOverlays();
+        writer.WriteCeresFloors();
+        writer.WriteCeresDebris();
+        writer.WriteCeresArrival();
+        writer.WriteSamusEaters();
         writer.WriteIntro();
         writer.WriteCeresDestruction();
         writer.WriteEnding();

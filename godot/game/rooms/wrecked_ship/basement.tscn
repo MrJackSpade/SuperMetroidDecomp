@@ -402,7 +402,7 @@ Target = NodePath("../Screen4x0Foot")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)
-Picture = "backdrops/wrecked_ship_columns_tubes.png"
+Picture = "backdrops/{graphics}/wrecked_ship_columns_tubes.png"
 ScrollShare = Vector2(0.75, 0.75)
 PresentWhen = SubResource("r6")
 
@@ -452,6 +452,6 @@ PresentWhen = SubResource("r1")
 [node name="Backdrop2" type="Node2D" parent="."]
 script = ExtResource("12")
 position = Vector2(0, 0)
-Picture = "backdrops/wrecked_ship_columns_tubes.png"
+Picture = "backdrops/{graphics}/wrecked_ship_columns_tubes.png"
 ScrollShare = Vector2(0.75, 0)
 PresentWhen = SubResource("r1")

@@ -83,7 +83,7 @@ StartsOpen = false
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-Picture = "backdrops/ceres_capsule_hall.png"
+Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0, 0.25)
 PresentWhen = SubResource("r5")
 
@@ -95,7 +95,8 @@ StartsWhen = SubResource("r4")
 script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "ceres_haze"
-Picture = "effects/ceres_haze.png"
+LookFile = "effects/ceres_haze.json"
+PresentWhen = SubResource("r5")
 
 [node name="Steam" parent="." instance=ExtResource("11")]
 position = Vector2(112, 156)
@@ -125,6 +126,13 @@ PresentWhen = SubResource("r1")
 [node name="Backdrop2" type="Node2D" parent="."]
 script = ExtResource("8")
 position = Vector2(0, 0)
-Picture = "backdrops/ceres_capsule_hall.png"
+Picture = "backdrops/{graphics}/ceres_capsule_hall.png"
 ScrollShare = Vector2(0, 0.75)
+PresentWhen = SubResource("r1")
+
+[node name="Haze2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "ceres_haze"
+LookFile = "effects/ceres_haze_escape.json"
 PresentWhen = SubResource("r1")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -9,7 +9,8 @@
 [ext_resource type="PackedScene" path="res://game/enemies/puyo/puyo.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://game/enemies/yard/yard.tscn" id="8"]
 [ext_resource type="Script" path="res://engine/world/Liquid.cs" id="9"]
-[ext_resource type="PackedScene" path="res://game/objects/elevator/tube_ride.tscn" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/elevator/tube_ride.tscn" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -77,6 +78,7 @@ CrawlSpeed = 0.75
 script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_green.json"
+Drifts = true
 LowSurface = 128
 HighSurface = 128
 TideReach = 8
@@ -88,6 +90,7 @@ PresentWhen = SubResource("r2")
 script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_green.json"
+Drifts = true
 LowSurface = 128
 HighSurface = 128
 TideReach = 8
@@ -99,6 +102,7 @@ PresentWhen = SubResource("r3")
 script = ExtResource("9")
 position = Vector2(0, 0)
 TypeFile = "liquids/water_green.json"
+Drifts = true
 LowSurface = 128
 HighSurface = 128
 TideReach = 8
@@ -106,10 +110,16 @@ TideTurnAbove = 0.75
 TideTurnBelow = 1.125
 PresentWhen = SubResource("r4")
 
-[node name="RideUp" parent="." instance=ExtResource("10")]
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+Picture = "backdrops/{graphics}/level_toilet.png"
+ScrollShare = Vector2(1, 1)
+
+[node name="RideUp" parent="." instance=ExtResource("11")]
 position = Vector2(112, -30)
 Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 2504)])
 
-[node name="RideDown" parent="." instance=ExtResource("10")]
+[node name="RideDown" parent="." instance=ExtResource("11")]
 position = Vector2(112, 2548)
 Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, -2506)])

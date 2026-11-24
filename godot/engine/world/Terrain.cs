@@ -40,6 +40,12 @@ public partial class Terrain : Node2D, ITerrainShape
     /// <summary>The block covering each tile, by row then column; null where there is none.</summary>
     private Block?[][] _blockAt = [];
 
+    /// <summary>The sounds of the blocks that have broken and not yet been heard.</summary>
+    private readonly List<string> _breakSounds = [];
+
+    /// <summary>The tiles a revealing ability sees, by row and column, with how many more updates each is shown as seen.</summary>
+    private readonly Dictionary<(int Row, int Column), int> _seenTiles = [];
+
     /// <summary>Every block, in reading order of its top-left tile.</summary>
     private readonly List<Block> _blocks = [];
 
@@ -77,8 +83,11 @@ public partial class Terrain : Node2D, ITerrainShape
         ArgumentNullException.ThrowIfNull(content);
         if (LayoutFile.Length == 0)
             throw new InvalidOperationException($"The terrain \"{Name}\" names no layout file.");
-        _content = content;
         _layout = TerrainLayout.Read(content.ReadData(LayoutFile));
+
+        // A block type shared by every set of graphics names its pictures with the set left out: the layout's is put in.
+        _content = content.DrawnWith(_layout.Graphics);
+        _seenTiles.Clear();
         _updates = 0;
         _hasMovingTiles = _layout.Tiles.Any(row => row.Any(tile => tile.Frames.Count > 0));
         _tiles = _layout.Tiles.Select(row => row.ToArray()).ToArray();
@@ -146,17 +155,23 @@ public partial class Terrain : Node2D, ITerrainShape
         {
             for (int column = rect.Left / size; column <= (rect.Right - 1) / size; column++)
             {
+                // A tile a block covers is as solid as the block, whatever it is itself: a block of several tiles
+                // covers tiles that are laid as open space.
+                if (_blockAt[row][column] is { } block)
+                {
+                    if (block.IsSolid)
+                        return true;
+                    continue;
+                }
+
                 TileDefinition tile = _tiles[row][column];
                 switch (tile.Kind)
                 {
                     case TileKind.Empty:
+                    case TileKind.Block:
                         break;
                     case TileKind.Solid:
                         return true;
-                    case TileKind.Block:
-                        if (_blockAt[row][column] is { IsSolid: true })
-                            return true;
-                        break;
                     case TileKind.Slope:
                         if (slopes != SlopeTreatment.Ignore && SlopeIsSolidIn(tile, column, row, rect))
                             return true;
@@ -225,25 +240,50 @@ public partial class Terrain : Node2D, ITerrainShape
             block.StandOn();
     }
 
+    /// <summary>Tells the terrain that a line has latched onto <paramref name="block"/>.</summary>
+    public void LatchedOnto(Block block)
+    {
+        ArgumentNullException.ThrowIfNull(block);
+        block.LatchOnto();
+    }
+
     /// <summary>
     /// Tells the terrain that a line latched onto <paramref name="block"/> has let go. A block that can be latched
-    /// onto only once breaks.
+    /// onto only once breaks, unless it is one that breaks so long after it was latched onto.
     /// </summary>
     public void LetGoOf(Block block)
     {
         ArgumentNullException.ThrowIfNull(block);
-        if (block.Type.Contact != BlockContact.LatchOnce || block.Broken)
+        if (block.Type.Contact != BlockContact.LatchOnce || block.Broken || block.Type.LatchedUpdates > 0)
             return;
         block.Break();
         QueueRedraw();
     }
 
-    /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals.</summary>
+    /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals, through this update.</summary>
     public void RevealBySight(PixelRect area)
     {
         foreach (Block block in BlocksIn(area).Where(block => block.Hidden && block.Type.RevealedBySight))
-            block.Reveal();
+            block.SeeBySight();
         QueueRedraw();
+    }
+
+    /// <summary>
+    /// Shows the tile at a point of the room as a revealing ability sees it, through this update, if it looks
+    /// otherwise seen: a tile that names a picture for that. Returns whether it does.
+    /// </summary>
+    public bool SeeTileAt(int x, int y)
+    {
+        int size = TileSize;
+        if (x < 0 || y < 0 || x >= WidthInPixels || y >= HeightInPixels)
+            return false;
+        (int row, int column) = (y / size, x / size);
+        if (_tiles[row][column].SeenPicture is null)
+            return false;
+        if (!_seenTiles.ContainsKey((row, column)))
+            QueueRedraw();
+        _seenTiles[(row, column)] = 2;
+        return true;
     }
 
     /// <summary>
@@ -255,10 +295,34 @@ public partial class Terrain : Node2D, ITerrainShape
     {
         _updates++;
         bool changed = _hasMovingTiles;
+
+        // A tile seen this update is shown so through it; unseen the next, it looks as it always does again.
+        foreach ((int Row, int Column) seen in _seenTiles.Keys.ToList())
+        {
+            if (--_seenTiles[seen] <= 0)
+            {
+                _seenTiles.Remove(seen);
+                changed = true;
+            }
+        }
+
         foreach (Block block in _blocks)
+        {
             changed |= block.Step(spaceIsClear: !isOccupied(block.Rect));
+            if (block.TakeJustBroke() && block.Type.BreakSound.Length > 0 && !_breakSounds.Contains(block.Type.BreakSound))
+                _breakSounds.Add(block.Type.BreakSound);
+        }
+
         if (changed)
             QueueRedraw();
+    }
+
+    /// <summary>The sounds of the blocks that broke since this was last asked, each once.</summary>
+    public IReadOnlyList<string> TakeBreakSounds()
+    {
+        string[] sounds = [.. _breakSounds];
+        _breakSounds.Clear();
+        return sounds;
     }
 
     /// <summary>The patch of the given name.</summary>
@@ -304,11 +368,9 @@ public partial class Terrain : Node2D, ITerrainShape
                 _blocks.Add(block);
                 for (int y = 0; y < tile.BlockHeight; y++)
                 {
+                    // Each tile it covers keeps its own picture; the block only says how solid they are and what they show of it.
                     for (int x = 0; x < tile.BlockWidth; x++)
-                    {
                         _blockAt[row + y][column + x] = block;
-                        _tiles[row + y][column + x] = tile;
-                    }
                 }
             }
         }
@@ -333,12 +395,12 @@ public partial class Terrain : Node2D, ITerrainShape
             for (int column = 0; column < _tiles[row].Length; column++)
             {
                 TileDefinition tile = _tiles[row][column];
-                string picture = tile.PictureAt(_updates);
-                if (tile.Kind == TileKind.Block && _blockAt[row][column] is { } block)
+                // A block is drawn at every tile it covers, as it is now.
+                string picture = tile.SeenPicture is { } seen && _seenTiles.ContainsKey((row, column)) ? seen : tile.PictureAt(_updates);
+                if (_blockAt[row][column] is { } block)
                 {
-                    if (block.Broken || block.Rect.Left != column * size || block.Rect.Top != row * size)
-                        continue;
-                    picture = block.Hidden ? block.Type.HiddenPicture : block.Type.IntactPicture;
+                    int part = (row - block.Rect.Top / size) * (block.Rect.Width / size) + column - block.Rect.Left / size;
+                    picture = block.PictureNow(picture, part);
                 }
 
                 if (picture.Length > 0)

@@ -15,11 +15,17 @@ namespace Game.Rooms.Crateria;
 /// When all four are grey the statue sinks, shaking the room, and the way down is open from then on.
 /// </summary>
 /// <remarks>
-/// The statue it is given is what sinks; under it are a visual for each guardian, named "Kraid", "Phantoon",
-/// "Draygon" and "Ridley", and one over each for it turned grey, named with "Grey" after. Its data names each
-/// guardian's pictures ("bright", "dim", "dark", "released", "grey") and its effects: "eye_glow", "particle", "tail",
-/// "splash" and "soul" by the data files of their timelines (those of the particle and the soul loop), and "dust" by
-/// the data file of its shot. Once the hall
+/// The statue it is given is what sinks, with the backdrop it is given, which is the picture the statue is part
+/// of. Under the statue are a visual for each guardian, named "Kraid", "Phantoon", "Draygon" and "Ridley", one over
+/// each for it turned grey, named with "Grey" after, and one named "Base". Its data names, under "statues", each
+/// guardian's pictures ("bright", "dim", "dark", "released", "grey"), where they lie from the statue ("offset",
+/// "grey_offset"), whether the guardian stands in the room or is part of the backdrop ("in_room": the backdrop
+/// stays with the view as it moves up and down, and what is part of it stays with it), and its effects: "eye_glow",
+/// "particle", "tail", "splash" and "soul" by the data files of their timelines (those of the particle and the
+/// soul loop). It names "base" (a "picture" and its "offset"); the "dust" the sinking statue raises, by the data
+/// file of its timeline, with "dust_puffs", "dust_rounds", "dust_updates" and the "dust_scatter" it is thrown by;
+/// "floor_crumble", the change to the terrain that opens the way down; and "quake_sound" and "release_sound".
+/// Once the hall
 /// has settled as the room is entered, the sequence is gone from the room, which is what the hall's door waits for.
 /// </remarks>
 public partial class TourianStatueHall : RoomSequence
@@ -36,21 +42,13 @@ public partial class TourianStatueHall : RoomSequence
     [Export]
     public NodePath LowerView { get; set; } = new();
 
-    /// <summary>The terrain patch that leaves the floor crumbling once the statue has sunk.</summary>
+    /// <summary>The backdrop the statue is part of, which sinks with it.</summary>
     [Export]
-    public string CrumblePatch { get; set; } = "";
+    public NodePath Backdrop { get; set; } = new();
 
     /// <summary>The terrain patch that leaves the floor clear when the room is entered with the way already open.</summary>
     [Export]
     public string ClearPatch { get; set; } = "";
-
-    /// <summary>The sound of the room shaking as the statue sinks, by name.</summary>
-    [Export]
-    public string QuakeSound { get; set; } = Sounds.Earthquake;
-
-    /// <summary>The sound of a guardian's light bursting, by name.</summary>
-    [Export]
-    public string ReleaseSound { get; set; } = "";
 
     private enum Stage
     {
@@ -121,8 +119,11 @@ public partial class TourianStatueHall : RoomSequence
     ];
 
     private readonly HashSet<Guardian> _firstGlow = [];
-    private readonly List<(PixelPosition At, int Left)> _glows = [];
-    private readonly List<(Effect Spark, PixelVelocity Speed, int Age)> _sparks = [];
+    private readonly List<(PixelPosition At, int Left, Guardian Of)> _glows = [];
+    private readonly List<(Effect Spark, PixelVelocity Speed, int Age, Guardian Of)> _sparks = [];
+    private PatchSequence? _floorCrumble;
+    private int _dustRoundsLeft;
+    private int _dustWait;
     private readonly List<(Effect Tail, int Age)> _tails = [];
     private readonly List<(Effect Soul, Pixels Speed)> _souls = [];
     private DataNode? _data;
@@ -143,11 +144,12 @@ public partial class TourianStatueHall : RoomSequence
         StepGuardians(room);
         StepEffects(room);
         StepDescent(room);
+        StepDust(room);
 
         // The hall has settled once it has stood a while with no guardian part-way through anything.
         if (!_settled && elapsed >= SettleUpdates && _firstGlow.Count == 0 && _releases == Releases.None)
             Settle(room);
-        StatueNode().Position = _statueHome + new Vector2(0, _sunk.Whole);
+        Place(room);
         return false;
     }
 
@@ -155,6 +157,12 @@ public partial class TourianStatueHall : RoomSequence
     {
         _data = room.Content.ReadData(DataFile);
         _statueHome = StatueNode().Position;
+        _floorCrumble = PatchSequence.Read(Data().Get("floor_crumble"));
+        (_dustRoundsLeft, _dustWait) = (0, 0);
+        ActorVisual footing = Visual("Base");
+        footing.Bind(room.Content);
+        footing.PictureOffset = Offset(Data().Get("base").Get("offset"));
+        footing.Show(Data().Get("base").Text("picture"));
         (_releases, _settled, _sunk, _soundWait, _soundTurn) = (Releases.None, false, Pixels.Zero, 0, 0);
         _firstGlow.Clear();
         _glows.Clear();
@@ -164,7 +172,10 @@ public partial class TourianStatueHall : RoomSequence
         foreach (Guardian guardian in _guardians)
         {
             (guardian.Stage, guardian.Frame, guardian.Left, guardian.GreyingFor) = (Stage.Entering, -1, 0, -1);
+            DataNode pictures = Data().Get("statues").Get(guardian.Name.ToLowerInvariant());
             Visual(guardian.Name).Bind(room.Content);
+            Visual(guardian.Name).PictureOffset = Offset(pictures.Get("offset"));
+            Visual(guardian.Name + "Grey").PictureOffset = Offset(pictures.Get("grey_offset"));
             ActorVisual grey = Visual(guardian.Name + "Grey");
             grey.Bind(room.Content);
             grey.Show(Picture(guardian, "grey"));
@@ -263,12 +274,12 @@ public partial class TourianStatueHall : RoomSequence
                 {
                     case 2:
                         // A light gathers at its eyes.
-                        Leave(room, "eye_glow", eye);
-                        _glows.Add((eye, EyeGlowUpdates));
+                        Leave(room, guardian, "eye_glow", eye);
+                        _glows.Add((eye, EyeGlowUpdates, guardian));
                         break;
                     case 3:
                         // Its spirit leaves it, and it begins to turn grey.
-                        if (Leave(room, "soul", eye) is { } soul)
+                        if (Leave(room, guardian, "soul", eye) is { } soul)
                             _souls.Add((soul, Pixels.FromWhole(-4)));
                         guardian.GreyingFor = 0;
                         break;
@@ -310,39 +321,38 @@ public partial class TourianStatueHall : RoomSequence
     {
         for (int index = _glows.Count - 1; index >= 0; index--)
         {
-            (PixelPosition at, int left) = _glows[index];
+            (PixelPosition at, int left, Guardian of) = _glows[index];
             if (--left > 0)
             {
-                _glows[index] = (at, left);
+                _glows[index] = (at, left, of);
                 continue;
             }
 
             // The light bursts: the room shakes, and its sparks fly up and out.
             _glows.RemoveAt(index);
-            if (ReleaseSound.Length > 0)
-                room.Session.Sounds.Request(ReleaseSound, channel: "room");
+            room.Session.Sounds.Request(Data().Text("release_sound"), channel: "room");
             room.Shake(1, ShakeUpdates, ShakeWay.Down);
             for (int spark = 0; spark < Sparks; spark++)
             {
                 int angle = room.Session.Random.Draw().Part(0, 6) - 32;
                 var speed = new PixelVelocity(Turns.Sine(angle, Pixels.FromWhole(1)), -Turns.Cosine(angle, Pixels.FromWhole(4)));
-                if (Leave(room, "particle", at) is { } made)
-                    _sparks.Add((made, speed, 0));
+                if (Leave(room, of, "particle", at) is { } made)
+                    _sparks.Add((made, speed, 0, of));
             }
         }
 
         Pixels? surface = room.Liquid?.Surface;
         for (int index = _sparks.Count - 1; index >= 0; index--)
         {
-            (Effect spark, PixelVelocity speed, int age) = _sparks[index];
+            (Effect spark, PixelVelocity speed, int age, Guardian from) = _sparks[index];
             bool wasUnder = surface is { } before && spark.Position.Y >= before;
             spark.Position += speed.OverOneUpdate;
             bool isUnder = surface is { } after && spark.Position.Y >= after;
             if (wasUnder != isUnder && surface is { } line)
-                Leave(room, "splash", new PixelPosition(spark.Position.X, line - Pixels.FromWhole(4)));
+                Leave(room, from, "splash", new PixelPosition(spark.Position.X, line - Pixels.FromWhole(4)));
 
             // Every twelfth update, half-way through its turn, a spark leaves a tail behind it.
-            if (age % 12 == 6 && Leave(room, "tail", spark.Position) is { } tail)
+            if (age % 12 == 6 && Leave(room, from, "tail", spark.Position) is { } tail)
                 _tails.Add((tail, 0));
             if (spark.Position.Y.Whole >= 256)
             {
@@ -351,7 +361,7 @@ public partial class TourianStatueHall : RoomSequence
                 continue;
             }
 
-            _sparks[index] = (spark, speed.WithY(speed.Y + Pixels.FromNumber(0.0625)), age + 1);
+            _sparks[index] = (spark, speed.WithY(speed.Y + Pixels.FromNumber(0.0625)), age + 1, from);
         }
 
         for (int index = _tails.Count - 1; index >= 0; index--)
@@ -402,8 +412,7 @@ public partial class TourianStatueHall : RoomSequence
         room.Shake(2, ShakeUpdates, ShakeWay.Down);
         if (--_soundWait < 0)
         {
-            if (QuakeSound.Length > 0)
-                room.Session.Sounds.Request(QuakeSound, channel: "room");
+            room.Session.Sounds.Request(Data().Text("quake_sound"), channel: "room");
             _soundWait = QuakeSoundWaits[_soundTurn] + room.Session.Random.Last.Part(0, 2);
             _soundTurn = (_soundTurn + 1) % QuakeSoundWaits.Length;
         }
@@ -412,9 +421,7 @@ public partial class TourianStatueHall : RoomSequence
         {
             if (--_wait > 0)
                 return;
-            ShotType dust = ShotType.Read(room.Content.ReadData(Data().Text("dust")));
-            for (int puff = 0; puff < 4; puff++)
-                room.Spawn(dust.Launch(PixelPosition.FromWhole(128, 188), PixelVelocity.Zero, HitSide.Neutral, null, this));
+            (_dustRoundsLeft, _dustWait) = (Data().Int("dust_rounds"), 0);
             _descent = Descent.Lowering;
             return;
         }
@@ -422,8 +429,7 @@ public partial class TourianStatueHall : RoomSequence
         _sunk += DescentStep;
         if (_sunk.Whole < DescentDistance)
             return;
-        if (CrumblePatch.Length > 0)
-            room.Terrain.ApplyPatch(CrumblePatch);
+        room.Play((_floorCrumble ?? throw new InvalidOperationException("The statue hall has not begun.")).FromStart());
         room.Session.Progress.Record(StoryEvents.TourianUnlocked);
         Open(room);
     }
@@ -445,9 +451,52 @@ public partial class TourianStatueHall : RoomSequence
     }
 
     /// <summary>Leaves an effect the data names, if it names one, and returns it.</summary>
-    private Effect? Leave(Room room, string name, PixelPosition at)
+    /// <summary>
+    /// Puts the statue and its backdrop where they are this update. The backdrop stays with the view as it moves up and
+    /// down, and so does what is part of it; what stands in the room does not.
+    /// </summary>
+    private void Place(Room room)
     {
-        string file = Data().Text(name);
+        int view = room.Session.Camera.Top;
+        StatueNode().Position = _statueHome + new Vector2(0, _sunk.Whole + view);
+        (GetNode(Backdrop) as Backdrop
+            ?? throw new InvalidOperationException($"The statue hall \"{Name}\" is given \"{Backdrop}\" as its backdrop, which is none."))
+            .LiesAt = new Vector2I(0, _sunk.Whole);
+        Visual("Base").Position = new Vector2(0, -view);
+        foreach (Guardian guardian in _guardians)
+        {
+            if (!Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).Flag("in_room"))
+                continue;
+            Visual(guardian.Name).Position = new Vector2(0, -view);
+            Visual(guardian.Name + "Grey").Position = new Vector2(0, -view);
+        }
+    }
+
+    /// <summary>
+    /// Plays one update of the dust the sinking statue raises: so many puffs at a time, each thrown a chance distance
+    /// from under the statue, and again as often as its data says, a puff's length apart.
+    /// </summary>
+    private void StepDust(Room room)
+    {
+        if (_dustRoundsLeft == 0 || --_dustWait > 0)
+            return;
+        _dustRoundsLeft--;
+        _dustWait = Data().Int("dust_updates");
+        DataNode scatter = Data().Get("dust_scatter");
+        FrameTimeline dust = FrameTimeline.Read(room.Content.ReadData(Data().Text("dust")));
+        for (int puff = 0; puff < Data().Int("dust_puffs"); puff++)
+        {
+            PixelOffset thrown = room.Session.Random.Scatter(scatter.Int("width"), scatter.Int("height"), scatter.Int("middle_x"), scatter.Int("middle_y"));
+            room.Spawn(Effect.Of(dust, PixelPosition.FromWhole(128, 188) + thrown));
+        }
+    }
+
+    /// <summary>A place from the statue, as its data gives one.</summary>
+    private static Vector2I Offset(DataNode offset) => new(offset.Int("x"), offset.Int("y"));
+
+    private Effect? Leave(Room room, Guardian guardian, string name, PixelPosition at)
+    {
+        string file = Data().Get("statues").Get(guardian.Name.ToLowerInvariant()).Text(name);
         if (file.Length == 0)
             return null;
         Effect effect = Effect.Of(FrameTimeline.Read(room.Content.ReadData(file)), at);

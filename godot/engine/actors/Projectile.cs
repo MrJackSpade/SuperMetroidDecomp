@@ -24,6 +24,9 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     private int _wavePhase;
     private Pixels _waveOffset;
     private string _direction = "right";
+    private int _width = 8;
+    private int _height = 8;
+    private bool _shookForTarget;
     private readonly HashSet<IHittable> _alreadyHurt = [];
 
     /// <summary>A projectile delivering <paramref name="hit"/>, launched from <paramref name="at"/> at <paramref name="velocity"/>.</summary>
@@ -54,6 +57,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         _launcher = launcher;
         _direction = DirectionName(velocity);
         _wavePhase = settings.WaveStart;
+        (_width, _height) = (settings.Width, settings.Height);
     }
 
     /// <inheritdoc/>
@@ -78,7 +82,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     protected Room Room => _room ?? throw new InvalidOperationException("The projectile is not in a room.");
 
     /// <summary>The pixels it covers, in the room.</summary>
-    public PixelRect Area => PixelRect.Around(Position.X.Whole, Position.Y.Whole, _settings.Width / 2, _settings.Height / 2);
+    public PixelRect Area => PixelRect.Around(Position.X.Whole, Position.Y.Whole, _width / 2, _height / 2);
 
     /// <summary>Whether it has ended.</summary>
     public bool HasEnded { get; private set; }
@@ -97,7 +101,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             {
                 Name = "Hurtbox",
                 Role = ColliderRole.Hurtbox,
-                Rect = new PixelRect(-_settings.Width / 2, -_settings.Height / 2, _settings.Width, _settings.Height),
+                Rect = new PixelRect(-_width / 2, -_height / 2, _width, _height),
             };
             AddChild(_hurtbox);
             room.Collision.Register(_hurtbox);
@@ -138,6 +142,13 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         _visual?.Show(_timeline.Current);
     }
 
+    /// <summary>Stops showing the projectile and playing its timeline. It goes on being there, unseen.</summary>
+    protected void StopShowing()
+    {
+        _timeline = null;
+        _visual?.Show("");
+    }
+
     /// <summary>Called once as the projectile enters its room.</summary>
     protected virtual void OnLaunched(Room room)
     {
@@ -155,7 +166,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         {
             foreach (string cue in _timeline.Step())
             {
-                OnCue(room, cue);
+                if (!Resize(cue))
+                    OnCue(room, cue);
                 if (HasEnded)
                     return;
             }
@@ -219,7 +231,28 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         }
     }
 
-    /// <summary>Called for each cue the projectile's timeline reaches. A projectile of its own class acts on its cues here.</summary>
+    /// <summary>
+    /// Takes the size a cue gives: "size:&lt;width&gt;:&lt;height&gt;" makes the projectile that many pixels wide and tall from
+    /// then on, as a shot that swells or spreads as its timeline plays is. Returns whether the cue was one.
+    /// </summary>
+    private bool Resize(string cue)
+    {
+        const string size = "size:";
+        if (!cue.StartsWith(size, StringComparison.Ordinal))
+            return false;
+        string[] parts = cue[size.Length..].Split(':');
+        if (parts.Length != 2 || !int.TryParse(parts[0], out int width) || !int.TryParse(parts[1], out int height) || width <= 0 || height <= 0)
+            throw new InvalidOperationException($"A projectile's timeline gives the size cue \"{cue}\", which is not two whole numbers above nothing.");
+        (_width, _height) = (width, height);
+        if (_hurtbox is not null)
+            _hurtbox.Rect = new PixelRect(-width / 2, -height / 2, width, height);
+        return true;
+    }
+
+    /// <summary>
+    /// Called for each cue the projectile's timeline reaches, but a cue of its size, which the projectile takes itself.
+    /// A projectile of its own class acts on its cues here.
+    /// </summary>
     protected virtual void OnCue(Room room, string cue)
     {
     }
@@ -396,6 +429,12 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit, area, from: _launcher, skipping: _alreadyHurt).ToList())
         {
             OnMetTarget(room, target, result);
+            if (result != HitResult.Ignored && !_shookForTarget && _settings.TargetShake is { } targetShake)
+            {
+                _shookForTarget = true;
+                targetShake.Start(room);
+            }
+
             if (_settings.HitsEachUpdate)
             {
                 _alreadyHurt.Add(target);
@@ -451,6 +490,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         }
 
         Position = previous;
+        _settings.TerrainShake?.Start(room);
         OnMetTerrain(room);
         End(room);
         return false;
@@ -527,8 +567,11 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     }
 
     /// <summary>A speed along one axis, gained on in the direction it already has.</summary>
-    private Pixels Faster(Pixels speed) =>
-        speed.IsZero ? speed : Limit(speed.IsNegative ? speed - _settings.Acceleration : speed + _settings.Acceleration);
+    private Pixels Faster(Pixels speed)
+    {
+        Pixels gain = _direction.Contains('_', StringComparison.Ordinal) ? _settings.DiagonalAcceleration ?? _settings.Acceleration : _settings.Acceleration;
+        return speed.IsZero ? speed : Limit(speed.IsNegative ? speed - gain : speed + gain);
+    }
 
     /// <summary>A speed along one axis, steered toward where its target lies along that axis.</summary>
     private Pixels Toward(Pixels speed, Pixels toTarget) =>

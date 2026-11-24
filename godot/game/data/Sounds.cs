@@ -7,6 +7,12 @@ namespace Game.Data;
 /// </summary>
 public static class Sounds
 {
+    /// <summary>The sound that is no sound: asked for on a channel, it stops what the channel was sounding.</summary>
+    public const string Silence = "silence";
+
+    /// <summary>A power bomb's blast.</summary>
+    public const string PowerBombExplosion = "samus_power_bomb_explosion";
+
     /// <summary>A spin jump turning over.</summary>
     public const string SpinJump = "samus_spin_jump";
 
@@ -76,6 +82,9 @@ public static class Sounds
     /// <summary>Plunging into a liquid, or leaving one.</summary>
     public const string Splash = "enemy_splash_in";
 
+    /// <summary>Something coming out of a liquid.</summary>
+    public const string SplashOut = "enemy_splash_out";
+
     /// <summary>Being burnt by lava or acid.</summary>
     public const string LiquidDamage = "enemy_liquid_damage";
 
@@ -135,8 +144,8 @@ public static class Sounds
     [
         SpinJump, SpaceJump, ScrewAttack, UnderwaterSpinJump, WallJump, Land, HardLand, SamusHurt, LowEnergy, SpeedBooster,
         StoredShine, Shinespark, ShinesparkEnd, Charging, ItemSelect, GrappleFire, GrappleLatch, GrappleRelease, Xray, XrayEnd,
-        CrystalFlash, EnergyRefill, Splash, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
+        CrystalFlash, EnergyRefill, Splash, SplashOut, LiquidDamage, DoorOpen, DoorClose, ShotDeflected, EnemyKilled, EnemyFrozen,
         BlockCrumble, BlockBreak, SaveStation, RefillStation, MapStation, Elevator, Earthquake, Explosion,
-        BigExplosion, MenuMove, MenuAccept, Typing,
+        BigExplosion, MenuMove, MenuAccept, Typing, Silence, PowerBombExplosion,
     ];
 }

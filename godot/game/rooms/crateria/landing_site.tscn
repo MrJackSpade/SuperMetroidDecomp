@@ -345,13 +345,13 @@ Target = NodePath("../Screen1x2Foot")
 script = ExtResource("10")
 position = Vector2(0, 0)
 EffectName = "rain"
-Picture = "effects/rain.png"
+LookFile = "effects/rain.json"
 PresentWhen = SubResource("r16")
 
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("11")
 position = Vector2(0, 0)
-Picture = "backdrops/scrolling_sky_landing_site.png"
+Picture = "backdrops/{graphics}/scrolling_sky_landing_site.png"
 ScrollShare = Vector2(0.5, 0)
 
 [node name="Landing" type="Node" parent="."]
@@ -495,6 +495,15 @@ PresentWhen = SubResource("r1")
 script = ExtResource("15")
 StartsWhen = SubResource("r9")
 Outdoors = true
+TurnsHarder = false
+ShakeStrength = 3
+SmallExplosionEffect = "effects/small_explosion.json"
+DustPuffEffect = "effects/smoke_puff.json"
+SmokeEffect = "effects/smoke.json"
+ShortDustCloudEffect = "effects/short_big_dust_cloud.json"
+BigDustCloudEffect = "effects/big_dust_cloud.json"
+SmallExplosionSound = "enemy_small_explosion"
+SmokeSound = "enemy_big_explosion"
 PresentWhen = SubResource("r1")
 
 [node name="AtGunship" type="Marker2D" parent="."]

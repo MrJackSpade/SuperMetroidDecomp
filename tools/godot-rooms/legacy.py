@@ -403,6 +403,7 @@ def _room_effect(expression: str) -> dict | None:
         'start': None if a[0] == 'null' else int(a[0]), 'target': None if a[1] == 'null' else int(a[1]),
         'speed': a[2], 'delay': int(a[3]), 'type': last_name(a[4]), 'tide': tide.group(1) if tide else 'None',
         'colours': re.findall(r'ColourEffectId\.(\w+)', a[8]), 'tint': last_name(a[10]),
+        'drifts': 'SurfaceDrift: true' in a[7],
     }
 
 

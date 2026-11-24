@@ -69,7 +69,7 @@ Target = NodePath("../Screen0x0Foot")
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/crateria_elevator.png"
+Picture = "backdrops/{graphics}/crateria_elevator.png"
 ScrollShare = Vector2(0.75, 0.75)
 
 [node name="AtForgottenHighwayElevator" type="Marker2D" parent="."]

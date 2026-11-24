@@ -22,6 +22,31 @@ public sealed partial class EngineAssetWriter
     private void WriteCuedEnemies()
     {
         Enemy("enemies/beetom.json", "Beetom", EnemyDefinitionId.Beetom).BodyColliders(Ordinary)
+            .Value("bite_every", BeetomCadenceDefinitions.DrainDamage.Period)
+            .Value("feeding_sound_every", BeetomCadenceDefinitions.DrainSound.Period)
+            .Value("feeding_sound_least_energy", BeetomCadenceDefinitions.DrainSoundLeastHealth)
+            .Value("cling_above", BeetomMotionDefinitions.DrainHoldAbove)
+            .Value("crawl_speed", EngineNames.Number(BeetomMotionDefinitions.CrawlSpeed))
+            .Value("crawl_updates", BeetomMotionDefinitions.CrawlDuration)
+            .Value("idle_updates", BeetomMotionDefinitions.IdleDuration)
+            .Value("ledge_reach", BeetomMotionDefinitions.LedgeProbeReach)
+            .Value("drop_speed", EngineNames.Number(BeetomMotionDefinitions.DropSpeed))
+            .Value("fastest_mark", EngineNames.Marks(BeetomMotionDefinitions.MaximumYSpeedCurvePlace))
+            .Value("flung_marks", BeetomMotionDefinitions.FlungFallingMarks)
+            .Value("flung_speed", EngineNames.Number(BeetomMotionDefinitions.FlungSpeed))
+            .Value("thrown_distance", BeetomMotionDefinitions.EscapeThrow)
+            .Value("shake_off_count", BeetomMotionDefinitions.MashCount)
+            .Value("hop_speed", EngineNames.Number(BeetomMotionDefinitions.HopSpeed))
+            .Value("short_hop_height", Whole(BeetomLeapDefinitions.ShortLeap.Height))
+            .Value("short_hop_marks", BeetomMotionDefinitions.ShortHopMarks)
+            .Value("long_hop_height", Whole(BeetomLeapDefinitions.LongLeap.Height))
+            .Value("long_hop_marks", BeetomMotionDefinitions.LongHopMarks)
+            .Value("lunge_distance", BeetomMotionDefinitions.ProximityDistance)
+            .Value("lunge_height", Whole(BeetomLeapDefinitions.Lunge.Height))
+            .Value("lunge_aim_marks", EngineNames.Marks(BeetomLeapDefinitions.Lunge.StepPerPass))
+            .Value("lunge_rising_marks", BeetomMotionDefinitions.LungeRisingMarks)
+            .Value("lunge_falling_marks", BeetomMotionDefinitions.LungeFallingMarks)
+            .Value("lunge_speed", EngineNames.Number(BeetomMotionDefinitions.LungeSpeed))
             .Value("feeding_sound", EngineNames.Sound(RoomSound.IncrementalEnergy))
             .Looks(BeetomAnimations.Segments, BeetomAnimations.StartingWith,
                 static (BeetomCue cue) => cue.Kind == BeetomCueKind.ProcessOffScreen ? EngineNames.AlwaysActive : EngineNames.NotAlwaysActive,
@@ -57,6 +82,8 @@ public sealed partial class EngineAssetWriter
         }
 
         Enemy("enemies/choot.json", "Choot", EnemyDefinitionId.Choot).BodyColliders(Ordinary)
+            .Value("reach", ChootMotionDefinitions.ActivationDistance)
+            .Value("ascent_step", MarkParts(ChootMotionDefinitions.AscentStep))
             .Group("falling_paths", fallingPaths)
             .Looks(ChootAnimations.Segments, ChootAnimations.StartingWith,
                 static (ChootCue cue) => cue.Kind == ChootCueKind.ProcessOffScreen ? EngineNames.AlwaysActive : EngineNames.NotAlwaysActive,
@@ -65,6 +92,10 @@ public sealed partial class EngineAssetWriter
 
         // The Dragon's attack tells it when it has spat its last.
         Enemy("enemies/dragon.json", "Dragon", EnemyDefinitionId.Dragon).BodyColliders(Ordinary)
+            .Value("rise_updates", DragonTimingDefinitions.RiseOrSinkDuration)
+            .Value("shots_per_attack", DragonTimingDefinitions.ShotsPerAttack)
+            .Value("wait_before_sinking", DragonTimingDefinitions.WaitBeforeSink)
+            .Value("wait_before_rising", DragonTimingDefinitions.WaitBeforeRise)
             .Value("fireball_rise", EngineNames.Number(-DragonFireballDefinitions.LaunchRise))
             .Value("muzzle_across", DragonFireballDefinitions.MuzzleFacingRight.X)
             .Value("muzzle_up", -DragonFireballDefinitions.MuzzleFacingRight.Y)
@@ -104,6 +135,10 @@ public sealed partial class EngineAssetWriter
 
         // The Waver's roll is over when its timeline is; the Godot game asks the timeline, not a cue.
         Enemy("enemies/waver.json", "Waver", EnemyDefinitionId.Waver).BodyColliders(Ordinary)
+            .Value("speed", EngineNames.Number(WaverMotionDefinitions.HorizontalSpeed))
+            .Value("wave_height", WaverMotionDefinitions.WaveHeight)
+            .Value("wave_step", WholeSteps(WaverMotionDefinitions.WaveStep))
+            .Value("spins_at", (int)WaverMotionDefinitions.SpinPlaceInHalfTurn.RawValue)
             .Looks(WaverAnimations.Segments, WaverAnimations.StartingWith, static (WaverCue _) => null,
                 ("steady_left", WaverSegment.SteadyFacingLeft), ("steady_right", WaverSegment.SteadyFacingRight),
                 ("spin_left", WaverSegment.SpinningFacingLeft), ("spin_right", WaverSegment.SpinningFacingRight))
@@ -111,6 +146,8 @@ public sealed partial class EngineAssetWriter
 
         // A Zoa's animations say how fast it goes from then on.
         Enemy("enemies/zoa.json", "Zoa", EnemyDefinitionId.Zoa).BodyColliders(Ordinary)
+            .Value("reach", ZoaSpeedDefinitions.ActivationDistance)
+            .Value("rise_speed", EngineNames.Number(ZoaSpeedDefinitions.RisingSpeed))
             .Looks(ZoaAnimations.Segments, ZoaAnimations.StartingWith, static (ZoaCue cue) => "speed:" + EngineNames.InCue(cue.LaunchSpeed),
                 ("shooting_left", ZoaSegment.FacingLeftShooting), ("shooting_right", ZoaSegment.FacingRightShooting),
                 ("rising_left", ZoaSegment.FacingLeftRising), ("rising_right", ZoaSegment.FacingRightRising))
@@ -118,6 +155,8 @@ public sealed partial class EngineAssetWriter
 
         // An Owtch's walk says which way it walks.
         Enemy("enemies/owtch.json", "Owtch", EnemyDefinitionId.Owtch).BodyColliders("Hurtbox")
+            .Value("burial_depth", OwtchMovementDefinitions.MaximumBurialDepth)
+            .Value("sink_chance", OwtchMovementDefinitions.Sinks.TakingValues)
             .Looks(OwtchAnimations.Segments, OwtchAnimations.StartingWith, static (OwtchCue cue) => "move:" + EngineNames.Side(cue.Direction),
                 ("moving_left", OwtchSegment.MovingLeft), ("moving_right", OwtchSegment.MovingRight))
             .Write();
@@ -189,6 +228,12 @@ public sealed partial class EngineAssetWriter
             HopperKind kind = HopperKindDefinitions.Kinds[id];
             HopperSegment Of(HopperSurface surface, HopperPhase phase) => HopperAnimationDefinitions.Animations[new(kind, surface, phase)];
             Enemy($"enemies/{file}.json", "Hopper", id).BodyColliders(Ordinary)
+                .Value("across_speed", HopperHopDefinitions.HorizontalSpeed)
+                .Value("small_hop_height", Whole(HopperHopDefinitions.SmallHop.Height))
+                .Value("small_hop_step", MarkParts(HopperHopDefinitions.SmallHop.StepPerPass))
+                .Value("big_hop_height", Whole(HopperHopDefinitions.BigHop.Height))
+                .Value("big_hop_step", MarkParts(HopperHopDefinitions.BigHop.StepPerPass))
+                .Value("fastest_mark", EngineNames.Marks(HopperHopDefinitions.FastestReturnPlace))
                 .Looks(HopperAnimations.Segments, HopperAnimations.StartingWith,
                     static (HopperCue cue) => cue switch
                     {

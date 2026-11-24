@@ -1,19 +1,26 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
 [ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
 [ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
-[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="5"]
-[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="6"]
-[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
-[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
-[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="10"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/SamusEaters.cs" id="11"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
 LayoutFile = "rooms/brinstar/hellway_in_red_brinstar_kraid.json"
 KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
 
 [node name="Hellway" type="Node2D"]
 script = ExtResource("2")
@@ -43,7 +50,7 @@ LeadsToExit = "ToHellway"
 Style = 0
 ArrivalOffset = Vector2i(40, 40)
 
-[node name="Zeela" parent="." instance=ExtResource("5")]
+[node name="Zeela" parent="." instance=ExtResource("6")]
 position = Vector2(160, 152)
 DataFile = "enemies/zeela.json"
 StartsOn = 0
@@ -51,7 +58,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Zeela2" parent="." instance=ExtResource("5")]
+[node name="Zeela2" parent="." instance=ExtResource("6")]
 position = Vector2(295, 136)
 DataFile = "enemies/zeela.json"
 StartsOn = 0
@@ -59,7 +66,7 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Zeela3" parent="." instance=ExtResource("5")]
+[node name="Zeela3" parent="." instance=ExtResource("6")]
 position = Vector2(368, 152)
 DataFile = "enemies/zeela.json"
 StartsOn = 0
@@ -67,7 +74,7 @@ PressesLeft = true
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Zeela4" parent="." instance=ExtResource("5")]
+[node name="Zeela4" parent="." instance=ExtResource("6")]
 position = Vector2(447, 152)
 DataFile = "enemies/zeela.json"
 StartsOn = 0
@@ -75,58 +82,63 @@ PressesLeft = false
 PressesUp = false
 CrawlSpeed = 0.75
 
-[node name="Zebbo" parent="." instance=ExtResource("6")]
+[node name="Zebbo" parent="." instance=ExtResource("7")]
 position = Vector2(416, 216)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo2" parent="." instance=ExtResource("6")]
+[node name="Zebbo2" parent="." instance=ExtResource("7")]
 position = Vector2(256, 216)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo3" parent="." instance=ExtResource("6")]
+[node name="Zebbo3" parent="." instance=ExtResource("7")]
 position = Vector2(480, 216)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="Zebbo4" parent="." instance=ExtResource("6")]
+[node name="Zebbo4" parent="." instance=ExtResource("7")]
 position = Vector2(128, 216)
 DataFile = "enemies/zebbo.json"
 AlwaysActive = true
 RespawnsWhenKilled = true
 
-[node name="BlueCap" parent="." instance=ExtResource("7")]
+[node name="BlueCap" parent="." instance=ExtResource("8")]
 position = Vector2(16, 96)
 DataFile = "objects/door_cap_blue_right.json"
 
-[node name="BlueCap2" parent="." instance=ExtResource("7")]
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
 position = Vector2(736, 96)
 DataFile = "objects/door_cap_blue_left.json"
 
 [node name="Screen0x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("9")
 position = Vector2(0, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen1x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("9")
 position = Vector2(256, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Screen2x0Foot" type="Node2D" parent="."]
-script = ExtResource("8")
+script = ExtResource("9")
 position = Vector2(512, 224)
 Size = Vector2i(256, 32)
 StartsOpen = false
 
 [node name="Backdrop" type="Node2D" parent="."]
-script = ExtResource("9")
+script = ExtResource("10")
 position = Vector2(0, 0)
-Picture = "backdrops/brinstar_vertical_tower.png"
+Picture = "backdrops/{graphics}/brinstar_vertical_tower.png"
 ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Plants" type="Node" parent="."]
+script = ExtResource("11")
+StartsWhen = SubResource("r2")
+DataFile = "objects/samus_eater.json"

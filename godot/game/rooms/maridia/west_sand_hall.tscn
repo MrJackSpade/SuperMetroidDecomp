@@ -106,7 +106,7 @@ TideTurnBelow = 1.125
 [node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("9")
 position = Vector2(0, 0)
-Picture = "backdrops/maridia_green_wall.png"
+Picture = "backdrops/{graphics}/maridia_green_wall.png"
 ScrollShare = Vector2(0.75, 0)
 
 [node name="FromWestSandHoleToWestSandHall" type="Marker2D" parent="."]

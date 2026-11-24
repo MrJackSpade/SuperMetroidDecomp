@@ -20,6 +20,7 @@ with comments allowed.
 | A block type | `blocks/` | `BlockType` | The rules of one kind of reactive block. |
 | An item type | `items/` | `ItemType` | What an item grants, its message and how it looks. |
 | A liquid type | `liquids/` | `LiquidType` | How a liquid slows, what it takes and how it looks. |
+| An overlay's look | `effects/` | `OverlayEffect` | The pictures laid over the whole view, how they move and how they are laid over the room. |
 | A speed curve | wherever it is named | `SpeedCurve` | The marks of a curve of speeds. |
 | Drops and pickups | wherever they are named | `DropTable`, `PickupType` | What an enemy leaves and what each pickup gives. |
 | An area | `areas/` | `Area` | An area's name and map. |
@@ -53,7 +54,8 @@ level:
 - **Hidden items.** Where the old code hides an item in a shot block, the layout has that block.
 - **Patches.** Every change the old code made to a room's blocks during play is a patch of the layout, by the name
   the manifest lists for it: a bridge collapsing, a wall coming down, the way the animals leave by.
-- **Backgrounds.** A room whose old background is part of its level is drawn by its layout. One with a background
+- **Backgrounds.** A background picture is coloured by its room's set of graphics, so it is kept once for each set
+  that shows it, as `backdrops/{graphics}/<name>.png`. A room whose old background is part of its level is drawn by its layout. One with a background
   picture of its own has a backdrop in its scene, and the picture is an asset.
 
 ## Pictures for a set of graphics

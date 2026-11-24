@@ -12,7 +12,9 @@ namespace Game.Rooms.Crateria;
 /// The hall of the golden statue at the way into Tourian. The eyes of each of its four guardians glow and dim in
 /// turn. A guardian whose boss has been beaten is let go, one at a time: its eyes go out, a light gathers at them
 /// and bursts into sparks that fall into the water, its spirit rises out of the room, and it turns grey for good.
-/// When all four are grey the statue sinks, shaking the room, and the way down is open from then on.
+/// When all four are grey the statue sinks, shaking the room, and the way down is open from then on. The sinking is
+/// played as each update opens, before the update's random number is drawn, as the cartridge played it; the rest
+/// with the room's sequences.
 /// </summary>
 /// <remarks>
 /// The statue it is given is what sinks, with the backdrop it is given, which is the picture the statue is part
@@ -28,7 +30,7 @@ namespace Game.Rooms.Crateria;
 /// Once the hall
 /// has settled as the room is entered, the sequence is gone from the room, which is what the hall's door waits for.
 /// </remarks>
-public partial class TourianStatueHall : RoomSequence
+public partial class TourianStatueHall : RoomSequence, IOpeningStep
 {
     /// <summary>The data file of its pictures and effects.</summary>
     [Export(PropertyHint.File)]
@@ -135,15 +137,23 @@ public partial class TourianStatueHall : RoomSequence
     private bool _settled;
     private int _soundWait;
     private int _soundTurn;
+    private bool _begun;
+
+    /// <summary>The statue's sinking, which reads the random number as the update before left it.</summary>
+    public void StepOpening(Room room)
+    {
+        if (!_begun)
+            Begin(room);
+        StepDescent(room);
+    }
 
     /// <inheritdoc/>
     protected override bool Play(Room room, int elapsed)
     {
-        if (elapsed == 0)
+        if (!_begun)
             Begin(room);
         StepGuardians(room);
         StepEffects(room);
-        StepDescent(room);
         StepDust(room);
 
         // The hall has settled once it has stood a while with no guardian part-way through anything.
@@ -155,6 +165,7 @@ public partial class TourianStatueHall : RoomSequence
 
     private void Begin(Room room)
     {
+        _begun = true;
         _data = room.Content.ReadData(DataFile);
         _statueHome = StatueNode().Position;
         _floorCrumble = PatchSequence.Read(Data().Get("floor_crumble"));

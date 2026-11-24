@@ -144,8 +144,9 @@ something that leaves the room.
   that thing, which is already in `game/`.
 - If removing `game/compatibility/` would leave dead code in the engine, that code was in the wrong layer.
 - What is there now: `CartridgeRandom`, the cartridge's own sequence of random numbers, and `FrameRandom`, a session
-  service that draws one number every update of play and uses none, as the cartridge did every frame: much of this
-  game reads the number last drawn (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
+  service that draws one number as every update of play opens (`IUpdateOpener`) and uses none, as the cartridge did
+  every frame before Samus, the enemies and the room acted: much of this game reads the number last drawn
+  (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
   `CartridgeSpeedReadings` is how the cartridge reads Samus's speed across against its limits (`ISpeedReadings`,
   which the engine answers plainly with one comparison): whole pixels and fraction each on its own, by the sign of
   their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as
@@ -333,7 +334,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `SaveFile` | The save slots; in each, the saved form of `Progress`, the player's `Inventory`, and where the player resumes | Reading, writing, copying and clearing slots. | Exist as live state during play. |
 | `Options` | Button bindings, language, and the toggles the `GameDefinition` lists | Reading and writing them outside any save slot. | Change during an update. |
 | `SoundRequests` | What gameplay has asked to hear and, as gameplay sees it, what is still sounding | Accepting or refusing each request by priority, and answering "is this sound still going". Asked to stop everything, every channel falls silent at once (the music plays on), as when the game is paused. Advanced once per update. | Play anything. |
-| `ISessionService` | Nothing; it is what a session-long service of a game's is | Being begun again with the session, stepped once for each update of play, and asked whether it wants a mode of its own in control. The `GameDefinition` makes them; anything asks the session for one by type. | Belong to a room. |
+| `ISessionService` | Nothing; it is what a session-long service of a game's is | Being begun again with the session, stepped once for each update of play after the room has been stepped, and asked whether it wants a mode of its own in control. The `GameDefinition` makes them; anything asks the session for one by type. One with something to do before the room acts is an `IUpdateOpener` as well: the room calls it as each of its updates opens, before the player's input is read, whatever is stopped. | Belong to a room. |
 | `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. A session service; when time is up it hands over to its time-up mode. | Know which room the player is in. |
 
 `SaveData` is the saved form itself: what a slot's file holds, captured from a session and put back into one. It
@@ -405,9 +406,12 @@ A scene. One per room of the game.
   map cell the player is in as explored, starting an earthquake when something asks, putting itself on screen
   where the camera's view has it (thrown about by an earthquake, which does not throw the player about), and
   tearing itself down when left.
-- **Steps, in this order:** the first part of the player's update; the player's own shots; the enemies; the rest
-  of the player's update; triggers and exits; every other projectile, pickups and remains; room objects, terrain,
-  liquid, room effects and the sequence; effects.
+- **Steps, in this order:** the opening of the update: the liquid moves, each running sequence and then each live
+  projectile with a part in the opening (`IOpeningStep`) plays it, and then the session services that open an
+  update (`IUpdateOpener`) play theirs; the room effects, all but the earthquake, and the liquid's pictures; the
+  first part of the player's update; the player's own shots; the enemies; the rest of the player's update; triggers
+  and exits; every other projectile, pickups and remains; room objects, terrain, the earthquake and the sequence;
+  effects.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
   carried by the room transition, explicitly.
 
@@ -550,7 +554,9 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 
 - **Owns:** its own timeline and progress through it.
 - **Manages:** calling the methods of the room's objects, terrain, effects and camera at the right moments, and
-  recording a story event when it finishes.
+  recording a story event when it finishes. One with something that must happen before anything else in an update
+  is an `IOpeningStep` as well: the room calls that part as the update opens, while the sequence is running, and
+  the rest where every sequence is stepped.
 - **Does not:** hold behaviour that belongs to an object in the room, or exist outside its room.
 
 ### Other room parts
@@ -558,8 +564,8 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | Type | Owns and manages | Does not |
 | --- | --- | --- |
 | `RoomExit` | Above. | Have a body or a look, or know what stands in front of it. |
-| `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". Its type names the splash of something crossing its surface and the sounds of going under and of coming out, which the player leaves as their feet do. It may wait a set time before it moves once told, and may have a tide that lifts and lowers its surface. It draws itself across the view as its type says, and says whether its pictures drift. | Apply physics or damage. The player and enemies ask it and act on the answer. |
-| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
+| `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". Its surface moves as an update opens, before anything acts; its pictures play on with the room's effects. Its type names the splash of something crossing its surface and the sounds of going under and of coming out, which the player leaves as their feet do. It may wait a set time before it moves once told, and may have a tide that lifts and lowers its surface. It draws itself across the view as its type says, and says whether its pictures drift. | Apply physics or damage. The player and enemies ask it and act on the answer. |
+| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. It is stepped early in an update, before the player and the enemies act, so that what it is told during an update it first shows in the next; the earthquake alone is stepped late, after the enemies and room objects that may start it, and shows a shake on the update it is started in. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
 | `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. A layer may lie at a place in the room, fill only a band of it, and drift by itself, which is how a sky's bands of cloud are made. `TurningFloor` is the backdrop that can be turned and brought nearer or farther about a point, with the visuals under it turning with it. | Affect play. |
 | `RoomTurn` | A turn the room is shown with (`Room.ShownTurn`): the player and the room's objects are drawn where turning them about a point puts them. | Change where anything is. |
 | `Camera` | Following the player within the room's limits. One per session. | Affect play. |
@@ -1202,7 +1208,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `RoomEffect`: heat, rain, fog, spores and Ceres haze are the engine's `OverlayEffect`, each with a look (heat with
   ongoing damage as well); room-wide colour changes are its `TintEffect`; the earthquake is the engine's. The
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
-  that dies.
+  that dies; it looks at the deaths as it is stepped, so a death shows from the update after.
 - `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
   elevator shaft are `TurningFloor`s.
 - `CameraZone` and `Trigger`: every scroll region and scroll change.
@@ -1228,7 +1234,8 @@ Norfair: the Dachora shaft camera (`DachoraShaftCamera`: once the shaft's top is
 it is closed), Crocomire's room shaking (`CrocomireRoomShaking`: the terrain is shown shifted by as much as he
 rattles his wall). Maridia: the transport tube ride, which is a `Carrier` that gains speed. Tourian: the entrance
 statue's hall (`TourianStatueHall`: the guardians' eyes, each one's release once its boss is beaten, and the
-statue's descent; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
+statue's descent, which is its part of an update's opening (`IOpeningStep`), played before the update's random
+number is drawn; the statue is the room's backdrop, which the hall sinks, with a picture over it for each
 guardian's eyes and for each turned grey, and its floor crumbles away as a change to the terrain its data gives), and the rising acid, which is a `Trigger` telling the room's `Liquid` to rise. A watch on a
 room (`RoomWatch`, in `game/rooms/`) records facts once its condition holds: each Metroid room cleared, and Zebes
 waking when a room's guard is killed. Norfair also has the lava that chases Samus out with the Speed Booster

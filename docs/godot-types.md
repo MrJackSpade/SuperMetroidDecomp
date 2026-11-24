@@ -428,9 +428,14 @@ turns the player's position into a cell; `Progress` records it; `MapView` draws 
 | Solid or passable | Solid; passable. |
 | Broken by | Nothing; a `Hit` carrying a listed kind; being stood on (crumble). |
 | After breaking | Gone until the room is next set up; regrows after a set time. |
-| Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability. |
+| Hidden until | Never hidden; hit by a listed kind; seen by a revealing ability. A block with a picture of its own for what it is starts hidden whether or not anything reveals it, and shows that picture once it has broken and come back. |
+| How it looks | The pictures of the tiles it lies on; a picture of its own once revealed; a timeline of pictures from the moment it breaks; a timeline of pictures up to the moment it comes back. |
+| Heard | Nothing; a sound as it breaks. |
 | On contact | Nothing; hurts, by a hit that is not repeated while its victim is still safe from the last (spike), by ongoing damage, or both; carries sideways (conveyor); pulls down (sand); can be latched onto; can be latched onto once and then breaks. |
 
+- A block is drawn at every tile it covers, and its type's pictures are the same at each. A type's pictures may
+  name the room's set of graphics by its placeholder, so one type serves every set.
+- `Terrain` hands the room the sounds of the blocks that broke each update, and the room asks for them.
 - `Terrain` does not know the player, enemies or weapons by name. It is told "this rectangle touched you" or "this
   `Hit` landed here" and answers from the block's rules. The player's body breaking a block is a `Hit` like any
   other (section 6, "The body as a weapon").

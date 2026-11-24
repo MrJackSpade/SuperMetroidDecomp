@@ -535,6 +535,98 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `backdrops/{graphics}/crateria_purple_rocks.png` | `game/rooms/crateria/lower_mushrooms.tscn`, `game/rooms/crateria/terminator.tscn` |
 | `backdrops/{graphics}/crateria_rocks.png` | `game/rooms/crateria/crab_maze.tscn`, `game/rooms/crateria/crateria_kihunter.tscn`, `game/rooms/crateria/crateria_power_bombs.tscn` and 2 more |
 | `backdrops/{graphics}/crateria_vertical_pattern_rocks.png` | `game/rooms/crateria/forgotten_highway_elbow.tscn`, `game/rooms/crateria/forgotten_highway_kagos.tscn` |
+| `backdrops/{graphics}/level_aqueduct.png` | `game/rooms/maridia/aqueduct.tscn` |
+| `backdrops/{graphics}/level_bat_cave.png` | `game/rooms/norfair/bat_cave.tscn` |
+| `backdrops/{graphics}/level_below_botwoon_energy_tank.png` | `game/rooms/maridia/below_botwoon_energy_tank.tscn` |
+| `backdrops/{graphics}/level_botwoon.png` | `game/rooms/maridia/botwoon.tscn` |
+| `backdrops/{graphics}/level_botwoon_energy_tank.png` | `game/rooms/maridia/botwoon_energy_tank.tscn` |
+| `backdrops/{graphics}/level_botwoon_hallway.png` | `game/rooms/maridia/botwoon_hallway.tscn` |
+| `backdrops/{graphics}/level_botwoon_quicksand.png` | `game/rooms/maridia/botwoon_quicksand.tscn` |
+| `backdrops/{graphics}/level_bowling_alley.png` | `game/rooms/wrecked_ship/bowling_alley.tscn` |
+| `backdrops/{graphics}/level_bug_sand_hole.png` | `game/rooms/maridia/bug_sand_hole.tscn` |
+| `backdrops/{graphics}/level_butterfly.png` | `game/rooms/maridia/butterfly.tscn` |
+| `backdrops/{graphics}/level_caterpillar.png` | `game/rooms/brinstar/caterpillar.tscn` |
+| `backdrops/{graphics}/level_cathedral.png` | `game/rooms/norfair/cathedral.tscn` |
+| `backdrops/{graphics}/level_cathedral_entrance.png` | `game/rooms/norfair/cathedral_entrance.tscn` |
+| `backdrops/{graphics}/level_ceres_ridley.png` | `game/rooms/ceres/ceres_ridley.tscn` |
+| `backdrops/{graphics}/level_colosseum.png` | `game/rooms/maridia/colosseum.tscn` |
+| `backdrops/{graphics}/level_crab_hole.png` | `game/rooms/maridia/crab_hole.tscn` |
+| `backdrops/{graphics}/level_crab_shaft.png` | `game/rooms/maridia/crab_shaft.tscn` |
+| `backdrops/{graphics}/level_crateria_tube.png` | `game/rooms/crateria/crateria_tube.tscn` |
+| `backdrops/{graphics}/level_crocomire_escape.png` | `game/rooms/norfair/crocomire_escape.tscn` |
+| `backdrops/{graphics}/level_dachora.png` | `game/rooms/brinstar/dachora.tscn` |
+| `backdrops/{graphics}/level_dead_scientist.png` | `game/rooms/ceres/dead_scientist.tscn` |
+| `backdrops/{graphics}/level_double_chamber.png` | `game/rooms/norfair/double_chamber.tscn` |
+| `backdrops/{graphics}/level_east_aqueduct_quicksand.png` | `game/rooms/maridia/east_aqueduct_quicksand.tscn` |
+| `backdrops/{graphics}/level_east_cactus_alley.png` | `game/rooms/maridia/east_cactus_alley.tscn` |
+| `backdrops/{graphics}/level_east_pants.png` | `game/rooms/maridia/east_pants.tscn` |
+| `backdrops/{graphics}/level_east_sand_hole.png` | `game/rooms/maridia/east_sand_hole.tscn` |
+| `backdrops/{graphics}/level_east_tunnel.png` | `game/rooms/maridia/east_tunnel.tscn` |
+| `backdrops/{graphics}/level_elevator_to_blue_brinstar.png` | `game/rooms/crateria/elevator_to_blue_brinstar.tscn` |
+| `backdrops/{graphics}/level_energy_refill_room_door_on_left.png` | `game/rooms/maridia/maridia_energy_refill.tscn`, `game/rooms/norfair/golden_torizo_energy_refill.tscn` |
+| `backdrops/{graphics}/level_energy_refill_room_door_on_right.png` | `game/rooms/brinstar/dachora_energy_refill.tscn`, `game/rooms/brinstar/red_tower_refill.tscn` |
+| `backdrops/{graphics}/level_fish_tank.png` | `game/rooms/maridia/fish_tank.tscn` |
+| `backdrops/{graphics}/level_glass_tunnel_default.png` | `game/rooms/maridia/glass_tunnel.tscn` |
+| `backdrops/{graphics}/level_glass_tunnel_when_maridia_noob_tube_broken.png` | `game/rooms/maridia/glass_tunnel.tscn` |
+| `backdrops/{graphics}/level_golden_torizo.png` | `game/rooms/norfair/golden_torizo.tscn` |
+| `backdrops/{graphics}/level_green_brinstar_elevator.png` | `game/rooms/crateria/green_brinstar_elevator.tscn` |
+| `backdrops/{graphics}/level_green_brinstar_firefleas.png` | `game/rooms/brinstar/green_brinstar_firefleas.tscn` |
+| `backdrops/{graphics}/level_green_brinstar_missile_refill.png` | `game/rooms/brinstar/green_brinstar_missile_refill.tscn` |
+| `backdrops/{graphics}/level_halfie_climb.png` | `game/rooms/maridia/halfie_climb.tscn` |
+| `backdrops/{graphics}/level_hi_jump_energy_tank.png` | `game/rooms/norfair/hi_jump_energy_tank.tscn` |
+| `backdrops/{graphics}/level_hopper_energy_tank.png` | `game/rooms/brinstar/hopper_energy_tank.tscn` |
+| `backdrops/{graphics}/level_kassiuz.png` | `game/rooms/maridia/kassiuz.tscn` |
+| `backdrops/{graphics}/level_kraid_eye_door.png` | `game/rooms/brinstar/kraid_eye_door.tscn` |
+| `backdrops/{graphics}/level_kraid_refill.png` | `game/rooms/brinstar/kraid_refill.tscn` |
+| `backdrops/{graphics}/level_kronic_boost.png` | `game/rooms/norfair/kronic_boost.tscn` |
+| `backdrops/{graphics}/level_lower_norfair_fireflea.png` | `game/rooms/norfair/lower_norfair_fireflea.tscn` |
+| `backdrops/{graphics}/level_main_street.png` | `game/rooms/maridia/main_street.tscn` |
+| `backdrops/{graphics}/level_mama_turtle.png` | `game/rooms/maridia/mama_turtle.tscn` |
+| `backdrops/{graphics}/level_map_station_room_door_on_left.png` | `game/rooms/crateria/crateria_map.tscn`, `game/rooms/maridia/maridia_map.tscn` |
+| `backdrops/{graphics}/level_map_station_room_door_on_right.png` | `game/rooms/brinstar/green_brinstar_map.tscn`, `game/rooms/norfair/norfair_map.tscn`, `game/rooms/wrecked_ship/wrecked_ship_map.tscn` |
+| `backdrops/{graphics}/level_maridia_elevator.png` | `game/rooms/maridia/maridia_elevator.tscn` |
+| `backdrops/{graphics}/level_maridia_missile_refill.png` | `game/rooms/maridia/maridia_missile_refill.tscn` |
+| `backdrops/{graphics}/level_mt_everest.png` | `game/rooms/maridia/mt_everest.tscn` |
+| `backdrops/{graphics}/level_northwest_maridia_bug.png` | `game/rooms/maridia/northwest_maridia_bug.tscn` |
+| `backdrops/{graphics}/level_oasis.png` | `game/rooms/maridia/oasis.tscn` |
+| `backdrops/{graphics}/level_pants.png` | `game/rooms/maridia/pants.tscn` |
+| `backdrops/{graphics}/level_plasma.png` | `game/rooms/maridia/plasma.tscn` |
+| `backdrops/{graphics}/level_plasma_beach_quicksand.png` | `game/rooms/maridia/plasma_beach_quicksand.tscn` |
+| `backdrops/{graphics}/level_plasma_spark.png` | `game/rooms/maridia/plasma_spark.tscn` |
+| `backdrops/{graphics}/level_plasma_tutorial.png` | `game/rooms/maridia/plasma_tutorial.tscn` |
+| `backdrops/{graphics}/level_post_crocomire_farming.png` | `game/rooms/norfair/post_crocomire_farming.tscn` |
+| `backdrops/{graphics}/level_post_crocomire_jump.png` | `game/rooms/norfair/post_crocomire_jump.tscn` |
+| `backdrops/{graphics}/level_pseudo_plasma_spark.png` | `game/rooms/maridia/pseudo_plasma_spark.tscn` |
+| `backdrops/{graphics}/level_red_brinstar_firefleas.png` | `game/rooms/brinstar/red_brinstar_firefleas.tscn` |
+| `backdrops/{graphics}/level_red_fish.png` | `game/rooms/maridia/red_fish.tscn` |
+| `backdrops/{graphics}/level_save_room_door_on_left.png` | `game/rooms/brinstar/red_brinstar_save.tscn`, `game/rooms/brinstar/warehouse_save.tscn`, `game/rooms/maridia/forgotten_highway_save.tscn` and 6 more |
+| `backdrops/{graphics}/level_save_room_door_on_right.png` | `game/rooms/brinstar/big_pink_save_room.tscn`, `game/rooms/brinstar/etecoon_save.tscn`, `game/rooms/brinstar/green_brinstar_save.tscn` and 5 more |
+| `backdrops/{graphics}/level_save_room_doors_on_both_sides.png` | `game/rooms/maridia/draygon_save.tscn`, `game/rooms/norfair/frog_save.tscn` |
+| `backdrops/{graphics}/level_shaktool_default.png` | `game/rooms/maridia/shaktool.tscn` |
+| `backdrops/{graphics}/level_shaktool_when_shaktool_cleared_path.png` | `game/rooms/maridia/shaktool.tscn` |
+| `backdrops/{graphics}/level_single_chamber.png` | `game/rooms/norfair/single_chamber.tscn` |
+| `backdrops/{graphics}/level_space_jump.png` | `game/rooms/maridia/space_jump.tscn` |
+| `backdrops/{graphics}/level_spore_spawn.png` | `game/rooms/brinstar/spore_spawn.tscn` |
+| `backdrops/{graphics}/level_spore_spawn_farming.png` | `game/rooms/brinstar/spore_spawn_farming.tscn` |
+| `backdrops/{graphics}/level_springball.png` | `game/rooms/maridia/springball.tscn` |
+| `backdrops/{graphics}/level_the_precious.png` | `game/rooms/maridia/the_precious.tscn` |
+| `backdrops/{graphics}/level_thread_the_needle.png` | `game/rooms/maridia/thread_the_needle.tscn` |
+| `backdrops/{graphics}/level_toilet.png` | `game/rooms/maridia/toilet.tscn` |
+| `backdrops/{graphics}/level_tourian_recharge.png` | `game/rooms/tourian/tourian_recharge.tscn` |
+| `backdrops/{graphics}/level_upper_norfair_farming.png` | `game/rooms/norfair/upper_norfair_farming.tscn` |
+| `backdrops/{graphics}/level_upper_norfair_refill.png` | `game/rooms/norfair/upper_norfair_refill.tscn` |
+| `backdrops/{graphics}/level_varia_suit.png` | `game/rooms/brinstar/varia_suit.tscn` |
+| `backdrops/{graphics}/level_volcano.png` | `game/rooms/norfair/volcano.tscn` |
+| `backdrops/{graphics}/level_warehouse_energy_tank.png` | `game/rooms/brinstar/warehouse_energy_tank.tscn` |
+| `backdrops/{graphics}/level_warehouse_kihunter.png` | `game/rooms/brinstar/warehouse_kihunter.tscn` |
+| `backdrops/{graphics}/level_warehouse_zeela.png` | `game/rooms/brinstar/warehouse_zeela.tscn` |
+| `backdrops/{graphics}/level_watering_hole.png` | `game/rooms/maridia/watering_hole.tscn` |
+| `backdrops/{graphics}/level_west_aqueduct_quicksand.png` | `game/rooms/maridia/west_aqueduct_quicksand.tscn` |
+| `backdrops/{graphics}/level_west_cactus_alley.png` | `game/rooms/maridia/west_cactus_alley.tscn` |
+| `backdrops/{graphics}/level_west_sand_hall_tunnel.png` | `game/rooms/maridia/west_sand_hall_tunnel.tscn` |
+| `backdrops/{graphics}/level_west_sand_hole.png` | `game/rooms/maridia/west_sand_hole.tscn` |
+| `backdrops/{graphics}/level_west_tunnel.png` | `game/rooms/maridia/west_tunnel.tscn` |
+| `backdrops/{graphics}/level_wrecked_ship_energy_tank.png` | `game/rooms/wrecked_ship/wrecked_ship_energy_tank.tscn` |
 | `backdrops/{graphics}/maridia_brown_wall.png` | `game/rooms/maridia/crab_tunnel.tscn` |
 | `backdrops/{graphics}/maridia_green_wall.png` | `game/rooms/maridia/east_sand_hall.tscn`, `game/rooms/maridia/west_sand_hall.tscn` |
 | `backdrops/{graphics}/norfair_bubbles.png` | `game/rooms/norfair/bubble_mountain.tscn`, `game/rooms/norfair/green_bubbles_missiles.tscn` |

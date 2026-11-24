@@ -77,6 +77,13 @@ class Sequences:
                 'Picture': quoted(f'backdrops/{{graphics}}/{snake(state.background)}.png'),
                 'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
 
+        elif state.background == 'null':
+            # What the level draws behind itself, which is kept as one picture for each set of graphics it is drawn in.
+            modes = legacy.call_arguments(state.background_scroll)
+            self.placed.append(Placed(BACKDROP, 'Backdrop', {
+                'Picture': quoted(f'backdrops/{{graphics}}/level_{snake(state.level)}.png'),
+                'ScrollShare': f'Vector2({share(modes[0])}, {share(modes[1])})'}, at=(0, 0), enemy=False))
+
         if state.main in ESCAPES:
             self.placed.append(sequence('EscapeRoom.cs', 'Escape', {'StartsWhen': ctx.always(), **ESCAPES[state.main]}))
         if state.setup == 'OpenRescuedAnimalsPassageAndQuake':

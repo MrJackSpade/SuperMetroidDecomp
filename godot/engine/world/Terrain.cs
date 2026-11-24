@@ -40,6 +40,9 @@ public partial class Terrain : Node2D, ITerrainShape
     /// <summary>The block covering each tile, by row then column; null where there is none.</summary>
     private Block?[][] _blockAt = [];
 
+    /// <summary>The sounds of the blocks that have broken and not yet been heard.</summary>
+    private readonly List<string> _breakSounds = [];
+
     /// <summary>Every block, in reading order of its top-left tile.</summary>
     private readonly List<Block> _blocks = [];
 
@@ -256,9 +259,22 @@ public partial class Terrain : Node2D, ITerrainShape
         _updates++;
         bool changed = _hasMovingTiles;
         foreach (Block block in _blocks)
+        {
             changed |= block.Step(spaceIsClear: !isOccupied(block.Rect));
+            if (block.TakeJustBroke() && block.Type.BreakSound.Length > 0 && !_breakSounds.Contains(block.Type.BreakSound))
+                _breakSounds.Add(block.Type.BreakSound);
+        }
+
         if (changed)
             QueueRedraw();
+    }
+
+    /// <summary>The sounds of the blocks that broke since this was last asked, each once.</summary>
+    public IReadOnlyList<string> TakeBreakSounds()
+    {
+        string[] sounds = [.. _breakSounds];
+        _breakSounds.Clear();
+        return sounds;
     }
 
     /// <summary>The patch of the given name.</summary>
@@ -333,13 +349,10 @@ public partial class Terrain : Node2D, ITerrainShape
             for (int column = 0; column < _tiles[row].Length; column++)
             {
                 TileDefinition tile = _tiles[row][column];
+                // A block is drawn at every tile it covers, as it is now.
                 string picture = tile.PictureAt(_updates);
-                if (tile.Kind == TileKind.Block && _blockAt[row][column] is { } block)
-                {
-                    if (block.Broken || block.Rect.Left != column * size || block.Rect.Top != row * size)
-                        continue;
-                    picture = block.Hidden ? block.Type.HiddenPicture : block.Type.IntactPicture;
-                }
+                if (_blockAt[row][column] is { } block)
+                    picture = block.PictureNow(picture);
 
                 if (picture.Length > 0)
                     DrawTexture(_content.LoadTexture(picture), new Vector2(column * size, row * size));

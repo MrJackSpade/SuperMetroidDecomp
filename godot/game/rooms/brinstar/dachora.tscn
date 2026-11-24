@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
 [ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
@@ -13,7 +13,8 @@
 [ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="11"]
 [ext_resource type="Script" path="res://engine/world/Trigger.cs" id="12"]
 [ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="13"]
-[ext_resource type="Script" path="res://game/rooms/brinstar/DachoraShaftCamera.cs" id="14"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="14"]
+[ext_resource type="Script" path="res://game/rooms/brinstar/DachoraShaftCamera.cs" id="15"]
 
 [sub_resource type="Resource" id="r1"]
 script = ExtResource("1")
@@ -775,8 +776,14 @@ position = Vector2(0, 0)
 EffectName = "spores"
 LookFile = "effects/spores.json"
 
-[node name="ShaftCamera" type="Node" parent="."]
+[node name="Backdrop" type="Node2D" parent="."]
 script = ExtResource("14")
+position = Vector2(0, 0)
+Picture = "backdrops/{graphics}/level_dachora.png"
+ScrollShare = Vector2(0.75, 1)
+
+[node name="ShaftCamera" type="Node" parent="."]
+script = ExtResource("15")
 StartsWhen = SubResource("r2")
 ShaftTop = NodePath("../Screen4x1")
 Beside = NodePath("../Screen3x1")

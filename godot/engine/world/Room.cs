@@ -284,6 +284,8 @@ public partial class Room : Node2D
                 change.Step(this);
             _terrainChanges.RemoveAll(change => change.IsOver);
             Terrain.Step(rect => Collision.Overlapping(rect, ColliderRole.Body).Count > 0);
+            foreach (string sound in Terrain.TakeBreakSounds())
+                Session.Sounds.Request(sound, channel: "room");
             Liquid?.Step(Session.Camera.View);
             foreach (RoomEffect effect in _roomEffects)
                 effect.Step(this);

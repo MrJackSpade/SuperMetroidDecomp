@@ -19,9 +19,17 @@ namespace Engine.World;
 ///   "hidden_until": ["bomb"],
 ///   "revealed_by_sight": true,
 ///   "contact": "nothing", "contact_hit": 0,
-///   "pictures": { "intact": "tiles/shot_block.png", "hidden": "tiles/rock.png" }
+///   "pictures": { "intact": "tiles/{graphics}/87.png" },
+///   "breaking": { "steps": [ { "picture": "tiles/{graphics}/83.png", "updates": 4 } ] },
+///   "regrowing": { "steps": [ { "picture": "tiles/{graphics}/85.png", "updates": 4 } ] },
+///   "break_sound": "enemy_block_crumble"
 /// }
 /// </code>
+/// A block is drawn with the picture of the tile it lies on, at each tile it covers. One whose type gives an "intact"
+/// picture starts hidden and shows that picture, at each of its tiles, once it has been revealed or has broken and
+/// come back; a "hidden" picture is shown in place of its tiles' own until then. "breaking" is the timeline shown,
+/// at each of its tiles, from the moment it breaks, and "regrowing" the one whose end is the moment it comes back;
+/// "regrows_after" counts from the break to the return and takes in both. "break_sound" is heard as it breaks.
 /// </remarks>
 public sealed class BlockType
 {
@@ -49,8 +57,11 @@ public sealed class BlockType
     /// <summary>Whether a revealing ability reveals it while hidden.</summary>
     public bool RevealedBySight { get; private init; }
 
-    /// <summary>Whether it starts hidden: looking like plain terrain until revealed.</summary>
-    public bool StartsHidden => HiddenUntil.Count > 0 || RevealedBySight;
+    /// <summary>
+    /// Whether it starts hidden: looking like plain terrain until revealed. One that something reveals does, and so does
+    /// one with a picture to show for what it is.
+    /// </summary>
+    public bool StartsHidden => HiddenUntil.Count > 0 || RevealedBySight || IntactPicture.Length > 0;
 
     /// <summary>What touching it does.</summary>
     public BlockContact Contact { get; private init; }
@@ -67,11 +78,20 @@ public sealed class BlockType
     /// <summary>For a block that carries or pulls, how far each update; rightward or downward when positive.</summary>
     public Pixels ContactSpeed { get; private init; }
 
-    /// <summary>The picture shown while intact and revealed; empty for none.</summary>
+    /// <summary>The picture shown while intact and revealed; empty for the pictures of the tiles it lies on.</summary>
     public string IntactPicture { get; private init; } = "";
 
-    /// <summary>The picture shown while hidden; empty for none.</summary>
+    /// <summary>The picture shown while hidden; empty for the pictures of the tiles it lies on.</summary>
     public string HiddenPicture { get; private init; } = "";
+
+    /// <summary>The pictures shown from the moment it breaks; null for one that is gone at once.</summary>
+    public FrameTimeline? Breaking { get; private init; }
+
+    /// <summary>The pictures shown up to the moment it comes back; null for one that is back at once.</summary>
+    public FrameTimeline? Regrowing { get; private init; }
+
+    /// <summary>The sound of it breaking, by name; empty for none.</summary>
+    public string BreakSound { get; private init; } = "";
 
     /// <summary>Reads a block type from its data file.</summary>
     public static BlockType Read(DataNode data)
@@ -96,6 +116,9 @@ public sealed class BlockType
             ContactSpeed = data.Has("contact_speed") ? data.Distance("contact_speed") : Pixels.Zero,
             IntactPicture = pictures is not null && pictures.Has("intact") ? pictures.Text("intact") : "",
             HiddenPicture = pictures is not null && pictures.Has("hidden") ? pictures.Text("hidden") : "",
+            Breaking = data.Has("breaking") ? FrameTimeline.Read(data.Get("breaking")) : null,
+            Regrowing = data.Has("regrowing") ? FrameTimeline.Read(data.Get("regrowing")) : null,
+            BreakSound = data.Has("break_sound") ? data.Text("break_sound") : "",
         };
         if (type.RegrowsAfter < 0 || type.StoodOnUpdates < 0)
             throw data.Problem("gives a negative number of updates");

@@ -102,6 +102,7 @@ public partial class FileSelectMode : GameMode
     private int _lit;
     private int _fadeUpdates;
     private bool _brightening;
+    private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -148,12 +149,19 @@ public partial class FileSelectMode : GameMode
     }
 
     /// <inheritdoc/>
+    public override bool GivesMusicItsTurn => !EntryWaitsOutDisplayFrame;
+
+    /// <inheritdoc/>
+    public override ClosingSoundWork SoundWorkAtClose => _closing;
+
+    /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        // Every update of the old choice of saved game draws a random number first, but for one that finishes a wait
-        // for a frame of the display.
+        // Every update of the old choice of saved game draws a random number first and gives the sounds their turns,
+        // but for one that finishes a wait for a frame of the display.
         if (!EntryWaitsOutDisplayFrame)
             Session.OpenUpdate();
+        _closing = EntryWaitsOutDisplayFrame ? ClosingSoundWork.None : ClosingSoundWork.Usual;
 
         // As the old game's screen is made, it stays black a few updates, nothing moving, before it fades in.
         if (_blackLeft > 0)

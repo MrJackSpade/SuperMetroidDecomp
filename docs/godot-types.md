@@ -930,6 +930,12 @@ The base is the engine's. One scene per enemy in `game/enemies/<name>/`, per bos
   visuals.
 - **Does not:** read or write another enemy's state, depend on its place in any list, or reach into the player. If
   two enemies must cooperate, one owns the other as a child, or they share a link set when the room places them.
+- **An enemy's turn.** The room steps each enemy in view once an update. Its timers move on; then, unless it could
+  not be hit as its turn began (lately hurt, the update that ends that too), its hits are settled, before it acts
+  and where it stood before moving: the player's shots are tried against it, each where the shot stands, and then
+  its touch against the player (not while frozen). Then it behaves and its timeline moves on, unless a status or
+  its hurt stops it. The player's shots do not hit enemies as they move, an enemy out of view or asleep is not
+  hit, and an enemy's body is no wall to a shot: an enemy stops a shot only by what it does when the shot hits it.
 - **Colour and strength variants** are one scene with different data files.
 - **What the base offers a concrete enemy** beyond the above: starting a timeline and acting on its cues, with a cue
   that starts another timeline taking effect in the same update; marking its place in a timeline and resuming there;
@@ -979,7 +985,8 @@ not lifted from a shared routine.
   lifetime, its collider and its visual.
 - **Manages:** moving, hitting what it meets, and removing itself.
 - **Does not:** decide what its target does about the hit, or know its target's type.
-- **When it hits.** The player's shot delivers its hit as it moves, to whatever it comes upon. An enemy's shot does not:
+- **When it hits.** The player's shot delivers its hit as it moves, to whatever it comes upon but an enemy: each enemy
+  tries the player's shots against itself in its own turn ("An enemy's turn", above). An enemy's shot does not hit as it moves either:
   it moves, and the room tries each enemy's shot once, where it then stands, at the end of the room's update, after
   the room's objects have played (and so after a message that suspended the update). The room first asks the player
   once whether any is tried at all (`Player.BeginEnemyShots`: none once the player is dead or dying, and a game may

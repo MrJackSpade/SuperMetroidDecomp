@@ -419,15 +419,28 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
 
         // Something solid that is not terrain may be the very thing the shot is for: a door's cap, a frozen enemy. So
         // what is there is hit first, and only then does the solid stop the shot.
-        bool meetsSolid = !passes && room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Count > 0;
+        // An enemy's body is not a wall to a shot: an enemy stops a shot only by what it does when the shot hits it.
+        bool meetsSolid = !passes &&
+            room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Any(solid => solid.CollisionOwner is not Enemy);
 
         // An enemy's shot is not tried against what it harms as it moves: the room tries each where it stands once
-        // all have moved.
+        // all have moved. The player's shot meets what it comes upon as it moves, but for enemies: each enemy tries
+        // the shots against itself in its own turn.
         if (!DeliversHitNow || Side == HitSide.Enemies)
             return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
-        if (!MeetTargets(room, area))
+        if (!MeetTargets(room, area, target => target is not Enemy))
             return false;
         return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
+    }
+
+    /// <summary>
+    /// Tries the player's shot against one enemy, where the shot stands. The enemy asks, through the room, in its
+    /// own turn.
+    /// </summary>
+    internal void MeetEnemy(Enemy enemy)
+    {
+        if (!HasEnded && DeliversHitNow && Side == HitSide.Player)
+            MeetTargets(Room, Area, target => ReferenceEquals(target, enemy));
     }
 
     /// <summary>
@@ -437,19 +450,20 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     internal void MeetTargetsWhereItStands()
     {
         if (!HasEnded && DeliversHitNow)
-            MeetTargets(Room, Area);
+            MeetTargets(Room, Area, landsOn: null);
     }
 
     /// <summary>
-    /// Delivers the projectile's hit to what lies in <paramref name="area"/> and does what each answer calls for.
-    /// Returns whether it carries on travelling this update.
+    /// Delivers the projectile's hit to what lies in <paramref name="area"/>, of the targets <paramref name="landsOn"/>
+    /// lets it be tried against, and does what each answer calls for. Returns whether it carries on travelling this
+    /// update.
     /// </summary>
-    private bool MeetTargets(Room room, PixelRect area)
+    private bool MeetTargets(Room room, PixelRect area, Func<IHittable, bool>? landsOn)
     {
         if (_settings.HitsEachUpdate)
             _alreadyHurt.Clear();
         _alreadyHurt.Add(this);
-        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit, area, from: _launcher, skipping: _alreadyHurt).ToList())
+        foreach ((IHittable target, HitResult result) in room.DeliverHit(Hit, area, from: _launcher, skipping: _alreadyHurt, landsOn: landsOn).ToList())
         {
             OnMetTarget(room, target, result);
             if (result != HitResult.Ignored && !_shookForTarget && _settings.TargetShake is { } targetShake)

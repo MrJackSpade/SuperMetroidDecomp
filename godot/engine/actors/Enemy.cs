@@ -241,8 +241,9 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
     }
 
     /// <summary>
-    /// Plays one update: its timers move on, it behaves unless a status or a hurt stops it, its timeline moves on, and
-    /// it hurts the player if they are touching it.
+    /// Plays one update, its turn: its timers move on; its hits are settled, the player's shots tried against it and
+    /// then its touch against the player, where it stood before moving; and it behaves and its timeline moves on,
+    /// unless a status or a hurt stops it.
     /// </summary>
     internal void Step()
     {
@@ -250,6 +251,7 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         if (IsAsleep)
             return;
         Updates++;
+        bool unhittableAtStart = _unhittable.IsRunning;
         _unhittable = _unhittable.Stepped();
         bool wasFlashing = _flash.IsRunning;
         _flash = _flash.Stepped();
@@ -260,17 +262,25 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
                 EndStatus();
         }
 
-        if (!IsFrozen)
+        // Its hits are settled in its own turn, before it acts and where it stood before moving: the player's shots
+        // are tried against it, then its touch against the player. An enemy that could not be hit as its turn began
+        // takes part in neither, on the update that ends that too.
+        if (!unhittableAtStart)
         {
-            if (!(StunnedWhileHurt && wasFlashing))
-            {
-                Behave();
-                if (!IsDead)
-                    StepAnimation();
-            }
-
-            if (!IsDead)
+            Room.TryPlayerShotsAgainst(this);
+            if (IsDead)
+                return;
+            if (!IsFrozen)
                 TouchPlayer();
+            if (IsDead)
+                return;
+        }
+
+        if (!IsFrozen && !(StunnedWhileHurt && wasFlashing))
+        {
+            Behave();
+            if (!IsDead)
+                StepAnimation();
         }
 
         if (!IsDead)

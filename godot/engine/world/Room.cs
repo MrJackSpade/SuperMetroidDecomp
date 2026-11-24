@@ -570,8 +570,9 @@ public partial class Room : Node2D
     /// <param name="area">Where it lands, in room pixels.</param>
     /// <param name="from">Whatever delivers the hit, which it never lands on.</param>
     /// <param name="skipping">Targets the hit passes over, such as those a piercing shot has already hurt.</param>
+    /// <param name="landsOn">Which targets the hit is tried against at all; every one, when null.</param>
     public IReadOnlyList<(IHittable Target, HitResult Result)> DeliverHit(
-        Hit hit, PixelRect area, ICollisionOwner? from = null, IReadOnlySet<IHittable>? skipping = null)
+        Hit hit, PixelRect area, ICollisionOwner? from = null, IReadOnlySet<IHittable>? skipping = null, Func<IHittable, bool>? landsOn = null)
     {
         var results = new List<(IHittable, HitResult)>();
         var seen = new HashSet<ICollisionOwner>();
@@ -582,12 +583,27 @@ public partial class Room : Node2D
                 continue;
             if (skipping is not null && skipping.Contains(target))
                 continue;
+            if (landsOn is not null && !landsOn(target))
+                continue;
             if (owner is IRoomEntity entity && _leaving.Contains(entity))
                 continue;
             results.Add((target, target.TakeHit(hit, hurtbox)));
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// Tries the player's shots against one enemy, each where it stands. An enemy asks this in its own turn, before
+    /// it acts: the player's shots do not hit enemies as they move.
+    /// </summary>
+    internal void TryPlayerShotsAgainst(Enemy enemy)
+    {
+        foreach (Projectile projectile in _projectiles.ToList())
+        {
+            if (projectile.Side == HitSide.Player && !_leaving.Contains(projectile))
+                projectile.MeetEnemy(enemy);
+        }
     }
 
     /// <summary>

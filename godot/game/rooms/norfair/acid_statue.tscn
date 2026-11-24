@@ -74,6 +74,7 @@ RecordsFact = "lower_norfair_acid_lowered"
 position = Vector2(472, 728)
 Speed = 2
 Range = 240
+ListedAt = 2
 AlwaysActive = true
 
 [node name="Holtz" parent="." instance=ExtResource("8")]

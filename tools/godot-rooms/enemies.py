@@ -423,8 +423,9 @@ def kzan(p, index, listed):
 def magdollite(p, index, listed):
     if p.settings_type != 'MagdolliteHeadSpawnSettings':
         return None
+    # Its pillar is listed straight after its head.
     return Placed(E + 'magdollite/magdollite.tscn', 'Magdollite', {
-        'Speed': number(p.settings['Speed']), 'Range': p.settings['Range']})
+        'Speed': number(p.settings['Speed']), 'Range': p.settings['Range'], 'ListedAt': str(index + 1)})
 
 
 @rule('Metroid')

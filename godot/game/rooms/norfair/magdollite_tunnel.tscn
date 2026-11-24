@@ -50,18 +50,21 @@ ArrivalOffset = Vector2i(40, 40)
 position = Vector2(248, 184)
 Speed = 3.625
 Range = 96
+ListedAt = 1
 AlwaysActive = true
 
 [node name="Magdollite2" parent="." instance=ExtResource("5")]
 position = Vector2(488, 184)
 Speed = 3.625
 Range = 96
+ListedAt = 4
 AlwaysActive = true
 
 [node name="Magdollite3" parent="." instance=ExtResource("5")]
 position = Vector2(584, 184)
 Speed = 3.625
 Range = 96
+ListedAt = 7
 AlwaysActive = true
 
 [node name="Multiviola" parent="." instance=ExtResource("6")]

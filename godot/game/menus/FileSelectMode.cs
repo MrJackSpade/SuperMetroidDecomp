@@ -149,15 +149,6 @@ public partial class FileSelectMode : GameMode
     }
 
     /// <inheritdoc/>
-    protected internal override void Resume()
-    {
-        // Back from the options: the first page again, out of black.
-        ShowMain();
-        (_fade ?? throw NotShown()).FadeIn(FadeUpdates);
-        _blackLeft = ScreenData().Int("entry_black_updates");
-    }
-
-    /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
         ScreenFade fade = _fade ?? throw NotShown();
@@ -198,7 +189,7 @@ public partial class FileSelectMode : GameMode
                 // The turn ends once its last picture has shown its while; confirming again cuts it short. The helmet
                 // keeps the picture it has through the fade.
                 if (--_turnLeft <= 0 || input.WasPressed(GameAction.Confirm))
-                    FadeOutTo(() => new OptionsMode(this));
+                    FadeOutTo(static () => new OptionsMode());
                 break;
             case Asking.CopyFrom:
             case Asking.ClearWhich:

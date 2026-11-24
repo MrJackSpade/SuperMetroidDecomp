@@ -130,7 +130,6 @@ public partial class SaveMapMode : GameMode
         private static long OnScreen(long edge, int side) => edge < 0 ? 0 : Math.Min(edge, Whole(side));
     }
 
-    private readonly GameMode _returnsTo;
     private readonly SaveData _save;
     private readonly DataNode _data;
     private readonly string _area;
@@ -161,30 +160,25 @@ public partial class SaveMapMode : GameMode
     private bool _showsBacking = true;
     private bool _loadsNext;
 
-    private SaveMapMode(GameMode returnsTo, SaveData save, DataNode data)
+    private SaveMapMode(SaveData save, DataNode data)
     {
-        (_returnsTo, _save, _data) = (returnsTo, save, data);
+        (_save, _data) = (save, data);
         _area = data.Get("stations").Get(save.EntryPoint).Text("area");
     }
 
     /// <summary>
-    /// The map of the saved game in <paramref name="session"/>'s slot, laid over <paramref name="returnsTo"/>, the
-    /// choice of saved game the options it goes back to are laid over; or null when the slot holds no game, or holds
+    /// The map of the saved game in <paramref name="session"/>'s slot; or null when the slot holds no game, or holds
     /// one saved at no place the map marks, which starts with no map.
     /// </summary>
-    public static SaveMapMode? Of(GameSession session, GameMode returnsTo)
+    public static SaveMapMode? Of(GameSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        ArgumentNullException.ThrowIfNull(returnsTo);
         if (!session.Saves.Has(session.Slot))
             return null;
         SaveData save = session.Saves.Read(session.Slot);
         DataNode data = session.Content.ReadData(DataFile);
-        return data.Get("stations").Has(save.EntryPoint) ? new SaveMapMode(returnsTo, save, data) : null;
+        return data.Get("stations").Has(save.EntryPoint) ? new SaveMapMode(save, data) : null;
     }
-
-    /// <inheritdoc/>
-    public override GameMode? Keeps => _returnsTo;
 
     private Vector2I Screen => new(_data.Get("room").Get("map").Int("screen_width"), _data.Get("room").Get("map").Int("screen_height"));
 
@@ -193,7 +187,6 @@ public partial class SaveMapMode : GameMode
     {
         _progress = _save.Remembered();
 
-        // The screens beneath are covered by their own fades; this one lies over them.
         var layer = new CanvasLayer { Name = "Screen", Layer = 30 };
         AddChild(layer);
         var black = new ColorRect { Name = "Black", Color = Colors.Black };
@@ -435,7 +428,7 @@ public partial class SaveMapMode : GameMode
                 // The screen darkens a level an update, and at black the options come back, made anew as the old
                 // game makes them.
                 _dark++;
-                return _dark == _data.Int("fade_levels") ? new OptionsMode(_returnsTo) : this;
+                return _dark == _data.Int("fade_levels") ? new OptionsMode() : this;
 
             case Phase.LoadRequested:
                 if (_waitLeft > 0)

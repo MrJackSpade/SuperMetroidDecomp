@@ -22,12 +22,14 @@ namespace Game.Enemies;
 /// "lean_down", "hand_beam", and "walk_forward_" and "walk_backward_" with "really_fast", "fast", "medium", "slow"
 /// and "really_slow". Their cues are "pose:" and "standing", "walking", "crouching", "crouched", "death_beam" or
 /// "leaning"; "move:" with pixels across and down; "step:" the same, with a footfall; "hand_dust:" with a place from
-/// her body; "fire_hand_beam"; and "hand_beam_done".</para>
+/// her body and the data file of the effect left there; "fire_hand_beam"; "hand_beam_done"; and "shape:" with the
+/// name of one of her data's "shapes", which puts the parts of her body that stop shots where one picture of it has
+/// them (<see cref="ColliderPoses"/>).</para>
 /// <para>Her visual "Head" is her brain, which plays the timelines her fight names; their cues are "shake", "drool",
 /// "big_breath", "neck:on", "neck:off", "aim_rings", "ring", "laser", "bomb:" with how many flames it leaves,
 /// "charge", "charge_particle", "maybe_hold:" with a timeline and "maybe_drool:" with a timeline, and those the rest
-/// of her fight adds. Her visuals "Neck0" to "Neck4" are the joints of her neck. Her hurtbox "Brain" follows her
-/// head. Her data gives "contacts": the rectangles of her "body", her "brain" and a joint of her "neck" that push
+/// of her fight adds. Her visuals "Neck0" to "Neck4" are the joints of her neck, each showing her timeline "neck".
+/// Her hurtbox "Brain" follows her head. Her data gives "contacts": the rectangles of her "body", her "brain" and a joint of her "neck" that push
 /// Samus away, each with "left", "top", "right" and "bottom" from that part's place; the places of the dust and
 /// blasts of her fall and rise; "tube_drops", the pipes that fall in turn; and the names of her terrain patches. All
 /// her places are in the room's own pixels.</para>
@@ -86,6 +88,10 @@ public partial class MotherBrain : Enemy
     [Export, DataValue("big_explosion_effect")]
     public string BigExplosionEffect { get; set; } = "";
 
+    /// <summary>The effect of the bigger dust her rising throws up as often as not.</summary>
+    [Export, DataValue("big_dust_effect")]
+    public string BigDustEffect { get; set; } = "";
+
     /// <summary>The forms she takes in turn.</summary>
     private enum Form
     {
@@ -138,6 +144,8 @@ public partial class MotherBrain : Enemy
 
     private readonly Dictionary<string, List<Contact>> _contacts = new(StringComparer.Ordinal);
     private readonly PixelPosition[] _neck = new PixelPosition[5];
+    private ColliderPoses? _shapes;
+    private PixelRect _brainRect;
     private Form _form;
     private Stage _stage;
     private Pose _pose;
@@ -176,6 +184,9 @@ public partial class MotherBrain : Enemy
         _contacts.Clear();
         foreach ((string part, DataNode rects) in data.Get("contacts").Entries())
             _contacts[part] = [.. rects.Items().Select(rect => new Contact(rect.Int("left"), rect.Int("top"), rect.Int("right"), rect.Int("bottom")))];
+        _shapes = ColliderPoses.Read(data.Get("shapes"), this);
+        // Her brain's hurtbox goes where her head goes, keeping where it lies from it.
+        _brainRect = GetNode<Collider>("Brain").Rect;
         ReadFakeDeathValues(data);
     }
 
@@ -188,6 +199,11 @@ public partial class MotherBrain : Enemy
         _headHealth = FirstPhaseHealth;
         _head = Position;
         Visual?.SetShown(false);
+        // Until her body rises nothing of it is there to stop a shot.
+        Shapes.TakeNone();
+        TimelineStep joint = Timelines.Get("neck").Steps[0];
+        for (int each = 0; each < _neck.Length; each++)
+            GetNode<ActorVisual>($"Neck{each}").Show(joint);
         PlayHead("whole_head_mouth_closed");
         Room.Liquid?.Triggered("rise");
     }
@@ -275,7 +291,11 @@ public partial class MotherBrain : Enemy
                 break;
 
             case "hand_dust":
-                Leave(DustEffect, Position + PixelOffset.FromWhole(Number(parts[1]), Number(parts[2])));
+                LeaveEffect(parts[3], Position + PixelOffset.FromWhole(Number(parts[1]), Number(parts[2])));
+                break;
+
+            case "shape":
+                Shapes.Take(parts[1]);
                 break;
 
             case "fire_hand_beam":
@@ -386,8 +406,7 @@ public partial class MotherBrain : Enemy
 
         if (GetNodeOrNull<Collider>("Brain") is { } brain)
         {
-            PixelRect rect = brain.Rect;
-            brain.Rect = new PixelRect(fromBody.X.Whole - rect.Width / 2, fromBody.Y.Whole - rect.Height / 2, rect.Width, rect.Height);
+            brain.Rect = new PixelRect(fromBody.X.Whole + _brainRect.Left, fromBody.Y.Whole + _brainRect.Top, _brainRect.Width, _brainRect.Height);
         }
 
         for (int joint = 0; joint < _neck.Length; joint++)
@@ -537,6 +556,9 @@ public partial class MotherBrain : Enemy
 
         return false;
     }
+
+    /// <summary>The parts of her body that stop shots, as her data places them for each picture of it.</summary>
+    private ColliderPoses Shapes => _shapes ?? throw new InvalidOperationException("Mother Brain's data has not been read.");
 
     /// <summary>Leaves an effect, if it is named.</summary>
     private void Leave(string effect, PixelPosition at)

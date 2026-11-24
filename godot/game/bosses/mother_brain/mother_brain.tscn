@@ -35,7 +35,27 @@ script = ExtResource("3")
 script = ExtResource("2")
 Role = 0
 
-[node name="Hurtbox" type="Node2D" parent="."]
+[node name="RightLeg" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Trunk" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Chest" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="NeckPart" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Arm" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="LeftLeg" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
 

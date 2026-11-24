@@ -495,7 +495,8 @@ public partial class MotherBrain
             return;
         }
 
-        Fire("hand_beam", at, PixelVelocity.Zero);
+        // Each piece lays down the next in its turn, as the glow at her hand does.
+        ((MotherBrainHandBeam)Fire("hand_beam", at, PixelVelocity.Zero)).FiredBy(this);
     }
 
     /// <summary>Acts on a cue of her brain's timeline.</summary>
@@ -561,7 +562,13 @@ public partial class MotherBrain
 
             case "maybe_hold":
                 // Nearly always she holds her look a while before the next.
-                if (_form == Form.ThirdPhase ? (Random.Last.Number & 0xFFF) < 3776 : Random.Last.Part(12, 4) < 15)
+                if (Random.Last.Part(12, 4) < 15)
+                    PlayHead(parts[1]);
+                break;
+
+            case "maybe_hold_late":
+                // Her damaged head holds its look a little less often.
+                if ((Random.Last.Number & 0xFFF) < 3776)
                     PlayHead(parts[1]);
                 break;
 

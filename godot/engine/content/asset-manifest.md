@@ -27,15 +27,15 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left |
 | `bosses/kraid_rock.json` | `KraidRock` | drift, drift_limit, gravity |
 | `bosses/kraid_second_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay, launch_reach, past_ledges_left |
-| `bosses/mother_brain.json` | `MotherBrain` | ascent_dust_sound, attack_cry_sound, big_breath_effect, big_explosion_effect, charge_sound, charge_stop_sound, contact_damage, corpse_dust_effect, corpse_dust_sound, door_fragment_effect, drained_grey_step_updates, dust_effect, explosion_effect, explosion_sound, fake_death_grey_step_updates, finish_off_energy, first_phase_health, footstep_sound, from_grey_step_updates, full_strength_health, grey_steps, hand_beam_sound, health, hurt_sound, laser_sound, rainbow_beam_sound, rainbow_beam_stop_sound, samus_stands_energy, second_phase_health, small_breath_effect, smoke_effect, third_phase_health |
+| `bosses/mother_brain.json` | `MotherBrain` | ascent_dust_sound, attack_cry_sound, big_breath_effect, big_dust_effect, big_explosion_effect, charge_sound, charge_stop_sound, contact_damage, corpse_dust_effect, corpse_dust_sound, door_fragment_effect, drained_grey_step_updates, dust_effect, explosion_effect, explosion_sound, fake_death_grey_step_updates, finish_off_energy, first_phase_health, footstep_sound, from_grey_step_updates, full_strength_health, grey_steps, hand_beam_sound, health, hurt_sound, laser_sound, rainbow_beam_sound, rainbow_beam_stop_sound, samus_stands_energy, second_phase_health, small_breath_effect, smoke_effect, third_phase_health |
 | `bosses/mother_brain_baby.json` | `MotherBrainBaby` | contact_damage, cry_sound, death_sound, dust_effect, explosion_effect, explosion_sound, heal_sound, health, remorse_cry_sound, shielding_health |
 | `bosses/mother_brain_bomb.json` | `MotherBrainBomb` | dust_effect, explosion_effect, explosion_sound, flare, floor, right_wall |
 | `bosses/mother_brain_charge_particle.json` | `MotherBrainDrool` | floor, release_drop, splash_rise, splash_timeline |
 | `bosses/mother_brain_drool.json` | `MotherBrainDrool` | floor, release_drop, splash_rise, splash_timeline |
 | `bosses/mother_brain_dying_drool.json` | `MotherBrainDrool` | floor, release_drop, splash_rise, splash_timeline |
-| `bosses/mother_brain_glass.json` | `MotherBrainGlass` | contact_damage, health, shard_drop, shatter_sound |
+| `bosses/mother_brain_glass.json` | `MotherBrainGlass` | burst_updates, contact_damage, health, shard_arcs, shard_drop, shatter_sound, shatter_updates, shattered_patch |
 | `bosses/mother_brain_ring.json` | `MotherBrainRing` | floor, mouth_updates, top, view_right |
-| `bosses/mother_brain_turret.json` | `MotherBrainTurret` | contact_damage, health, least_fire_wait, least_turn_wait, smoke_effect |
+| `bosses/mother_brain_turret.json` | `MotherBrainTurret` | contact_damage, health, least_fire_wait, least_turn_wait, smoke_effect, view_across, view_down, view_height, view_width |
 | `bosses/phantoon.json` | `Phantoon` | big_explosion_effect, contact_damage, death_drops, dying_cry, explosion_sound, fade_steps, flame_sound, health, rage_sound, round_damage, shot_cry, small_explosion_effect |
 | `bosses/phantoon_flame.json` | `PhantoonFlame` | burning_timeline, drift_speed, gravity, landing_drop, landing_pause, landing_timeline, leap_speed, rain_impact_timeline, rain_sound, resting_timeline, ring_hold_updates, ring_radius |
 | `bosses/ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, fade_updates, health, hit_flash_updates, hits_to_drive_off, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, wounded_health |
@@ -455,7 +455,7 @@ Each is a terrain layout. Those with patches listed must hold patches of those n
 | `rooms/tourian/metroids2_in_tourian.json` |  |
 | `rooms/tourian/metroids3_in_tourian.json` |  |
 | `rooms/tourian/metroids4_in_tourian.json` |  |
-| `rooms/tourian/mother_brain_in_mother_brain.json` |  |
+| `rooms/tourian/mother_brain_in_mother_brain.json` | glass_cleared, glass_rim_gone |
 | `rooms/tourian/rinka_shaft_in_tourian.json` |  |
 | `rooms/tourian/save_room_door_on_left_in_save_station.json` |  |
 | `rooms/tourian/save_room_door_on_right_in_save_station.json` |  |

@@ -314,6 +314,14 @@ class Generator:
                 xs, ys = [cell['x'] for cell in cells], [cell['y'] for cell in cells]
                 doors[door] = (min(xs) * BLOCK, min(ys) * BLOCK, (max(xs) - min(xs) + 1) * BLOCK, (max(ys) - min(ys) + 1) * BLOCK)
             self.room_doors[key] = doors
+        # Mother Brain's way out is a door her death makes: her room's level has no blocks for it until then. It lies
+        # in the wall until the patch of her death opens it.
+        death = legacy.read('Bosses', 'MotherBrain', 'MotherBrainDeathDefinitions.cs')
+        door_x, door_y = (int(part) for part in re.search(r'EscapeDoorBlock = new\((\d+), (\d+)\)', death).groups())
+        door_setup = re.search(r'EscapeDoorSetup = new\(\s*\[(.*?)\]\);', legacy.read('Bosses', 'MotherBrain', 'MotherBrainRoomMutationDefinitions.cs'), re.S)
+        door_blocks = len(re.findall(r'new\(new\(0, \d+\)', door_setup.group(1)))
+        escape_door = re.search(r'EscapeDoor = TourianDoorDefinitions\.(\w+);', death).group(1)
+        self.room_doors[self.by_name['MotherBrain']][escape_door] = (door_x * BLOCK, door_y * BLOCK, BLOCK, door_blocks * BLOCK)
 
     def nearby_music_set(self, key: str) -> str:
         """The set of music the nearest room that names one uses, going outward from `key` through its doors."""
@@ -494,6 +502,31 @@ class Generator:
                              for x, y in re.findall(r'new\((\d+), (\d+)\)', shut)]
                     things.extend(zones)
                     links[id(placed)]['ToldOfRoom'] = zones
+                if placed.boss == 'mother_brain':
+                    alive = ctx.none_of([ctx.fact('mother_brain_defeated')])
+                    # The turrets of her room, which the old Mother Brain sets up with herself.
+                    turrets = legacy.read('Bosses', 'MotherBrain', 'MotherBrainTurretDefinitions.cs')
+                    ways = re.findall(r'MotherBrainTurretDirection\.(\w+)', re.search(r'Ring = new\((.*?)\);', turrets, re.S).group(1))
+                    listed = re.search(r'Turrets \{ get; \} =\s*\[(.*?)\];', turrets, re.S).group(1)
+                    way = r'MotherBrainTurretDirection\.(\w+)'
+                    found = re.findall(r'new\(new\((\d+), (\d+)\), ' + way + ', ' + way + ', ' + way + r'\)', listed)
+                    if len(found) != listed.count('new(new('):
+                        raise ValueError('Not every turret of Mother Brain\'s room could be read.')
+                    for number, (x, y, starts, first, last) in enumerate(found, 1):
+                        things.append(enemies.Placed('res://game/bosses/mother_brain/mother_brain_turret.tscn', f'Turret{number}', {
+                            'StartsPointing': str(ways.index(starts)), 'Sweep': f'Vector2i({ways.index(first)}, {ways.index(last)})',
+                            'AlwaysActive': 'true'}, at=(int(x), int(y)), only_when=alive))
+                    # The view is shut into her end of the room once the way back is walled off.
+                    fight = legacy.read('Bosses', 'MotherBrain', 'MotherBrainFightDefinitions.cs')
+                    shut_x, shut_y = (int(part) for part in re.search(r'ArenaClosedScreen = new\((\d+), (\d+)\)', fight).groups())
+                    arena = enemies.Placed(camera.ZONE, f'MotherBrainScreen{shut_x}x{shut_y}', {'StartsOpen': 'true'},
+                                           at=(shut_x * SCREEN, shut_y * SCREEN), enemy=False)
+                    # The warning of her death is written out; she waits for it.
+                    warning = sequences.sequence('TypedWarning.cs', 'EscapeWarning', {
+                        'Message': quoted('zebes_time_bomb_warning'), 'LetterSound': quoted('typing')})
+                    things.extend([arena, warning])
+                    links[id(placed)].update({'ToldWhenSealed': [arena], 'ToldWhenEscapeBegins': [warning]})
+                    placed.properties['EscapeMusic'] = quoted('escape')
             chosen_on = conditional[version][0] if version < len(conditional) else ''
             played = sequences.Sequences(room, state, chosen_on, ctx, by_name, (room_scene(self.rooms['LandingSite']), 'AtZebesArrival'))
             things.extend(played.placed)
@@ -597,6 +630,9 @@ class Generator:
             patches = []
             if state.setup in sequences.ESCAPE_PATCHES:
                 patches.append(sequences.ESCAPE_PATCHES[state.setup])
+            if 'MotherBrainGlassDestroyed' in expression:
+                # The glass of Mother Brain's tank, once broken, stays broken.
+                patches.append('glass_rim_gone')
             if 'BossDead' in expression:
                 beaten = AREA_BOSSES[(room.area, legacy.last_name(legacy.call_arguments(expression)[0]))]
                 if beaten in enemies.BEATEN_PATCHES and any(p.enemy in enemies.BOSSES and enemies.BOSSES[p.enemy][1] == beaten

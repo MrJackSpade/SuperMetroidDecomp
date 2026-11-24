@@ -39,6 +39,22 @@ public partial class MotherBrainTurret : Enemy
     [Export, DataValue("smoke_effect")]
     public string SmokeEffect { get; set; } = "";
 
+    /// <summary>How far right of its place the point lies that must be in view for it to turn and fire.</summary>
+    [Export, DataValue("view_across")]
+    public int ViewAcross { get; set; } = 4;
+
+    /// <summary>How far below its place that point lies.</summary>
+    [Export, DataValue("view_down")]
+    public int ViewDown { get; set; } = 16;
+
+    /// <summary>How far from the view's left edge that point may lie.</summary>
+    [Export, DataValue("view_width")]
+    public int ViewWidth { get; set; } = 264;
+
+    /// <summary>How far from the view's top that point may lie.</summary>
+    [Export, DataValue("view_height")]
+    public int ViewHeight { get; set; } = 256;
+
     private readonly List<PixelOffset> _muzzles = [];
     private int _pointing;
     private int _turning = 1;
@@ -53,7 +69,7 @@ public partial class MotherBrainTurret : Enemy
     {
         if (IsDead)
             return;
-        if (IsInView(16) && SmokeEffect.Length > 0)
+        if (IsWatched() && SmokeEffect.Length > 0)
             LeaveEffect(SmokeEffect, Position);
         Vanish();
     }
@@ -73,8 +89,8 @@ public partial class MotherBrainTurret : Enemy
     {
         AlwaysActive = true;
         _pointing = StartsPointing;
-        _turnWait = Math.Max(Random.Last.Part(0, 8), LeastTurnWait);
-        _fireWait = Math.Max(Random.Last.Part(8, 8), LeastFireWait);
+        _turnWait = Math.Max(Random.Draw().Part(0, 8), LeastTurnWait);
+        _fireWait = Math.Max(Random.Draw().Part(0, 8), LeastFireWait);
         Play($"pointing_{_pointing}", restart: true);
     }
 
@@ -86,7 +102,7 @@ public partial class MotherBrainTurret : Enemy
     /// <inheritdoc/>
     protected override void Behave()
     {
-        if (!IsInView(16))
+        if (!IsWatched())
             return;
         if (--_turnWait <= 0)
         {
@@ -120,6 +136,14 @@ public partial class MotherBrainTurret : Enemy
             _ => (-1, -1),
         };
         Fire(shot, Position + _muzzles[_pointing], new PixelVelocity(Scaled(speed, across), Scaled(speed, down)));
+    }
+
+    /// <summary>Whether the point a little right of and below it is in view: only then does it turn, fire, or smoke as it is put out.</summary>
+    private bool IsWatched()
+    {
+        PixelRect view = Room.Session.Camera.View;
+        int across = Position.X.Whole + ViewAcross - view.Left, down = Position.Y.Whole + ViewDown - view.Top;
+        return across >= 0 && across < ViewWidth && down >= 0 && down < ViewHeight;
     }
 
     /// <summary>Whether a way lies within its sweep, going round from the first way to the last.</summary>

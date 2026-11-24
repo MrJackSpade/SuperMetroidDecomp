@@ -10,9 +10,11 @@ namespace Game.Enemies;
 /// <remarks>
 /// Her data lists "tube_drops", the pipes that fall in turn: each the "effect" that shows it, where it starts ("x",
 /// "y"), how far down it falls ("floor"), the terrain "patch" that clears where it stood, how many updates pass
-/// before the next ("wait"), and whether it is the "main" one, which carries her brain down with it. It also lists
-/// "fake_death_explosions" and "ascent_dust", the places of the blasts of her fall and the dust of her rising, and
-/// "sealed_wall_patches", "ceiling_patch" and "mural_patches", which it names.
+/// before the next ("wait"), and whether it is the "main" one, which carries her brain down with it and waits a
+/// "delay" before it falls, or one from the "top", which hangs above the tank and falls without a trail. It also
+/// lists "fake_death_explosions", "ascent_dust" and "sealed_wall_dust", the places of the blasts of her fall, the
+/// dust of her rising and the dust of the wall shut behind Samus, and "sealed_wall_patches", "ceiling_patch" and
+/// "mural_patches", which it names. What is listed in <see cref="ToldWhenSealed"/> is told "close" as the wall shuts.
 /// </remarks>
 public partial class MotherBrain
 {
@@ -58,7 +60,14 @@ public partial class MotherBrain
         ColoursReturn,
     }
 
-    private sealed record TubeDrop(string Effect, int X, int Y, int Floor, string Patch, int Wait, bool Main);
+    /// <summary>What is told "close" as the wall is shut behind Samus: the part of the room the view is then kept out of.</summary>
+    [Export]
+    public Godot.Collections.Array<NodePath> ToldWhenSealed { get; set; } = [];
+
+    private sealed record TubeDrop(string Effect, int X, int Y, int Floor, string Patch, int Wait, bool Main, int Delay, bool Top);
+
+    /// <summary>How far below a pipe from the top its dust shows as it starts to fall, in pixels.</summary>
+    private const int TopTubeDustBelow = 8;
 
     private sealed class FallingTube(Effect sprite, TubeDrop drop)
     {
@@ -81,6 +90,7 @@ public partial class MotherBrain
     private readonly List<FallingTube> _fallingTubes = [];
     private readonly List<PixelPosition> _fakeDeathExplosions = [];
     private readonly List<PixelPosition> _ascentDust = [];
+    private readonly List<PixelPosition> _sealedWallDust = [];
     private readonly List<string> _sealedWallPatches = [];
     private readonly List<string> _muralPatches = [];
     private string _ceilingPatch = "";
@@ -101,8 +111,12 @@ public partial class MotherBrain
     {
         _tubeDrops.Clear();
         _tubeDrops.AddRange(data.List("tube_drops").Select(drop => new TubeDrop(
-            drop.Text("effect"), drop.Int("x"), drop.Int("y"), drop.Int("floor"), drop.Text("patch"), drop.Int("wait"), drop.Has("main") && drop.Flag("main"))));
-        foreach ((List<PixelPosition> places, string name) in new[] { (_fakeDeathExplosions, "fake_death_explosions"), (_ascentDust, "ascent_dust") })
+            drop.Text("effect"), drop.Int("x"), drop.Int("y"), drop.Int("floor"), drop.Text("patch"), drop.Int("wait"), drop.Has("main") && drop.Flag("main"),
+            drop.Has("delay") ? drop.Int("delay") : 0, drop.Has("top") && drop.Flag("top"))));
+        foreach ((List<PixelPosition> places, string name) in new[]
+                 {
+                     (_fakeDeathExplosions, "fake_death_explosions"), (_ascentDust, "ascent_dust"), (_sealedWallDust, "sealed_wall_dust"),
+                 })
         {
             places.Clear();
             places.AddRange(data.List(name).Select(place => PixelPosition.FromWhole(place.Int("x"), place.Int("y"))));
@@ -121,10 +135,16 @@ public partial class MotherBrain
     /// <summary>Begins her seeming death: the way back is walled off.</summary>
     private void BeginDescent()
     {
-        Leave(DustEffect, PixelPosition.FromWhole(248, 72));
-        Leave(DustEffect, PixelPosition.FromWhole(248, 152));
+        foreach (PixelPosition dust in _sealedWallDust)
+            Leave(DustEffect, dust);
         foreach (string patch in _sealedWallPatches)
             Room.Terrain.ApplyPatch(patch);
+        foreach (NodePath path in ToldWhenSealed)
+        {
+            (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Mother Brain is to tell \"{path}\" that her room is shut, but that is nothing that can be told."))
+                .Triggered("close");
+        }
+
         _stage = Stage.Descent;
         _descent = Descent.InitialPause;
     }
@@ -220,7 +240,9 @@ public partial class MotherBrain
         {
             if (_nextTube > 0 && --_tubeWait > 0)
                 return;
-            _fallingTubes.Add(new FallingTube(LeaveEffect(drop.Effect, PixelPosition.FromWhole(drop.X, drop.Y)), drop) { Delay = drop.Main ? 33 : 0 });
+            _fallingTubes.Add(new FallingTube(LeaveEffect(drop.Effect, PixelPosition.FromWhole(drop.X, drop.Y)), drop) { Delay = drop.Delay });
+            if (drop.Top)
+                Leave(DustEffect, PixelPosition.FromWhole(drop.X, drop.Y + TopTubeDustBelow));
             _tubeFallen = true;
             return;
         }
@@ -256,7 +278,8 @@ public partial class MotherBrain
 
             if (!landed)
             {
-                if (tube.SmokeWait > 0 && --tube.SmokeWait > 0)
+                // Only the pipes that stood about the tank trail dust as they fall.
+                if (tube.Drop.Top || (tube.SmokeWait > 0 && --tube.SmokeWait > 0))
                     continue;
                 tube.SmokeWait = 9;
                 tube.SmokePuff = (tube.SmokePuff + 1) % TubeSmokeAcross.Length;
@@ -266,8 +289,10 @@ public partial class MotherBrain
 
             if (tube.Drop.Main)
                 LandBrain();
-            Leave(tube.Drop.Main || tube.Drop.Floor >= 240 ? ExplosionEffect : SmokeEffect, tube.Sprite.Position);
-            Sound(ExplosionSound);
+            // A pipe from the top ends in smoke, quietly; the others burst.
+            Leave(tube.Drop.Top ? SmokeEffect : ExplosionEffect, tube.Sprite.Position);
+            if (!tube.Drop.Top)
+                Sound(ExplosionSound);
             Room.Remove(tube.Sprite);
             _fallingTubes.Remove(tube);
         }
@@ -356,7 +381,7 @@ public partial class MotherBrain
                     break;
                 if (_ascentDust.Count > 0)
                 {
-                    Leave(DustEffect, _ascentDust[_nextDust]);
+                    Leave(Random.Last.Part(8, 1) == 1 ? BigDustEffect : DustEffect, _ascentDust[_nextDust]);
                     _nextDust = (_nextDust + 1) % _ascentDust.Count;
                     Sound(AscentDustSound);
                 }

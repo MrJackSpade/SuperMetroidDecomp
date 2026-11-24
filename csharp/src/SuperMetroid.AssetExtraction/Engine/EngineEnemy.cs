@@ -30,7 +30,12 @@ internal sealed partial class EngineEnemy
         _id = id;
         _file = file;
         Pictures = pictures;
-        Definition = RoomEnemyDefinitionCatalog.ById[id];
+        // An enemy a fight brings into a room is listed apart from those rooms place.
+        Definition = RoomEnemyDefinitionCatalog.ById.TryGetValue(id, out RoomEnemyDefinition placed)
+            ? placed
+            : RoomEnemyAuxiliaryDefinitionCatalog.Definitions.TryGetValue(id, out RoomEnemyDefinition brought)
+                ? brought
+                : throw new InvalidDataException($"The old game lists no enemy {id}.");
         EngineDefaults.Fill(Data, type);
         // Every enemy that moves by a curve of speeds moves by the one curve the old game has.
         if (Data.ContainsKey("speed_curve"))

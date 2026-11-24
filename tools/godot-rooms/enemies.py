@@ -694,7 +694,7 @@ BOSSES = {
 # The terrain patches a boss's room keeps once the boss is beaten: what its death did to the room.
 BEATEN_PATCHES = {
     'crocomire': ['bridge_collapsed', 'spike_wall_open'], 'spore_spawn': ['ceiling_open'], 'botwoon': ['wall_down'],
-    'kraid': ['ceiling_clear', 'spikes_clear'],
+    'kraid': ['ceiling_clear', 'spikes_clear'], 'mother_brain': ['glass_cleared'],
 }
 
 for part_name in ('Top', 'Middle', 'Bottom'):

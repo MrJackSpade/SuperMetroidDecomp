@@ -185,7 +185,12 @@ class Objects:
             'StartsBroken': truth(named(setup, 'DraygonCannonStart') == 'Destroyed'), 'AlwaysActive': 'true'}, at=corner(block)))
 
     def mother_brain_glass_setup(self, block, setup, gates) -> None:
-        self.placed.append(Placed(B + 'mother_brain/mother_brain_glass.tscn', 'MotherBrainGlass', {'AlwaysActive': 'true'}, at=corner(block)))
+        # A room where the glass has been broken, or Mother Brain beaten, begins without it: the room's version has
+        # the patch that shows the tank so.
+        ctx = self.ctx
+        self.placed.append(Placed(B + 'mother_brain/mother_brain_glass.tscn', 'MotherBrainGlass', {
+            'AlwaysActive': 'true', 'RecordsFact': quoted('mother_brain_glass_destroyed')}, at=corner(block),
+            only_when=ctx.none_of([ctx.fact('mother_brain_glass_destroyed'), ctx.fact('mother_brain_defeated')])))
 
     def speed_booster_escape_setup(self, block, setup, gates) -> None:
         # The lava's chase begins as the hall is entered from the Speed Booster's room, until it has been outrun once.

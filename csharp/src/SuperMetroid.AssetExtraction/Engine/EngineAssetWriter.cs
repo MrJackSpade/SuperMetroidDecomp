@@ -54,6 +54,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteCrocomire();
         writer.WriteBotwoon();
         writer.WriteBabyMetroid();
+        writer.WriteMotherBrain();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

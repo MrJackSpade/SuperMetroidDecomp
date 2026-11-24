@@ -35,7 +35,7 @@ script = ExtResource("4")
 position = Vector2(496, 96)
 Size = Vector2i(16, 64)
 LeadsToRoom = "res://game/rooms/tourian/mother_brain.tscn"
-LeadsToExit = "FromTourianEscape1ToMotherBrain"
+LeadsToExit = "ToTourianEscape1"
 Style = 0
 ArrivalOffset = Vector2i(-24, 40)
 

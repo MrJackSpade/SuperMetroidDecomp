@@ -4,8 +4,8 @@ using Engine.World;
 namespace Game.Enemies;
 
 /// <summary>
-/// The glow at Mother Brain's hand as she fires its beam. Each "piece" cue of its timeline has her lay down the next
-/// piece of the beam; "end" takes the glow away.
+/// The glow at Mother Brain's hand as she fires its beam, and each piece of the beam. Each "piece" cue of its
+/// timeline has her lay down the next piece of the beam; "end" takes it away.
 /// </summary>
 public partial class MotherBrainHandBeam : Projectile
 {

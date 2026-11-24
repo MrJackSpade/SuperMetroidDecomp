@@ -21,8 +21,8 @@ namespace Game.Enemies;
 /// "corpse" here. Her data gives "death_explosions", groups of four places from her body where she bursts;
 /// "escape_door_dust", the places of the dust at the way out; "escape_door_fragments", the pieces thrown from it,
 /// each with how far "down" from the door it starts and its "rise"; and "escape_door_patch", the terrain patch that
-/// opens it. She tells what listens "escape" as the alarm starts, is told "escape_text_done" when the warning has
-/// been written out, and then starts the escape's countdown.
+/// opens it. As the alarm starts she tells what listens "escape" and what writes the warning out to "start"; once
+/// that has done, or she is told "escape_text_done", she starts the escape's countdown.
 /// </remarks>
 public partial class MotherBrain : ITriggerTarget
 {
@@ -455,12 +455,19 @@ public partial class MotherBrain : ITriggerTarget
                 Room.Shake(2, 600);
                 _escapeTextDone = false;
                 TellRoom("escape");
+                foreach (NodePath path in ToldWhenEscapeBegins)
+                {
+                    (GetNode(path) as ITriggerTarget ?? throw new InvalidOperationException($"Mother Brain is to tell \"{path}\" that her alarm begins, but that is nothing that can be told."))
+                        .Triggered("start");
+                }
+
                 _death = Death.TypeOutEscapeText;
                 return false;
 
             case Death.TypeOutEscapeText:
                 KeepShaking();
-                if (!_escapeTextDone)
+                // She waits until she is told the warning has been written out, or until what writes it has done.
+                if (!_escapeTextDone && ToldWhenEscapeBegins.Any(path => GetNode(path) is RoomSequence { IsRunning: true }))
                     return false;
                 (_death, _timer) = (Death.EscapeDoorBursts, 33);
                 (_nextBurst, _burstWait) = (0, 1);

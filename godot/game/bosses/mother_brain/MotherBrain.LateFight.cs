@@ -30,6 +30,10 @@ public partial class MotherBrain
     [Export]
     public Godot.Collections.Array<NodePath> ToldOfFight { get; set; } = [];
 
+    /// <summary>What is told to "start" as the alarm of her death begins: the room sequence that writes the warning out, which she waits for.</summary>
+    [Export]
+    public Godot.Collections.Array<NodePath> ToldWhenEscapeBegins { get; set; } = [];
+
     /// <summary>The sound of her great beam while it fires, by name.</summary>
     [Export, DataValue("rainbow_beam_sound")]
     public string RainbowBeamSound { get; set; } = "";

@@ -159,6 +159,7 @@ public partial class SaveMapMode : GameMode
     private int _lookLeft;
     private bool _showsBacking = true;
     private bool _loadsNext;
+    private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     private SaveMapMode(SaveData save, DataNode data)
     {
@@ -321,12 +322,19 @@ public partial class SaveMapMode : GameMode
     }
 
     /// <inheritdoc/>
+    public override bool GivesMusicItsTurn => !_loadsNext;
+
+    /// <inheritdoc/>
+    public override ClosingSoundWork SoundWorkAtClose => _closing;
+
+    /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        // Every update of the old map draws a random number first, but for the one that waits out the frame of the
-        // display before loading.
+        // Every update of the old map draws a random number first and gives the sounds their turns, but for the one
+        // that waits out the frame of the display before loading.
         if (!_loadsNext)
             Session.OpenUpdate();
+        _closing = _loadsNext ? ClosingSoundWork.None : ClosingSoundWork.Usual;
         GameMode next = StepScreen(input);
         if (ReferenceEquals(next, this))
             ShowScene();

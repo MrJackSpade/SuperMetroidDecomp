@@ -105,6 +105,7 @@ public partial class CeresDestruction : Cinematic
     private bool _titleFadesIn;
     private Pixels _blastReach, _blastSpread;
     private bool _blasting;
+    private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     private TurningFloor? _floor;
     private Node2D? _sprites;
@@ -144,12 +145,25 @@ public partial class CeresDestruction : Cinematic
     }
 
     /// <inheritdoc/>
+    public override bool GivesMusicItsTurn => !WaitsOutDisplayFrame;
+
+    /// <inheritdoc/>
+    public override ClosingSoundWork SoundWorkAtClose => _closing;
+
+    /// <summary>
+    /// Whether the update finishes one of the opening's waits for a frame of the display: each after the first, up to
+    /// and with the one that sets the station up. Such an update gives the music and the sounds no turn.
+    /// </summary>
+    private bool WaitsOutDisplayFrame => Elapsed > 0 && Elapsed <= OpeningUpdates;
+
+    /// <inheritdoc/>
     protected override bool Play(int elapsed)
     {
         // Every update of the old destruction draws a random number first, but for those that finish its opening's waits
-        // for a frame of the display: each after the first, up to and with the one that sets the station up.
-        if (elapsed == 0 || elapsed > OpeningUpdates)
+        // for a frame of the display.
+        if (!WaitsOutDisplayFrame)
             Session.OpenUpdate();
+        _closing = WaitsOutDisplayFrame ? ClosingSoundWork.None : ClosingSoundWork.Usual;
         if (elapsed < OpeningUpdates)
             return false;
         if (elapsed == OpeningUpdates)

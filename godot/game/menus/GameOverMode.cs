@@ -46,6 +46,7 @@ public partial class GameOverMode : GameMode
     private bool _setUp;
     private bool _setUpWaitedOut;
     private bool _musicAsked;
+    private ClosingSoundWork _closing = ClosingSoundWork.Usual;
 
     /// <inheritdoc/>
     protected override void Enter()
@@ -75,12 +76,19 @@ public partial class GameOverMode : GameMode
     }
 
     /// <inheritdoc/>
+    public override bool GivesMusicItsTurn => !WaitsOutDisplayFrame;
+
+    /// <inheritdoc/>
+    public override ClosingSoundWork SoundWorkAtClose => _closing;
+
+    /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        // Every update of the old game over screen draws a random number first, but for one that finishes a wait for a
-        // frame of the display.
+        // Every update of the old game over screen draws a random number first and gives the sounds their turns, but for
+        // one that finishes a wait for a frame of the display.
         if (!WaitsOutDisplayFrame)
             Session.OpenUpdate();
+        _closing = WaitsOutDisplayFrame ? ClosingSoundWork.None : ClosingSoundWork.Usual;
         ScreenFade fade = _fade ?? throw NotShown();
         if (_blackUpdates < Data().Int("entry_black_updates"))
         {

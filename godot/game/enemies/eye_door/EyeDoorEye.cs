@@ -156,7 +156,8 @@ public partial class EyeDoorEye : Enemy
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        // It is part of the door; touching it does nothing.
+        // It is part of the door; touching it does nothing. Nor does the growth round it, whose old blocks are spikes
+        // with no reaction, which hurt neither her touch nor her grapple swing.
     }
 
     /// <inheritdoc/>

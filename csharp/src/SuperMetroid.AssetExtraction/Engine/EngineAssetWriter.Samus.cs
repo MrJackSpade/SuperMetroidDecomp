@@ -293,6 +293,12 @@ public sealed partial class EngineAssetWriter
             .Value("special_attack_updates", BeamChargeDefinitions.SpecialAttackCounter)
             .Value("charge_sound_updates", BeamChargeDefinitions.ChargeSoundStartCounter)
             .Value("bomb_jump_fuse_left", MorphBallBombDefinitions.BombJumpExplosionCount)
+
+            // A bomb spread: how long down can wind it up, how many updates of that throw it a pixel higher, and each
+            // of its five bombs' fuse, left to right.
+            .Value("bomb_spread_wind_up_updates", MorphBallBombDefinitions.DownChargeTimeoutUpdates)
+            .Value("bomb_spread_updates_per_pixel", MorphBallBombDefinitions.DownChargeUpdatesPerLaunchPixel)
+            .Value("bomb_spread_fuses", EngineNames.List(SamusBombSpreadLaunchDefinitions.LeftToRight.Select(launch => launch.FuseTimer)))
             .Value("hard_landing_speed", SamusMovementDefinitions.HardLandingSpeed.Whole)
             .Value("crystal_flash_energy_below", CrystalFlashDefinitions.AdmittingEnergyBelow)
             .Value("crystal_flash_ammunition", CrystalFlashDefinitions.AmmunitionPerKind)
@@ -319,6 +325,13 @@ public sealed partial class EngineAssetWriter
             ["spinning"] = SamusPoseTraits.Of(P.SpinJumpRightPose).VerticalRadius,
         });
         file.Group("mediums", SamusMediumsWritten());
+
+        // How each bomb of a spread is thrown, left to right, in pixels an update, upward and leftward below nought.
+        file.Group("bomb_spread_throws", EngineNames.List(SamusBombSpreadLaunchDefinitions.LeftToRight.Select(launch => (JsonNode)new JsonObject
+        {
+            ["across"] = Number(launch.HorizontalVelocity),
+            ["down"] = Number(launch.VerticalVelocity),
+        })));
 
         // Heat is the one harm of a room itself her suits spare her; a liquid's type says what spares her its own.
         file.Group("ongoing_damage_cancelled_by", new JsonObject { ["heat"] = new JsonArray("varia_suit", "gravity_suit") });

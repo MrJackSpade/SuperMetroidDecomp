@@ -93,6 +93,22 @@ public partial class Samus : Player
     [Export, DataValue("special_attacks", ReadByOwner = true)]
     public Godot.Collections.Dictionary<string, string> SpecialAttackShots { get; set; } = [];
 
+    /// <summary>How long holding down can go on winding a bomb spread up.</summary>
+    [Export, DataValue("bomb_spread_wind_up_updates")]
+    public int BombSpreadWindUpUpdates { get; set; } = 192;
+
+    /// <summary>How many updates of winding a bomb spread up throw it a pixel an update higher.</summary>
+    [Export, DataValue("bomb_spread_updates_per_pixel")]
+    public int BombSpreadUpdatesPerPixel { get; set; } = 64;
+
+    /// <summary>How long each bomb of a spread lies before it bursts, left to right.</summary>
+    [Export, DataValue("bomb_spread_fuses")]
+    public int[] BombSpreadFuses { get; set; } = [];
+
+    /// <summary>How each bomb of a spread is thrown, left to right, across and down, in pixels an update.</summary>
+    [Export, DataValue("bomb_spread_throws", ReadByOwner = true)]
+    public Godot.Collections.Array<Vector2> BombSpreadThrows { get; set; } = [];
+
     /// <summary>
     /// The special attacks whose last two lights are shots of their own, by the beam: the data file of that shot.
     /// </summary>
@@ -283,6 +299,10 @@ public partial class Samus : Player
             foreach ((string beam, DataNode shot) in data.Get("special_attacks").Entries())
                 SpecialAttackShots[beam] = shot.AsText();
         }
+
+        BombSpreadThrows = [];
+        foreach (DataNode throws in data.List("bomb_spread_throws"))
+            BombSpreadThrows.Add(new Vector2((float)throws.Distance("across").ToNumber(), (float)throws.Distance("down").ToNumber()));
 
         SpecialAttackTrailShots = [];
         foreach ((string beam, DataNode shot) in data.Get("special_attack_trails").Entries())
@@ -727,7 +747,7 @@ public partial class Samus : Player
         {
             // Holding down winds the throw up higher, for a while; otherwise the five bombs go at once.
             Weapons.StepCooldown();
-            if (input.IsHeld(GameAction.Down) && _spreadHeld < SpreadWindUpUpdates)
+            if (input.IsHeld(GameAction.Down) && _spreadHeld < BombSpreadWindUpUpdates)
             {
                 _spreadHeld++;
                 return;
@@ -768,14 +788,6 @@ public partial class Samus : Player
             SelectBeam();
     }
 
-    /// <summary>How long holding down can go on winding a bomb spread up, and how many updates of it throw a pixel higher.</summary>
-    private const int SpreadWindUpUpdates = 192, SpreadUpdatesPerPixel = 64;
-
-    /// <summary>The five bombs of a spread, left to right: how long each lies before it bursts, and how it is thrown.</summary>
-    private static readonly (int Fuse, double Across, double Down)[] SpreadBombs =
-    [
-        (120, -1, 0), (110, -0.5, -1), (100, 0, -1.5), (110, 0.5, -1), (120, 1, 0),
-    ];
 
     /// <summary>
     /// The beam whose special attack she can let loose: she must carry just one of the wave, ice, spazer and plasma
@@ -817,12 +829,15 @@ public partial class Samus : Player
     {
         WeaponStats bomb = Weapons.Named(Arsenal.Bomb);
         ProjectileSettings settings = bomb.ShotsFor(Inventory, charged: false)[0].Projectile;
-        int higher = _spreadHeld / SpreadUpdatesPerPixel;
-        foreach ((int fuse, double across, double down) in SpreadBombs)
+        if (BombSpreadFuses.Length != BombSpreadThrows.Count)
+            throw new InvalidOperationException($"A bomb spread has {BombSpreadFuses.Length} fuses and {BombSpreadThrows.Count} throws.");
+        int higher = _spreadHeld / BombSpreadUpdatesPerPixel;
+        for (int each = 0; each < BombSpreadFuses.Length; each++)
         {
-            var thrown = Weapons.Launch(this, bomb, Position, PixelVelocity.Zero, settings with { LastsUpdates = fuse }) as Bomb
+            var thrown = Weapons.Launch(this, bomb, Position, PixelVelocity.Zero, settings with { LastsUpdates = BombSpreadFuses[each] }) as Bomb
                 ?? throw new InvalidOperationException("Samus's bomb is not a bomb.");
-            thrown.Throw(new PixelVelocity(Pixels.FromNumber(across), Pixels.FromNumber(down - higher)), Pixels.FromNumber(Medium.Gravity));
+            Vector2 throws = BombSpreadThrows[each];
+            thrown.Throw(new PixelVelocity(Pixels.FromNumber(throws.X), Pixels.FromNumber(throws.Y - higher)), Pixels.FromNumber(Medium.Gravity));
         }
 
         Weapons.WaitAtLeast(bomb.CooldownFor(Inventory, charged: false));

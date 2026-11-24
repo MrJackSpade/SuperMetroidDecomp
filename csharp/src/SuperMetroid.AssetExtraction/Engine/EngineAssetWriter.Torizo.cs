@@ -182,7 +182,7 @@ public sealed partial class EngineAssetWriter
     /// </summary>
     private static string? TorizoShotCue(TorizoProjectileCue cue, string? smoke) => cue switch
     {
-        TorizoProjectileCue.PlaySound sound => EngineNames.SoundCue(sound.Sound),
+        TorizoProjectileCue.PlaySound sound => EngineNames.SoundCue(sound.Sound, sound.Priority),
         TorizoProjectileCue.Scatter scatter => $"scatter:{scatter.Spread.Span.X}:{scatter.Spread.Span.Y}:{scatter.Spread.Center.X}:{scatter.Spread.Center.Y}",
         // A projectile of the Godot game keeps the size its shot gives it.
         TorizoProjectileCue.SetRadius => null,
@@ -577,7 +577,7 @@ public sealed partial class EngineAssetWriter
         EngineSheetPictures pictures = _sheets.CutSpawned(_tree, file[..file.LastIndexOf('.')], spawner,
             lead.Select(beat => beat.ShownFrame).Where(frame => frame.HasValue).Select(frame => EnemySheetDefinitions.ProjectileFrameName(frame!.Value)));
         JsonObject timeline = EngineTimelines.Of(lead, null, frame => pictures.Of(EnemySheetDefinitions.ProjectileFrameName(frame)),
-            static (TorizoProjectileCue cue) => cue is TorizoProjectileCue.PlaySound sound ? EngineNames.SoundCue(sound.Sound) : null);
+            static (TorizoProjectileCue cue) => cue is TorizoProjectileCue.PlaySound sound ? EngineNames.SoundCue(sound.Sound, sound.Priority) : null);
         timeline["offset"] = new JsonObject { ["x"] = pictures.OffsetX, ["y"] = pictures.OffsetY };
         _tree.WriteData(file, timeline);
         return file;

@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Shared;
 using Engine.World;
 using Game.Data;
@@ -418,7 +419,7 @@ public partial class Kraid : Enemy
             // A shot in its mouth that does no harm leaves the dud's own effect, not its body's explosion.
             if (MouthDudEffect.Length > 0 && hit.Source is Node2D dudShot)
                 LeaveEffect(MouthDudEffect, PixelPosition.FromWhole((int)dudShot.Position.X, (int)dudShot.Position.Y));
-            Sound(DudSound);
+            Sound(DudSound, SoundPriority.Low);
             MarkMouthHit();
             return;
         }

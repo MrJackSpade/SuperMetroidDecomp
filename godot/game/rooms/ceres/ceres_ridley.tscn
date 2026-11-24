@@ -125,7 +125,7 @@ WingPictures = Array[String](["backdrops/{graphics}/ceres_wings_raised.png", "ba
 HeadingPicture = "text/emergency.png"
 Message = "ceres_self_destruct_warning"
 Subtitle = "ceres_self_destruct_subtitle"
-LetterSound = "room_typewriter"
+LetterSound = "room_typewriter:low"
 Floor = NodePath("../Floor")
 ToldWhenCountdownBegins = Array[NodePath]([NodePath("../Shaking")])
 

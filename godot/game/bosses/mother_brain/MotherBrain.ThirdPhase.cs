@@ -2,6 +2,7 @@ using Engine.Actors;
 using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Shared;
 using Engine.World;
 using Game.Data;
@@ -546,7 +547,7 @@ public partial class MotherBrain : ITriggerTarget
 
             if (effect.Length > 0)
                 _bodyBlasts.Add((LeaveEffect(effect, Position + group[place]), group[place]));
-            Sound(ExplosionSound);
+            Sound(ExplosionSound, SoundPriority.Low);
         }
     }
 
@@ -597,7 +598,7 @@ public partial class MotherBrain : ITriggerTarget
         _burstWait = 5;
         PixelPosition at = NextBurstOf(_escapeDoorDust);
         Leave((Random.Draw().Number & 0xFFFF) < 16384 ? SmokeEffect : ExplosionEffect, at);
-        Sound(ExplosionSound);
+        Sound(ExplosionSound, SoundPriority.Low);
     }
 
     /// <summary>The pieces of the way out fly into the room, slowing and falling, and end in dust.</summary>

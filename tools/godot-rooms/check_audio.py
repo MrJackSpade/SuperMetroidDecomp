@@ -99,7 +99,7 @@ for path in glob.glob(os.path.join(ROOT, 'tools', 'godot-rooms', '*.py')):
         continue
     where = os.path.relpath(path, ROOT)
     text = read(path)
-    for name in re.findall(r"'\w*Sound\w*': quoted\('([a-z0-9_]*)'\)", text):
+    for name in re.findall(r"'\w*Sound\w*': quoted\('([a-z0-9_]*(?::[a-z_]*)?)'\)", text):
         asked_sounds[name] = where
     for name in re.findall(r"'(?!MusicSet\b)\w*(?:Music|Fanfare)\w*': quoted\('([a-z0-9_]*)'\)", text):
         asked_music[name] = where

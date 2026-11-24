@@ -18,7 +18,8 @@ namespace Game;
 /// <remarks>
 /// Each step below is a count of updates the old transition takes, and says whether the update opens as an update of
 /// play does (the liquid, the statues and the update's random number), with the random number alone, or with
-/// neither. The source room is not kept on screen while the next scrolls in.
+/// neither. A power bomb's blast does not go on through a door. The source room is not kept on screen while the
+/// next scrolls in.
 /// </remarks>
 public partial class DoorTransitionMode : GameMode
 {
@@ -113,7 +114,7 @@ public partial class DoorTransitionMode : GameMode
                 // The door's first update: the room's enemies run once more with sounds still let in, and then
                 // Samus's sounds and the enemies' are told to stop. From here until the next room has faded in
                 // every sound asked for is turned away.
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 room.StepForTransition(enemies: true);
                 StopSounds(samus, input);
                 CartridgeSounds.Of(Session).DoorTurnsSoundsAway = true;
@@ -121,14 +122,14 @@ public partial class DoorTransitionMode : GameMode
                 break;
 
             case Stage.WaitingForSounds:
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 room.StepForTransition(enemies: true);
                 if (!Session.Sounds.HasQueuedSounds)
                     _stage = Stage.FadingOut;
                 break;
 
             case Stage.FadingOut:
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 if (TakeFadeStep(out int moved))
                 {
                     fade.Cover(FadeLastStep, FadeLastStep);
@@ -144,7 +145,7 @@ public partial class DoorTransitionMode : GameMode
 
             case Stage.BeginningDisplay:
                 // The last update on which the liquid and the statues move, until the next room is loaded.
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 _stage = Stage.AligningView;
                 break;
 
@@ -213,14 +214,14 @@ public partial class DoorTransitionMode : GameMode
                 break;
 
             case Stage.SteppingBlocks:
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 room.StepForTransition(terrain: true);
                 _stage = Stage.WaitingForMusic;
                 break;
 
             case Stage.WaitingForMusic:
                 // Once no music waits, the room's own is asked for: its set was asked for as it was set up.
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 if (!Session.Sounds.HasQueuedMusic)
                 {
                     CartridgeSounds sounds = CartridgeSounds.Of(Session);
@@ -233,7 +234,7 @@ public partial class DoorTransitionMode : GameMode
 
             case Stage.Finishing:
                 // Only now is she moved clear of the doorway's blocks at the screen's edges.
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 samus.Position = new PixelPosition(
                     samus.Position.X.WithWhole(OffFarEdge(OffNearEdge(samus.Position.X.Whole))),
                     samus.Position.Y.WithWhole(OffNearEdge(samus.Position.Y.Whole)));
@@ -243,7 +244,7 @@ public partial class DoorTransitionMode : GameMode
                 break;
 
             case Stage.FadingIn:
-                room.OpenUpdate(movesLiquid: true);
+                room.OpenUpdate(movesLiquid: true, opensProjectiles: false);
                 room.StepForTransition(terrain: true, enemies: true, enemyProjectiles: true);
                 if (TakeFadeStep(out int shown))
                 {

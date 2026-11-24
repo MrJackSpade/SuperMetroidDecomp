@@ -195,7 +195,7 @@ class Sequences:
                 'CapsulePictures': strings([floor_picture(name) for name in ('baby_vertical', 'baby_round', 'baby_horizontal', 'baby_round')]),
                 'WingPictures': strings([floor_picture(name) for name in ('wings_raised', 'wings_lowered')]),
                 'HeadingPicture': quoted('text/emergency.png'), 'Message': quoted('ceres_self_destruct_warning'),
-                'Subtitle': quoted('ceres_self_destruct_subtitle'), 'LetterSound': quoted('room_typewriter')})
+                'Subtitle': quoted('ceres_self_destruct_subtitle'), 'LetterSound': quoted('room_typewriter:low')})
             self.placed += [floor, getaway]
             self.links.append((getaway, 'Floor', floor))
             self.links.append((getaway, 'ToldWhenCountdownBegins', [shaking]))

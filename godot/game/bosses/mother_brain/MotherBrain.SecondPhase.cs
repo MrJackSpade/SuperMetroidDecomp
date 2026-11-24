@@ -1,5 +1,6 @@
 using Engine.Actors;
 using Engine.Content;
+using Engine.Core;
 using Engine.Shared;
 using Godot;
 
@@ -490,7 +491,7 @@ public partial class MotherBrain
         if (at.Y.Whole < 34 || at.Y.Whole >= 206 || at.X.Whole < 2 || at.X.Whole >= 238)
         {
             Leave(BigExplosionEffect, at);
-            Sound(ExplosionSound);
+            Sound(ExplosionSound, SoundPriority.Low);
             Room.Shake(2, 10);
             return;
         }

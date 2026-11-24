@@ -116,7 +116,8 @@ public partial class CuedProjectile : Projectile, IHasValues
                     PlayTimeline(parts[1]);
                 break;
             case "sound":
-                room.Session.Sounds.Request(parts[1], channel: "enemies");
+                // All that follows the cue's name is the sound's, a priority it says after a colon of its own too.
+                room.Session.Sounds.Request(cue["sound:".Length..], channel: "enemies");
                 break;
             default:
                 OnOwnCue(room, parts);

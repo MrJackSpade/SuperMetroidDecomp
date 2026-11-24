@@ -1,6 +1,7 @@
 using Engine.Actors.Components;
 using Engine.Collision;
 using Engine.Content;
+using Engine.Core;
 using Engine.Shared;
 using Engine.World;
 using Godot;
@@ -358,11 +359,11 @@ public abstract partial class Enemy : Node2D, IRoomEntity, IHittable, IPlaced, I
         return Fire(shot, at, new PixelVelocity(Turns.Cosine(angle, type.Speed), Turns.Sine(angle, type.Speed)));
     }
 
-    /// <summary>Asks for a sound.</summary>
-    protected void Sound(string sound)
+    /// <summary>Asks for a sound, with a priority for a name that does not say its own.</summary>
+    protected void Sound(string sound, SoundPriority priority = SoundPriority.Normal)
     {
         if (sound.Length > 0)
-            Room.Session.Sounds.Request(sound, channel: "enemies");
+            Room.Session.Sounds.Request(sound, channel: "enemies", priority: priority);
     }
 
     /// <inheritdoc/>

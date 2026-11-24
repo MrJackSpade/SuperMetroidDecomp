@@ -225,13 +225,17 @@ public partial class Room : Node2D
     }
 
     /// <summary>
-    /// Plays one update of the room, in a fixed order: the first part of the player's update, in which their input is
-    /// read and their weapons fire; the player's own shots; enemies; the rest of the player's update, in which they
-    /// move; triggers and exits; every other projectile, pickups and the remains of the destroyed; room objects and
-    /// the room itself; then effects. Groups named in <paramref name="stopped"/> do not run.
+    /// Plays one update of the room, in a fixed order: the session services that open an update; the first part of
+    /// the player's update, in which their input is read and their weapons fire; the player's own shots; enemies; the
+    /// rest of the player's update, in which they move; triggers and exits; every other projectile, pickups and the
+    /// remains of the destroyed; room objects and the room itself; then effects. Groups named in
+    /// <paramref name="stopped"/> do not run; the services that open the update always do.
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
+        foreach (IUpdateOpener opener in Session.Services.OfType<IUpdateOpener>())
+            opener.OpenUpdate(Session);
+
         if (!stopped.HasFlag(Stopped.Player))
             Player.BeginUpdate(input);
 

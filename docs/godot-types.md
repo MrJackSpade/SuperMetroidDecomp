@@ -144,8 +144,9 @@ something that leaves the room.
   that thing, which is already in `game/`.
 - If removing `game/compatibility/` would leave dead code in the engine, that code was in the wrong layer.
 - What is there now: `CartridgeRandom`, the cartridge's own sequence of random numbers, and `FrameRandom`, a session
-  service that draws one number every update of play and uses none, as the cartridge did every frame: much of this
-  game reads the number last drawn (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
+  service that draws one number as every update of play opens (`IUpdateOpener`) and uses none, as the cartridge did
+  every frame before Samus, the enemies and the room acted: much of this game reads the number last drawn
+  (`GameRandom.Last`) without drawing, and sees a fresh one each update only so.
   `CartridgeSpeedReadings` is how the cartridge reads Samus's speed across against its limits (`ISpeedReadings`,
   which the engine answers plainly with one comparison): whole pixels and fraction each on its own, by the sign of
   their difference within one pixel's range, so that a fraction more than half a pixel over a limit's reads as
@@ -333,7 +334,7 @@ Each is a set of values, and so comes from a data file for this game (section 8,
 | `SaveFile` | The save slots; in each, the saved form of `Progress`, the player's `Inventory`, and where the player resumes | Reading, writing, copying and clearing slots. | Exist as live state during play. |
 | `Options` | Button bindings, language, and the toggles the `GameDefinition` lists | Reading and writing them outside any save slot. | Change during an update. |
 | `SoundRequests` | What gameplay has asked to hear and, as gameplay sees it, what is still sounding | Accepting or refusing each request by priority, and answering "is this sound still going". Asked to stop everything, every channel falls silent at once (the music plays on), as when the game is paused. Advanced once per update. | Play anything. |
-| `ISessionService` | Nothing; it is what a session-long service of a game's is | Being begun again with the session, stepped once for each update of play, and asked whether it wants a mode of its own in control. The `GameDefinition` makes them; anything asks the session for one by type. | Belong to a room. |
+| `ISessionService` | Nothing; it is what a session-long service of a game's is | Being begun again with the session, stepped once for each update of play after the room has been stepped, and asked whether it wants a mode of its own in control. The `GameDefinition` makes them; anything asks the session for one by type. One with something to do before the room acts is an `IUpdateOpener` as well: the room calls it as each of its updates opens, before the player's input is read, whatever is stopped. | Belong to a room. |
 | `Escape` (this game's) | The escape countdown | Starting, counting, showing and ending the timed escape, and reporting that it is running. A session service; when time is up it hands over to its time-up mode. | Know which room the player is in. |
 
 `SaveData` is the saved form itself: what a slot's file holds, captured from a session and put back into one. It
@@ -405,9 +406,9 @@ A scene. One per room of the game.
   map cell the player is in as explored, starting an earthquake when something asks, putting itself on screen
   where the camera's view has it (thrown about by an earthquake, which does not throw the player about), and
   tearing itself down when left.
-- **Steps, in this order:** the first part of the player's update; the player's own shots; the enemies; the rest
-  of the player's update; triggers and exits; every other projectile, pickups and remains; room objects, terrain,
-  liquid, room effects and the sequence; effects.
+- **Steps, in this order:** the session services that open an update (`IUpdateOpener`); the first part of the
+  player's update; the player's own shots; the enemies; the rest of the player's update; triggers and exits; every
+  other projectile, pickups and remains; room objects, terrain, liquid, room effects and the sequence; effects.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
   carried by the room transition, explicitly.
 

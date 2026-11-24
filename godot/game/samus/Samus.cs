@@ -238,6 +238,7 @@ public partial class Samus : Player
     private bool _warningOfLowEnergy;
     private bool _chargeSounds;
     private string? _liquidLastEntered;
+    private string _selectedShown = "";
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -883,7 +884,19 @@ public partial class Samus : Player
         while (!CanSelect(ring[at]));
         Selected = ring[at];
         _autoCancel = Selected.Length > 0 && Input.IsHeld(Actions.ItemCancel);
-        Room.Session.Sounds.Request(Sounds.ItemSelect, channel: "hud");
+    }
+
+    /// <summary>
+    /// Sounds a change of what she has selected as the HUD comes to show it, however it came about, as the cartridge's
+    /// HUD does: silently in a spin or a wall jump, with the grapple beam out, or while the X-ray holds time still.
+    /// </summary>
+    private void ShowSelection()
+    {
+        if (Selected == _selectedShown)
+            return;
+        _selectedShown = Selected;
+        if (State is not (SpinJumpingState or WallJumpingState or XrayState) && Grapple is not { IsOut: true })
+            Room.Session.Sounds.Request(Sounds.ItemSelect, channel: "hud");
     }
 
     /// <summary>Whether she can select something: ammunition she has some of, or equipment that is switched on.</summary>
@@ -988,6 +1001,7 @@ public partial class Samus : Player
             StepStride();
         WarnOfLowEnergy();
         Grapple?.Step(this);
+        ShowSelection();
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
     }
 

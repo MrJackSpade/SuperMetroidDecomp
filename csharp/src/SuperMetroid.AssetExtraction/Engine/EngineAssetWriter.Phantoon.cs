@@ -139,6 +139,8 @@ public sealed partial class EngineAssetWriter
             ("ring_radius", PhantoonFlameMotionDefinitions.IntroCircleRadius),
             ("ring_hold_updates", PhantoonFlameMotionDefinitions.IntroCircleHoldUpdates),
             ("landing_drop", PhantoonArenaDefinitions.FlameLandingDrop),
+            // The old game keeps the pause in a flame's own state, which starts it at its whole length.
+            ("landing_pause", new PhantoonCasualFlameState().LandingPause.UpdatesLeft),
             ("leap_speed", (int)-PhantoonArenaDefinitions.CasualRiseSpeed.Pixels),
             ("drift_speed", EngineNames.Number(PhantoonArenaDefinitions.CasualDriftSpeed)),
             ("falling_timeline", Flame("flame_falling", PhantoonFlameSegment.CasualFallingKindling)),

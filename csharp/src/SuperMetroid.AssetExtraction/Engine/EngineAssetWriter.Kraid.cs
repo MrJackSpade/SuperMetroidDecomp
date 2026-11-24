@@ -8,6 +8,7 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.EffectActors;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -242,6 +243,7 @@ public sealed partial class EngineAssetWriter
             .Value("death_drops", KraidArenaDefinitions.DeathDropCount)
             .Value("dud_effect", DustFile(DustExplosionAnimation.DudShotTinyExplosion))
             .Value("big_dud_effect", DustFile(DustExplosionAnimation.BigExplosion))
+            .Value("mouth_dud_effect", EffectFile(RoomEffectActorKind.DudShot))
             .Value("dud_sound", EngineNames.Sound(SamusSound.DudShot))
             .Value("rock_sound", EngineNames.Sound(KraidSoundDefinitions.RockSpit))
             .Value("hurt_shade", KraidHurtSet)

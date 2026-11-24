@@ -117,6 +117,10 @@ public partial class Kraid : Enemy
     [Export, DataValue("big_dud_effect")]
     public string BigDudEffect { get; set; } = "";
 
+    /// <summary>The effect of a shot in its mouth that does it no harm, by the data file of its timeline.</summary>
+    [Export, DataValue("mouth_dud_effect")]
+    public string MouthDudEffect { get; set; } = "";
+
     /// <summary>The sound of a shot that does it no harm, by name.</summary>
     [Export, DataValue("dud_sound")]
     public string DudSound { get; set; } = "";
@@ -403,6 +407,10 @@ public partial class Kraid : Enemy
     {
         if (part.Name == "Mouth")
         {
+            // A shot in its mouth that does no harm leaves the dud's own effect, not its body's explosion.
+            if (MouthDudEffect.Length > 0 && hit.Source is Node2D dudShot)
+                LeaveEffect(MouthDudEffect, PixelPosition.FromWhole((int)dudShot.Position.X, (int)dudShot.Position.Y));
+            Sound(DudSound);
             MarkMouthHit();
             return;
         }

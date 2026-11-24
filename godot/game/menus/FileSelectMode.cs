@@ -1,19 +1,37 @@
+using Engine.Content;
 using Engine.Core;
 using Engine.Input;
+using Engine.Shared;
 using Engine.Ui;
 using Godot;
 
 namespace Game.Menus;
 
 /// <summary>
-/// The choice of saved game. Each slot shows the energy and play time it holds, or that it holds nothing; choosing
-/// one starts or continues its game. A slot can be copied over another or cleared, each after being asked for, and
-/// the last line goes back to the title.
+/// The choice of saved game. Its first page shows the three saved games, each with the energy and play time it holds
+/// or that it holds nothing, a helmet beside each, and under them copying, clearing and leaving; a missile points at
+/// the row chosen. Choosing a saved game turns its helmet to face out and goes on to the options, from where the game
+/// starts. Copying asks which saved game, then over which, then whether; clearing asks which, then whether; each says
+/// when it is done. Leaving goes back to the title.
 /// </summary>
 /// <remarks>
-/// Its words are "file_select_slot" (with {slot}, {energy}, {hours} and {minutes}), "file_select_empty" (with
-/// {slot}), "file_select_copy", "file_select_clear", "file_select_options", "file_select_exit",
-/// "file_select_copy_from", "file_select_copy_to" and "file_select_clear_which".
+/// Its data names its "backdrop" colour and "background" picture; under "pages" a whole picture for each page
+/// ("main_with_data", "main_empty", "copy_source", "copy_destination", "copy_confirm", "copy_completed",
+/// "clear_selection", "clear_confirm", "clear_completed"); under "borders" the heading of the main page, of copying
+/// and of clearing ("main", "copy", "clear"), each a "picture" and the "x" and "y" of its corner; the pictures laid
+/// over a page for a saved game: "energy", "no_data", "time_colon", "tank_filled", "tank_empty", the ten "digits"
+/// and a letter for each saved game ("letters"); where a saved game's are laid on the main page ("main_slots") and
+/// on the others ("data_slots"), each with "energy", "health", "no_data", "time" and the "cursor" beside it, and on
+/// the main page its "helmet"; under "places" the cursor beside the other rows ("cursor_copy", "cursor_clear",
+/// "cursor_exit", "cursor_data_exit", "cursor_yes", "cursor_no"), the letters a question names saved games with
+/// ("letter_copy_destination_source", "letter_copy_confirm_source", "letter_copy_confirm_destination",
+/// "letter_clear_confirm_source") and the arrow of each copy ("arrow_" and the two saved games' numbers, as
+/// "arrow_1_2"); under "arrows" the timeline of each copy's arrow by the same numbers; how wide a digit is
+/// ("glyph_width"), how many digits along the colon of a time stands ("colon_column"), the most a part of a time
+/// shows ("largest_time_part"), the energy a tank holds ("energy_per_tank"), a tank's "tank_size", the column and
+/// row of the first from the word energy ("tank_column", "tank_row") and how many make a row ("tanks_per_row");
+/// the sounds of the cursor moving, of a saved game chosen and of an answer given ("move_sound", "select_sound",
+/// "confirm_sound"); and the timelines "cursor", "helmet_away", "helmet_turn" and the arrows'.
 /// </remarks>
 public partial class FileSelectMode : GameMode
 {
@@ -21,158 +39,541 @@ public partial class FileSelectMode : GameMode
     [Export]
     public string Music { get; set; } = Data.Music.TitleScreen;
 
-    /// <summary>The sound of the mark moving, by name.</summary>
-    [Export]
-    public string MoveSound { get; set; } = "";
+    /// <summary>The data file of what it shows.</summary>
+    [Export(PropertyHint.File)]
+    public string DataFile { get; set; } = "menus/file_select.json";
 
+    /// <summary>How many updates it takes to fade in, and to fade out.</summary>
+    [Export]
+    public int FadeUpdates { get; set; } = 32;
+
+    /// <summary>How many saved games its pages are drawn for.</summary>
+    private const int SavedGames = 3;
+
+    /// <summary>The rows of the main page under the saved games, and the row under them on the other pages.</summary>
+    private const int CopyRow = SavedGames, ClearRow = SavedGames + 1, ExitRow = SavedGames + 2, DataExitRow = SavedGames;
+
+    /// <summary>What the screen is asking.</summary>
     private enum Asking
     {
-        WhichGame,
+        /// <summary>Which saved game to play, or what else to do.</summary>
+        Main,
+
+        /// <summary>Nothing: the chosen saved game's helmet is turning.</summary>
+        HelmetTurns,
+
+        /// <summary>Which saved game to copy.</summary>
         CopyFrom,
+
+        /// <summary>Which saved game to copy it over.</summary>
         CopyTo,
+
+        /// <summary>Whether to copy.</summary>
+        CopyConfirm,
+
+        /// <summary>Nothing: the copy is done.</summary>
+        CopyDone,
+
+        /// <summary>Which saved game to clear.</summary>
         ClearWhich,
+
+        /// <summary>Whether to clear it.</summary>
+        ClearConfirm,
+
+        /// <summary>Nothing: it is cleared.</summary>
+        ClearDone,
     }
 
-    private ChoiceList? _list;
-    private PixelText? _heading;
+    private readonly List<CinematicSprite> _helmets = [];
+    private DataNode? _data;
+    private TimelineSet? _timelines;
+    private Sprite2D? _page;
+    private Sprite2D? _border;
+    private Node2D? _fields;
+    private CinematicSprite? _cursor;
+    private CinematicSprite? _arrow;
+    private ScreenFade? _fade;
+    private Func<GameMode?>? _afterFade;
     private Asking _asking;
-    private int _copyFrom;
-
-    private int Slots => Session.Saves.Slots;
+    private int _row;
+    private int _dataRow;
+    private int _from;
+    private int _to;
+    private bool _yes = true;
 
     /// <inheritdoc/>
     protected override void Enter()
     {
+        if (Session.Saves.Slots != SavedGames)
+            throw new InvalidOperationException($"The choice of saved game is drawn for {SavedGames} saved games, and the game keeps {Session.Saves.Slots}.");
+        _data = Session.Content.ReadData(DataFile);
+        _timelines = TimelineSet.ReadFrom(_data);
         var layer = new CanvasLayer { Name = "Screen" };
         AddChild(layer);
-        var column = new VBoxContainer { Name = "Column" };
-        column.SetAnchorsPreset(Control.LayoutPreset.Center);
-        layer.AddChild(column);
-        _heading = new PixelText { Name = "Heading", Font = Session.Font };
-        column.AddChild(_heading);
-        _list = new ChoiceList { Name = "List", Font = Session.Font, Mark = "", UnchosenTint = new Color(0.5f, 0.5f, 0.5f) };
-        column.AddChild(_list);
+        var backdrop = new ColorRect { Name = "Backdrop", Color = new Color(_data.Text("backdrop")) };
+        backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+        layer.AddChild(backdrop);
+        layer.AddChild(Picture("Background", _data.Text("background"), PixelPosition.Origin));
+        _page = Picture("Page", _data.Get("pages").Text("main_empty"), PixelPosition.Origin);
+        layer.AddChild(_page);
+        _fields = new Node2D { Name = "Fields" };
+        layer.AddChild(_fields);
+        _border = new Sprite2D { Name = "Border", Centered = false, TextureFilter = CanvasItem.TextureFilterEnum.Nearest };
+        layer.AddChild(_border);
+        for (int game = 0; game < SavedGames; game++)
+        {
+            CinematicSprite helmet = CinematicSprite.Of(Session.Content, _timelines.Get("helmet_away"), At(_data.List("main_slots")[game].Get("helmet")));
+            helmet.Name = $"Helmet{game + 1}";
+            _helmets.Add(helmet);
+            layer.AddChild(helmet);
+        }
+
+        _arrow = CinematicSprite.Of(Session.Content, _timelines.Get(_data.Get("arrows").Text("1_2")), Place("arrow_1_2"));
+        _arrow.Name = "Arrow";
+        _arrow.Visible = false;
+        layer.AddChild(_arrow);
+        _cursor = CinematicSprite.Of(Session.Content, _timelines.Get("cursor"), PixelPosition.Origin);
+        _cursor.Name = "Cursor";
+        layer.AddChild(_cursor);
+        _fade = new ScreenFade { Name = "Fade", Layer = 20 };
+        AddChild(_fade);
+        _row = Math.Clamp(Session.Slot, 1, SavedGames) - 1;
+        ShowMain();
+        _fade.FadeIn(FadeUpdates);
         Session.Sounds.RequestMusic(Music);
-        Ask(Asking.WhichGame, 0);
+    }
+
+    /// <inheritdoc/>
+    protected internal override void Resume()
+    {
+        // Back from the options: the first page again, out of black.
+        ShowMain();
+        (_fade ?? throw NotShown()).FadeIn(FadeUpdates);
     }
 
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
-        ChoiceList list = _list ?? throw new InvalidOperationException("The choice of saved game has not been shown.");
-        switch (list.Step(input))
+        ScreenFade fade = _fade ?? throw NotShown();
+        (_cursor ?? throw NotShown()).Step();
+        if (_afterFade is { } then)
         {
-            case ChoiceList.Outcome.Moved:
-                if (MoveSound.Length > 0)
-                    Session.Sounds.Request(MoveSound, channel: "menu");
+            fade.Step();
+            if (!fade.IsDone)
                 return this;
-
-            case ChoiceList.Outcome.Cancelled:
-                if (_asking == Asking.WhichGame)
-                    return new TitleMode();
-                Ask(Asking.WhichGame, 0);
-                return this;
-
-            case ChoiceList.Outcome.Confirmed:
-                return Confirm(list.Chosen);
-
-            default:
-                return this;
+            _afterFade = null;
+            if (then() is { } next)
+                return next;
+            fade.FadeIn(FadeUpdates);
+            return this;
         }
-    }
 
-    private GameMode Confirm(int chosen)
-    {
-        int slot = chosen + 1;
+        if (!fade.IsDone)
+        {
+            fade.Step();
+            return this;
+        }
+
         switch (_asking)
         {
-            case Asking.WhichGame:
-                if (chosen < Slots)
-                {
-                    Session.Slot = slot;
-                    return new LoadingMode();
-                }
-
-                switch (chosen - Slots)
-                {
-                    case 0:
-                        Ask(Asking.CopyFrom, 0);
-                        return this;
-                    case 1:
-                        Ask(Asking.ClearWhich, 0);
-                        return this;
-                    case 2:
-                        return new OptionsMode(this);
-                    default:
-                        return new TitleMode();
-                }
-
+            case Asking.Main:
+                StepMain(input);
+                break;
+            case Asking.HelmetTurns:
+                CinematicSprite helmet = _helmets[_row];
+                helmet.Step();
+                // Confirming again cuts the turn short.
+                if (helmet.IsOver || input.WasPressed(GameAction.Confirm))
+                    FadeOutTo(() => new OptionsMode(this, startsGame: true));
+                break;
             case Asking.CopyFrom:
-                if (chosen >= Slots || !Session.Saves.Has(slot))
+            case Asking.ClearWhich:
+                StepWhich(input);
+                break;
+            case Asking.CopyTo:
+                StepCopyTo(input);
+                break;
+            case Asking.CopyConfirm:
+                (_arrow ?? throw NotShown()).Step();
+                StepConfirm(input);
+                break;
+            case Asking.ClearConfirm:
+                StepConfirm(input);
+                break;
+            case Asking.CopyDone:
+            case Asking.ClearDone:
+                if (input.WasPressed(GameAction.Confirm) || input.WasPressed(GameAction.Cancel) || input.WasPressed(GameAction.Up)
+                    || input.WasPressed(GameAction.Down))
                 {
-                    Ask(Asking.WhichGame, 0);
-                    return this;
+                    MoveSound();
+                    _row = Math.Clamp(Session.Slot, 1, SavedGames) - 1;
+                    FadeOutTo(BackToMain);
                 }
 
-                _copyFrom = slot;
-                Ask(Asking.CopyTo, 0);
-                return this;
-
-            case Asking.CopyTo:
-                if (chosen < Slots && slot != _copyFrom)
-                    Session.Saves.Copy(_copyFrom, slot);
-                Ask(Asking.WhichGame, 0);
-                return this;
-
-            case Asking.ClearWhich:
-                if (chosen < Slots && Session.Saves.Has(slot))
-                    Session.Saves.Clear(slot);
-                Ask(Asking.WhichGame, 0);
-                return this;
-
+                break;
             default:
                 throw new InvalidOperationException($"The choice of saved game has no question {_asking}.");
         }
+
+        return this;
     }
 
-    /// <summary>Shows the slots under a heading, with the lines that go with the question.</summary>
-    private void Ask(Asking asking, int chosen)
+    /// <summary>Moves on the first page: the cursor up and down its rows, and what confirming and cancelling do.</summary>
+    private void StepMain(GameInput input)
     {
-        _asking = asking;
-        var lines = new List<string>();
-        for (int slot = 1; slot <= Slots; slot++)
-            lines.Add(LineOf(slot));
-        if (asking == Asking.WhichGame)
+        // With nothing saved there is nothing to copy or clear, and the cursor passes those rows by.
+        int[] rows = AnySaved ? [0, 1, 2, CopyRow, ClearRow, ExitRow] : [0, 1, 2, ExitRow];
+        if (input.WasPressed(GameAction.Up) || input.WasPressed(GameAction.Down))
         {
-            lines.Add(Session.Text.Get("file_select_copy"));
-            lines.Add(Session.Text.Get("file_select_clear"));
-            lines.Add(Session.Text.Get("file_select_options"));
+            int at = Array.IndexOf(rows, _row);
+            int step = input.WasPressed(GameAction.Up) ? rows.Length - 1 : 1;
+            _row = at < 0 ? ExitRow : rows[(at + step) % rows.Length];
+            MoveSound();
+            PlaceCursor();
         }
 
-        lines.Add(Session.Text.Get("file_select_exit"));
-        _list!.Present(lines, chosen);
-        _heading!.Text = asking switch
+        if (input.WasPressed(GameAction.Cancel))
         {
-            Asking.WhichGame => "",
-            Asking.CopyFrom => Session.Text.Get("file_select_copy_from"),
-            Asking.CopyTo => Session.Text.Get("file_select_copy_to"),
-            Asking.ClearWhich => Session.Text.Get("file_select_clear_which"),
-            _ => throw new InvalidOperationException($"The choice of saved game has no question {asking}."),
-        };
+            MoveSound();
+            FadeOutTo(static () => new TitleMode());
+            return;
+        }
+
+        if (!input.WasPressed(GameAction.Confirm))
+            return;
+        if (_row < SavedGames)
+        {
+            Session.Slot = _row + 1;
+            Sound("select_sound");
+            _helmets[_row].Play(Timelines().Get("helmet_turn"));
+            _asking = Asking.HelmetTurns;
+            return;
+        }
+
+        MoveSound();
+        switch (_row)
+        {
+            case CopyRow:
+                FadeOutTo(() => BeginData(Asking.CopyFrom));
+                break;
+            case ClearRow:
+                FadeOutTo(() => BeginData(Asking.ClearWhich));
+                break;
+            default:
+                FadeOutTo(static () => new TitleMode());
+                break;
+        }
     }
 
-    /// <summary>What a slot's line says: what it holds, or that it holds nothing.</summary>
-    private string LineOf(int slot)
+    /// <summary>Moves on a page that asks which saved game: only ones that hold something can be pointed at, and the way out.</summary>
+    private void StepWhich(GameInput input)
     {
-        string number = slot.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        if (!Session.Saves.Has(slot))
-            return Session.Text.Get("file_select_empty").Replace("{slot}", number, StringComparison.Ordinal);
-        SaveData save = Session.Saves.Read(slot);
-        long minutes = save.PlayUpdates / 3600;
-        return Session.Text.Get("file_select_slot")
-            .Replace("{slot}", number, StringComparison.Ordinal)
-            .Replace("{energy}", save.Amounts.GetValueOrDefault(Data.Amounts.Energy).ToString(System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal)
-            .Replace("{hours}", (minutes / 60).ToString("00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal)
-            .Replace("{minutes}", (minutes % 60).ToString("00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal);
+        bool up = input.WasPressed(GameAction.Up);
+        if (up || input.WasPressed(GameAction.Down))
+        {
+            // Up wins when both are pressed.
+            for (int row = _dataRow + (up ? -1 : 1); row >= 0 && row <= DataExitRow; row += up ? -1 : 1)
+            {
+                if (row != DataExitRow && !Session.Saves.Has(row + 1))
+                    continue;
+                _dataRow = row;
+                MoveSound();
+                PlaceCursor();
+                break;
+            }
+        }
+
+        bool confirmed = input.WasPressed(GameAction.Confirm);
+        if (input.WasPressed(GameAction.Cancel) || (confirmed && _dataRow == DataExitRow))
+        {
+            MoveSound();
+            FadeOutTo(BackToMain);
+            return;
+        }
+
+        if (!confirmed)
+            return;
+        MoveSound();
+        _from = _dataRow;
+        if (_asking == Asking.CopyFrom)
+        {
+            _dataRow = CopyTargets[0];
+            Show(Asking.CopyTo);
+        }
+        else
+        {
+            _yes = true;
+            Show(Asking.ClearConfirm);
+        }
     }
+
+    /// <summary>The rows the cursor can point at when it asks what to copy over: the other two saved games, and the way out.</summary>
+    private int[] CopyTargets => [.. Enumerable.Range(0, SavedGames).Where(game => game != _from), DataExitRow];
+
+    /// <summary>Moves on the page that asks which saved game to copy over.</summary>
+    private void StepCopyTo(GameInput input)
+    {
+        int[] rows = CopyTargets;
+        int at = Array.IndexOf(rows, _dataRow);
+        // The cursor stops at the first row and at the last.
+        int next = input.WasPressed(GameAction.Up) ? Math.Max(0, at - 1) : input.WasPressed(GameAction.Down) ? Math.Min(rows.Length - 1, at + 1) : at;
+        if (next != at)
+        {
+            _dataRow = rows[next];
+            MoveSound();
+            PlaceCursor();
+        }
+
+        if (input.WasPressed(GameAction.Cancel))
+        {
+            MoveSound();
+            _dataRow = _from;
+            Show(Asking.CopyFrom);
+            return;
+        }
+
+        if (!input.WasPressed(GameAction.Confirm))
+            return;
+        MoveSound();
+        if (_dataRow == DataExitRow)
+        {
+            FadeOutTo(BackToMain);
+            return;
+        }
+
+        _to = _dataRow;
+        _yes = true;
+        Show(Asking.CopyConfirm);
+    }
+
+    /// <summary>Moves on a page that asks whether: up and down change the answer, cancelling is no.</summary>
+    private void StepConfirm(GameInput input)
+    {
+        if (input.WasPressed(GameAction.Up) || input.WasPressed(GameAction.Down))
+        {
+            _yes = !_yes;
+            MoveSound();
+            PlaceCursor();
+            return;
+        }
+
+        bool declined;
+        if (input.WasPressed(GameAction.Cancel))
+        {
+            MoveSound();
+            declined = true;
+        }
+        else if (input.WasPressed(GameAction.Confirm))
+        {
+            Sound("confirm_sound");
+            declined = !_yes;
+        }
+        else
+        {
+            return;
+        }
+
+        bool copying = _asking == Asking.CopyConfirm;
+        if (declined)
+        {
+            _dataRow = copying ? _to : _from;
+            Show(copying ? Asking.CopyTo : Asking.ClearWhich);
+            return;
+        }
+
+        if (copying)
+            Session.Saves.Copy(_from + 1, _to + 1);
+        else
+            Session.Saves.Clear(_from + 1);
+        Show(copying ? Asking.CopyDone : Asking.ClearDone);
+    }
+
+    /// <summary>Whether any saved game holds anything.</summary>
+    private bool AnySaved => Enumerable.Range(1, SavedGames).Any(Session.Saves.Has);
+
+    /// <summary>Fades the screen out, and then does <paramref name="then"/>: the mode to go to, or none to stay and fade back in.</summary>
+    private void FadeOutTo(Func<GameMode?> then)
+    {
+        _afterFade = then;
+        (_fade ?? throw NotShown()).FadeOut(FadeUpdates);
+    }
+
+    /// <summary>Shows the first page, and stays.</summary>
+    private GameMode? BackToMain()
+    {
+        ShowMain();
+        return null;
+    }
+
+    /// <summary>Shows the first page, with every helmet looking away.</summary>
+    private void ShowMain()
+    {
+        foreach (CinematicSprite helmet in _helmets)
+            helmet.Play(Timelines().Get("helmet_away"));
+        if (!AnySaved && _row is CopyRow or ClearRow)
+            _row = ExitRow;
+        Show(Asking.Main);
+    }
+
+    /// <summary>Shows the first page of copying or of clearing, pointing at the first saved game that holds something, and stays.</summary>
+    private GameMode? BeginData(Asking asking)
+    {
+        _dataRow = Enumerable.Range(0, SavedGames).Cast<int?>().FirstOrDefault(game => Session.Saves.Has(game!.Value + 1)) ?? DataExitRow;
+        _from = 0;
+        _yes = true;
+        Show(asking);
+        return null;
+    }
+
+    /// <summary>Shows the page of <paramref name="asking"/>: its picture, its heading, what each saved game holds, and the letters it names saved games with.</summary>
+    private void Show(Asking asking)
+    {
+        _asking = asking;
+        DataNode data = ScreenData();
+        bool main = asking is Asking.Main or Asking.HelmetTurns;
+        (string page, string border) = asking switch
+        {
+            Asking.Main or Asking.HelmetTurns => (AnySaved ? "main_with_data" : "main_empty", "main"),
+            Asking.CopyFrom => ("copy_source", "copy"),
+            Asking.CopyTo => ("copy_destination", "copy"),
+            Asking.CopyConfirm => ("copy_confirm", "copy"),
+            Asking.CopyDone => ("copy_completed", "copy"),
+            Asking.ClearWhich => ("clear_selection", "clear"),
+            Asking.ClearConfirm => ("clear_confirm", "clear"),
+            Asking.ClearDone => ("clear_completed", "clear"),
+            _ => throw new InvalidOperationException($"The choice of saved game has no question {asking}."),
+        };
+        (_page ?? throw NotShown()).Texture = Session.Content.LoadTexture(data.Get("pages").Text(page));
+        DataNode heading = data.Get("borders").Get(border);
+        Sprite2D shown = _border ?? throw NotShown();
+        shown.Texture = Session.Content.LoadTexture(heading.Text("picture"));
+        shown.Position = new Vector2(heading.Int("x"), heading.Int("y"));
+
+        Node2D fields = _fields ?? throw NotShown();
+        foreach (Node old in fields.GetChildren())
+        {
+            fields.RemoveChild(old);
+            old.QueueFree();
+        }
+
+        IReadOnlyList<DataNode> slots = data.List(main ? "main_slots" : "data_slots");
+        for (int game = 0; game < SavedGames; game++)
+            ShowSavedGame(fields, slots[game], game + 1);
+        IReadOnlyList<DataNode> letters = data.List("letters");
+        switch (asking)
+        {
+            case Asking.CopyTo:
+                fields.AddChild(Picture("From", letters[_from].AsText(), Place("letter_copy_destination_source")));
+                break;
+            case Asking.CopyConfirm or Asking.CopyDone:
+                fields.AddChild(Picture("From", letters[_from].AsText(), Place("letter_copy_confirm_source")));
+                fields.AddChild(Picture("To", letters[_to].AsText(), Place("letter_copy_confirm_destination")));
+                break;
+            case Asking.ClearConfirm or Asking.ClearDone:
+                fields.AddChild(Picture("From", letters[_from].AsText(), Place("letter_clear_confirm_source")));
+                break;
+        }
+
+        foreach (CinematicSprite helmet in _helmets)
+            helmet.Visible = main;
+        CinematicSprite arrow = _arrow ?? throw NotShown();
+        arrow.Visible = asking == Asking.CopyConfirm;
+        if (arrow.Visible)
+        {
+            string route = $"{_from + 1}_{_to + 1}";
+            arrow.Play(Timelines().Get(data.Get("arrows").Text(route)));
+            arrow.Place = Place("arrow_" + route);
+            arrow.ShowPlace();
+        }
+
+        (_cursor ?? throw NotShown()).Visible = asking is not (Asking.CopyDone or Asking.ClearDone);
+        PlaceCursor();
+    }
+
+    /// <summary>Lays over the page what the saved game numbered <paramref name="slot"/> holds: its energy, its tanks and its play time, or that it holds nothing.</summary>
+    private void ShowSavedGame(Node2D fields, DataNode layout, int slot)
+    {
+        DataNode data = ScreenData();
+        if (!Session.Saves.Has(slot))
+        {
+            fields.AddChild(Picture($"NoData{slot}", data.Text("no_data"), At(layout.Get("no_data"))));
+            return;
+        }
+
+        SaveData save = Session.Saves.Read(slot);
+        IReadOnlyList<DataNode> digits = data.List("digits");
+        int glyph = data.Int("glyph_width");
+        void Digits(string name, int number, PixelPosition at)
+        {
+            fields.AddChild(Picture($"{name}Tens{slot}", digits[number / 10].AsText(), at));
+            fields.AddChild(Picture($"{name}Ones{slot}", digits[number % 10].AsText(), at + PixelOffset.FromWhole(glyph, 0)));
+        }
+
+        PixelPosition energyAt = At(layout.Get("energy"));
+        fields.AddChild(Picture($"Energy{slot}", data.Text("energy"), energyAt));
+        int perTank = data.Int("energy_per_tank");
+        int energy = save.Amounts.GetValueOrDefault(Data.Amounts.Energy);
+        Digits("Energy", energy % perTank, At(layout.Get("health")));
+
+        // Tanks fill rows from the left: the first row under the word, each later row a tank above the last.
+        int tanks = save.Capacities.GetValueOrDefault(Data.Amounts.Energy) / perTank;
+        int size = data.Int("tank_size"), perRow = data.Int("tanks_per_row");
+        for (int tank = 0; tank < tanks; tank++)
+        {
+            int column = data.Int("tank_column") + tank % perRow, row = data.Int("tank_row") - tank / perRow;
+            fields.AddChild(Picture(
+                $"Tank{slot}_{tank}", data.Text(tank < energy / perTank ? "tank_filled" : "tank_empty"), energyAt + PixelOffset.FromWhole(column * size, row * size)));
+        }
+
+        long minutes = save.PlayUpdates / 3600;
+        int most = data.Int("largest_time_part"), colon = data.Int("colon_column");
+        PixelPosition timeAt = At(layout.Get("time"));
+        Digits("Hours", (int)Math.Min(minutes / 60, most), timeAt);
+        fields.AddChild(Picture($"Colon{slot}", data.Text("time_colon"), timeAt + PixelOffset.FromWhole(colon * glyph, 0)));
+        Digits("Minutes", (int)(minutes % 60), timeAt + PixelOffset.FromWhole((colon + 1) * glyph, 0));
+    }
+
+    /// <summary>Puts the cursor beside the row it points at.</summary>
+    private void PlaceCursor()
+    {
+        DataNode data = ScreenData();
+        CinematicSprite cursor = _cursor ?? throw NotShown();
+        cursor.Place = _asking switch
+        {
+            Asking.Main or Asking.HelmetTurns => _row switch
+            {
+                < SavedGames => At(data.List("main_slots")[_row].Get("cursor")),
+                CopyRow => Place("cursor_copy"),
+                ClearRow => Place("cursor_clear"),
+                _ => Place("cursor_exit"),
+            },
+            Asking.CopyConfirm or Asking.ClearConfirm => Place(_yes ? "cursor_yes" : "cursor_no"),
+            _ => _dataRow < SavedGames ? At(data.List("data_slots")[_dataRow].Get("cursor")) : Place("cursor_data_exit"),
+        };
+        cursor.ShowPlace();
+    }
+
+    /// <summary>A picture drawn from its corner at <paramref name="at"/>.</summary>
+    private Sprite2D Picture(string name, string file, PixelPosition at) => new()
+    {
+        Name = name,
+        Centered = false,
+        Texture = Session.Content.LoadTexture(file),
+        TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+        Position = new Vector2(at.X.Whole, at.Y.Whole),
+    };
+
+    private void MoveSound() => Sound("move_sound");
+
+    private void Sound(string name) => Session.Sounds.Request(ScreenData().Text(name), channel: "menu");
+
+    private PixelPosition Place(string name) => At(ScreenData().Get("places").Get(name));
+
+    private static PixelPosition At(DataNode at) => PixelPosition.FromWhole(at.Int("x"), at.Int("y"));
+
+    private DataNode ScreenData() => _data ?? throw NotShown();
+
+    private TimelineSet Timelines() => _timelines ?? throw NotShown();
+
+    private static InvalidOperationException NotShown() => new("The choice of saved game has not been shown.");
 }

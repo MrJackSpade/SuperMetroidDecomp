@@ -18,15 +18,18 @@ namespace Game.Menus;
 public partial class OptionsMode : GameMode
 {
     private readonly GameMode _returnsTo;
+    private readonly bool _startsGame;
     private ChoiceList? _list;
     private string? _binding;
     private string? _pressed;
 
     /// <summary>The options, laid over <paramref name="returnsTo"/>.</summary>
-    public OptionsMode(GameMode returnsTo)
+    /// <param name="startsGame">Whether its first line starts the game chosen, as it does when it is come to from the choice of saved game.</param>
+    public OptionsMode(GameMode returnsTo, bool startsGame = false)
     {
         ArgumentNullException.ThrowIfNull(returnsTo);
         _returnsTo = returnsTo;
+        _startsGame = startsGame;
     }
 
     /// <summary>The languages the game's words come in.</summary>
@@ -93,6 +96,18 @@ public partial class OptionsMode : GameMode
     {
         Options options = Session.Options;
         int toggles = Data.Toggles.All.Count;
+        int shown = chosen;
+        if (_startsGame)
+        {
+            if (chosen == 0)
+            {
+                Session.Options.Save();
+                return new LoadingMode();
+            }
+
+            chosen--;
+        }
+
         if (chosen == 0)
         {
             int at = Array.IndexOf(Languages, options.Language);
@@ -112,7 +127,7 @@ public partial class OptionsMode : GameMode
             return Leave();
         }
 
-        ShowLines(chosen);
+        ShowLines(shown);
         return this;
     }
 
@@ -136,7 +151,10 @@ public partial class OptionsMode : GameMode
     {
         Options options = Session.Options;
         Engine.Shared.GameText text = Session.Text;
-        var lines = new List<string> { text.Get("options_language").Replace("{language}", Shown(options.Language), StringComparison.Ordinal) };
+        var lines = new List<string>();
+        if (_startsGame)
+            lines.Add(text.Get("options_start_game"));
+        lines.Add(text.Get("options_language").Replace("{language}", Shown(options.Language), StringComparison.Ordinal));
         foreach (string toggle in Data.Toggles.All)
         {
             lines.Add(text.Get($"options_toggle_{toggle}")

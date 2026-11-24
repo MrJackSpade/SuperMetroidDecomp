@@ -339,15 +339,7 @@ public sealed partial class EngineAssetWriter
     /// </summary>
     private void WriteMenuWords()
     {
-        Words("file_select_slot", "SAMUS {slot}   ENERGY {energy}   TIME {hours}.{minutes}");
-        Words("file_select_empty", "SAMUS {slot}   NO DATA");
-        Words("file_select_copy", "DATA COPY");
-        Words("file_select_clear", "DATA CLEAR");
-        Words("file_select_options", "OPTION MODE");
-        Words("file_select_exit", "EXIT");
-        Words("file_select_copy_from", "COPY WHICH DATA");
-        Words("file_select_copy_to", "COPY TO WHERE");
-        Words("file_select_clear_which", "CLEAR WHICH DATA");
+        Words("options_start_game", "START GAME");
         Words("options_language", "TEXT   {language}");
         Words("options_toggle_moonwalk", "MOON WALK   {state}");
         Words("options_toggle_manual_item_cancel", "ICON CANCEL   {state}");

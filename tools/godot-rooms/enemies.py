@@ -660,11 +660,16 @@ BEATEN_PATCHES = {
 }
 
 
+# Where a boss stands that the old code moves as it sets it up, whatever its room's list says: the Golden Torizo
+# starts high above the floor it drops to.
+BOSS_STARTS = {'GoldenTorizo': (424, 144)}
+
+
 def boss(kind: str) -> Rule:
     scene, name, properties = BOSSES[kind]
 
     def place(p: legacy.Placement, index: int, listed: list[legacy.Placement]) -> Placed:
-        return Placed(B + scene, kind.removesuffix('Body'), dict(properties), boss=name)
+        return Placed(B + scene, kind.removesuffix('Body'), dict(properties), boss=name, at=BOSS_STARTS.get(kind))
     return place
 
 

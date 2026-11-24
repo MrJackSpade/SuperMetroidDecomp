@@ -26,15 +26,21 @@ namespace Game.Enemies;
 /// lands with; "landed:" with the timelines for a faceless one and for a golden one, either of which may be empty;
 /// "attack:" with the timelines for spewing and for sonic booms; "branch:" and "jump_back", "sit" or "leap";
 /// "interrupt:" with "swipe", "stagger", "eye_beam" or "eggs" and a timeline; "look:" and a look; "fade:" and a
-/// tint's name; "swipe:" with the hand's place when it faces left; "explosions:" and "gut" or "face"; "sitting:" and
-/// "on" or "off"; and by themselves "advance_fade", "show", "hide", "lock", "unlock", "resume_walk",
+/// tint's name; "swipe:" with the hand's place when it faces left; "explosions:" and "gut" or "face"; "box:" with
+/// the left, top, width and height of the part of it that can be touched and shot, from its place, and 1 if that
+/// part is one of its sitting and standing-up poses or 0 if not, or "box:off" for none at all; and by themselves
+/// "advance_fade", "show", "hide", "lock", "unlock", "resume_walk",
 /// "resume_interrupted", "blow_up_gut", "face_blown_up", "death_explosion", "finish_death", "landing_dust", "drool",
 /// "turning_around", "rising", "dropping", "start_fight", "orbs", "sonic_boom", "egg", "chest_held_open",
 /// "super_missile", "clear_caught", "eye_beam", "eye_beam_flames:on", "eye_beam_flames:off" and "unstun".</para>
-/// <para>The names of its pictures may hold "{look}", which stands for the look its body has. Its data lists its
-/// "tints" by name, and for a golden one "health_tints", each with the least "health" it is for, highest first. Its
-/// shots are "orb", "sonic_boom", "initial_drool", "drool_0" to "drool_2", "swipe", "low_health_explosion",
-/// "death_explosion" and "landing_dust", and for a golden one "egg", "super_missile" and "eye_beam".</para>
+/// <para>The names of its pictures may hold "{look}", which stands for the look its body has; a step with no
+/// picture leaves it as it was shown. Its data lists its "tints" by name, each as how much of the red, green and
+/// blue of its pictures shows ("r", "g", "b"), and for a golden one "health_tints", each with the least "health" it
+/// is for, highest first. "scattered_drops" is the table of what it scatters when it is gone, and "drop_scatter"
+/// where: a corner of the room ("x", "y") and, across and down, how many binary digits of a number drawn are added
+/// and from which digit up. "fight_body", where given, is the body it has from the start of the fight. Its shots are
+/// "orb", "sonic_boom", "initial_drool", "drool_0" to "drool_2", "swipe", "low_health_explosion", "death_explosion",
+/// "landing_dust_left" and "landing_dust_right", and for a golden one "egg", "super_missile" and "eye_beam".</para>
 /// </remarks>
 public partial class Torizo : Enemy
 {
@@ -142,14 +148,6 @@ public partial class Torizo : Enemy
     [Export, DataValue("death_drops")]
     public int DeathDrops { get; set; } = 16;
 
-    /// <summary>The corner its drops scatter from, in the room's pixels.</summary>
-    [Export]
-    public Vector2I DropCorner { get; set; } = new(64, 96);
-
-    /// <summary>How wide its drops scatter, as a power of two of pixels.</summary>
-    [Export]
-    public int DropScatterBits { get; set; } = 7;
-
     private enum Stage
     {
         Idle,
@@ -207,6 +205,11 @@ public partial class Torizo : Enemy
     private Color _fadeFrom = Colors.White;
     private Color _fadeTo = Colors.White;
     private int _fadeStep;
+    private string _shown = "";
+    private DropTable _scatteredDrops = DropTable.Nothing;
+    private Vector2I _dropCorner;
+    private (int From, int Digits) _dropAcross, _dropDown;
+    private PixelRect? _fightBody;
 
     /// <summary>Whether the flames its eye beams leave on the floor are let burn at the moment.</summary>
     public bool EyeBeamFlames { get; private set; }
@@ -221,12 +224,26 @@ public partial class Torizo : Enemy
     public override void ReadValues(DataNode data)
     {
         base.ReadValues(data);
+        static Color Tint(DataNode tint) => new(
+            (float)tint.Distance("r").ToNumber(), (float)tint.Distance("g").ToNumber(), (float)tint.Distance("b").ToNumber());
+        static (int From, int Digits) Field(DataNode field) => (field.Int("from"), field.Int("digits"));
         _tints.Clear();
         foreach ((string name, DataNode tint) in data.Get("tints").Entries())
-            _tints[name] = new Color(tint.AsText());
+            _tints[name] = Tint(tint);
         _healthTints.Clear();
         if (data.Has("health_tints"))
-            _healthTints.AddRange(data.List("health_tints").Select(band => (band.Int("health"), new Color(band.Text("tint")))));
+            _healthTints.AddRange(data.List("health_tints").Select(band => (band.Int("health"), Tint(band.Get("tint")))));
+        _scatteredDrops = DropTable.Read(data.Get("scattered_drops"));
+        DataNode scatter = data.Get("drop_scatter");
+        _dropCorner = new Vector2I(scatter.Int("x"), scatter.Int("y"));
+        _dropAcross = Field(scatter.Get("across"));
+        _dropDown = Field(scatter.Get("down"));
+        _fightBody = null;
+        if (data.Has("fight_body"))
+        {
+            DataNode body = data.Get("fight_body");
+            _fightBody = new PixelRect(body.Int("left"), body.Int("top"), body.Int("width"), body.Int("height"));
+        }
     }
 
     /// <inheritdoc/>
@@ -251,7 +268,13 @@ public partial class Torizo : Enemy
     }
 
     /// <inheritdoc/>
-    protected override string PictureOf(TimelineStep step) => step.Picture.Replace("{look}", _look, StringComparison.Ordinal);
+    protected override string PictureOf(TimelineStep step)
+    {
+        // A step with no picture is a wait: it leaves the Torizo as it was shown.
+        if (step.Picture.Length > 0)
+            _shown = step.Picture;
+        return _shown.Replace("{look}", _look, StringComparison.Ordinal);
+    }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
@@ -259,6 +282,8 @@ public partial class Torizo : Enemy
         AlwaysActive = true;
         Facing = Facing.Left;
         _look = StartLook;
+        _shown = "";
+        SetBox(null, sitting: false);
         _tint = Tint(StartTint);
         _motion = Motion.Still;
         Velocity = PixelVelocity.Zero;
@@ -614,8 +639,18 @@ public partial class Torizo : Enemy
                 _locked = false;
                 break;
 
-            case "sitting":
-                _sitting = parts[1] == "on";
+            case "box":
+                if (parts[1] == "off")
+                {
+                    SetBox(null, sitting: false);
+                    break;
+                }
+
+                SetBox(
+                    new PixelRect(
+                        int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture), int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture),
+                        int.Parse(parts[3], System.Globalization.CultureInfo.InvariantCulture), int.Parse(parts[4], System.Globalization.CultureInfo.InvariantCulture)),
+                    sitting: parts[5] == "1");
                 break;
 
             case "resume_walk":
@@ -664,8 +699,8 @@ public partial class Torizo : Enemy
                 break;
 
             case "landing_dust":
-                Fire("landing_dust", Position + PixelOffset.FromWhole(24, 48), PixelVelocity.Zero);
-                Fire("landing_dust", Position + PixelOffset.FromWhole(-24, 48), PixelVelocity.Zero);
+                Fire("landing_dust_right", Position + PixelOffset.FromWhole(24, 48), PixelVelocity.Zero);
+                Fire("landing_dust_left", Position + PixelOffset.FromWhole(-24, 48), PixelVelocity.Zero);
                 break;
 
             case "drool":
@@ -690,6 +725,8 @@ public partial class Torizo : Enemy
 
             case "start_fight":
                 _fighting = true;
+                if (_fightBody is { } fightBody && Body is { } body)
+                    body.Rect = fightBody;
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
                 break;
@@ -847,6 +884,21 @@ public partial class Torizo : Enemy
         Play(timeline, restart: true);
     }
 
+    /// <summary>
+    /// Gives it the part of it that can be touched and shot, which changes with its pose; none for a pose that has
+    /// none. Its sitting and standing-up poses take shots another way from the rest.
+    /// </summary>
+    private void SetBox(PixelRect? box, bool sitting)
+    {
+        _sitting = sitting;
+        foreach (Collider part in EntityNode.CollidersOf(this).Where(collider => collider.Role is ColliderRole.Hitbox or ColliderRole.Hurtbox))
+        {
+            part.Enabled = box is not null;
+            if (box is { } rect)
+                part.Rect = rect;
+        }
+    }
+
     /// <summary>Starts its death: it blows apart where it stands.</summary>
     private void BeginDeath()
     {
@@ -864,7 +916,8 @@ public partial class Torizo : Enemy
         for (int drop = 0; drop < DeathDrops; drop++)
         {
             RandomDraw draw = Random.Draw();
-            Drop(Drops, PixelPosition.FromWhole(DropCorner.X + draw.Part(0, DropScatterBits), DropCorner.Y + draw.Part(8, 6)));
+            Drop(_scatteredDrops, PixelPosition.FromWhole(
+                _dropCorner.X + draw.Part(_dropAcross.From, _dropAcross.Digits), _dropCorner.Y + draw.Part(_dropDown.From, _dropDown.Digits)));
         }
 
         if (VictoryMusic.Length > 0)

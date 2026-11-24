@@ -20,7 +20,9 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/draygon_cannon.json` | `DraygonCannon` | contact_damage, grapple_drain, health |
 | `bosses/draygon_goop.json` | `DraygonGoop` | chamber_size, most_stuck, reach_across, reach_down, stack_spacing, stack_top, stuck_timeline, stuck_updates |
 | `bosses/golden_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
+| `bosses/golden_torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
 | `bosses/golden_torizo_orb.json` | `TorizoOrb` | bounce_drag, bounces, gravity |
+| `bosses/golden_torizo_sonic_boom.json` | `TorizoSonicBoom` | quickening |
 | `bosses/kraid.json` | `Kraid` | backdrop_fade_steps, contact_damage, death_drops, death_spikes_patch, dud_effect, eye_glow_updates, health, lunge_delay_updates, rise_wait_updates, rock_sound, thinking_step_updates |
 | `bosses/kraid_lint.json` | `KraidLint` | charge_updates, contact_damage, emerge_pixels, fire_sound, fire_speed, harmless_x, health, point_x, reload_updates, return_x |
 | `bosses/kraid_nail.json` | `KraidNail` | below_arm, contact_damage, health, launch_delay |

@@ -56,6 +56,7 @@ public sealed partial class EngineAssetWriter
         writer.WriteKagoBug();
         writer.WriteEyeDoorEye();
         writer.WriteChozoStatues();
+        writer.WriteTorizos();
         // The layouts last: what was written above gave them their patches.
         layouts.WriteAll();
     }

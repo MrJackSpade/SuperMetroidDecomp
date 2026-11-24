@@ -385,6 +385,7 @@ public sealed partial class EngineAssetWriter
             .Value("face_health", TorizoDecisionDefinitions.FaceBlowUpHealth)
             .Value("first_attack_missiles", variant.FirstAttackMissiles)
             .Value("turn_delay", variant.Walker.TurnDelay)
+            .Value("landing_shake_strength", ShakeStrength(TorizoMovement.LandingShake))
             // The golden one spews one orb at each cue.
             .Value("orbs_per_burst", golden ? 1 : TorizoChozoOrbDefinitions.BombTorizoOrbsPerBurst)
             .Value("orb_speed_across", EngineNames.Number(orb.BaseVelocity.X))

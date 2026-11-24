@@ -1,0 +1,191 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/crawler/crawler.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/pipe_bug.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/enemies/eye_door/eye_door_eye.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="13"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/lower_norfair_farming_in_heated_norfair.json"
+Music = "lower_norfair"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 0
+About = "lower_norfair_farming_eye_door_facing_right"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 6
+Parts = Array[ExtResource("5")]([SubResource("r2")])
+
+[node name="LowerNorfairFarming" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(24, 17)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/lower_norfair_farming_in_heated_norfair.json"
+
+[node name="ToPlowerhouse" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/plowerhouse.tscn"
+LeadsToExit = "ToLowerNorfairFarming"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToRidley" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/ridley.tscn"
+LeadsToExit = "ToLowerNorfairFarming"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Viola" parent="." instance=ExtResource("6")]
+position = Vector2(552, 136)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola2" parent="." instance=ExtResource("6")]
+position = Vector2(568, 216)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola3" parent="." instance=ExtResource("6")]
+position = Vector2(360, 136)
+DataFile = "enemies/viola.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola4" parent="." instance=ExtResource("6")]
+position = Vector2(360, 216)
+DataFile = "enemies/viola.json"
+StartsOn = 3
+PressesLeft = true
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Viola5" parent="." instance=ExtResource("6")]
+position = Vector2(216, 152)
+DataFile = "enemies/viola.json"
+StartsOn = 1
+PressesLeft = false
+PressesUp = false
+CrawlSpeed = 0.75
+
+[node name="Zebbo" parent="." instance=ExtResource("7")]
+position = Vector2(664, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo2" parent="." instance=ExtResource("7")]
+position = Vector2(600, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo3" parent="." instance=ExtResource("7")]
+position = Vector2(520, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo4" parent="." instance=ExtResource("7")]
+position = Vector2(456, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo5" parent="." instance=ExtResource("7")]
+position = Vector2(328, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="Zebbo6" parent="." instance=ExtResource("7")]
+position = Vector2(248, 240)
+DataFile = "enemies/zebbo.json"
+AlwaysActive = true
+RespawnsWhenKilled = true
+
+[node name="EyeCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_eye_right.json"
+HeldShutBy = SubResource("r2")
+
+[node name="EyeDoorEye" parent="." instance=ExtResource("9")]
+position = Vector2(16, 112)
+StartsFacing = 1
+DestroyedFact = "lower_norfair_farming_eye_door_facing_right"
+AlwaysActive = true
+PresentWhen = SubResource("r3")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(736, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 208
+HighSurface = 208
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 0)
+Picture = "backdrops/norfair_room_statues.png"
+ScrollShare = Vector2(0.75, 0.75)

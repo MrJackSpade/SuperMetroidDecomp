@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -9,7 +10,7 @@ namespace Game.Enemies;
 /// A piece of the statue hand that held the Bombs: it hangs where it broke off until the cue "fall" of its timeline,
 /// then falls, faster and faster, and lies where it lands.
 /// </summary>
-public partial class TorizoFragment : TorizoShot
+public partial class TorizoFragment : CuedProjectile
 {
     /// <summary>The downward speed it gains each update, as a number of pixels.</summary>
     [Export, DataValue("gravity")]

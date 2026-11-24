@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://game/hud/Hud.cs" id="1"]
+[ext_resource type="Script" path="res://game/hud/HudCanvas.cs" id="2"]
+[ext_resource type="Script" path="res://engine/ui/MapView.cs" id="3"]
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1")
+DataFile = "hud/hud.json"
+
+[node name="Canvas" type="Node2D" parent="."]
+script = ExtResource("2")
+
+[node name="Minimap" type="Node2D" parent="."]
+script = ExtResource("3")

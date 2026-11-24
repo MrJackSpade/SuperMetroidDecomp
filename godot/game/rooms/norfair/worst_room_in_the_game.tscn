@@ -1,0 +1,216 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/worst_room_in_the_game_in_heated_norfair.json"
+KeepsMusic = true
+
+[node name="WorstRoomInTheGame" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(30, 10)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/worst_room_in_the_game_in_heated_norfair.json"
+
+[node name="ToAmphitheatre" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/amphitheatre.tscn"
+LeadsToExit = "ToWorstRoomInTheGame"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToMickeyMouse" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/mickey_mouse.tscn"
+LeadsToExit = "ToWorstRoomInTheGame"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToPillar" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 1376)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/pillar.tscn"
+LeadsToExit = "ToWorstRoomInTheGame"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Namihe" parent="." instance=ExtResource("5")]
+position = Vector2(218, 1399)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWall" parent="." instance=ExtResource("6")]
+position = Vector2(208, 1272)
+DataFile = "enemies/wall_pirate_gold.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160
+
+[node name="PirateGoldWall2" parent="." instance=ExtResource("6")]
+position = Vector2(48, 1168)
+DataFile = "enemies/wall_pirate_gold.json"
+Wall = 0
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160
+
+[node name="PirateGoldWall3" parent="." instance=ExtResource("6")]
+position = Vector2(208, 1088)
+DataFile = "enemies/wall_pirate_gold.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 160
+
+[node name="Namihe2" parent="." instance=ExtResource("5")]
+position = Vector2(39, 800)
+DataFile = "enemies/namihe.json"
+StartsFacing = 1
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWalking" parent="." instance=ExtResource("7")]
+position = Vector2(48, 688)
+DataFile = "enemies/walking_pirate_gold.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 1
+
+[node name="Namihe3" parent="." instance=ExtResource("5")]
+position = Vector2(218, 904)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWalking2" parent="." instance=ExtResource("7")]
+position = Vector2(208, 736)
+DataFile = "enemies/walking_pirate_gold.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 0
+
+[node name="Namihe4" parent="." instance=ExtResource("5")]
+position = Vector2(218, 576)
+DataFile = "enemies/namihe.json"
+StartsFacing = 0
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="Namihe5" parent="." instance=ExtResource("5")]
+position = Vector2(39, 480)
+DataFile = "enemies/namihe.json"
+StartsFacing = 1
+CooldownUpdates = 0
+LevelDistance = 64
+LaunchSpeed = 2
+
+[node name="PirateGoldWalking3" parent="." instance=ExtResource("7")]
+position = Vector2(128, 368)
+DataFile = "enemies/walking_pirate_gold.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(16, 1376)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap3" parent="." instance=ExtResource("8")]
+position = Vector2(224, 352)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x0" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x5Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(48, 256)
+Size = Vector2i(160, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(48, 256)
+Size = Vector2i(160, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToMickeyMouse"
+What = "open"
+Target = NodePath("../Screen0x0")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+AtEntry = "ToMickeyMouse"
+What = "open"
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/norfair_cavern_horizontal_ruins.png"
+ScrollShare = Vector2(0.75, 0.75)

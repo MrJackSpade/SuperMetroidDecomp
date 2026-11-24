@@ -116,6 +116,8 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             _visual = new ActorVisual { Picture = picture, PictureOffset = new Vector2I(x, y) };
             AddChild(_visual);
             _visual.Bind(room.Content);
+            if (_timeline is not null)
+                _visual.Show(_timeline.Current);
         }
 
         OnLaunched(room);
@@ -133,7 +135,7 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
     protected void PlayTimeline(string file)
     {
         _timeline = new TimelinePlayer(FrameTimeline.Read(Room.Content.ReadData(Named(file))));
-        _visual?.Show(_timeline.Current.Picture);
+        _visual?.Show(_timeline.Current);
     }
 
     /// <summary>Called once as the projectile enters its room.</summary>
@@ -164,16 +166,30 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 return;
             }
 
-            _visual?.Show(_timeline.Current.Picture);
+            _visual?.Show(_timeline.Current);
         }
 
-        BeforeTravel(room);
-        if (HasEnded)
-            return;
-        ChangeSpeed(room);
-        Travel(room);
-        if (HasEnded)
-            return;
+        if (Age <= _settings.LaunchDelayUpdates)
+        {
+            // It waits where it was launched, meeting whatever is there, before it sets off.
+            PixelVelocity launched = Velocity;
+            Velocity = PixelVelocity.Zero;
+            Travel(room);
+            if (HasEnded)
+                return;
+            Velocity = launched;
+        }
+        else
+        {
+            BeforeTravel(room);
+            if (HasEnded)
+                return;
+            Steer(room);
+            Travel(room);
+            if (HasEnded)
+                return;
+            GainSpeed();
+        }
 
         if (_settings.LastsUpdates > 0)
         {
@@ -189,8 +205,16 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         {
             PixelRect view = room.Session.Camera.View;
             int margin = _settings.ViewMargin;
-            var allowed = new PixelRect(view.Left - margin, view.Top - margin, view.Width + margin * 2, view.Height + margin * 2);
+            int below = _settings.ViewMarginBelow >= 0 ? _settings.ViewMarginBelow : margin;
+            var allowed = new PixelRect(view.Left - margin, view.Top - margin, view.Width + margin * 2, view.Height + margin + below);
             if (!allowed.Overlaps(Area))
+                Leave(room);
+        }
+        else if (_settings.ViewMarginBelow >= 0)
+        {
+            // It may go anywhere but too far below the view.
+            PixelRect view = room.Session.Camera.View;
+            if (Area.Top >= view.Top + view.Height + _settings.ViewMarginBelow)
                 Leave(room);
         }
     }
@@ -260,25 +284,18 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         };
     }
 
-    /// <summary>Changes the projectile's speed for this update, as its motion says.</summary>
-    private void ChangeSpeed(Room room)
+    /// <summary>Sets the way the projectile goes this update, for a motion that decides it before moving.</summary>
+    private void Steer(Room room)
     {
         switch (_settings.Motion)
         {
             case ProjectileSettings.Moves.Straight:
             case ProjectileSettings.Moves.Wave:
+            case ProjectileSettings.Moves.Accelerating:
+            case ProjectileSettings.Moves.Falling:
                 break;
             case ProjectileSettings.Moves.Still:
                 Velocity = PixelVelocity.Zero;
-                break;
-            case ProjectileSettings.Moves.Accelerating:
-                Velocity = new PixelVelocity(Faster(Velocity.X), Faster(Velocity.Y));
-                break;
-            case ProjectileSettings.Moves.Falling:
-                bool wasRising = Velocity.Y.IsNegative;
-                Velocity = Velocity.WithY(Limit(Velocity.Y + _settings.Acceleration));
-                if (wasRising && !Velocity.Y.IsNegative && _settings.FallingTimeline.Length > 0 && _visual is not null)
-                    PlayTimeline(_settings.FallingTimeline);
                 break;
             case ProjectileSettings.Moves.Homing:
                 PixelPosition target = Side == HitSide.Player ? NearestEnemy(room) ?? Position : room.Player.Position;
@@ -286,6 +303,30 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
                 break;
             default:
                 throw new InvalidOperationException($"Undefined projectile motion {_settings.Motion}.");
+        }
+    }
+
+    /// <summary>
+    /// Changes the projectile's speed once it has moved this update, for a motion that gains speed: it leaves at the
+    /// speed it was launched with, and the change is felt from the next update.
+    /// </summary>
+    private void GainSpeed()
+    {
+        switch (_settings.Motion)
+        {
+            case ProjectileSettings.Moves.Accelerating:
+                Velocity = new PixelVelocity(Faster(Velocity.X), Faster(Velocity.Y));
+                break;
+            case ProjectileSettings.Moves.Falling:
+                bool wasRising = Velocity.Y.IsNegative;
+                // The limit is on how fast it falls; however fast it was thrown up, it rises as it was thrown.
+                Pixels falling = Velocity.Y + _settings.Acceleration;
+                if (!_settings.SpeedLimit.IsZero && falling > _settings.SpeedLimit)
+                    falling = _settings.SpeedLimit;
+                Velocity = Velocity.WithY(falling);
+                if (wasRising && !Velocity.Y.IsNegative && _settings.FallingTimeline.Length > 0 && _visual is not null)
+                    PlayTimeline(_settings.FallingTimeline);
+                break;
         }
     }
 
@@ -340,27 +381,14 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
         if (passes && hitsTerrain)
             room.Terrain.TakeHit(Hit, area);
 
-        if (!passes && (room.Terrain.IsSolidIn(area, SlopeTreatment.Wall) ||
-                        room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Count > 0))
-        {
-            if (hitsTerrain)
-                room.Terrain.TakeHit(Hit, area);
-            if (_settings.MeetingTerrain == ProjectileSettings.Terrain.Bounces)
-            {
-                bool acrossBlocked = room.Terrain.IsSolidIn(Area.MovedBy(0, previous.Y.Whole - next.Y.Whole), SlopeTreatment.Wall);
-                Velocity = acrossBlocked ? Velocity.WithX(-Velocity.X) : Velocity.WithY(-Velocity.Y);
-                Position = previous;
-                return false;
-            }
+        if (!passes && room.Terrain.IsSolidIn(area, SlopeTreatment.Wall))
+            return StopAgainst(room, previous, next, hitsTerrain);
 
-            Position = previous;
-            OnMetTerrain(room);
-            End(room);
-            return false;
-        }
-
+        // Something solid that is not terrain may be the very thing the shot is for: a door's cap, a frozen enemy. So
+        // what is there is hit first, and only then does the solid stop the shot.
+        bool meetsSolid = !passes && room.Collision.Overlapping(area, ColliderRole.Solid, except: _launcher).Count > 0;
         if (!DeliversHitNow)
-            return true;
+            return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
 
         if (_settings.HitsEachUpdate)
             _alreadyHurt.Clear();
@@ -403,7 +431,29 @@ public partial class Projectile : Node2D, IRoomEntity, IHittable
             }
         }
 
-        return true;
+        return !meetsSolid || StopAgainst(room, previous, next, hitsTerrain);
+    }
+
+    /// <summary>
+    /// Stops the projectile against terrain or something solid it has met in moving from <paramref name="previous"/>
+    /// to <paramref name="next"/>: it bounces off, or it ends there. Always returns false: it travels no further this update.
+    /// </summary>
+    private bool StopAgainst(Room room, PixelPosition previous, PixelPosition next, bool hitsTerrain)
+    {
+        if (hitsTerrain)
+            room.Terrain.TakeHit(Hit, Area);
+        if (_settings.MeetingTerrain == ProjectileSettings.Terrain.Bounces)
+        {
+            bool acrossBlocked = room.Terrain.IsSolidIn(Area.MovedBy(0, previous.Y.Whole - next.Y.Whole), SlopeTreatment.Wall);
+            Velocity = acrossBlocked ? Velocity.WithX(-Velocity.X) : Velocity.WithY(-Velocity.Y);
+            Position = previous;
+            return false;
+        }
+
+        Position = previous;
+        OnMetTerrain(room);
+        End(room);
+        return false;
     }
 
     /// <summary>

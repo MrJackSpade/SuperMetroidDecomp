@@ -1,0 +1,147 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/metroid/mochtroid.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="8"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/maridia/colosseum_in_sandy_maridia.json"
+KeepsMusic = true
+
+[node name="Colosseum" type="Node2D"]
+script = ExtResource("2")
+Area = "maridia"
+MapCell = Vector2i(34, 7)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/maridia/colosseum_in_sandy_maridia.json"
+
+[node name="ToDraygonSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1776, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/draygon_save.tscn"
+LeadsToExit = "ToColosseum"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToHalfieClimb" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/halfie_climb.tscn"
+LeadsToExit = "ToColosseum"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToThePrecious" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1776, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/the_precious.tscn"
+LeadsToExit = "ToColosseum"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Mochtroid" parent="." instance=ExtResource("5")]
+position = Vector2(128, 120)
+
+[node name="Mochtroid2" parent="." instance=ExtResource("5")]
+position = Vector2(656, 104)
+
+[node name="Mochtroid3" parent="." instance=ExtResource("5")]
+position = Vector2(1104, 176)
+
+[node name="Mochtroid4" parent="." instance=ExtResource("5")]
+position = Vector2(1168, 96)
+
+[node name="Mochtroid5" parent="." instance=ExtResource("5")]
+position = Vector2(1632, 136)
+
+[node name="Mochtroid6" parent="." instance=ExtResource("5")]
+position = Vector2(168, 416)
+
+[node name="Mochtroid7" parent="." instance=ExtResource("5")]
+position = Vector2(360, 344)
+
+[node name="Mochtroid8" parent="." instance=ExtResource("5")]
+position = Vector2(1584, 416)
+
+[node name="GreenCap" parent="." instance=ExtResource("6")]
+position = Vector2(1760, 352)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "colosseum_green_door_facing_left_at110x22"
+Remembered = 1
+
+[node name="RedCap" parent="." instance=ExtResource("6")]
+position = Vector2(1760, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "colosseum_red_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="GreenCap2" parent="." instance=ExtResource("6")]
+position = Vector2(1248, 608)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "colosseum_green_door_facing_left_at78x38"
+Remembered = 1
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(512, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(768, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(1024, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(1280, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x1Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(1536, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_purple.json"
+LowSurface = 279
+HighSurface = 279

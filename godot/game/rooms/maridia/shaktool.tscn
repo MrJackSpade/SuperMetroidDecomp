@@ -1,0 +1,114 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/shaktool/shaktool.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/yard/yard.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "shaktool_cleared_path"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/maridia/shaktool_when_shaktool_cleared_path_in_sandy_maridia.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/maridia/shaktool_default_in_sandy_maridia.json"
+KeepsMusic = true
+
+[node name="Shaktool" type="Node2D"]
+script = ExtResource("3")
+Area = "maridia"
+MapCell = Vector2i(28, 16)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/maridia/shaktool_default_in_sandy_maridia.json"
+
+[node name="ToEastPants" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/east_pants.tscn"
+LeadsToExit = "ToShaktool"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToSpringball" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(1008, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/maridia/springball.tscn"
+LeadsToExit = "ToShaktool"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Shaktool" parent="." instance=ExtResource("6")]
+position = Vector2(168, 184)
+StartsClockwise = true
+
+[node name="Yard" parent="." instance=ExtResource("7")]
+position = Vector2(920, 184)
+StartsOn = 0
+Clockwise = false
+CrawlSpeed = 0.5
+
+[node name="Yard2" parent="." instance=ExtResource("7")]
+position = Vector2(984, 80)
+StartsOn = 1
+Clockwise = true
+CrawlSpeed = 0.5
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("8")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+TypeFile = "liquids/water_green.json"
+LowSurface = 176
+HighSurface = 176
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125

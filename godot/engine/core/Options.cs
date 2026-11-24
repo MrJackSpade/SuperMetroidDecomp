@@ -10,6 +10,9 @@ namespace Engine.Core;
 /// </summary>
 public sealed class Options
 {
+    /// <summary>The file the options were loaded from; empty when they were not loaded from one.</summary>
+    private string _file = "";
+
     private static readonly JsonSerializerOptions Format = new() { WriteIndented = true };
 
     /// <summary>The language the game's words are shown in, by name.</summary>
@@ -46,13 +49,14 @@ public sealed class Options
     public static Options Load(string file)
     {
         if (!File.Exists(file))
-            return new Options { Bindings = StandardBindings };
+            return new Options { Bindings = StandardBindings, _file = file };
         try
         {
             Options options = JsonSerializer.Deserialize<Options>(File.ReadAllText(file))
                 ?? throw new InvalidDataException($"The options file {file} holds nothing that can be read.");
             foreach ((string action, List<string> buttons) in StandardBindings)
                 options.Bindings.TryAdd(action, buttons);
+            options._file = file;
             return options;
         }
         catch (JsonException exception)
@@ -70,6 +74,15 @@ public sealed class Options
     }
 
     /// <summary>Writes the options to <paramref name="file"/>.</summary>
+    /// <summary>Writes the options to the file they were loaded from.</summary>
+    /// <exception cref="InvalidOperationException">They were not loaded from a file.</exception>
+    public void Save()
+    {
+        if (_file.Length == 0)
+            throw new InvalidOperationException("These options were not loaded from a file, so there is nowhere to save them.");
+        Save(_file);
+    }
+
     public void Save(string file)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(file)) ?? ".");

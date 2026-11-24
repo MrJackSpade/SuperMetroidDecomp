@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://engine/world/objects/barrier/Barrier.cs" id="1"]
+[ext_resource type="Script" path="res://engine/actors/components/ActorVisual.cs" id="2"]
+[ext_resource type="Script" path="res://engine/collision/Collider.cs" id="3"]
+
+[node name="DoorCap" type="Node2D"]
+script = ExtResource("1")
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("2")
+
+[node name="Solid" type="Node2D" parent="."]
+script = ExtResource("3")
+Role = 3
+
+[node name="Hurtbox" type="Node2D" parent="."]
+script = ExtResource("3")
+Role = 1

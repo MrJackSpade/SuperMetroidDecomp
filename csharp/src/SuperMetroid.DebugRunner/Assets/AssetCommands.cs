@@ -30,6 +30,16 @@ if (args.Length is 2 or 3 && args[0].Equals("install", StringComparison.OrdinalI
     return 0;
 }
 
+// The Godot game's assets, written from an installation into the Godot project's assets folder: the installation's root,
+// or the desktop's when none is given, and the folder.
+if (args.Length is 2 or 3 && args[0].Equals("engine-assets", StringComparison.OrdinalIgnoreCase))
+{
+    string assets = Path.GetFullPath(args[^1]);
+    SuperMetroid.AssetExtraction.Engine.EngineAssetWriter.Write(args.Length == 3 ? args[1] : GameAssetInstaller.DesktopRoot, assets);
+    Console.WriteLine($"The Godot game's assets written into {assets}");
+    return 0;
+}
+
 // Developer review by picture tag (#1639): previews of every installed sheet, each picture boxed and tagged, and what a
 // tag resolves to. Both read an installation's content directory and never write into it.
 if (args.Length == 3 && args[0].Equals("picture-preview", StringComparison.OrdinalIgnoreCase))

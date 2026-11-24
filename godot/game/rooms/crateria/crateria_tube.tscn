@@ -1,0 +1,46 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="5"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/crateria/crateria_tube_in_upper_crateria.json"
+KeepsMusic = true
+
+[node name="CrateriaTube" type="Node2D"]
+script = ExtResource("2")
+Area = "crateria"
+MapCell = Vector2i(32, 5)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/crateria/crateria_tube_in_upper_crateria.json"
+
+[node name="ToCrateriaKihunter" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/crateria_kihunter.tscn"
+LeadsToExit = "ToCrateriaTube"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToLandingSite" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/landing_site.tscn"
+LeadsToExit = "ToCrateriaTube"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false

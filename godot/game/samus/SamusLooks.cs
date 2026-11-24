@@ -12,6 +12,7 @@ public static class SamusLooks
     public static string Of(Samus samus) => samus.State switch
     {
         ISamusLook own => own.Look,
+        UsingStationState { FacingOut: true } => "facing_forward",
         StandingState => "standing",
         RunningState => "running",
         TurningState => "turning",
@@ -22,6 +23,7 @@ public static class SamusLooks
         CrawlingState => "morph_ball",
         KnockedBackState => samus.Form == Player.Crawling ? "morph_ball" : "knocked_back",
         DyingState => "dying",
+        CarriedState => "carried",
         _ => samus.Form == Player.Crawling ? "morph_ball" : "standing",
     };
 }

@@ -1,0 +1,304 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/hopper/hopper.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/pipe_bug/geega.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="10"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/green_hill_zone_in_green_blue_brinstar.json"
+Music = "green_brinstar"
+
+[node name="GreenHillZone" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(19, 11)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/green_hill_zone_in_green_blue_brinstar.json"
+
+[node name="ToBigPink" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/big_pink.tscn"
+LeadsToExit = "ToGreenHillZone"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToMorphBall" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(496, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/morph_ball.tscn"
+LeadsToExit = "ToGreenHillZone"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToNoobBridge" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(2032, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/noob_bridge.tscn"
+LeadsToExit = "ToGreenHillZone"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Sidehopper" parent="." instance=ExtResource("5")]
+position = Vector2(1024, 672)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Sidehopper2" parent="." instance=ExtResource("5")]
+position = Vector2(1280, 768)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Sidehopper3" parent="." instance=ExtResource("5")]
+position = Vector2(1671, 950)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = false
+
+[node name="Geega" parent="." instance=ExtResource("6")]
+position = Vector2(368, 288)
+StartsFacing = 0
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega2" parent="." instance=ExtResource("6")]
+position = Vector2(560, 480)
+StartsFacing = 1
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega3" parent="." instance=ExtResource("6")]
+position = Vector2(896, 544)
+StartsFacing = 0
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega4" parent="." instance=ExtResource("6")]
+position = Vector2(1376, 736)
+StartsFacing = 0
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Geega5" parent="." instance=ExtResource("6")]
+position = Vector2(1280, 832)
+StartsFacing = 1
+Speed = 2.25
+RespawnsWhenKilled = true
+
+[node name="Sidehopper4" parent="." instance=ExtResource("5")]
+position = Vector2(1744, 848)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true
+
+[node name="Sidehopper5" parent="." instance=ExtResource("5")]
+position = Vector2(1816, 848)
+DataFile = "enemies/sidehopper.json"
+OnCeiling = true
+
+[node name="Gate" parent="." instance=ExtResource("7")]
+position = Vector2(1600, 880)
+
+[node name="GateSwitch" parent="." instance=ExtResource("8")]
+position = Vector2(1600, 880)
+DataFile = "objects/gate_switch_blue_left.json"
+ComesBack = 3
+TellsWhat = "toggle"
+TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
+
+[node name="MissileTank" parent="." instance=ExtResource("9")]
+position = Vector2(984, 392)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "green_hill_zone_exposed_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("10")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="YellowCap" parent="." instance=ExtResource("10")]
+position = Vector2(480, 96)
+DataFile = "objects/door_cap_yellow_left.json"
+RememberedAs = "green_hill_zone_yellow_door_facing_left"
+Remembered = 1
+
+[node name="BlueCap2" parent="." instance=ExtResource("10")]
+position = Vector2(2016, 864)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen2x0" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(512, 0)
+StartsOpen = false
+
+[node name="Screen3x0" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(768, 0)
+StartsOpen = false
+
+[node name="Screen4x0" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 0)
+StartsOpen = false
+
+[node name="Screen4x1" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 256)
+StartsOpen = false
+
+[node name="Screen5x0" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1280, 0)
+StartsOpen = false
+
+[node name="Screen5x1" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1280, 256)
+StartsOpen = false
+
+[node name="Screen6x0" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1536, 0)
+StartsOpen = false
+
+[node name="Screen6x1" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1536, 256)
+StartsOpen = false
+
+[node name="Screen7x0" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1792, 0)
+StartsOpen = false
+
+[node name="Screen7x1" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1792, 256)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(256, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x0Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(512, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(512, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x0Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(768, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(768, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x0Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x1Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1024, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x0Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1280, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x1Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1280, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1280, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x0Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1536, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x1Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1536, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1536, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen7x0Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1792, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen7x1Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1792, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen7x3Foot" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(1792, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/brinstar_spheres_pattern.png"
+ScrollShare = Vector2(0.75, 0.75)

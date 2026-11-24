@@ -1,0 +1,78 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/objects/elevator/elevator.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="9"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/crateria/red_brinstar_elevator_in_lower_crateria.json"
+Music = "elevator"
+
+[node name="RedBrinstarElevator" type="Node2D"]
+script = ExtResource("2")
+Area = "crateria"
+MapCell = Vector2i(34, 8)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/crateria/red_brinstar_elevator_in_lower_crateria.json"
+
+[node name="ToCaterpillar" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(112, 240)
+Size = Vector2i(32, 16)
+LeadsToRoom = "res://game/rooms/brinstar/caterpillar.tscn"
+LeadsToExit = "ToRedBrinstarElevator"
+Style = 1
+ArrivalOffset = Vector2i(16, 54)
+
+[node name="ToCrateriaKihunter" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(96, 0)
+Size = Vector2i(64, 16)
+LeadsToRoom = "res://game/rooms/crateria/crateria_kihunter.tscn"
+LeadsToExit = "ToRedBrinstarElevator"
+Style = 1
+ArrivalOffset = Vector2i(32, 40)
+
+[node name="Elevator" parent="." instance=ExtResource("5")]
+position = Vector2(112, 146)
+Path = Array[Vector2i]([Vector2i(0, 0), Vector2i(0, 126)])
+StartsOn = "down"
+
+[node name="YellowCap" parent="." instance=ExtResource("6")]
+position = Vector2(96, 32)
+DataFile = "objects/door_cap_yellow_down.json"
+RememberedAs = "red_brinstar_elevator_yellow_door_facing_down"
+Remembered = 1
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(128, 208)
+Size = Vector2i(16, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+Picture = "backdrops/crateria_elevator.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="AtRedBrinstarElevator" type="Marker2D" parent="."]
+position = Vector2(128, 168)

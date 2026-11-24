@@ -36,8 +36,34 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
     [Export]
     public Condition? PresentWhen { get; set; }
 
+    /// <summary>How many updates it waits, once told to rise or fall, before it starts to.</summary>
+    [Export]
+    public int MoveDelay { get; set; }
+
+    /// <summary>How far its tide carries its surface above and below where it lies, in pixels; zero for no tide.</summary>
+    [Export]
+    public int TideReach { get; set; }
+
+    /// <summary>How far the tide turns each update while the surface is above where it lies, in 256ths of a turn.</summary>
+    [Export]
+    public double TideTurnAbove { get; set; } = 0.75;
+
+    /// <summary>How far the tide turns each update while the surface is at or below where it lies.</summary>
+    [Export]
+    public double TideTurnBelow { get; set; } = 1.125;
+
     /// <summary>The liquid's type, once set up.</summary>
     private LiquidType? _type;
+
+    /// <summary>Where the surface lies with the tide left out of it.</summary>
+    private Pixels _level;
+
+    /// <summary>The updates left before it starts toward where it is heading.</summary>
+    private int _waiting;
+
+    /// <summary>How far round the tide has turned, in 256ths of a turn, and how far that puts the surface from where it lies.</summary>
+    private double _tidePhase;
+    private Pixels _tide;
 
     /// <summary>Where the surface is heading.</summary>
     private Pixels _target;
@@ -54,28 +80,58 @@ public partial class Liquid : Node2D, IPlaced, ITriggerTarget
         if (TypeFile.Length == 0)
             throw new InvalidOperationException($"The liquid \"{Name}\" names no liquid type.");
         _type = LiquidType.Read(content.ReadData(TypeFile));
-        Surface = Pixels.FromWhole(StartsRaised ? HighSurface : LowSurface);
-        _target = Surface;
+        _level = Pixels.FromWhole(StartsRaised ? HighSurface : LowSurface);
+        _target = _level;
+        (_waiting, _tidePhase, _tide) = (0, 0, Pixels.Zero);
+        Surface = _level;
     }
+
+    /// <summary>Puts where the surface lies at a height at once, in pixels down from the room's top; it goes on from there to where it was heading.</summary>
+    public void PutAt(int height)
+    {
+        _level = Pixels.FromWhole(height);
+        Surface = _level + _tide;
+        QueueRedraw();
+    }
+
+    /// <summary>Ends whatever wait is left before it starts toward where it is heading.</summary>
+    public void EndWait() => _waiting = 0;
 
     /// <summary>Whether <paramref name="point"/> lies under the surface.</summary>
     public bool IsSubmerged(PixelPosition point) => point.Y >= Surface;
 
-    /// <summary>Moves the surface one update toward where it is heading.</summary>
+    /// <summary>Moves the surface one update toward where it is heading, once its wait is over, and turns its tide.</summary>
     internal void Step()
     {
-        if (Surface == _target)
-            return;
-        Pixels step = Pixels.FromNumber(MoveSpeed);
-        Surface = Surface < _target
-            ? (Surface + step > _target ? _target : Surface + step)
-            : (Surface - step < _target ? _target : Surface - step);
-        QueueRedraw();
+        Pixels before = Surface;
+        if (_waiting > 0)
+        {
+            _waiting--;
+        }
+        else if (_level != _target)
+        {
+            Pixels step = Pixels.FromNumber(MoveSpeed);
+            _level = _level < _target
+                ? (_level + step > _target ? _target : _level + step)
+                : (_level - step < _target ? _target : _level - step);
+        }
+
+        if (TideReach > 0)
+        {
+            // The tide lifts the surface and lets it fall, turning more slowly while it is lifted.
+            _tide = Pixels.FromNumber(-Math.Cos(_tidePhase * Math.Tau / 256) * TideReach);
+            _tidePhase += _tide.IsNegative ? TideTurnAbove : TideTurnBelow;
+        }
+
+        Surface = _level + _tide;
+        if (Surface != before)
+            QueueRedraw();
     }
 
     /// <inheritdoc/>
     public void Triggered(string what)
     {
+        _waiting = MoveDelay;
         _target = what switch
         {
             "rise" => Pixels.FromWhole(HighSurface),

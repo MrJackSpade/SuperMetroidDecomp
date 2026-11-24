@@ -1,0 +1,165 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/fune/fune.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/shutter/shutter.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/kago/kago.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/enemies/ripper/ripper.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/gate/gate_switch.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="12"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="13"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/norfair/double_chamber_in_heated_norfair.json"
+Music = "upper_norfair"
+
+[node name="DoubleChamber" type="Node2D"]
+script = ExtResource("2")
+Area = "norfair"
+MapCell = Vector2i(25, 5)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/norfair/double_chamber_in_heated_norfair.json"
+
+[node name="ToSingleChamberLower" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/single_chamber.tscn"
+LeadsToExit = "ToDoubleChamberLower"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToSingleChamberUpper" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/single_chamber.tscn"
+LeadsToExit = "ToDoubleChamberUpper"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToWaveBeam" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(1008, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/wave_beam.tscn"
+LeadsToExit = "ToDoubleChamber"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Fune" parent="." instance=ExtResource("5")]
+position = Vector2(48, 208)
+StartsFacing = 1
+CooldownUpdates = 80
+LaunchSpeed = 2
+
+[node name="Fune2" parent="." instance=ExtResource("5")]
+position = Vector2(448, 216)
+StartsFacing = 0
+CooldownUpdates = 80
+LaunchSpeed = 2
+
+[node name="Kamer" parent="." instance=ExtResource("6")]
+position = Vector2(136, 168)
+DataFile = "enemies/kamer.json"
+Trigger = 1
+TriggerAmount = 32
+MovesUpFirst = false
+Speed = 0.5
+Travel = 64
+RestAfterUp = 64
+RestAfterDown = 64
+AlwaysActive = true
+
+[node name="Kamer2" parent="." instance=ExtResource("6")]
+position = Vector2(208, 232)
+DataFile = "enemies/kamer.json"
+Trigger = 1
+TriggerAmount = 48
+MovesUpFirst = true
+Speed = 0.5
+Travel = 48
+RestAfterUp = 128
+RestAfterDown = 128
+AlwaysActive = true
+
+[node name="Kamer3" parent="." instance=ExtResource("6")]
+position = Vector2(272, 168)
+DataFile = "enemies/kamer.json"
+Trigger = 1
+TriggerAmount = 48
+MovesUpFirst = false
+Speed = 0.5
+Travel = 96
+RestAfterUp = 32
+RestAfterDown = 32
+AlwaysActive = true
+
+[node name="Kamer4" parent="." instance=ExtResource("6")]
+position = Vector2(376, 168)
+DataFile = "enemies/kamer.json"
+Trigger = 1
+TriggerAmount = 48
+MovesUpFirst = false
+Speed = 0.5
+Travel = 80
+RestAfterUp = 48
+RestAfterDown = 48
+AlwaysActive = true
+
+[node name="Kago" parent="." instance=ExtResource("7")]
+position = Vector2(752, 464)
+HitCount = 10
+
+[node name="GrappleRipper" parent="." instance=ExtResource("8")]
+position = Vector2(744, 240)
+DataFile = "enemies/grapple_ripper.json"
+Speed = 1
+StartsFacing = 1
+PatrolLeft = 664
+PatrolRight = 824
+
+[node name="Gate" parent="." instance=ExtResource("9")]
+position = Vector2(416, 80)
+
+[node name="GateSwitch" parent="." instance=ExtResource("10")]
+position = Vector2(416, 80)
+DataFile = "objects/gate_switch_blue_left.json"
+ComesBack = 3
+TellsWhat = "toggle"
+TellsWhenOpened = Array[NodePath]([NodePath("../Gate")])
+
+[node name="MissileTank" parent="." instance=ExtResource("11")]
+position = Vector2(504, 152)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "double_chamber_exposed_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("12")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("12")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="RedCap" parent="." instance=ExtResource("12")]
+position = Vector2(992, 96)
+DataFile = "objects/door_cap_red_left.json"
+RememberedAs = "double_chamber_red_door_facing_left"
+Remembered = 1
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25

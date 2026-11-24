@@ -274,6 +274,6 @@ public partial class Metroid : Enemy
         if (player is null || GetNodeOrNull<ActorVisual>(visual) is not { } shown)
             return;
         player.Step();
-        shown.Show(player.Current.Picture);
+        shown.Show(player.Current);
     }
 }

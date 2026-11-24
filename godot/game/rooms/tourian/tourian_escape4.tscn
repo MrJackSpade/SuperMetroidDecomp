@@ -1,0 +1,216 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/wall_pirate.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/space_pirate/walking_pirate.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="13"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/tourian/tourian_escape4_in_tourian.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("5")
+Kind = 5
+Parts = Array[ExtResource("5")]([])
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("5")
+Kind = 4
+Parts = Array[ExtResource("5")]([])
+
+[node name="TourianEscape4" type="Node2D"]
+script = ExtResource("2")
+Area = "tourian"
+MapCell = Vector2i(18, 17)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/tourian/tourian_escape4_in_tourian.json"
+
+[node name="ToClimb" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(752, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/climb.tscn"
+LeadsToExit = "ToTourianEscape4"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToTourianEscape3" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 864)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/tourian_escape3.tscn"
+LeadsToExit = "ToTourianEscape4"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="PirateSilverWall" parent="." instance=ExtResource("6")]
+position = Vector2(43, 1232)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 0
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 132
+
+[node name="PirateSilverWall2" parent="." instance=ExtResource("6")]
+position = Vector2(178, 1064)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 132
+
+[node name="PirateSilverWall3" parent="." instance=ExtResource("6")]
+position = Vector2(43, 776)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 0
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 132
+
+[node name="PirateSilverWall4" parent="." instance=ExtResource("6")]
+position = Vector2(178, 632)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 132
+
+[node name="PirateSilverWall5" parent="." instance=ExtResource("6")]
+position = Vector2(43, 488)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 0
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 132
+
+[node name="PirateSilverWall6" parent="." instance=ExtResource("6")]
+position = Vector2(178, 344)
+DataFile = "enemies/wall_pirate_silver.json"
+Wall = 1
+LaserSpeed = 4
+SlowJump = false
+JumpSpan = 132
+
+[node name="PirateSilverWalking" parent="." instance=ExtResource("7")]
+position = Vector2(624, 384)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 32
+
+[node name="PirateSilverWalking2" parent="." instance=ExtResource("7")]
+position = Vector2(464, 384)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 32
+
+[node name="PirateSilverWalking3" parent="." instance=ExtResource("7")]
+position = Vector2(456, 720)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking4" parent="." instance=ExtResource("7")]
+position = Vector2(320, 512)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 32
+
+[node name="PirateSilverWalking5" parent="." instance=ExtResource("7")]
+position = Vector2(440, 944)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking6" parent="." instance=ExtResource("7")]
+position = Vector2(360, 1280)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="PirateSilverWalking7" parent="." instance=ExtResource("7")]
+position = Vector2(632, 1104)
+DataFile = "enemies/walking_pirate_silver.json"
+StartsFacing = 0
+LaserSpeed = 4
+FlinchesFromShots = false
+PatrolReach = 16
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(736, 352)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="GreyCap" parent="." instance=ExtResource("8")]
+position = Vector2(16, 864)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r2")
+
+[node name="Screen0x5Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x5Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(256, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x5Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(512, 1504)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 1504
+HighSurface = 16
+MoveSpeed = 0
+MoveDelay = 64
+
+[node name="LiquidMoves" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Size = Vector2i(768, 1536)
+What = "rise"
+Target = NodePath("../Liquid")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+Picture = "backdrops/tourian_pipe_room.png"
+ScrollShare = Vector2(0.75, 0.75)
+
+[node name="Escape" type="Node" parent="."]
+script = ExtResource("13")
+StartsWhen = SubResource("r3")
+ShakeStrength = 2

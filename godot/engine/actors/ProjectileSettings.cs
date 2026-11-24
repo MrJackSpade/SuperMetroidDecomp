@@ -11,7 +11,7 @@ namespace Engine.Actors;
 /// <remarks>
 /// <code>
 /// { "width": 8, "height": 8, "meeting_terrain": "ends", "meeting_target": "ends", "met_by_shot": "ignored",
-///   "motion": "straight", "lasts_updates": 0, "view_margin": 64, "picture": "shots/beam.png" }
+///   "motion": "straight", "lasts_updates": 0, "view_margin": 64, "view_margin_below": 96, "picture": "shots/beam.png" }
 /// </code>
 /// </remarks>
 public sealed record ProjectileSettings
@@ -67,7 +67,7 @@ public sealed record ProjectileSettings
         /// <summary>In a straight line at its launch speed.</summary>
         Straight,
 
-        /// <summary>In a straight line, gaining speed each update.</summary>
+        /// <summary>In a straight line, gaining speed each update, once it has moved that update.</summary>
         Accelerating,
 
         /// <summary>Along its line while swinging from side to side.</summary>
@@ -79,7 +79,7 @@ public sealed record ProjectileSettings
         /// <summary>Not at all.</summary>
         Still,
 
-        /// <summary>Under gravity.</summary>
+        /// <summary>Under gravity, which changes its speed each update once it has moved that update.</summary>
         Falling,
     }
 
@@ -104,7 +104,10 @@ public sealed record ProjectileSettings
     /// <summary>For one that accelerates, falls or homes: the speed it gains each update.</summary>
     public Pixels Acceleration { get; init; }
 
-    /// <summary>For one that accelerates, falls or homes: the most speed it reaches along either axis; zero for no limit.</summary>
+    /// <summary>
+    /// For one that accelerates or homes: the most speed it reaches along either axis. For one that falls: the fastest
+    /// it falls, which does not slow a throw upward. Zero for no limit.
+    /// </summary>
     public Pixels SpeedLimit { get; init; }
 
     /// <summary>For one that moves in a wave: how far it swings to each side.</summary>
@@ -130,6 +133,18 @@ public sealed record ProjectileSettings
 
     /// <summary>How far outside the view, in pixels, it may travel before it is gone; negative for no limit.</summary>
     public int ViewMargin { get; init; } = 64;
+
+    /// <summary>
+    /// How many updates it waits where it was launched before it sets off, as a shot that gathers at a muzzle does.
+    /// Its timeline plays and it can hit all the while.
+    /// </summary>
+    public int LaunchDelayUpdates { get; init; }
+
+    /// <summary>
+    /// How far below the view it may go before it is taken away, where that is not <see cref="ViewMargin"/>; below
+    /// zero for the same. With a <see cref="ViewMargin"/> below zero, it is taken away only for falling this far below.
+    /// </summary>
+    public int ViewMarginBelow { get; init; } = -1;
 
     /// <summary>Its picture, as a path within the assets tree; empty for none.</summary>
     public string Picture { get; init; } = "";
@@ -190,6 +205,8 @@ public sealed record ProjectileSettings
             HitsEachUpdate = data.Has("hits_each_update") && data.Flag("hits_each_update"),
             LastsUpdates = data.Has("lasts_updates") ? data.Int("lasts_updates") : 0,
             ViewMargin = data.Has("view_margin") ? data.Int("view_margin") : plain.ViewMargin,
+            LaunchDelayUpdates = data.Has("launch_delay_updates") ? data.Int("launch_delay_updates") : 0,
+            ViewMarginBelow = data.Has("view_margin_below") ? data.Int("view_margin_below") : plain.ViewMarginBelow,
             Picture = data.Has("picture") ? data.Text("picture") : "",
             PictureOffset = data.Has("picture_offset") ? (data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y")) : null,
             Timeline = data.Has("timeline") ? data.Text("timeline") : "",

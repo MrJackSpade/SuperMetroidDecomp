@@ -32,6 +32,15 @@ public partial class MessageBoxMode : GameMode
         _answered = answered;
     }
 
+    /// <summary>Music played while the message shows, by name; the music there was comes back after. Empty for none.</summary>
+    public string Fanfare { get; init; } = "";
+
+    /// <summary>How many updates the message stays up before it can be dismissed.</summary>
+    public int HoldUpdates { get; init; }
+
+    private string _musicBefore = "";
+    private int _shownFor;
+
     /// <inheritdoc/>
     public override GameMode? Keeps => _returnsTo;
 
@@ -47,6 +56,11 @@ public partial class MessageBoxMode : GameMode
         _box = new MessageBox { Name = "MessageBox" };
         AddChild(_box);
         _box.Present(Session.Text.Get(_message), asksYesOrNo: _answered is not null);
+        if (Fanfare.Length > 0)
+        {
+            _musicBefore = Session.Sounds.Music;
+            Session.Sounds.RequestMusic(Fanfare);
+        }
     }
 
     /// <inheritdoc/>
@@ -58,8 +72,16 @@ public partial class MessageBoxMode : GameMode
             _box?.Choose(_yes);
         }
 
+        if (_shownFor < HoldUpdates)
+        {
+            _shownFor++;
+            return this;
+        }
+
         if (!input.WasPressed(GameAction.Confirm))
             return this;
+        if (Fanfare.Length > 0)
+            Session.Sounds.RequestMusic(_musicBefore);
         _answered?.Invoke(_yes);
         return _returnsTo;
     }

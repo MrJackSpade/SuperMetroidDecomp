@@ -85,6 +85,21 @@ public partial class NinjaPirate : Enemy
     [Export, DataValue("landing_dust_drop")]
     public int LandingDustDrop { get; set; } = 28;
 
+    /// <summary>How many more drops it scatters about itself as it is destroyed, beside its own; the gold one scatters them.</summary>
+    [Export, DataValue("scattered_drops")]
+    public int ScatteredDrops { get; set; }
+
+    /// <inheritdoc/>
+    protected override void OnDied()
+    {
+        // Each is placed by a fresh random number, as far as sixteen pixels off either way.
+        for (int drop = 0; drop < ScatteredDrops; drop++)
+        {
+            RandomDraw draw = Random.Draw();
+            Drop(Drops, PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole) + PixelOffset.FromWhole(draw.Part(0, 5) - 16, draw.Part(8, 5) - 16));
+        }
+    }
+
     private enum Doing
     {
         Still,

@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://engine/world/objects/spawner/Spawner.cs" id="1"]
+[ext_resource type="PackedScene" path="res://game/enemies/rinka/rinka.tscn" id="2"]
+
+[node name="RinkaSource" type="Node2D"]
+script = ExtResource("1")
+EnemyScene = ExtResource("2")
+IntervalUpdates = 1

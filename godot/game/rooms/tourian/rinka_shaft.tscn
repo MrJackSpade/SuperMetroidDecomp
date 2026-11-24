@@ -1,0 +1,80 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/enemies/rinka/rinka_source.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="7"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/tourian/rinka_shaft_in_tourian.json"
+Music = "tourian"
+
+[node name="RinkaShaft" type="Node2D"]
+script = ExtResource("2")
+Area = "tourian"
+MapCell = Vector2i(17, 17)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/tourian/rinka_shaft_in_tourian.json"
+
+[node name="ToMotherBrain" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/mother_brain.tscn"
+LeadsToExit = "ToRinkaShaft"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToMotherBrainSave" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/mother_brain_save.tscn"
+LeadsToExit = "ToRinkaShaft"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToTourianEyeDoor" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/tourian/tourian_eye_door.tscn"
+LeadsToExit = "ToRinkaShaft"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="RinkaSource" parent="." instance=ExtResource("5")]
+position = Vector2(232, 440)
+
+[node name="RinkaSource2" parent="." instance=ExtResource("5")]
+position = Vector2(232, 520)
+
+[node name="RinkaSource3" parent="." instance=ExtResource("5")]
+position = Vector2(8, 584)
+
+[node name="RedCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_red_right.json"
+RememberedAs = "rinka_shaft_red_door_facing_right"
+Remembered = 1
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="BlueCap2" parent="." instance=ExtResource("6")]
+position = Vector2(16, 352)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+Picture = "backdrops/tourian_pipe_room_vertical_separation.png"
+ScrollShare = Vector2(0.75, 0.75)

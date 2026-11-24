@@ -8,8 +8,8 @@ namespace Game;
 
 /// <summary>
 /// Seized and carried by something, as Draygon carries her: she goes where she is taken and cannot move, but can
-/// still aim and fire. She struggles free by pressing a new way on the pad, again and again; whatever holds her
-/// sees that she is no longer in this state.
+/// still aim and fire. From some holds she struggles free by pressing a new way on the pad, again and again;
+/// whatever holds her sees that she is no longer in this state.
 /// </summary>
 public sealed class GrabbedState : PlayerState, ISamusLook
 {
@@ -17,10 +17,13 @@ public sealed class GrabbedState : PlayerState, ISamusLook
     private int _presses;
     private int _lastWays;
 
-    /// <summary>A hold she escapes with <paramref name="pressesToEscape"/> new presses of a way on the pad.</summary>
+    /// <summary>
+    /// A hold she escapes with <paramref name="pressesToEscape"/> new presses of a way on the pad; with none, a hold
+    /// she cannot struggle out of.
+    /// </summary>
     public GrabbedState(int pressesToEscape)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(pressesToEscape, 1);
+        ArgumentOutOfRangeException.ThrowIfNegative(pressesToEscape);
         _pressesToEscape = pressesToEscape;
     }
 
@@ -61,7 +64,7 @@ public sealed class GrabbedState : PlayerState, ISamusLook
         if (ways != 0 && ways != _lastWays)
         {
             _lastWays = ways;
-            if (++_presses >= _pressesToEscape)
+            if (_pressesToEscape > 0 && ++_presses >= _pressesToEscape)
                 return owner.StateAtRest();
         }
 

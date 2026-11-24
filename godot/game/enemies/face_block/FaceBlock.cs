@@ -10,8 +10,9 @@ namespace Game.Enemies;
 /// and turns its eyes to her the first time she comes near on the side it watches. Nothing touches it.
 /// </summary>
 /// <remarks>
-/// Its timelines are "looking_ahead", "samus_left" and "samus_right". Its data lists the tints of its glow, dimmest
-/// first, under "glow_tints".
+/// Its timelines are "looking_ahead", "samus_left" and "samus_right". The path of each of their pictures holds
+/// "{glow}", which is nothing while the block sleeps and "_glow_0", "_glow_1" and so on, dimmest first, as it glows:
+/// its pictures are kept once for each step of the glow, as the glow recolours the whole face.
 /// </remarks>
 public partial class FaceBlock : Enemy
 {
@@ -27,34 +28,25 @@ public partial class FaceBlock : Enemy
     [Export, DataValue("glow_updates")]
     public int GlowUpdates { get; set; } = 16;
 
-    private readonly List<Color> _tints = [];
-    private bool _looked;
+    /// <summary>How many steps its glow has, from dimmest to brightest.</summary>
+    [Export, DataValue("glow_levels")]
+    public int GlowLevels { get; set; } = 4;
 
-    /// <inheritdoc/>
-    public override void ReadValues(DataNode data)
-    {
-        base.ReadValues(data);
-        _tints.Clear();
-        _tints.AddRange(data.List("glow_tints").Select(tint => new Color(tint.AsText())));
-        if (_tints.Count == 0)
-            throw data.Problem("must list at least one glow tint");
-    }
+    private bool _looked;
 
     /// <inheritdoc/>
     protected override void OnEnterRoom() => Play("looking_ahead");
 
     /// <inheritdoc/>
-    protected override Color RestingTint
+    protected override string PictureOf(TimelineStep step)
     {
-        get
-        {
-            if (!IsAwake)
-                return Colors.White;
-            // The glow brightens through its tints and dims back again, in step for every face block in the room.
-            int steps = _tints.Count * 2;
-            int step = (int)(Room.Session.Clock.Updates / GlowUpdates % steps);
-            return _tints[step < _tints.Count ? step : steps - 1 - step];
-        }
+        if (!IsAwake)
+            return step.Picture.Replace("{glow}", "", StringComparison.Ordinal);
+        // The glow brightens through its steps and dims back again, in step for every face block in the room.
+        int steps = GlowLevels * 2;
+        int now = (int)(Room.Session.Clock.Updates / GlowUpdates % steps);
+        int level = now < GlowLevels ? now : steps - 1 - now;
+        return step.Picture.Replace("{glow}", $"_glow_{level}", StringComparison.Ordinal);
     }
 
     /// <inheritdoc/>

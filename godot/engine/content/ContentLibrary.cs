@@ -15,14 +15,42 @@ public sealed class ContentLibrary
     /// <summary>The assets tree's folder, as an absolute path.</summary>
     private readonly string _root;
 
-    /// <summary>The textures loaded so far, by path.</summary>
-    private readonly Dictionary<string, Texture2D> _textures = new(StringComparer.Ordinal);
+    /// <summary>The textures loaded so far, by path. A library and those made from it for a set of graphics share them.</summary>
+    private readonly Dictionary<string, Texture2D> _textures;
+
+    /// <summary>What a picture's path has put for <see cref="GraphicsPlaceholder"/>; empty for a library that puts nothing.</summary>
+    private readonly string _graphics = "";
+
+    /// <summary>
+    /// What stands in a picture's path for the set of graphics a room is drawn with. Something that looks different
+    /// from one set of graphics to another, as a door's cap does, keeps a picture for each set and names them all by
+    /// one path with this in it.
+    /// </summary>
+    public const string GraphicsPlaceholder = "{graphics}";
 
     /// <summary>A library reading the assets tree at <paramref name="rootFolder"/>, an absolute path.</summary>
     public ContentLibrary(string rootFolder)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(rootFolder);
         _root = Path.GetFullPath(rootFolder);
+        _textures = new Dictionary<string, Texture2D>(StringComparer.Ordinal);
+    }
+
+    private ContentLibrary(ContentLibrary whole, string graphics)
+    {
+        _root = whole._root;
+        _textures = whole._textures;
+        _graphics = graphics;
+    }
+
+    /// <summary>
+    /// This library as a room drawn with the set of graphics named <paramref name="graphics"/> reads it: the same
+    /// files, with that name put for <see cref="GraphicsPlaceholder"/> in the path of every picture loaded.
+    /// </summary>
+    public ContentLibrary DrawnWith(string graphics)
+    {
+        ArgumentNullException.ThrowIfNull(graphics);
+        return graphics == _graphics ? this : new ContentLibrary(this, graphics);
     }
 
     /// <summary>The library for the running program: the project's assets folder, or the installed one when exported.</summary>
@@ -50,6 +78,13 @@ public sealed class ContentLibrary
     /// <summary>The picture at <paramref name="path"/>, as a texture. A picture is loaded once and shared.</summary>
     public Texture2D LoadTexture(string path)
     {
+        if (path.Contains(GraphicsPlaceholder, StringComparison.Ordinal))
+        {
+            if (_graphics.Length == 0)
+                throw new ContentException(path, "is a picture for a set of graphics, asked for where no set of graphics is known.");
+            path = path.Replace(GraphicsPlaceholder, _graphics, StringComparison.Ordinal);
+        }
+
         if (_textures.TryGetValue(path, out Texture2D? loaded))
             return loaded;
         Image image = Image.LoadFromFile(RequireFile(path))

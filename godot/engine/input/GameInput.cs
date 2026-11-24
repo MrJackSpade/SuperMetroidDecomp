@@ -27,6 +27,9 @@ public sealed class GameInput
     /// <summary>Whether the action is held during this update.</summary>
     public bool IsHeld(GameAction action) => _held.Contains(action);
 
+    /// <summary>Whether anything at all was pressed this update.</summary>
+    public bool AnyPressed => _pressed.Count > 0;
+
     /// <summary>Whether the action was pressed since the update before, even if it has been let go again.</summary>
     public bool WasPressed(GameAction action) => _pressed.Contains(action);
 

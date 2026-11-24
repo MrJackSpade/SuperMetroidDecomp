@@ -1,0 +1,504 @@
+[gd_scene load_steps=32 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/gunship/gunship.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="7"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="8"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="9"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Backdrop.cs" id="11"]
+[ext_resource type="Script" path="res://game/rooms/crateria/GunshipLanding.cs" id="12"]
+[ext_resource type="Script" path="res://game/rooms/crateria/ZebesDeparture.cs" id="13"]
+[ext_resource type="PackedScene" path="res://game/objects/ceres_steam/ceres_steam.tscn" id="14"]
+[ext_resource type="Script" path="res://game/rooms/EscapeRoom.cs" id="15"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "escape_started"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("1")
+Kind = 7
+About = "power_bombs"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("2")
+When = SubResource("r3")
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
+Music = "samus_theme"
+
+[sub_resource type="Resource" id="r5"]
+script = ExtResource("1")
+Kind = 0
+About = "zebes_awake"
+
+[sub_resource type="Resource" id="r6"]
+script = ExtResource("2")
+When = SubResource("r5")
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
+Music = "crateria_arrival_zebes_awake"
+
+[sub_resource type="Resource" id="r7"]
+script = ExtResource("2")
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
+Music = "crateria_arrival"
+
+[sub_resource type="Resource" id="r8"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r9"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([])
+
+[sub_resource type="Resource" id="r10"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[sub_resource type="Resource" id="r11"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r3"), SubResource("r10")])
+
+[sub_resource type="Resource" id="r12"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3")])
+
+[sub_resource type="Resource" id="r13"]
+script = ExtResource("1")
+Kind = 4
+Parts = Array[ExtResource("1")]([SubResource("r5"), SubResource("r12")])
+
+[sub_resource type="Resource" id="r14"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1"), SubResource("r3"), SubResource("r5")])
+
+[sub_resource type="Resource" id="r15"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r11"), SubResource("r13"), SubResource("r14")])
+
+[sub_resource type="Resource" id="r16"]
+script = ExtResource("1")
+Kind = 5
+Parts = Array[ExtResource("1")]([SubResource("r13"), SubResource("r14")])
+
+[node name="LandingSite" type="Node2D"]
+script = ExtResource("3")
+Area = "crateria"
+MapCell = Vector2i(23, 1)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r4"), SubResource("r6"), SubResource("r7")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/crateria/landing_site_in_upper_crateria.json"
+
+[node name="ToCrateriaPowerBombs" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(2288, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/crateria_power_bombs.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToCrateriaTube" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(2288, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/crateria_tube.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="ToGauntletEntrance" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 608)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/gauntlet_entrance.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToParlor" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 1120)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/crateria/parlor.tscn"
+LeadsToExit = "ToLandingSite"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="Gunship" parent="." instance=ExtResource("6")]
+position = Vector2(1152, 1119)
+SaveQuestion = "save_question"
+SavedMessage = "save_completed"
+ToldWhenAway = Array[NodePath]([NodePath("../Departure")])
+
+[node name="BlueCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_blue_right.json"
+PresentWhen = SubResource("r15")
+
+[node name="BlueCap2" parent="." instance=ExtResource("7")]
+position = Vector2(16, 1120)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="YellowCap" parent="." instance=ExtResource("7")]
+position = Vector2(2272, 352)
+DataFile = "objects/door_cap_yellow_left.json"
+RememberedAs = "landing_site_yellow_door_facing_left"
+Remembered = 1
+PresentWhen = SubResource("r15")
+
+[node name="GreenCap" parent="." instance=ExtResource("7")]
+position = Vector2(2272, 1120)
+DataFile = "objects/door_cap_green_left.json"
+RememberedAs = "landing_site_green_door_facing_left"
+Remembered = 1
+PresentWhen = SubResource("r15")
+
+[node name="Screen0x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 0)
+StartsOpen = false
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 256)
+StartsOpen = false
+
+[node name="Screen0x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 768)
+StartsOpen = false
+
+[node name="Screen1x0" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 0)
+StartsOpen = false
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 256)
+StartsOpen = false
+
+[node name="Screen1x2" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 512)
+StartsOpen = false
+
+[node name="Screen1x3" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 768)
+StartsOpen = false
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen0x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(0, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x2Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 736)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x3Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 992)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(256, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen2x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(512, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen3x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(768, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen4x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1024, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen5x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1280, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen6x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1536, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen7x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(1792, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen8x4Foot" type="Node2D" parent="."]
+script = ExtResource("8")
+position = Vector2(2048, 1248)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(480, 592)
+Size = Vector2i(16, 64)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x2")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(480, 592)
+Size = Vector2i(16, 64)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x2Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEntrance"
+What = "open"
+Target = NodePath("../Screen1x2")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 0)
+AtEntry = "ToGauntletEntrance"
+What = "close"
+Target = NodePath("../Screen1x2Foot")
+
+[node name="Rain" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 0)
+EffectName = "rain"
+Picture = "effects/rain.png"
+PresentWhen = SubResource("r16")
+
+[node name="Backdrop" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+Picture = "backdrops/scrolling_sky_landing_site.png"
+ScrollShare = Vector2(0.5, 0)
+
+[node name="Landing" type="Node" parent="."]
+script = ExtResource("12")
+StartsAtEntry = "AtZebesArrival"
+Gunship = NodePath("../Gunship")
+PresentWhen = SubResource("r15")
+
+[node name="Departure" type="Node" parent="."]
+script = ExtResource("13")
+
+[node name="Steam" parent="." instance=ExtResource("14")]
+position = Vector2(81, 1194)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam2" parent="." instance=ExtResource("14")]
+position = Vector2(128, 1212)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam3" parent="." instance=ExtResource("14")]
+position = Vector2(161, 1232)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam4" parent="." instance=ExtResource("14")]
+position = Vector2(229, 1239)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam5" parent="." instance=ExtResource("14")]
+position = Vector2(347, 1239)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam6" parent="." instance=ExtResource("14")]
+position = Vector2(413, 1237)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam7" parent="." instance=ExtResource("14")]
+position = Vector2(448, 1225)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam8" parent="." instance=ExtResource("14")]
+position = Vector2(546, 1224)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam9" parent="." instance=ExtResource("14")]
+position = Vector2(579, 1220)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam10" parent="." instance=ExtResource("14")]
+position = Vector2(636, 1230)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam11" parent="." instance=ExtResource("14")]
+position = Vector2(791, 1239)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam12" parent="." instance=ExtResource("14")]
+position = Vector2(831, 1225)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam13" parent="." instance=ExtResource("14")]
+position = Vector2(876, 1206)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam14" parent="." instance=ExtResource("14")]
+position = Vector2(912, 1193)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam15" parent="." instance=ExtResource("14")]
+position = Vector2(985, 1207)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam16" parent="." instance=ExtResource("14")]
+position = Vector2(1050, 1241)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam17" parent="." instance=ExtResource("14")]
+position = Vector2(1180, 1240)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam18" parent="." instance=ExtResource("14")]
+position = Vector2(1273, 1226)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam19" parent="." instance=ExtResource("14")]
+position = Vector2(1317, 1211)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam20" parent="." instance=ExtResource("14")]
+position = Vector2(1367, 1225)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam21" parent="." instance=ExtResource("14")]
+position = Vector2(1478, 1236)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="Steam22" parent="." instance=ExtResource("14")]
+position = Vector2(1572, 1236)
+DataFile = "objects/ceres_steam_up.json"
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap" parent="." instance=ExtResource("7")]
+position = Vector2(16, 608)
+DataFile = "objects/door_cap_grey_right.json"
+HeldShutBy = SubResource("r8")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap2" parent="." instance=ExtResource("7")]
+position = Vector2(2272, 352)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r8")
+PresentWhen = SubResource("r1")
+
+[node name="GreyCap3" parent="." instance=ExtResource("7")]
+position = Vector2(2272, 1120)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r8")
+PresentWhen = SubResource("r1")
+
+[node name="Escape" type="Node" parent="."]
+script = ExtResource("15")
+StartsWhen = SubResource("r9")
+Outdoors = true
+PresentWhen = SubResource("r1")
+
+[node name="AtGunship" type="Marker2D" parent="."]
+position = Vector2(1152, 1088)
+
+[node name="AtZebesArrival" type="Marker2D" parent="."]
+position = Vector2(1152, 128)

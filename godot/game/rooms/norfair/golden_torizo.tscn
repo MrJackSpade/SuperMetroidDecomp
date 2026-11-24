@@ -1,0 +1,292 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/bosses/torizo/torizo.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/objects/boss_encounter/BossEncounter.cs" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="9"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="10"]
+[ext_resource type="Script" path="res://engine/world/Trigger.cs" id="11"]
+[ext_resource type="Script" path="res://engine/world/Liquid.cs" id="12"]
+[ext_resource type="Script" path="res://engine/world/OverlayEffect.cs" id="13"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "golden_torizo_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/norfair/golden_torizo_in_heated_norfair.json"
+Music = "elevator"
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/norfair/golden_torizo_in_heated_norfair.json"
+Music = "elevator"
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="GoldenTorizo" type="Node2D"]
+script = ExtResource("3")
+Area = "norfair"
+MapCell = Vector2i(18, 16)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+StatusUpdates = Dictionary[String, int]({"frozen": 300})
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/norfair/golden_torizo_in_heated_norfair.json"
+
+[node name="ToAcidStatue" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/acid_statue.tscn"
+LeadsToExit = "ToGoldenTorizo"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="ToScrewAttack" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(496, 352)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/norfair/screw_attack.tscn"
+LeadsToExit = "ToGoldenTorizo"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="GoldenTorizo" parent="." instance=ExtResource("6")]
+position = Vector2(128, 384)
+DataFile = "bosses/golden_torizo.json"
+Golden = true
+AwakeningMusic = "torizo_awakening"
+FightMusic = "ridley_and_draygon_battle"
+VictoryMusic = "elevator"
+PresentWhen = SubResource("r4")
+
+[node name="Encounter" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 0)
+Size = Vector2i(512, 512)
+RememberedAs = "golden_torizo_defeated"
+Boss = NodePath("../GoldenTorizo")
+
+[node name="MissileTank" parent="." instance=ExtResource("8")]
+position = Vector2(216, 136)
+TypeFile = "items/missile_tank.json"
+RememberedAs = "golden_torizo_exposed_missile_tank"
+
+[node name="SuperMissileTank" parent="." instance=ExtResource("8")]
+position = Vector2(344, 136)
+TypeFile = "items/super_missile_tank.json"
+RememberedAs = "golden_torizo_shot_block_super_missile_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("9")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="GreyCap" parent="." instance=ExtResource("9")]
+position = Vector2(480, 352)
+DataFile = "objects/door_cap_grey_left.json"
+HeldShutBy = SubResource("r1")
+RememberedAs = "golden_torizo_grey_door_facing_left"
+Remembered = 1
+
+[node name="Screen0x1" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 256)
+StartsOpen = true
+
+[node name="Screen1x0" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 0)
+StartsOpen = true
+
+[node name="Screen1x1" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 256)
+StartsOpen = true
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = true
+
+[node name="Screen0x1Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(0, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Screen1x0Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 224)
+Size = Vector2i(256, 32)
+StartsOpen = true
+
+[node name="Screen1x1Foot" type="Node2D" parent="."]
+script = ExtResource("10")
+position = Vector2(256, 480)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="Scroll" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Scroll2" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x0")
+
+[node name="Scroll3" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x0Foot")
+
+[node name="Scroll4" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x1")
+
+[node name="Scroll5" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Scroll6" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Scroll7" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x1")
+
+[node name="Scroll8" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "close"
+Once = false
+Target = NodePath("../Screen1x1Foot")
+
+[node name="Scroll9" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(64, 192)
+Size = Vector2i(128, 16)
+What = "open"
+Once = false
+Target = NodePath("../Screen1x0Foot")
+
+[node name="Arriving" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "open"
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Arriving2" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen1x0")
+
+[node name="Arriving3" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen1x0Foot")
+
+[node name="Arriving4" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen0x1")
+
+[node name="Arriving5" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen0x1Foot")
+
+[node name="Arriving6" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen0x0Foot")
+
+[node name="Arriving7" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen1x1")
+
+[node name="Arriving8" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen1x1Foot")
+
+[node name="Arriving9" type="Node2D" parent="."]
+script = ExtResource("11")
+position = Vector2(0, 0)
+AtEntry = "ToAcidStatue"
+What = "close"
+Target = NodePath("../Screen1x0Foot")
+
+[node name="Liquid" type="Node2D" parent="."]
+script = ExtResource("12")
+position = Vector2(0, 0)
+TypeFile = "liquids/acid.json"
+LowSurface = 710
+HighSurface = 710
+TideReach = 8
+TideTurnAbove = 0.75
+TideTurnBelow = 1.125
+
+[node name="Heat" type="Node2D" parent="."]
+script = ExtResource("13")
+position = Vector2(0, 0)
+EffectName = "heat"
+DamageHundredths = 25

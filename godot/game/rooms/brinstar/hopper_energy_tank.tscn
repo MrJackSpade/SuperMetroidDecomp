@@ -1,0 +1,48 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="4"]
+[ext_resource type="PackedScene" path="res://game/objects/item/item.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="6"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="7"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+LayoutFile = "rooms/brinstar/hopper_energy_tank_in_green_blue_brinstar.json"
+KeepsMusic = true
+
+[node name="HopperEnergyTank" type="Node2D"]
+script = ExtResource("2")
+Area = "brinstar"
+MapCell = Vector2i(21, 9)
+Versions = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("3")
+LayoutFile = "rooms/brinstar/hopper_energy_tank_in_green_blue_brinstar.json"
+
+[node name="ToPinkBrinstarHoppers" type="Node2D" parent="."]
+script = ExtResource("4")
+position = Vector2(0, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/brinstar/pink_brinstar_hoppers.tscn"
+LeadsToExit = "ToHopperEnergyTank"
+Style = 0
+ArrivalOffset = Vector2i(40, 40)
+
+[node name="EnergyTank" parent="." instance=ExtResource("5")]
+position = Vector2(184, 152)
+TypeFile = "items/energy_tank.json"
+RememberedAs = "hopper_energy_tank_exposed_energy_tank"
+
+[node name="BlueCap" parent="." instance=ExtResource("6")]
+position = Vector2(16, 96)
+DataFile = "objects/door_cap_blue_right.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("7")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false

@@ -1,3 +1,4 @@
+using Engine.Actors;
 using Engine.Content;
 using Engine.Shared;
 using Engine.World;
@@ -11,7 +12,7 @@ namespace Game.Enemies;
 /// down, it may leave a pickup, as its settings say.
 /// </summary>
 /// <remarks>Its timelines are "wall_impact" and "floor_impact".</remarks>
-public partial class TorizoOrb : TorizoShot
+public partial class TorizoOrb : CuedProjectile
 {
     /// <summary>The downward speed it gains each update, as a number of pixels.</summary>
     [Export, DataValue("gravity")]
@@ -50,7 +51,7 @@ public partial class TorizoOrb : TorizoShot
 
         if (landed)
         {
-            Position = PixelPosition.FromWhole(Position.X.Whole, FloorBurstY);
+            Position = PixelPosition.FromWhole(Position.X.Whole, Position.Y.Whole / 16 * 16 + 6);
             Burst("floor_impact");
             return;
         }

@@ -1,0 +1,136 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://engine/world/Condition.cs" id="1"]
+[ext_resource type="Script" path="res://engine/world/RoomVersion.cs" id="2"]
+[ext_resource type="Script" path="res://engine/world/Room.cs" id="3"]
+[ext_resource type="Script" path="res://engine/world/Terrain.cs" id="4"]
+[ext_resource type="Script" path="res://engine/world/RoomExit.cs" id="5"]
+[ext_resource type="PackedScene" path="res://game/enemies/covern/covern.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://game/enemies/sbug/sbug.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://game/objects/door_cap/door_cap.tscn" id="8"]
+[ext_resource type="Script" path="res://engine/world/CameraZone.cs" id="9"]
+[ext_resource type="PackedScene" path="res://game/objects/station/map_station.tscn" id="10"]
+
+[sub_resource type="Resource" id="r1"]
+script = ExtResource("1")
+Kind = 0
+About = "phantoon_defeated"
+
+[sub_resource type="Resource" id="r2"]
+script = ExtResource("2")
+When = SubResource("r1")
+LayoutFile = "rooms/wrecked_ship/map_station_room_door_on_right_in_map_statues.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r3"]
+script = ExtResource("2")
+LayoutFile = "rooms/wrecked_ship/map_station_room_door_on_right_in_wrecked_ship_map_power_off.json"
+KeepsMusic = true
+
+[sub_resource type="Resource" id="r4"]
+script = ExtResource("1")
+Kind = 6
+Parts = Array[ExtResource("1")]([SubResource("r1")])
+
+[node name="WreckedShipMap" type="Node2D"]
+script = ExtResource("3")
+Area = "wrecked_ship"
+MapCell = Vector2i(13, 20)
+Versions = Array[ExtResource("2")]([SubResource("r2"), SubResource("r3")])
+
+[node name="Terrain" type="Node2D" parent="."]
+script = ExtResource("4")
+LayoutFile = "rooms/wrecked_ship/map_station_room_door_on_right_in_wrecked_ship_map_power_off.json"
+
+[node name="ToBasement" type="Node2D" parent="."]
+script = ExtResource("5")
+position = Vector2(240, 96)
+Size = Vector2i(16, 64)
+LeadsToRoom = "res://game/rooms/wrecked_ship/basement.tscn"
+LeadsToExit = "ToWreckedShipMap"
+Style = 0
+ArrivalOffset = Vector2i(-24, 40)
+
+[node name="Coven" parent="." instance=ExtResource("6")]
+position = Vector2(136, 136)
+AlwaysActive = true
+RespawnsWhenKilled = true
+PresentWhen = SubResource("r4")
+
+[node name="Sbug" parent="." instance=ExtResource("7")]
+position = Vector2(88, 184)
+Speed = 2
+Heading = 184
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug2" parent="." instance=ExtResource("7")]
+position = Vector2(80, 168)
+Speed = 2
+Heading = 196
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug3" parent="." instance=ExtResource("7")]
+position = Vector2(77, 207)
+Speed = 3
+Heading = 250
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug4" parent="." instance=ExtResource("7")]
+position = Vector2(205, 184)
+Speed = 4
+Heading = 176
+ActivationDistance = 128
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug5" parent="." instance=ExtResource("7")]
+position = Vector2(200, 176)
+Speed = 3
+Heading = 184
+ActivationDistance = 160
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug6" parent="." instance=ExtResource("7")]
+position = Vector2(208, 184)
+Speed = 3
+Heading = 208
+ActivationDistance = 160
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug7" parent="." instance=ExtResource("7")]
+position = Vector2(139, 39)
+Speed = 2
+Heading = 120
+ActivationDistance = 160
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="Sbug8" parent="." instance=ExtResource("7")]
+position = Vector2(141, 8)
+Speed = 2
+Heading = 138
+ActivationDistance = 80
+Runs = 0
+PresentWhen = SubResource("r4")
+
+[node name="BlueCap" parent="." instance=ExtResource("8")]
+position = Vector2(224, 96)
+DataFile = "objects/door_cap_blue_left.json"
+
+[node name="Screen0x0Foot" type="Node2D" parent="."]
+script = ExtResource("9")
+position = Vector2(0, 224)
+Size = Vector2i(256, 32)
+StartsOpen = false
+
+[node name="MapStation" parent="." instance=ExtResource("10")]
+position = Vector2(48, 160)
+PresentWhen = SubResource("r1")

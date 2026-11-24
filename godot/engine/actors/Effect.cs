@@ -8,7 +8,8 @@ namespace Engine.Actors;
 /// <summary>
 /// A short-lived visual: an explosion, dust, a splash. It plays its timeline and is gone. It does not collide, deal
 /// damage, change anything in play or draw on the gameplay random generator; if it did any of those it would be a
-/// projectile or an enemy.
+/// projectile or an enemy. A cue of its timeline that is "sound:" and a sound's name asks for that sound; one that
+/// is "drift:" and two numbers, pixels across and down an update, makes that its velocity from then on.
 /// </summary>
 public partial class Effect : Node2D, IRoomEntity
 {
@@ -42,7 +43,7 @@ public partial class Effect : Node2D, IRoomEntity
         _visual = new ActorVisual { PictureOffset = PictureOffset };
         AddChild(_visual);
         _visual.Bind(room.Content);
-        _visual.Show(_player.Current.Picture);
+        _visual.Show(_player.Current);
     }
 
     /// <summary>Plays one update of the effect's timeline; when a timeline that does not loop ends, the effect is gone.</summary>
@@ -51,14 +52,32 @@ public partial class Effect : Node2D, IRoomEntity
         Room room = _room ?? throw new InvalidOperationException("The effect is not in a room.");
         TimelinePlayer player = _player ?? throw new InvalidOperationException("The effect is not in a room.");
         Position += Velocity.OverOneUpdate;
-        player.Step();
+        foreach (string cue in player.Step())
+        {
+            if (cue.StartsWith("sound:", StringComparison.Ordinal))
+                room.Session.Sounds.Request(cue["sound:".Length..], channel: "effects");
+            else if (cue.StartsWith("drift:", StringComparison.Ordinal))
+                Velocity = DriftOf(cue);
+        }
+
         if (player.IsOver)
         {
             room.Remove(this);
             return;
         }
 
-        _visual?.Show(player.Current.Picture);
+        _visual?.Show(player.Current);
+    }
+
+    /// <summary>Reads the velocity a "drift:" cue names.</summary>
+    private static PixelVelocity DriftOf(string cue)
+    {
+        string[] parts = cue.Split(':');
+        System.Globalization.CultureInfo plain = System.Globalization.CultureInfo.InvariantCulture;
+        if (parts.Length != 3 || !double.TryParse(parts[1], System.Globalization.NumberStyles.Float, plain, out double across)
+            || !double.TryParse(parts[2], System.Globalization.NumberStyles.Float, plain, out double down))
+            throw new InvalidOperationException($"An effect's timeline has the cue \"{cue}\", which is not \"drift:\" and two numbers.");
+        return new PixelVelocity(Pixels.FromNumber(across), Pixels.FromNumber(down));
     }
 
     /// <inheritdoc/>

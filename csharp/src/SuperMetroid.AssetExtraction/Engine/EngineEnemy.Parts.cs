@@ -1,0 +1,72 @@
+using System.Text.Json.Nodes;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Projectiles;
+
+namespace SuperMetroid.AssetExtraction.Engine;
+
+/// <summary>What a thing of several parts adds: where its parts are in each of its poses, and its pictures in its other colours.</summary>
+internal sealed partial class EngineEnemy
+{
+    /// <summary>The cue that puts a thing's parts where one of its poses has them.</summary>
+    internal const string PoseCue = "pose:";
+
+    /// <summary>The name of the pose that goes with one of an enemy's frames: the frame's name as its picture's file has it.</summary>
+    internal static string PoseName(EnemyFrameId frame) => EngineSheets.FileName(EnemySheetDefinitions.FrameName(frame));
+
+    /// <summary>
+    /// Gives every step of a timeline that shows a picture the cue of the pose named as the picture's file is, ahead
+    /// of the step's other cues: the old game's hitboxes belong to the frame shown, and the Godot game's parts are
+    /// moved by cues.
+    /// </summary>
+    internal static JsonObject WithPoseCues(JsonObject timeline)
+    {
+        foreach (JsonNode? step in timeline["steps"]!.AsArray())
+        {
+            string picture = step!["picture"]!.GetValue<string>();
+            if (picture.Length == 0)
+                continue;
+            string name = picture[(picture.LastIndexOf('/') + 1)..picture.LastIndexOf('.')];
+            var cues = new JsonArray { PoseCue + name };
+            if (step["cues"] is JsonArray heard)
+            {
+                foreach (JsonNode? cue in heard)
+                    cues.Add(cue!.GetValue<string>());
+            }
+
+            step["cues"] = cues;
+        }
+
+        return timeline;
+    }
+
+    /// <summary>One of the old game's hitboxes as a collider's rectangle, from the enemy's place.</summary>
+    internal static JsonObject Rect(EnemyCollisionHitbox hitbox) => new()
+    {
+        ["left"] = hitbox.Left, ["top"] = hitbox.Top, ["width"] = hitbox.Right - hitbox.Left, ["height"] = hitbox.Bottom - hitbox.Top,
+    };
+
+    /// <summary>
+    /// Cuts another set of its pictures, in one of its sheets' shades, into the folder named as its own with
+    /// <paramref name="after"/> added: the sheets named by <paramref name="keys"/>, the old enemies whose sheets they
+    /// are, cut together as its own pictures were.
+    /// </summary>
+    internal EngineEnemy ShadedSetOf(string after, string shade, params ReadOnlySpan<string> keys)
+    {
+        var named = new List<string>();
+        foreach (string key in keys)
+            named.Add(_sheets.EnemySheet(key));
+        _sheets.CutShadeOf(_tree, Installation.GameInstallationLayout.EnemySheetDirectoryName, Folder + after, shade, [.. named]);
+        return this;
+    }
+
+    /// <summary>
+    /// Cuts the pictures of one of its timelines of what it spawns (<see cref="SpawnedLook{TFrame, TEvent}"/>) again
+    /// in one of their sheet's shades, into the folder a set of its pictures named <paramref name="after"/> keeps them in.
+    /// </summary>
+    internal EngineEnemy ShadedSpawnedSet(string after, string name, IEnumerable<EnemyProjectileFrameId> frames, string shade)
+    {
+        _sheets.CutSpawnedShade(_tree, $"{Folder}{after}/{name}", EnemyDefinitionIdKeys.Installed.Of(_id), frames.Select(EnemySheetDefinitions.ProjectileFrameName), shade);
+        return this;
+    }
+}

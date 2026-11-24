@@ -10,6 +10,13 @@ namespace Engine.World;
 /// its settings, and manages its own reaction to the player, to hits and to progress. It changes nothing else except
 /// through that thing's own methods.
 /// </summary>
+/// <remarks>
+/// Its data may give "picture_offset": where the top-left corner of its pictures lies from each of its visuals, as an
+/// enemy's does.
+/// <code>
+/// "picture_offset": { "x": -8, "y": -8 }
+/// </code>
+/// </remarks>
 public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasValues, IRemembered
 {
     /// <inheritdoc/>
@@ -53,7 +60,15 @@ public abstract partial class RoomObject : Node2D, IRoomEntity, IPlaced, IHasVal
     }
 
     /// <inheritdoc/>
-    public virtual void ReadValues(DataNode data) => EntityNode.ReadColliders(this, data);
+    public virtual void ReadValues(DataNode data)
+    {
+        EntityNode.ReadColliders(this, data);
+        if (!data.Has("picture_offset"))
+            return;
+        var offset = new Vector2I(data.Get("picture_offset").Int("x"), data.Get("picture_offset").Int("y"));
+        foreach (ActorVisual visual in GetChildren().OfType<ActorVisual>())
+            visual.PictureOffset = offset;
+    }
 
     /// <inheritdoc/>
     public override void _ValidateProperty(Godot.Collections.Dictionary property) => DataValues.Validate(this, property);

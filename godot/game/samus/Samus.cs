@@ -234,6 +234,8 @@ public partial class Samus : Player
     private int _boostStage = -1;
     private int _strideAt, _strideLeft, _stridesLeft;
     private bool _ranFromStart;
+    private bool _spunAtStart;
+    private bool _boostSounding;
     private bool _autoCancel;
     private bool _spreadCharged;
     private int _spreadHeld;
@@ -708,6 +710,7 @@ public partial class Samus : Player
     {
         StartCrystalFlashIfOffered();
         _ranFromStart = State is RunningState;
+        _spunAtStart = State is SpinJumpingState or WallJumpingState;
         _aimAtUpdateStart = Aim;
         _shine = _shine.Stepped();
         ChooseItem();
@@ -1154,6 +1157,7 @@ public partial class Samus : Player
         // The stored shine is heard a while after it is stored, as the cartridge's colouring of her asks for it.
         if (HasStoredShine && _shine.Remaining == StoredShineUpdates - StoredShineSoundUpdates)
             Room.Session.Sounds.Request(Sounds.StoredShine, channel: "samus", priority: SoundPriority.High);
+        StopEndedSounds();
         _crystalFlashColouring = _crystalFlashColouring switch
         {
             CrystalFlashColouring.EndingNext => CrystalFlashColouring.Ending,
@@ -1161,6 +1165,25 @@ public partial class Samus : Player
             _ => _crystalFlashColouring,
         };
         GetNodeOrNull<SamusVisual>("Visual")?.Show(this);
+    }
+
+    /// <summary>
+    /// As the cartridge does once she has been shown: on the update her boost ends the speed booster's sound is
+    /// stopped, and on the update a spin or a wall jump ends the spin's is. Quicksand that stops her momentum forgets
+    /// the boost's sound without stopping it.
+    /// </summary>
+    private void StopEndedSounds()
+    {
+        if (Room.Terrain.BlocksIn(BodyRect).Any(block => block.Type.Contact == BlockContact.PullsDown && block.Type.StopsMomentum))
+            _boostSounding = false;
+        if (_boostSounding && !IsBoosting)
+        {
+            _boostSounding = false;
+            Room.Session.Sounds.Request(Sounds.SpeedBoosterStop, channel: "samus", priority: SoundPriority.Essential);
+        }
+
+        if (_spunAtStart && State is not (SpinJumpingState or WallJumpingState))
+            Room.Session.Sounds.Request(Sounds.SpinJumpStop, channel: "samus", priority: SoundPriority.Essential);
     }
 
     /// <summary>
@@ -1212,6 +1235,7 @@ public partial class Samus : Player
             if (IsBoosting)
             {
                 Room.Session.Sounds.Request(Sounds.SpeedBooster, channel: "samus");
+                _boostSounding = true;
                 pace = 0;
             }
         }

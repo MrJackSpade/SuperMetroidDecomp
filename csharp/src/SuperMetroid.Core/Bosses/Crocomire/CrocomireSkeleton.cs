@@ -268,14 +268,13 @@ internal sealed partial class CrocomireSkeleton
     /// just before, so every piece is spawned.
     /// </summary>
     /// <remarks>
-    /// The pieces draw in the wall's colours with the colours his death has loaded laid over them (#2657): the game clears
-    /// his palette before it spawns them ($A4:9995), so its pieces show the wall's and the wall spikes' rows as those
-    /// colours leave them, never the skeleton's hurt flash. His sheet is pre-coloured in the wall's colours for them, so they
-    /// draw in its standard colours under his death's (#2660).
+    /// The pieces keep the colours the wall shows before the skeleton breaks it (#2657): the game clears his palette before it
+    /// spawns them ($A4:9995), so they show the wall's and the wall spikes' rows, which nothing changes as they fall. His sheet
+    /// draws them in those rows, pre-coloured in those colours, so they draw in its standard colours, never his skeleton's.
     /// </remarks>
     internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Colours.OverSprites(PictureShading.Standard));
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, PictureShading.Standard);
 
         foreach (CrocomireSpikeWallPiece piece in CrocomireSpikeMotionDefinitions.Pieces.Reverse())
         {

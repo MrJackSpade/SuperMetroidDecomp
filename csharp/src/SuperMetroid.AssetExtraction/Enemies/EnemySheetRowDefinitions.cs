@@ -79,6 +79,16 @@ internal static partial class EnemySheetRowDefinitions
     internal const int GlowFirstColour = 9;
 
     /// <summary>
+    /// The row each enemy's palette holds when it spawns the objects its own sheet holds, where that is not the row it draws
+    /// in (#2657): Crocomire's death clears his palette before it spawns the spike wall's pieces with his graphics
+    /// ($A4:9995), the only objects his sheet holds, so they show the rows their parts name, the wall's and the wall spikes'.
+    /// </summary>
+    internal static IReadOnlyDictionary<EnemyDefinitionId, int> SpawnRows { get; } = new Dictionary<EnemyDefinitionId, int>
+    {
+        [EnemyDefinitionId.Crocomire] = Common,
+    };
+
+    /// <summary>
     /// The enemy whose row each enemy that copies one draws in: a Baby Turtle its Mama's, Ki-Hunter wings their body's, an
     /// Evir's projectile its Evir's, Phantoon's eye, tentacles and mouth her body's, and Kraid's arm, lints, foot and
     /// fingernails Kraid's, whose row their initializations copy ($A7:AB43 to $A7:ABF8, $A7:BCF2).

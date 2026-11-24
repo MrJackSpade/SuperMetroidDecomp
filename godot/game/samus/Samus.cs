@@ -239,6 +239,7 @@ public partial class Samus : Player
     private bool _chargeSounds;
     private string? _liquidLastEntered;
     private string _selectedShown = "";
+    private Aim _aimAtUpdateStart;
 
     /// <summary>
     /// What she has selected to use: the name of an ammunition amount, of the grapple beam or of the X-ray scope, or
@@ -510,8 +511,9 @@ public partial class Samus : Player
             StoreShine();
 
         // A jump from a crouch with her arm level starts lifted off the ground, as the cartridge has it: by the lift,
-        // over and above what the taller body of the jump takes.
-        if (from is CrouchingState && to is JumpingState && Aim == Aim.Forward)
+        // over and above what the taller body of the jump takes. Her arm is as it was before this update's input, as
+        // the old pose she jumped from was.
+        if (from is CrouchingState && to is JumpingState && _aimAtUpdateStart == Aim.Forward)
         {
             int taller = HalfHeightOf(FormOr(Jumping)) - HalfHeight;
             Room.Mover.MoveDown(Body, Pixels.FromWhole(-(CrouchJumpLift + taller)), BodyMoves);
@@ -631,6 +633,7 @@ public partial class Samus : Player
     protected override void BeforeState()
     {
         _ranFromStart = State is RunningState;
+        _aimAtUpdateStart = Aim;
         _shine = _shine.Stepped();
         ChooseItem();
 

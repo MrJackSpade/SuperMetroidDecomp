@@ -4,6 +4,7 @@ using Engine.Core;
 using Engine.Input;
 using Engine.Shared;
 using Engine.World;
+using Game.Compatibility;
 
 namespace Game.Menus;
 
@@ -42,6 +43,9 @@ public partial class AttractDemoMode : PlayingMode
         }
 
         base.Enter();
+
+        // While a demonstration plays every sound asked for is turned away.
+        CartridgeSounds.Of(Session).DemoPlaying = true;
     }
 
     /// <summary>The demo in the file at <paramref name="file"/>, a path within the assets tree.</summary>
@@ -91,12 +95,14 @@ public partial class AttractDemoMode : PlayingMode
     private GameMode PlayedOut()
     {
         string? next = Session.Service<DemoSchedule>().AfterDemo();
+        CartridgeSounds.Of(Session).DemoPlaying = false;
         Session.BeginAgain();
         return next is null ? new TitleMode(atRestAtOnce: true) : Of(Session.Content, next);
     }
 
     private GameMode BackToTitle()
     {
+        CartridgeSounds.Of(Session).DemoPlaying = false;
         Session.BeginAgain();
         return new TitleMode(atRestAtOnce: true);
     }

@@ -266,9 +266,14 @@ internal sealed partial class CrocomireSkeleton
     /// its definition, which sets how far below the wall's top it stands. The wall break deletes every enemy projectile
     /// just before, so every piece is spawned.
     /// </summary>
+    /// <remarks>
+    /// The pieces draw in the wall's colours with the colours his death has loaded laid over them (#2657): the game clears
+    /// his palette before it spawns them ($A4:9995), so its pieces show the wall's and the wall spikes' rows as those
+    /// colours leave them, never the skeleton's hurt flash.
+    /// </remarks>
     internal void SpawnCrocomireSpikeWallPieces(CrocomireEnemyState state)
     {
-        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Body.Shading);
+        SpriteGraphics graphics = SpriteGraphics.SpawnedBy(state.BodyOccupant, state.Colours.OverSprites(CrocomireColours.WallShading));
 
         foreach (CrocomireSpikeWallPiece piece in CrocomireSpikeMotionDefinitions.Pieces.Reverse())
         {

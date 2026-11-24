@@ -77,6 +77,10 @@ public partial class GameOverMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
+        // Every update of the old game over screen draws a random number first, but for one that finishes a wait for a
+        // frame of the display.
+        if (!WaitsOutDisplayFrame)
+            Session.OpenUpdate();
         ScreenFade fade = _fade ?? throw NotShown();
         if (_blackUpdates < Data().Int("entry_black_updates"))
         {
@@ -159,6 +163,12 @@ public partial class GameOverMode : GameMode
 
         return this;
     }
+
+    /// <summary>
+    /// Whether the update finishes a wait for a frame of the display: in the old game the last of the black updates
+    /// (after the sounds are stopped) and the one after the set-up.
+    /// </summary>
+    private bool WaitsOutDisplayFrame => _blackUpdates == Data().Int("entry_black_updates") - 1 || (_setUp && !_setUpWaitedOut);
 
     /// <summary>Plays one update of the larva, its egg and the cursor.</summary>
     private void StepSprites()

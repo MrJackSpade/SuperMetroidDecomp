@@ -206,6 +206,10 @@ public partial class Ending : Cinematic
     /// <inheritdoc/>
     protected override bool Play(int elapsed)
     {
+        // Every update of the old credits draws a random number first, but for one that finishes a wait for a frame of
+        // the display.
+        if (!WaitsOutDisplayFrame)
+            Session.OpenUpdate();
         _closing = WaitsOutDisplayFrame ? ClosingSoundWork.None : ClosingSoundWork.Usual;
         if (_phase == Phase.Setup)
         {

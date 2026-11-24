@@ -145,6 +145,8 @@ public partial class Intro : Cinematic
     /// <inheritdoc/>
     protected override bool Play(int elapsed)
     {
+        // Every update of the old introduction draws a random number before anything else of it.
+        Session.OpenUpdate();
         ScreenFade fade = _fade ?? throw NotEntered();
         switch (_phase)
         {

@@ -323,6 +323,10 @@ public partial class SaveMapMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
+        // Every update of the old map draws a random number first, but for the one that waits out the frame of the
+        // display before loading.
+        if (!_loadsNext)
+            Session.OpenUpdate();
         GameMode next = StepScreen(input);
         if (ReferenceEquals(next, this))
             ShowScene();

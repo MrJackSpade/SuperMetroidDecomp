@@ -183,6 +183,8 @@ public partial class TitleMode : GameMode
     /// <inheritdoc/>
     public override GameMode Step(GameInput input)
     {
+        // Every update of the old title draws a random number before anything else of it.
+        Session.OpenUpdate();
         DataNode data = Data();
         DataNode opening = data.Get("opening");
         ScreenFade fade = _fade ?? throw NotShown();

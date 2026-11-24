@@ -227,10 +227,11 @@ public partial class Room : Node2D
     /// <summary>
     /// Plays one update of the room, in a fixed order: the opening, in which the liquid moves, the sequences and
     /// projectiles with a part in it play that part, and then the session services that open an update play
-    /// theirs; the first part of the player's update, in which their input is read and their weapons fire; the
-    /// player's own shots; enemies; the rest of the player's update, in which they move; triggers and exits; every
-    /// other projectile, pickups and the remains of the destroyed; room objects and the room itself; then effects.
-    /// Groups named in <paramref name="stopped"/> do not run; the services that open the update always do.
+    /// theirs; the room's effects, all but its shaking, and the liquid's pictures; the first part of the player's
+    /// update, in which their input is read and their weapons fire; the player's own shots; enemies; the rest of the
+    /// player's update, in which they move; triggers and exits; every other projectile, pickups and the remains of
+    /// the destroyed; room objects, the terrain, the room's shaking and its sequences; then effects. Groups named in
+    /// <paramref name="stopped"/> do not run; the services that open the update always do.
     /// </summary>
     public void Step(GameInput input, Stopped stopped = Stopped.Nothing)
     {
@@ -252,6 +253,19 @@ public partial class Room : Node2D
 
         foreach (IUpdateOpener opener in Session.Services.OfType<IUpdateOpener>())
             opener.OpenUpdate(Session);
+
+        // The room's conditions play on before anyone acts: one that is started or told something during an update
+        // first shows it in the next. The shaking is not among them: it is stepped once all that may start it has run.
+        if (!stopped.HasFlag(Stopped.Room))
+        {
+            foreach (RoomEffect effect in _roomEffects)
+            {
+                if (effect is not Earthquake)
+                    effect.Step(this);
+            }
+
+            Liquid?.Step(Session.Camera.View);
+        }
 
         if (!stopped.HasFlag(Stopped.Player))
             Player.BeginUpdate(input);
@@ -322,9 +336,8 @@ public partial class Room : Node2D
             Terrain.Step(rect => Collision.Overlapping(rect, ColliderRole.Body).Count > 0);
             foreach (string sound in Terrain.TakeBreakSounds())
                 Session.Sounds.Request(sound, channel: "room");
-            Liquid?.Step(Session.Camera.View);
-            foreach (RoomEffect effect in _roomEffects)
-                effect.Step(this);
+            foreach (Earthquake quake in _roomEffects.OfType<Earthquake>())
+                quake.Step(this);
             foreach (RoomSequence sequence in _sequences)
                 sequence.Step(this);
         }

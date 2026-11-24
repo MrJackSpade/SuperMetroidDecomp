@@ -5,7 +5,8 @@ namespace Engine.World;
 /// <summary>
 /// A room-wide condition: something true of the whole room, such as heat. It owns its look, and reports that it is
 /// active and any ongoing damage it does. It never reaches into the player or enemies; they ask the room and apply
-/// what it reports to themselves. It can be told to "start" and "stop".
+/// what it reports to themselves. It can be told to "start" and "stop". The room steps it early in an update, before
+/// the player and the enemies act, so what it is told during an update it first shows in the next.
 /// </summary>
 public abstract partial class RoomEffect : Node2D, IPlaced, ITriggerTarget
 {

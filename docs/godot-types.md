@@ -408,9 +408,10 @@ A scene. One per room of the game.
   tearing itself down when left.
 - **Steps, in this order:** the opening of the update: the liquid moves, each running sequence and then each live
   projectile with a part in the opening (`IOpeningStep`) plays it, and then the session services that open an
-  update (`IUpdateOpener`) play theirs; the first part of the player's update; the player's own shots; the enemies;
-  the rest of the player's update; triggers and exits; every other projectile, pickups and remains; room objects,
-  terrain, the liquid's pictures, room effects and the sequence; effects.
+  update (`IUpdateOpener`) play theirs; the room effects, all but the earthquake, and the liquid's pictures; the
+  first part of the player's update; the player's own shots; the enemies; the rest of the player's update; triggers
+  and exits; every other projectile, pickups and remains; room objects, terrain, the earthquake and the sequence;
+  effects.
 - **Does not:** contain any enemy's or object's behaviour, or carry state to the next room. What crosses an exit is
   carried by the room transition, explicitly.
 
@@ -564,7 +565,7 @@ A scripted sequence belonging to one room. It lives beside its room's scene.
 | --- | --- | --- |
 | `RoomExit` | Above. | Have a body or a look, or know what stands in front of it. |
 | `Liquid` | A room's body of liquid, of a `LiquidType`: its level, its rise and fall, and answering "is this point submerged". Its surface moves as an update opens, before anything acts; its pictures play on with the room's effects. Its type names the splash of something crossing its surface and the sounds of going under and of coming out, which the player leaves as their feet do. It may wait a set time before it moves once told, and may have a tide that lifts and lowers its surface. It draws itself across the view as its type says, and says whether its pictures drift. | Apply physics or damage. The player and enemies ask it and act on the answer. |
-| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
+| `RoomEffect` (base) | A room-wide condition: its look, and reporting that it is active and any ongoing damage it does. It is stepped early in an update, before the player and the enemies act, so that what it is told during an update it first shows in the next; the earthquake alone is stepped late, after the enemies and room objects that may start it, and shows a shake on the update it is started in. The engine provides the base, the earthquake (side to side, up and down, or corner to corner), `OverlayEffect` (pictures tiled over the view and drifting, as the data file of its look says: which pictures in turn, how far they move each update and with which of several winds, how much they stay with the room as the view moves, whether they brighten, darken or cover what is under them, and whether they lie behind the room's terrain: fog, rain, spores, a haze; one with no look shows nothing: heat) and `TintEffect` (a colour over the view that steps through a list: alarm lights, a room going dark); a condition with rules of its own is the game's. | Reach into the player or enemies. |
 | `Backdrop` | What is drawn behind and in front of the room: background layers, a scrolling sky, parallax. A layer may lie at a place in the room, fill only a band of it, and drift by itself, which is how a sky's bands of cloud are made. `TurningFloor` is the backdrop that can be turned and brought nearer or farther about a point, with the visuals under it turning with it. | Affect play. |
 | `RoomTurn` | A turn the room is shown with (`Room.ShownTurn`): the player and the room's objects are drawn where turning them about a point puts them. | Change where anything is. |
 | `Camera` | Following the player within the room's limits. One per session. | Affect play. |
@@ -1207,7 +1208,7 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
 - `RoomEffect`: heat, rain, fog, spores and Ceres haze are the engine's `OverlayEffect`, each with a look (heat with
   ongoing damage as well); room-wide colour changes are its `TintEffect`; the earthquake is the engine's. The
   Fireflea rooms' dark is this game's own (`FirefleaDarkness`, in `game/effects/`), told to darken by each Fireflea
-  that dies.
+  that dies; it looks at the deaths as it is stepped, so a death shows from the update after.
 - `Backdrop`: room backgrounds, the scrolling sky (a backdrop is drawn behind everything else in its room); the Ceres rotating floor and the tilting picture of its
   elevator shaft are `TurningFloor`s.
 - `CameraZone` and `Trigger`: every scroll region and scroll change.

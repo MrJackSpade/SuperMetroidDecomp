@@ -94,7 +94,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/holtz.json` | `Swooper` | across_speed, contact_damage, dive_sound, dive_speed, health, lift, reach, return_sound, return_speed, slow_dive_speed |
 | `enemies/jet_ripper.json` | `Ripper` | can_be_latched, contact_damage, health |
 | `enemies/kago.json` | `Kago` | contact_damage, health, shake_strength, shake_updates |
-| `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, gravity, health, homing_distance, jump_speed, shortest_wait |
+| `enemies/kago_bug.json` | `KagoBug` | across_speed, clear_distance, contact_damage, fall_start_speed, first_sound_after, gravity, health, homing_distance, jump_speed, shortest_wait, sound |
 | `enemies/kamer.json` | `Shutter` | activation_sound, contact_damage, health |
 | `enemies/ki_hunter_acid.json` | `KiHunterAcid` | fastest_fall, gravity, launch_shift, splash_timeline |
 | `enemies/ki_hunter_green.json` | `KiHunter` | contact_damage, gravity, health, hop_across_speed, hop_up_speed, landing_wait, patrol_depth, patrol_rise, patrol_speed, speed_curve, spit_height, spit_range, spit_reach, spit_wait, strike_after_steps, swoop_distance, swoop_fastest_turn, swoop_least_depth, swoop_quickening, wing_arc_climb, wing_arc_radius, wing_arc_step, wing_half_height, wing_half_width |
@@ -113,7 +113,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `enemies/namihe.json` | `Fune` | contact_damage, health, mouth_drop |
 | `enemies/ninja_pirate_gold.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
 | `enemies/ninja_pirate_silver.json` | `NinjaPirate` | activation_distance, claw_attack_every, contact_damage, dive_speed_change, dive_start_speed, dive_step, flinch_distance, health, kick_distance, landing_dust_drop, landing_dust_effect, landing_dust_spread, midpoint_distance, return_step, scattered_drops, spin_climb_step, spin_speed_change |
-| `enemies/nuclear_waffle.json` | `NuclearWaffle` | contact_damage, health, left_burst_effect, link_half_size, link_spacing, right_burst_effect, splash_effect, surface_reach, surface_sound, sweep_middle, sweep_reach |
+| `enemies/nuclear_waffle.json` | `NuclearWaffle` | contact_damage, health, left_burst_effect, link_damage, link_half_size, link_spacing, right_burst_effect, splash_effect, surface_reach, surface_sound, sweep_middle, sweep_reach |
 | `enemies/orange_zoomer.json` | `Crawler` | contact_damage, falls_at_shake, health, landing_speed, pursues |
 | `enemies/oum.json` | `Oum` | attack_cooldown, attack_reach, bounce_step, contact_damage, fastest_fall_mark, health, impact_loss_marks, pushing_reach_across, pushing_reach_down, roll_speed, settling_bounces, shove_distance, speed_curve |
 | `enemies/owtch.json` | `Owtch` | burial_depth, contact_damage, health, sink_chance |

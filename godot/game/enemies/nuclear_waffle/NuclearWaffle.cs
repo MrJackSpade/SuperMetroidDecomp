@@ -10,12 +10,14 @@ namespace Game.Enemies;
 
 /// <summary>
 /// A Nuclear Waffle: a chain of fire that leaps out of the lava, sweeps over in a great arc and plunges back in on
-/// the far side, then waits and does it again. Its head can be shot; the links behind it only burn.
+/// the far side, then waits and does it again. Nothing harms it. Shots pass its head by and stop dead on the four
+/// links that burn; the links between those are only seen.
 /// </summary>
 /// <remarks>
-/// Its timeline is "head"; "link" is for the links that burn and "trail" for the ones between them, which are only
-/// seen. Its scene has a visual named "Link1" through "Link7" for the links, nearest the head first, and a hitbox
-/// named "Burn1" through "Burn4" for the four that burn.
+/// Its timeline is "head"; "link" is for the links that burn and "trail" for the ones between them. Its scene has
+/// a visual named "Link1" through "Link7" for the links, nearest the head first; the hitbox "Head", which hurts as
+/// the enemy does; and for the four links that burn a hitbox named "Burn1" through "Burn4", which hurts as a link
+/// does, and a hurtbox named "Guard1" through "Guard4", which is what a shot stops on.
 /// </remarks>
 public partial class NuclearWaffle : Enemy
 {
@@ -51,9 +53,13 @@ public partial class NuclearWaffle : Enemy
     [Export, DataValue("link_spacing")]
     public int LinkSpacing { get; set; } = 24;
 
-    /// <summary>Half the size of the part of a burning link that hurts, in pixels.</summary>
+    /// <summary>Half the size of a burning link, in pixels.</summary>
     [Export, DataValue("link_half_size")]
-    public int LinkHalfSize { get; set; } = 6;
+    public int LinkHalfSize { get; set; } = 8;
+
+    /// <summary>The damage a burning link does on contact.</summary>
+    [Export, DataValue("link_damage")]
+    public int LinkDamage { get; set; } = 64;
 
     /// <summary>The effect of the lava splashing where a part of it breaks the surface, by the data file of its timeline.</summary>
     [Export, DataValue("splash_effect")]
@@ -113,6 +119,20 @@ public partial class NuclearWaffle : Enemy
         for (int link = 0; link < BurningLinks; link++)
             _burningAt[link] = PixelOffset.Zero;
         ShowLinks();
+    }
+
+    /// <inheritdoc/>
+    protected override void Touch(Collider part)
+    {
+        if (part.Name == "Head")
+        {
+            base.Touch(part);
+            return;
+        }
+
+        // A link burns with a damage of its own.
+        var direction = new PixelOffset(Room.Player.Position.X >= Position.X ? Pixels.FromWhole(1) : Pixels.FromWhole(-1), Pixels.Zero);
+        Room.Player.TakeHit(new Hit(LinkDamage, HitSide.Enemies, HitKind.Contact) { Direction = direction, Source = this }, Room.Player.Hurtbox);
     }
 
     /// <inheritdoc/>
@@ -225,8 +245,11 @@ public partial class NuclearWaffle : Enemy
         for (int link = 0; link < BurningLinks; link++)
         {
             PixelOffset at = _burningAt[link];
+            var rect = new PixelRect(at.X.Whole - LinkHalfSize, at.Y.Whole - LinkHalfSize, LinkHalfSize * 2, LinkHalfSize * 2);
             if (GetNodeOrNull<Collider>($"Burn{link + 1}") is { } burn)
-                burn.Rect = new PixelRect(at.X.Whole - LinkHalfSize, at.Y.Whole - LinkHalfSize, LinkHalfSize * 2, LinkHalfSize * 2);
+                burn.Rect = rect;
+            if (GetNodeOrNull<Collider>($"Guard{link + 1}") is { } guard)
+                guard.Rect = rect;
             if (_linkPlayer is not null && GetNodeOrNull<ActorVisual>($"Link{link * 2 + 1}") is { } visual)
             {
                 visual.Position = new Vector2(at.X.Whole, at.Y.Whole);

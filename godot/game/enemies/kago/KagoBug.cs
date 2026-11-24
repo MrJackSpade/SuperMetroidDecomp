@@ -9,11 +9,12 @@ namespace Game.Enemies;
 
 /// <summary>
 /// One of the bugs a Kago lets out: it waits on the ground for a moment, jumps, a random height and usually back
-/// toward its hive, falls, and waits again. Until it has got clear of its hive, shots pass it by.
+/// toward its hive, falls, and waits again. Until it has got clear of its hive, shots pass it by; after that any
+/// shot destroys it. Touching Samus hurts her and is the end of it.
 /// </summary>
 /// <remarks>
-/// Its timelines are "waiting", "jump_start", whose cue "jump" launches it, "falling", and "landed", whose cue "wait"
-/// sets it waiting again.
+/// Its timelines are "waiting", curled up before its first jump; "jump_start", whose cue "jump" launches it;
+/// "falling"; and "landed", whose cue "wait" sets it waiting again, standing as it landed.
 /// </remarks>
 public partial class KagoBug : Enemy
 {
@@ -45,6 +46,14 @@ public partial class KagoBug : Enemy
     [Export, DataValue("clear_distance")]
     public int ClearDistance { get; set; } = 23;
 
+    /// <summary>The sound it makes once, by name: a few updates into the air on its first jump.</summary>
+    [Export, DataValue("sound")]
+    public string BugSound { get; set; } = "";
+
+    /// <summary>How many updates of jumping and falling pass, after its first wait, before it makes its sound.</summary>
+    [Export, DataValue("first_sound_after")]
+    public int FirstSoundAfter { get; set; } = 3;
+
     private enum Doing
     {
         Waiting,
@@ -56,6 +65,7 @@ public partial class KagoBug : Enemy
 
     private Doing _doing;
     private Countdown _wait;
+    private Countdown _untilSound;
     private bool _clear;
     private PixelPosition _hiveAt;
 
@@ -68,7 +78,21 @@ public partial class KagoBug : Enemy
         _hiveAt = Hive?.Position ?? Position;
         // Its first wait is a few updates longer by chance, read from the number last drawn rather than a fresh one.
         _wait = Countdown.Of(ShortestWait + Random.Last.Part(0, 3));
+        _untilSound = Countdown.Of(_wait.Remaining + FirstSoundAfter);
         Play("waiting");
+    }
+
+    /// <inheritdoc/>
+    protected override void OnTouchedPlayer() => Vanish();
+
+    /// <summary>Counts one update toward its sound, which it makes as the count runs out. Only waiting, jumping and falling count.</summary>
+    private void StepSound()
+    {
+        if (_untilSound.IsOver)
+            return;
+        _untilSound = _untilSound.Stepped();
+        if (_untilSound.IsOver)
+            Sound(BugSound);
     }
 
     /// <inheritdoc/>
@@ -81,9 +105,9 @@ public partial class KagoBug : Enemy
             Jump();
         else if (cue == "wait")
         {
+            // It waits standing, as it landed.
             _wait = Countdown.Of(ShortestWait + Random.Last.Part(0, 5));
             _doing = Doing.Waiting;
-            Play("waiting", restart: true);
         }
     }
 
@@ -95,6 +119,7 @@ public partial class KagoBug : Enemy
         switch (_doing)
         {
             case Doing.Waiting:
+                StepSound();
                 _wait = _wait.Stepped();
                 if (_wait.IsRunning)
                     return;
@@ -107,6 +132,7 @@ public partial class KagoBug : Enemy
                 return;
 
             case Doing.Jumping:
+                StepSound();
                 if (MoveAcrossBy(Velocity.X))
                 {
                     Velocity = new PixelVelocity(Pixels.Zero, Pixels.FromNumber(FallStartSpeed));
@@ -127,6 +153,7 @@ public partial class KagoBug : Enemy
                 return;
 
             case Doing.Falling:
+                StepSound();
                 if (MoveAcrossBy(Velocity.X))
                 {
                     Velocity = Velocity.WithX(Pixels.Zero);
@@ -152,6 +179,7 @@ public partial class KagoBug : Enemy
     /// <summary>Launches a jump: a random height, and back toward the hive when it has strayed, else either way by chance.</summary>
     private void Jump()
     {
+        StepSound();
         RandomDraw last = Random.Last;
         int up = JumpSpeed + last.Part(8, 2);
         int toHive = _hiveAt.X.Whole - Position.X.Whole;

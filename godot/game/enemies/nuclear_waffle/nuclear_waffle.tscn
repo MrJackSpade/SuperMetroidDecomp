@@ -32,7 +32,23 @@ script = ExtResource("3")
 [node name="Visual" type="Node2D" parent="."]
 script = ExtResource("3")
 
-[node name="Hurtbox" type="Node2D" parent="."]
+[node name="Head" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 2
+
+[node name="Guard1" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Guard2" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Guard3" type="Node2D" parent="."]
+script = ExtResource("2")
+Role = 1
+
+[node name="Guard4" type="Node2D" parent="."]
 script = ExtResource("2")
 Role = 1
 

@@ -60,11 +60,13 @@ public sealed partial class EngineAssetWriter
                 if (across != 0 && down != 0 && across != down)
                     throw new InvalidDataException($"A turret's bullet flying {direction} goes at one speed across and another down.");
                 shot["speed"] = JsonValue.Create(Math.Max(across, down));
+                // It moves itself and is gone silently where its middle meets a block; it stops shots every other update.
+                shot["scene"] = "res://game/bosses/mother_brain/mother_brain_turret_bullet.tscn";
                 projectile["timeline"] = owner.SpawnedTimeline(name, MotherBrainTurretAnimations.Segments,
                     MotherBrainTurretAnimations.StartingAt[MotherBrainTurretPose.Bullet(direction)], Cue);
                 projectile["picture_offset"] = EngineEnemy.NoOffset();
-                // It is gone where it meets a block, and smokes where it meets Samus or a shot of hers.
-                projectile["meeting_terrain"] = "ends";
+                // It smokes where it meets Samus or a shot of hers.
+                projectile["meeting_terrain"] = "passes_through";
                 projectile["meeting_target"] = "ends";
                 projectile["met_by_shot"] = "destroyed";
                 projectile["ending_effect"] = impact;

@@ -250,11 +250,11 @@ public partial class Terrain : Node2D, ITerrainShape
         QueueRedraw();
     }
 
-    /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals.</summary>
+    /// <summary>Shows every hidden block in <paramref name="area"/> that a revealing ability reveals, through this update.</summary>
     public void RevealBySight(PixelRect area)
     {
         foreach (Block block in BlocksIn(area).Where(block => block.Hidden && block.Type.RevealedBySight))
-            block.Reveal();
+            block.SeeBySight();
         QueueRedraw();
     }
 

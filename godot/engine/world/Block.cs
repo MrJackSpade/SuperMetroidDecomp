@@ -73,7 +73,7 @@ public sealed class Block
     {
         if (!Broken)
         {
-            string own = Hidden ? Type.HiddenPicture : Type.IntactPictureOf(part);
+            string own = Hidden && _seenFor == 0 ? Type.HiddenPicture : Type.IntactPictureOf(part);
             return own.Length > 0 ? own : tilePicture;
         }
 
@@ -130,9 +130,24 @@ public sealed class Block
         _giveWay = Countdown.Of(Type.LatchedUpdates);
     }
 
-    /// <summary>Moves the block's timers on by one update. Returns whether its solidity changed.</summary>
+    /// <summary>How many more updates it is shown for what it is because a revealing ability saw it.</summary>
+    private int _seenFor;
+
+    /// <summary>Shows the block for what it is for as long as a revealing ability goes on seeing it.</summary>
+    internal void SeeBySight() => _seenFor = 2;
+
+    /// <summary>Moves the block's timers on by one update. Returns whether its solidity or its look may have changed.</summary>
     /// <param name="spaceIsClear">Whether nothing occupies the block's space, so that it may regrow.</param>
     internal bool Step(bool spaceIsClear)
+    {
+        // Seen, it shows for what it is through this update; unseen the next, it looks like plain terrain again.
+        bool wasSeen = _seenFor > 0;
+        if (wasSeen)
+            _seenFor--;
+        return StepTimers(spaceIsClear) | wasSeen;
+    }
+
+    private bool StepTimers(bool spaceIsClear)
     {
         if (_stoodOn)
         {

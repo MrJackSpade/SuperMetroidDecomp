@@ -63,7 +63,7 @@ public sealed class BlockType
     /// <summary>The hit kinds that reveal it while hidden; empty when no hit does.</summary>
     public ImmutableHashSet<HitKind> HiddenUntil { get; private init; } = [];
 
-    /// <summary>Whether a revealing ability reveals it while hidden.</summary>
+    /// <summary>Whether a revealing ability shows it for what it is, while hidden, for as long as it sees it.</summary>
     public bool RevealedBySight { get; private init; }
 
     /// <summary>

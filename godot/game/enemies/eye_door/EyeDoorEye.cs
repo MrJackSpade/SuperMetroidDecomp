@@ -145,6 +145,7 @@ public partial class EyeDoorEye : Enemy
         LeaveSmoke();
         LeaveSmoke();
         LeaveSmoke();
+        // Its flashes are drawn over its cap, blue from now on, which shows between them as the old eye's own blue cap did.
         Begin(Doing.Destroyed, "destroyed");
         return HitResult.Hurt;
     }

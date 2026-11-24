@@ -13,7 +13,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | --- | --- | --- |
 | `bosses/bomb_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
 | `bosses/bomb_torizo_hand.json` | `BombTorizoHand` | debris_look |
-| `bosses/botwoon.json` | `Botwoon` | contact_damage, explosion_effect, explosion_sound, floor_y, health, opening_delay, pre_fall_wait, smoke_effect, speed_curve, wall_drops, wall_explosion_effect, wall_updates, wall_x |
+| `bosses/botwoon.json` | `Botwoon` | contact_damage, explosion_effect, explosion_sound, floor_y, health, opening_delay, pre_fall_wait, segment_damage, smoke_effect, speed_curve, wall_drops, wall_explosion_effect, wall_updates, wall_x |
 | `bosses/ceres_ridley.json` | `Ridley` | arena_reveal_updates, baby_cry_sound, before_roar_updates, body_fade_step_updates, bounce_sound, contact_damage, death_drops, death_lunges, dust_effect, explosion_effect, explosion_sound, eye_fade_step_updates, eye_hold_updates, fade_steps, health, hit_flash_updates, hits_to_drive_off, piece_end_effect, reveal_delay, roar_hold_updates, roar_sound, samus_low_energy, tail_damage, tail_tip_arc_start, wounded_health |
 | `bosses/ceres_ridley_fireball.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
 | `bosses/ceres_ridley_flame.json` | `RidleyFireball` | final_timeline, flame, flame_speed, flare_across, flare_down, is |
@@ -21,6 +21,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/crocomire.json` | `Crocomire` | acid_sound, acid_sound_updates, big_dud_effect, break_through_patch, bridge_approach_x, bridge_collapse_x, bridge_sound, bridge_wall_patch, charged_beam_steps, claw_push, contact_damage, crumble_sound, death_drops, dud_effect, dust_effect, explosion_sound, fall_delay, health, melt_updates, missile_steps, mouth_shot_flash, mouth_shot_hold, mouth_shot_screen_reach, power_bomb_flash, power_bomb_steps, risen_y, rumble_sound, shake_sound, skeleton_wall_patch, spike_wall_breaking_patch, spike_wall_charge_x, spiked_wall_updates, spit_sound, step_back_screen_reach, submerged_pause, sunken_y, super_missile_steps, tongue_across, wake_distance, wall_approach_x, wall_break_sound |
 | `bosses/draygon.json` | `Draygon` | bubble_effect, chase_speed, contact_damage, dancer_effect, death_drops, dust_effect, escape_presses, eye_bubble_effect, foam_effect, goop_range, goops_per_pass, grapple_shock_damage, health, intro_dance_updates, intro_updates, right_side_distance, smoke_effect, swim_line_y, swoop_quickening, swoop_quickening_limit, swoop_quickening_per_hit, whip_shake_strength |
 | `bosses/draygon_cannon.json` | `DraygonCannon` | contact_damage, grapple_drain, health |
+| `bosses/draygon_cannon_shot.json` | `DraygonCannonShot` | chamber_size |
 | `bosses/draygon_goop.json` | `DraygonGoop` | chamber_size, most_stuck, reach_across, reach_down, stack_spacing, stack_top, stuck_timeline, stuck_updates |
 | `bosses/golden_torizo.json` | `Torizo` | awakening_timeline, close_behind, close_in_front, contact_damage, death_drops, eggs_health, face_health, fade_steps, first_attack_missiles, gut_health, health, landing_shake_strength, orb_speed_across, orb_speed_up, orbs_per_burst, repeated_jump_steps, space_jump_updates, stagger_health, start_look, start_timeline, start_tint, turn_delay |
 | `bosses/golden_torizo_drool.json` | `TorizoDrool` | drag, drift, gravity |
@@ -39,6 +40,7 @@ type's own remarks say it reads (timelines, colliders, shots, lists of its own).
 | `bosses/mother_brain_drool.json` | `MotherBrainDrool` | floor, release_drop, splash_rise, splash_timeline |
 | `bosses/mother_brain_dying_drool.json` | `MotherBrainDrool` | floor, release_drop, splash_rise, splash_timeline |
 | `bosses/mother_brain_glass.json` | `MotherBrainGlass` | burst_updates, contact_damage, health, shard_arcs, shard_drop, shatter_sound, shatter_updates, shattered_patch |
+| `bosses/mother_brain_glass_shard.json` | `MotherBrainGlassShard` | bottom, gravity, sparkle_centre, sparkle_effect, sparkle_spread |
 | `bosses/mother_brain_ring.json` | `MotherBrainRing` | floor, mouth_updates, top, view_right |
 | `bosses/mother_brain_turret.json` | `MotherBrainTurret` | contact_damage, health, least_fire_wait, least_turn_wait, smoke_effect, view_across, view_down, view_height, view_width |
 | `bosses/phantoon.json` | `Phantoon` | big_explosion_effect, big_explosion_sound, contact_damage, death_drops, dying_cry, fade_steps, flame_sound, health, rage_sound, round_damage, shot_cry, small_explosion_effect, small_explosion_sound |

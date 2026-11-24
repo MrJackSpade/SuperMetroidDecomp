@@ -425,7 +425,13 @@ public partial class Room : Node2D
     {
         if (movesLiquid)
         {
-            Liquid?.Move();
+            if (Liquid is { } liquid)
+            {
+                liquid.Move();
+                foreach (ILiquidWatcher watcher in Session.Services.OfType<ILiquidWatcher>())
+                    watcher.LiquidMoved(Session, liquid);
+            }
+
             foreach (RoomSequence sequence in _sequences)
                 sequence.OpenUpdate(this);
         }

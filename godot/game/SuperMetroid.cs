@@ -32,10 +32,18 @@ public partial class SuperMetroid : GameDefinition
     public override GameMode CreateModeAfterDeath() => new Menus.GameOverMode();
 
     /// <summary>This game adds the escape countdown, the random number the cartridge drew every frame, and which of the title's demos is due.</summary>
-    public override IReadOnlyList<ISessionService> CreateServices() => [new Escape(), new Compatibility.FrameRandom(), new Menus.DemoSchedule()];
+    public override IReadOnlyList<ISessionService> CreateServices() =>
+    [
+        new Escape(),
+        new Compatibility.FrameRandom(_random ?? throw new InvalidOperationException("The session's services were asked for before its random numbers.")),
+        new Menus.DemoSchedule(),
+    ];
+
+    /// <summary>The sequence of random numbers made for the session, which the service that draws each update's number also stirs.</summary>
+    private Compatibility.CartridgeRandom? _random;
 
     /// <summary>This game's outcomes follow the cartridge's own sequence of random numbers.</summary>
-    public override IRandomSequence CreateRandomSequence() => new Compatibility.CartridgeRandom();
+    public override IRandomSequence CreateRandomSequence() => _random = new Compatibility.CartridgeRandom();
 
     /// <summary>Sounds and music wait their turn as the cartridge's do.</summary>
     public override ISoundFlow CreateSoundFlow(Engine.Content.ContentLibrary content) => new CartridgeSounds(content);

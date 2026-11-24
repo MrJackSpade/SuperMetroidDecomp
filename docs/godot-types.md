@@ -901,7 +901,11 @@ One `Enemy` scene each unless noted. Names on one line are one scene with differ
   ceiling it breaks, the platforms and spikes that crumble, are `PatchSequence`s; the three spikes of its belly and
   its two nails are enemies of their own the room places, there until it is beaten; its rocks are `Projectile`s; the
   screens it keeps the view from until it has grown are `CameraZone`s it opens); Crocomire
-  (tongue is a part); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts);
+  (its tongue is a visual; the pieces of it a shot or Samus meets are ten hurtboxes its `ColliderPoses` place for
+  each picture, each pose saying what every piece does and how far its mouth is open; what it does in the acid is a
+  script in its data; the bridge's blocks, the walls that hold Samus in while it dies and the opened spike wall are
+  patches; the pieces of the spike wall are a `Projectile` of their own class, the bridge's pieces and its fire
+  plain ones; a room where it has been beaten places the same scene as its skeleton); Phantoon (eye, tentacles, mouth are parts); Botwoon; Draygon (eye, tail, arms are parts);
   Ridley and Ceres Ridley (one scene, two setups: one enemy written across three files, what both fights share and
   a file for each fight, chosen by its `OnCeres` setting; breakup pieces are `Effect`s); Mother Brain (her brain, the joints of her neck
   and her beam are parts of one enemy written across several files, one per part of her fight; her glass and her

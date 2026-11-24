@@ -437,10 +437,13 @@ public sealed partial class EngineAssetWriter
         return poses;
     }
 
-    /// <summary>A collider's rectangle from its edges.</summary>
+    /// <summary>
+    /// A collider's rectangle from its edges. One the old game gives no width or no height is a line a shot or Samus
+    /// still crosses: it is a pixel across.
+    /// </summary>
     private static JsonObject Rect(int left, int top, int right, int bottom) => new()
     {
-        ["left"] = left, ["top"] = top, ["width"] = right - left, ["height"] = bottom - top,
+        ["left"] = left, ["top"] = top, ["width"] = Math.Max(1, right - left), ["height"] = Math.Max(1, bottom - top),
     };
 
     /// <summary>

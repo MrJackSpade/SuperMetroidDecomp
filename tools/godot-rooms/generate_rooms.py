@@ -395,6 +395,11 @@ class Generator:
                 at=(0, 0), enemy=False, only_when=ctx.none_of([defeated]))
             links[id(boss)]['ArenaView'] = above
             extras.append(above)
+        if boss.boss == 'crocomire':
+            # A room where it has been beaten shows its skeleton where the old code lays it.
+            at = re.search(r'CorpsePosition = new\((\d+), (\d+)\);', legacy.read('Bosses', 'Crocomire', 'CrocomireArenaDefinitions.cs'))
+            extras.append(enemies.Placed(boss.scene, 'CrocomireSkeleton', {'Corpse': 'true'},
+                                         at=(int(at.group(1)), int(at.group(2))), only_when=defeated))
         if boss.boss == 'kraid':
             # The old Kraid shuts some of its room's screens as it is set up, and opens them as it grows. Each is a
             # zone, and the rows under one that opens wholly are a zone too; Kraid tells them all as it grows.

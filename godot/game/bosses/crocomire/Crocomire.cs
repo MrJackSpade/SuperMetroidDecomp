@@ -16,17 +16,36 @@ namespace Game.Enemies;
 /// river, bursts through the spike wall behind Samus, and falls apart.
 /// </summary>
 /// <remarks>
-/// Its body's timelines are "idle_sway", "awaiting_hit", "step_forward", "step_forward_after_delay", "step_back",
-/// "stepping_back", "projectile_attack", "near_spike_wall_charge", "back_off_from_spike_wall",
-/// "power_bomb_reaction", "bridge_collapsed", "in_acid", "melting_flesh", "melting_skull", "skeleton_flowing",
-/// "skeleton_falls_apart" and "dead". Their cues are "step:&lt;pixels&gt;:&lt;always|unless_hit|on_screen&gt;" with
-/// ":dust" added for a step that raises dust; "dust:&lt;across&gt;"; "fight", at which it decides what to do next;
-/// "maybe_projectile"; "shake"; "toward_spike_wall"; and "skeleton_collapsed". The visual "Tongue" plays "tongue".
-/// Its hurtbox "Mouth" is the only part a shot can move it by. Its shots are "fire" and "spike_piece". All its places
-/// are in the room's own pixels.
+/// <para>Its body's timelines are "idle_sway", "awaiting_hit", "step_forward", "step_forward_after_delay",
+/// "step_back", "stepping_back", "projectile_attack", "near_spike_wall_charge", "back_off_from_spike_wall",
+/// "power_bomb_reaction_mouth_fully_open", "power_bomb_reaction_mouth_partially_open",
+/// "power_bomb_reaction_mouth_not_open", "bridge_collapsed", the melting ones its data's "melt_looks" name,
+/// "skeleton_flowing_down_river", "skeleton_falling", "skeleton_falls_apart" and "dead". Their cues are
+/// "step:&lt;pixels&gt;:&lt;always|unless_hit|on_screen&gt;" with ":dust" added for a step that raises dust;
+/// "dust:&lt;across&gt;"; "fight", at which it decides what to do next; "maybe_projectile"; "shake";
+/// "toward_spike_wall"; "skeleton_collapsed"; and "pose:" and a name, which puts its parts where its data's "poses"
+/// have them (<see cref="ColliderPoses"/>). The visual "Tongue" plays "tongue" and, once it has begun to melt,
+/// "tongue_melting". Its shots are "fire", "bridge_fragment" and "spike_piece". All its places are in the room's own
+/// pixels.</para>
+/// <para>Its hurtboxes are "Part1" through "Part10"; a shot or Samus meets the first of them, in that order, that it
+/// reaches. A pose says what each does: under "shots", "mouth" for the one a shot moves it by, "dust" for one a shot
+/// bursts on, and "absorbed" or "plain" for one that swallows a shot; under "touches", "claw" for one that hurts and
+/// knocks back, "plain" for one that only hurts, and "none"; and under "mouth" how far its mouth is open,
+/// "fully_open", "partially_open" or "not_open", which picks how it answers a power bomb.</para>
+/// <para>Its data also gives "volley", how far down each ball of fire of a volley is aimed over the "reach" to the
+/// left; "spit", where its fire leaves it; "rumbles", the shakes of the hidden wall, each between a "return" and an
+/// "extreme" height so many "repeats" times at a "speed"; "acid_script", what it does in the acid in order: "sink",
+/// "pause", "rise", "wait:&lt;updates&gt;", "melt:&lt;shake&gt;:&lt;half period&gt;" with the "melt_updates" a melt
+/// lasts, "sound:&lt;name&gt;" and "body:&lt;whole or a name in melt_looks&gt;"; "melt_looks", for each melting body
+/// the timeline it shows at or below each height, lowest first; "bridge_fragments", where the pieces of the bridge
+/// fall from, one an update; and "spike_pieces", the pieces the spike wall breaks into.</para>
 /// </remarks>
 public partial class Crocomire : Enemy
 {
+    /// <summary>Whether this is the skeleton a room where it has been beaten shows: dead and still.</summary>
+    [Export]
+    public bool Corpse { get; set; }
+
     /// <summary>The terrain patches that crumble the first blocks of the bridge as it steps onto it, in order.</summary>
     [Export]
     public Godot.Collections.Array<string> BridgeCrumblePatches { get; set; } = [];
@@ -35,7 +54,7 @@ public partial class Crocomire : Enemy
     [Export]
     public string BridgeCollapsePatch { get; set; } = "";
 
-    /// <summary>The terrain patch that opens the spike wall its skeleton breaks through.</summary>
+    /// <summary>The terrain patch the room is left with once its skeleton has broken through the spike wall.</summary>
     [Export]
     public string SpikeWallPatch { get; set; } = "";
 
@@ -76,16 +95,72 @@ public partial class Crocomire : Enemy
     public int SubmergedPause { get; set; } = 49;
 
     /// <summary>How many updates each of its two meltings takes.</summary>
-    [Export, DataValue("dissolve_updates")]
-    public int DissolveUpdates { get; set; } = 98;
+    [Export, DataValue("melt_updates")]
+    public int MeltUpdates { get; set; } = 54;
+
+    /// <summary>How many updates apart the acid is heard burning it.</summary>
+    [Export, DataValue("acid_sound_updates")]
+    public int AcidSoundUpdates { get; set; } = 32;
 
     /// <summary>How far across the room Samus must have come back, in pixels, for its skeleton to break out.</summary>
     [Export, DataValue("wall_approach_x")]
     public int WallApproachX { get; set; } = 640;
 
+    /// <summary>How many updates the wall shows its spikes after it has rumbled, before the skeleton breaks through.</summary>
+    [Export, DataValue("spiked_wall_updates")]
+    public int SpikedWallUpdates { get; set; } = 129;
+
+    /// <summary>How many updates its skeleton waits, broken out, before it falls.</summary>
+    [Export, DataValue("fall_delay")]
+    public int FallDelay { get; set; } = 80;
+
     /// <summary>How many things it drops when its skeleton falls apart.</summary>
     [Export, DataValue("death_drops")]
     public int DeathDrops { get; set; } = 16;
+
+    /// <summary>How far past the left of the view its near edge may be for a step back to move it, in pixels.</summary>
+    [Export, DataValue("step_back_screen_reach")]
+    public int StepBackScreenReach { get; set; } = 260;
+
+    /// <summary>How far past the left of the view its near edge may be for a shot in the mouth to count for what it is, in pixels.</summary>
+    [Export, DataValue("mouth_shot_screen_reach")]
+    public int MouthShotScreenReach { get; set; } = 256;
+
+    /// <summary>How many updates a shot in the mouth holds it as it is.</summary>
+    [Export, DataValue("mouth_shot_hold")]
+    public int MouthShotHold { get; set; } = 8;
+
+    /// <summary>How many updates a shot in the mouth makes it flash.</summary>
+    [Export, DataValue("mouth_shot_flash")]
+    public int MouthShotFlash { get; set; } = 14;
+
+    /// <summary>How many updates a power bomb makes it flash.</summary>
+    [Export, DataValue("power_bomb_flash")]
+    public int PowerBombFlash { get; set; } = 4;
+
+    /// <summary>How many steps back a charged beam in the mouth drives it.</summary>
+    [Export, DataValue("charged_beam_steps")]
+    public int ChargedBeamSteps { get; set; } = 2;
+
+    /// <summary>How many steps back a missile in the mouth drives it.</summary>
+    [Export, DataValue("missile_steps")]
+    public int MissileSteps { get; set; } = 1;
+
+    /// <summary>How many steps back a super missile in the mouth drives it.</summary>
+    [Export, DataValue("super_missile_steps")]
+    public int SuperMissileSteps { get; set; } = 3;
+
+    /// <summary>How many steps a power bomb sets it charging.</summary>
+    [Export, DataValue("power_bomb_steps")]
+    public int PowerBombSteps { get; set; } = 3;
+
+    /// <summary>How far a claw's touch knocks Samus back, in pixels; left, when less than nothing.</summary>
+    [Export, DataValue("claw_push")]
+    public int ClawPush { get; set; } = -4;
+
+    /// <summary>How far right of its place its tongue is, in pixels.</summary>
+    [Export, DataValue("tongue_across")]
+    public int TongueAcross { get; set; } = 23;
 
     /// <summary>The effect of a cloud of dust, by the data file of its timeline.</summary>
     [Export, DataValue("dust_effect")]
@@ -94,6 +169,10 @@ public partial class Crocomire : Enemy
     /// <summary>The effect of a shot bursting harmlessly on it.</summary>
     [Export, DataValue("dud_effect")]
     public string DudEffect { get; set; } = "";
+
+    /// <summary>The effect of a super missile bursting harmlessly on it.</summary>
+    [Export, DataValue("big_dud_effect")]
+    public string BigDudEffect { get; set; } = "";
 
     /// <summary>The sound of it spitting fire, by name.</summary>
     [Export, DataValue("spit_sound")]
@@ -111,10 +190,6 @@ public partial class Crocomire : Enemy
     [Export, DataValue("acid_sound")]
     public string AcidSound { get; set; } = "";
 
-    /// <summary>Its cry as it melts.</summary>
-    [Export, DataValue("melt_cry")]
-    public string MeltCry { get; set; } = "";
-
     /// <summary>The sound of the wall rumbling before its skeleton breaks out.</summary>
     [Export, DataValue("rumble_sound")]
     public string RumbleSound { get; set; } = "";
@@ -123,12 +198,29 @@ public partial class Crocomire : Enemy
     [Export, DataValue("explosion_sound")]
     public string ExplosionSound { get; set; } = "";
 
-    // The slants of the nine shots of a volley: how far down each is aimed over 64 pixels to the left.
-    private static readonly int[] VolleyGradients = [0, 32, -16, 0, 32, -16, 0, 32, 0];
+    /// <summary>The sound of the wall crumbling as its skeleton breaks through.</summary>
+    [Export, DataValue("crumble_sound")]
+    public string CrumbleSound { get; set; } = "";
 
-    // The rumbling of the hidden wall: it shakes between two heights, a number of times at a speed, harder and then easing.
-    private static readonly (int Return, int Extreme, int Repeats, int Speed)[] Rumbles =
-        [(0, -1, 10, 1), (1, -1, 8, 1), (1, -2, 12, 1), (2, -2, 16, 2), (2, -4, 16, 2), (1, -2, 8, 1), (1, -1, 3, 1)];
+    /// <summary>The sound of the spike wall breaking apart.</summary>
+    [Export, DataValue("wall_break_sound")]
+    public string WallBreakSound { get; set; } = "";
+
+    /// <summary>The terrain patch that walls Samus in behind the fallen bridge until its skeleton is carried off.</summary>
+    [Export, DataValue("bridge_wall_patch")]
+    public string BridgeWallPatch { get; set; } = "";
+
+    /// <summary>The terrain patch that walls Samus in before the hidden wall until its skeleton lies dead.</summary>
+    [Export, DataValue("skeleton_wall_patch")]
+    public string SkeletonWallPatch { get; set; } = "";
+
+    /// <summary>The terrain patch of the spike wall as the skeleton breaks through it: the way it came by opened, the way on still shut.</summary>
+    [Export, DataValue("spike_wall_breaking_patch")]
+    public string SpikeWallBreakingPatch { get; set; } = "";
+
+    /// <summary>The terrain patch of the blocks beyond the bridge that the skeleton's breaking through clears.</summary>
+    [Export, DataValue("break_through_patch")]
+    public string BreakThroughPatch { get; set; } = "";
 
     private enum Phase
     {
@@ -154,25 +246,45 @@ public partial class Crocomire : Enemy
         WaitingToFall,
         Arcing,
         Collapsing,
+        Settling,
         Corpse,
     }
 
-    // What it does in the acid, in order: sink, rest, rise, or melt.
+    // What it does in the acid, a step at a time.
     private enum Acid
     {
         Sink,
         Pause,
         Rise,
-        MeltFlesh,
-        MeltSkull,
+        Wait,
+        Melt,
+        Sound,
+        Body,
     }
 
-    private static readonly Acid[] AcidScript =
-    [
-        Acid.Sink, Acid.Pause, Acid.Rise, Acid.Sink, Acid.Pause, Acid.Rise, Acid.Sink,
-        Acid.Rise, Acid.MeltFlesh, Acid.Sink, Acid.Pause, Acid.Rise, Acid.Sink, Acid.Pause, Acid.Rise, Acid.Sink,
-        Acid.Rise, Acid.MeltSkull, Acid.Sink,
-    ];
+    private sealed record AcidStep(Acid Does, int Count, int Shake, int ShakeHalfPeriod, string Name);
+
+    private sealed record PiecePart(string Shot, string Touch);
+
+    private sealed record SpikePiece(int Depth, Pixels Growth, Pixels Most, int Fastest, string Sound);
+
+    private readonly Dictionary<string, Dictionary<string, PiecePart>> _partsIn = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _mouthIn = new(StringComparer.Ordinal);
+    private readonly List<int> _volley = [];
+    private readonly List<(int Return, int Extreme, int Repeats, int Speed)> _rumbles = [];
+    private readonly List<AcidStep> _acidScript = [];
+    private readonly Dictionary<string, List<(int FromY, string Timeline)>> _meltLooks = new(StringComparer.Ordinal);
+    private readonly List<int> _fragmentXs = [];
+    private readonly List<SpikePiece> _spikePieces = [];
+    private ColliderPoses? _poses;
+    private int _volleyReach = 64;
+    private PixelOffset _spitFrom;
+    private int _fragmentY;
+    private Pixels _fragmentSlowestFall;
+    private PixelPosition _spikeWallTop;
+    private Pixels _pieceLaunchSpeed;
+    private Pixels _pieceGravity;
+    private int _pieceLandingY;
 
     private Phase _phase;
     private Dying _dying;
@@ -182,23 +294,97 @@ public partial class Crocomire : Enemy
     private int _approachStages;
     private int _acidStep;
     private int _wait;
+    private int _hold;
     private Pixels _downSpeed;
     private Pixels _downQuickening;
     private int _acidSoundIn = 1;
     private int _rumble;
     private int _rumbleRepeats;
     private int _rumbleOffset;
+    private bool _rumbleToExtreme;
+    private bool _skeletonCollapsed;
+    private string _mouth = "not_open";
+    private string _acidBody = "whole";
+    private int _meltBaseX;
+    private int _fragmentsFallen;
+    private TimelinePlayer? _tongue;
 
     /// <summary>How far the wall it hides behind is rattled up or down this update, in pixels; zero when it is not.</summary>
     public int WallRumble => _dying == Dying.Rumbling ? _rumbleOffset : 0;
-    private bool _rumbleToExtreme;
-    private bool _skeletonCollapsed;
-    private TimelinePlayer? _tongue;
+
+    /// <inheritdoc/>
+    public override void ReadValues(DataNode data)
+    {
+        base.ReadValues(data);
+        _poses = ColliderPoses.Read(data.Get("poses"), this);
+        _partsIn.Clear();
+        _mouthIn.Clear();
+        foreach ((string name, DataNode pose) in data.Get("poses").Entries())
+        {
+            var parts = new Dictionary<string, PiecePart>(StringComparer.Ordinal);
+            foreach ((string part, DataNode shot) in pose.Get("shots").Entries())
+                parts[part] = new PiecePart(shot.AsText(), pose.Get("touches").Text(part));
+            _partsIn[name] = parts;
+            _mouthIn[name] = pose.Text("mouth");
+        }
+
+        DataNode volley = data.Get("volley");
+        _volleyReach = volley.Int("reach");
+        _volley.Clear();
+        _volley.AddRange(volley.List("gradients").Select(gradient => gradient.AsInt()));
+        _spitFrom = PixelOffset.FromWhole(data.Get("spit").Int("x"), data.Get("spit").Int("y"));
+        _rumbles.Clear();
+        _rumbles.AddRange(data.List("rumbles").Select(rumble => (rumble.Int("return"), rumble.Int("extreme"), rumble.Int("repeats"), rumble.Int("speed"))));
+        _acidScript.Clear();
+        foreach (DataNode step in data.List("acid_script"))
+        {
+            string[] parts = step.AsText().Split(':');
+            int Number(int index) => int.Parse(parts[index], CultureInfo.InvariantCulture);
+            _acidScript.Add(parts[0] switch
+            {
+                "sink" => new AcidStep(Acid.Sink, 0, 0, 0, ""),
+                "pause" => new AcidStep(Acid.Pause, 0, 0, 0, ""),
+                "rise" => new AcidStep(Acid.Rise, 0, 0, 0, ""),
+                "wait" => new AcidStep(Acid.Wait, Number(1), 0, 0, ""),
+                "melt" => new AcidStep(Acid.Melt, MeltUpdates, Number(1), Number(2), ""),
+                "sound" => new AcidStep(Acid.Sound, 0, 0, 0, parts[1]),
+                "body" => new AcidStep(Acid.Body, 0, 0, 0, parts[1]),
+                _ => throw step.Problem("is nothing Crocomire does in the acid"),
+            });
+        }
+
+        if (_acidScript.Count == 0 || _acidScript[0].Does != Acid.Sink)
+            throw data.Problem("must begin what Crocomire does in the acid with a sink");
+        _meltLooks.Clear();
+        foreach ((string body, DataNode looks) in data.Get("melt_looks").Entries())
+            _meltLooks[body] = [.. looks.Items().Select(look => (look.Int("from_y"), look.Text("timeline")))];
+        DataNode fragments = data.Get("bridge_fragments");
+        _fragmentY = fragments.Int("y");
+        _fragmentSlowestFall = fragments.Distance("slowest_fall");
+        _fragmentXs.Clear();
+        _fragmentXs.AddRange(fragments.List("xs").Select(x => x.AsInt()));
+        DataNode pieces = data.Get("spike_pieces");
+        _spikeWallTop = PixelPosition.FromWhole(pieces.Int("x"), pieces.Int("y"));
+        _pieceLaunchSpeed = pieces.Distance("launch_speed");
+        _pieceGravity = pieces.Distance("gravity");
+        _pieceLandingY = pieces.Int("landing_y");
+        _spikePieces.Clear();
+        _spikePieces.AddRange(pieces.List("pieces").Select(piece =>
+            new SpikePiece(piece.Int("depth"), piece.Distance("growth"), piece.Distance("most"), piece.Int("fastest"), piece.Text("sound"))));
+    }
 
     /// <inheritdoc/>
     protected override void OnEnterRoom()
     {
         AlwaysActive = true;
+        _poses?.TakeNone();
+        if (Corpse)
+        {
+            _dying = Dying.Corpse;
+            Play("dead");
+            return;
+        }
+
         Play("idle_sway");
         _tongue = new TimelinePlayer(Timelines.Get("tongue"));
     }
@@ -207,49 +393,96 @@ public partial class Crocomire : Enemy
     protected override Reaction ReactionTo(Hit hit, Collider part) =>
         base.ReactionTo(hit, part) with { DamageTimes = 0, Status = "", StatusWhen = StatusWhen.Never };
 
+    /// <summary>What the piece of it a shot or Samus has met does, in the pose it is in.</summary>
+    private PiecePart PartMet(Collider part)
+    {
+        string pose = _poses?.Current ?? "";
+        return _partsIn.TryGetValue(pose, out Dictionary<string, PiecePart>? parts) && parts.TryGetValue(part.Name, out PiecePart? met)
+            ? met
+            : throw new InvalidOperationException($"Crocomire's pose \"{pose}\" does not say what its part \"{part.Name}\" does.");
+    }
+
     /// <inheritdoc/>
     protected override void OnAbsorbed(Hit hit, Collider part)
     {
-        if (_dying != Dying.Fighting)
-            return;
         if (hit.Carries(new HitKind(HitKinds.PowerBomb)))
         {
-            // A power bomb drives it back three steps wherever it lands.
-            _steps = 3;
+            if (_dying != Dying.Fighting)
+                return;
+            // A power bomb sets it charging so many steps wherever it lands.
+            _steps = PowerBombSteps;
             if (_phase == Phase.PowerBombCharge)
                 return;
+            FlashFor(PowerBombFlash);
             _phase = Phase.PowerBombCharge;
-            Play("power_bomb_reaction", restart: true);
+            Play("power_bomb_reaction_mouth_" + _mouth, restart: true);
             return;
         }
 
         PixelPosition at = hit.Source is ICollisionOwner source ? source.Position : Position;
-        if (part.Name != "Mouth")
+        switch (PartMet(part).Shot)
         {
-            if (DudEffect.Length > 0)
-                LeaveEffect(DudEffect, at);
-            return;
+            case "absorbed" or "plain":
+                return;
+            case "dust":
+                BurstShot(hit, at);
+                return;
+            case "mouth":
+                break;
+            default:
+                throw new InvalidOperationException($"Crocomire's part \"{part.Name}\" meets a shot in a way it does not know.");
         }
 
-        // Only a shot in the mouth moves it, and only while its near edge is in view.
+        if (_dying != Dying.Fighting)
+            return;
+        // A shot in the mouth counts for what it is only while its near edge is far enough into view; out of view it
+        // is a hit all the same, and drives it back no steps.
         int steps = 0;
-        if (IsInView(Engine.World.EntityNode.ColliderOf(this, ColliderRole.Body)?.Size.X / 2 ?? 0))
+        if (NearEdgeIsWithin(MouthShotScreenReach))
         {
             bool beam = hit.Carries(new HitKind(HitKinds.Beam));
             if (beam && !hit.Carries(new HitKind(HitKinds.Charged)))
             {
-                if (DudEffect.Length > 0)
-                    LeaveEffect(DudEffect, at);
+                // A beam that is not charged only holds it a moment and bursts.
+                _hold = MouthShotHold;
+                BurstShot(hit, at);
                 return;
             }
 
-            steps = hit.Carries(new HitKind(HitKinds.SuperMissile)) ? 3 : hit.Carries(new HitKind(HitKinds.Missile)) ? 1 : beam ? 2 : -1;
+            steps = hit.Carries(new HitKind(HitKinds.SuperMissile)) ? SuperMissileSteps
+                : hit.Carries(new HitKind(HitKinds.Missile)) ? MissileSteps
+                : beam ? ChargedBeamSteps
+                : -1;
         }
 
-        if (steps < 0)
-            return;
-        _steps += steps;
-        _hitPending = true;
+        if (steps >= 0)
+        {
+            _steps += steps;
+            if (!_hitPending)
+                _hold += MouthShotHold;
+            _hitPending = true;
+        }
+
+        FlashFor(MouthShotFlash);
+    }
+
+    /// <summary>Leaves the burst of a shot that does it no harm: the big one for a super missile.</summary>
+    private void BurstShot(Hit hit, PixelPosition at)
+    {
+        string burst = hit.Carries(new HitKind(HitKinds.SuperMissile)) ? BigDudEffect : DudEffect;
+        if (burst.Length > 0)
+            LeaveEffect(burst, at);
+    }
+
+    /// <summary>Whether its near edge lies less than <paramref name="reach"/> pixels right of the view's left edge.</summary>
+    private bool NearEdgeIsWithin(int reach) =>
+        Position.X.Whole - (Body?.Size.X ?? 0) / 2 - reach < Room.Session.Camera.Left;
+
+    /// <summary>Whether the number last drawn lies in the half of all numbers that begins at <paramref name="from"/>.</summary>
+    private bool DrawnInHalfFrom(int from)
+    {
+        long above = (long)Random.Last.Number - from;
+        return above is >= 0 and < 32768;
     }
 
     /// <inheritdoc/>
@@ -258,14 +491,20 @@ public partial class Crocomire : Enemy
         string[] parts = cue.Split(':');
         switch (parts[0])
         {
+            case "pose":
+                (_poses ?? throw new InvalidOperationException("Crocomire's data has not been read.")).Take(parts[1]);
+                _mouth = _mouthIn[parts[1]];
+                break;
             case "step":
+                // Its foot raises dust up to 31 pixels to one side of it or the other, by the number last drawn.
                 if (parts.Length > 3)
-                    RaiseDust((Random.Last.Part(8, 1) == 1 ? -1 : 1) * Random.Last.Part(0, 5));
+                    RaiseDust((DrawnInHalfFrom(4096) ? -1 : 1) * Random.Last.Part(0, 5));
                 bool moves = parts[2] switch
                 {
                     "always" => true,
                     "unless_hit" => !_hitPending,
-                    _ => IsInView(4),
+                    "on_screen" => NearEdgeIsWithin(StepBackScreenReach),
+                    _ => throw new InvalidOperationException($"Crocomire takes a step \"{parts[2]}\", which it does not know."),
                 };
                 if (moves)
                     MoveAcrossBy(Pixels.FromWhole(int.Parse(parts[1], CultureInfo.InvariantCulture)));
@@ -299,26 +538,40 @@ public partial class Crocomire : Enemy
                 }
                 else
                 {
-                    RaiseDust((Random.Last.Part(8, 1) == 1 ? -32 : 32) + Random.Last.Part(0, 4));
+                    RaiseDust((DrawnInHalfFrom(2048) ? -32 : 32) + Random.Last.Part(0, 4));
                 }
 
                 break;
             case "skeleton_collapsed":
                 _skeletonCollapsed = true;
                 break;
+            default:
+                throw new InvalidOperationException($"Crocomire's timeline \"{Playing}\" gives the cue \"{cue}\", which it does not know.");
         }
     }
 
     /// <inheritdoc/>
     protected override void Touch(Collider part)
     {
-        if (_dying is Dying.Fighting)
-            base.Touch(part);
+        if (_dying is not Dying.Fighting)
+            return;
+        string touch = PartMet(part).Touch;
+        if (touch == "none")
+            return;
+        base.Touch(part);
+        // A claw knocks her back as well.
+        if (touch == "claw")
+            ShiftPlayer(PixelOffset.FromWhole(ClawPush, 0));
     }
 
     /// <inheritdoc/>
     protected override void Behave()
     {
+        // A shot in the mouth holds its timeline where it is for a moment.
+        if (_hold > 0)
+            _hold--;
+        HoldsTimeline = _hold > 0;
+
         if (_dying == Dying.Fighting)
         {
             BlockSamus();
@@ -332,7 +585,9 @@ public partial class Crocomire : Enemy
         if (_tongue is not null && GetNodeOrNull<ActorVisual>("Tongue") is { } tongue)
         {
             _tongue.Step();
-            tongue.SetShown(_dying is Dying.Fighting or Dying.InAcid);
+            tongue.Position = new Vector2(TongueAcross, 0);
+            // Its tongue shows while it fights, and again in the acid once it has begun to melt.
+            tongue.SetShown(_dying == Dying.Fighting || (_dying == Dying.InAcid && _acidBody != "whole"));
             tongue.Show(_tongue.Current);
         }
     }
@@ -371,9 +626,9 @@ public partial class Crocomire : Enemy
             case Phase.ProjectileAttack:
                 if (StepBackIfHit(Phase.SteppingBack) is { } back)
                     return back;
-                if (_shotsSpat < VolleyGradients.Length)
+                if (_shotsSpat < _volley.Count)
                 {
-                    Spit(VolleyGradients[_shotsSpat++]);
+                    Spit(_volley[_shotsSpat++]);
                     return null;
                 }
 
@@ -430,26 +685,26 @@ public partial class Crocomire : Enemy
     /// <summary>Spits one ball of fire, aimed on a slant.</summary>
     private void Spit(int gradient)
     {
-        int bearing = Turns.AngleOf(-64, gradient);
+        int bearing = Turns.AngleOf(-_volleyReach, gradient);
         Pixels speed = Shot("fire").Speed;
-        Fire("fire", PixelPosition.FromWhole(Position.X.Whole - 32, Position.Y.Whole - 16), new PixelVelocity(Turns.Cosine(bearing, speed), Turns.Sine(bearing, speed)));
+        Fire("fire", Position + _spitFrom, new PixelVelocity(Turns.Cosine(bearing, speed), Turns.Sine(bearing, speed)));
         Sound(SpitSound);
     }
 
-    /// <summary>Raises a puff of dust at its feet, a way across from its middle.</summary>
+    /// <summary>Raises a puff of dust at its feet, a way across from its middle and up to 7 pixels further right by the number last drawn.</summary>
     private void RaiseDust(int across)
     {
         if (DustEffect.Length == 0)
             return;
-        int below = (Engine.World.EntityNode.ColliderOf(this, ColliderRole.Body)?.Size.Y ?? 0) / 2 - 16;
-        LeaveEffect(DustEffect, PixelPosition.FromWhole(Position.X.Whole + across, Position.Y.Whole + below + Random.Last.Part(0, 3)));
+        int below = (Body?.Size.Y ?? 0) / 2 - 16;
+        LeaveEffect(DustEffect, PixelPosition.FromWhole(Position.X.Whole + across + Random.Last.Part(0, 3), Position.Y.Whole + below));
     }
 
     /// <summary>Keeps Samus from ever getting past it: at its near edge she is hurt and thrown back.</summary>
     private void BlockSamus()
     {
         Player samus = Room.Player;
-        int halfWidth = (Engine.World.EntityNode.ColliderOf(this, ColliderRole.Body)?.Size.X ?? 0) / 2;
+        int halfWidth = (Body?.Size.X ?? 0) / 2;
         int edge = Position.X.Whole - halfWidth - samus.BodyRect.Width / 2;
         if (edge >= samus.Position.X.Whole)
             return;
@@ -483,12 +738,18 @@ public partial class Crocomire : Enemy
             return;
         _dying = Dying.InAcid;
         _acidStep = 0;
+        _acidBody = "whole";
+        _fragmentsFallen = 0;
+        _hold = 0;
         Play("bridge_collapsed", restart: true);
         _downSpeed = Pixels.Zero;
         _downQuickening = Pixels.FromNumber(1.0 / 32);
         Sound(BridgeSound);
         if (BridgeCollapsePatch.Length > 0)
             Room.Terrain.ApplyPatch(BridgeCollapsePatch);
+        // Samus is walled in on the bridge's side until its skeleton is carried off.
+        if (BridgeWallPatch.Length > 0)
+            Room.Terrain.ApplyPatch(BridgeWallPatch);
         for (int puff = 0; puff < 7 && DustEffect.Length > 0; puff++)
             LeaveEffect(DustEffect, PixelPosition.FromWhole(BridgeApproachX + 16 * puff, puff is 0 or 2 ? 176 : 192));
     }
@@ -516,7 +777,10 @@ public partial class Crocomire : Enemy
                     break;
                 if (FightMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(FightMusic);
-                (_rumble, _rumbleOffset, _rumbleToExtreme, _rumbleRepeats) = (0, 0, false, Rumbles[0].Repeats);
+                if (SkeletonWallPatch.Length > 0)
+                    Room.Terrain.ApplyPatch(SkeletonWallPatch);
+                (_rumble, _rumbleOffset, _rumbleToExtreme, _rumbleRepeats) = (0, 0, false, _rumbles.Count > 0 ? _rumbles[0].Repeats : 0);
+                _hitPending = false;
                 _dying = Dying.Rumbling;
                 break;
 
@@ -528,21 +792,34 @@ public partial class Crocomire : Enemy
                 if (--_wait > 0)
                     break;
                 Position = PixelPosition.FromWhole(480, 54);
-                _wait = 80;
+                _wait = FallDelay;
                 Velocity = PixelVelocity.Zero;
-                if (SpikeWallPatch.Length > 0)
-                    Room.Terrain.ApplyPatch(SpikeWallPatch);
-                // The spike wall flies apart, top to bottom, each piece slower than the one above.
-                int[] fastest = [6, 5, 4, 3, 2, 2, 1, 1];
-                for (int piece = fastest.Length - 1; piece >= 0; piece--)
-                    Fire("spike_piece", PixelPosition.FromWhole(528, 56 + 16 * piece), new PixelVelocity(Pixels.FromWhole(fastest[piece]).Share(1, 2), Pixels.FromNumber(-143.0 / 32)));
-                Sound(ExplosionSound);
+                if (SpikeWallBreakingPatch.Length > 0)
+                    Room.Terrain.ApplyPatch(SpikeWallBreakingPatch);
+                if (BreakThroughPatch.Length > 0)
+                    Room.Terrain.ApplyPatch(BreakThroughPatch);
+                Sound(CrumbleSound);
+                Play("skeleton_falls_apart", restart: true);
+                foreach (Projectile shot in Room.Projectiles.Where(projectile => projectile.Side == HitSide.Enemies).ToList())
+                    Room.Remove(shot);
+                // The spike wall flies apart, its lowest piece first.
+                foreach (SpikePiece piece in _spikePieces.AsEnumerable().Reverse())
+                {
+                    Projectile fired = Fire("spike_piece", _spikeWallTop + PixelOffset.FromWhole(0, piece.Depth), PixelVelocity.Zero);
+                    (fired as CrocomireSpikePiece ?? throw new InvalidOperationException("Crocomire's shot \"spike_piece\" is not a piece of its spike wall."))
+                        .Begin(piece.Growth, piece.Most, piece.Fastest, _pieceLaunchSpeed, _pieceGravity, _pieceLandingY, DustEffect, piece.Sound, ExplosionSound);
+                }
+
+                Sound(WallBreakSound);
                 _dying = Dying.WaitingToFall;
                 break;
 
             case Dying.WaitingToFall:
-                if (--_wait <= 0)
-                    _dying = Dying.Arcing;
+                if (--_wait > 0)
+                    break;
+                Velocity = Velocity.WithX(Pixels.FromWhole(Velocity.X.Whole));
+                Play("skeleton_falling", restart: true);
+                _dying = Dying.Arcing;
                 break;
 
             case Dying.Arcing:
@@ -561,12 +838,23 @@ public partial class Crocomire : Enemy
                     break;
                 Play("dead", restart: true);
                 Position += PixelOffset.FromWhole(64, 21);
+                if (SkeletonWallPatch.Length > 0)
+                    Room.Terrain.RevertPatch(SkeletonWallPatch);
                 for (int drop = 0; drop < DeathDrops; drop++)
                 {
                     RandomDraw draw = Random.Draw();
                     Drop(Drops, PixelPosition.FromWhole(576 + draw.Part(0, 7), 96 + draw.Part(8, 6)));
                 }
 
+                // The way on opens on the next update, and its defeat is settled three updates after that.
+                (_dying, _wait) = (Dying.Settling, 4);
+                break;
+
+            case Dying.Settling:
+                if (_wait == 4 && SpikeWallPatch.Length > 0)
+                    Room.Terrain.ApplyPatch(SpikeWallPatch);
+                if (--_wait > 0)
+                    break;
                 if (TensionMusic.Length > 0)
                     Room.Session.Sounds.RequestMusic(TensionMusic);
                 RaiseDust(-16);
@@ -578,23 +866,50 @@ public partial class Crocomire : Enemy
         }
     }
 
-    /// <summary>Moves one update of its thrashing in the acid: sinking, resting, heaving up, and twice melting.</summary>
+    /// <summary>Moves one update of what it does in the acid.</summary>
     private void StepInAcid()
     {
-        if (--_acidSoundIn <= 0)
+        // While it is whole the acid is heard burning it.
+        if (_acidBody == "whole" && --_acidSoundIn <= 0)
         {
-            _acidSoundIn = 32;
+            _acidSoundIn = AcidSoundUpdates;
             Sound(AcidSound);
         }
 
-        switch (AcidScript[_acidStep])
+        // The pieces of the bridge fall after it, one an update, each a little faster or slower by the number last drawn.
+        if (_fragmentsFallen < _fragmentXs.Count)
+        {
+            Fire("bridge_fragment", PixelPosition.FromWhole(_fragmentXs[_fragmentsFallen++], _fragmentY),
+                new PixelVelocity(Pixels.Zero, _fragmentSlowestFall + Pixels.FromNumber(Random.Last.Part(0, 6) / 256.0)));
+        }
+
+        // A sound, or a change of the body it shows, takes no update of its own.
+        while (_acidScript[_acidStep].Does is Acid.Sound or Acid.Body)
+        {
+            AcidStep told = _acidScript[_acidStep];
+            if (told.Does == Acid.Sound)
+            {
+                Sound(told.Name);
+            }
+            else
+            {
+                if (_acidBody == "whole" && told.Name != "whole" && _tongue is not null)
+                    _tongue = new TimelinePlayer(Timelines.Get("tongue_melting"));
+                _acidBody = told.Name;
+            }
+
+            if (!NextAcidStep())
+                return;
+        }
+
+        AcidStep step = _acidScript[_acidStep];
+        switch (step.Does)
         {
             case Acid.Sink:
                 _hitPending = false;
                 if (Position.Y.Whole >= SunkenY)
                 {
                     NextAcidStep();
-                    _wait = SubmergedPause;
                     _downQuickening = Pixels.Zero;
                     break;
                 }
@@ -619,7 +934,6 @@ public partial class Crocomire : Enemy
                     NextAcidStep();
                     _downSpeed = Pixels.Zero;
                     _downQuickening = Pixels.FromNumber(1.0 / 32);
-                    _wait = DissolveUpdates;
                     break;
                 }
 
@@ -630,41 +944,78 @@ public partial class Crocomire : Enemy
                 Position -= new PixelOffset(Pixels.Zero, _downSpeed);
                 break;
 
-            case Acid.MeltFlesh or Acid.MeltSkull:
-                if (_wait == DissolveUpdates)
-                {
-                    Play(AcidScript[_acidStep] == Acid.MeltFlesh ? "melting_flesh" : "melting_skull", restart: true);
-                    Sound(MeltCry);
-                }
-
+            case Acid.Wait:
                 if (--_wait <= 0)
                     NextAcidStep();
                 break;
+
+            case Acid.Melt:
+                // It shakes as it melts: a little to the right on every other pair of updates.
+                Position = new PixelPosition(Pixels.FromWhole(_meltBaseX + (_wait / Math.Max(1, step.ShakeHalfPeriod) % 2 == 1 ? step.Shake : 0)), Position.Y);
+                if (--_wait > 0)
+                    break;
+                Position = new PixelPosition(Pixels.FromWhole(_meltBaseX), Position.Y);
+                NextAcidStep();
+                break;
+        }
+
+        ShowMelting();
+    }
+
+    /// <summary>Shows as much of its melting body as stands above the acid at the height it is at.</summary>
+    private void ShowMelting()
+    {
+        if (_dying != Dying.InAcid || !_meltLooks.TryGetValue(_acidBody, out List<(int FromY, string Timeline)>? looks))
+            return;
+        foreach ((int fromY, string timeline) in looks)
+        {
+            if (Position.Y.Whole >= fromY)
+            {
+                Play(timeline);
+                return;
+            }
         }
     }
 
-    /// <summary>Goes on to the next thing it does in the acid; after the last, its skeleton is carried off down the river.</summary>
-    private void NextAcidStep()
+    /// <summary>
+    /// Goes on to the next thing it does in the acid, and returns whether there is one; after the last, its skeleton
+    /// is carried off down the river.
+    /// </summary>
+    private bool NextAcidStep()
     {
-        if (++_acidStep < AcidScript.Length)
-            return;
+        if (++_acidStep < _acidScript.Count)
+        {
+            AcidStep next = _acidScript[_acidStep];
+            // A rest under the acid, a wait and a melt each last their own time.
+            if (next.Does == Acid.Pause)
+                _wait = SubmergedPause;
+            else if (next.Does is Acid.Wait or Acid.Melt)
+                _wait = next.Count;
+            if (next.Does == Acid.Melt)
+                _meltBaseX = Position.X.Whole;
+            return true;
+        }
+
         _dying = Dying.FlowingDownRiver;
         if (TensionMusic.Length > 0)
             Room.Session.Sounds.RequestMusic(TensionMusic);
-        Play("skeleton_flowing", restart: true);
+        if (BridgeWallPatch.Length > 0)
+            Room.Terrain.RevertPatch(BridgeWallPatch);
+        Play("skeleton_flowing_down_river", restart: true);
+        return false;
     }
 
     /// <summary>Shakes the hidden wall up and down, harder and then easing, until its skeleton is ready to break out.</summary>
     private void Rumble()
     {
-        if (_rumble >= Rumbles.Length)
+        if (_rumble >= _rumbles.Count)
         {
-            _wait = 129;
+            _wait = SpikedWallUpdates;
             _dying = Dying.BaringSkeleton;
             return;
         }
 
-        (int back, int extreme, _, int speed) = Rumbles[_rumble];
+        (int back, int extreme, _, int speed) = _rumbles[_rumble];
         int target = _rumbleToExtreme ? extreme : back;
         if (_rumbleOffset != target)
         {
@@ -686,7 +1037,7 @@ public partial class Crocomire : Enemy
             return;
         }
 
-        if (++_rumble < Rumbles.Length)
-            _rumbleRepeats = Rumbles[_rumble].Repeats;
+        if (++_rumble < _rumbles.Count)
+            _rumbleRepeats = _rumbles[_rumble].Repeats;
     }
 }

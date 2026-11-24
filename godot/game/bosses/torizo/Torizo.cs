@@ -148,6 +148,9 @@ public partial class Torizo : Enemy
     [Export, DataValue("death_drops")]
     public int DeathDrops { get; set; } = 16;
 
+    /// <summary>The farthest down it ever feels for the ground as it walks, in pixels.</summary>
+    private const int FarthestGroundReach = 15;
+
     private enum Stage
     {
         Idle,
@@ -193,7 +196,11 @@ public partial class Torizo : Enemy
     private bool _fighting;
     private bool _restingFall;
     private int _decisions;
-    private int _stride;
+    /// <summary>
+    /// How far down it feels for the ground as it walks, in pixels: one more than its stride, and as far as it ever
+    /// feels from a leap until its next step, the speed of the leap being what the old game measures it by.
+    /// </summary>
+    private int _groundReach = 1;
     private int _spaceJumping;
     private Countdown? _turnTowardSamus;
     private Pixels _jumpGravity;
@@ -454,10 +461,11 @@ public partial class Torizo : Enemy
                 }
 
                 // It feels for the ground under its stride; with none there it falls.
-                if (!MoveDownBy(Pixels.FromWhole(Math.Min(Math.Abs(_stride) + 1, 15))))
+                if (!MoveDownBy(Pixels.FromWhole(_groundReach)))
                 {
                     Play($"facing_{Side}_falling", restart: true);
                     Velocity = PixelVelocity.Zero;
+                    _groundReach = 1;
                     FallAtRest();
                 }
 
@@ -556,8 +564,9 @@ public partial class Torizo : Enemy
                 break;
 
             case "walk":
-                _stride = int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
-                if (MoveAcrossBy(Pixels.FromWhole(_stride)))
+                int stride = int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+                _groundReach = Math.Min(Math.Abs(stride) + 1, FarthestGroundReach);
+                if (MoveAcrossBy(Pixels.FromWhole(stride)))
                 {
                     // A wall turns it about at once.
                     _turnTowardSamus = null;
@@ -827,6 +836,7 @@ public partial class Torizo : Enemy
 
                 _decisions = 0;
                 Velocity = new PixelVelocity(Facing.Toward(Pixels.FromWhole(2)), Velocity.Y);
+                _groundReach = FarthestGroundReach;
                 SetFall(Pixels.FromNumber(-5.75));
                 _jumpGravity = LeapGravity;
                 Play($"facing_{Side}_jumping_forward", restart: true);
@@ -838,6 +848,7 @@ public partial class Torizo : Enemy
 
         // It jumps back, to land on the foot it leads with.
         Velocity = new PixelVelocity(Facing.Opposite().Toward(Pixels.FromWhole(3)), Velocity.Y);
+        _groundReach = FarthestGroundReach;
         SetFall(Pixels.FromNumber(-4.5));
         _jumpGravity = LeapGravity;
         Play($"facing_{Side}_jumping_backward_to_{foot}_foot", restart: true);
